@@ -30,6 +30,7 @@ export default defineConfig({
     () => import('@adonisjs/lucid/commands'),
     () => import('@adonisjs/session/commands'),
     () => import('@adonisjs/inertia/commands'),
+    () => import('@adonisjs/queue/commands')
   ],
 
   /*
@@ -59,6 +60,7 @@ export default defineConfig({
     () => import('@adonisjs/inertia/inertia_provider'),
     () => import('@adonisjs/auth/auth_provider'),
     () => import('#providers/api_provider'),
+    () => import('@adonisjs/queue/queue_provider')
   ],
 
   /*
@@ -73,6 +75,10 @@ export default defineConfig({
     () => import('#start/routes'),
     () => import('#start/kernel'),
     () => import('#start/validator'),
+    {
+      file: () => import('#start/scheduler'),
+      environment: ['web'],
+    }
   ],
 
   /*
