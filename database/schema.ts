@@ -7,6 +7,81 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class OrganizationUserSchema extends BaseModel {
+  static $columns = ['id', 'joinedAt', 'organizationId', 'roleId', 'userId'] as const
+  $columns = OrganizationUserSchema.$columns
+  @column({ isPrimary: true })
+  declare id: number
+  @column.dateTime()
+  declare joinedAt: DateTime
+  @column()
+  declare organizationId: number
+  @column()
+  declare roleId: number
+  @column()
+  declare userId: number
+}
+
+export class OrganizationSchema extends BaseModel {
+  static $columns = ['addressLine1', 'addressLine2', 'city', 'country', 'createdAt', 'description', 'email', 'id', 'industry', 'logoUrl', 'name', 'phone', 'postalCode', 'siret', 'size', 'slug', 'updatedAt', 'vatNumber', 'website'] as const
+  $columns = OrganizationSchema.$columns
+  @column()
+  declare addressLine1: string | null
+  @column()
+  declare addressLine2: string | null
+  @column()
+  declare city: string | null
+  @column()
+  declare country: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare description: string | null
+  @column()
+  declare email: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare industry: string | null
+  @column()
+  declare logoUrl: string | null
+  @column()
+  declare name: string
+  @column()
+  declare phone: string | null
+  @column()
+  declare postalCode: string | null
+  @column()
+  declare siret: string | null
+  @column()
+  declare size: string | null
+  @column()
+  declare slug: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare vatNumber: string | null
+  @column()
+  declare website: string | null
+}
+
+export class PermissionSchema extends BaseModel {
+  static $columns = ['createdAt', 'description', 'id', 'name', 'slug', 'updatedAt'] as const
+  $columns = PermissionSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare description: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column()
+  declare slug: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class QueueJobSchema extends BaseModel {
   static $columns = ['acquiredAt', 'data', 'error', 'executeAt', 'finishedAt', 'id', 'queue', 'score', 'status', 'workerId'] as const
   $columns = QueueJobSchema.$columns
@@ -65,11 +140,39 @@ export class QueueScheduleSchema extends BaseModel {
   declare toDate: DateTime | null
 }
 
+export class RolePermissionSchema extends BaseModel {
+  static $columns = ['permissionId', 'roleId'] as const
+  $columns = RolePermissionSchema.$columns
+  @column()
+  declare permissionId: number
+  @column({ isPrimary: true })
+  declare roleId: number
+}
+
+export class RoleSchema extends BaseModel {
+  static $columns = ['createdAt', 'description', 'id', 'name', 'slug', 'updatedAt'] as const
+  $columns = RoleSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare description: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column()
+  declare slug: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class UserSchema extends BaseModel {
-  static $columns = ['createdAt', 'email', 'fullName', 'id', 'password', 'updatedAt'] as const
+  static $columns = ['createdAt', 'currentOrganizationId', 'email', 'fullName', 'id', 'password', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column()
+  declare currentOrganizationId: number | null
   @column()
   declare email: string
   @column()

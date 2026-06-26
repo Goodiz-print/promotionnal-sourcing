@@ -14,6 +14,8 @@
 
 import { Bouncer } from '@adonisjs/bouncer'
 import User from '#models/user'
+import Organization from '#models/organization'
+import OrganizationUser from '#models/organization_user'
 
 /**
  * Ability to check if user is authenticated
@@ -39,4 +41,42 @@ export const isAuthenticated = Bouncer.ability((user: User | null) => {
  */
 export const editOwnProfile = Bouncer.ability((user: User, targetUserId: number) => {
   return user.id === targetUserId
+})
+
+/**
+ * Helper function to get user membership in an organization
+ */
+async function getMembership(user: User, org: Organization) {
+  return OrganizationUser.query()
+    .where('user_id', user.id)
+    .where('organization_id', org.id)
+    .preload('role')
+    .first()
+}
+
+/**
+ * Ability to check if user can manage organization settings
+ * Allowed roles: owner, admin
+ */
+export const canManageOrganization = Bouncer.ability(async (user: User, org: Organization) => {
+  const m = await getMembership(user, org)
+  return m ? ['owner', 'admin'].includes(m.role.slug) : false
+})
+
+/**
+ * Ability to check if user can invite members to an organization
+ * Allowed roles: owner, admin, manager
+ */
+export const canInviteMembers = Bouncer.ability(async (user: User, org: Organization) => {
+  const m = await getMembership(user, org)
+  return m ? ['owner', 'admin', 'manager'].includes(m.role.slug) : false
+})
+
+/**
+ * Ability to check if user can manage organization members (edit/remove)
+ * Allowed roles: owner, admin
+ */
+export const canManageMembers = Bouncer.ability(async (user: User, org: Organization) => {
+  const m = await getMembership(user, org)
+  return m ? ['owner', 'admin'].includes(m.role.slug) : false
 })
