@@ -1,0 +1,50 @@
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H2","location":"app/controllers/session_controller.ts:create","message":"render login page","data":{},"timestamp":1778500978806}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H3","location":"app/controllers/session_controller.ts:store","message":"login attempt","data":{"hasEmail":true,"passwordLen":8},"timestamp":1778500990360}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H4","location":"app/controllers/session_controller.ts:store","message":"login success, redirecting to dashboard","data":{"userId":89},"timestamp":1778500990485}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1778500990504}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1778500998911}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1778505936950}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H2","location":"app/controllers/session_controller.ts:create","message":"render login page","data":{},"timestamp":1778520905264}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H2","location":"app/controllers/session_controller.ts:create","message":"render login page","data":{},"timestamp":1778520934567}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H3","location":"app/controllers/session_controller.ts:store","message":"login attempt","data":{"hasEmail":true,"passwordLen":8},"timestamp":1778520946533}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H4","location":"app/controllers/session_controller.ts:store","message":"login success, redirecting to dashboard","data":{"userId":89},"timestamp":1778520946654}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1778520946670}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1778532272804}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1778532336690}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H2","location":"app/controllers/session_controller.ts:create","message":"render login page","data":{},"timestamp":1778532342931}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H2","location":"app/controllers/session_controller.ts:create","message":"render login page","data":{},"timestamp":1778532359098}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H2","location":"app/controllers/session_controller.ts:create","message":"render login page","data":{},"timestamp":1778532378820}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H2","location":"app/controllers/session_controller.ts:create","message":"render login page","data":{},"timestamp":1778686446043}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H2","location":"app/controllers/session_controller.ts:create","message":"render login page","data":{},"timestamp":1778686595691}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H2","location":"app/controllers/session_controller.ts:create","message":"render login page","data":{},"timestamp":1778686608148}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1778687025548}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1778687128222}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1778868415157}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1778868442594}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1778869361834}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1778869797730}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1778951229645}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779101618654}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779106241527}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779107180615}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779107205097}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779108471871}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779110424070}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779112539960}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779114374589}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779114902572}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779115052856}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779115057156}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779119116539}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779191451763}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779192536805}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779197465609}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779197467139}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779203518688}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779213083291}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779285213632}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779288186698}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779288391905}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779289142104}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779289144339}
+{"sessionId":"cde605","runId":"pre-fix","hypothesisId":"H5","location":"start/routes/marketing.ts:/dashboard","message":"dashboard handler entered","data":{},"timestamp":1779289157994}

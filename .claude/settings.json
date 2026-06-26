@@ -1,0 +1,90 @@
+{
+  "mcpServers": {
+    "postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://3d-website:3d-website@localhost:5431/3d-website_dev"
+      ]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@executeautomation/playwright-mcp-server"]
+    }
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"${FILE_PATH}\" | grep -qE '\\.(vue|tsx?)$' && echo \"${FILE_PATH}\" | grep -q 'inertia/'; then npx vue-tsc --noEmit --project inertia/tsconfig.json 2>&1 | head -20; else npx tsc --noEmit 2>&1 | head -20; fi || true",
+            "description": "Vérification TypeScript ciblée : vue-tsc pour inertia/, tsc pour le reste"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx eslint --fix \"${FILE_PATH}\" 2>&1 | tail -5 || true",
+            "description": "ESLint auto-fix après écriture"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"$TOOL_INPUT\" | grep -iE '(rm -rf|drop table|delete from [a-z]+ where|truncate|DROP DATABASE)' && echo 'BLOQUÉ: commande destructive détectée' && exit 2 || exit 0",
+            "description": "Bloquer les commandes destructives sans confirmation"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '✅ Session Claude Code démarrée — Stack: AdonisJS v7 + Vue 3/Inertia + PostgreSQL + Mistral AI'",
+            "description": "Message de bienvenue"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(pnpm *)",
+      "Bash(npm run *)",
+      "Bash(node ace *)",
+      "Bash(npx *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git checkout *)",
+      "Bash(git branch *)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(grep *)"
+    ],
+    "deny": ["Bash(rm -rf /*)", "Bash(git push --force)"]
+  },
+  "env": {
+    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "64000"
+  }
+}
