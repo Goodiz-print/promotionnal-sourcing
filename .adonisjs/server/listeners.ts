@@ -3,4 +3,7 @@
  * DO NOT EDIT manually
  */
 
-export const listeners = {}
+export const listeners = {
+  OnUserLoggedIn: () => import('#listeners/on_user_logged_in'),
+  OnUserRegistered: () => import('#listeners/on_user_registered'),
+}
