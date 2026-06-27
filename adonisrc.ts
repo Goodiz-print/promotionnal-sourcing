@@ -33,7 +33,7 @@ export default defineConfig({
     () => import('@adonisjs/inertia/commands'),
     () => import('@adonisjs/queue/commands'),
     () => import('@adonisjs/bouncer/commands'),
-    () => import('@adonisjs/mail/commands')
+    () => import('@adonisjs/mail/commands'),
   ],
 
   /*
@@ -66,7 +66,7 @@ export default defineConfig({
     () => import('@adonisjs/queue/queue_provider'),
     () => import('@adonisjs/bouncer/bouncer_provider'),
     () => import('@adonisjs/mail/mail_provider'),
-    () => import('@adonisjs/transmit/transmit_provider')
+    () => import('@adonisjs/transmit/transmit_provider'),
   ],
 
   /*
@@ -89,7 +89,7 @@ export default defineConfig({
     {
       file: () => import('#start/transmit'),
       environment: ['web'],
-    }
+    },
   ],
 
   /*
@@ -149,7 +149,7 @@ export default defineConfig({
       }),
       indexPages({ framework: 'vue3' }),
       generateRegistry(),
-      indexPolicies()
+      indexPolicies(),
     ],
     buildStarting: [() => import('@adonisjs/vite/build_hook')],
   },

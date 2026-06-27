@@ -23,7 +23,27 @@ export class OrganizationUserSchema extends BaseModel {
 }
 
 export class OrganizationSchema extends BaseModel {
-  static $columns = ['addressLine1', 'addressLine2', 'city', 'country', 'createdAt', 'description', 'email', 'id', 'industry', 'logoUrl', 'name', 'phone', 'postalCode', 'siret', 'size', 'slug', 'updatedAt', 'vatNumber', 'website'] as const
+  static $columns = [
+    'addressLine1',
+    'addressLine2',
+    'city',
+    'country',
+    'createdAt',
+    'description',
+    'email',
+    'id',
+    'industry',
+    'logoUrl',
+    'name',
+    'phone',
+    'postalCode',
+    'siret',
+    'size',
+    'slug',
+    'updatedAt',
+    'vatNumber',
+    'website',
+  ] as const
   $columns = OrganizationSchema.$columns
   @column()
   declare addressLine1: string | null
@@ -83,7 +103,18 @@ export class PermissionSchema extends BaseModel {
 }
 
 export class QueueJobSchema extends BaseModel {
-  static $columns = ['acquiredAt', 'data', 'error', 'executeAt', 'finishedAt', 'id', 'queue', 'score', 'status', 'workerId'] as const
+  static $columns = [
+    'acquiredAt',
+    'data',
+    'error',
+    'executeAt',
+    'finishedAt',
+    'id',
+    'queue',
+    'score',
+    'status',
+    'workerId',
+  ] as const
   $columns = QueueJobSchema.$columns
   @column()
   declare acquiredAt: bigint | number | null
@@ -108,7 +139,22 @@ export class QueueJobSchema extends BaseModel {
 }
 
 export class QueueScheduleSchema extends BaseModel {
-  static $columns = ['createdAt', 'cronExpression', 'everyMs', 'fromDate', 'id', 'lastRunAt', 'name', 'nextRunAt', 'payload', 'runCount', 'runLimit', 'status', 'timezone', 'toDate'] as const
+  static $columns = [
+    'createdAt',
+    'cronExpression',
+    'everyMs',
+    'fromDate',
+    'id',
+    'lastRunAt',
+    'name',
+    'nextRunAt',
+    'payload',
+    'runCount',
+    'runLimit',
+    'status',
+    'timezone',
+    'toDate',
+  ] as const
   $columns = QueueScheduleSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -167,7 +213,15 @@ export class RoleSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = ['createdAt', 'currentOrganizationId', 'email', 'fullName', 'id', 'password', 'updatedAt'] as const
+  static $columns = [
+    'createdAt',
+    'currentOrganizationId',
+    'email',
+    'fullName',
+    'id',
+    'password',
+    'updatedAt',
+  ] as const
   $columns = UserSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

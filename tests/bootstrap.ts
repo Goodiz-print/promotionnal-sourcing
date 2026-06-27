@@ -14,7 +14,12 @@ import testUtils from '@adonisjs/core/services/test_utils'
  * Configure Japa plugins in the plugins array.
  * Learn more - https://japa.dev/docs/runner-config#plugins-optional
  */
-export const plugins: Config['plugins'] = [assert(), apiClient(), pluginAdonisJS(app), dbAssertions(app)]
+export const plugins: Config['plugins'] = [
+  assert(),
+  apiClient(),
+  pluginAdonisJS(app),
+  dbAssertions(app),
+]
 
 /**
  * Configure lifecycle function to run before and after all the

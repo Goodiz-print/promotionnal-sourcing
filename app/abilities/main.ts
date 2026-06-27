@@ -13,8 +13,8 @@
 */
 
 import { Bouncer } from '@adonisjs/bouncer'
-import User from '#models/user'
-import Organization from '#models/organization'
+import type User from '#models/user'
+import type Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
 
 /**
