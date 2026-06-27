@@ -10,6 +10,9 @@
 import { middleware } from '#start/kernel'
 import { controllers } from '#generated/controllers'
 import router from '@adonisjs/core/services/router'
+import transmit from '@adonisjs/transmit/services/main'
+
+transmit.registerRoutes()
 
 router.on('/').renderInertia('home', {}).as('home')
 

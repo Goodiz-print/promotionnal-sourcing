@@ -65,7 +65,8 @@ export default defineConfig({
     () => import('#providers/api_provider'),
     () => import('@adonisjs/queue/queue_provider'),
     () => import('@adonisjs/bouncer/bouncer_provider'),
-    () => import('@adonisjs/mail/mail_provider')
+    () => import('@adonisjs/mail/mail_provider'),
+    () => import('@adonisjs/transmit/transmit_provider')
   ],
 
   /*
@@ -83,6 +84,10 @@ export default defineConfig({
     () => import('#start/events'),
     {
       file: () => import('#start/scheduler'),
+      environment: ['web'],
+    },
+    {
+      file: () => import('#start/transmit'),
       environment: ['web'],
     }
   ],

@@ -81,6 +81,7 @@
     "@adonisjs/session": "^8.1.0",
     "@adonisjs/shield": "^9.0.0",
     "@adonisjs/static": "^2.0.1",
+    "@adonisjs/transmit": "^3.0.1",
     "@adonisjs/vite": "^5.1.1",
     "@inertiajs/vue3": "^2.3.24",
     "@tuyau/core": "^1.2.2",
