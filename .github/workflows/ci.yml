@@ -35,6 +35,8 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+        env:
+          HUSKY: '0'
 
       - run: pnpm lint
 
