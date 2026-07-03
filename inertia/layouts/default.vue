@@ -27,8 +27,8 @@ watch(
 </script>
 
 <template>
-  <header>
-    <div>
+  <header class="mx-auto max-w-[1440px] px-7.5">
+    <div class="flex h-16 items-center justify-between">
       <div>
         <Link route="home">
           <svg
@@ -46,23 +46,38 @@ watch(
         </Link>
       </div>
       <div>
-        <nav>
+        <nav class="flex items-center gap-6.5">
           <template v-if="page.props.user">
             <span>{{ page.props.user.initials }}</span>
             <Form route="session.destroy">
-              <button type="submit">Logout</button>
+              <button
+                type="submit"
+                class="w-full cursor-pointer rounded bg-[var(--color-primary)] p-2.5 font-medium text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
+              >
+                Logout
+              </button>
             </Form>
           </template>
           <template v-else>
-            <Link route="new_account.create">Signup</Link>
-            <Link route="session.create">Login</Link>
+            <Link
+              route="new_account.create"
+              class="font-medium text-[var(--gray-8)] hover:text-[var(--gray-12)]"
+              >Signup</Link
+            >
+            <Link
+              route="session.create"
+              class="font-medium text-[var(--gray-8)] hover:text-[var(--gray-12)]"
+              >Login</Link
+            >
           </template>
         </nav>
       </div>
     </div>
   </header>
 
-  <main>
+  <main
+    class="mx-7.5 flex min-h-[calc(100vh-65px)] max-w-[1440px] flex-col justify-between border border-[var(--gray-3)] bg-white"
+  >
     <slot />
   </main>
 
