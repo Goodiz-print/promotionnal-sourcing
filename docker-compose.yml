@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:18-alpine
+    image: pgvector/pgvector:pg18
     container_name: promotionnal-sourcing-postgres
     environment:
       POSTGRES_DB: promotionnal-sourcing_dev
@@ -19,7 +19,7 @@ services:
 
   postgres_test:
     profiles: [test]
-    image: postgres:18-alpine
+    image: pgvector/pgvector:pg18
     container_name: promotionnal-sourcing-postgres-test
     environment:
       POSTGRES_DB: test

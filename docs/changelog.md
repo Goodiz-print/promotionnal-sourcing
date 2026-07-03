@@ -1,20 +1,27 @@
 # Changelog
 
-## 2026-07-08 — Internationalisation (i18n) : FR (défaut) + EN
+## 2026-07-03 — Modèle de données catalogue (prêt pour la recherche hybride)
 
-Mise en place de l'internationalisation via le package officiel `@adonisjs/i18n` (backend) avec un pont vers le frontend Vue/Inertia. Français par défaut, anglais en secondaire. Détails complets : [`docs/i18n.md`](./i18n.md).
+Mise en place du socle catalogue (fournisseurs, catégories, attributs, produits) **conçu dès le départ pour la recherche multi-critères fiable** (le « crayon de couleur bleu → uniquement des crayons bleus »). Ce livrable pose uniquement le modèle de données ; le service d'embeddings, le moteur de recherche et le parseur de requête arriveront dans un prochain incrément.
 
-- **`@adonisjs/i18n`** installé et configuré ([`config/i18n.ts`](../config/i18n.ts)) : `defaultLocale: 'fr'`, `supportedLocales: ['fr', 'en']`, `fallbackLocales` (variantes régionales), formatter ICU, loader fs.
-- **`resources/lang/<locale>/<domaine>.json`** — dossiers par langue, fichiers par domaine : `common`, `auth`, `home`, `errors`, `validator` (messages VineJS sous la clé `shared`). Source unique de vérité lue par le backend et exposée au frontend.
-- **`shared/types/i18n.ts`** : `SUPPORTED_LOCALES`, `DEFAULT_LOCALE`, `Locale`, `LOCALE_COOKIE`, `LOCALE_LABELS`, `isSupportedLocale()` — réutilisés backend ↔ frontend (alias Vite/tsconfig `#shared` ajouté côté frontend).
-- **Détection de locale** ([`app/middleware/detect_user_locale_middleware.ts`](../app/middleware/detect_user_locale_middleware.ts)) : cookie `locale` → préférence utilisateur (`users.locale`) → `Accept-Language` → défaut `fr`. Messages VineJS traduits automatiquement.
-- **Migration** : colonne `users.locale` (enum `fr`/`en`, défaut `fr`) pour persister la préférence.
-- **Route `POST /locale`** (`locale.update`) → `LocaleController` : pose le cookie (1 an), persiste sur l'utilisateur, `redirect().back()`. Validation via `vine.enum` ([`app/validators/locale.ts`](../app/validators/locale.ts)).
-- **Pont Inertia** ([`app/middleware/inertia_middleware.ts`](../app/middleware/inertia_middleware.ts)) : props partagées `locale`, `supportedLocales`, `translations` (dictionnaire plat ICU de la locale active).
-- **Frontend** : plugin [`inertia/i18n/index.ts`](../inertia/i18n/index.ts) (enregistré dans `app.ts` + `ssr.ts`) exposant `t()` global (templates) et `useI18n()` (composables), formatage ICU via `intl-messageformat` (mémoïsé). Composant [`language_switcher.vue`](../inertia/components/language_switcher.vue) intégré au layout.
-- **Migration des textes** : `login`, `signup`, `home`, `errors`, layout → `t('clé')` (plus aucun texte en dur).
-- **Tests** : `tests/functional/i18n.spec.ts` (détection, switch, message de validation traduit) + `tests/inertia/i18n.spec.ts` (`translate` + `useI18n`). Plugins Japa `inertiaApiClient`, `sessionApiClient`, `shieldApiClient` ajoutés au bootstrap.
-- **Comportement notable** : une clé de traduction manquante renvoie la clé elle-même (l'oubli est visible sans crasher le rendu). Ajouter une clé impose de renseigner **les deux** fichiers de langue.
+- **Extensions PostgreSQL** (`database/migrations/…948_enable_search_extensions.ts`) : `vector` (pgvector), `pg_trgm` (recherche floue), `unaccent` (normalisation FR côté requête). Migration no-op hors PostgreSQL.
+- **Tables créées** :
+  - `suppliers` — fournisseur européen (nom, slug, pays ISO2, contact, `is_active`)
+  - `categories` — taxonomie auto-référencée (`parent_id` SET NULL) + `synonyms text[]` pour le futur parseur
+  - `attributes` — définitions de facettes (`slug`, `type` enum `string|number|boolean|enum`, `unit`, `is_filterable`)
+  - `attribute_values` — valeurs énumérées (`value` canonique, `label`, `slug`, `synonyms text[]`), unique `(attribute_id, slug)`
+  - `products` — cœur du catalogue (FK `supplier_id` CASCADE, `category_id` RESTRICT, prix, MOQ, `origin_country`, `made_in_europe`)
+  - `product_attributes` — pivot facettes (**le mécanisme du ET fiable**) : `(product_id, attribute_id, attribute_value_id)` + `value_number`/`value_string`, unique `(product_id, attribute_id, attribute_value_id)`
+- **Vectorisation & full-text** sur `products` :
+  - `embedding vector(1024)` (nullable) + index **HNSW** `vector_cosine_ops` — prêt pour `mistral-embed` (peuplé par un futur job)
+  - `search_vector tsvector` en **colonne générée immuable** `to_tsvector('french', name || description)` + index **GIN** (`unaccent` reste appliqué côté requête, car STABLE et interdit dans une colonne GENERATED)
+  - Index btree sur `supplier_id`, `category_id`, `origin_country`, `is_active`
+- **Schéma généré** (`database/schema_rules.ts`) : `embedding`/`search_vector` exclus du schéma ORM (`skipColumns`, gérés en SQL brut, jamais sérialisés). Wiring du fichier de règles via `config/database.ts` (`schemaGeneration.rulesPaths`).
+- **Modèles** (`app/models/`) : `supplier`, `category` (self-ref + enfants), `attribute`, `attribute_value`, `product` (belongsTo supplier/category, manyToMany `attributeValues` via le pivot), `product_attribute`.
+- **Types partagés** (`shared/types/`) : `supplier.ts`, `category.ts`, `attribute.ts`, `product.ts` (`XxxType` + `CreateXxxData`/`UpdateXxxData`).
+- **Validateurs** (`app/validators/`) et **transformers** (`app/transformers/`) create/update pour chaque ressource ; `ProductTransformer` n'expose jamais `embedding`/`searchVector`.
+- **Seeders de démo** (`database/seeders/`, enregistrés dans `main_seeder.ts`) : 3 fournisseurs, catégories crayon/stylo/sac, attributs couleur/matière, et 6 produits (dont 2 crayons bleus, 1 crayon rouge, 1 stylo bleu, 1 sac bleu) prouvant le filtrage : `category=crayon ET color=blue` ⇒ **uniquement les 2 crayons bleus**.
+- **Infra** : image Docker `pgvector/pgvector:pg18` (dev + test + CI). En test, `DB_CONNECTION=pg` bascule la connexion sur PostgreSQL (SQLite ne supporte ni pgvector ni tsvector) ; `.env.example` complété avec les variables `DB_*`.
 
 ## 2026-07-03 — Charte graphique : couleurs de marque et favicon
 

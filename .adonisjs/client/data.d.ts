@@ -6,19 +6,44 @@
 /// <reference path="./manifest.d.ts" />
 import type { InferData, InferVariants } from '@adonisjs/core/types/transformers'
 import type { InferSharedProps } from '@adonisjs/inertia/types'
+import type AttributeTransformer from '#transformers/attribute_transformer'
+import type AttributeValueTransformer from '#transformers/attribute_value_transformer'
+import type CategoryTransformer from '#transformers/category_transformer'
 import type OrganizationTransformer from '#transformers/organization_transformer'
+import type ProductTransformer from '#transformers/product_transformer'
 import type RoleTransformer from '#transformers/role_transformer'
+import type SupplierTransformer from '#transformers/supplier_transformer'
 import type UserTransformer from '#transformers/user_transformer'
 import type InertiaMiddleware from '#middleware/inertia_middleware'
 
 export namespace Data {
+  export type Attribute = InferData<AttributeTransformer>
+  export namespace Attribute {
+    export type Variants = InferVariants<AttributeTransformer>
+  }
+  export type AttributeValue = InferData<AttributeValueTransformer>
+  export namespace AttributeValue {
+    export type Variants = InferVariants<AttributeValueTransformer>
+  }
+  export type Category = InferData<CategoryTransformer>
+  export namespace Category {
+    export type Variants = InferVariants<CategoryTransformer>
+  }
   export type Organization = InferData<OrganizationTransformer>
   export namespace Organization {
     export type Variants = InferVariants<OrganizationTransformer>
   }
+  export type Product = InferData<ProductTransformer>
+  export namespace Product {
+    export type Variants = InferVariants<ProductTransformer>
+  }
   export type Role = InferData<RoleTransformer>
   export namespace Role {
     export type Variants = InferVariants<RoleTransformer>
+  }
+  export type Supplier = InferData<SupplierTransformer>
+  export namespace Supplier {
+    export type Variants = InferVariants<SupplierTransformer>
   }
   export type User = InferData<UserTransformer>
   export namespace User {
