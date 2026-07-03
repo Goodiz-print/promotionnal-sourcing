@@ -1,5 +1,7 @@
 # CLAUDE.md — Contexte Global
 
+> Contexte produit (pitch, positionnement concurrentiel, critères de sourcing) : voir [`docs/product-context.md`](docs/product-context.md).
+
 ## Stack principale
 
 - **Backend** : AdonisJS v7 (TypeScript strict)
@@ -83,7 +85,6 @@ Sur tout écran rendu par Inertia (`inertia/pages/**`, `inertia/components/**`),
 **Exceptions autorisées** : endpoints dédiés API (`/api/**`, clients externes, exports) — jamais dans un composant/page Inertia si une visite `router.*` ou un `<Form>` suffit.
 
 Références : [Inertia — Link and Form](https://docs.adonisjs.com/guides/frontend/inertia#link-and-form-components), [Manual visits](https://inertiajs.com/manual-visits).
-
 
 ## Workflow agent
 
