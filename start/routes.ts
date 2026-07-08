@@ -16,6 +16,8 @@ transmit.registerRoutes()
 
 router.on('/').renderInertia('home', {}).as('home')
 
+router.post('locale', [controllers.Locale, 'update']).as('locale.update')
+
 router
   .group(() => {
     router.get('signup', [controllers.NewAccount, 'create'])

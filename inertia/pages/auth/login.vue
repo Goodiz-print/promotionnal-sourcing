@@ -5,16 +5,18 @@ import { Form } from '@adonisjs/inertia/vue'
 <template>
   <div class="mx-auto flex max-w-[400px] flex-col justify-center">
     <div>
-      <h1 class="mb-1.25 text-[32px] tracking-[-0.5px]">Login</h1>
+      <h1 class="mb-1.25 text-[32px] tracking-[-0.5px]">{{ t('auth.login.title') }}</h1>
       <p class="mb-12 text-lg text-[var(--gray-6)]">
-        Enter your details below to login to your account
+        {{ t('auth.login.subtitle') }}
       </p>
     </div>
 
     <div>
       <Form v-slot="{ processing, errors }" route="session.store" class="flex flex-col gap-6">
         <div>
-          <label for="email" class="mb-1 block text-sm font-medium">Email</label>
+          <label for="email" class="mb-1 block text-sm font-medium">{{
+            t('auth.fields.email')
+          }}</label>
           <input
             id="email"
             type="email"
@@ -29,7 +31,9 @@ import { Form } from '@adonisjs/inertia/vue'
         </div>
 
         <div>
-          <label for="password" class="mb-1 block text-sm font-medium">Password</label>
+          <label for="password" class="mb-1 block text-sm font-medium">{{
+            t('auth.fields.password')
+          }}</label>
           <input
             id="password"
             type="password"
@@ -49,7 +53,7 @@ import { Form } from '@adonisjs/inertia/vue'
             :disabled="processing"
             class="w-full cursor-pointer rounded bg-[var(--color-primary)] p-2.5 font-medium text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
           >
-            Login
+            {{ t('auth.login.submit') }}
           </button>
         </div>
       </Form>

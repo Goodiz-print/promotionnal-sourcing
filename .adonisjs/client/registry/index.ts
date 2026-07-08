@@ -30,6 +30,12 @@ const routes = {
     tokens: [{"old":"/","type":0,"val":"/","end":""}],
     types: placeholder as Registry['home']['types'],
   },
+  'locale.update': {
+    methods: ["POST"],
+    pattern: '/locale',
+    tokens: [{"old":"/locale","type":0,"val":"locale","end":""}],
+    types: placeholder as Registry['locale.update']['types'],
+  },
   'new_account.create': {
     methods: ["GET","HEAD"],
     pattern: '/signup',

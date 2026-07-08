@@ -1,0 +1,8 @@
+{
+  "notFound": {
+    "title": "Page introuvable"
+  },
+  "serverError": {
+    "title": "Une erreur est survenue."
+  }
+}

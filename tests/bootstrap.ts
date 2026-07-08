@@ -5,6 +5,9 @@ import type { Config } from '@japa/runner/types'
 import { pluginAdonisJS } from '@japa/plugin-adonisjs'
 import { dbAssertions } from '@adonisjs/lucid/plugins/db'
 import testUtils from '@adonisjs/core/services/test_utils'
+import { shieldApiClient } from '@adonisjs/shield/plugins/api_client'
+import { sessionApiClient } from '@adonisjs/session/plugins/api_client'
+import { inertiaApiClient } from '@adonisjs/inertia/plugins/api_client'
 
 /**
  * This file is imported by the "bin/test.ts" entrypoint file
@@ -19,6 +22,9 @@ export const plugins: Config['plugins'] = [
   apiClient(),
   pluginAdonisJS(app),
   dbAssertions(app),
+  inertiaApiClient(app),
+  sessionApiClient(app),
+  shieldApiClient(),
 ]
 
 /**

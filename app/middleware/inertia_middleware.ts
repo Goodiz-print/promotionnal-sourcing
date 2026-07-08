@@ -1,7 +1,9 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
+import i18nManager from '@adonisjs/i18n/services/main'
 import UserTransformer from '#transformers/user_transformer'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
+import { DEFAULT_LOCALE } from '#shared/types/i18n'
 
 export default class InertiaMiddleware extends BaseInertiaMiddleware {
   share(ctx: HttpContext) {
@@ -13,13 +15,20 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
      * In that case, we must always assume that HttpContext is not fully hydrated
      * with all the properties
      */
-    const { session, auth } = ctx as Partial<HttpContext>
+    const { session, auth, i18n } = ctx as Partial<HttpContext>
 
     /**
      * Fetching the first error from the flash messages
      */
     const error = session?.flashMessages.get('error') as string
     const success = session?.flashMessages.get('success') as string
+
+    /**
+     * Locale active + dictionnaire de traductions exposés au frontend.
+     * Le middleware "detect_user_locale" peut ne pas avoir tourné sur
+     * certaines requêtes (ex: 404), d'où le repli sur la locale par défaut.
+     */
+    const locale = i18n?.locale ?? DEFAULT_LOCALE
 
     /**
      * Data shared with all Inertia pages. Make sure you are using
@@ -32,6 +41,9 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
         success,
       }),
       user: ctx.inertia.always(auth?.user ? UserTransformer.transform(auth.user) : undefined),
+      locale: ctx.inertia.always(locale),
+      supportedLocales: ctx.inertia.always(i18nManager.supportedLocales()),
+      translations: ctx.inertia.always(i18nManager.getTranslationsFor(locale)),
     }
   }
 
