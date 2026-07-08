@@ -11,25 +11,47 @@ import { middleware } from '#start/kernel'
 import { controllers } from '#generated/controllers'
 import router from '@adonisjs/core/services/router'
 import transmit from '@adonisjs/transmit/services/main'
+import type { HttpContext } from '@adonisjs/core/http'
 
 transmit.registerRoutes()
 
-router.on('/').renderInertia('home', {}).as('home')
+/**
+ * La racine redirige vers la locale détectée (préfixe d'URL /:locale).
+ * `ctx.i18n.locale` a déjà été résolu par detect_user_locale (cookie,
+ * préférence utilisateur, Accept-Language, défaut).
+ */
+router.get('/', ({ i18n, response }: HttpContext) => response.redirect(`/${i18n.locale}`))
 
+/**
+ * Changement de langue : persiste le choix (cookie + utilisateur) puis
+ * redirige vers l'URL préfixée de la nouvelle langue. Hors préfixe.
+ */
 router.post('locale', [controllers.Locale, 'update']).as('locale.update')
 
+/**
+ * Toutes les routes applicatives vivent sous un préfixe de locale
+ * (`/fr`, `/en`). La contrainte `where` rejette toute locale non
+ * supportée (=> 404) ; le middleware bascule `ctx.i18n` sur cette locale.
+ */
 router
   .group(() => {
-    router.get('signup', [controllers.NewAccount, 'create'])
-    router.post('signup', [controllers.NewAccount, 'store'])
+    router.on('/').renderInertia('home', {}).as('home')
 
-    router.get('login', [controllers.Session, 'create'])
-    router.post('login', [controllers.Session, 'store'])
-  })
-  .use(middleware.guest())
+    router
+      .group(() => {
+        router.get('signup', [controllers.NewAccount, 'create'])
+        router.post('signup', [controllers.NewAccount, 'store'])
 
-router
-  .group(() => {
-    router.post('logout', [controllers.Session, 'destroy'])
+        router.get('login', [controllers.Session, 'create'])
+        router.post('login', [controllers.Session, 'store'])
+      })
+      .use(middleware.guest())
+
+    router
+      .group(() => {
+        router.post('logout', [controllers.Session, 'destroy'])
+      })
+      .use(middleware.auth())
   })
-  .use(middleware.auth())
+  .prefix(':locale')
+  .where('locale', /^(fr|en)$/)
