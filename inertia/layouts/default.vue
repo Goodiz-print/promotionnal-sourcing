@@ -4,6 +4,7 @@ import { usePage } from '@inertiajs/vue3'
 import { toast, Toaster } from 'vue-sonner'
 import type { Data } from '@generated/data'
 import { Link, Form } from '@adonisjs/inertia/vue'
+import LanguageSwitcher from '~/components/language_switcher.vue'
 
 const page = usePage<Data.SharedProps>()
 
@@ -47,6 +48,7 @@ watch(
       </div>
       <div>
         <nav class="flex items-center gap-6.5">
+          <LanguageSwitcher />
           <template v-if="page.props.user">
             <span>{{ page.props.user.initials }}</span>
             <Form route="session.destroy">
@@ -54,7 +56,7 @@ watch(
                 type="submit"
                 class="w-full cursor-pointer rounded bg-[var(--color-primary)] p-2.5 font-medium text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
               >
-                Logout
+                {{ t('common.nav.logout') }}
               </button>
             </Form>
           </template>
@@ -62,12 +64,12 @@ watch(
             <Link
               route="new_account.create"
               class="font-medium text-[var(--gray-8)] hover:text-[var(--gray-12)]"
-              >Signup</Link
+              >{{ t('common.nav.signup') }}</Link
             >
             <Link
               route="session.create"
               class="font-medium text-[var(--gray-8)] hover:text-[var(--gray-12)]"
-              >Login</Link
+              >{{ t('common.nav.login') }}</Link
             >
           </template>
         </nav>

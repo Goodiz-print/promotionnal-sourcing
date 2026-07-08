@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-07-08 — Internationalisation (i18n) : FR (défaut) + EN
+
+Mise en place de l'internationalisation via le package officiel `@adonisjs/i18n` (backend) avec un pont vers le frontend Vue/Inertia. Français par défaut, anglais en secondaire. Détails complets : [`docs/i18n.md`](./i18n.md).
+
+- **`@adonisjs/i18n`** installé et configuré ([`config/i18n.ts`](../config/i18n.ts)) : `defaultLocale: 'fr'`, `supportedLocales: ['fr', 'en']`, `fallbackLocales` (variantes régionales), formatter ICU, loader fs.
+- **`resources/lang/<locale>/<domaine>.json`** — dossiers par langue, fichiers par domaine : `common`, `auth`, `home`, `errors`, `validator` (messages VineJS sous la clé `shared`). Source unique de vérité lue par le backend et exposée au frontend.
+- **`shared/types/i18n.ts`** : `SUPPORTED_LOCALES`, `DEFAULT_LOCALE`, `Locale`, `LOCALE_COOKIE`, `LOCALE_LABELS`, `isSupportedLocale()` — réutilisés backend ↔ frontend (alias Vite/tsconfig `#shared` ajouté côté frontend).
+- **Détection de locale** ([`app/middleware/detect_user_locale_middleware.ts`](../app/middleware/detect_user_locale_middleware.ts)) : cookie `locale` → préférence utilisateur (`users.locale`) → `Accept-Language` → défaut `fr`. Messages VineJS traduits automatiquement.
+- **Migration** : colonne `users.locale` (enum `fr`/`en`, défaut `fr`) pour persister la préférence.
+- **Route `POST /locale`** (`locale.update`) → `LocaleController` : pose le cookie (1 an), persiste sur l'utilisateur, `redirect().back()`. Validation via `vine.enum` ([`app/validators/locale.ts`](../app/validators/locale.ts)).
+- **Pont Inertia** ([`app/middleware/inertia_middleware.ts`](../app/middleware/inertia_middleware.ts)) : props partagées `locale`, `supportedLocales`, `translations` (dictionnaire plat ICU de la locale active).
+- **Frontend** : plugin [`inertia/i18n/index.ts`](../inertia/i18n/index.ts) (enregistré dans `app.ts` + `ssr.ts`) exposant `t()` global (templates) et `useI18n()` (composables), formatage ICU via `intl-messageformat` (mémoïsé). Composant [`language_switcher.vue`](../inertia/components/language_switcher.vue) intégré au layout.
+- **Migration des textes** : `login`, `signup`, `home`, `errors`, layout → `t('clé')` (plus aucun texte en dur).
+- **Tests** : `tests/functional/i18n.spec.ts` (détection, switch, message de validation traduit) + `tests/inertia/i18n.spec.ts` (`translate` + `useI18n`). Plugins Japa `inertiaApiClient`, `sessionApiClient`, `shieldApiClient` ajoutés au bootstrap.
+- **Comportement notable** : une clé de traduction manquante renvoie la clé elle-même (l'oubli est visible sans crasher le rendu). Ajouter une clé impose de renseigner **les deux** fichiers de langue.
+
 ## 2026-07-03 — Charte graphique : couleurs de marque et favicon
 
 Mise en place de la charte graphique du site, alignée sur le logo (violet `#4032C8` / RGB `64, 50, 200`, fond dominant blanc, violet réservé à l'accent — boutons et rappels), inspirée de la sobriété de [stripe.com](https://stripe.com/en-fr).

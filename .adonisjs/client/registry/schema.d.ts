@@ -55,6 +55,18 @@ export interface Registry {
       errorResponse: unknown
     }
   }
+  'locale.update': {
+    methods: ["POST"]
+    pattern: '/locale'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/locale').updateLocaleValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/locale').updateLocaleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/locale_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/locale_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'new_account.create': {
     methods: ["GET","HEAD"]
     pattern: '/signup'

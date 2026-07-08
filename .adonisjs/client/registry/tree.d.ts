@@ -6,6 +6,9 @@ export interface ApiDefinition {
   subscribe: typeof routes['subscribe']
   unsubscribe: typeof routes['unsubscribe']
   home: typeof routes['home']
+  locale: {
+    update: typeof routes['locale.update']
+  }
   newAccount: {
     create: typeof routes['new_account.create']
     store: typeof routes['new_account.store']

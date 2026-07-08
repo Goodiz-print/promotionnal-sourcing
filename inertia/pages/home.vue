@@ -3,15 +3,14 @@ import { Head } from '@inertiajs/vue3'
 </script>
 
 <template>
-  <Head title="Homepage" />
+  <Head :title="t('home.head')" />
 
   <div class="max-w-[880px] px-12.5 py-25">
     <h1 class="mb-3.75 text-[52px] leading-[1.05] font-semibold tracking-[-1px]">
-      It works — welcome to the power of a full-stack Vue app
+      {{ t('home.title') }}
     </h1>
     <p class="text-[22px] text-[var(--gray-7)]">
-      Powered by Inertia and Vue, this setup blends server-driven routing with rich client-side
-      interactivity — seamless, fast, and cohesive.
+      {{ t('home.subtitle') }}
     </p>
   </div>
 
@@ -21,8 +20,10 @@ import { Head } from '@inertiajs/vue3'
       target="_blank"
       class="border-r border-l border-[var(--gray-3)] px-10 py-7.5 hover:bg-[var(--gray-1)]"
     >
-      <h3 class="mb-2.5 text-xl font-semibold tracking-[-0.4px]">Official Docs &nbsp;›</h3>
-      <p class="text-[var(--gray-6)]">Comprehensive reference for building with AdonisJS</p>
+      <h3 class="mb-2.5 text-xl font-semibold tracking-[-0.4px]">
+        {{ t('home.cards.docs.title') }} &nbsp;›
+      </h3>
+      <p class="text-[var(--gray-6)]">{{ t('home.cards.docs.description') }}</p>
     </a>
 
     <a
@@ -30,8 +31,10 @@ import { Head } from '@inertiajs/vue3'
       target="_blank"
       class="border-r border-[var(--gray-3)] px-10 py-7.5 hover:bg-[var(--gray-1)]"
     >
-      <h3 class="mb-2.5 text-xl font-semibold tracking-[-0.4px]">Adocasts &nbsp;›</h3>
-      <p class="text-[var(--gray-6)]">Guided video tutorials for everyday development</p>
+      <h3 class="mb-2.5 text-xl font-semibold tracking-[-0.4px]">
+        {{ t('home.cards.adocasts.title') }} &nbsp;›
+      </h3>
+      <p class="text-[var(--gray-6)]">{{ t('home.cards.adocasts.description') }}</p>
     </a>
 
     <a
@@ -39,8 +42,10 @@ import { Head } from '@inertiajs/vue3'
       target="_blank"
       class="border-r border-[var(--gray-3)] px-10 py-7.5 hover:bg-[var(--gray-1)]"
     >
-      <h3 class="mb-2.5 text-xl font-semibold tracking-[-0.4px]">Discord &nbsp;›</h3>
-      <p class="text-[var(--gray-6)]">Connect with developers building with AdonisJS every day</p>
+      <h3 class="mb-2.5 text-xl font-semibold tracking-[-0.4px]">
+        {{ t('home.cards.discord.title') }} &nbsp;›
+      </h3>
+      <p class="text-[var(--gray-6)]">{{ t('home.cards.discord.description') }}</p>
     </a>
   </div>
 </template>

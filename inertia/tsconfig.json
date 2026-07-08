@@ -6,12 +6,15 @@
     "jsxImportSource": "vue",
     "paths": {
       "~/*": ["./*"],
-      "@generated/*": ["../.adonisjs/client/*"]
+      "@generated/*": ["../.adonisjs/client/*"],
+      "#shared/*": ["../shared/*"]
     }
   },
   "include": [
     "./**/*.ts",
     "./**/*.vue",
+    "../shared/**/*.ts",
+    "../tests/inertia/**/*.ts",
     "../.adonisjs/client/**/*.ts",
     "../.adonisjs/server/**/*.ts"
   ]
