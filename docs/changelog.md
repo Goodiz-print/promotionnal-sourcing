@@ -31,6 +31,10 @@ données de la PR 1. Introduit la couche `app/services/`.
   nombre, `base_select`, `base_textarea`, `base_button` à variants) ; `profile.vue`
   refactoré pour les consommer (plus de classes Tailwind dupliquées). Tests
   `tests/inertia/base_components.spec.ts`.
+- **Adoption dans les pages auth** : `auth/login.vue` et `auth/signup.vue`
+  refactorées pour utiliser le kit `base_*` (passage de `<Form>` à `useForm` +
+  `BaseInput`/`BaseButton`, `urlFor` pour l'URL de route). Test
+  `tests/functional/auth.spec.ts` (inscription + connexion via `useForm`).
 
 ## 2026-07-10 — Phase 2 (PR 1/4) : fondation données organisations acheteur/fournisseur
 
