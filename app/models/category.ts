@@ -2,11 +2,15 @@ import { belongsTo, hasMany } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import { CategorySchema } from '#database/schema'
 import Product from '#models/product'
+import CategoryTranslation from '#models/category_translation'
 
 export default class Category extends CategorySchema {
   static table = 'categories'
 
   declare synonyms: string[]
+
+  @hasMany(() => CategoryTranslation)
+  declare translations: HasMany<typeof CategoryTranslation>
 
   @belongsTo(() => Category, { foreignKey: 'parentId' })
   declare parent: BelongsTo<typeof Category>

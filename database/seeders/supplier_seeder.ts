@@ -1,33 +1,61 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import Supplier from '#models/supplier'
+import SupplierTranslation from '#models/supplier_translation'
+import type { Locale } from '#shared/types/i18n'
+
+type Text = { name: string; description: string }
+
+type SupplierSeed = {
+  slug: string
+  country: string
+  website: string
+  translations: Record<Locale, Text>
+}
+
+const SUPPLIERS: SupplierSeed[] = [
+  {
+    slug: 'eurogoods',
+    country: 'FR',
+    website: 'https://eurogoods.example',
+    translations: {
+      fr: { name: 'EuroGoods', description: "Fournisseur francais d'objets publicitaires" },
+      en: { name: 'EuroGoods', description: 'French promotional products supplier' },
+    },
+  },
+  {
+    slug: 'nordic-promo',
+    country: 'SE',
+    website: 'https://nordicpromo.example',
+    translations: {
+      fr: { name: 'Nordic Promo', description: 'Goodies scandinaves eco-concus' },
+      en: { name: 'Nordic Promo', description: 'Eco-designed Scandinavian goodies' },
+    },
+  },
+  {
+    slug: 'iberia-gifts',
+    country: 'ES',
+    website: 'https://iberiagifts.example',
+    translations: {
+      fr: { name: 'Iberia Gifts', description: "Cadeaux d'affaires fabriques en Espagne" },
+      en: { name: 'Iberia Gifts', description: 'Corporate gifts made in Spain' },
+    },
+  },
+]
 
 export default class SupplierSeeder extends BaseSeeder {
   async run() {
-    await Supplier.updateOrCreateMany('slug', [
-      {
-        name: 'EuroGoods',
-        slug: 'eurogoods',
-        country: 'FR',
-        website: 'https://eurogoods.example',
-        description: "Fournisseur francais d'objets publicitaires",
-        isActive: true,
-      },
-      {
-        name: 'Nordic Promo',
-        slug: 'nordic-promo',
-        country: 'SE',
-        website: 'https://nordicpromo.example',
-        description: 'Goodies scandinaves eco-concus',
-        isActive: true,
-      },
-      {
-        name: 'Iberia Gifts',
-        slug: 'iberia-gifts',
-        country: 'ES',
-        website: 'https://iberiagifts.example',
-        description: "Cadeaux d'affaires fabriques en Espagne",
-        isActive: true,
-      },
-    ])
+    for (const seed of SUPPLIERS) {
+      const supplier = await Supplier.updateOrCreate(
+        { slug: seed.slug },
+        { country: seed.country, website: seed.website, isActive: true }
+      )
+
+      for (const locale of Object.keys(seed.translations) as Locale[]) {
+        await SupplierTranslation.updateOrCreate(
+          { supplierId: supplier.id, locale },
+          seed.translations[locale]
+        )
+      }
+    }
   }
 }

@@ -1,3 +1,5 @@
+import type { Locale } from './i18n.js'
+
 /**
  * Nature de la donnee portee par un attribut (facette).
  * `enum` : valeurs enumerees (couleur, matiere) ; `number` : mesure libre
@@ -5,9 +7,19 @@
  */
 export type AttributeDataType = 'string' | 'number' | 'boolean' | 'enum'
 
+export interface AttributeTranslationType {
+  locale: Locale
+  name: string
+}
+
+export interface AttributeValueTranslationType {
+  locale: Locale
+  label: string
+}
+
 export interface AttributeType {
   id: number
-  name: string
+  name: string | null
   slug: string
   type: AttributeDataType
   unit: string | null
@@ -20,7 +32,7 @@ export interface AttributeValueType {
   id: number
   attributeId: number
   value: string
-  label: string
+  label: string | null
   slug: string
   synonyms: string[]
   createdAt: string
@@ -32,11 +44,11 @@ export interface AttributeWithValuesType extends AttributeType {
 }
 
 export interface CreateAttributeData {
-  name: string
   slug: string
   type?: AttributeDataType
   unit?: string | null
   isFilterable?: boolean
+  translations: Partial<Record<Locale, { name: string }>>
 }
 
 export interface UpdateAttributeData extends Partial<CreateAttributeData> {}
@@ -44,9 +56,9 @@ export interface UpdateAttributeData extends Partial<CreateAttributeData> {}
 export interface CreateAttributeValueData {
   attributeId: number
   value: string
-  label: string
   slug: string
   synonyms?: string[]
+  translations: Partial<Record<Locale, { label: string }>>
 }
 
 export interface UpdateAttributeValueData extends Partial<

@@ -1,8 +1,23 @@
+import type { Locale } from './i18n.js'
+
+/**
+ * Traduction d'un produit (une ligne par locale).
+ */
+export interface ProductTranslationType {
+  locale: Locale
+  name: string
+  description: string | null
+}
+
+/**
+ * Produit sérialisé pour le frontend : `name`/`description` sont déjà
+ * résolus dans la locale active par le transformer.
+ */
 export interface ProductType {
   id: number
   supplierId: number
   categoryId: number
-  name: string
+  name: string | null
   slug: string
   reference: string | null
   description: string | null
@@ -34,10 +49,8 @@ export interface ProductAttributeValueType {
 export interface CreateProductData {
   supplierId: number
   categoryId: number
-  name: string
   slug: string
   reference?: string | null
-  description?: string | null
   priceMin?: number | null
   priceMax?: number | null
   currency?: string
@@ -46,6 +59,8 @@ export interface CreateProductData {
   originCountry?: string | null
   madeInEurope?: boolean
   isActive?: boolean
+  // Contenu traduit : au moins la locale par défaut.
+  translations: Partial<Record<Locale, { name: string; description?: string | null }>>
 }
 
 export interface UpdateProductData extends Partial<CreateProductData> {}

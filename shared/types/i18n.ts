@@ -27,6 +27,20 @@ export function isSupportedLocale(value: unknown): value is Locale {
 }
 
 /**
+ * Configuration de recherche plein-texte PostgreSQL par locale (stemming).
+ * Doit rester synchronisé avec le `CASE` de la colonne générée
+ * `product_translations.search_vector`. Toute locale absente retombe sur
+ * `'simple'` (pas de stemming). Ajouter une langue = ajouter une entrée ici
+ * ET une branche `WHEN` dans la migration.
+ */
+export const LOCALE_TSCONFIG: Record<Locale, string> = {
+  fr: 'french',
+  en: 'english',
+}
+
+export const DEFAULT_TSCONFIG = 'simple'
+
+/**
  * Dictionnaire plat de messages ICU pour une locale donnée
  * (clés au format "domaine.chemin.cle"), tel qu'exposé au frontend.
  */

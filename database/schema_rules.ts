@@ -15,14 +15,18 @@ export default {
 
   tables: {
     /**
-     * `embedding` (vector) et `search_vector` (tsvector) sont des colonnes
-     * gerees en SQL brut (colonne generee pour le tsvector, futur job
-     * d'embeddings Mistral pour le vecteur). Elles ne sont pas typables par
-     * l'ORM et ne doivent jamais etre exposees : on les exclut du schema
-     * genere.
+     * `embedding` (vector, futur job d'embeddings Mistral) : colonne SQL brute
+     * non typable par l'ORM et jamais exposee => exclue du schema genere.
      */
     products: {
-      skipColumns: ['embedding', 'search_vector'],
+      skipColumns: ['embedding'],
+    },
+
+    /**
+     * `search_vector` (tsvector par langue, colonne generee) : idem, exclue.
+     */
+    product_translations: {
+      skipColumns: ['search_vector'],
     },
   },
 } satisfies SchemaRules

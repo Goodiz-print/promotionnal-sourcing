@@ -5,9 +5,13 @@ import Supplier from '#models/supplier'
 import Category from '#models/category'
 import AttributeValue from '#models/attribute_value'
 import ProductAttribute from '#models/product_attribute'
+import ProductTranslation from '#models/product_translation'
 
 export default class Product extends ProductSchema {
   static table = 'products'
+
+  @hasMany(() => ProductTranslation)
+  declare translations: HasMany<typeof ProductTranslation>
 
   @belongsTo(() => Supplier)
   declare supplier: BelongsTo<typeof Supplier>

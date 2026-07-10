@@ -1,6 +1,14 @@
+import type { Locale } from './i18n.js'
+
+export interface CategoryTranslationType {
+  locale: Locale
+  name: string
+  description: string | null
+}
+
 export interface CategoryType {
   id: number
-  name: string
+  name: string | null
   slug: string
   parentId: number | null
   description: string | null
@@ -10,11 +18,10 @@ export interface CategoryType {
 }
 
 export interface CreateCategoryData {
-  name: string
   slug: string
   parentId?: number | null
-  description?: string | null
   synonyms?: string[]
+  translations: Partial<Record<Locale, { name: string; description?: string | null }>>
 }
 
 export interface UpdateCategoryData extends Partial<CreateCategoryData> {}
