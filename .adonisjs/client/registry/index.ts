@@ -36,6 +36,18 @@ const routes = {
     tokens: [{"old":"/:locale","type":1,"val":"locale","end":""}],
     types: placeholder as Registry['home']['types'],
   },
+  'suppliers.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/suppliers',
+    tokens: [{"old":"/:locale/suppliers","type":1,"val":"locale","end":""},{"old":"/:locale/suppliers","type":0,"val":"suppliers","end":""}],
+    types: placeholder as Registry['suppliers.index']['types'],
+  },
+  'suppliers.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/suppliers/:slug',
+    tokens: [{"old":"/:locale/suppliers/:slug","type":1,"val":"locale","end":""},{"old":"/:locale/suppliers/:slug","type":0,"val":"suppliers","end":""},{"old":"/:locale/suppliers/:slug","type":1,"val":"slug","end":""}],
+    types: placeholder as Registry['suppliers.show']['types'],
+  },
   'new_account.create': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/signup',

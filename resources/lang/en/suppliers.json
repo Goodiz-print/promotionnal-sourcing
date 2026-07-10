@@ -1,0 +1,19 @@
+{
+  "index": {
+    "title": "Supplier directory",
+    "subtitle": "Browse European promotional products suppliers.",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Supplier name…",
+    "country": "Country",
+    "allCountries": "All countries",
+    "empty": "No supplier matches your search.",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "show": {
+    "website": "Visit website",
+    "profile": "Supplier profile",
+    "products": "Catalogue",
+    "noProducts": "No products published yet."
+  }
+}
