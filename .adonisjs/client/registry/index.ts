@@ -66,6 +66,18 @@ const routes = {
     tokens: [{"old":"/:locale/logout","type":1,"val":"locale","end":""},{"old":"/:locale/logout","type":0,"val":"logout","end":""}],
     types: placeholder as Registry['session.destroy']['types'],
   },
+  'onboarding.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/onboarding',
+    tokens: [{"old":"/:locale/onboarding","type":1,"val":"locale","end":""},{"old":"/:locale/onboarding","type":0,"val":"onboarding","end":""}],
+    types: placeholder as Registry['onboarding.show']['types'],
+  },
+  'onboarding.store': {
+    methods: ["POST"],
+    pattern: '/:locale/onboarding',
+    tokens: [{"old":"/:locale/onboarding","type":1,"val":"locale","end":""},{"old":"/:locale/onboarding","type":0,"val":"onboarding","end":""}],
+    types: placeholder as Registry['onboarding.store']['types'],
+  },
   'supplier.profile': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/supplier/profile',

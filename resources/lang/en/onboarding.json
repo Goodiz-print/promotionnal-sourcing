@@ -1,0 +1,20 @@
+{
+  "title": "Welcome 👋",
+  "subtitle": "Let's set up your organization to get started.",
+  "fields": {
+    "name": "Your organization name",
+    "type": "You are…"
+  },
+  "type": {
+    "buyer": {
+      "label": "Buyer",
+      "description": "I search and compare promotional products from suppliers."
+    },
+    "supplier": {
+      "label": "Supplier",
+      "description": "I offer a catalogue and answer buyers' requests for quotes."
+    }
+  },
+  "submit": "Create my organization",
+  "success": "Organization created. Welcome!"
+}

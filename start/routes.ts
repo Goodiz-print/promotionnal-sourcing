@@ -51,12 +51,20 @@ router
       .group(() => {
         router.post('logout', [controllers.Session, 'destroy'])
 
+        router.get('onboarding', [controllers.Onboarding, 'show']).as('onboarding.show')
+        router.post('onboarding', [controllers.Onboarding, 'store']).as('onboarding.store')
+
+        // Écrans nécessitant une organisation : gardés par `onboarded`.
         router
-          .get('supplier/profile', [controllers.supplier.Profile, 'show'])
-          .as('supplier.profile')
-        router
-          .patch('supplier/profile', [controllers.supplier.Profile, 'update'])
-          .as('supplier.profile.update')
+          .group(() => {
+            router
+              .get('supplier/profile', [controllers.supplier.Profile, 'show'])
+              .as('supplier.profile')
+            router
+              .patch('supplier/profile', [controllers.supplier.Profile, 'update'])
+              .as('supplier.profile.update')
+          })
+          .use(middleware.onboarded())
       })
       .use(middleware.auth())
   })
