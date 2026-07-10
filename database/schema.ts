@@ -167,6 +167,7 @@ export class OrganizationSchema extends BaseModel {
     'industry',
     'logoUrl',
     'name',
+    'organizationType',
     'phone',
     'postalCode',
     'siret',
@@ -199,6 +200,8 @@ export class OrganizationSchema extends BaseModel {
   declare logoUrl: string | null
   @column()
   declare name: string
+  @column()
+  declare organizationType: string
   @column()
   declare phone: string | null
   @column()
@@ -452,6 +455,42 @@ export class RoleSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class SupplierProfileSchema extends BaseModel {
+  static $columns = [
+    'bio',
+    'certifications',
+    'createdAt',
+    'deliveryDays',
+    'deliveryScope',
+    'id',
+    'minOrderQuantity',
+    'organizationId',
+    'responseTimeDays',
+    'updatedAt',
+  ] as const
+  $columns = SupplierProfileSchema.$columns
+  @column()
+  declare bio: string | null
+  @column()
+  declare certifications: any | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare deliveryDays: number | null
+  @column()
+  declare deliveryScope: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare minOrderQuantity: number | null
+  @column()
+  declare organizationId: number
+  @column()
+  declare responseTimeDays: number | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class SupplierTranslationSchema extends BaseModel {
   static $columns = [
     'createdAt',
@@ -487,6 +526,7 @@ export class SupplierSchema extends BaseModel {
     'id',
     'isActive',
     'logoUrl',
+    'organizationId',
     'phone',
     'slug',
     'updatedAt',
@@ -505,6 +545,8 @@ export class SupplierSchema extends BaseModel {
   declare isActive: boolean
   @column()
   declare logoUrl: string | null
+  @column()
+  declare organizationId: number | null
   @column()
   declare phone: string | null
   @column()

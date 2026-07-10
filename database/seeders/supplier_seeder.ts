@@ -1,4 +1,5 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
+import Organization from '#models/organization'
 import Supplier from '#models/supplier'
 import SupplierTranslation from '#models/supplier_translation'
 import type { Locale } from '#shared/types/i18n'
@@ -44,10 +45,19 @@ const SUPPLIERS: SupplierSeed[] = [
 
 export default class SupplierSeeder extends BaseSeeder {
   async run() {
+    // Organisation fournisseur créée par DevUserSeeder : la fiche catalogue
+    // `eurogoods` lui est rattachée (réconciliation suppliers ↔ organizations).
+    const supplierOrg = await Organization.findBy('slug', 'eurogoods-org')
+
     for (const seed of SUPPLIERS) {
       const supplier = await Supplier.updateOrCreate(
         { slug: seed.slug },
-        { country: seed.country, website: seed.website, isActive: true }
+        {
+          country: seed.country,
+          website: seed.website,
+          isActive: true,
+          organizationId: seed.slug === 'eurogoods' ? (supplierOrg?.id ?? null) : null,
+        }
       )
 
       for (const locale of Object.keys(seed.translations) as Locale[]) {

@@ -14,6 +14,7 @@ export default class OrganizationTransformer extends BaseTransformer<Organizatio
       'website',
       'industry',
       'size',
+      'organizationType',
       'description',
       'logoUrl',
       'addressLine1',
