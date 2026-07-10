@@ -66,6 +66,7 @@ Les PDFs uploadés sont compressés avant envoi sur Cloudinary via `app/services
 - Code partagé backend/frontend dans `shared/` (types, helpers, constants)
 - **Taille max des composants Vue : 250 lignes** (enforced par ESLint `max-lines`) — au-delà, extraire en sous-composants
 - Pages complexes à onglets : chaque onglet = un composant dans `components/<domaine>/show/tabs/`
+- **Extraire les composants génériques** : dès qu'un groupe de balises de template se répète (même structure label/champ/erreur, bouton, carte, badge…) ou pourrait être réutilisé ailleurs, l'extraire en **composant générique** dans `inertia/components/` (préfixe `base_*` : `base_input`, `base_select`, `base_button`…) plutôt que de dupliquer le markup et les classes Tailwind. Le composant est paramétré par `props` + `slots` ; le rendre **générique** (`<script setup lang="ts" generic="T …">`) quand le `v-model` doit conserver le type du champ lié (ex. `number | null`, union). Ne jamais copier-coller deux fois le même bloc de champ/contrôle : c'est le signal d'un composant à créer.
 
 #### Mutations Inertia (obligatoire sur pages/composants Inertia)
 
@@ -144,3 +145,4 @@ tests/
 - **Utiliser des ternaires `locale === 'fr' ? ... : ...`** (→ utiliser `t()` avec clé dans les deux JSON)
 - **`fetch` / `axios` + JSON + CSRF manuel dans `inertia/**`** pour des mutations déjà couvertes par une page Inertia (→ `router.patch`/`useForm`/`<Form>`+`response.redirect().back()` côté contrôleur)
 - **`response.json({ ok: true })` sur des routes appelées depuis l’UI Inertia** (→ redirection ; réserver le JSON aux vraies routes API)
+- **Dupliquer un bloc de template / des classes Tailwind** entre plusieurs champs ou écrans (→ extraire un composant générique `inertia/components/base_*`)
