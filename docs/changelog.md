@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-07-10 — Doc dédiée catalogue
+
+Ajout de `docs/catalogue.md`, absent malgré les entrées de changelog
+détaillées : modèle de données (tables, mécanisme du `ET` via
+`product_attributes`), vectorisation/full-text PostgreSQL (`pgvector`,
+`search_vector` par langue), i18n du contenu catalogue, fichiers clés par
+domaine, tests, roadmap (incrément 3 : moteur de recherche + embeddings
+Mistral).
+
 ## 2026-07-10 — Suite de tests (catalogue + i18n)
 
 Couverture automatisée de l'existant avant le moteur de recherche. Les tests catalogue s'appuient sur PostgreSQL (pgvector/tsvector) et sont gardés par dialecte.
