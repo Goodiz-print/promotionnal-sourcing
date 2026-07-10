@@ -37,6 +37,8 @@ fournisseur ; PR 3 : onboarding acheteur/fournisseur ; PR 4 : annuaire public).
 - **Tests** : `tests/functional/organization_supplier.spec.ts` (gardé Postgres) —
   type d'org, profil détaillé, rattachement fiche↔org (belongsTo + hasMany),
   sortie du transformer. Suites : pg → 32 passés ; sqlite → 19 passés, 13 sautés.
+- **Doc** : `docs/organisations.md` (doc dédiée : modèle de données, relations,
+  types, seeders, roadmap 4 PR) + cross-link depuis `docs/catalogue.md`.
 
 ## 2026-07-10 — Doc dédiée catalogue
 

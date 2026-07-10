@@ -11,6 +11,8 @@ requête arrivent dans un incrément ultérieur.
 
 - **`suppliers`** — fournisseur européen (slug, `country_code` ISO2, contact,
   `is_active`). Texte (nom, description) déporté dans `supplier_translations`.
+  Depuis la Phase 2, porte aussi `organization_id` (fiche rattachée à une
+  organisation fournisseur) — voir `docs/organisations.md`.
 - **`categories`** — taxonomie auto-référencée (`parent_id` → `categories.id`,
   `ON DELETE SET NULL`) + `synonyms text[]` (pour le futur parseur de requête).
   Texte dans `category_translations`.
