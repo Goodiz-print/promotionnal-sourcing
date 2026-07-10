@@ -66,6 +66,18 @@ const routes = {
     tokens: [{"old":"/:locale/logout","type":1,"val":"locale","end":""},{"old":"/:locale/logout","type":0,"val":"logout","end":""}],
     types: placeholder as Registry['session.destroy']['types'],
   },
+  'supplier.profile': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/profile',
+    tokens: [{"old":"/:locale/supplier/profile","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/profile","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/profile","type":0,"val":"profile","end":""}],
+    types: placeholder as Registry['supplier.profile']['types'],
+  },
+  'supplier.profile.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/supplier/profile',
+    tokens: [{"old":"/:locale/supplier/profile","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/profile","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/profile","type":0,"val":"profile","end":""}],
+    types: placeholder as Registry['supplier.profile.update']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

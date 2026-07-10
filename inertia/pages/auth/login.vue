@@ -1,8 +1,20 @@
 <script setup lang="ts">
-import { Form } from '@adonisjs/inertia/vue'
+import { useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
+import { urlFor } from '~/client'
+import BaseInput from '~/components/base_input.vue'
+import BaseButton from '~/components/base_button.vue'
 
-const { locale } = useI18n()
+const { t, locale } = useI18n()
+
+const form = useForm({
+  email: '',
+  password: '',
+})
+
+function submit() {
+  form.post(urlFor('session.store', { locale: locale.value }))
+}
 </script>
 
 <template>
@@ -14,57 +26,26 @@ const { locale } = useI18n()
       </p>
     </div>
 
-    <div>
-      <Form
-        v-slot="{ processing, errors }"
-        route="session.store"
-        :params="{ locale }"
-        class="flex flex-col gap-6"
-      >
-        <div>
-          <label for="email" class="mb-1 block text-sm font-medium">{{
-            t('auth.fields.email')
-          }}</label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            autocomplete="username"
-            :data-invalid="errors.email ? 'true' : undefined"
-            class="h-10 w-full rounded border border-[var(--gray-4)] px-4 data-[invalid=true]:border-[#fb2c36] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
-          />
-          <div v-if="errors.email" class="mt-0.5 text-sm font-medium text-[#fb2c36]">
-            {{ errors.email }}
-          </div>
-        </div>
-
-        <div>
-          <label for="password" class="mb-1 block text-sm font-medium">{{
-            t('auth.fields.password')
-          }}</label>
-          <input
-            id="password"
-            type="password"
-            name="password"
-            autocomplete="current-password"
-            :data-invalid="errors.password ? 'true' : undefined"
-            class="h-10 w-full rounded border border-[var(--gray-4)] px-4 data-[invalid=true]:border-[#fb2c36] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
-          />
-          <div v-if="errors.password" class="mt-0.5 text-sm font-medium text-[#fb2c36]">
-            {{ errors.password }}
-          </div>
-        </div>
-
-        <div>
-          <button
-            type="submit"
-            :disabled="processing"
-            class="w-full cursor-pointer rounded bg-[var(--color-primary)] p-2.5 font-medium text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
-          >
-            {{ t('auth.login.submit') }}
-          </button>
-        </div>
-      </Form>
-    </div>
+    <form class="flex flex-col gap-6" @submit.prevent="submit">
+      <BaseInput
+        id="email"
+        v-model="form.email"
+        type="email"
+        autocomplete="username"
+        :label="t('auth.fields.email')"
+        :error="form.errors.email"
+      />
+      <BaseInput
+        id="password"
+        v-model="form.password"
+        type="password"
+        autocomplete="current-password"
+        :label="t('auth.fields.password')"
+        :error="form.errors.password"
+      />
+      <BaseButton type="submit" :disabled="form.processing">
+        {{ t('auth.login.submit') }}
+      </BaseButton>
+    </form>
   </div>
 </template>

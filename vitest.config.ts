@@ -12,6 +12,7 @@ export default defineConfig({
     alias: {
       '~/': fileURLToPath(new URL('./inertia/', import.meta.url)),
       '@generated': fileURLToPath(new URL('./.adonisjs/client/', import.meta.url)),
+      '#shared': fileURLToPath(new URL('./shared', import.meta.url)),
     },
   },
 })

@@ -50,6 +50,13 @@ router
     router
       .group(() => {
         router.post('logout', [controllers.Session, 'destroy'])
+
+        router
+          .get('supplier/profile', [controllers.supplier.Profile, 'show'])
+          .as('supplier.profile')
+        router
+          .patch('supplier/profile', [controllers.supplier.Profile, 'update'])
+          .as('supplier.profile.update')
       })
       .use(middleware.auth())
   })
