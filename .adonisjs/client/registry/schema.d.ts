@@ -43,18 +43,6 @@ export interface Registry {
       errorResponse: unknown
     }
   }
-  'home': {
-    methods: ["GET","HEAD"]
-    pattern: '/'
-    types: {
-      body: {}
-      paramsTuple: []
-      params: {}
-      query: {}
-      response: unknown
-      errorResponse: unknown
-    }
-  }
   'locale.update': {
     methods: ["POST"]
     pattern: '/locale'
@@ -67,13 +55,25 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/locale_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
-  'new_account.create': {
+  'home': {
     methods: ["GET","HEAD"]
-    pattern: '/signup'
+    pattern: '/:locale'
     types: {
       body: {}
-      paramsTuple: []
-      params: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'new_account.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/signup'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/new_account_controller').default['create']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/new_account_controller').default['create']>>>
@@ -81,11 +81,11 @@ export interface Registry {
   }
   'new_account.store': {
     methods: ["POST"]
-    pattern: '/signup'
+    pattern: '/:locale/signup'
     types: {
       body: ExtractBody<InferInput<(typeof import('#validators/user').signupValidator)>>
-      paramsTuple: []
-      params: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
       query: ExtractQuery<InferInput<(typeof import('#validators/user').signupValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/new_account_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/new_account_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
@@ -93,11 +93,11 @@ export interface Registry {
   }
   'session.create': {
     methods: ["GET","HEAD"]
-    pattern: '/login'
+    pattern: '/:locale/login'
     types: {
       body: {}
-      paramsTuple: []
-      params: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/session_controller').default['create']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['create']>>>
@@ -105,11 +105,11 @@ export interface Registry {
   }
   'session.store': {
     methods: ["POST"]
-    pattern: '/login'
+    pattern: '/:locale/login'
     types: {
       body: {}
-      paramsTuple: []
-      params: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/session_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['store']>>>
@@ -117,11 +117,11 @@ export interface Registry {
   }
   'session.destroy': {
     methods: ["POST"]
-    pattern: '/logout'
+    pattern: '/:locale/logout'
     types: {
       body: {}
-      paramsTuple: []
-      params: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>

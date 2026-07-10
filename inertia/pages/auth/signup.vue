@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { Form } from '@adonisjs/inertia/vue'
+import { useI18n } from '~/i18n'
+
+const { locale } = useI18n()
 </script>
 
 <template>
@@ -12,7 +15,12 @@ import { Form } from '@adonisjs/inertia/vue'
     </div>
 
     <div>
-      <Form v-slot="{ processing, errors }" route="new_account.store" class="flex flex-col gap-6">
+      <Form
+        v-slot="{ processing, errors }"
+        route="new_account.store"
+        :params="{ locale }"
+        class="flex flex-col gap-6"
+      >
         <div>
           <label for="fullName" class="mb-1 block text-sm font-medium">{{
             t('auth.fields.fullName')

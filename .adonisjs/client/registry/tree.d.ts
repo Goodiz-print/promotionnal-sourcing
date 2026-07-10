@@ -5,10 +5,10 @@ export interface ApiDefinition {
   eventStream: typeof routes['event_stream']
   subscribe: typeof routes['subscribe']
   unsubscribe: typeof routes['unsubscribe']
-  home: typeof routes['home']
   locale: {
     update: typeof routes['locale.update']
   }
+  home: typeof routes['home']
   newAccount: {
     create: typeof routes['new_account.create']
     store: typeof routes['new_account.store']

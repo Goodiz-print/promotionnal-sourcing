@@ -7,33 +7,33 @@ export type ScannedRoutes = {
     'event_stream': { paramsTuple?: []; params?: {} }
     'subscribe': { paramsTuple?: []; params?: {} }
     'unsubscribe': { paramsTuple?: []; params?: {} }
-    'home': { paramsTuple?: []; params?: {} }
     'locale.update': { paramsTuple?: []; params?: {} }
-    'new_account.create': { paramsTuple?: []; params?: {} }
-    'new_account.store': { paramsTuple?: []; params?: {} }
-    'session.create': { paramsTuple?: []; params?: {} }
-    'session.store': { paramsTuple?: []; params?: {} }
-    'session.destroy': { paramsTuple?: []; params?: {} }
+    'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'new_account.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'session.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'session.destroy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
   }
   GET: {
     'event_stream': { paramsTuple?: []; params?: {} }
-    'home': { paramsTuple?: []; params?: {} }
-    'new_account.create': { paramsTuple?: []; params?: {} }
-    'session.create': { paramsTuple?: []; params?: {} }
+    'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
   }
   HEAD: {
     'event_stream': { paramsTuple?: []; params?: {} }
-    'home': { paramsTuple?: []; params?: {} }
-    'new_account.create': { paramsTuple?: []; params?: {} }
-    'session.create': { paramsTuple?: []; params?: {} }
+    'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
   }
   POST: {
     'subscribe': { paramsTuple?: []; params?: {} }
     'unsubscribe': { paramsTuple?: []; params?: {} }
     'locale.update': { paramsTuple?: []; params?: {} }
-    'new_account.store': { paramsTuple?: []; params?: {} }
-    'session.store': { paramsTuple?: []; params?: {} }
-    'session.destroy': { paramsTuple?: []; params?: {} }
+    'new_account.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'session.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'session.destroy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
   }
 }
 declare module '@adonisjs/core/types/http' {

@@ -6,16 +6,16 @@ export default class SessionController {
     return inertia.render('auth/login', {})
   }
 
-  async store({ request, auth, response }: HttpContext) {
+  async store({ request, auth, response, i18n }: HttpContext) {
     const { email, password } = request.all()
     const user = await User.verifyCredentials(email, password)
 
     await auth.use('web').login(user)
-    response.redirect().toRoute('home')
+    response.redirect().toRoute('home', { locale: i18n.locale })
   }
 
-  async destroy({ auth, response }: HttpContext) {
+  async destroy({ auth, response, i18n }: HttpContext) {
     await auth.use('web').logout()
-    response.redirect().toRoute('session.create')
+    response.redirect().toRoute('session.create', { locale: i18n.locale })
   }
 }

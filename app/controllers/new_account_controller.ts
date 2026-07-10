@@ -7,11 +7,11 @@ export default class NewAccountController {
     return inertia.render('auth/signup', {})
   }
 
-  async store({ request, response, auth }: HttpContext) {
+  async store({ request, response, auth, i18n }: HttpContext) {
     const payload = await request.validateUsing(signupValidator)
     const user = await User.create({ ...payload })
 
     await auth.use('web').login(user)
-    response.redirect().toRoute('home')
+    response.redirect().toRoute('home', { locale: i18n.locale })
   }
 }

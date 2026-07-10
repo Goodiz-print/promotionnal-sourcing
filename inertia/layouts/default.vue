@@ -4,9 +4,11 @@ import { usePage } from '@inertiajs/vue3'
 import { toast, Toaster } from 'vue-sonner'
 import type { Data } from '@generated/data'
 import { Link, Form } from '@adonisjs/inertia/vue'
+import { useI18n } from '~/i18n'
 import LanguageSwitcher from '~/components/language_switcher.vue'
 
 const page = usePage<Data.SharedProps>()
+const { locale } = useI18n()
 
 watch(
   () => page.url,
@@ -31,7 +33,7 @@ watch(
   <header class="mx-auto max-w-[1440px] px-7.5">
     <div class="flex h-16 items-center justify-between">
       <div>
-        <Link route="home">
+        <Link route="home" :params="{ locale }">
           <svg
             width="66"
             height="24"
@@ -51,7 +53,7 @@ watch(
           <LanguageSwitcher />
           <template v-if="page.props.user">
             <span>{{ page.props.user.initials }}</span>
-            <Form route="session.destroy">
+            <Form route="session.destroy" :params="{ locale }">
               <button
                 type="submit"
                 class="w-full cursor-pointer rounded bg-[var(--color-primary)] p-2.5 font-medium text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
@@ -63,11 +65,13 @@ watch(
           <template v-else>
             <Link
               route="new_account.create"
+              :params="{ locale }"
               class="font-medium text-[var(--gray-8)] hover:text-[var(--gray-12)]"
               >{{ t('common.nav.signup') }}</Link
             >
             <Link
               route="session.create"
+              :params="{ locale }"
               class="font-medium text-[var(--gray-8)] hover:text-[var(--gray-12)]"
               >{{ t('common.nav.login') }}</Link
             >

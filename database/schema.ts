@@ -7,6 +7,138 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class AttributeTranslationSchema extends BaseModel {
+  static $columns = ['attributeId', 'createdAt', 'id', 'locale', 'name', 'updatedAt'] as const
+  $columns = AttributeTranslationSchema.$columns
+  @column()
+  declare attributeId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare locale: string
+  @column()
+  declare name: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class AttributeValueTranslationSchema extends BaseModel {
+  static $columns = ['attributeValueId', 'createdAt', 'id', 'label', 'locale', 'updatedAt'] as const
+  $columns = AttributeValueTranslationSchema.$columns
+  @column()
+  declare attributeValueId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare label: string
+  @column()
+  declare locale: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class AttributeValueSchema extends BaseModel {
+  static $columns = [
+    'attributeId',
+    'createdAt',
+    'id',
+    'slug',
+    'synonyms',
+    'updatedAt',
+    'value',
+  ] as const
+  $columns = AttributeValueSchema.$columns
+  @column()
+  declare attributeId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare slug: string
+  @column()
+  declare synonyms: any
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare value: string
+}
+
+export class AttributeSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'id',
+    'isFilterable',
+    'slug',
+    'type',
+    'unit',
+    'updatedAt',
+  ] as const
+  $columns = AttributeSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare isFilterable: boolean
+  @column()
+  declare slug: string
+  @column()
+  declare type: string
+  @column()
+  declare unit: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class CategorySchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'parentId', 'slug', 'synonyms', 'updatedAt'] as const
+  $columns = CategorySchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare parentId: number | null
+  @column()
+  declare slug: string
+  @column()
+  declare synonyms: any
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class CategoryTranslationSchema extends BaseModel {
+  static $columns = [
+    'categoryId',
+    'createdAt',
+    'description',
+    'id',
+    'locale',
+    'name',
+    'updatedAt',
+  ] as const
+  $columns = CategoryTranslationSchema.$columns
+  @column()
+  declare categoryId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare description: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare locale: string
+  @column()
+  declare name: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class OrganizationUserSchema extends BaseModel {
   static $columns = ['id', 'joinedAt', 'organizationId', 'roleId', 'userId'] as const
   $columns = OrganizationUserSchema.$columns
@@ -98,6 +230,114 @@ export class PermissionSchema extends BaseModel {
   declare name: string
   @column()
   declare slug: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class ProductAttributeSchema extends BaseModel {
+  static $columns = [
+    'attributeId',
+    'attributeValueId',
+    'createdAt',
+    'id',
+    'productId',
+    'updatedAt',
+    'valueNumber',
+    'valueString',
+  ] as const
+  $columns = ProductAttributeSchema.$columns
+  @column()
+  declare attributeId: number
+  @column()
+  declare attributeValueId: number | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare productId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare valueNumber: string | null
+  @column()
+  declare valueString: string | null
+}
+
+export class ProductTranslationSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'description',
+    'id',
+    'locale',
+    'name',
+    'productId',
+    'updatedAt',
+  ] as const
+  $columns = ProductTranslationSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare description: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare locale: string
+  @column()
+  declare name: string
+  @column()
+  declare productId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class ProductSchema extends BaseModel {
+  static $columns = [
+    'categoryId',
+    'createdAt',
+    'currency',
+    'id',
+    'imageUrl',
+    'isActive',
+    'madeInEurope',
+    'minQuantity',
+    'originCountry',
+    'priceMax',
+    'priceMin',
+    'reference',
+    'slug',
+    'supplierId',
+    'updatedAt',
+  ] as const
+  $columns = ProductSchema.$columns
+  @column()
+  declare categoryId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare currency: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare imageUrl: string | null
+  @column()
+  declare isActive: boolean
+  @column()
+  declare madeInEurope: boolean
+  @column()
+  declare minQuantity: number | null
+  @column()
+  declare originCountry: string | null
+  @column()
+  declare priceMax: string | null
+  @column()
+  declare priceMin: string | null
+  @column()
+  declare reference: string | null
+  @column()
+  declare slug: string
+  @column()
+  declare supplierId: number
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }
@@ -210,6 +450,69 @@ export class RoleSchema extends BaseModel {
   declare slug: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
+}
+
+export class SupplierTranslationSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'description',
+    'id',
+    'locale',
+    'name',
+    'supplierId',
+    'updatedAt',
+  ] as const
+  $columns = SupplierTranslationSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare description: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare locale: string
+  @column()
+  declare name: string
+  @column()
+  declare supplierId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class SupplierSchema extends BaseModel {
+  static $columns = [
+    'country',
+    'createdAt',
+    'email',
+    'id',
+    'isActive',
+    'logoUrl',
+    'phone',
+    'slug',
+    'updatedAt',
+    'website',
+  ] as const
+  $columns = SupplierSchema.$columns
+  @column()
+  declare country: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare email: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare isActive: boolean
+  @column()
+  declare logoUrl: string | null
+  @column()
+  declare phone: string | null
+  @column()
+  declare slug: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare website: string | null
 }
 
 export class UserSchema extends BaseModel {

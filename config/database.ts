@@ -3,7 +3,10 @@ import app from '@adonisjs/core/services/app'
 import { defineConfig } from '@adonisjs/lucid'
 
 const dbConfig = defineConfig({
-  connection: env.get('NODE_ENV') === 'test' ? 'sqlite' : 'pg',
+  // En test, SQLite reste le defaut pour les tests legers, mais le
+  // catalogue (pgvector/tsvector) impose Postgres : positionner
+  // `DB_CONNECTION=pg` pour executer les migrations/recherche en test.
+  connection: env.get('NODE_ENV') === 'test' ? env.get('DB_CONNECTION', 'sqlite') : 'pg',
 
   connections: {
     sqlite: {
@@ -30,6 +33,9 @@ const dbConfig = defineConfig({
       migrations: {
         naturalSort: true,
         paths: ['database/migrations'],
+      },
+      schemaGeneration: {
+        rulesPaths: ['#database/schema_rules'],
       },
       debug: app.inDev,
     },
