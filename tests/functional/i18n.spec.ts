@@ -45,6 +45,20 @@ test.group('i18n — détection de la locale', () => {
     response.assertStatus(200)
     response.assertInertiaPropsContains({ supportedLocales: ['fr', 'en'] })
   })
+
+  test('/fr/login rend le contenu en français', async ({ client }) => {
+    const response = await client.get('/fr/login')
+
+    response.assertStatus(200)
+    response.assertTextIncludes('Se connecter')
+  })
+
+  test('/en/login rend le contenu en anglais', async ({ client }) => {
+    const response = await client.get('/en/login')
+
+    response.assertStatus(200)
+    response.assertTextIncludes('Password')
+  })
 })
 
 test.group('i18n — changement de langue', () => {
@@ -76,5 +90,14 @@ test.group('i18n — changement de langue', () => {
     response.assertBodyContains({
       errors: [{ message: 'The selected language is invalid' }],
     })
+  })
+
+  test('visiter /en (préfixe URL) persiste la locale dans le cookie', async ({
+    client,
+    assert,
+  }) => {
+    const response = await client.get('/en')
+
+    assert.property(response.cookies(), 'locale')
   })
 })

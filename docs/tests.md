@@ -2,10 +2,10 @@
 
 ## Stack
 
-| Couche | Framework | Environnement |
-|--------|-----------|---------------|
-| Backend (unit + functional) | Japa | SQLite (test) |
-| Frontend (composants Vue) | Vitest + @vue/test-utils | happy-dom |
+| Couche                      | Framework                | Environnement                                                            |
+| --------------------------- | ------------------------ | ------------------------------------------------------------------------ |
+| Backend (unit + functional) | Japa                     | SQLite (défaut) · PostgreSQL pour le catalogue (CI / `DB_CONNECTION=pg`) |
+| Frontend (composants Vue)   | Vitest + @vue/test-utils | happy-dom                                                                |
 
 ---
 
@@ -30,15 +30,24 @@ Configurées dans `adonisrc.ts` :
 ### Bootstrap (`tests/bootstrap.ts`)
 
 Plugins Japa enregistrés :
+
 - `assert()` — assertions classiques
 - `apiClient()` — client HTTP pour les tests fonctionnels (`client.get(...)`)
 - `pluginAdonisJS(app)` — intégration AdonisJS (IoC, providers)
 - `dbAssertions(app)` — assertions base de données Lucid
+- `inertiaApiClient(app)` — `.withInertia()`, `assertInertiaPropsContains(...)`, `response.inertiaProps`
+- `sessionApiClient(app)` — session/`loginAs` sur les requêtes
+- `shieldApiClient()` — `.withCsrfToken()`
 
 ### Base de données en test
 
-`config/database.ts` bascule automatiquement sur **SQLite** quand `NODE_ENV=test`.
-Le fichier SQLite est créé dans `tmp/db.sqlite3`.
+`config/database.ts` : en test, la connexion suit `DB_CONNECTION` (défaut **SQLite**,
+fichier `tmp/db.sqlite3`). **La CI force `DB_CONNECTION=pg`** (image `pgvector/pgvector:pg18`).
+
+Il n'y a **aucun setup DB automatique** (`runnerHooks` vides) : chaque groupe qui touche
+la base l'initialise lui-même via `testUtils.db()` — `migrate()` / `truncate()` / `seed()`
+/ `withGlobalTransaction()` (chacun sauf `seed` renvoie un cleanup à passer au hook Japa).
+Pas de factories : semer via les seeders.
 
 Pour isoler chaque test dans une transaction annulée :
 
@@ -46,6 +55,36 @@ Pour isoler chaque test dans une transaction annulée :
 test.group('Mon groupe', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 })
+```
+
+#### Catalogue : tests gardés par dialecte (PostgreSQL)
+
+Le catalogue utilise des fonctionnalités **PostgreSQL** (pgvector, `tsvector`, colonnes
+générées) absentes de SQLite. Les groupes catalogue sont donc gardés par
+`isPostgres()` (`tests/utils/database.ts`) : exécutés sous Postgres (CI + `DB_CONNECTION=pg`
+en local), **sautés** sinon. On sème via `MainSeeder` (ordre des dépendances) et non
+`db:seed` (qui exécuterait aussi chaque seeder isolément → `dev_user` avant les rôles).
+
+```ts
+import { isPostgres } from '#tests/utils/database'
+import MainSeeder from '#database/seeders/main_seeder'
+import db from '@adonisjs/lucid/services/db'
+
+test.group('Catalogue …', (group) => {
+  if (isPostgres()) {
+    group.setup(() => testUtils.db().truncate())
+    group.setup(() => new MainSeeder(db.connection()).run())
+  } else {
+    group.tap((t) => t.skip(true, 'Catalogue : PostgreSQL requis'))
+  }
+  // tests…
+})
+```
+
+En local, lancer la suite Postgres avec :
+
+```bash
+NODE_ENV=test DB_CONNECTION=pg DB_DATABASE=test pnpm test
 ```
 
 ### Exemple test fonctionnel
