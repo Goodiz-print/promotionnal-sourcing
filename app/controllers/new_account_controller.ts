@@ -12,6 +12,7 @@ export default class NewAccountController {
     const user = await User.create({ ...payload })
 
     await auth.use('web').login(user)
-    response.redirect().toRoute('home', { locale: i18n.locale })
+    // Nouveau compte = aucune organisation → onboarding.
+    response.redirect().toRoute('onboarding.show', { locale: i18n.locale })
   }
 }

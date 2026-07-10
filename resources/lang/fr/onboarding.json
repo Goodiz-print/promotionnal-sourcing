@@ -1,0 +1,20 @@
+{
+  "title": "Bienvenue 👋",
+  "subtitle": "Configurons votre organisation pour commencer.",
+  "fields": {
+    "name": "Nom de votre organisation",
+    "type": "Vous êtes…"
+  },
+  "type": {
+    "buyer": {
+      "label": "Acheteur",
+      "description": "Je cherche et compare des objets publicitaires auprès de fournisseurs."
+    },
+    "supplier": {
+      "label": "Fournisseur",
+      "description": "Je propose un catalogue et réponds aux demandes de devis des acheteurs."
+    }
+  },
+  "submit": "Créer mon organisation",
+  "success": "Organisation créée. Bienvenue !"
+}

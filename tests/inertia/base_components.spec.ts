@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import BaseInput from '~/components/base_input.vue'
 import BaseButton from '~/components/base_button.vue'
+import BaseRadioGroup from '~/components/base_radio_group.vue'
 
 describe('base_input', () => {
   it('rend le label, l’id et le message d’erreur', () => {
@@ -55,5 +56,36 @@ describe('base_button', () => {
     const wrapper = mount(BaseButton, { props: { variant: 'link' } })
 
     expect(wrapper.get('button').classes()).toContain('text-[var(--color-primary)]')
+  })
+})
+
+describe('base_radio_group', () => {
+  const options = [
+    { value: 'buyer', label: 'Acheteur', description: 'desc a' },
+    { value: 'supplier', label: 'Fournisseur' },
+  ]
+
+  it('rend une option par entrée avec son libellé', () => {
+    const wrapper = mount(BaseRadioGroup, { props: { id: 'type', options } })
+
+    expect(wrapper.findAll('input[type="radio"]')).toHaveLength(2)
+    expect(wrapper.text()).toContain('Acheteur')
+    expect(wrapper.text()).toContain('Fournisseur')
+    expect(wrapper.text()).toContain('desc a')
+  })
+
+  it('émet update:modelValue au changement', async () => {
+    const wrapper = mount(BaseRadioGroup, { props: { id: 'type', options } })
+
+    await wrapper.find('#type-supplier').setValue()
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['supplier'])
+  })
+
+  it('marque l’option sélectionnée', () => {
+    const wrapper = mount(BaseRadioGroup, {
+      props: { id: 'type', options, modelValue: 'buyer' },
+    })
+
+    expect(wrapper.find('label[data-selected="true"]').text()).toContain('Acheteur')
   })
 })

@@ -127,6 +127,30 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
     }
   }
+  'onboarding.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/onboarding'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/onboarding_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/onboarding_controller').default['show']>>>
+    }
+  }
+  'onboarding.store': {
+    methods: ["POST"]
+    pattern: '/:locale/onboarding'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/onboarding').onboardingValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/onboarding').onboardingValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/onboarding_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/onboarding_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'supplier.profile': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/supplier/profile'

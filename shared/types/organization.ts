@@ -13,6 +13,19 @@ export type OrganizationKind = (typeof ORGANIZATION_TYPES)[number]
 export const DEFAULT_ORGANIZATION_KIND: OrganizationKind = 'buyer'
 
 /**
+ * Types proposés à l'onboarding (l'utilisateur choisit acheteur ou fournisseur ;
+ * `both` reste réglable plus tard côté organisation).
+ */
+export const ONBOARDING_TYPES = ['buyer', 'supplier'] as const
+
+export type OnboardingKind = (typeof ONBOARDING_TYPES)[number]
+
+export interface OnboardingData {
+  name: string
+  organizationType: OnboardingKind
+}
+
+/**
  * Périmètre de livraison d'un fournisseur.
  */
 export const DELIVERY_SCOPES = ['national', 'europe', 'worldwide'] as const

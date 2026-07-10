@@ -18,6 +18,10 @@ export interface ApiDefinition {
     store: typeof routes['session.store']
     destroy: typeof routes['session.destroy']
   }
+  onboarding: {
+    show: typeof routes['onboarding.show']
+    store: typeof routes['onboarding.store']
+  }
   supplier: {
     profile: typeof routes['supplier.profile'] & {
       update: typeof routes['supplier.profile.update']

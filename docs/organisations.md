@@ -120,14 +120,41 @@ Un fournisseur édite le profil de son **organisation courante**
   (rendu, options, pré-remplissage, add/remove certif). `authApiClient` ajouté au
   bootstrap ; alias `#shared` ajouté à `vitest.config.ts`.
 
+## Onboarding acheteur/fournisseur (PR 3)
+
+Le **signup ne crée qu'un `User`** (pas d'organisation → `currentOrganizationId = null`).
+L'onboarding **crée la première organisation** de l'utilisateur et fixe son type.
+
+- **Signal « à onboarder »** = `user.currentOrganizationId == null` (aucun flag/migration DB).
+- **Flux** : signup **ou** login sans org courante → redirection vers `onboarding.show`.
+  L'écran demande le **nom d'organisation** + le **type** (acheteur/fournisseur). Le
+  `POST` crée l'`Organization` (slug dérivé du nom, `country` FR), rattache l'utilisateur
+  en **`owner`** (`organization_users`), fixe `currentOrganizationId`, puis redirige à l'accueil.
+- **Routes** (`:locale` + `auth`) : `GET /onboarding` (`onboarding.show`), `POST /onboarding`
+  (`onboarding.store`).
+- **Gate** : middleware `onboarded` (`app/middleware/onboarded_middleware.ts`, nommé dans
+  `start/kernel.ts`) — un utilisateur org-less accédant à un écran nécessitant une organisation
+  (ex. `supplier/profile`) est redirigé vers l'onboarding. **Non appliqué** aux routes
+  onboarding/logout (anti-boucle).
+- **Service** `app/services/onboarding_service.ts` (`completeOnboarding`) : slug unique via
+  `stringHelpers.slug` + suffixe, création org + adhésion `owner` + org courante (miroir de
+  `dev_user_seeder`). **Validator** `app/validators/onboarding.ts` (`ONBOARDING_TYPES` = buyer/supplier).
+- **Frontend** `inertia/pages/onboarding/index.vue` (`useForm`) + composant réutilisable
+  `inertia/components/base_radio_group.vue` (cartes radio génériques) + i18n
+  `resources/lang/{fr,en}/onboarding.json`.
+- **Tests** : `tests/functional/onboarding.spec.ts` (redirection signup→onboarding, rendu écran,
+  création org+owner+org courante, déjà-onboardé, gate middleware — SQLite, seed `RoleSeeder`) +
+  `tests/inertia/onboarding.spec.ts` et test unitaire `base_radio_group`.
+
 ## Roadmap
 
 Découpage de la Phase 2 en 4 PR :
 
 1. **PR 1 — Fondation données** — fait : migrations, modèles, types, seeder, tests.
-2. **PR 2 — Profil fournisseur** (cette section) — fait : service, validator,
-   transformer, controller, routes, ability, écran `supplier/profile.vue`, i18n, tests.
-3. **PR 3 — Onboarding** — sélection acheteur/fournisseur au premier login.
+2. **PR 2 — Profil fournisseur** — fait : service, validator, transformer, controller,
+   routes, ability, écran `supplier/profile.vue`, i18n, tests.
+3. **PR 3 — Onboarding** (cette section) — fait : service, validator, controller, middleware
+   `onboarded`, routes, écran + `base_radio_group`, i18n, tests.
 4. **PR 4 — Annuaire public fournisseurs** — `suppliers/index.vue` + `show.vue`,
    controller public, transformer enrichi (profil + fiche).
 

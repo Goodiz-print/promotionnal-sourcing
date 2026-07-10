@@ -6,6 +6,7 @@
 export const controllers = {
   Locale: () => import('#controllers/locale_controller'),
   NewAccount: () => import('#controllers/new_account_controller'),
+  Onboarding: () => import('#controllers/onboarding_controller'),
   Session: () => import('#controllers/session_controller'),
   supplier: {
     Profile: () => import('#controllers/supplier/profile_controller'),

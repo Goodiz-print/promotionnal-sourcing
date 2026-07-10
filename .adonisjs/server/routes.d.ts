@@ -14,6 +14,8 @@ export type ScannedRoutes = {
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.destroy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'onboarding.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'onboarding.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.profile': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.profile.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
   }
@@ -22,6 +24,7 @@ export type ScannedRoutes = {
     'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'onboarding.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.profile': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
   }
   HEAD: {
@@ -29,6 +32,7 @@ export type ScannedRoutes = {
     'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'onboarding.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.profile': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
   }
   POST: {
@@ -38,6 +42,7 @@ export type ScannedRoutes = {
     'new_account.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.destroy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'onboarding.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
   }
   PATCH: {
     'supplier.profile.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
