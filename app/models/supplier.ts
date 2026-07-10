@@ -1,6 +1,7 @@
-import { hasMany } from '@adonisjs/lucid/orm'
-import type { HasMany } from '@adonisjs/lucid/types/relations'
+import { belongsTo, hasMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import { SupplierSchema } from '#database/schema'
+import Organization from '#models/organization'
 import Product from '#models/product'
 import SupplierTranslation from '#models/supplier_translation'
 
@@ -12,4 +13,7 @@ export default class Supplier extends SupplierSchema {
 
   @hasMany(() => Product)
   declare products: HasMany<typeof Product>
+
+  @belongsTo(() => Organization)
+  declare organization: BelongsTo<typeof Organization>
 }
