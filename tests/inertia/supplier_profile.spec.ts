@@ -85,9 +85,18 @@ describe('supplier/profile.vue', () => {
 
   it('ajoute et retire une certification', async () => {
     const wrapper = mount(SupplierProfile, { props: { profile: null } })
+    const addButton = wrapper
+      .findAll('button')
+      .find((b) => b.text() === 'Ajouter une certification')!
 
     expect(wrapper.findAll('input[type="text"]')).toHaveLength(0)
-    await wrapper.get('button.text-\\[var\\(--color-primary\\)\\]').trigger('click')
+    await addButton.trigger('click')
     expect(wrapper.findAll('input[type="text"]')).toHaveLength(1)
+
+    await wrapper
+      .findAll('button')
+      .find((b) => b.text() === 'Retirer')!
+      .trigger('click')
+    expect(wrapper.findAll('input[type="text"]')).toHaveLength(0)
   })
 })

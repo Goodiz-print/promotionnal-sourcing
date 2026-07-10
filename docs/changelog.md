@@ -26,6 +26,11 @@ données de la PR 1. Introduit la couche `app/services/`.
   au bootstrap ; alias `#shared` ajouté à `vitest.config.ts`. Résultat : pg → 36 passés ;
   sqlite → 19 passés, 17 sautés ; Vitest → 10 passés.
 - **Doc** : `docs/organisations.md` (section « Endpoints & écran fournisseur »).
+- **Suite revue #12** : extraction d'un kit de composants UI réutilisables
+  `inertia/components/base_*` (`base_field`, `base_input` générique avec coercion
+  nombre, `base_select`, `base_textarea`, `base_button` à variants) ; `profile.vue`
+  refactoré pour les consommer (plus de classes Tailwind dupliquées). Tests
+  `tests/inertia/base_components.spec.ts`.
 
 ## 2026-07-10 — Phase 2 (PR 1/4) : fondation données organisations acheteur/fournisseur
 

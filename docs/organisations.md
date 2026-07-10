@@ -109,7 +109,10 @@ Un fournisseur édite le profil de son **organisation courante**
 - **Transformer** `supplier_profile_transformer.ts` : retour typé `SupplierProfileType`
   (dates converties en ISO string pour la sérialisation Inertia).
 - **Écran** `inertia/pages/supplier/profile.vue` : `useForm` (liste `certifications`
-  dynamique), `<select>` périmètre, i18n `resources/lang/{fr,en}/supplier.json`.
+  dynamique), périmètre en `<BaseSelect>`, i18n `resources/lang/{fr,en}/supplier.json`.
+  Construit sur un **kit de composants réutilisables** `inertia/components/base_*`
+  (`base_field`, `base_input` générique avec coercion nombre, `base_select`,
+  `base_textarea`, `base_button` à variants) — plus aucune classe Tailwind dupliquée.
   Le DTO `SupplierProfileType` est déclaré en **`type`** (et non `interface`) pour
   satisfaire la contrainte `Record<string, JSONDataTypes>` des props Inertia.
 - **Tests** : `tests/functional/supplier_profile.spec.ts` (200 fournisseur, 403
