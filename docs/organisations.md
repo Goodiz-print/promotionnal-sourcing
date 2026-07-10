@@ -88,15 +88,42 @@ les deux tables (approche non destructive).
   `MainSeeder` (qui inclut le catalogue pgvector/tsvector) ; **sauté** sur SQLite.
   Résultat : pg → 32 passés ; sqlite → 19 passés, 13 sautés. Voir `docs/tests.md`.
 
+## Endpoints & écran fournisseur (PR 2)
+
+Un fournisseur édite le profil de son **organisation courante**
+(`user.currentOrganizationId`), qui doit être de type `supplier`/`both`.
+
+- **Routes** (préfixe `:locale`, middleware `auth`) :
+  - `GET /:locale/supplier/profile` → `supplier.profile` (écran d'édition).
+  - `PATCH /:locale/supplier/profile` → `supplier.profile.update` (upsert).
+- **Controller** `app/controllers/supplier/profile_controller.ts` (fin) : charge
+  l'org courante (`user.load('currentOrganization')`, pas de `Model.query()`),
+  autorise via l'ability, délègue au service, répond en **redirection Inertia**
+  (flash `success`). 403 si pas d'org courante.
+- **Service** `app/services/supplier_profile_service.ts` : `getForOrganization`,
+  `upsertForOrganization` (`SupplierProfile.updateOrCreate` sur `organizationId`).
+- **Validator** `app/validators/supplier_profile.ts` : tous les champs optionnels
+  (`vine.number().min(0)`, `vine.enum(DELIVERY_SCOPES)`, `vine.array(vine.string())`).
+- **Ability** `canManageSupplierProfile` (`app/abilities/main.ts`) : org
+  `supplier`/`both` **et** membre `owner`/`admin`.
+- **Transformer** `supplier_profile_transformer.ts` : retour typé `SupplierProfileType`
+  (dates converties en ISO string pour la sérialisation Inertia).
+- **Écran** `inertia/pages/supplier/profile.vue` : `useForm` (liste `certifications`
+  dynamique), `<select>` périmètre, i18n `resources/lang/{fr,en}/supplier.json`.
+  Le DTO `SupplierProfileType` est déclaré en **`type`** (et non `interface`) pour
+  satisfaire la contrainte `Record<string, JSONDataTypes>` des props Inertia.
+- **Tests** : `tests/functional/supplier_profile.spec.ts` (200 fournisseur, 403
+  acheteur, upsert, transformer — Postgres) + `tests/inertia/supplier_profile.spec.ts`
+  (rendu, options, pré-remplissage, add/remove certif). `authApiClient` ajouté au
+  bootstrap ; alias `#shared` ajouté à `vitest.config.ts`.
+
 ## Roadmap
 
 Découpage de la Phase 2 en 4 PR :
 
-1. **PR 1 — Fondation données** (cette doc) — fait : migrations, modèles, types,
-   seeder, tests.
-2. **PR 2 — Profil fournisseur** — couche `app/services/`, validator, transformer
-   `supplier_profile`, controller `supplier/profile`, routes, abilities
-   acheteur/fournisseur, écran `supplier/profile.vue`.
+1. **PR 1 — Fondation données** — fait : migrations, modèles, types, seeder, tests.
+2. **PR 2 — Profil fournisseur** (cette section) — fait : service, validator,
+   transformer, controller, routes, ability, écran `supplier/profile.vue`, i18n, tests.
 3. **PR 3 — Onboarding** — sélection acheteur/fournisseur au premier login.
 4. **PR 4 — Annuaire public fournisseurs** — `suppliers/index.vue` + `show.vue`,
    controller public, transformer enrichi (profil + fiche).

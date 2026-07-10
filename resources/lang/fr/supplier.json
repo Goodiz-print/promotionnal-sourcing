@@ -1,0 +1,25 @@
+{
+  "profile": {
+    "title": "Profil fournisseur",
+    "subtitle": "Renseignez vos délais, certifications et périmètre de livraison pour rassurer les acheteurs.",
+    "submit": "Enregistrer le profil",
+    "success": "Profil fournisseur mis à jour."
+  },
+  "fields": {
+    "minOrderQuantity": "Quantité minimum de commande",
+    "deliveryDays": "Délai de livraison (jours)",
+    "responseTimeDays": "Délai de réponse (jours)",
+    "deliveryScope": "Périmètre de livraison",
+    "certifications": "Certifications",
+    "certificationPlaceholder": "ex. ISO 9001",
+    "certificationAdd": "Ajouter une certification",
+    "certificationRemove": "Retirer",
+    "bio": "Présentation"
+  },
+  "deliveryScope": {
+    "none": "Non précisé",
+    "national": "National",
+    "europe": "Europe",
+    "worldwide": "International"
+  }
+}

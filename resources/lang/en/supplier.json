@@ -1,0 +1,25 @@
+{
+  "profile": {
+    "title": "Supplier profile",
+    "subtitle": "Fill in your lead times, certifications and delivery scope to reassure buyers.",
+    "submit": "Save profile",
+    "success": "Supplier profile updated."
+  },
+  "fields": {
+    "minOrderQuantity": "Minimum order quantity",
+    "deliveryDays": "Delivery time (days)",
+    "responseTimeDays": "Response time (days)",
+    "deliveryScope": "Delivery scope",
+    "certifications": "Certifications",
+    "certificationPlaceholder": "e.g. ISO 9001",
+    "certificationAdd": "Add a certification",
+    "certificationRemove": "Remove",
+    "bio": "About"
+  },
+  "deliveryScope": {
+    "none": "Not specified",
+    "national": "National",
+    "europe": "Europe",
+    "worldwide": "Worldwide"
+  }
+}

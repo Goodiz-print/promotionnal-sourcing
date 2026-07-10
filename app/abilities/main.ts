@@ -80,3 +80,13 @@ export const canManageMembers = Bouncer.ability(async (user: User, org: Organiza
   const m = await getMembership(user, org)
   return m ? ['owner', 'admin'].includes(m.role.slug) : false
 })
+
+/**
+ * Ability to check if user can manage the supplier profile of an organization.
+ * The organization must be a supplier (or both), and the user an owner/admin.
+ */
+export const canManageSupplierProfile = Bouncer.ability(async (user: User, org: Organization) => {
+  if (!['supplier', 'both'].includes(org.organizationType)) return false
+  const m = await getMembership(user, org)
+  return m ? ['owner', 'admin'].includes(m.role.slug) : false
+})

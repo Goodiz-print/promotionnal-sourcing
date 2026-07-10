@@ -42,7 +42,13 @@ export interface OrganizationType {
   updatedAt: string | null
 }
 
-export interface SupplierProfileType {
+/**
+ * DTO exposé aux pages Inertia. Défini en `type` (et non `interface`) pour
+ * rester assignable à `Record<string, JSONDataTypes>` — contrainte de typage
+ * des props Inertia (`inertia.render`). Une interface, sans signature d'index
+ * implicite, y échouerait.
+ */
+export type SupplierProfileType = {
   id: number
   organizationId: number
   minOrderQuantity: number | null
@@ -53,6 +59,15 @@ export interface SupplierProfileType {
   responseTimeDays: number | null
   createdAt: string
   updatedAt: string | null
+}
+
+export interface UpdateSupplierProfileData {
+  minOrderQuantity?: number | null
+  deliveryDays?: number | null
+  deliveryScope?: DeliveryScope | null
+  certifications?: string[] | null
+  bio?: string | null
+  responseTimeDays?: number | null
 }
 
 export interface OrganizationMemberType {

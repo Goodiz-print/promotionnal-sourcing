@@ -127,4 +127,28 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
     }
   }
+  'supplier.profile': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/profile'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['show']>>>
+    }
+  }
+  'supplier.profile.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/supplier/profile'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/supplier_profile').updateSupplierProfileValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/supplier_profile').updateSupplierProfileValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
 }

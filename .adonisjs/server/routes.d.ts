@@ -14,18 +14,22 @@ export type ScannedRoutes = {
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.destroy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.profile': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.profile.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
   }
   GET: {
     'event_stream': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.profile': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
   }
   HEAD: {
     'event_stream': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.profile': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
   }
   POST: {
     'subscribe': { paramsTuple?: []; params?: {} }
@@ -34,6 +38,9 @@ export type ScannedRoutes = {
     'new_account.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.destroy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+  }
+  PATCH: {
+    'supplier.profile.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
   }
 }
 declare module '@adonisjs/core/types/http' {
