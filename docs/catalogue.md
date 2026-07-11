@@ -113,6 +113,41 @@ Un produit porte une **galerie** d'images ordonnées, hébergées sur Cloudinary
   fiche `inertia/pages/products/show.vue` via `inertia/components/product_gallery.vue`
   (image principale + miniatures, repli sur `imageUrl`).
 
+## Gestion produit fournisseur (CRUD + upload)
+
+Écran **authentifié** permettant à un fournisseur de gérer ses produits (org courante).
+
+- **Routes** (préfixe `:locale`, middleware `auth` + `onboarded`) :
+  `GET /supplier/products` (`.index`), `GET /supplier/products/new` (`.create`),
+  `POST /supplier/products` (`.store`), `GET /supplier/products/:id/edit` (`.edit`),
+  `POST /supplier/products/:id` (`.update` — **POST** pour porter le multipart),
+  `DELETE /supplier/products/:id` (`.destroy`).
+- **Autorisation** : ability `canManageProducts` (`app/abilities/main.ts`) — org
+  `supplier`/`both` + membre `owner`/`admin`. L'ownership est garanti côté service
+  (`findOwned` : produit dont le fournisseur appartient à l'org → sinon 404).
+- **Rattachement org → produits** : un produit appartient à un `Supplier`, lui-même
+  rattaché à une organisation. `SupplierProductService.resolveSupplier(org)` fait un
+  **get-or-create** du fournisseur de l'org (nom = nom de l'org, slug dérivé, pays de
+  l'org) : un org fraîchement onboardé peut donc créer des produits sans étape manuelle.
+- **Service** `app/services/supplier_product_service.ts` : `create`/`update`/`delete`,
+  slug unique (`stringHelpers.slug` + suffixe), traductions par locale
+  (`ProductTranslation.updateOrCreate`), facettes en ET fiable
+  (`attributeValues.sync` avec `attribute_id`), et galerie (upload via
+  `CloudinaryService.uploadMany`, suppression via `destroyMany`, `image_url` recalé
+  sur la 1re image). `CloudinaryService` est **injecté** (tests avec faux uploader,
+  aucun appel réseau).
+- **Validation** : `app/validators/supplier_product.ts` (`vine.create`) — contenu
+  bilingue requis (`translations.{fr,en}`), facettes (`attributeValueIds`), fichiers
+  (`vine.array(vine.file(...))`, jpg/png/webp, 5 Mo, max 8), `removedImageIds` (édition).
+- **Frontend** : pages `inertia/pages/supplier/products/{index,create,edit}.vue` (fines)
+  - formulaire partagé `inertia/components/products/form/product_form.vue` découpé en
+    sections (`translations`, `details`, `facets`, `images`) reliées par **provide/inject**
+    du `useForm` ; nouveau champ générique `inertia/components/base_file_input.vue`.
+    Soumission multipart via `form.transform(...).post(urlFor(...), { forceFormData: true })`.
+- **i18n** : clés `products.manage.*` (`resources/lang/{fr,en}/products.json`).
+
+> L'écran d'upload s'appuie sur l'infra Cloudinary (voir « Images produit » ci-dessus).
+
 ## i18n du contenu (FR par défaut, EN, extensible à N langues)
 
 Tout le texte visible (nom, description, label) vit dans des **tables de

@@ -1,0 +1,37 @@
+<script setup lang="ts">
+import { inject } from 'vue'
+import { useI18n } from '~/i18n'
+import { SUPPORTED_LOCALES, LOCALE_LABELS } from '#shared/types/i18n'
+import BaseInput from '~/components/base_input.vue'
+import BaseTextarea from '~/components/base_textarea.vue'
+import { ProductFormKey } from './types'
+
+const form = inject(ProductFormKey)!
+
+const { t } = useI18n()
+
+function errorFor(key: string): string | undefined {
+  return (form.errors as Record<string, string | undefined>)[key]
+}
+</script>
+
+<template>
+  <div class="flex flex-col gap-6">
+    <div v-for="locale in SUPPORTED_LOCALES" :key="locale" class="flex flex-col gap-3">
+      <h3 class="text-sm font-semibold text-[var(--gray-6)]">{{ LOCALE_LABELS[locale] }}</h3>
+      <BaseInput
+        :id="`name-${locale}`"
+        v-model="form.translations[locale].name"
+        type="text"
+        :label="t('products.manage.fields.name')"
+        :error="errorFor(`translations.${locale}.name`)"
+      />
+      <BaseTextarea
+        :id="`description-${locale}`"
+        v-model="form.translations[locale].description"
+        :label="t('products.manage.fields.description')"
+        :error="errorFor(`translations.${locale}.description`)"
+      />
+    </div>
+  </div>
+</template>

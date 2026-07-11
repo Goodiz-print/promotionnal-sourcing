@@ -19,5 +19,42 @@
     "category": "Category",
     "origin": "Country of origin",
     "requestQuote": "Request a quote"
+  },
+  "manage": {
+    "index": {
+      "title": "My products",
+      "empty": "You have no product yet. Create one."
+    },
+    "create": { "title": "New product" },
+    "edit": { "title": "Edit product" },
+    "newProduct": "New product",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "published": "Published",
+    "draft": "Draft",
+    "facets": "Attributes",
+    "images": "Images",
+    "noFacets": "No filterable attribute available.",
+    "removeImage": "Remove",
+    "confirmDelete": "Delete this product?",
+    "created": "Product created.",
+    "updated": "Product updated.",
+    "deleted": "Product deleted.",
+    "fields": {
+      "name": "Name",
+      "description": "Description",
+      "category": "Category",
+      "chooseCategory": "Choose a category",
+      "priceMin": "Min price",
+      "priceMax": "Max price",
+      "currency": "Currency",
+      "minQuantity": "Minimum quantity",
+      "originCountry": "Country of origin",
+      "madeInEurope": "Made in Europe",
+      "isActive": "Published",
+      "images": "Add images"
+    }
   }
 }

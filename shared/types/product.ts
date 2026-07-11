@@ -102,6 +102,44 @@ export type ProductDetailType = ProductType & {
   images: ProductImageType[]
 }
 
+/**
+ * Produit tel qu'exposé au formulaire d'édition fournisseur : traductions par
+ * locale (les deux), facettes sélectionnées et galerie. Déclaré en `type`
+ * (contrainte props Inertia).
+ */
+export type ProductEditType = {
+  id: number
+  slug: string
+  categoryId: number
+  priceMin: string | null
+  priceMax: string | null
+  currency: string
+  minQuantity: number | null
+  originCountry: string | null
+  madeInEurope: boolean
+  isActive: boolean
+  translations: Record<Locale, { name: string; description: string | null }>
+  attributeValueIds: number[]
+  images: ProductImageType[]
+}
+
+/**
+ * Payload validé du formulaire fournisseur (create/update). Le contenu est
+ * fourni par locale ; les fichiers image sont traités hors de ce type.
+ */
+export interface SupplierProductInput {
+  categoryId: number
+  translations: Record<Locale, { name: string; description?: string | null }>
+  priceMin?: number | null
+  priceMax?: number | null
+  currency?: string
+  minQuantity?: number | null
+  originCountry?: string | null
+  madeInEurope?: boolean
+  isActive?: boolean
+  attributeValueIds?: number[]
+}
+
 export interface CreateProductData {
   supplierId: number
   categoryId: number
