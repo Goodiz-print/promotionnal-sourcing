@@ -1,4 +1,6 @@
 import type { Locale } from './i18n.js'
+import type { CategoryType } from './category.js'
+import type { AttributeWithValuesType } from './attribute.js'
 
 /**
  * Traduction d'un produit (une ligne par locale).
@@ -44,6 +46,46 @@ export interface ProductAttributeValueType {
   attributeValueId: number | null
   valueNumber: string | null
   valueString: string | null
+}
+
+/**
+ * Filtres du catalogue public. `attributeValueIds` combine les facettes en
+ * ET fiable (un produit doit porter *toutes* les valeurs sélectionnées).
+ */
+export type ProductDirectoryFilters = {
+  search: string | null
+  categoryId: number | null
+  madeInEurope: boolean
+  attributeValueIds: number[]
+}
+
+/**
+ * Facettes exposées à la barre de filtres : catégories disponibles + attributs
+ * filtrables avec leurs valeurs (déjà localisés).
+ */
+export type ProductCatalogueFacets = {
+  categories: CategoryType[]
+  attributes: AttributeWithValuesType[]
+}
+
+/**
+ * Facette résolue d'un produit pour la fiche détaillée (nom d'attribut +
+ * libellé de valeur, dans la locale active).
+ */
+export type ProductDetailAttributeType = {
+  attributeSlug: string
+  attributeName: string | null
+  label: string | null
+}
+
+/**
+ * Fiche produit détaillée (catalogue public) : le produit localisé + un
+ * résumé du fournisseur/catégorie et la liste des facettes résolues.
+ */
+export type ProductDetailType = ProductType & {
+  supplier: { slug: string; name: string | null; country: string }
+  category: { slug: string; name: string | null } | null
+  attributes: ProductDetailAttributeType[]
 }
 
 export interface CreateProductData {

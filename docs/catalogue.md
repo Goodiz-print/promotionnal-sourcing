@@ -66,6 +66,32 @@ no-op hors PostgreSQL.
 `product_translations.search_vector` du schéma généré par l'ORM (colonnes
 SQL brutes, jamais typées/sérialisées).
 
+## Catalogue public (lecture)
+
+Écran acheteur public (sans auth), sous le préfixe de locale (`/fr`, `/en`) :
+
+- **Routes** : `GET /products` (`products.index`, liste filtrée/paginée) et
+  `GET /products/:slug` (`products.show`, fiche). Produit inactif/inconnu → 404
+  (`ProductNotFoundException`, `app/exceptions/catalogue_errors.ts`).
+- **Service** : `app/services/product_catalogue_service.ts` — toute la logique ORM
+  (controller fin `products_controller.ts`). `PER_PAGE = 12`.
+- **Recherche full-text locale-aware** : sur `product_translations.search_vector`
+  via `websearch_to_tsquery(<config locale>, terme)` (texte libre utilisateur, sans
+  sanitizer). La config vient de `LOCALE_TSCONFIG` (`fr`→`french`, `en`→`english`,
+  repli `simple`) ; la requête est scopée à la traduction de la locale active.
+- **Filtres** : catégorie (`categoryId`), made-in-Europe (`madeInEurope`), et
+  **facettes attributs** (`attributeValueIds[]`) en **ET fiable** — un `whereHas`
+  par valeur sélectionnée, cf. la section « ET » ci-dessus.
+- **Facettes exposées à l'UI** : `availableCategories()` (catégories ayant au moins
+  un produit actif) + `filterableAttributes()` (attributs `is_filterable` + valeurs).
+- **Frontend** : `inertia/pages/products/{index,show}.vue`, barre de filtres
+  `inertia/components/catalogue_filters.vue` (+ générique `base_checkbox.vue`),
+  cartes `product_card.vue`. i18n : `resources/lang/{fr,en}/products.json`.
+
+> Hors périmètre de cette tranche : CRUD fournisseur (dépend de l'auth fournisseur),
+> upload Cloudinary, recherche sémantique par embeddings (`products.embedding`
+> reste `NULL`), ranking `ts_rank`, tolérance typo `pg_trgm`.
+
 ## i18n du contenu (FR par défaut, EN, extensible à N langues)
 
 Tout le texte visible (nom, description, label) vit dans des **tables de
@@ -123,6 +149,8 @@ traduction dédiées** — jamais dans les tables de base :
 ## Roadmap
 
 1. **Incrément 2** (fait) — i18n du contenu catalogue + FTS par langue.
-2. **Incrément 3** — moteur de recherche locale-aware, embeddings Mistral
-   (`mistral-embed`), parseur de requête (synonymes, facettes), validateurs
-   et endpoints d'écriture adaptés au payload `translations`.
+2. **Incrément 3** (partiel) — catalogue public : moteur de recherche FTS
+   locale-aware + filtrage à facettes en ET fiable (voir « Catalogue public »).
+   Restent à faire : embeddings Mistral (`mistral-embed`, recherche sémantique),
+   parseur de requête (synonymes), validateurs et endpoints d'écriture adaptés au
+   payload `translations` (CRUD fournisseur).

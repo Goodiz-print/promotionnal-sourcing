@@ -10,6 +10,7 @@ import type AttributeTransformer from '#transformers/attribute_transformer'
 import type AttributeValueTransformer from '#transformers/attribute_value_transformer'
 import type CategoryTransformer from '#transformers/category_transformer'
 import type OrganizationTransformer from '#transformers/organization_transformer'
+import type ProductDetailTransformer from '#transformers/product_detail_transformer'
 import type ProductTransformer from '#transformers/product_transformer'
 import type RoleTransformer from '#transformers/role_transformer'
 import type SupplierDetailTransformer from '#transformers/supplier_detail_transformer'
@@ -34,6 +35,10 @@ export namespace Data {
   export type Organization = InferData<OrganizationTransformer>
   export namespace Organization {
     export type Variants = InferVariants<OrganizationTransformer>
+  }
+  export type ProductDetail = InferData<ProductDetailTransformer>
+  export namespace ProductDetail {
+    export type Variants = InferVariants<ProductDetailTransformer>
   }
   export type Product = InferData<ProductTransformer>
   export namespace Product {

@@ -17,7 +17,12 @@ export interface AttributeValueTranslationType {
   label: string
 }
 
-export interface AttributeType {
+/**
+ * Déclarés en `type` (et non `interface`) pour rester assignables aux props
+ * Inertia (`Record<string, JSONDataTypes>`) : une interface n'a pas de
+ * signature d'index implicite.
+ */
+export type AttributeType = {
   id: number
   name: string | null
   slug: string
@@ -28,7 +33,7 @@ export interface AttributeType {
   updatedAt: string | null
 }
 
-export interface AttributeValueType {
+export type AttributeValueType = {
   id: number
   attributeId: number
   value: string
@@ -39,7 +44,7 @@ export interface AttributeValueType {
   updatedAt: string | null
 }
 
-export interface AttributeWithValuesType extends AttributeType {
+export type AttributeWithValuesType = AttributeType & {
   values: AttributeValueType[]
 }
 

@@ -41,6 +41,10 @@ router
     router.get('suppliers', [controllers.Suppliers, 'index']).as('suppliers.index')
     router.get('suppliers/:slug', [controllers.Suppliers, 'show']).as('suppliers.show')
 
+    // Catalogue public des produits (sans auth).
+    router.get('products', [controllers.Products, 'index']).as('products.index')
+    router.get('products/:slug', [controllers.Products, 'show']).as('products.show')
+
     router
       .group(() => {
         router.get('signup', [controllers.NewAccount, 'create'])

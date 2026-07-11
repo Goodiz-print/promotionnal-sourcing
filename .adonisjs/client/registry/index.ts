@@ -48,6 +48,18 @@ const routes = {
     tokens: [{"old":"/:locale/suppliers/:slug","type":1,"val":"locale","end":""},{"old":"/:locale/suppliers/:slug","type":0,"val":"suppliers","end":""},{"old":"/:locale/suppliers/:slug","type":1,"val":"slug","end":""}],
     types: placeholder as Registry['suppliers.show']['types'],
   },
+  'products.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/products',
+    tokens: [{"old":"/:locale/products","type":1,"val":"locale","end":""},{"old":"/:locale/products","type":0,"val":"products","end":""}],
+    types: placeholder as Registry['products.index']['types'],
+  },
+  'products.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/products/:slug',
+    tokens: [{"old":"/:locale/products/:slug","type":1,"val":"locale","end":""},{"old":"/:locale/products/:slug","type":0,"val":"products","end":""},{"old":"/:locale/products/:slug","type":1,"val":"slug","end":""}],
+    types: placeholder as Registry['products.show']['types'],
+  },
   'new_account.create': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/signup',

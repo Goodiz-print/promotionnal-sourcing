@@ -15,6 +15,8 @@ declare module '@adonisjs/inertia/types' {
     'errors/server_error': ExtractProps<(typeof import('../../inertia/pages/errors/server_error.vue'))['default']>
     'home': ExtractProps<(typeof import('../../inertia/pages/home.vue'))['default']>
     'onboarding/index': ExtractProps<(typeof import('../../inertia/pages/onboarding/index.vue'))['default']>
+    'products/index': ExtractProps<(typeof import('../../inertia/pages/products/index.vue'))['default']>
+    'products/show': ExtractProps<(typeof import('../../inertia/pages/products/show.vue'))['default']>
     'supplier/profile': ExtractProps<(typeof import('../../inertia/pages/supplier/profile.vue'))['default']>
     'suppliers/index': ExtractProps<(typeof import('../../inertia/pages/suppliers/index.vue'))['default']>
     'suppliers/show': ExtractProps<(typeof import('../../inertia/pages/suppliers/show.vue'))['default']>

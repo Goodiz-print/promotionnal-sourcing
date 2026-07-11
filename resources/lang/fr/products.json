@@ -1,0 +1,22 @@
+{
+  "index": {
+    "title": "Catalogue produits",
+    "subtitle": "Recherchez et filtrez les produits promotionnels des fournisseurs européens.",
+    "searchLabel": "Recherche",
+    "searchPlaceholder": "Nom, matière, couleur…",
+    "category": "Catégorie",
+    "allCategories": "Toutes les catégories",
+    "madeInEurope": "Fabriqué en Europe",
+    "resultsCount": "{count, plural, =0 {Aucun produit} one {# produit} other {# produits}}",
+    "empty": "Aucun produit ne correspond à votre recherche.",
+    "previous": "Précédent",
+    "next": "Suivant"
+  },
+  "show": {
+    "backToCatalogue": "Retour au catalogue",
+    "minQuantity": "Quantité minimum",
+    "category": "Catégorie",
+    "origin": "Pays d'origine",
+    "requestQuote": "Demander un devis"
+  }
+}
