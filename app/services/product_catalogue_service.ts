@@ -61,6 +61,7 @@ export default class ProductCatalogueService {
       .where('slug', slug)
       .where('isActive', true)
       .preload('translations')
+      .preload('images', (images) => images.orderBy('position'))
       .preload('supplier', (supplier) => supplier.preload('translations'))
       .preload('category', (category) => category.preload('translations'))
       .preload('productAttributes', (pa) =>

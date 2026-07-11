@@ -4,6 +4,7 @@ import { Head } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
 import BaseButton from '~/components/base_button.vue'
+import ProductGallery from '~/components/product_gallery.vue'
 import type { ProductDetailType } from '#shared/types/product'
 
 const props = defineProps<{ product: ProductDetailType }>()
@@ -31,11 +32,10 @@ const price = computed(() => {
     </Link>
 
     <div class="flex flex-col gap-8 md:flex-row">
-      <img
-        v-if="product.imageUrl"
-        :src="product.imageUrl"
+      <ProductGallery
+        :images="product.images"
+        :fallback-url="product.imageUrl"
         :alt="product.name ?? product.slug"
-        class="aspect-square w-full rounded object-cover md:w-80"
       />
 
       <div class="flex flex-1 flex-col gap-4">

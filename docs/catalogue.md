@@ -89,8 +89,29 @@ SQL brutes, jamais typées/sérialisées).
   cartes `product_card.vue`. i18n : `resources/lang/{fr,en}/products.json`.
 
 > Hors périmètre de cette tranche : CRUD fournisseur (dépend de l'auth fournisseur),
-> upload Cloudinary, recherche sémantique par embeddings (`products.embedding`
-> reste `NULL`), ranking `ts_rank`, tolérance typo `pg_trgm`.
+> recherche sémantique par embeddings (`products.embedding` reste `NULL`),
+> ranking `ts_rank`, tolérance typo `pg_trgm`.
+
+## Images produit (galerie + Cloudinary)
+
+Un produit porte une **galerie** d'images ordonnées, hébergées sur Cloudinary.
+
+- **Stockage** : table `product_images` (one-to-many) — `product_id` (CASCADE),
+  `secure_url`, `public_id` (unique, requis pour supprimer l'asset), `position`
+  (ordre, unique par produit), `width`/`height`. Modèle `app/models/product_image.ts`
+  (`Product hasMany images`). URL/position **neutres** (pas de localisation) ; des
+  alt/légendes localisés suivraient le précédent `product_translations` (hors v1).
+- **`products.image_url`** : conservé comme **image principale dénormalisée**
+  (repli affichage + cartes catalogue) ; la galerie complète vit dans `product_images`.
+- **Upload** : `app/services/cloudinary_service.ts` (`uploadMany`/`upload`/`destroy`),
+  dossier imposé `promotionnal-sourcing/<environnement>/products/<slug>` ; validateur
+  multi-fichiers réutilisable `app/validators/product_image.ts`
+  (`vine.array(vine.file(...))`, jpg/png/webp, 5 Mo, max 8). Le service et le
+  validateur sont prêts ; **l'écran d'upload fournisseur** sera branché avec le CRUD
+  produit fournisseur.
+- **Affichage** : `ProductDetailTransformer` expose `images` (triées par `position`) ;
+  fiche `inertia/pages/products/show.vue` via `inertia/components/product_gallery.vue`
+  (image principale + miniatures, repli sur `imageUrl`).
 
 ## i18n du contenu (FR par défaut, EN, extensible à N langues)
 

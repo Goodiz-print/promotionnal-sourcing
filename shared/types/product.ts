@@ -79,6 +79,18 @@ export type ProductDetailAttributeType = {
 }
 
 /**
+ * Image de la galerie produit (sérialisée pour le frontend). Déclaré en
+ * `type` — contrainte props Inertia `Record<string, JSONDataTypes>`.
+ */
+export type ProductImageType = {
+  id: number
+  url: string
+  position: number
+  width: number | null
+  height: number | null
+}
+
+/**
  * Fiche produit détaillée (catalogue public) : le produit localisé + un
  * résumé du fournisseur/catégorie et la liste des facettes résolues.
  */
@@ -86,6 +98,8 @@ export type ProductDetailType = ProductType & {
   supplier: { slug: string; name: string | null; country: string }
   category: { slug: string; name: string | null } | null
   attributes: ProductDetailAttributeType[]
+  // Galerie ordonnée (par `position`). `imageUrl` reste l'image principale.
+  images: ProductImageType[]
 }
 
 export interface CreateProductData {

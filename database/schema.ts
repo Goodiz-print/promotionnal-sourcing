@@ -267,6 +267,39 @@ export class ProductAttributeSchema extends BaseModel {
   declare valueString: string | null
 }
 
+export class ProductImageSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'height',
+    'id',
+    'position',
+    'productId',
+    'publicId',
+    'secureUrl',
+    'updatedAt',
+    'width',
+  ] as const
+  $columns = ProductImageSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare height: number | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare position: number
+  @column()
+  declare productId: number
+  @column()
+  declare publicId: string
+  @column()
+  declare secureUrl: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare width: number | null
+}
+
 export class ProductTranslationSchema extends BaseModel {
   static $columns = [
     'createdAt',

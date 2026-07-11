@@ -16,6 +16,7 @@ const translations = {
   'products.index.previous': 'Précédent',
   'products.index.next': 'Suivant',
   'products.show.backToCatalogue': 'Retour au catalogue',
+  'products.show.viewImage': "Voir l'image",
   'products.show.minQuantity': 'Quantité minimum',
   'products.show.category': 'Catégorie',
   'products.show.origin': "Pays d'origine",
@@ -34,6 +35,7 @@ vi.mock('@adonisjs/inertia/vue', () => ({
 
 const { default: Index } = await import('~/pages/products/index.vue')
 const { default: Show } = await import('~/pages/products/show.vue')
+const { default: ProductGallery } = await import('~/components/product_gallery.vue')
 
 function product(id: number, name: string, slug: string) {
   return {
@@ -142,6 +144,9 @@ describe('products/show.vue', () => {
           supplier: { slug: 'nordic-promo', name: 'Nordic Promo', country: 'SE' },
           category: { slug: 'crayon', name: 'Crayon' },
           attributes: [{ attributeSlug: 'color', attributeName: 'Couleur', label: 'Bleu' }],
+          images: [
+            { id: 1, url: 'https://img.example/a.jpg', position: 0, width: 800, height: 600 },
+          ],
         },
       },
     })
@@ -152,5 +157,49 @@ describe('products/show.vue', () => {
     expect(wrapper.text()).toContain('Couleur')
     expect(wrapper.text()).toContain('Bleu')
     expect(wrapper.text()).toContain('Demander un devis')
+  })
+})
+
+describe('product_gallery.vue', () => {
+  const image = (id: number, url: string, position: number) => ({
+    id,
+    url,
+    position,
+    width: 800,
+    height: 600,
+  })
+
+  it('affiche l’image principale + une miniature par image', () => {
+    const wrapper = mount(ProductGallery, {
+      props: {
+        images: [
+          image(1, 'https://img.example/a.jpg', 0),
+          image(2, 'https://img.example/b.jpg', 1),
+        ],
+        fallbackUrl: null,
+        alt: 'Produit',
+      },
+    })
+
+    // 1 image principale + 2 miniatures.
+    expect(wrapper.findAll('img')).toHaveLength(3)
+    expect(wrapper.findAll('button')).toHaveLength(2)
+  })
+
+  it('se replie sur fallbackUrl quand la galerie est vide', () => {
+    const wrapper = mount(ProductGallery, {
+      props: { images: [], fallbackUrl: 'https://img.example/fallback.jpg', alt: 'Produit' },
+    })
+
+    expect(wrapper.find('img').attributes('src')).toBe('https://img.example/fallback.jpg')
+    expect(wrapper.findAll('button')).toHaveLength(0)
+  })
+
+  it('ne rend aucune image sans galerie ni fallback', () => {
+    const wrapper = mount(ProductGallery, {
+      props: { images: [], fallbackUrl: null, alt: 'Produit' },
+    })
+
+    expect(wrapper.find('img').exists()).toBe(false)
   })
 })

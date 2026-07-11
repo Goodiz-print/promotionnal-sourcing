@@ -17,13 +17,21 @@
 
 ## Dépendances système
 
-### Ghostscript (compression PDF)
+### Cloudinary (upload et hébergement des images)
 
-Les PDFs uploadés sont compressés avant envoi sur Cloudinary via `app/services/pdf_service.ts` (`-dPDFSETTINGS=/ebook`).
+Les images (galerie produit…) sont uploadées sur Cloudinary via `app/services/cloudinary_service.ts` (SDK `cloudinary`).
+
+- **Config** : `config/cloudinary.ts` ; env `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (validées dans `start/env.ts`, documentées dans `.env.example`).
+- **Convention de dossier imposée** : `promotionnal-sourcing/<environnement>/…` (`<environnement>` = `NODE_ENV`) — isole les assets par environnement.
+- **Multi-fichiers** : `uploadMany` (galerie) ; suppression des assets remplacés via `destroy`/`destroyMany` (`public_id`).
+
+### Ghostscript (compression PDF) — _prévu, non encore implémenté_
+
+> ⚠️ Cible : compresser les PDFs uploadés (`-dPDFSETTINGS=/ebook`) avant envoi sur Cloudinary via un futur `app/services/pdf_service.ts`. **Ce service n'existe pas encore.**
 
 - **Local** : `brew install ghostscript`
 - **Docker/prod** : `apt-get install -y ghostscript` dans le Dockerfile
-- **Fallback** : si `gs` n'est pas disponible, le PDF original est envoyé sans compression (warning loggé, pas de crash)
+- **Fallback** prévu : si `gs` n'est pas disponible, envoyer le PDF original sans compression (warning loggé, pas de crash)
 
 ## Conventions de code
 
