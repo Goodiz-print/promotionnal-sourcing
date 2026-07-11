@@ -1,54 +1,35 @@
-import { Mistral } from '@mistralai/mistralai'
 import db from '@adonisjs/lucid/services/db'
 import aiConfig from '#config/ai'
 import { toPgVector } from '#shared/helpers/pgvector'
+import { resolveEmbeddingProvider } from '#services/embeddings/provider_factory'
+import { EmbeddingDimensionError } from '#exceptions/ai_errors'
+import type { EmbeddingProvider } from '#shared/types/ai'
 import type Product from '#models/product'
 
 /**
- * Sous-ensemble de l'API Mistral dont dépend ce service. Permet d'injecter un
- * **faux client** en test (aucun appel réseau).
- */
-export interface EmbeddingClient {
-  embeddings: {
-    create(request: {
-      model: string
-      inputs: string[]
-      outputDimension?: number
-    }): Promise<{ data: Array<{ embedding?: number[] }> }>
-  }
-}
-
-/**
- * Client Mistral réel construit depuis la configuration.
- */
-function defaultClient(): EmbeddingClient {
-  return new Mistral({ apiKey: aiConfig.mistral.apiKey }) as unknown as EmbeddingClient
-}
-
-/**
- * Génère des embeddings via Mistral (`mistral-embed`, 1024 dims) et les persiste
- * dans `products.embedding` (pgvector) pour la recherche sémantique. Le client
- * est injecté (testabilité) ; toute la logique ORM/SQL vit ici (controllers et
- * jobs fins).
+ * Orchestration des embeddings produits : délègue le calcul au **provider**
+ * configuré (`AI_PROVIDER` : Mistral, OpenAI-compatible…) puis persiste le
+ * vecteur dans `products.embedding` (pgvector) pour la recherche sémantique.
+ * Le provider est injecté (testabilité) ; toute la logique ORM/SQL vit ici
+ * (controllers et jobs fins).
  */
 export default class EmbeddingService {
-  constructor(private client: EmbeddingClient = defaultClient()) {}
+  constructor(private provider: EmbeddingProvider = resolveEmbeddingProvider()) {}
 
   /**
-   * Embedding d'un texte libre. `null` si le texte est vide ou si l'API ne
-   * renvoie pas de vecteur.
+   * Embedding d'un texte libre. `null` si le texte est vide. Lève
+   * `EmbeddingDimensionError` si le provider ne renvoie pas la dimension
+   * attendue (colonne `products.embedding` figée à `dimensions`).
    */
   async embed(text: string): Promise<number[] | null> {
     const trimmed = text.trim()
     if (!trimmed) return null
 
-    const response = await this.client.embeddings.create({
-      model: aiConfig.mistral.embedModel,
-      inputs: [trimmed],
-      outputDimension: aiConfig.mistral.dimensions,
-    })
-
-    return response.data[0]?.embedding ?? null
+    const vector = await this.provider.embed(trimmed)
+    if (vector.length !== aiConfig.embeddings.dimensions) {
+      throw new EmbeddingDimensionError(vector.length, aiConfig.embeddings.dimensions)
+    }
+    return vector
   }
 
   /**
@@ -71,7 +52,8 @@ export default class EmbeddingService {
 
   /**
    * Texte représentatif d'un produit pour l'embedding : concatène nom +
-   * description de chaque traduction préchargée (Mistral-embed est multilingue).
+   * description de chaque traduction préchargée (les modèles d'embedding
+   * modernes sont multilingues).
    */
   static productText(product: Product): string {
     return product.translations

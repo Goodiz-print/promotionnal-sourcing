@@ -72,10 +72,19 @@ En complément du full-text (correspondance lexicale), le catalogue offre une
 **recherche sémantique** : des produits pertinents remontent même sans mot-clé
 exact (« stylo écologique » → produits verts).
 
-- **Config** `config/ai.ts` (`mistral-embed`, 1024 dims) + `AI_EMBEDDINGS_ENABLED`
-  (défaut **faux**). Désactivée en dev/test/CI (aucun appel réseau) ; activée en
-  production avec `MISTRAL_API_KEY`.
-- **Génération** — `EmbeddingService` (client Mistral injecté, testable) calcule
+- **Provider-agnostique** — `AI_PROVIDER` choisit le driver d'embeddings :
+  `mistral` (SDK natif) ou `openai-compatible` (driver générique HTTP parlant le
+  protocole OpenAI `/embeddings` : OpenAI, Together, Groq, Ollama, vLLM, LM
+  Studio… via `AI_BASE_URL` / `AI_API_KEY` / `AI_EMBED_MODEL`). Chaque driver
+  implémente l'interface `EmbeddingProvider` (`shared/types/ai.ts`) et est résolu
+  par `provider_factory.ts`. Ajouter un provider = un fichier dans
+  `app/services/embeddings/` + un `case` dans la factory.
+- **Config** `config/ai.ts` + `AI_EMBEDDINGS_ENABLED` (défaut **faux** →
+  désactivée en dev/test/CI, aucun appel réseau). La **dimension est figée à
+  1024** (colonne `products.embedding`) : chaque provider est configuré pour
+  réduire à 1024 (`outputDimension` Mistral, `dimensions` OpenAI) ; un vecteur
+  d'une autre taille lève `EmbeddingDimensionError`.
+- **Génération** — `EmbeddingService` (provider injecté, testable) calcule
   l'embedding depuis `productText` (nom + description, toutes locales) et l'écrit
   en `products.embedding` (`?::vector`). Déclenchée en asynchrone par le job
   `generate_product_embedding_job`, dispatché à la création/mise à jour d'un

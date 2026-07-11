@@ -65,9 +65,19 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
-  | IA (Mistral) — embeddings produits (recherche sémantique)
+  | IA — embeddings produits (recherche sémantique)
   |----------------------------------------------------------
+  | Provider-agnostique : `AI_PROVIDER` choisit le driver
+  | (`mistral` | `openai-compatible`). Toutes optionnelles :
+  | la génération est désactivée par défaut (AI_EMBEDDINGS_ENABLED).
   */
-  MISTRAL_API_KEY: Env.schema.string.optional(),
+  AI_PROVIDER: Env.schema.string.optional(),
   AI_EMBEDDINGS_ENABLED: Env.schema.boolean.optional(),
+  // Driver Mistral (natif)
+  MISTRAL_API_KEY: Env.schema.string.optional(),
+  MISTRAL_EMBED_MODEL: Env.schema.string.optional(),
+  // Driver OpenAI-compatible (générique)
+  AI_BASE_URL: Env.schema.string.optional(),
+  AI_API_KEY: Env.schema.string.optional(),
+  AI_EMBED_MODEL: Env.schema.string.optional(),
 })
