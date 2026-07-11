@@ -1,0 +1,39 @@
+{
+  "index": {
+    "title": "Categories",
+    "subtitle": "Manage the catalogue taxonomy (category tree).",
+    "empty": "No categories yet. Create one.",
+    "columns": {
+      "name": "Name",
+      "slug": "Slug",
+      "parent": "Parent",
+      "products": "Products"
+    }
+  },
+  "create": { "title": "New category" },
+  "edit": { "title": "Edit category" },
+  "newCategory": "New category",
+  "edit": "Edit",
+  "delete": "Delete",
+  "save": "Save",
+  "cancel": "Cancel",
+  "confirmDelete": "Delete this category?",
+  "noParent": "None (root category)",
+  "fields": {
+    "slug": "Slug",
+    "slugHint": "Lowercase, digits and hyphens. Cannot be changed later.",
+    "parent": "Parent category",
+    "name": "Name",
+    "description": "Description",
+    "synonyms": "Synonyms",
+    "synonymsHint": "Comma-separated (improves search)."
+  },
+  "flash": {
+    "created": "Category created.",
+    "updated": "Category updated.",
+    "deleted": "Category deleted.",
+    "cycle": "A category cannot be its own parent or a descendant's parent.",
+    "hasChildren": "Cannot delete: this category has sub-categories.",
+    "hasProducts": "Cannot delete: products are attached to this category."
+  }
+}

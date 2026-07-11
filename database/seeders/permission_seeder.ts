@@ -44,6 +44,11 @@ export default class PermissionSeeder extends BaseSeeder {
         slug: 'billing:manage',
         description: 'Acceder aux abonnements et factures',
       },
+      {
+        name: 'Gerer les categories',
+        slug: 'categories:manage',
+        description: 'Administrer la taxonomie du catalogue (categories)',
+      },
     ])
   }
 }

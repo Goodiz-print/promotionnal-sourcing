@@ -43,4 +43,14 @@ export interface ApiDefinition {
       destroy: typeof routes['supplier.products.destroy']
     }
   }
+  admin: {
+    categories: {
+      index: typeof routes['admin.categories.index']
+      create: typeof routes['admin.categories.create']
+      store: typeof routes['admin.categories.store']
+      edit: typeof routes['admin.categories.edit']
+      update: typeof routes['admin.categories.update']
+      destroy: typeof routes['admin.categories.destroy']
+    }
+  }
 }

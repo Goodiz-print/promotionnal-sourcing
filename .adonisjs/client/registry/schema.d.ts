@@ -295,4 +295,76 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['destroy']>>>
     }
   }
+  'admin.categories.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/categories'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['index']>>>
+    }
+  }
+  'admin.categories.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/categories/new'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['create']>>>
+    }
+  }
+  'admin.categories.store': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/categories'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/category').createCategoryValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/category').createCategoryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.categories.edit': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/categories/:id/edit'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['edit']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['edit']>>>
+    }
+  }
+  'admin.categories.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/categories/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/category').updateCategoryValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/category').updateCategoryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.categories.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/admin/categories/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['destroy']>>>
+    }
+  }
 }

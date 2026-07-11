@@ -12,6 +12,7 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
     'sourcing:manage',
     'sourcing:view',
     'billing:manage',
+    'categories:manage',
   ],
   admin: [
     'organization:manage',
@@ -21,6 +22,7 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
     'sourcing:create',
     'sourcing:manage',
     'sourcing:view',
+    'categories:manage',
   ],
   manager: ['members:invite', 'sourcing:create', 'sourcing:manage', 'sourcing:view'],
   member: ['sourcing:create', 'sourcing:view'],
