@@ -1,11 +1,14 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import logger from '@adonisjs/core/services/logger'
 import ProductCatalogueService from '#services/product_catalogue_service'
+import EmbeddingService from '#services/embedding_service'
 import ProductTransformer from '#transformers/product_transformer'
 import ProductDetailTransformer from '#transformers/product_detail_transformer'
 import CategoryTransformer from '#transformers/category_transformer'
 import AttributeTransformer from '#transformers/attribute_transformer'
 import AttributeValueTransformer from '#transformers/attribute_value_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
+import aiConfig from '#config/ai'
 import type { Locale } from '#shared/types/i18n'
 import type { ProductDirectoryFilters } from '#shared/types/product'
 
@@ -30,7 +33,15 @@ export default class ProductsController {
     }
     const page = Number.parseInt(qs.page, 10) || 1
 
-    const paginator = await this.service.list({ ...filters, page, perPage: PER_PAGE, locale })
+    const queryEmbedding = await this.searchEmbedding(filters.search)
+
+    const paginator = await this.service.list({
+      ...filters,
+      page,
+      perPage: PER_PAGE,
+      locale,
+      queryEmbedding,
+    })
     const categories = await this.service.availableCategories()
     const attributes = await this.service.filterableAttributes()
 
@@ -71,6 +82,21 @@ export default class ProductsController {
     return inertia.render('products/show', {
       product: new ProductDetailTransformer(product, locale).toObject(),
     })
+  }
+
+  /**
+   * Embedding de la requête pour la recherche sémantique. `null` si la recherche
+   * IA est désactivée, sans terme, ou en cas d'erreur (repli full-text).
+   */
+  private async searchEmbedding(search: string | null): Promise<number[] | null> {
+    if (!search || !aiConfig.embeddings.enabled) return null
+    try {
+      const service = new EmbeddingService()
+      return await service.embed(search)
+    } catch (error) {
+      logger.warn({ err: error }, 'semantic search embedding failed, falling back to full-text')
+      return null
+    }
   }
 
   /**

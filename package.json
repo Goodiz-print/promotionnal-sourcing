@@ -22,6 +22,7 @@
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
     "#exceptions/*": "./app/exceptions/*.js",
+    "#jobs/*": "./app/jobs/*.js",
     "#models/*": "./app/models/*.js",
     "#mails/*": "./app/mails/*.js",
     "#services/*": "./app/services/*.js",
@@ -88,6 +89,7 @@
     "@adonisjs/transmit": "^3.0.1",
     "@adonisjs/vite": "^5.1.1",
     "@inertiajs/vue3": "^2.3.24",
+    "@mistralai/mistralai": "^2.4.1",
     "@tuyau/core": "^1.2.2",
     "@vinejs/vine": "^4.4.0",
     "@vue/server-renderer": "^3.5.35",

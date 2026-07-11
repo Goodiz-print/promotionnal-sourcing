@@ -4,6 +4,7 @@
  */
 
 /// <reference path="../../adonisrc.ts" />
+/// <reference path="../../config/ai.ts" />
 /// <reference path="../../config/auth.ts" />
 /// <reference path="../../config/cloudinary.ts" />
 /// <reference path="../../config/hash.ts" />

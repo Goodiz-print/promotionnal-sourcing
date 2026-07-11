@@ -62,4 +62,12 @@ export default await Env.create(new URL('../', import.meta.url), {
   CLOUDINARY_CLOUD_NAME: Env.schema.string(),
   CLOUDINARY_API_KEY: Env.schema.string(),
   CLOUDINARY_API_SECRET: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | IA (Mistral) — embeddings produits (recherche sémantique)
+  |----------------------------------------------------------
+  */
+  MISTRAL_API_KEY: Env.schema.string.optional(),
+  AI_EMBEDDINGS_ENABLED: Env.schema.boolean.optional(),
 })

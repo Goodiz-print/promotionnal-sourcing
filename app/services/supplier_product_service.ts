@@ -8,6 +8,8 @@ import ProductImage from '#models/product_image'
 import ProductTranslation from '#models/product_translation'
 import SupplierTranslation from '#models/supplier_translation'
 import CloudinaryService from '#services/cloudinary_service'
+import GenerateProductEmbeddingJob from '#jobs/generate_product_embedding_job'
+import logger from '@adonisjs/core/services/logger'
 import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from '#shared/types/i18n'
 import type Organization from '#models/organization'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
@@ -91,6 +93,7 @@ export default class SupplierProductService {
     await this.syncFacets(product, data.attributeValueIds)
     await this.attachImages(product, files, 0)
     await this.refreshPrimaryImage(product)
+    await this.queueEmbedding(product)
 
     return product
   }
@@ -125,6 +128,7 @@ export default class SupplierProductService {
     const last = await product.related('images').query().orderBy('position', 'desc').first()
     await this.attachImages(product, files, last ? last.position + 1 : 0)
     await this.refreshPrimaryImage(product)
+    await this.queueEmbedding(product)
 
     return product
   }
@@ -137,6 +141,19 @@ export default class SupplierProductService {
     const images = await product.related('images').query()
     await this.cloudinary.destroyMany(images.map((image) => image.publicId))
     await product.delete()
+  }
+
+  /**
+   * Planifie le (re)calcul de l'embedding sémantique du produit. Résilient : un
+   * échec de queue ne doit jamais faire échouer la création/mise à jour produit
+   * (no-op côté job tant que l'IA est désactivée).
+   */
+  private async queueEmbedding(product: Product): Promise<void> {
+    try {
+      await GenerateProductEmbeddingJob.dispatch({ productId: product.id })
+    } catch (error) {
+      logger.warn({ err: error, productId: product.id }, 'failed to queue product embedding')
+    }
   }
 
   /**
