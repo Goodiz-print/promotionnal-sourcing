@@ -12,6 +12,7 @@ import type CategoryTransformer from '#transformers/category_transformer'
 import type OrganizationTransformer from '#transformers/organization_transformer'
 import type ProductTransformer from '#transformers/product_transformer'
 import type RoleTransformer from '#transformers/role_transformer'
+import type SupplierDetailTransformer from '#transformers/supplier_detail_transformer'
 import type SupplierProfileTransformer from '#transformers/supplier_profile_transformer'
 import type SupplierTransformer from '#transformers/supplier_transformer'
 import type UserTransformer from '#transformers/user_transformer'
@@ -41,6 +42,10 @@ export namespace Data {
   export type Role = InferData<RoleTransformer>
   export namespace Role {
     export type Variants = InferVariants<RoleTransformer>
+  }
+  export type SupplierDetail = InferData<SupplierDetailTransformer>
+  export namespace SupplierDetail {
+    export type Variants = InferVariants<SupplierDetailTransformer>
   }
   export type SupplierProfile = InferData<SupplierProfileTransformer>
   export namespace SupplierProfile {

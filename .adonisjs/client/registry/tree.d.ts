@@ -9,6 +9,10 @@ export interface ApiDefinition {
     update: typeof routes['locale.update']
   }
   home: typeof routes['home']
+  suppliers: {
+    index: typeof routes['suppliers.index']
+    show: typeof routes['suppliers.show']
+  }
   newAccount: {
     create: typeof routes['new_account.create']
     store: typeof routes['new_account.store']

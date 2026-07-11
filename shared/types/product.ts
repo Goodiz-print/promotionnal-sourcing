@@ -13,7 +13,7 @@ export interface ProductTranslationType {
  * Produit sérialisé pour le frontend : `name`/`description` sont déjà
  * résolus dans la locale active par le transformer.
  */
-export interface ProductType {
+export type ProductType = {
   id: number
   supplierId: number
   categoryId: number

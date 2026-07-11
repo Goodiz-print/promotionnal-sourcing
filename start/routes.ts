@@ -37,6 +37,10 @@ router
   .group(() => {
     router.on('/').renderInertia('home', {}).as('home')
 
+    // Annuaire public des fournisseurs (sans auth).
+    router.get('suppliers', [controllers.Suppliers, 'index']).as('suppliers.index')
+    router.get('suppliers/:slug', [controllers.Suppliers, 'show']).as('suppliers.show')
+
     router
       .group(() => {
         router.get('signup', [controllers.NewAccount, 'create'])

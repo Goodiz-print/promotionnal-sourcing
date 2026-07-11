@@ -146,6 +146,33 @@ L'onboarding **crée la première organisation** de l'utilisateur et fixe son ty
   création org+owner+org courante, déjà-onboardé, gate middleware — SQLite, seed `RoleSeeder`) +
   `tests/inertia/onboarding.spec.ts` et test unitaire `base_radio_group`.
 
+## Annuaire public fournisseurs (PR 4)
+
+Expose **publiquement** (sans auth) le catalogue des fournisseurs : liste filtrable + fiche
+détaillée (profil fournisseur + catalogue produits). S'appuie sur les fiches `suppliers`
+(catalogue) et le lien `Supplier → Organization → SupplierProfile`.
+
+- **Routes publiques** (`:locale`, hors auth) : `GET /suppliers` (`suppliers.index`),
+  `GET /suppliers/:slug` (`suppliers.show`).
+- **Controller** `app/controllers/suppliers_controller.ts` (fin, public) : lit `search`/`country`/`page`
+  (query), délègue au service, sérialise via transformers. `show` → 404 si fiche introuvable/inactive.
+- **Service** `app/services/supplier_directory_service.ts` : `list` (filtre pays `where`, recherche par
+  **nom localisé** `whereHas('translations').whereILike`, `paginate`), `findBySlug` (preload
+  `translations` + `products.translations` + `organization.supplierProfile`), `availableCountries`.
+- **Transformers** : `SupplierTransformer` (liste) et nouveau `SupplierDetailTransformer` (fiche =
+  supplier + `supplierProfile` si org liée + `products`). ⚠️ **`SupplierTransformer` et
+  `ProductTransformer` rendus Inertia-safe** : retour typé (`SupplierType`/`ProductType`) et **dates
+  converties en ISO string** (comme `SupplierProfileTransformer`). `SupplierType`/`ProductType` passés
+  d'`interface` à **`type`** (contrainte `Record<string, JSONDataTypes>` des props Inertia).
+- **Types partagés** : `SupplierDetailType`, `SupplierDirectoryFilters` (`shared/types/supplier.ts`),
+  `Paginated<T>`/`PaginationMeta` (`shared/types/pagination.ts`, réutilisables).
+- **Frontend** : `inertia/pages/suppliers/{index,show}.vue` + composants réutilisables
+  `inertia/components/{supplier_card,product_card}.vue` (règle #13) ; filtres via
+  `router.get(..., { preserveState, preserveScroll, only })` (debounce recherche) ; i18n
+  `resources/lang/{fr,en}/suppliers.json` (le profil réutilise `supplier.fields.*`/`supplier.deliveryScope.*`).
+- **Tests** : `tests/functional/suppliers_directory.spec.ts` (liste, filtre pays, recherche, fiche
+  profil+produits, profil null, 404, localisation — Postgres) + `tests/inertia/suppliers.spec.ts`.
+
 ## Roadmap
 
 Découpage de la Phase 2 en 4 PR :
@@ -153,10 +180,10 @@ Découpage de la Phase 2 en 4 PR :
 1. **PR 1 — Fondation données** — fait : migrations, modèles, types, seeder, tests.
 2. **PR 2 — Profil fournisseur** — fait : service, validator, transformer, controller,
    routes, ability, écran `supplier/profile.vue`, i18n, tests.
-3. **PR 3 — Onboarding** (cette section) — fait : service, validator, controller, middleware
+3. **PR 3 — Onboarding** — fait : service, validator, controller, middleware
    `onboarded`, routes, écran + `base_radio_group`, i18n, tests.
-4. **PR 4 — Annuaire public fournisseurs** — `suppliers/index.vue` + `show.vue`,
-   controller public, transformer enrichi (profil + fiche).
+4. **PR 4 — Annuaire public fournisseurs** (cette section) — fait : controller public, service,
+   `SupplierDetailTransformer`, routes publiques, écrans `suppliers/{index,show}.vue` + cartes, i18n, tests.
 
 **Hors code (ops)** : import en masse des ~300 fournisseurs (création/rattachement
 d'organisations `supplier`, `suppliers.organization_id` renseigné).

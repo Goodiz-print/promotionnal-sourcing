@@ -1,4 +1,6 @@
 import type { Locale } from './i18n.js'
+import type { ProductType } from './product.js'
+import type { SupplierProfileType } from './organization.js'
 
 export interface SupplierTranslationType {
   locale: Locale
@@ -6,7 +8,12 @@ export interface SupplierTranslationType {
   description: string | null
 }
 
-export interface SupplierType {
+/**
+ * Fiche fournisseur du catalogue, sérialisée pour le frontend (`name`/
+ * `description` résolus dans la locale active). Déclaré en `type` (et non
+ * `interface`) pour rester assignable aux props Inertia (`Record<string, JSONDataTypes>`).
+ */
+export type SupplierType = {
   id: number
   name: string | null
   slug: string
@@ -19,6 +26,23 @@ export interface SupplierType {
   isActive: boolean
   createdAt: string
   updatedAt: string | null
+}
+
+/**
+ * Fiche fournisseur détaillée (annuaire public) : la fiche + son profil
+ * fournisseur (si l'organisation est liée) + son catalogue produits.
+ */
+export type SupplierDetailType = SupplierType & {
+  supplierProfile: SupplierProfileType | null
+  products: ProductType[]
+}
+
+/**
+ * Filtres de l'annuaire public.
+ */
+export type SupplierDirectoryFilters = {
+  search: string | null
+  country: string | null
 }
 
 export interface CreateSupplierData {

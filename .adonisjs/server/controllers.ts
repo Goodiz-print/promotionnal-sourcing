@@ -11,4 +11,5 @@ export const controllers = {
   supplier: {
     Profile: () => import('#controllers/supplier/profile_controller'),
   },
+  Suppliers: () => import('#controllers/suppliers_controller'),
 }
