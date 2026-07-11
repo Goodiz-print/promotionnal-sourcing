@@ -71,6 +71,27 @@ router
             router
               .patch('supplier/profile', [controllers.supplier.Profile, 'update'])
               .as('supplier.profile.update')
+
+            // Gestion des produits par le fournisseur (CRUD + upload images).
+            router
+              .get('supplier/products', [controllers.supplier.Product, 'index'])
+              .as('supplier.products.index')
+            router
+              .get('supplier/products/new', [controllers.supplier.Product, 'create'])
+              .as('supplier.products.create')
+            router
+              .post('supplier/products', [controllers.supplier.Product, 'store'])
+              .as('supplier.products.store')
+            router
+              .get('supplier/products/:id/edit', [controllers.supplier.Product, 'edit'])
+              .as('supplier.products.edit')
+            // POST (et non PATCH) pour porter le corps multipart de l'upload.
+            router
+              .post('supplier/products/:id', [controllers.supplier.Product, 'update'])
+              .as('supplier.products.update')
+            router
+              .delete('supplier/products/:id', [controllers.supplier.Product, 'destroy'])
+              .as('supplier.products.destroy')
           })
           .use(middleware.onboarded())
       })

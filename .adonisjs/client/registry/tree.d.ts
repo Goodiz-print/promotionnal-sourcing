@@ -34,5 +34,13 @@ export interface ApiDefinition {
     profile: typeof routes['supplier.profile'] & {
       update: typeof routes['supplier.profile.update']
     }
+    products: {
+      index: typeof routes['supplier.products.index']
+      create: typeof routes['supplier.products.create']
+      store: typeof routes['supplier.products.store']
+      edit: typeof routes['supplier.products.edit']
+      update: typeof routes['supplier.products.update']
+      destroy: typeof routes['supplier.products.destroy']
+    }
   }
 }

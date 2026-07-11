@@ -19,5 +19,42 @@
     "category": "Catégorie",
     "origin": "Pays d'origine",
     "requestQuote": "Demander un devis"
+  },
+  "manage": {
+    "index": {
+      "title": "Mes produits",
+      "empty": "Vous n'avez pas encore de produit. Créez-en un."
+    },
+    "create": { "title": "Nouveau produit" },
+    "edit": { "title": "Modifier le produit" },
+    "newProduct": "Nouveau produit",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "published": "Publié",
+    "draft": "Brouillon",
+    "facets": "Caractéristiques",
+    "images": "Images",
+    "noFacets": "Aucune caractéristique filtrable disponible.",
+    "removeImage": "Retirer",
+    "confirmDelete": "Supprimer ce produit ?",
+    "created": "Produit créé.",
+    "updated": "Produit mis à jour.",
+    "deleted": "Produit supprimé.",
+    "fields": {
+      "name": "Nom",
+      "description": "Description",
+      "category": "Catégorie",
+      "chooseCategory": "Choisir une catégorie",
+      "priceMin": "Prix min",
+      "priceMax": "Prix max",
+      "currency": "Devise",
+      "minQuantity": "Quantité minimum",
+      "originCountry": "Pays d'origine",
+      "madeInEurope": "Fabriqué en Europe",
+      "isActive": "Publié",
+      "images": "Ajouter des images"
+    }
   }
 }

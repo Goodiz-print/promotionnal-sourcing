@@ -10,6 +10,7 @@ export const controllers = {
   Products: () => import('#controllers/products_controller'),
   Session: () => import('#controllers/session_controller'),
   supplier: {
+    Product: () => import('#controllers/supplier/product_controller'),
     Profile: () => import('#controllers/supplier/profile_controller'),
   },
   Suppliers: () => import('#controllers/suppliers_controller'),

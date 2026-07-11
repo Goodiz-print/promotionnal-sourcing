@@ -114,6 +114,42 @@ const routes = {
     tokens: [{"old":"/:locale/supplier/profile","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/profile","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/profile","type":0,"val":"profile","end":""}],
     types: placeholder as Registry['supplier.profile.update']['types'],
   },
+  'supplier.products.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/products',
+    tokens: [{"old":"/:locale/supplier/products","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/products","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/products","type":0,"val":"products","end":""}],
+    types: placeholder as Registry['supplier.products.index']['types'],
+  },
+  'supplier.products.create': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/products/new',
+    tokens: [{"old":"/:locale/supplier/products/new","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/products/new","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/products/new","type":0,"val":"products","end":""},{"old":"/:locale/supplier/products/new","type":0,"val":"new","end":""}],
+    types: placeholder as Registry['supplier.products.create']['types'],
+  },
+  'supplier.products.store': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/products',
+    tokens: [{"old":"/:locale/supplier/products","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/products","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/products","type":0,"val":"products","end":""}],
+    types: placeholder as Registry['supplier.products.store']['types'],
+  },
+  'supplier.products.edit': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/products/:id/edit',
+    tokens: [{"old":"/:locale/supplier/products/:id/edit","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/products/:id/edit","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/products/:id/edit","type":0,"val":"products","end":""},{"old":"/:locale/supplier/products/:id/edit","type":1,"val":"id","end":""},{"old":"/:locale/supplier/products/:id/edit","type":0,"val":"edit","end":""}],
+    types: placeholder as Registry['supplier.products.edit']['types'],
+  },
+  'supplier.products.update': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/products/:id',
+    tokens: [{"old":"/:locale/supplier/products/:id","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/products/:id","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/products/:id","type":0,"val":"products","end":""},{"old":"/:locale/supplier/products/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['supplier.products.update']['types'],
+  },
+  'supplier.products.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/supplier/products/:id',
+    tokens: [{"old":"/:locale/supplier/products/:id","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/products/:id","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/products/:id","type":0,"val":"products","end":""},{"old":"/:locale/supplier/products/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['supplier.products.destroy']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

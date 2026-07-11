@@ -17,6 +17,9 @@ declare module '@adonisjs/inertia/types' {
     'onboarding/index': ExtractProps<(typeof import('../../inertia/pages/onboarding/index.vue'))['default']>
     'products/index': ExtractProps<(typeof import('../../inertia/pages/products/index.vue'))['default']>
     'products/show': ExtractProps<(typeof import('../../inertia/pages/products/show.vue'))['default']>
+    'supplier/products/create': ExtractProps<(typeof import('../../inertia/pages/supplier/products/create.vue'))['default']>
+    'supplier/products/edit': ExtractProps<(typeof import('../../inertia/pages/supplier/products/edit.vue'))['default']>
+    'supplier/products/index': ExtractProps<(typeof import('../../inertia/pages/supplier/products/index.vue'))['default']>
     'supplier/profile': ExtractProps<(typeof import('../../inertia/pages/supplier/profile.vue'))['default']>
     'suppliers/index': ExtractProps<(typeof import('../../inertia/pages/suppliers/index.vue'))['default']>
     'suppliers/show': ExtractProps<(typeof import('../../inertia/pages/suppliers/show.vue'))['default']>

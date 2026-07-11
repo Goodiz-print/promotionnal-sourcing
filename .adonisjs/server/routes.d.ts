@@ -22,6 +22,12 @@ export type ScannedRoutes = {
     'onboarding.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.profile': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.profile.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.products.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.products.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.products.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.products.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.products.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
   }
   GET: {
     'event_stream': { paramsTuple?: []; params?: {} }
@@ -34,6 +40,9 @@ export type ScannedRoutes = {
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'onboarding.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.profile': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.products.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.products.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
   }
   HEAD: {
     'event_stream': { paramsTuple?: []; params?: {} }
@@ -46,6 +55,9 @@ export type ScannedRoutes = {
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'onboarding.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.profile': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.products.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.products.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
   }
   POST: {
     'subscribe': { paramsTuple?: []; params?: {} }
@@ -55,9 +67,14 @@ export type ScannedRoutes = {
     'session.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.destroy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'onboarding.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.products.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.products.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
   }
   PATCH: {
     'supplier.profile.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+  }
+  DELETE: {
+    'supplier.products.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
   }
 }
 declare module '@adonisjs/core/types/http' {
