@@ -6,7 +6,12 @@ export interface CategoryTranslationType {
   description: string | null
 }
 
-export interface CategoryType {
+/**
+ * Déclaré en `type` (et non `interface`) pour rester assignable aux props
+ * Inertia (`Record<string, JSONDataTypes>`) : une interface n'a pas de
+ * signature d'index implicite.
+ */
+export type CategoryType = {
   id: number
   name: string | null
   slug: string

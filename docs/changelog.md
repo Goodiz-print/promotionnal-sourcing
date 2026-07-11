@@ -1,5 +1,67 @@
 # Changelog
 
+## 2026-07-11 — Infra : upload Cloudinary multi-fichiers + galerie d'images produit
+
+Pose l'intégration **Cloudinary** (jusque-là inexistante) comme brique d'upload
+réutilisable **multi-fichiers**, et l'applique à une **galerie d'images produit**.
+(Issue #17.) L'écran d'upload fournisseur suivra avec le CRUD produit (#2).
+
+- **Cloudinary** : dépendance `cloudinary`, `config/cloudinary.ts`, env
+  `CLOUDINARY_*` **validées** (`start/env.ts`) + `.env.example`. Service
+  `app/services/cloudinary_service.ts` : `upload`/`uploadMany` (galerie) +
+  `destroy`/`destroyMany` (nettoyage des assets). **Dossier imposé**
+  `promotionnal-sourcing/<environnement>/…` (`NODE_ENV`). Exception
+  `app/exceptions/upload_errors.ts` (`CloudinaryUploadException`).
+- **Modèle galerie** : migration `create_product_images_table` (`product_id`
+  CASCADE, `secure_url`, `public_id` unique, `position`, `width`/`height`) ;
+  modèle `product_image.ts` (`Product hasMany images`). `products.image_url`
+  conservé comme image principale dénormalisée.
+- **Types & transformers** : `ProductImageType` (en `type`), `ProductDetailType.images` ;
+  `ProductImageTransformer` ; `ProductDetailTransformer` + `findBySlug` préchargent
+  et exposent les images triées par `position`.
+- **Validateur multi-fichiers** réutilisable `app/validators/product_image.ts`
+  (`vine.array(vine.file(...))`, jpg/png/webp, 5 Mo, max 8).
+- **Frontend** : `inertia/components/product_gallery.vue` (image principale +
+  miniatures, repli sur `imageUrl`) intégré à `products/show.vue` ; clé i18n
+  `products.show.viewImage`.
+- **Docs** : `CLAUDE.md` (section Cloudinary ; Ghostscript/PDF marqué non implémenté),
+  `docs/catalogue.md` (section « Images produit »).
+- **Tests** : `tests/unit/cloudinary_service.spec.ts` (uploader mocké, zéro réseau),
+  `tests/functional/product_images.spec.ts` (galerie triée via HTTP),
+  `tests/inertia/products.spec.ts` (`product_gallery.vue`).
+
+## 2026-07-11 — Phase 1 : catalogue public produits (recherche puissante, lecture)
+
+Expose publiquement (sans auth) le catalogue produits : liste filtrable +
+fiche détaillée, avec une **recherche full-text locale-aware** et le
+**filtrage à facettes en ET fiable**. Première tranche applicative de l'issue #2
+(la couche données EAV/i18n existait déjà) ; le CRUD fournisseur et les
+embeddings Mistral restent à faire.
+
+- **Routes publiques** (`:locale`, hors auth) : `GET /products` (`products.index`),
+  `GET /products/:slug` (`products.show`).
+- **Service** `product_catalogue_service.ts` : liste paginée + filtres. Recherche
+  **FTS PostgreSQL** locale-aware via `product_translations.search_vector`
+  (`websearch_to_tsquery(<config locale>, …)`, `LOCALE_TSCONFIG`) ; filtre
+  catégorie et made-in-Europe ; **facettes attributs en ET fiable** (un `whereHas`
+  par valeur → combinaison `AND`). `findBySlug` (fournisseur/catégorie/facettes
+  préchargés), `availableCategories`, `filterableAttributes`.
+- **Controller** `products_controller.ts` (public) ; **exception**
+  `app/exceptions/catalogue_errors.ts` (`ProductNotFoundException` → 404).
+- **Transformer** `ProductDetailTransformer` (produit, résumé fournisseur/catégorie,
+  facettes résolues). `CategoryTransformer`/`AttributeTransformer`/
+  `AttributeValueTransformer` rendus **Inertia-safe** (retour typé, dates ISO) ;
+  `CategoryType`/`AttributeType`/`AttributeValueType`/`AttributeWithValuesType`
+  passés d'`interface` à `type` (contrainte props Inertia `Record<string, JSON>`).
+- **Types partagés** : `ProductDirectoryFilters`, `ProductCatalogueFacets`,
+  `ProductDetailType`, `ProductDetailAttributeType` (`shared/types/product.ts`).
+- **Frontend** : `inertia/pages/products/{index,show}.vue` + composants
+  `catalogue_filters.vue` (recherche debouncée, select catégorie, toggle
+  made-in-Europe, cases à cocher facettes) et générique `base_checkbox.vue` ;
+  réutilise `product_card.vue`. i18n `resources/lang/{fr,en}/products.json`.
+- **Tests** : `tests/functional/products_directory.spec.ts` (FTS FR/EN, filtres,
+  ET fiable via HTTP, fiche, 404) + `tests/inertia/products.spec.ts`.
+
 ## 2026-07-10 — Phase 2 (PR 4/4) : annuaire public fournisseurs
 
 Expose publiquement (sans auth) le catalogue des fournisseurs : liste

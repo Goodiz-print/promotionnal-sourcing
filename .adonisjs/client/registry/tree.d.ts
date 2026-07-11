@@ -13,6 +13,10 @@ export interface ApiDefinition {
     index: typeof routes['suppliers.index']
     show: typeof routes['suppliers.show']
   }
+  products: {
+    index: typeof routes['products.index']
+    show: typeof routes['products.show']
+  }
   newAccount: {
     create: typeof routes['new_account.create']
     store: typeof routes['new_account.store']

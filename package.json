@@ -92,6 +92,7 @@
     "@vinejs/vine": "^4.4.0",
     "@vue/server-renderer": "^3.5.35",
     "better-sqlite3": "^12.10.0",
+    "cloudinary": "^2.10.0",
     "edge.js": "^6.5.1",
     "intl-messageformat": "^11.2.9",
     "luxon": "^3.7.2",

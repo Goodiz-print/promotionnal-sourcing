@@ -66,6 +66,53 @@ no-op hors PostgreSQL.
 `product_translations.search_vector` du schéma généré par l'ORM (colonnes
 SQL brutes, jamais typées/sérialisées).
 
+## Catalogue public (lecture)
+
+Écran acheteur public (sans auth), sous le préfixe de locale (`/fr`, `/en`) :
+
+- **Routes** : `GET /products` (`products.index`, liste filtrée/paginée) et
+  `GET /products/:slug` (`products.show`, fiche). Produit inactif/inconnu → 404
+  (`ProductNotFoundException`, `app/exceptions/catalogue_errors.ts`).
+- **Service** : `app/services/product_catalogue_service.ts` — toute la logique ORM
+  (controller fin `products_controller.ts`). `PER_PAGE = 12`.
+- **Recherche full-text locale-aware** : sur `product_translations.search_vector`
+  via `websearch_to_tsquery(<config locale>, terme)` (texte libre utilisateur, sans
+  sanitizer). La config vient de `LOCALE_TSCONFIG` (`fr`→`french`, `en`→`english`,
+  repli `simple`) ; la requête est scopée à la traduction de la locale active.
+- **Filtres** : catégorie (`categoryId`), made-in-Europe (`madeInEurope`), et
+  **facettes attributs** (`attributeValueIds[]`) en **ET fiable** — un `whereHas`
+  par valeur sélectionnée, cf. la section « ET » ci-dessus.
+- **Facettes exposées à l'UI** : `availableCategories()` (catégories ayant au moins
+  un produit actif) + `filterableAttributes()` (attributs `is_filterable` + valeurs).
+- **Frontend** : `inertia/pages/products/{index,show}.vue`, barre de filtres
+  `inertia/components/catalogue_filters.vue` (+ générique `base_checkbox.vue`),
+  cartes `product_card.vue`. i18n : `resources/lang/{fr,en}/products.json`.
+
+> Hors périmètre de cette tranche : CRUD fournisseur (dépend de l'auth fournisseur),
+> recherche sémantique par embeddings (`products.embedding` reste `NULL`),
+> ranking `ts_rank`, tolérance typo `pg_trgm`.
+
+## Images produit (galerie + Cloudinary)
+
+Un produit porte une **galerie** d'images ordonnées, hébergées sur Cloudinary.
+
+- **Stockage** : table `product_images` (one-to-many) — `product_id` (CASCADE),
+  `secure_url`, `public_id` (unique, requis pour supprimer l'asset), `position`
+  (ordre, unique par produit), `width`/`height`. Modèle `app/models/product_image.ts`
+  (`Product hasMany images`). URL/position **neutres** (pas de localisation) ; des
+  alt/légendes localisés suivraient le précédent `product_translations` (hors v1).
+- **`products.image_url`** : conservé comme **image principale dénormalisée**
+  (repli affichage + cartes catalogue) ; la galerie complète vit dans `product_images`.
+- **Upload** : `app/services/cloudinary_service.ts` (`uploadMany`/`upload`/`destroy`),
+  dossier imposé `promotionnal-sourcing/<environnement>/products/<slug>` ; validateur
+  multi-fichiers réutilisable `app/validators/product_image.ts`
+  (`vine.array(vine.file(...))`, jpg/png/webp, 5 Mo, max 8). Le service et le
+  validateur sont prêts ; **l'écran d'upload fournisseur** sera branché avec le CRUD
+  produit fournisseur.
+- **Affichage** : `ProductDetailTransformer` expose `images` (triées par `position`) ;
+  fiche `inertia/pages/products/show.vue` via `inertia/components/product_gallery.vue`
+  (image principale + miniatures, repli sur `imageUrl`).
+
 ## i18n du contenu (FR par défaut, EN, extensible à N langues)
 
 Tout le texte visible (nom, description, label) vit dans des **tables de
@@ -123,6 +170,8 @@ traduction dédiées** — jamais dans les tables de base :
 ## Roadmap
 
 1. **Incrément 2** (fait) — i18n du contenu catalogue + FTS par langue.
-2. **Incrément 3** — moteur de recherche locale-aware, embeddings Mistral
-   (`mistral-embed`), parseur de requête (synonymes, facettes), validateurs
-   et endpoints d'écriture adaptés au payload `translations`.
+2. **Incrément 3** (partiel) — catalogue public : moteur de recherche FTS
+   locale-aware + filtrage à facettes en ET fiable (voir « Catalogue public »).
+   Restent à faire : embeddings Mistral (`mistral-embed`, recherche sémantique),
+   parseur de requête (synonymes), validateurs et endpoints d'écriture adaptés au
+   payload `translations` (CRUD fournisseur).
