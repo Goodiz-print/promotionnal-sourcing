@@ -56,6 +56,12 @@ Les images (galerie produit…) sont uploadées sur Cloudinary via `app/services
 - Jobs de queue dans `app/jobs/`
 - **Types des controllers/services dans `shared/types/`** : tout type utilisé dans un controller ou service doit vivre dans `shared/types/<domaine>.ts` — jamais défini inline ou dans `app/`. Le frontend importe directement ces types quand pertinent (props, composables, stores).
 - **Classes d'erreur dans `app/exceptions/`** : toute classe d'erreur métier doit vivre dans `app/exceptions/<domaine>_errors.ts` — jamais définie inline dans un controller ou service.
+- **Injection de dépendances (OBLIGATOIRE)** : ne **jamais** instancier un service applicatif ou une classe injectable avec `new` dans un controller / service / job / command. Utiliser le **conteneur IoC** d'AdonisJS ([doc](https://docs.adonisjs.com/guides/concepts/dependency-injection)) :
+  - Décorer la classe consommatrice avec `@inject()` (`import { inject } from '@adonisjs/core'`) et déclarer les dépendances **dans le constructeur** (typées par leur classe). Les **controllers** reçoivent ainsi leurs services par injection constructeur (le routeur les résout via le conteneur).
+  - Résoudre à la demande (jobs, commands) via `app.container.make(Service)` (`import app from '@adonisjs/core/services/app'`, ou `this.app.container.make(...)` dans une command) — jamais `new Service()`.
+  - Pour une **abstraction** (plusieurs implémentations : providers IA, drivers de paiement…), le token d'injection est une **classe abstraite** (les interfaces n'existent pas au runtime). Lier l'implémentation dans un **service provider** (`providers/*.ts`) : `container.singleton(AbstractClass, (resolver) => resolver.make(Impl))`, puis **injecter la classe abstraite**.
+  - En **test**, remplacer une dépendance via `container.swap(Class, () => fake)` (+ `container.restore(Class)`), ou construire directement le SUT en passant le faux au constructeur.
+  - Les **services singletons du framework** (`db`, `logger`, `hash`, `mail`, `i18n`…) restent accessibles via leurs modules `@adonisjs/*/services/*` : c'est leur API prévue, ce n'est pas du `new`.
 
 ### Base de données
 
@@ -144,6 +150,7 @@ tests/
 
 - Modifier `start/kernel.ts` sans vérifier les effets de bord
 - Utiliser `Model.query()` dans un Controller (→ déléguer au Service)
+- **Instancier un service / une classe injectable avec `new`** dans un controller / service / job / command (→ injection de dépendances via `@inject` + conteneur IoC ; abstraction = classe abstraite liée dans un service provider — voir la règle DI)
 - Committer des secrets ou `.env`
 - Supprimer des migrations existantes
 - Mettre de la logique de formatage dans les controllers (→ utiliser un transformer)

@@ -4,10 +4,11 @@ import MistralEmbeddingProvider, {
   type MistralClientLike,
 } from '#services/embeddings/mistral_provider'
 import OpenAiCompatibleEmbeddingProvider from '#services/embeddings/openai_compatible_provider'
-import { resolveEmbeddingProvider } from '#services/embeddings/provider_factory'
+import { embeddingProviderFor } from '#services/embeddings/provider_registry'
 import { toPgVector } from '#shared/helpers/pgvector'
 import aiConfig from '#config/ai'
-import type { EmbeddingProvider, FetchLike } from '#shared/types/ai'
+import type EmbeddingProvider from '#services/embeddings/embedding_provider'
+import type { FetchLike } from '#shared/types/ai'
 import type Product from '#models/product'
 
 const DIMS = aiConfig.embeddings.dimensions
@@ -131,16 +132,13 @@ test.group('Drivers d’embeddings', () => {
   })
 })
 
-test.group('resolveEmbeddingProvider', () => {
-  test('résout les providers supportés', ({ assert }) => {
-    assert.instanceOf(resolveEmbeddingProvider('mistral'), MistralEmbeddingProvider)
-    assert.instanceOf(
-      resolveEmbeddingProvider('openai-compatible'),
-      OpenAiCompatibleEmbeddingProvider
-    )
+test.group('embeddingProviderFor', () => {
+  test('renvoie la classe du driver pour les providers supportés', ({ assert }) => {
+    assert.equal(embeddingProviderFor('mistral'), MistralEmbeddingProvider)
+    assert.equal(embeddingProviderFor('openai-compatible'), OpenAiCompatibleEmbeddingProvider)
   })
 
   test('lève pour un provider inconnu', ({ assert }) => {
-    assert.throws(() => resolveEmbeddingProvider('nope'), /Unknown AI provider/)
+    assert.throws(() => embeddingProviderFor('nope'), /Unknown AI provider/)
   })
 })

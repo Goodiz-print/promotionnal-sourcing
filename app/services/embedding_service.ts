@@ -1,20 +1,21 @@
+import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
 import aiConfig from '#config/ai'
 import { toPgVector } from '#shared/helpers/pgvector'
-import { resolveEmbeddingProvider } from '#services/embeddings/provider_factory'
 import { EmbeddingDimensionError } from '#exceptions/ai_errors'
-import type { EmbeddingProvider } from '#shared/types/ai'
+import EmbeddingProvider from '#services/embeddings/embedding_provider'
 import type Product from '#models/product'
 
 /**
  * Orchestration des embeddings produits : délègue le calcul au **provider**
- * configuré (`AI_PROVIDER` : Mistral, OpenAI-compatible…) puis persiste le
- * vecteur dans `products.embedding` (pgvector) pour la recherche sémantique.
- * Le provider est injecté (testabilité) ; toute la logique ORM/SQL vit ici
- * (controllers et jobs fins).
+ * injecté (driver choisi par `AI_PROVIDER` et lié dans `providers/ai_provider`)
+ * puis persiste le vecteur dans `products.embedding` (pgvector) pour la
+ * recherche sémantique. Toute la logique ORM/SQL vit ici (controllers et jobs
+ * fins).
  */
+@inject()
 export default class EmbeddingService {
-  constructor(private provider: EmbeddingProvider = resolveEmbeddingProvider()) {}
+  constructor(private provider: EmbeddingProvider) {}
 
   /**
    * Embedding d'un texte libre. `null` si le texte est vide. Lève

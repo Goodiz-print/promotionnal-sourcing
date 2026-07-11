@@ -76,9 +76,11 @@ exact (« stylo écologique » → produits verts).
   `mistral` (SDK natif) ou `openai-compatible` (driver générique HTTP parlant le
   protocole OpenAI `/embeddings` : OpenAI, Together, Groq, Ollama, vLLM, LM
   Studio… via `AI_BASE_URL` / `AI_API_KEY` / `AI_EMBED_MODEL`). Chaque driver
-  implémente l'interface `EmbeddingProvider` (`shared/types/ai.ts`) et est résolu
-  par `provider_factory.ts`. Ajouter un provider = un fichier dans
-  `app/services/embeddings/` + un `case` dans la factory.
+  étend la classe abstraite `EmbeddingProvider` (token d'injection) ; le
+  **service provider** `providers/ai_provider.ts` lie ce token au driver choisi
+  (`container.singleton`), résolu par le **conteneur IoC** puis injecté dans
+  `EmbeddingService`. Ajouter un provider = un fichier dans
+  `app/services/embeddings/` + un `case` dans `provider_registry.ts`.
 - **Config** `config/ai.ts` + `AI_EMBEDDINGS_ENABLED` (défaut **faux** →
   désactivée en dev/test/CI, aucun appel réseau). La **dimension est figée à
   1024** (colonne `products.embedding`) : chaque provider est configuré pour

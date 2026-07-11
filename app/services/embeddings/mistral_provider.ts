@@ -1,7 +1,7 @@
 import { Mistral } from '@mistralai/mistralai'
 import aiConfig from '#config/ai'
 import { EmbeddingProviderError } from '#exceptions/ai_errors'
-import type { EmbeddingProvider } from '#shared/types/ai'
+import EmbeddingProvider from '#services/embeddings/embedding_provider'
 
 /**
  * Sous-ensemble de l'API Mistral dont dépend ce driver (injectable en test).
@@ -24,10 +24,12 @@ function defaultClient(): MistralClientLike {
  * Driver d'embeddings Mistral (SDK natif). Demande la dimension configurée via
  * `outputDimension` (réduction côté API).
  */
-export default class MistralEmbeddingProvider implements EmbeddingProvider {
+export default class MistralEmbeddingProvider extends EmbeddingProvider {
   readonly name = 'mistral' as const
 
-  constructor(private client: MistralClientLike = defaultClient()) {}
+  constructor(private client: MistralClientLike = defaultClient()) {
+    super()
+  }
 
   async embed(text: string): Promise<number[]> {
     const response = await this.client.embeddings.create({

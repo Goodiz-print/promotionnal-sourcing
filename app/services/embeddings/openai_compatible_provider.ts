@@ -1,6 +1,7 @@
 import aiConfig from '#config/ai'
 import { EmbeddingProviderError } from '#exceptions/ai_errors'
-import type { EmbeddingProvider, FetchLike } from '#shared/types/ai'
+import EmbeddingProvider from '#services/embeddings/embedding_provider'
+import type { FetchLike } from '#shared/types/ai'
 
 /**
  * Driver d'embeddings générique parlant le protocole **OpenAI** (`POST
@@ -11,10 +12,12 @@ import type { EmbeddingProvider, FetchLike } from '#shared/types/ai'
  *
  * `fetch` est injecté (testabilité — aucun appel réseau en test).
  */
-export default class OpenAiCompatibleEmbeddingProvider implements EmbeddingProvider {
+export default class OpenAiCompatibleEmbeddingProvider extends EmbeddingProvider {
   readonly name = 'openai-compatible' as const
 
-  constructor(private fetchFn: FetchLike = fetch as unknown as FetchLike) {}
+  constructor(private fetchFn: FetchLike = fetch as unknown as FetchLike) {
+    super()
+  }
 
   async embed(text: string): Promise<number[]> {
     const { baseUrl, apiKey, model } = aiConfig.openaiCompatible

@@ -30,6 +30,7 @@ export default class GenerateProductEmbeddingJob extends Job<GenerateProductEmbe
 
     const { default: Product } = await import('#models/product')
     const { default: EmbeddingService } = await import('#services/embedding_service')
+    const { default: app } = await import('@adonisjs/core/services/app')
 
     const product = await Product.query()
       .where('id', this.payload.productId)
@@ -37,7 +38,7 @@ export default class GenerateProductEmbeddingJob extends Job<GenerateProductEmbe
       .first()
     if (!product) return
 
-    const service = new EmbeddingService()
+    const service = await app.container.make(EmbeddingService)
     await service.embedAndStore(product)
   }
 

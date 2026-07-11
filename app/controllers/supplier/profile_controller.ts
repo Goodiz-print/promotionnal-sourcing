@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { inject } from '@adonisjs/core'
 import { Exception } from '@adonisjs/core/exceptions'
 import { updateSupplierProfileValidator } from '#validators/supplier_profile'
 import SupplierProfileService from '#services/supplier_profile_service'
@@ -6,8 +7,9 @@ import SupplierProfileTransformer from '#transformers/supplier_profile_transform
 import type Organization from '#models/organization'
 import type User from '#models/user'
 
+@inject()
 export default class SupplierProfileController {
-  private service = new SupplierProfileService()
+  constructor(private service: SupplierProfileService) {}
 
   /**
    * Écran d'édition du profil fournisseur de l'organisation courante.

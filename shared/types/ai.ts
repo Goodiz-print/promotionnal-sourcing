@@ -8,16 +8,10 @@ export const AI_PROVIDERS = ['mistral', 'openai-compatible'] as const
 export type AiProvider = (typeof AI_PROVIDERS)[number]
 
 /**
- * Contrat commun à tous les providers d'embeddings. Un provider renvoie le
- * vecteur brut ; la validation de dimension et la persistance sont gérées par
- * `EmbeddingService`.
+ * Le contrat des providers d'embeddings est la **classe abstraite**
+ * `app/services/embeddings/embedding_provider.ts` (token d'injection IoC), pas
+ * une interface — voir la règle DI de `CLAUDE.md`.
  */
-export interface EmbeddingProvider {
-  /** Nom du provider (pour les messages d'erreur / logs). */
-  readonly name: AiProvider
-  /** Embedding d'un texte non vide. Lève en cas d'échec API. */
-  embed(text: string): Promise<number[]>
-}
 
 /**
  * Sous-ensemble de `fetch` dont dépend le driver OpenAI-compatible (permet

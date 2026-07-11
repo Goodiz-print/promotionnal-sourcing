@@ -1,3 +1,4 @@
+import { inject } from '@adonisjs/core'
 import stringHelpers from '@adonisjs/core/helpers/string'
 import Product from '#models/product'
 import Supplier from '#models/supplier'
@@ -20,8 +21,9 @@ import type { SupplierProductInput } from '#shared/types/product'
  * logique ORM vit ici (controllers fins). `CloudinaryService` est injecté pour
  * la testabilité (les tests passent un faux uploader, aucun appel réseau).
  */
+@inject()
 export default class SupplierProductService {
-  constructor(private cloudinary: CloudinaryService = new CloudinaryService()) {}
+  constructor(private cloudinary: CloudinaryService) {}
 
   /**
    * Résout le fournisseur (fiche catalogue) de l'organisation. Le crée si l'org

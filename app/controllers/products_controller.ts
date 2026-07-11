@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import EmbeddingService from '#services/embedding_service'
@@ -14,8 +15,12 @@ import type { ProductDirectoryFilters } from '#shared/types/product'
 
 const PER_PAGE = 12
 
+@inject()
 export default class ProductsController {
-  private service = new ProductCatalogueService()
+  constructor(
+    private service: ProductCatalogueService,
+    private embeddings: EmbeddingService
+  ) {}
 
   /**
    * Catalogue public paginé + filtrable : recherche full-text locale-aware,
@@ -91,8 +96,7 @@ export default class ProductsController {
   private async searchEmbedding(search: string | null): Promise<number[] | null> {
     if (!search || !aiConfig.embeddings.enabled) return null
     try {
-      const service = new EmbeddingService()
-      return await service.embed(search)
+      return await this.embeddings.embed(search)
     } catch (error) {
       logger.warn({ err: error }, 'semantic search embedding failed, falling back to full-text')
       return null
