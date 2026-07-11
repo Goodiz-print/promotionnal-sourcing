@@ -8,6 +8,7 @@ import SupplierProfileController from '#controllers/supplier/profile_controller'
 import SupplierProductController from '#controllers/supplier/product_controller'
 import EmbeddingService from '#services/embedding_service'
 import SupplierProductService from '#services/supplier_product_service'
+import GenerateProductEmbeddingJob from '#jobs/generate_product_embedding_job'
 import EmbeddingProvider from '#services/embeddings/embedding_provider'
 import MistralEmbeddingProvider from '#services/embeddings/mistral_provider'
 
@@ -35,6 +36,13 @@ test.group('Conteneur IoC — câblage des dépendances', () => {
   test('résout les services injectables', async ({ assert }) => {
     assert.instanceOf(await app.container.make(EmbeddingService), EmbeddingService)
     assert.instanceOf(await app.container.make(SupplierProductService), SupplierProductService)
+  })
+
+  test('résout le job (EmbeddingService injecté par constructeur)', async ({ assert }) => {
+    assert.instanceOf(
+      await app.container.make(GenerateProductEmbeddingJob),
+      GenerateProductEmbeddingJob
+    )
   })
 
   test('lie EmbeddingProvider au driver configuré (défaut : mistral)', async ({ assert }) => {
