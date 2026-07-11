@@ -116,7 +116,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
     assert.equal(fr.name, 'Vêtements')
   })
 
-  test('le slug doit être unique', async ({ client }) => {
+  test('le slug doit être unique', async ({ client, assert }) => {
     const owner = await makeMember('dup@example.com', 'dup-org', 'owner')
 
     const response = await client
@@ -126,8 +126,11 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
       .loginAs(owner)
       .json({ slug: 'crayon', parentId: null, translations: CONTENT })
 
-    // 'crayon' existe déjà (CategorySeeder) → échec de validation, retour arrière.
-    response.assertStatus(422)
+    // 'crayon' existe déjà (CategorySeeder) → échec de validation VineJS :
+    // redirection arrière (302) avec les erreurs flashées, aucune création.
+    response.assertStatus(302)
+    const crayons = await Category.query().where('slug', 'crayon')
+    assert.lengthOf(crayons, 1)
   })
 
   test('mise à jour du nom et du parent', async ({ client, assert }) => {
