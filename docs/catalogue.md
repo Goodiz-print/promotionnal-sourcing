@@ -51,8 +51,8 @@ Migration `…948_enable_search_extensions` active `vector` (pgvector),
 no-op hors PostgreSQL.
 
 - **`products.embedding`** — `vector(1024)`, nullable, index **HNSW**
-  (`vector_cosine_ops`). Prêt pour `mistral-embed` ; peuplé par un futur job
-  asynchrone (pas encore implémenté).
+  (`vector_cosine_ops`). Peuplé par le job `generate_product_embedding_job`
+  (`mistral-embed`) — voir « Recherche sémantique » ci-dessous.
 - **`product_translations.search_vector`** — colonne générée **immuable**,
   un `CASE` par `locale` (`to_tsvector('french', …)` / `to_tsvector('english',
 …)`, repli `'simple'`) + index GIN. `unaccent()` est `STABLE` et interdit
@@ -65,6 +65,40 @@ no-op hors PostgreSQL.
 `database/schema_rules.ts` exclut `products.embedding` et
 `product_translations.search_vector` du schéma généré par l'ORM (colonnes
 SQL brutes, jamais typées/sérialisées).
+
+## Recherche sémantique (embeddings Mistral)
+
+En complément du full-text (correspondance lexicale), le catalogue offre une
+**recherche sémantique** : des produits pertinents remontent même sans mot-clé
+exact (« stylo écologique » → produits verts).
+
+- **Provider-agnostique** — `AI_PROVIDER` choisit le driver d'embeddings :
+  `mistral` (SDK natif) ou `openai-compatible` (driver générique HTTP parlant le
+  protocole OpenAI `/embeddings` : OpenAI, Together, Groq, Ollama, vLLM, LM
+  Studio… via `AI_BASE_URL` / `AI_API_KEY` / `AI_EMBED_MODEL`). Chaque driver
+  étend la classe abstraite `EmbeddingProvider` (token d'injection) ; le
+  **service provider** `providers/ai_provider.ts` lie ce token au driver choisi
+  (`container.singleton`), résolu par le **conteneur IoC** puis injecté dans
+  `EmbeddingService`. Ajouter un provider = un fichier dans
+  `app/services/embeddings/` + un `case` dans `provider_registry.ts`.
+- **Config** `config/ai.ts` + `AI_EMBEDDINGS_ENABLED` (défaut **faux** →
+  désactivée en dev/test/CI, aucun appel réseau). La **dimension est figée à
+  1024** (colonne `products.embedding`) : chaque provider est configuré pour
+  réduire à 1024 (`outputDimension` Mistral, `dimensions` OpenAI) ; un vecteur
+  d'une autre taille lève `EmbeddingDimensionError`.
+- **Génération** — `EmbeddingService` (provider injecté, testable) calcule
+  l'embedding depuis `productText` (nom + description, toutes locales) et l'écrit
+  en `products.embedding` (`?::vector`). Déclenchée en asynchrone par le job
+  `generate_product_embedding_job`, dispatché à la création/mise à jour d'un
+  produit (`supplier_product_service`, dispatch résilient — un échec queue ne
+  casse jamais l'écriture produit).
+- **Requête** — `products_controller` calcule (best-effort) l'embedding du terme
+  recherché quand l'IA est active ; `product_catalogue_service.list` trie alors
+  par distance cosinus (`embedding <=> ?::vector`, index HNSW) parmi les produits
+  vectorisés. **Repli automatique** sur le full-text si l'IA est indisponible ou
+  la requête non vectorisée.
+- **Backfill** — `node ace embeddings:backfill` (re)génère les embeddings
+  manquants (produits importés en masse, activation initiale).
 
 ## Catalogue public (lecture)
 

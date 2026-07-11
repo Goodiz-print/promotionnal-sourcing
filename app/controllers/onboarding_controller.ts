@@ -1,9 +1,11 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { inject } from '@adonisjs/core'
 import { onboardingValidator } from '#validators/onboarding'
 import OnboardingService from '#services/onboarding_service'
 
+@inject()
 export default class OnboardingController {
-  private service = new OnboardingService()
+  constructor(private service: OnboardingService) {}
 
   /**
    * Écran d'onboarding (choix acheteur/fournisseur + nom d'organisation).

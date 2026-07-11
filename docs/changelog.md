@@ -1,5 +1,74 @@
 # Changelog
 
+## 2026-07-11 — Injection de dépendances (conteneur IoC AdonisJS)
+
+Adopte l'**injection de dépendances** partout : plus de `new Service()` dans les
+controllers/services/jobs/commands (retour de revue). Règle ajoutée à `CLAUDE.md`.
+
+- **Controllers** décorés `@inject()` avec dépendances par **constructeur** (le
+  routeur les résout via le conteneur) : `products`, `suppliers`, `onboarding`,
+  `admin/category`, `supplier/{profile,product}`.
+- **Services** : `EmbeddingService` et `SupplierProductService` en `@inject()`
+  (dépendances injectées, plus de `new` par défaut).
+- **Abstraction IA** : `EmbeddingProvider` devient une **classe abstraite**
+  (token IoC) ; le service provider `providers/ai_provider.ts` lie le driver
+  choisi par `AI_PROVIDER` (`container.singleton`) via `provider_registry.ts`
+  (`embeddingProviderFor`). `EmbeddingService` injecte l'abstraction.
+- **Jobs / commands** résolvent via `app.container.make(...)` (plus de `new`).
+- Règle DI documentée dans `CLAUDE.md` (+ « Ne jamais faire »).
+
+## 2026-07-11 — Embeddings multi-provider (abstraction IA)
+
+Rend la recherche sémantique **provider-agnostique** : le driver d'embeddings
+est choisi par `AI_PROVIDER`, Mistral n'étant plus qu'un driver parmi d'autres.
+
+- **Abstraction** : interface `EmbeddingProvider` (`shared/types/ai.ts`) +
+  factory `app/services/embeddings/provider_factory.ts` (résout selon
+  `AI_PROVIDER`). Exceptions `app/exceptions/ai_errors.ts`
+  (`UnknownAiProviderError`, `EmbeddingProviderError`, `EmbeddingDimensionError`).
+- **Drivers** : `mistral_provider.ts` (SDK natif, `outputDimension`) et
+  `openai_compatible_provider.ts` (générique HTTP `/embeddings`, `fetch` injecté)
+  couvrant OpenAI, Together, Groq, Ollama, vLLM, LM Studio… via `AI_BASE_URL` /
+  `AI_API_KEY` / `AI_EMBED_MODEL`.
+- **`EmbeddingService`** délègue désormais au provider injecté et **valide la
+  dimension** (figée à 1024 = colonne `products.embedding`) → un provider ne
+  sachant pas produire 1024 dims est rejeté explicitement.
+- **Config/env** : `config/ai.ts` (provider + config par driver), env
+  `AI_PROVIDER`, `AI_BASE_URL`, `AI_API_KEY`, `AI_EMBED_MODEL`,
+  `MISTRAL_EMBED_MODEL` (toutes optionnelles). `.env.example` documenté.
+- **Tests** : `tests/unit/embedding_service.spec.ts` étendu (service + fake
+  provider, driver Mistral mocké, driver OpenAI-compatible avec `fetch` mocké,
+  factory) — zéro appel réseau. Docs `catalogue.md`.
+
+## 2026-07-11 — Recherche sémantique : embeddings Mistral (Phase 1)
+
+Ajoute la génération d'**embeddings produits via Mistral** et la **recherche
+sémantique** du catalogue (plus proches voisins pgvector), en complément du
+full-text existant. Clôt le volet « recherche sémantique » de la Phase 1 (#20,
+suivi de #2, coordonné avec #7).
+
+- **Config** `config/ai.ts` (Mistral `mistral-embed`, 1024 dims) + env
+  `MISTRAL_API_KEY` (optionnel) et `AI_EMBEDDINGS_ENABLED` (bool, **défaut
+  faux**). Désactivé en dev/test/CI → **aucun appel réseau** ; activé en prod.
+- **Service** `embedding_service.ts` : `embed(text)` (client Mistral injecté →
+  testable), `embedAndStore(product)` (persiste `products.embedding` en
+  `?::vector`), `productText(product)` (nom + description, toutes locales).
+  Helper `shared/helpers/pgvector.ts` (`toPgVector`).
+- **Job** `app/jobs/generate_product_embedding_job.ts` (alias `#jobs/*`) :
+  dispatché à la création/mise à jour d'un produit fournisseur
+  (`supplier_product_service`, dispatch résilient). No-op tant que l'IA est
+  désactivée.
+- **Recherche** : `product_catalogue_service.list` accepte un `queryEmbedding`
+  optionnel → tri par distance cosinus (`embedding <=> ?::vector`, index HNSW)
+  parmi les produits vectorisés ; repli automatique sur le full-text si l'IA est
+  indisponible. `products_controller` calcule l'embedding de la requête
+  (best-effort) quand l'IA est active.
+- **Backfill** : commande `node ace embeddings:backfill` (embeddings manquants).
+- **Tests** : `tests/unit/embedding_service.spec.ts` (Mistral mocké, zéro
+  réseau) + `tests/functional/product_embeddings.spec.ts` (tri sémantique +
+  repli FTS, gardés Postgres/pgvector).
+- **Docs** : `docs/catalogue.md` (section « Recherche sémantique »).
+
 ## 2026-07-11 — Administration des catégories (CRUD taxonomie) — Phase 1
 
 Ajoute l'écran d'administration de la taxonomie du catalogue : gestion complète

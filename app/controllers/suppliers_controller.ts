@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { inject } from '@adonisjs/core'
 import { Exception } from '@adonisjs/core/exceptions'
 import SupplierDirectoryService from '#services/supplier_directory_service'
 import SupplierTransformer from '#transformers/supplier_transformer'
@@ -7,8 +8,9 @@ import type { Locale } from '#shared/types/i18n'
 
 const PER_PAGE = 12
 
+@inject()
 export default class SuppliersController {
-  private service = new SupplierDirectoryService()
+  constructor(private service: SupplierDirectoryService) {}
 
   /**
    * Annuaire public paginé + filtrable (recherche par nom, filtre pays).

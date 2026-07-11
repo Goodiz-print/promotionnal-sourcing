@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { inject } from '@adonisjs/core'
 import { Exception } from '@adonisjs/core/exceptions'
 import SupplierProductService from '#services/supplier_product_service'
 import ProductTransformer from '#transformers/product_transformer'
@@ -16,8 +17,9 @@ import type User from '#models/user'
  * Gestion des produits par le fournisseur (org courante). CRUD + upload
  * d'images. Controller fin : org + autorisation + validation → service.
  */
+@inject()
 export default class ProductController {
-  private service = new SupplierProductService()
+  constructor(private service: SupplierProductService) {}
 
   /**
    * Liste des produits de l'organisation courante.

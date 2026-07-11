@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { inject } from '@adonisjs/core'
 import { Exception } from '@adonisjs/core/exceptions'
 import CategoryService from '#services/category_service'
 import CategoryAdminTransformer from '#transformers/category_admin_transformer'
@@ -15,8 +16,9 @@ import type User from '#models/user'
  * complet réservé aux owner/admin (ability `canManageCategories`). Controller
  * fin : org + autorisation + validation → service.
  */
+@inject()
 export default class CategoryController {
-  private service = new CategoryService()
+  constructor(private service: CategoryService) {}
 
   /**
    * Liste des catégories (avec parent et nombre de produits).
