@@ -92,6 +92,26 @@ router
             router
               .delete('supplier/products/:id', [controllers.supplier.Product, 'destroy'])
               .as('supplier.products.destroy')
+
+            // Administration de la taxonomie du catalogue (catégories globales).
+            router
+              .get('admin/categories', [controllers.admin.Category, 'index'])
+              .as('admin.categories.index')
+            router
+              .get('admin/categories/new', [controllers.admin.Category, 'create'])
+              .as('admin.categories.create')
+            router
+              .post('admin/categories', [controllers.admin.Category, 'store'])
+              .as('admin.categories.store')
+            router
+              .get('admin/categories/:id/edit', [controllers.admin.Category, 'edit'])
+              .as('admin.categories.edit')
+            router
+              .patch('admin/categories/:id', [controllers.admin.Category, 'update'])
+              .as('admin.categories.update')
+            router
+              .delete('admin/categories/:id', [controllers.admin.Category, 'destroy'])
+              .as('admin.categories.destroy')
           })
           .use(middleware.onboarded())
       })

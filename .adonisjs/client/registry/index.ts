@@ -150,6 +150,42 @@ const routes = {
     tokens: [{"old":"/:locale/supplier/products/:id","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/products/:id","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/products/:id","type":0,"val":"products","end":""},{"old":"/:locale/supplier/products/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['supplier.products.destroy']['types'],
   },
+  'admin.categories.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/categories',
+    tokens: [{"old":"/:locale/admin/categories","type":1,"val":"locale","end":""},{"old":"/:locale/admin/categories","type":0,"val":"admin","end":""},{"old":"/:locale/admin/categories","type":0,"val":"categories","end":""}],
+    types: placeholder as Registry['admin.categories.index']['types'],
+  },
+  'admin.categories.create': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/categories/new',
+    tokens: [{"old":"/:locale/admin/categories/new","type":1,"val":"locale","end":""},{"old":"/:locale/admin/categories/new","type":0,"val":"admin","end":""},{"old":"/:locale/admin/categories/new","type":0,"val":"categories","end":""},{"old":"/:locale/admin/categories/new","type":0,"val":"new","end":""}],
+    types: placeholder as Registry['admin.categories.create']['types'],
+  },
+  'admin.categories.store': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/categories',
+    tokens: [{"old":"/:locale/admin/categories","type":1,"val":"locale","end":""},{"old":"/:locale/admin/categories","type":0,"val":"admin","end":""},{"old":"/:locale/admin/categories","type":0,"val":"categories","end":""}],
+    types: placeholder as Registry['admin.categories.store']['types'],
+  },
+  'admin.categories.edit': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/categories/:id/edit',
+    tokens: [{"old":"/:locale/admin/categories/:id/edit","type":1,"val":"locale","end":""},{"old":"/:locale/admin/categories/:id/edit","type":0,"val":"admin","end":""},{"old":"/:locale/admin/categories/:id/edit","type":0,"val":"categories","end":""},{"old":"/:locale/admin/categories/:id/edit","type":1,"val":"id","end":""},{"old":"/:locale/admin/categories/:id/edit","type":0,"val":"edit","end":""}],
+    types: placeholder as Registry['admin.categories.edit']['types'],
+  },
+  'admin.categories.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/admin/categories/:id',
+    tokens: [{"old":"/:locale/admin/categories/:id","type":1,"val":"locale","end":""},{"old":"/:locale/admin/categories/:id","type":0,"val":"admin","end":""},{"old":"/:locale/admin/categories/:id","type":0,"val":"categories","end":""},{"old":"/:locale/admin/categories/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['admin.categories.update']['types'],
+  },
+  'admin.categories.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/admin/categories/:id',
+    tokens: [{"old":"/:locale/admin/categories/:id","type":1,"val":"locale","end":""},{"old":"/:locale/admin/categories/:id","type":0,"val":"admin","end":""},{"old":"/:locale/admin/categories/:id","type":0,"val":"categories","end":""},{"old":"/:locale/admin/categories/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['admin.categories.destroy']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

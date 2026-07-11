@@ -4,6 +4,9 @@
  */
 
 export const controllers = {
+  admin: {
+    Category: () => import('#controllers/admin/category_controller'),
+  },
   Locale: () => import('#controllers/locale_controller'),
   NewAccount: () => import('#controllers/new_account_controller'),
   Onboarding: () => import('#controllers/onboarding_controller'),

@@ -8,6 +8,8 @@ import type { InferData, InferVariants } from '@adonisjs/core/types/transformers
 import type { InferSharedProps } from '@adonisjs/inertia/types'
 import type AttributeTransformer from '#transformers/attribute_transformer'
 import type AttributeValueTransformer from '#transformers/attribute_value_transformer'
+import type CategoryAdminTransformer from '#transformers/category_admin_transformer'
+import type CategoryEditTransformer from '#transformers/category_edit_transformer'
 import type CategoryTransformer from '#transformers/category_transformer'
 import type OrganizationTransformer from '#transformers/organization_transformer'
 import type ProductDetailTransformer from '#transformers/product_detail_transformer'
@@ -29,6 +31,14 @@ export namespace Data {
   export type AttributeValue = InferData<AttributeValueTransformer>
   export namespace AttributeValue {
     export type Variants = InferVariants<AttributeValueTransformer>
+  }
+  export type CategoryAdmin = InferData<CategoryAdminTransformer>
+  export namespace CategoryAdmin {
+    export type Variants = InferVariants<CategoryAdminTransformer>
+  }
+  export type CategoryEdit = InferData<CategoryEditTransformer>
+  export namespace CategoryEdit {
+    export type Variants = InferVariants<CategoryEditTransformer>
   }
   export type Category = InferData<CategoryTransformer>
   export namespace Category {
