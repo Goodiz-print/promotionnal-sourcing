@@ -1,9 +1,5 @@
 import { Job } from '@adonisjs/queue'
 import type { JobOptions } from '@adonisjs/queue/types'
-import logger from '@adonisjs/core/services/logger'
-import Product from '#models/product'
-import EmbeddingService from '#services/embedding_service'
-import aiConfig from '#config/ai'
 
 interface GenerateProductEmbeddingPayload {
   productId: number
@@ -16,6 +12,11 @@ interface GenerateProductEmbeddingPayload {
  *
  * **No-op** tant que `ai.embeddings.enabled` est faux (dev / test / CI) : aucun
  * appel réseau. La génération réelle n'a lieu qu'en production.
+ *
+ * Les dépendances (modèles, service, config) sont importées **dynamiquement**
+ * dans `execute()` : la queue charge ce module au boot (`loadJobs`) et des
+ * imports statiques de modèles/services résoudraient trop tôt les singletons
+ * `@adonisjs/core/services/*` (avant l'enregistrement des providers).
  */
 export default class GenerateProductEmbeddingJob extends Job<GenerateProductEmbeddingPayload> {
   static options: JobOptions = {
@@ -24,7 +25,11 @@ export default class GenerateProductEmbeddingJob extends Job<GenerateProductEmbe
   }
 
   async execute() {
+    const { default: aiConfig } = await import('#config/ai')
     if (!aiConfig.embeddings.enabled) return
+
+    const { default: Product } = await import('#models/product')
+    const { default: EmbeddingService } = await import('#services/embedding_service')
 
     const product = await Product.query()
       .where('id', this.payload.productId)
@@ -37,6 +42,7 @@ export default class GenerateProductEmbeddingJob extends Job<GenerateProductEmbe
   }
 
   async failed(error: Error) {
+    const { default: logger } = await import('@adonisjs/core/services/logger')
     logger.error(
       { err: error, productId: this.payload.productId },
       'generate product embedding failed'
