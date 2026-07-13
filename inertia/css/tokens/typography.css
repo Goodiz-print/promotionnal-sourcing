@@ -1,0 +1,72 @@
+/* ============================================================
+   TOKENS TYPOGRAPHIE — Promotional Sourcing.eu
+   Sohne (propriétaire) est substitué par Inter (chargé dans le
+   template Edge via Google Fonts). Inter 400-500 tient le rôle de
+   la voix éditoriale, avec un tracking négatif sur les tailles
+   display pour conserver la « densité éditoriale ».
+   ============================================================ */
+
+:root {
+  --font-sans: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SF Mono', ui-monospace, monospace;
+
+  /* Display / heading — tracking négatif, densité éditoriale */
+  --text-display-xl-size: 56px;
+  --text-display-xl-weight: 600;
+  --text-display-xl-leading: 1.03;
+  --text-display-xl-tracking: -0.02em;
+
+  --text-display-lg-size: 40px;
+  --text-display-lg-weight: 600;
+  --text-display-lg-leading: 1.08;
+  --text-display-lg-tracking: -0.015em;
+
+  --text-display-md-size: 30px;
+  --text-display-md-weight: 600;
+  --text-display-md-leading: 1.15;
+  --text-display-md-tracking: -0.01em;
+
+  --text-heading-lg-size: 22px;
+  --text-heading-lg-weight: 600;
+  --text-heading-lg-leading: 1.25;
+  --text-heading-lg-tracking: -0.005em;
+
+  --text-heading-md-size: 18px;
+  --text-heading-md-weight: 600;
+  --text-heading-md-leading: 1.3;
+  --text-heading-md-tracking: 0em;
+
+  --text-heading-sm-size: 15px;
+  --text-heading-sm-weight: 600;
+  --text-heading-sm-leading: 1.35;
+  --text-heading-sm-tracking: 0em;
+
+  /* Body */
+  --text-body-lg-size: 17px;
+  --text-body-lg-weight: 400;
+  --text-body-lg-leading: 1.5;
+
+  --text-body-md-size: 15px;
+  --text-body-md-weight: 400;
+  --text-body-md-leading: 1.5;
+
+  --text-body-sm-size: 13px;
+  --text-body-sm-weight: 400;
+  --text-body-sm-leading: 1.45;
+
+  /* Tabular — prix / quantités / SKUs */
+  --text-tabular-size: 14px;
+  --text-tabular-weight: 500;
+  --text-tabular-feature: 'tnum';
+
+  /* Micro-tiers UI */
+  --text-button-size: 15px;
+  --text-button-weight: 500;
+
+  --text-caption-size: 13px;
+  --text-caption-weight: 400;
+
+  --text-eyebrow-size: 12px;
+  --text-eyebrow-weight: 600;
+  --text-eyebrow-tracking: 0.06em;
+}
