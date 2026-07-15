@@ -1,38 +1,159 @@
 @import 'tailwindcss';
 
-:root {
-  --gray-1: oklch(98.5% 0 0);
-  --gray-2: oklch(97% 0 0);
-  --gray-3: oklch(92.2% 0 0);
-  --gray-4: oklch(87% 0 0);
-  --gray-6: oklch(55.6% 0 0);
-  --gray-7: oklch(43.9% 0 0);
-  --gray-8: oklch(37.1% 0 0);
-  --gray-10: oklch(26.9% 0 0);
-  --gray-12: oklch(14.5% 0 0);
+/* ============================================================
+   DESIGN SYSTEM — Promotional Sourcing.eu
+   Tokens synchronisés depuis l'artéfact claude.ai/design
+   « Promotional Sourcing Design System ».
+   ============================================================ */
+@import './tokens/colors.css';
+@import './tokens/typography.css';
+@import './tokens/spacing.css';
 
-  /* Brand — violet du logo (RGB 64, 50, 200) */
-  --primary-1: #f2f1fc;
-  --primary-3: #e4e1f9;
-  --primary-6: #8078e0;
-  --primary-9: #4032c8;
-  --primary-10: #362bab;
-  --primary-11: #2c2389;
-  --primary-contrast: #ffffff;
-}
-
+/* ------------------------------------------------------------
+   Exposition des tokens à Tailwind v4 (@theme) → génère les
+   utilitaires bg-indigo-500, text-ink-600, border-ink-200,
+   text-primary, shadow-1, font-sans…
+   ------------------------------------------------------------ */
 @theme {
-  --color-primary-1: var(--primary-1);
-  --color-primary-3: var(--primary-3);
-  --color-primary-6: var(--primary-6);
-  --color-primary-9: var(--primary-9);
-  --color-primary-10: var(--primary-10);
-  --color-primary-11: var(--primary-11);
-  --color-primary: var(--primary-9);
-  --color-primary-hover: var(--primary-10);
-  --color-primary-contrast: var(--primary-contrast);
+  /* Marque — indigo (rampe complète : remplace l'indigo Tailwind) */
+  --color-indigo-50: var(--indigo-50);
+  --color-indigo-100: var(--indigo-100);
+  --color-indigo-200: var(--indigo-200);
+  --color-indigo-300: var(--indigo-300);
+  --color-indigo-400: var(--indigo-400);
+  --color-indigo-500: var(--indigo-500);
+  --color-indigo-600: var(--indigo-600);
+  --color-indigo-700: var(--indigo-700);
+  --color-indigo-800: var(--indigo-800);
+  --color-indigo-900: var(--indigo-900);
+
+  /* Neutres — rampe « ink » teintée navy */
+  --color-ink-0: var(--ink-0);
+  --color-ink-50: var(--ink-50);
+  --color-ink-100: var(--ink-100);
+  --color-ink-200: var(--ink-200);
+  --color-ink-300: var(--ink-300);
+  --color-ink-400: var(--ink-400);
+  --color-ink-500: var(--ink-500);
+  --color-ink-600: var(--ink-600);
+  --color-ink-700: var(--ink-700);
+  --color-ink-800: var(--ink-800);
+  --color-ink-900: var(--ink-900);
+  --color-ink-950: var(--ink-950);
+
+  /* Sémantique — primaire */
+  --color-primary: var(--indigo-500);
+  --color-primary-hover: var(--indigo-600);
+  --color-primary-contrast: var(--ink-0);
+
+  /* Alias primaires historiques (rétro-compat utilitaires) */
+  --color-primary-1: var(--indigo-50);
+  --color-primary-3: var(--indigo-100);
+  --color-primary-6: var(--indigo-400);
+  --color-primary-9: var(--indigo-500);
+  --color-primary-10: var(--indigo-600);
+  --color-primary-11: var(--indigo-700);
+
+  /* Sémantique — surfaces & texte */
+  --color-canvas: var(--surface-canvas);
+  --color-sunken: var(--surface-sunken);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  /* Sémantique — états */
+  --color-success: var(--state-success);
+  --color-success-bg: var(--state-success-bg);
+  --color-warning: var(--state-warning);
+  --color-warning-bg: var(--state-warning-bg);
+  --color-danger: var(--state-danger);
+  --color-danger-bg: var(--state-danger-bg);
+  --color-info: var(--state-info);
+  --color-info-bg: var(--state-info-bg);
+
+  /* Fontes */
+  --font-sans: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SF Mono', ui-monospace, monospace;
+
+  /* Ombres du design system → utilitaires shadow-1/2/3 */
+  --shadow-1: 0 1px 2px rgba(10, 10, 30, 0.06), 0 1px 1px rgba(10, 10, 30, 0.04);
+  --shadow-2: 0 4px 12px rgba(10, 10, 30, 0.08), 0 1px 3px rgba(10, 10, 30, 0.06);
+  --shadow-3: 0 12px 32px rgba(10, 10, 30, 0.12), 0 4px 8px rgba(10, 10, 30, 0.06);
 }
 
+/* ------------------------------------------------------------
+   Utilitaires typographiques (échelle du design system).
+   Préfixe `type-*` pour éviter toute collision avec `text-*`.
+   ------------------------------------------------------------ */
+@utility type-display-xl {
+  font-size: var(--text-display-xl-size);
+  font-weight: var(--text-display-xl-weight);
+  line-height: var(--text-display-xl-leading);
+  letter-spacing: var(--text-display-xl-tracking);
+}
+@utility type-display-lg {
+  font-size: var(--text-display-lg-size);
+  font-weight: var(--text-display-lg-weight);
+  line-height: var(--text-display-lg-leading);
+  letter-spacing: var(--text-display-lg-tracking);
+}
+@utility type-display-md {
+  font-size: var(--text-display-md-size);
+  font-weight: var(--text-display-md-weight);
+  line-height: var(--text-display-md-leading);
+  letter-spacing: var(--text-display-md-tracking);
+}
+@utility type-heading-lg {
+  font-size: var(--text-heading-lg-size);
+  font-weight: var(--text-heading-lg-weight);
+  line-height: var(--text-heading-lg-leading);
+  letter-spacing: var(--text-heading-lg-tracking);
+}
+@utility type-heading-md {
+  font-size: var(--text-heading-md-size);
+  font-weight: var(--text-heading-md-weight);
+  line-height: var(--text-heading-md-leading);
+}
+@utility type-heading-sm {
+  font-size: var(--text-heading-sm-size);
+  font-weight: var(--text-heading-sm-weight);
+  line-height: var(--text-heading-sm-leading);
+}
+@utility type-body-lg {
+  font-size: var(--text-body-lg-size);
+  font-weight: var(--text-body-lg-weight);
+  line-height: var(--text-body-lg-leading);
+}
+@utility type-body-md {
+  font-size: var(--text-body-md-size);
+  font-weight: var(--text-body-md-weight);
+  line-height: var(--text-body-md-leading);
+}
+@utility type-body-sm {
+  font-size: var(--text-body-sm-size);
+  font-weight: var(--text-body-sm-weight);
+  line-height: var(--text-body-sm-leading);
+}
+@utility type-eyebrow {
+  font-size: var(--text-eyebrow-size);
+  font-weight: var(--text-eyebrow-weight);
+  letter-spacing: var(--text-eyebrow-tracking);
+  text-transform: uppercase;
+}
+@utility type-tabular {
+  font-size: var(--text-tabular-size);
+  font-weight: var(--text-tabular-weight);
+  font-feature-settings: var(--text-tabular-feature);
+}
+@utility type-caption {
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  color: var(--text-muted);
+}
+
+/* ------------------------------------------------------------
+   Base — resets & styles d'éléments
+   ------------------------------------------------------------ */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -42,10 +163,11 @@
 html,
 body {
   height: 100%;
-  font-family: system-ui, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  background: var(--gray-2);
-  color: var(--gray-10);
+  font-feature-settings: 'ss01';
+  background: var(--surface-sunken);
+  color: var(--text-primary);
   font-size: 16px;
   line-height: 1.5;
 }
@@ -61,5 +183,5 @@ h3,
 h4,
 h5,
 h6 {
-  color: var(--gray-12);
+  color: var(--text-primary);
 }

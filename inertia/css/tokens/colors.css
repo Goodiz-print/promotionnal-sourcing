@@ -1,0 +1,134 @@
+/* ============================================================
+   COLOR TOKENS — Promotional Sourcing.eu
+   Intégration du design system (claude.ai/design →
+   « Promotional Sourcing Design System »).
+
+   Primaire indigo échantillonné sur le wordmark du logo (#4032c8).
+   Les neutres forment une rampe « ink » teintée navy (jamais gris
+   pur) pour rester chaude face à l'indigo.
+
+   NB : les alias « legacy » en bas du fichier (--gray-*, --primary-*,
+   --color-primary*) sont conservés et repointés sur la rampe ci-dessus
+   afin que les composants Vue existants adoptent le design system sans
+   modification.
+   ============================================================ */
+
+:root {
+  /* ---- Marque — Indigo (primaire) ---- */
+  --indigo-50: #eeecfc;
+  --indigo-100: #d6d1f7;
+  --indigo-200: #b3aaf0;
+  --indigo-300: #8c7fe8;
+  --indigo-400: #6858e0;
+  --indigo-500: #4032c8; /* primaire — échantillonné sur le logo */
+  --indigo-600: #3527ad;
+  --indigo-700: #2a1e8c;
+  --indigo-800: #1f166b;
+  --indigo-900: #150e4a;
+
+  /* ---- Accent — Ruby (rare : alertes / danger) ---- */
+  --ruby-100: #fbdce6;
+  --ruby-500: #e0245e;
+
+  /* ---- Accent — Amber (avertissements) ---- */
+  --amber-100: #f7e8cf;
+  --amber-500: #b5790a;
+
+  /* ---- Succès ---- */
+  --green-100: #d9f0e6;
+  --green-500: #1d8a5c;
+
+  /* ---- Neutres — rampe « ink » (teintée navy, jamais noir pur) ---- */
+  --ink-0: #ffffff;
+  --ink-50: #f3f3f8;
+  --ink-100: #e6e6ee;
+  --ink-200: #cfcfdb;
+  --ink-300: #aaaabd;
+  --ink-400: #85859c;
+  --ink-500: #64647d;
+  --ink-600: #4b4b63;
+  --ink-700: #35354a;
+  --ink-800: #22222f;
+  --ink-900: #14141f;
+  --ink-950: #0a0a0f; /* texte noir, matche le wordmark du logo */
+
+  /* ---- Sémantique — surfaces ---- */
+  --surface-canvas: var(--ink-0);
+  --surface-sunken: var(--ink-50);
+  --surface-card: var(--ink-0);
+  --surface-inverse: var(--ink-950);
+  --surface-brand: var(--indigo-500);
+  --surface-brand-subtle: var(--indigo-50);
+
+  /* ---- Sémantique — texte ---- */
+  --text-primary: var(--ink-950);
+  --text-secondary: var(--ink-600);
+  --text-muted: var(--ink-400);
+  --text-on-brand: var(--ink-0);
+  --text-on-inverse: var(--ink-0);
+  --text-brand: var(--indigo-500);
+  --text-link: var(--indigo-500);
+  --text-link-hover: var(--indigo-600);
+
+  /* ---- Sémantique — bordures ---- */
+  --border-hairline: var(--ink-100);
+  --border-input: var(--ink-200);
+  --border-input-focus: var(--indigo-500);
+  --border-strong: var(--ink-300);
+
+  /* ---- Sémantique — états ---- */
+  --state-success: var(--green-500);
+  --state-success-bg: var(--green-100);
+  --state-warning: var(--amber-500);
+  --state-warning-bg: var(--amber-100);
+  --state-danger: var(--ruby-500);
+  --state-danger-bg: var(--ruby-100);
+  --state-info: var(--indigo-500);
+  --state-info-bg: var(--indigo-50);
+
+  /* ---- Boutons ---- */
+  --btn-primary-bg: var(--indigo-500);
+  --btn-primary-bg-hover: var(--indigo-600);
+  --btn-primary-bg-press: var(--indigo-700);
+  --btn-primary-text: var(--ink-0);
+
+  --btn-secondary-bg: var(--ink-0);
+  --btn-secondary-border: var(--ink-200);
+  --btn-secondary-text: var(--ink-950);
+  --btn-secondary-bg-hover: var(--ink-50);
+
+  --btn-ghost-text: var(--indigo-500);
+  --btn-ghost-bg-hover: var(--indigo-50);
+
+  /* ============================================================
+     ALIAS LEGACY — conservés pour rétro-compatibilité.
+     Les composants existants référencent ces variables ; on les
+     repointe sur la rampe du design system (valeurs quasi identiques,
+     désormais teintées navy pour les neutres).
+     ============================================================ */
+
+  /* Rampe neutre historique → ink (mappée par luminosité) */
+  --gray-1: var(--ink-0);
+  --gray-2: var(--ink-50);
+  --gray-3: var(--ink-100);
+  --gray-4: var(--ink-200);
+  --gray-6: var(--ink-500);
+  --gray-7: var(--ink-600);
+  --gray-8: var(--ink-700);
+  --gray-10: var(--ink-800);
+  --gray-12: var(--ink-950);
+
+  /* Rampe primaire historique → indigo */
+  --primary-1: var(--indigo-50);
+  --primary-3: var(--indigo-100);
+  --primary-6: var(--indigo-400);
+  --primary-9: var(--indigo-500);
+  --primary-10: var(--indigo-600);
+  --primary-11: var(--indigo-700);
+  --primary-contrast: var(--ink-0);
+
+  /* Tokens primaires sémantiques historiques */
+  --color-primary: var(--indigo-500);
+  --color-primary-hover: var(--indigo-600);
+  --color-primary-contrast: var(--ink-0);
+}
