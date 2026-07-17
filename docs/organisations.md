@@ -258,6 +258,71 @@ redirection, jamais rendue en page d'erreur générique).
   protection dernier owner (rétrogradation + retrait), retrait simple,
   transformer. `tests/inertia/organization_members.spec.ts`.
 
+## Invitations de membres par email (PR org-settings 3/3)
+
+Un owner/admin/manager invite un nouveau membre par email (formulaire sur
+l'écran membres). L'invité reçoit un lien, se connecte ou crée un compte si
+besoin (email préfilé, retour automatique sur l'invitation après
+authentification), puis rejoint l'organisation avec le rôle proposé.
+
+**Décision d'architecture** : pas de token stocké en base. Le lien s'appuie sur
+le mécanisme natif d'URL signée d'AdonisJS v7 (`signedUrlFor(routeName, params,
+{ expiresIn, purpose })` / `request.hasValidSignature(purpose)`,
+`@adonisjs/core/services/url_builder`) — l'expiration est encodée dans la
+signature elle-même. La table `organization_invitations` (`organization_id`,
+`email`, `role_id`, `invited_by_user_id`, `status` `pending`/`accepted`/`revoked`,
+`expires_at`) ne porte que l'état métier (liste, révocation, affichage), pas de
+secret.
+
+- **Service** `app/services/organization_invitations_service.ts` : `invite`
+  (rejette si l'email est déjà membre — `AlreadyMemberException` — et
+  rafraîchit une invitation en attente existante pour le même email plutôt que
+  d'en créer une seconde), `revoke`, `findById`, `accept` (idempotent, fixe
+  `currentOrganizationId` si absente).
+- **Mail** `app/mails/organization_invitation_notification.ts` +
+  `resources/views/emails/organization_invitation.edge`, envoyé via
+  `mail.sendLater()` (file interne en mémoire à `@adonisjs/mail`, pas la
+  file `@adonisjs/queue` du projet — ne survit pas à un redémarrage du
+  process, acceptable pour ce volume). Aucune infra mail n'existait avant ce
+  PR.
+- **Controllers** :
+  - `app/controllers/organization/invitations_controller.ts` (`store`/
+    `destroy`, ability `canInviteMembers` — owner/admin/**manager**, écrite en
+    Phase 2, jamais branchée avant ce PR).
+  - `app/controllers/organization/invitation_acceptance_controller.ts` :
+    `show` **public** (route hors auth, dans le groupe de routes publiques
+    avec `suppliers`/`products`), `accept` **authentifié mais hors
+    `onboarded`** (même exemption que `onboarding`/`logout` — un invité sans
+    organisation ne doit pas être bloqué avant d'accepter). La signature ne
+    protège que `show` (empêche l'énumération d'ids) ; `accept` s'appuie sur
+    auth + email du compte connecté = email invité + statut `pending` non
+    expiré, sans revérifier la signature (le bouton "Accepter" poste sur
+    `acceptActionUrl`, l'URL exacte de la page chargée — jamais reconstruite
+    via `urlFor` côté client, qui perdrait la querystring signée).
+  - `members_controller.ts#index` étendu : précharge les invitations en
+    attente, expose `canManageMembers` en plus (désormais gate de l'écran via
+    `canInviteMembers`, plus permissif) — un manager voit l'écran et peut
+    inviter, mais les contrôles rôle/retrait sont masqués côté écran (en plus
+    du 403 backend).
+- **Redirection post-authentification** — `shared/helpers/safe_redirect.ts`
+  (`isSafeRedirectPath`, chemin `/<locale>/...` uniquement, jamais une URL
+  absolue) : `session_controller.ts`/`new_account_controller.ts` lisent
+  `?redirect=...` pour ramener l'invité sur l'invitation après connexion/
+  inscription. ⚠️ **Piège** : `config/app.ts` active `forwardQueryString: true`
+  par défaut sur tous les redirects — toute redirection vers une cible
+  dynamique doit explicitement `.withQs(false)`, sinon la querystring de la
+  requête courante se retrouve dupliquée/propagée sur la destination (rencontré
+  et corrigé pendant ce PR, cf. `docs/changelog.md`).
+- **Écrans** `inertia/pages/organization/invitation_{accept,invalid}.vue` +
+  extension de `organization/members.vue` (nouveaux composants
+  `inertia/components/organization/members/{invite_form,pending_invitations,members_table}.vue`).
+  `auth/{login,signup}.vue` acceptent un prop `redirect` (+ `email` pour
+  signup).
+- **Tests** `tests/functional/organization_invitations.spec.ts` (8) et
+  `organization_invitation_acceptance.spec.ts` (10, dont redirection post-
+  auth) — SQLite et Postgres, `mail.fake()`. `tests/unit/safe_redirect.spec.ts`,
+  `tests/inertia/organization_invitation_accept.spec.ts`.
+
 ## Roadmap
 
 Découpage de la Phase 2 en 4 PR :
@@ -272,3 +337,7 @@ Découpage de la Phase 2 en 4 PR :
 
 **Hors code (ops)** : import en masse des ~300 fournisseurs (création/rattachement
 d'organisations `supplier`, `suppliers.organization_id` renseigné).
+
+Découpage séparé « gestion des organisations » (3 PR, voir sections
+ci-dessus) : PR1 (paramètres généraux), PR2 (membres existants) et PR3
+(invitations par email) faits — série complète.

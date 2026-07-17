@@ -3,11 +3,14 @@ import { Head } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import SectionNav from '~/components/organization/section_nav.vue'
 import MembersTable from '~/components/organization/members/members_table.vue'
-import type { OrganizationMemberType } from '#shared/types/organization'
+import InviteForm from '~/components/organization/members/invite_form.vue'
+import PendingInvitations from '~/components/organization/members/pending_invitations.vue'
+import type { OrganizationMemberType, OrganizationInvitationType } from '#shared/types/organization'
 import type { RoleType } from '#shared/types/role'
 
 const props = defineProps<{
   members: OrganizationMemberType[]
+  invitations: OrganizationInvitationType[]
   roles: RoleType[]
   canManageMembers: boolean
 }>()
@@ -31,5 +34,12 @@ const { t } = useI18n()
       :roles="props.roles"
       :can-manage="props.canManageMembers"
     />
+
+    <div>
+      <h2 class="mb-3 font-medium">{{ t('organization.invitations.inviteTitle') }}</h2>
+      <InviteForm :roles="props.roles" />
+    </div>
+
+    <PendingInvitations :invitations="props.invitations" />
   </div>
 </template>

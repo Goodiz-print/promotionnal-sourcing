@@ -17,6 +17,21 @@ export interface ApiDefinition {
     index: typeof routes['products.index']
     show: typeof routes['products.show']
   }
+  organization: {
+    invitations: {
+      show: typeof routes['organization.invitations.show']
+      accept: typeof routes['organization.invitations.accept']
+      store: typeof routes['organization.invitations.store']
+      destroy: typeof routes['organization.invitations.destroy']
+    }
+    settings: typeof routes['organization.settings'] & {
+      update: typeof routes['organization.settings.update']
+    }
+    members: typeof routes['organization.members'] & {
+      update: typeof routes['organization.members.update']
+      destroy: typeof routes['organization.members.destroy']
+    }
+  }
   newAccount: {
     create: typeof routes['new_account.create']
     store: typeof routes['new_account.store']
@@ -29,15 +44,6 @@ export interface ApiDefinition {
   onboarding: {
     show: typeof routes['onboarding.show']
     store: typeof routes['onboarding.store']
-  }
-  organization: {
-    settings: typeof routes['organization.settings'] & {
-      update: typeof routes['organization.settings.update']
-    }
-    members: typeof routes['organization.members'] & {
-      update: typeof routes['organization.members.update']
-      destroy: typeof routes['organization.members.destroy']
-    }
   }
   supplier: {
     profile: typeof routes['supplier.profile'] & {

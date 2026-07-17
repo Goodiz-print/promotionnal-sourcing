@@ -45,6 +45,14 @@ router
     router.get('products', [controllers.Products, 'index']).as('products.index')
     router.get('products/:slug', [controllers.Products, 'show']).as('products.show')
 
+    // Aperçu public d'une invitation (URL signée, sans auth requise).
+    router
+      .get('organization/invitations/:id/accept', [
+        controllers.organization.InvitationAcceptance,
+        'show',
+      ])
+      .as('organization.invitations.show')
+
     router
       .group(() => {
         router.get('signup', [controllers.NewAccount, 'create'])
@@ -61,6 +69,16 @@ router
 
         router.get('onboarding', [controllers.Onboarding, 'show']).as('onboarding.show')
         router.post('onboarding', [controllers.Onboarding, 'store']).as('onboarding.store')
+
+        // Acceptation d'une invitation : hors `onboarded`, un invité sans
+        // organisation ne doit pas être bloqué vers l'onboarding avant d'avoir
+        // pu accepter (même exemption que onboarding/logout ci-dessus).
+        router
+          .post('organization/invitations/:id/accept', [
+            controllers.organization.InvitationAcceptance,
+            'accept',
+          ])
+          .as('organization.invitations.accept')
 
         // Écrans nécessitant une organisation : gardés par `onboarded`.
         router
@@ -84,6 +102,17 @@ router
             router
               .delete('organization/members/:id', [controllers.organization.Members, 'destroy'])
               .as('organization.members.destroy')
+
+            // Invitation de nouveaux membres par email (owner/admin/manager).
+            router
+              .post('organization/invitations', [controllers.organization.Invitations, 'store'])
+              .as('organization.invitations.store')
+            router
+              .delete('organization/invitations/:id', [
+                controllers.organization.Invitations,
+                'destroy',
+              ])
+              .as('organization.invitations.destroy')
 
             router
               .get('supplier/profile', [controllers.supplier.Profile, 'show'])

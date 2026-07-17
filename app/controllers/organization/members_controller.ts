@@ -3,7 +3,9 @@ import { inject } from '@adonisjs/core'
 import { Exception } from '@adonisjs/core/exceptions'
 import { updateMemberRoleValidator } from '#validators/organization_member'
 import OrganizationMembersService from '#services/organization_members_service'
+import OrganizationInvitationsService from '#services/organization_invitations_service'
 import OrganizationMemberTransformer from '#transformers/organization_member_transformer'
+import OrganizationInvitationTransformer from '#transformers/organization_invitation_transformer'
 import RoleTransformer from '#transformers/role_transformer'
 import Role from '#models/role'
 import { LastOwnerException } from '#exceptions/organization_errors'
@@ -12,26 +14,40 @@ import type User from '#models/user'
 
 /**
  * Gestion des membres de l'organisation courante (liste, changement de
- * rôle, retrait). Réservé à `canManageMembers` (owner/admin), y compris
- * pour la simple lecture de la liste.
+ * rôle, retrait) et des invitations en attente. Écran accessible dès
+ * `canInviteMembers` (owner/admin/manager) ; le changement de rôle et le
+ * retrait restent réservés à `canManageMembers` (owner/admin), cf. `update`/
+ * `destroy` — `canManageMembers` est aussi renvoyé en prop pour masquer ces
+ * contrôles côté écran quand l'utilisateur ne peut pas s'en servir.
  */
 @inject()
 export default class OrganizationMembersController {
-  constructor(private service: OrganizationMembersService) {}
+  constructor(
+    private service: OrganizationMembersService,
+    private invitationsService: OrganizationInvitationsService
+  ) {}
 
   /**
-   * Écran listant les membres de l'organisation courante.
+   * Écran listant les membres et les invitations en attente de l'organisation
+   * courante.
    */
   async index({ auth, bouncer, inertia }: HttpContext) {
     const org = await this.currentOrganization(auth.getUserOrFail())
-    await bouncer.authorize('canManageMembers', org)
+    await bouncer.authorize('canInviteMembers', org)
 
-    const [members, roles] = await Promise.all([this.service.listMembers(org.id), Role.all()])
+    const [members, invitations, roles] = await Promise.all([
+      this.service.listMembers(org.id),
+      this.invitationsService.listPending(org.id),
+      Role.all(),
+    ])
 
     return inertia.render('organization/members', {
       members: members.map((member) => new OrganizationMemberTransformer(member).toObject()),
+      invitations: invitations.map((invitation) =>
+        new OrganizationInvitationTransformer(invitation).toObject()
+      ),
       roles: roles.map((role) => new RoleTransformer(role).toObject()),
-      canManageMembers: true,
+      canManageMembers: await bouncer.allows('canManageMembers', org),
     })
   }
 

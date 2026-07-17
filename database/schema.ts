@@ -139,6 +139,39 @@ export class CategoryTranslationSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class OrganizationInvitationSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'email',
+    'expiresAt',
+    'id',
+    'invitedByUserId',
+    'organizationId',
+    'roleId',
+    'status',
+    'updatedAt',
+  ] as const
+  $columns = OrganizationInvitationSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare email: string
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare invitedByUserId: number | null
+  @column()
+  declare organizationId: number
+  @column()
+  declare roleId: number
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class OrganizationUserSchema extends BaseModel {
   static $columns = ['id', 'joinedAt', 'organizationId', 'roleId', 'userId'] as const
   $columns = OrganizationUserSchema.$columns

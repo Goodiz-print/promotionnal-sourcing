@@ -130,3 +130,36 @@ export interface UpdateOrganizationData extends Partial<CreateOrganizationData> 
  * dédiées du service — upload/suppression Cloudinary, pas une URL saisie).
  */
 export type UpdateOrganizationSettingsData = Omit<UpdateOrganizationData, 'slug' | 'logoUrl'>
+
+export const INVITATION_STATUSES = ['pending', 'accepted', 'revoked'] as const
+
+export type InvitationStatus = (typeof INVITATION_STATUSES)[number]
+
+/**
+ * DTO exposé aux pages Inertia (invitations en attente) — `type` requis,
+ * cf. `OrganizationType` ci-dessus pour la justification.
+ */
+export type OrganizationInvitationType = {
+  id: number
+  email: string
+  role: RoleType
+  status: InvitationStatus
+  expiresAt: string
+  createdAt: string
+}
+
+export interface InviteMemberData {
+  email: string
+  roleId: number
+}
+
+/**
+ * DTO exposé à l'écran public d'acceptation d'invitation.
+ */
+export type OrganizationInvitationPreviewType = {
+  id: number
+  organizationName: string
+  roleName: string
+  invitedByName: string | null
+  email: string
+}
