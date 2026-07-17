@@ -4,6 +4,7 @@
  */
 
 export const listeners = {
+  OnProductContentUpdated: () => import('#listeners/on_product_content_updated'),
   OnUserLoggedIn: () => import('#listeners/on_user_logged_in'),
   OnUserRegistered: () => import('#listeners/on_user_registered'),
 }

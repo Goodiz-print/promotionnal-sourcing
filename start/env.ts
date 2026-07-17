@@ -53,4 +53,13 @@ export default await Env.create(new URL('../', import.meta.url), {
   SMTP_PASSWORD: Env.schema.string.optional(),
   MAIL_FROM_ADDRESS: Env.schema.string(),
   MAIL_FROM_NAME: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables pour l'IA Mistral (embeddings du catalogue)
+  |----------------------------------------------------------
+  */
+  // Optionnelle : absente en dev/test hors du besoin d'embeddings reels,
+  // le job/service leve une erreur explicite (pas de crash au boot).
+  MISTRAL_API_KEY: Env.schema.string.optional(),
 })

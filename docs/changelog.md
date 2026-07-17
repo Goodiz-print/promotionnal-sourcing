@@ -1,5 +1,39 @@
 # Changelog
 
+## 2026-07-17 — Embeddings Mistral + recherche hybride catalogue (issue #20)
+
+Peuple enfin `products.embedding` (vide depuis la Phase 1) et branche la
+recherche vectorielle en complément du full-text.
+
+- **`ProductEmbeddingService`** (`app/services/product_embedding_service.ts`)
+  — appelle `mistral-embed` (`@mistralai/mistralai`, `MISTRAL_API_KEY`,
+  optionnelle : erreur explicite à l'usage plutôt que crash au boot). Client
+  Mistral injectable au constructeur pour les tests. Erreurs dédiées
+  `EmbeddingGenerationError` (`app/exceptions/embedding_errors.ts`).
+- **`GenerateProductEmbeddingJob`** (`app/jobs/`, `@adonisjs/queue`) — embed
+  le texte traduit (locale par défaut, repli via `resolveTranslation`) et
+  écrit `products.embedding` en SQL brut (colonne exclue du schéma ORM).
+- **Déclenchement automatique** : hook `@afterSave` sur `ProductTranslation`
+  → événement `ProductContentUpdated` → listener `OnProductContentUpdated`
+  → job mis en file (toute création/màj de traduction reprogramme
+  l'embedding, sans bloquer la requête).
+- **Backfill** : commande ace `catalogue:backfill-embeddings` — dispatch un
+  job par produit avec `embedding IS NULL`.
+- **`ProductCatalogueService.search(query, locale, limit)`** — recherche
+  hybride FTS + vectorielle par **Reciprocal Rank Fusion**
+  (`shared/types/search.ts`). Dégrade proprement en FTS pur si `embedding`
+  est encore `NULL`. Pas encore consommé par un contrôleur (page catalogue
+  Inertia = incrément suivant).
+- **Imports** : ajout `#jobs/*` (`package.json`), `MISTRAL_API_KEY` dans
+  `start/env.ts`/`.env.example` (optionnelle).
+- **Tests** : `tests/unit/product_embedding_service.spec.ts`,
+  `tests/functional/generate_product_embedding_job.spec.ts` (execute +
+  déclenchement via `queue.fake()`), `tests/functional/product_catalogue_search.spec.ts`
+  (match lexical, match sémantique pur), `tests/functional/backfill_product_embeddings.spec.ts`
+  — zéro appel réseau, client Mistral mocké partout.
+- **Doc** : `docs/catalogue.md` (section « Embeddings Mistral & recherche
+  hybride », fichiers clés, tests, roadmap incrément 4).
+
 ## 2026-07-10 — Doc dédiée catalogue
 
 Ajout de `docs/catalogue.md`, absent malgré les entrées de changelog

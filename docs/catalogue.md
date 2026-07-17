@@ -49,8 +49,8 @@ Migration `…948_enable_search_extensions` active `vector` (pgvector),
 no-op hors PostgreSQL.
 
 - **`products.embedding`** — `vector(1024)`, nullable, index **HNSW**
-  (`vector_cosine_ops`). Prêt pour `mistral-embed` ; peuplé par un futur job
-  asynchrone (pas encore implémenté).
+  (`vector_cosine_ops`). Peuplé par `mistral-embed` via
+  `GenerateProductEmbeddingJob` (voir section dédiée ci-dessous).
 - **`product_translations.search_vector`** — colonne générée **immuable**,
   un `CASE` par `locale` (`to_tsvector('french', …)` / `to_tsvector('english',
 …)`, repli `'simple'`) + index GIN. `unaccent()` est `STABLE` et interdit
@@ -63,6 +63,40 @@ no-op hors PostgreSQL.
 `database/schema_rules.ts` exclut `products.embedding` et
 `product_translations.search_vector` du schéma généré par l'ORM (colonnes
 SQL brutes, jamais typées/sérialisées).
+
+## Embeddings Mistral & recherche hybride
+
+- **`ProductEmbeddingService`** (`app/services/product_embedding_service.ts`)
+  — appelle `mistral-embed` (`@mistralai/mistralai`, clé `MISTRAL_API_KEY`) et
+  renvoie le vecteur 1024 dims. Client Mistral injectable au constructeur
+  (tests sans appel réseau) ; lève `EmbeddingGenerationError`
+  (`app/exceptions/embedding_errors.ts`) si la clé manque ou si la réponse
+  Mistral ne contient pas de vecteur exploitable.
+- **`GenerateProductEmbeddingJob`** (`app/jobs/generate_product_embedding_job.ts`,
+  queue `@adonisjs/queue`) — charge le produit + ses traductions, embed le
+  texte de la locale par défaut (repli sur la première traduction
+  disponible via `resolveTranslation`), écrit `products.embedding` en SQL
+  brut (`UPDATE … SET embedding = ?::vector`, colonne exclue du schéma ORM).
+- **Déclenchement automatique** : hook `@afterSave` sur `ProductTranslation`
+  émet l'événement `ProductContentUpdated` (`app/events/`), écouté par
+  `OnProductContentUpdated` (`app/listeners/`) qui dispatch le job — toute
+  création/mise à jour de traduction (donc de contenu produit) reprogramme
+  la génération d'embedding, sans bloquer la requête (job mis en file, pas
+  exécuté en synchrone).
+- **Backfill** : commande ace `catalogue:backfill-embeddings`
+  (`commands/backfill_product_embeddings.ts`) — liste les produits avec
+  `embedding IS NULL` et dispatch un job par produit.
+- **`ProductCatalogueService.search(query, locale, limit)`**
+  (`app/services/product_catalogue_service.ts`) — recherche hybride :
+  fusionne le classement full-text (`product_translations.search_vector`,
+  `plainto_tsquery` par `LOCALE_TSCONFIG`) et le classement par similarité
+  cosinus de l'embedding de la requête (`products.embedding <=> …`, index
+  HNSW) via **Reciprocal Rank Fusion** (`score = Σ 1/(60 + rang)`) — combine
+  deux classements sans normaliser deux échelles de score incomparables
+  (`ts_rank` vs distance cosinus). Fonctionne même si `embedding` est encore
+  `NULL` (dégrade en FTS pur) : voir
+  `tests/functional/product_catalogue_search.spec.ts`. Pas encore consommé
+  par un contrôleur/route (prévu avec la page catalogue Inertia).
 
 ## i18n du contenu (FR par défaut, EN, extensible à N langues)
 
@@ -94,16 +128,17 @@ traduction dédiées** — jamais dans les tables de base :
 
 ## Fichiers clés
 
-| Domaine               | Chemin                                                                                                       |
-| --------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Modèles               | `app/models/{supplier,category,attribute,attribute_value,product,product_attribute}.ts` + `*_translation.ts` |
-| Transformers          | `app/transformers/*_transformer.ts`                                                                          |
-| Validators            | `app/validators/{supplier,category,attribute,product}.ts`                                                    |
-| Types partagés        | `shared/types/{supplier,category,attribute,product}.ts`                                                      |
-| Helper traduction     | `shared/helpers/translations.ts`                                                                             |
-| Config FTS par locale | `shared/types/i18n.ts` (`LOCALE_TSCONFIG`)                                                                   |
-| Règles de schéma      | `database/schema_rules.ts`                                                                                   |
-| Seeders               | `database/seeders/{supplier,category,attribute,product}_seeder.ts`                                           |
+| Domaine                | Chemin                                                                                                                                                                                                                                                   |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Modèles                | `app/models/{supplier,category,attribute,attribute_value,product,product_attribute}.ts` + `*_translation.ts`                                                                                                                                             |
+| Transformers           | `app/transformers/*_transformer.ts`                                                                                                                                                                                                                      |
+| Validators             | `app/validators/{supplier,category,attribute,product}.ts`                                                                                                                                                                                                |
+| Types partagés         | `shared/types/{supplier,category,attribute,product,search}.ts`                                                                                                                                                                                           |
+| Helper traduction      | `shared/helpers/translations.ts`                                                                                                                                                                                                                         |
+| Config FTS par locale  | `shared/types/i18n.ts` (`LOCALE_TSCONFIG`)                                                                                                                                                                                                               |
+| Règles de schéma       | `database/schema_rules.ts`                                                                                                                                                                                                                               |
+| Seeders                | `database/seeders/{supplier,category,attribute,product}_seeder.ts`                                                                                                                                                                                       |
+| Embeddings & recherche | `app/services/{product_embedding_service,product_catalogue_service}.ts`, `app/jobs/generate_product_embedding_job.ts`, `app/events/product_content_updated.ts`, `app/listeners/on_product_content_updated.ts`, `commands/backfill_product_embeddings.ts` |
 
 ## Tests
 
@@ -114,6 +149,17 @@ traduction dédiées** — jamais dans les tables de base :
   de `products.embedding`.
 - `tests/unit/translations.spec.ts` — `resolveTranslation` (résolution +
   repli).
+- `tests/unit/product_embedding_service.spec.ts` — appel Mistral mocké,
+  erreur si réponse sans vecteur.
+- `tests/functional/generate_product_embedding_job.spec.ts` — `execute()`
+  peuple `products.embedding` (service injecté, zéro appel réseau),
+  tolérance produit introuvable, déclenchement du job via `queue.fake()` à
+  la sauvegarde d'une traduction.
+- `tests/functional/product_catalogue_search.spec.ts` — recherche hybride :
+  match lexical pur, match sémantique pur (embedding identique à la requête,
+  aucun recouvrement de texte).
+- `tests/functional/backfill_product_embeddings.spec.ts` — la commande met
+  en file un job par produit sans embedding.
 - Ces tests s'exécutent uniquement sous PostgreSQL (`tests/utils/database.ts`
   → `isPostgres()`) ; **sautés** sur SQLite (aucune migration catalogue
   lancée en local par défaut). Voir `docs/tests.md`.
@@ -121,6 +167,9 @@ traduction dédiées** — jamais dans les tables de base :
 ## Roadmap
 
 1. **Incrément 2** (fait) — i18n du contenu catalogue + FTS par langue.
-2. **Incrément 3** — moteur de recherche locale-aware, embeddings Mistral
-   (`mistral-embed`), parseur de requête (synonymes, facettes), validateurs
-   et endpoints d'écriture adaptés au payload `translations`.
+2. **Incrément 3** (fait) — embeddings Mistral (`mistral-embed`), job +
+   déclenchement événementiel, backfill, recherche hybride FTS/vectorielle
+   (`ProductCatalogueService`).
+3. **Incrément 4** — parseur de requête (synonymes, facettes), validateurs
+   et endpoints d'écriture adaptés au payload `translations`, page catalogue
+   Inertia consommant `ProductCatalogueService.search`.

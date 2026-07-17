@@ -3,10 +3,12 @@
  * DO NOT EDIT manually
  */
 
+import ProductContentUpdated from '#events/product_content_updated'
 import UserLoggedIn from '#events/user_logged_in'
 import UserRegistered from '#events/user_registered'
 
 export const events = {
+  ProductContentUpdated: ProductContentUpdated,
   UserLoggedIn: UserLoggedIn,
   UserRegistered: UserRegistered,
 }
