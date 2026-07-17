@@ -1,6 +1,8 @@
 # Charte graphique — promotionalsourcing.eu
 
-Référence visuelle : sobriété façon [stripe.com](https://stripe.com/en-fr) — fond dominant blanc, gris neutres pour le texte/les bordures, violet en accent réservé aux actions (boutons, liens forts, focus, rappels).
+Référence visuelle : sobriété façon [stripe.com](https://stripe.com/en-fr) — fond dominant blanc, neutres teintés navy pour le texte/les bordures, indigo en accent réservé aux actions (boutons, liens forts, focus, rappels).
+
+> Tokens détaillés (typo, espacements, patterns de composants) : voir [`design-system.md`](design-system.md). Ce document reste la référence pour le logo, le favicon et les règles de marque ; en cas de divergence sur les valeurs exactes, `inertia/css/tokens/colors.css` fait foi (source réellement chargée par l'app).
 
 ## Logo
 
@@ -22,59 +24,68 @@ Référence visuelle : sobriété façon [stripe.com](https://stripe.com/en-fr) 
 
 ## Couleurs
 
-### Violet de marque (issu du logo)
+### Indigo de marque (issu du logo)
 
-| Token CSS                                | Usage                                                 | Hex       | RGB             |
-| ---------------------------------------- | ----------------------------------------------------- | --------- | --------------- |
-| `--primary-9` / `--color-primary`        | Couleur de marque, boutons, liens forts               | `#4032C8` | `64, 50, 200`   |
-| `--primary-10` / `--color-primary-hover` | Hover/active des éléments violets                     | `#362BAB` | `54, 43, 171`   |
-| `--primary-11`                           | Texte violet sur fond clair (contraste renforcé)      | `#2C2389` | `44, 35, 137`   |
-| `--primary-6`                            | Anneaux de focus, états discrets                      | `#8078E0` | `128, 120, 224` |
-| `--primary-3`                            | Fond de badge/callout violet clair                    | `#E4E1F9` | `228, 225, 249` |
-| `--primary-1`                            | Fond très subtil (survol de ligne, section highlight) | `#F2F1FC` | `242, 241, 252` |
-| `--color-primary-contrast`               | Texte sur fond violet                                 | `#FFFFFF` | `255, 255, 255` |
+Rampe `--indigo-*` définie dans `inertia/css/tokens/colors.css` (import de `app.css`) ; les alias historiques `--primary-*`/`--color-primary*` sont conservés et repointés dessus pour la rétro-compatibilité des composants existants.
 
-Définis dans `inertia/css/app.css` (`:root` + bloc `@theme`), donc disponibles à la fois comme variables CSS (`var(--primary-9)`) et comme classes utilitaires Tailwind (`bg-primary`, `text-primary`, `border-primary-6`, etc.).
+| Token CSS      | Alias historique                         | Usage                                                 | Hex       | RGB             |
+| -------------- | ---------------------------------------- | ----------------------------------------------------- | --------- | --------------- |
+| `--indigo-500` | `--primary-9` / `--color-primary`        | Couleur de marque, boutons, liens forts               | `#4032C8` | `64, 50, 200`   |
+| `--indigo-600` | `--primary-10` / `--color-primary-hover` | Hover/active des éléments indigo                      | `#3527AD` | `53, 39, 173`   |
+| `--indigo-700` | `--primary-11`                           | Texte indigo sur fond clair (contraste renforcé)      | `#2A1E8C` | `42, 30, 140`   |
+| `--indigo-400` | `--primary-6`                            | Anneaux de focus, états discrets                      | `#6858E0` | `104, 88, 224`  |
+| `--indigo-100` | `--primary-3`                            | Fond de badge/callout indigo clair                    | `#D6D1F7` | `214, 209, 247` |
+| `--indigo-50`  | `--primary-1`                            | Fond très subtil (survol de ligne, section highlight) | `#EEECFC` | `238, 236, 252` |
+| `--ink-0`      | `--color-primary-contrast`               | Texte sur fond indigo                                 | `#FFFFFF` | `255, 255, 255` |
+
+Disponibles à la fois comme variables CSS (`var(--indigo-500)`, ou l'alias `var(--primary-9)`/`var(--color-primary)`) et comme classes utilitaires Tailwind (`bg-indigo-500`, `text-primary`, `border-primary-6`, etc.) via le bloc `@theme` de `inertia/css/app.css`.
 
 ### Neutres (fond dominant blanc)
 
-Échelle de gris déjà en place, à conserver comme socle du fond blanc dominant — le violet reste l'exception, pas la règle :
+Rampe **« ink »** teintée navy (jamais gris pur), à conserver comme socle du fond blanc dominant — l'indigo reste l'exception, pas la règle. Les alias `--gray-*` historiques sont conservés (composants existants) :
 
-| Token                    | Rôle                  |
-| ------------------------ | --------------------- |
-| `--gray-1` / `--gray-2`  | Fonds de page         |
-| `--gray-3` / `--gray-4`  | Bordures, séparateurs |
-| `--gray-6` / `--gray-7`  | Texte secondaire      |
-| `--gray-8` / `--gray-10` | Texte principal       |
-| `--gray-12`              | Titres, texte fort    |
+| Token ink               | Alias historique         | Rôle                  |
+| ----------------------- | ------------------------ | --------------------- |
+| `--ink-0`/`--ink-50`    | `--gray-1` / `--gray-2`  | Fonds de page         |
+| `--ink-100`/`--ink-200` | `--gray-3` / `--gray-4`  | Bordures, séparateurs |
+| `--ink-500`/`--ink-600` | `--gray-6` / `--gray-7`  | Texte secondaire      |
+| `--ink-700`/`--ink-800` | `--gray-8` / `--gray-10` | Texte principal       |
+| `--ink-950`             | `--gray-12`              | Titres, texte fort    |
 
-### Sémantiques (inchangées)
+### Sémantiques
 
-- Erreur / destructif : `#fb2c36`
-- Succès : `#00a63e`
+Tokens dédiés désormais disponibles (`inertia/css/tokens/colors.css`) — ne plus coder ces couleurs en dur, utiliser `var(--state-danger)`/`var(--color-danger)` etc. :
 
-## Règle d'usage du violet
+| Rôle                | Token                                               | Hex       |
+| ------------------- | --------------------------------------------------- | --------- |
+| Erreur / destructif | `--state-danger`/`--color-danger` (`--ruby-500`)    | `#E0245E` |
+| Succès              | `--state-success`/`--color-success` (`--green-500`) | `#1D8A5C` |
+| Avertissement       | `--state-warning`/`--color-warning` (`--amber-500`) | `#B5790A` |
 
-Le violet est un **accent**, pas une couleur de fond dominante :
+## Règle d'usage de l'indigo
+
+L'indigo est un **accent**, pas une couleur de fond dominante :
 
 - ✅ Boutons d'action (`button`, `.hero .button`), liens/CTA principaux, badges de rappel, anneaux de focus, éléments actifs importants
-- ❌ Fonds de page, grandes zones, texte courant, navigation (la nav reste en gris `--gray-8` / `--gray-12` au survol/actif)
+- ❌ Fonds de page, grandes zones, texte courant, navigation (la nav reste dans la rampe neutre `--gray-8` / `--gray-12` au survol/actif)
 
 ## Typographie
 
-- `system-ui, sans-serif` (pas de webfont custom pour l'instant)
-- Titres (`h1`–`h6`) en `--gray-12`, poids 600, `letter-spacing` légèrement négatif sur les gros titres (cf. `.hero h1`, `.form-container h1`)
+- **Inter** (400-700) pour le texte, **IBM Plex Mono** pour les chiffres/prix/réf. — chargées via Google Fonts dans `resources/views/inertia_layout.edge` (substituts de Sohne, propriétaire). Plus de `system-ui` par défaut.
+- Titres (`h1`–`h6`) en `--gray-12`/`--text-primary`, poids 600, `letter-spacing` légèrement négatif sur les gros titres (cf. `.hero h1`, `.form-container h1`)
 - Texte courant en `--gray-10`, texte secondaire en `--gray-6` / `--gray-7`
+- Échelle complète (`type-display-xl`, `type-heading-md`, `type-body-sm`…) : voir [`design-system.md`](design-system.md#typographie)
 
 ## Composants clés
 
 - **Boutons** : fond `--color-primary`, texte blanc, `hover` → `--color-primary-hover`, `border-radius: 4–6px`
 - **Focus visible** : anneau `2px solid var(--primary-6)` sur boutons, liens, champs de formulaire (accessibilité clavier)
-- **Cartes / conteneurs** : fond blanc, bordure `--gray-3`, pas d'ombre lourde (cohérent avec la sobriété Stripe)
-- **Alertes** : succès/erreur restent sémantiques (rouge/vert), le violet n'est pas utilisé pour les états d'alerte
+- **Cartes / conteneurs** : fond blanc, bordure `--gray-3`, pas d'ombre lourde par défaut (ombres subtiles `--shadow-1/2/3` réservées aux éléments détachés du flux — cohérent avec la sobriété Stripe)
+- **Alertes** : succès/erreur restent sémantiques (`--color-danger`/`--color-success`), l'indigo n'est pas utilisé pour les états d'alerte
 
 ## Où intervenir pour étendre la charte
 
-- Couleurs : `inertia/css/app.css` (variables `--primary-*` + bloc `@theme`)
+- Couleurs : `inertia/css/tokens/colors.css` (rampes `--indigo-*`/`--ink-*` + tokens sémantiques + alias `--primary-*`/`--gray-*`), exposées via `@theme` dans `inertia/css/app.css`
+- Typographie/espacements : `inertia/css/tokens/{typography,spacing}.css`
 - Favicon/meta : `resources/views/inertia_layout.edge`
 - Logo source : `inertia/assets/logo promotional sourcing.*`
