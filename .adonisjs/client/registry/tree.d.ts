@@ -34,6 +34,10 @@ export interface ApiDefinition {
     settings: typeof routes['organization.settings'] & {
       update: typeof routes['organization.settings.update']
     }
+    members: typeof routes['organization.members'] & {
+      update: typeof routes['organization.members.update']
+      destroy: typeof routes['organization.members.destroy']
+    }
   }
   supplier: {
     profile: typeof routes['supplier.profile'] & {

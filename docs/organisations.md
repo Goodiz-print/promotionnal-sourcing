@@ -215,6 +215,49 @@ profil fournisseur, réservé aux `supplier`/`both`.
   l'ancienne convention de montage, ce qui bloquait tout redémarrage du
   conteneur local, indépendamment de pgvector.
 
+## Gestion des membres de l'organisation (PR org-settings 2/3)
+
+Un owner/admin liste les membres de son organisation courante, change leur
+rôle (owner/admin/manager/member) et les retire. **Pas d'invitation par
+email** dans ce PR (PR3).
+
+Garde métier centrale : **une organisation garde toujours au moins un
+owner** — impossible de rétrograder ou retirer le dernier owner
+(`LastOwnerException`, interceptée dans le controller → flash `error` +
+redirection, jamais rendue en page d'erreur générique).
+
+- **Exceptions** `app/exceptions/organization_errors.ts` : `LastOwnerException`
+  (422), `OrganizationMemberNotFoundException` (404, membre hors organisation).
+- **Service** `app/services/organization_members_service.ts` : `listMembers`,
+  `findMember`, `changeRole`, `removeMember`. Un membre retiré dont
+  l'organisation courante était celle-ci voit `currentOrganizationId` remis à
+  `null` (repasse par l'onboarding à la prochaine visite).
+- **Controller** `app/controllers/organization/members_controller.ts` :
+  `index`/`update`/`destroy`, ability `canManageMembers` (écrite en Phase 2,
+  enfin branchée — owner/admin uniquement, y compris pour la simple lecture
+  de la liste).
+- **Routes** : `GET organization/members`, `PATCH organization/members/:id`,
+  `DELETE organization/members/:id`.
+- **Types** : `RoleType`/`PermissionType`/`RoleWithPermissionsType`
+  (`shared/types/role.ts`) et `OrganizationMemberType`
+  (`shared/types/organization.ts`) passés d'`interface` à `type` — la
+  contrainte props Inertia (`Record<string, JSONDataTypes>`) s'applique aussi
+  aux types **nichés** dans un DTO (`OrganizationMemberType.role: RoleType`),
+  pas seulement au DTO racine. `RoleTransformer` corrigé en conséquence
+  (retour typé `RoleType`, `slug` casté en `RoleSlug`).
+- **Écran** `inertia/pages/organization/members.vue` : tableau + `<select>`
+  de rôle par ligne (mutation ponctuelle `router.patch`, `preserveScroll`,
+  premier usage de ce pattern dans le projet) + retrait (`window.confirm` +
+  `router.delete`, repris de `admin/categories/index.vue`). Nouveau composant
+  partagé `inertia/components/organization/section_nav.vue` (onglets
+  Paramètres/Membres) sur `organization/{settings,members}.vue`.
+- **Tests** `tests/functional/organization_members.spec.ts` — **SQLite et
+  Postgres** (aucune fonctionnalité catalogue requise ; seed direct
+  `RoleSeeder`/`PermissionSeeder`/`RolePermissionSeeder`, pattern
+  `admin_categories.spec.ts`, plutôt que `MainSeeder`) : liste, 403, rôle,
+  protection dernier owner (rétrogradation + retrait), retrait simple,
+  transformer. `tests/inertia/organization_members.spec.ts`.
+
 ## Roadmap
 
 Découpage de la Phase 2 en 4 PR :

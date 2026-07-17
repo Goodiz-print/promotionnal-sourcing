@@ -91,7 +91,11 @@ export interface UpdateSupplierProfileData {
   responseTimeDays?: number | null
 }
 
-export interface OrganizationMemberType {
+/**
+ * DTO exposé aux pages Inertia (liste des membres) — `type` requis, cf.
+ * `OrganizationType` ci-dessus pour la justification.
+ */
+export type OrganizationMemberType = {
   id: number
   fullName: string | null
   email: string

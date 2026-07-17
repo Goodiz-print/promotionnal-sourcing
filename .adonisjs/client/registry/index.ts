@@ -114,6 +114,24 @@ const routes = {
     tokens: [{"old":"/:locale/organization/settings","type":1,"val":"locale","end":""},{"old":"/:locale/organization/settings","type":0,"val":"organization","end":""},{"old":"/:locale/organization/settings","type":0,"val":"settings","end":""}],
     types: placeholder as Registry['organization.settings.update']['types'],
   },
+  'organization.members': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/organization/members',
+    tokens: [{"old":"/:locale/organization/members","type":1,"val":"locale","end":""},{"old":"/:locale/organization/members","type":0,"val":"organization","end":""},{"old":"/:locale/organization/members","type":0,"val":"members","end":""}],
+    types: placeholder as Registry['organization.members']['types'],
+  },
+  'organization.members.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/organization/members/:id',
+    tokens: [{"old":"/:locale/organization/members/:id","type":1,"val":"locale","end":""},{"old":"/:locale/organization/members/:id","type":0,"val":"organization","end":""},{"old":"/:locale/organization/members/:id","type":0,"val":"members","end":""},{"old":"/:locale/organization/members/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['organization.members.update']['types'],
+  },
+  'organization.members.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/organization/members/:id',
+    tokens: [{"old":"/:locale/organization/members/:id","type":1,"val":"locale","end":""},{"old":"/:locale/organization/members/:id","type":0,"val":"organization","end":""},{"old":"/:locale/organization/members/:id","type":0,"val":"members","end":""},{"old":"/:locale/organization/members/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['organization.members.destroy']['types'],
+  },
   'supplier.profile': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/supplier/profile',

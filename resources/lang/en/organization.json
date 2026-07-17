@@ -35,5 +35,22 @@
     "replace": "Replace logo",
     "remove": "Remove logo",
     "cancel": "Cancel"
+  },
+  "nav": {
+    "settings": "Settings",
+    "members": "Members"
+  },
+  "members": {
+    "title": "Organization members",
+    "subtitle": "Manage the roles and access of your organization's members.",
+    "columns": {
+      "name": "Member",
+      "role": "Role"
+    },
+    "remove": "Remove",
+    "confirmRemove": "Remove this member from the organization?",
+    "roleUpdated": "Member role updated.",
+    "removed": "Member removed from the organization.",
+    "lastOwnerError": "Cannot remove or demote the organization's last owner."
   }
 }

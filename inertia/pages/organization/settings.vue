@@ -4,6 +4,7 @@ import { Head, useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base_button.vue'
+import SectionNav from '~/components/organization/section_nav.vue'
 import GeneralFields from '~/components/organization/settings/general_fields.vue'
 import AddressFields from '~/components/organization/settings/address_fields.vue'
 import LogoField from '~/components/organization/settings/logo_field.vue'
@@ -79,6 +80,8 @@ function submit() {
   <Head :title="t('organization.settings.title')" />
 
   <div class="mx-auto flex max-w-[720px] flex-col justify-center px-6 py-12">
+    <SectionNav current="settings" />
+
     <div>
       <h1 class="mb-1.25 text-[32px] tracking-[-0.5px]">{{ t('organization.settings.title') }}</h1>
       <p class="mb-8 text-lg text-[var(--gray-6)]">{{ t('organization.settings.subtitle') }}</p>
