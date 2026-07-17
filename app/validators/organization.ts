@@ -53,7 +53,6 @@ export const updateOrganizationValidator = vine.create({
     .optional()
     .nullable(),
   description: vine.string().maxLength(2000).optional().nullable(),
-  logoUrl: vine.string().url().maxLength(500).optional().nullable(),
   addressLine1: vine.string().maxLength(255).optional().nullable(),
   addressLine2: vine.string().maxLength(255).optional().nullable(),
   city: vine.string().maxLength(100).optional().nullable(),
@@ -63,4 +62,9 @@ export const updateOrganizationValidator = vine.create({
     .optional()
     .nullable(),
   country: vine.string().maxLength(2).optional(),
+  // Upload direct du logo (remplace un champ URL saisi) : géré par
+  // OrganizationService/CloudinaryService, pas une valeur texte.
+  logo: vine.file({ size: '2mb', extnames: ['jpg', 'jpeg', 'png', 'webp'] }).optional(),
+  // Supprime le logo courant sans en uploader un nouveau (checkbox dédiée).
+  removeLogo: vine.boolean().optional(),
 })

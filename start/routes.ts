@@ -65,6 +65,15 @@ router
         // Écrans nécessitant une organisation : gardés par `onboarded`.
         router
           .group(() => {
+            // Paramètres généraux de l'organisation courante (nom, coordonnées, logo).
+            router
+              .get('organization/settings', [controllers.organization.Settings, 'show'])
+              .as('organization.settings')
+            // POST (et non PATCH) pour porter le corps multipart de l'upload du logo.
+            router
+              .post('organization/settings', [controllers.organization.Settings, 'update'])
+              .as('organization.settings.update')
+
             router
               .get('supplier/profile', [controllers.supplier.Profile, 'show'])
               .as('supplier.profile')

@@ -102,6 +102,18 @@ const routes = {
     tokens: [{"old":"/:locale/onboarding","type":1,"val":"locale","end":""},{"old":"/:locale/onboarding","type":0,"val":"onboarding","end":""}],
     types: placeholder as Registry['onboarding.store']['types'],
   },
+  'organization.settings': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/organization/settings',
+    tokens: [{"old":"/:locale/organization/settings","type":1,"val":"locale","end":""},{"old":"/:locale/organization/settings","type":0,"val":"organization","end":""},{"old":"/:locale/organization/settings","type":0,"val":"settings","end":""}],
+    types: placeholder as Registry['organization.settings']['types'],
+  },
+  'organization.settings.update': {
+    methods: ["POST"],
+    pattern: '/:locale/organization/settings',
+    tokens: [{"old":"/:locale/organization/settings","type":1,"val":"locale","end":""},{"old":"/:locale/organization/settings","type":0,"val":"organization","end":""},{"old":"/:locale/organization/settings","type":0,"val":"settings","end":""}],
+    types: placeholder as Registry['organization.settings.update']['types'],
+  },
   'supplier.profile': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/supplier/profile',

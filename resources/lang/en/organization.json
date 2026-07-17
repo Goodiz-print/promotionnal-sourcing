@@ -1,0 +1,39 @@
+{
+  "settings": {
+    "title": "Organization settings",
+    "subtitle": "Manage your organization's general information.",
+    "submit": "Save",
+    "success": "Organization settings updated."
+  },
+  "fields": {
+    "name": "Name",
+    "siret": "Registration number (SIRET)",
+    "vatNumber": "VAT number",
+    "email": "Email",
+    "phone": "Phone",
+    "website": "Website",
+    "industry": "Industry",
+    "size": "Organization size",
+    "description": "Description",
+    "addressLine1": "Address",
+    "addressLine2": "Address line 2",
+    "city": "City",
+    "postalCode": "Postal code",
+    "country": "Country",
+    "logo": "Logo"
+  },
+  "size": {
+    "none": "Not specified",
+    "micro": "Micro business",
+    "small": "Small business",
+    "medium": "Medium business",
+    "large": "Large business",
+    "enterprise": "Enterprise / Group"
+  },
+  "logo": {
+    "none": "No logo",
+    "replace": "Replace logo",
+    "remove": "Remove logo",
+    "cancel": "Cancel"
+  }
+}

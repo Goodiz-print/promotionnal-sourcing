@@ -1,6 +1,8 @@
 import type { RoleType } from './role.js'
 
-export type OrganizationSize = 'micro' | 'small' | 'medium' | 'large' | 'enterprise'
+export const ORGANIZATION_SIZES = ['micro', 'small', 'medium', 'large', 'enterprise'] as const
+
+export type OrganizationSize = (typeof ORGANIZATION_SIZES)[number]
 
 /**
  * Type d'organisation : acheteur, fournisseur, ou les deux.
@@ -32,7 +34,13 @@ export const DELIVERY_SCOPES = ['national', 'europe', 'worldwide'] as const
 
 export type DeliveryScope = (typeof DELIVERY_SCOPES)[number]
 
-export interface OrganizationType {
+/**
+ * DTO exposé aux pages Inertia. Défini en `type` (et non `interface`) pour
+ * rester assignable à `Record<string, JSONDataTypes>` — contrainte de typage
+ * des props Inertia (`inertia.render`). Une interface, sans signature d'index
+ * implicite, y échouerait.
+ */
+export type OrganizationType = {
   id: number
   name: string
   slug: string
@@ -111,3 +119,10 @@ export interface CreateOrganizationData {
 }
 
 export interface UpdateOrganizationData extends Partial<CreateOrganizationData> {}
+
+/**
+ * Données du formulaire "paramètres généraux" : hors `slug` (non modifiable
+ * dans cet écran) et hors `logoUrl` (le logo est géré par des méthodes
+ * dédiées du service — upload/suppression Cloudinary, pas une URL saisie).
+ */
+export type UpdateOrganizationSettingsData = Omit<UpdateOrganizationData, 'slug' | 'logoUrl'>

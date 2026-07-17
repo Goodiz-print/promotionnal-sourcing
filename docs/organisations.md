@@ -173,6 +173,48 @@ détaillée (profil fournisseur + catalogue produits). S'appuie sur les fiches `
 - **Tests** : `tests/functional/suppliers_directory.spec.ts` (liste, filtre pays, recherche, fiche
   profil+produits, profil null, 404, localisation — Postgres) + `tests/inertia/suppliers.spec.ts`.
 
+## Paramètres généraux de l'organisation (PR org-settings 1/3)
+
+Nouvelle série de **3 PR** pour la **gestion des organisations** (distincte de
+la Phase 2 ci-dessus, qui posait uniquement la fondation données) : PR1 =
+paramètres généraux (cette section), PR2 = gestion des membres existants
+(rôle, retrait), PR3 = invitations par email.
+
+Un owner/admin édite les informations générales de son **organisation
+courante** (`user.currentOrganizationId`) : nom, SIRET, TVA, coordonnées,
+secteur, taille, description, adresse, logo. **Slug non modifiable** ici.
+Accessible à toute organisation (buyer/supplier/both) — contrairement au
+profil fournisseur, réservé aux `supplier`/`both`.
+
+- **Migration** `…965_alter_organizations_add_logo_public_id` : `logo_public_id`
+  nullable, même rôle que `product_images.public_id` (permet `destroy()` de
+  l'ancien logo Cloudinary lors d'un remplacement).
+- **Service** `app/services/organization_service.ts` : `update`, `updateLogo`
+  (upload + suppression ancien asset), `removeLogo`. `CloudinaryService`
+  injecté (testable sans appel réseau, cf. `SupplierProductService`).
+- **Controller** `app/controllers/organization/settings_controller.ts` :
+  `show` (GET) + `update` (POST multipart, pour porter l'upload du logo).
+  Ability `canManageOrganization` (écrite en Phase 2, enfin branchée).
+- **Validator** `app/validators/organization.ts` (`updateOrganizationValidator`) :
+  `logo: vine.file(...)` + `removeLogo: vine.boolean()` remplacent `logoUrl`
+  (texte) — l'upload est direct, pas une URL saisie.
+- **Transformer** `OrganizationTransformer` corrigé (dates ISO, comme
+  `SupplierProfileTransformer`). `OrganizationType` passé en `type` (contrainte
+  props Inertia) ; ajout de `UpdateOrganizationSettingsData` et de la const
+  `ORGANIZATION_SIZES` (pattern const+union, aligné sur `DELIVERY_SCOPES`).
+- **Écran** `inertia/pages/organization/settings.vue` (< 250 lignes) + sous-
+  composants `inertia/components/organization/settings/*` (provide/inject,
+  pattern `ProductFormKey`/`ProductFormState`), suppression du logo via
+  checkbox dédiée (pas de valeur `null` envoyée en multipart).
+- **i18n** `resources/lang/{fr,en}/organization.json`.
+- **Tests** `tests/functional/organization_settings.spec.ts` (200/403,
+  redirection onboarding, mise à jour texte, upload/remplacement/suppression
+  logo via faux uploader, transformer) + `tests/inertia/organization_settings.spec.ts`.
+- **Infra dev** : `docker-compose.yml` corrigé (montage `/var/lib/postgresql`
+  au lieu de `/var/lib/postgresql/data`) — les images Postgres 18+ refusent
+  l'ancienne convention de montage, ce qui bloquait tout redémarrage du
+  conteneur local, indépendamment de pgvector.
+
 ## Roadmap
 
 Découpage de la Phase 2 en 4 PR :

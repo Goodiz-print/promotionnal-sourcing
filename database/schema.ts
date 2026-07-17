@@ -165,6 +165,7 @@ export class OrganizationSchema extends BaseModel {
     'email',
     'id',
     'industry',
+    'logoPublicId',
     'logoUrl',
     'name',
     'organizationType',
@@ -196,6 +197,8 @@ export class OrganizationSchema extends BaseModel {
   declare id: number
   @column()
   declare industry: string | null
+  @column()
+  declare logoPublicId: string | null
   @column()
   declare logoUrl: string | null
   @column()
