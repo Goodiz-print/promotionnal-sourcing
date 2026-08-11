@@ -295,6 +295,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/invitations_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'organization.invitations.resend': {
+    methods: ["POST"]
+    pattern: '/:locale/organization/invitations/:id/resend'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/invitations_controller').default['resend']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/invitations_controller').default['resend']>>>
+    }
+  }
   'organization.invitations.destroy': {
     methods: ["DELETE"]
     pattern: '/:locale/organization/invitations/:id'

@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import { DateTime } from 'luxon'
 import db from '@adonisjs/lucid/services/db'
 import hash from '@adonisjs/core/services/hash'
 import mail from '@adonisjs/mail/services/main'
@@ -179,6 +180,130 @@ test.group('Invitations de membres par email', (group) => {
     response.assertStatus(200)
     await invitation.refresh()
     assert.equal(invitation.status, 'revoked')
+  })
+
+  test('renvoyer une invitation prolonge son expiration et remet le mail en file', async ({
+    client,
+    assert,
+  }) => {
+    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
+    const owner = await makeMember('owner@example.com', org, 'owner')
+    const memberRole = await Role.findByOrFail('slug', 'member')
+
+    await client
+      .post('/fr/organization/invitations')
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(owner)
+      .json({ email: 'invited@example.com', roleId: memberRole.id })
+
+    const invitation = await OrganizationInvitation.findByOrFail('email', 'invited@example.com')
+    // Expiration reculée dans le passé proche pour vérifier qu'elle est bien
+    // recalculée (et non simplement laissée en place).
+    invitation.expiresAt = DateTime.now().minus({ days: 1 })
+    await invitation.save()
+    fakeMailer.mails.clear()
+
+    const response = await client
+      .post(`/fr/organization/invitations/${invitation.id}/resend`)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(owner)
+
+    response.assertStatus(200)
+
+    await invitation.refresh()
+    assert.equal(invitation.status, 'pending')
+    assert.isTrue(invitation.expiresAt > DateTime.now())
+    assert.lengthOf(await OrganizationInvitation.query().where('email', 'invited@example.com'), 1)
+
+    fakeMailer.mails.assertQueued(
+      OrganizationInvitationNotification,
+      (m) => (m as unknown as { email: string }).email === 'invited@example.com'
+    )
+  })
+
+  test('renvoyer une invitation révoquée est refusé', async ({ client, assert }) => {
+    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
+    const owner = await makeMember('owner@example.com', org, 'owner')
+    const memberRole = await Role.findByOrFail('slug', 'member')
+
+    const invitation = await OrganizationInvitation.create({
+      organizationId: org.id,
+      email: 'invited@example.com',
+      roleId: memberRole.id,
+      invitedByUserId: owner.id,
+      status: 'revoked',
+      expiresAt: DateTime.now().plus({ days: 7 }),
+    })
+    fakeMailer.mails.clear()
+
+    const response = await client
+      .post(`/fr/organization/invitations/${invitation.id}/resend`)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(owner)
+
+    response.assertStatus(200)
+    await invitation.refresh()
+    assert.equal(invitation.status, 'revoked')
+    fakeMailer.mails.assertNoneQueued()
+  })
+
+  test("renvoyer l'invitation d'une autre organisation renvoie 404", async ({ client, assert }) => {
+    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
+    const other = await Organization.create({ name: 'Other', slug: 'other', country: 'FR' })
+    const owner = await makeMember('owner@example.com', org, 'owner')
+    const otherOwner = await makeMember('other-owner@example.com', other, 'owner')
+    const memberRole = await Role.findByOrFail('slug', 'member')
+
+    const invitation = await OrganizationInvitation.create({
+      organizationId: other.id,
+      email: 'invited@example.com',
+      roleId: memberRole.id,
+      invitedByUserId: otherOwner.id,
+      status: 'pending',
+      expiresAt: DateTime.now().plus({ days: 7 }),
+    })
+    fakeMailer.mails.clear()
+
+    const response = await client
+      .post(`/fr/organization/invitations/${invitation.id}/resend`)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(owner)
+
+    response.assertStatus(404)
+    fakeMailer.mails.assertNoneQueued()
+    await invitation.refresh()
+    assert.equal(invitation.status, 'pending')
+  })
+
+  test('un membre simple ne peut pas renvoyer une invitation', async ({ client, assert }) => {
+    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
+    const owner = await makeMember('owner@example.com', org, 'owner', { asCurrent: false })
+    const member = await makeMember('member@example.com', org, 'member')
+    const memberRole = await Role.findByOrFail('slug', 'member')
+
+    const invitation = await OrganizationInvitation.create({
+      organizationId: org.id,
+      email: 'invited@example.com',
+      roleId: memberRole.id,
+      invitedByUserId: owner.id,
+      status: 'pending',
+      expiresAt: DateTime.now().minus({ days: 1 }),
+    })
+    fakeMailer.mails.clear()
+
+    await client
+      .post(`/fr/organization/invitations/${invitation.id}/resend`)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(member)
+
+    fakeMailer.mails.assertNoneQueued()
+    await invitation.refresh()
+    assert.isTrue(invitation.expiresAt < DateTime.now())
   })
 
   test("l'écran membres liste les invitations en attente et expose canManageMembers", async ({

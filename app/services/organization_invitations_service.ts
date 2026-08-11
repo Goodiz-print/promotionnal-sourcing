@@ -6,6 +6,7 @@ import Role from '#models/role'
 import User from '#models/user'
 import {
   AlreadyMemberException,
+  InvitationNotPendingException,
   OrganizationInvitationNotFoundException,
 } from '#exceptions/organization_errors'
 import type { InviteMemberData } from '#shared/types/organization'
@@ -85,6 +86,23 @@ export default class OrganizationInvitationsService {
     })
     await invitation.save()
     await invitation.load('role')
+    return invitation
+  }
+
+  /**
+   * Renvoie une invitation en attente : prolonge son expiration d'un nouveau
+   * TTL (le lien précédent, signé pour la même durée, reste valide jusqu'à son
+   * échéance propre) et précharge `role`/`invitedBy` pour la composition du
+   * mail. L'invitation reste rattachée à son auteur d'origine — renvoyer n'est
+   * pas réinviter. Rejette toute invitation déjà acceptée ou révoquée.
+   */
+  async resend(invitation: OrganizationInvitation): Promise<OrganizationInvitation> {
+    if (invitation.status !== 'pending') throw new InvitationNotPendingException()
+
+    invitation.expiresAt = DateTime.now().plus({ days: INVITATION_TTL_DAYS })
+    await invitation.save()
+    await invitation.load('role')
+    await invitation.load('invitedBy')
     return invitation
   }
 

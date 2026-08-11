@@ -150,6 +150,12 @@ const routes = {
     tokens: [{"old":"/:locale/organization/invitations","type":1,"val":"locale","end":""},{"old":"/:locale/organization/invitations","type":0,"val":"organization","end":""},{"old":"/:locale/organization/invitations","type":0,"val":"invitations","end":""}],
     types: placeholder as Registry['organization.invitations.store']['types'],
   },
+  'organization.invitations.resend': {
+    methods: ["POST"],
+    pattern: '/:locale/organization/invitations/:id/resend',
+    tokens: [{"old":"/:locale/organization/invitations/:id/resend","type":1,"val":"locale","end":""},{"old":"/:locale/organization/invitations/:id/resend","type":0,"val":"organization","end":""},{"old":"/:locale/organization/invitations/:id/resend","type":0,"val":"invitations","end":""},{"old":"/:locale/organization/invitations/:id/resend","type":1,"val":"id","end":""},{"old":"/:locale/organization/invitations/:id/resend","type":0,"val":"resend","end":""}],
+    types: placeholder as Registry['organization.invitations.resend']['types'],
+  },
   'organization.invitations.destroy': {
     methods: ["DELETE"],
     pattern: '/:locale/organization/invitations/:id',
