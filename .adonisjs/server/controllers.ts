@@ -11,6 +11,7 @@ export const controllers = {
   NewAccount: () => import('#controllers/new_account_controller'),
   Onboarding: () => import('#controllers/onboarding_controller'),
   organization: {
+    Members: () => import('#controllers/organization/members_controller'),
     Settings: () => import('#controllers/organization/settings_controller'),
   },
   Products: () => import('#controllers/products_controller'),

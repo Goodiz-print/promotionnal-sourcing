@@ -35,5 +35,22 @@
     "replace": "Remplacer le logo",
     "remove": "Supprimer le logo",
     "cancel": "Annuler"
+  },
+  "nav": {
+    "settings": "Paramètres",
+    "members": "Membres"
+  },
+  "members": {
+    "title": "Membres de l'organisation",
+    "subtitle": "Gérez les rôles et l'accès des membres de votre organisation.",
+    "columns": {
+      "name": "Membre",
+      "role": "Rôle"
+    },
+    "remove": "Retirer",
+    "confirmRemove": "Retirer ce membre de l'organisation ?",
+    "roleUpdated": "Rôle du membre mis à jour.",
+    "removed": "Membre retiré de l'organisation.",
+    "lastOwnerError": "Impossible de retirer ou rétrograder le dernier propriétaire de l'organisation."
   }
 }

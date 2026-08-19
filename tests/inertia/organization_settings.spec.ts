@@ -49,6 +49,7 @@ vi.mock('@inertiajs/vue3', () => ({
 }))
 
 vi.mock('~/client', () => ({ urlFor: () => '/fr/organization/settings' }))
+vi.mock('@adonisjs/inertia/vue', () => ({ Link: { template: '<a><slot /></a>' } }))
 
 const { default: OrganizationSettings } = await import('~/pages/organization/settings.vue')
 

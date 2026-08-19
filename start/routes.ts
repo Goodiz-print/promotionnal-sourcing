@@ -74,6 +74,17 @@ router
               .post('organization/settings', [controllers.organization.Settings, 'update'])
               .as('organization.settings.update')
 
+            // Gestion des membres de l'organisation courante (rôle, retrait).
+            router
+              .get('organization/members', [controllers.organization.Members, 'index'])
+              .as('organization.members')
+            router
+              .patch('organization/members/:id', [controllers.organization.Members, 'update'])
+              .as('organization.members.update')
+            router
+              .delete('organization/members/:id', [controllers.organization.Members, 'destroy'])
+              .as('organization.members.destroy')
+
             router
               .get('supplier/profile', [controllers.supplier.Profile, 'show'])
               .as('supplier.profile')

@@ -223,6 +223,42 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/settings_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'organization.members': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/organization/members'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/members_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/members_controller').default['index']>>>
+    }
+  }
+  'organization.members.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/organization/members/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/organization_member').updateMemberRoleValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/organization_member').updateMemberRoleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/members_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/members_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'organization.members.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/organization/members/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/members_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/members_controller').default['destroy']>>>
+    }
+  }
   'supplier.profile': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/supplier/profile'

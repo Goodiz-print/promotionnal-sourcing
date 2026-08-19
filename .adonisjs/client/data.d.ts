@@ -11,6 +11,7 @@ import type AttributeValueTransformer from '#transformers/attribute_value_transf
 import type CategoryAdminTransformer from '#transformers/category_admin_transformer'
 import type CategoryEditTransformer from '#transformers/category_edit_transformer'
 import type CategoryTransformer from '#transformers/category_transformer'
+import type OrganizationMemberTransformer from '#transformers/organization_member_transformer'
 import type OrganizationTransformer from '#transformers/organization_transformer'
 import type ProductDetailTransformer from '#transformers/product_detail_transformer'
 import type ProductEditTransformer from '#transformers/product_edit_transformer'
@@ -43,6 +44,10 @@ export namespace Data {
   export type Category = InferData<CategoryTransformer>
   export namespace Category {
     export type Variants = InferVariants<CategoryTransformer>
+  }
+  export type OrganizationMember = InferData<OrganizationMemberTransformer>
+  export namespace OrganizationMember {
+    export type Variants = InferVariants<OrganizationMemberTransformer>
   }
   export type Organization = InferData<OrganizationTransformer>
   export namespace Organization {
