@@ -1,0 +1,39 @@
+{
+  "settings": {
+    "title": "Paramètres de l'organisation",
+    "subtitle": "Gérez les informations générales de votre organisation.",
+    "submit": "Enregistrer",
+    "success": "Paramètres de l'organisation mis à jour."
+  },
+  "fields": {
+    "name": "Nom",
+    "siret": "SIRET",
+    "vatNumber": "N° TVA intracommunautaire",
+    "email": "Email",
+    "phone": "Téléphone",
+    "website": "Site web",
+    "industry": "Secteur d'activité",
+    "size": "Taille de l'organisation",
+    "description": "Description",
+    "addressLine1": "Adresse",
+    "addressLine2": "Complément d'adresse",
+    "city": "Ville",
+    "postalCode": "Code postal",
+    "country": "Pays",
+    "logo": "Logo"
+  },
+  "size": {
+    "none": "Non précisé",
+    "micro": "Micro-entreprise",
+    "small": "Petite entreprise",
+    "medium": "Moyenne entreprise",
+    "large": "Grande entreprise",
+    "enterprise": "Groupe / Entreprise"
+  },
+  "logo": {
+    "none": "Aucun logo",
+    "replace": "Remplacer le logo",
+    "remove": "Supprimer le logo",
+    "cancel": "Annuler"
+  }
+}

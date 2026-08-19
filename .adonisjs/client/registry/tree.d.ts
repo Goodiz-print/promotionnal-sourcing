@@ -30,6 +30,11 @@ export interface ApiDefinition {
     show: typeof routes['onboarding.show']
     store: typeof routes['onboarding.store']
   }
+  organization: {
+    settings: typeof routes['organization.settings'] & {
+      update: typeof routes['organization.settings.update']
+    }
+  }
   supplier: {
     profile: typeof routes['supplier.profile'] & {
       update: typeof routes['supplier.profile.update']

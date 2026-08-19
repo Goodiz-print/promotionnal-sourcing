@@ -10,6 +10,9 @@ export const controllers = {
   Locale: () => import('#controllers/locale_controller'),
   NewAccount: () => import('#controllers/new_account_controller'),
   Onboarding: () => import('#controllers/onboarding_controller'),
+  organization: {
+    Settings: () => import('#controllers/organization/settings_controller'),
+  },
   Products: () => import('#controllers/products_controller'),
   Session: () => import('#controllers/session_controller'),
   supplier: {
