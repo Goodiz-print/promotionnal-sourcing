@@ -9,6 +9,7 @@ import OrganizationInvitationNotification from '#mails/organization_invitation_n
 import OrganizationInvitation from '#models/organization_invitation'
 import {
   AlreadyMemberException,
+  InvitationNotPendingException,
   OrganizationInvitationNotFoundException,
 } from '#exceptions/organization_errors'
 import type Organization from '#models/organization'
@@ -48,22 +49,57 @@ export default class OrganizationInvitationsController {
   }
 
   /**
+   * Renvoie le mail d'une invitation en attente (nouveau lien signé, expiration
+   * prolongée) sans en créer une seconde.
+   */
+  async resend({ auth, bouncer, response, params, i18n, session }: HttpContext) {
+    const org = await this.currentOrganization(auth.getUserOrFail())
+    await bouncer.authorize('canInviteMembers', org)
+
+    const invitation = await this.findInOrganization(params.id, org.id)
+
+    try {
+      await this.service.resend(invitation)
+      await this.sendInvitationMail(invitation, org, invitation.invitedBy, i18n.locale)
+      session.flash('success', i18n.t('organization.invitations.resent'))
+    } catch (error) {
+      if (error instanceof InvitationNotPendingException) {
+        session.flash('error', i18n.t('organization.invitations.notPending'))
+      } else {
+        throw error
+      }
+    }
+
+    return response.redirect().toRoute('organization.members', { locale: i18n.locale })
+  }
+
+  /**
    * Révoque une invitation en attente.
    */
   async destroy({ auth, bouncer, response, params, i18n, session }: HttpContext) {
     const org = await this.currentOrganization(auth.getUserOrFail())
     await bouncer.authorize('canInviteMembers', org)
 
-    const invitation = await OrganizationInvitation.query()
-      .where('id', params.id)
-      .where('organizationId', org.id)
-      .first()
-    if (!invitation) throw new OrganizationInvitationNotFoundException()
+    const invitation = await this.findInOrganization(params.id, org.id)
 
     await this.service.revoke(invitation)
     session.flash('success', i18n.t('organization.invitations.revoked'))
 
     return response.redirect().toRoute('organization.members', { locale: i18n.locale })
+  }
+
+  /**
+   * Charge une invitation en la bornant à l'organisation courante — un id
+   * appartenant à une autre organisation est un 404, pas un 403 (pas de fuite
+   * d'existence).
+   */
+  private async findInOrganization(id: number, organizationId: number) {
+    const invitation = await OrganizationInvitation.query()
+      .where('id', id)
+      .where('organizationId', organizationId)
+      .first()
+    if (!invitation) throw new OrganizationInvitationNotFoundException()
+    return invitation
   }
 
   private async sendInvitationMail(

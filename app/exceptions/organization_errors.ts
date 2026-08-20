@@ -39,3 +39,14 @@ export class OrganizationInvitationNotFoundException extends Exception {
   static code = 'E_ORGANIZATION_INVITATION_NOT_FOUND'
   static message = 'Organization invitation not found'
 }
+
+/**
+ * L'invitation visée n'est plus en attente (déjà acceptée ou révoquée) — elle
+ * ne peut donc pas être renvoyée. Toujours interceptée dans le controller
+ * (flash + redirection), jamais rendue directement au client.
+ */
+export class InvitationNotPendingException extends Exception {
+  static status = 422
+  static code = 'E_INVITATION_NOT_PENDING'
+  static message = 'This invitation is no longer pending'
+}

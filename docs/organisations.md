@@ -323,6 +323,40 @@ secret.
   auth) — SQLite et Postgres, `mail.fake()`. `tests/unit/safe_redirect.spec.ts`,
   `tests/inertia/organization_invitation_accept.spec.ts`.
 
+## Renvoi d'une invitation (PR org-settings 4/3)
+
+Un owner/admin/manager peut **renvoyer** le mail d'une invitation restée en
+attente (invité qui ne l'a pas reçue, lien expiré) depuis la liste des
+invitations, sans en créer une seconde ni ressaisir l'email.
+
+- **Route** : `POST organization/invitations/:id/resend`
+  (`organization.invitations.resend`), même ability `canInviteMembers` que
+  l'envoi et la révocation.
+- **Service** `OrganizationInvitationsService#resend` : **prolonge**
+  `expires_at` d'un nouveau TTL (7 jours) et précharge `role`/`invitedBy` pour
+  la composition du mail. L'invitation **reste rattachée à son auteur
+  d'origine** (`invited_by_user_id` inchangé) — renvoyer n'est pas réinviter, et
+  l'email continue d'annoncer la bonne personne. Rejette toute invitation déjà
+  `accepted` ou `revoked` (`InvitationNotPendingException`, 422, interceptée
+  dans le controller → flash `error`).
+- **Lien** : un **nouveau lien signé** est généré (`signedUrlFor`, `expiresIn:
+'7d'`) — aucun token n'étant stocké, le lien précédemment envoyé reste valide
+  jusqu'à sa propre échéance. Révoquer l'invitation reste le moyen d'invalider
+  immédiatement un lien en circulation (l'acceptation vérifie le statut en base).
+- **Controller** : le chargement de l'invitation est factorisé en
+  `findInOrganization(id, organizationId)`, partagé avec `destroy` — un id
+  appartenant à une autre organisation donne un **404** (pas de fuite
+  d'existence), pas un 403.
+- **Écran** : bouton « Renvoyer » par ligne dans
+  `inertia/components/organization/members/pending_invitations.vue`
+  (`router.post`, `preserveScroll`, **sans** `window.confirm` — l'action est
+  sans effet destructif, contrairement à la révocation). i18n
+  `organization.invitations.{resend,resent,notPending}`.
+- **Tests** : `tests/functional/organization_invitations.spec.ts` (+4 —
+  prolongation de l'expiration + mail remis en file sans doublon, invitation
+  révoquée refusée, invitation d'une autre organisation en 404, membre simple
+  bloqué) et `tests/inertia/organization_members.spec.ts` (+1).
+
 ## Roadmap
 
 Découpage de la Phase 2 en 4 PR :
@@ -338,6 +372,20 @@ Découpage de la Phase 2 en 4 PR :
 **Hors code (ops)** : import en masse des ~300 fournisseurs (création/rattachement
 d'organisations `supplier`, `suppliers.organization_id` renseigné).
 
-Découpage séparé « gestion des organisations » (3 PR, voir sections
-ci-dessus) : PR1 (paramètres généraux), PR2 (membres existants) et PR3
-(invitations par email) faits — série complète.
+Découpage séparé « gestion des organisations » (voir sections ci-dessus) :
+PR1 (paramètres généraux), PR2 (membres existants) et PR3 (invitations par
+email) faits — série complète ; PR4 (renvoi d'une invitation) empilée dessus.
+
+**Restant sur le domaine organisations** (hors périmètre de ces PR) :
+
+- **Sélecteur d'organisation** — `currentOrganizationId` existe et le modèle est
+  multi-organisation, mais aucun écran ne permet d'en changer. Conséquence : un
+  invité qui a déjà une organisation accepte l'invitation (adhésion créée) sans
+  pouvoir basculer dessus, `accept()` ne fixant l'org courante que si elle est
+  absente.
+- Quitter une organisation de sa propre initiative (seul le retrait par un
+  admin existe), créer une organisation supplémentaire (l'onboarding ne se
+  déclenche que sans org courante), supprimer/archiver une organisation.
+- Purge des invitations expirées (le statut reste `pending` indéfiniment).
+- Fiabilité mail : `mail.sendLater()` s'appuie sur la file mémoire de
+  `@adonisjs/mail` — une invitation est perdue si le process redémarre.

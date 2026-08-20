@@ -22,6 +22,7 @@ export interface ApiDefinition {
       show: typeof routes['organization.invitations.show']
       accept: typeof routes['organization.invitations.accept']
       store: typeof routes['organization.invitations.store']
+      resend: typeof routes['organization.invitations.resend']
       destroy: typeof routes['organization.invitations.destroy']
     }
     settings: typeof routes['organization.settings'] & {

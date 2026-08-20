@@ -61,8 +61,11 @@
     "pendingTitle": "Pending invitations",
     "revoke": "Revoke",
     "confirmRevoke": "Revoke this invitation?",
+    "resend": "Resend",
     "sent": "Invitation sent.",
     "revoked": "Invitation revoked.",
+    "resent": "Invitation resent.",
+    "notPending": "This invitation is no longer pending: it has already been accepted or revoked.",
     "alreadyMember": "This email already belongs to a member of the organization.",
     "accept": {
       "title": "Invitation to join an organization",

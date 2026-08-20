@@ -108,6 +108,12 @@ router
               .post('organization/invitations', [controllers.organization.Invitations, 'store'])
               .as('organization.invitations.store')
             router
+              .post('organization/invitations/:id/resend', [
+                controllers.organization.Invitations,
+                'resend',
+              ])
+              .as('organization.invitations.resend')
+            router
               .delete('organization/invitations/:id', [
                 controllers.organization.Invitations,
                 'destroy',

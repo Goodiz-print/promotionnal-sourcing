@@ -9,6 +9,14 @@ const props = defineProps<{ invitations: OrganizationInvitationType[] }>()
 
 const { t, locale } = useI18n()
 
+function resend(invitation: OrganizationInvitationType) {
+  router.post(
+    urlFor('organization.invitations.resend', { locale: locale.value, id: invitation.id }),
+    {},
+    { preserveScroll: true }
+  )
+}
+
 function revoke(invitation: OrganizationInvitationType) {
   if (!window.confirm(t('organization.invitations.confirmRevoke'))) return
   router.delete(
@@ -38,9 +46,14 @@ function revoke(invitation: OrganizationInvitationType) {
           <td class="py-3 pr-4">{{ invitation.email }}</td>
           <td class="py-3 pr-4">{{ invitation.role.name }}</td>
           <td class="py-3 text-right">
-            <BaseButton variant="secondary" @click="revoke(invitation)">
-              {{ t('organization.invitations.revoke') }}
-            </BaseButton>
+            <div class="flex justify-end gap-2">
+              <BaseButton variant="secondary" @click="resend(invitation)">
+                {{ t('organization.invitations.resend') }}
+              </BaseButton>
+              <BaseButton variant="secondary" @click="revoke(invitation)">
+                {{ t('organization.invitations.revoke') }}
+              </BaseButton>
+            </div>
           </td>
         </tr>
       </tbody>

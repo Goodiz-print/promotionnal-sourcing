@@ -20,11 +20,12 @@ const translations = {
   'organization.invitations.pendingTitle': 'Invitations en attente',
   'organization.invitations.revoke': 'Révoquer',
   'organization.invitations.confirmRevoke': 'Révoquer cette invitation ?',
+  'organization.invitations.resend': 'Renvoyer',
 }
 
 vi.mock('@inertiajs/vue3', () => ({
   usePage: () => ({ props: { locale: 'fr', supportedLocales: ['fr', 'en'], translations } }),
-  router: { patch: vi.fn(), delete: vi.fn() },
+  router: { patch: vi.fn(), post: vi.fn(), delete: vi.fn() },
   useForm: (data: Record<string, unknown>) =>
     reactive({
       ...data,
@@ -42,6 +43,7 @@ vi.mock('~/client', () => ({ urlFor: () => '/fr/organization/members' }))
 vi.mock('@adonisjs/inertia/vue', () => ({ Link: { template: '<a><slot /></a>' } }))
 
 const { default: Members } = await import('~/pages/organization/members.vue')
+const { router } = await import('@inertiajs/vue3')
 
 function role(id: number, slug: RoleType['slug'], name: string): RoleType {
   return { id, slug, name, description: null }
@@ -133,6 +135,27 @@ describe('organization/members.vue', () => {
 
     expect(wrapper.text()).toContain('Invitations en attente')
     expect(wrapper.text()).toContain('invited@example.com')
+  })
+
+  it('renvoie une invitation en attente sans confirmation', async () => {
+    const wrapper = mount(Members, {
+      props: {
+        members: [member(1, 'owner@example.com', roles[0])],
+        invitations: [invitation(1, 'invited@example.com', roles[1])],
+        roles,
+        canManageMembers: true,
+      },
+    })
+
+    const resendButton = wrapper.findAll('button').filter((b) => b.text() === 'Renvoyer')
+    expect(resendButton).toHaveLength(1)
+
+    await resendButton[0].trigger('click')
+    expect(router.post).toHaveBeenCalledWith(
+      '/fr/organization/members',
+      {},
+      { preserveScroll: true }
+    )
   })
 
   it("n'affiche pas la section invitations en attente si vide", () => {

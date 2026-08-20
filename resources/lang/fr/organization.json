@@ -61,8 +61,11 @@
     "pendingTitle": "Invitations en attente",
     "revoke": "Révoquer",
     "confirmRevoke": "Révoquer cette invitation ?",
+    "resend": "Renvoyer",
     "sent": "Invitation envoyée.",
     "revoked": "Invitation révoquée.",
+    "resent": "Invitation renvoyée.",
+    "notPending": "Cette invitation n'est plus en attente : elle a déjà été acceptée ou révoquée.",
     "alreadyMember": "Cette adresse email appartient déjà à un membre de l'organisation.",
     "accept": {
       "title": "Invitation à rejoindre une organisation",
