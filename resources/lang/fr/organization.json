@@ -76,7 +76,7 @@
       "signup": "Créer un compte",
       "wrongAccount": "Vous êtes connecté(e) avec {email}, mais cette invitation est destinée à une autre adresse.",
       "loginAsInvited": "Se déconnecter et se connecter avec la bonne adresse",
-      "success": "Vous avez rejoint l'organisation.",
+      "success": "Vous avez rejoint {organization}.",
       "invalid": "Cette invitation n'est plus valide.",
       "emailMismatch": "Cette invitation est destinée à une autre adresse email."
     },

@@ -76,7 +76,7 @@
       "signup": "Create an account",
       "wrongAccount": "You're logged in as {email}, but this invitation is for a different address.",
       "loginAsInvited": "Log out and log in with the correct address",
-      "success": "You've joined the organization.",
+      "success": "You've joined {organization}.",
       "invalid": "This invitation is no longer valid.",
       "emailMismatch": "This invitation is for a different email address."
     },
