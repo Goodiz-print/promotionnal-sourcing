@@ -16,4 +16,17 @@
 |
 */
 
-export {}
+import PurgeExpiredInvitationsJob from '#jobs/purge_expired_invitations_job'
+
+/**
+ * Purge quotidienne des invitations d'organisation (bascule `pending` échues en
+ * `expired`, puis suppression après rétention) — cf.
+ * `OrganizationInvitationsService#purgeExpired`. Planifiée de nuit, heure de
+ * Paris : aucune contrainte de fraîcheur (l'échéance est déjà vérifiée à
+ * l'acceptation), seul le ménage en base est visé.
+ */
+await PurgeExpiredInvitationsJob.schedule({})
+  .id('purge-expired-invitations')
+  .cron('15 3 * * *')
+  .timezone('Europe/Paris')
+  .run()

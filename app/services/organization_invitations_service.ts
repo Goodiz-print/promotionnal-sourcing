@@ -9,9 +9,16 @@ import {
   InvitationNotPendingException,
   OrganizationInvitationNotFoundException,
 } from '#exceptions/organization_errors'
-import type { InviteMemberData } from '#shared/types/organization'
+import type { InviteMemberData, PurgeInvitationsResult } from '#shared/types/organization'
 
 const INVITATION_TTL_DAYS = 7
+
+/**
+ * Durée de conservation des invitations en état terminal (`expired`/`revoked`)
+ * avant suppression définitive. Les invitations `accepted` ne sont jamais
+ * supprimées : elles tracent l'origine d'une adhésion encore active.
+ */
+const TERMINAL_RETENTION_DAYS = 90
 
 /**
  * Invitations de membres par email. Aucun token stocké en base : le lien
@@ -109,6 +116,40 @@ export default class OrganizationInvitationsService {
   async revoke(invitation: OrganizationInvitation): Promise<void> {
     invitation.status = 'revoked'
     await invitation.save()
+  }
+
+  /**
+   * Purge planifiée (`PurgeExpiredInvitationsJob`) :
+   *
+   * 1. bascule en `expired` les invitations `pending` dont `expires_at` est
+   *    dépassé — elles n'étaient déjà plus acceptables (le contrôleur vérifie
+   *    l'échéance), mais restaient affichées comme en attente indéfiniment ;
+   * 2. supprime les invitations en état terminal (`expired`/`revoked`) créées
+   *    il y a plus de `TERMINAL_RETENTION_DAYS` jours.
+   *
+   * `now` est injectable pour les tests (aucune horloge figée dans le projet).
+   */
+  async purgeExpired(now: DateTime = DateTime.now()): Promise<PurgeInvitationsResult> {
+    const outdated = await OrganizationInvitation.query()
+      .select('id')
+      .where('status', 'pending')
+      .where('expiresAt', '<', now.toJSDate())
+
+    if (outdated.length > 0) {
+      await OrganizationInvitation.query()
+        .whereIn(
+          'id',
+          outdated.map((invitation) => invitation.id)
+        )
+        .update({ status: 'expired', updated_at: now.toJSDate() })
+    }
+
+    const deleted = await OrganizationInvitation.query()
+      .whereIn('status', ['expired', 'revoked'])
+      .where('createdAt', '<', now.minus({ days: TERMINAL_RETENTION_DAYS }).toJSDate())
+      .delete()
+
+    return { expired: outdated.length, deleted: Number(deleted) }
   }
 
   /**
