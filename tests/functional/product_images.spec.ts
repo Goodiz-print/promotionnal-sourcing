@@ -1,13 +1,10 @@
 import { test } from '@japa/runner'
-import db from '@adonisjs/lucid/services/db'
-import testUtils from '@adonisjs/core/services/test_utils'
-import MainSeeder from '#database/seeders/main_seeder'
 import Product from '#models/product'
 import ProductImage from '#models/product_image'
+import { useDatabase } from '#tests/utils/setup'
 
 test.group("Catalogue — galerie d'images produit", (group) => {
-  group.setup(() => testUtils.db().truncate())
-  group.setup(() => new MainSeeder(db.connection()).run())
+  useDatabase(group, { seed: 'full', perTest: false })
 
   test('la fiche expose les images de la galerie triées par position', async ({
     client,

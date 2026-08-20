@@ -1,39 +1,12 @@
 import { test } from '@japa/runner'
 import { DateTime } from 'luxon'
-import db from '@adonisjs/lucid/services/db'
-import testUtils from '@adonisjs/core/services/test_utils'
 import { signedUrlFor } from '@adonisjs/core/services/url_builder'
-import RoleSeeder from '#database/seeders/role_seeder'
-import PermissionSeeder from '#database/seeders/permission_seeder'
-import RolePermissionSeeder from '#database/seeders/role_permission_seeder'
-import User from '#models/user'
-import Role from '#models/role'
-import Organization from '#models/organization'
+import { OrganizationFactory } from '#database/factories/organization_factory'
+import { OrganizationInvitationFactory } from '#database/factories/organization_invitation_factory'
+import { UserFactory } from '#database/factories/user_factory'
 import OrganizationUser from '#models/organization_user'
-import OrganizationInvitation from '#models/organization_invitation'
-
-async function makeOwner(email: string, org: Organization): Promise<User> {
-  const role = await Role.findByOrFail('slug', 'owner')
-  const user = await User.create({ email, password: 'password123', fullName: 'Owner' })
-  await OrganizationUser.create({ userId: user.id, organizationId: org.id, roleId: role.id })
-  await user.merge({ currentOrganizationId: org.id }).save()
-  return user
-}
-
-async function makeInvitation(
-  org: Organization,
-  email: string,
-  overrides: Partial<{ status: 'pending' | 'accepted' | 'revoked'; expiresAt: DateTime }> = {}
-): Promise<OrganizationInvitation> {
-  const role = await Role.findByOrFail('slug', 'member')
-  return OrganizationInvitation.create({
-    organizationId: org.id,
-    email,
-    roleId: role.id,
-    status: overrides.status ?? 'pending',
-    expiresAt: overrides.expiresAt ?? DateTime.now().plus({ days: 7 }),
-  })
-}
+import { createMember } from '#tests/utils/organizations'
+import { useDatabase } from '#tests/utils/setup'
 
 function acceptUrl(id: number): string {
   return signedUrlFor(
@@ -44,17 +17,15 @@ function acceptUrl(id: number): string {
 }
 
 test.group('Acceptation d’une invitation', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
-  group.each.setup(async () => {
-    await new RoleSeeder(db.connection()).run()
-    await new PermissionSeeder(db.connection()).run()
-    await new RolePermissionSeeder(db.connection()).run()
-  })
+  useDatabase(group)
 
   test('affiche un aperçu pour un lien valide (non connecté)', async ({ client }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    await makeOwner('owner@example.com', org)
-    const invitation = await makeInvitation(org, 'invited@example.com')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    await createMember(org, 'owner', { email: 'owner@example.com' })
+    const invitation = await OrganizationInvitationFactory.merge({
+      organizationId: org.id,
+      email: 'invited@example.com',
+    }).create()
 
     const response = await client.get(acceptUrl(invitation.id)).withInertia()
 
@@ -67,8 +38,11 @@ test.group('Acceptation d’une invitation', (group) => {
   })
 
   test('un lien avec signature invalide affiche la page invitation_invalid', async ({ client }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const invitation = await makeInvitation(org, 'invited@example.com')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const invitation = await OrganizationInvitationFactory.merge({
+      organizationId: org.id,
+      email: 'invited@example.com',
+    }).create()
 
     const response = await client
       .get(`/fr/organization/invitations/${invitation.id}/accept?signature=invalid`)
@@ -79,8 +53,10 @@ test.group('Acceptation d’une invitation', (group) => {
   })
 
   test('une invitation déjà acceptée affiche invitation_invalid', async ({ client }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const invitation = await makeInvitation(org, 'invited@example.com', { status: 'accepted' })
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const invitation = await OrganizationInvitationFactory.apply('accepted')
+      .merge({ organizationId: org.id, email: 'invited@example.com' })
+      .create()
 
     const response = await client.get(acceptUrl(invitation.id)).withInertia()
 
@@ -90,10 +66,12 @@ test.group('Acceptation d’une invitation', (group) => {
   test('une invitation expirée (défensif, hors signature) affiche invitation_invalid', async ({
     client,
   }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const invitation = await makeInvitation(org, 'invited@example.com', {
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const invitation = await OrganizationInvitationFactory.merge({
+      organizationId: org.id,
+      email: 'invited@example.com',
       expiresAt: DateTime.now().minus({ days: 1 }),
-    })
+    }).create()
 
     const response = await client.get(acceptUrl(invitation.id)).withInertia()
 
@@ -101,14 +79,16 @@ test.group('Acceptation d’une invitation', (group) => {
   })
 
   test("l'invité accepte et rejoint l'organisation", async ({ client, assert }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    await makeOwner('owner@example.com', org)
-    const invitation = await makeInvitation(org, 'invited@example.com')
-    const invitee = await User.create({
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    await createMember(org, 'owner', { email: 'owner@example.com' })
+    const invitation = await OrganizationInvitationFactory.merge({
+      organizationId: org.id,
       email: 'invited@example.com',
-      password: 'password123',
+    }).create()
+    const invitee = await UserFactory.merge({
+      email: 'invited@example.com',
       fullName: 'Invitee',
-    })
+    }).create()
 
     const response = await client
       .post(acceptUrl(invitation.id))
@@ -135,11 +115,14 @@ test.group('Acceptation d’une invitation', (group) => {
     client,
     assert,
   }) => {
-    const acme = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const beta = await Organization.create({ name: 'Beta', slug: 'beta', country: 'FR' })
-    await makeOwner('owner@example.com', beta)
-    const invitee = await makeOwner('invited@example.com', acme)
-    const invitation = await makeInvitation(beta, 'invited@example.com')
+    const acme = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const beta = await OrganizationFactory.merge({ name: 'Beta', slug: 'beta' }).create()
+    await createMember(beta, 'owner', { email: 'owner@example.com' })
+    const invitee = await createMember(acme, 'owner', { email: 'invited@example.com' })
+    const invitation = await OrganizationInvitationFactory.merge({
+      organizationId: beta.id,
+      email: 'invited@example.com',
+    }).create()
 
     const response = await client
       .post(acceptUrl(invitation.id))
@@ -166,14 +149,16 @@ test.group('Acceptation d’une invitation', (group) => {
     client,
     assert,
   }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    await makeOwner('owner@example.com', org)
-    const invitation = await makeInvitation(org, 'invited@example.com')
-    const someoneElse = await User.create({
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    await createMember(org, 'owner', { email: 'owner@example.com' })
+    const invitation = await OrganizationInvitationFactory.merge({
+      organizationId: org.id,
+      email: 'invited@example.com',
+    }).create()
+    const someoneElse = await UserFactory.merge({
       email: 'someone-else@example.com',
-      password: 'password123',
       fullName: 'Someone Else',
-    })
+    }).create()
 
     await client.post(acceptUrl(invitation.id)).withInertia().withCsrfToken().loginAs(someoneElse)
 
@@ -188,8 +173,11 @@ test.group('Acceptation d’une invitation', (group) => {
   })
 
   test('accepter sans être connecté redirige vers la connexion', async ({ client }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const invitation = await makeInvitation(org, 'invited@example.com')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const invitation = await OrganizationInvitationFactory.merge({
+      organizationId: org.id,
+      email: 'invited@example.com',
+    }).create()
 
     const response = await client.post(acceptUrl(invitation.id)).withCsrfToken().redirects(0)
 
@@ -200,19 +188,10 @@ test.group('Acceptation d’une invitation', (group) => {
 test.group(
   'Redirection après connexion/inscription (préservation du lien d’invitation)',
   (group) => {
-    group.each.setup(() => testUtils.db().truncate())
-    group.each.setup(async () => {
-      await new RoleSeeder(db.connection()).run()
-      await new PermissionSeeder(db.connection()).run()
-      await new RolePermissionSeeder(db.connection()).run()
-    })
+    useDatabase(group)
 
     test('login redirige vers le paramètre redirect fourni (chemin sûr)', async ({ client }) => {
-      await User.create({
-        email: 'user@example.com',
-        password: 'password123',
-        fullName: 'User',
-      })
+      await UserFactory.merge({ email: 'user@example.com', fullName: 'User' }).create()
 
       const response = await client
         .post('/fr/login')
@@ -226,11 +205,7 @@ test.group(
     })
 
     test('login ignore un paramètre redirect non sûr', async ({ client }) => {
-      await User.create({
-        email: 'user@example.com',
-        password: 'password123',
-        fullName: 'User',
-      })
+      await UserFactory.merge({ email: 'user@example.com', fullName: 'User' }).create()
 
       const response = await client
         .post('/fr/login')

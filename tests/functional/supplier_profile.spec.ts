@@ -1,30 +1,16 @@
 import { test } from '@japa/runner'
-import db from '@adonisjs/lucid/services/db'
-import testUtils from '@adonisjs/core/services/test_utils'
-import MainSeeder from '#database/seeders/main_seeder'
 import Organization from '#models/organization'
-import User from '#models/user'
 import SupplierProfile from '#models/supplier_profile'
 import SupplierProfileTransformer from '#transformers/supplier_profile_transformer'
-
-/**
- * Positionne l'org courante du dev user sur l'org donnée (par slug) et renvoie
- * l'utilisateur rechargé.
- */
-async function devUserWithCurrentOrg(slug: string): Promise<User> {
-  const org = await Organization.findByOrFail('slug', slug)
-  const user = await User.findByOrFail('email', 'malolebrin@gmail.com')
-  await user.merge({ currentOrganizationId: org.id }).save()
-  return user
-}
+import { useDatabase } from '#tests/utils/setup'
+import { seededDevUser } from '#tests/utils/organizations'
 
 test.group('Profil fournisseur — CRUD', (group) => {
   // Isolation par test : le PATCH mute le profil, on re-sème avant chacun.
-  group.each.setup(() => testUtils.db().truncate())
-  group.each.setup(() => new MainSeeder(db.connection()).run())
+  useDatabase(group, { seed: 'full' })
 
   test("l'écran affiche le profil de l'organisation fournisseur courante", async ({ client }) => {
-    const user = await devUserWithCurrentOrg('eurogoods-org')
+    const user = await seededDevUser('eurogoods-org')
 
     const response = await client.get('/fr/supplier/profile').withInertia().loginAs(user)
 
@@ -36,7 +22,7 @@ test.group('Profil fournisseur — CRUD', (group) => {
   })
 
   test('un membre acheteur ne peut pas accéder au profil fournisseur (403)', async ({ client }) => {
-    const user = await devUserWithCurrentOrg('promotionnal-sourcing')
+    const user = await seededDevUser('promotionnal-sourcing')
 
     const response = await client.get('/fr/supplier/profile').withInertia().loginAs(user)
 
@@ -44,7 +30,7 @@ test.group('Profil fournisseur — CRUD', (group) => {
   })
 
   test('la mise à jour enregistre le profil (upsert)', async ({ client, assert }) => {
-    const user = await devUserWithCurrentOrg('eurogoods-org')
+    const user = await seededDevUser('eurogoods-org')
     const org = await Organization.findByOrFail('slug', 'eurogoods-org')
 
     const response = await client

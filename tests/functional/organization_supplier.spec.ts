@@ -1,16 +1,13 @@
 import { test } from '@japa/runner'
-import db from '@adonisjs/lucid/services/db'
-import testUtils from '@adonisjs/core/services/test_utils'
-import MainSeeder from '#database/seeders/main_seeder'
 import Organization from '#models/organization'
 import Supplier from '#models/supplier'
 import OrganizationTransformer from '#transformers/organization_transformer'
+import { useDatabase } from '#tests/utils/setup'
 
 test.group('Organisation — type acheteur/fournisseur + réconciliation suppliers', (group) => {
   // Sème via MainSeeder (ordre des dépendances) plutôt que `db:seed`, comme
   // pour le catalogue.
-  group.setup(() => testUtils.db().truncate())
-  group.setup(() => new MainSeeder(db.connection()).run())
+  useDatabase(group, { seed: 'full', perTest: false })
 
   test("l'organisation de démo est de type acheteur", async ({ assert }) => {
     const org = await Organization.findByOrFail('slug', 'promotionnal-sourcing')

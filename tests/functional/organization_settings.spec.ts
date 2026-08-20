@@ -1,18 +1,14 @@
 import { test } from '@japa/runner'
-import db from '@adonisjs/lucid/services/db'
-import testUtils from '@adonisjs/core/services/test_utils'
-import MainSeeder from '#database/seeders/main_seeder'
+import { UserFactory } from '#database/factories/user_factory'
 import Organization from '#models/organization'
-import OrganizationUser from '#models/organization_user'
-import Role from '#models/role'
-import User from '#models/user'
 import OrganizationTransformer from '#transformers/organization_transformer'
 import OrganizationService from '#services/organization_service'
 import OrganizationContextService from '#services/organization_context_service'
 import OrganizationMembersService from '#services/organization_members_service'
 import CloudinaryService, { type CloudinaryUploader } from '#services/cloudinary_service'
-import hash from '@adonisjs/core/services/hash'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
+import { useDatabase } from '#tests/utils/setup'
+import { createMemberOf, seededDevUser } from '#tests/utils/organizations'
 
 function fakeFile(name: string): MultipartFile {
   return { tmpPath: `/tmp/${name}` } as unknown as MultipartFile
@@ -50,39 +46,11 @@ function service(uploader: CloudinaryUploader) {
   )
 }
 
-/**
- * Positionne l'org courante du dev user sur l'org donnée (par slug) et renvoie
- * l'utilisateur rechargé.
- */
-async function devUserWithCurrentOrg(slug: string): Promise<User> {
-  const org = await Organization.findByOrFail('slug', slug)
-  const user = await User.findByOrFail('email', 'malolebrin@gmail.com')
-  await user.merge({ currentOrganizationId: org.id }).save()
-  return user
-}
-
-/**
- * Crée un membre au rôle `member` (non owner/admin) de l'organisation donnée.
- */
-async function memberOf(slug: string): Promise<User> {
-  const org = await Organization.findByOrFail('slug', slug)
-  const memberRole = await Role.findByOrFail('slug', 'member')
-  const user = await User.create({
-    email: 'member@example.com',
-    fullName: 'Simple Membre',
-    password: await hash.make('password'),
-    currentOrganizationId: org.id,
-  })
-  await OrganizationUser.create({ userId: user.id, organizationId: org.id, roleId: memberRole.id })
-  return user
-}
-
 test.group('Paramètres généraux de l’organisation', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
-  group.each.setup(() => new MainSeeder(db.connection()).run())
+  useDatabase(group, { seed: 'full' })
 
   test("l'écran affiche les paramètres de l'organisation courante", async ({ client }) => {
-    const user = await devUserWithCurrentOrg('eurogoods-org')
+    const user = await seededDevUser('eurogoods-org')
 
     const response = await client.get('/fr/organization/settings').withInertia().loginAs(user)
 
@@ -92,7 +60,7 @@ test.group('Paramètres généraux de l’organisation', (group) => {
   })
 
   test('un membre non owner/admin ne peut pas accéder aux paramètres (403)', async ({ client }) => {
-    const user = await memberOf('eurogoods-org')
+    const user = await createMemberOf('eurogoods-org')
 
     const response = await client.get('/fr/organization/settings').withInertia().loginAs(user)
 
@@ -102,11 +70,7 @@ test.group('Paramètres généraux de l’organisation', (group) => {
   test('un utilisateur sans organisation courante est renvoyé vers l’onboarding', async ({
     client,
   }) => {
-    const user = await User.create({
-      email: 'no-org@example.com',
-      fullName: 'Sans Org',
-      password: await hash.make('password'),
-    })
+    const user = await UserFactory.create()
 
     const response = await client.get('/fr/organization/settings').redirects(0).loginAs(user)
 
@@ -115,7 +79,7 @@ test.group('Paramètres généraux de l’organisation', (group) => {
   })
 
   test('la mise à jour enregistre les champs texte', async ({ client, assert }) => {
-    const user = await devUserWithCurrentOrg('eurogoods-org')
+    const user = await seededDevUser('eurogoods-org')
     const org = await Organization.findByOrFail('slug', 'eurogoods-org')
 
     const response = await client

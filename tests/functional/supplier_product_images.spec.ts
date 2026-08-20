@@ -1,7 +1,5 @@
 import { test } from '@japa/runner'
-import db from '@adonisjs/lucid/services/db'
-import testUtils from '@adonisjs/core/services/test_utils'
-import MainSeeder from '#database/seeders/main_seeder'
+import { OrganizationFactory } from '#database/factories/organization_factory'
 import Organization from '#models/organization'
 import Category from '#models/category'
 import ProductImage from '#models/product_image'
@@ -9,6 +7,7 @@ import SupplierTranslation from '#models/supplier_translation'
 import SupplierProductService from '#services/supplier_product_service'
 import CloudinaryService, { type CloudinaryUploader } from '#services/cloudinary_service'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
+import { useDatabase } from '#tests/utils/setup'
 
 function fakeFile(name: string): MultipartFile {
   return { tmpPath: `/tmp/${name}` } as unknown as MultipartFile
@@ -51,8 +50,7 @@ const baseInput = (categoryId: number) => ({
 })
 
 test.group('SupplierProductService — galerie & fournisseur', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
-  group.each.setup(() => new MainSeeder(db.connection()).run())
+  useDatabase(group, { seed: 'full' })
 
   test('create attache les images uploadées (positions) et fixe image_url', async ({ assert }) => {
     const org = await Organization.findByOrFail('slug', 'eurogoods-org')
@@ -98,12 +96,9 @@ test.group('SupplierProductService — galerie & fournisseur', (group) => {
   })
 
   test('resolveSupplier crée le fournisseur si l’organisation n’en a pas', async ({ assert }) => {
-    const org = await Organization.create({
-      name: 'New Supplier Co',
-      slug: 'new-supplier-co',
-      country: 'BE',
-      organizationType: 'supplier',
-    })
+    const org = await OrganizationFactory.apply('supplier')
+      .merge({ name: 'New Supplier Co', country: 'BE' })
+      .create()
 
     const supplier = await service(fakeUploader().uploader).resolveSupplier(org)
 

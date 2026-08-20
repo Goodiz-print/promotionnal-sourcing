@@ -1,10 +1,9 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
-import testUtils from '@adonisjs/core/services/test_utils'
-import MainSeeder from '#database/seeders/main_seeder'
 import Product from '#models/product'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import { toPgVector } from '#shared/helpers/pgvector'
+import { useDatabase } from '#tests/utils/setup'
 
 const DIMS = 1024
 
@@ -38,8 +37,7 @@ function listOptions(overrides: Partial<Parameters<ProductCatalogueService['list
 }
 
 test.group('Recherche sémantique — embeddings produits', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
-  group.each.setup(() => new MainSeeder(db.connection()).run())
+  useDatabase(group, { seed: 'full' })
 
   test('classe les produits vectorisés par proximité cosinus à la requête', async ({ assert }) => {
     await setEmbedding('crayon-hb-bleu', unitVector(0))

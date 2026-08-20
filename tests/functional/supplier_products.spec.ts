@@ -1,30 +1,19 @@
 import { test } from '@japa/runner'
-import db from '@adonisjs/lucid/services/db'
-import testUtils from '@adonisjs/core/services/test_utils'
-import MainSeeder from '#database/seeders/main_seeder'
-import Organization from '#models/organization'
-import User from '#models/user'
 import Category from '#models/category'
 import AttributeValue from '#models/attribute_value'
 import Product from '#models/product'
 import ProductTranslation from '#models/product_translation'
-
-async function devUserWithCurrentOrg(slug: string): Promise<User> {
-  const org = await Organization.findByOrFail('slug', slug)
-  const user = await User.findByOrFail('email', 'malolebrin@gmail.com')
-  await user.merge({ currentOrganizationId: org.id }).save()
-  return user
-}
+import { useDatabase } from '#tests/utils/setup'
+import { seededDevUser } from '#tests/utils/organizations'
 
 test.group('Gestion produits fournisseur — CRUD', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
-  group.each.setup(() => new MainSeeder(db.connection()).run())
+  useDatabase(group, { seed: 'full' })
 
   test('le fournisseur crée un produit (translations + facettes) publié au catalogue', async ({
     client,
     assert,
   }) => {
-    const user = await devUserWithCurrentOrg('eurogoods-org')
+    const user = await seededDevUser('eurogoods-org')
     const crayon = await Category.findByOrFail('slug', 'crayon')
     const blue = await AttributeValue.findByOrFail('value', 'blue')
 
@@ -76,7 +65,7 @@ test.group('Gestion produits fournisseur — CRUD', (group) => {
   })
 
   test("la mise à jour modifie le produit d'un produit possédé", async ({ client, assert }) => {
-    const user = await devUserWithCurrentOrg('eurogoods-org')
+    const user = await seededDevUser('eurogoods-org')
     const product = await Product.findByOrFail('slug', 'crayon-hb-bleu')
 
     const response = await client
@@ -107,7 +96,7 @@ test.group('Gestion produits fournisseur — CRUD', (group) => {
   })
 
   test('la suppression retire le produit possédé', async ({ client, assert }) => {
-    const user = await devUserWithCurrentOrg('eurogoods-org')
+    const user = await seededDevUser('eurogoods-org')
     const product = await Product.findByOrFail('slug', 'crayon-hb-rouge')
 
     const response = await client
@@ -121,7 +110,7 @@ test.group('Gestion produits fournisseur — CRUD', (group) => {
   })
 
   test("éditer un produit d'un autre fournisseur renvoie 404", async ({ client }) => {
-    const user = await devUserWithCurrentOrg('eurogoods-org')
+    const user = await seededDevUser('eurogoods-org')
     // 'crayon-aquarelle-bleu' appartient au fournisseur nordic-promo (autre org).
     const product = await Product.findByOrFail('slug', 'crayon-aquarelle-bleu')
 
@@ -134,7 +123,7 @@ test.group('Gestion produits fournisseur — CRUD', (group) => {
   })
 
   test('un membre acheteur ne peut pas gérer les produits (403)', async ({ client }) => {
-    const user = await devUserWithCurrentOrg('promotionnal-sourcing')
+    const user = await seededDevUser('promotionnal-sourcing')
 
     const response = await client.get('/fr/supplier/products').withInertia().loginAs(user)
 

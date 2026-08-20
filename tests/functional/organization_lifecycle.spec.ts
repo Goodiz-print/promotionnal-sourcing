@@ -1,13 +1,8 @@
 import { test } from '@japa/runner'
 import { DateTime } from 'luxon'
-import db from '@adonisjs/lucid/services/db'
-import hash from '@adonisjs/core/services/hash'
 import app from '@adonisjs/core/services/app'
-import testUtils from '@adonisjs/core/services/test_utils'
-import RoleSeeder from '#database/seeders/role_seeder'
-import PermissionSeeder from '#database/seeders/permission_seeder'
-import RolePermissionSeeder from '#database/seeders/role_permission_seeder'
-import User from '#models/user'
+import { OrganizationFactory } from '#database/factories/organization_factory'
+import { UserFactory } from '#database/factories/user_factory'
 import Role from '#models/role'
 import Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
@@ -21,48 +16,16 @@ import {
   NotAMemberException,
   OrganizationArchivedException,
 } from '#exceptions/organization_errors'
-
-async function makeUser(email: string): Promise<User> {
-  return User.create({
-    email,
-    password: await hash.make('password123'),
-    fullName: `Test ${email}`,
-  })
-}
-
-async function join(
-  user: User,
-  organization: Organization,
-  roleSlug: string,
-  { asCurrent = true }: { asCurrent?: boolean } = {}
-): Promise<OrganizationUser> {
-  const role = await Role.findByOrFail('slug', roleSlug)
-  const membership = await OrganizationUser.create({
-    userId: user.id,
-    organizationId: organization.id,
-    roleId: role.id,
-    joinedAt: DateTime.now(),
-  })
-  if (asCurrent) await user.merge({ currentOrganizationId: organization.id }).save()
-  return membership
-}
-
-function makeOrganization(name: string, slug: string): Promise<Organization> {
-  return Organization.create({ name, slug, country: 'FR' })
-}
+import { joinOrganization } from '#tests/utils/organizations'
+import { useDatabase } from '#tests/utils/setup'
 
 test.group("Cycle de vie de l'organisation", (group) => {
-  group.each.setup(() => testUtils.db().truncate())
-  group.each.setup(async () => {
-    await new RoleSeeder(db.connection()).run()
-    await new PermissionSeeder(db.connection()).run()
-    await new RolePermissionSeeder(db.connection()).run()
-  })
+  useDatabase(group)
 
   test('créer une organisation supplémentaire bascule dessus', async ({ assert }) => {
-    const first = await makeOrganization('Acme', 'acme')
-    const user = await makeUser('owner@example.com')
-    await join(user, first, 'owner')
+    const first = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const user = await UserFactory.create()
+    await joinOrganization(user, first, 'owner')
 
     const service = await app.container.make(OrganizationService)
     const second = await service.create(user, { name: 'Beta', organizationType: 'supplier' })
@@ -80,11 +43,11 @@ test.group("Cycle de vie de l'organisation", (group) => {
   })
 
   test('quitter une organisation bascule sur une autre adhésion', async ({ assert }) => {
-    const first = await makeOrganization('Acme', 'acme')
-    const second = await makeOrganization('Beta', 'beta')
-    const user = await makeUser('member@example.com')
-    await join(user, first, 'member', { asCurrent: false })
-    await join(user, second, 'member')
+    const first = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const second = await OrganizationFactory.merge({ name: 'Beta', slug: 'beta' }).create()
+    const user = await UserFactory.create()
+    await joinOrganization(user, first, 'member', { asCurrent: false })
+    await joinOrganization(user, second, 'member')
 
     const service = await app.container.make(OrganizationService)
     await service.leave(user, second)
@@ -100,11 +63,11 @@ test.group("Cycle de vie de l'organisation", (group) => {
   })
 
   test('quitter sa seule organisation laisse sans organisation courante', async ({ assert }) => {
-    const org = await makeOrganization('Acme', 'acme')
-    const owner = await makeUser('owner@example.com')
-    const member = await makeUser('member@example.com')
-    await join(owner, org, 'owner')
-    await join(member, org, 'member')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await UserFactory.create()
+    const member = await UserFactory.create()
+    await joinOrganization(owner, org, 'owner')
+    await joinOrganization(member, org, 'member')
 
     const service = await app.container.make(OrganizationService)
     await service.leave(member, org)
@@ -114,9 +77,9 @@ test.group("Cycle de vie de l'organisation", (group) => {
   })
 
   test('le dernier owner ne peut pas quitter son organisation', async ({ assert }) => {
-    const org = await makeOrganization('Acme', 'acme')
-    const owner = await makeUser('owner@example.com')
-    await join(owner, org, 'owner')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await UserFactory.create()
+    await joinOrganization(owner, org, 'owner')
 
     const service = await app.container.make(OrganizationService)
     await assert.rejects(() => service.leave(owner, org), LastOwnerException.message)
@@ -126,19 +89,19 @@ test.group("Cycle de vie de l'organisation", (group) => {
   })
 
   test("quitter une organisation dont on n'est pas membre est refusé", async ({ assert }) => {
-    const org = await makeOrganization('Acme', 'acme')
-    const other = await makeOrganization('Beta', 'beta')
-    const user = await makeUser('member@example.com')
-    await join(user, org, 'member')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const other = await OrganizationFactory.merge({ name: 'Beta', slug: 'beta' }).create()
+    const user = await UserFactory.create()
+    await joinOrganization(user, org, 'member')
 
     const service = await app.container.make(OrganizationService)
     await assert.rejects(() => service.leave(user, other), NotAMemberException.message)
   })
 
   test('archiver une organisation révoque ses invitations en attente', async ({ assert }) => {
-    const org = await makeOrganization('Acme', 'acme')
-    const owner = await makeUser('owner@example.com')
-    await join(owner, org, 'owner')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await UserFactory.create()
+    await joinOrganization(owner, org, 'owner')
     const memberRole = await Role.findByOrFail('slug', 'member')
 
     const pending = await OrganizationInvitation.create({
@@ -170,7 +133,7 @@ test.group("Cycle de vie de l'organisation", (group) => {
   })
 
   test('archiver une organisation déjà archivée est refusé', async ({ assert }) => {
-    const org = await makeOrganization('Acme', 'acme')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
     const service = await app.container.make(OrganizationService)
     await service.archive(org)
 
@@ -180,12 +143,12 @@ test.group("Cycle de vie de l'organisation", (group) => {
   test('on ne bascule ni sur une organisation étrangère ni sur une archivée', async ({
     assert,
   }) => {
-    const mine = await makeOrganization('Acme', 'acme')
-    const foreign = await makeOrganization('Beta', 'beta')
-    const archived = await makeOrganization('Gamma', 'gamma')
-    const user = await makeUser('member@example.com')
-    await join(user, mine, 'member')
-    await join(user, archived, 'member', { asCurrent: false })
+    const mine = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const foreign = await OrganizationFactory.merge({ name: 'Beta', slug: 'beta' }).create()
+    const archived = await OrganizationFactory.merge({ name: 'Gamma', slug: 'gamma' }).create()
+    const user = await UserFactory.create()
+    await joinOrganization(user, mine, 'member')
+    await joinOrganization(user, archived, 'member', { asCurrent: false })
 
     const organizations = await app.container.make(OrganizationService)
     await organizations.archive(archived)
@@ -205,11 +168,11 @@ test.group("Cycle de vie de l'organisation", (group) => {
     client,
     assert,
   }) => {
-    const archived = await makeOrganization('Acme', 'acme')
-    const other = await makeOrganization('Beta', 'beta')
-    const user = await makeUser('owner@example.com')
-    await join(user, other, 'owner', { asCurrent: false })
-    await join(user, archived, 'owner')
+    const archived = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const other = await OrganizationFactory.merge({ name: 'Beta', slug: 'beta' }).create()
+    const user = await UserFactory.create()
+    await joinOrganization(user, other, 'owner', { asCurrent: false })
+    await joinOrganization(user, archived, 'owner')
 
     const service = await app.container.make(OrganizationService)
     await service.archive(archived)
@@ -225,9 +188,9 @@ test.group("Cycle de vie de l'organisation", (group) => {
     client,
     assert,
   }) => {
-    const archived = await makeOrganization('Acme', 'acme')
-    const user = await makeUser('owner@example.com')
-    await join(user, archived, 'owner')
+    const archived = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const user = await UserFactory.create()
+    await joinOrganization(user, archived, 'owner')
 
     const service = await app.container.make(OrganizationService)
     await service.archive(archived)
@@ -247,8 +210,8 @@ test.group("Cycle de vie de l'organisation", (group) => {
   test("les fiches d'une organisation archivée sortent de l'annuaire public", async ({
     assert,
   }) => {
-    const archived = await makeOrganization('Acme', 'acme')
-    const live = await makeOrganization('Beta', 'beta')
+    const archived = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const live = await OrganizationFactory.merge({ name: 'Beta', slug: 'beta' }).create()
 
     await Supplier.create({ slug: 'acme-supplier', country: 'FR', organizationId: archived.id })
     await Supplier.create({ slug: 'beta-supplier', country: 'FR', organizationId: live.id })
@@ -273,11 +236,11 @@ test.group("Cycle de vie de l'organisation", (group) => {
   })
 
   test("le sélecteur d'organisation est exposé aux pages Inertia", async ({ client, assert }) => {
-    const first = await makeOrganization('Acme', 'acme')
-    const second = await makeOrganization('Beta', 'beta')
-    const user = await makeUser('owner@example.com')
-    await join(user, first, 'owner', { asCurrent: false })
-    await join(user, second, 'owner')
+    const first = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const second = await OrganizationFactory.merge({ name: 'Beta', slug: 'beta' }).create()
+    const user = await UserFactory.create()
+    await joinOrganization(user, first, 'owner', { asCurrent: false })
+    await joinOrganization(user, second, 'owner')
 
     const response = await client.get('/fr/organization/members').withInertia().loginAs(user)
 
@@ -292,11 +255,11 @@ test.group("Cycle de vie de l'organisation", (group) => {
   })
 
   test('une organisation archivée sort du sélecteur', async ({ client, assert }) => {
-    const kept = await makeOrganization('Acme', 'acme')
-    const archived = await makeOrganization('Beta', 'beta')
-    const user = await makeUser('owner@example.com')
-    await join(user, kept, 'owner')
-    await join(user, archived, 'owner', { asCurrent: false })
+    const kept = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const archived = await OrganizationFactory.merge({ name: 'Beta', slug: 'beta' }).create()
+    const user = await UserFactory.create()
+    await joinOrganization(user, kept, 'owner')
+    await joinOrganization(user, archived, 'owner', { asCurrent: false })
 
     const service = await app.container.make(OrganizationService)
     await service.archive(archived)
@@ -308,11 +271,11 @@ test.group("Cycle de vie de l'organisation", (group) => {
   })
 
   test("basculer d'organisation via le sélecteur", async ({ client, assert }) => {
-    const first = await makeOrganization('Acme', 'acme')
-    const second = await makeOrganization('Beta', 'beta')
-    const user = await makeUser('owner@example.com')
-    await join(user, first, 'owner', { asCurrent: false })
-    await join(user, second, 'owner')
+    const first = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const second = await OrganizationFactory.merge({ name: 'Beta', slug: 'beta' }).create()
+    const user = await UserFactory.create()
+    await joinOrganization(user, first, 'owner', { asCurrent: false })
+    await joinOrganization(user, second, 'owner')
 
     const response = await client
       .post(`/fr/organization/switch/${first.id}`)
@@ -326,10 +289,10 @@ test.group("Cycle de vie de l'organisation", (group) => {
   })
 
   test('basculer sur une organisation étrangère ne change rien', async ({ client, assert }) => {
-    const mine = await makeOrganization('Acme', 'acme')
-    const foreign = await makeOrganization('Beta', 'beta')
-    const user = await makeUser('owner@example.com')
-    await join(user, mine, 'owner')
+    const mine = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const foreign = await OrganizationFactory.merge({ name: 'Beta', slug: 'beta' }).create()
+    const user = await UserFactory.create()
+    await joinOrganization(user, mine, 'owner')
 
     const response = await client
       .post(`/fr/organization/switch/${foreign.id}`)
@@ -345,9 +308,9 @@ test.group("Cycle de vie de l'organisation", (group) => {
   test("l'écran de création d'une organisation supplémentaire est accessible", async ({
     client,
   }) => {
-    const org = await makeOrganization('Acme', 'acme')
-    const user = await makeUser('owner@example.com')
-    await join(user, org, 'owner')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const user = await UserFactory.create()
+    await joinOrganization(user, org, 'owner')
 
     const response = await client.get('/fr/organization/new').withInertia().loginAs(user)
 
@@ -359,9 +322,9 @@ test.group("Cycle de vie de l'organisation", (group) => {
     client,
     assert,
   }) => {
-    const org = await makeOrganization('Acme', 'acme')
-    const user = await makeUser('owner@example.com')
-    await join(user, org, 'owner')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const user = await UserFactory.create()
+    await joinOrganization(user, org, 'owner')
 
     const response = await client
       .post('/fr/organization/new')
@@ -380,13 +343,13 @@ test.group("Cycle de vie de l'organisation", (group) => {
     client,
     assert,
   }) => {
-    const first = await makeOrganization('Acme', 'acme')
-    const second = await makeOrganization('Beta', 'beta')
-    const owner = await makeUser('owner@example.com')
-    const member = await makeUser('member@example.com')
-    await join(owner, second, 'owner')
-    await join(member, first, 'member', { asCurrent: false })
-    await join(member, second, 'member')
+    const first = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const second = await OrganizationFactory.merge({ name: 'Beta', slug: 'beta' }).create()
+    const owner = await UserFactory.create()
+    const member = await UserFactory.create()
+    await joinOrganization(owner, second, 'owner')
+    await joinOrganization(member, first, 'member', { asCurrent: false })
+    await joinOrganization(member, second, 'member')
 
     const response = await client
       .delete('/fr/organization/leave')
@@ -400,9 +363,9 @@ test.group("Cycle de vie de l'organisation", (group) => {
   })
 
   test('le dernier owner ne peut pas quitter depuis la route', async ({ client, assert }) => {
-    const org = await makeOrganization('Acme', 'acme')
-    const owner = await makeUser('owner@example.com')
-    await join(owner, org, 'owner')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await UserFactory.create()
+    await joinOrganization(owner, org, 'owner')
 
     const response = await client
       .delete('/fr/organization/leave')
@@ -423,11 +386,11 @@ test.group("Cycle de vie de l'organisation", (group) => {
     client,
     assert,
   }) => {
-    const org = await makeOrganization('Acme', 'acme')
-    const owner = await makeUser('owner@example.com')
-    const admin = await makeUser('admin@example.com')
-    await join(owner, org, 'owner')
-    await join(admin, org, 'admin')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await UserFactory.create()
+    const admin = await UserFactory.create()
+    await joinOrganization(owner, org, 'owner')
+    await joinOrganization(admin, org, 'admin')
 
     const ownerResponse = await client.get('/fr/organization/settings').withInertia().loginAs(owner)
     const adminResponse = await client.get('/fr/organization/settings').withInertia().loginAs(admin)
@@ -437,9 +400,9 @@ test.group("Cycle de vie de l'organisation", (group) => {
   })
 
   test("archiver l'organisation courante (owner)", async ({ client, assert }) => {
-    const org = await makeOrganization('Acme', 'acme')
-    const owner = await makeUser('owner@example.com')
-    await join(owner, org, 'owner')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await UserFactory.create()
+    await joinOrganization(owner, org, 'owner')
 
     const response = await client
       .post('/fr/organization/archive')
@@ -456,11 +419,11 @@ test.group("Cycle de vie de l'organisation", (group) => {
   })
 
   test('un membre simple ne peut pas archiver', async ({ client, assert }) => {
-    const org = await makeOrganization('Acme', 'acme')
-    const owner = await makeUser('owner@example.com')
-    const member = await makeUser('member@example.com')
-    await join(owner, org, 'owner')
-    await join(member, org, 'member')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await UserFactory.create()
+    const member = await UserFactory.create()
+    await joinOrganization(owner, org, 'owner')
+    await joinOrganization(member, org, 'member')
 
     // Bouncer redirige (back + flash « error ») plutôt qu'un 403 brut sur les
     // requêtes POST/PATCH/DELETE — on vérifie l'effet réel.

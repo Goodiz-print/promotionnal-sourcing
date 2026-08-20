@@ -1,9 +1,10 @@
 import { test } from '@japa/runner'
-import testUtils from '@adonisjs/core/services/test_utils'
+import { UserFactory } from '#database/factories/user_factory'
 import User from '#models/user'
+import { useDatabase } from '#tests/utils/setup'
 
 test.group('Auth — inscription & connexion (useForm)', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
+  useDatabase(group, { seed: 'none' })
 
   test("l'inscription crée un compte et redirige vers l'onboarding", async ({ client, assert }) => {
     const response = await client.post('/fr/signup').redirects(0).withCsrfToken().json({
@@ -19,12 +20,7 @@ test.group('Auth — inscription & connexion (useForm)', (group) => {
   })
 
   test('la connexion avec des identifiants valides réussit', async ({ client }) => {
-    // Mot de passe en clair : le modèle User (withAuthFinder) le hache au save.
-    await User.create({
-      email: 'membre@example.com',
-      password: 'password123',
-      fullName: 'Membre',
-    })
+    await UserFactory.merge({ email: 'membre@example.com' }).create()
 
     const response = await client
       .post('/fr/login')
