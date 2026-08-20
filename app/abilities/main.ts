@@ -111,3 +111,36 @@ export const canManageCategories = Bouncer.ability(async (user: User, org: Organ
   const m = await getMembership(user, org)
   return m ? ['owner', 'admin'].includes(m.role.slug) : false
 })
+
+/**
+ * Ability to check if a user can create a request for quotation (RFQ).
+ * The organization must be a buyer (or both). Aligned on the `sourcing:create`
+ * permission, granted to every role down to `member`.
+ */
+export const canCreateRfq = Bouncer.ability(async (user: User, org: Organization) => {
+  if (!['buyer', 'both'].includes(org.organizationType)) return false
+  const m = await getMembership(user, org)
+  return m ? ['owner', 'admin', 'manager', 'member'].includes(m.role.slug) : false
+})
+
+/**
+ * Ability to check if a user can drive an existing RFQ (edit, publish, send,
+ * close). Aligned on the `sourcing:manage` permission: `member` may draft a
+ * request, but not send it to suppliers.
+ */
+export const canManageRfq = Bouncer.ability(async (user: User, org: Organization) => {
+  if (!['buyer', 'both'].includes(org.organizationType)) return false
+  const m = await getMembership(user, org)
+  return m ? ['owner', 'admin', 'manager'].includes(m.role.slug) : false
+})
+
+/**
+ * Ability to check if a user can answer a received RFQ (view its detail,
+ * decline, and — Phase 4 — submit a quote) on behalf of a supplier
+ * organization.
+ */
+export const canRespondToRfq = Bouncer.ability(async (user: User, org: Organization) => {
+  if (!['supplier', 'both'].includes(org.organizationType)) return false
+  const m = await getMembership(user, org)
+  return m ? ['owner', 'admin', 'manager'].includes(m.role.slug) : false
+})

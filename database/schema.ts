@@ -501,6 +501,114 @@ export class QueueScheduleSchema extends BaseModel {
   declare toDate: DateTime | null
 }
 
+export class RfqItemSchema extends BaseModel {
+  static $columns = [
+    'categoryId',
+    'createdAt',
+    'description',
+    'id',
+    'name',
+    'productId',
+    'quantity',
+    'rfqId',
+    'specs',
+    'unit',
+    'updatedAt',
+  ] as const
+  $columns = RfqItemSchema.$columns
+  @column()
+  declare categoryId: number | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare description: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column()
+  declare productId: number | null
+  @column()
+  declare quantity: number
+  @column()
+  declare rfqId: number
+  @column()
+  declare specs: any | null
+  @column()
+  declare unit: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class RfqSupplierSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'id',
+    'rfqId',
+    'sentAt',
+    'status',
+    'supplierOrganizationId',
+    'updatedAt',
+  ] as const
+  $columns = RfqSupplierSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare rfqId: number
+  @column.dateTime()
+  declare sentAt: DateTime | null
+  @column()
+  declare status: string
+  @column()
+  declare supplierOrganizationId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class RfqSchema extends BaseModel {
+  static $columns = [
+    'budgetMax',
+    'buyerOrganizationId',
+    'closedAt',
+    'createdAt',
+    'createdByUserId',
+    'deadline',
+    'description',
+    'id',
+    'publishedAt',
+    'status',
+    'title',
+    'updatedAt',
+  ] as const
+  $columns = RfqSchema.$columns
+  @column()
+  declare budgetMax: string | null
+  @column()
+  declare buyerOrganizationId: number
+  @column.dateTime()
+  declare closedAt: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdByUserId: number | null
+  @column.dateTime()
+  declare deadline: DateTime | null
+  @column()
+  declare description: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column.dateTime()
+  declare publishedAt: DateTime | null
+  @column()
+  declare status: string
+  @column()
+  declare title: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class RolePermissionSchema extends BaseModel {
   static $columns = ['permissionId', 'roleId'] as const
   $columns = RolePermissionSchema.$columns
