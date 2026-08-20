@@ -1,17 +1,10 @@
 import { test } from '@japa/runner'
 import { DateTime } from 'luxon'
-import db from '@adonisjs/lucid/services/db'
-import hash from '@adonisjs/core/services/hash'
 import app from '@adonisjs/core/services/app'
-import testUtils from '@adonisjs/core/services/test_utils'
-import RoleSeeder from '#database/seeders/role_seeder'
-import Organization from '#models/organization'
-import OrganizationUser from '#models/organization_user'
+import { OrganizationFactory } from '#database/factories/organization_factory'
 import Rfq from '#models/rfq'
 import RfqItem from '#models/rfq_item'
 import RfqSupplier from '#models/rfq_supplier'
-import Role from '#models/role'
-import User from '#models/user'
 import RfqService from '#services/rfq_service'
 import {
   NotASupplierOrganizationException,
@@ -22,51 +15,21 @@ import {
   RfqNotSendableException,
   RfqSupplierNotFoundException,
 } from '#exceptions/rfq_errors'
-import type { OrganizationKind } from '#shared/types/organization'
-
-async function makeUser(email: string): Promise<User> {
-  return User.create({
-    email,
-    password: await hash.make('password123'),
-    fullName: `Test ${email}`,
-  })
-}
-
-function makeOrganization(
-  name: string,
-  slug: string,
-  organizationType: OrganizationKind = 'buyer'
-): Promise<Organization> {
-  return Organization.create({ name, slug, country: 'FR', organizationType })
-}
-
-async function join(user: User, organization: Organization, roleSlug = 'owner'): Promise<void> {
-  const role = await Role.findByOrFail('slug', roleSlug)
-  await OrganizationUser.create({
-    userId: user.id,
-    organizationId: organization.id,
-    roleId: role.id,
-    joinedAt: DateTime.now(),
-  })
-  await user.merge({ currentOrganizationId: organization.id }).save()
-}
+import { createMember } from '#tests/utils/organizations'
+import { useDatabase } from '#tests/utils/setup'
 
 test.group('RFQ — cycle de vie', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
-  group.each.setup(async () => {
-    await new RoleSeeder(db.connection()).run()
-  })
+  useDatabase(group)
 
   /**
    * Contexte commun : un acheteur (avec son owner) et deux fournisseurs.
    */
   async function setupActors() {
-    const buyer = await makeOrganization('Acme', 'acme', 'buyer')
-    const owner = await makeUser('owner@acme.test')
-    await join(owner, buyer)
+    const buyer = await OrganizationFactory.create()
+    const owner = await createMember(buyer, 'owner')
 
-    const supplierA = await makeOrganization('Fournisseur A', 'fournisseur-a', 'supplier')
-    const supplierB = await makeOrganization('Fournisseur B', 'fournisseur-b', 'both')
+    const supplierA = await OrganizationFactory.apply('supplier').create()
+    const supplierB = await OrganizationFactory.apply('both').create()
 
     return { buyer, owner, supplierA, supplierB, service: await app.container.make(RfqService) }
   }
@@ -181,8 +144,8 @@ test.group('RFQ — cycle de vie', (group) => {
   test('refuse une organisation acheteuse ou archivée comme destinataire', async ({ assert }) => {
     const actors = await setupActors()
     const rfq = await draftWithItem(actors)
-    const otherBuyer = await makeOrganization('Beta', 'beta', 'buyer')
-    const archived = await makeOrganization('Fournisseur C', 'fournisseur-c', 'supplier')
+    const otherBuyer = await OrganizationFactory.create()
+    const archived = await OrganizationFactory.apply('supplier').create()
     await archived.merge({ archivedAt: DateTime.now() }).save()
 
     await assert.rejects(
@@ -287,16 +250,12 @@ test.group('RFQ — cycle de vie', (group) => {
 })
 
 test.group('RFQ — côté fournisseur', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
-  group.each.setup(async () => {
-    await new RoleSeeder(db.connection()).run()
-  })
+  useDatabase(group)
 
   async function sentRfq() {
-    const buyer = await makeOrganization('Acme', 'acme', 'buyer')
-    const owner = await makeUser('owner@acme.test')
-    await join(owner, buyer)
-    const supplier = await makeOrganization('Fournisseur A', 'fournisseur-a', 'supplier')
+    const buyer = await OrganizationFactory.create()
+    const owner = await createMember(buyer, 'owner')
+    const supplier = await OrganizationFactory.apply('supplier').create()
     const service = await app.container.make(RfqService)
 
     const rfq = await service.create(buyer, owner, {
@@ -355,7 +314,7 @@ test.group('RFQ — côté fournisseur', (group) => {
 
   test('refuse toute transition pour une organisation non destinataire', async ({ assert }) => {
     const { service, rfq } = await sentRfq()
-    const outsider = await makeOrganization('Fournisseur Z', 'fournisseur-z', 'supplier')
+    const outsider = await OrganizationFactory.apply('supplier').create()
 
     await assert.rejects(
       () => service.markViewed(rfq, outsider.id),
@@ -365,17 +324,13 @@ test.group('RFQ — côté fournisseur', (group) => {
 })
 
 test.group('RFQ — lecture acheteur', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
-  group.each.setup(async () => {
-    await new RoleSeeder(db.connection()).run()
-  })
+  useDatabase(group)
 
   test('cloisonne les demandes par organisation acheteuse', async ({ assert }) => {
     const service = await app.container.make(RfqService)
-    const acme = await makeOrganization('Acme', 'acme', 'buyer')
-    const beta = await makeOrganization('Beta', 'beta', 'buyer')
-    const owner = await makeUser('owner@acme.test')
-    await join(owner, acme)
+    const acme = await OrganizationFactory.create()
+    const beta = await OrganizationFactory.create()
+    const owner = await createMember(acme, 'owner')
 
     const rfq = await service.create(acme, owner, {
       title: 'Tote bags',

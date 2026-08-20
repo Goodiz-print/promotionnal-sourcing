@@ -73,6 +73,7 @@ faute de frappe suffisant à faire tronquer la base de **développement**.
 - **Doc** : `docs/tests.md` (sections base de données, garde-fou, initialisation
   par groupe) ; mentions SQLite corrigées dans `CLAUDE.md`, `docs/catalogue.md`
   et `docs/organisations.md`.
+
 ## 2026-08-20 — Socle backend des demandes de devis (RFQ) — Phase 3, PR 1/3 (#4)
 
 Première brique de la Phase 3 : une organisation acheteuse peut décrire un
@@ -113,7 +114,7 @@ supplier_organization_id)`). Les deux côtés pointent vers `organizations`,
 - **Tests** — `tests/functional/rfqs.spec.ts` (+18) : cycle complet, refus de
   modification après publication, publication sans item, destinataires
   inéligibles, envoi partiel puis élargissement, transitions fournisseur,
-  cloisonnement. Suite complète : 189 tests au vert.
+  cloisonnement. Suite complète : 186 tests au vert.
 - **Doc** : `docs/rfq.md` (tables, cycle de vie, invariants, permissions,
   roadmap Phase 3).
 

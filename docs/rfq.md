@@ -134,7 +134,10 @@ organisations non fournisseuses ou archivées, envoi partiel puis élargissement
 d'une demande publiée, clôture, transitions fournisseur (`viewed`,
 `responded`, `declined`) et cloisonnement acheteur/fournisseur.
 
-> Les tests s'exécutent sous **PostgreSQL** (`DB_CONNECTION=pg`), comme la CI.
+> La spec passe par les factories et `useDatabase(group)` (cf. `docs/tests.md`) :
+> l'organisation acheteuse, les deux fournisseuses et l'owner viennent de
+> `OrganizationFactory` / `createMember`, les RFQ elles-mêmes de `RfqService` —
+> c'est justement ses transitions qu'on teste.
 
 ## Roadmap
 
