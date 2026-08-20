@@ -154,10 +154,16 @@ export default class OrganizationInvitationsService {
 
   /**
    * Rattache l'utilisateur à l'organisation de l'invitation (idempotent :
-   * ne duplique pas s'il est déjà membre), fixe son organisation courante si
-   * absente, et marque l'invitation acceptée. Les vérifications d'éligibilité
-   * (email correspondant, invitation en attente et non expirée) sont à la
-   * charge de l'appelant (controller).
+   * ne duplique pas s'il est déjà membre), **bascule toujours** son
+   * organisation courante dessus, et marque l'invitation acceptée. Les
+   * vérifications d'éligibilité (email correspondant, invitation en attente et
+   * non expirée) sont à la charge de l'appelant (controller).
+   *
+   * La bascule est inconditionnelle : accepter une invitation, c'est vouloir
+   * travailler sur cette organisation. Sans elle, un invité déjà membre
+   * ailleurs resterait sur son organisation d'origine et l'invitation
+   * semblerait sans effet — le sélecteur d'organisation n'apparaissant qu'à
+   * partir de deux adhésions.
    */
   async accept(invitation: OrganizationInvitation, user: User): Promise<void> {
     const membership = await OrganizationUser.query()
@@ -173,9 +179,7 @@ export default class OrganizationInvitationsService {
       })
     }
 
-    if (!user.currentOrganizationId) {
-      await user.merge({ currentOrganizationId: invitation.organizationId }).save()
-    }
+    await user.merge({ currentOrganizationId: invitation.organizationId }).save()
 
     invitation.status = 'accepted'
     await invitation.save()

@@ -410,6 +410,7 @@ produit qui cadrent ce volet :
 | Sujet                                 | Décision                                                           |
 | ------------------------------------- | ------------------------------------------------------------------ |
 | Sélecteur d'organisation              | Affiché **uniquement** si l'utilisateur a ≥ 2 organisations (PR 2) |
+| Acceptation d'une invitation          | **Bascule automatique** sur l'organisation rejointe (#32)          |
 | Créer une organisation supplémentaire | Autorisé, avec **bascule automatique** dessus                      |
 | Supprimer                             | **Archivage réversible**, jamais de DELETE                         |
 | Droit d'archiver                      | `owner` + `admin` (ability existante `canManageOrganization`)      |
@@ -598,6 +599,39 @@ owner refusé, `canLeave` exposé selon le rôle, archivage par un owner, archiv
 refusé à un membre simple) et `tests/inertia/organization_danger_zone.spec.ts`
 (départ masqué sans `canLeave`, confirmation acceptée/refusée, archivage).
 
+## Bascule sur l'organisation rejointe à l'acceptation (#32)
+
+Accepter une invitation **bascule toujours** l'organisation courante sur celle de
+l'invitation — `OrganizationInvitationsService#accept()` écrit
+`users.current_organization_id` sans condition, là où il ne le faisait
+qu'en l'absence de valeur.
+
+**Pourquoi** : le sélecteur d'organisation n'apparaît qu'à partir de deux
+adhésions (cf. PR lifecycle 2/3). Sans bascule automatique, un invité déjà
+membre ailleurs voyait son adhésion créée en base mais restait sur son
+organisation d'origine : l'invitation semblait sans effet, et rien à l'écran ne
+menait à la nouvelle organisation. Cliquer le lien d'invitation, c'est vouloir
+travailler sur cette organisation-là.
+
+**Règle produit** — le multi-organisation est conservé (un contact peut
+travailler pour un acheteur _et_ un fournisseur) : l'adhésion précédente reste
+intacte, seule la courante change. Basculer n'est pas quitter ; l'utilisateur
+revient sur l'ancienne via le sélecteur, qui devient justement visible puisqu'il
+a désormais deux adhésions.
+
+**Flash** : `organization.invitations.accept.success` est paramétré par
+`{organization}` (« Vous avez rejoint Acme. ») — la bascule est nommée, donc
+lisible, plutôt que subie.
+
+**Écrans** : rien à faire côté front. Les props partagées `organizations` et
+`currentOrganizationId` sont `inertia.always(...)` (`InertiaMiddleware`) et les
+écrans lisent l'organisation courante via `OrganizationContextService#currentFor`
+— la redirection vers l'accueil qui suit l'acceptation les recalcule.
+
+**Tests** : `tests/functional/organization_invitation_acceptance.spec.ts` (+1 —
+un membre d'Acme accepte une invitation pour Beta : courante = Beta, flash
+nommant Beta, les deux adhésions conservées).
+
 ## Roadmap
 
 Découpage de la Phase 2 en 4 PR :
@@ -624,10 +658,5 @@ faites — série complète.
 
 **Restant sur le domaine organisations** (hors périmètre de ces PR) :
 
-- **Bascule à l'acceptation d'une invitation** (#32) — `accept()` ne fixe
-  l'organisation courante que si elle est absente : un invité qui a déjà une
-  organisation crée bien son adhésion, mais reste sur l'ancienne. Le sélecteur
-  (PR 2 ci-dessus) n'apparaissant qu'au-delà d'une organisation, la bascule doit
-  de toute façon être automatique à l'acceptation.
 - Fiabilité mail : `mail.sendLater()` s'appuie sur la file mémoire de
   `@adonisjs/mail` — une invitation est perdue si le process redémarre.

@@ -131,6 +131,37 @@ test.group('Acceptation d’une invitation', (group) => {
     assert.equal(invitation.status, 'accepted')
   })
 
+  test("un membre d'une autre organisation bascule sur celle qu'il rejoint", async ({
+    client,
+    assert,
+  }) => {
+    const acme = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
+    const beta = await Organization.create({ name: 'Beta', slug: 'beta', country: 'FR' })
+    await makeOwner('owner@example.com', beta)
+    const invitee = await makeOwner('invited@example.com', acme)
+    const invitation = await makeInvitation(beta, 'invited@example.com')
+
+    const response = await client
+      .post(acceptUrl(invitation.id))
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(invitee)
+
+    response.assertStatus(200)
+    // Le flash nomme l'organisation rejointe : la bascule doit être lisible.
+    response.assertInertiaPropsContains({ flash: { success: 'Vous avez rejoint Beta.' } })
+
+    await invitee.refresh()
+    assert.equal(invitee.currentOrganizationId, beta.id)
+
+    // L'adhésion d'origine reste : basculer n'est pas quitter.
+    const memberships = await OrganizationUser.query().where('userId', invitee.id)
+    assert.sameMembers(
+      memberships.map((membership) => membership.organizationId),
+      [acme.id, beta.id]
+    )
+  })
+
   test('un utilisateur connecté avec un autre email ne peut pas accepter', async ({
     client,
     assert,

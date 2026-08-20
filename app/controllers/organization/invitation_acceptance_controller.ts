@@ -81,7 +81,14 @@ export default class InvitationAcceptanceController {
     }
 
     await this.service.accept(invitation, user)
-    session.flash('success', i18n.t('organization.invitations.accept.success'))
+    // L'organisation rejointe devient la courante (cf. `accept()`) : le flash la
+    // nomme pour que la bascule soit lisible plutôt que subie.
+    session.flash(
+      'success',
+      i18n.t('organization.invitations.accept.success', {
+        organization: invitation.organization.name,
+      })
+    )
     // `withQs(false)` : ne pas laisser fuiter la querystring signée sur la
     // page d'accueil (cf. config/app.ts `forwardQueryString: true`).
     return response.redirect().withQs(false).toRoute('home', { locale: i18n.locale })
