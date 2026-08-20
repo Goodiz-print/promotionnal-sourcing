@@ -86,6 +86,21 @@ export default class OrganizationService {
   }
 
   /**
+   * `true` si l'utilisateur peut quitter cette organisation : il en est membre
+   * et n'en est pas le dernier owner. Sert à masquer le bouton côté écran — le
+   * refus reste appliqué par `leave`.
+   */
+  async canLeave(user: User, organization: Organization): Promise<boolean> {
+    const membership = await OrganizationUser.query()
+      .where('organizationId', organization.id)
+      .where('userId', user.id)
+      .first()
+
+    if (!membership) return false
+    return !(await this.members.isLastOwner(membership))
+  }
+
+  /**
    * Archive l'organisation : elle sort du catalogue public et de la liste des
    * organisations de ses membres (qui basculent ailleurs ou repartent sur
    * l'onboarding au prochain accès, cf. `OnboardedMiddleware`). Aucune donnée

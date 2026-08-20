@@ -144,6 +144,18 @@ const routes = {
     tokens: [{"old":"/:locale/organization/new","type":1,"val":"locale","end":""},{"old":"/:locale/organization/new","type":0,"val":"organization","end":""},{"old":"/:locale/organization/new","type":0,"val":"new","end":""}],
     types: placeholder as Registry['organization.store']['types'],
   },
+  'organization.leave': {
+    methods: ["DELETE"],
+    pattern: '/:locale/organization/leave',
+    tokens: [{"old":"/:locale/organization/leave","type":1,"val":"locale","end":""},{"old":"/:locale/organization/leave","type":0,"val":"organization","end":""},{"old":"/:locale/organization/leave","type":0,"val":"leave","end":""}],
+    types: placeholder as Registry['organization.leave']['types'],
+  },
+  'organization.archive': {
+    methods: ["POST"],
+    pattern: '/:locale/organization/archive',
+    tokens: [{"old":"/:locale/organization/archive","type":1,"val":"locale","end":""},{"old":"/:locale/organization/archive","type":0,"val":"organization","end":""},{"old":"/:locale/organization/archive","type":0,"val":"archive","end":""}],
+    types: placeholder as Registry['organization.archive']['types'],
+  },
   'organization.members': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/organization/members',

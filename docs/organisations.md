@@ -551,6 +551,53 @@ organisation étrangère, écran de création, création qui bascule) et
 `tests/inertia/organization_switcher.spec.ts` (masqué à une organisation, listé
 au-delà, `router.post` au changement et no-op sur la courante).
 
+## Quitter et archiver (PR lifecycle 3/3)
+
+### Routes
+
+| Route                       | Nom                    | Autorisation                            |
+| --------------------------- | ---------------------- | --------------------------------------- |
+| `DELETE organization/leave` | `organization.leave`   | Être membre                             |
+| `POST organization/archive` | `organization.archive` | `canManageOrganization` (owner + admin) |
+
+### Départ
+
+`OrganizationService#leave` applique l'invariant du dernier owner ; le controller
+le traduit en flash explicite (« promouvez un autre membre ou archivez
+l'organisation »). Le bouton est en plus **masqué** dans ce cas : l'écran reçoit
+une prop `canLeave` calculée par `OrganizationService#canLeave` (membre, et pas
+dernier owner). Après le départ, repli sur une autre organisation ou onboarding.
+
+### Archivage
+
+Le controller enchaîne `archive` puis `ensureUsableOrganization` sur l'auteur de
+l'archivage : sans cela il resterait rattaché à une organisation morte jusqu'à sa
+requête suivante. Les autres membres, eux, basculent paresseusement via le
+middleware `onboarded`.
+
+### UI
+
+`inertia/components/organization/settings/danger_zone.vue`, en bas de
+`inertia/pages/organization/settings.vue` — composant extrait pour tenir sous les
+250 lignes. `window.confirm` (pattern du projet pour les actions destructives,
+aucun composant de modale générique n'existe) et nouveau variant **`danger`** de
+`base_button`, basé sur les tokens `--state-danger` / `--state-danger-bg`.
+
+> ⚠️ **Limite connue** — l'écran des paramètres est réservé aux owner/admin
+> (`canManageOrganization`), et celui des membres aux owner/admin/manager
+> (`canInviteMembers`). Un **membre simple n'a donc aucun écran** d'où quitter son
+> organisation : la route l'autorise, mais rien ne la lui expose. Il faudrait un
+> écran « mes organisations » accessible à tout membre — c'est aussi l'endroit
+> naturel pour la création d'une organisation supplémentaire, aujourd'hui logée
+> dans la nav des paramètres.
+
+### Tests
+
+`tests/functional/organization_lifecycle.spec.ts` (+5 : départ avec repli, dernier
+owner refusé, `canLeave` exposé selon le rôle, archivage par un owner, archivage
+refusé à un membre simple) et `tests/inertia/organization_danger_zone.spec.ts`
+(départ masqué sans `canLeave`, confirmation acceptée/refusée, archivage).
+
 ## Roadmap
 
 Découpage de la Phase 2 en 4 PR :
@@ -572,9 +619,8 @@ email) faits — série complète ; PR4 (renvoi d'une invitation) et PR5 (purge 
 invitations expirées) empilées dessus.
 
 Découpage « cycle de vie de l'organisation » : PR 1 (socle backend, section
-ci-dessus) et **PR 2** (sélecteur + création, section ci-dessus) faites ;
-**PR 3** (« quitter » et « archiver » côté UI :
-zone de danger dans les paramètres, variant `danger` de `base_button`) à venir.
+ci-dessus), **PR 2** (sélecteur + création) et **PR 3** (quitter + archiver)
+faites — série complète.
 
 **Restant sur le domaine organisations** (hors périmètre de ces PR) :
 

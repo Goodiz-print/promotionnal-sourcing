@@ -95,5 +95,26 @@
     "subtitle": "You will switch to this new organization right away.",
     "submit": "Create organization",
     "success": "Organization {name} created."
+  },
+  "danger": {
+    "title": "Danger zone",
+    "subtitle": "These actions affect the whole organization. Read carefully before confirming."
+  },
+  "leave": {
+    "title": "Leave this organization",
+    "description": "You will lose access to its data. An admin will have to invite you again.",
+    "submit": "Leave",
+    "confirm": "Leave this organization?",
+    "done": "You left {name}.",
+    "lastOwner": "You are the last owner: promote another member or archive the organization before leaving.",
+    "notMember": "You are not a member of this organization."
+  },
+  "archive": {
+    "title": "Archive this organization",
+    "description": "It disappears from the public catalogue and from its members’ workspace. Data is kept; only the technical team can restore it.",
+    "submit": "Archive",
+    "confirm": "Archive {name}? Its members will lose access and you will not be able to restore it yourself.",
+    "done": "{name} has been archived.",
+    "alreadyArchived": "This organization is already archived."
   }
 }

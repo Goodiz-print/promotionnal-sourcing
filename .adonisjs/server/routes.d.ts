@@ -27,6 +27,8 @@ export type ScannedRoutes = {
     'organization.switch': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'organization.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'organization.leave': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'organization.archive': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.members': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.members.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'organization.members.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -104,22 +106,24 @@ export type ScannedRoutes = {
     'organization.settings.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.switch': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'organization.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'organization.archive': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.invitations.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.invitations.resend': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.products.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.products.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.categories.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
   }
-  PATCH: {
-    'organization.members.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
-    'supplier.profile.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
-    'admin.categories.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
-  }
   DELETE: {
+    'organization.leave': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.members.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'organization.invitations.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.products.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.categories.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+  }
+  PATCH: {
+    'organization.members.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.profile.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.categories.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
   }
 }
 declare module '@adonisjs/core/types/http' {

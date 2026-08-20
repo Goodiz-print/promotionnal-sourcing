@@ -8,13 +8,14 @@ import SectionNav from '~/components/organization/section_nav.vue'
 import GeneralFields from '~/components/organization/settings/general_fields.vue'
 import AddressFields from '~/components/organization/settings/address_fields.vue'
 import LogoField from '~/components/organization/settings/logo_field.vue'
+import DangerZone from '~/components/organization/settings/danger_zone.vue'
 import {
   OrganizationSettingsFormKey,
   type OrganizationSettingsFormState,
 } from '~/components/organization/settings/types'
 import type { OrganizationType } from '#shared/types/organization'
 
-const props = defineProps<{ organization: OrganizationType }>()
+const props = defineProps<{ organization: OrganizationType; canLeave: boolean }>()
 
 const { t, locale } = useI18n()
 
@@ -96,5 +97,7 @@ function submit() {
         {{ t('organization.settings.submit') }}
       </BaseButton>
     </form>
+
+    <DangerZone :organization-name="organization.name" :can-leave="canLeave" />
   </div>
 </template>

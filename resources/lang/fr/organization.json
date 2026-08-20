@@ -95,5 +95,26 @@
     "subtitle": "Vous basculerez automatiquement sur cette nouvelle organisation.",
     "submit": "Créer l'organisation",
     "success": "Organisation {name} créée."
+  },
+  "danger": {
+    "title": "Zone de danger",
+    "subtitle": "Ces actions engagent toute l’organisation. Relisez avant de confirmer."
+  },
+  "leave": {
+    "title": "Quitter cette organisation",
+    "description": "Vous perdez l'accès à ses données. Un administrateur devra vous réinviter.",
+    "submit": "Quitter",
+    "confirm": "Quitter cette organisation ?",
+    "done": "Vous avez quitté {name}.",
+    "lastOwner": "Vous êtes le dernier propriétaire : promouvez un autre membre ou archivez l'organisation avant de partir.",
+    "notMember": "Vous n'êtes pas membre de cette organisation."
+  },
+  "archive": {
+    "title": "Archiver cette organisation",
+    "description": "Elle disparaît du catalogue public et de l'espace de ses membres. Les données sont conservées ; seule l'équipe technique peut la réactiver.",
+    "submit": "Archiver",
+    "confirm": "Archiver {name} ? Ses membres perdront l’accès et vous ne pourrez pas la réactiver vous-même.",
+    "done": "{name} a été archivée.",
+    "alreadyArchived": "Cette organisation est déjà archivée."
   }
 }
