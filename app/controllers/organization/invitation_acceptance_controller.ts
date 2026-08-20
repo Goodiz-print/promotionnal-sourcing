@@ -87,7 +87,16 @@ export default class InvitationAcceptanceController {
     return response.redirect().withQs(false).toRoute('home', { locale: i18n.locale })
   }
 
+  /**
+   * Une invitation reste acceptable tant qu'elle est en attente, non expirée,
+   * et que l'organisation est vivante — l'archivage révoque les invitations en
+   * attente, mais un lien émis avant peut encore circuler.
+   */
   private isAcceptable(invitation: OrganizationInvitation): boolean {
-    return invitation.status === 'pending' && invitation.expiresAt > DateTime.now()
+    return (
+      invitation.status === 'pending' &&
+      invitation.expiresAt > DateTime.now() &&
+      !invitation.organization.archivedAt
+    )
   }
 }

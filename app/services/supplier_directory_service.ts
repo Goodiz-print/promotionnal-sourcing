@@ -9,7 +9,8 @@ interface ListOptions extends SupplierDirectoryFilters {
 
 /**
  * Annuaire public des fournisseurs. Toute la logique ORM vit ici (controllers
- * fins). Ne renvoie que des fiches actives.
+ * fins). Ne renvoie que des fiches actives, et jamais celles d'une
+ * organisation archivée.
  */
 export default class SupplierDirectoryService {
   /**
@@ -20,6 +21,7 @@ export default class SupplierDirectoryService {
 
     return Supplier.query()
       .where('isActive', true)
+      .withScopes((scopes) => scopes.fromLiveOrganization())
       .if(country, (query) => query.where('country', country!))
       .if(search, (query) =>
         query.whereHas('translations', (t) => t.whereILike('name', `%${search}%`))
@@ -37,6 +39,7 @@ export default class SupplierDirectoryService {
     return Supplier.query()
       .where('slug', slug)
       .where('isActive', true)
+      .withScopes((scopes) => scopes.fromLiveOrganization())
       .preload('translations')
       .preload('products', (query) => query.where('isActive', true).preload('translations'))
       .preload('organization', (query) => query.preload('supplierProfile'))
@@ -49,6 +52,7 @@ export default class SupplierDirectoryService {
   async availableCountries(): Promise<string[]> {
     const rows = await Supplier.query()
       .where('isActive', true)
+      .withScopes((scopes) => scopes.fromLiveOrganization())
       .distinct('country')
       .orderBy('country')
 

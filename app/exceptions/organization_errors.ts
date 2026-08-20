@@ -50,3 +50,35 @@ export class InvitationNotPendingException extends Exception {
   static code = 'E_INVITATION_NOT_PENDING'
   static message = 'This invitation is no longer pending'
 }
+
+/**
+ * L'utilisateur n'a pas d'organisation courante utilisable (aucune, ou une
+ * organisation archivée). Les routes protégées par le middleware `onboarded`
+ * n'atteignent normalement jamais ce cas — il couvre les accès directs et les
+ * courses entre deux requêtes.
+ */
+export class NoCurrentOrganizationException extends Exception {
+  static status = 403
+  static code = 'E_NO_CURRENT_ORG'
+  static message = 'No current organization'
+}
+
+/**
+ * L'utilisateur n'est pas membre de l'organisation visée (bascule ou départ
+ * sur une organisation qui n'est pas la sienne).
+ */
+export class NotAMemberException extends Exception {
+  static status = 403
+  static code = 'E_NOT_A_MEMBER'
+  static message = 'You are not a member of this organization'
+}
+
+/**
+ * L'organisation visée est archivée : on ne peut ni y basculer, ni l'archiver
+ * une seconde fois.
+ */
+export class OrganizationArchivedException extends Exception {
+  static status = 422
+  static code = 'E_ORGANIZATION_ARCHIVED'
+  static message = 'This organization is archived'
+}

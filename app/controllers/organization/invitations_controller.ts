@@ -1,6 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
-import { Exception } from '@adonisjs/core/exceptions'
 import mail from '@adonisjs/mail/services/main'
 import { signedUrlFor } from '@adonisjs/core/services/url_builder'
 import { inviteMemberValidator } from '#validators/organization_invitation'
@@ -14,6 +13,7 @@ import {
 } from '#exceptions/organization_errors'
 import type Organization from '#models/organization'
 import type User from '#models/user'
+import OrganizationContextService from '#services/organization_context_service'
 
 /**
  * Invitation de nouveaux membres par email (owner/admin/manager,
@@ -22,13 +22,16 @@ import type User from '#models/user'
  */
 @inject()
 export default class OrganizationInvitationsController {
-  constructor(private service: OrganizationInvitationsService) {}
+  constructor(
+    private service: OrganizationInvitationsService,
+    private organizations: OrganizationContextService
+  ) {}
 
   /**
    * Envoie une invitation (ou relance une invitation en attente existante).
    */
   async store({ auth, bouncer, request, response, i18n, session }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canInviteMembers', org)
 
     const payload = await request.validateUsing(inviteMemberValidator)
@@ -53,7 +56,7 @@ export default class OrganizationInvitationsController {
    * prolongée) sans en créer une seconde.
    */
   async resend({ auth, bouncer, response, params, i18n, session }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canInviteMembers', org)
 
     const invitation = await this.findInOrganization(params.id, org.id)
@@ -77,7 +80,7 @@ export default class OrganizationInvitationsController {
    * Révoque une invitation en attente.
    */
   async destroy({ auth, bouncer, response, params, i18n, session }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canInviteMembers', org)
 
     const invitation = await this.findInOrganization(params.id, org.id)
@@ -123,13 +126,5 @@ export default class OrganizationInvitationsController {
         acceptUrl
       )
     )
-  }
-
-  private async currentOrganization(user: User): Promise<Organization> {
-    await user.load('currentOrganization')
-    if (!user.currentOrganization) {
-      throw new Exception('No current organization', { status: 403, code: 'E_NO_CURRENT_ORG' })
-    }
-    return user.currentOrganization
   }
 }
