@@ -5,6 +5,12 @@ import SupplierProfile from '#models/supplier_profile'
 import User from '#models/user'
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 
+/**
+ * Compte de démo, également utilisé par les tests semés en `full`
+ * (cf. `tests/utils/organizations.ts`).
+ */
+export const DEV_USER_EMAIL = 'malolebrin@gmail.com'
+
 export default class DevUserSeeder extends BaseSeeder {
   async run() {
     const ownerRole = await Role.findByOrFail('slug', 'owner')
@@ -13,7 +19,7 @@ export default class DevUserSeeder extends BaseSeeder {
     // via son hook @beforeSave — le hacher ici double-hacherait la valeur
     // stockée et rendrait la connexion impossible avec le mot de passe attendu.
     const user = await User.updateOrCreate(
-      { email: 'malolebrin@gmail.com' },
+      { email: DEV_USER_EMAIL },
       {
         fullName: 'Malo Lebrin',
         password: 'password',

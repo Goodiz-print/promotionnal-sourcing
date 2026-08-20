@@ -1,20 +1,12 @@
 import { test } from '@japa/runner'
-import db from '@adonisjs/lucid/services/db'
-import testUtils from '@adonisjs/core/services/test_utils'
-import hash from '@adonisjs/core/services/hash'
-import RoleSeeder from '#database/seeders/role_seeder'
-import User from '#models/user'
+import { OrganizationFactory } from '#database/factories/organization_factory'
+import { UserFactory } from '#database/factories/user_factory'
 import Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
-
-async function makeUser(email: string): Promise<User> {
-  return User.create({ email, password: await hash.make('password123'), fullName: 'Test' })
-}
+import { useDatabase } from '#tests/utils/setup'
 
 test.group('Onboarding — création de la 1re organisation', (group) => {
-  // Pas de catalogue ici : on sème uniquement les rôles, pour `owner`.
-  group.each.setup(() => testUtils.db().truncate())
-  group.each.setup(() => new RoleSeeder(db.connection()).run())
+  useDatabase(group)
 
   test("l'inscription redirige vers l'onboarding", async ({ client }) => {
     const response = await client.post('/fr/signup').redirects(0).withCsrfToken().json({
@@ -31,7 +23,7 @@ test.group('Onboarding — création de la 1re organisation', (group) => {
   test("l'écran d'onboarding s'affiche pour un utilisateur sans organisation", async ({
     client,
   }) => {
-    const user = await makeUser('orgless@example.com')
+    const user = await UserFactory.create()
 
     const response = await client.get('/fr/onboarding').withInertia().loginAs(user)
 
@@ -43,7 +35,7 @@ test.group('Onboarding — création de la 1re organisation', (group) => {
     client,
     assert,
   }) => {
-    const user = await makeUser('founder@example.com')
+    const user = await UserFactory.create()
 
     const response = await client
       .post('/fr/onboarding')
@@ -71,13 +63,8 @@ test.group('Onboarding — création de la 1re organisation', (group) => {
   })
 
   test("un utilisateur déjà onboardé est renvoyé à l'accueil", async ({ client }) => {
-    const user = await makeUser('done@example.com')
-    const org = await Organization.create({
-      name: 'Déjà là',
-      slug: 'deja-la',
-      country: 'FR',
-      organizationType: 'buyer',
-    })
+    const user = await UserFactory.create()
+    const org = await OrganizationFactory.create()
     await user.merge({ currentOrganizationId: org.id }).save()
 
     const response = await client.get('/fr/onboarding').redirects(0).loginAs(user)
@@ -89,7 +76,7 @@ test.group('Onboarding — création de la 1re organisation', (group) => {
   test('un utilisateur sans organisation est bloqué sur les écrans org (middleware)', async ({
     client,
   }) => {
-    const user = await makeUser('gated@example.com')
+    const user = await UserFactory.create()
 
     const response = await client.get('/fr/supplier/profile').redirects(0).loginAs(user)
 

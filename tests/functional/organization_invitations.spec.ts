@@ -1,48 +1,19 @@
 import { test } from '@japa/runner'
 import { DateTime } from 'luxon'
-import db from '@adonisjs/lucid/services/db'
-import hash from '@adonisjs/core/services/hash'
 import mail from '@adonisjs/mail/services/main'
-import testUtils from '@adonisjs/core/services/test_utils'
-import RoleSeeder from '#database/seeders/role_seeder'
-import PermissionSeeder from '#database/seeders/permission_seeder'
-import RolePermissionSeeder from '#database/seeders/role_permission_seeder'
-import User from '#models/user'
+import { OrganizationFactory } from '#database/factories/organization_factory'
 import Role from '#models/role'
-import Organization from '#models/organization'
-import OrganizationUser from '#models/organization_user'
+import type Organization from '#models/organization'
 import OrganizationInvitation from '#models/organization_invitation'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
 import OrganizationInvitationsService from '#services/organization_invitations_service'
 import type { InvitationStatus } from '#shared/types/organization'
 import app from '@adonisjs/core/services/app'
-
-async function makeMember(
-  email: string,
-  org: Organization,
-  roleSlug: string,
-  { asCurrent = true }: { asCurrent?: boolean } = {}
-): Promise<User> {
-  const role = await Role.findByOrFail('slug', roleSlug)
-  const user = await User.create({
-    email,
-    password: await hash.make('password123'),
-    fullName: `Test ${email}`,
-  })
-  await OrganizationUser.create({ userId: user.id, organizationId: org.id, roleId: role.id })
-  if (asCurrent) {
-    await user.merge({ currentOrganizationId: org.id }).save()
-  }
-  return user
-}
+import { createMember } from '#tests/utils/organizations'
+import { useDatabase } from '#tests/utils/setup'
 
 test.group('Invitations de membres par email', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
-  group.each.setup(async () => {
-    await new RoleSeeder(db.connection()).run()
-    await new PermissionSeeder(db.connection()).run()
-    await new RolePermissionSeeder(db.connection()).run()
-  })
+  useDatabase(group)
   let fakeMailer: ReturnType<typeof mail.fake>
   group.each.setup(() => {
     fakeMailer = mail.fake()
@@ -53,8 +24,8 @@ test.group('Invitations de membres par email', (group) => {
     client,
     assert,
   }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await createMember(org, 'owner', { email: 'owner@example.com' })
     const memberRole = await Role.findByOrFail('slug', 'member')
 
     const response = await client
@@ -78,8 +49,8 @@ test.group('Invitations de membres par email', (group) => {
   })
 
   test('un manager peut inviter (canInviteMembers)', async ({ client, assert }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const manager = await makeMember('manager@example.com', org, 'manager')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const manager = await createMember(org, 'manager', { email: 'manager@example.com' })
     const memberRole = await Role.findByOrFail('slug', 'member')
 
     const response = await client
@@ -95,8 +66,8 @@ test.group('Invitations de membres par email', (group) => {
   })
 
   test('un membre simple ne peut pas inviter', async ({ client, assert }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const member = await makeMember('member@example.com', org, 'member')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const member = await createMember(org, 'member', { email: 'member@example.com' })
     const memberRole = await Role.findByOrFail('slug', 'member')
 
     // Bouncer redirige (back + flash "error") plutôt qu'un 403 brut pour les
@@ -114,9 +85,9 @@ test.group('Invitations de membres par email', (group) => {
   })
 
   test('inviter un email déjà membre est rejeté', async ({ client, assert }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner')
-    await makeMember('already@example.com', org, 'member', { asCurrent: false })
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await createMember(org, 'owner', { email: 'owner@example.com' })
+    await createMember(org, 'member', { email: 'already@example.com' }, { asCurrent: false })
     const memberRole = await Role.findByOrFail('slug', 'member')
 
     const response = await client
@@ -136,8 +107,8 @@ test.group('Invitations de membres par email', (group) => {
     client,
     assert,
   }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await createMember(org, 'owner', { email: 'owner@example.com' })
     const memberRole = await Role.findByOrFail('slug', 'member')
     const adminRole = await Role.findByOrFail('slug', 'admin')
 
@@ -161,8 +132,8 @@ test.group('Invitations de membres par email', (group) => {
   })
 
   test('un owner révoque une invitation en attente', async ({ client, assert }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await createMember(org, 'owner', { email: 'owner@example.com' })
     const memberRole = await Role.findByOrFail('slug', 'member')
 
     await client
@@ -189,8 +160,8 @@ test.group('Invitations de membres par email', (group) => {
     client,
     assert,
   }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await createMember(org, 'owner', { email: 'owner@example.com' })
     const memberRole = await Role.findByOrFail('slug', 'member')
 
     await client
@@ -227,8 +198,8 @@ test.group('Invitations de membres par email', (group) => {
   })
 
   test('renvoyer une invitation révoquée est refusé', async ({ client, assert }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await createMember(org, 'owner', { email: 'owner@example.com' })
     const memberRole = await Role.findByOrFail('slug', 'member')
 
     const invitation = await OrganizationInvitation.create({
@@ -254,10 +225,10 @@ test.group('Invitations de membres par email', (group) => {
   })
 
   test("renvoyer l'invitation d'une autre organisation renvoie 404", async ({ client, assert }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const other = await Organization.create({ name: 'Other', slug: 'other', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner')
-    const otherOwner = await makeMember('other-owner@example.com', other, 'owner')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const other = await OrganizationFactory.merge({ name: 'Other', slug: 'other' }).create()
+    const owner = await createMember(org, 'owner', { email: 'owner@example.com' })
+    const otherOwner = await createMember(other, 'owner', { email: 'other-owner@example.com' })
     const memberRole = await Role.findByOrFail('slug', 'member')
 
     const invitation = await OrganizationInvitation.create({
@@ -283,9 +254,14 @@ test.group('Invitations de membres par email', (group) => {
   })
 
   test('un membre simple ne peut pas renvoyer une invitation', async ({ client, assert }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner', { asCurrent: false })
-    const member = await makeMember('member@example.com', org, 'member')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await createMember(
+      org,
+      'owner',
+      { email: 'owner@example.com' },
+      { asCurrent: false }
+    )
+    const member = await createMember(org, 'member', { email: 'member@example.com' })
     const memberRole = await Role.findByOrFail('slug', 'member')
 
     const invitation = await OrganizationInvitation.create({
@@ -312,8 +288,8 @@ test.group('Invitations de membres par email', (group) => {
   test("l'écran membres liste les invitations en attente et expose canManageMembers", async ({
     client,
   }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await createMember(org, 'owner', { email: 'owner@example.com' })
     const memberRole = await Role.findByOrFail('slug', 'member')
 
     await client
@@ -333,8 +309,8 @@ test.group('Invitations de membres par email', (group) => {
   })
 
   test("un manager voit l'écran membres mais sans les droits de gestion", async ({ client }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const manager = await makeMember('manager@example.com', org, 'manager')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const manager = await createMember(org, 'manager', { email: 'manager@example.com' })
 
     const response = await client.get('/fr/organization/members').withInertia().loginAs(manager)
 
@@ -344,12 +320,7 @@ test.group('Invitations de membres par email', (group) => {
 })
 
 test.group('Purge des invitations expirées', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
-  group.each.setup(async () => {
-    await new RoleSeeder(db.connection()).run()
-    await new PermissionSeeder(db.connection()).run()
-    await new RolePermissionSeeder(db.connection()).run()
-  })
+  useDatabase(group)
 
   async function makeInvitation(
     org: Organization,
@@ -370,7 +341,7 @@ test.group('Purge des invitations expirées', (group) => {
   test('bascule en `expired` les invitations échues, sans toucher aux autres', async ({
     assert,
   }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
     const outdated = await makeInvitation(org, 'outdated@example.com', {
       expiresAt: DateTime.now().minus({ days: 1 }),
     })
@@ -395,7 +366,7 @@ test.group('Purge des invitations expirées', (group) => {
   test('supprime les invitations terminales passé le délai de rétention, garde les acceptées', async ({
     assert,
   }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
     const revoked = await makeInvitation(org, 'revoked@example.com', { status: 'revoked' })
     const accepted = await makeInvitation(org, 'accepted@example.com', { status: 'accepted' })
 
@@ -413,8 +384,8 @@ test.group('Purge des invitations expirées', (group) => {
     client,
     assert,
   }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner')
+    const org = await OrganizationFactory.merge({ name: 'Acme', slug: 'acme' }).create()
+    const owner = await createMember(org, 'owner', { email: 'owner@example.com' })
     await makeInvitation(org, 'outdated@example.com', {
       expiresAt: DateTime.now().minus({ days: 1 }),
     })

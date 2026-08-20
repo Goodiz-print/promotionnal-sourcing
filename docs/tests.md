@@ -75,24 +75,29 @@ Base de données "promotionnal-sourcing_dev" refusée : la suite tronque toutes 
 et n'accepte qu'une base dont le nom se termine par "test".
 ```
 
-#### Initialisation par groupe
+#### Initialisation par groupe — `useDatabase`
 
-Il n'y a **aucun setup DB automatique** : chaque groupe qui touche la base l'initialise
-lui-même via `testUtils.db()` — `migrate()` / `truncate()` / `seed()` /
-`withGlobalTransaction()` (chacun sauf `seed` renvoie un cleanup à passer au hook Japa).
-`truncate()` lance au passage `migration:run` (idempotent) et vide les tables au teardown, le
-schéma étant conservé entre les groupes.
-
-Pas de factories : semer via les seeders. On sème via `MainSeeder` (ordre des dépendances) et
-non `db:seed`, qui exécuterait aussi chaque seeder isolément → `dev_user` avant les rôles.
+`tests/utils/setup.ts` expose `useDatabase(group, options)`, qui branche le cycle de vie
+base de données d'un groupe : `truncate()` (qui lance au passage `migration:run`,
+idempotent) puis les seeders. C'est le seul point d'entrée — on ne recopie plus les hooks
+dans chaque spec.
 
 ```ts
-test.group('Catalogue …', (group) => {
-  group.setup(() => testUtils.db().truncate())
-  group.setup(() => new MainSeeder(db.connection()).run())
-  // tests…
-})
+useDatabase(group) // rôles + permissions, avant chaque test
+useDatabase(group, { seed: 'full' }) // MainSeeder (catalogue + dev user)
+useDatabase(group, { seed: 'full', perTest: false }) // une fois pour le groupe (lecture seule)
+useDatabase(group, { extraSeeders: [CategorySeeder] })
+useDatabase(group, { seed: 'none' }) // vidage seul
 ```
+
+| option         | valeurs                                                   | défaut    |
+| -------------- | --------------------------------------------------------- | --------- |
+| `seed`         | `'none'`, `'roles'`, `'full'`                             | `'roles'` |
+| `extraSeeders` | seeders joués après les précédents                        | `[]`      |
+| `perTest`      | `true` = avant chaque test, `false` = une fois par groupe | `true`    |
+
+`'full'` passe par `MainSeeder` et non `db:seed` : ce dernier exécuterait chaque seeder
+isolément, donc `dev_user` avant les rôles.
 
 Pour isoler chaque test dans une transaction annulée :
 
@@ -101,6 +106,44 @@ test.group('Mon groupe', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 })
 ```
+
+### Factories et helpers
+
+Les entités socle se créent par **factory Lucid** (`database/factories/`), jamais par
+`Model.create` inline : c'est ce qui a produit six variantes divergentes de « créer un
+membre » — certaines oubliant `joined_at`, d'autres hachant le mot de passe une fois de
+trop.
+
+```ts
+import { UserFactory } from '#database/factories/user_factory'
+import { OrganizationFactory } from '#database/factories/organization_factory'
+import { OrganizationInvitationFactory } from '#database/factories/organization_invitation_factory'
+
+await UserFactory.create() // email et nom aléatoires
+await UserFactory.merge({ email: 'owner@example.com' }).create()
+await OrganizationFactory.apply('supplier').create() // états : supplier, both, archived
+await OrganizationInvitationFactory.apply('expired')
+  .merge({ organizationId: org.id, email: 'invited@example.com' })
+  .create()
+```
+
+> Le mot de passe (`TEST_PASSWORD`, `'password123'`) est passé **en clair** : `User`
+> compose `withAuthFinder`, dont le hook `beforeSave` le hache. Un `hash.make()` en amont
+> produirait un hash de hash — invisible avec `loginAs`, mais un `POST /login` échouerait.
+
+`tests/utils/organizations.ts` couvre les gestes qui touchent plusieurs tables :
+
+| helper                                                     | rôle                                                           |
+| ---------------------------------------------------------- | -------------------------------------------------------------- |
+| `joinOrganization(user, org, role?, { asCurrent })`        | adhésion (`joined_at` toujours renseigné)                      |
+| `createMember(org, role?, overrides?, options?)`           | utilisateur **+** adhésion                                     |
+| `createOrganizationWithOwner(overrides?, ownerOverrides?)` | organisation **+** son owner                                   |
+| `createMemberOf(orgSlug, role?)`                           | membre d'une organisation déjà semée                           |
+| `seededDevUser(orgSlug)`                                   | utilisateur de démo (seed `full`) basculé sur une organisation |
+
+N'écrire une factory que pour une entité **créée directement par les specs**. Le catalogue
+(produits, catégories, fournisseurs) passe par `MainSeeder` : il a besoin d'un jeu cohérent,
+pas d'instances isolées.
 
 ### Exemple test fonctionnel
 

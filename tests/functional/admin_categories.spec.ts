@@ -1,38 +1,21 @@
 import { test } from '@japa/runner'
-import db from '@adonisjs/lucid/services/db'
-import hash from '@adonisjs/core/services/hash'
-import testUtils from '@adonisjs/core/services/test_utils'
-import RoleSeeder from '#database/seeders/role_seeder'
-import PermissionSeeder from '#database/seeders/permission_seeder'
-import RolePermissionSeeder from '#database/seeders/role_permission_seeder'
 import CategorySeeder from '#database/seeders/category_seeder'
-import User from '#models/user'
-import Role from '#models/role'
-import Organization from '#models/organization'
-import OrganizationUser from '#models/organization_user'
+import { OrganizationFactory } from '#database/factories/organization_factory'
+import { UserFactory } from '#database/factories/user_factory'
+import type User from '#models/user'
 import Category from '#models/category'
 import CategoryTranslation from '#models/category_translation'
+import { createMember } from '#tests/utils/organizations'
+import { useDatabase } from '#tests/utils/setup'
+import type { RoleSlug } from '#shared/types/role'
 
 /**
- * Crée un utilisateur rattaché à une organisation avec le rôle demandé, et en
- * fait son organisation courante.
+ * Membre d'une organisation acheteuse fraîche, qui devient son organisation
+ * courante. Les catégories sont une ressource globale : l'organisation ne sert
+ * qu'à porter le rôle testé.
  */
-async function makeMember(email: string, orgSlug: string, roleSlug: string): Promise<User> {
-  const role = await Role.findByOrFail('slug', roleSlug)
-  const user = await User.create({
-    email,
-    password: await hash.make('password123'),
-    fullName: 'Test',
-  })
-  const org = await Organization.create({
-    name: orgSlug,
-    slug: orgSlug,
-    country: 'FR',
-    organizationType: 'buyer',
-  })
-  await OrganizationUser.create({ userId: user.id, organizationId: org.id, roleId: role.id })
-  await user.merge({ currentOrganizationId: org.id }).save()
-  return user
+function freshOrgMember(roleSlug: RoleSlug = 'owner'): Promise<User> {
+  return OrganizationFactory.create().then((organization) => createMember(organization, roleSlug))
 }
 
 const CONTENT = {
@@ -41,16 +24,10 @@ const CONTENT = {
 }
 
 test.group('Administration des catégories — CRUD + ACL', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
-  group.each.setup(async () => {
-    await new RoleSeeder(db.connection()).run()
-    await new PermissionSeeder(db.connection()).run()
-    await new RolePermissionSeeder(db.connection()).run()
-    await new CategorySeeder(db.connection()).run()
-  })
+  useDatabase(group, { extraSeeders: [CategorySeeder] })
 
   test("l'owner voit la liste des catégories", async ({ client }) => {
-    const owner = await makeMember('owner@example.com', 'admin-org', 'owner')
+    const owner = await freshOrgMember()
 
     const response = await client.get('/fr/admin/categories').withInertia().loginAs(owner)
 
@@ -59,7 +36,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
   })
 
   test('un membre ne peut pas gérer les catégories (403)', async ({ client }) => {
-    const member = await makeMember('member@example.com', 'member-org', 'member')
+    const member = await freshOrgMember('member')
 
     const response = await client.get('/fr/admin/categories').withInertia().loginAs(member)
 
@@ -67,11 +44,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
   })
 
   test('un utilisateur sans organisation est renvoyé vers l’onboarding', async ({ client }) => {
-    const user = await User.create({
-      email: 'orgless@example.com',
-      password: await hash.make('password123'),
-      fullName: 'Sans org',
-    })
+    const user = await UserFactory.create()
 
     const response = await client.get('/fr/admin/categories').redirects(0).loginAs(user)
 
@@ -80,7 +53,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
   })
 
   test('création d’une catégorie avec ses traductions', async ({ client, assert }) => {
-    const owner = await makeMember('creator@example.com', 'creator-org', 'owner')
+    const owner = await freshOrgMember()
 
     const response = await client
       .post('/fr/admin/categories')
@@ -108,7 +81,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
   })
 
   test('le slug doit être unique', async ({ client, assert }) => {
-    const owner = await makeMember('dup@example.com', 'dup-org', 'owner')
+    const owner = await freshOrgMember()
 
     const response = await client
       .post('/fr/admin/categories')
@@ -125,7 +98,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
   })
 
   test('mise à jour du nom et du parent', async ({ client, assert }) => {
-    const owner = await makeMember('editor@example.com', 'editor-org', 'owner')
+    const owner = await freshOrgMember()
     const stylo = await Category.findByOrFail('slug', 'stylo')
     const crayon = await Category.findByOrFail('slug', 'crayon')
 
@@ -156,7 +129,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
   })
 
   test('la suppression d’une catégorie feuille réussit', async ({ client, assert }) => {
-    const owner = await makeMember('remover@example.com', 'remover-org', 'owner')
+    const owner = await freshOrgMember()
     const sac = await Category.findByOrFail('slug', 'sac')
 
     const response = await client
@@ -173,7 +146,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
     client,
     assert,
   }) => {
-    const owner = await makeMember('parent@example.com', 'parent-org', 'owner')
+    const owner = await freshOrgMember()
     const crayon = await Category.findByOrFail('slug', 'crayon')
     const child = await Category.create({
       slug: 'crayon-couleur',
@@ -194,7 +167,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
   })
 
   test('un cycle de parenté est refusé à la mise à jour', async ({ client, assert }) => {
-    const owner = await makeMember('cycle@example.com', 'cycle-org', 'owner')
+    const owner = await freshOrgMember()
     const crayon = await Category.findByOrFail('slug', 'crayon')
     const child = await Category.create({ slug: 'crayon-hb', parentId: crayon.id, synonyms: [] })
 

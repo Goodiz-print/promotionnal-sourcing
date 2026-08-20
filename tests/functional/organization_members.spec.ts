@@ -1,53 +1,20 @@
 import { test } from '@japa/runner'
-import db from '@adonisjs/lucid/services/db'
-import hash from '@adonisjs/core/services/hash'
-import testUtils from '@adonisjs/core/services/test_utils'
-import RoleSeeder from '#database/seeders/role_seeder'
-import PermissionSeeder from '#database/seeders/permission_seeder'
-import RolePermissionSeeder from '#database/seeders/role_permission_seeder'
-import User from '#models/user'
+import { OrganizationFactory } from '#database/factories/organization_factory'
 import Role from '#models/role'
-import Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
 import OrganizationMemberTransformer from '#transformers/organization_member_transformer'
 import OrganizationMembersService from '#services/organization_members_service'
 import OrganizationContextService from '#services/organization_context_service'
-
-/**
- * Crée une organisation (si besoin) et y rattache un nouvel utilisateur avec
- * le rôle demandé.
- */
-async function makeMember(
-  email: string,
-  org: Organization,
-  roleSlug: string,
-  { asCurrent = true }: { asCurrent?: boolean } = {}
-): Promise<User> {
-  const role = await Role.findByOrFail('slug', roleSlug)
-  const user = await User.create({
-    email,
-    password: await hash.make('password123'),
-    fullName: `Test ${email}`,
-  })
-  await OrganizationUser.create({ userId: user.id, organizationId: org.id, roleId: role.id })
-  if (asCurrent) {
-    await user.merge({ currentOrganizationId: org.id }).save()
-  }
-  return user
-}
+import { createMember } from '#tests/utils/organizations'
+import { useDatabase } from '#tests/utils/setup'
 
 test.group('Gestion des membres de l’organisation', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
-  group.each.setup(async () => {
-    await new RoleSeeder(db.connection()).run()
-    await new PermissionSeeder(db.connection()).run()
-    await new RolePermissionSeeder(db.connection()).run()
-  })
+  useDatabase(group)
 
   test("l'écran liste les membres pour un owner", async ({ client, assert }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner')
-    await makeMember('member@example.com', org, 'member', { asCurrent: false })
+    const org = await OrganizationFactory.create()
+    const owner = await createMember(org, 'owner')
+    await createMember(org, 'member', {}, { asCurrent: false })
 
     const response = await client.get('/fr/organization/members').withInertia().loginAs(owner)
 
@@ -58,8 +25,8 @@ test.group('Gestion des membres de l’organisation', (group) => {
   })
 
   test('un membre simple ne peut pas accéder à la liste (403)', async ({ client }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const member = await makeMember('member@example.com', org, 'member')
+    const org = await OrganizationFactory.create()
+    const member = await createMember(org, 'member')
 
     const response = await client.get('/fr/organization/members').withInertia().loginAs(member)
 
@@ -67,9 +34,9 @@ test.group('Gestion des membres de l’organisation', (group) => {
   })
 
   test("l'owner change le rôle d'un membre", async ({ client, assert }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner')
-    const member = await makeMember('member@example.com', org, 'member', { asCurrent: false })
+    const org = await OrganizationFactory.create()
+    const owner = await createMember(org, 'owner')
+    const member = await createMember(org, 'member', {}, { asCurrent: false })
     const adminRole = await Role.findByOrFail('slug', 'admin')
 
     const membership = await OrganizationUser.query()
@@ -90,8 +57,8 @@ test.group('Gestion des membres de l’organisation', (group) => {
   })
 
   test('impossible de rétrograder le dernier owner', async ({ client, assert }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner')
+    const org = await OrganizationFactory.create()
+    const owner = await createMember(org, 'owner')
     const adminRole = await Role.findByOrFail('slug', 'admin')
 
     const membership = await OrganizationUser.query()
@@ -113,9 +80,9 @@ test.group('Gestion des membres de l’organisation', (group) => {
   })
 
   test('un second owner peut être rétrogradé sans erreur', async ({ assert }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner1 = await makeMember('owner1@example.com', org, 'owner')
-    await makeMember('owner2@example.com', org, 'owner', { asCurrent: false })
+    const org = await OrganizationFactory.create()
+    const owner1 = await createMember(org, 'owner')
+    await createMember(org, 'owner', {}, { asCurrent: false })
     const adminRole = await Role.findByOrFail('slug', 'admin')
 
     const membership1 = await OrganizationUser.query()
@@ -134,9 +101,9 @@ test.group('Gestion des membres de l’organisation', (group) => {
     client,
     assert,
   }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner')
-    const member = await makeMember('member@example.com', org, 'member')
+    const org = await OrganizationFactory.create()
+    const owner = await createMember(org, 'owner')
+    const member = await createMember(org, 'member')
 
     const membership = await OrganizationUser.query()
       .where('userId', member.id)
@@ -157,8 +124,8 @@ test.group('Gestion des membres de l’organisation', (group) => {
   })
 
   test('impossible de retirer le dernier owner', async ({ client, assert }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner')
+    const org = await OrganizationFactory.create()
+    const owner = await createMember(org, 'owner')
 
     const membership = await OrganizationUser.query()
       .where('userId', owner.id)
@@ -177,8 +144,8 @@ test.group('Gestion des membres de l’organisation', (group) => {
   })
 
   test('le transformer expose la forme OrganizationMemberType', async ({ assert }) => {
-    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
-    const owner = await makeMember('owner@example.com', org, 'owner')
+    const org = await OrganizationFactory.create()
+    const owner = await createMember(org, 'owner', { email: 'owner@example.com' })
 
     const membership = await OrganizationUser.query()
       .where('userId', owner.id)

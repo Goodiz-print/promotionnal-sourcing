@@ -107,7 +107,7 @@ Références : [Inertia — Link and Form](https://docs.adonisjs.com/guides/fron
 
 1. **Toujours lire les fichiers existants** avant de modifier
 2. **Plan d'abord** : décrire ce qui va être fait avant de coder
-3. **Tests obligatoires** pour toute logique métier nouvelle
+3. **Tests obligatoires** pour toute logique métier nouvelle. La suite tourne sous **PostgreSQL** (`pnpm test:db && pnpm test`) ; un groupe branche sa base avec `useDatabase(group)` (`tests/utils/setup.ts`) et crée ses entités socle avec les **factories** de `database/factories/` + les helpers de `tests/utils/organizations.ts` — jamais de `Model.create` inline pour un utilisateur, une organisation, une adhésion ou une invitation (voir `docs/tests.md`)
 4. **Pas de `console.log`** en commit — utiliser le logger Adonis
 5. **Migrations** : ne jamais modifier une migration déjà exécutée en production
 6. **Documentation obligatoire** : toute nouvelle feature doit être ajoutée en haut de `docs/changelog.md` avec la date et une description en français (routes, champs, comportements notables)
@@ -163,3 +163,4 @@ tests/
 - **`fetch` / `axios` + JSON + CSRF manuel dans `inertia/**`** pour des mutations déjà couvertes par une page Inertia (→ `router.patch`/`useForm`/`<Form>`+`response.redirect().back()` côté contrôleur)
 - **`response.json({ ok: true })` sur des routes appelées depuis l’UI Inertia** (→ redirection ; réserver le JSON aux vraies routes API)
 - **Dupliquer un bloc de template / des classes Tailwind** entre plusieurs champs ou écrans (→ extraire un composant générique `inertia/components/base_*`)
+- **Recopier un helper de fixtures dans une spec** (`makeUser`, `makeMember`, hooks de seeders…) (→ factories `database/factories/` + `tests/utils/`)

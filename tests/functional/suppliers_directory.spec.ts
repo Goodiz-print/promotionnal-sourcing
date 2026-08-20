@@ -1,11 +1,8 @@
 import { test } from '@japa/runner'
-import db from '@adonisjs/lucid/services/db'
-import testUtils from '@adonisjs/core/services/test_utils'
-import MainSeeder from '#database/seeders/main_seeder'
+import { useDatabase } from '#tests/utils/setup'
 
 test.group('Annuaire public fournisseurs', (group) => {
-  group.setup(() => testUtils.db().truncate())
-  group.setup(() => new MainSeeder(db.connection()).run())
+  useDatabase(group, { seed: 'full', perTest: false })
 
   test("l'annuaire liste les fournisseurs actifs", async ({ client, assert }) => {
     const response = await client.get('/fr/suppliers').withInertia()
