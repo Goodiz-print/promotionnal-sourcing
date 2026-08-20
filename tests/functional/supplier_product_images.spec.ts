@@ -1,7 +1,6 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import testUtils from '@adonisjs/core/services/test_utils'
-import { isPostgres } from '#tests/utils/database'
 import MainSeeder from '#database/seeders/main_seeder'
 import Organization from '#models/organization'
 import Category from '#models/category'
@@ -52,12 +51,8 @@ const baseInput = (categoryId: number) => ({
 })
 
 test.group('SupplierProductService — galerie & fournisseur', (group) => {
-  if (isPostgres()) {
-    group.each.setup(() => testUtils.db().truncate())
-    group.each.setup(() => new MainSeeder(db.connection()).run())
-  } else {
-    group.tap((t) => t.skip(true, 'Requiert PostgreSQL'))
-  }
+  group.each.setup(() => testUtils.db().truncate())
+  group.each.setup(() => new MainSeeder(db.connection()).run())
 
   test('create attache les images uploadées (positions) et fixe image_url', async ({ assert }) => {
     const org = await Organization.findByOrFail('slug', 'eurogoods-org')

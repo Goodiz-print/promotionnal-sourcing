@@ -15,7 +15,7 @@ import OrganizationContextService from '#services/organization_context_service'
 
 /**
  * Crée une organisation (si besoin) et y rattache un nouvel utilisateur avec
- * le rôle demandé. SQLite suffit (aucune fonctionnalité catalogue Postgres).
+ * le rôle demandé.
  */
 async function makeMember(
   email: string,

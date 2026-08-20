@@ -6,7 +6,7 @@
 
 - **Backend** : AdonisJS v7 (TypeScript strict)
 - **Frontend** : Vue 3 (Composition API) + Inertia.js (SSR)
-- **Base de données** : PostgreSQL via Lucid ORM (SQLite pour les tests)
+- **Base de données** : PostgreSQL via Lucid ORM (y compris en test)
 - **ORM** : Lucid (migrations, seeders)
 - **Auth** : @adonisjs/auth avec bouncer + abilities pour les ACL
 - **IA** : Mistral AI via `@mistralai/mistralai` + système de queue AdonisJS

@@ -1,7 +1,6 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import testUtils from '@adonisjs/core/services/test_utils'
-import { isPostgres } from '#tests/utils/database'
 import MainSeeder from '#database/seeders/main_seeder'
 import Product from '#models/product'
 import ProductCatalogueService from '#services/product_catalogue_service'
@@ -39,13 +38,8 @@ function listOptions(overrides: Partial<Parameters<ProductCatalogueService['list
 }
 
 test.group('Recherche sémantique — embeddings produits', (group) => {
-  // pgvector (colonne `products.embedding`, opérateur `<=>`) impose PostgreSQL.
-  if (isPostgres()) {
-    group.each.setup(() => testUtils.db().truncate())
-    group.each.setup(() => new MainSeeder(db.connection()).run())
-  } else {
-    group.tap((t) => t.skip(true, 'Requiert PostgreSQL + pgvector'))
-  }
+  group.each.setup(() => testUtils.db().truncate())
+  group.each.setup(() => new MainSeeder(db.connection()).run())
 
   test('classe les produits vectorisés par proximité cosinus à la requête', async ({ assert }) => {
     await setEmbedding('crayon-hb-bleu', unitVector(0))

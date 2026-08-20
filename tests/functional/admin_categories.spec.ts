@@ -2,7 +2,6 @@ import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import hash from '@adonisjs/core/services/hash'
 import testUtils from '@adonisjs/core/services/test_utils'
-import { isPostgres } from '#tests/utils/database'
 import RoleSeeder from '#database/seeders/role_seeder'
 import PermissionSeeder from '#database/seeders/permission_seeder'
 import RolePermissionSeeder from '#database/seeders/role_permission_seeder'
@@ -16,8 +15,7 @@ import CategoryTranslation from '#models/category_translation'
 
 /**
  * Crée un utilisateur rattaché à une organisation avec le rôle demandé, et en
- * fait son organisation courante. SQLite suffit (la taxonomie n'utilise pas les
- * fonctionnalités catalogue PostgreSQL).
+ * fait son organisation courante.
  */
 async function makeMember(email: string, orgSlug: string, roleSlug: string): Promise<User> {
   const role = await Role.findByOrFail('slug', roleSlug)
@@ -43,20 +41,13 @@ const CONTENT = {
 }
 
 test.group('Administration des catégories — CRUD + ACL', (group) => {
-  // La colonne `categories.synonyms` est un tableau PostgreSQL (`text[]`),
-  // absent de SQLite : ce groupe est donc gardé par Postgres (CI + local
-  // `DB_CONNECTION=pg`), sauté sinon — comme les autres tests catalogue.
-  if (isPostgres()) {
-    group.each.setup(() => testUtils.db().truncate())
-    group.each.setup(async () => {
-      await new RoleSeeder(db.connection()).run()
-      await new PermissionSeeder(db.connection()).run()
-      await new RolePermissionSeeder(db.connection()).run()
-      await new CategorySeeder(db.connection()).run()
-    })
-  } else {
-    group.tap((t) => t.skip(true, 'Requiert PostgreSQL (colonne synonyms text[])'))
-  }
+  group.each.setup(() => testUtils.db().truncate())
+  group.each.setup(async () => {
+    await new RoleSeeder(db.connection()).run()
+    await new PermissionSeeder(db.connection()).run()
+    await new RolePermissionSeeder(db.connection()).run()
+    await new CategorySeeder(db.connection()).run()
+  })
 
   test("l'owner voit la liste des catégories", async ({ client }) => {
     const owner = await makeMember('owner@example.com', 'admin-org', 'owner')

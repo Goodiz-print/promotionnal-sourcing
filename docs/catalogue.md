@@ -232,9 +232,8 @@ traduction dédiées** — jamais dans les tables de base :
   de `products.embedding`.
 - `tests/unit/translations.spec.ts` — `resolveTranslation` (résolution +
   repli).
-- Ces tests s'exécutent uniquement sous PostgreSQL (`tests/utils/database.ts`
-  → `isPostgres()`) ; **sautés** sur SQLite (aucune migration catalogue
-  lancée en local par défaut). Voir `docs/tests.md`.
+- Comme toute la suite, ces tests s'exécutent sous PostgreSQL
+  (`pnpm test:db && pnpm test`). Voir `docs/tests.md`.
 
 ## Roadmap
 

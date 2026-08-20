@@ -1,16 +1,11 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import testUtils from '@adonisjs/core/services/test_utils'
-import { isPostgres } from '#tests/utils/database'
 import MainSeeder from '#database/seeders/main_seeder'
 
 test.group('Annuaire public fournisseurs', (group) => {
-  if (isPostgres()) {
-    group.setup(() => testUtils.db().truncate())
-    group.setup(() => new MainSeeder(db.connection()).run())
-  } else {
-    group.tap((t) => t.skip(true, 'Requiert PostgreSQL (catalogue pgvector/tsvector)'))
-  }
+  group.setup(() => testUtils.db().truncate())
+  group.setup(() => new MainSeeder(db.connection()).run())
 
   test("l'annuaire liste les fournisseurs actifs", async ({ client, assert }) => {
     const response = await client.get('/fr/suppliers').withInertia()

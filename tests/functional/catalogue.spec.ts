@@ -1,7 +1,6 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import testUtils from '@adonisjs/core/services/test_utils'
-import { isPostgres } from '#tests/utils/database'
 import MainSeeder from '#database/seeders/main_seeder'
 import Product from '#models/product'
 import ProductTranslation from '#models/product_translation'
@@ -10,16 +9,12 @@ import ProductTransformer from '#transformers/product_transformer'
 import AttributeValueTransformer from '#transformers/attribute_value_transformer'
 
 test.group('Catalogue — contenu multilingue', (group) => {
-  if (isPostgres()) {
-    // truncate() : migration:run (idempotent) au setup + vidage des tables au
-    // teardown (le schéma est conservé entre les groupes). On sème via
-    // MainSeeder (ordre des dépendances) plutôt que `db:seed` qui exécuterait
-    // aussi chaque seeder isolément (dev_user avant les rôles => échec).
-    group.setup(() => testUtils.db().truncate())
-    group.setup(() => new MainSeeder(db.connection()).run())
-  } else {
-    group.tap((t) => t.skip(true, 'Catalogue : PostgreSQL requis (pgvector/tsvector)'))
-  }
+  // truncate() : migration:run (idempotent) au setup + vidage des tables au
+  // teardown (le schéma est conservé entre les groupes). On sème via
+  // MainSeeder (ordre des dépendances) plutôt que `db:seed` qui exécuterait
+  // aussi chaque seeder isolément (dev_user avant les rôles => échec).
+  group.setup(() => testUtils.db().truncate())
+  group.setup(() => new MainSeeder(db.connection()).run())
 
   test('le seed crée 6 produits, chacun traduit en fr et en', async ({ assert }) => {
     assert.lengthOf(await Product.all(), 6)

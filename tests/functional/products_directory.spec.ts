@@ -1,18 +1,13 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import testUtils from '@adonisjs/core/services/test_utils'
-import { isPostgres } from '#tests/utils/database'
 import MainSeeder from '#database/seeders/main_seeder'
 import Category from '#models/category'
 import AttributeValue from '#models/attribute_value'
 
 test.group('Catalogue public produits', (group) => {
-  if (isPostgres()) {
-    group.setup(() => testUtils.db().truncate())
-    group.setup(() => new MainSeeder(db.connection()).run())
-  } else {
-    group.tap((t) => t.skip(true, 'Requiert PostgreSQL (catalogue tsvector/pgvector)'))
-  }
+  group.setup(() => testUtils.db().truncate())
+  group.setup(() => new MainSeeder(db.connection()).run())
 
   test('le catalogue liste les produits actifs', async ({ client, assert }) => {
     const response = await client.get('/fr/products').withInertia()

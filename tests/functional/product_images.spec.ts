@@ -1,18 +1,13 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import testUtils from '@adonisjs/core/services/test_utils'
-import { isPostgres } from '#tests/utils/database'
 import MainSeeder from '#database/seeders/main_seeder'
 import Product from '#models/product'
 import ProductImage from '#models/product_image'
 
 test.group("Catalogue — galerie d'images produit", (group) => {
-  if (isPostgres()) {
-    group.setup(() => testUtils.db().truncate())
-    group.setup(() => new MainSeeder(db.connection()).run())
-  } else {
-    group.tap((t) => t.skip(true, 'Requiert PostgreSQL (catalogue tsvector/pgvector)'))
-  }
+  group.setup(() => testUtils.db().truncate())
+  group.setup(() => new MainSeeder(db.connection()).run())
 
   test('la fiche expose les images de la galerie triées par position', async ({
     client,

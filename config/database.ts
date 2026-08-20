@@ -3,24 +3,13 @@ import app from '@adonisjs/core/services/app'
 import { defineConfig } from '@adonisjs/lucid'
 
 const dbConfig = defineConfig({
-  // En test, SQLite reste le defaut pour les tests legers, mais le
-  // catalogue (pgvector/tsvector) impose Postgres : positionner
-  // `DB_CONNECTION=pg` pour executer les migrations/recherche en test.
-  connection: env.get('NODE_ENV') === 'test' ? env.get('DB_CONNECTION', 'sqlite') : 'pg',
+  // PostgreSQL dans tous les environnements, tests compris : le schéma en
+  // dépend (pgvector, tsvector, colonnes générées, `text[]`, contraintes CHECK
+  // en SQL brut). Le repli SQLite d'origine ne faisait plus tourner les
+  // migrations, et testait de toute façon un moteur différent de la production.
+  connection: 'pg',
 
   connections: {
-    sqlite: {
-      client: 'better-sqlite3',
-      connection: {
-        filename: app.tmpPath('db.sqlite3'),
-      },
-      useNullAsDefault: true,
-      migrations: {
-        naturalSort: true,
-        paths: ['database/migrations'],
-      },
-    },
-
     pg: {
       client: 'pg',
       connection: {

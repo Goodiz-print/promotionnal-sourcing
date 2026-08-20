@@ -1,7 +1,6 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import testUtils from '@adonisjs/core/services/test_utils'
-import { isPostgres } from '#tests/utils/database'
 import MainSeeder from '#database/seeders/main_seeder'
 import Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
@@ -79,12 +78,8 @@ async function memberOf(slug: string): Promise<User> {
 }
 
 test.group('Paramètres généraux de l’organisation', (group) => {
-  if (isPostgres()) {
-    group.each.setup(() => testUtils.db().truncate())
-    group.each.setup(() => new MainSeeder(db.connection()).run())
-  } else {
-    group.tap((t) => t.skip(true, 'Requiert PostgreSQL (seed catalogue pgvector/tsvector)'))
-  }
+  group.each.setup(() => testUtils.db().truncate())
+  group.each.setup(() => new MainSeeder(db.connection()).run())
 
   test("l'écran affiche les paramètres de l'organisation courante", async ({ client }) => {
     const user = await devUserWithCurrentOrg('eurogoods-org')
