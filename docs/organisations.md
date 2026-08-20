@@ -357,6 +357,51 @@ invitations, sans en créer une seconde ni ressaisir l'email.
   révoquée refusée, invitation d'une autre organisation en 404, membre simple
   bloqué) et `tests/inertia/organization_members.spec.ts` (+1).
 
+## Purge des invitations expirées (PR org-settings 5/3)
+
+Les invitations en attente dont l'échéance était passée restaient `pending`
+indéfiniment : plus acceptables (le contrôleur d'acceptation vérifie
+`expires_at`), mais toujours listées comme en attente sur l'écran membres. Un
+job planifié fait désormais le ménage.
+
+- **Statut `expired`** ajouté à `INVITATION_STATUSES`
+  (`shared/types/organization.ts`) et à la contrainte CHECK de
+  `organization_invitations.status` (migration
+  `…967_alter_organization_invitations_add_expired_status`). `table.enu()`
+  produisant sous Postgres une colonne varchar + CHECK, la migration passe par
+  du **SQL brut** (knex n'expose pas d'API pour étendre l'énumération d'une
+  colonne existante) ; le `down()` remet les lignes `expired` en `pending`
+  avant de restaurer l'ancienne contrainte. Ce statut n'est **jamais** posé par
+  une action utilisateur.
+- **Service** `OrganizationInvitationsService#purgeExpired(now?)` en deux temps :
+  1. les invitations `pending` dont `expires_at` est dépassé passent `expired` —
+     elles sortent donc de `listPending`, et l'écran membres ne les affiche plus ;
+  2. les invitations en **état terminal** (`expired`/`revoked`) créées il y a plus
+     de `TERMINAL_RETENTION_DAYS` (**90 jours**) sont **supprimées**. Les
+     invitations `accepted` ne le sont jamais : elles tracent l'origine d'une
+     adhésion encore active.
+
+  Retourne `{ expired, deleted }` (`PurgeInvitationsResult`). `now` est
+  paramétrable — c'est ce qui rend la rétention testable sans horloge figée.
+
+- **Job** `app/jobs/purge_expired_invitations_job.ts`, planifié dans
+  `start/scheduler.ts` **tous les jours à 03:15 Europe/Paris**
+  (`.id('purge-expired-invitations')`, l'id rend la planification idempotente au
+  redémarrage). Le scheduler n'étant préchargé qu'en environnement `web`
+  (`adonisrc.ts`), il ne tourne pas pendant les tests.
+  > Le job importe `OrganizationInvitationsService` **dynamiquement dans
+  > `execute()`** : la queue charge les modules de job au boot, or ce service
+  > importe des modèles Lucid — même contrainte que le modèle `Product` dans
+  > `GenerateProductEmbeddingJob` (cf. règle DI de `CLAUDE.md`).
+- **Conséquence produit** : une invitation échue n'est plus « renvoyable »
+  (`resend` exige `pending`) une fois basculée — il faut ré-inviter l'email, ce
+  que `invite()` gère sans doublon (aucune invitation `pending` ne subsiste).
+  Tant que le job n'est pas passé, le bouton « Renvoyer » reste disponible et
+  prolonge l'échéance comme avant.
+- **Tests** : `tests/functional/organization_invitations.spec.ts` (+3 — bascule
+  des seules invitations échues, suppression après rétention hors `accepted`,
+  disparition de l'écran membres).
+
 ## Roadmap
 
 Découpage de la Phase 2 en 4 PR :
@@ -374,7 +419,8 @@ d'organisations `supplier`, `suppliers.organization_id` renseigné).
 
 Découpage séparé « gestion des organisations » (voir sections ci-dessus) :
 PR1 (paramètres généraux), PR2 (membres existants) et PR3 (invitations par
-email) faits — série complète ; PR4 (renvoi d'une invitation) empilée dessus.
+email) faits — série complète ; PR4 (renvoi d'une invitation) et PR5 (purge des
+invitations expirées) empilées dessus.
 
 **Restant sur le domaine organisations** (hors périmètre de ces PR) :
 
@@ -386,6 +432,5 @@ email) faits — série complète ; PR4 (renvoi d'une invitation) empilée dessu
 - Quitter une organisation de sa propre initiative (seul le retrait par un
   admin existe), créer une organisation supplémentaire (l'onboarding ne se
   déclenche que sans org courante), supprimer/archiver une organisation.
-- Purge des invitations expirées (le statut reste `pending` indéfiniment).
 - Fiabilité mail : `mail.sendLater()` s'appuie sur la file mémoire de
   `@adonisjs/mail` — une invitation est perdue si le process redémarre.

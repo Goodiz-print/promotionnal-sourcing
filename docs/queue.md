@@ -83,9 +83,9 @@ Options disponibles :
 
 ```typescript
 await SendEmail.dispatch(payload)
-  .toQueue('emails')   // file dédiée
-  .priority(1)         // priorité haute
-  .delay('5m')         // délai avant exécution
+  .toQueue('emails') // file dédiée
+  .priority(1) // priorité haute
+  .delay('5m') // délai avant exécution
 ```
 
 ## Planifier un job (cron)
@@ -95,10 +95,17 @@ Fichier : `start/scheduler.ts`
 ```typescript
 import SendWeeklyReport from '#jobs/send_weekly_report'
 
-SendWeeklyReport.schedule({ type: 'weekly' })
-  .cron('0 9 * * MON')
-  .run()
+SendWeeklyReport.schedule({ type: 'weekly' }).cron('0 9 * * MON').run()
 ```
+
+Le fichier n'est préchargé qu'en environnement `web` (`adonisrc.ts`) : les jobs
+planifiés ne tournent donc pas pendant les tests.
+
+Jobs planifiés actuels :
+
+| Job                          | Fréquence                   | Rôle                                                                                                                                           |
+| ---------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PurgeExpiredInvitationsJob` | `15 3 * * *` (Europe/Paris) | Bascule les invitations d'organisation échues en `expired`, puis supprime celles en état terminal après 90 jours (cf. `docs/organisations.md`) |
 
 ## Démarrer le worker
 
@@ -114,14 +121,14 @@ En production, utiliser PM2 ou un service systemd pour maintenir le processus ac
 
 ## Variables d'environnement
 
-| Variable | Valeur par défaut | Description |
-|---|---|---|
-| `QUEUE_DRIVER` | `database` | Driver à utiliser (`database`, `redis`, `sync`) |
-| `DB_HOST` | `localhost` | Hôte PostgreSQL |
-| `DB_PORT` | `5430` | Port PostgreSQL |
-| `DB_USER` | — | Utilisateur PostgreSQL |
-| `DB_PASSWORD` | — | Mot de passe PostgreSQL |
-| `DB_DATABASE` | — | Nom de la base |
+| Variable       | Valeur par défaut | Description                                     |
+| -------------- | ----------------- | ----------------------------------------------- |
+| `QUEUE_DRIVER` | `database`        | Driver à utiliser (`database`, `redis`, `sync`) |
+| `DB_HOST`      | `localhost`       | Hôte PostgreSQL                                 |
+| `DB_PORT`      | `5430`            | Port PostgreSQL                                 |
+| `DB_USER`      | —                 | Utilisateur PostgreSQL                          |
+| `DB_PASSWORD`  | —                 | Mot de passe PostgreSQL                         |
+| `DB_DATABASE`  | —                 | Nom de la base                                  |
 
 ## Notes
 

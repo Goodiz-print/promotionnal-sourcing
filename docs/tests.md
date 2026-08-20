@@ -81,11 +81,43 @@ test.group('Catalogue …', (group) => {
 })
 ```
 
-En local, lancer la suite Postgres avec :
+### Lancer la suite Postgres en local
+
+`.env.test` ne contient **aucune** configuration base de données (seulement
+`SESSION_DRIVER=memory`) : les variables `DB_*` doivent être passées à la
+commande. Le reste (`APP_KEY`, `QUEUE_DRIVER`…) est hérité de `.env`.
+
+Base de test dédiée, via le profil `test` du `docker-compose.yml` :
 
 ```bash
-NODE_ENV=test DB_CONNECTION=pg DB_DATABASE=test pnpm test
+docker compose --profile test up -d postgres_test
+
+NODE_ENV=test DB_CONNECTION=pg DB_HOST=localhost DB_PORT=5432 \
+  DB_USER=test DB_PASSWORD=test DB_DATABASE=test \
+  LOG_LEVEL=error pnpm test
 ```
+
+`LOG_LEVEL=error` est optionnel (mêmes valeurs que la CI) : sans lui, les logs
+applicatifs noient la sortie des tests.
+
+> **Port 5432 déjà pris ?** Le conteneur `postgres_test` l'expose en dur ; si un
+> autre projet l'occupe, créer plutôt une base de test dans le conteneur de
+> **dev** (port 5430) — la suite `truncate` ses propres tables, la base de dev
+> reste intacte :
+>
+> ```bash
+> docker exec promotionnal-sourcing-postgres \
+>   psql -U promotionnal-sourcing -d postgres \
+>   -c 'CREATE DATABASE "promotionnal-sourcing_test"'
+>
+> NODE_ENV=test DB_CONNECTION=pg DB_HOST=localhost DB_PORT=5430 \
+>   DB_USER=promotionnal-sourcing DB_PASSWORD=promotionnal-sourcing \
+>   DB_DATABASE=promotionnal-sourcing_test LOG_LEVEL=error pnpm test
+> ```
+
+Sans ces variables, la connexion retombe sur SQLite : les migrations du
+catalogue (pgvector, `tsvector`) échouent et les groupes gardés par
+`isPostgres()` sont sautés.
 
 ### Exemple test fonctionnel
 

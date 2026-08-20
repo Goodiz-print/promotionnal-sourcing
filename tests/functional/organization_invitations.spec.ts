@@ -13,6 +13,9 @@ import Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
 import OrganizationInvitation from '#models/organization_invitation'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
+import OrganizationInvitationsService from '#services/organization_invitations_service'
+import type { InvitationStatus } from '#shared/types/organization'
+import app from '@adonisjs/core/services/app'
 
 async function makeMember(
   email: string,
@@ -337,5 +340,91 @@ test.group('Invitations de membres par email', (group) => {
 
     response.assertStatus(200)
     response.assertInertiaPropsContains({ canManageMembers: false })
+  })
+})
+
+test.group('Purge des invitations expirées', (group) => {
+  group.each.setup(() => testUtils.db().truncate())
+  group.each.setup(async () => {
+    await new RoleSeeder(db.connection()).run()
+    await new PermissionSeeder(db.connection()).run()
+    await new RolePermissionSeeder(db.connection()).run()
+  })
+
+  async function makeInvitation(
+    org: Organization,
+    email: string,
+    attrs: Partial<{ status: InvitationStatus; expiresAt: DateTime }> = {}
+  ): Promise<OrganizationInvitation> {
+    const role = await Role.findByOrFail('slug', 'member')
+    return OrganizationInvitation.create({
+      organizationId: org.id,
+      email,
+      roleId: role.id,
+      status: 'pending',
+      expiresAt: DateTime.now().plus({ days: 7 }),
+      ...attrs,
+    })
+  }
+
+  test('bascule en `expired` les invitations échues, sans toucher aux autres', async ({
+    assert,
+  }) => {
+    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
+    const outdated = await makeInvitation(org, 'outdated@example.com', {
+      expiresAt: DateTime.now().minus({ days: 1 }),
+    })
+    const stillValid = await makeInvitation(org, 'valid@example.com')
+    const accepted = await makeInvitation(org, 'accepted@example.com', {
+      status: 'accepted',
+      expiresAt: DateTime.now().minus({ days: 30 }),
+    })
+
+    const service = await app.container.make(OrganizationInvitationsService)
+    const result = await service.purgeExpired()
+
+    assert.deepEqual(result, { expired: 1, deleted: 0 })
+    await outdated.refresh()
+    await stillValid.refresh()
+    await accepted.refresh()
+    assert.equal(outdated.status, 'expired')
+    assert.equal(stillValid.status, 'pending')
+    assert.equal(accepted.status, 'accepted')
+  })
+
+  test('supprime les invitations terminales passé le délai de rétention, garde les acceptées', async ({
+    assert,
+  }) => {
+    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
+    const revoked = await makeInvitation(org, 'revoked@example.com', { status: 'revoked' })
+    const accepted = await makeInvitation(org, 'accepted@example.com', { status: 'accepted' })
+
+    // 91 jours plus tard : les deux invitations dépassent la rétention (90 j),
+    // seule celle en état terminal non-acceptée doit disparaître.
+    const service = await app.container.make(OrganizationInvitationsService)
+    const result = await service.purgeExpired(DateTime.now().plus({ days: 91 }))
+
+    assert.equal(result.deleted, 1)
+    assert.isNull(await OrganizationInvitation.find(revoked.id))
+    assert.isNotNull(await OrganizationInvitation.find(accepted.id))
+  })
+
+  test("une invitation expirée n'apparaît plus dans l'écran membres", async ({
+    client,
+    assert,
+  }) => {
+    const org = await Organization.create({ name: 'Acme', slug: 'acme', country: 'FR' })
+    const owner = await makeMember('owner@example.com', org, 'owner')
+    await makeInvitation(org, 'outdated@example.com', {
+      expiresAt: DateTime.now().minus({ days: 1 }),
+    })
+
+    const service = await app.container.make(OrganizationInvitationsService)
+    await service.purgeExpired()
+
+    const response = await client.get('/fr/organization/members').withInertia().loginAs(owner)
+
+    response.assertStatus(200)
+    assert.isEmpty(response.inertiaProps.invitations)
   })
 })

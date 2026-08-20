@@ -131,7 +131,13 @@ export interface UpdateOrganizationData extends Partial<CreateOrganizationData> 
  */
 export type UpdateOrganizationSettingsData = Omit<UpdateOrganizationData, 'slug' | 'logoUrl'>
 
-export const INVITATION_STATUSES = ['pending', 'accepted', 'revoked'] as const
+/**
+ * `expired` est posé par la purge planifiée (`PurgeExpiredInvitationsJob`), pas
+ * par une action utilisateur : une invitation en attente dont `expires_at` est
+ * dépassé n'est déjà plus acceptable côté contrôleur, ce statut ne fait que le
+ * matérialiser en base.
+ */
+export const INVITATION_STATUSES = ['pending', 'accepted', 'revoked', 'expired'] as const
 
 export type InvitationStatus = (typeof INVITATION_STATUSES)[number]
 
@@ -146,6 +152,16 @@ export type OrganizationInvitationType = {
   status: InvitationStatus
   expiresAt: string
   createdAt: string
+}
+
+/**
+ * Bilan d'une purge d'invitations (`OrganizationInvitationsService#purgeExpired`) :
+ * `expired` = invitations en attente basculées en `expired`,
+ * `deleted` = invitations en état terminal supprimées après rétention.
+ */
+export type PurgeInvitationsResult = {
+  expired: number
+  deleted: number
 }
 
 export interface InviteMemberData {
