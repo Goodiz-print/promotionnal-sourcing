@@ -1,10 +1,10 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
-import mail from '@adonisjs/mail/services/main'
 import { signedUrlFor } from '@adonisjs/core/services/url_builder'
 import { inviteMemberValidator } from '#validators/organization_invitation'
 import OrganizationInvitationsService from '#services/organization_invitations_service'
-import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
+import SendMailJob from '#jobs/send_mail_job'
+import { MAIL_KINDS } from '#shared/types/mail'
 import OrganizationInvitation from '#models/organization_invitation'
 import {
   AlreadyMemberException,
@@ -105,6 +105,12 @@ export default class OrganizationInvitationsController {
     return invitation
   }
 
+  /**
+   * Met le mail d'invitation en **queue** (`SendMailJob`, table `queue_jobs`) et
+   * non dans la file mémoire de `@adonisjs/mail` : un redémarrage du process ne
+   * perd plus l'invitation, et un SMTP indisponible est rejoué. La charge ne
+   * contient que des données déjà résolues (elle transite par la base).
+   */
   private async sendInvitationMail(
     invitation: OrganizationInvitation,
     org: Organization,
@@ -117,14 +123,15 @@ export default class OrganizationInvitationsController {
       { expiresIn: '7d', purpose: 'organization-invitation' }
     )
 
-    await mail.sendLater(
-      new OrganizationInvitationNotification(
-        invitation.email,
-        org.name,
-        invitation.role.name,
-        invitedBy.fullName ?? invitedBy.email,
-        acceptUrl
-      )
-    )
+    await SendMailJob.dispatch({
+      kind: MAIL_KINDS.organizationInvitation,
+      to: invitation.email,
+      data: {
+        organizationName: org.name,
+        roleName: invitation.role.name,
+        inviterName: invitedBy.fullName ?? invitedBy.email,
+        acceptUrl,
+      },
+    })
   }
 }

@@ -88,6 +88,13 @@ await SendEmail.dispatch(payload)
   .delay('5m') // délai avant exécution
 ```
 
+### Jobs dispatchés à la demande
+
+| Job                           | Dispatché depuis                                               | Rôle                                                                                                                                    |
+| ----------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `SendMailJob`                 | Controllers / services envoyant un mail transactionnel         | Envoie un mail via `mail.send()` côté worker (5 retries, backoff exponentiel 30 s → 15 min, échecs conservés 30 j) — cf. `docs/mail.md` |
+| `GenerateProductEmbeddingJob` | `SupplierProductService` (création / mise à jour d'un produit) | Calcule l'embedding du produit et le persiste dans `products.embedding` (pgvector)                                                      |
+
 ## Planifier un job (cron)
 
 Fichier : `start/scheduler.ts`
@@ -119,6 +126,26 @@ node ace queue:work --queue=emails,notifications --concurrency=10
 
 En production, utiliser PM2 ou un service systemd pour maintenir le processus actif.
 
+> ⚠️ **Le worker est une dépendance de production, pas un confort.** Depuis que
+> les mails transactionnels passent par `SendMailJob`, un worker arrêté = aucun
+> mail envoyé (invitations comprises) : les jobs s'accumulent en `pending` dans
+> `queue_jobs` et repartent au redémarrage du worker. À superviser au même titre
+> que le process HTTP.
+
+Vérifications utiles :
+
+```sql
+-- Jobs en attente (worker arrêté ou saturé ?)
+SELECT queue, status, count(*) FROM queue_jobs GROUP BY queue, status;
+
+-- Mails définitivement en échec (conservés 30 jours). Le nom du job et sa
+-- charge vivent dans la colonne `data` (JSON sérialisé), pas en colonnes.
+SELECT id, error, data::jsonb -> 'payload' AS payload
+FROM queue_jobs
+WHERE status = 'failed' AND data::jsonb ->> 'name' = 'SendMailJob'
+ORDER BY finished_at DESC;
+```
+
 ## Variables d'environnement
 
 | Variable       | Valeur par défaut | Description                                     |
@@ -132,6 +159,11 @@ En production, utiliser PM2 ou un service systemd pour maintenir le processus ac
 
 ## Notes
 
-- Le driver `sync` exécute les jobs immédiatement sans worker — pratique pour les tests.
+- Le driver `sync` exécute les jobs immédiatement sans worker — c'est ce que
+  positionnent `.env.test` et la CI (`QUEUE_DRIVER=sync`), ce qui rend les effets
+  d'un job (mail envoyé…) directement assertables dans les tests.
+  ⚠️ Il **rejoue les retries de façon synchrone, avec les vrais délais** : ne pas
+  faire échouer un job à backoff long dans un test fonctionnel (tester le job
+  directement, cf. `tests/unit/send_mail_job.spec.ts`).
 - Le package est marqué **expérimental** : épingler la version dans `package.json`.
 - Les jobs sont stockés dans la table `queue_jobs` ; inspecter cette table pour débugger.

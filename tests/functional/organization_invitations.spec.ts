@@ -49,7 +49,7 @@ test.group('Invitations de membres par email', (group) => {
     return () => mail.restore()
   })
 
-  test('un owner invite un nouveau membre par email (mail mis en file)', async ({
+  test('un owner invite un nouveau membre par email (mail envoyé via la queue)', async ({
     client,
     assert,
   }) => {
@@ -71,7 +71,7 @@ test.group('Invitations de membres par email', (group) => {
     assert.equal(invitation.roleId, memberRole.id)
     assert.equal(invitation.invitedByUserId, owner.id)
 
-    fakeMailer.mails.assertQueued(
+    fakeMailer.mails.assertSent(
       OrganizationInvitationNotification,
       (m) => (m as unknown as { email: string }).email === 'invited@example.com'
     )
@@ -129,7 +129,7 @@ test.group('Invitations de membres par email', (group) => {
     response.assertStatus(200)
     const invitation = await OrganizationInvitation.findBy('email', 'already@example.com')
     assert.isNull(invitation)
-    fakeMailer.mails.assertNoneQueued()
+    fakeMailer.mails.assertNoneSent()
   })
 
   test('relancer une invitation en attente la rafraîchit sans créer de doublon', async ({
@@ -220,7 +220,7 @@ test.group('Invitations de membres par email', (group) => {
     assert.isTrue(invitation.expiresAt > DateTime.now())
     assert.lengthOf(await OrganizationInvitation.query().where('email', 'invited@example.com'), 1)
 
-    fakeMailer.mails.assertQueued(
+    fakeMailer.mails.assertSent(
       OrganizationInvitationNotification,
       (m) => (m as unknown as { email: string }).email === 'invited@example.com'
     )
@@ -250,7 +250,7 @@ test.group('Invitations de membres par email', (group) => {
     response.assertStatus(200)
     await invitation.refresh()
     assert.equal(invitation.status, 'revoked')
-    fakeMailer.mails.assertNoneQueued()
+    fakeMailer.mails.assertNoneSent()
   })
 
   test("renvoyer l'invitation d'une autre organisation renvoie 404", async ({ client, assert }) => {
@@ -277,7 +277,7 @@ test.group('Invitations de membres par email', (group) => {
       .loginAs(owner)
 
     response.assertStatus(404)
-    fakeMailer.mails.assertNoneQueued()
+    fakeMailer.mails.assertNoneSent()
     await invitation.refresh()
     assert.equal(invitation.status, 'pending')
   })
@@ -304,7 +304,7 @@ test.group('Invitations de membres par email', (group) => {
       .withCsrfToken()
       .loginAs(member)
 
-    fakeMailer.mails.assertNoneQueued()
+    fakeMailer.mails.assertNoneSent()
     await invitation.refresh()
     assert.isTrue(invitation.expiresAt < DateTime.now())
   })

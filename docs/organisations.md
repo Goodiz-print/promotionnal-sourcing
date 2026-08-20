@@ -658,5 +658,10 @@ faites — série complète.
 
 **Restant sur le domaine organisations** (hors périmètre de ces PR) :
 
-- Fiabilité mail : `mail.sendLater()` s'appuie sur la file mémoire de
-  `@adonisjs/mail` — une invitation est perdue si le process redémarre.
+- ~~Fiabilité mail : `mail.sendLater()` s'appuie sur la file mémoire de
+  `@adonisjs/mail` — une invitation est perdue si le process redémarre.~~ Fait
+  (#33) : l'invitation passe par `SendMailJob` (queue `queue_jobs`, 5 retries,
+  backoff exponentiel) — cf. `docs/mail.md`. Reste ouvert : **idempotence** (un
+  rejeu après remise SMTP renvoie le mail — bénin pour une invitation, bloquant
+  pour un devis) et **dead-letter / alerting** (aujourd'hui : log + rétention
+  30 jours dans `queue_jobs`).
