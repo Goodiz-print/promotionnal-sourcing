@@ -4,6 +4,11 @@ build
 tmp/*
 !tmp/.gitkeep
 
+# Code généré par l'assembler AdonisJS (régénéré par `ace serve` / `ace build` / `ace test`)
+# NB : database/schema.ts est aussi généré, mais reste versionné — sa regénération
+# (`ace schema:generate`) exige une base de données, indisponible dans les jobs CI lint/build.
+.adonisjs
+
 # Secrets
 .env
 .env.local

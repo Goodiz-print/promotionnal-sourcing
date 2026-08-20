@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-08-20 — `.adonisjs/` sorti du versionnement
+
+Le dossier `.adonisjs/` (codegen de l'assembler : `controllers.ts`, `pages.d.ts`,
+`routes.d.ts`, registry client…) est désormais dans `.gitignore` — il était déjà
+listé dans `.prettierignore`. Vérifié : `node ace build` le régénère
+intégralement, tout comme `serve` et `test`, donc les jobs CI restent verts.
+
+`database/schema.ts` reste **versionné** bien que généré : sa regénération
+(`node ace schema:generate`) exige une base de données, indisponible dans les
+jobs CI `lint` et `build`, alors que tous les modèles l'importent.
+
 ## 2026-08-11 — Renvoi d'une invitation de membre
 
 Complète les invitations par email : un owner/admin/manager peut **renvoyer** le
