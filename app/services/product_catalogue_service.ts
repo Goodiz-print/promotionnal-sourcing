@@ -17,7 +17,8 @@ interface ListOptions extends ProductDirectoryFilters {
 
 /**
  * Catalogue public des produits. Toute la logique ORM vit ici (controllers
- * fins). Ne renvoie que les produits actifs.
+ * fins). Ne renvoie que les produits actifs, et jamais ceux d'une
+ * organisation archivée.
  */
 export default class ProductCatalogueService {
   /**
@@ -38,6 +39,7 @@ export default class ProductCatalogueService {
 
     const query = Product.query()
       .where('isActive', true)
+      .withScopes((scopes) => scopes.fromLiveOrganization())
       .if(categoryId, (q) => q.where('categoryId', categoryId!))
       .if(madeInEurope, (q) => q.where('madeInEurope', true))
       .if(attributeValueIds.length > 0, (q) => {
@@ -77,6 +79,7 @@ export default class ProductCatalogueService {
     return Product.query()
       .where('slug', slug)
       .where('isActive', true)
+      .withScopes((scopes) => scopes.fromLiveOrganization())
       .preload('translations')
       .preload('images', (images) => images.orderBy('position'))
       .preload('supplier', (supplier) => supplier.preload('translations'))
@@ -94,7 +97,15 @@ export default class ProductCatalogueService {
    */
   availableCategories(): Promise<Category[]> {
     return Category.query()
-      .whereHas('products', (products) => products.where('isActive', true))
+      .whereHas('products', (products) =>
+        products
+          .where('isActive', true)
+          .whereHas('supplier', (supplier) =>
+            supplier.whereDoesntHave('organization', (organization) =>
+              organization.whereNotNull('archivedAt')
+            )
+          )
+      )
       .preload('translations')
       .orderBy('slug')
   }

@@ -1,5 +1,7 @@
+import { inject } from '@adonisjs/core'
 import OrganizationUser from '#models/organization_user'
 import Role from '#models/role'
+import OrganizationContextService from '#services/organization_context_service'
 import {
   LastOwnerException,
   OrganizationMemberNotFoundException,
@@ -10,7 +12,10 @@ import {
  * retrait). Garde en place : une organisation garde toujours au moins un
  * `owner` — on ne peut ni rétrograder ni retirer le dernier.
  */
+@inject()
 export default class OrganizationMembersService {
+  constructor(private context: OrganizationContextService) {}
+
   /**
    * Membres de l'organisation, préchargés avec l'utilisateur et le rôle.
    */
@@ -57,8 +62,9 @@ export default class OrganizationMembersService {
 
   /**
    * Retire un membre de l'organisation. Rejette si c'est le dernier owner.
-   * Si le membre retiré avait cette organisation comme organisation
-   * courante, on la réinitialise (il repassera par l'onboarding).
+   * Si le membre retiré avait cette organisation comme organisation courante,
+   * il bascule sur une autre de ses organisations — ou repart sur l'onboarding
+   * s'il n'en a plus aucune.
    */
   async removeMember(member: OrganizationUser): Promise<void> {
     if (await this.isLastOwner(member)) {
@@ -69,12 +75,15 @@ export default class OrganizationMembersService {
     const { user, organizationId } = member
     await member.delete()
 
-    if (user.currentOrganizationId === organizationId) {
-      await user.merge({ currentOrganizationId: null }).save()
-    }
+    await this.context.reassignCurrentOrganization(user, organizationId)
   }
 
-  private async isLastOwner(member: OrganizationUser): Promise<boolean> {
+  /**
+   * `true` si ce membre est le dernier `owner` de son organisation. Public :
+   * `OrganizationService#leave` applique le même invariant au départ
+   * volontaire.
+   */
+  async isLastOwner(member: OrganizationUser): Promise<boolean> {
     await member.load('role')
     if (member.role.slug !== 'owner') return false
 

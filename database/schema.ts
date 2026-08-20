@@ -191,6 +191,7 @@ export class OrganizationSchema extends BaseModel {
   static $columns = [
     'addressLine1',
     'addressLine2',
+    'archivedAt',
     'city',
     'country',
     'createdAt',
@@ -216,6 +217,8 @@ export class OrganizationSchema extends BaseModel {
   declare addressLine1: string | null
   @column()
   declare addressLine2: string | null
+  @column.dateTime()
+  declare archivedAt: DateTime | null
   @column()
   declare city: string | null
   @column()

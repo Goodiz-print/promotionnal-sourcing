@@ -9,6 +9,8 @@ import Role from '#models/role'
 import User from '#models/user'
 import OrganizationTransformer from '#transformers/organization_transformer'
 import OrganizationService from '#services/organization_service'
+import OrganizationContextService from '#services/organization_context_service'
+import OrganizationMembersService from '#services/organization_members_service'
 import CloudinaryService, { type CloudinaryUploader } from '#services/cloudinary_service'
 import hash from '@adonisjs/core/services/hash'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
@@ -41,7 +43,12 @@ function fakeUploader() {
 }
 
 function service(uploader: CloudinaryUploader) {
-  return new OrganizationService(new CloudinaryService(uploader))
+  const context = new OrganizationContextService()
+  return new OrganizationService(
+    new CloudinaryService(uploader),
+    context,
+    new OrganizationMembersService(context)
+  )
 }
 
 /**

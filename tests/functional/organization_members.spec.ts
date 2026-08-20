@@ -11,6 +11,7 @@ import Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
 import OrganizationMemberTransformer from '#transformers/organization_member_transformer'
 import OrganizationMembersService from '#services/organization_members_service'
+import OrganizationContextService from '#services/organization_context_service'
 
 /**
  * Crée une organisation (si besoin) et y rattache un nouvel utilisateur avec
@@ -122,7 +123,7 @@ test.group('Gestion des membres de l’organisation', (group) => {
       .where('organizationId', org.id)
       .firstOrFail()
 
-    const service = new OrganizationMembersService()
+    const service = new OrganizationMembersService(new OrganizationContextService())
     await service.changeRole(membership1, adminRole.id)
 
     await membership1.refresh()

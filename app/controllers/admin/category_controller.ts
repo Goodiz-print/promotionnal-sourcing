@@ -1,6 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
-import { Exception } from '@adonisjs/core/exceptions'
 import CategoryService from '#services/category_service'
 import CategoryAdminTransformer from '#transformers/category_admin_transformer'
 import CategoryEditTransformer from '#transformers/category_edit_transformer'
@@ -8,8 +7,7 @@ import CategoryTransformer from '#transformers/category_transformer'
 import { CategoryNotFoundException } from '#exceptions/catalogue_errors'
 import { createCategoryValidator, updateCategoryValidator } from '#validators/category'
 import type { Locale } from '#shared/types/i18n'
-import type Organization from '#models/organization'
-import type User from '#models/user'
+import OrganizationContextService from '#services/organization_context_service'
 
 /**
  * Administration de la taxonomie du catalogue (catégories globales). CRUD
@@ -18,13 +16,16 @@ import type User from '#models/user'
  */
 @inject()
 export default class CategoryController {
-  constructor(private service: CategoryService) {}
+  constructor(
+    private service: CategoryService,
+    private organizations: OrganizationContextService
+  ) {}
 
   /**
    * Liste des catégories (avec parent et nombre de produits).
    */
   async index({ auth, bouncer, inertia, i18n }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageCategories', org)
     const locale = i18n.locale as Locale
 
@@ -41,7 +42,7 @@ export default class CategoryController {
    * Formulaire de création (liste des parents assignables).
    */
   async create({ auth, bouncer, inertia, i18n }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageCategories', org)
 
     return inertia.render('admin/categories/create', {
@@ -53,7 +54,7 @@ export default class CategoryController {
    * Crée la catégorie puis redirige vers la liste.
    */
   async store({ auth, bouncer, request, response, i18n, session }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageCategories', org)
 
     const payload = await request.validateUsing(createCategoryValidator)
@@ -68,7 +69,7 @@ export default class CategoryController {
    * descendants, pour éviter les cycles).
    */
   async edit({ auth, bouncer, inertia, params, i18n }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageCategories', org)
 
     const category = await this.service.findById(Number(params.id))
@@ -85,7 +86,7 @@ export default class CategoryController {
    * formulaire exclut déjà les descendants).
    */
   async update({ auth, bouncer, request, response, params, i18n, session }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageCategories', org)
 
     const category = await this.service.findById(Number(params.id))
@@ -109,7 +110,7 @@ export default class CategoryController {
    * produits (flash d'erreur + retour arrière).
    */
   async destroy({ auth, bouncer, response, params, i18n, session }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageCategories', org)
 
     const category = await this.service.findById(Number(params.id))
@@ -137,13 +138,5 @@ export default class CategoryController {
   private async parentOptions(locale: Locale, excludeId?: number) {
     const parents = await this.service.assignableParents(excludeId)
     return parents.map((category) => new CategoryTransformer(category, locale).toObject())
-  }
-
-  private async currentOrganization(user: User): Promise<Organization> {
-    await user.load('currentOrganization')
-    if (!user.currentOrganization) {
-      throw new Exception('No current organization', { status: 403, code: 'E_NO_CURRENT_ORG' })
-    }
-    return user.currentOrganization
   }
 }

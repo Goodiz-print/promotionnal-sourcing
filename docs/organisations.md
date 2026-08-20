@@ -402,6 +402,91 @@ job planifié fait désormais le ménage.
   des seules invitations échues, suppression après rétention hors `accepted`,
   disparition de l'écran membres).
 
+## Cycle de vie de l'organisation — socle backend (PR lifecycle 1/3)
+
+Créer une organisation supplémentaire, la quitter, l'archiver. Les décisions
+produit qui cadrent ce volet :
+
+| Sujet                                 | Décision                                                           |
+| ------------------------------------- | ------------------------------------------------------------------ |
+| Sélecteur d'organisation              | Affiché **uniquement** si l'utilisateur a ≥ 2 organisations (PR 2) |
+| Créer une organisation supplémentaire | Autorisé, avec **bascule automatique** dessus                      |
+| Supprimer                             | **Archivage réversible**, jamais de DELETE                         |
+| Droit d'archiver                      | `owner` + `admin` (ability existante `canManageOrganization`)      |
+| Membres d'une organisation archivée   | Bascule auto sur une autre adhésion, sinon onboarding              |
+| Restauration                          | Hors UI (`archived_at` remis à `NULL` en base)                     |
+| Quitter en tant que dernier owner     | **Bloqué** (`LastOwnerException`)                                  |
+
+### `organizations.archived_at`
+
+Migration `…968_alter_organizations_add_archived_at`. Pas de suppression
+physique : `suppliers.organization_id` est en `ON DELETE SET NULL`, donc un
+DELETE laisserait la fiche fournisseur **et ses produits** orphelins mais
+toujours publiés (le catalogue public ne filtre que sur `is_active`). L'archivage
+garde tout, réversible.
+
+### `OrganizationContextService`
+
+Nouveau service **sans dépendance** (`app/services/organization_context_service.ts`)
+— quelle organisation est la courante, lesquelles restent accessibles, sur
+laquelle retomber :
+
+- `currentFor(user)` — organisation courante, `NoCurrentOrganizationException` si
+  absente **ou archivée**. Remplace le helper privé qui était dupliqué dans six
+  controllers (`organization/{settings,members,invitations}`,
+  `supplier/{profile,product}`, `admin/category`).
+- `membershipsFor(user)` — adhésions aux organisations **non archivées**,
+  organisation et rôle préchargés. Alimentera le sélecteur (PR 2).
+- `fallbackFor(user, excluding?)` / `reassignCurrentOrganization(user, leavingId)` —
+  calcul et application de l'organisation de repli après un départ ou un retrait.
+- `switchTo(user, organizationId)` — bascule explicite ; rejette une organisation
+  étrangère (`NotAMemberException`) ou archivée (`OrganizationArchivedException`).
+- `ensureUsableOrganization(user)` — utilisé par le middleware `onboarded`.
+
+> Pourquoi un service séparé plutôt que des méthodes d'`OrganizationService` :
+> `OrganizationMembersService#removeMember` en a besoin, et `OrganizationService`
+> a besoin de `OrganizationMembersService` (invariant « dernier owner ») — les
+> garder ensemble créerait un **cycle d'injection**.
+
+### Création, départ, archivage (`OrganizationService`)
+
+- `create(user, data)` — organisation + adhésion `owner` + bascule, dans une
+  **transaction** (les trois écritures forment un tout). `OnboardingService`
+  n'est plus qu'un appelant : le même code sert la première organisation et les
+  suivantes.
+- `leave(user, organization)` — adhésion requise (`NotAMemberException`), refus si
+  dernier owner (`LastOwnerException`, exactement l'invariant du retrait par un
+  admin), puis repli sur une autre organisation.
+- `archive(organization)` — pose `archived_at` et **révoque les invitations en
+  attente** de l'organisation : aucun token n'étant stocké, un lien signé déjà
+  envoyé resterait sinon valide jusqu'à son échéance.
+
+### Effets de l'archivage
+
+- **Membres** — rien n'est supprimé. À leur requête suivante, `OnboardedMiddleware`
+  constate que l'organisation courante n'est plus utilisable et bascule sur une
+  autre adhésion, ou renvoie vers l'onboarding. Le middleware couvre désormais
+  trois cas de plus qu'avant : organisation archivée, adhésion retirée, départ
+  volontaire.
+- **Catalogue public** — scopes Lucid `Supplier.fromLiveOrganization` et
+  `Product.fromLiveOrganization`, appliqués dans `SupplierDirectoryService`
+  (liste, fiche, pays disponibles) et `ProductCatalogueService` (liste, fiche,
+  catégories disponibles). `whereDoesntHave` et non une jointure : les fiches
+  **sans** organisation (≈300 imports non encore rattachés, cf. #21) doivent
+  rester visibles.
+- **Invitations** — celles en attente passent `revoked`, et
+  `InvitationAcceptanceController` refuse en plus toute invitation vers une
+  organisation archivée.
+
+### Tests
+
+`tests/functional/organization_lifecycle.spec.ts` — 11 tests : bascule à la
+création, repli au départ, départ sans autre organisation, dernier owner bloqué,
+départ d'une organisation étrangère, révocation des invitations à l'archivage,
+double archivage refusé, bascule interdite (étrangère/archivée), membre d'une
+organisation archivée avec et sans autre adhésion, disparition de l'annuaire
+public (fiche orpheline conservée).
+
 ## Roadmap
 
 Découpage de la Phase 2 en 4 PR :
@@ -422,15 +507,18 @@ PR1 (paramètres généraux), PR2 (membres existants) et PR3 (invitations par
 email) faits — série complète ; PR4 (renvoi d'une invitation) et PR5 (purge des
 invitations expirées) empilées dessus.
 
+Découpage « cycle de vie de l'organisation » : PR 1 (socle backend, section
+ci-dessus) faite ; **PR 2** (sélecteur d'organisation + création d'une
+organisation supplémentaire : props partagées Inertia, `organization_switcher.vue`,
+écran `organization/create.vue`) et **PR 3** (« quitter » et « archiver » côté UI :
+zone de danger dans les paramètres, variant `danger` de `base_button`) à venir.
+
 **Restant sur le domaine organisations** (hors périmètre de ces PR) :
 
-- **Sélecteur d'organisation** — `currentOrganizationId` existe et le modèle est
-  multi-organisation, mais aucun écran ne permet d'en changer. Conséquence : un
-  invité qui a déjà une organisation accepte l'invitation (adhésion créée) sans
-  pouvoir basculer dessus, `accept()` ne fixant l'org courante que si elle est
-  absente.
-- Quitter une organisation de sa propre initiative (seul le retrait par un
-  admin existe), créer une organisation supplémentaire (l'onboarding ne se
-  déclenche que sans org courante), supprimer/archiver une organisation.
+- **Bascule à l'acceptation d'une invitation** (#32) — `accept()` ne fixe
+  l'organisation courante que si elle est absente : un invité qui a déjà une
+  organisation crée bien son adhésion, mais reste sur l'ancienne. Le sélecteur
+  (PR 2 ci-dessus) n'apparaissant qu'au-delà d'une organisation, la bascule doit
+  de toute façon être automatique à l'acceptation.
 - Fiabilité mail : `mail.sendLater()` s'appuie sur la file mémoire de
   `@adonisjs/mail` — une invitation est perdue si le process redémarre.

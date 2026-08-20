@@ -1,6 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
-import { Exception } from '@adonisjs/core/exceptions'
 import SupplierProductService from '#services/supplier_product_service'
 import ProductTransformer from '#transformers/product_transformer'
 import ProductEditTransformer from '#transformers/product_edit_transformer'
@@ -10,8 +9,7 @@ import AttributeValueTransformer from '#transformers/attribute_value_transformer
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
 import { supplierProductValidator } from '#validators/supplier_product'
 import type { Locale } from '#shared/types/i18n'
-import type Organization from '#models/organization'
-import type User from '#models/user'
+import OrganizationContextService from '#services/organization_context_service'
 
 /**
  * Gestion des produits par le fournisseur (org courante). CRUD + upload
@@ -19,13 +17,16 @@ import type User from '#models/user'
  */
 @inject()
 export default class ProductController {
-  constructor(private service: SupplierProductService) {}
+  constructor(
+    private service: SupplierProductService,
+    private organizations: OrganizationContextService
+  ) {}
 
   /**
    * Liste des produits de l'organisation courante.
    */
   async index({ auth, bouncer, inertia, i18n }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageProducts', org)
     const locale = i18n.locale as Locale
 
@@ -40,7 +41,7 @@ export default class ProductController {
    * Formulaire de création.
    */
   async create({ auth, bouncer, inertia, i18n }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageProducts', org)
 
     return inertia.render('supplier/products/create', await this.facetData(i18n.locale as Locale))
@@ -50,7 +51,7 @@ export default class ProductController {
    * Crée le produit (get-or-create du fournisseur) puis redirige vers la liste.
    */
   async store({ auth, bouncer, request, response, i18n, session }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageProducts', org)
 
     const payload = await request.validateUsing(supplierProductValidator)
@@ -64,7 +65,7 @@ export default class ProductController {
    * Formulaire d'édition (produit possédé par l'org).
    */
   async edit({ auth, bouncer, inertia, params, i18n }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageProducts', org)
 
     const product = await this.service.findOwned(org, Number(params.id))
@@ -80,7 +81,7 @@ export default class ProductController {
    * Met à jour le produit (champs, traductions, facettes, galerie).
    */
   async update({ auth, bouncer, request, response, params, i18n, session }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageProducts', org)
 
     const product = await this.service.findOwned(org, Number(params.id))
@@ -97,7 +98,7 @@ export default class ProductController {
    * Supprime le produit (et ses assets Cloudinary).
    */
   async destroy({ auth, bouncer, response, params, i18n, session }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageProducts', org)
 
     const product = await this.service.findOwned(org, Number(params.id))
@@ -127,13 +128,5 @@ export default class ProductController {
         ),
       })),
     }
-  }
-
-  private async currentOrganization(user: User): Promise<Organization> {
-    await user.load('currentOrganization')
-    if (!user.currentOrganization) {
-      throw new Exception('No current organization', { status: 403, code: 'E_NO_CURRENT_ORG' })
-    }
-    return user.currentOrganization
   }
 }

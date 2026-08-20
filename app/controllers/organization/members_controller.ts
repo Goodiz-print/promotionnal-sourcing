@@ -1,6 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
-import { Exception } from '@adonisjs/core/exceptions'
 import { updateMemberRoleValidator } from '#validators/organization_member'
 import OrganizationMembersService from '#services/organization_members_service'
 import OrganizationInvitationsService from '#services/organization_invitations_service'
@@ -9,8 +8,7 @@ import OrganizationInvitationTransformer from '#transformers/organization_invita
 import RoleTransformer from '#transformers/role_transformer'
 import Role from '#models/role'
 import { LastOwnerException } from '#exceptions/organization_errors'
-import type Organization from '#models/organization'
-import type User from '#models/user'
+import OrganizationContextService from '#services/organization_context_service'
 
 /**
  * Gestion des membres de l'organisation courante (liste, changement de
@@ -24,7 +22,8 @@ import type User from '#models/user'
 export default class OrganizationMembersController {
   constructor(
     private service: OrganizationMembersService,
-    private invitationsService: OrganizationInvitationsService
+    private invitationsService: OrganizationInvitationsService,
+    private organizations: OrganizationContextService
   ) {}
 
   /**
@@ -32,7 +31,7 @@ export default class OrganizationMembersController {
    * courante.
    */
   async index({ auth, bouncer, inertia }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canInviteMembers', org)
 
     const [members, invitations, roles] = await Promise.all([
@@ -55,7 +54,7 @@ export default class OrganizationMembersController {
    * Change le rôle d'un membre.
    */
   async update({ auth, bouncer, request, response, params, i18n, session }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageMembers', org)
 
     const member = await this.service.findMember(org.id, Number(params.id))
@@ -79,7 +78,7 @@ export default class OrganizationMembersController {
    * Retire un membre de l'organisation.
    */
   async destroy({ auth, bouncer, response, params, i18n, session }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageMembers', org)
 
     const member = await this.service.findMember(org.id, Number(params.id))
@@ -96,17 +95,5 @@ export default class OrganizationMembersController {
     }
 
     return response.redirect().toRoute('organization.members', { locale: i18n.locale })
-  }
-
-  /**
-   * Charge l'organisation courante de l'utilisateur (relation, pas de
-   * `Model.query()` en controller). 403 si absente.
-   */
-  private async currentOrganization(user: User): Promise<Organization> {
-    await user.load('currentOrganization')
-    if (!user.currentOrganization) {
-      throw new Exception('No current organization', { status: 403, code: 'E_NO_CURRENT_ORG' })
-    }
-    return user.currentOrganization
   }
 }

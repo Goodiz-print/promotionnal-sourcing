@@ -1,11 +1,9 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
-import { Exception } from '@adonisjs/core/exceptions'
 import { updateOrganizationValidator } from '#validators/organization'
 import OrganizationService from '#services/organization_service'
 import OrganizationTransformer from '#transformers/organization_transformer'
-import type Organization from '#models/organization'
-import type User from '#models/user'
+import OrganizationContextService from '#services/organization_context_service'
 
 /**
  * Paramètres généraux de l'organisation courante (nom, coordonnées, adresse,
@@ -14,13 +12,16 @@ import type User from '#models/user'
  */
 @inject()
 export default class OrganizationSettingsController {
-  constructor(private service: OrganizationService) {}
+  constructor(
+    private service: OrganizationService,
+    private organizations: OrganizationContextService
+  ) {}
 
   /**
    * Écran d'édition des paramètres généraux de l'organisation courante.
    */
   async show({ auth, bouncer, inertia }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageOrganization', org)
 
     return inertia.render('organization/settings', {
@@ -34,7 +35,7 @@ export default class OrganizationSettingsController {
    * corps multipart de l'upload.
    */
   async update({ auth, bouncer, request, response, i18n, session }: HttpContext) {
-    const org = await this.currentOrganization(auth.getUserOrFail())
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageOrganization', org)
 
     const { logo, removeLogo, ...data } = await request.validateUsing(updateOrganizationValidator)
@@ -48,17 +49,5 @@ export default class OrganizationSettingsController {
 
     session.flash('success', i18n.t('organization.settings.success'))
     return response.redirect().toRoute('organization.settings', { locale: i18n.locale })
-  }
-
-  /**
-   * Charge l'organisation courante de l'utilisateur (relation, pas de
-   * `Model.query()` en controller). 403 si absente.
-   */
-  private async currentOrganization(user: User): Promise<Organization> {
-    await user.load('currentOrganization')
-    if (!user.currentOrganization) {
-      throw new Exception('No current organization', { status: 403, code: 'E_NO_CURRENT_ORG' })
-    }
-    return user.currentOrganization
   }
 }
