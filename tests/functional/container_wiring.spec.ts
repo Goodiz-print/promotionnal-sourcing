@@ -15,7 +15,7 @@ import MistralEmbeddingProvider from '#services/embeddings/mistral_provider'
 /**
  * Garde-fou d'injection de dépendances : le conteneur IoC doit savoir résoudre
  * les controllers (avec leurs services injectés) et l'abstraction `AI_PROVIDER`.
- * Ne touche pas la DB → tourne sous SQLite.
+ * Ne touche pas la base.
  */
 test.group('Conteneur IoC — câblage des dépendances', () => {
   test('résout les controllers avec leurs services injectés', async ({ assert }) => {

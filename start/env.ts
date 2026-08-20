@@ -22,9 +22,9 @@ export default await Env.create(new URL('../', import.meta.url), {
   APP_KEY: Env.schema.secret(),
 
   // Database
-  // Connexion active : par defaut `pg` (et `sqlite` disponible pour les
-  // tests legers). Le catalogue (pgvector/tsvector) impose Postgres.
-  DB_CONNECTION: Env.schema.enum.optional(['pg', 'sqlite'] as const),
+  // PostgreSQL est le seul moteur supporté (schéma dépendant de pgvector,
+  // tsvector et des colonnes générées) : il n'y a plus de variable de
+  // sélection de connexion, cf. `config/database.ts`.
   DB_HOST: Env.schema.string({ format: 'host' }),
   DB_PORT: Env.schema.number(),
   DB_USER: Env.schema.string(),

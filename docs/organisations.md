@@ -84,9 +84,8 @@ les deux tables (approche non destructive).
   profil détaillé (`preload('supplierProfile')`, `certifications` typées),
   rattachement fiche↔organisation (`belongsTo` + `hasMany(suppliers)`), sortie du
   transformer.
-- Gardé PostgreSQL (`tests/utils/database.ts` → `isPostgres()`) car il sème via
-  `MainSeeder` (qui inclut le catalogue pgvector/tsvector) ; **sauté** sur SQLite.
-  Résultat : pg → 32 passés ; sqlite → 19 passés, 13 sautés. Voir `docs/tests.md`.
+- Sème via `MainSeeder` (qui inclut le catalogue pgvector/tsvector). Comme
+  toute la suite, s'exécute sous PostgreSQL — voir `docs/tests.md`.
 
 ## Endpoints & écran fournisseur (PR 2)
 
@@ -143,7 +142,7 @@ L'onboarding **crée la première organisation** de l'utilisateur et fixe son ty
   `inertia/components/base_radio_group.vue` (cartes radio génériques) + i18n
   `resources/lang/{fr,en}/onboarding.json`.
 - **Tests** : `tests/functional/onboarding.spec.ts` (redirection signup→onboarding, rendu écran,
-  création org+owner+org courante, déjà-onboardé, gate middleware — SQLite, seed `RoleSeeder`) +
+  création org+owner+org courante, déjà-onboardé, gate middleware — seed `RoleSeeder`) +
   `tests/inertia/onboarding.spec.ts` et test unitaire `base_radio_group`.
 
 ## Annuaire public fournisseurs (PR 4)
@@ -251,8 +250,7 @@ redirection, jamais rendue en page d'erreur générique).
   `router.delete`, repris de `admin/categories/index.vue`). Nouveau composant
   partagé `inertia/components/organization/section_nav.vue` (onglets
   Paramètres/Membres) sur `organization/{settings,members}.vue`.
-- **Tests** `tests/functional/organization_members.spec.ts` — **SQLite et
-  Postgres** (aucune fonctionnalité catalogue requise ; seed direct
+- **Tests** `tests/functional/organization_members.spec.ts` (seed direct
   `RoleSeeder`/`PermissionSeeder`/`RolePermissionSeeder`, pattern
   `admin_categories.spec.ts`, plutôt que `MainSeeder`) : liste, 403, rôle,
   protection dernier owner (rétrogradation + retrait), retrait simple,
@@ -320,7 +318,7 @@ secret.
   signup).
 - **Tests** `tests/functional/organization_invitations.spec.ts` (8) et
   `organization_invitation_acceptance.spec.ts` (10, dont redirection post-
-  auth) — SQLite et Postgres, `mail.fake()`. `tests/unit/safe_redirect.spec.ts`,
+  auth) — `mail.fake()`. `tests/unit/safe_redirect.spec.ts`,
   `tests/inertia/organization_invitation_accept.spec.ts`.
 
 ## Renvoi d'une invitation (PR org-settings 4/3)

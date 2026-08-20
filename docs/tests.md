@@ -2,10 +2,10 @@
 
 ## Stack
 
-| Couche                      | Framework                | Environnement                                                            |
-| --------------------------- | ------------------------ | ------------------------------------------------------------------------ |
-| Backend (unit + functional) | Japa                     | SQLite (défaut) · PostgreSQL pour le catalogue (CI / `DB_CONNECTION=pg`) |
-| Frontend (composants Vue)   | Vitest + @vue/test-utils | happy-dom                                                                |
+| Couche                      | Framework                | Environnement                                               |
+| --------------------------- | ------------------------ | ----------------------------------------------------------- |
+| Backend (unit + functional) | Japa                     | PostgreSQL (`pgvector/pgvector:pg18`), en local comme en CI |
+| Frontend (composants Vue)   | Vitest + @vue/test-utils | happy-dom                                                   |
 
 ---
 
@@ -14,7 +14,8 @@
 ### Commandes
 
 ```bash
-node ace test                        # toutes les suites
+pnpm test:db                         # démarre la base de test (une fois)
+pnpm test                            # toutes les suites
 node ace test --suites=unit          # tests unitaires uniquement
 node ace test --suites=functional    # tests fonctionnels uniquement
 ```
@@ -41,13 +42,57 @@ Plugins Japa enregistrés :
 
 ### Base de données en test
 
-`config/database.ts` : en test, la connexion suit `DB_CONNECTION` (défaut **SQLite**,
-fichier `tmp/db.sqlite3`). **La CI force `DB_CONNECTION=pg`** (image `pgvector/pgvector:pg18`).
+**PostgreSQL est le seul moteur supporté**, tests compris : le schéma dépend de pgvector,
+`tsvector`, des colonnes générées, de `text[]` et de contraintes `CHECK` posées en SQL brut.
+`config/database.ts` n'expose plus qu'une connexion `pg` — il n'y a plus de variable
+`DB_CONNECTION`, ni de repli SQLite (il ne faisait plus tourner les migrations, et testait
+de toute façon un moteur différent de la production).
 
-Il n'y a **aucun setup DB automatique** (`runnerHooks` vides) : chaque groupe qui touche
-la base l'initialise lui-même via `testUtils.db()` — `migrate()` / `truncate()` / `seed()`
-/ `withGlobalTransaction()` (chacun sauf `seed` renvoie un cleanup à passer au hook Japa).
-Pas de factories : semer via les seeders.
+`.env.test` porte la configuration de la base de test (`127.0.0.1:5433`, base `test`), donc
+**aucune variable à passer à la main** :
+
+```bash
+pnpm test:db   # docker compose --profile test up -d postgres_test
+pnpm test
+```
+
+Le service `postgres_test` du `docker-compose.yml` écoute sur **5433** (5432 est souvent pris
+par un autre projet) et stocke ses données en `tmpfs` — rien ne survit à l'arrêt du
+conteneur, c'est voulu.
+
+Ordre de chargement AdonisJS : `.env.test.local` → `.env.test` → `.env`. Les valeurs de
+`.env.test` écrasent donc celles de `.env`, mais une **vraie variable d'environnement** prime
+sur les deux — c'est ainsi que la CI impose son propre hôte et son propre port sans toucher
+au fichier.
+
+#### Garde-fou : impossible de viser la base de dev
+
+La suite tronque toutes les tables au fil des groupes. `tests/bootstrap.ts` refuse donc de
+démarrer si `DB_DATABASE` ne se termine pas par `test` :
+
+```
+Base de données "promotionnal-sourcing_dev" refusée : la suite tronque toutes les tables
+et n'accepte qu'une base dont le nom se termine par "test".
+```
+
+#### Initialisation par groupe
+
+Il n'y a **aucun setup DB automatique** : chaque groupe qui touche la base l'initialise
+lui-même via `testUtils.db()` — `migrate()` / `truncate()` / `seed()` /
+`withGlobalTransaction()` (chacun sauf `seed` renvoie un cleanup à passer au hook Japa).
+`truncate()` lance au passage `migration:run` (idempotent) et vide les tables au teardown, le
+schéma étant conservé entre les groupes.
+
+Pas de factories : semer via les seeders. On sème via `MainSeeder` (ordre des dépendances) et
+non `db:seed`, qui exécuterait aussi chaque seeder isolément → `dev_user` avant les rôles.
+
+```ts
+test.group('Catalogue …', (group) => {
+  group.setup(() => testUtils.db().truncate())
+  group.setup(() => new MainSeeder(db.connection()).run())
+  // tests…
+})
+```
 
 Pour isoler chaque test dans une transaction annulée :
 
@@ -56,68 +101,6 @@ test.group('Mon groupe', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 })
 ```
-
-#### Catalogue : tests gardés par dialecte (PostgreSQL)
-
-Le catalogue utilise des fonctionnalités **PostgreSQL** (pgvector, `tsvector`, colonnes
-générées) absentes de SQLite. Les groupes catalogue sont donc gardés par
-`isPostgres()` (`tests/utils/database.ts`) : exécutés sous Postgres (CI + `DB_CONNECTION=pg`
-en local), **sautés** sinon. On sème via `MainSeeder` (ordre des dépendances) et non
-`db:seed` (qui exécuterait aussi chaque seeder isolément → `dev_user` avant les rôles).
-
-```ts
-import { isPostgres } from '#tests/utils/database'
-import MainSeeder from '#database/seeders/main_seeder'
-import db from '@adonisjs/lucid/services/db'
-
-test.group('Catalogue …', (group) => {
-  if (isPostgres()) {
-    group.setup(() => testUtils.db().truncate())
-    group.setup(() => new MainSeeder(db.connection()).run())
-  } else {
-    group.tap((t) => t.skip(true, 'Catalogue : PostgreSQL requis'))
-  }
-  // tests…
-})
-```
-
-### Lancer la suite Postgres en local
-
-`.env.test` ne contient **aucune** configuration base de données (seulement
-`SESSION_DRIVER=memory`) : les variables `DB_*` doivent être passées à la
-commande. Le reste (`APP_KEY`, `QUEUE_DRIVER`…) est hérité de `.env`.
-
-Base de test dédiée, via le profil `test` du `docker-compose.yml` :
-
-```bash
-docker compose --profile test up -d postgres_test
-
-NODE_ENV=test DB_CONNECTION=pg DB_HOST=localhost DB_PORT=5432 \
-  DB_USER=test DB_PASSWORD=test DB_DATABASE=test \
-  LOG_LEVEL=error pnpm test
-```
-
-`LOG_LEVEL=error` est optionnel (mêmes valeurs que la CI) : sans lui, les logs
-applicatifs noient la sortie des tests.
-
-> **Port 5432 déjà pris ?** Le conteneur `postgres_test` l'expose en dur ; si un
-> autre projet l'occupe, créer plutôt une base de test dans le conteneur de
-> **dev** (port 5430) — la suite `truncate` ses propres tables, la base de dev
-> reste intacte :
->
-> ```bash
-> docker exec promotionnal-sourcing-postgres \
->   psql -U promotionnal-sourcing -d postgres \
->   -c 'CREATE DATABASE "promotionnal-sourcing_test"'
->
-> NODE_ENV=test DB_CONNECTION=pg DB_HOST=localhost DB_PORT=5430 \
->   DB_USER=promotionnal-sourcing DB_PASSWORD=promotionnal-sourcing \
->   DB_DATABASE=promotionnal-sourcing_test LOG_LEVEL=error pnpm test
-> ```
-
-Sans ces variables, la connexion retombe sur SQLite : les migrations du
-catalogue (pgvector, `tsvector`) échouent et les groupes gardés par
-`isPostgres()` sont sautés.
 
 ### Exemple test fonctionnel
 

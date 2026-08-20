@@ -1,16 +1,11 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import testUtils from '@adonisjs/core/services/test_utils'
-import { isPostgres } from '#tests/utils/database'
 import MainSeeder from '#database/seeders/main_seeder'
 
 test.group('Catalogue — full-text par langue', (group) => {
-  if (isPostgres()) {
-    group.setup(() => testUtils.db().truncate())
-    group.setup(() => new MainSeeder(db.connection()).run())
-  } else {
-    group.tap((t) => t.skip(true, 'FTS : PostgreSQL requis (tsvector)'))
-  }
+  group.setup(() => testUtils.db().truncate())
+  group.setup(() => new MainSeeder(db.connection()).run())
 
   test('recherche anglaise (watercolor) → uniquement la ligne EN', async ({ assert }) => {
     const result = await db.rawQuery(

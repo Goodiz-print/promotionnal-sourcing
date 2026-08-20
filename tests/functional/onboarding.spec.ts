@@ -12,7 +12,7 @@ async function makeUser(email: string): Promise<User> {
 }
 
 test.group('Onboarding — création de la 1re organisation', (group) => {
-  // SQLite suffit (pas de catalogue) ; on sème uniquement les rôles pour `owner`.
+  // Pas de catalogue ici : on sème uniquement les rôles, pour `owner`.
   group.each.setup(() => testUtils.db().truncate())
   group.each.setup(() => new RoleSeeder(db.connection()).run())
 

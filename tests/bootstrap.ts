@@ -1,3 +1,4 @@
+import env from '#start/env'
 import { assert } from '@japa/assert'
 import { apiClient } from '@japa/api-client'
 import app from '@adonisjs/core/services/app'
@@ -36,8 +37,30 @@ export const plugins: Config['plugins'] = [
  * The setup functions are executed before all the tests
  * The teardown functions are executed after all the tests
  */
+/**
+ * Garde-fou : la suite tronque toutes les tables au fil des groupes. Un
+ * `DB_DATABASE` hérité de `.env` (base de développement) détruirait donc les
+ * données locales sans prévenir. On refuse de démarrer si le nom de la base ne
+ * se termine pas par `test`.
+ */
+function assertTestDatabase(): void {
+  const database = env.get('DB_DATABASE')
+  if (database.endsWith('test')) return
+
+  // `process.exit` plutôt qu'un `throw` : une exception levée dans un hook
+  // global laisse le runner Japa avec ses handles ouverts (`forceExit: false`
+  // dans `adonisrc.ts`) — le message s'affiche mais le process ne rend jamais
+  // la main.
+  console.error(
+    `\nBase de données "${database}" refusée : la suite tronque toutes les tables et ` +
+      `n'accepte qu'une base dont le nom se termine par "test".\n` +
+      `Lancer \`pnpm test:db\` puis \`pnpm test\` (cf. docs/tests.md).\n`
+  )
+  process.exit(1)
+}
+
 export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
-  setup: [],
+  setup: [() => assertTestDatabase()],
   teardown: [],
 }
 

@@ -1,7 +1,6 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import testUtils from '@adonisjs/core/services/test_utils'
-import { isPostgres } from '#tests/utils/database'
 import MainSeeder from '#database/seeders/main_seeder'
 import Organization from '#models/organization'
 import User from '#models/user'
@@ -20,13 +19,9 @@ async function devUserWithCurrentOrg(slug: string): Promise<User> {
 }
 
 test.group('Profil fournisseur — CRUD', (group) => {
-  if (isPostgres()) {
-    // Isolation par test : le PATCH mute le profil, on re-sème avant chacun.
-    group.each.setup(() => testUtils.db().truncate())
-    group.each.setup(() => new MainSeeder(db.connection()).run())
-  } else {
-    group.tap((t) => t.skip(true, 'Requiert PostgreSQL (seed catalogue pgvector/tsvector)'))
-  }
+  // Isolation par test : le PATCH mute le profil, on re-sème avant chacun.
+  group.each.setup(() => testUtils.db().truncate())
+  group.each.setup(() => new MainSeeder(db.connection()).run())
 
   test("l'écran affiche le profil de l'organisation fournisseur courante", async ({ client }) => {
     const user = await devUserWithCurrentOrg('eurogoods-org')

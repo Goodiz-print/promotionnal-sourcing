@@ -1,7 +1,6 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import testUtils from '@adonisjs/core/services/test_utils'
-import { isPostgres } from '#tests/utils/database'
 import MainSeeder from '#database/seeders/main_seeder'
 import Organization from '#models/organization'
 import User from '#models/user'
@@ -18,12 +17,8 @@ async function devUserWithCurrentOrg(slug: string): Promise<User> {
 }
 
 test.group('Gestion produits fournisseur — CRUD', (group) => {
-  if (isPostgres()) {
-    group.each.setup(() => testUtils.db().truncate())
-    group.each.setup(() => new MainSeeder(db.connection()).run())
-  } else {
-    group.tap((t) => t.skip(true, 'Requiert PostgreSQL (seed catalogue pgvector/tsvector)'))
-  }
+  group.each.setup(() => testUtils.db().truncate())
+  group.each.setup(() => new MainSeeder(db.connection()).run())
 
   test('le fournisseur crée un produit (translations + facettes) publié au catalogue', async ({
     client,
