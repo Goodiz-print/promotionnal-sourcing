@@ -4,10 +4,21 @@ build
 tmp/*
 !tmp/.gitkeep
 
-# Code généré par l'assembler AdonisJS (régénéré par `ace serve` / `ace build` / `ace test`)
-# NB : database/schema.ts est aussi généré, mais reste versionné — sa regénération
-# (`ace schema:generate`) exige une base de données, indisponible dans les jobs CI lint/build.
-.adonisjs
+# Codegen AdonisJS régénéré par `ace build` / `ace serve` / `ace test` — inutile
+# de le versionner. Les 4 fichiers restants de `.adonisjs/` (registry client +
+# server/routes.d.ts) sont eux produits par le **seul** `ace serve` (tuyau, qui
+# a besoin du routeur booté) : ils restent versionnés, sinon la CI, qui ne lance
+# jamais le serveur, ne peut ni builder le bundle client ni rendre les pages SSR.
+# NB : database/schema.ts est aussi généré, mais reste versionné — sa
+# regénération (`ace schema:generate`) exige une base de données, indisponible
+# dans les jobs CI lint/build.
+.adonisjs/client/data.d.ts
+.adonisjs/client/manifest.d.ts
+.adonisjs/server/controllers.ts
+.adonisjs/server/events.ts
+.adonisjs/server/listeners.ts
+.adonisjs/server/pages.d.ts
+.adonisjs/server/policies.ts
 
 # Secrets
 .env
