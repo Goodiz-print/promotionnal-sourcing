@@ -247,6 +247,66 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/settings_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'organization.switch': {
+    methods: ["POST"]
+    pattern: '/:locale/organization/switch/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['switch']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['switch']>>>
+    }
+  }
+  'organization.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/organization/new'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['create']>>>
+    }
+  }
+  'organization.store': {
+    methods: ["POST"]
+    pattern: '/:locale/organization/new'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/onboarding').onboardingValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/onboarding').onboardingValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'organization.leave': {
+    methods: ["DELETE"]
+    pattern: '/:locale/organization/leave'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['leave']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['leave']>>>
+    }
+  }
+  'organization.archive': {
+    methods: ["POST"]
+    pattern: '/:locale/organization/archive'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['archive']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['archive']>>>
+    }
+  }
   'organization.members': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/organization/members'

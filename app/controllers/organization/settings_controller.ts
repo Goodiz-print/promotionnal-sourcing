@@ -21,11 +21,15 @@ export default class OrganizationSettingsController {
    * Écran d'édition des paramètres généraux de l'organisation courante.
    */
   async show({ auth, bouncer, inertia }: HttpContext) {
-    const org = await this.organizations.currentFor(auth.getUserOrFail())
+    const user = auth.getUserOrFail()
+    const org = await this.organizations.currentFor(user)
     await bouncer.authorize('canManageOrganization', org)
 
     return inertia.render('organization/settings', {
       organization: new OrganizationTransformer(org).toObject(),
+      // Masque le bouton « quitter » pour le dernier owner (le refus reste
+      // appliqué côté service).
+      canLeave: await this.service.canLeave(user, org),
     })
   }
 

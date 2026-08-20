@@ -33,5 +33,14 @@ const { t, locale } = useI18n()
     >
       {{ t('organization.nav.members') }}
     </Link>
+    <!-- Point d'entrée de la création : le sélecteur d'organisation étant masqué
+         tant qu'on n'en a qu'une, il ne peut pas porter cette action. -->
+    <Link
+      route="organization.create"
+      :params="{ locale }"
+      class="ml-auto border-b-2 border-transparent px-1 pb-3 text-sm font-medium text-[var(--color-primary)] hover:underline"
+    >
+      {{ t('organization.nav.create') }}
+    </Link>
   </nav>
 </template>

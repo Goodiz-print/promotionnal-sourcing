@@ -92,6 +92,26 @@ router
               .post('organization/settings', [controllers.organization.Settings, 'update'])
               .as('organization.settings.update')
 
+            // Cycle de vie : bascule d'organisation (sélecteur, affiché au-delà
+            // d'une organisation) et création d'une organisation supplémentaire.
+            router
+              .post('organization/switch/:id', [controllers.organization.Lifecycle, 'switch'])
+              .as('organization.switch')
+            router
+              .get('organization/new', [controllers.organization.Lifecycle, 'create'])
+              .as('organization.create')
+            router
+              .post('organization/new', [controllers.organization.Lifecycle, 'store'])
+              .as('organization.store')
+
+            // Départ volontaire et archivage de l'organisation courante.
+            router
+              .delete('organization/leave', [controllers.organization.Lifecycle, 'leave'])
+              .as('organization.leave')
+            router
+              .post('organization/archive', [controllers.organization.Lifecycle, 'archive'])
+              .as('organization.archive')
+
             // Gestion des membres de l'organisation courante (rôle, retrait).
             router
               .get('organization/members', [controllers.organization.Members, 'index'])

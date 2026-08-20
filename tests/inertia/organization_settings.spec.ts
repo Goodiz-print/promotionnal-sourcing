@@ -78,7 +78,9 @@ const baseOrganization = {
 
 describe('organization/settings.vue', () => {
   it('affiche le formulaire avec les libellés traduits', () => {
-    const wrapper = mount(OrganizationSettings, { props: { organization: baseOrganization } })
+    const wrapper = mount(OrganizationSettings, {
+      props: { organization: baseOrganization, canLeave: true },
+    })
 
     expect(wrapper.text()).toContain("Paramètres de l'organisation")
     expect(wrapper.find('#name').exists()).toBe(true)
@@ -88,7 +90,9 @@ describe('organization/settings.vue', () => {
   })
 
   it('propose les 5 tailles + option non précisé', () => {
-    const wrapper = mount(OrganizationSettings, { props: { organization: baseOrganization } })
+    const wrapper = mount(OrganizationSettings, {
+      props: { organization: baseOrganization, canLeave: true },
+    })
     const options = wrapper.find('#size').findAll('option')
 
     expect(options).toHaveLength(6)
@@ -103,14 +107,16 @@ describe('organization/settings.vue', () => {
       country: 'FR',
     }
 
-    const wrapper = mount(OrganizationSettings, { props: { organization } })
+    const wrapper = mount(OrganizationSettings, { props: { organization, canLeave: true } })
 
     expect((wrapper.find('#name').element as HTMLInputElement).value).toBe('EuroGoods SAS')
     expect((wrapper.find('#city').element as HTMLInputElement).value).toBe('Lyon')
   })
 
   it('ne rend jamais de champ slug éditable', () => {
-    const wrapper = mount(OrganizationSettings, { props: { organization: baseOrganization } })
+    const wrapper = mount(OrganizationSettings, {
+      props: { organization: baseOrganization, canLeave: true },
+    })
 
     expect(wrapper.find('#slug').exists()).toBe(false)
   })

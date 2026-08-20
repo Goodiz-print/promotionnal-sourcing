@@ -28,6 +28,11 @@ export interface ApiDefinition {
     settings: typeof routes['organization.settings'] & {
       update: typeof routes['organization.settings.update']
     }
+    switch: typeof routes['organization.switch']
+    create: typeof routes['organization.create']
+    store: typeof routes['organization.store']
+    leave: typeof routes['organization.leave']
+    archive: typeof routes['organization.archive']
     members: typeof routes['organization.members'] & {
       update: typeof routes['organization.members.update']
       destroy: typeof routes['organization.members.destroy']
