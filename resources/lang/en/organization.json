@@ -38,7 +38,8 @@
   },
   "nav": {
     "settings": "Settings",
-    "members": "Members"
+    "members": "Members",
+    "create": "New organization"
   },
   "members": {
     "title": "Organization members",
@@ -83,5 +84,16 @@
       "title": "Invalid invitation",
       "description": "This invitation link is invalid, has expired, or has already been used."
     }
+  },
+  "switch": {
+    "label": "Organization",
+    "done": "You are now working on {name}.",
+    "unavailable": "This organization is no longer available."
+  },
+  "create": {
+    "title": "Create an organization",
+    "subtitle": "You will switch to this new organization right away.",
+    "submit": "Create organization",
+    "success": "Organization {name} created."
   }
 }

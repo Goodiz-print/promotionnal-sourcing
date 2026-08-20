@@ -487,6 +487,70 @@ double archivage refusé, bascule interdite (étrangère/archivée), membre d'un
 organisation archivée avec et sans autre adhésion, disparition de l'annuaire
 public (fiche orpheline conservée).
 
+## Sélecteur d'organisation et création (PR lifecycle 2/3)
+
+### Sélecteur, seulement au-delà d'une organisation
+
+`inertia/components/organization/organization_switcher.vue`, placé dans le header
+de `inertia/layouts/default.vue`, **rendu uniquement si l'utilisateur a plus
+d'une organisation** : avec une seule, elle est imposée par le contexte
+(onboarding ou acceptation d'invitation) et il n'y a rien à choisir.
+
+Il s'appuie sur deux props partagées ajoutées à `InertiaMiddleware#share()` :
+
+- `organizations` — organisations **vivantes** de l'utilisateur
+  (`OrganizationContextService#membershipsFor` +
+  `OrganizationSummaryTransformer`) : une organisation archivée en sort
+  automatiquement ;
+- `currentOrganizationId` — pour présélectionner la courante.
+
+`share()` devient `async` (une requête, uniquement pour un utilisateur connecté).
+
+> ⚠️ `currentOrganizationId` vaut `undefined`, **jamais `null`** : le sérialiseur
+> de props d'`@adonisjs/http-transformers` lève
+> `Cannot serialize an item with null value`, ce qui fait tomber en 500 toutes
+> les pages rendues sans utilisateur (catalogue, login…). Le prop `user` suivait
+> déjà cette convention.
+
+### Routes et controller
+
+`app/controllers/organization/lifecycle_controller.ts`, sous le middleware
+`onboarded` :
+
+| Route                          | Nom                   | Rôle                |
+| ------------------------------ | --------------------- | ------------------- |
+| `POST organization/switch/:id` | `organization.switch` | Bascule (sélecteur) |
+| `GET organization/new`         | `organization.create` | Écran de création   |
+| `POST organization/new`        | `organization.store`  | Création + bascule  |
+
+Basculer sur une organisation étrangère ou archivée donne un **flash d'erreur**
+et un `redirect().back()`, pas une page d'erreur : le sélecteur peut afficher un
+état obsolète (organisation archivée entre deux requêtes), ce n'est pas une faute
+de l'utilisateur.
+
+### Création d'une organisation supplémentaire
+
+Écran `inertia/pages/organization/create.vue`. Les champs (nom + type
+acheteur/fournisseur) sont **extraits** en
+`inertia/components/organization/form/organization_form_fields.vue`, partagé avec
+`inertia/pages/onboarding/index.vue` — le formulaire est passé par
+provide/inject (`OrganizationFormKey`), même pattern que les paramètres généraux.
+Le validator est celui de l'onboarding : payload identique, slug dérivé du nom
+côté service.
+
+La création **bascule** sur la nouvelle organisation — c'est l'intention de qui
+la crée. Le point d'entrée est dans la nav des paramètres
+(`section_nav.vue`) : le sélecteur étant masqué tant qu'on n'a qu'une
+organisation, il ne peut pas porter cette action.
+
+### Tests
+
+`tests/functional/organization_lifecycle.spec.ts` (+6 : props du sélecteur,
+exclusion d'une organisation archivée, bascule, bascule refusée sur une
+organisation étrangère, écran de création, création qui bascule) et
+`tests/inertia/organization_switcher.spec.ts` (masqué à une organisation, listé
+au-delà, `router.post` au changement et no-op sur la courante).
+
 ## Roadmap
 
 Découpage de la Phase 2 en 4 PR :
@@ -508,9 +572,8 @@ email) faits — série complète ; PR4 (renvoi d'une invitation) et PR5 (purge 
 invitations expirées) empilées dessus.
 
 Découpage « cycle de vie de l'organisation » : PR 1 (socle backend, section
-ci-dessus) faite ; **PR 2** (sélecteur d'organisation + création d'une
-organisation supplémentaire : props partagées Inertia, `organization_switcher.vue`,
-écran `organization/create.vue`) et **PR 3** (« quitter » et « archiver » côté UI :
+ci-dessus) et **PR 2** (sélecteur + création, section ci-dessus) faites ;
+**PR 3** (« quitter » et « archiver » côté UI :
 zone de danger dans les paramètres, variant `danger` de `base_button`) à venir.
 
 **Restant sur le domaine organisations** (hors périmètre de ces PR) :

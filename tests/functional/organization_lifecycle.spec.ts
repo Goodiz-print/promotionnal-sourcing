@@ -271,4 +271,108 @@ test.group("Cycle de vie de l'organisation", (group) => {
     assert.includeMembers(slugs, ['beta-supplier', 'orphan-supplier'])
     assert.isNull(await directory.findBySlug('acme-supplier'))
   })
+
+  test("le sélecteur d'organisation est exposé aux pages Inertia", async ({ client, assert }) => {
+    const first = await makeOrganization('Acme', 'acme')
+    const second = await makeOrganization('Beta', 'beta')
+    const user = await makeUser('owner@example.com')
+    await join(user, first, 'owner', { asCurrent: false })
+    await join(user, second, 'owner')
+
+    const response = await client.get('/fr/organization/members').withInertia().loginAs(user)
+
+    response.assertStatus(200)
+    assert.deepEqual(
+      response.inertiaProps.organizations.map(
+        (organization: { name: string }) => organization.name
+      ),
+      ['Acme', 'Beta']
+    )
+    assert.equal(response.inertiaProps.currentOrganizationId, second.id)
+  })
+
+  test('une organisation archivée sort du sélecteur', async ({ client, assert }) => {
+    const kept = await makeOrganization('Acme', 'acme')
+    const archived = await makeOrganization('Beta', 'beta')
+    const user = await makeUser('owner@example.com')
+    await join(user, kept, 'owner')
+    await join(user, archived, 'owner', { asCurrent: false })
+
+    const service = await app.container.make(OrganizationService)
+    await service.archive(archived)
+
+    const response = await client.get('/fr/organization/members').withInertia().loginAs(user)
+
+    assert.lengthOf(response.inertiaProps.organizations, 1)
+    assert.equal(response.inertiaProps.organizations[0].name, 'Acme')
+  })
+
+  test("basculer d'organisation via le sélecteur", async ({ client, assert }) => {
+    const first = await makeOrganization('Acme', 'acme')
+    const second = await makeOrganization('Beta', 'beta')
+    const user = await makeUser('owner@example.com')
+    await join(user, first, 'owner', { asCurrent: false })
+    await join(user, second, 'owner')
+
+    const response = await client
+      .post(`/fr/organization/switch/${first.id}`)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(user)
+
+    response.assertStatus(200)
+    await user.refresh()
+    assert.equal(user.currentOrganizationId, first.id)
+  })
+
+  test('basculer sur une organisation étrangère ne change rien', async ({ client, assert }) => {
+    const mine = await makeOrganization('Acme', 'acme')
+    const foreign = await makeOrganization('Beta', 'beta')
+    const user = await makeUser('owner@example.com')
+    await join(user, mine, 'owner')
+
+    const response = await client
+      .post(`/fr/organization/switch/${foreign.id}`)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(user)
+
+    response.assertStatus(200)
+    await user.refresh()
+    assert.equal(user.currentOrganizationId, mine.id)
+  })
+
+  test("l'écran de création d'une organisation supplémentaire est accessible", async ({
+    client,
+  }) => {
+    const org = await makeOrganization('Acme', 'acme')
+    const user = await makeUser('owner@example.com')
+    await join(user, org, 'owner')
+
+    const response = await client.get('/fr/organization/new').withInertia().loginAs(user)
+
+    response.assertStatus(200)
+    response.assertInertiaComponent('organization/create')
+  })
+
+  test('créer une organisation depuis les paramètres bascule dessus', async ({
+    client,
+    assert,
+  }) => {
+    const org = await makeOrganization('Acme', 'acme')
+    const user = await makeUser('owner@example.com')
+    await join(user, org, 'owner')
+
+    const response = await client
+      .post('/fr/organization/new')
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(user)
+      .json({ name: 'Beta', organizationType: 'buyer' })
+
+    response.assertStatus(200)
+    await user.refresh()
+    const created = await Organization.findByOrFail('slug', 'beta')
+    assert.equal(user.currentOrganizationId, created.id)
+  })
 })

@@ -6,6 +6,7 @@ import type { Data } from '@generated/data'
 import { Link, Form } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
 import LanguageSwitcher from '~/components/language_switcher.vue'
+import OrganizationSwitcher from '~/components/organization/organization_switcher.vue'
 
 const page = usePage<Data.SharedProps>()
 const { locale } = useI18n()
@@ -52,6 +53,7 @@ watch(
         <nav class="flex items-center gap-6.5">
           <LanguageSwitcher />
           <template v-if="page.props.user">
+            <OrganizationSwitcher />
             <span>{{ page.props.user.initials }}</span>
             <Form route="session.destroy" :params="{ locale }">
               <button

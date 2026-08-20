@@ -24,6 +24,9 @@ export type ScannedRoutes = {
     'organization.invitations.accept': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'organization.settings': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.settings.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'organization.switch': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'organization.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'organization.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.members': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.members.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'organization.members.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -57,6 +60,7 @@ export type ScannedRoutes = {
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'onboarding.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.settings': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'organization.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.members': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.profile': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -78,6 +82,7 @@ export type ScannedRoutes = {
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'onboarding.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.settings': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'organization.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.members': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.profile': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -97,6 +102,8 @@ export type ScannedRoutes = {
     'onboarding.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.invitations.accept': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'organization.settings.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'organization.switch': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'organization.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.invitations.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.invitations.resend': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.products.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }

@@ -1,12 +1,22 @@
+import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import i18nManager from '@adonisjs/i18n/services/main'
 import UserTransformer from '#transformers/user_transformer'
+import OrganizationSummaryTransformer from '#transformers/organization_summary_transformer'
+import OrganizationContextService from '#services/organization_context_service'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
 import { DEFAULT_LOCALE } from '#shared/types/i18n'
+import type User from '#models/user'
+import type { OrganizationSummaryType } from '#shared/types/organization'
 
+@inject()
 export default class InertiaMiddleware extends BaseInertiaMiddleware {
-  share(ctx: HttpContext) {
+  constructor(private organizations: OrganizationContextService) {
+    super()
+  }
+
+  async share(ctx: HttpContext) {
     /**
      * The share method is called everytime an Inertia page is rendered. In
      * certain cases, a page may get rendered before the session middleware
@@ -31,6 +41,13 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
     const locale = i18n?.locale ?? DEFAULT_LOCALE
 
     /**
+     * Sélecteur d'organisation : organisations vivantes de l'utilisateur et
+     * identifiant de la courante. Une seule requête, jamais pour un visiteur
+     * anonyme ; le sélecteur ne s'affiche qu'au-delà d'une organisation.
+     */
+    const organizations = auth?.user ? await this.summariesFor(auth.user) : []
+
+    /**
      * Data shared with all Inertia pages. Make sure you are using
      * transformers for rich data-types like Models.
      */
@@ -44,7 +61,20 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       locale: ctx.inertia.always(locale),
       supportedLocales: ctx.inertia.always(i18nManager.supportedLocales()),
       translations: ctx.inertia.always(i18nManager.getTranslationsFor(locale)),
+      organizations: ctx.inertia.always(organizations),
+      // `undefined` et non `null` : le sérialiseur de props refuse une valeur
+      // nulle (`Cannot serialize an item with null value`), y compris sur les
+      // pages publiques rendues sans utilisateur connecté. Même convention que
+      // le prop `user` ci-dessus.
+      currentOrganizationId: ctx.inertia.always(auth?.user?.currentOrganizationId ?? undefined),
     }
+  }
+
+  private async summariesFor(user: User): Promise<OrganizationSummaryType[]> {
+    const memberships = await this.organizations.membershipsFor(user)
+    return memberships.map((membership) =>
+      new OrganizationSummaryTransformer(membership).toObject()
+    )
   }
 
   async handle(ctx: HttpContext, next: NextFn) {

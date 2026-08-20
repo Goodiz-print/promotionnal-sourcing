@@ -164,6 +164,19 @@ export type PurgeInvitationsResult = {
   deleted: number
 }
 
+/**
+ * Organisation résumée pour le sélecteur (prop partagée Inertia) : de quoi
+ * l'identifier et savoir à quel titre l'utilisateur y appartient. Le sélecteur
+ * n'est affiché qu'au-delà d'une organisation.
+ */
+export type OrganizationSummaryType = {
+  id: number
+  name: string
+  slug: string
+  logoUrl: string | null
+  role: RoleType
+}
+
 export interface InviteMemberData {
   email: string
   roleId: number

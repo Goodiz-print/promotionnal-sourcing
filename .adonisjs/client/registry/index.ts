@@ -126,6 +126,24 @@ const routes = {
     tokens: [{"old":"/:locale/organization/settings","type":1,"val":"locale","end":""},{"old":"/:locale/organization/settings","type":0,"val":"organization","end":""},{"old":"/:locale/organization/settings","type":0,"val":"settings","end":""}],
     types: placeholder as Registry['organization.settings.update']['types'],
   },
+  'organization.switch': {
+    methods: ["POST"],
+    pattern: '/:locale/organization/switch/:id',
+    tokens: [{"old":"/:locale/organization/switch/:id","type":1,"val":"locale","end":""},{"old":"/:locale/organization/switch/:id","type":0,"val":"organization","end":""},{"old":"/:locale/organization/switch/:id","type":0,"val":"switch","end":""},{"old":"/:locale/organization/switch/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['organization.switch']['types'],
+  },
+  'organization.create': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/organization/new',
+    tokens: [{"old":"/:locale/organization/new","type":1,"val":"locale","end":""},{"old":"/:locale/organization/new","type":0,"val":"organization","end":""},{"old":"/:locale/organization/new","type":0,"val":"new","end":""}],
+    types: placeholder as Registry['organization.create']['types'],
+  },
+  'organization.store': {
+    methods: ["POST"],
+    pattern: '/:locale/organization/new',
+    tokens: [{"old":"/:locale/organization/new","type":1,"val":"locale","end":""},{"old":"/:locale/organization/new","type":0,"val":"organization","end":""},{"old":"/:locale/organization/new","type":0,"val":"new","end":""}],
+    types: placeholder as Registry['organization.store']['types'],
+  },
   'organization.members': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/organization/members',
