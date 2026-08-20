@@ -52,5 +52,33 @@
     "roleUpdated": "Member role updated.",
     "removed": "Member removed from the organization.",
     "lastOwnerError": "Cannot remove or demote the organization's last owner."
+  },
+  "invitations": {
+    "inviteTitle": "Invite a member",
+    "emailLabel": "Email",
+    "roleLabel": "Role",
+    "submit": "Send invitation",
+    "pendingTitle": "Pending invitations",
+    "revoke": "Revoke",
+    "confirmRevoke": "Revoke this invitation?",
+    "sent": "Invitation sent.",
+    "revoked": "Invitation revoked.",
+    "alreadyMember": "This email already belongs to a member of the organization.",
+    "accept": {
+      "title": "Invitation to join an organization",
+      "description": "You've been invited to join {organization} with the role {role}.",
+      "submit": "Accept invitation",
+      "login": "Log in",
+      "signup": "Create an account",
+      "wrongAccount": "You're logged in as {email}, but this invitation is for a different address.",
+      "loginAsInvited": "Log out and log in with the correct address",
+      "success": "You've joined the organization.",
+      "invalid": "This invitation is no longer valid.",
+      "emailMismatch": "This invitation is for a different email address."
+    },
+    "invalid": {
+      "title": "Invalid invitation",
+      "description": "This invitation link is invalid, has expired, or has already been used."
+    }
   }
 }

@@ -5,17 +5,20 @@ import { urlFor } from '~/client'
 import BaseInput from '~/components/base_input.vue'
 import BaseButton from '~/components/base_button.vue'
 
+const props = defineProps<{ redirect?: string | null; email?: string | null }>()
+
 const { t, locale } = useI18n()
 
 const form = useForm({
   fullName: '',
-  email: '',
+  email: props.email ?? '',
   password: '',
   passwordConfirmation: '',
 })
 
 function submit() {
-  form.post(urlFor('new_account.store', { locale: locale.value }))
+  const target = urlFor('new_account.store', { locale: locale.value })
+  form.post(props.redirect ? `${target}?redirect=${encodeURIComponent(props.redirect)}` : target)
 }
 </script>
 

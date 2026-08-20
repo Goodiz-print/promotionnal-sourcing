@@ -60,6 +60,12 @@ const routes = {
     tokens: [{"old":"/:locale/products/:slug","type":1,"val":"locale","end":""},{"old":"/:locale/products/:slug","type":0,"val":"products","end":""},{"old":"/:locale/products/:slug","type":1,"val":"slug","end":""}],
     types: placeholder as Registry['products.show']['types'],
   },
+  'organization.invitations.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/organization/invitations/:id/accept',
+    tokens: [{"old":"/:locale/organization/invitations/:id/accept","type":1,"val":"locale","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":0,"val":"organization","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":0,"val":"invitations","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":1,"val":"id","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":0,"val":"accept","end":""}],
+    types: placeholder as Registry['organization.invitations.show']['types'],
+  },
   'new_account.create': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/signup',
@@ -102,6 +108,12 @@ const routes = {
     tokens: [{"old":"/:locale/onboarding","type":1,"val":"locale","end":""},{"old":"/:locale/onboarding","type":0,"val":"onboarding","end":""}],
     types: placeholder as Registry['onboarding.store']['types'],
   },
+  'organization.invitations.accept': {
+    methods: ["POST"],
+    pattern: '/:locale/organization/invitations/:id/accept',
+    tokens: [{"old":"/:locale/organization/invitations/:id/accept","type":1,"val":"locale","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":0,"val":"organization","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":0,"val":"invitations","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":1,"val":"id","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":0,"val":"accept","end":""}],
+    types: placeholder as Registry['organization.invitations.accept']['types'],
+  },
   'organization.settings': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/organization/settings',
@@ -131,6 +143,18 @@ const routes = {
     pattern: '/:locale/organization/members/:id',
     tokens: [{"old":"/:locale/organization/members/:id","type":1,"val":"locale","end":""},{"old":"/:locale/organization/members/:id","type":0,"val":"organization","end":""},{"old":"/:locale/organization/members/:id","type":0,"val":"members","end":""},{"old":"/:locale/organization/members/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['organization.members.destroy']['types'],
+  },
+  'organization.invitations.store': {
+    methods: ["POST"],
+    pattern: '/:locale/organization/invitations',
+    tokens: [{"old":"/:locale/organization/invitations","type":1,"val":"locale","end":""},{"old":"/:locale/organization/invitations","type":0,"val":"organization","end":""},{"old":"/:locale/organization/invitations","type":0,"val":"invitations","end":""}],
+    types: placeholder as Registry['organization.invitations.store']['types'],
+  },
+  'organization.invitations.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/organization/invitations/:id',
+    tokens: [{"old":"/:locale/organization/invitations/:id","type":1,"val":"locale","end":""},{"old":"/:locale/organization/invitations/:id","type":0,"val":"organization","end":""},{"old":"/:locale/organization/invitations/:id","type":0,"val":"invitations","end":""},{"old":"/:locale/organization/invitations/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['organization.invitations.destroy']['types'],
   },
   'supplier.profile': {
     methods: ["GET","HEAD"],

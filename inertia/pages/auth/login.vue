@@ -5,6 +5,8 @@ import { urlFor } from '~/client'
 import BaseInput from '~/components/base_input.vue'
 import BaseButton from '~/components/base_button.vue'
 
+const props = defineProps<{ redirect?: string | null }>()
+
 const { t, locale } = useI18n()
 
 const form = useForm({
@@ -13,7 +15,8 @@ const form = useForm({
 })
 
 function submit() {
-  form.post(urlFor('session.store', { locale: locale.value }))
+  const target = urlFor('session.store', { locale: locale.value })
+  form.post(props.redirect ? `${target}?redirect=${encodeURIComponent(props.redirect)}` : target)
 }
 </script>
 

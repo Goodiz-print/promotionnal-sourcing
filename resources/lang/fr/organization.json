@@ -52,5 +52,33 @@
     "roleUpdated": "Rôle du membre mis à jour.",
     "removed": "Membre retiré de l'organisation.",
     "lastOwnerError": "Impossible de retirer ou rétrograder le dernier propriétaire de l'organisation."
+  },
+  "invitations": {
+    "inviteTitle": "Inviter un membre",
+    "emailLabel": "Email",
+    "roleLabel": "Rôle",
+    "submit": "Envoyer l'invitation",
+    "pendingTitle": "Invitations en attente",
+    "revoke": "Révoquer",
+    "confirmRevoke": "Révoquer cette invitation ?",
+    "sent": "Invitation envoyée.",
+    "revoked": "Invitation révoquée.",
+    "alreadyMember": "Cette adresse email appartient déjà à un membre de l'organisation.",
+    "accept": {
+      "title": "Invitation à rejoindre une organisation",
+      "description": "Vous êtes invité(e) à rejoindre {organization} avec le rôle {role}.",
+      "submit": "Accepter l'invitation",
+      "login": "Se connecter",
+      "signup": "Créer un compte",
+      "wrongAccount": "Vous êtes connecté(e) avec {email}, mais cette invitation est destinée à une autre adresse.",
+      "loginAsInvited": "Se déconnecter et se connecter avec la bonne adresse",
+      "success": "Vous avez rejoint l'organisation.",
+      "invalid": "Cette invitation n'est plus valide.",
+      "emailMismatch": "Cette invitation est destinée à une autre adresse email."
+    },
+    "invalid": {
+      "title": "Invitation invalide",
+      "description": "Ce lien d'invitation est invalide, a expiré ou a déjà été utilisé."
+    }
   }
 }
