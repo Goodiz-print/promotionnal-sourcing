@@ -8,6 +8,7 @@
 */
 
 import { middleware } from '#start/kernel'
+import { registerRfqRoutes } from '#start/routes/rfqs'
 import { controllers } from '#generated/controllers'
 import router from '@adonisjs/core/services/router'
 import transmit from '@adonisjs/transmit/services/main'
@@ -167,6 +168,9 @@ router
             router
               .delete('supplier/products/:id', [controllers.supplier.Product, 'destroy'])
               .as('supplier.products.destroy')
+
+            // Demandes de devis (acheteur) — cf. `start/routes/rfqs.ts`.
+            registerRfqRoutes()
 
             // Administration de la taxonomie du catalogue (catégories globales).
             router

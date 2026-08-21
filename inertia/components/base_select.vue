@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T extends string | null">
+<script setup lang="ts" generic="T extends string | number | null">
 import { computed } from 'vue'
 import BaseField from '~/components/base_field.vue'
 

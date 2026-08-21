@@ -1,0 +1,297 @@
+import { test } from '@japa/runner'
+import { OrganizationFactory } from '#database/factories/organization_factory'
+import Rfq from '#models/rfq'
+import RfqItem from '#models/rfq_item'
+import RfqSupplier from '#models/rfq_supplier'
+import { createMember } from '#tests/utils/organizations'
+import { useDatabase } from '#tests/utils/setup'
+import type Organization from '#models/organization'
+import type User from '#models/user'
+
+/**
+ * Écrans acheteur des demandes de devis : rendu Inertia, autorisations et
+ * transitions déclenchées depuis l'UI. Les règles elles-mêmes sont couvertes
+ * par `rfqs.spec.ts` (service) — ici on vérifie le câblage HTTP.
+ */
+async function buyerWithOwner(): Promise<{ org: Organization; owner: User }> {
+  const org = await OrganizationFactory.create()
+  const owner = await createMember(org, 'owner')
+  return { org, owner }
+}
+
+function itemPayload(overrides: Record<string, unknown> = {}) {
+  return { name: 'Tote bag 240g', quantity: 500, unit: 'pièce', ...overrides }
+}
+
+test.group('Écrans RFQ — acheteur', (group) => {
+  useDatabase(group)
+
+  test('la liste affiche les demandes de l’organisation courante', async ({ client, assert }) => {
+    const { org, owner } = await buyerWithOwner()
+    const other = await OrganizationFactory.create()
+    await Rfq.create({ buyerOrganizationId: org.id, title: 'Tote bags', status: 'draft' })
+    await Rfq.create({ buyerOrganizationId: other.id, title: 'Chez le voisin', status: 'draft' })
+
+    const response = await client.get('/fr/rfqs').withInertia().loginAs(owner)
+
+    response.assertStatus(200)
+    response.assertInertiaComponent('rfqs/index')
+    assert.lengthOf(response.inertiaProps.rfqs, 1)
+    assert.equal(response.inertiaProps.rfqs[0].title, 'Tote bags')
+    assert.isTrue(response.inertiaProps.canManageRfq)
+  })
+
+  test('le formulaire de création propose les fournisseurs éligibles', async ({
+    client,
+    assert,
+  }) => {
+    const { owner } = await buyerWithOwner()
+    const supplier = await OrganizationFactory.apply('supplier').create()
+    const archived = await OrganizationFactory.apply('supplier').apply('archived').create()
+    await OrganizationFactory.create()
+
+    const response = await client.get('/fr/rfqs/new').withInertia().loginAs(owner)
+
+    response.assertStatus(200)
+    response.assertInertiaComponent('rfqs/create')
+    const options = response.inertiaProps.supplierOptions as Array<{ id: number }>
+    assert.deepEqual(
+      options.map((option) => option.id),
+      [supplier.id]
+    )
+    assert.notInclude(
+      options.map((option) => option.id),
+      archived.id
+    )
+  })
+
+  test('la création enregistre le brouillon, ses lignes et ses destinataires', async ({
+    client,
+    assert,
+  }) => {
+    const { org, owner } = await buyerWithOwner()
+    const supplier = await OrganizationFactory.apply('supplier').create()
+
+    const response = await client
+      .post('/fr/rfqs')
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(owner)
+      .json({
+        title: 'Tote bags coton bio',
+        description: 'Sérigraphie 1 couleur',
+        budgetMax: 4500,
+        items: [itemPayload(), itemPayload({ name: 'Étiquette tissée', quantity: 500 })],
+        supplierOrganizationIds: [supplier.id],
+      })
+
+    response.assertStatus(200)
+    const rfq = await Rfq.findByOrFail('title', 'Tote bags coton bio')
+    assert.equal(rfq.buyerOrganizationId, org.id)
+    assert.equal(rfq.status, 'draft')
+    assert.lengthOf(await RfqItem.query().where('rfqId', rfq.id), 2)
+
+    const [target] = await RfqSupplier.query().where('rfqId', rfq.id)
+    assert.equal(target.supplierOrganizationId, supplier.id)
+    assert.equal(target.status, 'pending')
+  })
+
+  test('la création refuse une demande sans ligne', async ({ client, assert }) => {
+    const { owner } = await buyerWithOwner()
+
+    // Requête HTML : VineJS renvoie l'utilisateur au formulaire avec ses
+    // erreurs en session (302 suivi par le client), il n'y a pas de 422 ici.
+    const response = await client
+      .post('/fr/rfqs')
+      .withInertia()
+      .withCsrfToken()
+      .redirects(0)
+      .loginAs(owner)
+      .json({ title: 'Besoin vide', items: [] })
+
+    response.assertStatus(302)
+    assert.lengthOf(await Rfq.all(), 0)
+  })
+
+  test('le détail expose le besoin et les destinataires', async ({ client, assert }) => {
+    const { org, owner } = await buyerWithOwner()
+    const supplier = await OrganizationFactory.apply('supplier').create()
+    const rfq = await Rfq.create({
+      buyerOrganizationId: org.id,
+      createdByUserId: owner.id,
+      title: 'Tote bags',
+      status: 'draft',
+    })
+    await RfqItem.create({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 })
+    await RfqSupplier.create({
+      rfqId: rfq.id,
+      supplierOrganizationId: supplier.id,
+      status: 'pending',
+    })
+
+    const response = await client.get(`/fr/rfqs/${rfq.id}`).withInertia().loginAs(owner)
+
+    response.assertStatus(200)
+    response.assertInertiaComponent('rfqs/show')
+    assert.lengthOf(response.inertiaProps.rfq.items, 1)
+    assert.lengthOf(response.inertiaProps.rfq.suppliers, 1)
+    assert.equal(response.inertiaProps.rfq.suppliers[0].name, supplier.name)
+    // Déjà destinataire : l'écran n'a pas à le reproposer, mais la prop liste
+    // toutes les options — c'est la page qui filtre.
+    assert.isNotEmpty(response.inertiaProps.supplierOptions)
+  })
+
+  test('une demande d’une autre organisation est un 404', async ({ client }) => {
+    const { owner } = await buyerWithOwner()
+    const other = await OrganizationFactory.create()
+    const rfq = await Rfq.create({
+      buyerOrganizationId: other.id,
+      title: 'Chez le voisin',
+      status: 'draft',
+    })
+
+    const response = await client.get(`/fr/rfqs/${rfq.id}`).withInertia().loginAs(owner)
+
+    response.assertStatus(404)
+  })
+
+  test('publier puis envoyer bascule les destinataires en `sent`', async ({ client, assert }) => {
+    const { org, owner } = await buyerWithOwner()
+    const supplier = await OrganizationFactory.apply('supplier').create()
+    const rfq = await Rfq.create({
+      buyerOrganizationId: org.id,
+      title: 'Tote bags',
+      status: 'draft',
+    })
+    await RfqItem.create({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 })
+    await RfqSupplier.create({
+      rfqId: rfq.id,
+      supplierOrganizationId: supplier.id,
+      status: 'pending',
+    })
+
+    await client.post(`/fr/rfqs/${rfq.id}/publish`).withInertia().withCsrfToken().loginAs(owner)
+    await rfq.refresh()
+    assert.equal(rfq.status, 'published')
+
+    await client.post(`/fr/rfqs/${rfq.id}/send`).withInertia().withCsrfToken().loginAs(owner)
+    const target = await RfqSupplier.findByOrFail('rfqId', rfq.id)
+    assert.equal(target.status, 'sent')
+    assert.isNotNull(target.sentAt)
+  })
+
+  test('publier une demande sans ligne échoue avec un message, sans changer d’état', async ({
+    client,
+    assert,
+  }) => {
+    const { org, owner } = await buyerWithOwner()
+    const rfq = await Rfq.create({
+      buyerOrganizationId: org.id,
+      title: 'Besoin vide',
+      status: 'draft',
+    })
+
+    const response = await client
+      .post(`/fr/rfqs/${rfq.id}/publish`)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(owner)
+
+    response.assertStatus(200)
+    await rfq.refresh()
+    assert.equal(rfq.status, 'draft')
+  })
+
+  test('un membre simple rédige mais ne publie pas (403)', async ({ client, assert }) => {
+    const org = await OrganizationFactory.create()
+    const member = await createMember(org, 'member')
+    const rfq = await Rfq.create({
+      buyerOrganizationId: org.id,
+      title: 'Tote bags',
+      status: 'draft',
+    })
+    await RfqItem.create({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 })
+
+    const list = await client.get('/fr/rfqs').withInertia().loginAs(member)
+    list.assertStatus(200)
+    assert.isFalse(list.inertiaProps.canManageRfq)
+
+    // Sur une soumission de formulaire, Bouncer renvoie l'utilisateur d'où il
+    // vient avec un message plutôt qu'une page 403 (cf. `AuthorizationException`).
+    const publish = await client
+      .post(`/fr/rfqs/${rfq.id}/publish`)
+      .withInertia()
+      .withCsrfToken()
+      .redirects(0)
+      .loginAs(member)
+    publish.assertStatus(302)
+
+    await rfq.refresh()
+    assert.equal(rfq.status, 'draft')
+  })
+
+  test('une organisation fournisseuse n’accède pas aux écrans acheteur (403)', async ({
+    client,
+  }) => {
+    const org = await OrganizationFactory.apply('supplier').create()
+    const owner = await createMember(org, 'owner')
+
+    const response = await client.get('/fr/rfqs').withInertia().loginAs(owner)
+
+    response.assertStatus(403)
+  })
+
+  test('les destinataires s’ajoutent et se retirent tant qu’ils ne sont pas notifiés', async ({
+    client,
+    assert,
+  }) => {
+    const { org, owner } = await buyerWithOwner()
+    const supplier = await OrganizationFactory.apply('supplier').create()
+    const rfq = await Rfq.create({
+      buyerOrganizationId: org.id,
+      title: 'Tote bags',
+      status: 'draft',
+    })
+
+    await client
+      .post(`/fr/rfqs/${rfq.id}/suppliers`)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(owner)
+      .json({ supplierOrganizationIds: [supplier.id] })
+
+    const target = await RfqSupplier.findByOrFail('rfqId', rfq.id)
+    assert.equal(target.supplierOrganizationId, supplier.id)
+
+    await client
+      .delete(`/fr/rfqs/${rfq.id}/suppliers/${target.id}`)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(owner)
+
+    assert.lengthOf(await RfqSupplier.query().where('rfqId', rfq.id), 0)
+  })
+
+  test('la mise à jour remplace les lignes du brouillon', async ({ client, assert }) => {
+    const { org, owner } = await buyerWithOwner()
+    const rfq = await Rfq.create({
+      buyerOrganizationId: org.id,
+      title: 'Tote bags',
+      status: 'draft',
+    })
+    await RfqItem.create({ rfqId: rfq.id, name: 'Ancienne ligne', quantity: 10 })
+
+    await client
+      .patch(`/fr/rfqs/${rfq.id}`)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(owner)
+      .json({ title: 'Tote bags révisés', items: [itemPayload({ name: 'Gourde inox' })] })
+
+    await rfq.refresh()
+    assert.equal(rfq.title, 'Tote bags révisés')
+    const items = await RfqItem.query().where('rfqId', rfq.id)
+    assert.lengthOf(items, 1)
+    assert.equal(items[0].name, 'Gourde inox')
+  })
+})

@@ -10,9 +10,9 @@ d'une RFQ pointent donc vers `organizations` — `rfqs.buyer_organization_id` et
 `rfq_suppliers.supplier_organization_id` — et non vers la fiche catalogue
 `suppliers`, qui n'a pas d'utilisateur pour répondre.
 
-> Ce document couvre la **fondation backend** (PR 1/3) : tables, modèles,
-> service, abilities. Les contrôleurs, routes et écrans arrivent dans les PR
-> suivantes (voir [Roadmap](#roadmap)).
+> Ce document couvre la **fondation backend** (PR 1/3) et les **écrans
+> acheteur** (PR 2/3). Le côté fournisseur et la notification par mail arrivent
+> en PR 3 (voir [Roadmap](#roadmap)).
 
 ## Tables
 
@@ -134,10 +134,105 @@ organisations non fournisseuses ou archivées, envoi partiel puis élargissement
 d'une demande publiée, clôture, transitions fournisseur (`viewed`,
 `responded`, `declined`) et cloisonnement acheteur/fournisseur.
 
-> La spec passe par les factories et `useDatabase(group)` (cf. `docs/tests.md`) :
+`tests/functional/rfq_screens.spec.ts` (12 tests) couvre le câblage HTTP :
+rendu des trois écrans, cloisonnement par organisation (404), création avec
+lignes et destinataires, refus d'une demande sans ligne, publication puis envoi,
+ajout/retrait de destinataires, et les deux niveaux d'autorisation (un `member`
+rédige mais ne publie pas ; une organisation fournisseuse n'a pas accès aux
+écrans acheteur). `tests/inertia/rfqs.spec.ts` (8 tests) vérifie que les actions
+n'apparaissent que quand elles sont possibles.
+
+> Sur une **soumission de formulaire**, ni un refus d'autorisation ni une erreur
+> de validation ne produisent un 403/422 : Bouncer et VineJS renvoient
+> l'utilisateur d'où il vient (302) avec un message ou ses erreurs en session.
+> Les specs l'assertent ainsi, avec `.redirects(0)`.
+
+> La spec de service passe par les factories et `useDatabase(group)` (cf. `docs/tests.md`) :
 > l'organisation acheteuse, les deux fournisseuses et l'owner viennent de
 > `OrganizationFactory` / `createMember`, les RFQ elles-mêmes de `RfqService` —
 > c'est justement ses transitions qu'on teste.
+
+## Écrans acheteur (PR 2)
+
+### Routes (`start/routes/rfqs.ts`)
+
+| Méthode | Chemin                            | Nom                      | Rôle requis    |
+| ------- | --------------------------------- | ------------------------ | -------------- |
+| GET     | `/rfqs`                           | `rfqs.index`             | `canCreateRfq` |
+| GET     | `/rfqs/new`                       | `rfqs.create`            | `canCreateRfq` |
+| POST    | `/rfqs`                           | `rfqs.store`             | `canCreateRfq` |
+| GET     | `/rfqs/:id`                       | `rfqs.show`              | `canCreateRfq` |
+| PATCH   | `/rfqs/:id`                       | `rfqs.update`            | `canManageRfq` |
+| POST    | `/rfqs/:id/suppliers`             | `rfqs.suppliers.store`   | `canManageRfq` |
+| DELETE  | `/rfqs/:id/suppliers/:supplierId` | `rfqs.suppliers.destroy` | `canManageRfq` |
+| POST    | `/rfqs/:id/publish`               | `rfqs.publish`           | `canManageRfq` |
+| POST    | `/rfqs/:id/send`                  | `rfqs.send`              | `canManageRfq` |
+| POST    | `/rfqs/:id/close`                 | `rfqs.close`             | `canManageRfq` |
+
+Toutes sont montées dans le groupe `:locale` + `auth` + `onboarded`. C'est le
+**premier domaine extrait** dans `start/routes/`, comme le prévoit CLAUDE.md :
+`registerRfqRoutes()` est appelée depuis `start/routes.ts`, à l'endroit exact où
+vivaient les routes auparavant. Le reste du fichier suivra domaine par domaine.
+
+### Controller
+
+`RfqsController` reste fin : organisation courante → autorisation → validation
+→ `RfqService`. Deux particularités :
+
+- **Un refus de transition n'est pas une page d'erreur.** `runTransition()`
+  attrape les exceptions listées dans `TRANSITION_ERRORS`, les traduit en
+  message flash et renvoie sur l'écran de détail : l'acheteur lit pourquoi son
+  action n'a pas abouti sans perdre la page. Toute autre exception remonte.
+- **La création tolère un destinataire devenu inéligible** : la demande vient
+  d'être enregistrée, on ne la perd pas parce qu'une organisation a été archivée
+  entre l'affichage du formulaire et l'envoi — le brouillon est créé, un flash
+  d'erreur signale le destinataire ignoré.
+
+### Validation (`app/validators/rfq.ts`)
+
+`rfqValidator` sert à la création **et** à la mise à jour (comme
+`supplierProductValidator`) : titre, description, échéance, budget, et **au
+moins une ligne** — une demande sans ligne n'est pas chiffrable, `publish` la
+refuserait de toute façon. `supplierOrganizationIds` y est facultatif (cocher
+des destinataires dès la création). `rfqSuppliersValidator` couvre l'ajout
+ultérieur depuis l'écran de détail.
+
+### Transformers
+
+`RfqTransformer` (liste) n'expose que des **compteurs** — lignes, destinataires,
+réponses — pour ne pas charger tout le détail sur un écran de liste.
+`RfqDetailTransformer` en hérite et ajoute le besoin complet et l'avancement par
+destinataire ; `RfqItemTransformer` résout le nom de la catégorie et du produit
+référencés dans la locale active (`resolveTranslation`), l'item conservant son
+propre `name`.
+
+### Écrans
+
+- **`rfqs/index.vue`** — liste des demandes, statut en pastille, compteurs.
+- **`rfqs/create.vue`** — en-tête, lignes du besoin, sélection des destinataires
+  en une passe. Enregistre un **brouillon** : rien n'est envoyé à ce stade.
+- **`rfqs/show.vue`** — un brouillon est éditable en place (le formulaire est
+  réaffiché) ; une demande publiée passe en lecture seule. Les actions
+  (`publier`, `envoyer`, `clôturer`) n'apparaissent que lorsqu'elles sont
+  possibles, et seulement pour `canManageRfq`.
+
+Composants dans `inertia/components/rfqs/` : `rfq_form`, `rfq_items_fields`,
+`rfq_supplier_picker`, `rfq_supplier_list`, `rfq_actions`, plus `types.ts` (état
+du formulaire et tonalité des pastilles par statut). Deux composants génériques
+en sortent : **`base_badge`** (pastille à tonalité sémantique) et l'extension de
+`base_input` au type `date` / de `base_select` aux valeurs numériques.
+
+i18n : `resources/lang/{fr,en}/rfq.json` (66 clés, strictement symétriques).
+
+### Connu, non traité en PR 2
+
+- **Le sélecteur de produit** n'est pas dans l'UI : une ligne se cadre par
+  catégorie ou reste libre. `rfq_items.product_id` et le validateur l'acceptent
+  déjà — il manque un composant de recherche dans le catalogue.
+- **Aucune entrée de navigation** vers `/rfqs` : le layout n'a pas de menu
+  applicatif, les écrans se rejoignent par URL comme ceux des produits.
+- **L'envoi ne notifie personne** : `send` bascule les statuts, le mail est
+  l'objet de la PR 3.
 
 ## Roadmap
 
@@ -145,9 +240,9 @@ Découpage de la Phase 3 en 3 PR :
 
 1. **PR 1 — Socle backend** (ce document) : migrations, modèles, types, service,
    exceptions, abilities, tests.
-2. **PR 2 — Écrans acheteur** : validators VineJS, `RfqTransformer`,
-   `RfqsController`, `start/routes/rfqs.ts`, pages `rfqs/{index,create,show}.vue`,
-   i18n FR/EN, tests fonctionnels HTTP.
+2. **PR 2 — Écrans acheteur** (section ci-dessus) — fait : validators,
+   transformers, `RfqsController`, `start/routes/rfqs.ts`, pages
+   `rfqs/{index,create,show}.vue`, composants, i18n FR/EN, tests.
 3. **PR 3 — Écrans fournisseur** : `supplier/rfqs/{index,show}.vue`, accusé de
    lecture, refus, notification des destinataires par mail (nouveau `kind` de
    `SendMailJob`, cf. `docs/mail.md`).

@@ -1,0 +1,90 @@
+{
+  "index": {
+    "title": "Demandes de devis",
+    "subtitle": "Décrivez un besoin, consultez plusieurs fournisseurs, comparez leurs réponses.",
+    "empty": "Aucune demande pour le moment.",
+    "new": "Nouvelle demande",
+    "itemCount": "{count, plural, one {# ligne} other {# lignes}}",
+    "supplierCount": "{count, plural, =0 {aucun destinataire} one {# destinataire} other {# destinataires}}",
+    "responded": "{responded} / {total} réponses"
+  },
+  "create": {
+    "title": "Nouvelle demande de devis",
+    "submit": "Créer le brouillon"
+  },
+  "show": {
+    "backToList": "Retour aux demandes",
+    "needTitle": "Le besoin",
+    "suppliersTitle": "Destinataires",
+    "noSuppliers": "Aucun destinataire sélectionné.",
+    "createdBy": "Créée par {name}",
+    "deadline": "Échéance : {date}",
+    "noDeadline": "Sans échéance",
+    "budget": "Budget max : {amount} €",
+    "quantity": "Quantité",
+    "unit": "Unité",
+    "category": "Catégorie",
+    "product": "Produit",
+    "addSuppliers": "Ajouter des destinataires",
+    "removeSupplier": "Retirer",
+    "sentAt": "Envoyée le {date}"
+  },
+  "status": {
+    "draft": "Brouillon",
+    "published": "Publiée",
+    "closed": "Clôturée"
+  },
+  "supplierStatus": {
+    "pending": "À envoyer",
+    "sent": "Envoyée",
+    "viewed": "Consultée",
+    "responded": "A répondu",
+    "declined": "A décliné"
+  },
+  "actions": {
+    "publish": "Publier",
+    "send": "Envoyer aux destinataires",
+    "close": "Clôturer",
+    "save": "Enregistrer",
+    "confirmClose": "Clôturer cette demande ? Aucun nouvel envoi ne sera possible."
+  },
+  "fields": {
+    "title": "Titre",
+    "description": "Description",
+    "deadline": "Échéance",
+    "budgetMax": "Budget maximum (€)",
+    "itemName": "Désignation",
+    "itemDescription": "Précisions",
+    "quantity": "Quantité",
+    "unit": "Unité",
+    "category": "Catégorie",
+    "noCategory": "Sans catégorie",
+    "suppliers": "Fournisseurs consultés"
+  },
+  "items": {
+    "title": "Lignes du besoin",
+    "add": "Ajouter une ligne",
+    "remove": "Retirer cette ligne",
+    "empty": "Ajoutez au moins une ligne pour décrire ce que vous cherchez."
+  },
+  "suppliers": {
+    "empty": "Aucune organisation fournisseuse n'est encore enregistrée.",
+    "selected": "{count, plural, =0 {Aucun fournisseur sélectionné} one {# fournisseur sélectionné} other {# fournisseurs sélectionnés}}"
+  },
+  "flash": {
+    "created": "Demande créée. Relisez-la puis publiez-la pour la diffuser.",
+    "updated": "Demande mise à jour.",
+    "published": "Demande publiée. Vous pouvez maintenant l'envoyer aux destinataires.",
+    "sent": "{count, plural, =0 {Aucun envoi} one {Demande envoyée à # fournisseur} other {Demande envoyée à # fournisseurs}}.",
+    "closed": "Demande clôturée.",
+    "suppliersAdded": "{count, plural, =0 {Aucun nouveau destinataire} one {# destinataire ajouté} other {# destinataires ajoutés}}.",
+    "supplierRemoved": "Destinataire retiré."
+  },
+  "errors": {
+    "notEditable": "Seul un brouillon peut être modifié. Un destinataire déjà notifié ne peut plus être retiré.",
+    "notPublishable": "Cette demande ne peut pas être publiée : il faut un brouillon comportant au moins une ligne.",
+    "notSendable": "Cette demande ne peut pas être envoyée : publiez-la et sélectionnez au moins un destinataire en attente.",
+    "notClosable": "Seule une demande publiée peut être clôturée.",
+    "notASupplier": "Un des destinataires sélectionnés n'est pas une organisation fournisseuse active."
+  }
+}
