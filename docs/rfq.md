@@ -1,8 +1,9 @@
 # Demandes de devis (RFQ)
 
-Socle backend de la **Phase 3** (#4) : permettre à une organisation acheteuse
-de décrire un besoin, de le détailler ligne par ligne, et de le soumettre
-simultanément à plusieurs organisations fournisseuses.
+**Phase 3** (#4) : permettre à une organisation acheteuse de décrire un besoin,
+de le détailler ligne par ligne, de le soumettre simultanément à plusieurs
+organisations fournisseuses — et à celles-ci de le recevoir, de le consulter et
+de le décliner.
 
 Décision d'organisation reprise de la Phase 2 (#3) : **un fournisseur = une
 organisation** de type `supplier`/`both`, multi-utilisateurs. Les deux côtés
@@ -10,9 +11,8 @@ d'une RFQ pointent donc vers `organizations` — `rfqs.buyer_organization_id` et
 `rfq_suppliers.supplier_organization_id` — et non vers la fiche catalogue
 `suppliers`, qui n'a pas d'utilisateur pour répondre.
 
-> Ce document couvre la **fondation backend** (PR 1/3) et les **écrans
-> acheteur** (PR 2/3). Le côté fournisseur et la notification par mail arrivent
-> en PR 3 (voir [Roadmap](#roadmap)).
+> Ce document couvre les trois PR de la Phase 3 : **fondation backend**,
+> **écrans acheteur** et **écrans fournisseur + notification par mail**.
 
 ## Tables
 
@@ -71,8 +71,8 @@ publier fige le besoin, envoyer notifie les destinataires. Un acheteur peut
 ajouter un fournisseur à une demande déjà publiée puis relancer `send` — seuls
 les `pending` basculent, personne n'est relancé deux fois. `send` renvoie
 exactement les lignes basculées (relation `supplierOrganization` préchargée) :
-c'est cette liste que la PR 3 utilisera pour dispatcher les mails, sans risque
-de doublon.
+c'est cette liste que `RfqNotificationService` utilise pour envoyer les mails,
+sans risque de doublon.
 
 Règles appliquées par le service :
 
@@ -134,13 +134,24 @@ organisations non fournisseuses ou archivées, envoi partiel puis élargissement
 d'une demande publiée, clôture, transitions fournisseur (`viewed`,
 `responded`, `declined`) et cloisonnement acheteur/fournisseur.
 
-`tests/functional/rfq_screens.spec.ts` (12 tests) couvre le câblage HTTP :
+`tests/functional/rfq_screens.spec.ts` (14 tests) couvre le câblage HTTP :
 rendu des trois écrans, cloisonnement par organisation (404), création avec
 lignes et destinataires, refus d'une demande sans ligne, publication puis envoi,
 ajout/retrait de destinataires, et les deux niveaux d'autorisation (un `member`
 rédige mais ne publie pas ; une organisation fournisseuse n'a pas accès aux
 écrans acheteur). `tests/inertia/rfqs.spec.ts` (8 tests) vérifie que les actions
 n'apparaissent que quand elles sont possibles.
+
+Côté fournisseur, `tests/functional/supplier_rfqs.spec.ts` (9) couvre le
+cloisonnement (une demande `pending` ou adressée ailleurs est un 404), l'accusé
+de lecture à l'ouverture et sa non-régression, l'absence de `budgetMax` et de
+liste de destinataires dans les props, le refus, et les deux portes fermées
+(`member` d'un fournisseur, organisation purement acheteuse).
+`tests/inertia/supplier_rfqs.spec.ts` (7) vérifie les écrans.
+L'envoi des mails est couvert par deux tests de `rfq_screens.spec.ts` (adresse
+de contact, puis repli sur les membres habilités — le `member` n'est pas
+notifié) et un test de reconstruction du `kind` dans
+`tests/unit/send_mail_job.spec.ts`.
 
 > Sur une **soumission de formulaire**, ni un refus d'autorisation ni une erreur
 > de validation ne produisent un 403/422 : Bouncer et VineJS renvoient
@@ -231,8 +242,103 @@ i18n : `resources/lang/{fr,en}/rfq.json` (66 clés, strictement symétriques).
   déjà — il manque un composant de recherche dans le catalogue.
 - **Aucune entrée de navigation** vers `/rfqs` : le layout n'a pas de menu
   applicatif, les écrans se rejoignent par URL comme ceux des produits.
-- **L'envoi ne notifie personne** : `send` bascule les statuts, le mail est
-  l'objet de la PR 3.
+- **L'envoi ne notifiait personne** en PR 2 : le mail est arrivé en PR 3.
+
+## Écrans fournisseur et notification (PR 3)
+
+### Routes
+
+| Méthode | Chemin                       | Nom                     | Rôle requis       |
+| ------- | ---------------------------- | ----------------------- | ----------------- |
+| GET     | `/supplier/rfqs`             | `supplier.rfqs.index`   | `canRespondToRfq` |
+| GET     | `/supplier/rfqs/:id`         | `supplier.rfqs.show`    | `canRespondToRfq` |
+| POST    | `/supplier/rfqs/:id/decline` | `supplier.rfqs.decline` | `canRespondToRfq` |
+
+Déclarées dans le même `registerRfqRoutes()` que les routes acheteur : c'est un
+seul domaine, vu des deux côtés.
+
+### Ce que le fournisseur voit — et ne voit pas
+
+`SupplierRfqType` est volontairement plus pauvre que `RfqDetailType` :
+
+- **pas de `budgetMax`** — le budget plafond est une donnée de négociation
+  interne à l'acheteur ; qu'il le saisisse pour cadrer sa demande ne veut pas
+  dire qu'il accepte de l'afficher à ceux qui la chiffrent ;
+- **pas de liste des destinataires** — un fournisseur consulté n'a pas à savoir
+  qui d'autre l'est, ni qui a déjà répondu. Seule _sa_ ligne `rfq_suppliers`
+  est exposée, sous le nom `myStatus`.
+
+Le cloisonnement lui-même est porté par le service : `listForSupplier` et
+`findForSupplier` filtrent sur l'organisation destinataire **et** excluent les
+lignes encore `pending`. Une demande préparée mais jamais envoyée n'existe donc
+pas pour le fournisseur, et une demande adressée à une autre organisation est un
+**404**.
+
+### Accusé de lecture
+
+`openForSupplier()` = chargement **et** `sent` → `viewed`, en une passe :
+ouvrir l'écran suffit, le fournisseur n'a rien à cliquer et l'acheteur voit
+l'avancement. La ligne préchargée est basculée sur place, pour que l'écran
+affiche déjà le nouveau statut plutôt que celui d'avant l'ouverture. Rien ne
+régresse : une demande `responded`/`declined` reste dans son état.
+
+### Notification par mail
+
+`RfqNotificationService` traduit « ces destinataires viennent de passer en
+`sent` » en mails mis en queue (`kind` `rfq-received`, cf. [`docs/mail.md`](./mail.md)).
+Il est appelé par `RfqsController#send`, avec **exactement** les lignes que
+`RfqService#send` a basculées — élargir une demande déjà publiée puis relancer
+`send` ne relance donc pas ceux qui l'avaient déjà reçue.
+
+Destinataires du mail, par ordre de préférence :
+
+1. **l'adresse de contact de l'organisation** (`organizations.email`), celle que
+   le fournisseur a lui-même déclarée pour être joint ;
+2. à défaut, **les membres `owner`/`admin`/`manager`** — `RFQ_RESPONDER_ROLES`,
+   la même constante que celle qu'applique `canRespondToRfq`. Notifier un
+   `member`, qui n'a pas accès à l'écran de réponse, serait une impasse.
+
+Un échec de **mise en queue** est loggué en `warn` sans faire échouer la
+requête : les statuts sont déjà basculés, la demande apparaît de toute façon
+dans l'écran du fournisseur, et faire échouer l'envoi laisserait un état
+incohérent pour un canal qui n'est qu'un rappel.
+
+`rfqPath` transite en **relatif** dans la charge du job (`/fr/supplier/rfqs/12`)
+et non en URL absolue : la charge est persistée dans `queue_jobs` et peut être
+rejouée bien après, éventuellement sous un autre domaine. Le template la préfixe
+avec le global `appUrl` de `config/mail.ts`, résolu au rendu.
+
+> **Idempotence des mails** — la dette signalée dans `docs/organisations.md`
+> n'est pas aggravée ici. Le double envoi que l'on redoutait (« relancer 20
+> fournisseurs ») est empêché par la machine à états : `send` ne bascule que les
+> `pending`, un second clic est refusé. Reste le risque commun à tous les mails
+> transactionnels — un rejeu après un échec survenu _après_ la remise SMTP
+> renvoie **un** mail à **un** destinataire. À traiter avant les devis et les
+> commandes (Phase 4), où un doublon a une conséquence commerciale.
+
+### Écrans
+
+- **`supplier/rfqs/index.vue`** — demandes reçues, acheteur, échéance et
+  avancement en pastille.
+- **`supplier/rfqs/show.vue`** — le besoin, et l'action « décliner » tant que la
+  demande est publiée et qu'aucune décision n'a été prise. Une demande déclinée
+  ou clôturée par l'acheteur affiche un rappel à la place du bouton.
+
+`rfq_item_list.vue` (lignes du besoin en lecture seule) est **partagé** avec
+l'écran acheteur : les deux affichent le même besoin, seule la barre d'actions
+diffère.
+
+i18n : section `supplier` de `resources/lang/{fr,en}/rfq.json` (86 clés au
+total, strictement symétriques).
+
+### Connu, non traité en PR 3
+
+- **Aucune entrée de navigation** vers `/supplier/rfqs` non plus (même limite
+  que côté acheteur : le layout n'a pas de menu applicatif).
+- **Le mail est en français seulement**, comme le mail d'invitation : le worker
+  n'a pas de locale, et les templates Edge ne sont pas traduits.
+- **Le dépôt de devis** est annoncé à l'écran mais n'existe pas : c'est la
+  Phase 4 (#5), `markResponded` en est le point d'accroche.
 
 ## Roadmap
 
@@ -243,16 +349,18 @@ Découpage de la Phase 3 en 3 PR :
 2. **PR 2 — Écrans acheteur** (section ci-dessus) — fait : validators,
    transformers, `RfqsController`, `start/routes/rfqs.ts`, pages
    `rfqs/{index,create,show}.vue`, composants, i18n FR/EN, tests.
-3. **PR 3 — Écrans fournisseur** : `supplier/rfqs/{index,show}.vue`, accusé de
-   lecture, refus, notification des destinataires par mail (nouveau `kind` de
-   `SendMailJob`, cf. `docs/mail.md`).
+3. **PR 3 — Écrans fournisseur** (section ci-dessus) — fait :
+   `supplier/rfqs/{index,show}.vue`, accusé de lecture, refus, notification des
+   destinataires par mail (`kind` `rfq-received` de `SendMailJob`).
+
+La Phase 3 est complète : l'issue #4 est close.
 
 **Connu, non traité :**
 
 - **Suppression d'un brouillon** — non exposée (l'issue #4 ne prévoit pas de
   route `DELETE`) ; à trancher avec l'écran de la PR 2.
-- **Idempotence des mails** — dette signalée dans `docs/organisations.md` :
-  bénigne pour une invitation, à régler avant de notifier des RFQ en masse
-  (PR 3).
+- **Idempotence des mails** — dette signalée dans `docs/organisations.md`, non
+  aggravée par la notification RFQ (voir l'encadré ci-dessus) ; à régler avant
+  les devis et les commandes.
 - **Devis** — la réponse fournisseur (`quotes`) est la Phase 4 (#5) ;
   `markResponded` est le point d'accroche prévu.

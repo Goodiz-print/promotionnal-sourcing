@@ -1,3 +1,5 @@
+import type { RoleSlug } from '#shared/types/role'
+
 /**
  * Statuts d'une demande de devis (RFQ), côté acheteur.
  *
@@ -37,6 +39,14 @@ export const TERMINAL_RFQ_SUPPLIER_STATUSES: readonly RfqSupplierStatus[] = [
   'responded',
   'declined',
 ]
+
+/**
+ * Rôles autorisés à répondre à une demande reçue (consulter le détail,
+ * décliner, et — Phase 4 — déposer un devis). Partagé entre l'ability
+ * `canRespondToRfq` et `RfqNotificationService` : notifier quelqu'un qui n'a
+ * pas accès à l'écran serait une impasse.
+ */
+export const RFQ_RESPONDER_ROLES: readonly RoleSlug[] = ['owner', 'admin', 'manager']
 
 /**
  * Spécifications libres d'un item (marquage, couleur, matière…) : paires
@@ -137,4 +147,32 @@ export type SupplierOptionType = {
   name: string
   slug: string
   logoUrl: string | null
+}
+
+/**
+ * Ligne « demandes reçues » côté **fournisseur**. Le point de vue est inversé :
+ * l'organisation affichée est l'acheteuse, et `myStatus` porte l'avancement de
+ * *ce* destinataire (colonne `rfq_suppliers.status`), pas celui de la demande
+ * chez les autres fournisseurs consultés — un fournisseur n'a pas à savoir qui
+ * d'autre a été consulté, ni qui a déjà répondu.
+ *
+ * `budgetMax` est volontairement **absent** : le budget plafond de l'acheteur
+ * est une donnée de négociation interne, il ne part pas chez les fournisseurs.
+ */
+export type SupplierRfqType = {
+  id: number
+  title: string
+  status: RfqStatus
+  deadline: string | null
+  itemCount: number
+  buyerName: string
+  buyerLogoUrl: string | null
+  myStatus: RfqSupplierStatus
+  sentAt: string | null
+  publishedAt: string | null
+}
+
+export type SupplierRfqDetailType = SupplierRfqType & {
+  description: string | null
+  items: RfqItemType[]
 }

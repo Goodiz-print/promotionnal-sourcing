@@ -16,6 +16,8 @@ import { Bouncer } from '@adonisjs/bouncer'
 import type User from '#models/user'
 import type Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
+import { RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
+import type { RoleSlug } from '#shared/types/role'
 
 /**
  * Ability to check if user is authenticated
@@ -142,5 +144,5 @@ export const canManageRfq = Bouncer.ability(async (user: User, org: Organization
 export const canRespondToRfq = Bouncer.ability(async (user: User, org: Organization) => {
   if (!['supplier', 'both'].includes(org.organizationType)) return false
   const m = await getMembership(user, org)
-  return m ? ['owner', 'admin', 'manager'].includes(m.role.slug) : false
+  return m ? RFQ_RESPONDER_ROLES.includes(m.role.slug as RoleSlug) : false
 })

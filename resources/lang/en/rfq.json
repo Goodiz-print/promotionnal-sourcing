@@ -86,5 +86,39 @@
     "notSendable": "This request cannot be sent: publish it and select at least one pending recipient.",
     "notClosable": "Only a published request can be closed.",
     "notASupplier": "One of the selected recipients is not an active supplier organization."
+  },
+  "supplier": {
+    "index": {
+      "title": "Received requests",
+      "subtitle": "Requests for quotation buyers have sent you.",
+      "empty": "No request received yet.",
+      "from": "From {name}",
+      "receivedAt": "Received on {date}"
+    },
+    "show": {
+      "backToList": "Back to received requests",
+      "needTitle": "The need",
+      "buyer": "Buyer",
+      "noDeadline": "No deadline",
+      "declinedNotice": "You declined this request. The buyer has been notified.",
+      "closedNotice": "The buyer closed this request: it no longer expects an answer.",
+      "quoteSoon": "Submitting a quote online is coming soon."
+    },
+    "actions": {
+      "decline": "Decline the request",
+      "confirmDecline": "Decline this request? This choice is final."
+    },
+    "status": {
+      "sent": "To handle",
+      "viewed": "In progress",
+      "responded": "Quote sent",
+      "declined": "Declined"
+    },
+    "flash": {
+      "declined": "Request declined."
+    },
+    "errors": {
+      "notDecidable": "This request no longer awaits a decision from you."
+    }
   }
 }

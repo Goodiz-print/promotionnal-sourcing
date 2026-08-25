@@ -1,5 +1,7 @@
 import { test } from '@japa/runner'
+import mail from '@adonisjs/mail/services/main'
 import { OrganizationFactory } from '#database/factories/organization_factory'
+import RfqReceivedNotification from '#mails/rfq_received_notification'
 import Rfq from '#models/rfq'
 import RfqItem from '#models/rfq_item'
 import RfqSupplier from '#models/rfq_supplier'
@@ -270,6 +272,95 @@ test.group('Écrans RFQ — acheteur', (group) => {
       .loginAs(owner)
 
     assert.lengthOf(await RfqSupplier.query().where('rfqId', rfq.id), 0)
+  })
+
+  test('l’envoi met en queue un mail par destinataire', async ({ client, assert }) => {
+    const { org, owner } = await buyerWithOwner()
+    const supplier = await OrganizationFactory.apply('supplier')
+      .merge({ email: 'contact@fournisseur.test' })
+      .create()
+    const rfq = await Rfq.create({
+      buyerOrganizationId: org.id,
+      title: 'Tote bags',
+      status: 'draft',
+    })
+    await RfqItem.create({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 })
+    await RfqSupplier.create({
+      rfqId: rfq.id,
+      supplierOrganizationId: supplier.id,
+      status: 'pending',
+    })
+    await client.post(`/fr/rfqs/${rfq.id}/publish`).withInertia().withCsrfToken().loginAs(owner)
+
+    // `QUEUE_DRIVER=sync` en test : le job s'exécute dans le process, le mail
+    // est donc réellement envoyé (cf. `docs/mail.md`).
+    const { mails } = mail.fake()
+    try {
+      await client.post(`/fr/rfqs/${rfq.id}/send`).withInertia().withCsrfToken().loginAs(owner)
+
+      mails.assertSentCount(RfqReceivedNotification, 1)
+      mails.assertSent(RfqReceivedNotification, (sent) => {
+        const fields = sent as unknown as { email: string; buyerName: string; rfqPath: string }
+        return (
+          fields.email === 'contact@fournisseur.test' &&
+          fields.buyerName === org.name &&
+          fields.rfqPath === `/fr/supplier/rfqs/${rfq.id}`
+        )
+      })
+    } finally {
+      mail.restore()
+    }
+
+    // Second envoi : plus aucun destinataire en attente, donc aucun rappel.
+    const { mails: second } = mail.fake()
+    try {
+      await client.post(`/fr/rfqs/${rfq.id}/send`).withInertia().withCsrfToken().loginAs(owner)
+      second.assertNoneSent()
+    } finally {
+      mail.restore()
+    }
+    const recipient = await RfqSupplier.findByOrFail('rfqId', rfq.id)
+    assert.equal(recipient.status, 'sent')
+  })
+
+  test('sans adresse de contact, le mail part aux membres habilités à répondre', async ({
+    client,
+    assert,
+  }) => {
+    const { org, owner } = await buyerWithOwner()
+    const supplier = await OrganizationFactory.apply('supplier').create()
+    const supplierManager = await createMember(supplier, 'manager', {
+      email: 'manager@fournisseur.test',
+    })
+    await createMember(supplier, 'member', { email: 'membre@fournisseur.test' })
+    const rfq = await Rfq.create({
+      buyerOrganizationId: org.id,
+      title: 'Tote bags',
+      status: 'draft',
+    })
+    await RfqItem.create({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 })
+    await RfqSupplier.create({
+      rfqId: rfq.id,
+      supplierOrganizationId: supplier.id,
+      status: 'pending',
+    })
+    await client.post(`/fr/rfqs/${rfq.id}/publish`).withInertia().withCsrfToken().loginAs(owner)
+
+    const { mails } = mail.fake()
+    try {
+      await client.post(`/fr/rfqs/${rfq.id}/send`).withInertia().withCsrfToken().loginAs(owner)
+
+      // Un `member` n'a pas accès à l'écran de réponse : le prévenir serait
+      // une impasse (cf. `RFQ_RESPONDER_ROLES`).
+      mails.assertSentCount(RfqReceivedNotification, 1)
+      mails.assertSent(
+        RfqReceivedNotification,
+        (sent) => (sent as unknown as { email: string }).email === supplierManager.email
+      )
+    } finally {
+      mail.restore()
+    }
+    assert.equal(supplierManager.email, 'manager@fournisseur.test')
   })
 
   test('la mise à jour remplace les lignes du brouillon', async ({ client, assert }) => {

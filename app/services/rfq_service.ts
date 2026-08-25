@@ -102,6 +102,19 @@ export default class RfqService {
   }
 
   /**
+   * Ouverture d'une demande par un fournisseur : chargement **et** accusé de
+   * lecture en une passe. La ligne destinataire préchargée est remplacée par
+   * celle que renvoie `markViewed` — sans quoi l'écran afficherait encore
+   * `sent` juste après avoir accusé réception.
+   */
+  async openForSupplier(id: number, organizationId: number): Promise<Rfq> {
+    const rfq = await this.findForSupplier(id, organizationId)
+    const [recipient] = rfq.suppliers
+    if (recipient) await this.applyViewed(recipient)
+    return rfq
+  }
+
+  /**
    * Crée un brouillon, avec ses items s'ils sont fournis. Transaction : une
    * demande sans ses lignes n'a pas de sens métier.
    */
@@ -288,13 +301,7 @@ export default class RfqService {
    * pas « simplement consultée » parce que le fournisseur rouvre l'écran.
    */
   async markViewed(rfq: Rfq, supplierOrganizationId: number): Promise<RfqSupplier> {
-    const target = await this.findRecipient(rfq, supplierOrganizationId)
-
-    if (target.status === 'sent') {
-      target.status = 'viewed'
-      await target.save()
-    }
-    return target
+    return this.applyViewed(await this.findRecipient(rfq, supplierOrganizationId))
   }
 
   /**
@@ -322,6 +329,18 @@ export default class RfqService {
       .whereIn('organizationType', ['supplier', 'both'])
       .whereNull('archivedAt')
       .orderBy('name')
+  }
+
+  /**
+   * Accusé de lecture appliqué à une ligne déjà chargée — `openForSupplier`
+   * bascule ainsi l'instance **préchargée**, que l'écran va transformer.
+   */
+  private async applyViewed(target: RfqSupplier): Promise<RfqSupplier> {
+    if (target.status === 'sent') {
+      target.status = 'viewed'
+      await target.save()
+    }
+    return target
   }
 
   /**
