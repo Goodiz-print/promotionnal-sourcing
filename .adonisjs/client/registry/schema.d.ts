@@ -475,6 +475,126 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['destroy']>>>
     }
   }
+  'rfqs.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/rfqs'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['index']>>>
+    }
+  }
+  'rfqs.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/rfqs/new'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['create']>>>
+    }
+  }
+  'rfqs.store': {
+    methods: ["POST"]
+    pattern: '/:locale/rfqs'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/rfq').rfqValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/rfq').rfqValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'rfqs.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/rfqs/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['show']>>>
+    }
+  }
+  'rfqs.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/rfqs/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/rfq').rfqValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/rfq').rfqValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'rfqs.suppliers.store': {
+    methods: ["POST"]
+    pattern: '/:locale/rfqs/:id/suppliers'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/rfq').rfqSuppliersValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/rfq').rfqSuppliersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['addSuppliers']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['addSuppliers']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'rfqs.suppliers.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/rfqs/:id/suppliers/:supplierId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; supplierId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['removeSupplier']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['removeSupplier']>>>
+    }
+  }
+  'rfqs.publish': {
+    methods: ["POST"]
+    pattern: '/:locale/rfqs/:id/publish'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['publish']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['publish']>>>
+    }
+  }
+  'rfqs.send': {
+    methods: ["POST"]
+    pattern: '/:locale/rfqs/:id/send'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['send']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['send']>>>
+    }
+  }
+  'rfqs.close': {
+    methods: ["POST"]
+    pattern: '/:locale/rfqs/:id/close'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['close']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['close']>>>
+    }
+  }
   'admin.categories.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/categories'

@@ -64,6 +64,20 @@ export interface ApiDefinition {
       destroy: typeof routes['supplier.products.destroy']
     }
   }
+  rfqs: {
+    index: typeof routes['rfqs.index']
+    create: typeof routes['rfqs.create']
+    store: typeof routes['rfqs.store']
+    show: typeof routes['rfqs.show']
+    update: typeof routes['rfqs.update']
+    suppliers: {
+      store: typeof routes['rfqs.suppliers.store']
+      destroy: typeof routes['rfqs.suppliers.destroy']
+    }
+    publish: typeof routes['rfqs.publish']
+    send: typeof routes['rfqs.send']
+    close: typeof routes['rfqs.close']
+  }
   admin: {
     categories: {
       index: typeof routes['admin.categories.index']

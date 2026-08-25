@@ -1,0 +1,254 @@
+import type { HttpContext } from '@adonisjs/core/http'
+import { inject } from '@adonisjs/core'
+import CategoryService from '#services/category_service'
+import OrganizationContextService from '#services/organization_context_service'
+import RfqService from '#services/rfq_service'
+import CategoryTransformer from '#transformers/category_transformer'
+import RfqDetailTransformer from '#transformers/rfq_detail_transformer'
+import RfqTransformer from '#transformers/rfq_transformer'
+import { rfqSuppliersValidator, rfqValidator } from '#validators/rfq'
+import {
+  NotASupplierOrganizationException,
+  RfqNotClosableException,
+  RfqNotEditableException,
+  RfqNotPublishableException,
+  RfqNotSendableException,
+} from '#exceptions/rfq_errors'
+import type Rfq from '#models/rfq'
+import type { Locale } from '#shared/types/i18n'
+
+/**
+ * Refus de transition → clé de traduction. Une exception absente de cette
+ * table n'est pas un cas métier attendu : elle remonte telle quelle.
+ */
+const TRANSITION_ERRORS = [
+  { type: RfqNotEditableException, key: 'rfq.errors.notEditable' },
+  { type: RfqNotPublishableException, key: 'rfq.errors.notPublishable' },
+  { type: RfqNotSendableException, key: 'rfq.errors.notSendable' },
+  { type: RfqNotClosableException, key: 'rfq.errors.notClosable' },
+  { type: NotASupplierOrganizationException, key: 'rfq.errors.notASupplier' },
+] as const
+
+/** Contexte minimal pour charger et autoriser une demande. */
+type RfqContext = Pick<HttpContext, 'auth' | 'bouncer' | 'params'>
+
+/**
+ * Demandes de devis, côté **acheteur**. Controller fin : organisation
+ * courante + autorisation + validation → `RfqService`, qui porte seul les
+ * transitions et leurs règles.
+ *
+ * Deux niveaux d'autorisation, alignés sur les permissions `sourcing:*` :
+ * `canCreateRfq` pour consulter et rédiger (jusqu'au rôle `member`),
+ * `canManageRfq` pour publier, envoyer et clôturer (owner/admin/manager).
+ */
+@inject()
+export default class RfqsController {
+  constructor(
+    private service: RfqService,
+    private categories: CategoryService,
+    private organizations: OrganizationContextService
+  ) {}
+
+  /**
+   * Liste des demandes de l'organisation acheteuse, brouillons compris.
+   */
+  async index({ auth, bouncer, inertia }: HttpContext) {
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
+    await bouncer.authorize('canCreateRfq', org)
+
+    const rfqs = await this.service.listForBuyer(org.id)
+
+    return inertia.render('rfqs/index', {
+      rfqs: rfqs.map((rfq) => new RfqTransformer(rfq).toObject()),
+      canManageRfq: await bouncer.allows('canManageRfq', org),
+    })
+  }
+
+  /**
+   * Formulaire de création : besoin, lignes et destinataires en une passe.
+   */
+  async create({ auth, bouncer, inertia, i18n }: HttpContext) {
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
+    await bouncer.authorize('canCreateRfq', org)
+
+    return inertia.render('rfqs/create', await this.formData(i18n.locale as Locale))
+  }
+
+  /**
+   * Crée le brouillon avec ses lignes, puis y attache les destinataires
+   * sélectionnés. Rien n'est envoyé à ce stade : l'acheteur relit sa demande
+   * sur l'écran de détail, d'où il publie puis envoie.
+   */
+  async store({ auth, bouncer, request, response, i18n, session }: HttpContext) {
+    const user = auth.getUserOrFail()
+    const org = await this.organizations.currentFor(user)
+    await bouncer.authorize('canCreateRfq', org)
+
+    const payload = await request.validateUsing(rfqValidator)
+    const rfq = await this.service.create(org, user, payload)
+
+    if (payload.supplierOrganizationIds?.length) {
+      try {
+        await this.service.addSuppliers(rfq, payload.supplierOrganizationIds)
+      } catch (error) {
+        if (!(error instanceof NotASupplierOrganizationException)) throw error
+        // La demande est créée : on ne la perd pas pour un destinataire devenu
+        // inéligible entre l'affichage du formulaire et l'envoi.
+        session.flash('error', i18n.t('rfq.errors.notASupplier'))
+      }
+    }
+
+    session.flash('success', i18n.t('rfq.flash.created'))
+    return response.redirect().toRoute('rfqs.show', { locale: i18n.locale, id: rfq.id })
+  }
+
+  /**
+   * Détail : le besoin, l'avancement par destinataire, et les actions
+   * disponibles selon le statut.
+   */
+  async show({ auth, bouncer, inertia, params, i18n }: HttpContext) {
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
+    await bouncer.authorize('canCreateRfq', org)
+
+    const rfq = await this.service.findForBuyer(Number(params.id), org.id)
+    const locale = i18n.locale as Locale
+
+    return inertia.render('rfqs/show', {
+      rfq: new RfqDetailTransformer(rfq, locale).toObject(),
+      canManageRfq: await bouncer.allows('canManageRfq', org),
+      ...(await this.formData(locale)),
+    })
+  }
+
+  /**
+   * Met à jour l'en-tête et remplace les lignes d'un brouillon.
+   */
+  async update(ctx: HttpContext) {
+    const rfq = await this.loadManageable(ctx)
+    const payload = await ctx.request.validateUsing(rfqValidator)
+
+    return this.runTransition(ctx, rfq, async () => {
+      await this.service.update(rfq, payload)
+      await this.service.replaceItems(rfq, payload.items)
+      ctx.session.flash('success', ctx.i18n.t('rfq.flash.updated'))
+    })
+  }
+
+  /**
+   * Ajoute des destinataires (brouillon, ou élargissement d'une demande déjà
+   * publiée).
+   */
+  async addSuppliers(ctx: HttpContext) {
+    const rfq = await this.loadManageable(ctx)
+    const { supplierOrganizationIds } = await ctx.request.validateUsing(rfqSuppliersValidator)
+
+    return this.runTransition(ctx, rfq, async () => {
+      const added = await this.service.addSuppliers(rfq, supplierOrganizationIds)
+      ctx.session.flash('success', ctx.i18n.t('rfq.flash.suppliersAdded', { count: added.length }))
+    })
+  }
+
+  /**
+   * Retire un destinataire non encore notifié.
+   */
+  async removeSupplier(ctx: HttpContext) {
+    const rfq = await this.loadManageable(ctx)
+
+    return this.runTransition(ctx, rfq, async () => {
+      await this.service.removeSupplier(rfq, Number(ctx.params.supplierId))
+      ctx.session.flash('success', ctx.i18n.t('rfq.flash.supplierRemoved'))
+    })
+  }
+
+  /**
+   * Fige le besoin : la demande devient diffusable.
+   */
+  async publish(ctx: HttpContext) {
+    const rfq = await this.loadManageable(ctx)
+
+    return this.runTransition(ctx, rfq, async () => {
+      await this.service.publish(rfq)
+      ctx.session.flash('success', ctx.i18n.t('rfq.flash.published'))
+    })
+  }
+
+  /**
+   * Notifie les destinataires en attente. L'envoi du mail arrive en PR 3 : ici,
+   * seul le statut de chaque destinataire bascule.
+   */
+  async send(ctx: HttpContext) {
+    const rfq = await this.loadManageable(ctx)
+
+    return this.runTransition(ctx, rfq, async () => {
+      const sent = await this.service.send(rfq)
+      ctx.session.flash('success', ctx.i18n.t('rfq.flash.sent', { count: sent.length }))
+    })
+  }
+
+  /**
+   * Clôture : l'acheteur a assez de réponses.
+   */
+  async close(ctx: HttpContext) {
+    const rfq = await this.loadManageable(ctx)
+
+    return this.runTransition(ctx, rfq, async () => {
+      await this.service.close(rfq)
+      ctx.session.flash('success', ctx.i18n.t('rfq.flash.closed'))
+    })
+  }
+
+  /**
+   * Charge la demande de l'organisation courante (404 si elle appartient à une
+   * autre) et vérifie le droit de la piloter.
+   */
+  private async loadManageable({ auth, bouncer, params }: RfqContext): Promise<Rfq> {
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
+    await bouncer.authorize('canManageRfq', org)
+
+    return this.service.findForBuyer(Number(params.id), org.id)
+  }
+
+  /**
+   * Exécute une transition et retombe sur l'écran de détail. Un refus du
+   * service devient un message flash — la page reste affichée avec
+   * l'explication — plutôt qu'une page d'erreur.
+   */
+  private async runTransition(
+    { i18n, session, response }: HttpContext,
+    rfq: Rfq,
+    action: () => Promise<void>
+  ) {
+    try {
+      await action()
+    } catch (error) {
+      const known = TRANSITION_ERRORS.find(({ type }) => error instanceof type)
+      if (!known) throw error
+      session.flash('error', i18n.t(known.key))
+    }
+
+    return response.redirect().toRoute('rfqs.show', { locale: i18n.locale, id: rfq.id })
+  }
+
+  /**
+   * Données communes aux formulaires : catégories (pour cadrer une ligne) et
+   * organisations fournisseuses éligibles (destinataires).
+   */
+  private async formData(locale: Locale) {
+    const [categories, suppliers] = await Promise.all([
+      this.categories.listForAdmin(),
+      this.service.eligibleSuppliers(),
+    ])
+
+    return {
+      categories: categories.map((category) =>
+        new CategoryTransformer(category, locale).toObject()
+      ),
+      supplierOptions: suppliers.map((organization) => ({
+        id: organization.id,
+        name: organization.name,
+        slug: organization.slug,
+        logoUrl: organization.logoUrl,
+      })),
+    }
+  }
+}

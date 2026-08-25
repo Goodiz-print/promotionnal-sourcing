@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon'
+import type { HasManyQueryBuilderContract } from '@adonisjs/lucid/types/relations'
 import db from '@adonisjs/lucid/services/db'
 import Organization from '#models/organization'
 import Rfq from '#models/rfq'
@@ -56,7 +57,7 @@ export default class RfqService {
     const rfq = await Rfq.query()
       .where('id', id)
       .where('buyerOrganizationId', organizationId)
-      .preload('items', (items) => items.preload('category').preload('product'))
+      .preload('items', (items) => this.preloadItemLabels(items))
       .preload('suppliers', (suppliers) => suppliers.preload('supplierOrganization'))
       .preload('createdBy')
       .first()
@@ -90,7 +91,7 @@ export default class RfqService {
         suppliers.where('supplierOrganizationId', organizationId).whereNot('status', 'pending')
       )
       .preload('buyerOrganization')
-      .preload('items', (items) => items.preload('category').preload('product'))
+      .preload('items', (items) => this.preloadItemLabels(items))
       .preload('suppliers', (suppliers) =>
         suppliers.where('supplierOrganizationId', organizationId)
       )
@@ -311,6 +312,19 @@ export default class RfqService {
   }
 
   /**
+   * Organisations éligibles comme destinataires : fournisseuses et actives.
+   * Alimente le sélecteur de l'écran de création — la même règle que celle
+   * appliquée par `addSuppliers`, pour ne pas proposer un choix qui sera
+   * refusé à l'enregistrement.
+   */
+  eligibleSuppliers(): Promise<Organization[]> {
+    return Organization.query()
+      .whereIn('organizationType', ['supplier', 'both'])
+      .whereNull('archivedAt')
+      .orderBy('name')
+  }
+
+  /**
    * Transition vers un statut terminal côté fournisseur. Refusée si la demande
    * n'a pas été reçue (`pending`) ou si une décision a déjà été prise.
    */
@@ -353,6 +367,16 @@ export default class RfqService {
       .whereNull('archivedAt')
 
     if (eligible.length !== organizationIds.length) throw new NotASupplierOrganizationException()
+  }
+
+  /**
+   * Les items affichent le nom de la catégorie ou du produit référencé : leurs
+   * traductions doivent suivre, la résolution étant faite par le transformer.
+   */
+  private preloadItemLabels(items: HasManyQueryBuilderContract<typeof RfqItem, RfqItem>): void {
+    items
+      .preload('category', (category) => category.preload('translations'))
+      .preload('product', (product) => product.preload('translations'))
   }
 
   private assertDraft(rfq: Rfq): void {

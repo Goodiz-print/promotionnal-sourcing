@@ -19,6 +19,9 @@ tmp/*
 .adonisjs/server/listeners.ts
 .adonisjs/server/pages.d.ts
 .adonisjs/server/policies.ts
+# Idem : dump intermédiaire du routeur écrit par tuyau à côté de routes.d.ts,
+# seul ce dernier étant consommé par le client.
+.adonisjs/server/routes.json
 
 # Secrets
 .env

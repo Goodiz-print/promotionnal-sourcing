@@ -75,3 +75,66 @@ export interface UpdateRfqData {
   deadline?: string | null
   budgetMax?: number | null
 }
+
+/**
+ * DTO exposés aux pages Inertia. Déclarés en `type` (et non `interface`) pour
+ * rester assignables à `Record<string, JSONDataTypes>` — contrainte de typage
+ * des props Inertia, cf. `shared/types/organization.ts`.
+ */
+export type RfqItemType = {
+  id: number
+  name: string
+  description: string | null
+  quantity: number
+  unit: string | null
+  categoryId: number | null
+  categoryName: string | null
+  productId: number | null
+  productName: string | null
+  specs: RfqItemSpecs | null
+}
+
+export type RfqSupplierType = {
+  id: number
+  supplierOrganizationId: number
+  name: string
+  slug: string
+  logoUrl: string | null
+  status: RfqSupplierStatus
+  sentAt: string | null
+}
+
+/**
+ * Ligne de la liste « mes demandes ». Les compteurs évitent d'envoyer items et
+ * destinataires au complet pour afficher « 3 lignes · 2 réponses sur 5 ».
+ */
+export type RfqType = {
+  id: number
+  title: string
+  status: RfqStatus
+  deadline: string | null
+  budgetMax: string | null
+  itemCount: number
+  supplierCount: number
+  respondedCount: number
+  publishedAt: string | null
+  closedAt: string | null
+  createdAt: string
+}
+
+export type RfqDetailType = RfqType & {
+  description: string | null
+  createdByName: string | null
+  items: RfqItemType[]
+  suppliers: RfqSupplierType[]
+}
+
+/**
+ * Organisation fournisseuse proposée dans le sélecteur de destinataires.
+ */
+export type SupplierOptionType = {
+  id: number
+  name: string
+  slug: string
+  logoUrl: string | null
+}
