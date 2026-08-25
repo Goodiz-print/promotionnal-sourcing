@@ -2,7 +2,7 @@ import router from '@adonisjs/core/services/router'
 import { controllers } from '#generated/controllers'
 
 /**
- * Demandes de devis (RFQ), côté acheteur.
+ * Demandes de devis (RFQ) : les deux côtés du domaine, acheteur et fournisseur.
  *
  * Appelé depuis `start/routes.ts`, **à l'intérieur** du groupe préfixé par la
  * locale et gardé par `auth` + `onboarded` : ces routes supposent un
@@ -30,4 +30,12 @@ export function registerRfqRoutes(): void {
   router.post('rfqs/:id/publish', [controllers.Rfqs, 'publish']).as('rfqs.publish')
   router.post('rfqs/:id/send', [controllers.Rfqs, 'send']).as('rfqs.send')
   router.post('rfqs/:id/close', [controllers.Rfqs, 'close']).as('rfqs.close')
+
+  // Côté fournisseur : demandes reçues. Consulter le détail vaut accusé de
+  // lecture (`sent` → `viewed`) ; décliner est la sortie explicite.
+  router.get('supplier/rfqs', [controllers.supplier.Rfqs, 'index']).as('supplier.rfqs.index')
+  router.get('supplier/rfqs/:id', [controllers.supplier.Rfqs, 'show']).as('supplier.rfqs.show')
+  router
+    .post('supplier/rfqs/:id/decline', [controllers.supplier.Rfqs, 'decline'])
+    .as('supplier.rfqs.decline')
 }

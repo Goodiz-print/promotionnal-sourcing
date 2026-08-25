@@ -63,6 +63,11 @@ export interface ApiDefinition {
       update: typeof routes['supplier.products.update']
       destroy: typeof routes['supplier.products.destroy']
     }
+    rfqs: {
+      index: typeof routes['supplier.rfqs.index']
+      show: typeof routes['supplier.rfqs.show']
+      decline: typeof routes['supplier.rfqs.decline']
+    }
   }
   rfqs: {
     index: typeof routes['rfqs.index']

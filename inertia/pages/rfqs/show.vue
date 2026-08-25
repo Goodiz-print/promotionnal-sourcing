@@ -8,6 +8,7 @@ import BaseBadge from '~/components/base_badge.vue'
 import BaseButton from '~/components/base_button.vue'
 import RfqActions from '~/components/rfqs/rfq_actions.vue'
 import RfqForm from '~/components/rfqs/rfq_form.vue'
+import RfqItemList from '~/components/rfqs/rfq_item_list.vue'
 import RfqSupplierList from '~/components/rfqs/rfq_supplier_list.vue'
 import RfqSupplierPicker from '~/components/rfqs/rfq_supplier_picker.vue'
 import { RFQ_STATUS_TONES } from '~/components/rfqs/types'
@@ -99,31 +100,7 @@ function formatDate(value: string): string {
       <p v-if="rfq.description" class="whitespace-pre-line text-[var(--gray-8)]">
         {{ rfq.description }}
       </p>
-      <ul class="flex flex-col gap-2">
-        <li
-          v-for="item in rfq.items"
-          :key="item.id"
-          class="rounded border border-[var(--gray-3)] p-3"
-        >
-          <div class="flex items-baseline justify-between gap-4">
-            <p class="font-medium">{{ item.name }}</p>
-            <span class="text-sm whitespace-nowrap text-[var(--gray-6)]">
-              {{ item.quantity }} {{ item.unit }}
-            </span>
-          </div>
-          <p v-if="item.description" class="mt-1 text-sm text-[var(--gray-6)]">
-            {{ item.description }}
-          </p>
-          <p v-if="item.categoryName || item.productName" class="mt-1 text-sm text-[var(--gray-6)]">
-            <span v-if="item.categoryName">
-              {{ t('rfq.show.category') }} : {{ item.categoryName }}
-            </span>
-            <span v-if="item.productName">
-              · {{ t('rfq.show.product') }} : {{ item.productName }}
-            </span>
-          </p>
-        </li>
-      </ul>
+      <RfqItemList :items="rfq.items" />
     </section>
 
     <section class="flex flex-col gap-3">

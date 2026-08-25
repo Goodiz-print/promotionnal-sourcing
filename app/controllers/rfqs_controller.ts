@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import CategoryService from '#services/category_service'
 import OrganizationContextService from '#services/organization_context_service'
+import RfqNotificationService from '#services/rfq_notification_service'
 import RfqService from '#services/rfq_service'
 import CategoryTransformer from '#transformers/category_transformer'
 import RfqDetailTransformer from '#transformers/rfq_detail_transformer'
@@ -14,6 +15,7 @@ import {
   RfqNotPublishableException,
   RfqNotSendableException,
 } from '#exceptions/rfq_errors'
+import type Organization from '#models/organization'
 import type Rfq from '#models/rfq'
 import type { Locale } from '#shared/types/i18n'
 
@@ -45,6 +47,7 @@ type RfqContext = Pick<HttpContext, 'auth' | 'bouncer' | 'params'>
 export default class RfqsController {
   constructor(
     private service: RfqService,
+    private notifications: RfqNotificationService,
     private categories: CategoryService,
     private organizations: OrganizationContextService
   ) {}
@@ -124,7 +127,7 @@ export default class RfqsController {
    * Met à jour l'en-tête et remplace les lignes d'un brouillon.
    */
   async update(ctx: HttpContext) {
-    const rfq = await this.loadManageable(ctx)
+    const { rfq } = await this.loadManageable(ctx)
     const payload = await ctx.request.validateUsing(rfqValidator)
 
     return this.runTransition(ctx, rfq, async () => {
@@ -139,7 +142,7 @@ export default class RfqsController {
    * publiée).
    */
   async addSuppliers(ctx: HttpContext) {
-    const rfq = await this.loadManageable(ctx)
+    const { rfq } = await this.loadManageable(ctx)
     const { supplierOrganizationIds } = await ctx.request.validateUsing(rfqSuppliersValidator)
 
     return this.runTransition(ctx, rfq, async () => {
@@ -152,7 +155,7 @@ export default class RfqsController {
    * Retire un destinataire non encore notifié.
    */
   async removeSupplier(ctx: HttpContext) {
-    const rfq = await this.loadManageable(ctx)
+    const { rfq } = await this.loadManageable(ctx)
 
     return this.runTransition(ctx, rfq, async () => {
       await this.service.removeSupplier(rfq, Number(ctx.params.supplierId))
@@ -164,7 +167,7 @@ export default class RfqsController {
    * Fige le besoin : la demande devient diffusable.
    */
   async publish(ctx: HttpContext) {
-    const rfq = await this.loadManageable(ctx)
+    const { rfq } = await this.loadManageable(ctx)
 
     return this.runTransition(ctx, rfq, async () => {
       await this.service.publish(rfq)
@@ -173,14 +176,17 @@ export default class RfqsController {
   }
 
   /**
-   * Notifie les destinataires en attente. L'envoi du mail arrive en PR 3 : ici,
-   * seul le statut de chaque destinataire bascule.
+   * Notifie les destinataires en attente : bascule leur statut, puis met en
+   * queue un mail par destinataire. Seules les lignes réellement basculées
+   * sont notifiées — un fournisseur déjà destinataire d'un envoi précédent
+   * n'est pas relancé.
    */
   async send(ctx: HttpContext) {
-    const rfq = await this.loadManageable(ctx)
+    const { rfq, org } = await this.loadManageable(ctx)
 
     return this.runTransition(ctx, rfq, async () => {
       const sent = await this.service.send(rfq)
+      await this.notifications.notifyRecipients(rfq, org, sent, ctx.i18n.locale)
       ctx.session.flash('success', ctx.i18n.t('rfq.flash.sent', { count: sent.length }))
     })
   }
@@ -189,7 +195,7 @@ export default class RfqsController {
    * Clôture : l'acheteur a assez de réponses.
    */
   async close(ctx: HttpContext) {
-    const rfq = await this.loadManageable(ctx)
+    const { rfq } = await this.loadManageable(ctx)
 
     return this.runTransition(ctx, rfq, async () => {
       await this.service.close(rfq)
@@ -199,13 +205,19 @@ export default class RfqsController {
 
   /**
    * Charge la demande de l'organisation courante (404 si elle appartient à une
-   * autre) et vérifie le droit de la piloter.
+   * autre) et vérifie le droit de la piloter. L'organisation est renvoyée avec
+   * la demande : `send` en a besoin pour nommer l'acheteur dans le mail, sans
+   * la résoudre une seconde fois.
    */
-  private async loadManageable({ auth, bouncer, params }: RfqContext): Promise<Rfq> {
+  private async loadManageable({
+    auth,
+    bouncer,
+    params,
+  }: RfqContext): Promise<{ rfq: Rfq; org: Organization }> {
     const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageRfq', org)
 
-    return this.service.findForBuyer(Number(params.id), org.id)
+    return { rfq: await this.service.findForBuyer(Number(params.id), org.id), org }
   }
 
   /**

@@ -595,6 +595,42 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['close']>>>
     }
   }
+  'supplier.rfqs.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/rfqs'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['index']>>>
+    }
+  }
+  'supplier.rfqs.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/rfqs/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['show']>>>
+    }
+  }
+  'supplier.rfqs.decline': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/rfqs/:id/decline'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['decline']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['decline']>>>
+    }
+  }
   'admin.categories.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/categories'

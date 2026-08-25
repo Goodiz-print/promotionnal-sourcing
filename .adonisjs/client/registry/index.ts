@@ -300,6 +300,24 @@ const routes = {
     tokens: [{"old":"/:locale/rfqs/:id/close","type":1,"val":"locale","end":""},{"old":"/:locale/rfqs/:id/close","type":0,"val":"rfqs","end":""},{"old":"/:locale/rfqs/:id/close","type":1,"val":"id","end":""},{"old":"/:locale/rfqs/:id/close","type":0,"val":"close","end":""}],
     types: placeholder as Registry['rfqs.close']['types'],
   },
+  'supplier.rfqs.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/rfqs',
+    tokens: [{"old":"/:locale/supplier/rfqs","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/rfqs","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/rfqs","type":0,"val":"rfqs","end":""}],
+    types: placeholder as Registry['supplier.rfqs.index']['types'],
+  },
+  'supplier.rfqs.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/rfqs/:id',
+    tokens: [{"old":"/:locale/supplier/rfqs/:id","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/rfqs/:id","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/rfqs/:id","type":0,"val":"rfqs","end":""},{"old":"/:locale/supplier/rfqs/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['supplier.rfqs.show']['types'],
+  },
+  'supplier.rfqs.decline': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/rfqs/:id/decline',
+    tokens: [{"old":"/:locale/supplier/rfqs/:id/decline","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/rfqs/:id/decline","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/rfqs/:id/decline","type":0,"val":"rfqs","end":""},{"old":"/:locale/supplier/rfqs/:id/decline","type":1,"val":"id","end":""},{"old":"/:locale/supplier/rfqs/:id/decline","type":0,"val":"decline","end":""}],
+    types: placeholder as Registry['supplier.rfqs.decline']['types'],
+  },
   'admin.categories.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/categories',

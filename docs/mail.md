@@ -80,8 +80,21 @@ await SendMailJob.dispatch({
   l'enregistrement est conservé **30 jours** dans `queue_jobs`
   (`removeOnFail: { age: '30d' }`) pour inspection ou rejeu manuel.
 - ⚠️ **Pas d'idempotence** : si l'échec survient _après_ la remise SMTP, le
-  rejeu renvoie le mail. Bénin pour une invitation ; à traiter (clé
-  d'idempotence) avant de brancher devis et commandes.
+  rejeu renvoie le mail. Bénin pour une invitation ou une notification de
+  demande de devis (un mail, un destinataire) ; à traiter (clé d'idempotence)
+  avant de brancher devis et commandes.
+
+### Types de mail existants
+
+| `kind`                    | Classe                               | Template Edge                    | Déclencheur                                                  |
+| ------------------------- | ------------------------------------ | -------------------------------- | ------------------------------------------------------------ |
+| `organization-invitation` | `OrganizationInvitationNotification` | `emails/organization_invitation` | Invitation d'un membre (`OrganizationInvitationsController`) |
+| `rfq-received`            | `RfqReceivedNotification`            | `emails/rfq_received`            | Envoi d'une demande de devis (`RfqNotificationService`)      |
+
+`rfq-received` porte un chemin **relatif** (`rfqPath`) et non une URL absolue :
+la charge est persistée et peut être rejouée bien plus tard, éventuellement sous
+un autre domaine. Le template la préfixe avec le global `appUrl`. Le mail
+d'invitation, lui, porte une URL signée complète — la signature couvre l'URL.
 
 > ⚠️ **Le worker doit tourner** (`node ace queue:work`) : sans lui, les mails
 > restent en base sans jamais partir. Voir [`docs/queue.md`](./queue.md#démarrer-le-worker).

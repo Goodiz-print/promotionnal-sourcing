@@ -4,6 +4,7 @@ import type { BaseMail } from '@adonisjs/mail'
 import mail from '@adonisjs/mail/services/main'
 import logger from '@adonisjs/core/services/logger'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
+import RfqReceivedNotification from '#mails/rfq_received_notification'
 import { UnknownMailKindException } from '#exceptions/mail_errors'
 import { MAIL_KINDS, type SendMailPayload } from '#shared/types/mail'
 
@@ -63,6 +64,15 @@ export default class SendMailJob extends Job<SendMailPayload> {
           data.roleName,
           data.inviterName,
           data.acceptUrl
+        )
+      case MAIL_KINDS.rfqReceived:
+        return new RfqReceivedNotification(
+          to,
+          data.buyerName,
+          data.rfqTitle,
+          data.itemCount,
+          data.deadline,
+          data.rfqPath
         )
       default:
         throw new UnknownMailKindException(kind)

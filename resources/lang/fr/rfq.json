@@ -86,5 +86,39 @@
     "notSendable": "Cette demande ne peut pas être envoyée : publiez-la et sélectionnez au moins un destinataire en attente.",
     "notClosable": "Seule une demande publiée peut être clôturée.",
     "notASupplier": "Un des destinataires sélectionnés n'est pas une organisation fournisseuse active."
+  },
+  "supplier": {
+    "index": {
+      "title": "Demandes reçues",
+      "subtitle": "Les demandes de devis que des acheteurs vous ont adressées.",
+      "empty": "Aucune demande reçue pour le moment.",
+      "from": "De {name}",
+      "receivedAt": "Reçue le {date}"
+    },
+    "show": {
+      "backToList": "Retour aux demandes reçues",
+      "needTitle": "Le besoin",
+      "buyer": "Acheteur",
+      "noDeadline": "Sans échéance",
+      "declinedNotice": "Vous avez décliné cette demande. L'acheteur en a été informé.",
+      "closedNotice": "L'acheteur a clôturé cette demande : elle n'attend plus de réponse.",
+      "quoteSoon": "Le dépôt de devis en ligne arrive prochainement."
+    },
+    "actions": {
+      "decline": "Décliner la demande",
+      "confirmDecline": "Décliner cette demande ? Ce choix est définitif."
+    },
+    "status": {
+      "sent": "À traiter",
+      "viewed": "En cours",
+      "responded": "Devis envoyé",
+      "declined": "Déclinée"
+    },
+    "flash": {
+      "declined": "Demande déclinée."
+    },
+    "errors": {
+      "notDecidable": "Cette demande n'attend plus de décision de votre part."
+    }
   }
 }

@@ -169,7 +169,7 @@ router
               .delete('supplier/products/:id', [controllers.supplier.Product, 'destroy'])
               .as('supplier.products.destroy')
 
-            // Demandes de devis (acheteur) — cf. `start/routes/rfqs.ts`.
+            // Demandes de devis, acheteur et fournisseur — cf. `start/routes/rfqs.ts`.
             registerRfqRoutes()
 
             // Administration de la taxonomie du catalogue (catégories globales).
