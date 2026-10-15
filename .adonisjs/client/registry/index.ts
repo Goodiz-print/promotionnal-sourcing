@@ -138,6 +138,30 @@ const routes = {
     tokens: [{"old":"/:locale/email/verification/resend","type":1,"val":"locale","end":""},{"old":"/:locale/email/verification/resend","type":0,"val":"email","end":""},{"old":"/:locale/email/verification/resend","type":0,"val":"verification","end":""},{"old":"/:locale/email/verification/resend","type":0,"val":"resend","end":""}],
     types: placeholder as Registry['email.verification.resend']['types'],
   },
+  'account.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/account',
+    tokens: [{"old":"/:locale/account","type":1,"val":"locale","end":""},{"old":"/:locale/account","type":0,"val":"account","end":""}],
+    types: placeholder as Registry['account.show']['types'],
+  },
+  'account.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/account',
+    tokens: [{"old":"/:locale/account","type":1,"val":"locale","end":""},{"old":"/:locale/account","type":0,"val":"account","end":""}],
+    types: placeholder as Registry['account.update']['types'],
+  },
+  'account.password.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/account/password',
+    tokens: [{"old":"/:locale/account/password","type":1,"val":"locale","end":""},{"old":"/:locale/account/password","type":0,"val":"account","end":""},{"old":"/:locale/account/password","type":0,"val":"password","end":""}],
+    types: placeholder as Registry['account.password.update']['types'],
+  },
+  'account.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/account',
+    tokens: [{"old":"/:locale/account","type":1,"val":"locale","end":""},{"old":"/:locale/account","type":0,"val":"account","end":""}],
+    types: placeholder as Registry['account.destroy']['types'],
+  },
   'onboarding.show': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/onboarding',

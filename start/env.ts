@@ -80,4 +80,11 @@ export default await Env.create(new URL('../', import.meta.url), {
   AI_BASE_URL: Env.schema.string.optional(),
   AI_API_KEY: Env.schema.string.optional(),
   AI_EMBED_MODEL: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring the limiter package
+  |----------------------------------------------------------
+  */
+  LIMITER_STORE: Env.schema.enum(['database', 'memory'] as const),
 })

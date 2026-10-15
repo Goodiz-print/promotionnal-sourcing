@@ -121,11 +121,19 @@ import { OrganizationInvitationFactory } from '#database/factories/organization_
 
 await UserFactory.create() // email et nom aléatoires
 await UserFactory.merge({ email: 'owner@example.com' }).create()
+await UserFactory.apply('unverified').create() // email non vérifié (verrouillé par `emailVerified`)
 await OrganizationFactory.apply('supplier').create() // états : supplier, both, archived
 await OrganizationInvitationFactory.apply('expired')
   .merge({ organizationId: org.id, email: 'invited@example.com' })
   .create()
 ```
+
+> Les utilisateurs sont **vérifiés par défaut** (`emailVerifiedAt` renseigné) : sans ça,
+> le middleware `emailVerified` redirigerait chaque spec vers l'écran de vérification.
+>
+> Toute spec qui appelle `POST /signup` (ou change l'email d'un compte) met un mail en
+> queue ; sous `QUEUE_DRIVER=sync` il part immédiatement. Il faut donc `mail.fake()` dans
+> le groupe, sinon le test attend le timeout d'un vrai SMTP (~30 s) puis échoue.
 
 > Le mot de passe (`TEST_PASSWORD`, `'password123'`) est passé **en clair** : `User`
 > compose `withAuthFinder`, dont le hook `beforeSave` le hache. Un `hash.make()` en amont

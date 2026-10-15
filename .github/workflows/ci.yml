@@ -23,6 +23,7 @@ env:
   APP_URL: http://localhost:3333
   LOG_LEVEL: error
   QUEUE_DRIVER: sync
+  LIMITER_STORE: memory
   DB_HOST: localhost
   DB_PORT: 5432
   DB_USER: test

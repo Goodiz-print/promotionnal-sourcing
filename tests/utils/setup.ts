@@ -1,4 +1,5 @@
 import db from '@adonisjs/lucid/services/db'
+import limiter from '@adonisjs/limiter/services/main'
 import testUtils from '@adonisjs/core/services/test_utils'
 import type { Group } from '@japa/runner/core'
 import type { BaseSeeder } from '@adonisjs/lucid/seeders'
@@ -54,6 +55,9 @@ export function useDatabase(group: Group, options: UseDatabaseOptions = {}): voi
   const hooks = perTest ? group.each : group
 
   hooks.setup(() => testUtils.db().truncate())
+  // Compteurs de rate limiting (store mémoire en test) : toutes les requêtes de
+  // test partagent la même IP, ils s'accumuleraient d'une spec à l'autre.
+  hooks.setup(() => limiter.clear())
   if (seeders.length === 0) return
 
   hooks.setup(async () => {

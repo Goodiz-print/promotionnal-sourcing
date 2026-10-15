@@ -1,5 +1,76 @@
 # Changelog
 
+## 2026-10-15 — Rate limiting sur l'authentification (#46)
+
+`POST /login`, `POST /signup`, la demande de mot de passe oublié et le renvoi du
+mail de vérification ne sont plus appelables sans limite (force brute, création
+de comptes en masse, spam de boîtes mail).
+
+- **`@adonisjs/limiter`** — `config/limiter.ts`, table `rate_limits` (migration
+  avec `down()`), provider enregistré. Variable d'environnement
+  **`LIMITER_STORE`** (`database` | `memory`), **obligatoire** : `database` en
+  production (compteurs partagés entre instances), `memory` pour les tests
+  (`.env.test`, CI). Documentée dans `.env.example`.
+- **Limiteurs nommés** (`start/limiter.ts`), appliqués route par route :
+  | Limiteur | Clé | Limite |
+  | --- | --- | --- |
+  | `login` | IP + email (insensible à la casse) | 5 / 15 min |
+  | `signup` | IP | 10 / heure |
+  | `password-reset` | email | 5 / heure |
+  | `email-verification-resend` | compte (IP à défaut) | 5 / heure |
+- **Seuls les échecs de login comptent** — une connexion réussie remet le
+  compteur à zéro (`clearLoginThrottle`). La 6ᵉ tentative est bloquée, même avec
+  le bon mot de passe.
+- **Réponse Inertia, pas JSON** — `HttpExceptionHandler` convertit
+  `E_TOO_MANY_REQUESTS` en `redirect().back()` + message flash `auth.throttled`
+  (« Trop de tentatives. Réessayez dans N min. »), avec l'en-tête `Retry-After`.
+  Un client API (`Accept: application/json` sans `X-Inertia`) reçoit un 429.
+- **Tests** — `tests/functional/rate_limiting.spec.ts` (8). `useDatabase` vide les
+  compteurs avant chaque test : toutes les requêtes de test partagent la même IP
+  et s'accumuleraient sinon d'une spec à l'autre. Non couvert : l'expiration de
+  la fenêtre (pas d'horloge injectable dans le projet) ; la remise à zéro est
+  vérifiée par le succès de login.
+- **Déploiement** — définir `LIMITER_STORE=database` et jouer la migration
+  `create_rate_limits_table` avant de démarrer ; l'application refuse de booter
+  sans cette variable.
+
+## 2026-10-15 — Page « mon compte » et suppression RGPD — Compte utilisateur, PR 3/3 (#45)
+
+Un utilisateur gère son profil, son mot de passe et peut supprimer son compte.
+Clôt l'issue #45 (avec les PR 1 et 2).
+
+- **Routes** (auth, **hors `emailVerified`** : un compte non vérifié doit pouvoir
+  corriger une adresse mal saisie ou supprimer son compte) — `account.show`
+  (`GET /:locale/account`), `account.update` (`PATCH /account`),
+  `account.password.update` (`PATCH /account/password`), `account.destroy`
+  (`DELETE /account`). Lien depuis les initiales de l'en-tête.
+- **Page** `account/show.vue` découpée en trois composants
+  (`components/account/{profile_form,password_form,danger_zone}.vue`) : nom,
+  email, langue ; mot de passe ; zone de danger.
+- **Changement d'email** — remet `email_verified_at` à `NULL`, envoie le mail de
+  vérification à la **nouvelle** adresse et renvoie l'utilisateur sur l'écran de
+  vérification. L'unicité est insensible à la casse et exclut le compte lui-même.
+- **Changement de mot de passe** — exige le mot de passe actuel (erreur de champ
+  sinon) et refuse un nouveau mot de passe identique à l'ancien.
+- **Suppression = anonymisation**, pas `DELETE` : des RFQ
+  (`created_by_user_id`) et des invitations référencent l'utilisateur. La ligne
+  `users` est conservée mais vidée — email `deleted-<id>@anonymized.invalid`,
+  nom effacé, mot de passe remplacé par un secret aléatoire (connexion
+  impossible), langue remise par défaut, adhésions supprimées, invitations en
+  attente adressées à l'ancien email supprimées. L'adresse d'origine est libérée.
+  Les demandes de devis restent, sans nom d'auteur. Exige le mot de passe actuel,
+  puis déconnecte.
+- **Refus pour le dernier owner** d'une organisation **non archivée**
+  (`AccountService#blockingOrganizations`, même invariant que
+  `OrganizationService#leave`). La page liste ces organisations et masque le
+  formulaire ; une organisation archivée ne retient personne.
+- **Classes** — `AccountService`, `AccountController`, `AccountTransformer`,
+  validators `app/validators/account.ts`, erreurs `app/exceptions/account_errors.ts`,
+  types `shared/types/account.ts` (`AccountType` est un `type`, pas une
+  `interface` : DTO de page Inertia).
+- **Tests** — `tests/functional/account.spec.ts` (13) et
+  `tests/inertia/account.spec.ts` (6).
+
 ## 2026-10-15 — Vérification d'email — Compte utilisateur, PR 2/3 (#45)
 
 Un compte n'est utilisable qu'une fois son adresse email confirmée.
