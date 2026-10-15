@@ -15,13 +15,19 @@ const translations = {
   'products.manage.noFacets': 'Aucune caractéristique.',
 }
 
-vi.mock('@inertiajs/vue3', () => ({
-  usePage: () => ({ props: { locale: 'fr', supportedLocales: ['fr', 'en'], translations } }),
-  router: { get: vi.fn(), delete: vi.fn() },
-  Head: { render: () => null },
-}))
+vi.mock('@inertiajs/vue3', async () => {
+  const m = await import('./support/inertia_mocks')
+  return {
+    usePage: () => m.inertiaPage(translations),
+    router: { get: vi.fn(), delete: vi.fn() },
+    Head: m.HeadStub,
+  }
+})
 vi.mock('~/client', () => ({ urlFor: () => '/fr/supplier/products' }))
-vi.mock('@adonisjs/inertia/vue', () => ({ Link: { template: '<a><slot /></a>' } }))
+vi.mock('@adonisjs/inertia/vue', async () => {
+  const { LinkStub } = await import('./support/inertia_mocks')
+  return { Link: LinkStub }
+})
 
 const { default: Index } = await import('~/pages/supplier/products/index.vue')
 const { default: BaseFileInput } = await import('~/components/base_file_input.vue')

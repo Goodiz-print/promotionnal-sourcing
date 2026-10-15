@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from 'vitest'
-import { reactive } from 'vue'
 import { mount } from '@vue/test-utils'
 import type { OrganizationMemberType, OrganizationInvitationType } from '#shared/types/organization'
 import type { RoleType } from '#shared/types/role'
@@ -23,24 +22,20 @@ const translations = {
   'organization.invitations.resend': 'Renvoyer',
 }
 
-vi.mock('@inertiajs/vue3', () => ({
-  usePage: () => ({ props: { locale: 'fr', supportedLocales: ['fr', 'en'], translations } }),
-  router: { patch: vi.fn(), post: vi.fn(), delete: vi.fn() },
-  useForm: (data: Record<string, unknown>) =>
-    reactive({
-      ...data,
-      errors: {},
-      processing: false,
-      transform() {
-        return this
-      },
-      reset: vi.fn(),
-      post: vi.fn(),
-    }),
-  Head: { render: () => null },
-}))
+vi.mock('@inertiajs/vue3', async () => {
+  const m = await import('./support/inertia_mocks')
+  return {
+    usePage: () => m.inertiaPage(translations),
+    router: { patch: vi.fn(), post: vi.fn(), delete: vi.fn() },
+    useForm: m.makeUseForm(),
+    Head: m.HeadStub,
+  }
+})
 vi.mock('~/client', () => ({ urlFor: () => '/fr/organization/members' }))
-vi.mock('@adonisjs/inertia/vue', () => ({ Link: { template: '<a><slot /></a>' } }))
+vi.mock('@adonisjs/inertia/vue', async () => {
+  const { LinkStub } = await import('./support/inertia_mocks')
+  return { Link: LinkStub }
+})
 
 const { default: Members } = await import('~/pages/organization/members.vue')
 const { router } = await import('@inertiajs/vue3')

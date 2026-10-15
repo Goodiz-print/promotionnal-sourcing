@@ -7,6 +7,8 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     include: ['tests/inertia/**/*.spec.ts'],
+    // Restaure `vi.stubGlobal(...)` (ex. `confirm`) entre deux tests.
+    unstubGlobals: true,
   },
   resolve: {
     alias: {
