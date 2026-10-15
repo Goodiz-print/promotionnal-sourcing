@@ -90,11 +90,13 @@ await SendMailJob.dispatch({
 | ------------------------- | ------------------------------------ | -------------------------------- | ------------------------------------------------------------ |
 | `organization-invitation` | `OrganizationInvitationNotification` | `emails/organization_invitation` | Invitation d'un membre (`OrganizationInvitationsController`) |
 | `rfq-received`            | `RfqReceivedNotification`            | `emails/rfq_received`            | Envoi d'une demande de devis (`RfqNotificationService`)      |
+| `password-reset`          | `PasswordResetNotification`          | `emails/password_reset`          | Demande « mot de passe oublié » (`PasswordResetService`)     |
 
 `rfq-received` porte un chemin **relatif** (`rfqPath`) et non une URL absolue :
 la charge est persistée et peut être rejouée bien plus tard, éventuellement sous
 un autre domaine. Le template la préfixe avec le global `appUrl`. Le mail
-d'invitation, lui, porte une URL signée complète — la signature couvre l'URL.
+d'invitation et celui de réinitialisation de mot de passe, eux, portent une URL signée
+complète — la signature couvre l'URL.
 
 > ⚠️ **Le worker doit tourner** (`node ace queue:work`) : sans lui, les mails
 > restent en base sans jamais partir. Voir [`docs/queue.md`](./queue.md#démarrer-le-worker).

@@ -47,6 +47,12 @@ export interface ApiDefinition {
     store: typeof routes['session.store']
     destroy: typeof routes['session.destroy']
   }
+  password: {
+    forgot: typeof routes['password.forgot']
+    email: typeof routes['password.email']
+    reset: typeof routes['password.reset']
+    update: typeof routes['password.update']
+  }
   onboarding: {
     show: typeof routes['onboarding.show']
     store: typeof routes['onboarding.store']

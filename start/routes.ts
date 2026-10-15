@@ -61,6 +61,14 @@ router
 
         router.get('login', [controllers.Session, 'create'])
         router.post('login', [controllers.Session, 'store'])
+
+        router.get('password/forgot', [controllers.PasswordReset, 'create']).as('password.forgot')
+        router.post('password/forgot', [controllers.PasswordReset, 'store']).as('password.email')
+        // Lien signé à usage unique (cf. PasswordResetService) : `:id` = compte visé.
+        router.get('password/reset/:id', [controllers.PasswordReset, 'edit']).as('password.reset')
+        router
+          .post('password/reset/:id', [controllers.PasswordReset, 'update'])
+          .as('password.update')
       })
       .use(middleware.guest())
 

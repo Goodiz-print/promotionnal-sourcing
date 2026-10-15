@@ -90,6 +90,30 @@ const routes = {
     tokens: [{"old":"/:locale/login","type":1,"val":"locale","end":""},{"old":"/:locale/login","type":0,"val":"login","end":""}],
     types: placeholder as Registry['session.store']['types'],
   },
+  'password.forgot': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/password/forgot',
+    tokens: [{"old":"/:locale/password/forgot","type":1,"val":"locale","end":""},{"old":"/:locale/password/forgot","type":0,"val":"password","end":""},{"old":"/:locale/password/forgot","type":0,"val":"forgot","end":""}],
+    types: placeholder as Registry['password.forgot']['types'],
+  },
+  'password.email': {
+    methods: ["POST"],
+    pattern: '/:locale/password/forgot',
+    tokens: [{"old":"/:locale/password/forgot","type":1,"val":"locale","end":""},{"old":"/:locale/password/forgot","type":0,"val":"password","end":""},{"old":"/:locale/password/forgot","type":0,"val":"forgot","end":""}],
+    types: placeholder as Registry['password.email']['types'],
+  },
+  'password.reset': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/password/reset/:id',
+    tokens: [{"old":"/:locale/password/reset/:id","type":1,"val":"locale","end":""},{"old":"/:locale/password/reset/:id","type":0,"val":"password","end":""},{"old":"/:locale/password/reset/:id","type":0,"val":"reset","end":""},{"old":"/:locale/password/reset/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['password.reset']['types'],
+  },
+  'password.update': {
+    methods: ["POST"],
+    pattern: '/:locale/password/reset/:id',
+    tokens: [{"old":"/:locale/password/reset/:id","type":1,"val":"locale","end":""},{"old":"/:locale/password/reset/:id","type":0,"val":"password","end":""},{"old":"/:locale/password/reset/:id","type":0,"val":"reset","end":""},{"old":"/:locale/password/reset/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['password.update']['types'],
+  },
   'session.destroy': {
     methods: ["POST"],
     pattern: '/:locale/logout',
