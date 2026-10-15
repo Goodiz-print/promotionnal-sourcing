@@ -5,37 +5,62 @@ on:
     branches: [main]
   pull_request:
 
+# Un nouveau push sur une PR annule le run précédent (jamais sur main).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+env:
+  NODE_ENV: test
+  TZ: UTC
+  PORT: 3333
+  HOST: localhost
+  APP_NAME: fleetai
+  APP_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+  APP_URL: http://localhost:3333
+  LOG_LEVEL: error
+  QUEUE_DRIVER: sync
+  DB_HOST: localhost
+  DB_PORT: 5432
+  DB_USER: test
+  DB_PASSWORD: test
+  DB_DATABASE: test
+  AI_PROVIDER: mistral
+  MISTRAL_API_KEY: test
+  CLOUDINARY_CLOUD_NAME: test
+  CLOUDINARY_API_KEY: test
+  CLOUDINARY_API_SECRET: test
+  SMTP_HOST: localhost
+  SMTP_PORT: 1025
+  SMTP_SECURE: false
+  MAIL_FROM_ADDRESS: noreply@fleetai.app
+  MAIL_FROM_NAME: FleetAi
+
 jobs:
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11.9.0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup
       - run: pnpm lint
 
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11.9.0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup
+      # Le build génère `.adonisjs/server/*` (#generated/*) dont dépend le typecheck.
       - run: pnpm run build
+      - run: pnpm typecheck
 
   test-backend:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     services:
       postgres:
         image: pgvector/pgvector:pg18
@@ -52,53 +77,15 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11.9.0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup
       - name: Backend tests (PostgreSQL)
         run: pnpm test
-        env:
-          NODE_ENV: test
-          TZ: UTC
-          PORT: 3333
-          HOST: localhost
-          APP_NAME: fleetai
-          APP_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-          APP_URL: http://localhost:3333
-          LOG_LEVEL: error
-          QUEUE_DRIVER: sync
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_USER: test
-          DB_PASSWORD: test
-          DB_DATABASE: test
-          AI_PROVIDER: mistral
-          MISTRAL_API_KEY: test
-          CLOUDINARY_CLOUD_NAME: test
-          CLOUDINARY_API_KEY: test
-          CLOUDINARY_API_SECRET: test
-          SMTP_HOST: localhost
-          SMTP_PORT: 1025
-          SMTP_SECURE: false
-          MAIL_FROM_ADDRESS: noreply@fleetai.app
-          MAIL_FROM_NAME: FleetAi
 
   test-frontend:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11.9.0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup
       - name: Frontend tests (Vitest)
         run: pnpm test:inertia

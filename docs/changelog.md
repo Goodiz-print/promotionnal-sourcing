@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-15 — CI plus rapide et plus fiable (phase 1)
+
+- **Annulation des runs obsolètes** : `concurrency` par ref — un nouveau push sur
+  une PR annule le run en cours (jamais sur `main`). `permissions: contents: read`.
+- **`timeout-minutes` sur chaque job** (10 à 15 min) : un test qui ne rend pas la
+  main (`forceExit: false`) ne bloque plus un runner pendant 6 h.
+- **Typecheck en CI** : `pnpm typecheck` (tsc + vue-tsc) tourne désormais après
+  `pnpm run build` dans le job `build`, qui génère les `#generated/*` requis.
+- **Setup factorisé** : action composite `.github/actions/setup` (pnpm, Node,
+  `pnpm install --frozen-lockfile`) utilisée par les 4 jobs ; variables d'env de
+  test déclarées une seule fois au niveau du workflow.
+
 ## 2026-08-21 — Écrans fournisseur et notification des demandes de devis — Phase 3, PR 3/3 (#4)
 
 La boucle RFQ est complète : ce que l'acheteur envoie, le fournisseur le reçoit,
