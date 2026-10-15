@@ -11,6 +11,7 @@
 export const MAIL_KINDS = {
   organizationInvitation: 'organization-invitation',
   rfqReceived: 'rfq-received',
+  passwordReset: 'password-reset',
 } as const
 
 export type MailKind = (typeof MAIL_KINDS)[keyof typeof MAIL_KINDS]
@@ -42,6 +43,17 @@ export interface RfqReceivedMailData {
 }
 
 /**
+ * Données du mail de réinitialisation du mot de passe
+ * (`PasswordResetNotification`). `resetUrl` est une URL signée complète,
+ * déjà générée par `PasswordResetService` ; `expiresInMinutes` n'est là que
+ * pour l'afficher (la validité réelle est portée par la signature).
+ */
+export interface PasswordResetMailData {
+  resetUrl: string
+  expiresInMinutes: number
+}
+
+/**
  * `to` est hissé hors de `data` : il est commun à tous les mails, ce qui permet
  * de loguer le destinataire dans `failed()` sans connaître le `kind`.
  *
@@ -58,4 +70,9 @@ export type SendMailPayload =
       kind: typeof MAIL_KINDS.rfqReceived
       to: string
       data: RfqReceivedMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.passwordReset
+      to: string
+      data: PasswordResetMailData
     }

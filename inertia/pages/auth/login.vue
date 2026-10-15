@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
+import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseInput from '~/components/base_input.vue'
@@ -50,5 +51,9 @@ function submit() {
         {{ t('auth.login.submit') }}
       </BaseButton>
     </form>
+
+    <Link class="mt-6 text-sm underline" route="password.forgot" :params="{ locale }">
+      {{ t('auth.login.forgot') }}
+    </Link>
   </div>
 </template>
