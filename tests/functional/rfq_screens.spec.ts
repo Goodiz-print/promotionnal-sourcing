@@ -1,6 +1,9 @@
 import { test } from '@japa/runner'
 import mail from '@adonisjs/mail/services/main'
 import { OrganizationFactory } from '#database/factories/organization_factory'
+import { RfqFactory } from '#database/factories/rfq_factory'
+import { RfqItemFactory } from '#database/factories/rfq_item_factory'
+import { RfqSupplierFactory } from '#database/factories/rfq_supplier_factory'
 import RfqReceivedNotification from '#mails/rfq_received_notification'
 import Rfq from '#models/rfq'
 import RfqItem from '#models/rfq_item'
@@ -31,8 +34,16 @@ test.group('Écrans RFQ — acheteur', (group) => {
   test('la liste affiche les demandes de l’organisation courante', async ({ client, assert }) => {
     const { org, owner } = await buyerWithOwner()
     const other = await OrganizationFactory.create()
-    await Rfq.create({ buyerOrganizationId: org.id, title: 'Tote bags', status: 'draft' })
-    await Rfq.create({ buyerOrganizationId: other.id, title: 'Chez le voisin', status: 'draft' })
+    await RfqFactory.merge({
+      buyerOrganizationId: org.id,
+      title: 'Tote bags',
+      status: 'draft',
+    }).create()
+    await RfqFactory.merge({
+      buyerOrganizationId: other.id,
+      title: 'Chez le voisin',
+      status: 'draft',
+    }).create()
 
     const response = await client.get('/fr/rfqs').withInertia().loginAs(owner)
 
@@ -118,18 +129,18 @@ test.group('Écrans RFQ — acheteur', (group) => {
   test('le détail expose le besoin et les destinataires', async ({ client, assert }) => {
     const { org, owner } = await buyerWithOwner()
     const supplier = await OrganizationFactory.apply('supplier').create()
-    const rfq = await Rfq.create({
+    const rfq = await RfqFactory.merge({
       buyerOrganizationId: org.id,
       createdByUserId: owner.id,
       title: 'Tote bags',
       status: 'draft',
-    })
-    await RfqItem.create({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 })
-    await RfqSupplier.create({
+    }).create()
+    await RfqItemFactory.merge({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 }).create()
+    await RfqSupplierFactory.merge({
       rfqId: rfq.id,
       supplierOrganizationId: supplier.id,
       status: 'pending',
-    })
+    }).create()
 
     const response = await client.get(`/fr/rfqs/${rfq.id}`).withInertia().loginAs(owner)
 
@@ -146,11 +157,11 @@ test.group('Écrans RFQ — acheteur', (group) => {
   test('une demande d’une autre organisation est un 404', async ({ client }) => {
     const { owner } = await buyerWithOwner()
     const other = await OrganizationFactory.create()
-    const rfq = await Rfq.create({
+    const rfq = await RfqFactory.merge({
       buyerOrganizationId: other.id,
       title: 'Chez le voisin',
       status: 'draft',
-    })
+    }).create()
 
     const response = await client.get(`/fr/rfqs/${rfq.id}`).withInertia().loginAs(owner)
 
@@ -160,23 +171,30 @@ test.group('Écrans RFQ — acheteur', (group) => {
   test('publier puis envoyer bascule les destinataires en `sent`', async ({ client, assert }) => {
     const { org, owner } = await buyerWithOwner()
     const supplier = await OrganizationFactory.apply('supplier').create()
-    const rfq = await Rfq.create({
+    const rfq = await RfqFactory.merge({
       buyerOrganizationId: org.id,
       title: 'Tote bags',
       status: 'draft',
-    })
-    await RfqItem.create({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 })
-    await RfqSupplier.create({
+    }).create()
+    await RfqItemFactory.merge({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 }).create()
+    await RfqSupplierFactory.merge({
       rfqId: rfq.id,
       supplierOrganizationId: supplier.id,
       status: 'pending',
-    })
+    }).create()
 
     await client.post(`/fr/rfqs/${rfq.id}/publish`).withInertia().withCsrfToken().loginAs(owner)
     await rfq.refresh()
     assert.equal(rfq.status, 'published')
 
-    await client.post(`/fr/rfqs/${rfq.id}/send`).withInertia().withCsrfToken().loginAs(owner)
+    // `send` met un mail en queue (`QUEUE_DRIVER=sync` : il partirait pour de
+    // vrai vers SMTP) — ce test ne s'intéresse qu'à la bascule de statut.
+    mail.fake()
+    try {
+      await client.post(`/fr/rfqs/${rfq.id}/send`).withInertia().withCsrfToken().loginAs(owner)
+    } finally {
+      mail.restore()
+    }
     const target = await RfqSupplier.findByOrFail('rfqId', rfq.id)
     assert.equal(target.status, 'sent')
     assert.isNotNull(target.sentAt)
@@ -187,11 +205,11 @@ test.group('Écrans RFQ — acheteur', (group) => {
     assert,
   }) => {
     const { org, owner } = await buyerWithOwner()
-    const rfq = await Rfq.create({
+    const rfq = await RfqFactory.merge({
       buyerOrganizationId: org.id,
       title: 'Besoin vide',
       status: 'draft',
-    })
+    }).create()
 
     const response = await client
       .post(`/fr/rfqs/${rfq.id}/publish`)
@@ -207,12 +225,12 @@ test.group('Écrans RFQ — acheteur', (group) => {
   test('un membre simple rédige mais ne publie pas (403)', async ({ client, assert }) => {
     const org = await OrganizationFactory.create()
     const member = await createMember(org, 'member')
-    const rfq = await Rfq.create({
+    const rfq = await RfqFactory.merge({
       buyerOrganizationId: org.id,
       title: 'Tote bags',
       status: 'draft',
-    })
-    await RfqItem.create({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 })
+    }).create()
+    await RfqItemFactory.merge({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 }).create()
 
     const list = await client.get('/fr/rfqs').withInertia().loginAs(member)
     list.assertStatus(200)
@@ -249,11 +267,11 @@ test.group('Écrans RFQ — acheteur', (group) => {
   }) => {
     const { org, owner } = await buyerWithOwner()
     const supplier = await OrganizationFactory.apply('supplier').create()
-    const rfq = await Rfq.create({
+    const rfq = await RfqFactory.merge({
       buyerOrganizationId: org.id,
       title: 'Tote bags',
       status: 'draft',
-    })
+    }).create()
 
     await client
       .post(`/fr/rfqs/${rfq.id}/suppliers`)
@@ -279,17 +297,17 @@ test.group('Écrans RFQ — acheteur', (group) => {
     const supplier = await OrganizationFactory.apply('supplier')
       .merge({ email: 'contact@fournisseur.test' })
       .create()
-    const rfq = await Rfq.create({
+    const rfq = await RfqFactory.merge({
       buyerOrganizationId: org.id,
       title: 'Tote bags',
       status: 'draft',
-    })
-    await RfqItem.create({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 })
-    await RfqSupplier.create({
+    }).create()
+    await RfqItemFactory.merge({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 }).create()
+    await RfqSupplierFactory.merge({
       rfqId: rfq.id,
       supplierOrganizationId: supplier.id,
       status: 'pending',
-    })
+    }).create()
     await client.post(`/fr/rfqs/${rfq.id}/publish`).withInertia().withCsrfToken().loginAs(owner)
 
     // `QUEUE_DRIVER=sync` en test : le job s'exécute dans le process, le mail
@@ -333,17 +351,17 @@ test.group('Écrans RFQ — acheteur', (group) => {
       email: 'manager@fournisseur.test',
     })
     await createMember(supplier, 'member', { email: 'membre@fournisseur.test' })
-    const rfq = await Rfq.create({
+    const rfq = await RfqFactory.merge({
       buyerOrganizationId: org.id,
       title: 'Tote bags',
       status: 'draft',
-    })
-    await RfqItem.create({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 })
-    await RfqSupplier.create({
+    }).create()
+    await RfqItemFactory.merge({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 }).create()
+    await RfqSupplierFactory.merge({
       rfqId: rfq.id,
       supplierOrganizationId: supplier.id,
       status: 'pending',
-    })
+    }).create()
     await client.post(`/fr/rfqs/${rfq.id}/publish`).withInertia().withCsrfToken().loginAs(owner)
 
     const { mails } = mail.fake()
@@ -365,12 +383,12 @@ test.group('Écrans RFQ — acheteur', (group) => {
 
   test('la mise à jour remplace les lignes du brouillon', async ({ client, assert }) => {
     const { org, owner } = await buyerWithOwner()
-    const rfq = await Rfq.create({
+    const rfq = await RfqFactory.merge({
       buyerOrganizationId: org.id,
       title: 'Tote bags',
       status: 'draft',
-    })
-    await RfqItem.create({ rfqId: rfq.id, name: 'Ancienne ligne', quantity: 10 })
+    }).create()
+    await RfqItemFactory.merge({ rfqId: rfq.id, name: 'Ancienne ligne', quantity: 10 }).create()
 
     await client
       .patch(`/fr/rfqs/${rfq.id}`)

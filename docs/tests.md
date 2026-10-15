@@ -127,6 +127,13 @@ await OrganizationFactory.apply('supplier').create() // états : supplier, both,
 await OrganizationInvitationFactory.apply('expired')
   .merge({ organizationId: org.id, email: 'invited@example.com' })
   .create()
+
+// Demandes de devis : les clés étrangères restent à fournir par l'appelant
+const rfq = await RfqFactory.apply('published').merge({ buyerOrganizationId: org.id }).create()
+await RfqItemFactory.merge({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 }).create()
+await RfqSupplierFactory.apply('sent') // états : (défaut `pending`), sent
+  .merge({ rfqId: rfq.id, supplierOrganizationId: supplier.id })
+  .create()
 ```
 
 > Les utilisateurs sont **vérifiés par défaut** (`emailVerifiedAt` renseigné) : sans ça,
