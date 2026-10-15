@@ -21,6 +21,7 @@ export const LOGIN_LIMIT = { requests: 5, duration: '15 mins' } as const
 export const SIGNUP_LIMIT = { requests: 10, duration: '1 hour' } as const
 export const PASSWORD_RESET_LIMIT = { requests: 5, duration: '1 hour' } as const
 export const EMAIL_VERIFICATION_RESEND_LIMIT = { requests: 5, duration: '1 hour' } as const
+export const PASSKEY_LOGIN_LIMIT = { requests: 20, duration: '15 mins' } as const
 
 const normalizeEmail = (value: unknown) =>
   typeof value === 'string' ? value.trim().toLowerCase() : ''
@@ -71,4 +72,16 @@ export const emailVerificationResendThrottle = limiter.define(
       .allowRequests(EMAIL_VERIFICATION_RESEND_LIMIT.requests)
       .every(EMAIL_VERIFICATION_RESEND_LIMIT.duration)
       .usingKey(auth.user ? `user_${auth.user.id}` : `ip_${request.ip()}`)
+)
+
+/**
+ * Connexion par passkey : par IP (aucun email saisi à clé). Plus large que le
+ * login par mot de passe — une signature n'est pas devinable — mais borne le
+ * coût des vérifications cryptographiques et le bruit de requêtes forgées.
+ */
+export const passkeyLoginThrottle = limiter.define('passkey-login', ({ request }) =>
+  limiter
+    .allowRequests(PASSKEY_LOGIN_LIMIT.requests)
+    .every(PASSKEY_LOGIN_LIMIT.duration)
+    .usingKey(`ip_${request.ip()}`)
 )

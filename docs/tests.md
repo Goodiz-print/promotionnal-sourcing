@@ -135,6 +135,14 @@ await OrganizationInvitationFactory.apply('expired')
 > queue ; sous `QUEUE_DRIVER=sync` il part immédiatement. Il faut donc `mail.fake()` dans
 > le groupe, sinon le test attend le timeout d'un vrai SMTP (~30 s) puis échoue.
 
+> **Passkeys** : `FakeAuthenticator` (`tests/utils/fake_authenticator.ts`) joue le rôle du
+> navigateur et de l'authentificateur (clé ES256, attestation `none`) : `register({ challenge })`
+> et `authenticate({ challenge, counter })` produisent des réponses acceptées par la vraie
+> vérification de `@simplewebauthn/server`. Le défi se pose en session avec
+> `.withSession({ 'passkey.authentication': { value, expiresAt } })`, sans aller-retour par
+> la route `options`. `PasskeyFactory` crée la ligne en base ; lui passer `credentialId` et
+> `publicKey` de l'authentificateur pour une vraie connexion.
+
 > Le mot de passe (`TEST_PASSWORD`, `'password123'`) est passé **en clair** : `User`
 > compose `withAuthFinder`, dont le hook `beforeSave` le hache. Un `hash.make()` en amont
 > produirait un hash de hash — invisible avec `loginAs`, mais un `POST /login` échouerait.

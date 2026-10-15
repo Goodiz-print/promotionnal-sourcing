@@ -54,6 +54,11 @@ export interface ApiDefinition {
     store: typeof routes['session.store']
     destroy: typeof routes['session.destroy']
   }
+  passkey: {
+    login: typeof routes['passkey.login'] & {
+      options: typeof routes['passkey.login.options']
+    }
+  }
   password: {
     forgot: typeof routes['password.forgot']
     email: typeof routes['password.email']
@@ -67,6 +72,12 @@ export interface ApiDefinition {
       update: typeof routes['account.password.update']
     }
     destroy: typeof routes['account.destroy']
+    passkeys: {
+      options: typeof routes['account.passkeys.options']
+      store: typeof routes['account.passkeys.store']
+      update: typeof routes['account.passkeys.update']
+      destroy: typeof routes['account.passkeys.destroy']
+    }
   }
   onboarding: {
     show: typeof routes['onboarding.show']

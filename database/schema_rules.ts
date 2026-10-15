@@ -28,5 +28,15 @@ export default {
     product_translations: {
       skipColumns: ['search_vector'],
     },
+
+    /**
+     * `transports` (text[]) : liste WebAuthn (`usb`, `internal`, `hybrid`…), typée
+     * pour éviter un `any` dans le service.
+     */
+    passkeys: {
+      columns: {
+        transports: { tsType: 'string[]' },
+      },
+    },
   },
 } satisfies SchemaRules

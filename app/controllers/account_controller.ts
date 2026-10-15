@@ -1,6 +1,8 @@
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import AccountService from '#services/account_service'
+import PasskeyService from '#services/passkey_service'
+import PasskeyTransformer from '#transformers/passkey_transformer'
 import AccountTransformer from '#transformers/account_transformer'
 import {
   destroyAccountValidator,
@@ -19,14 +21,20 @@ import {
  */
 @inject()
 export default class AccountController {
-  constructor(private service: AccountService) {}
+  constructor(
+    private service: AccountService,
+    private passkeys: PasskeyService
+  ) {}
 
   async show({ auth, inertia }: HttpContext) {
     const user = auth.getUserOrFail()
 
+    const passkeys = await this.passkeys.list(user)
+
     return inertia.render('account/show', {
       account: new AccountTransformer(user).toObject(),
       blockingOrganizations: await this.service.blockingOrganizations(user),
+      passkeys: passkeys.map((passkey) => new PasskeyTransformer(passkey).toObject()),
     })
   }
 

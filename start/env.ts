@@ -87,4 +87,14 @@ export default await Env.create(new URL('../', import.meta.url), {
   |----------------------------------------------------------
   */
   LIMITER_STORE: Env.schema.enum(['database', 'memory'] as const),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring passkeys (WebAuthn)
+  |----------------------------------------------------------
+  | Par défaut dérivées de APP_URL (domaine et origine de l'application) ;
+  | à surcharger seulement si le site est servi derrière un autre domaine.
+  */
+  PASSKEY_RP_ID: Env.schema.string.optional(),
+  PASSKEY_ORIGIN: Env.schema.string.optional(),
 })
