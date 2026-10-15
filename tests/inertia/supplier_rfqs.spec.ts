@@ -27,13 +27,19 @@ const translations = {
   'rfq.show.product': 'Produit',
 }
 
-vi.mock('@inertiajs/vue3', () => ({
-  usePage: () => ({ props: { locale: 'fr', supportedLocales: ['fr', 'en'], translations } }),
-  router: { post: vi.fn() },
-  Head: { render: () => null },
-}))
+vi.mock('@inertiajs/vue3', async () => {
+  const m = await import('./support/inertia_mocks')
+  return {
+    usePage: () => m.inertiaPage(translations),
+    router: { post: vi.fn() },
+    Head: m.HeadStub,
+  }
+})
 vi.mock('~/client', () => ({ urlFor: () => '/fr/supplier/rfqs/1/decline' }))
-vi.mock('@adonisjs/inertia/vue', () => ({ Link: { template: '<a><slot /></a>' } }))
+vi.mock('@adonisjs/inertia/vue', async () => {
+  const { LinkStub } = await import('./support/inertia_mocks')
+  return { Link: LinkStub }
+})
 
 const { default: SupplierRfqsIndex } = await import('~/pages/supplier/rfqs/index.vue')
 const { default: SupplierRfqShow } = await import('~/pages/supplier/rfqs/show.vue')

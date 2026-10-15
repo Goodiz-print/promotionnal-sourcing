@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from 'vitest'
-import { reactive } from 'vue'
 import { mount } from '@vue/test-utils'
 
 const translations = {
@@ -17,12 +16,17 @@ const translations = {
 
 const post = vi.fn()
 
-vi.mock('@inertiajs/vue3', () => ({
-  usePage: () => ({ props: { locale: 'fr', supportedLocales: ['fr', 'en'], translations } }),
-  useForm: (data: Record<string, unknown>) =>
-    reactive({ ...data, errors: {}, processing: false, post }),
-}))
-vi.mock('@adonisjs/inertia/vue', () => ({ Link: { template: '<a><slot /></a>' } }))
+vi.mock('@inertiajs/vue3', async () => {
+  const m = await import('./support/inertia_mocks')
+  return {
+    usePage: () => m.inertiaPage(translations),
+    useForm: m.makeUseForm({ post }),
+  }
+})
+vi.mock('@adonisjs/inertia/vue', async () => {
+  const { LinkStub } = await import('./support/inertia_mocks')
+  return { Link: LinkStub }
+})
 vi.mock('~/client', () => ({
   urlFor: (route: string, params: { locale: string }) => `/${params.locale}/${route}`,
 }))

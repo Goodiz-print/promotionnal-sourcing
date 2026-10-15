@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { reactive } from 'vue'
 import { mount } from '@vue/test-utils'
 import type { AccountType } from '#shared/types/account'
 
@@ -28,21 +27,13 @@ const translations = {
 const patch = vi.fn()
 const destroy = vi.fn()
 
-vi.mock('@inertiajs/vue3', () => ({
-  usePage: () => ({ props: { locale: 'fr', supportedLocales: ['fr', 'en'], translations } }),
-  useForm: (data: Record<string, unknown>) =>
-    reactive({
-      ...data,
-      errors: {},
-      processing: false,
-      patch,
-      delete: destroy,
-      transform() {
-        return this
-      },
-      reset: vi.fn(),
-    }),
-}))
+vi.mock('@inertiajs/vue3', async () => {
+  const m = await import('./support/inertia_mocks')
+  return {
+    usePage: () => m.inertiaPage(translations),
+    useForm: m.makeUseForm({ patch, delete: destroy }),
+  }
+})
 vi.mock('~/client', () => ({ urlFor: (name: string) => `/fr/${name}` }))
 
 const { default: ProfileForm } = await import('~/components/account/profile_form.vue')

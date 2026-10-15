@@ -222,6 +222,7 @@ pnpm run test:inertia -- --watch   # mode watch
 - **Environnement** : `happy-dom`
 - **Include** : `tests/inertia/**/*.spec.ts`
 - **Alias** : `~/` → `inertia/`, `@generated` → `.adonisjs/client/`
+- **`unstubGlobals: true`** : un `vi.stubGlobal(...)` (ex. `confirm`) est restauré entre deux tests
 
 ### Exemple test composant
 
@@ -261,3 +262,30 @@ it('affiche les données', () => {
   expect(wrapper.findAll('li')).toHaveLength(1)
 })
 ```
+
+### Mocks Inertia partagés
+
+Une page qui appelle `usePage()`, `useForm()` ou `<Head>` a besoin d'un mock de `@inertiajs/vue3`.
+`tests/inertia/support/inertia_mocks.ts` en fournit les briques communes : `inertiaPage(translations)`,
+`makeUseForm(spies?)`, `HeadStub`, `LinkStub`. Un `vi.mock` est hoisté au-dessus des imports : on
+l'écrit avec une factory **asynchrone** qui importe le module à la demande. `translations`, propre au
+spec, n'est lu qu'à l'appel de `usePage`.
+
+```ts
+vi.mock('@inertiajs/vue3', async () => {
+  const m = await import('./support/inertia_mocks')
+  return {
+    usePage: () => m.inertiaPage(translations),
+    router: { post: vi.fn() }, // propre au spec
+    useForm: m.makeUseForm({ post }), // `post` : l'espion que le spec veut asserter
+    Head: m.HeadStub,
+  }
+})
+vi.mock('@adonisjs/inertia/vue', async () => {
+  const { LinkStub } = await import('./support/inertia_mocks')
+  return { Link: LinkStub }
+})
+```
+
+`router`, `urlFor` (`vi.mock('~/client', …)`) et les mocks de composables (`use_passkey`) restent dans
+le spec : ils varient trop pour être mutualisés sans changer ce que le test vérifie.
