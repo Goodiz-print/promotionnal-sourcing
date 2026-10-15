@@ -78,34 +78,35 @@ et n'accepte qu'une base dont le nom se termine par "test".
 #### Initialisation par groupe — `useDatabase`
 
 `tests/utils/setup.ts` expose `useDatabase(group, options)`, qui branche le cycle de vie
-base de données d'un groupe : `truncate()` (qui lance au passage `migration:run`,
-idempotent) puis les seeders. C'est le seul point d'entrée — on ne recopie plus les hooks
-dans chaque spec.
+base de données d'un groupe : **une fois par groupe**, `truncate()` (qui lance au passage
+`migration:run`, idempotent) puis les seeders ; **avant chaque test**, une transaction globale
+annulée à sa fin (rollback). Le `db:truncate` de fin de groupe est le cleanup du hook : le
+groupe suivant repart d'une base vide. C'est le seul point d'entrée — on ne recopie plus les
+hooks dans chaque spec.
+
+Conséquence : un test peut muter les données semées sans polluer le suivant, et le catalogue
+n'est plus re-semé à chaque test. Les `db.transaction()` du code testé deviennent des
+savepoints. **Les séquences d'identifiants ne sont pas remises à zéro** par le rollback : ne
+jamais écrire un `id` en dur dans un test.
 
 ```ts
-useDatabase(group) // rôles + permissions, avant chaque test
+useDatabase(group) // rôles + permissions (semés une fois), transaction par test
 useDatabase(group, { seed: 'full' }) // MainSeeder (catalogue + dev user)
-useDatabase(group, { seed: 'full', perTest: false }) // une fois pour le groupe (lecture seule)
+useDatabase(group, { seed: 'full', perTest: false }) // sans transaction par test (lecture seule)
 useDatabase(group, { extraSeeders: [CategorySeeder] })
 useDatabase(group, { seed: 'none' }) // vidage seul
 ```
 
-| option         | valeurs                                                   | défaut    |
-| -------------- | --------------------------------------------------------- | --------- |
-| `seed`         | `'none'`, `'roles'`, `'full'`                             | `'roles'` |
-| `extraSeeders` | seeders joués après les précédents                        | `[]`      |
-| `perTest`      | `true` = avant chaque test, `false` = une fois par groupe | `true`    |
+| option         | valeurs                                                                 | défaut    |
+| -------------- | ----------------------------------------------------------------------- | --------- |
+| `seed`         | `'none'`, `'roles'`, `'full'`                                           | `'roles'` |
+| `extraSeeders` | seeders joués après les précédents                                      | `[]`      |
+| `perTest`      | `true` = transaction annulée par test, `false` = aucune (lecture seule) | `true`    |
 
 `'full'` passe par `MainSeeder` et non `db:seed` : ce dernier exécuterait chaque seeder
 isolément, donc `dev_user` avant les rôles.
 
-Pour isoler chaque test dans une transaction annulée :
-
-```ts
-test.group('Mon groupe', (group) => {
-  group.each.setup(() => testUtils.db().withGlobalTransaction())
-})
-```
+Un groupe `perTest: false` n'est protégé par rien : il ne doit **jamais** écrire en base.
 
 ### Factories et helpers
 
@@ -167,7 +168,7 @@ pas d'instances isolées.
 import { test } from '@japa/runner'
 
 test.group('Users', (group) => {
-  group.each.setup(() => testUtils.db().withGlobalTransaction())
+  useDatabase(group)
 
   test('liste les utilisateurs', async ({ client }) => {
     const response = await client.get('/users')
