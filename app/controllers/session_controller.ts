@@ -1,4 +1,5 @@
 import User from '#models/user'
+import { clearLoginThrottle } from '#start/limiter'
 import { isSafeRedirectPath } from '#shared/helpers/safe_redirect'
 import type { HttpContext } from '@adonisjs/core/http'
 
@@ -14,11 +15,14 @@ export default class SessionController {
     })
   }
 
-  async store({ request, auth, response, i18n }: HttpContext) {
+  async store(ctx: HttpContext) {
+    const { request, auth, response, i18n } = ctx
     const { email, password } = request.all()
     const user = await User.verifyCredentials(email, password)
 
     await auth.use('web').login(user)
+    // Seuls les échecs consécutifs comptent : une connexion réussie remet à zéro.
+    await clearLoginThrottle(ctx)
 
     const { redirect } = request.qs()
     if (isSafeRedirectPath(redirect)) {

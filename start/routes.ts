@@ -8,6 +8,12 @@
 */
 
 import { middleware } from '#start/kernel'
+import {
+  emailVerificationResendThrottle,
+  loginThrottle,
+  passwordResetThrottle,
+  signupThrottle,
+} from '#start/limiter'
 import { registerRfqRoutes } from '#start/routes/rfqs'
 import { controllers } from '#generated/controllers'
 import router from '@adonisjs/core/services/router'
@@ -61,13 +67,16 @@ router
     router
       .group(() => {
         router.get('signup', [controllers.NewAccount, 'create'])
-        router.post('signup', [controllers.NewAccount, 'store'])
+        router.post('signup', [controllers.NewAccount, 'store']).use(signupThrottle)
 
         router.get('login', [controllers.Session, 'create'])
-        router.post('login', [controllers.Session, 'store'])
+        router.post('login', [controllers.Session, 'store']).use(loginThrottle)
 
         router.get('password/forgot', [controllers.PasswordReset, 'create']).as('password.forgot')
-        router.post('password/forgot', [controllers.PasswordReset, 'store']).as('password.email')
+        router
+          .post('password/forgot', [controllers.PasswordReset, 'store'])
+          .as('password.email')
+          .use(passwordResetThrottle)
         // Lien signé à usage unique (cf. PasswordResetService) : `:id` = compte visé.
         router.get('password/reset/:id', [controllers.PasswordReset, 'edit']).as('password.reset')
         router
@@ -85,6 +94,7 @@ router
         router
           .post('email/verification/resend', [controllers.EmailVerification, 'resend'])
           .as('email.verification.resend')
+          .use(emailVerificationResendThrottle)
 
         // Page « mon compte » : exemptée d'`emailVerified` (corriger une adresse
         // mal saisie, supprimer son compte).
