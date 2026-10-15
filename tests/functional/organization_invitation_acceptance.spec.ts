@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import mail from '@adonisjs/mail/services/main'
 import { DateTime } from 'luxon'
 import { signedUrlFor } from '@adonisjs/core/services/url_builder'
 import { OrganizationFactory } from '#database/factories/organization_factory'
@@ -189,6 +190,12 @@ test.group(
   'Redirection après connexion/inscription (préservation du lien d’invitation)',
   (group) => {
     useDatabase(group)
+    // L'inscription met un mail de vérification en queue (driver `sync` en test) :
+    // sans faux mailer, il tenterait un vrai SMTP et attendrait son timeout.
+    group.each.setup(() => {
+      mail.fake()
+      return () => mail.restore()
+    })
 
     test('login redirige vers le paramètre redirect fourni (chemin sûr)', async ({ client }) => {
       await UserFactory.merge({ email: 'user@example.com', fullName: 'User' }).create()

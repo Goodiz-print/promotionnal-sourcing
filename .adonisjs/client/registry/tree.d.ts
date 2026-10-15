@@ -38,6 +38,13 @@ export interface ApiDefinition {
       destroy: typeof routes['organization.members.destroy']
     }
   }
+  email: {
+    verify: typeof routes['email.verify']
+    notice: typeof routes['email.notice']
+    verification: {
+      resend: typeof routes['email.verification.resend']
+    }
+  }
   newAccount: {
     create: typeof routes['new_account.create']
     store: typeof routes['new_account.store']

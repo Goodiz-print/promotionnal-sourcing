@@ -1,4 +1,5 @@
 import factory from '@adonisjs/lucid/factories'
+import { DateTime } from 'luxon'
 import User from '#models/user'
 
 /**
@@ -15,5 +16,11 @@ export const UserFactory = factory
     email: faker.internet.email().toLowerCase(),
     fullName: faker.person.fullName(),
     password: TEST_PASSWORD,
+    // Vérifié par défaut : la quasi-totalité des specs ne portent pas sur la
+    // vérification et ne doivent pas être bloquées par `emailVerified`.
+    emailVerifiedAt: DateTime.now(),
   }))
+  .state('unverified', (user) => {
+    user.emailVerifiedAt = null
+  })
   .build()
