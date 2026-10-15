@@ -5,6 +5,7 @@ import logger from '@adonisjs/core/services/logger'
 import db from '@adonisjs/lucid/services/db'
 import OrganizationInvitation from '#models/organization_invitation'
 import OrganizationUser from '#models/organization_user'
+import Passkey from '#models/passkey'
 import type User from '#models/user'
 import EmailVerificationService from '#services/email_verification_service'
 import OrganizationMembersService from '#services/organization_members_service'
@@ -86,7 +87,7 @@ export default class AccountService {
    * email remplacé par une adresse `.invalid` unique, nom effacé, mot de passe
    * remplacé par un secret aléatoire inconnu de tous (connexion impossible), langue
    * remise par défaut (colonne `NOT NULL`),
-   * adhésions supprimées, invitations en attente adressées à l'ancien email
+   * adhésions et passkeys supprimées, invitations en attente adressées à l'ancien email
    * supprimées. Refusée tant que l'utilisateur est dernier owner d'une
    * organisation active.
    */
@@ -100,6 +101,9 @@ export default class AccountService {
 
     await db.transaction(async (trx) => {
       await OrganizationUser.query({ client: trx }).where('userId', user.id).delete()
+      // Une passkey est une donnée d'authentification : la ligne `users` est
+      // conservée, pas ses identifiants.
+      await Passkey.query({ client: trx }).where('userId', user.id).delete()
       await OrganizationInvitation.query({ client: trx })
         .whereRaw('lower(email) = ?', [previousEmail.toLowerCase()])
         .where('status', 'pending')

@@ -11,6 +11,7 @@ import { middleware } from '#start/kernel'
 import {
   emailVerificationResendThrottle,
   loginThrottle,
+  passkeyLoginThrottle,
   passwordResetThrottle,
   signupThrottle,
 } from '#start/limiter'
@@ -72,6 +73,15 @@ router
         router.get('login', [controllers.Session, 'create'])
         router.post('login', [controllers.Session, 'store']).use(loginThrottle)
 
+        // Connexion par passkey : `options` émet le défi, `login` vérifie la signature.
+        router
+          .get('passkeys/options', [controllers.PasskeySession, 'options'])
+          .as('passkey.login.options')
+        router
+          .post('passkeys/login', [controllers.PasskeySession, 'store'])
+          .as('passkey.login')
+          .use(passkeyLoginThrottle)
+
         router.get('password/forgot', [controllers.PasswordReset, 'create']).as('password.forgot')
         router
           .post('password/forgot', [controllers.PasswordReset, 'store'])
@@ -104,6 +114,19 @@ router
           .patch('account/password', [controllers.Account, 'updatePassword'])
           .as('account.password.update')
         router.delete('account', [controllers.Account, 'destroy']).as('account.destroy')
+
+        // Passkeys du compte. `options` répond en JSON (cérémonie WebAuthn côté
+        // navigateur), le reste en redirections Inertia.
+        router
+          .get('account/passkeys/options', [controllers.Passkey, 'options'])
+          .as('account.passkeys.options')
+        router.post('account/passkeys', [controllers.Passkey, 'store']).as('account.passkeys.store')
+        router
+          .patch('account/passkeys/:id', [controllers.Passkey, 'update'])
+          .as('account.passkeys.update')
+        router
+          .delete('account/passkeys/:id', [controllers.Passkey, 'destroy'])
+          .as('account.passkeys.destroy')
 
         // Tout le reste exige une adresse vérifiée, avant même l'onboarding.
         router

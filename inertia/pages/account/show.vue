@@ -3,10 +3,16 @@ import { Head } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import ProfileForm from '~/components/account/profile_form.vue'
 import PasswordForm from '~/components/account/password_form.vue'
+import PasskeysSection from '~/components/account/passkeys_section.vue'
 import DangerZone from '~/components/account/danger_zone.vue'
 import type { AccountType } from '#shared/types/account'
+import type { PasskeyType } from '#shared/types/passkey'
 
-defineProps<{ account: AccountType; blockingOrganizations: string[] }>()
+defineProps<{
+  account: AccountType
+  blockingOrganizations: string[]
+  passkeys: PasskeyType[]
+}>()
 
 const { t } = useI18n()
 </script>
@@ -22,6 +28,7 @@ const { t } = useI18n()
 
     <ProfileForm :account="account" />
     <PasswordForm />
+    <PasskeysSection :passkeys="passkeys" />
     <DangerZone :blocking-organizations="blockingOrganizations" />
   </div>
 </template>

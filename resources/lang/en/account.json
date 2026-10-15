@@ -29,5 +29,26 @@
     "submit": "Permanently delete my account",
     "confirm": "Permanently delete your account? This cannot be undone.",
     "deleted": "Your account has been deleted."
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "subtitle": "Sign in without a password using your device's fingerprint, face or PIN.",
+    "empty": "No passkeys registered.",
+    "name": "Passkey name",
+    "defaultName": "My device",
+    "add": "Add a passkey",
+    "unsupported": "Your browser does not support passkeys.",
+    "rename": "Rename",
+    "save": "Save",
+    "remove": "Delete",
+    "confirmRemove": "Delete the passkey “{name}”?",
+    "createdAt": "Added on {date}",
+    "lastUsedAt": "last used on {date}",
+    "neverUsed": "never used",
+    "added": "Passkey added.",
+    "renamed": "Passkey renamed.",
+    "removed": "Passkey deleted.",
+    "failed": "The passkey could not be registered. Try again.",
+    "alreadyRegistered": "This device is already registered."
   }
 }

@@ -92,6 +92,8 @@
     "@adonisjs/vite": "^5.1.1",
     "@inertiajs/vue3": "^2.3.24",
     "@mistralai/mistralai": "^2.4.1",
+    "@simplewebauthn/browser": "14.0.0",
+    "@simplewebauthn/server": "14.0.3",
     "@tuyau/core": "^1.2.2",
     "@vinejs/vine": "^4.4.0",
     "@vue/server-renderer": "^3.5.35",

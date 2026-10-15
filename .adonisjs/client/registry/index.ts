@@ -96,6 +96,18 @@ const routes = {
     tokens: [{"old":"/:locale/login","type":1,"val":"locale","end":""},{"old":"/:locale/login","type":0,"val":"login","end":""}],
     types: placeholder as Registry['session.store']['types'],
   },
+  'passkey.login.options': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/passkeys/options',
+    tokens: [{"old":"/:locale/passkeys/options","type":1,"val":"locale","end":""},{"old":"/:locale/passkeys/options","type":0,"val":"passkeys","end":""},{"old":"/:locale/passkeys/options","type":0,"val":"options","end":""}],
+    types: placeholder as Registry['passkey.login.options']['types'],
+  },
+  'passkey.login': {
+    methods: ["POST"],
+    pattern: '/:locale/passkeys/login',
+    tokens: [{"old":"/:locale/passkeys/login","type":1,"val":"locale","end":""},{"old":"/:locale/passkeys/login","type":0,"val":"passkeys","end":""},{"old":"/:locale/passkeys/login","type":0,"val":"login","end":""}],
+    types: placeholder as Registry['passkey.login']['types'],
+  },
   'password.forgot': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/password/forgot',
@@ -161,6 +173,30 @@ const routes = {
     pattern: '/:locale/account',
     tokens: [{"old":"/:locale/account","type":1,"val":"locale","end":""},{"old":"/:locale/account","type":0,"val":"account","end":""}],
     types: placeholder as Registry['account.destroy']['types'],
+  },
+  'account.passkeys.options': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/account/passkeys/options',
+    tokens: [{"old":"/:locale/account/passkeys/options","type":1,"val":"locale","end":""},{"old":"/:locale/account/passkeys/options","type":0,"val":"account","end":""},{"old":"/:locale/account/passkeys/options","type":0,"val":"passkeys","end":""},{"old":"/:locale/account/passkeys/options","type":0,"val":"options","end":""}],
+    types: placeholder as Registry['account.passkeys.options']['types'],
+  },
+  'account.passkeys.store': {
+    methods: ["POST"],
+    pattern: '/:locale/account/passkeys',
+    tokens: [{"old":"/:locale/account/passkeys","type":1,"val":"locale","end":""},{"old":"/:locale/account/passkeys","type":0,"val":"account","end":""},{"old":"/:locale/account/passkeys","type":0,"val":"passkeys","end":""}],
+    types: placeholder as Registry['account.passkeys.store']['types'],
+  },
+  'account.passkeys.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/account/passkeys/:id',
+    tokens: [{"old":"/:locale/account/passkeys/:id","type":1,"val":"locale","end":""},{"old":"/:locale/account/passkeys/:id","type":0,"val":"account","end":""},{"old":"/:locale/account/passkeys/:id","type":0,"val":"passkeys","end":""},{"old":"/:locale/account/passkeys/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['account.passkeys.update']['types'],
+  },
+  'account.passkeys.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/account/passkeys/:id',
+    tokens: [{"old":"/:locale/account/passkeys/:id","type":1,"val":"locale","end":""},{"old":"/:locale/account/passkeys/:id","type":0,"val":"account","end":""},{"old":"/:locale/account/passkeys/:id","type":0,"val":"passkeys","end":""},{"old":"/:locale/account/passkeys/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['account.passkeys.destroy']['types'],
   },
   'onboarding.show': {
     methods: ["GET","HEAD"],

@@ -29,5 +29,26 @@
     "submit": "Supprimer définitivement mon compte",
     "confirm": "Supprimer définitivement votre compte ? Cette action est irréversible.",
     "deleted": "Votre compte a été supprimé."
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "subtitle": "Connectez-vous sans mot de passe avec l'empreinte digitale, le visage ou le code de votre appareil.",
+    "empty": "Aucune passkey enregistrée.",
+    "name": "Nom de la passkey",
+    "defaultName": "Mon appareil",
+    "add": "Ajouter une passkey",
+    "unsupported": "Votre navigateur ne prend pas en charge les passkeys.",
+    "rename": "Renommer",
+    "save": "Enregistrer",
+    "remove": "Supprimer",
+    "confirmRemove": "Supprimer la passkey « {name} » ?",
+    "createdAt": "Ajoutée le {date}",
+    "lastUsedAt": "utilisée le {date}",
+    "neverUsed": "jamais utilisée",
+    "added": "Passkey ajoutée.",
+    "renamed": "Passkey renommée.",
+    "removed": "Passkey supprimée.",
+    "failed": "La passkey n'a pas pu être enregistrée. Réessayez.",
+    "alreadyRegistered": "Cet appareil est déjà enregistré."
   }
 }
