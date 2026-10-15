@@ -1,0 +1,15 @@
+name: Setup
+description: pnpm, Node et installation des dépendances (commun à tous les jobs CI ; le checkout reste dans le job, une action locale exigeant le dépôt)
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v4
+      with:
+        version: 11.9.0
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24
+        cache: pnpm
+    - run: pnpm install --frozen-lockfile
+      shell: bash
