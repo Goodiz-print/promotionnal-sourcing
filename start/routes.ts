@@ -86,6 +86,15 @@ router
           .post('email/verification/resend', [controllers.EmailVerification, 'resend'])
           .as('email.verification.resend')
 
+        // Page « mon compte » : exemptée d'`emailVerified` (corriger une adresse
+        // mal saisie, supprimer son compte).
+        router.get('account', [controllers.Account, 'show']).as('account.show')
+        router.patch('account', [controllers.Account, 'update']).as('account.update')
+        router
+          .patch('account/password', [controllers.Account, 'updatePassword'])
+          .as('account.password.update')
+        router.delete('account', [controllers.Account, 'destroy']).as('account.destroy')
+
         // Tout le reste exige une adresse vérifiée, avant même l'onboarding.
         router
           .group(() => {

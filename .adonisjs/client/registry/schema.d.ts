@@ -271,6 +271,54 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['resend']>>>
     }
   }
+  'account.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/account'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/account_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/account_controller').default['show']>>>
+    }
+  }
+  'account.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/account'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/account').updateAccountValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/account').updateAccountValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/account_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/account_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'account.password.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/account/password'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/account').updatePasswordValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/account').updatePasswordValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/account_controller').default['updatePassword']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/account_controller').default['updatePassword']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'account.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/account'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/account').destroyAccountValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/account').destroyAccountValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/account_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/account_controller').default['destroy']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'onboarding.show': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/onboarding'

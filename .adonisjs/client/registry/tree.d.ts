@@ -60,6 +60,14 @@ export interface ApiDefinition {
     reset: typeof routes['password.reset']
     update: typeof routes['password.update']
   }
+  account: {
+    show: typeof routes['account.show']
+    update: typeof routes['account.update']
+    password: {
+      update: typeof routes['account.password.update']
+    }
+    destroy: typeof routes['account.destroy']
+  }
   onboarding: {
     show: typeof routes['onboarding.show']
     store: typeof routes['onboarding.store']

@@ -54,7 +54,9 @@ watch(
           <LanguageSwitcher />
           <template v-if="page.props.user">
             <OrganizationSwitcher />
-            <span>{{ page.props.user.initials }}</span>
+            <Link route="account.show" :params="{ locale }" :title="t('account.title')">{{
+              page.props.user.initials
+            }}</Link>
             <Form route="session.destroy" :params="{ locale }">
               <button
                 type="submit"
