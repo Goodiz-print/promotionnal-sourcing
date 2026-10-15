@@ -34,16 +34,25 @@ export interface UseDatabaseOptions {
   extraSeeders?: SeederClass[]
 
   /**
-   * `true` (défaut) — vidage et semis avant **chaque** test : nécessaire dès
-   * qu'un test mute les données semées.
-   * `false` — une seule fois pour le groupe, pour les groupes en lecture seule.
+   * `true` (défaut) — chaque test s'exécute dans une transaction globale annulée
+   * à sa fin : un test peut muter librement les données semées, le suivant
+   * repart de l'état semé sans re-vidage ni re-semis.
+   * `false` — pas de transaction, pour les groupes en lecture seule (rien ne
+   * doit y écrire : rien ne les protège).
    */
   perTest?: boolean
 }
 
 /**
- * Branche le cycle de vie base de données d'un groupe de tests : `truncate()`
- * (qui lance au passage `migration:run`, idempotent) puis les seeders.
+ * Branche le cycle de vie base de données d'un groupe de tests.
+ *
+ * - **Une fois par groupe** : `truncate()` (qui lance au passage `migration:run`,
+ *   idempotent) puis les seeders. Le `truncate` de fin de groupe est le cleanup
+ *   renvoyé par ce hook : le groupe suivant repart d'une base vide.
+ * - **Avant chaque test** (`perTest`, défaut) : une transaction globale, annulée
+ *   à la fin du test. Les `db.transaction()` du code testé deviennent des
+ *   savepoints. Les séquences d'identifiants ne sont pas remises à zéro par le
+ *   rollback : un test ne doit pas dépendre d'un `id` en dur.
  *
  * Remplace les hooks recopiés dans chaque spec — et garantit que tout le monde
  * sème la même chose, dans le même ordre.
@@ -54,17 +63,22 @@ export function useDatabase(group: Group, options: UseDatabaseOptions = {}): voi
   const seeders = [...base, ...extraSeeders]
   const hooks = perTest ? group.each : group
 
-  hooks.setup(() => testUtils.db().truncate())
-  // Compteurs de rate limiting (store mémoire en test) : toutes les requêtes de
-  // test partagent la même IP, ils s'accumuleraient d'une spec à l'autre.
-  hooks.setup(() => limiter.clear())
-  if (seeders.length === 0) return
-
-  hooks.setup(async () => {
+  group.setup(async () => {
+    const cleanup = await testUtils.db().truncate()
     for (const Seeder of seeders) {
       await new Seeder(db.connection()).run()
     }
+    return cleanup
   })
+
+  // Compteurs de rate limiting (store mémoire en test) : toutes les requêtes de
+  // test partagent la même IP, ils s'accumuleraient d'une spec à l'autre — et,
+  // en mémoire, le rollback de la transaction ne les remet pas à zéro.
+  hooks.setup(() => limiter.clear())
+
+  if (perTest) {
+    group.each.setup(() => testUtils.db().wrapInGlobalTransaction())
+  }
 }
 
 /**
