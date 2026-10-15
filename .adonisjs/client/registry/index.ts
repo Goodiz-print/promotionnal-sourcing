@@ -66,6 +66,12 @@ const routes = {
     tokens: [{"old":"/:locale/organization/invitations/:id/accept","type":1,"val":"locale","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":0,"val":"organization","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":0,"val":"invitations","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":1,"val":"id","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":0,"val":"accept","end":""}],
     types: placeholder as Registry['organization.invitations.show']['types'],
   },
+  'email.verify': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/email/verify/:id',
+    tokens: [{"old":"/:locale/email/verify/:id","type":1,"val":"locale","end":""},{"old":"/:locale/email/verify/:id","type":0,"val":"email","end":""},{"old":"/:locale/email/verify/:id","type":0,"val":"verify","end":""},{"old":"/:locale/email/verify/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['email.verify']['types'],
+  },
   'new_account.create': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/signup',
@@ -119,6 +125,18 @@ const routes = {
     pattern: '/:locale/logout',
     tokens: [{"old":"/:locale/logout","type":1,"val":"locale","end":""},{"old":"/:locale/logout","type":0,"val":"logout","end":""}],
     types: placeholder as Registry['session.destroy']['types'],
+  },
+  'email.notice': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/email/verify',
+    tokens: [{"old":"/:locale/email/verify","type":1,"val":"locale","end":""},{"old":"/:locale/email/verify","type":0,"val":"email","end":""},{"old":"/:locale/email/verify","type":0,"val":"verify","end":""}],
+    types: placeholder as Registry['email.notice']['types'],
+  },
+  'email.verification.resend': {
+    methods: ["POST"],
+    pattern: '/:locale/email/verification/resend',
+    tokens: [{"old":"/:locale/email/verification/resend","type":1,"val":"locale","end":""},{"old":"/:locale/email/verification/resend","type":0,"val":"email","end":""},{"old":"/:locale/email/verification/resend","type":0,"val":"verification","end":""},{"old":"/:locale/email/verification/resend","type":0,"val":"resend","end":""}],
+    types: placeholder as Registry['email.verification.resend']['types'],
   },
   'onboarding.show': {
     methods: ["GET","HEAD"],

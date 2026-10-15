@@ -12,6 +12,7 @@ export const MAIL_KINDS = {
   organizationInvitation: 'organization-invitation',
   rfqReceived: 'rfq-received',
   passwordReset: 'password-reset',
+  emailVerification: 'email-verification',
 } as const
 
 export type MailKind = (typeof MAIL_KINDS)[keyof typeof MAIL_KINDS]
@@ -54,6 +55,16 @@ export interface PasswordResetMailData {
 }
 
 /**
+ * Données du mail de vérification d'adresse (`EmailVerificationNotification`).
+ * `verifyUrl` est une URL signée complète, déjà générée par
+ * `EmailVerificationService`.
+ */
+export interface EmailVerificationMailData {
+  verifyUrl: string
+  expiresInHours: number
+}
+
+/**
  * `to` est hissé hors de `data` : il est commun à tous les mails, ce qui permet
  * de loguer le destinataire dans `failed()` sans connaître le `kind`.
  *
@@ -75,4 +86,9 @@ export type SendMailPayload =
       kind: typeof MAIL_KINDS.passwordReset
       to: string
       data: PasswordResetMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.emailVerification
+      to: string
+      data: EmailVerificationMailData
     }

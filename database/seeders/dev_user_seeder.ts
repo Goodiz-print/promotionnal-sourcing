@@ -3,6 +3,7 @@ import OrganizationUser from '#models/organization_user'
 import Role from '#models/role'
 import SupplierProfile from '#models/supplier_profile'
 import User from '#models/user'
+import { DateTime } from 'luxon'
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 
 /**
@@ -23,6 +24,7 @@ export default class DevUserSeeder extends BaseSeeder {
       {
         fullName: 'Malo Lebrin',
         password: 'password',
+        emailVerifiedAt: DateTime.now(),
       }
     )
 

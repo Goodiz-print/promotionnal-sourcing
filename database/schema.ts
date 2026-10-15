@@ -742,6 +742,7 @@ export class UserSchema extends BaseModel {
     'createdAt',
     'currentOrganizationId',
     'email',
+    'emailVerifiedAt',
     'fullName',
     'id',
     'locale',
@@ -755,6 +756,8 @@ export class UserSchema extends BaseModel {
   declare currentOrganizationId: number | null
   @column()
   declare email: string
+  @column.dateTime()
+  declare emailVerifiedAt: DateTime | null
   @column()
   declare fullName: string | null
   @column({ isPrimary: true })
