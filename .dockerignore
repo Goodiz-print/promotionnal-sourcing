@@ -1,0 +1,41 @@
+# Dépendances et sorties de build (reconstruites dans l'image)
+node_modules
+build
+tmp
+coverage
+.nyc_output
+
+# Dépôt et CI
+.git
+.gitignore
+.github
+.husky
+
+# Secrets : jamais dans le contexte de build
+.env
+.env.*
+!.env.example
+
+# Tests
+tests
+vitest.config.ts
+
+# Logs
+*.log
+logs
+
+# Documentation, scratch et outillage local
+docs
+*.md
+scripts
+.claude
+.cursor
+.vscode
+.idea
+.DS_Store
+.editorconfig
+.prettierignore
+eslint.config.js
+Dockerfile
+.dockerignore
+docker-compose*.yml
