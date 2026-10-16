@@ -33,8 +33,8 @@ dessus (`CELLAR_ACCESS_KEY_ID`/`SECRET` ne sont pas vérifiés, mais requis) :
 les copier dans `.env` suffit, le code est identique à la production (même
 driver, même parcours d'upload). Les fichiers sont conservés dans le volume
 `promotionnal-sourcing_s3_data`. URLs :
-`http://localhost:9090/promotionnal-sourcing-dev/<clé>`. Lancer aussi le worker
-(`node ace queue:work`) pour exécuter les purges.
+`http://localhost:9090/promotionnal-sourcing-dev/<clé>`. `pnpm dev:all` lance tout l'environnement de dev, worker de la queue
+compris (nécessaire pour exécuter les purges).
 
 ## Architecture
 
