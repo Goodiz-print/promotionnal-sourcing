@@ -10,12 +10,14 @@ import ProductImage from '#models/product_image'
 import ProductTranslation from '#models/product_translation'
 import SupplierTranslation from '#models/supplier_translation'
 import StorageService from '#services/storage/storage_service'
+import TranslationQueueService from '#services/translation_queue_service'
+import { missingSourceTranslation } from '#exceptions/translation_errors'
 import GenerateProductEmbeddingJob from '#jobs/generate_product_embedding_job'
 import logger from '@adonisjs/core/services/logger'
-import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE } from '#shared/types/i18n'
+import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
 import type Organization from '#models/organization'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
-import type { SupplierProductInput } from '#shared/types/product'
+import type { SupplierProductInput, SupplierProductUpdateInput } from '#shared/types/product'
 
 /**
  * Gestion des produits côté fournisseur (CRUD + galerie Cellar). Toute la
@@ -24,7 +26,10 @@ import type { SupplierProductInput } from '#shared/types/product'
  */
 @inject()
 export default class SupplierProductService {
-  constructor(private storage: StorageService) {}
+  constructor(
+    private storage: StorageService,
+    private translationQueue: TranslationQueueService
+  ) {}
 
   /**
    * Résout le fournisseur (fiche catalogue) de l'organisation. Le crée si l'org
@@ -84,36 +89,50 @@ export default class SupplierProductService {
     data: SupplierProductInput,
     files: MultipartFile[]
   ): Promise<Product> {
+    const source = data.translations[data.sourceLocale]
+    if (!source) throw missingSourceTranslation(data.sourceLocale)
+
     const supplier = await this.resolveSupplier(org)
     const slug = await this.uniqueSlug(
-      data.translations[DEFAULT_CONTENT_LOCALE].name,
+      source.name,
       async (s) => !!(await Product.findBy('slug', s))
     )
 
-    const product = await Product.create({ supplierId: supplier.id, slug, ...this.toColumns(data) })
+    const product = await Product.create({
+      supplierId: supplier.id,
+      slug,
+      sourceLocale: data.sourceLocale,
+      ...this.toColumns(data),
+    })
 
     await this.writeTranslations(product, data.translations)
     await this.syncFacets(product, data.attributeValueIds)
     await this.attachImages(product, files, 0)
     await this.refreshPrimaryImage(product)
     await this.queueEmbedding(product)
+    await this.translationQueue.queue('product', product.id, data.sourceLocale)
 
     return product
   }
 
   /**
-   * Met à jour un produit : champs, traductions, facettes (remplacées), et
-   * galerie (suppression des images retirées + ajout des nouvelles).
+   * Met à jour un produit. **Partiel** : seuls les champs fournis sont modifiés
+   * (une seule langue peut être corrigée sans renvoyer le produit ; facettes
+   * conservées si `attributeValueIds` est absent). Galerie : suppression des
+   * images retirées + ajout des nouvelles.
    */
   async update(
     product: Product,
-    data: SupplierProductInput,
+    data: SupplierProductUpdateInput,
     files: MultipartFile[],
     removedImageIds: number[] = []
   ): Promise<Product> {
-    await product.merge(this.toColumns(data)).save()
+    const sourceLocale = (data.sourceLocale ?? product.sourceLocale) as ContentLocale
+    await this.assertSourceExists(product, sourceLocale, data.translations?.[sourceLocale])
+
+    await product.merge({ ...this.toColumns(data), sourceLocale }).save()
     await this.writeTranslations(product, data.translations)
-    await this.syncFacets(product, data.attributeValueIds)
+    if (data.attributeValueIds !== undefined) await this.syncFacets(product, data.attributeValueIds)
 
     await this.removeImages(product, removedImageIds)
 
@@ -121,6 +140,7 @@ export default class SupplierProductService {
     await this.attachImages(product, files, last ? last.position + 1 : 0)
     await this.refreshPrimaryImage(product)
     await this.queueEmbedding(product)
+    await this.translationQueue.queue('product', product.id, sourceLocale)
 
     return product
   }
@@ -203,31 +223,90 @@ export default class SupplierProductService {
 
   /**
    * Colonnes neutres du produit dérivées du payload (décimaux en string Lucid).
+   * Création : défauts appliqués. Mise à jour : seules les clés présentes sont
+   * retournées (`undefined` = ne pas toucher).
    */
-  private toColumns(data: SupplierProductInput) {
-    return {
-      categoryId: data.categoryId,
-      priceMin: typeof data.priceMin === 'number' ? String(data.priceMin) : null,
-      priceMax: typeof data.priceMax === 'number' ? String(data.priceMax) : null,
-      currency: data.currency ?? 'EUR',
-      minQuantity: data.minQuantity ?? null,
-      originCountry: data.originCountry ?? null,
-      madeInEurope: data.madeInEurope ?? false,
-      isActive: data.isActive ?? true,
-    }
+  private toColumns(data: SupplierProductUpdateInput) {
+    const columns: Partial<
+      Pick<
+        Product,
+        | 'categoryId'
+        | 'priceMin'
+        | 'priceMax'
+        | 'currency'
+        | 'minQuantity'
+        | 'originCountry'
+        | 'madeInEurope'
+        | 'isActive'
+      >
+    > = {}
+    const decimal = (value: number | null) => (typeof value === 'number' ? String(value) : null)
+
+    if (data.categoryId !== undefined) columns.categoryId = data.categoryId
+    if (data.priceMin !== undefined) columns.priceMin = decimal(data.priceMin)
+    if (data.priceMax !== undefined) columns.priceMax = decimal(data.priceMax)
+    if (data.currency !== undefined) columns.currency = data.currency
+    if (data.minQuantity !== undefined) columns.minQuantity = data.minQuantity
+    if (data.originCountry !== undefined) columns.originCountry = data.originCountry
+    if (data.madeInEurope !== undefined) columns.madeInEurope = data.madeInEurope
+    if (data.isActive !== undefined) columns.isActive = data.isActive
+    return columns
   }
 
+  /**
+   * La langue source doit avoir un texte à l'issue de la mise à jour : déjà en
+   * base, ou fourni (avec un nom) dans le payload.
+   */
+  private async assertSourceExists(
+    product: Product,
+    sourceLocale: ContentLocale,
+    provided: { name?: string } | undefined
+  ): Promise<void> {
+    if (provided?.name) return
+    const existing = await ProductTranslation.query()
+      .where('productId', product.id)
+      .where('locale', sourceLocale)
+      .first()
+    if (!existing) throw missingSourceTranslation(sourceLocale)
+  }
+
+  /**
+   * Écrit les traductions **saisies** (`is_auto = false`). Une ligne inchangée
+   * garde son marquage : renvoyer tout le formulaire ne transforme pas les
+   * traductions auto en manuelles. Une langue absente du payload n'est pas
+   * touchée.
+   */
   private async writeTranslations(
     product: Product,
-    translations: SupplierProductInput['translations']
+    translations: SupplierProductUpdateInput['translations']
   ): Promise<void> {
+    if (!translations) return
     for (const locale of CONTENT_LOCALES) {
       const translation = translations[locale]
       if (!translation) continue
-      await ProductTranslation.updateOrCreate(
-        { productId: product.id, locale },
-        { name: translation.name, description: translation.description ?? null }
-      )
+
+      const existing = await ProductTranslation.query()
+        .where('productId', product.id)
+        .where('locale', locale)
+        .first()
+
+      if (!existing) {
+        if (!translation.name) continue
+        await ProductTranslation.create({
+          productId: product.id,
+          locale,
+          name: translation.name,
+          description: translation.description ?? null,
+          isAuto: false,
+        })
+        continue
+      }
+
+      const name = translation.name ?? existing.name
+      const description =
+        translation.description === undefined ? existing.description : translation.description
+      if (name === existing.name && description === existing.description) continue
+      await existing.merge({ name, description, isAuto: false }).save()
     }
   }
 

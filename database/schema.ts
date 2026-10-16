@@ -12,6 +12,7 @@ export class AttributeTranslationSchema extends BaseModel {
     'attributeId',
     'createdAt',
     'id',
+    'isAuto',
     'locale',
     'name',
     'translationKey',
@@ -24,6 +25,8 @@ export class AttributeTranslationSchema extends BaseModel {
   declare createdAt: DateTime
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare isAuto: boolean
   @column()
   declare locale: string
   @column()
@@ -39,6 +42,7 @@ export class AttributeValueTranslationSchema extends BaseModel {
     'attributeValueId',
     'createdAt',
     'id',
+    'isAuto',
     'label',
     'locale',
     'translationKey',
@@ -51,6 +55,8 @@ export class AttributeValueTranslationSchema extends BaseModel {
   declare createdAt: DateTime
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare isAuto: boolean
   @column()
   declare label: string
   @column()
@@ -67,6 +73,7 @@ export class AttributeValueSchema extends BaseModel {
     'createdAt',
     'id',
     'slug',
+    'sourceLocale',
     'synonyms',
     'updatedAt',
     'value',
@@ -81,6 +88,8 @@ export class AttributeValueSchema extends BaseModel {
   @column()
   declare slug: string
   @column()
+  declare sourceLocale: string
+  @column()
   declare synonyms: any
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
@@ -94,6 +103,7 @@ export class AttributeSchema extends BaseModel {
     'id',
     'isFilterable',
     'slug',
+    'sourceLocale',
     'type',
     'unit',
     'updatedAt',
@@ -108,6 +118,8 @@ export class AttributeSchema extends BaseModel {
   @column()
   declare slug: string
   @column()
+  declare sourceLocale: string
+  @column()
   declare type: string
   @column()
   declare unit: string | null
@@ -116,7 +128,15 @@ export class AttributeSchema extends BaseModel {
 }
 
 export class CategorySchema extends BaseModel {
-  static $columns = ['createdAt', 'id', 'parentId', 'slug', 'synonyms', 'updatedAt'] as const
+  static $columns = [
+    'createdAt',
+    'id',
+    'parentId',
+    'slug',
+    'sourceLocale',
+    'synonyms',
+    'updatedAt',
+  ] as const
   $columns = CategorySchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -126,6 +146,8 @@ export class CategorySchema extends BaseModel {
   declare parentId: number | null
   @column()
   declare slug: string
+  @column()
+  declare sourceLocale: string
   @column()
   declare synonyms: any
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -138,6 +160,7 @@ export class CategoryTranslationSchema extends BaseModel {
     'createdAt',
     'description',
     'id',
+    'isAuto',
     'locale',
     'name',
     'translationKey',
@@ -152,6 +175,8 @@ export class CategoryTranslationSchema extends BaseModel {
   declare description: string | null
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare isAuto: boolean
   @column()
   declare locale: string
   @column()
@@ -409,6 +434,7 @@ export class ProductTranslationSchema extends BaseModel {
     'createdAt',
     'description',
     'id',
+    'isAuto',
     'locale',
     'name',
     'productId',
@@ -422,6 +448,8 @@ export class ProductTranslationSchema extends BaseModel {
   declare description: string | null
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare isAuto: boolean
   @column()
   declare locale: string
   @column()
@@ -450,6 +478,7 @@ export class ProductSchema extends BaseModel {
     'priceMin',
     'reference',
     'slug',
+    'sourceLocale',
     'supplierId',
     'updatedAt',
   ] as const
@@ -482,6 +511,8 @@ export class ProductSchema extends BaseModel {
   declare reference: string | null
   @column()
   declare slug: string
+  @column()
+  declare sourceLocale: string
   @column()
   declare supplierId: number
   @column.dateTime({ autoCreate: true, autoUpdate: true })

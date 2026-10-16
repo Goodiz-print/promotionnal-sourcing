@@ -207,8 +207,25 @@ traduction dédiées** — jamais dans les tables de base :
   texte à plat (voir `shared/types/product.ts`).
 - **Seeders** : contenu de démo bilingue FR/EN pour les 5 domaines.
 
-> Les validateurs `create`/`update` et les endpoints d'écriture ne sont pas
-> encore adaptés au payload `translations` (prévu incrément suivant).
+### Politique de traduction (source + auto)
+
+- Le fournisseur saisit nom/description dans sa **langue source**
+  (`sourceLocale`, colonne `source_locale` sur `products`, `categories`,
+  `attributes`, `attribute_values`). Les autres langues de contenu sont générées
+  par `TranslateEntityJob` (Mistral) à la sauvegarde.
+- Chaque ligne de traduction porte `is_auto` : `true` = générée (corrigeable),
+  `false` = saisie ou corrigée à la main. `TranslationService` n'écrase jamais
+  une ligne `is_auto = false`. Renvoyer une traduction inchangée ne change pas son
+  marquage.
+- **Validateurs séparés** (`app/validators/supplier_product.ts`, `category.ts`) :
+  `create` exige `sourceLocale` et la seule traduction de cette langue ; `update`
+  est partiel (un champ absent n'est pas modifié, facettes conservées si
+  `attributeValueIds` est absent, une seule langue peut être corrigée).
+- Attributs et valeurs d'attributs : colonnes et prise en charge par
+  `TranslationService` en place ; le déclenchement sera branché avec leur futur
+  écran d'écriture (aujourd'hui : seeders).
+- Les 32 langues de #75 ne sont pas activées : `CONTENT_LOCALES` reste `fr`/`en`
+  tant que l'index plein texte n'est pas étendu (#84).
 
 ## Fichiers clés
 

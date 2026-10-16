@@ -45,7 +45,8 @@ export type CategoryEditType = {
   slug: string
   parentId: number | null
   synonyms: string[]
-  translations: Record<ContentLocale, { name: string; description: string | null }>
+  sourceLocale: ContentLocale
+  translations: Record<ContentLocale, { name: string; description: string | null; isAuto: boolean }>
 }
 
 /**
@@ -57,13 +58,14 @@ export interface CategoryTranslationInput {
 }
 
 /**
- * Payload de création d'une catégorie (contenu bilingue requis).
+ * Payload de création d'une catégorie (langue source requise, autres générées).
  */
 export interface CreateCategoryInput {
   slug: string
   parentId?: number | null
   synonyms?: string[]
-  translations: Record<ContentLocale, CategoryTranslationInput>
+  sourceLocale: ContentLocale
+  translations: Partial<Record<ContentLocale, CategoryTranslationInput>>
 }
 
 /**
@@ -72,5 +74,6 @@ export interface CreateCategoryInput {
 export interface UpdateCategoryInput {
   parentId?: number | null
   synonyms?: string[]
-  translations: Record<ContentLocale, CategoryTranslationInput>
+  sourceLocale?: ContentLocale
+  translations?: Partial<Record<ContentLocale, Partial<CategoryTranslationInput>>>
 }

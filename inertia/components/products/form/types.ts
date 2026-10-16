@@ -5,10 +5,12 @@ import type { ContentLocale } from '#shared/types/i18n'
 /**
  * État du formulaire produit fournisseur (payload `useForm`). Les prix sont des
  * `number | null` (coercés par VineJS) ; `images` porte les nouveaux fichiers,
- * `removedImageIds` les images existantes à supprimer.
+ * `removedImageIds` les images existantes à supprimer. `sourceLocale` est la
+ * langue saisie ; les autres sont générées automatiquement si laissées vides.
  */
 export interface ProductFormState {
   categoryId: number | null
+  sourceLocale: ContentLocale
   translations: Record<ContentLocale, { name: string; description: string }>
   priceMin: number | null
   priceMax: number | null

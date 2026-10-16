@@ -118,18 +118,50 @@ export type ProductEditType = {
   originCountry: string | null
   madeInEurope: boolean
   isActive: boolean
-  translations: Record<ContentLocale, { name: string; description: string | null }>
+  // Langue saisie par le fournisseur ; les autres sont générées (`isAuto`).
+  sourceLocale: ContentLocale
+  translations: Record<ContentLocale, { name: string; description: string | null; isAuto: boolean }>
   attributeValueIds: number[]
   images: ProductImageType[]
 }
 
 /**
- * Payload validé du formulaire fournisseur (create/update). Le contenu est
- * fourni par locale ; les fichiers image sont traités hors de ce type.
+ * Contenu saisi pour une locale (nom + description).
+ */
+export interface LocalizedProductContent {
+  name: string
+  description?: string | null
+}
+
+/**
+ * Payload validé de création (formulaire fournisseur). `sourceLocale` est la
+ * langue saisie : seule sa traduction est requise, les autres sont optionnelles
+ * (les manquantes sont générées automatiquement). Les fichiers image sont
+ * traités hors de ce type.
  */
 export interface SupplierProductInput {
   categoryId: number
-  translations: Record<ContentLocale, { name: string; description?: string | null }>
+  sourceLocale: ContentLocale
+  translations: Partial<Record<ContentLocale, LocalizedProductContent>>
+  priceMin?: number | null
+  priceMax?: number | null
+  currency?: string
+  minQuantity?: number | null
+  originCountry?: string | null
+  madeInEurope?: boolean
+  isActive?: boolean
+  attributeValueIds?: number[]
+}
+
+/**
+ * Payload validé de mise à jour : partiel. Un champ absent n'est pas modifié
+ * (`attributeValueIds` absent = facettes conservées). Une seule locale peut être
+ * corrigée sans renvoyer le produit.
+ */
+export interface SupplierProductUpdateInput {
+  categoryId?: number
+  sourceLocale?: ContentLocale
+  translations?: Partial<Record<ContentLocale, Partial<LocalizedProductContent>>>
   priceMin?: number | null
   priceMax?: number | null
   currency?: string
