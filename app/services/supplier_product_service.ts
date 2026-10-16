@@ -10,15 +10,15 @@ import ProductImage from '#models/product_image'
 import ProductTranslation from '#models/product_translation'
 import SupplierTranslation from '#models/supplier_translation'
 import StorageService from '#services/storage/storage_service'
+import TranslationQueueService from '#services/translation_queue_service'
+import { missingSourceTranslation } from '#exceptions/translation_errors'
 import ProductTranslationSearchService from '#services/product_translation_search_service'
 import GenerateProductEmbeddingJob from '#jobs/generate_product_embedding_job'
-import TranslationQueueService from '#services/translation/translation_queue_service'
 import logger from '@adonisjs/core/services/logger'
-import { CONTENT_LOCALES, TRANSLATION_LOCALES } from '#shared/types/i18n'
+import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
 import type Organization from '#models/organization'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
 import type { SupplierProductInput, SupplierProductUpdateInput } from '#shared/types/product'
-import { MissingSourceContentException } from '#exceptions/catalogue_errors'
 
 /**
  * Gestion des produits côté fournisseur (CRUD + galerie Cellar). Toute la
@@ -29,8 +29,8 @@ import { MissingSourceContentException } from '#exceptions/catalogue_errors'
 export default class SupplierProductService {
   constructor(
     private storage: StorageService,
-    private translationSearch: ProductTranslationSearchService,
-    private translationQueue: TranslationQueueService
+    private translationQueue: TranslationQueueService,
+    private translationSearch: ProductTranslationSearchService
   ) {}
 
   /**
@@ -91,11 +91,12 @@ export default class SupplierProductService {
     data: SupplierProductInput,
     files: MultipartFile[]
   ): Promise<Product> {
-    if (!data.translations[data.sourceLocale]?.name) throw new MissingSourceContentException()
+    const source = data.translations[data.sourceLocale]
+    if (!source) throw missingSourceTranslation(data.sourceLocale)
 
     const supplier = await this.resolveSupplier(org)
     const slug = await this.uniqueSlug(
-      data.translations[data.sourceLocale]!.name,
+      source.name,
       async (s) => !!(await Product.findBy('slug', s))
     )
 
@@ -104,6 +105,8 @@ export default class SupplierProductService {
       slug,
       sourceLocale: data.sourceLocale,
       ...this.toColumns(data),
+      // Explicite : sans cela, `product.isActive` resterait indéfini après l'insert.
+      isActive: data.isActive ?? true,
     })
 
     await this.writeTranslations(product, data.translations)
@@ -111,14 +114,18 @@ export default class SupplierProductService {
     await this.attachImages(product, files, 0)
     await this.refreshPrimaryImage(product)
     await this.queueEmbedding(product)
-    await this.queueTranslation(product)
+    if (product.isActive) {
+      await this.translationQueue.queue('product', product.id, data.sourceLocale)
+    }
 
     return product
   }
 
   /**
-   * Met à jour un produit : champs, traductions, facettes (remplacées), et
-   * galerie (suppression des images retirées + ajout des nouvelles).
+   * Met à jour un produit. **Partiel** : seuls les champs fournis sont modifiés
+   * (une seule langue peut être corrigée sans renvoyer le produit ; facettes
+   * conservées si `attributeValueIds` est absent). Galerie : suppression des
+   * images retirées + ajout des nouvelles.
    */
   async update(
     product: Product,
@@ -126,9 +133,12 @@ export default class SupplierProductService {
     files: MultipartFile[],
     removedImageIds: number[] = []
   ): Promise<Product> {
-    await product.merge(this.toColumns(data)).save()
+    const sourceLocale = (data.sourceLocale ?? product.sourceLocale) as ContentLocale
+    await this.assertSourceExists(product, sourceLocale, data.translations?.[sourceLocale])
+
+    await product.merge({ ...this.toColumns(data), sourceLocale }).save()
     await this.writeTranslations(product, data.translations)
-    await this.syncFacets(product, data.attributeValueIds)
+    if (data.attributeValueIds !== undefined) await this.syncFacets(product, data.attributeValueIds)
 
     await this.removeImages(product, removedImageIds)
 
@@ -136,7 +146,7 @@ export default class SupplierProductService {
     await this.attachImages(product, files, last ? last.position + 1 : 0)
     await this.refreshPrimaryImage(product)
     await this.queueEmbedding(product)
-    await this.queueTranslation(product)
+    if (product.isActive) await this.translationQueue.queue('product', product.id, sourceLocale)
 
     return product
   }
@@ -199,15 +209,6 @@ export default class SupplierProductService {
   }
 
   /**
-   * Planifie la traduction automatique des produits **publiés** (`isActive`) :
-   * un produit non publié n'appelle pas Mistral (#75).
-   */
-  private async queueTranslation(product: Product): Promise<void> {
-    if (!product.isActive) return
-    await this.translationQueue.queue('product', product.id, product.sourceLocale)
-  }
-
-  /**
    * Toutes les catégories (pour le select du formulaire — pas seulement celles
    * ayant déjà un produit, contrairement au catalogue public).
    */
@@ -228,41 +229,90 @@ export default class SupplierProductService {
 
   /**
    * Colonnes neutres du produit dérivées du payload (décimaux en string Lucid).
+   * Création : défauts appliqués. Mise à jour : seules les clés présentes sont
+   * retournées (`undefined` = ne pas toucher).
    */
   private toColumns(data: SupplierProductUpdateInput) {
-    return {
-      categoryId: data.categoryId,
-      priceMin: typeof data.priceMin === 'number' ? String(data.priceMin) : null,
-      priceMax: typeof data.priceMax === 'number' ? String(data.priceMax) : null,
-      currency: data.currency ?? 'EUR',
-      minQuantity: data.minQuantity ?? null,
-      originCountry: data.originCountry ?? null,
-      madeInEurope: data.madeInEurope ?? false,
-      isActive: data.isActive ?? true,
-    }
+    const columns: Partial<
+      Pick<
+        Product,
+        | 'categoryId'
+        | 'priceMin'
+        | 'priceMax'
+        | 'currency'
+        | 'minQuantity'
+        | 'originCountry'
+        | 'madeInEurope'
+        | 'isActive'
+      >
+    > = {}
+    const decimal = (value: number | null) => (typeof value === 'number' ? String(value) : null)
+
+    if (data.categoryId !== undefined) columns.categoryId = data.categoryId
+    if (data.priceMin !== undefined) columns.priceMin = decimal(data.priceMin)
+    if (data.priceMax !== undefined) columns.priceMax = decimal(data.priceMax)
+    if (data.currency !== undefined) columns.currency = data.currency
+    if (data.minQuantity !== undefined) columns.minQuantity = data.minQuantity
+    if (data.originCountry !== undefined) columns.originCountry = data.originCountry
+    if (data.madeInEurope !== undefined) columns.madeInEurope = data.madeInEurope
+    if (data.isActive !== undefined) columns.isActive = data.isActive
+    return columns
   }
 
   /**
-   * Écrit les langues saisies par le fournisseur. Une saisie est **manuelle** :
-   * `is_auto` repasse à `false` et la clé d'idempotence est effacée, pour que la
-   * traduction automatique ne l'écrase plus (#75).
+   * La langue source doit avoir un texte à l'issue de la mise à jour : déjà en
+   * base, ou fourni (avec un nom) dans le payload.
+   */
+  private async assertSourceExists(
+    product: Product,
+    sourceLocale: ContentLocale,
+    provided: { name?: string } | undefined
+  ): Promise<void> {
+    if (provided?.name) return
+    const existing = await ProductTranslation.query()
+      .where('productId', product.id)
+      .where('locale', sourceLocale)
+      .first()
+    if (!existing) throw missingSourceTranslation(sourceLocale)
+  }
+
+  /**
+   * Écrit les traductions **saisies** (`is_auto = false`). Une ligne inchangée
+   * garde son marquage : renvoyer tout le formulaire ne transforme pas les
+   * traductions auto en manuelles. Une langue absente du payload n'est pas
+   * touchée.
    */
   private async writeTranslations(
     product: Product,
     translations: SupplierProductUpdateInput['translations']
   ): Promise<void> {
-    for (const locale of TRANSLATION_LOCALES) {
+    if (!translations) return
+    for (const locale of CONTENT_LOCALES) {
       const translation = translations[locale]
       if (!translation) continue
-      await ProductTranslation.updateOrCreate(
-        { productId: product.id, locale },
-        {
+
+      const existing = await ProductTranslation.query()
+        .where('productId', product.id)
+        .where('locale', locale)
+        .first()
+
+      if (!existing) {
+        if (!translation.name) continue
+        await ProductTranslation.create({
+          productId: product.id,
+          locale,
           name: translation.name,
           description: translation.description ?? null,
           isAuto: false,
-          translationKey: null,
-        }
-      )
+        })
+        continue
+      }
+
+      const name = translation.name ?? existing.name
+      const description =
+        translation.description === undefined ? existing.description : translation.description
+      if (name === existing.name && description === existing.description) continue
+      await existing.merge({ name, description, isAuto: false }).save()
     }
     await this.translationSearch.refreshForProduct(product.id)
   }

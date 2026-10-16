@@ -90,10 +90,11 @@ await SendEmail.dispatch(payload)
 
 ### Jobs dispatchés à la demande
 
-| Job                           | Dispatché depuis                                               | Rôle                                                                                                                                    |
-| ----------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `SendMailJob`                 | Controllers / services envoyant un mail transactionnel         | Envoie un mail via `mail.send()` côté worker (5 retries, backoff exponentiel 30 s → 15 min, échecs conservés 30 j) — cf. `docs/mail.md` |
-| `GenerateProductEmbeddingJob` | `SupplierProductService` (création / mise à jour d'un produit) | Calcule l'embedding du produit et le persiste dans `products.embedding` (pgvector)                                                      |
+| Job                           | Dispatché depuis                                                  | Rôle                                                                                                                                    |
+| ----------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `SendMailJob`                 | Controllers / services envoyant un mail transactionnel            | Envoie un mail via `mail.send()` côté worker (5 retries, backoff exponentiel 30 s → 15 min, échecs conservés 30 j) — cf. `docs/mail.md` |
+| `GenerateProductEmbeddingJob` | `SupplierProductService` (création / mise à jour d'un produit)    | Calcule l'embedding du produit et le persiste dans `products.embedding` (pgvector)                                                      |
+| `TranslateEntityJob`          | `TranslationQueueService` (produits, catégories, à la sauvegarde) | Traduit l'entité de sa langue source vers les autres langues de contenu (`is_auto = true`), sans écraser une traduction manuelle        |
 
 ## Planifier un job (cron)
 

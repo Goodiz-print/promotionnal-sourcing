@@ -19,13 +19,3 @@ export class CategoryNotFoundException extends Exception {
   static code = 'E_CATEGORY_NOT_FOUND'
   static message = 'Category not found'
 }
-
-/**
- * Le contenu fourni ne contient pas la langue source du produit (#75) : la
- * traduction automatique n'a rien à traduire.
- */
-export class MissingSourceContentException extends Exception {
-  static status = 422
-  static code = 'E_SOURCE_CONTENT_MISSING'
-  static message = 'The product content must include its source language'
-}

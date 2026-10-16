@@ -3,7 +3,7 @@ import { provide } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE } from '#shared/types/i18n'
+import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE, type ContentLocale } from '#shared/types/i18n'
 import BaseButton from '~/components/base/base_button.vue'
 import ProductTranslationsFields from '~/components/products/form/product_translations_fields.vue'
 import ProductDetailsFields from '~/components/products/form/product_details_fields.vue'
@@ -36,6 +36,7 @@ function initialTranslations(): ProductFormState['translations'] {
 
 const form = useForm<ProductFormState>({
   categoryId: props.product?.categoryId ?? null,
+  sourceLocale: props.product?.sourceLocale ?? DEFAULT_CONTENT_LOCALE,
   translations: initialTranslations(),
   priceMin: props.product?.priceMin ? Number(props.product.priceMin) : null,
   priceMax: props.product?.priceMax ? Number(props.product.priceMax) : null,
@@ -51,6 +52,24 @@ const form = useForm<ProductFormState>({
 
 provide(ProductFormKey, form)
 
+/**
+ * Locales à envoyer : la source toujours, les autres seulement si renseignées et
+ * modifiées (une traduction auto non touchée n'est pas renvoyée — elle resterait
+ * « auto »). Une langue laissée vide est générée par le serveur.
+ */
+function changedTranslations(data: ProductFormState) {
+  const payload: Partial<Record<ContentLocale, { name?: string; description: string | null }>> = {}
+  for (const current of CONTENT_LOCALES) {
+    const { name, description } = data.translations[current]
+    const initial = props.product?.translations[current]
+    const unchanged =
+      initial !== undefined && initial.name === name && (initial.description ?? '') === description
+    if (current !== data.sourceLocale && (!name || unchanged)) continue
+    payload[current] = { name: name || undefined, description: description || null }
+  }
+  return payload
+}
+
 function submit() {
   const target =
     props.mode === 'create'
@@ -62,9 +81,8 @@ function submit() {
     .transform((data) => {
       const payload: Record<string, unknown> = {
         categoryId: data.categoryId,
-        // La langue source n'est fixée qu'à la création (#75).
-        ...(props.mode === 'create' ? { sourceLocale: DEFAULT_CONTENT_LOCALE } : {}),
-        translations: data.translations,
+        sourceLocale: data.sourceLocale,
+        translations: changedTranslations(data),
         currency: data.currency || 'EUR',
         madeInEurope: data.madeInEurope,
         isActive: data.isActive,

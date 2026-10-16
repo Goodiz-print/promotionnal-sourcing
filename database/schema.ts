@@ -12,6 +12,7 @@ export class AttributeTranslationSchema extends BaseModel {
     'attributeId',
     'createdAt',
     'id',
+    'isAuto',
     'locale',
     'name',
     'translationKey',
@@ -24,6 +25,8 @@ export class AttributeTranslationSchema extends BaseModel {
   declare createdAt: DateTime
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare isAuto: boolean
   @column()
   declare locale: string
   @column()
@@ -39,6 +42,7 @@ export class AttributeValueTranslationSchema extends BaseModel {
     'attributeValueId',
     'createdAt',
     'id',
+    'isAuto',
     'label',
     'locale',
     'translationKey',
@@ -51,6 +55,8 @@ export class AttributeValueTranslationSchema extends BaseModel {
   declare createdAt: DateTime
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare isAuto: boolean
   @column()
   declare label: string
   @column()
@@ -67,6 +73,7 @@ export class AttributeValueSchema extends BaseModel {
     'createdAt',
     'id',
     'slug',
+    'sourceLocale',
     'synonyms',
     'updatedAt',
     'value',
@@ -81,6 +88,8 @@ export class AttributeValueSchema extends BaseModel {
   @column()
   declare slug: string
   @column()
+  declare sourceLocale: string
+  @column()
   declare synonyms: any
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
@@ -94,6 +103,7 @@ export class AttributeSchema extends BaseModel {
     'id',
     'isFilterable',
     'slug',
+    'sourceLocale',
     'type',
     'unit',
     'updatedAt',
@@ -107,6 +117,8 @@ export class AttributeSchema extends BaseModel {
   declare isFilterable: boolean
   @column()
   declare slug: string
+  @column()
+  declare sourceLocale: string
   @column()
   declare type: string
   @column()

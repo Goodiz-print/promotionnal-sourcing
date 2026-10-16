@@ -64,6 +64,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
         slug: 'vetements',
         parentId: null,
         synonyms: ['tshirt', 'textile'],
+        sourceLocale: 'fr',
         translations: CONTENT,
       })
 
@@ -88,7 +89,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
       .redirects(0)
       .withCsrfToken()
       .loginAs(owner)
-      .json({ slug: 'crayon', parentId: null, translations: CONTENT })
+      .json({ slug: 'crayon', parentId: null, sourceLocale: 'fr', translations: CONTENT })
 
     // 'crayon' existe déjà (CategorySeeder) → échec de validation VineJS :
     // redirection arrière (302) avec les erreurs flashées, aucune création.

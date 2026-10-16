@@ -3,6 +3,7 @@ import db from '@adonisjs/lucid/services/db'
 import Product from '#models/product'
 import EmbeddingService from '#services/embedding_service'
 import TranslationService from '#services/translation_service'
+import ProductTranslationSearchService from '#services/product_translation_search_service'
 import MistralTranslationProvider from '#services/translation/mistral_translation_provider'
 import aiConfig from '#config/ai'
 import { useDatabase } from '#tests/utils/setup'
@@ -106,7 +107,7 @@ test.group('Idempotence — traductions', (group) => {
 
   test('toutes les locales passent dans un seul appel', async ({ assert }) => {
     const { provider, calls, requested } = countingTranslator()
-    const service = new TranslationService(provider)
+    const service = new TranslationService(provider, new ProductTranslationSearchService())
     const product = await loadProduct('crayon-hb-bleu')
 
     const outcome = await service.translate({
@@ -130,7 +131,7 @@ test.group('Idempotence — traductions', (group) => {
 
   test('relancer sans changement de source n’appelle pas le provider', async ({ assert }) => {
     const { provider, calls } = countingTranslator()
-    const service = new TranslationService(provider)
+    const service = new TranslationService(provider, new ProductTranslationSearchService())
     const product = await loadProduct('crayon-hb-bleu')
     const target = {
       entity: 'product' as const,
@@ -148,7 +149,7 @@ test.group('Idempotence — traductions', (group) => {
     assert,
   }) => {
     const { provider, calls, requested } = countingTranslator()
-    const service = new TranslationService(provider)
+    const service = new TranslationService(provider, new ProductTranslationSearchService())
     const product = await loadProduct('crayon-hb-bleu')
     const target = {
       entity: 'product' as const,
@@ -176,7 +177,7 @@ test.group('Idempotence — traductions', (group) => {
 
   test('une traduction saisie à la main n’est jamais écrasée', async ({ assert }) => {
     const { provider, requested } = countingTranslator()
-    const service = new TranslationService(provider)
+    const service = new TranslationService(provider, new ProductTranslationSearchService())
     const product = await loadProduct('crayon-hb-bleu')
     const now = new Date()
     await db.table('product_translations').insert({
@@ -208,7 +209,7 @@ test.group('Idempotence — traductions', (group) => {
     assert,
   }) => {
     const { provider, requested } = countingTranslator()
-    const service = new TranslationService(provider)
+    const service = new TranslationService(provider, new ProductTranslationSearchService())
     const product = await loadProduct('crayon-hb-bleu')
     const target = {
       entity: 'product' as const,
@@ -240,7 +241,7 @@ test.group('Idempotence — traductions', (group) => {
 
   test('les lignes générées sont marquées is_auto', async ({ assert }) => {
     const { provider } = countingTranslator()
-    const service = new TranslationService(provider)
+    const service = new TranslationService(provider, new ProductTranslationSearchService())
     const product = await loadProduct('crayon-hb-bleu')
 
     await service.translate({
@@ -260,7 +261,7 @@ test.group('Idempotence — traductions', (group) => {
 
   test('sans traduction source : lève, sans appel', async ({ assert }) => {
     const { provider, calls } = countingTranslator()
-    const service = new TranslationService(provider)
+    const service = new TranslationService(provider, new ProductTranslationSearchService())
     const product = await loadProduct('crayon-hb-bleu')
 
     await assert.rejects(
@@ -278,7 +279,7 @@ test.group('Idempotence — traductions', (group) => {
 
   test('catégories : même mécanisme', async ({ assert }) => {
     const { provider, calls } = countingTranslator()
-    const service = new TranslationService(provider)
+    const service = new TranslationService(provider, new ProductTranslationSearchService())
     const category = await db.from('category_translations').where('locale', 'fr').firstOrFail()
     const target = {
       entity: 'category' as const,
@@ -370,9 +371,9 @@ test.group('Validateur produit — langue source', () => {
   test('l’édition n’accepte pas de changement de langue source', async ({ assert }) => {
     const data = await updateSupplierProductValidator.validate({
       categoryId: 1,
-      translations: { de: { name: 'Stift' } },
+      translations: { fr: { name: 'Crayon' } },
     })
-    assert.deepEqual(Object.keys(data.translations), ['de'])
+    assert.deepEqual(Object.keys(data.translations ?? {}), ['fr'])
     assert.isUndefined((data as Record<string, unknown>).sourceLocale)
   })
 })
