@@ -86,6 +86,25 @@ test.group('Landing — rendu HTML (SSR)', () => {
   })
 })
 
+test.group('Landing — balise title', () => {
+  test('une seule balise <title>, celle de la page (repli générique sinon)', async ({
+    client,
+    assert,
+  }) => {
+    const titles = async (url: string) => {
+      const response = await client.get(url)
+      return response.text().match(/<title[^>]*>[^<]*<\/title>/g) ?? []
+    }
+
+    const thanks = await titles('/fr/thanks')
+    assert.lengthOf(thanks, 1)
+    assert.include(thanks[0], 'Message bien reçu')
+
+    const login = await titles('/fr/login')
+    assert.lengthOf(login, 1)
+  })
+})
+
 test.group('Landing — anciennes URLs du site Astro', () => {
   const redirects: [string, string][] = [
     ['/contact', '/fr/contact'],

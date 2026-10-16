@@ -14,9 +14,11 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     />
-    <title inertia>
-      promotionalsourcing.eu
-    </title>
+    {{-- Titre de repli : uniquement si la page n'en définit pas via <Head> (sinon le SSR
+         émettrait deux <title> et les moteurs liraient le générique en premier). --}}
+    @if(!(page.ssrHead || []).join('').includes('<title'))
+      <title inertia>promotionalsourcing.eu</title>
+    @end
 
     @vite(['inertia/app.ts'])
     @inertiaHead()
