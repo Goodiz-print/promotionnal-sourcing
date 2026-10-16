@@ -25,4 +25,3 @@ sérialisation JSON stable) stockée sur la ligne qu'elle protège.
 - **Non couvert** — aucune sauvegarde ne dispatche encore `TranslateEntityJob` et les
   traductions ne sont pas marquées « auto » : le job écraserait une correction
   manuelle. Le déclenchement (`sourceLocale`, marquage « auto ») relève de #75.
-=======
