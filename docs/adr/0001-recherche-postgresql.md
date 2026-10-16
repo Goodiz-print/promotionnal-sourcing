@@ -25,19 +25,21 @@ Aucun moteur dédié (Meilisearch, Typesense, OpenSearch) n'est ajouté pour la 
 
 ## Alternatives écartées
 
-| Option | Raison du rejet en V1 |
-| --- | --- |
-| Meilisearch ou Typesense | Deuxième source de données à synchroniser (réindexation, écarts, échecs de queue). Coût en RAM et en exploitation supplémentaire. Le ET exact est déjà garanti par SQL. |
-| OpenSearch ou Elasticsearch | Même problème de synchronisation, avec une charge d'exploitation nettement plus lourde pour une personne seule. |
+| Option                      | Raison du rejet en V1                                                                                                                                                   |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Meilisearch ou Typesense    | Deuxième source de données à synchroniser (réindexation, écarts, échecs de queue). Coût en RAM et en exploitation supplémentaire. Le ET exact est déjà garanti par SQL. |
+| OpenSearch ou Elasticsearch | Même problème de synchronisation, avec une charge d'exploitation nettement plus lourde pour une personne seule.                                                         |
 
 ## Conséquences
 
 **Positives**
+
 - Une seule source de vérité : pas de réindexation, pas de risque d'écart entre la base et l'index.
 - Le ET reste exact et transactionnel, comme le demande le produit.
 - Une seule facture d'infrastructure à maîtriser.
 
 **Négatives**
+
 - La tolérance aux fautes de frappe doit être construite avec `pg_trgm`, qui n'est pas encore utilisé.
 - Les compteurs de facettes sont calculés en SQL. Leur coût à 1 M de produits est à mesurer.
 - La base doit être dimensionnée pour les embeddings : estimation de 8 à 10 Go de RAM en `float32`, 4 à 5 Go en `halfvec` (#71). À confirmer par la mesure.
