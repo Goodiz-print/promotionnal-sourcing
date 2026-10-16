@@ -126,19 +126,19 @@ exact (« stylo écologique » → produits verts).
 > recherche sémantique par embeddings (`products.embedding` reste `NULL`),
 > ranking `ts_rank`, tolérance typo `pg_trgm`.
 
-## Images produit (galerie + Cloudinary)
+## Images produit (galerie + Cellar)
 
-Un produit porte une **galerie** d'images ordonnées, hébergées sur Cloudinary.
+Un produit porte une **galerie** d'images ordonnées, hébergées sur Cellar (voir [`storage.md`](storage.md)).
 
 - **Stockage** : table `product_images` (one-to-many) — `product_id` (CASCADE),
-  `secure_url`, `public_id` (unique, requis pour supprimer l'asset), `position`
+  `secure_url`, `storage_object_id` (FK `storage_objects`, nullable pour l'historique), `position`
   (ordre, unique par produit), `width`/`height`. Modèle `app/models/product_image.ts`
   (`Product hasMany images`). URL/position **neutres** (pas de localisation) ; des
   alt/légendes localisés suivraient le précédent `product_translations` (hors v1).
 - **`products.image_url`** : conservé comme **image principale dénormalisée**
   (repli affichage + cartes catalogue) ; la galerie complète vit dans `product_images`.
-- **Upload** : `app/services/cloudinary_service.ts` (`uploadMany`/`upload`/`destroy`),
-  dossier imposé `promotionnal-sourcing/<environnement>/products/<slug>` ; validateur
+- **Upload** : `app/services/storage/storage_service.ts` (`store`/`storeMany`/`release`),
+  clé déterministe `promotionnal-sourcing/<environnement>/<sha256>.<ext>` ; validateur
   multi-fichiers réutilisable `app/validators/product_image.ts`
   (`vine.array(vine.file(...))`, jpg/png/webp, 5 Mo, max 8). Le service et le
   validateur sont prêts ; **l'écran d'upload fournisseur** sera branché avec le CRUD
@@ -167,9 +167,9 @@ Un produit porte une **galerie** d'images ordonnées, hébergées sur Cloudinary
   slug unique (`stringHelpers.slug` + suffixe), traductions par locale
   (`ProductTranslation.updateOrCreate`), facettes en ET fiable
   (`attributeValues.sync` avec `attribute_id`), et galerie (upload via
-  `CloudinaryService.uploadMany`, suppression via `destroyMany`, `image_url` recalé
-  sur la 1re image). `CloudinaryService` est **injecté** (tests avec faux uploader,
-  aucun appel réseau).
+  `StorageService.storeMany`, retrait via `release` dans la transaction, `image_url`
+  recalé sur la 1re image). `StorageService` est **injecté** (tests avec
+  `container.swap(StorageDriver, fake)`, aucun appel réseau).
 - **Validation** : `app/validators/supplier_product.ts` (`vine.create`) — contenu
   bilingue requis (`translations.{fr,en}`), facettes (`attributeValueIds`), fichiers
   (`vine.array(vine.file(...))`, jpg/png/webp, 5 Mo, max 8), `removedImageIds` (édition).
@@ -180,7 +180,7 @@ Un produit porte une **galerie** d'images ordonnées, hébergées sur Cloudinary
     Soumission multipart via `form.transform(...).post(urlFor(...), { forceFormData: true })`.
 - **i18n** : clés `products.manage.*` (`resources/lang/{fr,en}/products.json`).
 
-> L'écran d'upload s'appuie sur l'infra Cloudinary (voir « Images produit » ci-dessus).
+> L'écran d'upload s'appuie sur l'infra de stockage Cellar (voir « Images produit » ci-dessus).
 
 ## i18n du contenu (FR par défaut, EN, extensible à N langues)
 

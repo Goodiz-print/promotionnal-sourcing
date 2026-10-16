@@ -199,7 +199,7 @@ export class OrganizationSchema extends BaseModel {
     'email',
     'id',
     'industry',
-    'logoPublicId',
+    'logoStorageObjectId',
     'logoUrl',
     'name',
     'organizationType',
@@ -234,7 +234,7 @@ export class OrganizationSchema extends BaseModel {
   @column()
   declare industry: string | null
   @column()
-  declare logoPublicId: string | null
+  declare logoStorageObjectId: number | null
   @column()
   declare logoUrl: string | null
   @column()
@@ -313,8 +313,8 @@ export class ProductImageSchema extends BaseModel {
     'id',
     'position',
     'productId',
-    'publicId',
     'secureUrl',
+    'storageObjectId',
     'updatedAt',
     'width',
   ] as const
@@ -330,9 +330,9 @@ export class ProductImageSchema extends BaseModel {
   @column()
   declare productId: number
   @column()
-  declare publicId: string
-  @column()
   declare secureUrl: string
+  @column()
+  declare storageObjectId: number | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
   @column()
@@ -631,6 +631,36 @@ export class RoleSchema extends BaseModel {
   declare name: string
   @column()
   declare slug: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class StorageObjectSchema extends BaseModel {
+  static $columns = [
+    'checksum',
+    'createdAt',
+    'id',
+    'key',
+    'mimeType',
+    'size',
+    'status',
+    'updatedAt',
+  ] as const
+  $columns = StorageObjectSchema.$columns
+  @column()
+  declare checksum: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare key: string
+  @column()
+  declare mimeType: string
+  @column()
+  declare size: number
+  @column()
+  declare status: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }

@@ -127,7 +127,7 @@ export interface UpdateOrganizationData extends Partial<CreateOrganizationData> 
 /**
  * Données du formulaire "paramètres généraux" : hors `slug` (non modifiable
  * dans cet écran) et hors `logoUrl` (le logo est géré par des méthodes
- * dédiées du service — upload/suppression Cloudinary, pas une URL saisie).
+ * dédiées du service — upload/suppression Cellar, pas une URL saisie).
  */
 export type UpdateOrganizationSettingsData = Omit<UpdateOrganizationData, 'slug' | 'logoUrl'>
 

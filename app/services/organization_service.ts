@@ -7,7 +7,7 @@ import OrganizationInvitation from '#models/organization_invitation'
 import OrganizationUser from '#models/organization_user'
 import Role from '#models/role'
 import type User from '#models/user'
-import CloudinaryService from '#services/cloudinary_service'
+import StorageService from '#services/storage/storage_service'
 import OrganizationContextService from '#services/organization_context_service'
 import OrganizationMembersService from '#services/organization_members_service'
 import {
@@ -23,12 +23,12 @@ import type { MultipartFile } from '@adonisjs/core/bodyparser'
  * départ volontaire, archivage, logo. La bascule d'organisation courante est
  * déléguée à `OrganizationContextService`, l'invariant « dernier owner » à
  * `OrganizationMembersService`. Upload/suppression du logo délégués à
- * CloudinaryService (injecté pour la testabilité, cf. SupplierProductService).
+ * StorageService (injecté pour la testabilité, cf. SupplierProductService).
  */
 @inject()
 export default class OrganizationService {
   constructor(
-    private cloudinary: CloudinaryService,
+    private storage: StorageService,
     private context: OrganizationContextService,
     private members: OrganizationMembersService
   ) {}
@@ -138,32 +138,52 @@ export default class OrganizationService {
   }
 
   /**
-   * Upload le nouveau logo sur Cloudinary, persiste `logoUrl`/`logoPublicId`,
-   * puis supprime l'ancien asset s'il existait (remplacement).
+   * Stocke le nouveau logo (dédoublonné par checksum) puis, dans **une seule
+   * transaction**, met la référence à jour et écrit la ligne `pending_delete`
+   * de l'ancien logo s'il n'est plus utilisé. La purge de l'ancien objet est
+   * lancée après le commit. Si la transaction échoue, le nouvel objet est
+   * libéré : aucun fichier orphelin.
    */
   async updateLogo(organization: Organization, file: MultipartFile): Promise<Organization> {
-    const previousPublicId = organization.logoPublicId
-    const asset = await this.cloudinary.upload(file, `organizations/${organization.slug}`)
+    const stored = await this.storage.store(file)
+    const previousId = organization.logoStorageObjectId
 
-    organization.merge({ logoUrl: asset.secureUrl, logoPublicId: asset.publicId })
-    await organization.save()
-
-    if (previousPublicId) {
-      await this.cloudinary.destroy(previousPublicId)
+    let tombstoneId: number | null
+    try {
+      tombstoneId = await db.transaction(async (trx) => {
+        const row = await Organization.findOrFail(organization.id, { client: trx })
+        await row
+          .merge({ logoUrl: this.storage.urlFor(stored), logoStorageObjectId: stored.id })
+          .save()
+        // Même contenu qu'avant : l'objet reste référencé, rien à remplacer.
+        return previousId === stored.id ? null : this.storage.release(trx, previousId)
+      })
+    } catch (error) {
+      await this.storage.discard([stored.id])
+      throw error
     }
+
+    await this.storage.dispatchDeletions([tombstoneId])
+    await organization.refresh()
     return organization
   }
 
   /**
-   * Retire le logo courant (sans remplacement) : nettoie l'asset Cloudinary et
-   * remet `logoUrl`/`logoPublicId` à `null`.
+   * Retire le logo courant (sans remplacement) : remet `logoUrl` /
+   * `logoStorageObjectId` à `null` et planifie la purge de l'objet (même
+   * transaction), s'il n'est plus utilisé ailleurs.
    */
   async removeLogo(organization: Organization): Promise<Organization> {
-    if (organization.logoPublicId) {
-      await this.cloudinary.destroy(organization.logoPublicId)
-    }
-    organization.merge({ logoUrl: null, logoPublicId: null })
-    await organization.save()
+    const previousId = organization.logoStorageObjectId
+
+    const tombstoneId = await db.transaction(async (trx) => {
+      const row = await Organization.findOrFail(organization.id, { client: trx })
+      await row.merge({ logoUrl: null, logoStorageObjectId: null }).save()
+      return this.storage.release(trx, previousId)
+    })
+
+    await this.storage.dispatchDeletions([tombstoneId])
+    await organization.refresh()
     return organization
   }
 

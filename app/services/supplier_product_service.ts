@@ -1,4 +1,5 @@
 import { inject } from '@adonisjs/core'
+import db from '@adonisjs/lucid/services/db'
 import stringHelpers from '@adonisjs/core/helpers/string'
 import Product from '#models/product'
 import Supplier from '#models/supplier'
@@ -8,7 +9,7 @@ import AttributeValue from '#models/attribute_value'
 import ProductImage from '#models/product_image'
 import ProductTranslation from '#models/product_translation'
 import SupplierTranslation from '#models/supplier_translation'
-import CloudinaryService from '#services/cloudinary_service'
+import StorageService from '#services/storage/storage_service'
 import GenerateProductEmbeddingJob from '#jobs/generate_product_embedding_job'
 import logger from '@adonisjs/core/services/logger'
 import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from '#shared/types/i18n'
@@ -17,13 +18,13 @@ import type { MultipartFile } from '@adonisjs/core/bodyparser'
 import type { SupplierProductInput } from '#shared/types/product'
 
 /**
- * Gestion des produits côté fournisseur (CRUD + galerie Cloudinary). Toute la
- * logique ORM vit ici (controllers fins). `CloudinaryService` est injecté pour
- * la testabilité (les tests passent un faux uploader, aucun appel réseau).
+ * Gestion des produits côté fournisseur (CRUD + galerie Cellar). Toute la
+ * logique ORM vit ici (controllers fins). `StorageService` est injecté pour la
+ * testabilité (les tests remplacent `StorageDriver`, aucun appel réseau).
  */
 @inject()
 export default class SupplierProductService {
-  constructor(private cloudinary: CloudinaryService) {}
+  constructor(private storage: StorageService) {}
 
   /**
    * Résout le fournisseur (fiche catalogue) de l'organisation. Le crée si l'org
@@ -114,18 +115,7 @@ export default class SupplierProductService {
     await this.writeTranslations(product, data.translations)
     await this.syncFacets(product, data.attributeValueIds)
 
-    if (removedImageIds.length > 0) {
-      const removed = await ProductImage.query()
-        .whereIn('id', removedImageIds)
-        .where('productId', product.id)
-      await this.cloudinary.destroyMany(removed.map((image) => image.publicId))
-      await ProductImage.query()
-        .whereIn(
-          'id',
-          removed.map((image) => image.id)
-        )
-        .delete()
-    }
+    await this.removeImages(product, removedImageIds)
 
     const last = await product.related('images').query().orderBy('position', 'desc').first()
     await this.attachImages(product, files, last ? last.position + 1 : 0)
@@ -136,13 +126,47 @@ export default class SupplierProductService {
   }
 
   /**
-   * Supprime un produit et ses assets Cloudinary. Les lignes filles
-   * (translations, images, facettes) partent en cascade DB.
+   * Supprime un produit. Les lignes filles (translations, images, facettes)
+   * partent en cascade DB ; les objets de la galerie qui ne sont plus utilisés
+   * reçoivent leur ligne `pending_delete` dans la même transaction.
    */
   async delete(product: Product): Promise<void> {
     const images = await product.related('images').query()
-    await this.cloudinary.destroyMany(images.map((image) => image.publicId))
-    await product.delete()
+
+    const tombstones = await db.transaction(async (trx) => {
+      await Product.query({ client: trx }).where('id', product.id).delete()
+      const ids: Array<number | null> = []
+      for (const image of images) ids.push(await this.storage.release(trx, image.storageObjectId))
+      return ids
+    })
+
+    await this.storage.dispatchDeletions(tombstones)
+  }
+
+  /**
+   * Retire des images de la galerie : suppression des lignes et écriture des
+   * `pending_delete` des objets devenus inutiles, dans une même transaction.
+   */
+  private async removeImages(product: Product, imageIds: number[]): Promise<void> {
+    if (imageIds.length === 0) return
+
+    const removed = await ProductImage.query()
+      .whereIn('id', imageIds)
+      .where('productId', product.id)
+
+    const tombstones = await db.transaction(async (trx) => {
+      await ProductImage.query({ client: trx })
+        .whereIn(
+          'id',
+          removed.map((image) => image.id)
+        )
+        .delete()
+      const ids: Array<number | null> = []
+      for (const image of removed) ids.push(await this.storage.release(trx, image.storageObjectId))
+      return ids
+    })
+
+    await this.storage.dispatchDeletions(tombstones)
   }
 
   /**
@@ -225,8 +249,9 @@ export default class SupplierProductService {
   }
 
   /**
-   * Upload des fichiers sur Cloudinary et création des lignes `product_images`
-   * à partir de la position `from`.
+   * Stocke les fichiers (dédoublonnés) et crée les lignes `product_images` à
+   * partir de la position `from`. Si l'écriture des lignes échoue, les objets
+   * tout juste stockés sont libérés.
    */
   private async attachImages(
     product: Product,
@@ -234,16 +259,20 @@ export default class SupplierProductService {
     from: number
   ): Promise<void> {
     if (files.length === 0) return
-    const assets = await this.cloudinary.uploadMany(files, `products/${product.slug}`)
-    await product.related('images').createMany(
-      assets.map((asset, index) => ({
-        secureUrl: asset.secureUrl,
-        publicId: asset.publicId,
-        width: asset.width,
-        height: asset.height,
-        position: from + index,
-      }))
-    )
+    const objects = await this.storage.storeMany(files)
+
+    try {
+      await product.related('images').createMany(
+        objects.map((object, index) => ({
+          secureUrl: this.storage.urlFor(object),
+          storageObjectId: object.id,
+          position: from + index,
+        }))
+      )
+    } catch (error) {
+      await this.storage.discard(objects.map((object) => object.id))
+      throw error
+    }
   }
 
   /**

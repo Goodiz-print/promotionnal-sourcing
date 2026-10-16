@@ -11,6 +11,10 @@ import SupplierProductService from '#services/supplier_product_service'
 import GenerateProductEmbeddingJob from '#jobs/generate_product_embedding_job'
 import EmbeddingProvider from '#services/embeddings/embedding_provider'
 import MistralEmbeddingProvider from '#services/embeddings/mistral_provider'
+import StorageDriver from '#services/storage/storage_driver'
+import CellarStorageDriver from '#services/storage/cellar_storage_driver'
+import StorageService from '#services/storage/storage_service'
+import StorageCleanupService from '#services/storage/storage_cleanup_service'
 
 /**
  * Garde-fou d'injection de dépendances : le conteneur IoC doit savoir résoudre
@@ -49,5 +53,11 @@ test.group('Conteneur IoC — câblage des dépendances', () => {
     const provider = await app.container.make(EmbeddingProvider)
     assert.instanceOf(provider, MistralEmbeddingProvider)
     assert.equal(provider.name, 'mistral')
+  })
+
+  test('lie StorageDriver à Cellar et résout les services de stockage', async ({ assert }) => {
+    assert.instanceOf(await app.container.make(StorageDriver), CellarStorageDriver)
+    assert.instanceOf(await app.container.make(StorageService), StorageService)
+    assert.instanceOf(await app.container.make(StorageCleanupService), StorageCleanupService)
   })
 })
