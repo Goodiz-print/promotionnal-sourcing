@@ -1,5 +1,7 @@
+import { inject } from '@adonisjs/core'
 import Category from '#models/category'
 import CategoryTranslation from '#models/category_translation'
+import TranslationDispatcher from '#services/translation_dispatcher'
 import { CONTENT_LOCALES } from '#shared/types/i18n'
 import type {
   CreateCategoryInput,
@@ -13,7 +15,10 @@ import type { ContentLocale } from '#shared/types/i18n'
  * ici (controllers fins). Les catégories sont globales : ce service alimente
  * l'administration back-office (CRUD + arbre `parentId`).
  */
+@inject()
 export default class CategoryService {
+  constructor(private translationDispatcher: TranslationDispatcher) {}
+
   /**
    * Liste d'administration : catégories + parent (traduit) + nombre de produits
    * rattachés, triées par slug.
@@ -57,6 +62,7 @@ export default class CategoryService {
       synonyms: data.synonyms ?? [],
     })
     await this.writeTranslations(category, data.translations)
+    await this.translationDispatcher.dispatch('category', category.id)
     return category
   }
 
@@ -67,6 +73,7 @@ export default class CategoryService {
   async update(category: Category, data: UpdateCategoryInput): Promise<Category> {
     await category.merge({ parentId: data.parentId ?? null, synonyms: data.synonyms ?? [] }).save()
     await this.writeTranslations(category, data.translations)
+    await this.translationDispatcher.dispatch('category', category.id)
     return category
   }
 
@@ -141,7 +148,7 @@ export default class CategoryService {
       if (!translation) continue
       await CategoryTranslation.updateOrCreate(
         { categoryId: category.id, locale },
-        { name: translation.name, description: translation.description ?? null }
+        { name: translation.name, description: translation.description ?? null, isAuto: false }
       )
     }
   }

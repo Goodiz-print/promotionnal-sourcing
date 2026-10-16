@@ -3,6 +3,8 @@ import db from '@adonisjs/lucid/services/db'
 import Product from '#models/product'
 import EmbeddingService from '#services/embedding_service'
 import TranslationService from '#services/translation_service'
+import TranslationDispatcher from '#services/translation_dispatcher'
+import TranslateEntityJob from '#jobs/translate_entity_job'
 import MistralTranslationProvider from '#services/translation/mistral_translation_provider'
 import aiConfig from '#config/ai'
 import { useDatabase } from '#tests/utils/setup'
@@ -201,5 +203,67 @@ test.group('MistralTranslationProvider', () => {
       () => new MistralTranslationProvider(client('{}')).translate({ name: 'a' }, 'fr', 'en'),
       /missing field/
     )
+  })
+})
+
+test.group('Politique de traduction — déclenchement (#75)', (group) => {
+  useDatabase(group, { seed: 'full' })
+
+  test('une traduction saisie à la main n’est jamais écrasée par le job', async ({ assert }) => {
+    const { provider, calls } = countingTranslator()
+    const service = new TranslationService(provider)
+    const product = await loadProduct('crayon-hb-bleu')
+    const target = {
+      entity: 'product' as const,
+      entityId: product.id,
+      sourceLocale: 'fr',
+      targetLocale: 'en',
+    }
+    const before = await db
+      .from('product_translations')
+      .where('product_id', product.id)
+      .where('locale', 'en')
+      .first()
+
+    assert.isFalse(before.is_auto)
+    assert.equal(await service.translate(target), 'skipped')
+    assert.equal(calls(), 0)
+  })
+
+  test('une traduction générée est marquée « auto »', async ({ assert }) => {
+    const { provider } = countingTranslator()
+    const service = new TranslationService(provider)
+    const product = await loadProduct('crayon-hb-bleu')
+    await service.translate({
+      entity: 'product',
+      entityId: product.id,
+      sourceLocale: 'fr',
+      targetLocale: 'de',
+    })
+
+    const de = await db
+      .from('product_translations')
+      .where('product_id', product.id)
+      .where('locale', 'de')
+      .first()
+    assert.isTrue(de.is_auto)
+  })
+
+  test('le dispatcher cible les autres langues de contenu que la source', async ({ assert }) => {
+    const payloads: unknown[] = []
+    const original = TranslateEntityJob.dispatch
+    TranslateEntityJob.dispatch = (async (payload: unknown) => {
+      payloads.push(payload)
+    }) as unknown as typeof TranslateEntityJob.dispatch
+
+    try {
+      await new TranslationDispatcher().dispatch('category', 7, 'fr')
+    } finally {
+      TranslateEntityJob.dispatch = original
+    }
+
+    assert.deepEqual(payloads, [
+      { entity: 'category', entityId: 7, sourceLocale: 'fr', targetLocales: ['en'] },
+    ])
   })
 })

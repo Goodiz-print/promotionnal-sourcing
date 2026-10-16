@@ -12,6 +12,7 @@ export class AttributeTranslationSchema extends BaseModel {
     'attributeId',
     'createdAt',
     'id',
+    'isAuto',
     'locale',
     'name',
     'translationKey',
@@ -24,6 +25,8 @@ export class AttributeTranslationSchema extends BaseModel {
   declare createdAt: DateTime
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare isAuto: boolean
   @column()
   declare locale: string
   @column()
@@ -39,6 +42,7 @@ export class AttributeValueTranslationSchema extends BaseModel {
     'attributeValueId',
     'createdAt',
     'id',
+    'isAuto',
     'label',
     'locale',
     'translationKey',
@@ -51,6 +55,8 @@ export class AttributeValueTranslationSchema extends BaseModel {
   declare createdAt: DateTime
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare isAuto: boolean
   @column()
   declare label: string
   @column()
@@ -138,6 +144,7 @@ export class CategoryTranslationSchema extends BaseModel {
     'createdAt',
     'description',
     'id',
+    'isAuto',
     'locale',
     'name',
     'translationKey',
@@ -152,6 +159,8 @@ export class CategoryTranslationSchema extends BaseModel {
   declare description: string | null
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare isAuto: boolean
   @column()
   declare locale: string
   @column()
@@ -409,6 +418,7 @@ export class ProductTranslationSchema extends BaseModel {
     'createdAt',
     'description',
     'id',
+    'isAuto',
     'locale',
     'name',
     'productId',
@@ -422,6 +432,8 @@ export class ProductTranslationSchema extends BaseModel {
   declare description: string | null
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare isAuto: boolean
   @column()
   declare locale: string
   @column()

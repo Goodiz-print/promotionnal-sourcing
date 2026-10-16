@@ -36,6 +36,9 @@ const ENTITY_TABLES: Record<TranslatableEntity, EntityTable> = {
  *   locale cible, hash du texte source, modèle, version du prompt), stockée dans
  *   `translation_key` sur la ligne de traduction. Clé inchangée → Mistral n'est
  *   pas appelé.
+ * - **Jamais d'écrasement d'une saisie humaine** : une ligne existante avec
+ *   `is_auto = false` (saisie / corrigée par le fournisseur) est laissée telle
+ *   quelle ; les lignes produites ici sont marquées `is_auto = true`.
  * - **Upsert** sur `(entité, locale)` : une seule traduction par couple.
  * - Le résultat Mistral est écrit en **une seule** requête (texte + clé), avant
  *   toute autre écriture : un crash ne refacture pas l'appel déjà enregistré.
@@ -81,9 +84,13 @@ export default class TranslationService {
       .from(table)
       .where(foreignKey, entityId)
       .where('locale', targetLocale)
-      .select('translation_key')
+      .select('translation_key', 'is_auto')
       .first()
     const logContext = { idempotencyKey: key, entity, entityId, sourceLocale, targetLocale }
+    if (existing && !existing.is_auto) {
+      logger.info({ ...logContext, outcome: 'skipped', reason: 'manual' }, 'ai translation')
+      return 'skipped'
+    }
     if (existing?.translation_key === key) {
       logger.info({ ...logContext, outcome: 'skipped' }, 'ai translation')
       return 'skipped'
@@ -99,11 +106,12 @@ export default class TranslationService {
         locale: targetLocale,
         ...translated,
         translation_key: key,
+        is_auto: true,
         created_at: now,
         updated_at: now,
       })
       .onConflict([foreignKey, 'locale'])
-      .merge({ ...translated, translation_key: key, updated_at: now })
+      .merge({ ...translated, translation_key: key, is_auto: true, updated_at: now })
 
     logger.info({ ...logContext, outcome: 'called' }, 'ai translation')
     return 'called'

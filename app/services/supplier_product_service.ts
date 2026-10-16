@@ -10,6 +10,7 @@ import ProductImage from '#models/product_image'
 import ProductTranslation from '#models/product_translation'
 import SupplierTranslation from '#models/supplier_translation'
 import StorageService from '#services/storage/storage_service'
+import TranslationDispatcher from '#services/translation_dispatcher'
 import GenerateProductEmbeddingJob from '#jobs/generate_product_embedding_job'
 import logger from '@adonisjs/core/services/logger'
 import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE } from '#shared/types/i18n'
@@ -24,7 +25,10 @@ import type { SupplierProductInput } from '#shared/types/product'
  */
 @inject()
 export default class SupplierProductService {
-  constructor(private storage: StorageService) {}
+  constructor(
+    private storage: StorageService,
+    private translations: TranslationDispatcher
+  ) {}
 
   /**
    * Résout le fournisseur (fiche catalogue) de l'organisation. Le crée si l'org
@@ -97,6 +101,7 @@ export default class SupplierProductService {
     await this.attachImages(product, files, 0)
     await this.refreshPrimaryImage(product)
     await this.queueEmbedding(product)
+    await this.queueTranslations(product)
 
     return product
   }
@@ -121,6 +126,7 @@ export default class SupplierProductService {
     await this.attachImages(product, files, last ? last.position + 1 : 0)
     await this.refreshPrimaryImage(product)
     await this.queueEmbedding(product)
+    await this.queueTranslations(product)
 
     return product
   }
@@ -183,6 +189,15 @@ export default class SupplierProductService {
   }
 
   /**
+   * Planifie la traduction automatique des produits **publiés** uniquement (un
+   * produit non publié n'appelle pas Mistral — #75).
+   */
+  private async queueTranslations(product: Product): Promise<void> {
+    if (!product.isActive) return
+    await this.translations.dispatch('product', product.id)
+  }
+
+  /**
    * Toutes les catégories (pour le select du formulaire — pas seulement celles
    * ayant déjà un produit, contrairement au catalogue public).
    */
@@ -226,7 +241,7 @@ export default class SupplierProductService {
       if (!translation) continue
       await ProductTranslation.updateOrCreate(
         { productId: product.id, locale },
-        { name: translation.name, description: translation.description ?? null }
+        { name: translation.name, description: translation.description ?? null, isAuto: false }
       )
     }
   }
