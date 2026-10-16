@@ -11,7 +11,9 @@ import { resolvePageComponent } from '@adonisjs/inertia/helpers'
 const appName = import.meta.env.VITE_APP_NAME || 'AdonisJS'
 
 createInertiaApp({
-  title: (title) => (title ? `${title} - ${appName}` : appName),
+  // Les titres de la landing portent déjà la marque : pas de suffixe en double.
+  title: (title) =>
+    title ? (title.includes('Promotional Sourcing') ? title : `${title} - ${appName}`) : appName,
   resolve: (name) => {
     return resolvePageComponent(
       `./pages/${name}.vue`,

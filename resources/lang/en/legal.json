@@ -1,0 +1,46 @@
+{
+  "heading": "Legal notice",
+  "eyebrow": "Legal information",
+  "intro": "Who publishes and hosts promotional-sourcing.eu, and the rules that apply to its content.",
+  "updatedAt": "26 August 2026",
+  "seoTitle": "Legal notice — Promotional Sourcing.eu",
+  "seoDescription": "Legal notice for promotional-sourcing.eu: publisher, host, intellectual property.",
+  "sections": {
+    "editeur": {
+      "title": "Website publisher",
+      "body": "<p>PROMOTIONAL SOURCING, société par actions simplifiée (French simplified joint-stock company) with a share capital of €1,000</p> <p>Website: promotional-sourcing.eu</p> <p>Publication director: Virgile Accomando</p>"
+    },
+    "siege": {
+      "title": "Registered office",
+      "body": "<address>PROMOTIONAL SOURCING<br />72 quai de Bacalan<br />33300 Bordeaux — France</address>"
+    },
+    "immatriculation": {
+      "title": "Company registration",
+      "body": "<p>SIREN 108 093 790 — Bordeaux Trade and Companies Register<br />SIRET (registered office): 108 093 790 00013<br />NAF/APE code: 6312Z — Web portals</p>"
+    },
+    "tva": {
+      "title": "VAT number",
+      "body": "<p>Intra-community VAT number: FR03 108 093 790</p>"
+    },
+    "activite": {
+      "title": "Business activity",
+      "body": "<p>Publishing and operating a web platform for sourcing promotional products, connecting professional buyers with suppliers.</p>"
+    },
+    "hebergeur": {
+      "title": "Website host",
+      "body": "<address>Netlify, Inc.<br />512 2nd Street, Suite 200<br />San Francisco, CA 94107 — United States<br /><a href=\"https://www.netlify.com\" rel=\"noopener noreferrer\" target=\"_blank\">netlify.com</a></address>"
+    },
+    "contact": {
+      "title": "Contact us",
+      "body": "<p>Phone: <a href=\"tel:+33638012975\">+33 6 38 01 29 75</a></p> <p>Email: <a href=\"mailto:contact@promotional-sourcing.eu\">contact@promotional-sourcing.eu</a></p>"
+    },
+    "propriete-intellectuelle": {
+      "title": "Intellectual property",
+      "body": "<p>All elements making up the promotional-sourcing.eu website (text, graphics, logos, images, structure) are the exclusive property of PROMOTIONAL SOURCING or are used under licence. Any reproduction, representation or distribution, in whole or in part, without prior written authorisation is prohibited and constitutes infringement under Articles L.335-2 et seq. of the French Intellectual Property Code.</p>"
+    },
+    "donnees-personnelles": {
+      "title": "Personal data",
+      "body": "<p>PROMOTIONAL SOURCING attaches great importance to the protection and security of your personal data. To find out more about how your data is collected and processed, please read our <a href=\"/en/privacy\">Privacy policy</a>.</p>"
+    }
+  }
+}

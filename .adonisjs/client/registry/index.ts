@@ -24,6 +24,12 @@ const routes = {
     tokens: [{"old":"/__transmit/unsubscribe","type":0,"val":"__transmit","end":""},{"old":"/__transmit/unsubscribe","type":0,"val":"unsubscribe","end":""}],
     types: placeholder as Registry['unsubscribe']['types'],
   },
+  'marketing.sitemap': {
+    methods: ["GET","HEAD"],
+    pattern: '/sitemap.xml',
+    tokens: [{"old":"/sitemap.xml","type":0,"val":"sitemap.xml","end":""}],
+    types: placeholder as Registry['marketing.sitemap']['types'],
+  },
   'locale.update': {
     methods: ["POST"],
     pattern: '/locale',
@@ -35,6 +41,30 @@ const routes = {
     pattern: '/:locale',
     tokens: [{"old":"/:locale","type":1,"val":"locale","end":""}],
     types: placeholder as Registry['home']['types'],
+  },
+  'marketing.contact': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/contact',
+    tokens: [{"old":"/:locale/contact","type":1,"val":"locale","end":""},{"old":"/:locale/contact","type":0,"val":"contact","end":""}],
+    types: placeholder as Registry['marketing.contact']['types'],
+  },
+  'marketing.legal': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/legal',
+    tokens: [{"old":"/:locale/legal","type":1,"val":"locale","end":""},{"old":"/:locale/legal","type":0,"val":"legal","end":""}],
+    types: placeholder as Registry['marketing.legal']['types'],
+  },
+  'marketing.privacy': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/privacy',
+    tokens: [{"old":"/:locale/privacy","type":1,"val":"locale","end":""},{"old":"/:locale/privacy","type":0,"val":"privacy","end":""}],
+    types: placeholder as Registry['marketing.privacy']['types'],
+  },
+  'marketing.thanks': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/thanks',
+    tokens: [{"old":"/:locale/thanks","type":1,"val":"locale","end":""},{"old":"/:locale/thanks","type":0,"val":"thanks","end":""}],
+    types: placeholder as Registry['marketing.thanks']['types'],
   },
   'suppliers.index': {
     methods: ["GET","HEAD"],

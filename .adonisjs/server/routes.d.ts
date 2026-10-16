@@ -7,8 +7,13 @@ export type ScannedRoutes = {
     'event_stream': { paramsTuple?: []; params?: {} }
     'subscribe': { paramsTuple?: []; params?: {} }
     'unsubscribe': { paramsTuple?: []; params?: {} }
+    'marketing.sitemap': { paramsTuple?: []; params?: {} }
     'locale.update': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'marketing.contact': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'marketing.legal': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'marketing.privacy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'marketing.thanks': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'suppliers.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'suppliers.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'slug': ParamValue} }
     'products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -82,7 +87,12 @@ export type ScannedRoutes = {
   }
   GET: {
     'event_stream': { paramsTuple?: []; params?: {} }
+    'marketing.sitemap': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'marketing.contact': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'marketing.legal': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'marketing.privacy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'marketing.thanks': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'suppliers.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'suppliers.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'slug': ParamValue} }
     'products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -116,7 +126,12 @@ export type ScannedRoutes = {
   }
   HEAD: {
     'event_stream': { paramsTuple?: []; params?: {} }
+    'marketing.sitemap': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'marketing.contact': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'marketing.legal': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'marketing.privacy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'marketing.thanks': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'suppliers.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'suppliers.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'slug': ParamValue} }
     'products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }

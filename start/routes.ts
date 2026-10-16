@@ -16,12 +16,15 @@ import {
   signupThrottle,
 } from '#start/limiter'
 import { registerRfqRoutes } from '#start/routes/rfqs'
+import { registerMarketingRoutes, registerMarketingLegacyRoutes } from '#start/routes/marketing'
 import { controllers } from '#generated/controllers'
 import router from '@adonisjs/core/services/router'
 import transmit from '@adonisjs/transmit/services/main'
 import type { HttpContext } from '@adonisjs/core/http'
 
 transmit.registerRoutes()
+
+registerMarketingLegacyRoutes()
 
 /**
  * La racine redirige vers la locale détectée (préfixe d'URL /:locale).
@@ -43,7 +46,9 @@ router.post('locale', [controllers.Locale, 'update']).as('locale.update')
  */
 router
   .group(() => {
-    router.on('/').renderInertia('home', {}).as('home')
+    // Landing : accueil et pages publiques (contact, légal, confidentialité).
+    router.get('/', [controllers.Marketing, 'home']).as('home')
+    registerMarketingRoutes()
 
     // Annuaire public des fournisseurs (sans auth).
     router.get('suppliers', [controllers.Suppliers, 'index']).as('suppliers.index')

@@ -1,0 +1,188 @@
+{
+  "seo": {
+    "title": "Promotional Sourcing.eu — Sourcing promotional products, finally reliable",
+    "description": "European B2B sourcing platform for promotional products: 300 suppliers, 1M+ products, multi-criteria search that actually works — unlike existing tools."
+  },
+  "org": {
+    "description": "European B2B platform connecting promotional product agencies with suppliers across Europe."
+  },
+  "og": {
+    "imageAlt": "Promotional Sourcing.eu — Sourcing promotional products. Simplified. Intelligent. European."
+  },
+  "nav": {
+    "agences": "Agencies",
+    "fournisseurs": "Suppliers",
+    "contact": "Contact",
+    "cta": "Contact us",
+    "menuAria": "Open menu",
+    "switchTo": "Français",
+    "login": "Log in",
+    "openApp": "Open the app",
+    "logoAlt": "Promotional Sourcing.eu"
+  },
+  "hero": {
+    "eyebrow": "Launching: January 2027",
+    "titleLine1": "Sourcing promotional products.",
+    "titleWord1": "Simplified.",
+    "titleWord2": "Intelligent.",
+    "titleWord3": "European.",
+    "lead": "A single platform connecting suppliers and communication agencies through promotional products across Europe.",
+    "sub": "Advanced search. Relevant results. Built-in AI.",
+    "ctaPrimary": "Discover",
+    "ctaSecondary": "Contact us"
+  },
+  "features": {
+    "eyebrow": "For agencies",
+    "heading": "Find the right product in seconds.",
+    "intro": "No more flipping between ten catalogues: a single entry point for the whole European market.",
+    "closingLink": "Learn more",
+    "search": {
+      "title": "Smart search",
+      "description": "Filter by material, weight, country of manufacture or certification — the right product in seconds, not hours.",
+      "query": "made in europe shopping bag +200 g/m²",
+      "matchLabel": "2 matches among 300+ verified suppliers",
+      "compareReady": "✓ Comparison ready in 1 click",
+      "exploreCatalogue": "Explore the catalogue",
+      "results": [
+        {
+          "name": "Cotton shopping bag 220g",
+          "variant": "Natural · 220 g/m²"
+        },
+        {
+          "name": "Printed jute shopping bag",
+          "variant": "Jute · 350 g/m²"
+        }
+      ]
+    },
+    "imageSearch": {
+      "title": "Image search (AI)",
+      "description": "Drop in the photo of the product your client is looking for — our AI finds the closest match among 1M+ references.",
+      "uploadedAlt": "Photo uploaded by the user",
+      "dropHint": "Drop a photo here",
+      "matchResult": "✓ 98% match — Cotton bag 220g",
+      "tryButton": "Try AI search"
+    },
+    "compare": {
+      "title": "Instant comparison",
+      "description": "Prices and MOQ from every supplier, side by side.",
+      "button": "Compare"
+    },
+    "verified": {
+      "count": "300+",
+      "label": "Verified European suppliers",
+      "noCommitment": "No commitment"
+    }
+  },
+  "stats": {
+    "heading": "At the heart of European sourcing.",
+    "stat1": "products listed in a single catalogue",
+    "stat2": "verified European suppliers",
+    "stat3": "average supplier response time",
+    "stat4": "Free access"
+  },
+  "suppliers": {
+    "kicker": "For suppliers",
+    "heading": "Make your products visible to thousands of European agencies.",
+    "intro": "You supply the catalogue, we do the rest. Your visibility starts at launch.",
+    "point1Title": "Free listing of your catalogue",
+    "point1Desc": "Your products integrated and searchable by agencies, with no entry fee.",
+    "point2Title": "We handle your data integration",
+    "point2Desc": "API, CSV or Excel export: send us your data in whatever format you have, our team handles the integration.",
+    "point3Title": "Immediate visibility from launch",
+    "point3Desc": "The first listed catalogues will be live on day one, in front of every registered agency.",
+    "point4Title": "Zero friction, zero entry cost",
+    "point4Desc": "No subscription, no development on your end: joining the platform is simple and free.",
+    "cta": "List my catalogue"
+  },
+  "finalCta": {
+    "badge": "Launching: January 2027",
+    "heading": "We are building the new reference for promotional sourcing in Europe.",
+    "descriptionBefore": "Suppliers: join the first partners and get ",
+    "descriptionHighlight": "priority visibility",
+    "descriptionAfter": " from launch.",
+    "cta": "Contact us"
+  },
+  "footer": {
+    "location": "Bordeaux, France",
+    "columnPlatform": "Platform",
+    "columnLegal": "Legal",
+    "linkAgencies": "Agencies",
+    "linkSuppliers": "Suppliers",
+    "linkContact": "Contact",
+    "linkLegalMentions": "Legal notice",
+    "linkPrivacy": "Privacy",
+    "copyright": "© 2026 Promotional Sourcing",
+    "domain": "promotional-sourcing.eu"
+  },
+  "contact": {
+    "seoTitle": "Contact — Promotional Sourcing.eu",
+    "seoDescription": "Agency or supplier of promotional products? Let’s talk about your sourcing needs in Europe. Reply within 48 h.",
+    "eyebrow": "Contact",
+    "heading": "Tell us what you need.",
+    "intro": "Whether you are an agency looking for the right product or a supplier who wants to join the platform, tell us briefly what you are after — we get back to you within 48 hours.",
+    "asideTitle": "Email us directly",
+    "asideAddressTitle": "Our office",
+    "asideResponseTitle": "Response time",
+    "asideResponse": "Within 48 business hours.",
+    "formHeading": "Your enquiry",
+    "mailIntro": "Email us directly: the button below opens your mail app with a ready-made message. To get a quick answer, tell us:",
+    "mailPoints": {
+      "0": "Your company and your role (agency, buyer, supplier…)",
+      "1": "The type of product you are looking for",
+      "2": "Quantities and target budget",
+      "3": "Your required delivery date"
+    },
+    "mailCta": "Email our team",
+    "mailHint": "Opens your mail app.",
+    "mailFallback": "No mail app set up? Write to us at",
+    "mailSubject": "Sourcing enquiry — Promotional Sourcing.eu",
+    "mailBody": "Hello,\n\nCompany:\nYou are (agency / buyer / supplier):\nPhone:\n\nProduct required:\nQuantity:\nTarget budget:\nRequired delivery date:\n\nDetails:\n\n\nThanks,\n"
+  },
+  "thanks": {
+    "seoTitle": "Message received — Promotional Sourcing.eu",
+    "seoDescription": "Your enquiry has been sent to our team.",
+    "eyebrow": "Message sent",
+    "heading": "Thanks — your message is on its way.",
+    "body": "Our team will get back to you within 48 business hours. In the meantime, you can email us directly at",
+    "backHome": "Back to home"
+  },
+  "legal": {
+    "updatedOn": "Last updated:",
+    "breadcrumbAria": "Breadcrumb",
+    "breadcrumbHome": "Home",
+    "tocTitle": "On this page",
+    "helpEyebrow": "Any questions?",
+    "helpHeading": "Need clarification on this document?",
+    "helpBody": "Our team answers legal enquiries and questions about your data within 48 business hours.",
+    "helpCta": "Contact us"
+  },
+  "productMockup": {
+    "tags": {
+      "0": "Recycled material",
+      "1": "GRS certified",
+      "2": "Europe stock"
+    },
+    "products": {
+      "0": {
+        "name": "Organic cotton tote bag 220g",
+        "country": "France"
+      },
+      "1": {
+        "name": "Mustard 140g cotton tote bag",
+        "country": "Portugal"
+      },
+      "2": {
+        "name": "140g cotton tote bag with gusset",
+        "country": "Spain"
+      }
+    },
+    "aiChip": "AI search",
+    "verifiedLabel": "Verified supplier",
+    "supplierLabel": "Supplier",
+    "priceFrom": "from",
+    "priceSuffix": "€ excl. VAT",
+    "footerCompare": "Instant comparison across suppliers",
+    "footerFlag": "Interface preview",
+    "ariaLabel": "Preview of a search on promotional-sourcing.eu: an organic cotton tote bag, a recycled polyester cooler bag and a recycled beach towel, filtered by recycled material, GRS certification and Europe stock, with verified supplier, country and price."
+  }
+}

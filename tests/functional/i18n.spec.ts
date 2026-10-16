@@ -28,7 +28,7 @@ test.group('i18n — détection de la locale', () => {
 
     response.assertStatus(200)
     response.assertInertiaPropsContains({ locale: 'fr' })
-    assert.include(response.inertiaProps.translations['home.title'], 'Ça fonctionne')
+    assert.exists(response.inertiaProps.translations['landing.hero.titleWord1'])
   })
 
   test('/en expose l’anglais', async ({ client, assert }) => {
@@ -36,7 +36,7 @@ test.group('i18n — détection de la locale', () => {
 
     response.assertStatus(200)
     response.assertInertiaPropsContains({ locale: 'en' })
-    assert.include(response.inertiaProps.translations['home.title'], 'It works')
+    assert.include(response.inertiaProps.translations['landing.hero.titleWord1'], 'Simplified')
   })
 
   test('expose la liste des locales supportées', async ({ client }) => {
