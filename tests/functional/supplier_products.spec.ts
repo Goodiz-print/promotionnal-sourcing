@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import db from '@adonisjs/lucid/services/db'
 import Category from '#models/category'
 import AttributeValue from '#models/attribute_value'
 import Product from '#models/product'
@@ -90,6 +91,18 @@ test.group('Gestion produits fournisseur — CRUD', (group) => {
       .where('locale', 'fr')
       .firstOrFail()
     assert.equal(translation.name, 'Crayon Modifié')
+
+    // search_vector recalculé : le nouveau nom matche, l'ancien non.
+    const matches = async (query: string) => {
+      const result = await db.rawQuery(
+        `SELECT count(*)::int AS total FROM product_translations
+         WHERE id = ? AND search_vector @@ websearch_to_tsquery('french', ?)`,
+        [translation.id, query]
+      )
+      return (result.rows as Array<{ total: number }>)[0].total
+    }
+    assert.equal(await matches('modifié'), 1)
+    assert.equal(await matches('bleu'), 0)
 
     await product.refresh()
     assert.isFalse(product.isActive)

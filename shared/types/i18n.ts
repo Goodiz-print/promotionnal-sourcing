@@ -13,8 +13,8 @@ export const DEFAULT_LOCALE: Locale = 'fr'
  * fournisseurs) est saisi. Plus restreint que `SUPPORTED_LOCALES` : l'interface
  * est traduite en 9 langues, mais les fournisseurs ne renseignent leurs fiches
  * qu'en français et en anglais ; les autres langues retombent sur l'anglais.
- * Ajouter une langue de contenu = l'ajouter ici, dans `LOCALE_TSCONFIG` et dans
- * le `CASE` de `product_translations.search_vector`.
+ * Ajouter une langue de contenu = l'ajouter ici et dans `LOCALE_TSCONFIG`, puis
+ * migration `CREATE INDEX … WHERE locale = '<xx>'` + backfill de ses lignes.
  */
 export const CONTENT_LOCALES = ['fr', 'en'] as const
 
@@ -66,10 +66,9 @@ export function isSupportedLocale(value: unknown): value is Locale {
 
 /**
  * Configuration de recherche plein-texte PostgreSQL par locale (stemming).
- * Doit rester synchronisé avec le `CASE` de la colonne générée
- * `product_translations.search_vector`. Toute locale absente retombe sur
- * `'simple'` (pas de stemming). Ajouter une langue = ajouter une entrée ici
- * ET une branche `WHEN` dans la migration.
+ * Source unique : `ProductTranslationSearchService` calcule
+ * `product_translations.search_vector` à l'écriture avec cette config. Toute
+ * locale absente retombe sur `'simple'` (pas de stemming).
  */
 export const LOCALE_TSCONFIG: Record<ContentLocale, string> = {
   fr: 'french',
