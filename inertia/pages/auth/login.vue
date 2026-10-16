@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
+import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseInput from '~/components/base_input.vue'
 import BaseButton from '~/components/base_button.vue'
+import PasskeyLogin from '~/components/auth/passkey_login.vue'
 
 const props = defineProps<{ redirect?: string | null }>()
 
@@ -50,5 +52,13 @@ function submit() {
         {{ t('auth.login.submit') }}
       </BaseButton>
     </form>
+
+    <div class="mt-4">
+      <PasskeyLogin :redirect="props.redirect" />
+    </div>
+
+    <Link class="mt-6 text-sm underline" route="password.forgot" :params="{ locale }">
+      {{ t('auth.login.forgot') }}
+    </Link>
   </div>
 </template>

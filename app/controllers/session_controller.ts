@@ -1,8 +1,14 @@
+import { inject } from '@adonisjs/core'
 import User from '#models/user'
+import LoginRedirectService from '#services/login_redirect_service'
+import { clearLoginThrottle } from '#start/limiter'
 import { isSafeRedirectPath } from '#shared/helpers/safe_redirect'
 import type { HttpContext } from '@adonisjs/core/http'
 
+@inject()
 export default class SessionController {
+  constructor(private loginRedirect: LoginRedirectService) {}
+
   /**
    * `redirect` transporté en query string (ex. lien d'invitation) : ramène
    * l'utilisateur sur la page qu'il visitait après connexion.
@@ -14,23 +20,16 @@ export default class SessionController {
     })
   }
 
-  async store({ request, auth, response, i18n }: HttpContext) {
+  async store(ctx: HttpContext) {
+    const { request, auth } = ctx
     const { email, password } = request.all()
     const user = await User.verifyCredentials(email, password)
 
     await auth.use('web').login(user)
+    // Seuls les échecs consécutifs comptent : une connexion réussie remet à zéro.
+    await clearLoginThrottle(ctx)
 
-    const { redirect } = request.qs()
-    if (isSafeRedirectPath(redirect)) {
-      // `withQs(false)` : le projet active `forwardQueryString: true` par
-      // défaut (config/app.ts) — sans ça, la querystring de CETTE requête
-      // (`?redirect=...`) serait rajoutée à la cible au lieu d'être remplacée.
-      return response.redirect().withQs(false).toPath(redirect)
-    }
-    // Sans organisation courante → onboarding, sinon accueil. `withQs(false)` :
-    // ne jamais faire fuiter un `?redirect=...` non sûr vers la destination.
-    const route = user.currentOrganizationId ? 'home' : 'onboarding.show'
-    response.redirect().withQs(false).toRoute(route, { locale: i18n.locale })
+    return this.loginRedirect.redirect(ctx, user)
   }
 
   async destroy({ auth, response, i18n }: HttpContext) {

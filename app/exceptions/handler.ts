@@ -1,4 +1,5 @@
 import app from '@adonisjs/core/services/app'
+import { errors as limiterErrors } from '@adonisjs/limiter'
 import { type HttpContext, ExceptionHandler } from '@adonisjs/core/http'
 import type { StatusPageRange, StatusPageRenderer } from '@adonisjs/core/types/http'
 
@@ -30,7 +31,36 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * response to the client
    */
   async handle(error: unknown, ctx: HttpContext) {
+    if (error instanceof limiterErrors.E_TOO_MANY_REQUESTS && this.expectsPage(ctx)) {
+      return this.handleThrottled(error, ctx)
+    }
+
     return super.handle(error, ctx)
+  }
+
+  /**
+   * Écran Inertia ou navigation classique (par opposition à un client API qui
+   * attend du JSON) : `X-Inertia` prime, un `Accept: application/json` sans lui
+   * reste une requête API.
+   */
+  private expectsPage({ request }: HttpContext): boolean {
+    return Boolean(request.header('x-inertia')) || request.accepts(['html', 'json']) !== 'json'
+  }
+
+  /**
+   * Limite de débit dépassée sur un écran : retour sur le formulaire avec un
+   * message flash (jamais une page d'erreur 429 ni du JSON), `Retry-After`
+   * conservé pour les clients qui le lisent.
+   */
+  private handleThrottled(
+    error: InstanceType<typeof limiterErrors.E_TOO_MANY_REQUESTS>,
+    ctx: HttpContext
+  ) {
+    const minutes = Math.max(1, Math.ceil(error.response.availableIn / 60))
+
+    ctx.session.flash('error', ctx.i18n.t('auth.throttled', { minutes }))
+    ctx.response.header('Retry-After', String(error.response.availableIn))
+    return ctx.response.redirect().back()
   }
 
   /**

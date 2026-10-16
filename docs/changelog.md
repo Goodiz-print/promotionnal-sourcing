@@ -8,6 +8,232 @@ Aucune migration modifiée. Détail, extensions requises (`vector` 0.8.7, `pg_tr
 Suite backend vérifiée sur 18.6 (identique à pg16 : un échec préexistant sans lien avec
 PostgreSQL).
 
+## 2026-10-15 — Specs Vitest : mocks Inertia mutualisés (phase 4)
+
+- **`tests/inertia/support/inertia_mocks.ts`** : `inertiaPage`, `makeUseForm`,
+  `HeadStub`, `LinkStub`. 13 specs (`rfqs`, `supplier_rfqs`, `suppliers`,
+  `products`, `account`, `password_reset`…) n'y recopient plus le mock de
+  `@inertiajs/vue3` / `<Link>` ; `router`, `urlFor` et les mocks de composables
+  restent propres à chaque spec. Les specs aux mocks spécifiques (`passkeys`,
+  `organization_switcher`, `organization_danger_zone`, `verify_email`, `i18n`)
+  sont inchangés.
+- **`vitest.config.ts`** : `unstubGlobals: true`.
+- Aucun gain de vitesse attendu (Vitest tournait déjà en parallèle, ~10 s) :
+  c'est de la maintenabilité. 90 tests avant et après.
+
+## 2026-10-15 — Specs RFQ : factories et mail isolé (phase 3)
+
+- **Factories RFQ** : `RfqFactory` (états `published`), `RfqItemFactory`,
+  `RfqSupplierFactory` (état `sent`) dans `database/factories/`. Les specs
+  `rfq_screens` et `supplier_rfqs` n'utilisent plus de `Rfq.create` /
+  `RfqItem.create` / `RfqSupplier.create` inline (règle CLAUDE.md).
+- **Mail isolé** : le test « publier puis envoyer » de `rfq_screens.spec.ts`
+  passe sous `mail.fake()` — `send` met un mail en queue et, en
+  `QUEUE_DRIVER=sync`, il partirait sinon réellement vers SMTP.
+- Écarté : figer l'horloge dans les specs d'invitation (marges de ±1 à 7 jours,
+  aucun flake plausible).
+
+## 2026-10-15 — Tests backend : une transaction par test, au lieu d'un re-semis (phase 2)
+
+- **`useDatabase` (`tests/utils/setup.ts`)** : `truncate()` + seeders passent **une
+  fois par groupe** ; chaque test s'exécute dans une transaction globale
+  (`wrapInGlobalTransaction`) annulée à sa fin. Avant : vidage, `migration:run`,
+  re-semis (dont `MainSeeder` pour 5 groupes) et `db:truncate` **à chaque test**.
+  Mesuré en local sur la suite complète (210 tests) : ~43 s → ~26 s ; API des
+  specs inchangée.
+- Les séquences d'identifiants ne sont plus remises à zéro entre deux tests : ne
+  jamais dépendre d'un `id` en dur. Un groupe `perTest: false` reste en lecture seule.
+- `docs/tests.md` aligné sur le code.
+
+## 2026-10-15 — Connexion par passkey (WebAuthn)
+
+Un utilisateur peut enregistrer une ou plusieurs passkeys (empreinte, visage, code
+de l'appareil, clé de sécurité) et se connecter avec, **sans mot de passe ni saisie
+d'email**. Le mot de passe reste disponible : la passkey est une alternative, pas un
+remplacement.
+
+- **Table `passkeys`** (migration avec `down()`) — `user_id` (cascade), `credential_id`
+  (unique, base64url), `public_key` (COSE, base64url), `counter`, `transports`,
+  `device_type`, `backed_up`, `name`, `last_used_at`. Modèle `Passkey`, factory
+  `PasskeyFactory`.
+- **Librairies** — `@simplewebauthn/server` (vérification) et `@simplewebauthn/browser`
+  (cérémonie côté navigateur). Attestation `none`, identifiants **découvrables**
+  (`residentKey: required`), `userVerification: preferred`.
+- **Configuration** — `config/passkey.ts` : `rpID` et origine dérivés de `APP_URL`,
+  surchargeables par `PASSKEY_RP_ID` / `PASSKEY_ORIGIN` (optionnelles). ⚠️ Le `rpID`
+  lie les passkeys à un domaine : le changer les invalide toutes.
+- **Enregistrement** (page « mon compte », routes authentifiées hors `emailVerified`)
+  — `GET account/passkeys/options` (JSON, émet le défi), `POST account/passkeys`,
+  `PATCH` / `DELETE account/passkeys/:id` (renommer, supprimer ; strictement limité aux
+  passkeys du compte, 404 sinon). Nouvelle section `PasskeysSection` sur la page.
+- **Connexion** (routes `guest`) — `GET passkeys/options` (JSON) puis
+  `POST passkeys/login`. Bouton « Se connecter avec une passkey » sur `login.vue`
+  (masqué si le navigateur ne supporte pas WebAuthn). Même destination qu'un login par
+  mot de passe (`?redirect=` sûr, sinon onboarding / accueil) via `LoginRedirectService`,
+  désormais partagé avec `SessionController`.
+- **Sécurité** — défi stocké en **session**, à usage unique (retiré dès la première
+  vérification, échouée ou non) et valable 5 min ; origine et `rpID` vérifiés ; compteur
+  de signatures contrôlé (authentificateur cloné refusé) ; message d'échec unique et
+  générique, sans indiquer si une passkey existe. Limiteur `passkey-login` : 20 / 15 min
+  par IP.
+- **RGPD** — la suppression du compte (anonymisation) supprime aussi ses passkeys.
+- **Endpoints JSON** — seules les deux routes `options` répondent en JSON (en `GET`, sans
+  effet de bord hors session) : le navigateur en a besoin pour parler à
+  l'authentificateur. Le résultat repart par une mutation Inertia (`useForm`) et une
+  redirection.
+- **Tests** — `tests/functional/passkeys.spec.ts` (21) contre la vraie vérification
+  WebAuthn grâce à `FakeAuthenticator` (`tests/utils/fake_authenticator.ts`),
+  `tests/inertia/passkeys.spec.ts` (9).
+
+## 2026-10-15 — Rate limiting sur l'authentification (#46)
+
+`POST /login`, `POST /signup`, la demande de mot de passe oublié et le renvoi du
+mail de vérification ne sont plus appelables sans limite (force brute, création
+de comptes en masse, spam de boîtes mail).
+
+- **`@adonisjs/limiter`** — `config/limiter.ts`, table `rate_limits` (migration
+  avec `down()`), provider enregistré. Variable d'environnement
+  **`LIMITER_STORE`** (`database` | `memory`), **obligatoire** : `database` en
+  production (compteurs partagés entre instances), `memory` pour les tests
+  (`.env.test`, CI). Documentée dans `.env.example`.
+- **Limiteurs nommés** (`start/limiter.ts`), appliqués route par route :
+  | Limiteur | Clé | Limite |
+  | --- | --- | --- |
+  | `login` | IP + email (insensible à la casse) | 5 / 15 min |
+  | `signup` | IP | 10 / heure |
+  | `password-reset` | email | 5 / heure |
+  | `email-verification-resend` | compte (IP à défaut) | 5 / heure |
+- **Seuls les échecs de login comptent** — une connexion réussie remet le
+  compteur à zéro (`clearLoginThrottle`). La 6ᵉ tentative est bloquée, même avec
+  le bon mot de passe.
+- **Réponse Inertia, pas JSON** — `HttpExceptionHandler` convertit
+  `E_TOO_MANY_REQUESTS` en `redirect().back()` + message flash `auth.throttled`
+  (« Trop de tentatives. Réessayez dans N min. »), avec l'en-tête `Retry-After`.
+  Un client API (`Accept: application/json` sans `X-Inertia`) reçoit un 429.
+- **Tests** — `tests/functional/rate_limiting.spec.ts` (8). `useDatabase` vide les
+  compteurs avant chaque test : toutes les requêtes de test partagent la même IP
+  et s'accumuleraient sinon d'une spec à l'autre. Non couvert : l'expiration de
+  la fenêtre (pas d'horloge injectable dans le projet) ; la remise à zéro est
+  vérifiée par le succès de login.
+- **Déploiement** — définir `LIMITER_STORE=database` et jouer la migration
+  `create_rate_limits_table` avant de démarrer ; l'application refuse de booter
+  sans cette variable.
+
+## 2026-10-15 — Page « mon compte » et suppression RGPD — Compte utilisateur, PR 3/3 (#45)
+
+Un utilisateur gère son profil, son mot de passe et peut supprimer son compte.
+Clôt l'issue #45 (avec les PR 1 et 2).
+
+- **Routes** (auth, **hors `emailVerified`** : un compte non vérifié doit pouvoir
+  corriger une adresse mal saisie ou supprimer son compte) — `account.show`
+  (`GET /:locale/account`), `account.update` (`PATCH /account`),
+  `account.password.update` (`PATCH /account/password`), `account.destroy`
+  (`DELETE /account`). Lien depuis les initiales de l'en-tête.
+- **Page** `account/show.vue` découpée en trois composants
+  (`components/account/{profile_form,password_form,danger_zone}.vue`) : nom,
+  email, langue ; mot de passe ; zone de danger.
+- **Changement d'email** — remet `email_verified_at` à `NULL`, envoie le mail de
+  vérification à la **nouvelle** adresse et renvoie l'utilisateur sur l'écran de
+  vérification. L'unicité est insensible à la casse et exclut le compte lui-même.
+- **Changement de mot de passe** — exige le mot de passe actuel (erreur de champ
+  sinon) et refuse un nouveau mot de passe identique à l'ancien.
+- **Suppression = anonymisation**, pas `DELETE` : des RFQ
+  (`created_by_user_id`) et des invitations référencent l'utilisateur. La ligne
+  `users` est conservée mais vidée — email `deleted-<id>@anonymized.invalid`,
+  nom effacé, mot de passe remplacé par un secret aléatoire (connexion
+  impossible), langue remise par défaut, adhésions supprimées, invitations en
+  attente adressées à l'ancien email supprimées. L'adresse d'origine est libérée.
+  Les demandes de devis restent, sans nom d'auteur. Exige le mot de passe actuel,
+  puis déconnecte.
+- **Refus pour le dernier owner** d'une organisation **non archivée**
+  (`AccountService#blockingOrganizations`, même invariant que
+  `OrganizationService#leave`). La page liste ces organisations et masque le
+  formulaire ; une organisation archivée ne retient personne.
+- **Classes** — `AccountService`, `AccountController`, `AccountTransformer`,
+  validators `app/validators/account.ts`, erreurs `app/exceptions/account_errors.ts`,
+  types `shared/types/account.ts` (`AccountType` est un `type`, pas une
+  `interface` : DTO de page Inertia).
+- **Tests** — `tests/functional/account.spec.ts` (13) et
+  `tests/inertia/account.spec.ts` (6).
+
+## 2026-10-15 — Vérification d'email — Compte utilisateur, PR 2/3 (#45)
+
+Un compte n'est utilisable qu'une fois son adresse email confirmée.
+
+- **Colonne `users.email_verified_at`** (migration `…972`). Les comptes
+  **existants sont marqués vérifiés** par la migration : sans ça, le déploiement
+  bloquerait tous les utilisateurs actuels.
+- **Mail à l'inscription** — nouveau `kind` `email-verification` de `SendMailJob`
+  (`EmailVerificationNotification` + `emails/email_verification.edge`), lien signé
+  valable 24 h (`EMAIL_VERIFICATION_TTL_HOURS`). Un échec de mise en queue est
+  loggué en `warn` et ne défait pas l'inscription : l'écran de vérification
+  propose de renvoyer le mail.
+- **Routes** — `email.verify` (`GET /:locale/email/verify/:id`, lien signé,
+  **hors `auth`** : il peut s'ouvrir dans un autre navigateur), `email.notice`
+  (`GET /email/verify`, écran bloquant) et `email.verification.resend`
+  (`POST /email/verification/resend`).
+- **Lien lié à l'adresse** — l'URL embarque une empreinte HMAC (`v`) de l'email :
+  changer d'adresse avant de cliquer invalide l'ancien lien.
+- **Middleware `emailVerified`** — placé après `auth` et **avant** `onboarded` :
+  l'onboarding, l'acceptation d'invitation et tous les écrans d'organisation
+  exigent une adresse vérifiée. Déconnexion, écran de vérification et renvoi en
+  sont exemptés.
+- **Inscription** — redirige désormais vers `email.notice` (et non plus vers
+  l'onboarding), sauf paramètre `redirect` explicite.
+- **`UserFactory`** — compte vérifié par défaut, état `unverified` pour les
+  specs qui portent sur la vérification. `DevUserSeeder` : compte de démo vérifié.
+- **Tests** — `tests/functional/email_verification.spec.ts` (9), un test de
+  `kind` dans `tests/unit/send_mail_job.spec.ts`, `tests/inertia/verify_email.spec.ts`.
+  Les specs qui s'inscrivent (`auth`, `onboarding`, `organization_invitation_acceptance`)
+  utilisent `mail.fake()` : en driver `sync`, le mail d'inscription tenterait
+  sinon un vrai SMTP. Suite backend : 228 tests.
+
+## 2026-10-15 — Mot de passe oublié — Compte utilisateur, PR 1/3 (#45)
+
+Un utilisateur qui a perdu son mot de passe peut en choisir un nouveau par mail.
+
+- **Routes `guest`** — `password.forgot` / `password.email` (`GET`/`POST
+/:locale/password/forgot`) et `password.reset` / `password.update` (`GET`/`POST
+/:locale/password/reset/:id`). Lien « Mot de passe oublié ? » depuis `login.vue`,
+  pages `auth/forgot_password.vue` et `auth/reset_password.vue`.
+- **Sans table** — le lien est une URL signée AdonisJS (`purpose: password-reset`,
+  validité 60 min, `PASSWORD_RESET_TTL_MINUTES`). Le paramètre de route est `:id`
+  (le compte visé) et non `:token` comme l'esquissait l'issue : aucun token n'est
+  stocké.
+- **Lien à usage unique** — l'URL embarque une empreinte HMAC (`v`) du hash du
+  mot de passe courant ; dès que le mot de passe change, l'empreinte ne
+  correspond plus et le lien est mort. La signature couvre la querystring.
+- **Pas d'énumération de comptes** — la demande répond pareil que l'email existe
+  ou non ; un email inconnu n'envoie rien. Un lien invalide ou périmé redirige
+  vers « mot de passe oublié » avec un message.
+- **Mail** — nouveau `kind` `password-reset` de `SendMailJob`
+  (`PasswordResetNotification` + `emails/password_reset.edge`).
+- **Services** — `PasswordResetService` (`request`, `resolve`, `reset`),
+  validators `app/validators/password.ts`, constantes dans `shared/types/auth.ts`.
+- **Tests** — `tests/functional/password_reset.spec.ts` (7), un test de
+  reconstruction du `kind` dans `tests/unit/send_mail_job.spec.ts`,
+  `tests/inertia/password_reset.spec.ts` (2).
+
+## 2026-10-15 — CI plus rapide et plus fiable (phase 1)
+
+- **Annulation des runs obsolètes** : `concurrency` par ref — un nouveau push sur
+  une PR annule le run en cours (jamais sur `main`). `permissions: contents: read`.
+- **`timeout-minutes` sur chaque job** (10 à 15 min) : un test qui ne rend pas la
+  main (`forceExit: false`) ne bloque plus un runner pendant 6 h.
+- **Typecheck en CI** : `pnpm typecheck` (tsc + vue-tsc) tourne désormais après
+  `pnpm run build` dans le job `build`, qui génère les `#generated/*` requis.
+- **Correctif CI — `jsonschema` vs Node ≥ 24.21** : `@adonisjs/ace` valide les
+  commandes de l'app (`commands/*`) avec `jsonschema@1.5.0`, qui résout les
+  `$ref` via `new URL(…, 'thismessage::/')` — base invalide pour le parseur d'URL
+  de Node 24.21 (`TypeError: Invalid URL`). Toute commande ace applicative
+  (`embeddings:backfill`) et donc le premier `truncate()` des tests plantaient
+  dès que le runner passait de Node 24.19 à 24.21 (`main` aurait été rouge
+  aussi). Patch pnpm minimal (`patches/jsonschema@1.5.0.patch`, base
+  `thismessage:/`) ; à retirer quand `jsonschema` publie un correctif.
+- **Setup factorisé** : action composite `.github/actions/setup` (pnpm, Node,
+  `pnpm install --frozen-lockfile`) utilisée par les 4 jobs ; variables d'env de
+  test déclarées une seule fois au niveau du workflow.
+
 ## 2026-08-21 — Écrans fournisseur et notification des demandes de devis — Phase 3, PR 3/3 (#4)
 
 La boucle RFQ est complète : ce que l'acheteur envoie, le fournisseur le reçoit,

@@ -8,6 +8,13 @@
 */
 
 import { middleware } from '#start/kernel'
+import {
+  emailVerificationResendThrottle,
+  loginThrottle,
+  passkeyLoginThrottle,
+  passwordResetThrottle,
+  signupThrottle,
+} from '#start/limiter'
 import { registerRfqRoutes } from '#start/routes/rfqs'
 import { controllers } from '#generated/controllers'
 import router from '@adonisjs/core/services/router'
@@ -54,13 +61,37 @@ router
       ])
       .as('organization.invitations.show')
 
+    // Lien de vérification d'email reçu par mail : URL signée, hors `auth` (peut
+    // être ouvert depuis un autre navigateur que celui de l'inscription).
+    router.get('email/verify/:id', [controllers.EmailVerification, 'verify']).as('email.verify')
+
     router
       .group(() => {
         router.get('signup', [controllers.NewAccount, 'create'])
-        router.post('signup', [controllers.NewAccount, 'store'])
+        router.post('signup', [controllers.NewAccount, 'store']).use(signupThrottle)
 
         router.get('login', [controllers.Session, 'create'])
-        router.post('login', [controllers.Session, 'store'])
+        router.post('login', [controllers.Session, 'store']).use(loginThrottle)
+
+        // Connexion par passkey : `options` émet le défi, `login` vérifie la signature.
+        router
+          .get('passkeys/options', [controllers.PasskeySession, 'options'])
+          .as('passkey.login.options')
+        router
+          .post('passkeys/login', [controllers.PasskeySession, 'store'])
+          .as('passkey.login')
+          .use(passkeyLoginThrottle)
+
+        router.get('password/forgot', [controllers.PasswordReset, 'create']).as('password.forgot')
+        router
+          .post('password/forgot', [controllers.PasswordReset, 'store'])
+          .as('password.email')
+          .use(passwordResetThrottle)
+        // Lien signé à usage unique (cf. PasswordResetService) : `:id` = compte visé.
+        router.get('password/reset/:id', [controllers.PasswordReset, 'edit']).as('password.reset')
+        router
+          .post('password/reset/:id', [controllers.PasswordReset, 'update'])
+          .as('password.update')
       })
       .use(middleware.guest())
 
@@ -68,131 +99,165 @@ router
       .group(() => {
         router.post('logout', [controllers.Session, 'destroy'])
 
-        router.get('onboarding', [controllers.Onboarding, 'show']).as('onboarding.show')
-        router.post('onboarding', [controllers.Onboarding, 'store']).as('onboarding.store')
-
-        // Acceptation d'une invitation : hors `onboarded`, un invité sans
-        // organisation ne doit pas être bloqué vers l'onboarding avant d'avoir
-        // pu accepter (même exemption que onboarding/logout ci-dessus).
+        // Écran bloquant et renvoi : exemptés d'`emailVerified` par construction.
+        router.get('email/verify', [controllers.EmailVerification, 'notice']).as('email.notice')
         router
-          .post('organization/invitations/:id/accept', [
-            controllers.organization.InvitationAcceptance,
-            'accept',
-          ])
-          .as('organization.invitations.accept')
+          .post('email/verification/resend', [controllers.EmailVerification, 'resend'])
+          .as('email.verification.resend')
+          .use(emailVerificationResendThrottle)
 
-        // Écrans nécessitant une organisation : gardés par `onboarded`.
+        // Page « mon compte » : exemptée d'`emailVerified` (corriger une adresse
+        // mal saisie, supprimer son compte).
+        router.get('account', [controllers.Account, 'show']).as('account.show')
+        router.patch('account', [controllers.Account, 'update']).as('account.update')
+        router
+          .patch('account/password', [controllers.Account, 'updatePassword'])
+          .as('account.password.update')
+        router.delete('account', [controllers.Account, 'destroy']).as('account.destroy')
+
+        // Passkeys du compte. `options` répond en JSON (cérémonie WebAuthn côté
+        // navigateur), le reste en redirections Inertia.
+        router
+          .get('account/passkeys/options', [controllers.Passkey, 'options'])
+          .as('account.passkeys.options')
+        router.post('account/passkeys', [controllers.Passkey, 'store']).as('account.passkeys.store')
+        router
+          .patch('account/passkeys/:id', [controllers.Passkey, 'update'])
+          .as('account.passkeys.update')
+        router
+          .delete('account/passkeys/:id', [controllers.Passkey, 'destroy'])
+          .as('account.passkeys.destroy')
+
+        // Tout le reste exige une adresse vérifiée, avant même l'onboarding.
         router
           .group(() => {
-            // Paramètres généraux de l'organisation courante (nom, coordonnées, logo).
-            router
-              .get('organization/settings', [controllers.organization.Settings, 'show'])
-              .as('organization.settings')
-            // POST (et non PATCH) pour porter le corps multipart de l'upload du logo.
-            router
-              .post('organization/settings', [controllers.organization.Settings, 'update'])
-              .as('organization.settings.update')
+            router.get('onboarding', [controllers.Onboarding, 'show']).as('onboarding.show')
+            router.post('onboarding', [controllers.Onboarding, 'store']).as('onboarding.store')
 
-            // Cycle de vie : bascule d'organisation (sélecteur, affiché au-delà
-            // d'une organisation) et création d'une organisation supplémentaire.
+            // Acceptation d'une invitation : hors `onboarded`, un invité sans
+            // organisation ne doit pas être bloqué vers l'onboarding avant d'avoir
+            // pu accepter (même exemption que onboarding/logout ci-dessus).
             router
-              .post('organization/switch/:id', [controllers.organization.Lifecycle, 'switch'])
-              .as('organization.switch')
-            router
-              .get('organization/new', [controllers.organization.Lifecycle, 'create'])
-              .as('organization.create')
-            router
-              .post('organization/new', [controllers.organization.Lifecycle, 'store'])
-              .as('organization.store')
-
-            // Départ volontaire et archivage de l'organisation courante.
-            router
-              .delete('organization/leave', [controllers.organization.Lifecycle, 'leave'])
-              .as('organization.leave')
-            router
-              .post('organization/archive', [controllers.organization.Lifecycle, 'archive'])
-              .as('organization.archive')
-
-            // Gestion des membres de l'organisation courante (rôle, retrait).
-            router
-              .get('organization/members', [controllers.organization.Members, 'index'])
-              .as('organization.members')
-            router
-              .patch('organization/members/:id', [controllers.organization.Members, 'update'])
-              .as('organization.members.update')
-            router
-              .delete('organization/members/:id', [controllers.organization.Members, 'destroy'])
-              .as('organization.members.destroy')
-
-            // Invitation de nouveaux membres par email (owner/admin/manager).
-            router
-              .post('organization/invitations', [controllers.organization.Invitations, 'store'])
-              .as('organization.invitations.store')
-            router
-              .post('organization/invitations/:id/resend', [
-                controllers.organization.Invitations,
-                'resend',
+              .post('organization/invitations/:id/accept', [
+                controllers.organization.InvitationAcceptance,
+                'accept',
               ])
-              .as('organization.invitations.resend')
-            router
-              .delete('organization/invitations/:id', [
-                controllers.organization.Invitations,
-                'destroy',
-              ])
-              .as('organization.invitations.destroy')
+              .as('organization.invitations.accept')
 
+            // Écrans nécessitant une organisation : gardés par `onboarded`.
             router
-              .get('supplier/profile', [controllers.supplier.Profile, 'show'])
-              .as('supplier.profile')
-            router
-              .patch('supplier/profile', [controllers.supplier.Profile, 'update'])
-              .as('supplier.profile.update')
+              .group(() => {
+                // Paramètres généraux de l'organisation courante (nom, coordonnées, logo).
+                router
+                  .get('organization/settings', [controllers.organization.Settings, 'show'])
+                  .as('organization.settings')
+                // POST (et non PATCH) pour porter le corps multipart de l'upload du logo.
+                router
+                  .post('organization/settings', [controllers.organization.Settings, 'update'])
+                  .as('organization.settings.update')
 
-            // Gestion des produits par le fournisseur (CRUD + upload images).
-            router
-              .get('supplier/products', [controllers.supplier.Product, 'index'])
-              .as('supplier.products.index')
-            router
-              .get('supplier/products/new', [controllers.supplier.Product, 'create'])
-              .as('supplier.products.create')
-            router
-              .post('supplier/products', [controllers.supplier.Product, 'store'])
-              .as('supplier.products.store')
-            router
-              .get('supplier/products/:id/edit', [controllers.supplier.Product, 'edit'])
-              .as('supplier.products.edit')
-            // POST (et non PATCH) pour porter le corps multipart de l'upload.
-            router
-              .post('supplier/products/:id', [controllers.supplier.Product, 'update'])
-              .as('supplier.products.update')
-            router
-              .delete('supplier/products/:id', [controllers.supplier.Product, 'destroy'])
-              .as('supplier.products.destroy')
+                // Cycle de vie : bascule d'organisation (sélecteur, affiché au-delà
+                // d'une organisation) et création d'une organisation supplémentaire.
+                router
+                  .post('organization/switch/:id', [controllers.organization.Lifecycle, 'switch'])
+                  .as('organization.switch')
+                router
+                  .get('organization/new', [controllers.organization.Lifecycle, 'create'])
+                  .as('organization.create')
+                router
+                  .post('organization/new', [controllers.organization.Lifecycle, 'store'])
+                  .as('organization.store')
 
-            // Demandes de devis, acheteur et fournisseur — cf. `start/routes/rfqs.ts`.
-            registerRfqRoutes()
+                // Départ volontaire et archivage de l'organisation courante.
+                router
+                  .delete('organization/leave', [controllers.organization.Lifecycle, 'leave'])
+                  .as('organization.leave')
+                router
+                  .post('organization/archive', [controllers.organization.Lifecycle, 'archive'])
+                  .as('organization.archive')
 
-            // Administration de la taxonomie du catalogue (catégories globales).
-            router
-              .get('admin/categories', [controllers.admin.Category, 'index'])
-              .as('admin.categories.index')
-            router
-              .get('admin/categories/new', [controllers.admin.Category, 'create'])
-              .as('admin.categories.create')
-            router
-              .post('admin/categories', [controllers.admin.Category, 'store'])
-              .as('admin.categories.store')
-            router
-              .get('admin/categories/:id/edit', [controllers.admin.Category, 'edit'])
-              .as('admin.categories.edit')
-            router
-              .patch('admin/categories/:id', [controllers.admin.Category, 'update'])
-              .as('admin.categories.update')
-            router
-              .delete('admin/categories/:id', [controllers.admin.Category, 'destroy'])
-              .as('admin.categories.destroy')
+                // Gestion des membres de l'organisation courante (rôle, retrait).
+                router
+                  .get('organization/members', [controllers.organization.Members, 'index'])
+                  .as('organization.members')
+                router
+                  .patch('organization/members/:id', [controllers.organization.Members, 'update'])
+                  .as('organization.members.update')
+                router
+                  .delete('organization/members/:id', [controllers.organization.Members, 'destroy'])
+                  .as('organization.members.destroy')
+
+                // Invitation de nouveaux membres par email (owner/admin/manager).
+                router
+                  .post('organization/invitations', [controllers.organization.Invitations, 'store'])
+                  .as('organization.invitations.store')
+                router
+                  .post('organization/invitations/:id/resend', [
+                    controllers.organization.Invitations,
+                    'resend',
+                  ])
+                  .as('organization.invitations.resend')
+                router
+                  .delete('organization/invitations/:id', [
+                    controllers.organization.Invitations,
+                    'destroy',
+                  ])
+                  .as('organization.invitations.destroy')
+
+                router
+                  .get('supplier/profile', [controllers.supplier.Profile, 'show'])
+                  .as('supplier.profile')
+                router
+                  .patch('supplier/profile', [controllers.supplier.Profile, 'update'])
+                  .as('supplier.profile.update')
+
+                // Gestion des produits par le fournisseur (CRUD + upload images).
+                router
+                  .get('supplier/products', [controllers.supplier.Product, 'index'])
+                  .as('supplier.products.index')
+                router
+                  .get('supplier/products/new', [controllers.supplier.Product, 'create'])
+                  .as('supplier.products.create')
+                router
+                  .post('supplier/products', [controllers.supplier.Product, 'store'])
+                  .as('supplier.products.store')
+                router
+                  .get('supplier/products/:id/edit', [controllers.supplier.Product, 'edit'])
+                  .as('supplier.products.edit')
+                // POST (et non PATCH) pour porter le corps multipart de l'upload.
+                router
+                  .post('supplier/products/:id', [controllers.supplier.Product, 'update'])
+                  .as('supplier.products.update')
+                router
+                  .delete('supplier/products/:id', [controllers.supplier.Product, 'destroy'])
+                  .as('supplier.products.destroy')
+
+                // Demandes de devis, acheteur et fournisseur — cf. `start/routes/rfqs.ts`.
+                registerRfqRoutes()
+
+                // Administration de la taxonomie du catalogue (catégories globales).
+                router
+                  .get('admin/categories', [controllers.admin.Category, 'index'])
+                  .as('admin.categories.index')
+                router
+                  .get('admin/categories/new', [controllers.admin.Category, 'create'])
+                  .as('admin.categories.create')
+                router
+                  .post('admin/categories', [controllers.admin.Category, 'store'])
+                  .as('admin.categories.store')
+                router
+                  .get('admin/categories/:id/edit', [controllers.admin.Category, 'edit'])
+                  .as('admin.categories.edit')
+                router
+                  .patch('admin/categories/:id', [controllers.admin.Category, 'update'])
+                  .as('admin.categories.update')
+                router
+                  .delete('admin/categories/:id', [controllers.admin.Category, 'destroy'])
+                  .as('admin.categories.destroy')
+              })
+              .use(middleware.onboarded())
           })
-          .use(middleware.onboarded())
+          .use(middleware.emailVerified())
       })
       .use(middleware.auth())
   })

@@ -1,8 +1,10 @@
 import { test } from '@japa/runner'
 import { DateTime } from 'luxon'
 import { OrganizationFactory } from '#database/factories/organization_factory'
-import Rfq from '#models/rfq'
-import RfqItem from '#models/rfq_item'
+import { RfqFactory } from '#database/factories/rfq_factory'
+import { RfqItemFactory } from '#database/factories/rfq_item_factory'
+import { RfqSupplierFactory } from '#database/factories/rfq_supplier_factory'
+import type Rfq from '#models/rfq'
 import RfqSupplier from '#models/rfq_supplier'
 import { createMember } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
@@ -19,20 +21,25 @@ async function publishedRfq(
   supplier: Organization,
   status: RfqSupplierStatus = 'sent'
 ): Promise<Rfq> {
-  const rfq = await Rfq.create({
+  const rfq = await RfqFactory.merge({
     buyerOrganizationId: buyer.id,
     title: 'Tote bags coton bio',
     description: 'Sérigraphie 1 couleur',
     status: 'published',
     publishedAt: DateTime.now(),
-  })
-  await RfqItem.create({ rfqId: rfq.id, name: 'Tote bag 240g', quantity: 500, unit: 'pièce' })
-  await RfqSupplier.create({
+  }).create()
+  await RfqItemFactory.merge({
+    rfqId: rfq.id,
+    name: 'Tote bag 240g',
+    quantity: 500,
+    unit: 'pièce',
+  }).create()
+  await RfqSupplierFactory.merge({
     rfqId: rfq.id,
     supplierOrganizationId: supplier.id,
     status,
     sentAt: status === 'pending' ? null : DateTime.now(),
-  })
+  }).create()
   return rfq
 }
 

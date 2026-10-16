@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from 'vitest'
-import { reactive } from 'vue'
 import { mount } from '@vue/test-utils'
 
 const translations = {
@@ -33,23 +32,20 @@ const translations = {
   'organization.logo.cancel': 'Annuler',
 }
 
-vi.mock('@inertiajs/vue3', () => ({
-  usePage: () => ({ props: { locale: 'fr', supportedLocales: ['fr', 'en'], translations } }),
-  useForm: (data: Record<string, unknown>) =>
-    reactive({
-      ...data,
-      errors: {},
-      processing: false,
-      transform() {
-        return this
-      },
-      post: vi.fn(),
-    }),
-  Head: { render: () => null },
-}))
+vi.mock('@inertiajs/vue3', async () => {
+  const m = await import('./support/inertia_mocks')
+  return {
+    usePage: () => m.inertiaPage(translations),
+    useForm: m.makeUseForm(),
+    Head: m.HeadStub,
+  }
+})
 
 vi.mock('~/client', () => ({ urlFor: () => '/fr/organization/settings' }))
-vi.mock('@adonisjs/inertia/vue', () => ({ Link: { template: '<a><slot /></a>' } }))
+vi.mock('@adonisjs/inertia/vue', async () => {
+  const { LinkStub } = await import('./support/inertia_mocks')
+  return { Link: LinkStub }
+})
 
 const { default: OrganizationSettings } = await import('~/pages/organization/settings.vue')
 

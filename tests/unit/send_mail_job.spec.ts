@@ -2,6 +2,8 @@ import { test } from '@japa/runner'
 import mail from '@adonisjs/mail/services/main'
 import SendMailJob from '#jobs/send_mail_job'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
+import EmailVerificationNotification from '#mails/email_verification_notification'
+import PasswordResetNotification from '#mails/password_reset_notification'
 import RfqReceivedNotification from '#mails/rfq_received_notification'
 import { MAIL_KINDS, type SendMailPayload } from '#shared/types/mail'
 
@@ -82,6 +84,50 @@ test.group('SendMailJob', (group) => {
         fields.rfqTitle === 'Tote bags coton bio' &&
         fields.itemCount === 2 &&
         fields.rfqPath === '/fr/supplier/rfqs/12'
+      )
+    })
+  })
+
+  test('reconstruit le mail de réinitialisation de mot de passe depuis la charge', async () => {
+    const payload: SendMailPayload = {
+      kind: MAIL_KINDS.passwordReset,
+      to: 'membre@example.com',
+      data: {
+        resetUrl: 'https://example.test/fr/password/reset/1?signature=abc',
+        expiresInMinutes: 60,
+      },
+    }
+
+    await jobFor(payload).execute()
+
+    fakeMailer.mails.assertSent(PasswordResetNotification, (sent) => {
+      const fields = sent as unknown as Record<string, unknown>
+      return (
+        fields.email === 'membre@example.com' &&
+        fields.resetUrl === payload.data.resetUrl &&
+        fields.expiresInMinutes === 60
+      )
+    })
+  })
+
+  test("reconstruit le mail de vérification d'adresse depuis la charge", async () => {
+    const payload: SendMailPayload = {
+      kind: MAIL_KINDS.emailVerification,
+      to: 'nouveau@example.com',
+      data: {
+        verifyUrl: 'https://example.test/fr/email/verify/1?signature=abc',
+        expiresInHours: 24,
+      },
+    }
+
+    await jobFor(payload).execute()
+
+    fakeMailer.mails.assertSent(EmailVerificationNotification, (sent) => {
+      const fields = sent as unknown as Record<string, unknown>
+      return (
+        fields.email === 'nouveau@example.com' &&
+        fields.verifyUrl === payload.data.verifyUrl &&
+        fields.expiresInHours === 24
       )
     })
   })

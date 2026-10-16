@@ -14,11 +14,28 @@ export type ScannedRoutes = {
     'products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'slug': ParamValue} }
     'organization.invitations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'email.verify': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'new_account.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'passkey.login.options': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'passkey.login': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'password.forgot': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'password.email': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'password.reset': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'password.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'session.destroy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'email.notice': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'email.verification.resend': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'account.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'account.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'account.password.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'account.destroy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'account.passkeys.options': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'account.passkeys.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'account.passkeys.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'account.passkeys.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'onboarding.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'onboarding.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.invitations.accept': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -71,8 +88,15 @@ export type ScannedRoutes = {
     'products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'slug': ParamValue} }
     'organization.invitations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'email.verify': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'passkey.login.options': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'password.forgot': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'password.reset': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'email.notice': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'account.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'account.passkeys.options': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'onboarding.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.settings': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -98,8 +122,15 @@ export type ScannedRoutes = {
     'products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'slug': ParamValue} }
     'organization.invitations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'email.verify': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'passkey.login.options': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'password.forgot': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'password.reset': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'email.notice': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'account.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'account.passkeys.options': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'onboarding.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.settings': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -123,7 +154,12 @@ export type ScannedRoutes = {
     'locale.update': { paramsTuple?: []; params?: {} }
     'new_account.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'passkey.login': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'password.email': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'password.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'session.destroy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'email.verification.resend': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'account.passkeys.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'onboarding.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.invitations.accept': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'organization.settings.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -142,19 +178,24 @@ export type ScannedRoutes = {
     'supplier.rfqs.decline': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.categories.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
   }
+  PATCH: {
+    'account.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'account.password.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'account.passkeys.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'organization.members.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.profile.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'rfqs.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.categories.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+  }
   DELETE: {
+    'account.destroy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'account.passkeys.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'organization.leave': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.members.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'organization.invitations.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.products.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.suppliers.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'supplierId': ParamValue} }
     'admin.categories.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
-  }
-  PATCH: {
-    'organization.members.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
-    'supplier.profile.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
-    'rfqs.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
-    'admin.categories.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
   }
 }
 declare module '@adonisjs/core/types/http' {

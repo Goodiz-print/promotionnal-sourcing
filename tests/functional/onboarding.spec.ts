@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import mail from '@adonisjs/mail/services/main'
 import { OrganizationFactory } from '#database/factories/organization_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import Organization from '#models/organization'
@@ -7,8 +8,16 @@ import { useDatabase } from '#tests/utils/setup'
 
 test.group('Onboarding — création de la 1re organisation', (group) => {
   useDatabase(group)
+  // L'inscription met un mail de vérification en queue (driver `sync` en test) :
+  // sans faux mailer, il tenterait un vrai SMTP et attendrait son timeout.
+  group.each.setup(() => {
+    mail.fake()
+    return () => mail.restore()
+  })
 
-  test("l'inscription redirige vers l'onboarding", async ({ client }) => {
+  test("l'inscription redirige vers la vérification d'email avant l'onboarding", async ({
+    client,
+  }) => {
     const response = await client.post('/fr/signup').redirects(0).withCsrfToken().json({
       fullName: 'Nouveau',
       email: 'new@example.com',
@@ -17,7 +26,7 @@ test.group('Onboarding — création de la 1re organisation', (group) => {
     })
 
     response.assertStatus(302)
-    response.assertHeader('location', '/fr/onboarding')
+    response.assertHeader('location', '/fr/email/verify')
   })
 
   test("l'écran d'onboarding s'affiche pour un utilisateur sans organisation", async ({

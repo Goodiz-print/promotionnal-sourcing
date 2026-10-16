@@ -38,6 +38,13 @@ export interface ApiDefinition {
       destroy: typeof routes['organization.members.destroy']
     }
   }
+  email: {
+    verify: typeof routes['email.verify']
+    notice: typeof routes['email.notice']
+    verification: {
+      resend: typeof routes['email.verification.resend']
+    }
+  }
   newAccount: {
     create: typeof routes['new_account.create']
     store: typeof routes['new_account.store']
@@ -46,6 +53,31 @@ export interface ApiDefinition {
     create: typeof routes['session.create']
     store: typeof routes['session.store']
     destroy: typeof routes['session.destroy']
+  }
+  passkey: {
+    login: typeof routes['passkey.login'] & {
+      options: typeof routes['passkey.login.options']
+    }
+  }
+  password: {
+    forgot: typeof routes['password.forgot']
+    email: typeof routes['password.email']
+    reset: typeof routes['password.reset']
+    update: typeof routes['password.update']
+  }
+  account: {
+    show: typeof routes['account.show']
+    update: typeof routes['account.update']
+    password: {
+      update: typeof routes['account.password.update']
+    }
+    destroy: typeof routes['account.destroy']
+    passkeys: {
+      options: typeof routes['account.passkeys.options']
+      store: typeof routes['account.passkeys.store']
+      update: typeof routes['account.passkeys.update']
+      destroy: typeof routes['account.passkeys.destroy']
+    }
   }
   onboarding: {
     show: typeof routes['onboarding.show']

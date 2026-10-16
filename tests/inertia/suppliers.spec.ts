@@ -22,11 +22,14 @@ const translations = {
   'supplier.deliveryScope.europe': 'Europe',
 }
 
-vi.mock('@inertiajs/vue3', () => ({
-  usePage: () => ({ props: { locale: 'fr', supportedLocales: ['fr', 'en'], translations } }),
-  router: { get: vi.fn() },
-  Head: { render: () => null },
-}))
+vi.mock('@inertiajs/vue3', async () => {
+  const m = await import('./support/inertia_mocks')
+  return {
+    usePage: () => m.inertiaPage(translations),
+    router: { get: vi.fn() },
+    Head: m.HeadStub,
+  }
+})
 vi.mock('~/client', () => ({ urlFor: () => '/fr/suppliers' }))
 vi.mock('@adonisjs/inertia/vue', () => ({
   Link: { template: '<a><slot /></a>' },

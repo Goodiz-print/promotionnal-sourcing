@@ -1,0 +1,54 @@
+{
+  "title": "Mon compte",
+  "subtitle": "Gérez vos informations personnelles, votre mot de passe et votre compte.",
+  "profile": {
+    "title": "Informations personnelles",
+    "language": "Langue",
+    "submit": "Enregistrer",
+    "saved": "Vos informations ont été enregistrées.",
+    "emailChanged": "Votre adresse a changé : confirmez-la via le lien que nous venons de vous envoyer.",
+    "unverified": "Adresse non vérifiée"
+  },
+  "password": {
+    "title": "Mot de passe",
+    "current": "Mot de passe actuel",
+    "new": "Nouveau mot de passe",
+    "confirm": "Confirmer le nouveau mot de passe",
+    "submit": "Changer le mot de passe",
+    "saved": "Votre mot de passe a été modifié.",
+    "wrongCurrent": "Le mot de passe actuel est incorrect."
+  },
+  "danger": {
+    "title": "Zone de danger",
+    "subtitle": "Ces actions sont irréversibles.",
+    "deleteTitle": "Supprimer mon compte",
+    "description": "Vos données personnelles sont effacées et vous perdez l'accès à vos organisations. Les demandes de devis que vous avez créées sont conservées, sans votre nom.",
+    "blockedIntro": "Vous êtes le dernier propriétaire de : {names}. Promouvez un autre propriétaire ou archivez l'organisation avant de supprimer votre compte.",
+    "blocked": "Suppression impossible : vous êtes le dernier propriétaire de {names}.",
+    "confirmPassword": "Confirmez avec votre mot de passe",
+    "submit": "Supprimer définitivement mon compte",
+    "confirm": "Supprimer définitivement votre compte ? Cette action est irréversible.",
+    "deleted": "Votre compte a été supprimé."
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "subtitle": "Connectez-vous sans mot de passe avec l'empreinte digitale, le visage ou le code de votre appareil.",
+    "empty": "Aucune passkey enregistrée.",
+    "name": "Nom de la passkey",
+    "defaultName": "Mon appareil",
+    "add": "Ajouter une passkey",
+    "unsupported": "Votre navigateur ne prend pas en charge les passkeys.",
+    "rename": "Renommer",
+    "save": "Enregistrer",
+    "remove": "Supprimer",
+    "confirmRemove": "Supprimer la passkey « {name} » ?",
+    "createdAt": "Ajoutée le {date}",
+    "lastUsedAt": "utilisée le {date}",
+    "neverUsed": "jamais utilisée",
+    "added": "Passkey ajoutée.",
+    "renamed": "Passkey renommée.",
+    "removed": "Passkey supprimée.",
+    "failed": "La passkey n'a pas pu être enregistrée. Réessayez.",
+    "alreadyRegistered": "Cet appareil est déjà enregistré."
+  }
+}

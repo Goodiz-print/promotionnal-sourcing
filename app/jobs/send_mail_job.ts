@@ -4,6 +4,8 @@ import type { BaseMail } from '@adonisjs/mail'
 import mail from '@adonisjs/mail/services/main'
 import logger from '@adonisjs/core/services/logger'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
+import EmailVerificationNotification from '#mails/email_verification_notification'
+import PasswordResetNotification from '#mails/password_reset_notification'
 import RfqReceivedNotification from '#mails/rfq_received_notification'
 import { UnknownMailKindException } from '#exceptions/mail_errors'
 import { MAIL_KINDS, type SendMailPayload } from '#shared/types/mail'
@@ -74,6 +76,10 @@ export default class SendMailJob extends Job<SendMailPayload> {
           data.deadline,
           data.rfqPath
         )
+      case MAIL_KINDS.passwordReset:
+        return new PasswordResetNotification(to, data.resetUrl, data.expiresInMinutes)
+      case MAIL_KINDS.emailVerification:
+        return new EmailVerificationNotification(to, data.verifyUrl, data.expiresInHours)
       default:
         throw new UnknownMailKindException(kind)
     }

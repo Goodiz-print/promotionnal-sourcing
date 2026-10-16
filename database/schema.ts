@@ -259,6 +259,48 @@ export class OrganizationSchema extends BaseModel {
   declare website: string | null
 }
 
+export class PasskeySchema extends BaseModel {
+  static $columns = [
+    'backedUp',
+    'counter',
+    'createdAt',
+    'credentialId',
+    'deviceType',
+    'id',
+    'lastUsedAt',
+    'name',
+    'publicKey',
+    'transports',
+    'updatedAt',
+    'userId',
+  ] as const
+  $columns = PasskeySchema.$columns
+  @column()
+  declare backedUp: boolean
+  @column()
+  declare counter: bigint | number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare credentialId: string
+  @column()
+  declare deviceType: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column.dateTime()
+  declare lastUsedAt: DateTime | null
+  @column()
+  declare name: string
+  @column()
+  declare publicKey: string
+  @column()
+  declare transports: string[] | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: number
+}
+
 export class PermissionSchema extends BaseModel {
   static $columns = ['createdAt', 'description', 'id', 'name', 'slug', 'updatedAt'] as const
   $columns = PermissionSchema.$columns
@@ -499,6 +541,17 @@ export class QueueScheduleSchema extends BaseModel {
   declare timezone: string
   @column.dateTime()
   declare toDate: DateTime | null
+}
+
+export class RateLimitSchema extends BaseModel {
+  static $columns = ['expire', 'key', 'points'] as const
+  $columns = RateLimitSchema.$columns
+  @column()
+  declare expire: bigint | number | null
+  @column({ isPrimary: true })
+  declare key: string
+  @column()
+  declare points: number
 }
 
 export class RfqItemSchema extends BaseModel {
@@ -742,6 +795,7 @@ export class UserSchema extends BaseModel {
     'createdAt',
     'currentOrganizationId',
     'email',
+    'emailVerifiedAt',
     'fullName',
     'id',
     'locale',
@@ -755,6 +809,8 @@ export class UserSchema extends BaseModel {
   declare currentOrganizationId: number | null
   @column()
   declare email: string
+  @column.dateTime()
+  declare emailVerifiedAt: DateTime | null
   @column()
   declare fullName: string | null
   @column({ isPrimary: true })
