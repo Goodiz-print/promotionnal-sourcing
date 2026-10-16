@@ -50,8 +50,8 @@ Migration `…948_enable_search_extensions` active `vector` (pgvector),
 `pg_trgm` (recherche floue) et `unaccent` (normalisation FR côté requête) —
 no-op hors PostgreSQL.
 
-- **`products.embedding`** — `vector(1024)`, nullable, index **HNSW**
-  (`vector_cosine_ops`). Peuplé par le job `generate_product_embedding_job`
+- **`products.embedding`** — `halfvec(1024)`, nullable, index **HNSW**
+  (`halfvec_cosine_ops`, voir « Décision halfvec »). Les requêtes castent en `?::halfvec`. Peuplé par le job `generate_product_embedding_job`
   (`mistral-embed`) — voir « Recherche sémantique » ci-dessous.
 - **`product_translations.search_vector`** — colonne générée **immuable**,
   un `CASE` par `locale` (`to_tsvector('french', …)` / `to_tsvector('english',
@@ -65,6 +65,24 @@ no-op hors PostgreSQL.
 `database/schema_rules.ts` exclut `products.embedding` et
 `product_translations.search_vector` du schéma généré par l'ORM (colonnes
 SQL brutes, jamais typées/sérialisées).
+
+## Décision halfvec (#71)
+
+**Décision : `halfvec(1024)`** (migration `…300000_products_embedding_halfvec`, à jouer avant le remplissage en masse).
+
+Mesures locales (pgvector 0.8.5, 20 000 vecteurs 1024 dim synthétiques) :
+
+|                               | `vector`   | `halfvec`  |
+| ----------------------------- | ---------- | ---------- |
+| Octets par embedding          | 4 100      | 2 052      |
+| Table (+TOAST)                | 107 Mo     | 54 Mo      |
+| Index HNSW                    | 156 Mo     | 52 Mo      |
+| Latence requête top-10 (moy.) | 3,2–4,8 ms | 2,2–2,5 ms |
+
+Soit ~1 Go d'index et ~2 Go de table économisés pour 1 M de produits.
+Précision : écart de distance cosinus halfvec vs vector ≤ 1,6·10⁻⁵ (moy. 3,6·10⁻⁶), contre un écart-type des distances de ~5·10⁻³ au sein d'un cluster ; le classement ne change que pour des quasi-égalités.
+
+Limites : le jeu synthétique (bruit uniforme) est quasi-équidistant, donc un rappel@10 par identifiants n'y est pas significatif (même `vector`+HNSW n'atteint que ~52 %) ; le temps de build de l'index (62 s vs 12 s) est biaisé par `maintenance_work_mem` trop faible pour `vector`. À revalider sur de vrais embeddings `mistral-embed` quand le catalogue sera rempli ; retour arrière possible via le `down()` de la migration.
 
 ## Recherche sémantique (embeddings Mistral)
 
@@ -88,13 +106,13 @@ exact (« stylo écologique » → produits verts).
   d'une autre taille lève `EmbeddingDimensionError`.
 - **Génération** — `EmbeddingService` (provider injecté, testable) calcule
   l'embedding depuis `productText` (nom + description, toutes locales) et l'écrit
-  en `products.embedding` (`?::vector`). Déclenchée en asynchrone par le job
+  en `products.embedding` (`?::halfvec`). Déclenchée en asynchrone par le job
   `generate_product_embedding_job`, dispatché à la création/mise à jour d'un
   produit (`supplier_product_service`, dispatch résilient — un échec queue ne
   casse jamais l'écriture produit).
 - **Requête** — `products_controller` calcule (best-effort) l'embedding du terme
   recherché quand l'IA est active ; `product_catalogue_service.list` trie alors
-  par distance cosinus (`embedding <=> ?::vector`, index HNSW) parmi les produits
+  par distance cosinus (`embedding <=> ?::halfvec`, index HNSW) parmi les produits
   vectorisés. **Repli automatique** sur le full-text si l'IA est indisponible ou
   la requête non vectorisée.
 - **Backfill** — `node ace embeddings:backfill` (re)génère les embeddings
