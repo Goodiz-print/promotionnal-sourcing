@@ -1,0 +1,19 @@
+{
+  "index": {
+    "title": "Lieferantenverzeichnis",
+    "subtitle": "Durchsuchen Sie die europäischen Lieferanten von Werbeartikeln.",
+    "searchLabel": "Suche",
+    "searchPlaceholder": "Name des Lieferanten …",
+    "country": "Land",
+    "allCountries": "Alle Länder",
+    "empty": "Kein Lieferant entspricht Ihrer Suche.",
+    "previous": "Zurück",
+    "next": "Weiter"
+  },
+  "show": {
+    "website": "Website besuchen",
+    "profile": "Lieferantenprofil",
+    "products": "Katalog",
+    "noProducts": "Noch kein Produkt veröffentlicht."
+  }
+}

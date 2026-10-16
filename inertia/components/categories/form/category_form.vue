@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import FlagIcon from '~/components/flag_icon.vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { SUPPORTED_LOCALES, LOCALE_LABELS, type Locale } from '#shared/types/i18n'
+import { CONTENT_LOCALES, LOCALE_LABELS, type ContentLocale } from '#shared/types/i18n'
 import BaseButton from '~/components/base_button.vue'
 import BaseInput from '~/components/base_input.vue'
 import BaseTextarea from '~/components/base_textarea.vue'
@@ -21,12 +22,12 @@ interface CategoryFormState {
   slug: string
   parentId: number | null
   synonyms: string
-  translations: Record<Locale, { name: string; description: string }>
+  translations: Record<ContentLocale, { name: string; description: string }>
 }
 
 function initialTranslations(): CategoryFormState['translations'] {
   const translations = {} as CategoryFormState['translations']
-  for (const current of SUPPORTED_LOCALES) {
+  for (const current of CONTENT_LOCALES) {
     translations[current] = {
       name: props.category?.translations[current]?.name ?? '',
       description: props.category?.translations[current]?.description ?? '',
@@ -109,8 +110,11 @@ function cancel() {
       </BaseSelect>
     </div>
 
-    <div v-for="current in SUPPORTED_LOCALES" :key="current" class="flex flex-col gap-3">
-      <h3 class="text-sm font-semibold text-[var(--gray-6)]">{{ LOCALE_LABELS[current] }}</h3>
+    <div v-for="current in CONTENT_LOCALES" :key="current" class="flex flex-col gap-3">
+      <h3 class="flex items-center gap-2 text-sm font-semibold text-[var(--gray-6)]">
+        <FlagIcon :code="current" />
+        {{ LOCALE_LABELS[current] }}
+      </h3>
       <BaseInput
         :id="`name-${current}`"
         v-model="form.translations[current].name"

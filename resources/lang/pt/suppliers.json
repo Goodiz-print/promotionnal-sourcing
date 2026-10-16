@@ -1,0 +1,19 @@
+{
+  "index": {
+    "title": "Diretório de fornecedores",
+    "subtitle": "Explore os fornecedores europeus de objetos publicitários.",
+    "searchLabel": "Pesquisa",
+    "searchPlaceholder": "Nome do fornecedor…",
+    "country": "País",
+    "allCountries": "Todos os países",
+    "empty": "Nenhum fornecedor corresponde à sua pesquisa.",
+    "previous": "Anterior",
+    "next": "Seguinte"
+  },
+  "show": {
+    "website": "Visitar o site",
+    "profile": "Perfil de fornecedor",
+    "products": "Catálogo",
+    "noProducts": "Ainda não há produtos publicados."
+  }
+}

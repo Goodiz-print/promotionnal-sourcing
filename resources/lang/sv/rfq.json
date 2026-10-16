@@ -1,0 +1,124 @@
+{
+  "index": {
+    "title": "Offertförfrågningar",
+    "subtitle": "Beskriv ett behov, kontakta flera leverantörer och jämför deras svar.",
+    "empty": "Inga förfrågningar ännu.",
+    "new": "Ny förfrågan",
+    "itemCount": "{count, plural, one {# rad} other {# rader}}",
+    "supplierCount": "{count, plural, =0 {inga mottagare} one {# mottagare} other {# mottagare}}",
+    "responded": "{responded} / {total} svar"
+  },
+  "create": {
+    "title": "Ny offertförfrågan",
+    "submit": "Skapa utkastet"
+  },
+  "show": {
+    "backToList": "Tillbaka till förfrågningarna",
+    "needTitle": "Behovet",
+    "suppliersTitle": "Mottagare",
+    "noSuppliers": "Inga mottagare valda.",
+    "createdBy": "Skapad av {name}",
+    "deadline": "Sista svarsdag: {date}",
+    "noDeadline": "Ingen sista svarsdag",
+    "budget": "Maxbudget: {amount} €",
+    "quantity": "Kvantitet",
+    "unit": "Enhet",
+    "category": "Kategori",
+    "product": "Produkt",
+    "addSuppliers": "Lägg till mottagare",
+    "removeSupplier": "Ta bort",
+    "sentAt": "Skickad {date}"
+  },
+  "status": {
+    "draft": "Utkast",
+    "published": "Publicerad",
+    "closed": "Stängd"
+  },
+  "supplierStatus": {
+    "pending": "Ska skickas",
+    "sent": "Skickad",
+    "viewed": "Visad",
+    "responded": "Har svarat",
+    "declined": "Har avböjt"
+  },
+  "actions": {
+    "publish": "Publicera",
+    "send": "Skicka till mottagarna",
+    "close": "Stäng",
+    "save": "Spara",
+    "confirmClose": "Stänga den här förfrågan? Inga fler utskick blir möjliga."
+  },
+  "fields": {
+    "title": "Titel",
+    "description": "Beskrivning",
+    "deadline": "Sista svarsdag",
+    "budgetMax": "Maxbudget (€)",
+    "itemName": "Benämning",
+    "itemDescription": "Detaljer",
+    "quantity": "Kvantitet",
+    "unit": "Enhet",
+    "category": "Kategori",
+    "noCategory": "Ingen kategori",
+    "suppliers": "Kontaktade leverantörer"
+  },
+  "items": {
+    "title": "Behovets rader",
+    "add": "Lägg till en rad",
+    "remove": "Ta bort raden",
+    "empty": "Lägg till minst en rad för att beskriva vad du söker."
+  },
+  "suppliers": {
+    "empty": "Ingen leverantörsorganisation är registrerad ännu.",
+    "selected": "{count, plural, =0 {Ingen leverantör vald} one {# leverantör vald} other {# leverantörer valda}}"
+  },
+  "flash": {
+    "created": "Förfrågan skapad. Läs igenom den och publicera den sedan för att skicka ut den.",
+    "updated": "Förfrågan uppdaterad.",
+    "published": "Förfrågan publicerad. Du kan nu skicka den till mottagarna.",
+    "sent": "{count, plural, =0 {Inget utskick} one {Förfrågan skickad till # leverantör} other {Förfrågan skickad till # leverantörer}}.",
+    "closed": "Förfrågan stängd.",
+    "suppliersAdded": "{count, plural, =0 {Ingen ny mottagare} one {# mottagare tillagd} other {# mottagare tillagda}}.",
+    "supplierRemoved": "Mottagare borttagen."
+  },
+  "errors": {
+    "notEditable": "Endast ett utkast kan ändras. En mottagare som redan har underrättats kan inte längre tas bort.",
+    "notPublishable": "Förfrågan kan inte publiceras: det krävs ett utkast med minst en rad.",
+    "notSendable": "Förfrågan kan inte skickas: publicera den och välj minst en väntande mottagare.",
+    "notClosable": "Endast en publicerad förfrågan kan stängas.",
+    "notASupplier": "En av de valda mottagarna är inte en aktiv leverantörsorganisation."
+  },
+  "supplier": {
+    "index": {
+      "title": "Mottagna förfrågningar",
+      "subtitle": "De offertförfrågningar som köpare har skickat till dig.",
+      "empty": "Inga mottagna förfrågningar ännu.",
+      "from": "Från {name}",
+      "receivedAt": "Mottagen {date}"
+    },
+    "show": {
+      "backToList": "Tillbaka till mottagna förfrågningar",
+      "needTitle": "Behovet",
+      "buyer": "Köpare",
+      "noDeadline": "Ingen sista svarsdag",
+      "declinedNotice": "Du har avböjt den här förfrågan. Köparen har underrättats.",
+      "closedNotice": "Köparen har stängt den här förfrågan: den väntar inte längre på något svar.",
+      "quoteSoon": "Möjligheten att lämna offert online kommer inom kort."
+    },
+    "actions": {
+      "decline": "Avböj förfrågan",
+      "confirmDecline": "Avböja den här förfrågan? Valet är slutgiltigt."
+    },
+    "status": {
+      "sent": "Att hantera",
+      "viewed": "Pågår",
+      "responded": "Offert skickad",
+      "declined": "Avböjd"
+    },
+    "flash": {
+      "declined": "Förfrågan avböjd."
+    },
+    "errors": {
+      "notDecidable": "Den här förfrågan väntar inte längre på något beslut från dig."
+    }
+  }
+}

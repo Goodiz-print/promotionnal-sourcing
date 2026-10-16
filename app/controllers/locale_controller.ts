@@ -1,6 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { updateLocaleValidator } from '#validators/locale'
-import { LOCALE_COOKIE, type Locale } from '#shared/types/i18n'
+import { LOCALE_COOKIE, LOCALE_PREFIX_PATTERN, type Locale } from '#shared/types/i18n'
 
 export default class LocaleController {
   /**
@@ -37,8 +37,8 @@ export default class LocaleController {
       }
     }
 
-    if (/^\/(fr|en)(\/|$)/.test(path)) {
-      return path.replace(/^\/(fr|en)/, `/${locale}`)
+    if (LOCALE_PREFIX_PATTERN.test(path)) {
+      return path.replace(LOCALE_PREFIX_PATTERN, `/${locale}`)
     }
 
     return `/${locale}${path === '/' ? '' : path}`

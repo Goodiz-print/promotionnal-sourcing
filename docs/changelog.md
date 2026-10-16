@@ -25,6 +25,44 @@ sérialisation JSON stable) stockée sur la ligne qu'elle protège.
 - **Non couvert** — aucune sauvegarde ne dispatche encore `TranslateEntityJob` et les
   traductions ne sont pas marquées « auto » : le job écraserait une correction
   manuelle. Le déclenchement (`sourceLocale`, marquage « auto ») relève de #75.
+=======
+## 2026-10-16 — Langues européennes et drapeaux
+
+L'interface passe de 2 à 9 langues : `de`, `es`, `it`, `nl`, `pt`, `pl`, `sv` s'ajoutent à
+`fr` et `en` (URL `/de`, `/de/contact`…, sitemap et hreflang inclus). Détail : `docs/i18n.md`.
+
+- **Traductions** : `resources/lang/<code>/` pour tous les domaines (landing comprise),
+  générées automatiquement — à relire par un natif avant mise en avant. Textes juridiques
+  (`legal`, `privacy`) : repli sur l'anglais.
+- **Contenu du catalogue** : reste en `fr`/`en` (`CONTENT_LOCALES`) ; les nouvelles langues
+  lisent les fiches en anglais, la recherche porte sur la langue de contenu servie.
+- **Sélecteur** : menu avec drapeaux SVG (`language_menu.vue`, `flag_icon.vue`) dans l'app,
+  le header de la landing (liens), le profil et les formulaires de traduction.
+- **Migration** `1792100000000_extend_users_locale_check` : contrainte `users.locale` étendue.
+- **Tests** : `tests/functional/locales.spec.ts`, `tests/inertia/language_menu.spec.ts`.
+- Non traduits : les e-mails (`resources/views/emails`, en français).
+
+## 2026-10-16 — Landing pages intégrées à l'app (portage du site Astro)
+
+Le site `promotionnal-sourcing-landing` (Astro) est porté dans l'app en Vue/Inertia
+(SSR) ; le bouton « Connexion » du header mène désormais à `/:locale/login`
+(« Accéder à l'app » si l'utilisateur est déjà connecté). Détail : `docs/landing.md`.
+
+- **Routes publiques** (sous `/:locale`) : `home` (`/fr`, `/en`), `marketing.contact`,
+  `marketing.legal`, `marketing.privacy`, `marketing.thanks` (noindex). Slugs identiques
+  en FR et EN. Contrôleur `MarketingController`, routes dans `start/routes/marketing.ts`.
+- **Redirections 301** des anciennes URLs du site Astro (`/mentions-legales`,
+  `/politique-de-confidentialite`, `/merci`, `/contact`, `/en/legal-notice`,
+  `/en/privacy-policy`, `/en/thank-you`) vers les nouvelles ; `GET /sitemap.xml`
+  généré (pages indexables × langues, hreflang) ; `public/robots.txt` mis à jour.
+- **Frontend** : layout `inertia/layouts/marketing.vue`, composants
+  `inertia/components/marketing/`, pages `inertia/pages/marketing/`, composables
+  `use_marketing`, `use_scroll_fx`, `use_canvas_fx` ; génériques `base_link_button` et
+  `base_card`. Polices Manrope + Instrument Sans (`@fontsource`), `inertia/css/marketing.css`.
+- **i18n** : `landing.json`, `legal.json`, `privacy.json` (FR/EN) ; `home.json` du starter supprimé.
+- **CSS** : le reset `* { margin:0; padding:0 }` de `app.css` exclut le sous-arbre `.marketing`
+  (non layeré, il écrasait les utilitaires Tailwind).
+- **Tests** : `tests/functional/marketing.spec.ts`, `tests/inertia/marketing_header.spec.ts`.
 
 ## 2026-10-16 — Script de lancement des instances de dev
 

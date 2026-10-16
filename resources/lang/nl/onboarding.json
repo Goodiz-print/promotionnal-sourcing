@@ -1,0 +1,20 @@
+{
+  "title": "Welkom 👋",
+  "subtitle": "Laten we uw organisatie instellen om te beginnen.",
+  "fields": {
+    "name": "Naam van uw organisatie",
+    "type": "U bent…"
+  },
+  "type": {
+    "buyer": {
+      "label": "Inkoper",
+      "description": "Ik zoek en vergelijk relatiegeschenken en promotieartikelen bij leveranciers."
+    },
+    "supplier": {
+      "label": "Leverancier",
+      "description": "Ik bied een catalogus aan en beantwoord de offerteaanvragen van inkopers."
+    }
+  },
+  "submit": "Mijn organisatie aanmaken",
+  "success": "Organisatie aangemaakt. Welkom!"
+}

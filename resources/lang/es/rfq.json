@@ -1,0 +1,124 @@
+{
+  "index": {
+    "title": "Solicitudes de presupuesto",
+    "subtitle": "Describa una necesidad, consulte a varios proveedores y compare sus respuestas.",
+    "empty": "Todavía no hay ninguna solicitud.",
+    "new": "Nueva solicitud",
+    "itemCount": "{count, plural, one {# línea} other {# líneas}}",
+    "supplierCount": "{count, plural, =0 {ningún destinatario} one {# destinatario} other {# destinatarios}}",
+    "responded": "{responded} / {total} respuestas"
+  },
+  "create": {
+    "title": "Nueva solicitud de presupuesto",
+    "submit": "Crear el borrador"
+  },
+  "show": {
+    "backToList": "Volver a las solicitudes",
+    "needTitle": "La necesidad",
+    "suppliersTitle": "Destinatarios",
+    "noSuppliers": "Ningún destinatario seleccionado.",
+    "createdBy": "Creada por {name}",
+    "deadline": "Fecha límite: {date}",
+    "noDeadline": "Sin fecha límite",
+    "budget": "Presupuesto máx.: {amount} €",
+    "quantity": "Cantidad",
+    "unit": "Unidad",
+    "category": "Categoría",
+    "product": "Producto",
+    "addSuppliers": "Añadir destinatarios",
+    "removeSupplier": "Quitar",
+    "sentAt": "Enviada el {date}"
+  },
+  "status": {
+    "draft": "Borrador",
+    "published": "Publicada",
+    "closed": "Cerrada"
+  },
+  "supplierStatus": {
+    "pending": "Por enviar",
+    "sent": "Enviada",
+    "viewed": "Vista",
+    "responded": "Ha respondido",
+    "declined": "Ha declinado"
+  },
+  "actions": {
+    "publish": "Publicar",
+    "send": "Enviar a los destinatarios",
+    "close": "Cerrar",
+    "save": "Guardar",
+    "confirmClose": "¿Cerrar esta solicitud? Ya no se podrán realizar nuevos envíos."
+  },
+  "fields": {
+    "title": "Título",
+    "description": "Descripción",
+    "deadline": "Fecha límite",
+    "budgetMax": "Presupuesto máximo (€)",
+    "itemName": "Denominación",
+    "itemDescription": "Detalles",
+    "quantity": "Cantidad",
+    "unit": "Unidad",
+    "category": "Categoría",
+    "noCategory": "Sin categoría",
+    "suppliers": "Proveedores consultados"
+  },
+  "items": {
+    "title": "Líneas de la necesidad",
+    "add": "Añadir una línea",
+    "remove": "Quitar esta línea",
+    "empty": "Añada al menos una línea para describir lo que busca."
+  },
+  "suppliers": {
+    "empty": "Todavía no hay ninguna organización proveedora registrada.",
+    "selected": "{count, plural, =0 {Ningún proveedor seleccionado} one {# proveedor seleccionado} other {# proveedores seleccionados}}"
+  },
+  "flash": {
+    "created": "Solicitud creada. Revísela y publíquela para difundirla.",
+    "updated": "Solicitud actualizada.",
+    "published": "Solicitud publicada. Ya puede enviarla a los destinatarios.",
+    "sent": "{count, plural, =0 {Ningún envío} one {Solicitud enviada a # proveedor} other {Solicitud enviada a # proveedores}}.",
+    "closed": "Solicitud cerrada.",
+    "suppliersAdded": "{count, plural, =0 {Ningún destinatario nuevo} one {# destinatario añadido} other {# destinatarios añadidos}}.",
+    "supplierRemoved": "Destinatario quitado."
+  },
+  "errors": {
+    "notEditable": "Solo se puede modificar un borrador. Un destinatario que ya ha sido notificado no se puede quitar.",
+    "notPublishable": "Esta solicitud no se puede publicar: se necesita un borrador con al menos una línea.",
+    "notSendable": "Esta solicitud no se puede enviar: publíquela y seleccione al menos un destinatario pendiente.",
+    "notClosable": "Solo se puede cerrar una solicitud publicada.",
+    "notASupplier": "Uno de los destinatarios seleccionados no es una organización proveedora activa."
+  },
+  "supplier": {
+    "index": {
+      "title": "Solicitudes recibidas",
+      "subtitle": "Las solicitudes de presupuesto que los compradores le han dirigido.",
+      "empty": "Todavía no se ha recibido ninguna solicitud.",
+      "from": "De {name}",
+      "receivedAt": "Recibida el {date}"
+    },
+    "show": {
+      "backToList": "Volver a las solicitudes recibidas",
+      "needTitle": "La necesidad",
+      "buyer": "Comprador",
+      "noDeadline": "Sin fecha límite",
+      "declinedNotice": "Ha declinado esta solicitud. Se ha informado al comprador.",
+      "closedNotice": "El comprador ha cerrado esta solicitud: ya no espera respuesta.",
+      "quoteSoon": "El envío de presupuestos en línea estará disponible próximamente."
+    },
+    "actions": {
+      "decline": "Declinar la solicitud",
+      "confirmDecline": "¿Declinar esta solicitud? Esta decisión es definitiva."
+    },
+    "status": {
+      "sent": "Por tramitar",
+      "viewed": "En curso",
+      "responded": "Presupuesto enviado",
+      "declined": "Declinada"
+    },
+    "flash": {
+      "declined": "Solicitud declinada."
+    },
+    "errors": {
+      "notDecidable": "Esta solicitud ya no espera una decisión por su parte."
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "notFound": {
+    "title": "Pagina niet gevonden"
+  },
+  "serverError": {
+    "title": "Er is een fout opgetreden."
+  }
+}

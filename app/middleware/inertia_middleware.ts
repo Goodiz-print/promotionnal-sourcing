@@ -6,7 +6,7 @@ import UserTransformer from '#transformers/user_transformer'
 import OrganizationSummaryTransformer from '#transformers/organization_summary_transformer'
 import OrganizationContextService from '#services/organization_context_service'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
-import { DEFAULT_LOCALE } from '#shared/types/i18n'
+import { DEFAULT_LOCALE, ENGLISH_FALLBACK_NAMESPACES, type Locale } from '#shared/types/i18n'
 import type User from '#models/user'
 import type { OrganizationSummaryType } from '#shared/types/organization'
 
@@ -60,7 +60,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       user: ctx.inertia.always(auth?.user ? UserTransformer.transform(auth.user) : undefined),
       locale: ctx.inertia.always(locale),
       supportedLocales: ctx.inertia.always(i18nManager.supportedLocales()),
-      translations: ctx.inertia.always(i18nManager.getTranslationsFor(locale)),
+      translations: ctx.inertia.always(this.translationsFor(locale as Locale)),
       organizations: ctx.inertia.always(organizations),
       // `undefined` et non `null` : le sérialiseur de props refuse une valeur
       // nulle (`Cannot serialize an item with null value`), y compris sur les
@@ -68,6 +68,32 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       // le prop `user` ci-dessus.
       currentOrganizationId: ctx.inertia.always(auth?.user?.currentOrganizationId ?? undefined),
     }
+  }
+
+  /**
+   * Dictionnaire de la locale, complété par l'anglais pour les domaines que la
+   * langue n'a pas (cf. `ENGLISH_FALLBACK_NAMESPACES`).
+   */
+  private translationsFor(locale: Locale): Record<string, string> {
+    const own = i18nManager.getTranslationsFor(locale)
+    if (locale === 'en') {
+      return own
+    }
+
+    const missing = ENGLISH_FALLBACK_NAMESPACES.filter(
+      (namespace) => !Object.keys(own).some((key) => key.startsWith(`${namespace}.`))
+    )
+    if (missing.length === 0) {
+      return own
+    }
+
+    const english = i18nManager.getTranslationsFor('en')
+    const fallback = Object.fromEntries(
+      Object.entries(english).filter(([key]) =>
+        missing.some((namespace) => key.startsWith(`${namespace}.`))
+      )
+    )
+    return { ...fallback, ...own }
   }
 
   private async summariesFor(user: User): Promise<OrganizationSummaryType[]> {

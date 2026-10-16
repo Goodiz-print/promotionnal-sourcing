@@ -9,6 +9,9 @@
 @import './tokens/typography.css';
 @import './tokens/spacing.css';
 
+/* Landing pages : utilitaires, animations et styles scopés sous `.marketing`. */
+@import './marketing.css';
+
 /* ------------------------------------------------------------
    Exposition des tokens à Tailwind v4 (@theme) → génère les
    utilitaires bg-indigo-500, text-ink-600, border-ink-200,
@@ -156,6 +159,12 @@
    ------------------------------------------------------------ */
 * {
   box-sizing: border-box;
+}
+
+/* Ce reset n'est pas dans un @layer : il l'emporterait sur les utilitaires Tailwind
+   (p-*, m-*…). Les pages de la landing (`.marketing`) s'appuient sur ces utilitaires et
+   sur le reset de Tailwind (preflight) : on les exclut donc d'ici. */
+*:not(.marketing, .marketing *) {
   margin: 0;
   padding: 0;
 }
@@ -172,16 +181,18 @@ body {
   line-height: 1.5;
 }
 
-a {
+/* Mêmes raisons que ci-dessus : ces règles non layerées écraseraient `text-white`,
+   `text-indigo-600`… dans la landing, qui définit ses propres couleurs. */
+a:not(.marketing a) {
   color: inherit;
   text-decoration: none;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1:not(.marketing h1),
+h2:not(.marketing h2),
+h3:not(.marketing h3),
+h4:not(.marketing h4),
+h5:not(.marketing h5),
+h6:not(.marketing h6) {
   color: var(--text-primary);
 }

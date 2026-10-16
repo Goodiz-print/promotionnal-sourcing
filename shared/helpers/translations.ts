@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, type Locale } from '../types/i18n.js'
+import { contentLocaleFor, DEFAULT_LOCALE, type Locale } from '../types/i18n.js'
 
 /**
  * Une ligne de traduction porte au minimum une `locale`.
@@ -9,7 +9,8 @@ export interface LocalizedRow {
 
 /**
  * Sélectionne, dans une collection de traductions préchargée, la ligne
- * correspondant à la locale demandée. Repli sur la locale par défaut, puis
+ * correspondant à la locale demandée. Repli sur la langue de contenu de cette
+ * locale (l'anglais pour les langues d'interface sans contenu dédié), puis sur la locale par défaut, puis
  * sur la première ligne disponible. Renvoie `undefined` si la collection est
  * vide/absente.
  */
@@ -24,6 +25,7 @@ export function resolveTranslation<T extends LocalizedRow>(
 
   return (
     translations.find((t) => t.locale === locale) ??
+    translations.find((t) => t.locale === contentLocaleFor(locale)) ??
     translations.find((t) => t.locale === fallback) ??
     translations[0]
   )

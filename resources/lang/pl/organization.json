@@ -1,0 +1,120 @@
+{
+  "settings": {
+    "title": "Ustawienia organizacji",
+    "subtitle": "Zarządzaj ogólnymi informacjami o organizacji.",
+    "submit": "Zapisz",
+    "success": "Ustawienia organizacji zostały zaktualizowane."
+  },
+  "fields": {
+    "name": "Nazwa",
+    "siret": "SIRET",
+    "vatNumber": "Numer VAT UE",
+    "email": "E-mail",
+    "phone": "Telefon",
+    "website": "Strona internetowa",
+    "industry": "Branża",
+    "size": "Wielkość organizacji",
+    "description": "Opis",
+    "addressLine1": "Adres",
+    "addressLine2": "Dodatkowe informacje adresowe",
+    "city": "Miejscowość",
+    "postalCode": "Kod pocztowy",
+    "country": "Kraj",
+    "logo": "Logo"
+  },
+  "size": {
+    "none": "Nie określono",
+    "micro": "Mikroprzedsiębiorstwo",
+    "small": "Małe przedsiębiorstwo",
+    "medium": "Średnie przedsiębiorstwo",
+    "large": "Duże przedsiębiorstwo",
+    "enterprise": "Grupa / Korporacja"
+  },
+  "logo": {
+    "none": "Brak logo",
+    "replace": "Zmień logo",
+    "remove": "Usuń logo",
+    "cancel": "Anuluj"
+  },
+  "nav": {
+    "settings": "Ustawienia",
+    "members": "Członkowie",
+    "create": "Nowa organizacja"
+  },
+  "members": {
+    "title": "Członkowie organizacji",
+    "subtitle": "Zarządzaj rolami i dostępem członków organizacji.",
+    "columns": {
+      "name": "Członek",
+      "role": "Rola"
+    },
+    "remove": "Usuń",
+    "confirmRemove": "Usunąć tego członka z organizacji?",
+    "roleUpdated": "Rola członka została zaktualizowana.",
+    "removed": "Członek został usunięty z organizacji.",
+    "lastOwnerError": "Nie można usunąć ostatniego właściciela organizacji ani obniżyć jego roli."
+  },
+  "invitations": {
+    "inviteTitle": "Zaproś członka",
+    "emailLabel": "E-mail",
+    "roleLabel": "Rola",
+    "submit": "Wyślij zaproszenie",
+    "pendingTitle": "Oczekujące zaproszenia",
+    "revoke": "Odwołaj",
+    "confirmRevoke": "Odwołać to zaproszenie?",
+    "resend": "Wyślij ponownie",
+    "sent": "Zaproszenie wysłane.",
+    "revoked": "Zaproszenie odwołane.",
+    "resent": "Zaproszenie wysłane ponownie.",
+    "notPending": "To zaproszenie nie oczekuje już na odpowiedź: zostało zaakceptowane lub odwołane.",
+    "alreadyMember": "Ten adres e-mail należy już do członka organizacji.",
+    "accept": {
+      "title": "Zaproszenie do dołączenia do organizacji",
+      "description": "Zaproszono Państwa do organizacji {organization} w roli: {role}.",
+      "submit": "Przyjmij zaproszenie",
+      "login": "Zaloguj się",
+      "signup": "Załóż konto",
+      "wrongAccount": "Są Państwo zalogowani jako {email}, ale to zaproszenie jest przeznaczone dla innego adresu.",
+      "loginAsInvited": "Wyloguj się i zaloguj na właściwy adres",
+      "success": "Dołączyli Państwo do organizacji {organization}.",
+      "invalid": "To zaproszenie nie jest już ważne.",
+      "emailMismatch": "To zaproszenie jest przeznaczone dla innego adresu e-mail."
+    },
+    "invalid": {
+      "title": "Nieprawidłowe zaproszenie",
+      "description": "Ten link zapraszający jest nieprawidłowy, wygasł lub został już wykorzystany."
+    }
+  },
+  "switch": {
+    "label": "Organizacja",
+    "done": "Pracują Państwo teraz w organizacji {name}.",
+    "unavailable": "Ta organizacja nie jest już dostępna."
+  },
+  "create": {
+    "title": "Utwórz organizację",
+    "subtitle": "Nastąpi automatyczne przełączenie na nowo utworzoną organizację.",
+    "submit": "Utwórz organizację",
+    "success": "Organizacja {name} została utworzona."
+  },
+  "danger": {
+    "title": "Strefa zagrożenia",
+    "subtitle": "Te działania dotyczą całej organizacji. Proszę je sprawdzić przed potwierdzeniem."
+  },
+  "leave": {
+    "title": "Opuść tę organizację",
+    "description": "Utracą Państwo dostęp do jej danych. Administrator będzie musiał ponownie wysłać zaproszenie.",
+    "submit": "Opuść",
+    "confirm": "Opuścić tę organizację?",
+    "done": "Opuścili Państwo organizację {name}.",
+    "lastOwner": "Są Państwo ostatnim właścicielem: przed odejściem proszę nadać uprawnienia właściciela innemu członkowi lub zarchiwizować organizację.",
+    "notMember": "Nie są Państwo członkiem tej organizacji."
+  },
+  "archive": {
+    "title": "Zarchiwizuj tę organizację",
+    "description": "Zniknie ona z katalogu publicznego oraz z przestrzeni swoich członków. Dane zostają zachowane; reaktywować ją może wyłącznie zespół techniczny.",
+    "submit": "Zarchiwizuj",
+    "confirm": "Zarchiwizować {name}? Jej członkowie utracą dostęp, a Państwo nie będą mogli samodzielnie jej reaktywować.",
+    "done": "Organizacja {name} została zarchiwizowana.",
+    "alreadyArchived": "Ta organizacja jest już zarchiwizowana."
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "index": {
+    "title": "Leverantörsregister",
+    "subtitle": "Bläddra bland europeiska leverantörer av reklamprodukter.",
+    "searchLabel": "Sök",
+    "searchPlaceholder": "Leverantörens namn…",
+    "country": "Land",
+    "allCountries": "Alla länder",
+    "empty": "Ingen leverantör matchar din sökning.",
+    "previous": "Föregående",
+    "next": "Nästa"
+  },
+  "show": {
+    "website": "Besök webbplatsen",
+    "profile": "Leverantörsprofil",
+    "products": "Katalog",
+    "noProducts": "Inga publicerade produkter ännu."
+  }
+}

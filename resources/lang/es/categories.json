@@ -1,0 +1,39 @@
+{
+  "index": {
+    "title": "Categorías",
+    "subtitle": "Administre la taxonomía del catálogo (árbol de categorías).",
+    "empty": "Todavía no hay ninguna categoría. Cree una.",
+    "columns": {
+      "name": "Nombre",
+      "slug": "Identificador",
+      "parent": "Superior",
+      "products": "Productos"
+    }
+  },
+  "create": { "title": "Nueva categoría" },
+  "edit": { "title": "Editar la categoría" },
+  "newCategory": "Nueva categoría",
+  "edit": "Editar",
+  "delete": "Eliminar",
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "confirmDelete": "¿Eliminar esta categoría?",
+  "noParent": "Ninguna (categoría raíz)",
+  "fields": {
+    "slug": "Identificador (slug)",
+    "slugHint": "Minúsculas, números y guiones. No se puede modificar después.",
+    "parent": "Categoría superior",
+    "name": "Nombre",
+    "description": "Descripción",
+    "synonyms": "Sinónimos",
+    "synonymsHint": "Separados por comas (mejora la búsqueda)."
+  },
+  "flash": {
+    "created": "Categoría creada.",
+    "updated": "Categoría actualizada.",
+    "deleted": "Categoría eliminada.",
+    "cycle": "Una categoría no puede ser su propia categoría superior ni la de ninguno de sus descendientes.",
+    "hasChildren": "No se puede eliminar: esta categoría tiene subcategorías.",
+    "hasProducts": "No se puede eliminar: hay productos asociados a esta categoría."
+  }
+}

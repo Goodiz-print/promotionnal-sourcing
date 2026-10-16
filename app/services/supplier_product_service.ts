@@ -12,7 +12,7 @@ import SupplierTranslation from '#models/supplier_translation'
 import StorageService from '#services/storage/storage_service'
 import GenerateProductEmbeddingJob from '#jobs/generate_product_embedding_job'
 import logger from '@adonisjs/core/services/logger'
-import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from '#shared/types/i18n'
+import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE } from '#shared/types/i18n'
 import type Organization from '#models/organization'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
 import type { SupplierProductInput } from '#shared/types/product'
@@ -41,7 +41,7 @@ export default class SupplierProductService {
       isActive: true,
       organizationId: org.id,
     })
-    for (const locale of SUPPORTED_LOCALES) {
+    for (const locale of CONTENT_LOCALES) {
       await SupplierTranslation.updateOrCreate(
         { supplierId: supplier.id, locale },
         { name: org.name, description: null }
@@ -86,7 +86,7 @@ export default class SupplierProductService {
   ): Promise<Product> {
     const supplier = await this.resolveSupplier(org)
     const slug = await this.uniqueSlug(
-      data.translations[DEFAULT_LOCALE].name,
+      data.translations[DEFAULT_CONTENT_LOCALE].name,
       async (s) => !!(await Product.findBy('slug', s))
     )
 
@@ -221,7 +221,7 @@ export default class SupplierProductService {
     product: Product,
     translations: SupplierProductInput['translations']
   ): Promise<void> {
-    for (const locale of SUPPORTED_LOCALES) {
+    for (const locale of CONTENT_LOCALES) {
       const translation = translations[locale]
       if (!translation) continue
       await ProductTranslation.updateOrCreate(

@@ -1,0 +1,124 @@
+{
+  "index": {
+    "title": "Richieste di offerta",
+    "subtitle": "Descriva un'esigenza, consulti più fornitori, confronti le loro risposte.",
+    "empty": "Nessuna richiesta per il momento.",
+    "new": "Nuova richiesta",
+    "itemCount": "{count, plural, one {# riga} other {# righe}}",
+    "supplierCount": "{count, plural, =0 {nessun destinatario} one {# destinatario} other {# destinatari}}",
+    "responded": "{responded} / {total} risposte"
+  },
+  "create": {
+    "title": "Nuova richiesta di offerta",
+    "submit": "Crea la bozza"
+  },
+  "show": {
+    "backToList": "Torna alle richieste",
+    "needTitle": "L'esigenza",
+    "suppliersTitle": "Destinatari",
+    "noSuppliers": "Nessun destinatario selezionato.",
+    "createdBy": "Creata da {name}",
+    "deadline": "Scadenza: {date}",
+    "noDeadline": "Senza scadenza",
+    "budget": "Budget max: {amount} €",
+    "quantity": "Quantità",
+    "unit": "Unità",
+    "category": "Categoria",
+    "product": "Prodotto",
+    "addSuppliers": "Aggiungi destinatari",
+    "removeSupplier": "Rimuovi",
+    "sentAt": "Inviata il {date}"
+  },
+  "status": {
+    "draft": "Bozza",
+    "published": "Pubblicata",
+    "closed": "Chiusa"
+  },
+  "supplierStatus": {
+    "pending": "Da inviare",
+    "sent": "Inviata",
+    "viewed": "Visualizzata",
+    "responded": "Ha risposto",
+    "declined": "Ha rifiutato"
+  },
+  "actions": {
+    "publish": "Pubblica",
+    "send": "Invia ai destinatari",
+    "close": "Chiudi",
+    "save": "Salva",
+    "confirmClose": "Chiudere questa richiesta? Non sarà più possibile effettuare nuovi invii."
+  },
+  "fields": {
+    "title": "Titolo",
+    "description": "Descrizione",
+    "deadline": "Scadenza",
+    "budgetMax": "Budget massimo (€)",
+    "itemName": "Denominazione",
+    "itemDescription": "Dettagli",
+    "quantity": "Quantità",
+    "unit": "Unità",
+    "category": "Categoria",
+    "noCategory": "Senza categoria",
+    "suppliers": "Fornitori consultati"
+  },
+  "items": {
+    "title": "Righe dell'esigenza",
+    "add": "Aggiungi una riga",
+    "remove": "Rimuovi questa riga",
+    "empty": "Aggiunga almeno una riga per descrivere ciò che cerca."
+  },
+  "suppliers": {
+    "empty": "Nessuna organizzazione fornitrice è ancora registrata.",
+    "selected": "{count, plural, =0 {Nessun fornitore selezionato} one {# fornitore selezionato} other {# fornitori selezionati}}"
+  },
+  "flash": {
+    "created": "Richiesta creata. La rilegga e poi la pubblichi per diffonderla.",
+    "updated": "Richiesta aggiornata.",
+    "published": "Richiesta pubblicata. Ora può inviarla ai destinatari.",
+    "sent": "{count, plural, =0 {Nessun invio} one {Richiesta inviata a # fornitore} other {Richiesta inviata a # fornitori}}.",
+    "closed": "Richiesta chiusa.",
+    "suppliersAdded": "{count, plural, =0 {Nessun nuovo destinatario} one {# destinatario aggiunto} other {# destinatari aggiunti}}.",
+    "supplierRemoved": "Destinatario rimosso."
+  },
+  "errors": {
+    "notEditable": "Solo una bozza può essere modificata. Un destinatario già notificato non può più essere rimosso.",
+    "notPublishable": "Questa richiesta non può essere pubblicata: serve una bozza con almeno una riga.",
+    "notSendable": "Questa richiesta non può essere inviata: la pubblichi e selezioni almeno un destinatario in attesa.",
+    "notClosable": "Solo una richiesta pubblicata può essere chiusa.",
+    "notASupplier": "Uno dei destinatari selezionati non è un'organizzazione fornitrice attiva."
+  },
+  "supplier": {
+    "index": {
+      "title": "Richieste ricevute",
+      "subtitle": "Le richieste di offerta che gli acquirenti Le hanno inviato.",
+      "empty": "Nessuna richiesta ricevuta per il momento.",
+      "from": "Da {name}",
+      "receivedAt": "Ricevuta il {date}"
+    },
+    "show": {
+      "backToList": "Torna alle richieste ricevute",
+      "needTitle": "L'esigenza",
+      "buyer": "Acquirente",
+      "noDeadline": "Senza scadenza",
+      "declinedNotice": "Ha rifiutato questa richiesta. L'acquirente è stato informato.",
+      "closedNotice": "L'acquirente ha chiuso questa richiesta: non attende più risposta.",
+      "quoteSoon": "L'invio delle offerte online sarà presto disponibile."
+    },
+    "actions": {
+      "decline": "Rifiuta la richiesta",
+      "confirmDecline": "Rifiutare questa richiesta? Questa scelta è definitiva."
+    },
+    "status": {
+      "sent": "Da gestire",
+      "viewed": "In corso",
+      "responded": "Offerta inviata",
+      "declined": "Rifiutata"
+    },
+    "flash": {
+      "declined": "Richiesta rifiutata."
+    },
+    "errors": {
+      "notDecidable": "Questa richiesta non attende più una Sua decisione."
+    }
+  }
+}

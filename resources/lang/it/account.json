@@ -1,0 +1,54 @@
+{
+  "title": "Il mio account",
+  "subtitle": "Gestisca i Suoi dati personali, la password e l'account.",
+  "profile": {
+    "title": "Informazioni personali",
+    "language": "Lingua",
+    "submit": "Salva",
+    "saved": "Le Sue informazioni sono state salvate.",
+    "emailChanged": "Il Suo indirizzo è cambiato: lo confermi tramite il link che Le abbiamo appena inviato.",
+    "unverified": "Indirizzo non verificato"
+  },
+  "password": {
+    "title": "Password",
+    "current": "Password attuale",
+    "new": "Nuova password",
+    "confirm": "Conferma la nuova password",
+    "submit": "Cambia password",
+    "saved": "La Sua password è stata modificata.",
+    "wrongCurrent": "La password attuale non è corretta."
+  },
+  "danger": {
+    "title": "Zona di pericolo",
+    "subtitle": "Queste azioni sono irreversibili.",
+    "deleteTitle": "Elimina il mio account",
+    "description": "I Suoi dati personali vengono cancellati e Lei perde l'accesso alle Sue organizzazioni. Le richieste di offerta create restano conservate, senza il Suo nome.",
+    "blockedIntro": "Lei è l'ultimo proprietario di: {names}. Nomini un altro proprietario o archivi l'organizzazione prima di eliminare il Suo account.",
+    "blocked": "Eliminazione impossibile: Lei è l'ultimo proprietario di {names}.",
+    "confirmPassword": "Confermi con la Sua password",
+    "submit": "Elimina definitivamente il mio account",
+    "confirm": "Eliminare definitivamente il Suo account? Questa azione è irreversibile.",
+    "deleted": "Il Suo account è stato eliminato."
+  },
+  "passkeys": {
+    "title": "Passkey",
+    "subtitle": "Acceda senza password con l'impronta digitale, il volto o il codice del Suo dispositivo.",
+    "empty": "Nessuna passkey registrata.",
+    "name": "Nome della passkey",
+    "defaultName": "Il mio dispositivo",
+    "add": "Aggiungi una passkey",
+    "unsupported": "Il Suo browser non supporta le passkey.",
+    "rename": "Rinomina",
+    "save": "Salva",
+    "remove": "Elimina",
+    "confirmRemove": "Eliminare la passkey «{name}»?",
+    "createdAt": "Aggiunta il {date}",
+    "lastUsedAt": "utilizzata il {date}",
+    "neverUsed": "mai utilizzata",
+    "added": "Passkey aggiunta.",
+    "renamed": "Passkey rinominata.",
+    "removed": "Passkey eliminata.",
+    "failed": "Impossibile registrare la passkey. Riprovi.",
+    "alreadyRegistered": "Questo dispositivo è già registrato."
+  }
+}

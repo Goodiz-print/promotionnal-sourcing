@@ -1,7 +1,7 @@
 import type Product from '#models/product'
 import { BaseTransformer } from '@adonisjs/core/transformers'
 import ProductImageTransformer from '#transformers/product_image_transformer'
-import { SUPPORTED_LOCALES, type Locale } from '#shared/types/i18n'
+import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
 import type { ProductEditType } from '#shared/types/product'
 
 /**
@@ -11,8 +11,8 @@ import type { ProductEditType } from '#shared/types/product'
  */
 export default class ProductEditTransformer extends BaseTransformer<Product> {
   toObject(): ProductEditType {
-    const translations = {} as Record<Locale, { name: string; description: string | null }>
-    for (const locale of SUPPORTED_LOCALES) {
+    const translations = {} as Record<ContentLocale, { name: string; description: string | null }>
+    for (const locale of CONTENT_LOCALES) {
       const row = this.resource.translations.find((t) => t.locale === locale)
       translations[locale] = { name: row?.name ?? '', description: row?.description ?? null }
     }

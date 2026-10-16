@@ -1,0 +1,19 @@
+{
+  "index": {
+    "title": "Elenco dei fornitori",
+    "subtitle": "Sfogli i fornitori europei di oggetti promozionali.",
+    "searchLabel": "Ricerca",
+    "searchPlaceholder": "Nome del fornitore…",
+    "country": "Paese",
+    "allCountries": "Tutti i paesi",
+    "empty": "Nessun fornitore corrisponde alla Sua ricerca.",
+    "previous": "Precedente",
+    "next": "Successivo"
+  },
+  "show": {
+    "website": "Visita il sito",
+    "profile": "Profilo fornitore",
+    "products": "Catalogo",
+    "noProducts": "Nessun prodotto pubblicato per il momento."
+  }
+}

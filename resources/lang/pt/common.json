@@ -1,0 +1,13 @@
+{
+  "appName": "Promotional Sourcing",
+  "nav": {
+    "login": "Entrar",
+    "signup": "Registo",
+    "logout": "Sair"
+  },
+  "language": {
+    "label": "Idioma",
+    "fr": "Français",
+    "en": "English"
+  }
+}

@@ -1,0 +1,59 @@
+import type { HttpContext } from '@adonisjs/core/http'
+import env from '#start/env'
+import { SUPPORTED_LOCALES } from '#shared/types/i18n'
+import { SITEMAP_PAGES } from '#shared/types/marketing'
+
+/**
+ * Pages publiques de la landing (accueil, contact, mentions légales,
+ * confidentialité, remerciement). Contenu statique : les textes viennent des
+ * fichiers de traduction, aucune logique métier.
+ */
+export default class MarketingController {
+  home({ inertia }: HttpContext) {
+    return inertia.render('marketing/home', { siteUrl: this.siteUrl() })
+  }
+
+  contact({ inertia }: HttpContext) {
+    return inertia.render('marketing/contact', { siteUrl: this.siteUrl() })
+  }
+
+  legal({ inertia }: HttpContext) {
+    return inertia.render('marketing/legal', { siteUrl: this.siteUrl() })
+  }
+
+  privacy({ inertia }: HttpContext) {
+    return inertia.render('marketing/privacy', { siteUrl: this.siteUrl() })
+  }
+
+  thanks({ inertia }: HttpContext) {
+    return inertia.render('marketing/thanks', { siteUrl: this.siteUrl() })
+  }
+
+  /** Origine publique du site, pour les URLs absolues (canonical, hreflang, Open Graph). */
+  private siteUrl(): string {
+    return new URL(env.get('APP_URL', 'http://localhost:5555')).origin
+  }
+
+  /**
+   * Sitemap XML : chaque page indexable dans chaque langue, avec ses
+   * alternates hreflang.
+   */
+  sitemap({ response }: HttpContext) {
+    const origin = this.siteUrl()
+    const url = (locale: string, page: string) => `${origin}/${locale}${page ? `/${page}` : ''}`
+
+    const entries = SITEMAP_PAGES.flatMap((page) =>
+      SUPPORTED_LOCALES.map((locale) => {
+        const alternates = SUPPORTED_LOCALES.map(
+          (alt) => `<xhtml:link rel="alternate" hreflang="${alt}" href="${url(alt, page)}"/>`
+        ).join('')
+        return `<url><loc>${url(locale, page)}</loc>${alternates}</url>`
+      })
+    )
+
+    response.header('Content-Type', 'application/xml; charset=utf-8')
+    return response.send(
+      `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${entries.join('')}</urlset>`
+    )
+  }
+}

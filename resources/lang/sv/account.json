@@ -1,0 +1,54 @@
+{
+  "title": "Mitt konto",
+  "subtitle": "Hantera dina personuppgifter, ditt lösenord och ditt konto.",
+  "profile": {
+    "title": "Personuppgifter",
+    "language": "Språk",
+    "submit": "Spara",
+    "saved": "Dina uppgifter har sparats.",
+    "emailChanged": "Din adress har ändrats: bekräfta den via länken vi just har skickat till dig.",
+    "unverified": "Ej verifierad adress"
+  },
+  "password": {
+    "title": "Lösenord",
+    "current": "Nuvarande lösenord",
+    "new": "Nytt lösenord",
+    "confirm": "Bekräfta nytt lösenord",
+    "submit": "Byt lösenord",
+    "saved": "Ditt lösenord har ändrats.",
+    "wrongCurrent": "Det nuvarande lösenordet är felaktigt."
+  },
+  "danger": {
+    "title": "Farozon",
+    "subtitle": "Dessa åtgärder kan inte ångras.",
+    "deleteTitle": "Radera mitt konto",
+    "description": "Dina personuppgifter raderas och du förlorar åtkomsten till dina organisationer. De offertförfrågningar du har skapat sparas, utan ditt namn.",
+    "blockedIntro": "Du är sista ägaren av: {names}. Utse en annan ägare eller arkivera organisationen innan du raderar ditt konto.",
+    "blocked": "Det går inte att radera kontot: du är sista ägaren av {names}.",
+    "confirmPassword": "Bekräfta med ditt lösenord",
+    "submit": "Radera mitt konto permanent",
+    "confirm": "Radera ditt konto permanent? Åtgärden kan inte ångras.",
+    "deleted": "Ditt konto har raderats."
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "subtitle": "Logga in utan lösenord med fingeravtryck, ansikte eller kod på din enhet.",
+    "empty": "Ingen passkey registrerad.",
+    "name": "Passkeyns namn",
+    "defaultName": "Min enhet",
+    "add": "Lägg till en passkey",
+    "unsupported": "Din webbläsare stöder inte passkeys.",
+    "rename": "Byt namn",
+    "save": "Spara",
+    "remove": "Ta bort",
+    "confirmRemove": "Ta bort passkeyn ”{name}”?",
+    "createdAt": "Tillagd {date}",
+    "lastUsedAt": "använd {date}",
+    "neverUsed": "aldrig använd",
+    "added": "Passkey tillagd.",
+    "renamed": "Passkey omdöpt.",
+    "removed": "Passkey borttagen.",
+    "failed": "Passkeyn kunde inte registreras. Försök igen.",
+    "alreadyRegistered": "Den här enheten är redan registrerad."
+  }
+}

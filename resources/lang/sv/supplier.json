@@ -1,0 +1,25 @@
+{
+  "profile": {
+    "title": "Leverantörsprofil",
+    "subtitle": "Ange dina ledtider, certifieringar och leveransområde för att skapa trygghet hos köparna.",
+    "submit": "Spara profilen",
+    "success": "Leverantörsprofilen har uppdaterats."
+  },
+  "fields": {
+    "minOrderQuantity": "Minsta orderkvantitet",
+    "deliveryDays": "Leveranstid (dagar)",
+    "responseTimeDays": "Svarstid (dagar)",
+    "deliveryScope": "Leveransområde",
+    "certifications": "Certifieringar",
+    "certificationPlaceholder": "t.ex. ISO 9001",
+    "certificationAdd": "Lägg till en certifiering",
+    "certificationRemove": "Ta bort",
+    "bio": "Presentation"
+  },
+  "deliveryScope": {
+    "none": "Ej angivet",
+    "national": "Nationellt",
+    "europe": "Europa",
+    "worldwide": "Internationellt"
+  }
+}

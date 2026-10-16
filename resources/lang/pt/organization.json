@@ -1,0 +1,120 @@
+{
+  "settings": {
+    "title": "Definições da organização",
+    "subtitle": "Gira as informações gerais da sua organização.",
+    "submit": "Guardar",
+    "success": "Definições da organização atualizadas."
+  },
+  "fields": {
+    "name": "Nome",
+    "siret": "SIRET",
+    "vatNumber": "N.º de IVA intracomunitário",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "website": "Site",
+    "industry": "Setor de atividade",
+    "size": "Dimensão da organização",
+    "description": "Descrição",
+    "addressLine1": "Morada",
+    "addressLine2": "Complemento da morada",
+    "city": "Cidade",
+    "postalCode": "Código postal",
+    "country": "País",
+    "logo": "Logótipo"
+  },
+  "size": {
+    "none": "Não especificada",
+    "micro": "Microempresa",
+    "small": "Pequena empresa",
+    "medium": "Média empresa",
+    "large": "Grande empresa",
+    "enterprise": "Grupo / Empresa"
+  },
+  "logo": {
+    "none": "Sem logótipo",
+    "replace": "Substituir o logótipo",
+    "remove": "Remover o logótipo",
+    "cancel": "Cancelar"
+  },
+  "nav": {
+    "settings": "Definições",
+    "members": "Membros",
+    "create": "Nova organização"
+  },
+  "members": {
+    "title": "Membros da organização",
+    "subtitle": "Gira as funções e o acesso dos membros da sua organização.",
+    "columns": {
+      "name": "Membro",
+      "role": "Função"
+    },
+    "remove": "Remover",
+    "confirmRemove": "Remover este membro da organização?",
+    "roleUpdated": "Função do membro atualizada.",
+    "removed": "Membro removido da organização.",
+    "lastOwnerError": "Não é possível remover nem despromover o último proprietário da organização."
+  },
+  "invitations": {
+    "inviteTitle": "Convidar um membro",
+    "emailLabel": "E-mail",
+    "roleLabel": "Função",
+    "submit": "Enviar o convite",
+    "pendingTitle": "Convites pendentes",
+    "revoke": "Revogar",
+    "confirmRevoke": "Revogar este convite?",
+    "resend": "Reenviar",
+    "sent": "Convite enviado.",
+    "revoked": "Convite revogado.",
+    "resent": "Convite reenviado.",
+    "notPending": "Este convite já não está pendente: já foi aceite ou revogado.",
+    "alreadyMember": "Este endereço de e-mail já pertence a um membro da organização.",
+    "accept": {
+      "title": "Convite para aderir a uma organização",
+      "description": "Foi convidado(a) a aderir a {organization} com a função {role}.",
+      "submit": "Aceitar o convite",
+      "login": "Iniciar sessão",
+      "signup": "Criar uma conta",
+      "wrongAccount": "Iniciou sessão com {email}, mas este convite destina-se a outro endereço.",
+      "loginAsInvited": "Terminar sessão e iniciar sessão com o endereço correto",
+      "success": "Aderiu a {organization}.",
+      "invalid": "Este convite já não é válido.",
+      "emailMismatch": "Este convite destina-se a outro endereço de e-mail."
+    },
+    "invalid": {
+      "title": "Convite inválido",
+      "description": "Esta ligação de convite é inválida, expirou ou já foi utilizada."
+    }
+  },
+  "switch": {
+    "label": "Organização",
+    "done": "Está agora a trabalhar em {name}.",
+    "unavailable": "Esta organização já não está acessível."
+  },
+  "create": {
+    "title": "Criar uma organização",
+    "subtitle": "Passará automaticamente para esta nova organização.",
+    "submit": "Criar a organização",
+    "success": "Organização {name} criada."
+  },
+  "danger": {
+    "title": "Zona de perigo",
+    "subtitle": "Estas ações envolvem toda a organização. Reveja antes de confirmar."
+  },
+  "leave": {
+    "title": "Sair desta organização",
+    "description": "Perde o acesso aos respetivos dados. Um administrador terá de o convidar novamente.",
+    "submit": "Sair",
+    "confirm": "Sair desta organização?",
+    "done": "Saiu de {name}.",
+    "lastOwner": "É o último proprietário: promova outro membro ou arquive a organização antes de sair.",
+    "notMember": "Não é membro desta organização."
+  },
+  "archive": {
+    "title": "Arquivar esta organização",
+    "description": "Deixa de aparecer no catálogo público e no espaço dos seus membros. Os dados são conservados; apenas a equipa técnica a pode reativar.",
+    "submit": "Arquivar",
+    "confirm": "Arquivar {name}? Os seus membros perderão o acesso e não poderá reativá-la por si próprio.",
+    "done": "{name} foi arquivada.",
+    "alreadyArchived": "Esta organização já está arquivada."
+  }
+}

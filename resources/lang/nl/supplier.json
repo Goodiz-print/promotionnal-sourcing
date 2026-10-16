@@ -1,0 +1,25 @@
+{
+  "profile": {
+    "title": "Leveranciersprofiel",
+    "subtitle": "Vul uw levertijden, certificeringen en leveringsgebied in om inkopers gerust te stellen.",
+    "submit": "Profiel opslaan",
+    "success": "Leveranciersprofiel bijgewerkt."
+  },
+  "fields": {
+    "minOrderQuantity": "Minimale bestelhoeveelheid",
+    "deliveryDays": "Levertijd (dagen)",
+    "responseTimeDays": "Reactietijd (dagen)",
+    "deliveryScope": "Leveringsgebied",
+    "certifications": "Certificeringen",
+    "certificationPlaceholder": "bijv. ISO 9001",
+    "certificationAdd": "Certificering toevoegen",
+    "certificationRemove": "Verwijderen",
+    "bio": "Presentatie"
+  },
+  "deliveryScope": {
+    "none": "Niet opgegeven",
+    "national": "Nationaal",
+    "europe": "Europa",
+    "worldwide": "Wereldwijd"
+  }
+}

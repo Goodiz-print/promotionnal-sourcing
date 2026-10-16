@@ -1,0 +1,25 @@
+{
+  "profile": {
+    "title": "Profil dostawcy",
+    "subtitle": "Proszę podać terminy, certyfikaty i zasięg dostaw, aby zwiększyć zaufanie kupujących.",
+    "submit": "Zapisz profil",
+    "success": "Profil dostawcy został zaktualizowany."
+  },
+  "fields": {
+    "minOrderQuantity": "Minimalna ilość zamówienia",
+    "deliveryDays": "Czas dostawy (dni)",
+    "responseTimeDays": "Czas odpowiedzi (dni)",
+    "deliveryScope": "Zasięg dostaw",
+    "certifications": "Certyfikaty",
+    "certificationPlaceholder": "np. ISO 9001",
+    "certificationAdd": "Dodaj certyfikat",
+    "certificationRemove": "Usuń",
+    "bio": "Prezentacja"
+  },
+  "deliveryScope": {
+    "none": "Nie określono",
+    "national": "Krajowy",
+    "europe": "Europa",
+    "worldwide": "Międzynarodowy"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "title": "Mein Konto",
+  "subtitle": "Verwalten Sie Ihre persönlichen Daten, Ihr Passwort und Ihr Konto.",
+  "profile": {
+    "title": "Persönliche Daten",
+    "language": "Sprache",
+    "submit": "Speichern",
+    "saved": "Ihre Daten wurden gespeichert.",
+    "emailChanged": "Ihre Adresse hat sich geändert: Bitte bestätigen Sie sie über den Link, den wir Ihnen soeben gesendet haben.",
+    "unverified": "Adresse nicht bestätigt"
+  },
+  "password": {
+    "title": "Passwort",
+    "current": "Aktuelles Passwort",
+    "new": "Neues Passwort",
+    "confirm": "Neues Passwort bestätigen",
+    "submit": "Passwort ändern",
+    "saved": "Ihr Passwort wurde geändert.",
+    "wrongCurrent": "Das aktuelle Passwort ist falsch."
+  },
+  "danger": {
+    "title": "Gefahrenbereich",
+    "subtitle": "Diese Aktionen sind unwiderruflich.",
+    "deleteTitle": "Mein Konto löschen",
+    "description": "Ihre persönlichen Daten werden gelöscht und Sie verlieren den Zugriff auf Ihre Organisationen. Von Ihnen erstellte Angebotsanfragen bleiben ohne Ihren Namen erhalten.",
+    "blockedIntro": "Sie sind der letzte Inhaber von: {names}. Ernennen Sie einen weiteren Inhaber oder archivieren Sie die Organisation, bevor Sie Ihr Konto löschen.",
+    "blocked": "Löschen nicht möglich: Sie sind der letzte Inhaber von {names}.",
+    "confirmPassword": "Mit Ihrem Passwort bestätigen",
+    "submit": "Mein Konto endgültig löschen",
+    "confirm": "Ihr Konto endgültig löschen? Diese Aktion ist unwiderruflich.",
+    "deleted": "Ihr Konto wurde gelöscht."
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "subtitle": "Melden Sie sich ohne Passwort an – per Fingerabdruck, Gesichtserkennung oder Gerätecode.",
+    "empty": "Keine Passkey registriert.",
+    "name": "Name des Passkeys",
+    "defaultName": "Mein Gerät",
+    "add": "Passkey hinzufügen",
+    "unsupported": "Ihr Browser unterstützt keine Passkeys.",
+    "rename": "Umbenennen",
+    "save": "Speichern",
+    "remove": "Löschen",
+    "confirmRemove": "Passkey „{name}“ löschen?",
+    "createdAt": "Hinzugefügt am {date}",
+    "lastUsedAt": "verwendet am {date}",
+    "neverUsed": "nie verwendet",
+    "added": "Passkey hinzugefügt.",
+    "renamed": "Passkey umbenannt.",
+    "removed": "Passkey gelöscht.",
+    "failed": "Der Passkey konnte nicht registriert werden. Bitte versuchen Sie es erneut.",
+    "alreadyRegistered": "Dieses Gerät ist bereits registriert."
+  }
+}
