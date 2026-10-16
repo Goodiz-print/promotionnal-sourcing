@@ -20,6 +20,49 @@ export const CONTENT_LOCALES = ['fr', 'en'] as const
 
 export type ContentLocale = (typeof CONTENT_LOCALES)[number]
 
+/**
+ * Langues cibles de la traduction automatique du contenu (#75, liste figée) :
+ * 24 de l'UE et 8 hors UE. Ru et be sont exclues (décision du 15 octobre 2026).
+ * Une traduction est générée par produit, catégorie, attribut et valeur, pour
+ * chaque langue de cette liste sauf la langue source.
+ */
+export const TRANSLATION_LOCALES = [
+  'bg',
+  'cs',
+  'da',
+  'de',
+  'el',
+  'en',
+  'es',
+  'et',
+  'fi',
+  'fr',
+  'ga',
+  'hr',
+  'hu',
+  'it',
+  'lt',
+  'lv',
+  'mt',
+  'nl',
+  'pl',
+  'pt',
+  'ro',
+  'sk',
+  'sl',
+  'sv',
+  'no',
+  'is',
+  'uk',
+  'sr',
+  'bs',
+  'mk',
+  'sq',
+  'tr',
+] as const
+
+export type TranslationLocale = (typeof TRANSLATION_LOCALES)[number]
+
 /** Langue de contenu obligatoire à la saisie (sert notamment à dériver le slug). */
 export const DEFAULT_CONTENT_LOCALE: ContentLocale = 'fr'
 

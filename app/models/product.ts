@@ -7,10 +7,14 @@ import Category from '#models/category'
 import AttributeValue from '#models/attribute_value'
 import ProductAttribute from '#models/product_attribute'
 import ProductTranslation from '#models/product_translation'
+import type { TranslationLocale } from '#shared/types/i18n'
 import ProductImage from '#models/product_image'
 
 export default class Product extends ProductSchema {
   static table = 'products'
+
+  /** Langue dans laquelle le fournisseur a saisi le contenu (#75). */
+  declare sourceLocale: TranslationLocale
 
   /**
    * Pendant de `Supplier.fromLiveOrganization` : masque les produits dont la

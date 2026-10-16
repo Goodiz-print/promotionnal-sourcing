@@ -105,6 +105,8 @@ export default class SupplierProductService {
       slug,
       sourceLocale: data.sourceLocale,
       ...this.toColumns(data),
+      // Explicite : sans cela, `product.isActive` resterait indéfini après l'insert.
+      isActive: data.isActive ?? true,
     })
 
     await this.writeTranslations(product, data.translations)
@@ -112,7 +114,9 @@ export default class SupplierProductService {
     await this.attachImages(product, files, 0)
     await this.refreshPrimaryImage(product)
     await this.queueEmbedding(product)
-    await this.translationQueue.queue('product', product.id, data.sourceLocale)
+    if (product.isActive) {
+      await this.translationQueue.queue('product', product.id, data.sourceLocale)
+    }
 
     return product
   }
@@ -142,7 +146,7 @@ export default class SupplierProductService {
     await this.attachImages(product, files, last ? last.position + 1 : 0)
     await this.refreshPrimaryImage(product)
     await this.queueEmbedding(product)
-    await this.translationQueue.queue('product', product.id, sourceLocale)
+    if (product.isActive) await this.translationQueue.queue('product', product.id, sourceLocale)
 
     return product
   }

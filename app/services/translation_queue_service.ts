@@ -1,7 +1,7 @@
 import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
 import TranslateEntityJob from '#jobs/translate_entity_job'
-import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
+import { TRANSLATION_LOCALES, type TranslationLocale } from '#shared/types/i18n'
 import type { TranslatableEntity } from '#shared/types/ai'
 
 /**
@@ -16,9 +16,9 @@ export default class TranslationQueueService {
   async queue(
     entity: TranslatableEntity,
     entityId: number,
-    sourceLocale: ContentLocale
+    sourceLocale: TranslationLocale
   ): Promise<void> {
-    const targetLocales = CONTENT_LOCALES.filter((locale) => locale !== sourceLocale)
+    const targetLocales = TRANSLATION_LOCALES.filter((locale) => locale !== sourceLocale)
     if (targetLocales.length === 0) return
     try {
       await TranslateEntityJob.dispatch({ entity, entityId, sourceLocale, targetLocales })

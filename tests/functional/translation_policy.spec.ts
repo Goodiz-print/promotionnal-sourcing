@@ -14,9 +14,16 @@ import { seededDevUser } from '#tests/utils/organizations'
 class FakeTranslator extends TranslationProvider {
   readonly model = 'fake-translate'
   calls = 0
-  async translate(fields: Record<string, string>, _source: string, target: string) {
+  requested: string[][] = []
+  async translate(fields: Record<string, string>, _source: string, targets: string[]) {
     this.calls++
-    return Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, `[${target}] ${v}`]))
+    this.requested.push(targets)
+    return Object.fromEntries(
+      targets.map((target) => [
+        target,
+        Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, `[${target}] ${v}`])),
+      ])
+    )
   }
 }
 
@@ -114,7 +121,9 @@ test.group('Politique de traduction — produits', (group) => {
     const rows = await translations(product.id)
     assert.isFalse(rows.en.isAuto)
     assert.equal(rows.en.name, 'Recycled notebook (mine)')
-    assert.equal(translator.calls, 0)
+    // Un seul appel pour les autres langues, mais jamais pour la langue saisie à la main.
+    assert.equal(translator.calls, 1)
+    assert.notInclude(translator.requested[0], 'en')
   })
 
   test('mise à jour partielle : une seule langue, le reste est conservé', async ({
