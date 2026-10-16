@@ -16,7 +16,7 @@ function unitVector(index: number): number[] {
 
 async function setEmbedding(slug: string, vector: number[]): Promise<void> {
   const product = await Product.findByOrFail('slug', slug)
-  await db.rawQuery('UPDATE products SET embedding = ?::vector WHERE id = ?', [
+  await db.rawQuery('UPDATE products SET embedding = ?::halfvec WHERE id = ?', [
     toPgVector(vector),
     product.id,
   ])

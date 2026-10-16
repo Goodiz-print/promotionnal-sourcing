@@ -78,11 +78,10 @@ export default class EmbeddingService {
     const vector = await this.embed(text)
     if (!vector) return false
 
-    await db.rawQuery('UPDATE products SET embedding = ?::vector, embedding_key = ? WHERE id = ?', [
-      toPgVector(vector),
-      key,
-      product.id,
-    ])
+    await db.rawQuery(
+      'UPDATE products SET embedding = ?::halfvec, embedding_key = ? WHERE id = ?',
+      [toPgVector(vector), key, product.id]
+    )
     logger.info({ idempotencyKey: key, productId: product.id, outcome: 'called' }, 'ai embedding')
     return true
   }

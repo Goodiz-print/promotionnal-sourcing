@@ -57,7 +57,7 @@ export default class ProductCatalogueService {
       // index HNSW `products_embedding_idx`) parmi les produits vectorisés.
       query
         .whereNotNull('embedding')
-        .orderByRaw('embedding <=> ?::vector', [toPgVector(queryEmbedding)])
+        .orderByRaw('embedding <=> ?::halfvec', [toPgVector(queryEmbedding)])
     } else if (search) {
       // Repli full-text locale-aware (IA indisponible ou requête non vectorisée).
       query
