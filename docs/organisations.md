@@ -185,11 +185,12 @@ secteur, taille, description, adresse, logo. **Slug non modifiable** ici.
 Accessible à toute organisation (buyer/supplier/both) — contrairement au
 profil fournisseur, réservé aux `supplier`/`both`.
 
-- **Migration** `…965_alter_organizations_add_logo_public_id` : `logo_public_id`
-  nullable, même rôle que `product_images.public_id` (permet `destroy()` de
-  l'ancien logo Cloudinary lors d'un remplacement).
+- **Migration** `…965_alter_organizations_add_logo_public_id` (historique, Cloudinary)
+  puis `…973_replace_cloudinary_references_with_storage_objects` :
+  `logo_public_id` est remplacé par `logo_storage_object_id` (FK `storage_objects`).
 - **Service** `app/services/organization_service.ts` : `update`, `updateLogo`
-  (upload + suppression ancien asset), `removeLogo`. `CloudinaryService`
+  (stockage dédoublonné + `pending_delete` de l'ancien logo dans la même
+  transaction), `removeLogo`. `StorageService`
   injecté (testable sans appel réseau, cf. `SupplierProductService`).
 - **Controller** `app/controllers/organization/settings_controller.ts` :
   `show` (GET) + `update` (POST multipart, pour porter l'upload du logo).

@@ -15,7 +15,6 @@ test.group("Catalogue — galerie d'images produit", (group) => {
       {
         productId: product.id,
         secureUrl: 'https://img.example/second.jpg',
-        publicId: 'promotionnal-sourcing/test/products/crayon-aquarelle-bleu/second',
         position: 1,
         width: 800,
         height: 600,
@@ -23,7 +22,6 @@ test.group("Catalogue — galerie d'images produit", (group) => {
       {
         productId: product.id,
         secureUrl: 'https://img.example/first.jpg',
-        publicId: 'promotionnal-sourcing/test/products/crayon-aquarelle-bleu/first',
         position: 0,
         width: 800,
         height: 600,

@@ -95,7 +95,7 @@ export default class ProductController {
   }
 
   /**
-   * Supprime le produit (et ses assets Cloudinary).
+   * Supprime le produit (et planifie la purge de ses fichiers).
    */
   async destroy({ auth, bouncer, response, params, i18n, session }: HttpContext) {
     const org = await this.organizations.currentFor(auth.getUserOrFail())

@@ -17,17 +17,18 @@
 
 ## Dépendances système
 
-### Cloudinary (upload et hébergement des images)
+### Cellar (stockage des fichiers — Clever Cloud, API S3)
 
-Les images (galerie produit…) sont uploadées sur Cloudinary via `app/services/cloudinary_service.ts` (SDK `cloudinary`).
+Les fichiers (galerie produit, logos…) sont stockés sur Cellar. Détail et invariants : [`docs/storage.md`](docs/storage.md).
 
-- **Config** : `config/cloudinary.ts` ; env `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (validées dans `start/env.ts`, documentées dans `.env.example`).
-- **Convention de dossier imposée** : `promotionnal-sourcing/<environnement>/…` (`<environnement>` = `NODE_ENV`) — isole les assets par environnement.
-- **Multi-fichiers** : `uploadMany` (galerie) ; suppression des assets remplacés via `destroy`/`destroyMany` (`public_id`).
+- **Config** : `config/storage.ts` ; env `CELLAR_ENDPOINT`, `CELLAR_BUCKET`, `CELLAR_ACCESS_KEY_ID`, `CELLAR_SECRET_ACCESS_KEY` (validées dans `start/env.ts`, documentées dans `.env.example`).
+- **Abstraction** : `StorageDriver` (classe abstraite, `app/services/storage/`) liée à `CellarStorageDriver` dans `providers/storage_provider.ts`. Les services injectent `StorageService`, jamais le driver directement.
+- **Clé déterministe imposée** : `promotionnal-sourcing/<NODE_ENV>/<sha256>.<ext>` — jamais de nom aléatoire (casserait le dédoublonnage).
+- **Zéro orphelin** : registre `storage_objects` (`pending_upload` → `ready` → `pending_delete`). Tout upload passe par `StorageService.store`, tout remplacement/suppression de référence par `StorageService.release` **dans la transaction** qui met la référence à jour. Toute nouvelle colonne qui référence un fichier s'ajoute à `STORAGE_REFERENCES` (`shared/types/storage.ts`).
 
 ### Ghostscript (compression PDF) — _prévu, non encore implémenté_
 
-> ⚠️ Cible : compresser les PDFs uploadés (`-dPDFSETTINGS=/ebook`) avant envoi sur Cloudinary via un futur `app/services/pdf_service.ts`. **Ce service n'existe pas encore.**
+> ⚠️ Cible : compresser les PDFs uploadés (`-dPDFSETTINGS=/ebook`) avant envoi sur Cellar via un futur `app/services/pdf_service.ts`. **Ce service n'existe pas encore.**
 
 - **Local** : `brew install ghostscript`
 - **Docker/prod** : `apt-get install -y ghostscript` dans le Dockerfile

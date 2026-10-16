@@ -30,3 +30,16 @@ await PurgeExpiredInvitationsJob.schedule({})
   .cron('15 3 * * *')
   .timezone('Europe/Paris')
   .run()
+
+import RecoverStorageUploadsJob from '#jobs/recover_storage_uploads_job'
+
+/**
+ * Reprise horaire du stockage : envois interrompus (`pending_upload` > 24 h) et
+ * purges perdues (`pending_delete` > 24 h). Le seuil de 24 h, pas la fréquence,
+ * protège les envois en cours.
+ */
+await RecoverStorageUploadsJob.schedule({})
+  .id('recover-storage-uploads')
+  .cron('30 * * * *')
+  .timezone('Europe/Paris')
+  .run()

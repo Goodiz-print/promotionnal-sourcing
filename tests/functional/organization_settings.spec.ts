@@ -3,51 +3,19 @@ import { UserFactory } from '#database/factories/user_factory'
 import Organization from '#models/organization'
 import OrganizationTransformer from '#transformers/organization_transformer'
 import OrganizationService from '#services/organization_service'
-import OrganizationContextService from '#services/organization_context_service'
-import OrganizationMembersService from '#services/organization_members_service'
-import CloudinaryService, { type CloudinaryUploader } from '#services/cloudinary_service'
-import type { MultipartFile } from '@adonisjs/core/bodyparser'
+import StorageObject from '#models/storage_object'
+import app from '@adonisjs/core/services/app'
+import { uploadedFile, useFakeStorage } from '#tests/utils/storage'
 import { useDatabase } from '#tests/utils/setup'
 import { createMemberOf, seededDevUser } from '#tests/utils/organizations'
 
-function fakeFile(name: string): MultipartFile {
-  return { tmpPath: `/tmp/${name}` } as unknown as MultipartFile
-}
-
-/**
- * Faux uploader Cloudinary : aucun appel réseau, enregistre les suppressions.
- */
-function fakeUploader() {
-  const destroyed: string[] = []
-  const uploader: CloudinaryUploader = {
-    async upload(file, options) {
-      const filename = file.split('/').pop()
-      return {
-        secure_url: `https://cdn.test/${options.folder}/${filename}`,
-        public_id: `${options.folder}/${filename}`,
-        width: 200,
-        height: 200,
-      } as Awaited<ReturnType<CloudinaryUploader['upload']>>
-    },
-    async destroy(publicId) {
-      destroyed.push(publicId)
-      return { result: 'ok' }
-    },
-  }
-  return { uploader, destroyed }
-}
-
-function service(uploader: CloudinaryUploader) {
-  const context = new OrganizationContextService()
-  return new OrganizationService(
-    new CloudinaryService(uploader),
-    context,
-    new OrganizationMembersService(context)
-  )
+function service() {
+  return app.container.make(OrganizationService)
 }
 
 test.group('Paramètres généraux de l’organisation', (group) => {
   useDatabase(group, { seed: 'full' })
+  const storage = useFakeStorage(group)
 
   test("l'écran affiche les paramètres de l'organisation courante", async ({ client }) => {
     const user = await seededDevUser('eurogoods-org')
@@ -104,41 +72,44 @@ test.group('Paramètres généraux de l’organisation', (group) => {
     assert.equal(org.city, 'Bruxelles')
   })
 
-  test('OrganizationService.updateLogo uploade et remplace le logo (destroy ancien)', async ({
+  test('OrganizationService.updateLogo stocke puis remplace le logo (ancien objet purgé)', async ({
     assert,
   }) => {
     const org = await Organization.findByOrFail('slug', 'eurogoods-org')
-    const { uploader, destroyed } = fakeUploader()
-    const svc = service(uploader)
+    const svc = await service()
 
-    await svc.updateLogo(org, fakeFile('logo1.png'))
+    await svc.updateLogo(org, await uploadedFile('logo-1'))
     await org.refresh()
-    assert.isTrue(org.logoUrl!.includes('logo1.png'))
-    const firstPublicId = org.logoPublicId
+    const first = await StorageObject.findOrFail(org.logoStorageObjectId!)
+    assert.equal(org.logoUrl, `https://cellar.test/test-bucket/${first.key}`)
 
-    await svc.updateLogo(org, fakeFile('logo2.png'))
+    await svc.updateLogo(org, await uploadedFile('logo-2'))
     await org.refresh()
-    assert.isTrue(org.logoUrl!.includes('logo2.png'))
-    assert.include(destroyed, firstPublicId!)
+    const second = await StorageObject.findOrFail(org.logoStorageObjectId!)
+
+    assert.notEqual(first.key, second.key)
+    assert.isFalse(storage.driver.objects.has(first.key))
+    assert.isTrue(storage.driver.objects.has(second.key))
+    assert.lengthOf(await StorageObject.query(), 1)
   })
 
-  test('OrganizationService.removeLogo nettoie l’asset et remet logoUrl à null', async ({
+  test('OrganizationService.removeLogo purge l’objet et remet logoUrl à null', async ({
     assert,
   }) => {
     const org = await Organization.findByOrFail('slug', 'eurogoods-org')
-    const { uploader, destroyed } = fakeUploader()
-    const svc = service(uploader)
+    const svc = await service()
 
-    await svc.updateLogo(org, fakeFile('logo.png'))
+    await svc.updateLogo(org, await uploadedFile('logo'))
     await org.refresh()
-    const publicId = org.logoPublicId!
+    const object = await StorageObject.findOrFail(org.logoStorageObjectId!)
 
     await svc.removeLogo(org)
     await org.refresh()
 
     assert.isNull(org.logoUrl)
-    assert.isNull(org.logoPublicId)
-    assert.include(destroyed, publicId)
+    assert.isNull(org.logoStorageObjectId)
+    assert.isFalse(storage.driver.objects.has(object.key))
+    assert.lengthOf(await StorageObject.query(), 0)
   })
 
   test('le transformer expose la forme OrganizationType (dates en ISO)', async ({ assert }) => {

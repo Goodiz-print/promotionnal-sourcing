@@ -56,12 +56,13 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
-  | Cloudinary (upload et hébergement des images)
+  | Cellar (Clever Cloud, API S3) — stockage des fichiers
   |----------------------------------------------------------
   */
-  CLOUDINARY_CLOUD_NAME: Env.schema.string(),
-  CLOUDINARY_API_KEY: Env.schema.string(),
-  CLOUDINARY_API_SECRET: Env.schema.string(),
+  CELLAR_ENDPOINT: Env.schema.string(),
+  CELLAR_BUCKET: Env.schema.string(),
+  CELLAR_ACCESS_KEY_ID: Env.schema.string(),
+  CELLAR_SECRET_ACCESS_KEY: Env.schema.secret(),
 
   /*
   |----------------------------------------------------------
