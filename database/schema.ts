@@ -8,7 +8,15 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
 export class AttributeTranslationSchema extends BaseModel {
-  static $columns = ['attributeId', 'createdAt', 'id', 'locale', 'name', 'updatedAt'] as const
+  static $columns = [
+    'attributeId',
+    'createdAt',
+    'id',
+    'locale',
+    'name',
+    'translationKey',
+    'updatedAt',
+  ] as const
   $columns = AttributeTranslationSchema.$columns
   @column()
   declare attributeId: number
@@ -20,12 +28,22 @@ export class AttributeTranslationSchema extends BaseModel {
   declare locale: string
   @column()
   declare name: string
+  @column()
+  declare translationKey: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }
 
 export class AttributeValueTranslationSchema extends BaseModel {
-  static $columns = ['attributeValueId', 'createdAt', 'id', 'label', 'locale', 'updatedAt'] as const
+  static $columns = [
+    'attributeValueId',
+    'createdAt',
+    'id',
+    'label',
+    'locale',
+    'translationKey',
+    'updatedAt',
+  ] as const
   $columns = AttributeValueTranslationSchema.$columns
   @column()
   declare attributeValueId: number
@@ -37,6 +55,8 @@ export class AttributeValueTranslationSchema extends BaseModel {
   declare label: string
   @column()
   declare locale: string
+  @column()
+  declare translationKey: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }
@@ -120,6 +140,7 @@ export class CategoryTranslationSchema extends BaseModel {
     'id',
     'locale',
     'name',
+    'translationKey',
     'updatedAt',
   ] as const
   $columns = CategoryTranslationSchema.$columns
@@ -135,6 +156,8 @@ export class CategoryTranslationSchema extends BaseModel {
   declare locale: string
   @column()
   declare name: string
+  @column()
+  declare translationKey: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }
@@ -389,6 +412,7 @@ export class ProductTranslationSchema extends BaseModel {
     'locale',
     'name',
     'productId',
+    'translationKey',
     'updatedAt',
   ] as const
   $columns = ProductTranslationSchema.$columns
@@ -404,6 +428,8 @@ export class ProductTranslationSchema extends BaseModel {
   declare name: string
   @column()
   declare productId: number
+  @column()
+  declare translationKey: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }
@@ -413,6 +439,7 @@ export class ProductSchema extends BaseModel {
     'categoryId',
     'createdAt',
     'currency',
+    'embeddingKey',
     'id',
     'imageUrl',
     'isActive',
@@ -433,6 +460,8 @@ export class ProductSchema extends BaseModel {
   declare createdAt: DateTime
   @column()
   declare currency: string
+  @column()
+  declare embeddingKey: string | null
   @column({ isPrimary: true })
   declare id: number
   @column()

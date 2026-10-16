@@ -14,6 +14,7 @@ import type { FetchLike } from '#shared/types/ai'
  */
 export default class OpenAiCompatibleEmbeddingProvider extends EmbeddingProvider {
   readonly name = 'openai-compatible' as const
+  readonly model = aiConfig.openaiCompatible.model
 
   constructor(private fetchFn: FetchLike = fetch as unknown as FetchLike) {
     super()

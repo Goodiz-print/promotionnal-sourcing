@@ -1,6 +1,8 @@
 import type { ApplicationService } from '@adonisjs/core/types'
 import aiConfig from '#config/ai'
 import EmbeddingProvider from '#services/embeddings/embedding_provider'
+import TranslationProvider from '#services/translation/translation_provider'
+import MistralTranslationProvider from '#services/translation/mistral_translation_provider'
 import { embeddingProviderFor } from '#services/embeddings/provider_registry'
 
 /**
@@ -15,6 +17,11 @@ export default class AiProvider {
   register() {
     this.app.container.singleton(EmbeddingProvider, (resolver) => {
       return resolver.make(embeddingProviderFor(aiConfig.provider))
+    })
+
+    // Traduction : Mistral uniquement (voir #75).
+    this.app.container.singleton(TranslationProvider, (resolver) => {
+      return resolver.make(MistralTranslationProvider)
     })
   }
 }

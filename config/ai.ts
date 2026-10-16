@@ -27,6 +27,16 @@ const aiConfig = {
     model: env.get('MISTRAL_EMBED_MODEL', 'mistral-embed'),
   },
 
+  /**
+   * Traduction automatique (Mistral). `promptVersion` entre dans la clé
+   * d'idempotence : le bumper force la retraduction après un changement de prompt.
+   */
+  translation: {
+    enabled: env.get('AI_TRANSLATION_ENABLED', false),
+    model: env.get('MISTRAL_TRANSLATION_MODEL', 'mistral-small-latest'),
+    promptVersion: 1,
+  },
+
   openaiCompatible: {
     baseUrl: env.get('AI_BASE_URL', 'https://api.openai.com/v1'),
     apiKey: env.get('AI_API_KEY'),

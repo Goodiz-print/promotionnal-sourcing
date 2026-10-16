@@ -21,6 +21,7 @@ function vector(length = DIMS): number[] {
 function fakeProvider(out: number[], onEmbed?: (text: string) => void): EmbeddingProvider {
   return {
     name: 'mistral',
+    model: 'test-embed',
     async embed(text) {
       onEmbed?.(text)
       return out

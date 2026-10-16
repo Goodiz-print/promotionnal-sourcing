@@ -10,6 +10,9 @@ export default abstract class EmbeddingProvider {
   /** Identifiant du provider (messages d'erreur / logs). */
   abstract readonly name: AiProvider
 
+  /** Modèle d'embedding utilisé (entre dans la clé d'idempotence). */
+  abstract readonly model: string
+
   /** Embedding d'un texte non vide. Lève en cas d'échec API. */
   abstract embed(text: string): Promise<number[]>
 }

@@ -28,3 +28,37 @@ export type FetchLike = (
   url: string,
   init: { method: string; headers: Record<string, string>; body: string }
 ) => Promise<HttpResponseLike>
+
+/**
+ * Entités traduisibles par Mistral : table de traduction, clé étrangère et
+ * champs texte traduits (registre dans `TranslationService`).
+ */
+export const TRANSLATABLE_ENTITIES = [
+  'product',
+  'category',
+  'attribute',
+  'attribute_value',
+] as const
+
+export type TranslatableEntity = (typeof TRANSLATABLE_ENTITIES)[number]
+
+export interface TranslationTarget {
+  entity: TranslatableEntity
+  entityId: number
+  sourceLocale: string
+  targetLocale: string
+}
+
+export type TranslationOutcome = 'called' | 'skipped'
+
+/** Sous-ensemble du SDK Mistral dont dépend le traducteur (injectable en test). */
+export interface MistralChatClientLike {
+  chat: {
+    complete(request: {
+      model: string
+      messages: Array<{ role: 'system' | 'user'; content: string }>
+      responseFormat: { type: 'json_object' }
+      temperature: number
+    }): Promise<{ choices: Array<{ message: { content?: unknown } }> }>
+  }
+}
