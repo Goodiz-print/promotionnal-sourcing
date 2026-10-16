@@ -3,7 +3,7 @@ import { provide } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { SUPPORTED_LOCALES } from '#shared/types/i18n'
+import { CONTENT_LOCALES } from '#shared/types/i18n'
 import BaseButton from '~/components/base_button.vue'
 import ProductTranslationsFields from '~/components/products/form/product_translations_fields.vue'
 import ProductDetailsFields from '~/components/products/form/product_details_fields.vue'
@@ -25,7 +25,7 @@ const { t, locale } = useI18n()
 
 function initialTranslations(): ProductFormState['translations'] {
   const translations = {} as ProductFormState['translations']
-  for (const current of SUPPORTED_LOCALES) {
+  for (const current of CONTENT_LOCALES) {
     translations[current] = {
       name: props.product?.translations[current]?.name ?? '',
       description: props.product?.translations[current]?.description ?? '',

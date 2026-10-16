@@ -1,0 +1,23 @@
+{
+  "shared": {
+    "fields": {
+      "fullName": "volledige naam",
+      "email": "e-mail",
+      "password": "wachtwoord",
+      "passwordConfirmation": "wachtwoordbevestiging",
+      "locale": "taal",
+      "currentPassword": "huidig wachtwoord"
+    },
+    "messages": {
+      "required": "Het veld {field} is verplicht",
+      "string": "Het veld {field} moet een tekenreeks zijn",
+      "email": "Het veld {field} moet een geldig e-mailadres bevatten",
+      "minLength": "Het veld {field} moet minstens {min} tekens bevatten",
+      "maxLength": "Het veld {field} mag niet langer zijn dan {max} tekens",
+      "confirmed": "De bevestiging van het veld {field} komt niet overeen",
+      "enum": "De waarde van het veld {field} is ongeldig",
+      "database.unique": "Deze waarde voor {field} is al in gebruik",
+      "notSameAs": "Het nieuwe {field} moet verschillen van het oude"
+    }
+  }
+}

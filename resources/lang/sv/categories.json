@@ -1,0 +1,39 @@
+{
+  "index": {
+    "title": "Kategorier",
+    "subtitle": "Administrera katalogens taxonomi (kategoriträd).",
+    "empty": "Inga kategorier ännu. Skapa en.",
+    "columns": {
+      "name": "Namn",
+      "slug": "Identifierare",
+      "parent": "Överordnad",
+      "products": "Produkter"
+    }
+  },
+  "create": { "title": "Ny kategori" },
+  "edit": { "title": "Redigera kategori" },
+  "newCategory": "Ny kategori",
+  "edit": "Redigera",
+  "delete": "Ta bort",
+  "save": "Spara",
+  "cancel": "Avbryt",
+  "confirmDelete": "Ta bort den här kategorin?",
+  "noParent": "Ingen (rotkategori)",
+  "fields": {
+    "slug": "Identifierare (slug)",
+    "slugHint": "Gemener, siffror och bindestreck. Kan inte ändras efteråt.",
+    "parent": "Överordnad kategori",
+    "name": "Namn",
+    "description": "Beskrivning",
+    "synonyms": "Synonymer",
+    "synonymsHint": "Separerade med kommatecken (förbättrar sökningen)."
+  },
+  "flash": {
+    "created": "Kategori skapad.",
+    "updated": "Kategori uppdaterad.",
+    "deleted": "Kategori borttagen.",
+    "cycle": "En kategori kan inte vara sin egen överordnade eller överordnad till någon av sina underkategorier.",
+    "hasChildren": "Det går inte att ta bort: kategorin har underkategorier.",
+    "hasProducts": "Det går inte att ta bort: produkter är kopplade till kategorin."
+  }
+}

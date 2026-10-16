@@ -1,0 +1,54 @@
+{
+  "title": "Moje konto",
+  "subtitle": "Zarządzaj danymi osobowymi, hasłem i kontem.",
+  "profile": {
+    "title": "Dane osobowe",
+    "language": "Język",
+    "submit": "Zapisz",
+    "saved": "Państwa dane zostały zapisane.",
+    "emailChanged": "Państwa adres został zmieniony. Proszę go potwierdzić za pomocą linku, który właśnie wysłaliśmy.",
+    "unverified": "Adres niezweryfikowany"
+  },
+  "password": {
+    "title": "Hasło",
+    "current": "Obecne hasło",
+    "new": "Nowe hasło",
+    "confirm": "Potwierdź nowe hasło",
+    "submit": "Zmień hasło",
+    "saved": "Państwa hasło zostało zmienione.",
+    "wrongCurrent": "Obecne hasło jest nieprawidłowe."
+  },
+  "danger": {
+    "title": "Strefa zagrożenia",
+    "subtitle": "Tych działań nie można cofnąć.",
+    "deleteTitle": "Usuń moje konto",
+    "description": "Państwa dane osobowe zostaną usunięte, a dostęp do organizacji utracony. Utworzone przez Państwa zapytania ofertowe zostaną zachowane, bez Państwa nazwiska.",
+    "blockedIntro": "Są Państwo ostatnim właścicielem: {names}. Przed usunięciem konta proszę nadać uprawnienia właściciela innej osobie lub zarchiwizować organizację.",
+    "blocked": "Usunięcie niemożliwe: są Państwo ostatnim właścicielem {names}.",
+    "confirmPassword": "Potwierdź swoim hasłem",
+    "submit": "Usuń moje konto na stałe",
+    "confirm": "Usunąć konto na stałe? Tej operacji nie można cofnąć.",
+    "deleted": "Państwa konto zostało usunięte."
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "subtitle": "Logowanie bez hasła za pomocą odcisku palca, twarzy lub kodu urządzenia.",
+    "empty": "Brak zapisanych passkeys.",
+    "name": "Nazwa passkey",
+    "defaultName": "Moje urządzenie",
+    "add": "Dodaj passkey",
+    "unsupported": "Państwa przeglądarka nie obsługuje passkeys.",
+    "rename": "Zmień nazwę",
+    "save": "Zapisz",
+    "remove": "Usuń",
+    "confirmRemove": "Usunąć passkey „{name}”?",
+    "createdAt": "Dodano {date}",
+    "lastUsedAt": "użyto {date}",
+    "neverUsed": "nigdy nie użyto",
+    "added": "Passkey dodany.",
+    "renamed": "Nazwa passkey zmieniona.",
+    "removed": "Passkey usunięty.",
+    "failed": "Nie udało się zapisać passkey. Proszę spróbować ponownie.",
+    "alreadyRegistered": "To urządzenie jest już zarejestrowane."
+  }
+}

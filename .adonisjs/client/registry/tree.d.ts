@@ -5,6 +5,13 @@ export interface ApiDefinition {
   eventStream: typeof routes['event_stream']
   subscribe: typeof routes['subscribe']
   unsubscribe: typeof routes['unsubscribe']
+  marketing: {
+    sitemap: typeof routes['marketing.sitemap']
+    contact: typeof routes['marketing.contact']
+    legal: typeof routes['marketing.legal']
+    privacy: typeof routes['marketing.privacy']
+    thanks: typeof routes['marketing.thanks']
+  }
   locale: {
     update: typeof routes['locale.update']
   }

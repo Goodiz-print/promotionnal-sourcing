@@ -1,0 +1,13 @@
+{
+  "appName": "Promotional Sourcing",
+  "nav": {
+    "login": "Anmelden",
+    "signup": "Registrieren",
+    "logout": "Abmelden"
+  },
+  "language": {
+    "label": "Sprache",
+    "fr": "Français",
+    "en": "English"
+  }
+}

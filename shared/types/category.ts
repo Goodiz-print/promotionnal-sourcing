@@ -1,4 +1,4 @@
-import type { Locale } from './i18n.js'
+import type { ContentLocale, Locale } from './i18n.js'
 
 export interface CategoryTranslationType {
   locale: Locale
@@ -45,7 +45,7 @@ export type CategoryEditType = {
   slug: string
   parentId: number | null
   synonyms: string[]
-  translations: Record<Locale, { name: string; description: string | null }>
+  translations: Record<ContentLocale, { name: string; description: string | null }>
 }
 
 /**
@@ -63,7 +63,7 @@ export interface CreateCategoryInput {
   slug: string
   parentId?: number | null
   synonyms?: string[]
-  translations: Record<Locale, CategoryTranslationInput>
+  translations: Record<ContentLocale, CategoryTranslationInput>
 }
 
 /**
@@ -72,5 +72,5 @@ export interface CreateCategoryInput {
 export interface UpdateCategoryInput {
   parentId?: number | null
   synonyms?: string[]
-  translations: Record<Locale, CategoryTranslationInput>
+  translations: Record<ContentLocale, CategoryTranslationInput>
 }

@@ -1,0 +1,189 @@
+{
+  "seo": {
+    "title": "Promotional Sourcing.eu — Il sourcing di oggetti promozionali, finalmente affidabile",
+    "description": "Piattaforma B2B europea per il sourcing di oggetti promozionali: 300 fornitori, oltre 1 milione di prodotti, una ricerca multicriterio che funziona davvero — a differenza delle soluzioni esistenti."
+  },
+  "org": {
+    "description": "Piattaforma B2B europea che mette in contatto le agenzie di comunicazione tramite oggetti con i fornitori di oggetti promozionali in tutta Europa."
+  },
+  "og": {
+    "imageAlt": "Promotional Sourcing.eu — Il sourcing di oggetti promozionali. Semplice. Intelligente. Europeo."
+  },
+  "nav": {
+    "agences": "Agenzie",
+    "fournisseurs": "Fornitori",
+    "contact": "Contatti",
+    "cta": "Contattaci",
+    "menuAria": "Apri il menu",
+    "switchTo": "English",
+    "login": "Accesso",
+    "openApp": "Vai all'app",
+    "logoAlt": "Promotional Sourcing.eu",
+    "languageLabel": "Lingua"
+  },
+  "hero": {
+    "eyebrow": "Lancio: gennaio 2027",
+    "titleLine1": "Il sourcing di oggetti promozionali.",
+    "titleWord1": "Semplice.",
+    "titleWord2": "Intelligente.",
+    "titleWord3": "Europeo.",
+    "lead": "Un'unica piattaforma che connette fornitori e agenzie di comunicazione tramite oggetti in tutta Europa.",
+    "sub": "Ricerca avanzata. Risultati pertinenti. IA integrata.",
+    "ctaPrimary": "Scopri",
+    "ctaSecondary": "Contattaci"
+  },
+  "features": {
+    "eyebrow": "Per le agenzie",
+    "heading": "Trovi il prodotto giusto in pochi secondi.",
+    "intro": "Basta andirivieni tra dieci cataloghi: un unico punto d'accesso per tutto il mercato europeo.",
+    "closingLink": "Scopri di più",
+    "search": {
+      "title": "Ricerca intelligente",
+      "description": "Filtri per materiale, grammatura, paese di produzione o certificazione — il prodotto giusto in secondi, non in ore.",
+      "query": "borsa shopping made in europe +200 g/m²",
+      "matchLabel": "2 risultati su oltre 300 fornitori verificati",
+      "compareReady": "✓ Confronto pronto in 1 clic",
+      "exploreCatalogue": "Esplora il catalogo",
+      "results": [
+        {
+          "name": "Borsa shopping cotone 220g",
+          "variant": "Naturale · 220 g/m²"
+        },
+        {
+          "name": "Borsa shopping juta stampata",
+          "variant": "Juta · 350 g/m²"
+        }
+      ]
+    },
+    "imageSearch": {
+      "title": "Ricerca per immagine (IA)",
+      "description": "Carichi la foto del prodotto che cerca il Suo cliente — l'IA trova l'equivalente più vicino tra oltre 1 milione di referenze.",
+      "uploadedAlt": "Foto caricata dall'utente",
+      "dropHint": "Trascini una foto qui",
+      "matchResult": "✓ Corrispondenza 98 % — Borsa cotone 220g",
+      "tryButton": "Provi la ricerca IA"
+    },
+    "compare": {
+      "title": "Confronto istantaneo",
+      "description": "Prezzi e MOQ di tutti i fornitori, fianco a fianco.",
+      "button": "Confronta"
+    },
+    "verified": {
+      "count": "300+",
+      "label": "Fornitori europei verificati",
+      "noCommitment": "Senza impegno"
+    }
+  },
+  "stats": {
+    "heading": "Nel cuore del sourcing europeo.",
+    "stat1": "prodotti censiti in un unico catalogo",
+    "stat2": "fornitori europei verificati",
+    "stat3": "di tempo medio di risposta dei fornitori",
+    "stat4": "Accesso gratuito"
+  },
+  "suppliers": {
+    "kicker": "Per i fornitori",
+    "heading": "Renda i Suoi prodotti visibili a migliaia di agenzie europee.",
+    "intro": "Lei fornisce il catalogo, al resto pensiamo noi. La Sua visibilità parte dal lancio.",
+    "point1Title": "Inserimento gratuito del Suo catalogo",
+    "point1Desc": "I Suoi prodotti integrati e consultabili dalle agenzie, senza costi di ingresso.",
+    "point2Title": "Ci occupiamo noi dell'integrazione dei Suoi dati",
+    "point2Desc": "API, CSV o export Excel: ci invii i dati nel formato che ha, il nostro team gestisce l'integrazione.",
+    "point3Title": "Visibilità immediata fin dal lancio",
+    "point3Desc": "I primi cataloghi inseriti saranno online il giorno del lancio, davanti a tutte le agenzie iscritte.",
+    "point4Title": "Zero attriti, zero costi di ingresso",
+    "point4Desc": "Nessun abbonamento, nessuno sviluppo da parte Sua: entrare nella piattaforma è semplice e gratuito.",
+    "cta": "Inserisci il mio catalogo"
+  },
+  "finalCta": {
+    "badge": "Lancio previsto: gennaio 2027",
+    "heading": "Stiamo costruendo il nuovo punto di riferimento del sourcing di gadget in Europa.",
+    "descriptionBefore": "Fornitori: si unisca ai primi partner e benefici di una ",
+    "descriptionHighlight": "visibilità prioritaria",
+    "descriptionAfter": " fin dal lancio.",
+    "cta": "Contattaci"
+  },
+  "footer": {
+    "location": "Bordeaux, Francia",
+    "columnPlatform": "Piattaforma",
+    "columnLegal": "Note legali",
+    "linkAgencies": "Agenzie",
+    "linkSuppliers": "Fornitori",
+    "linkContact": "Contatti",
+    "linkLegalMentions": "Note legali",
+    "linkPrivacy": "Privacy",
+    "copyright": "© 2026 Promotional Sourcing",
+    "domain": "promotional-sourcing.eu"
+  },
+  "contact": {
+    "seoTitle": "Contatti — Promotional Sourcing.eu",
+    "seoDescription": "Agenzia o fornitore di oggetti promozionali? Parliamo della Sua esigenza di sourcing in Europa. Risposta entro 48 ore.",
+    "eyebrow": "Contatti",
+    "heading": "Parliamo della Sua esigenza.",
+    "intro": "Agenzia alla ricerca del prodotto giusto o fornitore che desidera entrare nella piattaforma: ci racconti in poche righe cosa cerca, Le risponderemo entro 48 ore.",
+    "asideTitle": "Ci scriva direttamente",
+    "asideAddressTitle": "I nostri uffici",
+    "asideResponseTitle": "Tempi di risposta",
+    "asideResponse": "Entro 48 ore lavorative.",
+    "formHeading": "La Sua richiesta",
+    "mailIntro": "Ci scriva direttamente: il pulsante qui sotto apre la Sua posta con un messaggio già strutturato. Per una risposta rapida, indichi:",
+    "mailPoints": {
+      "0": "La Sua azienda e il Suo ruolo (agenzia, acquirente, fornitore…)",
+      "1": "Il tipo di prodotto ricercato",
+      "2": "Le quantità e il budget previsto",
+      "3": "I tempi di consegna desiderati"
+    },
+    "mailCta": "Scrivi al nostro team",
+    "mailHint": "Apre il Suo programma di posta.",
+    "mailFallback": "Nessun programma di posta configurato? Ci scriva a",
+    "mailSubject": "Richiesta di sourcing — Promotional Sourcing.eu",
+    "mailBody": "Buongiorno,\n\nAzienda:\nLei è (agenzia / acquirente / fornitore):\nTelefono:\n\nProdotto ricercato:\nQuantità:\nBudget previsto:\nTempi desiderati:\n\nDettagli:\n\n\nGrazie,\n"
+  },
+  "thanks": {
+    "seoTitle": "Messaggio ricevuto — Promotional Sourcing.eu",
+    "seoDescription": "La Sua richiesta è stata trasmessa al nostro team.",
+    "eyebrow": "Messaggio inviato",
+    "heading": "Grazie, il Suo messaggio è partito.",
+    "body": "Il nostro team Le risponderà entro 48 ore lavorative. Nel frattempo, può scriverci direttamente a",
+    "backHome": "Torna alla home"
+  },
+  "legal": {
+    "updatedOn": "Ultimo aggiornamento:",
+    "breadcrumbAria": "Percorso di navigazione",
+    "breadcrumbHome": "Home",
+    "tocTitle": "In questa pagina",
+    "helpEyebrow": "Una domanda?",
+    "helpHeading": "Ha bisogno di un chiarimento su questo documento?",
+    "helpBody": "Il nostro team risponde alle richieste legali e alle domande sui Suoi dati entro 48 ore lavorative.",
+    "helpCta": "Contattaci"
+  },
+  "productMockup": {
+    "tags": {
+      "0": "Materiale riciclato",
+      "1": "Certificato GRS",
+      "2": "Stock Europa"
+    },
+    "products": {
+      "0": {
+        "name": "Borsa tote cotone bio 220g",
+        "country": "Francia"
+      },
+      "1": {
+        "name": "Borsa tote cotone 140g color senape",
+        "country": "Portogallo"
+      },
+      "2": {
+        "name": "Borsa tote cotone con soffietto 140g",
+        "country": "Spagna"
+      }
+    },
+    "aiChip": "Ricerca IA",
+    "verifiedLabel": "Fornitore verificato",
+    "supplierLabel": "Fornitore",
+    "priceFrom": "da",
+    "priceSuffix": "€ + IVA",
+    "footerCompare": "Confronto istantaneo tra fornitori",
+    "footerFlag": "Anteprima dell'interfaccia",
+    "ariaLabel": "Anteprima di una ricerca su promotional-sourcing.eu: una borsa tote in cotone bio, una borsa termica in poliestere riciclato e un telo mare riciclato, filtrati per materiale riciclato, certificazione GRS e stock Europa, con fornitore verificato, paese e prezzo."
+  }
+}

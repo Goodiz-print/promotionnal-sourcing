@@ -1,0 +1,189 @@
+{
+  "seo": {
+    "title": "Promotional Sourcing.eu — Le sourcing d'objets publicitaires, enfin fiable",
+    "description": "Plateforme B2B européenne de sourcing d'objets publicitaires : 300 fournisseurs, 1M+ produits, recherche multi-critères qui fonctionne vraiment — contrairement aux solutions existantes."
+  },
+  "org": {
+    "description": "Plateforme B2B européenne qui connecte les agences de communication par l'objet aux fournisseurs d'objets publicitaires à travers l'Europe."
+  },
+  "og": {
+    "imageAlt": "Promotional Sourcing.eu — Le sourcing d'objets promotionnels. Simplifié. Intelligent. Européen."
+  },
+  "nav": {
+    "agences": "Agences",
+    "fournisseurs": "Fournisseurs",
+    "contact": "Contact",
+    "cta": "Nous contacter",
+    "menuAria": "Ouvrir le menu",
+    "switchTo": "English",
+    "login": "Connexion",
+    "openApp": "Accéder à l'app",
+    "logoAlt": "Promotional Sourcing.eu",
+    "languageLabel": "Langue"
+  },
+  "hero": {
+    "eyebrow": "Lancement : janvier 2027",
+    "titleLine1": "Le sourcing d'objets promotionnels.",
+    "titleWord1": "Simplifié.",
+    "titleWord2": "Intelligent.",
+    "titleWord3": "Européen.",
+    "lead": "Une plateforme unique pour connecter fournisseurs et agences de communication par l'objet à travers l'Europe.",
+    "sub": "Recherche avancée. Résultats pertinents. IA intégrée.",
+    "ctaPrimary": "Découvrir",
+    "ctaSecondary": "Nous contacter"
+  },
+  "features": {
+    "eyebrow": "Pour les agences",
+    "heading": "Trouvez le bon produit en quelques secondes.",
+    "intro": "Fini les allers-retours entre dix catalogues : un seul point d'entrée pour tout le marché européen.",
+    "closingLink": "En savoir plus",
+    "search": {
+      "title": "Recherche intelligente",
+      "description": "Filtrez par matière, grammage, pays de fabrication ou certification — le bon produit en secondes, pas en heures.",
+      "query": "sac shopping made in europe +200 g/m²",
+      "matchLabel": "2 correspondances parmi 300+ fournisseurs vérifiés",
+      "compareReady": "✓ Comparaison prête en 1 clic",
+      "exploreCatalogue": "Explorer le catalogue",
+      "results": [
+        {
+          "name": "Sac shopping coton 220g",
+          "variant": "Naturel · 220 g/m²"
+        },
+        {
+          "name": "Sac shopping jute imprimé",
+          "variant": "Jute · 350 g/m²"
+        }
+      ]
+    },
+    "imageSearch": {
+      "title": "Recherche par image (IA)",
+      "description": "Déposez la photo du produit que cherche votre client — l'IA retrouve l'équivalent le plus proche parmi 1M+ références.",
+      "uploadedAlt": "Photo déposée par l'utilisateur",
+      "dropHint": "Glissez une photo ici",
+      "matchResult": "✓ Correspondance 98 % — Sac coton 220g",
+      "tryButton": "Essayer la recherche IA"
+    },
+    "compare": {
+      "title": "Comparaison instantanée",
+      "description": "Prix et MOQ de tous les fournisseurs, côte à côte.",
+      "button": "Comparer"
+    },
+    "verified": {
+      "count": "300+",
+      "label": "Fournisseurs européens vérifiés",
+      "noCommitment": "Sans engagement"
+    }
+  },
+  "stats": {
+    "heading": "Au cœur du sourcing européen.",
+    "stat1": "produits référencés dans un seul catalogue",
+    "stat2": "fournisseurs européens vérifiés",
+    "stat3": "de délai de réponse moyen des fournisseurs",
+    "stat4": "Free access"
+  },
+  "suppliers": {
+    "kicker": "Pour les fournisseurs",
+    "heading": "Rendez vos produits visibles auprès de milliers d'agences européennes.",
+    "intro": "Vous fournissez votre catalogue, nous faisons le reste. Votre visibilité démarre dès le lancement.",
+    "point1Title": "Référencement gratuit de votre catalogue",
+    "point1Desc": "Vos produits intégrés et consultables par les agences, sans frais d'entrée.",
+    "point2Title": "On s'occupe de l'intégration de vos données",
+    "point2Desc": "API, CSV ou export Excel : envoyez vos données dans le format que vous avez, notre équipe gère l'intégration.",
+    "point3Title": "Visibilité immédiate dès le lancement",
+    "point3Desc": "Les premiers catalogues référencés seront en ligne au jour J, face à toutes les agences inscrites.",
+    "point4Title": "Zéro friction, zéro coût d'entrée",
+    "point4Desc": "Pas d'abonnement, pas de développement de votre côté : rejoindre la plateforme est simple et gratuit.",
+    "cta": "Référencer mon catalogue"
+  },
+  "finalCta": {
+    "badge": "Lancement prévu : janvier 2027",
+    "heading": "Nous construisons la nouvelle référence du sourcing de goodies en Europe.",
+    "descriptionBefore": "Fournisseurs : rejoignez les premiers partenaires et bénéficiez d’une ",
+    "descriptionHighlight": "visibilité prioritaire",
+    "descriptionAfter": " dès le lancement.",
+    "cta": "Nous contacter"
+  },
+  "footer": {
+    "location": "Bordeaux, France",
+    "columnPlatform": "Plateforme",
+    "columnLegal": "Légal",
+    "linkAgencies": "Agences",
+    "linkSuppliers": "Fournisseurs",
+    "linkContact": "Contact",
+    "linkLegalMentions": "Mentions légales",
+    "linkPrivacy": "Confidentialité",
+    "copyright": "© 2026 Promotional Sourcing",
+    "domain": "promotional-sourcing.eu"
+  },
+  "contact": {
+    "seoTitle": "Contact — Promotional Sourcing.eu",
+    "seoDescription": "Agence ou fournisseur d'objets publicitaires ? Parlons de votre besoin de sourcing en Europe. Réponse sous 48 h.",
+    "eyebrow": "Contact",
+    "heading": "Parlons de votre besoin.",
+    "intro": "Agence à la recherche du bon produit, ou fournisseur qui veut rejoindre la plateforme : dites-nous en quelques lignes ce que vous cherchez, nous revenons vers vous sous 48 h.",
+    "asideTitle": "Nous écrire directement",
+    "asideAddressTitle": "Nos bureaux",
+    "asideResponseTitle": "Délai de réponse",
+    "asideResponse": "Sous 48 h ouvrées.",
+    "formHeading": "Votre demande",
+    "mailIntro": "Écrivez-nous directement : le bouton ci-dessous ouvre votre messagerie avec un message déjà structuré. Pour un retour rapide, précisez :",
+    "mailPoints": {
+      "0": "Votre société et votre rôle (agence, acheteur, fournisseur…)",
+      "1": "Le type de produit recherché",
+      "2": "Les quantités et le budget cible",
+      "3": "Votre délai de livraison souhaité"
+    },
+    "mailCta": "Écrire à notre équipe",
+    "mailHint": "Ouvre votre logiciel de messagerie.",
+    "mailFallback": "Pas de messagerie configurée ? Écrivez-nous à",
+    "mailSubject": "Demande de sourcing — Promotional Sourcing.eu",
+    "mailBody": "Bonjour,\n\nSociété :\nVous êtes (agence / acheteur / fournisseur) :\nTéléphone :\n\nProduit recherché :\nQuantité :\nBudget cible :\nDélai souhaité :\n\nPrécisions :\n\n\nMerci,\n"
+  },
+  "thanks": {
+    "seoTitle": "Message bien reçu — Promotional Sourcing.eu",
+    "seoDescription": "Votre demande a bien été transmise à notre équipe.",
+    "eyebrow": "Message envoyé",
+    "heading": "Merci, votre message est bien parti.",
+    "body": "Notre équipe revient vers vous sous 48 h ouvrées. En attendant, vous pouvez nous écrire directement à",
+    "backHome": "Retour à l'accueil"
+  },
+  "legal": {
+    "updatedOn": "Dernière mise à jour :",
+    "breadcrumbAria": "Fil d'ariane",
+    "breadcrumbHome": "Accueil",
+    "tocTitle": "Sur cette page",
+    "helpEyebrow": "Une question ?",
+    "helpHeading": "Besoin d’une précision sur ce document ?",
+    "helpBody": "Notre équipe répond aux demandes juridiques et aux questions sur vos données sous 48 h ouvrées.",
+    "helpCta": "Nous contacter"
+  },
+  "productMockup": {
+    "tags": {
+      "0": "Matière recyclée",
+      "1": "Certifié GRS",
+      "2": "Stock Europe"
+    },
+    "products": {
+      "0": {
+        "name": "Sac tote coton bio 220g",
+        "country": "France"
+      },
+      "1": {
+        "name": "Sac tote coton 140g couleur moutarde",
+        "country": "Portugal"
+      },
+      "2": {
+        "name": "Sac tote coton à soufflet 140g",
+        "country": "Espagne"
+      }
+    },
+    "aiChip": "Recherche IA",
+    "verifiedLabel": "Fournisseur vérifié",
+    "supplierLabel": "Fournisseur",
+    "priceFrom": "dès",
+    "priceSuffix": "€ HT",
+    "footerCompare": "Comparaison instantanée entre fournisseurs",
+    "footerFlag": "Aperçu de l'interface",
+    "ariaLabel": "Aperçu d'une recherche sur promotional-sourcing.eu : un sac tote en coton bio, un sac isotherme en polyester recyclé et une serviette de plage recyclée, filtrés par matière recyclée, certification GRS et stock Europe, avec fournisseur vérifié, pays et prix."
+  }
+}

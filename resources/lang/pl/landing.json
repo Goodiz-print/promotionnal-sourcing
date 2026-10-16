@@ -1,0 +1,189 @@
+{
+  "seo": {
+    "title": "Promotional Sourcing.eu — Sourcing gadżetów reklamowych, wreszcie niezawodny",
+    "description": "Europejska platforma B2B do sourcingu gadżetów reklamowych: 300 dostawców, ponad 1 mln produktów i wyszukiwanie wielokryterialne, które naprawdę działa — w przeciwieństwie do obecnych rozwiązań."
+  },
+  "org": {
+    "description": "Europejska platforma B2B łącząca agencje komunikacji przez przedmiot z dostawcami gadżetów reklamowych w całej Europie."
+  },
+  "og": {
+    "imageAlt": "Promotional Sourcing.eu — Sourcing gadżetów promocyjnych. Proste. Inteligentne. Europejskie."
+  },
+  "nav": {
+    "agences": "Agencje",
+    "fournisseurs": "Dostawcy",
+    "contact": "Kontakt",
+    "cta": "Skontaktuj się",
+    "menuAria": "Otwórz menu",
+    "switchTo": "English",
+    "login": "Logowanie",
+    "openApp": "Przejdź do aplikacji",
+    "logoAlt": "Promotional Sourcing.eu",
+    "languageLabel": "Język"
+  },
+  "hero": {
+    "eyebrow": "Start: styczeń 2027",
+    "titleLine1": "Sourcing gadżetów promocyjnych.",
+    "titleWord1": "Proste.",
+    "titleWord2": "Inteligentne.",
+    "titleWord3": "Europejskie.",
+    "lead": "Jedna platforma łącząca dostawców i agencje komunikacji przez przedmiot w całej Europie.",
+    "sub": "Zaawansowane wyszukiwanie. Trafne wyniki. Wbudowana AI.",
+    "ctaPrimary": "Odkryj",
+    "ctaSecondary": "Skontaktuj się"
+  },
+  "features": {
+    "eyebrow": "Dla agencji",
+    "heading": "Znajdź odpowiedni produkt w kilka sekund.",
+    "intro": "Koniec z przeskakiwaniem między dziesięcioma katalogami: jeden punkt wejścia do całego rynku europejskiego.",
+    "closingLink": "Dowiedz się więcej",
+    "search": {
+      "title": "Inteligentne wyszukiwanie",
+      "description": "Filtruj według materiału, gramatury, kraju produkcji lub certyfikatu — właściwy produkt w kilka sekund, nie godzin.",
+      "query": "torba na zakupy made in europe +200 g/m²",
+      "matchLabel": "2 dopasowania wśród 300+ zweryfikowanych dostawców",
+      "compareReady": "✓ Porównanie gotowe jednym kliknięciem",
+      "exploreCatalogue": "Przeglądaj katalog",
+      "results": [
+        {
+          "name": "Torba na zakupy bawełniana 220g",
+          "variant": "Naturalna · 220 g/m²"
+        },
+        {
+          "name": "Torba na zakupy jutowa z nadrukiem",
+          "variant": "Juta · 350 g/m²"
+        }
+      ]
+    },
+    "imageSearch": {
+      "title": "Wyszukiwanie po obrazie (AI)",
+      "description": "Wgraj zdjęcie produktu, którego szuka Twój klient — AI znajdzie najbliższy odpowiednik wśród ponad 1 mln referencji.",
+      "uploadedAlt": "Zdjęcie przesłane przez użytkownika",
+      "dropHint": "Przeciągnij tutaj zdjęcie",
+      "matchResult": "✓ Zgodność 98 % — Torba bawełniana 220g",
+      "tryButton": "Wypróbuj wyszukiwanie AI"
+    },
+    "compare": {
+      "title": "Natychmiastowe porównanie",
+      "description": "Ceny i MOQ wszystkich dostawców, obok siebie.",
+      "button": "Porównaj"
+    },
+    "verified": {
+      "count": "300+",
+      "label": "Zweryfikowanych europejskich dostawców",
+      "noCommitment": "Bez zobowiązań"
+    }
+  },
+  "stats": {
+    "heading": "W sercu europejskiego sourcingu.",
+    "stat1": "produktów w jednym katalogu",
+    "stat2": "zweryfikowanych europejskich dostawców",
+    "stat3": "średni czas odpowiedzi dostawców",
+    "stat4": "Bezpłatny dostęp"
+  },
+  "suppliers": {
+    "kicker": "Dla dostawców",
+    "heading": "Zadbaj o widoczność swoich produktów wśród tysięcy europejskich agencji.",
+    "intro": "Dostarczają Państwo katalog, resztą zajmujemy się my. Widoczność zaczyna się już w dniu startu.",
+    "point1Title": "Bezpłatne umieszczenie katalogu",
+    "point1Desc": "Państwa produkty zostaną zintegrowane i udostępnione agencjom, bez opłat wstępnych.",
+    "point2Title": "Integrację danych bierzemy na siebie",
+    "point2Desc": "API, CSV lub eksport z Excela: wystarczy przesłać dane w dowolnym formacie, integracją zajmie się nasz zespół.",
+    "point3Title": "Natychmiastowa widoczność od startu",
+    "point3Desc": "Pierwsze katalogi pojawią się online w dniu startu, przed wszystkimi zarejestrowanymi agencjami.",
+    "point4Title": "Zero formalności, zero kosztów wejścia",
+    "point4Desc": "Bez abonamentu i bez prac programistycznych po Państwa stronie: dołączenie do platformy jest proste i bezpłatne.",
+    "cta": "Dodaj mój katalog"
+  },
+  "finalCta": {
+    "badge": "Planowany start: styczeń 2027",
+    "heading": "Budujemy nowy punkt odniesienia dla sourcingu gadżetów w Europie.",
+    "descriptionBefore": "Dostawcy: zapraszamy do grona pierwszych partnerów i skorzystania z ",
+    "descriptionHighlight": "priorytetowej widoczności",
+    "descriptionAfter": " od dnia startu.",
+    "cta": "Skontaktuj się"
+  },
+  "footer": {
+    "location": "Bordeaux, Francja",
+    "columnPlatform": "Platforma",
+    "columnLegal": "Informacje prawne",
+    "linkAgencies": "Agencje",
+    "linkSuppliers": "Dostawcy",
+    "linkContact": "Kontakt",
+    "linkLegalMentions": "Nota prawna",
+    "linkPrivacy": "Prywatność",
+    "copyright": "© 2026 Promotional Sourcing",
+    "domain": "promotional-sourcing.eu"
+  },
+  "contact": {
+    "seoTitle": "Kontakt — Promotional Sourcing.eu",
+    "seoDescription": "Agencja lub dostawca gadżetów reklamowych? Porozmawiajmy o Państwa potrzebach w zakresie sourcingu w Europie. Odpowiedź w ciągu 48 godzin.",
+    "eyebrow": "Kontakt",
+    "heading": "Porozmawiajmy o Państwa potrzebach.",
+    "intro": "Agencja szukająca odpowiedniego produktu lub dostawca chcący dołączyć do platformy: proszę opisać w kilku zdaniach, czego Państwo szukają, a odezwiemy się w ciągu 48 godzin.",
+    "asideTitle": "Napisz do nas bezpośrednio",
+    "asideAddressTitle": "Nasze biura",
+    "asideResponseTitle": "Czas odpowiedzi",
+    "asideResponse": "W ciągu 48 godzin roboczych.",
+    "formHeading": "Państwa zapytanie",
+    "mailIntro": "Proszę napisać do nas bezpośrednio: poniższy przycisk otworzy program pocztowy z gotową strukturą wiadomości. Aby szybciej otrzymać odpowiedź, proszę podać:",
+    "mailPoints": {
+      "0": "Firmę i Państwa rolę (agencja, kupujący, dostawca…)",
+      "1": "Rodzaj poszukiwanego produktu",
+      "2": "Ilości i docelowy budżet",
+      "3": "Oczekiwany termin dostawy"
+    },
+    "mailCta": "Napisz do naszego zespołu",
+    "mailHint": "Otwiera Państwa program pocztowy.",
+    "mailFallback": "Brak skonfigurowanej poczty? Proszę napisać na adres",
+    "mailSubject": "Zapytanie o sourcing — Promotional Sourcing.eu",
+    "mailBody": "Dzień dobry,\n\nFirma:\nJestem (agencja / kupujący / dostawca):\nTelefon:\n\nPoszukiwany produkt:\nIlość:\nDocelowy budżet:\nOczekiwany termin:\n\nSzczegóły:\n\n\nZ poważaniem,\n"
+  },
+  "thanks": {
+    "seoTitle": "Wiadomość otrzymana — Promotional Sourcing.eu",
+    "seoDescription": "Państwa zapytanie zostało przekazane naszemu zespołowi.",
+    "eyebrow": "Wiadomość wysłana",
+    "heading": "Dziękujemy, Państwa wiadomość została wysłana.",
+    "body": "Nasz zespół odezwie się w ciągu 48 godzin roboczych. W międzyczasie mogą Państwo napisać do nas bezpośrednio na adres",
+    "backHome": "Powrót do strony głównej"
+  },
+  "legal": {
+    "updatedOn": "Ostatnia aktualizacja:",
+    "breadcrumbAria": "Ścieżka nawigacji",
+    "breadcrumbHome": "Strona główna",
+    "tocTitle": "Na tej stronie",
+    "helpEyebrow": "Pytanie?",
+    "helpHeading": "Potrzebują Państwo wyjaśnień dotyczących tego dokumentu?",
+    "helpBody": "Nasz zespół odpowiada na zapytania prawne i pytania dotyczące Państwa danych w ciągu 48 godzin roboczych.",
+    "helpCta": "Skontaktuj się"
+  },
+  "productMockup": {
+    "tags": {
+      "0": "Materiał z recyklingu",
+      "1": "Certyfikat GRS",
+      "2": "Magazyn w Europie"
+    },
+    "products": {
+      "0": {
+        "name": "Torba tote z bawełny bio 220g",
+        "country": "Francja"
+      },
+      "1": {
+        "name": "Torba tote bawełniana 140g w kolorze musztardowym",
+        "country": "Portugalia"
+      },
+      "2": {
+        "name": "Torba tote bawełniana z mieszkiem 140g",
+        "country": "Hiszpania"
+      }
+    },
+    "aiChip": "Wyszukiwanie AI",
+    "verifiedLabel": "Zweryfikowany dostawca",
+    "supplierLabel": "Dostawca",
+    "priceFrom": "od",
+    "priceSuffix": "€ netto",
+    "footerCompare": "Natychmiastowe porównanie dostawców",
+    "footerFlag": "Podgląd interfejsu",
+    "ariaLabel": "Podgląd wyszukiwania na promotional-sourcing.eu: torba tote z bawełny bio, torba termoizolacyjna z poliestru z recyklingu i ręcznik plażowy z recyklingu, przefiltrowane według materiału z recyklingu, certyfikatu GRS i magazynu w Europie, z informacją o zweryfikowanym dostawcy, kraju i cenie."
+  }
+}

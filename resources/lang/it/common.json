@@ -1,0 +1,13 @@
+{
+  "appName": "Promotional Sourcing",
+  "nav": {
+    "login": "Accesso",
+    "signup": "Registrazione",
+    "logout": "Esci"
+  },
+  "language": {
+    "label": "Lingua",
+    "fr": "Français",
+    "en": "English"
+  }
+}

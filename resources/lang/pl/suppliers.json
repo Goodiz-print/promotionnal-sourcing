@@ -1,0 +1,19 @@
+{
+  "index": {
+    "title": "Katalog dostawców",
+    "subtitle": "Przeglądaj europejskich dostawców gadżetów reklamowych.",
+    "searchLabel": "Wyszukiwanie",
+    "searchPlaceholder": "Nazwa dostawcy…",
+    "country": "Kraj",
+    "allCountries": "Wszystkie kraje",
+    "empty": "Żaden dostawca nie odpowiada Państwa wyszukiwaniu.",
+    "previous": "Poprzednia",
+    "next": "Następna"
+  },
+  "show": {
+    "website": "Odwiedź stronę",
+    "profile": "Profil dostawcy",
+    "products": "Katalog",
+    "noProducts": "Brak opublikowanych produktów."
+  }
+}

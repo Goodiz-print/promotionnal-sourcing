@@ -1,0 +1,20 @@
+{
+  "title": "Välkommen 👋",
+  "subtitle": "Låt oss konfigurera din organisation så att du kan komma igång.",
+  "fields": {
+    "name": "Din organisations namn",
+    "type": "Du är…"
+  },
+  "type": {
+    "buyer": {
+      "label": "Köpare",
+      "description": "Jag söker och jämför reklamprodukter från leverantörer."
+    },
+    "supplier": {
+      "label": "Leverantör",
+      "description": "Jag erbjuder en katalog och svarar på köparnas offertförfrågningar."
+    }
+  },
+  "submit": "Skapa min organisation",
+  "success": "Organisationen har skapats. Välkommen!"
+}

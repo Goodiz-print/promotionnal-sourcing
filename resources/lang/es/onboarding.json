@@ -1,0 +1,20 @@
+{
+  "title": "Bienvenido 👋",
+  "subtitle": "Configuremos su organización para empezar.",
+  "fields": {
+    "name": "Nombre de su organización",
+    "type": "Usted es…"
+  },
+  "type": {
+    "buyer": {
+      "label": "Comprador",
+      "description": "Busco y comparo objetos publicitarios de distintos proveedores."
+    },
+    "supplier": {
+      "label": "Proveedor",
+      "description": "Ofrezco un catálogo y respondo a las solicitudes de presupuesto de los compradores."
+    }
+  },
+  "submit": "Crear mi organización",
+  "success": "Organización creada. ¡Bienvenido!"
+}

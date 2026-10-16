@@ -1,0 +1,60 @@
+{
+  "index": {
+    "title": "Productcatalogus",
+    "subtitle": "Zoek en filter de promotieartikelen van Europese leveranciers.",
+    "searchLabel": "Zoeken",
+    "searchPlaceholder": "Naam, materiaal, kleur…",
+    "category": "Categorie",
+    "allCategories": "Alle categorieën",
+    "madeInEurope": "Gemaakt in Europa",
+    "resultsCount": "{count, plural, =0 {Geen producten} one {# product} other {# producten}}",
+    "empty": "Geen enkel product komt overeen met uw zoekopdracht.",
+    "previous": "Vorige",
+    "next": "Volgende"
+  },
+  "show": {
+    "backToCatalogue": "Terug naar de catalogus",
+    "viewImage": "Afbeelding bekijken",
+    "minQuantity": "Minimale hoeveelheid",
+    "category": "Categorie",
+    "origin": "Land van herkomst",
+    "requestQuote": "Offerte aanvragen"
+  },
+  "manage": {
+    "index": {
+      "title": "Mijn producten",
+      "empty": "U hebt nog geen producten. Maak er een aan."
+    },
+    "create": { "title": "Nieuw product" },
+    "edit": { "title": "Product bewerken" },
+    "newProduct": "Nieuw product",
+    "edit": "Bewerken",
+    "delete": "Verwijderen",
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "published": "Gepubliceerd",
+    "draft": "Concept",
+    "facets": "Kenmerken",
+    "images": "Afbeeldingen",
+    "noFacets": "Geen filterbare kenmerken beschikbaar.",
+    "removeImage": "Verwijderen",
+    "confirmDelete": "Dit product verwijderen?",
+    "created": "Product aangemaakt.",
+    "updated": "Product bijgewerkt.",
+    "deleted": "Product verwijderd.",
+    "fields": {
+      "name": "Naam",
+      "description": "Beschrijving",
+      "category": "Categorie",
+      "chooseCategory": "Kies een categorie",
+      "priceMin": "Minimumprijs",
+      "priceMax": "Maximumprijs",
+      "currency": "Valuta",
+      "minQuantity": "Minimale hoeveelheid",
+      "originCountry": "Land van herkomst",
+      "madeInEurope": "Gemaakt in Europa",
+      "isActive": "Gepubliceerd",
+      "images": "Afbeeldingen toevoegen"
+    }
+  }
+}

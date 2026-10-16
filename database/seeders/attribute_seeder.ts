@@ -3,19 +3,19 @@ import Attribute from '#models/attribute'
 import AttributeValue from '#models/attribute_value'
 import AttributeTranslation from '#models/attribute_translation'
 import AttributeValueTranslation from '#models/attribute_value_translation'
-import type { Locale } from '#shared/types/i18n'
+import type { ContentLocale } from '#shared/types/i18n'
 
 type ValueSeed = {
   value: string
   slug: string
   synonyms: string[]
-  labels: Record<Locale, string>
+  labels: Record<ContentLocale, string>
 }
 
 type AttributeSeed = {
   slug: string
   type: 'enum'
-  names: Record<Locale, string>
+  names: Record<ContentLocale, string>
   values: ValueSeed[]
 }
 
@@ -81,7 +81,7 @@ export default class AttributeSeeder extends BaseSeeder {
         { type: attr.type, isFilterable: true }
       )
 
-      for (const locale of Object.keys(attr.names) as Locale[]) {
+      for (const locale of Object.keys(attr.names) as ContentLocale[]) {
         await AttributeTranslation.updateOrCreate(
           { attributeId: attribute.id, locale },
           { name: attr.names[locale] }
@@ -94,7 +94,7 @@ export default class AttributeSeeder extends BaseSeeder {
           { value: value.value, synonyms: value.synonyms }
         )
 
-        for (const locale of Object.keys(value.labels) as Locale[]) {
+        for (const locale of Object.keys(value.labels) as ContentLocale[]) {
           await AttributeValueTranslation.updateOrCreate(
             { attributeValueId: attributeValue.id, locale },
             { label: value.labels[locale] }

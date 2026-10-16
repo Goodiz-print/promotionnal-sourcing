@@ -1,4 +1,4 @@
-import type { Locale } from './i18n.js'
+import type { ContentLocale, Locale } from './i18n.js'
 import type { CategoryType } from './category.js'
 import type { AttributeWithValuesType } from './attribute.js'
 
@@ -118,7 +118,7 @@ export type ProductEditType = {
   originCountry: string | null
   madeInEurope: boolean
   isActive: boolean
-  translations: Record<Locale, { name: string; description: string | null }>
+  translations: Record<ContentLocale, { name: string; description: string | null }>
   attributeValueIds: number[]
   images: ProductImageType[]
 }
@@ -129,7 +129,7 @@ export type ProductEditType = {
  */
 export interface SupplierProductInput {
   categoryId: number
-  translations: Record<Locale, { name: string; description?: string | null }>
+  translations: Record<ContentLocale, { name: string; description?: string | null }>
   priceMin?: number | null
   priceMax?: number | null
   currency?: string
@@ -154,7 +154,7 @@ export interface CreateProductData {
   madeInEurope?: boolean
   isActive?: boolean
   // Contenu traduit : au moins la locale par défaut.
-  translations: Partial<Record<Locale, { name: string; description?: string | null }>>
+  translations: Partial<Record<ContentLocale, { name: string; description?: string | null }>>
 }
 
 export interface UpdateProductData extends Partial<CreateProductData> {}

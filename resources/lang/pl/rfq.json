@@ -1,0 +1,124 @@
+{
+  "index": {
+    "title": "Zapytania ofertowe",
+    "subtitle": "Opisz potrzebę, skonsultuj się z kilkoma dostawcami i porównaj ich odpowiedzi.",
+    "empty": "Brak zapytań.",
+    "new": "Nowe zapytanie",
+    "itemCount": "{count, plural, one {# pozycja} few {# pozycje} many {# pozycji} other {# pozycji}}",
+    "supplierCount": "{count, plural, =0 {brak odbiorców} one {# odbiorca} few {# odbiorców} many {# odbiorców} other {# odbiorcy}}",
+    "responded": "{responded} / {total} odpowiedzi"
+  },
+  "create": {
+    "title": "Nowe zapytanie ofertowe",
+    "submit": "Utwórz wersję roboczą"
+  },
+  "show": {
+    "backToList": "Powrót do zapytań",
+    "needTitle": "Potrzeba",
+    "suppliersTitle": "Odbiorcy",
+    "noSuppliers": "Nie wybrano odbiorców.",
+    "createdBy": "Utworzone przez {name}",
+    "deadline": "Termin: {date}",
+    "noDeadline": "Bez terminu",
+    "budget": "Budżet maks.: {amount} €",
+    "quantity": "Ilość",
+    "unit": "Jednostka",
+    "category": "Kategoria",
+    "product": "Produkt",
+    "addSuppliers": "Dodaj odbiorców",
+    "removeSupplier": "Usuń",
+    "sentAt": "Wysłano {date}"
+  },
+  "status": {
+    "draft": "Wersja robocza",
+    "published": "Opublikowane",
+    "closed": "Zamknięte"
+  },
+  "supplierStatus": {
+    "pending": "Do wysłania",
+    "sent": "Wysłane",
+    "viewed": "Wyświetlone",
+    "responded": "Odpowiedział",
+    "declined": "Odrzucił"
+  },
+  "actions": {
+    "publish": "Opublikuj",
+    "send": "Wyślij do odbiorców",
+    "close": "Zamknij",
+    "save": "Zapisz",
+    "confirmClose": "Zamknąć to zapytanie? Nie będzie można wysłać go ponownie."
+  },
+  "fields": {
+    "title": "Tytuł",
+    "description": "Opis",
+    "deadline": "Termin",
+    "budgetMax": "Budżet maksymalny (€)",
+    "itemName": "Nazwa pozycji",
+    "itemDescription": "Szczegóły",
+    "quantity": "Ilość",
+    "unit": "Jednostka",
+    "category": "Kategoria",
+    "noCategory": "Bez kategorii",
+    "suppliers": "Dostawcy objęci zapytaniem"
+  },
+  "items": {
+    "title": "Pozycje zapytania",
+    "add": "Dodaj pozycję",
+    "remove": "Usuń tę pozycję",
+    "empty": "Proszę dodać co najmniej jedną pozycję opisującą poszukiwany produkt."
+  },
+  "suppliers": {
+    "empty": "Nie zarejestrowano jeszcze żadnej organizacji dostawcy.",
+    "selected": "{count, plural, =0 {Nie wybrano dostawców} one {# wybrany dostawca} few {# wybranych dostawców} many {# wybranych dostawców} other {# wybranego dostawcy}}"
+  },
+  "flash": {
+    "created": "Zapytanie utworzone. Proszę je sprawdzić, a następnie opublikować, aby je rozesłać.",
+    "updated": "Zapytanie zaktualizowane.",
+    "published": "Zapytanie opublikowane. Mogą je Państwo teraz wysłać do odbiorców.",
+    "sent": "{count, plural, =0 {Nic nie wysłano} one {Zapytanie wysłano do # dostawcy} few {Zapytanie wysłano do # dostawców} many {Zapytanie wysłano do # dostawców} other {Zapytanie wysłano do # dostawcy}}.",
+    "closed": "Zapytanie zamknięte.",
+    "suppliersAdded": "{count, plural, =0 {Nie dodano nowych odbiorców} one {Dodano # odbiorcę} few {Dodano # odbiorców} many {Dodano # odbiorców} other {Dodano # odbiorcy}}.",
+    "supplierRemoved": "Odbiorca usunięty."
+  },
+  "errors": {
+    "notEditable": "Edytować można tylko wersję roboczą. Odbiorcy, który został już powiadomiony, nie można usunąć.",
+    "notPublishable": "Nie można opublikować tego zapytania: wymagana jest wersja robocza zawierająca co najmniej jedną pozycję.",
+    "notSendable": "Nie można wysłać tego zapytania: proszę je opublikować i wybrać co najmniej jednego oczekującego odbiorcę.",
+    "notClosable": "Zamknąć można tylko opublikowane zapytanie.",
+    "notASupplier": "Jeden z wybranych odbiorców nie jest aktywną organizacją dostawcy."
+  },
+  "supplier": {
+    "index": {
+      "title": "Otrzymane zapytania",
+      "subtitle": "Zapytania ofertowe skierowane do Państwa przez kupujących.",
+      "empty": "Brak otrzymanych zapytań.",
+      "from": "Od {name}",
+      "receivedAt": "Otrzymano {date}"
+    },
+    "show": {
+      "backToList": "Powrót do otrzymanych zapytań",
+      "needTitle": "Potrzeba",
+      "buyer": "Kupujący",
+      "noDeadline": "Bez terminu",
+      "declinedNotice": "Odrzucili Państwo to zapytanie. Kupujący został o tym poinformowany.",
+      "closedNotice": "Kupujący zamknął to zapytanie: nie oczekuje już odpowiedzi.",
+      "quoteSoon": "Składanie ofert online będzie dostępne wkrótce."
+    },
+    "actions": {
+      "decline": "Odrzuć zapytanie",
+      "confirmDecline": "Odrzucić to zapytanie? Ta decyzja jest ostateczna."
+    },
+    "status": {
+      "sent": "Do rozpatrzenia",
+      "viewed": "W toku",
+      "responded": "Oferta wysłana",
+      "declined": "Odrzucone"
+    },
+    "flash": {
+      "declined": "Zapytanie odrzucone."
+    },
+    "errors": {
+      "notDecidable": "To zapytanie nie oczekuje już na Państwa decyzję."
+    }
+  }
+}

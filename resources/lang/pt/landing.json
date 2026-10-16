@@ -1,0 +1,189 @@
+{
+  "seo": {
+    "title": "Promotional Sourcing.eu — O sourcing de objetos publicitários, finalmente fiável",
+    "description": "Plataforma B2B europeia de sourcing de objetos publicitários: 300 fornecedores, mais de 1 milhão de produtos, pesquisa multicritério que funciona a sério — ao contrário das soluções existentes."
+  },
+  "org": {
+    "description": "Plataforma B2B europeia que liga as agências de comunicação pelo objeto aos fornecedores de objetos publicitários em toda a Europa."
+  },
+  "og": {
+    "imageAlt": "Promotional Sourcing.eu — O sourcing de objetos promocionais. Simples. Inteligente. Europeu."
+  },
+  "nav": {
+    "agences": "Agências",
+    "fournisseurs": "Fornecedores",
+    "contact": "Contacto",
+    "cta": "Contacte-nos",
+    "menuAria": "Abrir o menu",
+    "switchTo": "English",
+    "login": "Entrar",
+    "openApp": "Aceder à app",
+    "logoAlt": "Promotional Sourcing.eu",
+    "languageLabel": "Idioma"
+  },
+  "hero": {
+    "eyebrow": "Lançamento: janeiro de 2027",
+    "titleLine1": "O sourcing de objetos promocionais.",
+    "titleWord1": "Simples.",
+    "titleWord2": "Inteligente.",
+    "titleWord3": "Europeu.",
+    "lead": "Uma plataforma única que liga fornecedores e agências de comunicação pelo objeto em toda a Europa.",
+    "sub": "Pesquisa avançada. Resultados relevantes. IA integrada.",
+    "ctaPrimary": "Descobrir",
+    "ctaSecondary": "Contacte-nos"
+  },
+  "features": {
+    "eyebrow": "Para agências",
+    "heading": "Encontre o produto certo em segundos.",
+    "intro": "Chega de andar de catálogo em catálogo: um único ponto de entrada para todo o mercado europeu.",
+    "closingLink": "Saber mais",
+    "search": {
+      "title": "Pesquisa inteligente",
+      "description": "Filtre por material, gramagem, país de fabrico ou certificação — o produto certo em segundos, não em horas.",
+      "query": "saco shopping made in europe +200 g/m²",
+      "matchLabel": "2 correspondências entre mais de 300 fornecedores verificados",
+      "compareReady": "✓ Comparação pronta com 1 clique",
+      "exploreCatalogue": "Explorar o catálogo",
+      "results": [
+        {
+          "name": "Saco shopping algodão 220g",
+          "variant": "Natural · 220 g/m²"
+        },
+        {
+          "name": "Saco shopping juta impresso",
+          "variant": "Juta · 350 g/m²"
+        }
+      ]
+    },
+    "imageSearch": {
+      "title": "Pesquisa por imagem (IA)",
+      "description": "Carregue a foto do produto que o seu cliente procura — a IA encontra o equivalente mais próximo entre mais de 1 milhão de referências.",
+      "uploadedAlt": "Foto carregada pelo utilizador",
+      "dropHint": "Arraste uma foto para aqui",
+      "matchResult": "✓ Correspondência de 98 % — Saco algodão 220g",
+      "tryButton": "Experimentar a pesquisa por IA"
+    },
+    "compare": {
+      "title": "Comparação instantânea",
+      "description": "Preços e MOQ de todos os fornecedores, lado a lado.",
+      "button": "Comparar"
+    },
+    "verified": {
+      "count": "300+",
+      "label": "Fornecedores europeus verificados",
+      "noCommitment": "Sem compromisso"
+    }
+  },
+  "stats": {
+    "heading": "No centro do sourcing europeu.",
+    "stat1": "produtos referenciados num único catálogo",
+    "stat2": "fornecedores europeus verificados",
+    "stat3": "de tempo médio de resposta dos fornecedores",
+    "stat4": "Acesso gratuito"
+  },
+  "suppliers": {
+    "kicker": "Para fornecedores",
+    "heading": "Dê visibilidade aos seus produtos junto de milhares de agências europeias.",
+    "intro": "Envie-nos o seu catálogo, nós tratamos do resto. A sua visibilidade começa logo no lançamento.",
+    "point1Title": "Listagem gratuita do seu catálogo",
+    "point1Desc": "Os seus produtos integrados e consultáveis pelas agências, sem custos de entrada.",
+    "point2Title": "Tratamos da integração dos seus dados",
+    "point2Desc": "API, CSV ou exportação Excel: envie os seus dados no formato que tiver, a nossa equipa trata da integração.",
+    "point3Title": "Visibilidade imediata desde o lançamento",
+    "point3Desc": "Os primeiros catálogos listados estarão online no dia D, à vista de todas as agências registadas.",
+    "point4Title": "Zero atritos, zero custos de entrada",
+    "point4Desc": "Sem subscrição, sem desenvolvimento do seu lado: aderir à plataforma é simples e gratuito.",
+    "cta": "Listar o meu catálogo"
+  },
+  "finalCta": {
+    "badge": "Lançamento previsto: janeiro de 2027",
+    "heading": "Estamos a construir a nova referência do sourcing de brindes na Europa.",
+    "descriptionBefore": "Fornecedores: junte-se aos primeiros parceiros e beneficie de uma ",
+    "descriptionHighlight": "visibilidade prioritária",
+    "descriptionAfter": " desde o lançamento.",
+    "cta": "Contacte-nos"
+  },
+  "footer": {
+    "location": "Bordéus, França",
+    "columnPlatform": "Plataforma",
+    "columnLegal": "Legal",
+    "linkAgencies": "Agências",
+    "linkSuppliers": "Fornecedores",
+    "linkContact": "Contacto",
+    "linkLegalMentions": "Informações legais",
+    "linkPrivacy": "Privacidade",
+    "copyright": "© 2026 Promotional Sourcing",
+    "domain": "promotional-sourcing.eu"
+  },
+  "contact": {
+    "seoTitle": "Contacto — Promotional Sourcing.eu",
+    "seoDescription": "Agência ou fornecedor de objetos publicitários? Falemos da sua necessidade de sourcing na Europa. Resposta em 48 h.",
+    "eyebrow": "Contacto",
+    "heading": "Falemos da sua necessidade.",
+    "intro": "Agência à procura do produto certo, ou fornecedor que quer aderir à plataforma: diga-nos em poucas linhas o que procura e respondemos em 48 h.",
+    "asideTitle": "Escreva-nos diretamente",
+    "asideAddressTitle": "Os nossos escritórios",
+    "asideResponseTitle": "Prazo de resposta",
+    "asideResponse": "Em 48 h úteis.",
+    "formHeading": "O seu pedido",
+    "mailIntro": "Escreva-nos diretamente: o botão abaixo abre o seu e-mail com uma mensagem já estruturada. Para uma resposta rápida, indique:",
+    "mailPoints": {
+      "0": "A sua empresa e a sua função (agência, comprador, fornecedor…)",
+      "1": "O tipo de produto pretendido",
+      "2": "As quantidades e o orçamento previsto",
+      "3": "O prazo de entrega pretendido"
+    },
+    "mailCta": "Escrever à nossa equipa",
+    "mailHint": "Abre o seu programa de e-mail.",
+    "mailFallback": "Sem e-mail configurado? Escreva-nos para",
+    "mailSubject": "Pedido de sourcing — Promotional Sourcing.eu",
+    "mailBody": "Bom dia,\n\nEmpresa:\nÉ (agência / comprador / fornecedor):\nTelefone:\n\nProduto pretendido:\nQuantidade:\nOrçamento previsto:\nPrazo pretendido:\n\nDetalhes:\n\n\nObrigado,\n"
+  },
+  "thanks": {
+    "seoTitle": "Mensagem recebida — Promotional Sourcing.eu",
+    "seoDescription": "O seu pedido foi transmitido à nossa equipa.",
+    "eyebrow": "Mensagem enviada",
+    "heading": "Obrigado, a sua mensagem foi enviada.",
+    "body": "A nossa equipa responde-lhe em 48 h úteis. Entretanto, pode escrever-nos diretamente para",
+    "backHome": "Voltar à página inicial"
+  },
+  "legal": {
+    "updatedOn": "Última atualização:",
+    "breadcrumbAria": "Caminho de navegação",
+    "breadcrumbHome": "Início",
+    "tocTitle": "Nesta página",
+    "helpEyebrow": "Tem uma dúvida?",
+    "helpHeading": "Precisa de um esclarecimento sobre este documento?",
+    "helpBody": "A nossa equipa responde a pedidos jurídicos e a questões sobre os seus dados em 48 h úteis.",
+    "helpCta": "Contacte-nos"
+  },
+  "productMockup": {
+    "tags": {
+      "0": "Material reciclado",
+      "1": "Certificado GRS",
+      "2": "Stock Europa"
+    },
+    "products": {
+      "0": {
+        "name": "Saco tote algodão biológico 220g",
+        "country": "França"
+      },
+      "1": {
+        "name": "Saco tote algodão 140g cor mostarda",
+        "country": "Portugal"
+      },
+      "2": {
+        "name": "Saco tote algodão com fole 140g",
+        "country": "Espanha"
+      }
+    },
+    "aiChip": "Pesquisa por IA",
+    "verifiedLabel": "Fornecedor verificado",
+    "supplierLabel": "Fornecedor",
+    "priceFrom": "desde",
+    "priceSuffix": "€ s/ IVA",
+    "footerCompare": "Comparação instantânea entre fornecedores",
+    "footerFlag": "Pré-visualização da interface",
+    "ariaLabel": "Pré-visualização de uma pesquisa em promotional-sourcing.eu: um saco tote de algodão biológico, um saco isotérmico em poliéster reciclado e uma toalha de praia reciclada, filtrados por material reciclado, certificação GRS e stock Europa, com fornecedor verificado, país e preço."
+  }
+}

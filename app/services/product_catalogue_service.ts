@@ -2,7 +2,7 @@ import Product from '#models/product'
 import Category from '#models/category'
 import Attribute from '#models/attribute'
 import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
-import { DEFAULT_TSCONFIG, LOCALE_TSCONFIG, type Locale } from '#shared/types/i18n'
+import { contentLocaleFor, LOCALE_TSCONFIG, type Locale } from '#shared/types/i18n'
 import { toPgVector } from '#shared/helpers/pgvector'
 import type { ProductDirectoryFilters } from '#shared/types/product'
 
@@ -35,7 +35,10 @@ export default class ProductCatalogueService {
 
     // `tsConfig` provient d'une table contrôlée (jamais d'entrée utilisateur),
     // donc interpolable sans risque ; seul le terme recherché est bindé.
-    const tsConfig = LOCALE_TSCONFIG[locale] ?? DEFAULT_TSCONFIG
+    // La recherche porte sur la langue de contenu servie pour cette langue d'interface
+    // (les langues d'UI sans contenu dédié lisent les fiches anglaises).
+    const searchLocale = contentLocaleFor(locale)
+    const tsConfig = LOCALE_TSCONFIG[searchLocale]
 
     const query = Product.query()
       .where('isActive', true)
@@ -60,7 +63,7 @@ export default class ProductCatalogueService {
       query
         .whereHas('translations', (t) =>
           t
-            .where('locale', locale)
+            .where('locale', searchLocale)
             .whereRaw(`search_vector @@ websearch_to_tsquery('${tsConfig}', ?)`, [search])
         )
         .orderBy('slug')

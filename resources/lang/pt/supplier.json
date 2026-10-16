@@ -1,0 +1,25 @@
+{
+  "profile": {
+    "title": "Perfil de fornecedor",
+    "subtitle": "Indique os seus prazos, certificações e âmbito de entrega para dar confiança aos compradores.",
+    "submit": "Guardar o perfil",
+    "success": "Perfil de fornecedor atualizado."
+  },
+  "fields": {
+    "minOrderQuantity": "Quantidade mínima de encomenda",
+    "deliveryDays": "Prazo de entrega (dias)",
+    "responseTimeDays": "Prazo de resposta (dias)",
+    "deliveryScope": "Âmbito de entrega",
+    "certifications": "Certificações",
+    "certificationPlaceholder": "p. ex. ISO 9001",
+    "certificationAdd": "Adicionar uma certificação",
+    "certificationRemove": "Remover",
+    "bio": "Apresentação"
+  },
+  "deliveryScope": {
+    "none": "Não especificado",
+    "national": "Nacional",
+    "europe": "Europa",
+    "worldwide": "Internacional"
+  }
+}

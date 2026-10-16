@@ -1,0 +1,189 @@
+{
+  "seo": {
+    "title": "Promotional Sourcing.eu — Inköp av reklamprodukter, äntligen pålitligt",
+    "description": "Europeisk B2B-plattform för inköp av reklamprodukter: 300 leverantörer, över 1 miljon produkter och en flerkriteriesökning som faktiskt fungerar — till skillnad från dagens lösningar."
+  },
+  "org": {
+    "description": "Europeisk B2B-plattform som kopplar ihop reklambyråer med leverantörer av reklamprodukter i hela Europa."
+  },
+  "og": {
+    "imageAlt": "Promotional Sourcing.eu — Inköp av reklamprodukter. Enkelt. Smart. Europeiskt."
+  },
+  "nav": {
+    "agences": "Byråer",
+    "fournisseurs": "Leverantörer",
+    "contact": "Kontakt",
+    "cta": "Kontakta oss",
+    "menuAria": "Öppna menyn",
+    "switchTo": "English",
+    "login": "Logga in",
+    "openApp": "Öppna appen",
+    "logoAlt": "Promotional Sourcing.eu",
+    "languageLabel": "Språk"
+  },
+  "hero": {
+    "eyebrow": "Lansering: januari 2027",
+    "titleLine1": "Inköp av reklamprodukter.",
+    "titleWord1": "Enkelt.",
+    "titleWord2": "Smart.",
+    "titleWord3": "Europeiskt.",
+    "lead": "En enda plattform som kopplar ihop leverantörer och reklambyråer i hela Europa.",
+    "sub": "Avancerad sökning. Relevanta resultat. Inbyggd AI.",
+    "ctaPrimary": "Upptäck",
+    "ctaSecondary": "Kontakta oss"
+  },
+  "features": {
+    "eyebrow": "För byråer",
+    "heading": "Hitta rätt produkt på några sekunder.",
+    "intro": "Slipp jaga mellan tio olika kataloger: en enda ingång till hela den europeiska marknaden.",
+    "closingLink": "Läs mer",
+    "search": {
+      "title": "Smart sökning",
+      "description": "Filtrera på material, vikt, tillverkningsland eller certifiering — rätt produkt på sekunder, inte timmar.",
+      "query": "shoppingbag made in europe +200 g/m²",
+      "matchLabel": "2 träffar bland 300+ verifierade leverantörer",
+      "compareReady": "✓ Jämförelse redo med 1 klick",
+      "exploreCatalogue": "Utforska katalogen",
+      "results": [
+        {
+          "name": "Shoppingbag bomull 220g",
+          "variant": "Naturvit · 220 g/m²"
+        },
+        {
+          "name": "Shoppingbag jute med tryck",
+          "variant": "Jute · 350 g/m²"
+        }
+      ]
+    },
+    "imageSearch": {
+      "title": "Bildsökning (AI)",
+      "description": "Ladda upp ett foto på produkten din kund söker — AI:n hittar den närmaste motsvarigheten bland över 1 miljon artiklar.",
+      "uploadedAlt": "Foto uppladdat av användaren",
+      "dropHint": "Dra ett foto hit",
+      "matchResult": "✓ 98 % träff — Bomullsbag 220g",
+      "tryButton": "Testa AI-sökningen"
+    },
+    "compare": {
+      "title": "Direkt jämförelse",
+      "description": "Pris och MOQ från alla leverantörer, sida vid sida.",
+      "button": "Jämför"
+    },
+    "verified": {
+      "count": "300+",
+      "label": "Verifierade europeiska leverantörer",
+      "noCommitment": "Utan åtagande"
+    }
+  },
+  "stats": {
+    "heading": "Mitt i det europeiska inköpet.",
+    "stat1": "produkter samlade i en enda katalog",
+    "stat2": "verifierade europeiska leverantörer",
+    "stat3": "genomsnittlig svarstid hos leverantörerna",
+    "stat4": "Gratis åtkomst"
+  },
+  "suppliers": {
+    "kicker": "För leverantörer",
+    "heading": "Gör dina produkter synliga för tusentals europeiska byråer.",
+    "intro": "Du levererar din katalog, vi sköter resten. Din synlighet startar redan vid lanseringen.",
+    "point1Title": "Gratis listning av din katalog",
+    "point1Desc": "Dina produkter läggs in och blir sökbara för byråerna, utan startavgift.",
+    "point2Title": "Vi tar hand om integrationen av dina data",
+    "point2Desc": "API, CSV eller Excel-export: skicka dina data i det format du har, vårt team sköter integrationen.",
+    "point3Title": "Omedelbar synlighet från lanseringen",
+    "point3Desc": "De första listade katalogerna är live på lanseringsdagen, inför alla registrerade byråer.",
+    "point4Title": "Noll friktion, noll startkostnad",
+    "point4Desc": "Ingen prenumeration och ingen utveckling hos dig: att ansluta till plattformen är enkelt och gratis.",
+    "cta": "Lista min katalog"
+  },
+  "finalCta": {
+    "badge": "Planerad lansering: januari 2027",
+    "heading": "Vi bygger den nya referensen för inköp av reklamprodukter i Europa.",
+    "descriptionBefore": "Leverantörer: bli en av de första partnerna och få ",
+    "descriptionHighlight": "prioriterad synlighet",
+    "descriptionAfter": " redan vid lanseringen.",
+    "cta": "Kontakta oss"
+  },
+  "footer": {
+    "location": "Bordeaux, Frankrike",
+    "columnPlatform": "Plattform",
+    "columnLegal": "Juridik",
+    "linkAgencies": "Byråer",
+    "linkSuppliers": "Leverantörer",
+    "linkContact": "Kontakt",
+    "linkLegalMentions": "Juridisk information",
+    "linkPrivacy": "Integritet",
+    "copyright": "© 2026 Promotional Sourcing",
+    "domain": "promotional-sourcing.eu"
+  },
+  "contact": {
+    "seoTitle": "Kontakt — Promotional Sourcing.eu",
+    "seoDescription": "Byrå eller leverantör av reklamprodukter? Låt oss prata om ditt inköpsbehov i Europa. Svar inom 48 timmar.",
+    "eyebrow": "Kontakt",
+    "heading": "Låt oss prata om ditt behov.",
+    "intro": "Byrå som söker rätt produkt, eller leverantör som vill ansluta till plattformen: berätta med några rader vad du söker, så återkommer vi inom 48 timmar.",
+    "asideTitle": "Skriv direkt till oss",
+    "asideAddressTitle": "Våra kontor",
+    "asideResponseTitle": "Svarstid",
+    "asideResponse": "Inom 48 arbetstimmar.",
+    "formHeading": "Din förfrågan",
+    "mailIntro": "Skriv direkt till oss: knappen nedan öppnar ditt e-postprogram med ett färdigstrukturerat meddelande. För ett snabbt svar, ange gärna:",
+    "mailPoints": {
+      "0": "Ditt företag och din roll (byrå, köpare, leverantör…)",
+      "1": "Vilken typ av produkt du söker",
+      "2": "Kvantiteter och målbudget",
+      "3": "Önskad leveranstid"
+    },
+    "mailCta": "Skriv till vårt team",
+    "mailHint": "Öppnar ditt e-postprogram.",
+    "mailFallback": "Inget e-postprogram konfigurerat? Skriv till oss på",
+    "mailSubject": "Inköpsförfrågan — Promotional Sourcing.eu",
+    "mailBody": "Hej,\n\nFöretag:\nDu är (byrå / köpare / leverantör):\nTelefon:\n\nProdukt som söks:\nKvantitet:\nMålbudget:\nÖnskad leveranstid:\n\nÖvrig information:\n\n\nTack,\n"
+  },
+  "thanks": {
+    "seoTitle": "Meddelande mottaget — Promotional Sourcing.eu",
+    "seoDescription": "Din förfrågan har skickats vidare till vårt team.",
+    "eyebrow": "Meddelande skickat",
+    "heading": "Tack, ditt meddelande är på väg.",
+    "body": "Vårt team återkommer inom 48 arbetstimmar. Under tiden kan du skriva direkt till oss på",
+    "backHome": "Tillbaka till startsidan"
+  },
+  "legal": {
+    "updatedOn": "Senast uppdaterad:",
+    "breadcrumbAria": "Sökväg",
+    "breadcrumbHome": "Startsida",
+    "tocTitle": "På den här sidan",
+    "helpEyebrow": "Har du en fråga?",
+    "helpHeading": "Behöver du ett förtydligande om det här dokumentet?",
+    "helpBody": "Vårt team besvarar juridiska förfrågningar och frågor om dina data inom 48 arbetstimmar.",
+    "helpCta": "Kontakta oss"
+  },
+  "productMockup": {
+    "tags": {
+      "0": "Återvunnet material",
+      "1": "GRS-certifierad",
+      "2": "Lager i Europa"
+    },
+    "products": {
+      "0": {
+        "name": "Tygkasse ekologisk bomull 220g",
+        "country": "Frankrike"
+      },
+      "1": {
+        "name": "Tygkasse bomull 140g senapsgul",
+        "country": "Portugal"
+      },
+      "2": {
+        "name": "Tygkasse bomull 140g med sidovecka",
+        "country": "Spanien"
+      }
+    },
+    "aiChip": "AI-sökning",
+    "verifiedLabel": "Verifierad leverantör",
+    "supplierLabel": "Leverantör",
+    "priceFrom": "från",
+    "priceSuffix": "€ exkl. moms",
+    "footerCompare": "Direkt jämförelse mellan leverantörer",
+    "footerFlag": "Förhandsvisning av gränssnittet",
+    "ariaLabel": "Förhandsvisning av en sökning på promotional-sourcing.eu: en tygkasse i ekologisk bomull, en kylväska i återvunnen polyester och en strandhandduk i återvunnet material, filtrerade på återvunnet material, GRS-certifiering och lager i Europa, med verifierad leverantör, land och pris."
+  }
+}
