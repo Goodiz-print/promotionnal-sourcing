@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import db from '@adonisjs/lucid/services/db'
 import app from '@adonisjs/core/services/app'
 import Category from '#models/category'
 import Product from '#models/product'
@@ -65,6 +66,10 @@ test.group('Politique de traduction — produits', (group) => {
     assert.isFalse(rows.fr.isAuto)
     assert.isTrue(rows.en.isAuto)
     assert.equal(rows.en.name, '[en] Gourde isotherme')
+
+    // search_vector calculé aussi pour la traduction auto (#94).
+    const vector = await db.from('product_translations').where('id', rows.en.id).first()
+    assert.isNotNull(vector.search_vector)
   })
 
   test('une langue source autre que fr est acceptée', async ({ client, assert }) => {

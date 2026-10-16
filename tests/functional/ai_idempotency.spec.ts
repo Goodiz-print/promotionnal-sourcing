@@ -2,6 +2,7 @@ import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import Product from '#models/product'
 import EmbeddingService from '#services/embedding_service'
+import ProductTranslationSearchService from '#services/product_translation_search_service'
 import TranslationService from '#services/translation_service'
 import MistralTranslationProvider from '#services/translation/mistral_translation_provider'
 import aiConfig from '#config/ai'
@@ -86,7 +87,7 @@ test.group('Idempotence — traductions', (group) => {
 
   test('relancer sans changement de source n’appelle pas le provider', async ({ assert }) => {
     const { provider, calls } = countingTranslator()
-    const service = new TranslationService(provider)
+    const service = new TranslationService(provider, new ProductTranslationSearchService())
     const product = await loadProduct('crayon-hb-bleu')
     const target = {
       entity: 'product' as const,
@@ -111,7 +112,7 @@ test.group('Idempotence — traductions', (group) => {
     assert,
   }) => {
     const { provider, calls } = countingTranslator()
-    const service = new TranslationService(provider)
+    const service = new TranslationService(provider, new ProductTranslationSearchService())
     const product = await loadProduct('crayon-hb-bleu')
     const base = { entity: 'product' as const, entityId: product.id, sourceLocale: 'fr' }
 
@@ -135,7 +136,7 @@ test.group('Idempotence — traductions', (group) => {
 
   test('sans traduction source : lève, sans appel', async ({ assert }) => {
     const { provider, calls } = countingTranslator()
-    const service = new TranslationService(provider)
+    const service = new TranslationService(provider, new ProductTranslationSearchService())
     const product = await loadProduct('crayon-hb-bleu')
 
     await assert.rejects(
@@ -153,7 +154,7 @@ test.group('Idempotence — traductions', (group) => {
 
   test('catégories : même mécanisme', async ({ assert }) => {
     const { provider, calls } = countingTranslator()
-    const service = new TranslationService(provider)
+    const service = new TranslationService(provider, new ProductTranslationSearchService())
     const category = await db.from('category_translations').where('locale', 'fr').firstOrFail()
     const target = {
       entity: 'category' as const,

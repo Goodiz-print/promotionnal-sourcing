@@ -4,6 +4,7 @@ import logger from '@adonisjs/core/services/logger'
 import aiConfig from '#config/ai'
 import { MissingTranslationSourceError } from '#exceptions/ai_errors'
 import { idempotencyKey, textHash } from '#shared/helpers/idempotency'
+import ProductTranslationSearchService from '#services/product_translation_search_service'
 import TranslationProvider from '#services/translation/translation_provider'
 import type { TranslatableEntity, TranslationOutcome, TranslationTarget } from '#shared/types/ai'
 
@@ -47,7 +48,10 @@ const ENTITY_TABLES: Record<TranslatableEntity, EntityTable> = {
  */
 @inject()
 export default class TranslationService {
-  constructor(private provider: TranslationProvider) {}
+  constructor(
+    private provider: TranslationProvider,
+    private search: ProductTranslationSearchService
+  ) {}
 
   async translate(target: TranslationTarget): Promise<TranslationOutcome> {
     const { entity, entityId, sourceLocale, targetLocale } = target
@@ -112,6 +116,9 @@ export default class TranslationService {
       })
       .onConflict([foreignKey, 'locale'])
       .merge({ ...translated, translation_key: key, is_auto: true, updated_at: now })
+
+    // Le vecteur de recherche des produits est calculé par l'app (#94).
+    if (entity === 'product') await this.search.refreshForProduct(entityId)
 
     logger.info({ ...logContext, outcome: 'called' }, 'ai translation')
     return 'called'

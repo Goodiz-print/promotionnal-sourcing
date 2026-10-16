@@ -53,14 +53,17 @@ no-op hors PostgreSQL.
 - **`products.embedding`** — `vector(1024)`, nullable, index **HNSW**
   (`vector_cosine_ops`). Peuplé par le job `generate_product_embedding_job`
   (`mistral-embed`) — voir « Recherche sémantique » ci-dessous.
-- **`product_translations.search_vector`** — colonne générée **immuable**,
-  un `CASE` par `locale` (`to_tsvector('french', …)` / `to_tsvector('english',
-…)`, repli `'simple'`) + index GIN. `unaccent()` est `STABLE` et interdit
-  dans une colonne `GENERATED` : il est appliqué côté requête, pas en
-  stockage.
-- Ajouter une langue à la recherche plein-texte = ajouter une entrée dans
-  `LOCALE_TSCONFIG` (`shared/types/i18n.ts`) **et** une branche `WHEN` dans
-  la migration `…959_create_product_translations_table`.
+- **`product_translations.search_vector`** — colonne `tsvector` **ordinaire**,
+  calculée par l'application à l'écriture d'une traduction
+  (`ProductTranslationSearchService.refreshForProduct`, config lue dans
+  `LOCALE_TSCONFIG`, repli `'simple'`) + un index GIN **partiel par locale**
+  (`WHERE locale = '<xx>'`). `unaccent()` reste appliqué côté requête.
+- Toute écriture de `product_translations` doit appeler le service (un test
+  vérifie qu'aucune ligne n'a un `search_vector` NULL).
+- Ajouter une langue à la recherche plein-texte = une entrée dans
+  `LOCALE_TSCONFIG` (`shared/types/i18n.ts`), une migration
+  `CREATE INDEX … WHERE locale = '<xx>'` et le backfill de ses lignes. Aucune
+  réécriture de la table (#84).
 
 `database/schema_rules.ts` exclut `products.embedding` et
 `product_translations.search_vector` du schéma généré par l'ORM (colonnes

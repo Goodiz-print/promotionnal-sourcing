@@ -23,7 +23,8 @@ export default {
     },
 
     /**
-     * `search_vector` (tsvector par langue, colonne generee) : idem, exclue.
+     * `search_vector` (tsvector par langue, calcule par l'application via
+     * `ProductTranslationSearchService`) : idem, exclue.
      */
     product_translations: {
       skipColumns: ['search_vector'],
