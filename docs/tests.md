@@ -42,7 +42,7 @@ Plugins Japa enregistrés :
 
 ### Base de données en test
 
-**PostgreSQL est le seul moteur supporté**, tests compris : le schéma dépend de pgvector,
+**PostgreSQL est le seul moteur supporté**, tests compris (version cible : voir [`postgres.md`](postgres.md)) : le schéma dépend de pgvector,
 `tsvector`, des colonnes générées, de `text[]` et de contraintes `CHECK` posées en SQL brut.
 `config/database.ts` n'expose plus qu'une connexion `pg` — il n'y a plus de variable
 `DB_CONNECTION`, ni de repli SQLite (il ne faisait plus tourner les migrations, et testait
