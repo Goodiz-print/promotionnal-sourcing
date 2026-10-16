@@ -4,6 +4,7 @@ import logger from '@adonisjs/core/services/logger'
 import aiConfig from '#config/ai'
 import { MissingTranslationSourceError } from '#exceptions/ai_errors'
 import { idempotencyKey, textHash } from '#shared/helpers/idempotency'
+import ProductTranslationSearchService from '#services/product_translation_search_service'
 import TranslationProvider from '#services/translation/translation_provider'
 import type { TranslatableEntity, TranslationOutcome, TranslationTarget } from '#shared/types/ai'
 
@@ -36,7 +37,9 @@ const ENTITY_TABLES: Record<TranslatableEntity, EntityTable> = {
  *   locale cible, hash du texte source, modèle, version du prompt), stockée dans
  *   `translation_key` sur la ligne de traduction. Clé inchangée → Mistral n'est
  *   pas appelé.
- * - **Upsert** sur `(entité, locale)` : une seule traduction par couple.
+ * - **Upsert** sur `(entité, locale)` : une seule traduction par couple, marquée
+ *   `is_auto = true`. Une ligne `is_auto = false` (saisie/corrigée à la main)
+ *   n'est jamais écrasée.
  * - Le résultat Mistral est écrit en **une seule** requête (texte + clé), avant
  *   toute autre écriture : un crash ne refacture pas l'appel déjà enregistré.
  * - Chaque appel est loggé avec sa clé (`outcome` = `called` | `skipped`).
@@ -45,7 +48,10 @@ const ENTITY_TABLES: Record<TranslatableEntity, EntityTable> = {
  */
 @inject()
 export default class TranslationService {
-  constructor(private provider: TranslationProvider) {}
+  constructor(
+    private provider: TranslationProvider,
+    private search: ProductTranslationSearchService
+  ) {}
 
   async translate(target: TranslationTarget): Promise<TranslationOutcome> {
     const { entity, entityId, sourceLocale, targetLocale } = target
@@ -81,9 +87,14 @@ export default class TranslationService {
       .from(table)
       .where(foreignKey, entityId)
       .where('locale', targetLocale)
-      .select('translation_key')
+      .select('translation_key', 'is_auto')
       .first()
     const logContext = { idempotencyKey: key, entity, entityId, sourceLocale, targetLocale }
+    // Saisie ou corrigée à la main : la traduction auto ne l'écrase jamais.
+    if (existing && existing.is_auto === false) {
+      logger.info({ ...logContext, outcome: 'skipped', reason: 'manual' }, 'ai translation')
+      return 'skipped'
+    }
     if (existing?.translation_key === key) {
       logger.info({ ...logContext, outcome: 'skipped' }, 'ai translation')
       return 'skipped'
@@ -99,11 +110,15 @@ export default class TranslationService {
         locale: targetLocale,
         ...translated,
         translation_key: key,
+        is_auto: true,
         created_at: now,
         updated_at: now,
       })
       .onConflict([foreignKey, 'locale'])
-      .merge({ ...translated, translation_key: key, updated_at: now })
+      .merge({ ...translated, translation_key: key, is_auto: true, updated_at: now })
+
+    // Le vecteur de recherche des produits est calculé par l'app (#94).
+    if (entity === 'product') await this.search.refreshForProduct(entityId)
 
     logger.info({ ...logContext, outcome: 'called' }, 'ai translation')
     return 'called'

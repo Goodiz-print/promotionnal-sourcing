@@ -25,6 +25,7 @@ test.group('Gestion produits fournisseur — CRUD', (group) => {
       .loginAs(user)
       .json({
         categoryId: crayon.id,
+        sourceLocale: 'fr',
         translations: {
           fr: { name: 'Mug Test', description: 'Mug en céramique' },
           en: { name: 'Test Mug', description: 'Ceramic mug' },

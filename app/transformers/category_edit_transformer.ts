@@ -1,10 +1,10 @@
 import type Category from '#models/category'
 import { BaseTransformer } from '@adonisjs/core/transformers'
-import { CONTENT_LOCALES } from '#shared/types/i18n'
+import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
 import type { CategoryEditType } from '#shared/types/category'
 
 /**
- * Formate une catégorie pour le formulaire d'édition : les deux traductions
+ * Formate une catégorie pour le formulaire d'édition : les traductions
  * (une entrée par locale, chaînes vides si absentes) + slug/parent/synonymes.
  */
 export default class CategoryEditTransformer extends BaseTransformer<Category> {
@@ -15,6 +15,7 @@ export default class CategoryEditTransformer extends BaseTransformer<Category> {
       translations[locale] = {
         name: translation?.name ?? '',
         description: translation?.description ?? null,
+        isAuto: translation?.isAuto ?? false,
       }
     }
 
@@ -23,6 +24,7 @@ export default class CategoryEditTransformer extends BaseTransformer<Category> {
       slug: this.resource.slug,
       parentId: this.resource.parentId,
       synonyms: this.resource.synonyms ?? [],
+      sourceLocale: this.resource.sourceLocale as ContentLocale,
       translations,
     }
   }
