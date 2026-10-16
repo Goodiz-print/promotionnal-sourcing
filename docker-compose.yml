@@ -37,5 +37,26 @@ services:
       timeout: 3s
       retries: 20
 
+  # S3 local : remplace Cellar en dev (même API, mêmes variables CELLAR_*).
+  # S3Mock n'impose ni authentification ni ACL : les objets sont lisibles
+  # publiquement, comme sur le bucket Cellar. (MinIO n'est plus publié sur les
+  # registres publics.)
+  s3:
+    image: adobe/s3mock:latest
+    container_name: promotionnal-sourcing-s3
+    # Le volume nommé est créé en root ; S3Mock tourne sinon en non-root et ne
+    # peut pas y écrire (erreur 500 à la première requête).
+    user: root
+    environment:
+      COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS: promotionnal-sourcing-dev
+      COM_ADOBE_TESTING_S3MOCK_STORE_ROOT: /data
+      COM_ADOBE_TESTING_S3MOCK_STORE_RETAIN_FILES_ON_EXIT: 'true'
+    ports:
+      - '9090:9090'
+    volumes:
+      - promotionnal-sourcing_s3_data:/data
+    restart: unless-stopped
+
 volumes:
   promotionnal-sourcing_pg_data:
+  promotionnal-sourcing_s3_data:

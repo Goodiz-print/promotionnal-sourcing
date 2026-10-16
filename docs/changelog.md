@@ -36,6 +36,9 @@ garantie qu'aucun objet n'est laissé sans référence. Détail : `docs/storage.
   `RecoverStorageUploadsJob` (planifié toutes les heures : `pending_upload` de plus
   de 24 h, plus les `pending_delete` de plus de 24 h dont le job s'est perdu ; ne
   touche jamais une ligne `ready`).
+- **Dev local** — service S3Mock (S3) dans `docker-compose.yml`, bucket public
+  `promotionnal-sourcing-dev` créé au démarrage ; valeurs par défaut dans
+  `.env.example`. Voir `docs/storage.md`.
 - **Tests** — `tests/functional/storage.spec.ts` (faux client via
   `container.swap(StorageDriver, …)`), specs galerie / logo adaptées.
 - Aucune route ni champ de formulaire ne change ; seul le stockage derrière

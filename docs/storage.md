@@ -23,6 +23,19 @@ driver y est remplacé par un faux.
 `<endpoint>/<bucket>/<clé>`. Le worker de la queue (`node ace queue:work`) doit
 tourner : il exécute la purge et la reprise.
 
+## Développement local (S3Mock)
+
+`docker compose up -d` démarre **S3Mock** (`adobe/s3mock`, S3 local sur
+`localhost:9090`), qui crée au démarrage le bucket `promotionnal-sourcing-dev`.
+Il n'impose ni authentification ni ACL : les objets sont lisibles
+publiquement, comme sur le bucket Cellar. Les valeurs de `.env.example` pointent
+dessus (`CELLAR_ACCESS_KEY_ID`/`SECRET` ne sont pas vérifiés, mais requis) :
+les copier dans `.env` suffit, le code est identique à la production (même
+driver, même parcours d'upload). Les fichiers sont conservés dans le volume
+`promotionnal-sourcing_s3_data`. URLs :
+`http://localhost:9090/promotionnal-sourcing-dev/<clé>`. Lancer aussi le worker
+(`node ace queue:work`) pour exécuter les purges.
+
 ## Architecture
 
 - `StorageDriver` (`app/services/storage/storage_driver.ts`) — classe abstraite,
