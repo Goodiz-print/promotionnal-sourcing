@@ -57,6 +57,72 @@ services:
       - promotionnal-sourcing_s3_data:/data
     restart: unless-stopped
 
+  # Image de production (même Dockerfile que le déploiement), en local. Les
+  # variables viennent de `.env.compose` (non committé, cf. .env.compose.example).
+  # Le compose surcharge seulement ce qui pointe vers les services locaux.
+  migrate:
+    build:
+      context: .
+      target: runtime
+    image: promotionnal-sourcing:local
+    profiles: [app]
+    command: ['node', 'ace', 'migration:run', '--force']
+    env_file: .env.compose
+    environment: &app-env
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      CELLAR_ENDPOINT: http://s3:9090
+    depends_on:
+      postgres:
+        condition: service_healthy
+      s3:
+        condition: service_started
+    restart: 'no'
+
+  web:
+    build:
+      context: .
+      target: runtime
+    image: promotionnal-sourcing:local
+    profiles: [app]
+    command: ['node', 'bin/server.js']
+    env_file: .env.compose
+    environment: *app-env
+    ports:
+      - '${WEB_PORT:-3333}:3333'
+    healthcheck:
+      # Pas de curl dans l'image : une réponse HTTP (même 404) suffit.
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3333/').then(() => process.exit(0)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      target: runtime
+    image: promotionnal-sourcing:local
+    profiles: [app]
+    command: ['node', 'ace', 'queue:work']
+    env_file: .env.compose
+    environment: *app-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
 volumes:
   promotionnal-sourcing_pg_data:
   promotionnal-sourcing_s3_data:
