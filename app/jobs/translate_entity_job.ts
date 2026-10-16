@@ -15,9 +15,9 @@ interface TranslateEntityPayload {
 
 /**
  * Traduit une entité (produit, catégorie, attribut, valeur d'attribut) de sa
- * locale source vers `targetLocales`. **Rejouable sans surcoût** : chaque locale
- * passe par `TranslationService`, qui saute l'appel Mistral si la clé
- * d'idempotence est inchangée (retry, crash, redéploiement). No-op tant que
+ * locale source vers `targetLocales`, en un seul appel IA (#75). **Rejouable
+ * sans surcoût** : `TranslationService` saute l'appel si les clés d'idempotence
+ * sont inchangées (retry, crash, redéploiement). No-op tant que
  * `ai.translation.enabled` est faux.
  *
  * Pas d'import de modèle Lucid (les jobs sont chargés au boot) : le service
@@ -38,10 +38,7 @@ export default class TranslateEntityJob extends Job<TranslateEntityPayload> {
     if (!aiConfig.translation.enabled) return
 
     const { entity, entityId, sourceLocale, targetLocales } = this.payload
-    for (const targetLocale of targetLocales) {
-      if (targetLocale === sourceLocale) continue
-      await this.translations.translate({ entity, entityId, sourceLocale, targetLocale })
-    }
+    await this.translations.translate({ entity, entityId, sourceLocale, targetLocales })
   }
 
   async failed(error: Error) {

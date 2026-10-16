@@ -42,13 +42,18 @@ export const TRANSLATABLE_ENTITIES = [
 
 export type TranslatableEntity = (typeof TRANSLATABLE_ENTITIES)[number]
 
+/**
+ * Une entité à traduire dans plusieurs locales. Toutes les locales cibles sont
+ * traduites par **un seul** appel IA (#75).
+ */
 export interface TranslationTarget {
   entity: TranslatableEntity
   entityId: number
   sourceLocale: string
-  targetLocale: string
+  targetLocales: string[]
 }
 
+/** `called` si Mistral a été appelé, `skipped` si toutes les locales étaient à jour. */
 export type TranslationOutcome = 'called' | 'skipped'
 
 /** Sous-ensemble du SDK Mistral dont dépend le traducteur (injectable en test). */

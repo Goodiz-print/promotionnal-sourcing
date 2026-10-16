@@ -30,16 +30,17 @@ const ENTITY_TABLES: Record<TranslatableEntity, EntityTable> = {
 }
 
 /**
- * Traduction automatique idempotente d'une entité vers une locale.
+ * Traduction automatique idempotente d'une entité vers plusieurs locales.
  *
- * - **Clé d'idempotence** = hash de (type d'entité, id, champs, locale source,
- *   locale cible, hash du texte source, modèle, version du prompt), stockée dans
- *   `translation_key` sur la ligne de traduction. Clé inchangée → Mistral n'est
- *   pas appelé.
- * - **Upsert** sur `(entité, locale)` : une seule traduction par couple.
- * - Le résultat Mistral est écrit en **une seule** requête (texte + clé), avant
- *   toute autre écriture : un crash ne refacture pas l'appel déjà enregistré.
- * - Chaque appel est loggé avec sa clé (`outcome` = `called` | `skipped`).
+ * - **Un seul appel IA** pour toutes les locales à (re)traduire (#75). Une
+ *   locale déjà à jour n'entre pas dans l'appel.
+ * - **Clé d'idempotence par locale** = hash de (type d'entité, id, champs,
+ *   locale source, locale cible, hash du texte source, modèle, version du
+ *   prompt), stockée dans `translation_key`. Clé inchangée → pas d'appel.
+ * - **Traduction manuelle protégée** : une ligne sans `translation_key` a été
+ *   saisie par le fournisseur ; elle n'est jamais écrasée.
+ * - **Upsert** sur `(entité, locale)` en une seule requête, après réception de
+ *   la réponse : un crash ne refacture pas un appel déjà enregistré.
  *
  * Accès par `db` (pas de modèle Lucid) : le service est utilisé depuis un job.
  */
@@ -48,7 +49,7 @@ export default class TranslationService {
   constructor(private provider: TranslationProvider) {}
 
   async translate(target: TranslationTarget): Promise<TranslationOutcome> {
-    const { entity, entityId, sourceLocale, targetLocale } = target
+    const { entity, entityId, sourceLocale } = target
     const { table, foreignKey, fields } = ENTITY_TABLES[entity]
 
     const source = await db
@@ -65,7 +66,66 @@ export default class TranslationService {
     }
     if (Object.keys(sourceFields).length === 0) return 'skipped'
 
-    const key = idempotencyKey({
+    const targetLocales = [...new Set(target.targetLocales)].filter(
+      (locale) => locale !== sourceLocale
+    )
+    const existing = await db
+      .from(table)
+      .where(foreignKey, entityId)
+      .whereIn('locale', targetLocales)
+      .select('locale', 'translation_key')
+    const existingByLocale = new Map(existing.map((row) => [row.locale, row.translation_key]))
+
+    const keys = new Map<string, string>()
+    const pending: string[] = []
+    for (const locale of targetLocales) {
+      const key = this.keyFor(entity, entityId, sourceFields, sourceLocale, locale)
+      keys.set(locale, key)
+
+      if (!existingByLocale.has(locale)) {
+        pending.push(locale)
+        continue
+      }
+      const currentKey = existingByLocale.get(locale)
+      if (currentKey === null) continue // saisie manuelle : protégée
+      if (currentKey !== key) pending.push(locale)
+    }
+
+    const logContext = { entity, entityId, sourceLocale }
+    if (pending.length === 0) {
+      logger.info({ ...logContext, outcome: 'skipped', targetLocales }, 'ai translation')
+      return 'skipped'
+    }
+
+    const translated = await this.provider.translate(sourceFields, sourceLocale, pending)
+
+    const now = new Date()
+    const rows = pending.map((locale) => ({
+      [foreignKey]: entityId,
+      locale,
+      ...translated[locale],
+      translation_key: keys.get(locale),
+      created_at: now,
+      updated_at: now,
+    }))
+    await db
+      .table(table)
+      .insert(rows)
+      .onConflict([foreignKey, 'locale'])
+      .merge([...Object.keys(sourceFields), 'translation_key', 'updated_at'])
+
+    logger.info({ ...logContext, outcome: 'called', targetLocales: pending }, 'ai translation')
+    return 'called'
+  }
+
+  private keyFor(
+    entity: TranslatableEntity,
+    entityId: number,
+    sourceFields: Record<string, string>,
+    sourceLocale: string,
+    targetLocale: string
+  ): string {
+    return idempotencyKey({
       kind: 'translation',
       entity,
       entityId,
@@ -76,36 +136,5 @@ export default class TranslationService {
       model: this.provider.model,
       promptVersion: aiConfig.translation.promptVersion,
     })
-
-    const existing = await db
-      .from(table)
-      .where(foreignKey, entityId)
-      .where('locale', targetLocale)
-      .select('translation_key')
-      .first()
-    const logContext = { idempotencyKey: key, entity, entityId, sourceLocale, targetLocale }
-    if (existing?.translation_key === key) {
-      logger.info({ ...logContext, outcome: 'skipped' }, 'ai translation')
-      return 'skipped'
-    }
-
-    const translated = await this.provider.translate(sourceFields, sourceLocale, targetLocale)
-
-    const now = new Date()
-    await db
-      .table(table)
-      .insert({
-        [foreignKey]: entityId,
-        locale: targetLocale,
-        ...translated,
-        translation_key: key,
-        created_at: now,
-        updated_at: now,
-      })
-      .onConflict([foreignKey, 'locale'])
-      .merge({ ...translated, translation_key: key, updated_at: now })
-
-    logger.info({ ...logContext, outcome: 'called' }, 'ai translation')
-    return 'called'
   }
 }

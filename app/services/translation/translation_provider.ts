@@ -7,12 +7,14 @@ export default abstract class TranslationProvider {
   abstract readonly model: string
 
   /**
-   * Traduit chaque valeur de `fields` de `sourceLocale` vers `targetLocale` et
-   * renvoie un objet de mêmes clés. Lève en cas d'échec API ou de réponse invalide.
+   * Traduit chaque valeur de `fields` de `sourceLocale` vers chacune des
+   * `targetLocales`, en un seul appel. Renvoie `{ [locale]: { [field]: texte } }`
+   * et contient toutes les locales demandées. Lève en cas d'échec API ou de
+   * réponse invalide.
    */
   abstract translate(
     fields: Record<string, string>,
     sourceLocale: string,
-    targetLocale: string
-  ): Promise<Record<string, string>>
+    targetLocales: string[]
+  ): Promise<Record<string, Record<string, string>>>
 }

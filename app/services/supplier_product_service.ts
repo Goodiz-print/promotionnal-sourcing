@@ -12,6 +12,7 @@ import SupplierTranslation from '#models/supplier_translation'
 import StorageService from '#services/storage/storage_service'
 import ProductTranslationSearchService from '#services/product_translation_search_service'
 import GenerateProductEmbeddingJob from '#jobs/generate_product_embedding_job'
+import TranslationQueueService from '#services/translation/translation_queue_service'
 import logger from '@adonisjs/core/services/logger'
 import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE } from '#shared/types/i18n'
 import type Organization from '#models/organization'
@@ -27,7 +28,8 @@ import type { SupplierProductInput } from '#shared/types/product'
 export default class SupplierProductService {
   constructor(
     private storage: StorageService,
-    private translationSearch: ProductTranslationSearchService
+    private translationSearch: ProductTranslationSearchService,
+    private translationQueue: TranslationQueueService
   ) {}
 
   /**
@@ -101,6 +103,7 @@ export default class SupplierProductService {
     await this.attachImages(product, files, 0)
     await this.refreshPrimaryImage(product)
     await this.queueEmbedding(product)
+    await this.queueTranslation(product)
 
     return product
   }
@@ -125,6 +128,7 @@ export default class SupplierProductService {
     await this.attachImages(product, files, last ? last.position + 1 : 0)
     await this.refreshPrimaryImage(product)
     await this.queueEmbedding(product)
+    await this.queueTranslation(product)
 
     return product
   }
@@ -184,6 +188,15 @@ export default class SupplierProductService {
     } catch (error) {
       logger.warn({ err: error, productId: product.id }, 'failed to queue product embedding')
     }
+  }
+
+  /**
+   * Planifie la traduction automatique des produits **publiés** (`isActive`) :
+   * un produit non publié n'appelle pas Mistral (#75).
+   */
+  private async queueTranslation(product: Product): Promise<void> {
+    if (!product.isActive) return
+    await this.translationQueue.queue('product', product.id)
   }
 
   /**
