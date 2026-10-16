@@ -3,8 +3,8 @@ import { ref } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import BaseInput from '~/components/base_input.vue'
-import BaseButton from '~/components/base_button.vue'
+import BaseInput from '~/components/base/base_input.vue'
+import BaseButton from '~/components/base/base_button.vue'
 import type { PasskeyType } from '#shared/types/passkey'
 
 const props = defineProps<{ passkey: PasskeyType }>()

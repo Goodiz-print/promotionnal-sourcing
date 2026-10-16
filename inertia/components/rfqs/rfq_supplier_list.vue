@@ -2,8 +2,8 @@
 import { router } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import BaseBadge from '~/components/base_badge.vue'
-import BaseButton from '~/components/base_button.vue'
+import BaseBadge from '~/components/base/base_badge.vue'
+import BaseButton from '~/components/base/base_button.vue'
 import { RFQ_SUPPLIER_STATUS_TONES } from '~/components/rfqs/types'
 import type { RfqSupplierType } from '#shared/types/rfq'
 

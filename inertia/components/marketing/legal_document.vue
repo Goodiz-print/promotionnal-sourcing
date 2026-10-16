@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import BaseLinkButton from '~/components/base_link_button.vue'
+import BaseLinkButton from '~/components/base/base_link_button.vue'
 import GradientMesh from '~/components/marketing/gradient_mesh.vue'
 import { Link } from '@adonisjs/inertia/vue'
 import { useMarketing } from '~/composables/use_marketing'

@@ -2,9 +2,9 @@
 import { useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import BaseInput from '~/components/base_input.vue'
-import BaseSelect from '~/components/base_select.vue'
-import BaseButton from '~/components/base_button.vue'
+import BaseInput from '~/components/base/base_input.vue'
+import BaseSelect from '~/components/base/base_select.vue'
+import BaseButton from '~/components/base/base_button.vue'
 import type { RoleType } from '#shared/types/role'
 
 const props = defineProps<{ roles: RoleType[] }>()

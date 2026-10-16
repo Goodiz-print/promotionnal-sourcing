@@ -3,7 +3,7 @@ import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import BaseButton from '~/components/base_button.vue'
+import BaseButton from '~/components/base/base_button.vue'
 import type { ProductType } from '#shared/types/product'
 
 defineProps<{ products: ProductType[] }>()

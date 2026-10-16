@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
-import BaseButton from '~/components/base_button.vue'
+import BaseButton from '~/components/base/base_button.vue'
 import ProductGallery from '~/components/product_gallery.vue'
 import type { ProductDetailType } from '#shared/types/product'
 

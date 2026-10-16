@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { inject } from 'vue'
 import { useI18n } from '~/i18n'
-import BaseInput from '~/components/base_input.vue'
-import BaseSelect from '~/components/base_select.vue'
-import BaseTextarea from '~/components/base_textarea.vue'
+import BaseInput from '~/components/base/base_input.vue'
+import BaseSelect from '~/components/base/base_select.vue'
+import BaseTextarea from '~/components/base/base_textarea.vue'
 import { ORGANIZATION_SIZES } from '#shared/types/organization'
 import { OrganizationSettingsFormKey } from './types'
 

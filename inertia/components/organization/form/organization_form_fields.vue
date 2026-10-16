@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue'
 import { useI18n } from '~/i18n'
-import BaseInput from '~/components/base_input.vue'
-import BaseRadioGroup from '~/components/base_radio_group.vue'
+import BaseInput from '~/components/base/base_input.vue'
+import BaseRadioGroup from '~/components/base/base_radio_group.vue'
 import { ONBOARDING_TYPES } from '#shared/types/organization'
 import { OrganizationFormKey } from './types'
 

@@ -3,7 +3,7 @@ import { provide } from 'vue'
 import { Head, useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import BaseButton from '~/components/base_button.vue'
+import BaseButton from '~/components/base/base_button.vue'
 import OrganizationFormFields from '~/components/organization/form/organization_form_fields.vue'
 import {
   OrganizationFormKey,

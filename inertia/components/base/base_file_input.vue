@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BaseField from '~/components/base_field.vue'
+import BaseField from '~/components/base/base_field.vue'
 
 withDefaults(
   defineProps<{

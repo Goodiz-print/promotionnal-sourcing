@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import BaseInput from '~/components/base_input.vue'
-import BaseButton from '~/components/base_button.vue'
-import BaseRadioGroup from '~/components/base_radio_group.vue'
+import BaseInput from '~/components/base/base_input.vue'
+import BaseButton from '~/components/base/base_button.vue'
+import BaseRadioGroup from '~/components/base/base_radio_group.vue'
 
 describe('base_input', () => {
   it('rend le label, l’id et le message d’erreur', () => {

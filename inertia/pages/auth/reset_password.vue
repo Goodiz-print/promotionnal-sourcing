@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
-import BaseInput from '~/components/base_input.vue'
-import BaseButton from '~/components/base_button.vue'
+import BaseInput from '~/components/base/base_input.vue'
+import BaseButton from '~/components/base/base_button.vue'
 
 const props = defineProps<{ actionUrl: string }>()
 

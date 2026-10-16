@@ -3,8 +3,8 @@ import { useForm } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import BaseInput from '~/components/base_input.vue'
-import BaseButton from '~/components/base_button.vue'
+import BaseInput from '~/components/base/base_input.vue'
+import BaseButton from '~/components/base/base_button.vue'
 
 const { t, locale } = useI18n()
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import BaseLinkButton from '~/components/base_link_button.vue'
+import BaseLinkButton from '~/components/base/base_link_button.vue'
 import { useMarketing } from '~/composables/use_marketing'
 
 const props = withDefaults(

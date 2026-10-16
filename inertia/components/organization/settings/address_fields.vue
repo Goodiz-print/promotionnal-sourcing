@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject } from 'vue'
 import { useI18n } from '~/i18n'
-import BaseInput from '~/components/base_input.vue'
+import BaseInput from '~/components/base/base_input.vue'
 import { OrganizationSettingsFormKey } from './types'
 
 const form = inject(OrganizationSettingsFormKey)!

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import BaseCard from '~/components/base_card.vue'
-import BaseLinkButton from '~/components/base_link_button.vue'
+import BaseCard from '~/components/base/base_card.vue'
+import BaseLinkButton from '~/components/base/base_link_button.vue'
 import { useMarketing } from '~/composables/use_marketing'
 
 const { t } = useMarketing()

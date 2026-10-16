@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Form } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
-import BaseButton from '~/components/base_button.vue'
+import BaseButton from '~/components/base/base_button.vue'
 
 defineProps<{ email: string }>()
 

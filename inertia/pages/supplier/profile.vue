@@ -2,10 +2,10 @@
 import { Head, useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import BaseInput from '~/components/base_input.vue'
-import BaseSelect from '~/components/base_select.vue'
-import BaseTextarea from '~/components/base_textarea.vue'
-import BaseButton from '~/components/base_button.vue'
+import BaseInput from '~/components/base/base_input.vue'
+import BaseSelect from '~/components/base/base_select.vue'
+import BaseTextarea from '~/components/base/base_textarea.vue'
+import BaseButton from '~/components/base/base_button.vue'
 import { DELIVERY_SCOPES, type SupplierProfileType } from '#shared/types/organization'
 
 const props = defineProps<{

@@ -2,9 +2,9 @@
 import { useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import BaseInput from '~/components/base_input.vue'
+import BaseInput from '~/components/base/base_input.vue'
 import LanguageMenu from '~/components/language_menu.vue'
-import BaseButton from '~/components/base_button.vue'
+import BaseButton from '~/components/base/base_button.vue'
 import { SUPPORTED_LOCALES, DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
 import type { AccountType } from '#shared/types/account'
 

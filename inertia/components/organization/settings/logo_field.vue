@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { inject, computed } from 'vue'
 import { useI18n } from '~/i18n'
-import BaseFileInput from '~/components/base_file_input.vue'
-import BaseCheckbox from '~/components/base_checkbox.vue'
+import BaseFileInput from '~/components/base/base_file_input.vue'
+import BaseCheckbox from '~/components/base/base_checkbox.vue'
 import { OrganizationSettingsFormKey } from './types'
 
 const props = defineProps<{ currentLogoUrl: string | null }>()

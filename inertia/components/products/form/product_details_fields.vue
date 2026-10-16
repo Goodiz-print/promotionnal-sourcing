@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { inject } from 'vue'
 import { useI18n } from '~/i18n'
-import BaseInput from '~/components/base_input.vue'
-import BaseSelect from '~/components/base_select.vue'
-import BaseCheckbox from '~/components/base_checkbox.vue'
+import BaseInput from '~/components/base/base_input.vue'
+import BaseSelect from '~/components/base/base_select.vue'
+import BaseCheckbox from '~/components/base/base_checkbox.vue'
 import type { CategoryType } from '#shared/types/category'
 import { ProductFormKey } from './types'
 

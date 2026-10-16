@@ -109,7 +109,7 @@ Un fournisseur édite le profil de son **organisation courante**
   (dates converties en ISO string pour la sérialisation Inertia).
 - **Écran** `inertia/pages/supplier/profile.vue` : `useForm` (liste `certifications`
   dynamique), périmètre en `<BaseSelect>`, i18n `resources/lang/{fr,en}/supplier.json`.
-  Construit sur un **kit de composants réutilisables** `inertia/components/base_*`
+  Construit sur un **kit de composants réutilisables** `inertia/components/base/base_*`
   (`base_field`, `base_input` générique avec coercion nombre, `base_select`,
   `base_textarea`, `base_button` à variants) — plus aucune classe Tailwind dupliquée.
   Le DTO `SupplierProfileType` est déclaré en **`type`** (et non `interface`) pour
@@ -139,7 +139,7 @@ L'onboarding **crée la première organisation** de l'utilisateur et fixe son ty
   `stringHelpers.slug` + suffixe, création org + adhésion `owner` + org courante (miroir de
   `dev_user_seeder`). **Validator** `app/validators/onboarding.ts` (`ONBOARDING_TYPES` = buyer/supplier).
 - **Frontend** `inertia/pages/onboarding/index.vue` (`useForm`) + composant réutilisable
-  `inertia/components/base_radio_group.vue` (cartes radio génériques) + i18n
+  `inertia/components/base/base_radio_group.vue` (cartes radio génériques) + i18n
   `resources/lang/{fr,en}/onboarding.json`.
 - **Tests** : `tests/functional/onboarding.spec.ts` (redirection signup→onboarding, rendu écran,
   création org+owner+org courante, déjà-onboardé, gate middleware — seed `RoleSeeder`) +

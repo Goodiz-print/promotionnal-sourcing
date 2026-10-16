@@ -176,7 +176,7 @@ Un produit porte une **galerie** d'images ordonnées, hébergées sur Cellar (vo
 - **Frontend** : pages `inertia/pages/supplier/products/{index,create,edit}.vue` (fines)
   - formulaire partagé `inertia/components/products/form/product_form.vue` découpé en
     sections (`translations`, `details`, `facets`, `images`) reliées par **provide/inject**
-    du `useForm` ; nouveau champ générique `inertia/components/base_file_input.vue`.
+    du `useForm` ; nouveau champ générique `inertia/components/base/base_file_input.vue`.
     Soumission multipart via `form.transform(...).post(urlFor(...), { forceFormData: true })`.
 - **i18n** : clés `products.manage.*` (`resources/lang/{fr,en}/products.json`).
 

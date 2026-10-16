@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject } from 'vue'
 import { useI18n } from '~/i18n'
-import BaseCheckbox from '~/components/base_checkbox.vue'
+import BaseCheckbox from '~/components/base/base_checkbox.vue'
 import type { AttributeWithValuesType } from '#shared/types/attribute'
 import { ProductFormKey } from './types'
 

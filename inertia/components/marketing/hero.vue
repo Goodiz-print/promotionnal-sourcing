@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BaseLinkButton from '~/components/base_link_button.vue'
+import BaseLinkButton from '~/components/base/base_link_button.vue'
 import ProductMockup from '~/components/marketing/product_mockup.vue'
 import { useMarketing } from '~/composables/use_marketing'
 

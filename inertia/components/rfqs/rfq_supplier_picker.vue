@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from '~/i18n'
-import BaseCheckbox from '~/components/base_checkbox.vue'
+import BaseCheckbox from '~/components/base/base_checkbox.vue'
 import type { SupplierOptionType } from '#shared/types/rfq'
 
 /**

@@ -2,8 +2,8 @@
 import { router } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import BaseButton from '~/components/base_button.vue'
-import BaseSelect from '~/components/base_select.vue'
+import BaseButton from '~/components/base/base_button.vue'
+import BaseSelect from '~/components/base/base_select.vue'
 import type { OrganizationMemberType } from '#shared/types/organization'
 import type { RoleType } from '#shared/types/role'
 

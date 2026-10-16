@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BaseCard from '~/components/base_card.vue'
+import BaseCard from '~/components/base/base_card.vue'
 import FxCanvas from '~/components/marketing/fx_canvas.vue'
 import { useMarketing } from '~/composables/use_marketing'
 

@@ -27,7 +27,7 @@ données de la PR 1. Introduit la couche `app/services/`.
   sqlite → 19 passés, 17 sautés ; Vitest → 10 passés.
 - **Doc** : `docs/organisations.md` (section « Endpoints & écran fournisseur »).
 - **Suite revue #12** : extraction d'un kit de composants UI réutilisables
-  `inertia/components/base_*` (`base_field`, `base_input` générique avec coercion
+  `inertia/components/base/base_*` (`base_field`, `base_input` générique avec coercion
   nombre, `base_select`, `base_textarea`, `base_button` à variants) ; `profile.vue`
   refactoré pour les consommer (plus de classes Tailwind dupliquées). Tests
   `tests/inertia/base_components.spec.ts`.

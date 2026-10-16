@@ -2,7 +2,7 @@
 import { Head } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
-import BaseBadge from '~/components/base_badge.vue'
+import BaseBadge from '~/components/base/base_badge.vue'
 import { RFQ_SUPPLIER_STATUS_TONES } from '~/components/rfqs/types'
 import type { SupplierRfqType } from '#shared/types/rfq'
 

@@ -2,7 +2,7 @@
 import { router } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import BaseButton from '~/components/base_button.vue'
+import BaseButton from '~/components/base/base_button.vue'
 import type { OrganizationInvitationType } from '#shared/types/organization'
 
 const props = defineProps<{ invitations: OrganizationInvitationType[] }>()

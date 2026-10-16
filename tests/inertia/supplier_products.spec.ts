@@ -30,7 +30,7 @@ vi.mock('@adonisjs/inertia/vue', async () => {
 })
 
 const { default: Index } = await import('~/pages/supplier/products/index.vue')
-const { default: BaseFileInput } = await import('~/components/base_file_input.vue')
+const { default: BaseFileInput } = await import('~/components/base/base_file_input.vue')
 const { default: ProductFacetsFields } =
   await import('~/components/products/form/product_facets_fields.vue')
 

@@ -1,20 +1,19 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string | number | null">
 import { computed } from 'vue'
-import BaseField from '~/components/base_field.vue'
+import BaseField from '~/components/base/base_field.vue'
 
 const props = withDefaults(
   defineProps<{
     id: string
-    modelValue: string
+    modelValue: T
     label?: string
     error?: string
-    rows?: number
   }>(),
-  { rows: 4, label: '', error: '' }
+  { label: '', error: '' }
 )
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string]
+  'update:modelValue': [value: T]
 }>()
 
 const model = computed({
@@ -25,12 +24,13 @@ const model = computed({
 
 <template>
   <BaseField :label="label" :html-for="id" :error="error">
-    <textarea
+    <select
       :id="id"
       v-model="model"
-      :rows="rows"
       :data-invalid="error ? 'true' : undefined"
-      class="w-full rounded border border-[var(--gray-4)] px-4 py-2 data-[invalid=true]:border-[#fb2c36] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
-    />
+      class="h-10 w-full rounded border border-[var(--gray-4)] px-4 data-[invalid=true]:border-[#fb2c36] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
+    >
+      <slot />
+    </select>
   </BaseField>
 </template>

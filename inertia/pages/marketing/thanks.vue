@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BaseLinkButton from '~/components/base_link_button.vue'
+import BaseLinkButton from '~/components/base/base_link_button.vue'
 import MarketingHead from '~/components/marketing/marketing_head.vue'
 import { useMarketing } from '~/composables/use_marketing'
 import MarketingLayout from '~/layouts/marketing.vue'

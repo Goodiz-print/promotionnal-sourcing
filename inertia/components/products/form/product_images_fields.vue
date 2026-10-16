@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { inject, computed } from 'vue'
 import { useI18n } from '~/i18n'
-import BaseFileInput from '~/components/base_file_input.vue'
-import BaseButton from '~/components/base_button.vue'
+import BaseFileInput from '~/components/base/base_file_input.vue'
+import BaseButton from '~/components/base/base_button.vue'
 import type { ProductImageType } from '#shared/types/product'
 import { ProductFormKey } from './types'
 

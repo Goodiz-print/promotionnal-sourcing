@@ -3,8 +3,8 @@ import FlagIcon from '~/components/flag_icon.vue'
 import { inject } from 'vue'
 import { useI18n } from '~/i18n'
 import { CONTENT_LOCALES, LOCALE_LABELS } from '#shared/types/i18n'
-import BaseInput from '~/components/base_input.vue'
-import BaseTextarea from '~/components/base_textarea.vue'
+import BaseInput from '~/components/base/base_input.vue'
+import BaseTextarea from '~/components/base/base_textarea.vue'
 import { ProductFormKey } from './types'
 
 const form = inject(ProductFormKey)!
