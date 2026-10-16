@@ -111,7 +111,7 @@ Références : [Inertia — Link and Form](https://docs.adonisjs.com/guides/fron
 3. **Tests obligatoires** pour toute logique métier nouvelle. La suite tourne sous **PostgreSQL** (`pnpm test:db && pnpm test`) ; un groupe branche sa base avec `useDatabase(group)` (`tests/utils/setup.ts`) et crée ses entités socle avec les **factories** de `database/factories/` + les helpers de `tests/utils/organizations.ts` — jamais de `Model.create` inline pour un utilisateur, une organisation, une adhésion ou une invitation (voir `docs/tests.md`)
 4. **Pas de `console.log`** en commit — utiliser le logger Adonis
 5. **Migrations** : ne jamais modifier une migration déjà exécutée en production
-6. **Documentation obligatoire** : toute nouvelle feature doit être ajoutée en haut de `docs/changelog.md` avec la date et une description en français (routes, champs, comportements notables)
+6. **Documentation obligatoire** : toute nouvelle feature doit être ajoutée dans un **nouveau fichier** `docs/changelog/AAAA-MM-JJ-slug.md` (un fichier par nouveauté, format dans `docs/changelog/README.md`) avec la date et une description en français (routes, champs, comportements notables)
 
 ## Structure projet
 

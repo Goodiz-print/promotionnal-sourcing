@@ -46,7 +46,7 @@ Lis chaque fichier existant avant de le modifier.
 - Ajouter sous `fields` dans les deux fichiers simultanément
 - Si enum avec valeurs affichées : ajouter aussi les clés pour chaque valeur
 
-**8. `docs/changelog.md`** — entrée en tête :
+**8. `docs/changelog/`** — nouveau fichier `docs/changelog/AAAA-MM-JJ-slug.md` :
 
 ```
 ## YYYY-MM-DD — Ajout champ `<field>` sur `<resource>`

@@ -311,7 +311,7 @@ secret.
   par défaut sur tous les redirects — toute redirection vers une cible
   dynamique doit explicitement `.withQs(false)`, sinon la querystring de la
   requête courante se retrouve dupliquée/propagée sur la destination (rencontré
-  et corrigé pendant ce PR, cf. `docs/changelog.md`).
+  et corrigé pendant ce PR, cf. `docs/changelog/`).
 - **Écrans** `inertia/pages/organization/invitation_{accept,invalid}.vue` +
   extension de `organization/members.vue` (nouveaux composants
   `inertia/components/organization/members/{invite_form,pending_invitations,members_table}.vue`).

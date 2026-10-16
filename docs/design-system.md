@@ -3,7 +3,7 @@
 > Référence visuelle : sobriété façon [stripe.com](https://stripe.com/en-fr) — fond dominant blanc, neutres teintés navy pour le texte/les bordures, indigo de marque en accent réservé aux actions.
 > Ce document complète [`charte-graphique.md`](charte-graphique.md) (logo, favicon, règles de marque) avec les tokens et patterns de composants réutilisables. En cas de divergence, les fichiers sous `inertia/css/tokens/` font foi — ce sont eux qui sont réellement chargés par l'app.
 
-> **Source des tokens** : `inertia/css/tokens/{colors,typography,spacing}.css`, importés par `inertia/css/app.css` qui les expose à Tailwind v4 via `@theme` (utilitaires `bg-indigo-*`, `text-ink-*`, `shadow-1/2/3`, `font-sans`…) et définit les utilitaires typographiques `type-*`. Intégration de l'artéfact **« Promotional Sourcing Design System »** (claude.ai/design) — voir `docs/changelog.md` (2026-07-13).
+> **Source des tokens** : `inertia/css/tokens/{colors,typography,spacing}.css`, importés par `inertia/css/app.css` qui les expose à Tailwind v4 via `@theme` (utilitaires `bg-indigo-*`, `text-ink-*`, `shadow-1/2/3`, `font-sans`…) et définit les utilitaires typographiques `type-*`. Intégration de l'artéfact **« Promotional Sourcing Design System »** (claude.ai/design) — voir `docs/changelog/2026-07-13-integration-du-design-system.md`.
 
 ## Principes
 
