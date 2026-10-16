@@ -70,7 +70,7 @@ const { t } = useMarketing()
               box-shadow: 0 8px 24px rgba(64, 50, 200, 0.35);
             "
           >
-            {{ t('landing.hero.ctaPrimary') }} <span aria-hidden="true">→</span>
+            {{ t('landing.hero.ctaPrimary') }}<span aria-hidden="true">→</span>
           </BaseLinkButton>
           <BaseLinkButton
             href="#contact"

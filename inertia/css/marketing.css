@@ -261,8 +261,12 @@
   border-radius: var(--radius-xl);
 }
 
-/* Base scopée au layout marketing : l'app garde Inter et ses propres styles. */
+/* Base scopée au layout marketing : l'app garde Inter et ses propres styles. Le texte
+   principal de la landing est ink-800 (ink-950 dans l'app) ; les utilitaires lisent
+   --color-text-primary, résolu sur :root, d'où la double déclaration. */
 .marketing {
+  --text-primary: var(--ink-800);
+  --color-text-primary: var(--ink-800);
   font-family: var(--font-landing-family);
   font-feature-settings: 'ss01';
   background: var(--surface-canvas);
@@ -270,14 +274,23 @@
   min-height: 100vh;
 }
 
-.marketing h1,
-.marketing h2,
-.marketing h3,
-.marketing h4,
-.marketing h5,
-.marketing h6 {
-  font-family: var(--font-heading);
-  font-weight: 600;
+/* Dans @layer base (comme sur le site Astro) pour que les utilitaires puissent les surcharger. */
+@layer base {
+  .marketing h1,
+  .marketing h2,
+  .marketing h3,
+  .marketing h4,
+  .marketing h5,
+  .marketing h6 {
+    color: var(--text-primary);
+    font-family: var(--font-heading);
+    font-weight: 600;
+  }
+}
+
+html:has(.marketing),
+body:has(.marketing) {
+  background: var(--surface-canvas);
 }
 
 html:has(.marketing) {
@@ -576,4 +589,15 @@ html:has(.marketing) {
 .nav-link:hover {
   background-size: 100% 2px;
   color: var(--indigo-600);
+}
+
+/* Chevron du sommaire mobile des pages légales : rotation à l'ouverture, marqueur natif masqué. */
+.marketing summary::-webkit-details-marker {
+  display: none;
+}
+.marketing summary svg {
+  transition: transform 0.2s ease;
+}
+.marketing details[open] summary svg {
+  transform: rotate(180deg);
 }

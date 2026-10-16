@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import type { Data } from '@generated/data'
@@ -15,6 +15,23 @@ const LOGO_SRC = '/logo.png'
 const { t, locale, path, homeAnchor } = useMarketing()
 
 const menuOpen = ref(false)
+
+/* Menu mobile ouvert : le fond ne défile plus, Échap ferme, et toute navigation le referme. */
+watch(menuOpen, (open) => document.body.classList.toggle('overflow-hidden', open))
+watch(
+  () => page.url,
+  () => (menuOpen.value = false)
+)
+
+function closeOnEscape(event: KeyboardEvent) {
+  if (event.key === 'Escape') menuOpen.value = false
+}
+
+onMounted(() => document.addEventListener('keydown', closeOnEscape))
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', closeOnEscape)
+  document.body.classList.remove('overflow-hidden')
+})
 
 const navItems = computed(() => [
   { label: t('landing.nav.agences'), href: homeAnchor('agences') },
@@ -58,6 +75,14 @@ const appHref = computed(() => urlFor('products.index', { locale: locale.value }
           :hreflang="otherLocale"
           class="hidden items-center gap-1.5 rounded-pill border border-hairline px-3 py-1.5 text-caption font-semibold text-text-secondary transition-colors duration-150 hover:border-indigo-300 hover:text-indigo-600 md:inline-flex"
         >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3" />
+            <path
+              d="M1.5 8h13M8 1.5c1.8 1.8 2.8 4.1 2.8 6.5s-1 4.7-2.8 6.5c-1.8-1.8-2.8-4.1-2.8-6.5s1-4.7 2.8-6.5Z"
+              stroke="currentColor"
+              stroke-width="1.3"
+            />
+          </svg>
           {{ t('landing.nav.switchTo') }}
         </Link>
         <Link
@@ -102,7 +127,6 @@ const appHref = computed(() => urlFor('products.index', { locale: locale.value }
       v-show="menuOpen"
       id="mobile-nav"
       class="flex flex-col gap-1 border-t border-hairline bg-canvas px-6 pb-6 pt-3 md:hidden"
-      @keydown.esc="menuOpen = false"
     >
       <a
         v-for="item in navItems"
@@ -117,17 +141,25 @@ const appHref = computed(() => urlFor('products.index', { locale: locale.value }
         {{ t('landing.nav.cta') }}
       </BaseLinkButton>
       <Link
-        :href="isLoggedIn ? appHref : loginHref"
-        class="mt-3 inline-flex items-center justify-center rounded-pill border border-indigo-200 px-4 py-2 text-body-sm font-semibold text-indigo-600"
-      >
-        {{ isLoggedIn ? t('landing.nav.openApp') : t('landing.nav.login') }}
-      </Link>
-      <Link
         :href="otherLocaleHref"
         :hreflang="otherLocale"
         class="mt-1 inline-flex items-center gap-1.5 self-center rounded-pill border border-hairline px-3.5 py-2 text-body-sm font-semibold text-text-secondary"
       >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3" />
+          <path
+            d="M1.5 8h13M8 1.5c1.8 1.8 2.8 4.1 2.8 6.5s-1 4.7-2.8 6.5c-1.8-1.8-2.8-4.1-2.8-6.5s1-4.7 2.8-6.5Z"
+            stroke="currentColor"
+            stroke-width="1.3"
+          />
+        </svg>
         {{ t('landing.nav.switchTo') }}
+      </Link>
+      <Link
+        :href="isLoggedIn ? appHref : loginHref"
+        class="mt-3 inline-flex items-center gap-2 self-center rounded-pill border border-indigo-200 px-4 py-1.5 text-caption font-semibold text-indigo-600"
+      >
+        {{ isLoggedIn ? t('landing.nav.openApp') : t('landing.nav.login') }}
       </Link>
     </nav>
   </header>

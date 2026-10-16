@@ -87,6 +87,17 @@ onBeforeUnmount(() => observer?.disconnect())
         <span
           class="inline-flex items-center gap-2 rounded-pill border border-hairline bg-canvas px-4 py-2 text-caption text-text-secondary shadow-elevation-1"
         >
+          <svg
+            aria-hidden="true"
+            class="h-3.5 w-3.5 text-indigo-500"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <circle cx="8" cy="8" r="6.25" />
+            <path d="M8 4.5V8l2.25 1.75" stroke-linecap="round" />
+          </svg>
           {{ t('landing.legal.updatedOn') }}
           <strong class="font-semibold text-text-primary">{{ t(`${doc}.updatedAt`) }}</strong>
         </span>
@@ -94,6 +105,17 @@ onBeforeUnmount(() => observer?.disconnect())
           class="inline-flex items-center gap-2 rounded-pill border border-hairline bg-canvas px-4 py-2 text-caption text-text-secondary shadow-elevation-1 transition-colors hover:border-indigo-200 hover:text-text-brand"
           :href="`mailto:${email}`"
         >
+          <svg
+            aria-hidden="true"
+            class="h-3.5 w-3.5 text-indigo-500"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <rect x="1.75" y="3.25" width="12.5" height="9.5" rx="1.5" />
+            <path d="m2.5 4.5 5.5 4 5.5-4" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
           {{ email }}
         </a>
       </div>
@@ -127,7 +149,19 @@ onBeforeUnmount(() => observer?.disconnect())
     <div class="flex min-w-0 flex-col gap-5">
       <details class="rounded-xl border border-hairline bg-sunken px-5 py-4 lg:hidden">
         <summary class="cursor-pointer list-none text-eyebrow text-text-primary">
-          {{ t('landing.legal.tocTitle') }}
+          <span class="flex items-center justify-between gap-3">
+            {{ t('landing.legal.tocTitle') }}
+            <svg
+              aria-hidden="true"
+              class="h-4 w-4 text-text-muted"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path d="m4 6 4 4 4-4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
         </summary>
         <ol class="mt-4 flex flex-col gap-2 border-t border-hairline pt-4">
           <li

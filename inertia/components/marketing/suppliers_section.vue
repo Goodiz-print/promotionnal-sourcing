@@ -84,7 +84,7 @@ const POINTS = [
         href="#contact"
         style="background: var(--gradient-brand); box-shadow: 0 8px 24px rgba(64, 50, 200, 0.35)"
       >
-        {{ t('landing.suppliers.cta') }} <span aria-hidden="true">→</span>
+        {{ t('landing.suppliers.cta') }}<span aria-hidden="true">→</span>
       </BaseLinkButton>
     </div>
   </section>

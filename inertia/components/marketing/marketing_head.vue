@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h } from 'vue'
+import { computed } from 'vue'
 import { Head, usePage } from '@inertiajs/vue3'
 import { useMarketing } from '~/composables/use_marketing'
 
@@ -72,9 +72,6 @@ const structuredData = computed(() =>
     ],
   })
 )
-
-/* Un <script> ne peut pas figurer dans un template Vue : on le rend via une fonction de rendu. */
-const JsonLd = () => h('script', { type: 'application/ld+json', innerHTML: structuredData.value })
 </script>
 
 <template>
@@ -92,13 +89,34 @@ const JsonLd = () => h('script', { type: 'application/ld+json', innerHTML: struc
     <meta head-key="og:title" property="og:title" :content="title" />
     <meta head-key="og:description" property="og:description" :content="description" />
     <meta head-key="og:image" property="og:image" :content="ogImage" />
+    <meta head-key="og:image:secure_url" property="og:image:secure_url" :content="ogImage" />
+    <meta head-key="og:image:type" property="og:image:type" content="image/png" />
     <meta head-key="og:image:width" property="og:image:width" content="1200" />
     <meta head-key="og:image:height" property="og:image:height" content="630" />
     <meta head-key="og:image:alt" property="og:image:alt" :content="t('landing.og.imageAlt')" />
     <meta head-key="twitter:card" name="twitter:card" content="summary_large_image" />
+    <meta head-key="twitter:url" name="twitter:url" :content="canonical" />
     <meta head-key="twitter:title" name="twitter:title" :content="title" />
     <meta head-key="twitter:description" name="twitter:description" :content="description" />
     <meta head-key="twitter:image" name="twitter:image" :content="ogImage" />
-    <JsonLd head-key="json-ld" />
+    <meta
+      head-key="twitter:image:alt"
+      name="twitter:image:alt"
+      :content="t('landing.og.imageAlt')"
+    />
+    <!-- Google veut un favicon carré multiple de 48 px ; les crawlers retombent sur les PNG. -->
+    <link head-key="icon-48" rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link head-key="icon-96" rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
+    <link
+      head-key="apple-touch-icon"
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/apple-touch-icon.png"
+    />
+    <link head-key="manifest" rel="manifest" href="/site.webmanifest" />
+    <!-- Un <script> ne peut pas figurer tel quel dans un template Vue : composant dynamique. -->
+    <component :is="'script'" head-key="json-ld" type="application/ld+json">
+      {{ structuredData }}
+    </component>
   </Head>
 </template>
