@@ -93,13 +93,13 @@ services:
     ports:
       - '${WEB_PORT:-3333}:3333'
     healthcheck:
-      # Pas de curl dans l'image : une réponse HTTP (même 404) suffit.
+      # Pas de curl dans l'image : sonde HTTP `/health` (base joignable), codée en Node.
       test:
         [
           'CMD',
           'node',
           '-e',
-          "fetch('http://127.0.0.1:3333/').then(() => process.exit(0)).catch(() => process.exit(1))",
+          "fetch('http://127.0.0.1:3333/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
         ]
       interval: 10s
       timeout: 5s
@@ -118,6 +118,13 @@ services:
     command: ['node', 'ace', 'queue:work']
     env_file: .env.compose
     environment: *app-env
+    healthcheck:
+      # Backlog en retard ou jobs figés : sortie 1 (cf. docs/queue.md).
+      test: ['CMD', 'node', 'ace', 'queue:health']
+      interval: 60s
+      timeout: 30s
+      start_period: 60s
+      retries: 3
     depends_on:
       migrate:
         condition: service_completed_successfully
