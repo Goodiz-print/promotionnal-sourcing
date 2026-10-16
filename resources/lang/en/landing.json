@@ -18,7 +18,8 @@
     "switchTo": "Français",
     "login": "Log in",
     "openApp": "Open the app",
-    "logoAlt": "Promotional Sourcing.eu"
+    "logoAlt": "Promotional Sourcing.eu",
+    "languageLabel": "Language"
   },
   "hero": {
     "eyebrow": "Launching: January 2027",

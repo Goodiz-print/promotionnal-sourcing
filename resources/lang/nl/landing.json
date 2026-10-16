@@ -1,0 +1,189 @@
+{
+  "seo": {
+    "title": "Promotional Sourcing.eu — Sourcing van relatiegeschenken, eindelijk betrouwbaar",
+    "description": "Europees B2B-platform voor het sourcen van promotieartikelen: 300 leveranciers, 1M+ producten en een zoekfunctie met meerdere criteria die echt werkt — in tegenstelling tot bestaande oplossingen."
+  },
+  "org": {
+    "description": "Europees B2B-platform dat promotiebureaus verbindt met leveranciers van promotieartikelen in heel Europa."
+  },
+  "og": {
+    "imageAlt": "Promotional Sourcing.eu — Het sourcen van promotieartikelen. Eenvoudig. Slim. Europees."
+  },
+  "nav": {
+    "agences": "Bureaus",
+    "fournisseurs": "Leveranciers",
+    "contact": "Contact",
+    "cta": "Neem contact op",
+    "menuAria": "Menu openen",
+    "switchTo": "English",
+    "login": "Aanmelden",
+    "openApp": "Naar de app",
+    "logoAlt": "Promotional Sourcing.eu",
+    "languageLabel": "Taal"
+  },
+  "hero": {
+    "eyebrow": "Lancering: januari 2027",
+    "titleLine1": "Het sourcen van promotieartikelen.",
+    "titleWord1": "Eenvoudig.",
+    "titleWord2": "Slim.",
+    "titleWord3": "Europees.",
+    "lead": "Eén platform dat leveranciers en promotiebureaus in heel Europa met elkaar verbindt.",
+    "sub": "Geavanceerd zoeken. Relevante resultaten. Geïntegreerde AI.",
+    "ctaPrimary": "Ontdekken",
+    "ctaSecondary": "Neem contact op"
+  },
+  "features": {
+    "eyebrow": "Voor bureaus",
+    "heading": "Vind het juiste product in enkele seconden.",
+    "intro": "Geen heen-en-weer meer tussen tien catalogi: één toegangspoort tot de hele Europese markt.",
+    "closingLink": "Meer informatie",
+    "search": {
+      "title": "Slim zoeken",
+      "description": "Filter op materiaal, gewicht, land van productie of certificering — het juiste product in seconden, niet in uren.",
+      "query": "shoppingtas made in europe +200 g/m²",
+      "matchLabel": "2 treffers bij 300+ geverifieerde leveranciers",
+      "compareReady": "✓ Vergelijking klaar in 1 klik",
+      "exploreCatalogue": "Catalogus verkennen",
+      "results": [
+        {
+          "name": "Katoenen shoppingtas 220g",
+          "variant": "Naturel · 220 g/m²"
+        },
+        {
+          "name": "Bedrukte jute shoppingtas",
+          "variant": "Jute · 350 g/m²"
+        }
+      ]
+    },
+    "imageSearch": {
+      "title": "Zoeken op afbeelding (AI)",
+      "description": "Upload de foto van het product dat uw klant zoekt — de AI vindt het meest vergelijkbare artikel uit meer dan 1M referenties.",
+      "uploadedAlt": "Door de gebruiker geüploade foto",
+      "dropHint": "Sleep hier een foto naartoe",
+      "matchResult": "✓ 98 % overeenkomst — Katoenen tas 220g",
+      "tryButton": "AI-zoekopdracht proberen"
+    },
+    "compare": {
+      "title": "Direct vergelijken",
+      "description": "Prijzen en MOQ van alle leveranciers, naast elkaar.",
+      "button": "Vergelijken"
+    },
+    "verified": {
+      "count": "300+",
+      "label": "Geverifieerde Europese leveranciers",
+      "noCommitment": "Vrijblijvend"
+    }
+  },
+  "stats": {
+    "heading": "Het hart van de Europese sourcing.",
+    "stat1": "producten in één enkele catalogus",
+    "stat2": "geverifieerde Europese leveranciers",
+    "stat3": "gemiddelde reactietijd van leveranciers",
+    "stat4": "Gratis toegang"
+  },
+  "suppliers": {
+    "kicker": "Voor leveranciers",
+    "heading": "Maak uw producten zichtbaar voor duizenden Europese bureaus.",
+    "intro": "U levert uw catalogus aan, wij doen de rest. Uw zichtbaarheid begint vanaf de lancering.",
+    "point1Title": "Gratis opname van uw catalogus",
+    "point1Desc": "Uw producten worden opgenomen en zijn raadpleegbaar voor bureaus, zonder instapkosten.",
+    "point2Title": "Wij zorgen voor de integratie van uw gegevens",
+    "point2Desc": "API, CSV of Excel-export: stuur uw gegevens in het formaat dat u hebt, ons team regelt de integratie.",
+    "point3Title": "Directe zichtbaarheid vanaf de lancering",
+    "point3Desc": "De eerste opgenomen catalogi staan op dag één online, voor alle geregistreerde bureaus.",
+    "point4Title": "Geen drempels, geen instapkosten",
+    "point4Desc": "Geen abonnement, geen ontwikkelwerk aan uw kant: aansluiten op het platform is eenvoudig en gratis.",
+    "cta": "Mijn catalogus laten opnemen"
+  },
+  "finalCta": {
+    "badge": "Lancering gepland: januari 2027",
+    "heading": "Wij bouwen de nieuwe standaard voor het sourcen van relatiegeschenken in Europa.",
+    "descriptionBefore": "Leveranciers: sluit u aan bij de eerste partners en profiteer vanaf de lancering van ",
+    "descriptionHighlight": "prioritaire zichtbaarheid",
+    "descriptionAfter": ".",
+    "cta": "Neem contact op"
+  },
+  "footer": {
+    "location": "Bordeaux, Frankrijk",
+    "columnPlatform": "Platform",
+    "columnLegal": "Juridisch",
+    "linkAgencies": "Bureaus",
+    "linkSuppliers": "Leveranciers",
+    "linkContact": "Contact",
+    "linkLegalMentions": "Wettelijke vermeldingen",
+    "linkPrivacy": "Privacy",
+    "copyright": "© 2026 Promotional Sourcing",
+    "domain": "promotional-sourcing.eu"
+  },
+  "contact": {
+    "seoTitle": "Contact — Promotional Sourcing.eu",
+    "seoDescription": "Bureau of leverancier van promotieartikelen? Laten we praten over uw sourcingbehoefte in Europa. Antwoord binnen 48 uur.",
+    "eyebrow": "Contact",
+    "heading": "Laten we praten over uw behoefte.",
+    "intro": "Een bureau op zoek naar het juiste product, of een leverancier die zich bij het platform wil aansluiten: vertel ons in een paar regels wat u zoekt, wij komen binnen 48 uur bij u terug.",
+    "asideTitle": "Rechtstreeks mailen",
+    "asideAddressTitle": "Ons kantoor",
+    "asideResponseTitle": "Reactietijd",
+    "asideResponse": "Binnen 48 werkuren.",
+    "formHeading": "Uw aanvraag",
+    "mailIntro": "Mail ons rechtstreeks: de knop hieronder opent uw e-mailprogramma met een kant-en-klaar gestructureerd bericht. Voor een snelle reactie vermeldt u graag:",
+    "mailPoints": {
+      "0": "Uw bedrijf en uw functie (bureau, inkoper, leverancier…)",
+      "1": "Het type product dat u zoekt",
+      "2": "De hoeveelheden en het streefbudget",
+      "3": "Uw gewenste levertijd"
+    },
+    "mailCta": "Mail ons team",
+    "mailHint": "Opent uw e-mailprogramma.",
+    "mailFallback": "Geen e-mailprogramma ingesteld? Mail ons dan op",
+    "mailSubject": "Sourcingaanvraag — Promotional Sourcing.eu",
+    "mailBody": "Goedendag,\n\nBedrijf:\nU bent (bureau / inkoper / leverancier):\nTelefoon:\n\nGezocht product:\nHoeveelheid:\nStreefbudget:\nGewenste levertijd:\n\nToelichting:\n\n\nMet vriendelijke groet,\n"
+  },
+  "thanks": {
+    "seoTitle": "Bericht ontvangen — Promotional Sourcing.eu",
+    "seoDescription": "Uw aanvraag is doorgestuurd naar ons team.",
+    "eyebrow": "Bericht verzonden",
+    "heading": "Bedankt, uw bericht is verzonden.",
+    "body": "Ons team komt binnen 48 werkuren bij u terug. Tot die tijd kunt u ons rechtstreeks mailen op",
+    "backHome": "Terug naar de startpagina"
+  },
+  "legal": {
+    "updatedOn": "Laatst bijgewerkt:",
+    "breadcrumbAria": "Kruimelpad",
+    "breadcrumbHome": "Home",
+    "tocTitle": "Op deze pagina",
+    "helpEyebrow": "Een vraag?",
+    "helpHeading": "Hebt u een toelichting nodig bij dit document?",
+    "helpBody": "Ons team beantwoordt juridische vragen en vragen over uw gegevens binnen 48 werkuren.",
+    "helpCta": "Neem contact op"
+  },
+  "productMockup": {
+    "tags": {
+      "0": "Gerecycled materiaal",
+      "1": "GRS-gecertificeerd",
+      "2": "Voorraad in Europa"
+    },
+    "products": {
+      "0": {
+        "name": "Tote bag biologisch katoen 220g",
+        "country": "Frankrijk"
+      },
+      "1": {
+        "name": "Katoenen tote bag 140g mosterdkleur",
+        "country": "Portugal"
+      },
+      "2": {
+        "name": "Katoenen tote bag met zijvouw 140g",
+        "country": "Spanje"
+      }
+    },
+    "aiChip": "AI-zoekopdracht",
+    "verifiedLabel": "Geverifieerde leverancier",
+    "supplierLabel": "Leverancier",
+    "priceFrom": "vanaf",
+    "priceSuffix": "€ excl. btw",
+    "footerCompare": "Direct vergelijken tussen leveranciers",
+    "footerFlag": "Voorbeeld van de interface",
+    "ariaLabel": "Voorbeeld van een zoekopdracht op promotional-sourcing.eu: een tote bag van biologisch katoen, een koeltas van gerecycled polyester en een strandlaken van gerecycled materiaal, gefilterd op gerecycled materiaal, GRS-certificering en voorraad in Europa, met geverifieerde leverancier, land en prijs."
+  }
+}

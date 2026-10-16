@@ -16,7 +16,7 @@ test.group('i18n — routing par préfixe de locale', () => {
   })
 
   test('une locale non supportée renvoie 404', async ({ client }) => {
-    const response = await client.get('/de').redirects(0)
+    const response = await client.get('/ru').redirects(0)
 
     response.assertStatus(404)
   })
@@ -43,7 +43,9 @@ test.group('i18n — détection de la locale', () => {
     const response = await client.get('/fr').withInertia()
 
     response.assertStatus(200)
-    response.assertInertiaPropsContains({ supportedLocales: ['fr', 'en'] })
+    response.assertInertiaPropsContains({
+      supportedLocales: ['fr', 'en', 'de', 'es', 'it', 'nl', 'pt', 'pl', 'sv'],
+    })
   })
 
   test('/fr/login rend le contenu en français', async ({ client }) => {
@@ -84,7 +86,7 @@ test.group('i18n — changement de langue', () => {
       .withCsrfToken()
       .header('Accept-Language', 'en')
       .accept('json')
-      .form({ locale: 'de' })
+      .form({ locale: 'ru' })
 
     response.assertStatus(422)
     response.assertBodyContains({

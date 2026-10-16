@@ -1,0 +1,39 @@
+{
+  "index": {
+    "title": "Kategorien",
+    "subtitle": "Verwalten Sie die Katalogtaxonomie (Kategoriebaum).",
+    "empty": "Noch keine Kategorie vorhanden. Erstellen Sie eine.",
+    "columns": {
+      "name": "Name",
+      "slug": "Kennung",
+      "parent": "Übergeordnet",
+      "products": "Produkte"
+    }
+  },
+  "create": { "title": "Neue Kategorie" },
+  "edit": { "title": "Kategorie bearbeiten" },
+  "newCategory": "Neue Kategorie",
+  "edit": "Bearbeiten",
+  "delete": "Löschen",
+  "save": "Speichern",
+  "cancel": "Abbrechen",
+  "confirmDelete": "Diese Kategorie löschen?",
+  "noParent": "Keine (Hauptkategorie)",
+  "fields": {
+    "slug": "Kennung (Slug)",
+    "slugHint": "Kleinbuchstaben, Ziffern und Bindestriche. Danach nicht mehr änderbar.",
+    "parent": "Übergeordnete Kategorie",
+    "name": "Name",
+    "description": "Beschreibung",
+    "synonyms": "Synonyme",
+    "synonymsHint": "Durch Kommas getrennt (verbessert die Suche)."
+  },
+  "flash": {
+    "created": "Kategorie erstellt.",
+    "updated": "Kategorie aktualisiert.",
+    "deleted": "Kategorie gelöscht.",
+    "cycle": "Eine Kategorie kann nicht ihre eigene übergeordnete Kategorie oder die ihrer Unterkategorien sein.",
+    "hasChildren": "Löschen nicht möglich: Diese Kategorie enthält Unterkategorien.",
+    "hasProducts": "Löschen nicht möglich: Dieser Kategorie sind Produkte zugeordnet."
+  }
+}

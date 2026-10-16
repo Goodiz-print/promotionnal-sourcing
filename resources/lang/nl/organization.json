@@ -1,0 +1,120 @@
+{
+  "settings": {
+    "title": "Instellingen van de organisatie",
+    "subtitle": "Beheer de algemene gegevens van uw organisatie.",
+    "submit": "Opslaan",
+    "success": "Instellingen van de organisatie bijgewerkt."
+  },
+  "fields": {
+    "name": "Naam",
+    "siret": "SIRET",
+    "vatNumber": "Btw-nummer (intracommunautair)",
+    "email": "E-mail",
+    "phone": "Telefoon",
+    "website": "Website",
+    "industry": "Branche",
+    "size": "Grootte van de organisatie",
+    "description": "Beschrijving",
+    "addressLine1": "Adres",
+    "addressLine2": "Adresaanvulling",
+    "city": "Plaats",
+    "postalCode": "Postcode",
+    "country": "Land",
+    "logo": "Logo"
+  },
+  "size": {
+    "none": "Niet opgegeven",
+    "micro": "Micro-onderneming",
+    "small": "Kleine onderneming",
+    "medium": "Middelgrote onderneming",
+    "large": "Grote onderneming",
+    "enterprise": "Groep / Concern"
+  },
+  "logo": {
+    "none": "Geen logo",
+    "replace": "Logo vervangen",
+    "remove": "Logo verwijderen",
+    "cancel": "Annuleren"
+  },
+  "nav": {
+    "settings": "Instellingen",
+    "members": "Leden",
+    "create": "Nieuwe organisatie"
+  },
+  "members": {
+    "title": "Leden van de organisatie",
+    "subtitle": "Beheer de rollen en de toegang van de leden van uw organisatie.",
+    "columns": {
+      "name": "Lid",
+      "role": "Rol"
+    },
+    "remove": "Verwijderen",
+    "confirmRemove": "Dit lid uit de organisatie verwijderen?",
+    "roleUpdated": "Rol van het lid bijgewerkt.",
+    "removed": "Lid uit de organisatie verwijderd.",
+    "lastOwnerError": "De laatste eigenaar van de organisatie kan niet worden verwijderd of gedegradeerd."
+  },
+  "invitations": {
+    "inviteTitle": "Een lid uitnodigen",
+    "emailLabel": "E-mail",
+    "roleLabel": "Rol",
+    "submit": "Uitnodiging versturen",
+    "pendingTitle": "Openstaande uitnodigingen",
+    "revoke": "Intrekken",
+    "confirmRevoke": "Deze uitnodiging intrekken?",
+    "resend": "Opnieuw versturen",
+    "sent": "Uitnodiging verstuurd.",
+    "revoked": "Uitnodiging ingetrokken.",
+    "resent": "Uitnodiging opnieuw verstuurd.",
+    "notPending": "Deze uitnodiging staat niet meer open: ze is al geaccepteerd of ingetrokken.",
+    "alreadyMember": "Dit e-mailadres behoort al toe aan een lid van de organisatie.",
+    "accept": {
+      "title": "Uitnodiging om lid te worden van een organisatie",
+      "description": "U bent uitgenodigd om lid te worden van {organization} met de rol {role}.",
+      "submit": "Uitnodiging accepteren",
+      "login": "Aanmelden",
+      "signup": "Een account aanmaken",
+      "wrongAccount": "U bent aangemeld met {email}, maar deze uitnodiging is bestemd voor een ander e-mailadres.",
+      "loginAsInvited": "Afmelden en aanmelden met het juiste e-mailadres",
+      "success": "U bent lid geworden van {organization}.",
+      "invalid": "Deze uitnodiging is niet meer geldig.",
+      "emailMismatch": "Deze uitnodiging is bestemd voor een ander e-mailadres."
+    },
+    "invalid": {
+      "title": "Ongeldige uitnodiging",
+      "description": "Deze uitnodigingslink is ongeldig, verlopen of al gebruikt."
+    }
+  },
+  "switch": {
+    "label": "Organisatie",
+    "done": "U werkt nu in {name}.",
+    "unavailable": "Deze organisatie is niet meer toegankelijk."
+  },
+  "create": {
+    "title": "Een organisatie aanmaken",
+    "subtitle": "U schakelt automatisch over naar deze nieuwe organisatie.",
+    "submit": "Organisatie aanmaken",
+    "success": "Organisatie {name} aangemaakt."
+  },
+  "danger": {
+    "title": "Gevarenzone",
+    "subtitle": "Deze acties hebben gevolgen voor de hele organisatie. Controleer ze voordat u bevestigt."
+  },
+  "leave": {
+    "title": "Deze organisatie verlaten",
+    "description": "U verliest de toegang tot de gegevens ervan. Een beheerder moet u opnieuw uitnodigen.",
+    "submit": "Verlaten",
+    "confirm": "Deze organisatie verlaten?",
+    "done": "U hebt {name} verlaten.",
+    "lastOwner": "U bent de laatste eigenaar: benoem een ander lid of archiveer de organisatie voordat u vertrekt.",
+    "notMember": "U bent geen lid van deze organisatie."
+  },
+  "archive": {
+    "title": "Deze organisatie archiveren",
+    "description": "Ze verdwijnt uit de openbare catalogus en uit de omgeving van haar leden. De gegevens blijven bewaard; alleen het technische team kan de organisatie opnieuw activeren.",
+    "submit": "Archiveren",
+    "confirm": "{name} archiveren? De leden verliezen hun toegang en u kunt de organisatie niet zelf opnieuw activeren.",
+    "done": "{name} is gearchiveerd.",
+    "alreadyArchived": "Deze organisatie is al gearchiveerd."
+  }
+}

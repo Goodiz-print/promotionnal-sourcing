@@ -42,7 +42,7 @@ test.group('Landing — pages publiques', (group) => {
   })
 
   test('une locale non supportée renvoie 404 sur les pages de la landing', async ({ client }) => {
-    const response = await client.get('/de/contact').redirects(0)
+    const response = await client.get('/ru/contact').redirects(0)
 
     response.assertStatus(404)
   })

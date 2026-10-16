@@ -18,7 +18,8 @@
     "switchTo": "English",
     "login": "Connexion",
     "openApp": "Accéder à l'app",
-    "logoAlt": "Promotional Sourcing.eu"
+    "logoAlt": "Promotional Sourcing.eu",
+    "languageLabel": "Langue"
   },
   "hero": {
     "eyebrow": "Lancement : janvier 2027",

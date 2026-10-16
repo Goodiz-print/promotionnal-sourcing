@@ -1,0 +1,39 @@
+{
+  "index": {
+    "title": "Kategorie",
+    "subtitle": "Zarządzaj taksonomią katalogu (drzewo kategorii).",
+    "empty": "Brak kategorii. Utwórz pierwszą.",
+    "columns": {
+      "name": "Nazwa",
+      "slug": "Identyfikator",
+      "parent": "Nadrzędna",
+      "products": "Produkty"
+    }
+  },
+  "create": { "title": "Nowa kategoria" },
+  "edit": { "title": "Edytuj kategorię" },
+  "newCategory": "Nowa kategoria",
+  "edit": "Edytuj",
+  "delete": "Usuń",
+  "save": "Zapisz",
+  "cancel": "Anuluj",
+  "confirmDelete": "Usunąć tę kategorię?",
+  "noParent": "Brak (kategoria główna)",
+  "fields": {
+    "slug": "Identyfikator (slug)",
+    "slugHint": "Małe litery, cyfry i myślniki. Nie można później zmienić.",
+    "parent": "Kategoria nadrzędna",
+    "name": "Nazwa",
+    "description": "Opis",
+    "synonyms": "Synonimy",
+    "synonymsHint": "Oddzielone przecinkami (ułatwia wyszukiwanie)."
+  },
+  "flash": {
+    "created": "Kategoria utworzona.",
+    "updated": "Kategoria zaktualizowana.",
+    "deleted": "Kategoria usunięta.",
+    "cycle": "Kategoria nie może być własną kategorią nadrzędną ani nadrzędną dla żadnej ze swoich podkategorii.",
+    "hasChildren": "Nie można usunąć: ta kategoria zawiera podkategorie.",
+    "hasProducts": "Nie można usunąć: do tej kategorii przypisane są produkty."
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "profile": {
+    "title": "Profilo fornitore",
+    "subtitle": "Indichi i Suoi tempi, le certificazioni e l'area di consegna per rassicurare gli acquirenti.",
+    "submit": "Salva il profilo",
+    "success": "Profilo fornitore aggiornato."
+  },
+  "fields": {
+    "minOrderQuantity": "Quantità minima d'ordine",
+    "deliveryDays": "Tempi di consegna (giorni)",
+    "responseTimeDays": "Tempi di risposta (giorni)",
+    "deliveryScope": "Area di consegna",
+    "certifications": "Certificazioni",
+    "certificationPlaceholder": "es. ISO 9001",
+    "certificationAdd": "Aggiungi una certificazione",
+    "certificationRemove": "Rimuovi",
+    "bio": "Presentazione"
+  },
+  "deliveryScope": {
+    "none": "Non specificata",
+    "national": "Nazionale",
+    "europe": "Europa",
+    "worldwide": "Internazionale"
+  }
+}

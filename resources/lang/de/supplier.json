@@ -1,0 +1,25 @@
+{
+  "profile": {
+    "title": "Lieferantenprofil",
+    "subtitle": "Geben Sie Lieferzeiten, Zertifizierungen und Liefergebiet an, um das Vertrauen der Einkäufer zu gewinnen.",
+    "submit": "Profil speichern",
+    "success": "Lieferantenprofil aktualisiert."
+  },
+  "fields": {
+    "minOrderQuantity": "Mindestbestellmenge",
+    "deliveryDays": "Lieferzeit (Tage)",
+    "responseTimeDays": "Antwortzeit (Tage)",
+    "deliveryScope": "Liefergebiet",
+    "certifications": "Zertifizierungen",
+    "certificationPlaceholder": "z. B. ISO 9001",
+    "certificationAdd": "Zertifizierung hinzufügen",
+    "certificationRemove": "Entfernen",
+    "bio": "Vorstellung"
+  },
+  "deliveryScope": {
+    "none": "Nicht angegeben",
+    "national": "National",
+    "europe": "Europa",
+    "worldwide": "International"
+  }
+}

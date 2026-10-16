@@ -1,0 +1,120 @@
+{
+  "settings": {
+    "title": "Organisationsinställningar",
+    "subtitle": "Hantera organisationens allmänna uppgifter.",
+    "submit": "Spara",
+    "success": "Organisationens inställningar har uppdaterats."
+  },
+  "fields": {
+    "name": "Namn",
+    "siret": "SIRET",
+    "vatNumber": "Momsregistreringsnummer (EU)",
+    "email": "E-post",
+    "phone": "Telefon",
+    "website": "Webbplats",
+    "industry": "Bransch",
+    "size": "Organisationens storlek",
+    "description": "Beskrivning",
+    "addressLine1": "Adress",
+    "addressLine2": "Adressrad 2",
+    "city": "Ort",
+    "postalCode": "Postnummer",
+    "country": "Land",
+    "logo": "Logotyp"
+  },
+  "size": {
+    "none": "Ej angiven",
+    "micro": "Mikroföretag",
+    "small": "Litet företag",
+    "medium": "Medelstort företag",
+    "large": "Stort företag",
+    "enterprise": "Koncern / Storföretag"
+  },
+  "logo": {
+    "none": "Ingen logotyp",
+    "replace": "Byt logotyp",
+    "remove": "Ta bort logotypen",
+    "cancel": "Avbryt"
+  },
+  "nav": {
+    "settings": "Inställningar",
+    "members": "Medlemmar",
+    "create": "Ny organisation"
+  },
+  "members": {
+    "title": "Organisationens medlemmar",
+    "subtitle": "Hantera roller och åtkomst för organisationens medlemmar.",
+    "columns": {
+      "name": "Medlem",
+      "role": "Roll"
+    },
+    "remove": "Ta bort",
+    "confirmRemove": "Ta bort den här medlemmen från organisationen?",
+    "roleUpdated": "Medlemmens roll har uppdaterats.",
+    "removed": "Medlemmen har tagits bort från organisationen.",
+    "lastOwnerError": "Det går inte att ta bort eller degradera organisationens sista ägare."
+  },
+  "invitations": {
+    "inviteTitle": "Bjud in en medlem",
+    "emailLabel": "E-post",
+    "roleLabel": "Roll",
+    "submit": "Skicka inbjudan",
+    "pendingTitle": "Väntande inbjudningar",
+    "revoke": "Återkalla",
+    "confirmRevoke": "Återkalla den här inbjudan?",
+    "resend": "Skicka igen",
+    "sent": "Inbjudan skickad.",
+    "revoked": "Inbjudan återkallad.",
+    "resent": "Inbjudan skickad igen.",
+    "notPending": "Den här inbjudan väntar inte längre: den har redan accepterats eller återkallats.",
+    "alreadyMember": "Den här e-postadressen tillhör redan en medlem i organisationen.",
+    "accept": {
+      "title": "Inbjudan att gå med i en organisation",
+      "description": "Du är inbjuden att gå med i {organization} med rollen {role}.",
+      "submit": "Acceptera inbjudan",
+      "login": "Logga in",
+      "signup": "Skapa ett konto",
+      "wrongAccount": "Du är inloggad som {email}, men inbjudan är avsedd för en annan adress.",
+      "loginAsInvited": "Logga ut och logga in med rätt adress",
+      "success": "Du har gått med i {organization}.",
+      "invalid": "Den här inbjudan är inte längre giltig.",
+      "emailMismatch": "Den här inbjudan är avsedd för en annan e-postadress."
+    },
+    "invalid": {
+      "title": "Ogiltig inbjudan",
+      "description": "Den här inbjudningslänken är ogiltig, har gått ut eller har redan använts."
+    }
+  },
+  "switch": {
+    "label": "Organisation",
+    "done": "Du arbetar nu i {name}.",
+    "unavailable": "Den här organisationen är inte längre tillgänglig."
+  },
+  "create": {
+    "title": "Skapa en organisation",
+    "subtitle": "Du byter automatiskt till den nya organisationen.",
+    "submit": "Skapa organisationen",
+    "success": "Organisationen {name} har skapats."
+  },
+  "danger": {
+    "title": "Farozon",
+    "subtitle": "Dessa åtgärder påverkar hela organisationen. Läs igenom innan du bekräftar."
+  },
+  "leave": {
+    "title": "Lämna den här organisationen",
+    "description": "Du förlorar åtkomsten till dess data. En administratör måste bjuda in dig igen.",
+    "submit": "Lämna",
+    "confirm": "Lämna den här organisationen?",
+    "done": "Du har lämnat {name}.",
+    "lastOwner": "Du är sista ägaren: utse en annan medlem eller arkivera organisationen innan du lämnar.",
+    "notMember": "Du är inte medlem i den här organisationen."
+  },
+  "archive": {
+    "title": "Arkivera den här organisationen",
+    "description": "Den försvinner från den publika katalogen och från medlemmarnas arbetsyta. Data sparas; endast det tekniska teamet kan återaktivera den.",
+    "submit": "Arkivera",
+    "confirm": "Arkivera {name}? Medlemmarna förlorar åtkomsten och du kan inte återaktivera den själv.",
+    "done": "{name} har arkiverats.",
+    "alreadyArchived": "Den här organisationen är redan arkiverad."
+  }
+}

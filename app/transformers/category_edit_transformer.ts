@@ -1,6 +1,6 @@
 import type Category from '#models/category'
 import { BaseTransformer } from '@adonisjs/core/transformers'
-import { SUPPORTED_LOCALES } from '#shared/types/i18n'
+import { CONTENT_LOCALES } from '#shared/types/i18n'
 import type { CategoryEditType } from '#shared/types/category'
 
 /**
@@ -10,7 +10,7 @@ import type { CategoryEditType } from '#shared/types/category'
 export default class CategoryEditTransformer extends BaseTransformer<Category> {
   toObject(): CategoryEditType {
     const translations = {} as CategoryEditType['translations']
-    for (const locale of SUPPORTED_LOCALES) {
+    for (const locale of CONTENT_LOCALES) {
       const translation = this.resource.translations.find((row) => row.locale === locale)
       translations[locale] = {
         name: translation?.name ?? '',

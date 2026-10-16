@@ -1,0 +1,60 @@
+{
+  "index": {
+    "title": "Catalogo prodotti",
+    "subtitle": "Cerchi e filtri i prodotti promozionali dei fornitori europei.",
+    "searchLabel": "Ricerca",
+    "searchPlaceholder": "Nome, materiale, colore…",
+    "category": "Categoria",
+    "allCategories": "Tutte le categorie",
+    "madeInEurope": "Prodotto in Europa",
+    "resultsCount": "{count, plural, =0 {Nessun prodotto} one {# prodotto} other {# prodotti}}",
+    "empty": "Nessun prodotto corrisponde alla Sua ricerca.",
+    "previous": "Precedente",
+    "next": "Successivo"
+  },
+  "show": {
+    "backToCatalogue": "Torna al catalogo",
+    "viewImage": "Vedi l'immagine",
+    "minQuantity": "Quantità minima",
+    "category": "Categoria",
+    "origin": "Paese di origine",
+    "requestQuote": "Richiedi un'offerta"
+  },
+  "manage": {
+    "index": {
+      "title": "I miei prodotti",
+      "empty": "Non ha ancora alcun prodotto. Ne crei uno."
+    },
+    "create": { "title": "Nuovo prodotto" },
+    "edit": { "title": "Modifica il prodotto" },
+    "newProduct": "Nuovo prodotto",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "published": "Pubblicato",
+    "draft": "Bozza",
+    "facets": "Caratteristiche",
+    "images": "Immagini",
+    "noFacets": "Nessuna caratteristica filtrabile disponibile.",
+    "removeImage": "Rimuovi",
+    "confirmDelete": "Eliminare questo prodotto?",
+    "created": "Prodotto creato.",
+    "updated": "Prodotto aggiornato.",
+    "deleted": "Prodotto eliminato.",
+    "fields": {
+      "name": "Nome",
+      "description": "Descrizione",
+      "category": "Categoria",
+      "chooseCategory": "Scegli una categoria",
+      "priceMin": "Prezzo min",
+      "priceMax": "Prezzo max",
+      "currency": "Valuta",
+      "minQuantity": "Quantità minima",
+      "originCountry": "Paese di origine",
+      "madeInEurope": "Prodotto in Europa",
+      "isActive": "Pubblicato",
+      "images": "Aggiungi immagini"
+    }
+  }
+}

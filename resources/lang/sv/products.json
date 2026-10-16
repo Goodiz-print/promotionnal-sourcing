@@ -1,0 +1,60 @@
+{
+  "index": {
+    "title": "Produktkatalog",
+    "subtitle": "Sök och filtrera reklamprodukter från europeiska leverantörer.",
+    "searchLabel": "Sök",
+    "searchPlaceholder": "Namn, material, färg…",
+    "category": "Kategori",
+    "allCategories": "Alla kategorier",
+    "madeInEurope": "Tillverkad i Europa",
+    "resultsCount": "{count, plural, =0 {Inga produkter} one {# produkt} other {# produkter}}",
+    "empty": "Ingen produkt matchar din sökning.",
+    "previous": "Föregående",
+    "next": "Nästa"
+  },
+  "show": {
+    "backToCatalogue": "Tillbaka till katalogen",
+    "viewImage": "Visa bilden",
+    "minQuantity": "Minsta kvantitet",
+    "category": "Kategori",
+    "origin": "Ursprungsland",
+    "requestQuote": "Begär offert"
+  },
+  "manage": {
+    "index": {
+      "title": "Mina produkter",
+      "empty": "Du har ännu inga produkter. Skapa en."
+    },
+    "create": { "title": "Ny produkt" },
+    "edit": { "title": "Redigera produkt" },
+    "newProduct": "Ny produkt",
+    "edit": "Redigera",
+    "delete": "Ta bort",
+    "save": "Spara",
+    "cancel": "Avbryt",
+    "published": "Publicerad",
+    "draft": "Utkast",
+    "facets": "Egenskaper",
+    "images": "Bilder",
+    "noFacets": "Inga filtrerbara egenskaper tillgängliga.",
+    "removeImage": "Ta bort",
+    "confirmDelete": "Ta bort den här produkten?",
+    "created": "Produkt skapad.",
+    "updated": "Produkt uppdaterad.",
+    "deleted": "Produkt borttagen.",
+    "fields": {
+      "name": "Namn",
+      "description": "Beskrivning",
+      "category": "Kategori",
+      "chooseCategory": "Välj en kategori",
+      "priceMin": "Lägsta pris",
+      "priceMax": "Högsta pris",
+      "currency": "Valuta",
+      "minQuantity": "Minsta kvantitet",
+      "originCountry": "Ursprungsland",
+      "madeInEurope": "Tillverkad i Europa",
+      "isActive": "Publicerad",
+      "images": "Lägg till bilder"
+    }
+  }
+}

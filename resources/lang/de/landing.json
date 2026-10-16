@@ -1,0 +1,189 @@
+{
+  "seo": {
+    "title": "Promotional Sourcing.eu — Werbeartikel-Sourcing, endlich verlässlich",
+    "description": "Europäische B2B-Plattform für das Sourcing von Werbeartikeln: 300 Lieferanten, über 1 Mio. Produkte und eine Multikriteriensuche, die wirklich funktioniert – anders als bestehende Lösungen."
+  },
+  "org": {
+    "description": "Europäische B2B-Plattform, die Agenturen für Werbeartikel mit Lieferanten von Werbeartikeln in ganz Europa verbindet."
+  },
+  "og": {
+    "imageAlt": "Promotional Sourcing.eu — Sourcing von Werbeartikeln. Einfach. Intelligent. Europäisch."
+  },
+  "nav": {
+    "agences": "Agenturen",
+    "fournisseurs": "Lieferanten",
+    "contact": "Kontakt",
+    "cta": "Kontakt aufnehmen",
+    "menuAria": "Menü öffnen",
+    "switchTo": "English",
+    "login": "Anmelden",
+    "openApp": "Zur App",
+    "logoAlt": "Promotional Sourcing.eu",
+    "languageLabel": "Sprache"
+  },
+  "hero": {
+    "eyebrow": "Start: Januar 2027",
+    "titleLine1": "Sourcing von Werbeartikeln.",
+    "titleWord1": "Einfach.",
+    "titleWord2": "Intelligent.",
+    "titleWord3": "Europäisch.",
+    "lead": "Eine einzige Plattform, die Lieferanten und Agenturen für Werbeartikel in ganz Europa verbindet.",
+    "sub": "Erweiterte Suche. Relevante Ergebnisse. Integrierte KI.",
+    "ctaPrimary": "Entdecken",
+    "ctaSecondary": "Kontakt aufnehmen"
+  },
+  "features": {
+    "eyebrow": "Für Agenturen",
+    "heading": "Finden Sie das passende Produkt in Sekunden.",
+    "intro": "Schluss mit dem Hin und Her zwischen zehn Katalogen: ein einziger Einstiegspunkt für den gesamten europäischen Markt.",
+    "closingLink": "Mehr erfahren",
+    "search": {
+      "title": "Intelligente Suche",
+      "description": "Filtern Sie nach Material, Grammatur, Herstellungsland oder Zertifizierung – das passende Produkt in Sekunden statt in Stunden.",
+      "query": "Einkaufstasche made in Europe +200 g/m²",
+      "matchLabel": "2 Treffer unter 300+ geprüften Lieferanten",
+      "compareReady": "✓ Vergleich in 1 Klick bereit",
+      "exploreCatalogue": "Katalog entdecken",
+      "results": [
+        {
+          "name": "Einkaufstasche Baumwolle 220 g",
+          "variant": "Natur · 220 g/m²"
+        },
+        {
+          "name": "Einkaufstasche Jute bedruckt",
+          "variant": "Jute · 350 g/m²"
+        }
+      ]
+    },
+    "imageSearch": {
+      "title": "Bildsuche (KI)",
+      "description": "Laden Sie das Foto des Produkts hoch, das Ihr Kunde sucht – die KI findet das ähnlichste Pendant unter über 1 Mio. Artikeln.",
+      "uploadedAlt": "Vom Nutzer hochgeladenes Foto",
+      "dropHint": "Foto hierher ziehen",
+      "matchResult": "✓ 98 % Übereinstimmung — Baumwolltasche 220 g",
+      "tryButton": "KI-Suche testen"
+    },
+    "compare": {
+      "title": "Sofortiger Vergleich",
+      "description": "Preise und MOQ aller Lieferanten nebeneinander.",
+      "button": "Vergleichen"
+    },
+    "verified": {
+      "count": "300+",
+      "label": "Geprüfte europäische Lieferanten",
+      "noCommitment": "Unverbindlich"
+    }
+  },
+  "stats": {
+    "heading": "Im Herzen des europäischen Sourcings.",
+    "stat1": "Produkte in einem einzigen Katalog",
+    "stat2": "geprüfte europäische Lieferanten",
+    "stat3": "durchschnittliche Antwortzeit der Lieferanten",
+    "stat4": "Kostenloser Zugang"
+  },
+  "suppliers": {
+    "kicker": "Für Lieferanten",
+    "heading": "Machen Sie Ihre Produkte für Tausende europäischer Agenturen sichtbar.",
+    "intro": "Sie liefern Ihren Katalog, wir erledigen den Rest. Ihre Sichtbarkeit beginnt ab dem Start.",
+    "point1Title": "Kostenlose Listung Ihres Katalogs",
+    "point1Desc": "Ihre Produkte werden integriert und sind für Agenturen einsehbar – ohne Einstiegskosten.",
+    "point2Title": "Wir übernehmen die Integration Ihrer Daten",
+    "point2Desc": "API, CSV oder Excel-Export: Senden Sie uns Ihre Daten in dem Format, das Sie haben – unser Team kümmert sich um die Integration.",
+    "point3Title": "Sofortige Sichtbarkeit ab dem Start",
+    "point3Desc": "Die ersten gelisteten Kataloge gehen am Starttag online – vor allen registrierten Agenturen.",
+    "point4Title": "Null Reibung, null Einstiegskosten",
+    "point4Desc": "Kein Abonnement, keine Entwicklung auf Ihrer Seite: Der Beitritt zur Plattform ist einfach und kostenlos.",
+    "cta": "Meinen Katalog listen"
+  },
+  "finalCta": {
+    "badge": "Start geplant: Januar 2027",
+    "heading": "Wir bauen die neue Referenz für das Sourcing von Werbeartikeln in Europa.",
+    "descriptionBefore": "Lieferanten: Werden Sie einer der ersten Partner und profitieren Sie ab dem Start von ",
+    "descriptionHighlight": "bevorzugter Sichtbarkeit",
+    "descriptionAfter": ".",
+    "cta": "Kontakt aufnehmen"
+  },
+  "footer": {
+    "location": "Bordeaux, Frankreich",
+    "columnPlatform": "Plattform",
+    "columnLegal": "Rechtliches",
+    "linkAgencies": "Agenturen",
+    "linkSuppliers": "Lieferanten",
+    "linkContact": "Kontakt",
+    "linkLegalMentions": "Impressum",
+    "linkPrivacy": "Datenschutz",
+    "copyright": "© 2026 Promotional Sourcing",
+    "domain": "promotional-sourcing.eu"
+  },
+  "contact": {
+    "seoTitle": "Kontakt — Promotional Sourcing.eu",
+    "seoDescription": "Agentur oder Lieferant von Werbeartikeln? Sprechen wir über Ihren Sourcing-Bedarf in Europa. Antwort innerhalb von 48 Stunden.",
+    "eyebrow": "Kontakt",
+    "heading": "Sprechen wir über Ihren Bedarf.",
+    "intro": "Agentur auf der Suche nach dem passenden Produkt oder Lieferant, der der Plattform beitreten möchte: Schildern Sie uns in wenigen Zeilen, was Sie suchen – wir melden uns innerhalb von 48 Stunden.",
+    "asideTitle": "Direkt schreiben",
+    "asideAddressTitle": "Unsere Büros",
+    "asideResponseTitle": "Antwortzeit",
+    "asideResponse": "Innerhalb von 48 Werktagsstunden.",
+    "formHeading": "Ihre Anfrage",
+    "mailIntro": "Schreiben Sie uns direkt: Die Schaltfläche unten öffnet Ihr E-Mail-Programm mit einer bereits strukturierten Nachricht. Für eine schnelle Rückmeldung geben Sie bitte an:",
+    "mailPoints": {
+      "0": "Ihr Unternehmen und Ihre Rolle (Agentur, Einkäufer, Lieferant …)",
+      "1": "Die Art des gesuchten Produkts",
+      "2": "Mengen und Zielbudget",
+      "3": "Ihre gewünschte Lieferzeit"
+    },
+    "mailCta": "Unserem Team schreiben",
+    "mailHint": "Öffnet Ihr E-Mail-Programm.",
+    "mailFallback": "Kein E-Mail-Programm eingerichtet? Schreiben Sie uns an",
+    "mailSubject": "Sourcing-Anfrage — Promotional Sourcing.eu",
+    "mailBody": "Guten Tag,\n\nUnternehmen:\nSie sind (Agentur / Einkäufer / Lieferant):\nTelefon:\n\nGesuchtes Produkt:\nMenge:\nZielbudget:\nGewünschte Lieferzeit:\n\nWeitere Angaben:\n\n\nVielen Dank,\n"
+  },
+  "thanks": {
+    "seoTitle": "Nachricht erhalten — Promotional Sourcing.eu",
+    "seoDescription": "Ihre Anfrage wurde an unser Team weitergeleitet.",
+    "eyebrow": "Nachricht gesendet",
+    "heading": "Danke, Ihre Nachricht ist unterwegs.",
+    "body": "Unser Team meldet sich innerhalb von 48 Werktagsstunden bei Ihnen. Bis dahin können Sie uns direkt schreiben an",
+    "backHome": "Zurück zur Startseite"
+  },
+  "legal": {
+    "updatedOn": "Zuletzt aktualisiert:",
+    "breadcrumbAria": "Brotkrumennavigation",
+    "breadcrumbHome": "Startseite",
+    "tocTitle": "Auf dieser Seite",
+    "helpEyebrow": "Eine Frage?",
+    "helpHeading": "Benötigen Sie eine Klarstellung zu diesem Dokument?",
+    "helpBody": "Unser Team beantwortet rechtliche Anfragen und Fragen zu Ihren Daten innerhalb von 48 Werktagsstunden.",
+    "helpCta": "Kontakt aufnehmen"
+  },
+  "productMockup": {
+    "tags": {
+      "0": "Recyceltes Material",
+      "1": "GRS-zertifiziert",
+      "2": "Lager Europa"
+    },
+    "products": {
+      "0": {
+        "name": "Tragetasche Bio-Baumwolle 220 g",
+        "country": "Frankreich"
+      },
+      "1": {
+        "name": "Tragetasche Baumwolle 140 g Senfgelb",
+        "country": "Portugal"
+      },
+      "2": {
+        "name": "Tragetasche Baumwolle mit Seitenfalte 140 g",
+        "country": "Spanien"
+      }
+    },
+    "aiChip": "KI-Suche",
+    "verifiedLabel": "Geprüfter Lieferant",
+    "supplierLabel": "Lieferant",
+    "priceFrom": "ab",
+    "priceSuffix": "€ netto",
+    "footerCompare": "Sofortiger Vergleich zwischen Lieferanten",
+    "footerFlag": "Vorschau der Oberfläche",
+    "ariaLabel": "Vorschau einer Suche auf promotional-sourcing.eu: eine Tragetasche aus Bio-Baumwolle, eine Kühltasche aus recyceltem Polyester und ein recyceltes Strandtuch, gefiltert nach recyceltem Material, GRS-Zertifizierung und Lager Europa, mit geprüftem Lieferanten, Land und Preis."
+  }
+}

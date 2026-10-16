@@ -5,7 +5,7 @@ import Attribute from '#models/attribute'
 import AttributeValue from '#models/attribute_value'
 import Product from '#models/product'
 import ProductTranslation from '#models/product_translation'
-import type { Locale } from '#shared/types/i18n'
+import type { ContentLocale } from '#shared/types/i18n'
 
 /**
  * Facettes d'un produit : { attributeSlug: valueSlug }.
@@ -24,7 +24,7 @@ type ProductSeed = {
   originCountry: string
   madeInEurope: boolean
   facets: Facets
-  translations: Record<Locale, Text>
+  translations: Record<ContentLocale, Text>
 }
 
 /**
@@ -193,7 +193,7 @@ export default class ProductSeeder extends BaseSeeder {
         }
       )
 
-      for (const locale of Object.keys(seed.translations) as Locale[]) {
+      for (const locale of Object.keys(seed.translations) as ContentLocale[]) {
         await ProductTranslation.updateOrCreate(
           { productId: product.id, locale },
           seed.translations[locale]

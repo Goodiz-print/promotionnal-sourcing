@@ -1,0 +1,19 @@
+{
+  "index": {
+    "title": "Leveranciersgids",
+    "subtitle": "Ontdek de Europese leveranciers van promotieartikelen.",
+    "searchLabel": "Zoeken",
+    "searchPlaceholder": "Naam van de leverancier…",
+    "country": "Land",
+    "allCountries": "Alle landen",
+    "empty": "Geen enkele leverancier komt overeen met uw zoekopdracht.",
+    "previous": "Vorige",
+    "next": "Volgende"
+  },
+  "show": {
+    "website": "Website bezoeken",
+    "profile": "Leveranciersprofiel",
+    "products": "Catalogus",
+    "noProducts": "Nog geen gepubliceerde producten."
+  }
+}

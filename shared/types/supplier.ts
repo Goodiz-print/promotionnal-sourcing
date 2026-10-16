@@ -1,4 +1,4 @@
-import type { Locale } from './i18n.js'
+import type { ContentLocale, Locale } from './i18n.js'
 import type { ProductType } from './product.js'
 import type { SupplierProfileType } from './organization.js'
 
@@ -53,7 +53,7 @@ export interface CreateSupplierData {
   phone?: string | null
   logoUrl?: string | null
   isActive?: boolean
-  translations: Partial<Record<Locale, { name: string; description?: string | null }>>
+  translations: Partial<Record<ContentLocale, { name: string; description?: string | null }>>
 }
 
 export interface UpdateSupplierData extends Partial<CreateSupplierData> {}

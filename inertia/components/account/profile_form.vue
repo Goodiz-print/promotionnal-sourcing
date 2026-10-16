@@ -3,9 +3,9 @@ import { useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseInput from '~/components/base_input.vue'
-import BaseSelect from '~/components/base_select.vue'
+import LanguageMenu from '~/components/language_menu.vue'
 import BaseButton from '~/components/base_button.vue'
-import { LOCALE_LABELS, SUPPORTED_LOCALES, DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
+import { SUPPORTED_LOCALES, DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
 import type { AccountType } from '#shared/types/account'
 
 const props = defineProps<{ account: AccountType }>()
@@ -49,16 +49,21 @@ function submit() {
           {{ t('account.profile.unverified') }}
         </p>
       </div>
-      <BaseSelect
-        id="locale"
-        v-model="form.locale"
-        :label="t('account.profile.language')"
-        :error="form.errors.locale"
-      >
-        <option v-for="code in SUPPORTED_LOCALES" :key="code" :value="code">
-          {{ LOCALE_LABELS[code] }}
-        </option>
-      </BaseSelect>
+      <div>
+        <p class="mb-1.5 text-sm font-medium text-[var(--gray-10)]">
+          {{ t('account.profile.language') }}
+        </p>
+        <LanguageMenu
+          :current="form.locale"
+          :locales="SUPPORTED_LOCALES"
+          :label="t('account.profile.language')"
+          button-class="rounded border border-[var(--gray-4)] bg-white px-3 py-2 text-sm font-medium"
+          @select="form.locale = $event"
+        />
+        <p v-if="form.errors.locale" class="mt-1 text-sm text-[var(--state-danger)]">
+          {{ form.errors.locale }}
+        </p>
+      </div>
       <BaseButton type="submit" :disabled="form.processing">
         {{ t('account.profile.submit') }}
       </BaseButton>

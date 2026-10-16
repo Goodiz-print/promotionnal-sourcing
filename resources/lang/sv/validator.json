@@ -1,0 +1,23 @@
+{
+  "shared": {
+    "fields": {
+      "fullName": "fullständigt namn",
+      "email": "e-post",
+      "password": "lösenord",
+      "passwordConfirmation": "lösenordsbekräftelse",
+      "locale": "språk",
+      "currentPassword": "nuvarande lösenord"
+    },
+    "messages": {
+      "required": "Fältet {field} är obligatoriskt",
+      "string": "Fältet {field} måste vara en textsträng",
+      "email": "Fältet {field} måste vara en giltig e-postadress",
+      "minLength": "Fältet {field} måste innehålla minst {min} tecken",
+      "maxLength": "Fältet {field} får inte överstiga {max} tecken",
+      "confirmed": "Bekräftelsen av fältet {field} stämmer inte överens",
+      "enum": "Värdet i fältet {field} är inte giltigt",
+      "database.unique": "Det här värdet för {field} används redan",
+      "notSameAs": "Det nya värdet för {field} måste skilja sig från det gamla"
+    }
+  }
+}

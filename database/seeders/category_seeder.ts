@@ -1,14 +1,14 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import Category from '#models/category'
 import CategoryTranslation from '#models/category_translation'
-import type { Locale } from '#shared/types/i18n'
+import type { ContentLocale } from '#shared/types/i18n'
 
 type Text = { name: string; description: string }
 
 type CategorySeed = {
   slug: string
   synonyms: string[]
-  translations: Record<Locale, Text>
+  translations: Record<ContentLocale, Text>
 }
 
 const CATEGORIES: CategorySeed[] = [
@@ -46,7 +46,7 @@ export default class CategorySeeder extends BaseSeeder {
         { synonyms: seed.synonyms }
       )
 
-      for (const locale of Object.keys(seed.translations) as Locale[]) {
+      for (const locale of Object.keys(seed.translations) as ContentLocale[]) {
         await CategoryTranslation.updateOrCreate(
           { categoryId: category.id, locale },
           seed.translations[locale]

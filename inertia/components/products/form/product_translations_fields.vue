@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import FlagIcon from '~/components/flag_icon.vue'
 import { inject } from 'vue'
 import { useI18n } from '~/i18n'
-import { SUPPORTED_LOCALES, LOCALE_LABELS } from '#shared/types/i18n'
+import { CONTENT_LOCALES, LOCALE_LABELS } from '#shared/types/i18n'
 import BaseInput from '~/components/base_input.vue'
 import BaseTextarea from '~/components/base_textarea.vue'
 import { ProductFormKey } from './types'
@@ -17,8 +18,11 @@ function errorFor(key: string): string | undefined {
 
 <template>
   <div class="flex flex-col gap-6">
-    <div v-for="locale in SUPPORTED_LOCALES" :key="locale" class="flex flex-col gap-3">
-      <h3 class="text-sm font-semibold text-[var(--gray-6)]">{{ LOCALE_LABELS[locale] }}</h3>
+    <div v-for="locale in CONTENT_LOCALES" :key="locale" class="flex flex-col gap-3">
+      <h3 class="flex items-center gap-2 text-sm font-semibold text-[var(--gray-6)]">
+        <FlagIcon :code="locale" />
+        {{ LOCALE_LABELS[locale] }}
+      </h3>
       <BaseInput
         :id="`name-${locale}`"
         v-model="form.translations[locale].name"

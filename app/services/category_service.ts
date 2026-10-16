@@ -1,12 +1,12 @@
 import Category from '#models/category'
 import CategoryTranslation from '#models/category_translation'
-import { SUPPORTED_LOCALES } from '#shared/types/i18n'
+import { CONTENT_LOCALES } from '#shared/types/i18n'
 import type {
   CreateCategoryInput,
   UpdateCategoryInput,
   CategoryTranslationInput,
 } from '#shared/types/category'
-import type { Locale } from '#shared/types/i18n'
+import type { ContentLocale } from '#shared/types/i18n'
 
 /**
  * Gestion de la taxonomie (catégories) du catalogue. Toute la logique ORM vit
@@ -134,9 +134,9 @@ export default class CategoryService {
 
   private async writeTranslations(
     category: Category,
-    translations: Record<Locale, CategoryTranslationInput>
+    translations: Record<ContentLocale, CategoryTranslationInput>
   ): Promise<void> {
-    for (const locale of SUPPORTED_LOCALES) {
+    for (const locale of CONTENT_LOCALES) {
       const translation = translations[locale]
       if (!translation) continue
       await CategoryTranslation.updateOrCreate(

@@ -1,0 +1,60 @@
+{
+  "index": {
+    "title": "Catálogo de productos",
+    "subtitle": "Busque y filtre los productos promocionales de proveedores europeos.",
+    "searchLabel": "Búsqueda",
+    "searchPlaceholder": "Nombre, material, color…",
+    "category": "Categoría",
+    "allCategories": "Todas las categorías",
+    "madeInEurope": "Fabricado en Europa",
+    "resultsCount": "{count, plural, =0 {Ningún producto} one {# producto} other {# productos}}",
+    "empty": "Ningún producto coincide con su búsqueda.",
+    "previous": "Anterior",
+    "next": "Siguiente"
+  },
+  "show": {
+    "backToCatalogue": "Volver al catálogo",
+    "viewImage": "Ver la imagen",
+    "minQuantity": "Cantidad mínima",
+    "category": "Categoría",
+    "origin": "País de origen",
+    "requestQuote": "Solicitar presupuesto"
+  },
+  "manage": {
+    "index": {
+      "title": "Mis productos",
+      "empty": "Todavía no tiene ningún producto. Cree uno."
+    },
+    "create": { "title": "Nuevo producto" },
+    "edit": { "title": "Editar el producto" },
+    "newProduct": "Nuevo producto",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "published": "Publicado",
+    "draft": "Borrador",
+    "facets": "Características",
+    "images": "Imágenes",
+    "noFacets": "No hay ninguna característica filtrable disponible.",
+    "removeImage": "Quitar",
+    "confirmDelete": "¿Eliminar este producto?",
+    "created": "Producto creado.",
+    "updated": "Producto actualizado.",
+    "deleted": "Producto eliminado.",
+    "fields": {
+      "name": "Nombre",
+      "description": "Descripción",
+      "category": "Categoría",
+      "chooseCategory": "Elegir una categoría",
+      "priceMin": "Precio mín.",
+      "priceMax": "Precio máx.",
+      "currency": "Moneda",
+      "minQuantity": "Cantidad mínima",
+      "originCountry": "País de origen",
+      "madeInEurope": "Fabricado en Europa",
+      "isActive": "Publicado",
+      "images": "Añadir imágenes"
+    }
+  }
+}

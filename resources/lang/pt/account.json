@@ -1,0 +1,54 @@
+{
+  "title": "A minha conta",
+  "subtitle": "Gira os seus dados pessoais, a sua palavra-passe e a sua conta.",
+  "profile": {
+    "title": "Dados pessoais",
+    "language": "Idioma",
+    "submit": "Guardar",
+    "saved": "Os seus dados foram guardados.",
+    "emailChanged": "O seu endereço foi alterado: confirme-o através da ligação que acabámos de lhe enviar.",
+    "unverified": "Endereço não verificado"
+  },
+  "password": {
+    "title": "Palavra-passe",
+    "current": "Palavra-passe atual",
+    "new": "Nova palavra-passe",
+    "confirm": "Confirmar a nova palavra-passe",
+    "submit": "Alterar a palavra-passe",
+    "saved": "A sua palavra-passe foi alterada.",
+    "wrongCurrent": "A palavra-passe atual está incorreta."
+  },
+  "danger": {
+    "title": "Zona de perigo",
+    "subtitle": "Estas ações são irreversíveis.",
+    "deleteTitle": "Eliminar a minha conta",
+    "description": "Os seus dados pessoais são apagados e perde o acesso às suas organizações. Os pedidos de orçamento que criou são conservados, sem o seu nome.",
+    "blockedIntro": "É o último proprietário de: {names}. Promova outro proprietário ou arquive a organização antes de eliminar a sua conta.",
+    "blocked": "Eliminação impossível: é o último proprietário de {names}.",
+    "confirmPassword": "Confirme com a sua palavra-passe",
+    "submit": "Eliminar definitivamente a minha conta",
+    "confirm": "Eliminar definitivamente a sua conta? Esta ação é irreversível.",
+    "deleted": "A sua conta foi eliminada."
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "subtitle": "Inicie sessão sem palavra-passe com a impressão digital, o rosto ou o código do seu dispositivo.",
+    "empty": "Nenhuma passkey registada.",
+    "name": "Nome da passkey",
+    "defaultName": "O meu dispositivo",
+    "add": "Adicionar uma passkey",
+    "unsupported": "O seu navegador não suporta passkeys.",
+    "rename": "Mudar o nome",
+    "save": "Guardar",
+    "remove": "Eliminar",
+    "confirmRemove": "Eliminar a passkey «{name}»?",
+    "createdAt": "Adicionada em {date}",
+    "lastUsedAt": "utilizada em {date}",
+    "neverUsed": "nunca utilizada",
+    "added": "Passkey adicionada.",
+    "renamed": "Passkey renomeada.",
+    "removed": "Passkey eliminada.",
+    "failed": "Não foi possível registar a passkey. Tente novamente.",
+    "alreadyRegistered": "Este dispositivo já está registado."
+  }
+}

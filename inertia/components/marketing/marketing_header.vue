@@ -6,7 +6,14 @@ import type { Data } from '@generated/data'
 import { urlFor } from '~/client'
 import BaseLinkButton from '~/components/base_link_button.vue'
 import { useMarketing } from '~/composables/use_marketing'
-import type { Locale } from '#shared/types/i18n'
+import FlagIcon from '~/components/flag_icon.vue'
+import LanguageMenu from '~/components/language_menu.vue'
+import {
+  LOCALE_LABELS,
+  LOCALE_PREFIX_PATTERN,
+  SUPPORTED_LOCALES,
+  type Locale,
+} from '#shared/types/i18n'
 
 const page = usePage<Data.SharedProps>()
 /* Fichiers de `public/` : liés par une chaîne dynamique pour que Vite ne tente pas de les résoudre comme import. */
@@ -39,11 +46,8 @@ const navItems = computed(() => [
   { label: t('landing.nav.contact'), href: path('contact') },
 ])
 
-/** Même page dans l'autre langue : la locale est un préfixe d'URL, donc un simple lien. */
-const otherLocale = computed<Locale>(() => (locale.value === 'fr' ? 'en' : 'fr'))
-const otherLocaleHref = computed(() =>
-  page.url.replace(/^\/(fr|en)(?=\/|$|\?|#)/, `/${otherLocale.value}`)
-)
+/** Même page dans une autre langue : la locale est un préfixe d'URL, donc un simple lien. */
+const hrefForLocale = (code: Locale) => page.url.replace(LOCALE_PREFIX_PATTERN, `/${code}`)
 
 const isLoggedIn = computed(() => Boolean(page.props.user))
 const loginHref = computed(() => urlFor('session.create', { locale: locale.value }))
@@ -70,21 +74,14 @@ const appHref = computed(() => urlFor('products.index', { locale: locale.value }
         </nav>
       </div>
       <div class="flex items-center gap-3">
-        <Link
-          :href="otherLocaleHref"
-          :hreflang="otherLocale"
-          class="hidden items-center gap-1.5 rounded-pill border border-hairline px-3 py-1.5 text-caption font-semibold text-text-secondary transition-colors duration-150 hover:border-indigo-300 hover:text-indigo-600 md:inline-flex"
-        >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3" />
-            <path
-              d="M1.5 8h13M8 1.5c1.8 1.8 2.8 4.1 2.8 6.5s-1 4.7-2.8 6.5c-1.8-1.8-2.8-4.1-2.8-6.5s1-4.7 2.8-6.5Z"
-              stroke="currentColor"
-              stroke-width="1.3"
-            />
-          </svg>
-          {{ t('landing.nav.switchTo') }}
-        </Link>
+        <LanguageMenu
+          class="hidden md:block"
+          :current="locale"
+          :locales="SUPPORTED_LOCALES"
+          :label="t('landing.nav.languageLabel')"
+          :href-for="hrefForLocale"
+          button-class="rounded-pill border border-hairline px-3 py-1.5 text-caption font-semibold text-text-secondary transition-colors duration-150 hover:border-indigo-300 hover:text-indigo-600"
+        />
         <Link
           :href="isLoggedIn ? appHref : loginHref"
           class="hidden items-center rounded-pill border border-indigo-200 px-4 py-1.5 text-caption font-semibold text-indigo-600 transition-colors duration-150 hover:bg-indigo-50 md:inline-flex"
@@ -140,21 +137,23 @@ const appHref = computed(() => urlFor('products.index', { locale: locale.value }
       <BaseLinkButton :href="path('contact')" class="mt-3 w-full text-center">
         {{ t('landing.nav.cta') }}
       </BaseLinkButton>
-      <Link
-        :href="otherLocaleHref"
-        :hreflang="otherLocale"
-        class="mt-1 inline-flex items-center gap-1.5 self-center rounded-pill border border-hairline px-3.5 py-2 text-body-sm font-semibold text-text-secondary"
-      >
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3" />
-          <path
-            d="M1.5 8h13M8 1.5c1.8 1.8 2.8 4.1 2.8 6.5s-1 4.7-2.8 6.5c-1.8-1.8-2.8-4.1-2.8-6.5s1-4.7 2.8-6.5Z"
-            stroke="currentColor"
-            stroke-width="1.3"
-          />
-        </svg>
-        {{ t('landing.nav.switchTo') }}
-      </Link>
+      <div class="mt-1 flex flex-wrap justify-center gap-2">
+        <Link
+          v-for="code in SUPPORTED_LOCALES"
+          :key="code"
+          :href="hrefForLocale(code)"
+          :hreflang="code"
+          class="inline-flex items-center gap-1.5 rounded-pill border px-3 py-1.5 text-caption font-semibold"
+          :class="
+            code === locale
+              ? 'border-indigo-300 text-indigo-600'
+              : 'border-hairline text-text-secondary'
+          "
+        >
+          <FlagIcon :code="code" />
+          {{ LOCALE_LABELS[code] }}
+        </Link>
+      </div>
       <Link
         :href="isLoggedIn ? appHref : loginHref"
         class="mt-3 inline-flex items-center gap-2 self-center rounded-pill border border-indigo-200 px-4 py-1.5 text-caption font-semibold text-indigo-600"

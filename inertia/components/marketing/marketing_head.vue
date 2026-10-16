@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 import { Head, usePage } from '@inertiajs/vue3'
 import { useMarketing } from '~/composables/use_marketing'
+import { LOCALE_PREFIX_PATTERN } from '#shared/types/i18n'
+import { OG_IMAGE_LOCALES, OG_LOCALES } from '#shared/types/marketing'
 
 const props = withDefaults(
   defineProps<{
@@ -18,13 +20,12 @@ const page = usePage()
 const { t, locale } = useMarketing()
 
 const BRAND = 'Promotional Sourcing.eu'
-const OG_LOCALES = { fr: 'fr_FR', en: 'en_US' } as const
 
 /** Chemin de la page sans préfixe de locale ni query : sert aux URLs hreflang. */
-const slug = computed(() => page.url.split(/[?#]/)[0].replace(/^\/(fr|en)/, ''))
+const slug = computed(() => page.url.split(/[?#]/)[0].replace(LOCALE_PREFIX_PATTERN, ''))
 const urlFor = (lang: string) => `${props.siteUrl}/${lang}${slug.value}`
 const canonical = computed(() => urlFor(locale.value))
-const ogImage = computed(() => `${props.siteUrl}/og-${locale.value}.png`)
+const ogImage = computed(() => `${props.siteUrl}/og-${OG_IMAGE_LOCALES[locale.value]}.png`)
 const robots = computed(() =>
   props.noindex
     ? 'noindex, follow'

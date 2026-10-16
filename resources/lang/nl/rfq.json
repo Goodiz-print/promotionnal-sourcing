@@ -1,0 +1,124 @@
+{
+  "index": {
+    "title": "Offerteaanvragen",
+    "subtitle": "Beschrijf een behoefte, raadpleeg meerdere leveranciers en vergelijk hun antwoorden.",
+    "empty": "Nog geen aanvragen.",
+    "new": "Nieuwe aanvraag",
+    "itemCount": "{count, plural, one {# regel} other {# regels}}",
+    "supplierCount": "{count, plural, =0 {geen ontvangers} one {# ontvanger} other {# ontvangers}}",
+    "responded": "{responded} / {total} reacties"
+  },
+  "create": {
+    "title": "Nieuwe offerteaanvraag",
+    "submit": "Concept aanmaken"
+  },
+  "show": {
+    "backToList": "Terug naar de aanvragen",
+    "needTitle": "De behoefte",
+    "suppliersTitle": "Ontvangers",
+    "noSuppliers": "Geen ontvangers geselecteerd.",
+    "createdBy": "Aangemaakt door {name}",
+    "deadline": "Uiterste datum: {date}",
+    "noDeadline": "Geen uiterste datum",
+    "budget": "Maximumbudget: {amount} €",
+    "quantity": "Hoeveelheid",
+    "unit": "Eenheid",
+    "category": "Categorie",
+    "product": "Product",
+    "addSuppliers": "Ontvangers toevoegen",
+    "removeSupplier": "Verwijderen",
+    "sentAt": "Verstuurd op {date}"
+  },
+  "status": {
+    "draft": "Concept",
+    "published": "Gepubliceerd",
+    "closed": "Gesloten"
+  },
+  "supplierStatus": {
+    "pending": "Te versturen",
+    "sent": "Verstuurd",
+    "viewed": "Bekeken",
+    "responded": "Heeft gereageerd",
+    "declined": "Heeft afgewezen"
+  },
+  "actions": {
+    "publish": "Publiceren",
+    "send": "Naar ontvangers versturen",
+    "close": "Sluiten",
+    "save": "Opslaan",
+    "confirmClose": "Deze aanvraag sluiten? Er kunnen geen nieuwe verzendingen meer plaatsvinden."
+  },
+  "fields": {
+    "title": "Titel",
+    "description": "Beschrijving",
+    "deadline": "Uiterste datum",
+    "budgetMax": "Maximumbudget (€)",
+    "itemName": "Omschrijving",
+    "itemDescription": "Toelichting",
+    "quantity": "Hoeveelheid",
+    "unit": "Eenheid",
+    "category": "Categorie",
+    "noCategory": "Geen categorie",
+    "suppliers": "Geraadpleegde leveranciers"
+  },
+  "items": {
+    "title": "Regels van de behoefte",
+    "add": "Regel toevoegen",
+    "remove": "Deze regel verwijderen",
+    "empty": "Voeg minstens één regel toe om te beschrijven wat u zoekt."
+  },
+  "suppliers": {
+    "empty": "Er is nog geen leverancier als organisatie geregistreerd.",
+    "selected": "{count, plural, =0 {Geen leverancier geselecteerd} one {# leverancier geselecteerd} other {# leveranciers geselecteerd}}"
+  },
+  "flash": {
+    "created": "Aanvraag aangemaakt. Controleer ze en publiceer ze om ze te verspreiden.",
+    "updated": "Aanvraag bijgewerkt.",
+    "published": "Aanvraag gepubliceerd. U kunt ze nu naar de ontvangers versturen.",
+    "sent": "{count, plural, =0 {Niets verstuurd} one {Aanvraag verstuurd naar # leverancier} other {Aanvraag verstuurd naar # leveranciers}}.",
+    "closed": "Aanvraag gesloten.",
+    "suppliersAdded": "{count, plural, =0 {Geen nieuwe ontvangers} one {# ontvanger toegevoegd} other {# ontvangers toegevoegd}}.",
+    "supplierRemoved": "Ontvanger verwijderd."
+  },
+  "errors": {
+    "notEditable": "Alleen een concept kan worden gewijzigd. Een ontvanger die al is geïnformeerd, kan niet meer worden verwijderd.",
+    "notPublishable": "Deze aanvraag kan niet worden gepubliceerd: er is een concept met minstens één regel nodig.",
+    "notSendable": "Deze aanvraag kan niet worden verstuurd: publiceer ze en selecteer minstens één openstaande ontvanger.",
+    "notClosable": "Alleen een gepubliceerde aanvraag kan worden gesloten.",
+    "notASupplier": "Een van de geselecteerde ontvangers is geen actieve leveranciersorganisatie."
+  },
+  "supplier": {
+    "index": {
+      "title": "Ontvangen aanvragen",
+      "subtitle": "De offerteaanvragen die inkopers aan u hebben gericht.",
+      "empty": "Nog geen aanvragen ontvangen.",
+      "from": "Van {name}",
+      "receivedAt": "Ontvangen op {date}"
+    },
+    "show": {
+      "backToList": "Terug naar de ontvangen aanvragen",
+      "needTitle": "De behoefte",
+      "buyer": "Inkoper",
+      "noDeadline": "Geen uiterste datum",
+      "declinedNotice": "U hebt deze aanvraag afgewezen. De inkoper is hiervan op de hoogte gebracht.",
+      "closedNotice": "De inkoper heeft deze aanvraag gesloten: er wordt geen antwoord meer verwacht.",
+      "quoteSoon": "Online offertes indienen komt binnenkort beschikbaar."
+    },
+    "actions": {
+      "decline": "Aanvraag afwijzen",
+      "confirmDecline": "Deze aanvraag afwijzen? Deze keuze is definitief."
+    },
+    "status": {
+      "sent": "Te behandelen",
+      "viewed": "In behandeling",
+      "responded": "Offerte verstuurd",
+      "declined": "Afgewezen"
+    },
+    "flash": {
+      "declined": "Aanvraag afgewezen."
+    },
+    "errors": {
+      "notDecidable": "Voor deze aanvraag wordt geen beslissing van u meer verwacht."
+    }
+  }
+}

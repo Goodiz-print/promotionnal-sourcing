@@ -17,6 +17,7 @@ import {
 } from '#start/limiter'
 import { registerRfqRoutes } from '#start/routes/rfqs'
 import { registerMarketingRoutes, registerMarketingLegacyRoutes } from '#start/routes/marketing'
+import { LOCALE_ROUTE_PATTERN } from '#shared/types/i18n'
 import { controllers } from '#generated/controllers'
 import router from '@adonisjs/core/services/router'
 import transmit from '@adonisjs/transmit/services/main'
@@ -267,4 +268,4 @@ router
       .use(middleware.auth())
   })
   .prefix(':locale')
-  .where('locale', /^(fr|en)$/)
+  .where('locale', LOCALE_ROUTE_PATTERN)

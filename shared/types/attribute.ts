@@ -1,4 +1,4 @@
-import type { Locale } from './i18n.js'
+import type { ContentLocale, Locale } from './i18n.js'
 
 /**
  * Nature de la donnee portee par un attribut (facette).
@@ -53,7 +53,7 @@ export interface CreateAttributeData {
   type?: AttributeDataType
   unit?: string | null
   isFilterable?: boolean
-  translations: Partial<Record<Locale, { name: string }>>
+  translations: Partial<Record<ContentLocale, { name: string }>>
 }
 
 export interface UpdateAttributeData extends Partial<CreateAttributeData> {}
@@ -63,7 +63,7 @@ export interface CreateAttributeValueData {
   value: string
   slug: string
   synonyms?: string[]
-  translations: Partial<Record<Locale, { label: string }>>
+  translations: Partial<Record<ContentLocale, { label: string }>>
 }
 
 export interface UpdateAttributeValueData extends Partial<

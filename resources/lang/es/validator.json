@@ -1,0 +1,23 @@
+{
+  "shared": {
+    "fields": {
+      "fullName": "nombre completo",
+      "email": "correo electrónico",
+      "password": "contraseña",
+      "passwordConfirmation": "confirmación de la contraseña",
+      "locale": "idioma",
+      "currentPassword": "contraseña actual"
+    },
+    "messages": {
+      "required": "El campo {field} es obligatorio",
+      "string": "El campo {field} debe ser una cadena de caracteres",
+      "email": "El campo {field} debe ser una dirección de correo electrónico válida",
+      "minLength": "El campo {field} debe contener al menos {min} caracteres",
+      "maxLength": "El campo {field} no debe superar los {max} caracteres",
+      "confirmed": "La confirmación del campo {field} no coincide",
+      "enum": "El valor del campo {field} no es válido",
+      "database.unique": "Este valor de {field} ya está en uso",
+      "notSameAs": "El nuevo valor de {field} debe ser distinto del anterior"
+    }
+  }
+}

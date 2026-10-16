@@ -1,0 +1,39 @@
+{
+  "index": {
+    "title": "Categorieën",
+    "subtitle": "Beheer de taxonomie van de catalogus (categorieboom).",
+    "empty": "Nog geen categorieën. Maak er een aan.",
+    "columns": {
+      "name": "Naam",
+      "slug": "Identificatie",
+      "parent": "Bovenliggende categorie",
+      "products": "Producten"
+    }
+  },
+  "create": { "title": "Nieuwe categorie" },
+  "edit": { "title": "Categorie bewerken" },
+  "newCategory": "Nieuwe categorie",
+  "edit": "Bewerken",
+  "delete": "Verwijderen",
+  "save": "Opslaan",
+  "cancel": "Annuleren",
+  "confirmDelete": "Deze categorie verwijderen?",
+  "noParent": "Geen (hoofdcategorie)",
+  "fields": {
+    "slug": "Identificatie (slug)",
+    "slugHint": "Kleine letters, cijfers en koppeltekens. Daarna niet meer wijzigbaar.",
+    "parent": "Bovenliggende categorie",
+    "name": "Naam",
+    "description": "Beschrijving",
+    "synonyms": "Synoniemen",
+    "synonymsHint": "Gescheiden door komma's (verbetert de zoekresultaten)."
+  },
+  "flash": {
+    "created": "Categorie aangemaakt.",
+    "updated": "Categorie bijgewerkt.",
+    "deleted": "Categorie verwijderd.",
+    "cycle": "Een categorie kan niet haar eigen bovenliggende categorie zijn, noch die van een van haar onderliggende categorieën.",
+    "hasChildren": "Verwijderen is niet mogelijk: deze categorie heeft subcategorieën.",
+    "hasProducts": "Verwijderen is niet mogelijk: er zijn producten aan deze categorie gekoppeld."
+  }
+}

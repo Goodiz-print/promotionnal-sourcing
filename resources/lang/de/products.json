@@ -1,0 +1,60 @@
+{
+  "index": {
+    "title": "Produktkatalog",
+    "subtitle": "Suchen und filtern Sie die Werbeartikel europäischer Lieferanten.",
+    "searchLabel": "Suche",
+    "searchPlaceholder": "Name, Material, Farbe …",
+    "category": "Kategorie",
+    "allCategories": "Alle Kategorien",
+    "madeInEurope": "In Europa hergestellt",
+    "resultsCount": "{count, plural, =0 {Keine Produkte} one {# Produkt} other {# Produkte}}",
+    "empty": "Kein Produkt entspricht Ihrer Suche.",
+    "previous": "Zurück",
+    "next": "Weiter"
+  },
+  "show": {
+    "backToCatalogue": "Zurück zum Katalog",
+    "viewImage": "Bild ansehen",
+    "minQuantity": "Mindestmenge",
+    "category": "Kategorie",
+    "origin": "Herkunftsland",
+    "requestQuote": "Angebot anfordern"
+  },
+  "manage": {
+    "index": {
+      "title": "Meine Produkte",
+      "empty": "Sie haben noch kein Produkt. Erstellen Sie eines."
+    },
+    "create": { "title": "Neues Produkt" },
+    "edit": { "title": "Produkt bearbeiten" },
+    "newProduct": "Neues Produkt",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "published": "Veröffentlicht",
+    "draft": "Entwurf",
+    "facets": "Merkmale",
+    "images": "Bilder",
+    "noFacets": "Keine filterbaren Merkmale verfügbar.",
+    "removeImage": "Entfernen",
+    "confirmDelete": "Dieses Produkt löschen?",
+    "created": "Produkt erstellt.",
+    "updated": "Produkt aktualisiert.",
+    "deleted": "Produkt gelöscht.",
+    "fields": {
+      "name": "Name",
+      "description": "Beschreibung",
+      "category": "Kategorie",
+      "chooseCategory": "Kategorie wählen",
+      "priceMin": "Mindestpreis",
+      "priceMax": "Höchstpreis",
+      "currency": "Währung",
+      "minQuantity": "Mindestmenge",
+      "originCountry": "Herkunftsland",
+      "madeInEurope": "In Europa hergestellt",
+      "isActive": "Veröffentlicht",
+      "images": "Bilder hinzufügen"
+    }
+  }
+}

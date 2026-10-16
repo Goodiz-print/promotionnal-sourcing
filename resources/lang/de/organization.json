@@ -1,0 +1,120 @@
+{
+  "settings": {
+    "title": "Organisationseinstellungen",
+    "subtitle": "Verwalten Sie die allgemeinen Angaben Ihrer Organisation.",
+    "submit": "Speichern",
+    "success": "Organisationseinstellungen aktualisiert."
+  },
+  "fields": {
+    "name": "Name",
+    "siret": "SIRET",
+    "vatNumber": "USt-IdNr.",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "website": "Website",
+    "industry": "Branche",
+    "size": "Größe der Organisation",
+    "description": "Beschreibung",
+    "addressLine1": "Adresse",
+    "addressLine2": "Adresszusatz",
+    "city": "Ort",
+    "postalCode": "Postleitzahl",
+    "country": "Land",
+    "logo": "Logo"
+  },
+  "size": {
+    "none": "Nicht angegeben",
+    "micro": "Kleinstunternehmen",
+    "small": "Kleines Unternehmen",
+    "medium": "Mittleres Unternehmen",
+    "large": "Großunternehmen",
+    "enterprise": "Konzern / Unternehmensgruppe"
+  },
+  "logo": {
+    "none": "Kein Logo",
+    "replace": "Logo ersetzen",
+    "remove": "Logo löschen",
+    "cancel": "Abbrechen"
+  },
+  "nav": {
+    "settings": "Einstellungen",
+    "members": "Mitglieder",
+    "create": "Neue Organisation"
+  },
+  "members": {
+    "title": "Mitglieder der Organisation",
+    "subtitle": "Verwalten Sie die Rollen und den Zugriff der Mitglieder Ihrer Organisation.",
+    "columns": {
+      "name": "Mitglied",
+      "role": "Rolle"
+    },
+    "remove": "Entfernen",
+    "confirmRemove": "Dieses Mitglied aus der Organisation entfernen?",
+    "roleUpdated": "Rolle des Mitglieds aktualisiert.",
+    "removed": "Mitglied aus der Organisation entfernt.",
+    "lastOwnerError": "Der letzte Inhaber der Organisation kann weder entfernt noch herabgestuft werden."
+  },
+  "invitations": {
+    "inviteTitle": "Mitglied einladen",
+    "emailLabel": "E-Mail",
+    "roleLabel": "Rolle",
+    "submit": "Einladung senden",
+    "pendingTitle": "Ausstehende Einladungen",
+    "revoke": "Widerrufen",
+    "confirmRevoke": "Diese Einladung widerrufen?",
+    "resend": "Erneut senden",
+    "sent": "Einladung gesendet.",
+    "revoked": "Einladung widerrufen.",
+    "resent": "Einladung erneut gesendet.",
+    "notPending": "Diese Einladung ist nicht mehr ausstehend: Sie wurde bereits angenommen oder widerrufen.",
+    "alreadyMember": "Diese E-Mail-Adresse gehört bereits einem Mitglied der Organisation.",
+    "accept": {
+      "title": "Einladung zu einer Organisation",
+      "description": "Sie wurden eingeladen, {organization} mit der Rolle {role} beizutreten.",
+      "submit": "Einladung annehmen",
+      "login": "Anmelden",
+      "signup": "Konto erstellen",
+      "wrongAccount": "Sie sind mit {email} angemeldet, diese Einladung ist jedoch für eine andere Adresse bestimmt.",
+      "loginAsInvited": "Abmelden und mit der richtigen Adresse anmelden",
+      "success": "Sie sind {organization} beigetreten.",
+      "invalid": "Diese Einladung ist nicht mehr gültig.",
+      "emailMismatch": "Diese Einladung ist für eine andere E-Mail-Adresse bestimmt."
+    },
+    "invalid": {
+      "title": "Ungültige Einladung",
+      "description": "Dieser Einladungslink ist ungültig, abgelaufen oder wurde bereits verwendet."
+    }
+  },
+  "switch": {
+    "label": "Organisation",
+    "done": "Sie arbeiten jetzt in {name}.",
+    "unavailable": "Diese Organisation ist nicht mehr zugänglich."
+  },
+  "create": {
+    "title": "Organisation erstellen",
+    "subtitle": "Sie wechseln automatisch zu dieser neuen Organisation.",
+    "submit": "Organisation erstellen",
+    "success": "Organisation {name} erstellt."
+  },
+  "danger": {
+    "title": "Gefahrenbereich",
+    "subtitle": "Diese Aktionen betreffen die gesamte Organisation. Bitte prüfen Sie sie vor der Bestätigung."
+  },
+  "leave": {
+    "title": "Diese Organisation verlassen",
+    "description": "Sie verlieren den Zugriff auf deren Daten. Ein Administrator muss Sie erneut einladen.",
+    "submit": "Verlassen",
+    "confirm": "Diese Organisation verlassen?",
+    "done": "Sie haben {name} verlassen.",
+    "lastOwner": "Sie sind der letzte Inhaber: Ernennen Sie ein weiteres Mitglied oder archivieren Sie die Organisation, bevor Sie gehen.",
+    "notMember": "Sie sind kein Mitglied dieser Organisation."
+  },
+  "archive": {
+    "title": "Diese Organisation archivieren",
+    "description": "Sie verschwindet aus dem öffentlichen Katalog und aus dem Bereich ihrer Mitglieder. Die Daten bleiben erhalten; nur das technische Team kann sie reaktivieren.",
+    "submit": "Archivieren",
+    "confirm": "{name} archivieren? Die Mitglieder verlieren den Zugriff und Sie können die Organisation nicht selbst reaktivieren.",
+    "done": "{name} wurde archiviert.",
+    "alreadyArchived": "Diese Organisation ist bereits archiviert."
+  }
+}

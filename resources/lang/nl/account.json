@@ -1,0 +1,54 @@
+{
+  "title": "Mijn account",
+  "subtitle": "Beheer uw persoonlijke gegevens, uw wachtwoord en uw account.",
+  "profile": {
+    "title": "Persoonlijke gegevens",
+    "language": "Taal",
+    "submit": "Opslaan",
+    "saved": "Uw gegevens zijn opgeslagen.",
+    "emailChanged": "Uw e-mailadres is gewijzigd: bevestig het via de link die wij u zojuist hebben gestuurd.",
+    "unverified": "E-mailadres niet geverifieerd"
+  },
+  "password": {
+    "title": "Wachtwoord",
+    "current": "Huidig wachtwoord",
+    "new": "Nieuw wachtwoord",
+    "confirm": "Nieuw wachtwoord bevestigen",
+    "submit": "Wachtwoord wijzigen",
+    "saved": "Uw wachtwoord is gewijzigd.",
+    "wrongCurrent": "Het huidige wachtwoord is onjuist."
+  },
+  "danger": {
+    "title": "Gevarenzone",
+    "subtitle": "Deze acties zijn onomkeerbaar.",
+    "deleteTitle": "Mijn account verwijderen",
+    "description": "Uw persoonsgegevens worden gewist en u verliest de toegang tot uw organisaties. De offerteaanvragen die u hebt aangemaakt blijven bewaard, zonder uw naam.",
+    "blockedIntro": "U bent de laatste eigenaar van: {names}. Benoem een andere eigenaar of archiveer de organisatie voordat u uw account verwijdert.",
+    "blocked": "Verwijderen is niet mogelijk: u bent de laatste eigenaar van {names}.",
+    "confirmPassword": "Bevestig met uw wachtwoord",
+    "submit": "Mijn account definitief verwijderen",
+    "confirm": "Uw account definitief verwijderen? Deze actie is onomkeerbaar.",
+    "deleted": "Uw account is verwijderd."
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "subtitle": "Meld u zonder wachtwoord aan met de vingerafdruk, gezichtsherkenning of de code van uw apparaat.",
+    "empty": "Geen passkey geregistreerd.",
+    "name": "Naam van de passkey",
+    "defaultName": "Mijn apparaat",
+    "add": "Passkey toevoegen",
+    "unsupported": "Uw browser ondersteunt geen passkeys.",
+    "rename": "Hernoemen",
+    "save": "Opslaan",
+    "remove": "Verwijderen",
+    "confirmRemove": "De passkey “{name}” verwijderen?",
+    "createdAt": "Toegevoegd op {date}",
+    "lastUsedAt": "gebruikt op {date}",
+    "neverUsed": "nooit gebruikt",
+    "added": "Passkey toegevoegd.",
+    "renamed": "Passkey hernoemd.",
+    "removed": "Passkey verwijderd.",
+    "failed": "De passkey kon niet worden geregistreerd. Probeer het opnieuw.",
+    "alreadyRegistered": "Dit apparaat is al geregistreerd."
+  }
+}

@@ -1,6 +1,6 @@
 import type { InjectionKey } from 'vue'
 import type { InertiaForm } from '@inertiajs/vue3'
-import type { Locale } from '#shared/types/i18n'
+import type { ContentLocale } from '#shared/types/i18n'
 
 /**
  * État du formulaire produit fournisseur (payload `useForm`). Les prix sont des
@@ -9,7 +9,7 @@ import type { Locale } from '#shared/types/i18n'
  */
 export interface ProductFormState {
   categoryId: number | null
-  translations: Record<Locale, { name: string; description: string }>
+  translations: Record<ContentLocale, { name: string; description: string }>
   priceMin: number | null
   priceMax: number | null
   currency: string
