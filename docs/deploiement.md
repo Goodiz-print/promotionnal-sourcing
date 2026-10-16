@@ -24,7 +24,7 @@ Un seul `Dockerfile` (racine) pour l'application web **et** le worker de queue :
 - Étapes : `deps` (toutes les dépendances) → `build` (`node ace build` : TypeScript + bundle Vite/SSR) → `prod-deps` (`pnpm install --prod --frozen-lockfile`) → `runtime` (ni sources TS, ni devDependencies, ni tests, ni pnpm).
 - Runtime : Ghostscript (compression PDF), dictionnaires hunspell (voir ci-dessous), utilisateur non root `app` (uid 10001), `PORT=3333`, `HOST=0.0.0.0`.
 - Aucun secret dans l'image : toutes les variables (voir `.env.example`) viennent de l'environnement d'exécution. L'application refuse de démarrer si une variable obligatoire manque.
-- Pas de `HEALTHCHECK` : l'application n'expose aucune route de santé (`/` répond 302). À ajouter avec une route dédiée, après accord.
+- Sondes : `GET /health` (web, 200 si la base répond, 503 sinon) et `node ace queue:health` (worker, sortie 1 si des jobs sont en retard ou figés). Healthchecks déclarés dans `docker-compose.yml` ; voir `docs/queue.md`.
 
 ### Construire
 

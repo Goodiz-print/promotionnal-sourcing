@@ -16,6 +16,7 @@ import {
   signupThrottle,
 } from '#start/limiter'
 import { registerRfqRoutes } from '#start/routes/rfqs'
+import { registerHealthRoutes } from '#start/routes/health'
 import { registerMarketingRoutes, registerMarketingLegacyRoutes } from '#start/routes/marketing'
 import { LOCALE_ROUTE_PATTERN } from '#shared/types/i18n'
 import { controllers } from '#generated/controllers'
@@ -39,6 +40,8 @@ router.get('/', ({ i18n, response }: HttpContext) => response.redirect(`/${i18n.
  * redirige vers l'URL préfixée de la nouvelle langue. Hors préfixe.
  */
 router.post('locale', [controllers.Locale, 'update']).as('locale.update')
+
+registerHealthRoutes()
 
 /**
  * Toutes les routes applicatives vivent sous un préfixe de locale
