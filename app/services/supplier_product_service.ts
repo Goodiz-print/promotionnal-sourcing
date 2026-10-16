@@ -10,6 +10,7 @@ import ProductImage from '#models/product_image'
 import ProductTranslation from '#models/product_translation'
 import SupplierTranslation from '#models/supplier_translation'
 import StorageService from '#services/storage/storage_service'
+import ProductTranslationSearchService from '#services/product_translation_search_service'
 import GenerateProductEmbeddingJob from '#jobs/generate_product_embedding_job'
 import logger from '@adonisjs/core/services/logger'
 import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE } from '#shared/types/i18n'
@@ -24,7 +25,10 @@ import type { SupplierProductInput } from '#shared/types/product'
  */
 @inject()
 export default class SupplierProductService {
-  constructor(private storage: StorageService) {}
+  constructor(
+    private storage: StorageService,
+    private translationSearch: ProductTranslationSearchService
+  ) {}
 
   /**
    * Résout le fournisseur (fiche catalogue) de l'organisation. Le crée si l'org
@@ -229,6 +233,7 @@ export default class SupplierProductService {
         { name: translation.name, description: translation.description ?? null }
       )
     }
+    await this.translationSearch.refreshForProduct(product.id)
   }
 
   /**
