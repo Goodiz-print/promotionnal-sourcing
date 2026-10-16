@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from 'vitest'
-import { reactive } from 'vue'
 import { mount } from '@vue/test-utils'
 import type { RfqDetailType, RfqSupplierType, RfqType } from '#shared/types/rfq'
 
@@ -31,24 +30,20 @@ const translations = {
   'rfq.suppliers.selected': '{count} sélectionnés',
 }
 
-vi.mock('@inertiajs/vue3', () => ({
-  usePage: () => ({ props: { locale: 'fr', supportedLocales: ['fr', 'en'], translations } }),
-  router: { post: vi.fn(), delete: vi.fn() },
-  useForm: (data: Record<string, unknown>) =>
-    reactive({
-      ...data,
-      errors: {},
-      processing: false,
-      transform() {
-        return this
-      },
-      post: vi.fn(),
-      patch: vi.fn(),
-    }),
-  Head: { render: () => null },
-}))
+vi.mock('@inertiajs/vue3', async () => {
+  const m = await import('./support/inertia_mocks')
+  return {
+    usePage: () => m.inertiaPage(translations),
+    router: { post: vi.fn(), delete: vi.fn() },
+    useForm: m.makeUseForm(),
+    Head: m.HeadStub,
+  }
+})
 vi.mock('~/client', () => ({ urlFor: () => '/fr/rfqs/1' }))
-vi.mock('@adonisjs/inertia/vue', () => ({ Link: { template: '<a><slot /></a>' } }))
+vi.mock('@adonisjs/inertia/vue', async () => {
+  const { LinkStub } = await import('./support/inertia_mocks')
+  return { Link: LinkStub }
+})
 
 const { default: RfqsIndex } = await import('~/pages/rfqs/index.vue')
 const { default: RfqShow } = await import('~/pages/rfqs/show.vue')

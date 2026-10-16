@@ -127,6 +127,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/invitation_acceptance_controller').default['show']>>>
     }
   }
+  'email.verify': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/email/verify/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['verify']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['verify']>>>
+    }
+  }
   'new_account.create': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/signup'
@@ -175,6 +187,78 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['store']>>>
     }
   }
+  'passkey.login.options': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/passkeys/options'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/passkey_session_controller').default['options']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/passkey_session_controller').default['options']>>>
+    }
+  }
+  'passkey.login': {
+    methods: ["POST"]
+    pattern: '/:locale/passkeys/login'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/passkey').authenticatePasskeyValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/passkey').authenticatePasskeyValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/passkey_session_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/passkey_session_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'password.forgot': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/password/forgot'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['create']>>>
+    }
+  }
+  'password.email': {
+    methods: ["POST"]
+    pattern: '/:locale/password/forgot'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/password').forgotPasswordValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/password').forgotPasswordValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'password.reset': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/password/reset/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['edit']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['edit']>>>
+    }
+  }
+  'password.update': {
+    methods: ["POST"]
+    pattern: '/:locale/password/reset/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/password').resetPasswordValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/password').resetPasswordValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'session.destroy': {
     methods: ["POST"]
     pattern: '/:locale/logout'
@@ -185,6 +269,126 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
+    }
+  }
+  'email.notice': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/email/verify'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['notice']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['notice']>>>
+    }
+  }
+  'email.verification.resend': {
+    methods: ["POST"]
+    pattern: '/:locale/email/verification/resend'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['resend']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['resend']>>>
+    }
+  }
+  'account.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/account'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/account_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/account_controller').default['show']>>>
+    }
+  }
+  'account.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/account'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/account').updateAccountValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/account').updateAccountValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/account_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/account_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'account.password.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/account/password'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/account').updatePasswordValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/account').updatePasswordValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/account_controller').default['updatePassword']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/account_controller').default['updatePassword']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'account.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/account'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/account').destroyAccountValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/account').destroyAccountValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/account_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/account_controller').default['destroy']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'account.passkeys.options': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/account/passkeys/options'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['options']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['options']>>>
+    }
+  }
+  'account.passkeys.store': {
+    methods: ["POST"]
+    pattern: '/:locale/account/passkeys'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/passkey').registerPasskeyValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/passkey').registerPasskeyValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'account.passkeys.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/account/passkeys/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/passkey').renamePasskeyValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/passkey').renamePasskeyValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'account.passkeys.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/account/passkeys/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['destroy']>>>
     }
   }
   'onboarding.show': {

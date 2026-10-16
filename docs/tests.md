@@ -42,7 +42,7 @@ Plugins Japa enregistrés :
 
 ### Base de données en test
 
-**PostgreSQL est le seul moteur supporté**, tests compris : le schéma dépend de pgvector,
+**PostgreSQL est le seul moteur supporté**, tests compris (version cible : voir [`postgres.md`](postgres.md)) : le schéma dépend de pgvector,
 `tsvector`, des colonnes générées, de `text[]` et de contraintes `CHECK` posées en SQL brut.
 `config/database.ts` n'expose plus qu'une connexion `pg` — il n'y a plus de variable
 `DB_CONNECTION`, ni de repli SQLite (il ne faisait plus tourner les migrations, et testait
@@ -78,34 +78,35 @@ et n'accepte qu'une base dont le nom se termine par "test".
 #### Initialisation par groupe — `useDatabase`
 
 `tests/utils/setup.ts` expose `useDatabase(group, options)`, qui branche le cycle de vie
-base de données d'un groupe : `truncate()` (qui lance au passage `migration:run`,
-idempotent) puis les seeders. C'est le seul point d'entrée — on ne recopie plus les hooks
-dans chaque spec.
+base de données d'un groupe : **une fois par groupe**, `truncate()` (qui lance au passage
+`migration:run`, idempotent) puis les seeders ; **avant chaque test**, une transaction globale
+annulée à sa fin (rollback). Le `db:truncate` de fin de groupe est le cleanup du hook : le
+groupe suivant repart d'une base vide. C'est le seul point d'entrée — on ne recopie plus les
+hooks dans chaque spec.
+
+Conséquence : un test peut muter les données semées sans polluer le suivant, et le catalogue
+n'est plus re-semé à chaque test. Les `db.transaction()` du code testé deviennent des
+savepoints. **Les séquences d'identifiants ne sont pas remises à zéro** par le rollback : ne
+jamais écrire un `id` en dur dans un test.
 
 ```ts
-useDatabase(group) // rôles + permissions, avant chaque test
+useDatabase(group) // rôles + permissions (semés une fois), transaction par test
 useDatabase(group, { seed: 'full' }) // MainSeeder (catalogue + dev user)
-useDatabase(group, { seed: 'full', perTest: false }) // une fois pour le groupe (lecture seule)
+useDatabase(group, { seed: 'full', perTest: false }) // sans transaction par test (lecture seule)
 useDatabase(group, { extraSeeders: [CategorySeeder] })
 useDatabase(group, { seed: 'none' }) // vidage seul
 ```
 
-| option         | valeurs                                                   | défaut    |
-| -------------- | --------------------------------------------------------- | --------- |
-| `seed`         | `'none'`, `'roles'`, `'full'`                             | `'roles'` |
-| `extraSeeders` | seeders joués après les précédents                        | `[]`      |
-| `perTest`      | `true` = avant chaque test, `false` = une fois par groupe | `true`    |
+| option         | valeurs                                                                 | défaut    |
+| -------------- | ----------------------------------------------------------------------- | --------- |
+| `seed`         | `'none'`, `'roles'`, `'full'`                                           | `'roles'` |
+| `extraSeeders` | seeders joués après les précédents                                      | `[]`      |
+| `perTest`      | `true` = transaction annulée par test, `false` = aucune (lecture seule) | `true`    |
 
 `'full'` passe par `MainSeeder` et non `db:seed` : ce dernier exécuterait chaque seeder
 isolément, donc `dev_user` avant les rôles.
 
-Pour isoler chaque test dans une transaction annulée :
-
-```ts
-test.group('Mon groupe', (group) => {
-  group.each.setup(() => testUtils.db().withGlobalTransaction())
-})
-```
+Un groupe `perTest: false` n'est protégé par rien : il ne doit **jamais** écrire en base.
 
 ### Factories et helpers
 
@@ -121,11 +122,34 @@ import { OrganizationInvitationFactory } from '#database/factories/organization_
 
 await UserFactory.create() // email et nom aléatoires
 await UserFactory.merge({ email: 'owner@example.com' }).create()
+await UserFactory.apply('unverified').create() // email non vérifié (verrouillé par `emailVerified`)
 await OrganizationFactory.apply('supplier').create() // états : supplier, both, archived
 await OrganizationInvitationFactory.apply('expired')
   .merge({ organizationId: org.id, email: 'invited@example.com' })
   .create()
+
+// Demandes de devis : les clés étrangères restent à fournir par l'appelant
+const rfq = await RfqFactory.apply('published').merge({ buyerOrganizationId: org.id }).create()
+await RfqItemFactory.merge({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 }).create()
+await RfqSupplierFactory.apply('sent') // états : (défaut `pending`), sent
+  .merge({ rfqId: rfq.id, supplierOrganizationId: supplier.id })
+  .create()
 ```
+
+> Les utilisateurs sont **vérifiés par défaut** (`emailVerifiedAt` renseigné) : sans ça,
+> le middleware `emailVerified` redirigerait chaque spec vers l'écran de vérification.
+>
+> Toute spec qui appelle `POST /signup` (ou change l'email d'un compte) met un mail en
+> queue ; sous `QUEUE_DRIVER=sync` il part immédiatement. Il faut donc `mail.fake()` dans
+> le groupe, sinon le test attend le timeout d'un vrai SMTP (~30 s) puis échoue.
+
+> **Passkeys** : `FakeAuthenticator` (`tests/utils/fake_authenticator.ts`) joue le rôle du
+> navigateur et de l'authentificateur (clé ES256, attestation `none`) : `register({ challenge })`
+> et `authenticate({ challenge, counter })` produisent des réponses acceptées par la vraie
+> vérification de `@simplewebauthn/server`. Le défi se pose en session avec
+> `.withSession({ 'passkey.authentication': { value, expiresAt } })`, sans aller-retour par
+> la route `options`. `PasskeyFactory` crée la ligne en base ; lui passer `credentialId` et
+> `publicKey` de l'authentificateur pour une vraie connexion.
 
 > Le mot de passe (`TEST_PASSWORD`, `'password123'`) est passé **en clair** : `User`
 > compose `withAuthFinder`, dont le hook `beforeSave` le hache. Un `hash.make()` en amont
@@ -151,7 +175,7 @@ pas d'instances isolées.
 import { test } from '@japa/runner'
 
 test.group('Users', (group) => {
-  group.each.setup(() => testUtils.db().withGlobalTransaction())
+  useDatabase(group)
 
   test('liste les utilisateurs', async ({ client }) => {
     const response = await client.get('/users')
@@ -198,6 +222,7 @@ pnpm run test:inertia -- --watch   # mode watch
 - **Environnement** : `happy-dom`
 - **Include** : `tests/inertia/**/*.spec.ts`
 - **Alias** : `~/` → `inertia/`, `@generated` → `.adonisjs/client/`
+- **`unstubGlobals: true`** : un `vi.stubGlobal(...)` (ex. `confirm`) est restauré entre deux tests
 
 ### Exemple test composant
 
@@ -237,3 +262,30 @@ it('affiche les données', () => {
   expect(wrapper.findAll('li')).toHaveLength(1)
 })
 ```
+
+### Mocks Inertia partagés
+
+Une page qui appelle `usePage()`, `useForm()` ou `<Head>` a besoin d'un mock de `@inertiajs/vue3`.
+`tests/inertia/support/inertia_mocks.ts` en fournit les briques communes : `inertiaPage(translations)`,
+`makeUseForm(spies?)`, `HeadStub`, `LinkStub`. Un `vi.mock` est hoisté au-dessus des imports : on
+l'écrit avec une factory **asynchrone** qui importe le module à la demande. `translations`, propre au
+spec, n'est lu qu'à l'appel de `usePage`.
+
+```ts
+vi.mock('@inertiajs/vue3', async () => {
+  const m = await import('./support/inertia_mocks')
+  return {
+    usePage: () => m.inertiaPage(translations),
+    router: { post: vi.fn() }, // propre au spec
+    useForm: m.makeUseForm({ post }), // `post` : l'espion que le spec veut asserter
+    Head: m.HeadStub,
+  }
+})
+vi.mock('@adonisjs/inertia/vue', async () => {
+  const { LinkStub } = await import('./support/inertia_mocks')
+  return { Link: LinkStub }
+})
+```
+
+`router`, `urlFor` (`vi.mock('~/client', …)`) et les mocks de composables (`use_passkey`) restent dans
+le spec : ils varient trop pour être mutualisés sans changer ce que le test vérifie.

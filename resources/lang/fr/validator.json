@@ -5,7 +5,8 @@
       "email": "e-mail",
       "password": "mot de passe",
       "passwordConfirmation": "confirmation du mot de passe",
-      "locale": "langue"
+      "locale": "langue",
+      "currentPassword": "mot de passe actuel"
     },
     "messages": {
       "required": "Le champ {field} est obligatoire",
@@ -15,7 +16,8 @@
       "maxLength": "Le champ {field} ne doit pas dépasser {max} caractères",
       "confirmed": "La confirmation du champ {field} ne correspond pas",
       "enum": "La valeur du champ {field} n'est pas valide",
-      "database.unique": "Cette valeur de {field} est déjà utilisée"
+      "database.unique": "Cette valeur de {field} est déjà utilisée",
+      "notSameAs": "Le nouveau {field} doit être différent de l'ancien"
     }
   }
 }

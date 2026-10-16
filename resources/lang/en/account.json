@@ -1,0 +1,54 @@
+{
+  "title": "My account",
+  "subtitle": "Manage your personal information, your password and your account.",
+  "profile": {
+    "title": "Personal information",
+    "language": "Language",
+    "submit": "Save",
+    "saved": "Your information has been saved.",
+    "emailChanged": "Your address has changed: please confirm it using the link we just sent you.",
+    "unverified": "Unverified address"
+  },
+  "password": {
+    "title": "Password",
+    "current": "Current password",
+    "new": "New password",
+    "confirm": "Confirm new password",
+    "submit": "Change password",
+    "saved": "Your password has been changed.",
+    "wrongCurrent": "The current password is incorrect."
+  },
+  "danger": {
+    "title": "Danger zone",
+    "subtitle": "These actions cannot be undone.",
+    "deleteTitle": "Delete my account",
+    "description": "Your personal data is erased and you lose access to your organizations. Quote requests you created are kept, without your name.",
+    "blockedIntro": "You are the last owner of: {names}. Promote another owner or archive the organization before deleting your account.",
+    "blocked": "Deletion impossible: you are the last owner of {names}.",
+    "confirmPassword": "Confirm with your password",
+    "submit": "Permanently delete my account",
+    "confirm": "Permanently delete your account? This cannot be undone.",
+    "deleted": "Your account has been deleted."
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "subtitle": "Sign in without a password using your device's fingerprint, face or PIN.",
+    "empty": "No passkeys registered.",
+    "name": "Passkey name",
+    "defaultName": "My device",
+    "add": "Add a passkey",
+    "unsupported": "Your browser does not support passkeys.",
+    "rename": "Rename",
+    "save": "Save",
+    "remove": "Delete",
+    "confirmRemove": "Delete the passkey “{name}”?",
+    "createdAt": "Added on {date}",
+    "lastUsedAt": "last used on {date}",
+    "neverUsed": "never used",
+    "added": "Passkey added.",
+    "renamed": "Passkey renamed.",
+    "removed": "Passkey deleted.",
+    "failed": "The passkey could not be registered. Try again.",
+    "alreadyRegistered": "This device is already registered."
+  }
+}

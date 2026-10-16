@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from 'vitest'
-import { reactive } from 'vue'
 import { mount } from '@vue/test-utils'
 import type { OrganizationInvitationPreviewType } from '#shared/types/organization'
 
@@ -16,18 +15,18 @@ const translations = {
     'Se déconnecter et se connecter avec la bonne adresse',
 }
 
-vi.mock('@inertiajs/vue3', () => ({
-  usePage: () => ({ props: { locale: 'fr', supportedLocales: ['fr', 'en'], translations } }),
-  useForm: (data: Record<string, unknown>) =>
-    reactive({
-      ...data,
-      errors: {},
-      processing: false,
-      post: vi.fn(),
-    }),
-  Head: { render: () => null },
-}))
-vi.mock('@adonisjs/inertia/vue', () => ({ Link: { template: '<a><slot /></a>' } }))
+vi.mock('@inertiajs/vue3', async () => {
+  const m = await import('./support/inertia_mocks')
+  return {
+    usePage: () => m.inertiaPage(translations),
+    useForm: m.makeUseForm(),
+    Head: m.HeadStub,
+  }
+})
+vi.mock('@adonisjs/inertia/vue', async () => {
+  const { LinkStub } = await import('./support/inertia_mocks')
+  return { Link: LinkStub }
+})
 
 const { default: InvitationAccept } = await import('~/pages/organization/invitation_accept.vue')
 
