@@ -3,7 +3,12 @@ import FlagIcon from '~/components/flag_icon.vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { CONTENT_LOCALES, LOCALE_LABELS, type ContentLocale } from '#shared/types/i18n'
+import {
+  CONTENT_LOCALES,
+  DEFAULT_CONTENT_LOCALE,
+  LOCALE_LABELS,
+  type ContentLocale,
+} from '#shared/types/i18n'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseTextarea from '~/components/base/base_textarea.vue'
@@ -57,10 +62,20 @@ function submit() {
       .split(',')
       .map((entry) => entry.trim())
       .filter(Boolean)
+    // Langue source toujours envoyée ; les autres seulement si renseignées (sinon
+    // générées automatiquement par le serveur).
+    const sourceLocale = props.category?.sourceLocale ?? DEFAULT_CONTENT_LOCALE
+    const translations: Partial<Record<ContentLocale, { name: string; description: string }>> = {}
+    for (const current of CONTENT_LOCALES) {
+      if (current === sourceLocale || data.translations[current].name) {
+        translations[current] = data.translations[current]
+      }
+    }
     const payload: Record<string, unknown> = {
       parentId: data.parentId,
       synonyms,
-      translations: data.translations,
+      sourceLocale,
+      translations,
     }
     if (props.mode === 'create') payload.slug = data.slug
     return payload

@@ -1,6 +1,7 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import { useDatabase } from '#tests/utils/setup'
+import { CONTENT_LOCALES, LOCALE_TSCONFIG } from '#shared/types/i18n'
 
 test.group('Catalogue — full-text par langue', (group) => {
   useDatabase(group, { seed: 'full', perTest: false })
@@ -36,6 +37,26 @@ test.group('Catalogue — full-text par langue', (group) => {
     )
 
     assert.lengthOf(result.rows as unknown[], 0)
+  })
+
+  test('aucune traduction sans search_vector (garde anti-désynchronisation)', async ({
+    assert,
+  }) => {
+    const result = await db.rawQuery(
+      `SELECT count(*)::int AS missing FROM product_translations WHERE search_vector IS NULL`
+    )
+    assert.equal((result.rows as Array<{ missing: number }>)[0].missing, 0)
+  })
+
+  test('le produit est trouvé dans chaque langue de contenu active', async ({ assert }) => {
+    for (const locale of CONTENT_LOCALES) {
+      const result = await db.rawQuery(
+        `SELECT count(*)::int AS total FROM product_translations
+         WHERE locale = ? AND search_vector @@ websearch_to_tsquery(?::regconfig, ?)`,
+        [locale, LOCALE_TSCONFIG[locale], locale === 'fr' ? 'crayon' : 'pencil']
+      )
+      assert.isAbove((result.rows as Array<{ total: number }>)[0].total, 0, locale)
+    }
   })
 
   test('products.embedding présent et NULL (peuplé à un prochain incrément)', async ({

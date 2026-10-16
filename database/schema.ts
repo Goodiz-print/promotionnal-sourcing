@@ -73,6 +73,7 @@ export class AttributeValueSchema extends BaseModel {
     'createdAt',
     'id',
     'slug',
+    'sourceLocale',
     'synonyms',
     'updatedAt',
     'value',
@@ -87,6 +88,8 @@ export class AttributeValueSchema extends BaseModel {
   @column()
   declare slug: string
   @column()
+  declare sourceLocale: string
+  @column()
   declare synonyms: any
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
@@ -100,6 +103,7 @@ export class AttributeSchema extends BaseModel {
     'id',
     'isFilterable',
     'slug',
+    'sourceLocale',
     'type',
     'unit',
     'updatedAt',
@@ -114,6 +118,8 @@ export class AttributeSchema extends BaseModel {
   @column()
   declare slug: string
   @column()
+  declare sourceLocale: string
+  @column()
   declare type: string
   @column()
   declare unit: string | null
@@ -122,7 +128,15 @@ export class AttributeSchema extends BaseModel {
 }
 
 export class CategorySchema extends BaseModel {
-  static $columns = ['createdAt', 'id', 'parentId', 'slug', 'synonyms', 'updatedAt'] as const
+  static $columns = [
+    'createdAt',
+    'id',
+    'parentId',
+    'slug',
+    'sourceLocale',
+    'synonyms',
+    'updatedAt',
+  ] as const
   $columns = CategorySchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -132,6 +146,8 @@ export class CategorySchema extends BaseModel {
   declare parentId: number | null
   @column()
   declare slug: string
+  @column()
+  declare sourceLocale: string
   @column()
   declare synonyms: any
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -462,6 +478,7 @@ export class ProductSchema extends BaseModel {
     'priceMin',
     'reference',
     'slug',
+    'sourceLocale',
     'supplierId',
     'updatedAt',
   ] as const
@@ -494,6 +511,8 @@ export class ProductSchema extends BaseModel {
   declare reference: string | null
   @column()
   declare slug: string
+  @column()
+  declare sourceLocale: string
   @column()
   declare supplierId: number
   @column.dateTime({ autoCreate: true, autoUpdate: true })

@@ -1,13 +1,10 @@
 import { inject } from '@adonisjs/core'
 import Category from '#models/category'
 import CategoryTranslation from '#models/category_translation'
-import TranslationDispatcher from '#services/translation_dispatcher'
+import TranslationQueueService from '#services/translation_queue_service'
+import { missingSourceTranslation } from '#exceptions/translation_errors'
 import { CONTENT_LOCALES } from '#shared/types/i18n'
-import type {
-  CreateCategoryInput,
-  UpdateCategoryInput,
-  CategoryTranslationInput,
-} from '#shared/types/category'
+import type { CreateCategoryInput, UpdateCategoryInput } from '#shared/types/category'
 import type { ContentLocale } from '#shared/types/i18n'
 
 /**
@@ -17,7 +14,7 @@ import type { ContentLocale } from '#shared/types/i18n'
  */
 @inject()
 export default class CategoryService {
-  constructor(private translationDispatcher: TranslationDispatcher) {}
+  constructor(private translationQueue: TranslationQueueService) {}
 
   /**
    * Liste d'administration : catégories + parent (traduit) + nombre de produits
@@ -53,27 +50,44 @@ export default class CategoryService {
   }
 
   /**
-   * Crée une catégorie (slug fourni par l'admin) + ses traductions.
+   * Crée une catégorie (slug fourni par l'admin) + ses traductions saisies. Les
+   * langues non saisies sont générées automatiquement à partir de la langue source.
    */
   async create(data: CreateCategoryInput): Promise<Category> {
+    if (!data.translations[data.sourceLocale]) throw missingSourceTranslation(data.sourceLocale)
+
     const category = await Category.create({
       slug: data.slug,
       parentId: data.parentId ?? null,
       synonyms: data.synonyms ?? [],
+      sourceLocale: data.sourceLocale,
     })
     await this.writeTranslations(category, data.translations)
-    await this.translationDispatcher.dispatch('category', category.id)
+    await this.translationQueue.queue('category', category.id, data.sourceLocale)
     return category
   }
 
   /**
-   * Met à jour une catégorie (parent, synonymes, traductions). Le slug reste
-   * inchangé.
+   * Met à jour une catégorie (parent, synonymes, traductions). Partielle : seuls
+   * les champs fournis sont modifiés. Le slug reste inchangé.
    */
   async update(category: Category, data: UpdateCategoryInput): Promise<Category> {
-    await category.merge({ parentId: data.parentId ?? null, synonyms: data.synonyms ?? [] }).save()
+    const sourceLocale = (data.sourceLocale ?? category.sourceLocale) as ContentLocale
+    const provided = data.translations?.[sourceLocale]
+    if (!provided?.name) {
+      const existing = await CategoryTranslation.query()
+        .where('categoryId', category.id)
+        .where('locale', sourceLocale)
+        .first()
+      if (!existing) throw missingSourceTranslation(sourceLocale)
+    }
+
+    category.sourceLocale = sourceLocale
+    if (data.parentId !== undefined) category.parentId = data.parentId
+    if (data.synonyms !== undefined) category.synonyms = data.synonyms
+    await category.save()
     await this.writeTranslations(category, data.translations)
-    await this.translationDispatcher.dispatch('category', category.id)
+    await this.translationQueue.queue('category', category.id, sourceLocale)
     return category
   }
 
@@ -139,17 +153,41 @@ export default class CategoryService {
     return result
   }
 
+  /**
+   * Écrit les traductions **saisies** (`is_auto = false`). Une ligne inchangée
+   * garde son marquage ; une langue absente du payload n'est pas touchée.
+   */
   private async writeTranslations(
     category: Category,
-    translations: Record<ContentLocale, CategoryTranslationInput>
+    translations: UpdateCategoryInput['translations']
   ): Promise<void> {
+    if (!translations) return
     for (const locale of CONTENT_LOCALES) {
       const translation = translations[locale]
       if (!translation) continue
-      await CategoryTranslation.updateOrCreate(
-        { categoryId: category.id, locale },
-        { name: translation.name, description: translation.description ?? null, isAuto: false }
-      )
+
+      const existing = await CategoryTranslation.query()
+        .where('categoryId', category.id)
+        .where('locale', locale)
+        .first()
+
+      if (!existing) {
+        if (!translation.name) continue
+        await CategoryTranslation.create({
+          categoryId: category.id,
+          locale,
+          name: translation.name,
+          description: translation.description ?? null,
+          isAuto: false,
+        })
+        continue
+      }
+
+      const name = translation.name ?? existing.name
+      const description =
+        translation.description === undefined ? existing.description : translation.description
+      if (name === existing.name && description === existing.description) continue
+      await existing.merge({ name, description, isAuto: false }).save()
     }
   }
 }

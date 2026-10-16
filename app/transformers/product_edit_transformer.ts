@@ -11,16 +11,21 @@ import type { ProductEditType } from '#shared/types/product'
  */
 export default class ProductEditTransformer extends BaseTransformer<Product> {
   toObject(): ProductEditType {
-    const translations = {} as Record<ContentLocale, { name: string; description: string | null }>
+    const translations = {} as ProductEditType['translations']
     for (const locale of CONTENT_LOCALES) {
       const row = this.resource.translations.find((t) => t.locale === locale)
-      translations[locale] = { name: row?.name ?? '', description: row?.description ?? null }
+      translations[locale] = {
+        name: row?.name ?? '',
+        description: row?.description ?? null,
+        isAuto: row?.isAuto ?? false,
+      }
     }
 
     return {
       id: this.resource.id,
       slug: this.resource.slug,
       categoryId: this.resource.categoryId,
+      sourceLocale: this.resource.sourceLocale as ContentLocale,
       priceMin: this.resource.priceMin,
       priceMax: this.resource.priceMax,
       currency: this.resource.currency,

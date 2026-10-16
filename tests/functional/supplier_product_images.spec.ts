@@ -16,6 +16,7 @@ function service() {
 
 const baseInput = (categoryId: number) => ({
   categoryId,
+  sourceLocale: 'fr' as const,
   translations: {
     fr: { name: 'Sac Test', description: null },
     en: { name: 'Test Bag', description: null },
