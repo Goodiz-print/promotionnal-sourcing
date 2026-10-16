@@ -37,8 +37,9 @@ const ENTITY_TABLES: Record<TranslatableEntity, EntityTable> = {
  * - **Clé d'idempotence par locale** = hash de (type d'entité, id, champs,
  *   locale source, locale cible, hash du texte source, modèle, version du
  *   prompt), stockée dans `translation_key`. Clé inchangée → pas d'appel.
- * - **Traduction manuelle protégée** : une ligne sans `translation_key` a été
- *   saisie par le fournisseur ; elle n'est jamais écrasée.
+ * - **Traduction manuelle protégée** : une ligne `is_auto = false` a été saisie
+ *   par le fournisseur ; elle n'est jamais écrasée. Une ligne générée porte
+ *   `is_auto = true`.
  * - **Upsert** sur `(entité, locale)` en une seule requête, après réception de
  *   la réponse : un crash ne refacture pas un appel déjà enregistré.
  *
@@ -73,8 +74,8 @@ export default class TranslationService {
       .from(table)
       .where(foreignKey, entityId)
       .whereIn('locale', targetLocales)
-      .select('locale', 'translation_key')
-    const existingByLocale = new Map(existing.map((row) => [row.locale, row.translation_key]))
+      .select('locale', 'translation_key', 'is_auto')
+    const existingByLocale = new Map(existing.map((row) => [row.locale, row]))
 
     const keys = new Map<string, string>()
     const pending: string[] = []
@@ -82,13 +83,13 @@ export default class TranslationService {
       const key = this.keyFor(entity, entityId, sourceFields, sourceLocale, locale)
       keys.set(locale, key)
 
-      if (!existingByLocale.has(locale)) {
+      const current = existingByLocale.get(locale)
+      if (!current) {
         pending.push(locale)
         continue
       }
-      const currentKey = existingByLocale.get(locale)
-      if (currentKey === null) continue // saisie manuelle : protégée
-      if (currentKey !== key) pending.push(locale)
+      if (!current.is_auto) continue // saisie manuelle : protégée
+      if (current.translation_key !== key) pending.push(locale)
     }
 
     const logContext = { entity, entityId, sourceLocale }
@@ -105,6 +106,7 @@ export default class TranslationService {
       locale,
       ...translated[locale],
       translation_key: keys.get(locale),
+      is_auto: true,
       created_at: now,
       updated_at: now,
     }))
@@ -112,7 +114,7 @@ export default class TranslationService {
       .table(table)
       .insert(rows)
       .onConflict([foreignKey, 'locale'])
-      .merge([...Object.keys(sourceFields), 'translation_key', 'updated_at'])
+      .merge([...Object.keys(sourceFields), 'translation_key', 'is_auto', 'updated_at'])
 
     logger.info({ ...logContext, outcome: 'called', targetLocales: pending }, 'ai translation')
     return 'called'

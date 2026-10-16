@@ -1,4 +1,4 @@
-import type { ContentLocale, Locale } from './i18n.js'
+import type { ContentLocale, Locale, TranslationLocale } from './i18n.js'
 import type { CategoryType } from './category.js'
 import type { AttributeWithValuesType } from './attribute.js'
 
@@ -125,11 +125,13 @@ export type ProductEditType = {
 
 /**
  * Payload validé du formulaire fournisseur (create/update). Le contenu est
- * fourni par locale ; les fichiers image sont traités hors de ce type.
+ * fourni par locale ; seule la langue source est obligatoire, les autres sont
+ * optionnelles (#75). Les fichiers image sont traités hors de ce type.
  */
 export interface SupplierProductInput {
   categoryId: number
-  translations: Record<ContentLocale, { name: string; description?: string | null }>
+  sourceLocale: TranslationLocale
+  translations: Partial<Record<TranslationLocale, { name: string; description?: string | null }>>
   priceMin?: number | null
   priceMax?: number | null
   currency?: string
@@ -139,6 +141,12 @@ export interface SupplierProductInput {
   isActive?: boolean
   attributeValueIds?: number[]
 }
+
+/**
+ * Édition : la langue source ne change pas, et seules les langues envoyées
+ * sont modifiées (#75).
+ */
+export type SupplierProductUpdateInput = Omit<SupplierProductInput, 'sourceLocale'>
 
 export interface CreateProductData {
   supplierId: number

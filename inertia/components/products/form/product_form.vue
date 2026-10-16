@@ -3,7 +3,7 @@ import { provide } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { CONTENT_LOCALES } from '#shared/types/i18n'
+import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE } from '#shared/types/i18n'
 import BaseButton from '~/components/base/base_button.vue'
 import ProductTranslationsFields from '~/components/products/form/product_translations_fields.vue'
 import ProductDetailsFields from '~/components/products/form/product_details_fields.vue'
@@ -62,6 +62,8 @@ function submit() {
     .transform((data) => {
       const payload: Record<string, unknown> = {
         categoryId: data.categoryId,
+        // La langue source n'est fixée qu'à la création (#75).
+        ...(props.mode === 'create' ? { sourceLocale: DEFAULT_CONTENT_LOCALE } : {}),
         translations: data.translations,
         currency: data.currency || 'EUR',
         madeInEurope: data.madeInEurope,

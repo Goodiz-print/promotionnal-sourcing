@@ -14,10 +14,11 @@ import ProductTranslationSearchService from '#services/product_translation_searc
 import GenerateProductEmbeddingJob from '#jobs/generate_product_embedding_job'
 import TranslationQueueService from '#services/translation/translation_queue_service'
 import logger from '@adonisjs/core/services/logger'
-import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE } from '#shared/types/i18n'
+import { CONTENT_LOCALES, TRANSLATION_LOCALES } from '#shared/types/i18n'
 import type Organization from '#models/organization'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
-import type { SupplierProductInput } from '#shared/types/product'
+import type { SupplierProductInput, SupplierProductUpdateInput } from '#shared/types/product'
+import { MissingSourceContentException } from '#exceptions/catalogue_errors'
 
 /**
  * Gestion des produits côté fournisseur (CRUD + galerie Cellar). Toute la
@@ -90,13 +91,20 @@ export default class SupplierProductService {
     data: SupplierProductInput,
     files: MultipartFile[]
   ): Promise<Product> {
+    if (!data.translations[data.sourceLocale]?.name) throw new MissingSourceContentException()
+
     const supplier = await this.resolveSupplier(org)
     const slug = await this.uniqueSlug(
-      data.translations[DEFAULT_CONTENT_LOCALE].name,
+      data.translations[data.sourceLocale]!.name,
       async (s) => !!(await Product.findBy('slug', s))
     )
 
-    const product = await Product.create({ supplierId: supplier.id, slug, ...this.toColumns(data) })
+    const product = await Product.create({
+      supplierId: supplier.id,
+      slug,
+      sourceLocale: data.sourceLocale,
+      ...this.toColumns(data),
+    })
 
     await this.writeTranslations(product, data.translations)
     await this.syncFacets(product, data.attributeValueIds)
@@ -114,7 +122,7 @@ export default class SupplierProductService {
    */
   async update(
     product: Product,
-    data: SupplierProductInput,
+    data: SupplierProductUpdateInput,
     files: MultipartFile[],
     removedImageIds: number[] = []
   ): Promise<Product> {
@@ -196,7 +204,7 @@ export default class SupplierProductService {
    */
   private async queueTranslation(product: Product): Promise<void> {
     if (!product.isActive) return
-    await this.translationQueue.queue('product', product.id)
+    await this.translationQueue.queue('product', product.id, product.sourceLocale)
   }
 
   /**
@@ -221,7 +229,7 @@ export default class SupplierProductService {
   /**
    * Colonnes neutres du produit dérivées du payload (décimaux en string Lucid).
    */
-  private toColumns(data: SupplierProductInput) {
+  private toColumns(data: SupplierProductUpdateInput) {
     return {
       categoryId: data.categoryId,
       priceMin: typeof data.priceMin === 'number' ? String(data.priceMin) : null,
@@ -234,16 +242,26 @@ export default class SupplierProductService {
     }
   }
 
+  /**
+   * Écrit les langues saisies par le fournisseur. Une saisie est **manuelle** :
+   * `is_auto` repasse à `false` et la clé d'idempotence est effacée, pour que la
+   * traduction automatique ne l'écrase plus (#75).
+   */
   private async writeTranslations(
     product: Product,
-    translations: SupplierProductInput['translations']
+    translations: SupplierProductUpdateInput['translations']
   ): Promise<void> {
-    for (const locale of CONTENT_LOCALES) {
+    for (const locale of TRANSLATION_LOCALES) {
       const translation = translations[locale]
       if (!translation) continue
       await ProductTranslation.updateOrCreate(
         { productId: product.id, locale },
-        { name: translation.name, description: translation.description ?? null }
+        {
+          name: translation.name,
+          description: translation.description ?? null,
+          isAuto: false,
+          translationKey: null,
+        }
       )
     }
     await this.translationSearch.refreshForProduct(product.id)

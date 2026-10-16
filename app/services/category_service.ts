@@ -62,7 +62,7 @@ export default class CategoryService {
       synonyms: data.synonyms ?? [],
     })
     await this.writeTranslations(category, data.translations)
-    await this.translationQueue.queue('category', category.id)
+    await this.translationQueue.queue('category', category.id, category.sourceLocale)
     return category
   }
 
@@ -73,7 +73,7 @@ export default class CategoryService {
   async update(category: Category, data: UpdateCategoryInput): Promise<Category> {
     await category.merge({ parentId: data.parentId ?? null, synonyms: data.synonyms ?? [] }).save()
     await this.writeTranslations(category, data.translations)
-    await this.translationQueue.queue('category', category.id)
+    await this.translationQueue.queue('category', category.id, category.sourceLocale)
     return category
   }
 
@@ -148,7 +148,12 @@ export default class CategoryService {
       if (!translation) continue
       await CategoryTranslation.updateOrCreate(
         { categoryId: category.id, locale },
-        { name: translation.name, description: translation.description ?? null }
+        {
+          name: translation.name,
+          description: translation.description ?? null,
+          isAuto: false,
+          translationKey: null,
+        }
       )
     }
   }

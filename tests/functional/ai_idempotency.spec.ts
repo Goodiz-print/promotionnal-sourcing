@@ -9,6 +9,10 @@ import { useDatabase } from '#tests/utils/setup'
 import type EmbeddingProvider from '#services/embeddings/embedding_provider'
 import type TranslationProvider from '#services/translation/translation_provider'
 import type { MistralChatClientLike } from '#shared/types/ai'
+import {
+  createSupplierProductValidator,
+  updateSupplierProductValidator,
+} from '#validators/supplier_product'
 
 const DIMS = aiConfig.embeddings.dimensions
 
@@ -200,6 +204,60 @@ test.group('Idempotence — traductions', (group) => {
     assert.isNull(de.translation_key)
   })
 
+  test('une modification manuelle n’est plus écrasée par la traduction automatique', async ({
+    assert,
+  }) => {
+    const { provider, requested } = countingTranslator()
+    const service = new TranslationService(provider)
+    const product = await loadProduct('crayon-hb-bleu')
+    const target = {
+      entity: 'product' as const,
+      entityId: product.id,
+      sourceLocale: 'fr',
+      targetLocales: ['de', 'es'],
+    }
+
+    await service.translate(target)
+    // Saisie fournisseur : la ligne repasse en manuel (cf. writeTranslations).
+    await db
+      .from('product_translations')
+      .where('product_id', product.id)
+      .where('locale', 'de')
+      .update({ name: 'Stift saisi', is_auto: false, translation_key: null })
+    const source = await sourceRow(product.id)
+    await db.from('product_translations').where('id', source.id).update({ name: 'Crayon modifié' })
+
+    await service.translate(target)
+
+    assert.deepEqual(requested()[1], ['es'])
+    const de = await db
+      .from('product_translations')
+      .where('product_id', product.id)
+      .where('locale', 'de')
+      .first()
+    assert.equal(de.name, 'Stift saisi')
+  })
+
+  test('les lignes générées sont marquées is_auto', async ({ assert }) => {
+    const { provider } = countingTranslator()
+    const service = new TranslationService(provider)
+    const product = await loadProduct('crayon-hb-bleu')
+
+    await service.translate({
+      entity: 'product',
+      entityId: product.id,
+      sourceLocale: 'fr',
+      targetLocales: ['de'],
+    })
+
+    const de = await db
+      .from('product_translations')
+      .where('product_id', product.id)
+      .where('locale', 'de')
+      .first()
+    assert.isTrue(de.is_auto)
+  })
+
   test('sans traduction source : lève, sans appel', async ({ assert }) => {
     const { provider, calls } = countingTranslator()
     const service = new TranslationService(provider)
@@ -289,5 +347,32 @@ test.group('MistralTranslationProvider', () => {
         new MistralTranslationProvider(client('{"en":{}}')).translate({ name: 'a' }, 'fr', ['en']),
       /missing field "name" for "en"/
     )
+  })
+})
+
+test.group('Validateur produit — langue source', () => {
+  const base = {
+    categoryId: 1,
+    translations: { fr: { name: 'Crayon' } },
+  }
+
+  test('accepte une langue source et un contenu partiel', async ({ assert }) => {
+    const data = await createSupplierProductValidator.validate({ ...base, sourceLocale: 'fr' })
+    assert.equal(data.sourceLocale, 'fr')
+  })
+
+  test('refuse une langue source hors liste (ru est exclue)', async ({ assert }) => {
+    await assert.rejects(() =>
+      createSupplierProductValidator.validate({ ...base, sourceLocale: 'ru' })
+    )
+  })
+
+  test('l’édition n’accepte pas de changement de langue source', async ({ assert }) => {
+    const data = await updateSupplierProductValidator.validate({
+      categoryId: 1,
+      translations: { de: { name: 'Stift' } },
+    })
+    assert.deepEqual(Object.keys(data.translations), ['de'])
+    assert.isUndefined((data as Record<string, unknown>).sourceLocale)
   })
 })
