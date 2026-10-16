@@ -26,6 +26,7 @@ function defaultClient(): MistralClientLike {
  */
 export default class MistralEmbeddingProvider extends EmbeddingProvider {
   readonly name = 'mistral' as const
+  readonly model = aiConfig.mistral.model
 
   constructor(private client: MistralClientLike = defaultClient()) {
     super()
