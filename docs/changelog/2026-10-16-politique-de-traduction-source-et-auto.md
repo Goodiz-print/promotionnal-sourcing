@@ -24,6 +24,9 @@ marquées « auto » et corrigeables.
 - **Traduction par lot** : un seul appel IA par entité, qui renvoie toutes les
   langues cibles. Une langue déjà à jour (même clé d'idempotence) n'entre pas dans
   l'appel. Les lignes générées portent `is_auto = true`.
+- **Réponse IA** : rejetée si une langue cible ou un champ manque.
+- **Pas de relecture humaine** : la traduction machine est publiée telle quelle.
+- **Activation** : le job ne fait rien tant que `AI_TRANSLATION_ENABLED` est faux.
 - **`TranslationService`** : n'écrase jamais une ligne `is_auto = false` ; rafraîchit
   `search_vector` après chaque traduction de produit.
 - **Frontend** : sélecteur de langue source, badges « Source » / « Auto » dans le
