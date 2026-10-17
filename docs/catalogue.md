@@ -250,6 +250,10 @@ traduction dédiées** — jamais dans les tables de base :
 - Les 32 langues de #75 ne sont pas activées : `CONTENT_LOCALES` reste `fr`/`en`
   tant que l'index plein texte n'est pas étendu (#84).
 
+## Administration de la taxonomie (catégories globales)
+
+CRUD des catégories sous `/:locale/admin/categories` (`admin.categories.*`). Les catégories sont une ressource **globale** de la plateforme : l'accès est réservé aux **admins plateforme** (`users.platform_role = 'admin'`, middleware `platformAdmin` + ability `canManageCategories`), quel que soit — ou même en l'absence de — rôle d'organisation. Avant #47, le `owner`/`admin` de n'importe quelle organisation pouvait modifier la taxonomie ; c'est corrigé. Voir `docs/organisations.md` (§ Rôles : organisation vs plateforme) pour l'attribution du rôle et le reste du back-office.
+
 ## Fichiers clés
 
 | Domaine               | Chemin                                                                                                       |

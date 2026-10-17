@@ -7,6 +7,7 @@ import ProductTranslation from '#models/product_translation'
 import CategoryTranslation from '#models/category_translation'
 import TranslationProvider from '#services/translation/translation_provider'
 import aiConfig from '#config/ai'
+import { UserFactory } from '#database/factories/user_factory'
 import { useDatabase } from '#tests/utils/setup'
 import { seededDevUser } from '#tests/utils/organizations'
 
@@ -204,12 +205,12 @@ test.group('Politique de traduction — catégories', (group) => {
     app.container.swap(TranslationProvider, () => translator)
     aiConfig.translation.enabled = true
     try {
-      const owner = await seededDevUser('eurogoods-org')
+      const admin = await UserFactory.apply('platformAdmin').create()
       await client
         .post('/fr/admin/categories')
         .withInertia()
         .withCsrfToken()
-        .loginAs(owner)
+        .loginAs(admin)
         .json({
           slug: 'textile',
           sourceLocale: 'fr',

@@ -12,6 +12,12 @@ import { BaseSeeder } from '@adonisjs/lucid/seeders'
  */
 export const DEV_USER_EMAIL = 'malolebrin@gmail.com'
 
+/**
+ * Compte de démo **admin plateforme** (back-office `/admin`), sans organisation :
+ * le compte de démo ci-dessus reste volontairement un utilisateur ordinaire.
+ */
+export const DEV_ADMIN_EMAIL = 'admin@promotionnal-sourcing.test'
+
 export default class DevUserSeeder extends BaseSeeder {
   async run() {
     const ownerRole = await Role.findByOrFail('slug', 'owner')
@@ -74,5 +80,15 @@ export default class DevUserSeeder extends BaseSeeder {
     )
 
     await user.merge({ currentOrganizationId: buyerOrg.id }).save()
+
+    await User.updateOrCreate(
+      { email: DEV_ADMIN_EMAIL },
+      {
+        fullName: 'Admin Plateforme',
+        password: 'password',
+        emailVerifiedAt: DateTime.now(),
+        platformRole: 'admin',
+      }
+    )
   }
 }
