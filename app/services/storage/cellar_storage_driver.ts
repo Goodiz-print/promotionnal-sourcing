@@ -67,6 +67,10 @@ export default class CellarStorageDriver extends StorageDriver {
       endpoint: storageConfig.endpoint,
       region: storageConfig.region,
       forcePathStyle: true,
+      // Cellar n'accepte pas les checksums CRC32 ajoutés par défaut depuis le
+      // SDK v3.729 : on ne les calcule/valide que lorsque l'opération l'exige.
+      requestChecksumCalculation: 'WHEN_REQUIRED',
+      responseChecksumValidation: 'WHEN_REQUIRED',
       credentials: {
         accessKeyId: storageConfig.accessKeyId,
         secretAccessKey: storageConfig.secretAccessKey,
