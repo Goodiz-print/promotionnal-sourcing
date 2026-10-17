@@ -50,6 +50,11 @@ export interface ProductAttributeValueType {
 }
 
 /**
+ * Tri du catalogue : défaut par slug ; `price_asc` par prix du premier palier.
+ */
+export type ProductSort = 'price_asc'
+
+/**
  * Filtres du catalogue public. `attributeValueIds` combine les facettes en
  * ET fiable (un produit doit porter *toutes* les valeurs sélectionnées).
  */
@@ -94,6 +99,38 @@ export type ProductImageType = {
 }
 
 /**
+ * Variante d'un produit (rouge / L…) identifiée par son SKU. `imageId` pointe
+ * une image de la galerie (affichée quand la variante est choisie).
+ */
+export type ProductVariantType = {
+  id: number
+  sku: string
+  isActive: boolean
+  imageId: number | null
+  attributeValueIds: number[]
+}
+
+/**
+ * Variante de la fiche publique : + facettes résolues dans la locale active.
+ */
+export type ProductDetailVariantType = ProductVariantType & {
+  attributes: ProductDetailAttributeType[]
+}
+
+/**
+ * Palier de prix : à partir de `minQuantity` pièces, `unitPrice` par pièce.
+ * `variantId` null = palier du produit (toutes variantes). Décimal sérialisé
+ * en chaîne par Lucid.
+ */
+export type ProductPriceTierType = {
+  id: number
+  variantId: number | null
+  minQuantity: number
+  unitPrice: string
+  currency: string
+}
+
+/**
  * Fiche produit détaillée (catalogue public) : le produit localisé + un
  * résumé du fournisseur/catégorie et la liste des facettes résolues.
  */
@@ -103,6 +140,9 @@ export type ProductDetailType = ProductType & {
   attributes: ProductDetailAttributeType[]
   // Galerie ordonnée (par `position`). `imageUrl` reste l'image principale.
   images: ProductImageType[]
+  // Variantes actives et grille de prix dégressive.
+  variants: ProductDetailVariantType[]
+  priceTiers: ProductPriceTierType[]
 }
 
 /**
@@ -126,6 +166,28 @@ export type ProductEditType = {
   translations: Record<ContentLocale, { name: string; description: string | null; isAuto: boolean }>
   attributeValueIds: number[]
   images: ProductImageType[]
+  variants: ProductVariantType[]
+  priceTiers: ProductPriceTierType[]
+}
+
+/**
+ * Variante saisie. `imageId` : image **déjà en galerie** du produit.
+ */
+export interface ProductVariantInput {
+  sku: string
+  isActive?: boolean
+  imageId?: number | null
+  attributeValueIds?: number[]
+}
+
+/**
+ * Palier saisi. `variantSku` absent/null = palier du produit ; sinon palier de
+ * la variante portant ce SKU (résolu par le service).
+ */
+export interface ProductPriceTierInput {
+  variantSku?: string | null
+  minQuantity: number
+  unitPrice: number
 }
 
 /**
@@ -154,6 +216,8 @@ export interface SupplierProductInput {
   madeInEurope?: boolean
   isActive?: boolean
   attributeValueIds?: number[]
+  variants?: ProductVariantInput[]
+  priceTiers?: ProductPriceTierInput[]
 }
 
 /**
@@ -173,6 +237,9 @@ export interface SupplierProductUpdateInput {
   madeInEurope?: boolean
   isActive?: boolean
   attributeValueIds?: number[]
+  // Absent = inchangé ; tableau = remplace l'ensemble (variantes par SKU).
+  variants?: ProductVariantInput[]
+  priceTiers?: ProductPriceTierInput[]
 }
 
 export interface CreateProductData {

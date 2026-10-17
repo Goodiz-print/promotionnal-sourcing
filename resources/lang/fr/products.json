@@ -18,17 +18,23 @@
     "minQuantity": "Quantité minimum",
     "category": "Catégorie",
     "origin": "Pays d'origine",
-    "requestQuote": "Demander un devis"
+    "requestQuote": "Demander un devis",
+    "variants": "Variantes",
+    "priceTiers": "Prix selon la quantité",
+    "tierQuantity": "Quantité",
+    "tierPrice": "Prix unitaire",
+    "tierFrom": "À partir de {quantity} pièces"
   },
   "manage": {
     "index": {
       "title": "Mes produits",
       "empty": "Vous n'avez pas encore de produit. Créez-en un."
     },
-    "create": { "title": "Nouveau produit" },
-    "edit": { "title": "Modifier le produit" },
-    "newProduct": "Nouveau produit",
+    "create": {
+      "title": "Nouveau produit"
+    },
     "edit": "Modifier",
+    "newProduct": "Nouveau produit",
     "delete": "Supprimer",
     "save": "Enregistrer",
     "cancel": "Annuler",
@@ -60,6 +66,25 @@
       "madeInEurope": "Fabriqué en Europe",
       "isActive": "Publié",
       "images": "Ajouter des images"
+    },
+    "variants": {
+      "title": "Variantes",
+      "empty": "Aucune variante : le produit est vendu tel quel.",
+      "add": "Ajouter une variante",
+      "remove": "Retirer",
+      "sku": "SKU",
+      "image": "Image de la variante",
+      "isActive": "Variante proposée"
+    },
+    "priceTiers": {
+      "title": "Paliers de prix",
+      "hint": "Prix unitaire dégressif selon la quantité commandée. Avec des paliers, la fourchette de prix est calculée automatiquement.",
+      "add": "Ajouter un palier",
+      "remove": "Retirer",
+      "appliesTo": "S'applique à",
+      "allVariants": "Toutes les variantes",
+      "minQuantity": "À partir de (pièces)",
+      "unitPrice": "Prix unitaire"
     }
   }
 }

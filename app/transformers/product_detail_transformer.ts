@@ -4,6 +4,8 @@ import { DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
 import { resolveTranslation } from '#shared/helpers/translations'
 import ProductTransformer from '#transformers/product_transformer'
 import ProductImageTransformer from '#transformers/product_image_transformer'
+import { ProductDetailVariantTransformer } from '#transformers/product_variant_transformer'
+import ProductPriceTierTransformer from '#transformers/product_price_tier_transformer'
 import type { ProductDetailType } from '#shared/types/product'
 
 /**
@@ -11,7 +13,8 @@ import type { ProductDetailType } from '#shared/types/product'
  * un résumé fournisseur/catégorie + les facettes résolues (nom d'attribut +
  * libellé de valeur). Requiert `translations`, `supplier.translations`,
  * `category.translations`, `productAttributes.{attribute,attributeValue}.translations`
- * et `images` préchargés (voir `ProductCatalogueService.findBySlug`).
+ * et `images`, `variants.attributes.{attribute,attributeValue}.translations` (actives)
+ * et `priceTiers` préchargés (voir `ProductCatalogueService.findBySlug`).
  */
 export default class ProductDetailTransformer extends BaseTransformer<Product> {
   constructor(
@@ -46,6 +49,12 @@ export default class ProductDetailTransformer extends BaseTransformer<Product> {
           : (pa.valueString ?? pa.valueNumber ?? null),
       })),
       images: this.resource.images.map((image) => new ProductImageTransformer(image).toObject()),
+      variants: this.resource.variants.map((variant) =>
+        new ProductDetailVariantTransformer(variant, this.locale).toObject()
+      ),
+      priceTiers: this.resource.priceTiers.map((tier) =>
+        new ProductPriceTierTransformer(tier).toObject()
+      ),
     }
   }
 }

@@ -1,4 +1,5 @@
 import { Exception } from '@adonisjs/core/exceptions'
+import { errors } from '@vinejs/vine'
 
 /**
  * Produit introuvable (ou inactif) dans le catalogue public.
@@ -18,4 +19,13 @@ export class CategoryNotFoundException extends Exception {
   static status = 404
   static code = 'E_CATEGORY_NOT_FOUND'
   static message = 'Category not found'
+}
+
+/**
+ * Variantes / paliers de prix incohérents (SKU en double, palier dupliqué,
+ * valeur d'attribut inconnue…). Erreur de validation (422) rattachée au champ
+ * concerné, rendue comme les autres erreurs de formulaire Inertia.
+ */
+export function invalidVariantInput(field: string, message: string, rule: string) {
+  return new errors.E_VALIDATION_ERROR([{ field, message, rule }])
 }

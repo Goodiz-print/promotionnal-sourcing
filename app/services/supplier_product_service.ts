@@ -8,6 +8,7 @@ import Attribute from '#models/attribute'
 import AttributeValue from '#models/attribute_value'
 import ProductImage from '#models/product_image'
 import ProductImageVariant from '#models/product_image_variant'
+import ProductVariantService from '#services/product_variant_service'
 import ProductTranslation from '#models/product_translation'
 import SupplierTranslation from '#models/supplier_translation'
 import StorageService from '#services/storage/storage_service'
@@ -32,7 +33,8 @@ export default class SupplierProductService {
   constructor(
     private storage: StorageService,
     private translationQueue: TranslationQueueService,
-    private translationSearch: ProductTranslationSearchService
+    private translationSearch: ProductTranslationSearchService,
+    private variants: ProductVariantService
   ) {}
 
   /**
@@ -81,6 +83,8 @@ export default class SupplierProductService {
       .preload('translations')
       .preload('images', (images) => images.orderBy('position').preload('variants'))
       .preload('attributeValues')
+      .preload('variants', (variants) => variants.preload('attributes').orderBy('id'))
+      .preload('priceTiers', (tiers) => tiers.orderBy('minQuantity'))
       .first()
   }
 
@@ -102,13 +106,22 @@ export default class SupplierProductService {
       async (s) => !!(await Product.findBy('slug', s))
     )
 
-    const product = await Product.create({
-      supplierId: supplier.id,
-      slug,
-      sourceLocale: data.sourceLocale,
-      ...this.toColumns(data),
-      // Explicite : sans cela, `product.isActive` resterait indéfini après l'insert.
-      isActive: data.isActive ?? true,
+    // Produit + variantes + paliers dans une même transaction : une variante
+    // invalide n'abandonne pas un produit à moitié créé.
+    const product = await db.transaction(async (trx) => {
+      const created = await Product.create(
+        {
+          supplierId: supplier.id,
+          slug,
+          sourceLocale: data.sourceLocale,
+          ...this.toColumns(data),
+          // Explicite : sans cela, `product.isActive` resterait indéfini après l'insert.
+          isActive: data.isActive ?? true,
+        },
+        { client: trx }
+      )
+      await this.variants.sync(trx, created, data.variants, data.priceTiers)
+      return created
     })
 
     await this.writeTranslations(product, data.translations)
@@ -138,7 +151,11 @@ export default class SupplierProductService {
     const sourceLocale = (data.sourceLocale ?? product.sourceLocale) as ContentLocale
     await this.assertSourceExists(product, sourceLocale, data.translations?.[sourceLocale])
 
-    await product.merge({ ...this.toColumns(data), sourceLocale }).save()
+    await db.transaction(async (trx) => {
+      product.useTransaction(trx)
+      await product.merge({ ...this.toColumns(data), sourceLocale }).save()
+      await this.variants.sync(trx, product, data.variants, data.priceTiers)
+    })
     await this.writeTranslations(product, data.translations)
     if (data.attributeValueIds !== undefined) await this.syncFacets(product, data.attributeValueIds)
 

@@ -23,6 +23,28 @@ const partialLocalizedContent = () =>
 const sourceLocale = () => vine.enum(CONTENT_LOCALES)
 
 /**
+ * Variante : SKU unique par produit (contrôlé par le service), valeurs
+ * d'attribut (couleur = rouge…) et image **déjà en galerie** (édition).
+ */
+const variantInput = () =>
+  vine.object({
+    sku: vine.string().minLength(1).maxLength(100).trim(),
+    isActive: vine.boolean().optional(),
+    imageId: vine.number().positive().optional().nullable(),
+    attributeValueIds: vine.array(vine.number().positive()).optional(),
+  })
+
+/**
+ * Palier de prix dégressif : `variantSku` absent = palier du produit.
+ */
+const priceTierInput = () =>
+  vine.object({
+    variantSku: vine.string().maxLength(100).trim().optional().nullable(),
+    minQuantity: vine.number().withoutDecimals().positive(),
+    unitPrice: vine.number().positive(),
+  })
+
+/**
  * Champs communs (colonnes neutres, facettes, galerie).
  */
 const commonFields = () => ({
@@ -34,6 +56,8 @@ const commonFields = () => ({
   madeInEurope: vine.boolean().optional(),
   isActive: vine.boolean().optional(),
   attributeValueIds: vine.array(vine.number().positive()).optional(),
+  variants: vine.array(variantInput()).maxLength(100).optional(),
+  priceTiers: vine.array(priceTierInput()).maxLength(50).optional(),
   images: vine
     .array(vine.file({ size: '5mb', extnames: ['jpg', 'jpeg', 'png', 'webp'] }))
     .maxLength(8)
