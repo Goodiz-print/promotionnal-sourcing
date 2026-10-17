@@ -1,0 +1,86 @@
+{
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "organizations": "Organisations",
+    "users": "Utilisateurs",
+    "categories": "Catégories"
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant"
+  },
+  "dashboard": {
+    "title": "Administration",
+    "subtitle": "Vue d'ensemble de la plateforme.",
+    "counters": {
+      "organizations": "Organisations",
+      "users": "Utilisateurs",
+      "products": "Produits",
+      "rfqs": "Demandes de devis"
+    },
+    "archived": "{count, plural, =0 {Aucune archivée} one {# archivée} other {# archivées}}"
+  },
+  "organizations": {
+    "title": "Organisations",
+    "subtitle": "Toutes les organisations de la plateforme.",
+    "empty": "Aucune organisation ne correspond à ces filtres.",
+    "back": "← Retour aux organisations",
+    "filters": {
+      "type": "Type",
+      "allTypes": "Tous les types",
+      "status": "Statut"
+    },
+    "types": {
+      "buyer": "Acheteur",
+      "supplier": "Fournisseur",
+      "both": "Acheteur et fournisseur"
+    },
+    "status": {
+      "active": "Active",
+      "archived": "Archivée",
+      "all": "Toutes"
+    },
+    "columns": {
+      "name": "Nom",
+      "type": "Type",
+      "members": "Membres",
+      "status": "Statut"
+    },
+    "fields": {
+      "email": "Email",
+      "phone": "Téléphone",
+      "website": "Site web",
+      "siret": "SIRET",
+      "vatNumber": "N° de TVA",
+      "country": "Pays"
+    },
+    "roles": {
+      "owner": "Propriétaire",
+      "admin": "Administrateur",
+      "manager": "Responsable",
+      "member": "Membre"
+    },
+    "detail": {
+      "products": "Produits",
+      "rfqs": "Demandes de devis",
+      "contact": "Coordonnées",
+      "members": "{count, plural, one {# membre} other {# membres}}",
+      "role": "Rôle"
+    }
+  },
+  "users": {
+    "title": "Utilisateurs",
+    "subtitle": "Tous les comptes de la plateforme.",
+    "searchLabel": "Rechercher par email",
+    "searchPlaceholder": "nom@exemple.com",
+    "empty": "Aucun utilisateur ne correspond à cette recherche.",
+    "columns": {
+      "name": "Nom",
+      "email": "Email",
+      "organizations": "Organisations",
+      "status": "Statut"
+    },
+    "platformAdmin": "Admin plateforme",
+    "unverified": "Email non vérifié"
+  }
+}

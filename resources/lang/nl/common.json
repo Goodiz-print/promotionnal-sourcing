@@ -3,7 +3,8 @@
   "nav": {
     "login": "Aanmelden",
     "signup": "Registreren",
-    "logout": "Afmelden"
+    "logout": "Afmelden",
+    "admin": "Beheer"
   },
   "language": {
     "label": "Taal",

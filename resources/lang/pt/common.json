@@ -3,7 +3,8 @@
   "nav": {
     "login": "Entrar",
     "signup": "Registo",
-    "logout": "Sair"
+    "logout": "Sair",
+    "admin": "Administração"
   },
   "language": {
     "label": "Idioma",

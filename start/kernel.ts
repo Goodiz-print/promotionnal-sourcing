@@ -36,4 +36,5 @@ export const middleware = router.named({
   auth: () => import('#middleware/auth_middleware'),
   emailVerified: () => import('#middleware/email_verified_middleware'),
   onboarded: () => import('#middleware/onboarded_middleware'),
+  platformAdmin: () => import('#middleware/platform_admin_middleware'),
 })

@@ -7,8 +7,11 @@ import type { BelongsTo, HasMany, ManyToMany } from '@adonisjs/lucid/types/relat
 import Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
 import Passkey from '#models/passkey'
+import type { PlatformRole } from '#shared/types/user'
 
 export default class User extends compose(UserSchema, withAuthFinder(hash)) {
+  declare platformRole: PlatformRole
+
   @belongsTo(() => Organization, {
     foreignKey: 'currentOrganizationId',
   })
@@ -26,6 +29,14 @@ export default class User extends compose(UserSchema, withAuthFinder(hash)) {
     pivotTimestamps: false,
   })
   declare organizations: ManyToMany<typeof Organization>
+
+  /**
+   * Membre de l'équipe plateforme (back-office `/admin`), indépendamment de
+   * son rôle dans une organisation.
+   */
+  get isPlatformAdmin(): boolean {
+    return this.platformRole === 'admin'
+  }
 
   get initials() {
     const [first, last] = this.fullName ? this.fullName.split(' ') : this.email.split('@')

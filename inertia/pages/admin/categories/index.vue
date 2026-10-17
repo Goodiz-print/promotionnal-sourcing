@@ -3,6 +3,7 @@ import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import AdminNav from '~/components/admin/admin_nav.vue'
 import BaseButton from '~/components/base/base_button.vue'
 import type { CategoryAdminType } from '#shared/types/category'
 
@@ -21,7 +22,9 @@ function destroy(category: CategoryAdminType) {
 <template>
   <Head :title="t('categories.index.title')" />
 
-  <div class="mx-auto flex max-w-[960px] flex-col gap-6 px-6 py-12">
+  <div class="mx-auto flex w-full max-w-[960px] flex-col gap-6 px-6 py-12">
+    <AdminNav current="categories" />
+
     <div class="flex items-center justify-between">
       <div>
         <h1 class="text-[28px] tracking-[-0.5px]">{{ t('categories.index.title') }}</h1>

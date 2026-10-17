@@ -15,6 +15,9 @@ export interface ApiDefinition {
   locale: {
     update: typeof routes['locale.update']
   }
+  health: {
+    show: typeof routes['health.show']
+  }
   home: typeof routes['home']
   suppliers: {
     index: typeof routes['suppliers.index']
@@ -123,6 +126,14 @@ export interface ApiDefinition {
     close: typeof routes['rfqs.close']
   }
   admin: {
+    dashboard: typeof routes['admin.dashboard']
+    organizations: {
+      index: typeof routes['admin.organizations.index']
+      show: typeof routes['admin.organizations.show']
+    }
+    users: {
+      index: typeof routes['admin.users.index']
+    }
     categories: {
       index: typeof routes['admin.categories.index']
       create: typeof routes['admin.categories.create']

@@ -923,6 +923,7 @@ export class UserSchema extends BaseModel {
     'id',
     'locale',
     'password',
+    'platformRole',
     'updatedAt',
   ] as const
   $columns = UserSchema.$columns
@@ -942,6 +943,8 @@ export class UserSchema extends BaseModel {
   declare locale: string
   @column({ serializeAs: null })
   declare password: string
+  @column()
+  declare platformRole: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }

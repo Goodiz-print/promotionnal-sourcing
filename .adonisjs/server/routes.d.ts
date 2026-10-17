@@ -9,6 +9,7 @@ export type ScannedRoutes = {
     'unsubscribe': { paramsTuple?: []; params?: {} }
     'marketing.sitemap': { paramsTuple?: []; params?: {} }
     'locale.update': { paramsTuple?: []; params?: {} }
+    'health.show': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.contact': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.legal': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -78,6 +79,10 @@ export type ScannedRoutes = {
     'supplier.rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.rfqs.decline': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.organizations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -88,6 +93,7 @@ export type ScannedRoutes = {
   GET: {
     'event_stream': { paramsTuple?: []; params?: {} }
     'marketing.sitemap': { paramsTuple?: []; params?: {} }
+    'health.show': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.contact': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.legal': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -120,6 +126,10 @@ export type ScannedRoutes = {
     'rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.organizations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -127,6 +137,7 @@ export type ScannedRoutes = {
   HEAD: {
     'event_stream': { paramsTuple?: []; params?: {} }
     'marketing.sitemap': { paramsTuple?: []; params?: {} }
+    'health.show': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.contact': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.legal': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -159,6 +170,10 @@ export type ScannedRoutes = {
     'rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.organizations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }

@@ -36,6 +36,12 @@ const routes = {
     tokens: [{"old":"/locale","type":0,"val":"locale","end":""}],
     types: placeholder as Registry['locale.update']['types'],
   },
+  'health.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/health',
+    tokens: [{"old":"/health","type":0,"val":"health","end":""}],
+    types: placeholder as Registry['health.show']['types'],
+  },
   'home': {
     methods: ["GET","HEAD"],
     pattern: '/:locale',
@@ -449,6 +455,30 @@ const routes = {
     pattern: '/:locale/supplier/rfqs/:id/decline',
     tokens: [{"old":"/:locale/supplier/rfqs/:id/decline","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/rfqs/:id/decline","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/rfqs/:id/decline","type":0,"val":"rfqs","end":""},{"old":"/:locale/supplier/rfqs/:id/decline","type":1,"val":"id","end":""},{"old":"/:locale/supplier/rfqs/:id/decline","type":0,"val":"decline","end":""}],
     types: placeholder as Registry['supplier.rfqs.decline']['types'],
+  },
+  'admin.dashboard': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin',
+    tokens: [{"old":"/:locale/admin","type":1,"val":"locale","end":""},{"old":"/:locale/admin","type":0,"val":"admin","end":""}],
+    types: placeholder as Registry['admin.dashboard']['types'],
+  },
+  'admin.organizations.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/organizations',
+    tokens: [{"old":"/:locale/admin/organizations","type":1,"val":"locale","end":""},{"old":"/:locale/admin/organizations","type":0,"val":"admin","end":""},{"old":"/:locale/admin/organizations","type":0,"val":"organizations","end":""}],
+    types: placeholder as Registry['admin.organizations.index']['types'],
+  },
+  'admin.organizations.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/organizations/:id',
+    tokens: [{"old":"/:locale/admin/organizations/:id","type":1,"val":"locale","end":""},{"old":"/:locale/admin/organizations/:id","type":0,"val":"admin","end":""},{"old":"/:locale/admin/organizations/:id","type":0,"val":"organizations","end":""},{"old":"/:locale/admin/organizations/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['admin.organizations.show']['types'],
+  },
+  'admin.users.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/users',
+    tokens: [{"old":"/:locale/admin/users","type":1,"val":"locale","end":""},{"old":"/:locale/admin/users","type":0,"val":"admin","end":""},{"old":"/:locale/admin/users","type":0,"val":"users","end":""}],
+    types: placeholder as Registry['admin.users.index']['types'],
   },
   'admin.categories.index': {
     methods: ["GET","HEAD"],

@@ -631,6 +631,47 @@ lisible, plutôt que subie.
 un membre d'Acme accepte une invitation pour Beta : courante = Beta, flash
 nommant Beta, les deux adhésions conservées).
 
+## Rôles : organisation vs plateforme (#47)
+
+Deux niveaux de rôle **indépendants** :
+
+| Niveau       | Où                           | Valeurs                               | Sert à                                                         |
+| ------------ | ---------------------------- | ------------------------------------- | -------------------------------------------------------------- |
+| Organisation | `organization_users.role_id` | `owner`, `admin`, `manager`, `member` | Gérer _une_ organisation (membres, produits, RFQ…)             |
+| Plateforme   | `users.platform_role`        | `none` (défaut), `admin`              | Back-office `/admin/**` et ressources **globales** (taxonomie) |
+
+Le rôle d'organisation n'ouvre **jamais** une ressource globale : un `owner` d'organisation ordinaire reçoit un 403 sur `/admin/**`. Inversement un admin plateforme n'a besoin d'aucune adhésion (il n'est pas redirigé vers l'onboarding).
+
+- **Colonne** : `users.platform_role` enum(`none`, `admin`), défaut `none` (migration `alter_users_add_platform_role`). Constantes et type `PlatformRole` dans `shared/types/user.ts`.
+- **Modèle** : `User.platformRole` et le getter `User.isPlatformAdmin`.
+- **Ability** `isPlatformAdmin` (`app/abilities/main.ts`) ; `canManageCategories` en dépend désormais et **ne prend plus d'organisation**.
+- **Middleware** nommé `platformAdmin` (`app/middleware/platform_admin_middleware.ts`) : posé sur le groupe `/:locale/admin/**`, après `auth` et `emailVerified`, hors `onboarded`. Anonyme → connexion ; connecté sans rôle plateforme → 403.
+- **Attribution** : aucun écran, uniquement les commandes ace (via `PlatformAdminService`, idempotent, email insensible à la casse) :
+
+```bash
+node ace admin:grant  alice@example.com
+node ace admin:revoke alice@example.com
+```
+
+Sortie 1 si l'email ne correspond à aucun compte.
+
+- **Seed de démo** : `DevUserSeeder` crée `admin@promotionnal-sourcing.test` (mot de passe `password`, admin plateforme, sans organisation) ; le compte de démo `malolebrin@gmail.com` reste un utilisateur ordinaire.
+- **Menu** : `UserTransformer` expose `isPlatformAdmin` ; l'entrée « Administration » du header n'apparaît que pour eux (simple confort d'affichage : l'accès est garanti côté serveur).
+
+### Back-office minimal (`/:locale/admin`)
+
+| Route                          | Nom                         | Écran                                                                                                               |
+| ------------------------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `GET /admin`                   | `admin.dashboard`           | `admin/dashboard` — compteurs organisations (actives/archivées), utilisateurs, produits, RFQ                        |
+| `GET /admin/organizations`     | `admin.organizations.index` | liste paginée (25), filtres `type` (`buyer`/`supplier`/`both`) et `status` (`active` par défaut, `archived`, `all`) |
+| `GET /admin/organizations/:id` | `admin.organizations.show`  | fiche : coordonnées, volumes produits/RFQ, membres + rôle (404 si inconnue, archivées comprises)                    |
+| `GET /admin/users`             | `admin.users.index`         | liste paginée (25), recherche `search` partielle et insensible à la casse sur l'email (jokers `%`/`_` échappés)     |
+| `/admin/categories/**`         | `admin.categories.*`        | taxonomie, cf. `docs/catalogue.md`                                                                                  |
+
+Architecture : controllers fins dans `app/controllers/admin/`, services `AdminDashboardService` / `AdminOrganizationService` / `AdminUserService`, transformers `Admin*Transformer`, types dans `shared/types/admin.ts`, pages `inertia/pages/admin/**` et navigation dédiée `inertia/components/admin/admin_nav.vue`. Les paramètres de filtre inconnus sont ignorés (repli sur les défauts). La page liste des organisations expose sa pagination dans la prop `organizationList` (et non `organizations`, déjà prise par le sélecteur d'organisation partagé).
+
+Tests : `tests/functional/admin_platform_role.spec.ts` (accès, commandes, comptes de démo), `admin_dashboard.spec.ts`, `admin_organizations.spec.ts`, `admin_users.spec.ts`, `admin_categories.spec.ts` (non-régression owner → 403) ; `tests/inertia/admin_users.spec.ts`. Factory : `UserFactory.apply('platformAdmin')`.
+
 ## Roadmap
 
 Découpage de la Phase 2 en 4 PR :
