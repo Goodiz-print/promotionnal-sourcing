@@ -19,6 +19,11 @@ export default abstract class StorageDriver {
   abstract exists(key: string): Promise<boolean>
 
   /**
+   * Contenu de l'objet (utilisé pour dériver les variantes d'une image).
+   */
+  abstract get(key: string): Promise<Buffer>
+
+  /**
    * URL publique de l'objet.
    */
   abstract url(key: string): string

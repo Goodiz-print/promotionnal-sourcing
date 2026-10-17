@@ -1,5 +1,6 @@
 import {
   DeleteObjectCommand,
+  GetObjectCommand,
   HeadObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -43,6 +44,14 @@ export default class CellarStorageDriver extends StorageDriver {
       }
       throw error
     }
+  }
+
+  async get(key: string): Promise<Buffer> {
+    const response = await this.s3().send(
+      new GetObjectCommand({ Bucket: storageConfig.bucket, Key: key })
+    )
+    if (!response.Body) throw new Error(`Objet vide : ${key}`)
+    return Buffer.from(await response.Body.transformToByteArray())
   }
 
   url(key: string): string {

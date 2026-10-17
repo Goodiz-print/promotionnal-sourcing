@@ -7,6 +7,7 @@ import Category from '#models/category'
 import Attribute from '#models/attribute'
 import AttributeValue from '#models/attribute_value'
 import ProductImage from '#models/product_image'
+import ProductImageVariant from '#models/product_image_variant'
 import ProductTranslation from '#models/product_translation'
 import SupplierTranslation from '#models/supplier_translation'
 import StorageService from '#services/storage/storage_service'
@@ -14,6 +15,7 @@ import TranslationQueueService from '#services/translation_queue_service'
 import { missingSourceTranslation } from '#exceptions/translation_errors'
 import ProductTranslationSearchService from '#services/product_translation_search_service'
 import GenerateProductEmbeddingJob from '#jobs/generate_product_embedding_job'
+import GenerateImageVariantsJob from '#jobs/generate_image_variants_job'
 import logger from '@adonisjs/core/services/logger'
 import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
 import type Organization from '#models/organization'
@@ -64,7 +66,7 @@ export default class SupplierProductService {
     return Product.query()
       .whereHas('supplier', (supplier) => supplier.where('organizationId', org.id))
       .preload('translations')
-      .preload('images', (images) => images.orderBy('position'))
+      .preload('images', (images) => images.orderBy('position').preload('variants'))
       .orderBy('slug')
   }
 
@@ -77,7 +79,7 @@ export default class SupplierProductService {
       .where('id', productId)
       .whereHas('supplier', (supplier) => supplier.where('organizationId', org.id))
       .preload('translations')
-      .preload('images', (images) => images.orderBy('position'))
+      .preload('images', (images) => images.orderBy('position').preload('variants'))
       .preload('attributeValues')
       .first()
   }
@@ -158,11 +160,12 @@ export default class SupplierProductService {
    */
   async delete(product: Product): Promise<void> {
     const images = await product.related('images').query()
+    const objectIds = await this.galleryObjectIds(images)
 
     const tombstones = await db.transaction(async (trx) => {
       await Product.query({ client: trx }).where('id', product.id).delete()
       const ids: Array<number | null> = []
-      for (const image of images) ids.push(await this.storage.release(trx, image.storageObjectId))
+      for (const objectId of objectIds) ids.push(await this.storage.release(trx, objectId))
       return ids
     })
 
@@ -179,6 +182,7 @@ export default class SupplierProductService {
     const removed = await ProductImage.query()
       .whereIn('id', imageIds)
       .where('productId', product.id)
+    const objectIds = await this.galleryObjectIds(removed)
 
     const tombstones = await db.transaction(async (trx) => {
       await ProductImage.query({ client: trx })
@@ -188,11 +192,42 @@ export default class SupplierProductService {
         )
         .delete()
       const ids: Array<number | null> = []
-      for (const image of removed) ids.push(await this.storage.release(trx, image.storageObjectId))
+      for (const objectId of objectIds) ids.push(await this.storage.release(trx, objectId))
       return ids
     })
 
     await this.storage.dispatchDeletions(tombstones)
+  }
+
+  /**
+   * Objets Cellar portés par ces images : l'original **et** ses variantes
+   * (les lignes variantes partent en cascade avec l'image, leurs objets doivent
+   * être libérés dans la même transaction).
+   */
+  private async galleryObjectIds(images: ProductImage[]): Promise<number[]> {
+    const variants = await ProductImageVariant.query().whereIn(
+      'productImageId',
+      images.map((image) => image.id)
+    )
+    const ids = [
+      ...images.map((image) => image.storageObjectId),
+      ...variants.map((variant) => variant.storageObjectId),
+    ]
+    return ids.filter((id): id is number => id !== null)
+  }
+
+  /**
+   * Planifie la génération des variantes (carte, fiche, zoom) des images. Un
+   * échec de queue n'est pas fatal : l'original reste servi.
+   */
+  private async queueVariants(images: ProductImage[]): Promise<void> {
+    for (const image of images) {
+      try {
+        await GenerateImageVariantsJob.dispatch({ productImageId: image.id })
+      } catch (error) {
+        logger.warn({ err: error, productImageId: image.id }, 'failed to queue image variants')
+      }
+    }
   }
 
   /**
@@ -347,8 +382,9 @@ export default class SupplierProductService {
     if (files.length === 0) return
     const objects = await this.storage.storeMany(files)
 
+    let created: ProductImage[]
     try {
-      await product.related('images').createMany(
+      created = await product.related('images').createMany(
         objects.map((object, index) => ({
           secureUrl: this.storage.urlFor(object),
           storageObjectId: object.id,
@@ -359,6 +395,7 @@ export default class SupplierProductService {
       await this.storage.discard(objects.map((object) => object.id))
       throw error
     }
+    await this.queueVariants(created)
   }
 
   /**

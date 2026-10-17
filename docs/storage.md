@@ -93,6 +93,32 @@ Dans la **même transaction** que la mise à jour de la référence,
 - Si la transaction métier échoue, rien n'est écrit ; le nouvel objet tout juste
   stocké est libéré par `discard`.
 
+## Variantes d'image (miniatures)
+
+Cellar ne redimensionne rien à la volée (aucun service d'image côté Clever
+Cloud) : les variantes sont générées **à l'upload**, avec `sharp`.
+
+- Après le rattachement d'une image à un produit, `SupplierProductService`
+  dispatche `GenerateImageVariantsJob` (un par image, hors transaction). Le job
+  résout `ImageVariantService` dans `execute()` (le service importe des modèles
+  Lucid — règle DI de `CLAUDE.md`).
+- Variantes (`IMAGE_VARIANTS`, `shared/types/image_variant.ts`) : `card` 400 px,
+  `detail` 800 px, `zoom` 1600 px de large maximum, en **WebP** (qualité 80),
+  orientation EXIF appliquée, **jamais agrandies**.
+- Chaque variante est un objet `storage_objects` écrit par
+  `StorageService.storeContent` (clé déterministe, dédoublonnage, zéro orphelin)
+  et référencé par `product_image_variants` (`storage_object_id`, `ON DELETE
+RESTRICT`, ajouté à `STORAGE_REFERENCES`). La ligne variante part en cascade
+  avec son image : retirer une image ou supprimer un produit libère donc
+  l'original **et** ses variantes dans la même transaction.
+- Idempotent : une variante déjà présente n'est pas régénérée, un job rejoué
+  reprend où il s'est arrêté. Le job lit l'original via `StorageDriver.get`.
+- **Repli** : si la génération échoue (fichier illisible, Cellar indisponible),
+  3 tentatives puis erreur loggée ; le produit est déjà enregistré et le
+  frontend sert l'original (`url`) tant qu'une variante manque.
+- Le job renseigne aussi `product_images.width`/`height` (jusque-là jamais
+  remplis).
+
 ## Reprise (`RecoverStorageUploadsJob`)
 
 Toutes les heures : supprime les `pending_upload` de plus de 24 h (objet s'il

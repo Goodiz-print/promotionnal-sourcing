@@ -148,7 +148,14 @@ describe('products/show.vue', () => {
           category: { slug: 'crayon', name: 'Crayon' },
           attributes: [{ attributeSlug: 'color', attributeName: 'Couleur', label: 'Bleu' }],
           images: [
-            { id: 1, url: 'https://img.example/a.jpg', position: 0, width: 800, height: 600 },
+            {
+              id: 1,
+              url: 'https://img.example/a.jpg',
+              position: 0,
+              width: 800,
+              height: 600,
+              variants: [],
+            },
           ],
         },
       },
@@ -170,6 +177,7 @@ describe('product_gallery.vue', () => {
     position,
     width: 800,
     height: 600,
+    variants: [],
   })
 
   it('affiche l’image principale + une miniature par image', () => {
@@ -187,6 +195,43 @@ describe('product_gallery.vue', () => {
     // 1 image principale + 2 miniatures.
     expect(wrapper.findAll('img')).toHaveLength(3)
     expect(wrapper.findAll('button')).toHaveLength(2)
+  })
+
+  it('sert les variantes (fiche en grand, carte en miniature) quand elles existent', () => {
+    const wrapper = mount(ProductGallery, {
+      props: {
+        images: [
+          {
+            ...image(1, 'https://img.example/a.jpg', 0),
+            variants: [
+              {
+                name: 'card' as const,
+                url: 'https://img.example/a-card.webp',
+                width: 400,
+                height: 300,
+              },
+              {
+                name: 'detail' as const,
+                url: 'https://img.example/a-detail.webp',
+                width: 800,
+                height: 600,
+              },
+            ],
+          },
+          image(2, 'https://img.example/b.jpg', 1),
+        ],
+        fallbackUrl: null,
+        alt: 'Produit',
+      },
+    })
+
+    const sources = wrapper.findAll('img').map((img) => img.attributes('src'))
+    // Image principale puis miniatures : l'image 2 n'a pas de variante → original.
+    expect(sources).toEqual([
+      'https://img.example/a-detail.webp',
+      'https://img.example/a-card.webp',
+      'https://img.example/b.jpg',
+    ])
   })
 
   it('se replie sur fallbackUrl quand la galerie est vide', () => {
