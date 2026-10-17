@@ -1,6 +1,7 @@
 import type { ContentLocale, Locale } from './i18n.js'
 import type { CategoryType } from './category.js'
 import type { AttributeWithValuesType } from './attribute.js'
+import type { ImageVariantType } from './image_variant.js'
 
 /**
  * Traduction d'un produit (une ligne par locale).
@@ -88,6 +89,8 @@ export type ProductImageType = {
   position: number
   width: number | null
   height: number | null
+  // Variantes redimensionnées disponibles (vide tant que le job n'a pas tourné).
+  variants: ImageVariantType[]
 }
 
 /**

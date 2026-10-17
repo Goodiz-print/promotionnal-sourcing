@@ -59,8 +59,25 @@ export default class StorageService {
    * Stocke un fichier (ou réutilise l'objet identique déjà stocké).
    */
   async store(file: MultipartFile): Promise<StorageObject> {
-    const upload = await this.prepare(file)
+    return this.storeUpload(await this.prepare(file))
+  }
 
+  /**
+   * Stocke un contenu produit par l'application (ex. variante d'image) — mêmes
+   * garanties que `store` : clé déterministe, dédoublonnage, zéro orphelin.
+   */
+  storeContent(content: Buffer, extension: string, mimeType: string): Promise<StorageObject> {
+    const checksum = createHash('sha256').update(content).digest('hex')
+    return this.storeUpload({
+      key: this.keyFor(checksum, extension),
+      checksum,
+      mimeType,
+      size: content.length,
+      content,
+    })
+  }
+
+  private async storeUpload(upload: PreparedUpload): Promise<StorageObject> {
     const existing = await StorageObject.query()
       .where('key', upload.key)
       .where('status', 'ready')

@@ -166,7 +166,9 @@ Un produit porte une **galerie** d'images ordonnées, hébergées sur Cellar (vo
   produit fournisseur.
 - **Affichage** : `ProductDetailTransformer` expose `images` (triées par `position`) ;
   fiche `inertia/pages/products/show.vue` via `inertia/components/product_gallery.vue`
-  (image principale + miniatures, repli sur `imageUrl`).
+  (image principale + miniatures, repli sur `imageUrl`). L'image principale sert la
+  variante `detail` et les miniatures la variante `card` quand elles existent,
+  sinon l'original (voir « Variantes d'image » dans [`storage.md`](storage.md)).
 
 ## Gestion produit fournisseur (CRUD + upload)
 

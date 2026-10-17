@@ -84,7 +84,7 @@ export default class ProductCatalogueService {
       .where('isActive', true)
       .withScopes((scopes) => scopes.fromLiveOrganization())
       .preload('translations')
-      .preload('images', (images) => images.orderBy('position'))
+      .preload('images', (images) => images.orderBy('position').preload('variants'))
       .preload('supplier', (supplier) => supplier.preload('translations'))
       .preload('category', (category) => category.preload('translations'))
       .preload('productAttributes', (pa) =>

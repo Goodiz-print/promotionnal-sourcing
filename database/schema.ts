@@ -396,6 +396,39 @@ export class ProductAttributeSchema extends BaseModel {
   declare valueString: string | null
 }
 
+export class ProductImageVariantSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'height',
+    'id',
+    'name',
+    'productImageId',
+    'storageObjectId',
+    'updatedAt',
+    'url',
+    'width',
+  ] as const
+  $columns = ProductImageVariantSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare height: number
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column()
+  declare productImageId: number
+  @column()
+  declare storageObjectId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare url: string
+  @column()
+  declare width: number
+}
+
 export class ProductImageSchema extends BaseModel {
   static $columns = [
     'createdAt',
