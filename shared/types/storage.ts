@@ -16,6 +16,8 @@ export const STORAGE_REFERENCES = [
   { table: 'product_images', column: 'storage_object_id' },
   { table: 'product_image_variants', column: 'storage_object_id' },
   { table: 'organizations', column: 'logo_storage_object_id' },
+  { table: 'organization_documents', column: 'storage_object_id' },
+  { table: 'product_documents', column: 'storage_object_id' },
 ] as const
 
 /**

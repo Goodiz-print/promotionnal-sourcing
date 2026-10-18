@@ -130,3 +130,15 @@ de purge s'est perdu. Ne touche **jamais** une ligne `ready`.
 `tests/functional/storage.spec.ts`. Le client Cellar est remplacé par
 `FakeStorageDriver` (`tests/utils/storage.ts`) via
 `container.swap(StorageDriver, …)` (`useFakeStorage(group)`).
+
+## Documents PDF (#60)
+
+- **Tables** : `organization_documents` (catalogue, certificat, autre) et `product_documents` (fiche technique). Toutes deux référencent `storage_objects` et figurent dans `STORAGE_REFERENCES`.
+- **Flux** : `DocumentService.addTo…` lit le PDF, le compresse via `PdfService`, puis le stocke par `StorageService.storeContent` (clé déterministe, `application/pdf`).
+- **Compression** : `gs -sDEVICE=pdfwrite -dPDFSETTINGS=/ebook`, derrière la classe abstraite `GhostscriptRunner`. Si `gs` est absent, échoue ou n'allège pas le fichier : PDF original, warning loggé.
+- **Retrait** : `removeOrganizationDocument` / `removeProductDocument` suppriment la ligne et libèrent le fichier dans la même transaction, puis planifient la purge.
+- **Routes** (groupe authentifié et `onboarded`, `start/routes/documents.ts`) :
+  - `POST /fr/supplier/profile/documents` (champs `kind`, `file`) et `DELETE /fr/supplier/profile/documents/:id` — droits `canManageSupplierProfile`.
+  - `POST /fr/supplier/products/:id/documents` (champ `file`) et `DELETE /fr/supplier/products/:id/documents/:documentId` — droits `canManageProducts`.
+- **Validation** : PDF uniquement, 20 Mo maximum (`app/validators/document.ts`), et en-tête `%PDF-` vérifié au contenu.
+- **Non couvert** : interfaces (profil, annuaire public, formulaire produit).

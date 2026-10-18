@@ -16,6 +16,7 @@ import {
   signupThrottle,
 } from '#start/limiter'
 import { registerRfqRoutes } from '#start/routes/rfqs'
+import { registerDocumentRoutes } from '#start/routes/documents'
 import { registerHealthRoutes } from '#start/routes/health'
 import { registerMarketingRoutes, registerMarketingLegacyRoutes } from '#start/routes/marketing'
 import { LOCALE_ROUTE_PATTERN } from '#shared/types/i18n'
@@ -240,6 +241,9 @@ router
                 router
                   .delete('supplier/products/:id', [controllers.supplier.Product, 'destroy'])
                   .as('supplier.products.destroy')
+
+                // Documents PDF (profil et fiches produit) — cf. `start/routes/documents.ts`.
+                registerDocumentRoutes()
 
                 // Demandes de devis, acheteur et fournisseur — cf. `start/routes/rfqs.ts`.
                 registerRfqRoutes()
