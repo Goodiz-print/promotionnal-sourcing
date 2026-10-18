@@ -130,3 +130,11 @@ de purge s'est perdu. Ne touche **jamais** une ligne `ready`.
 `tests/functional/storage.spec.ts`. Le client Cellar est remplacé par
 `FakeStorageDriver` (`tests/utils/storage.ts`) via
 `container.swap(StorageDriver, …)` (`useFakeStorage(group)`).
+
+## Documents PDF (#60)
+
+- **Tables** : `organization_documents` (catalogue, certificat, autre) et `product_documents` (fiche technique). Toutes deux référencent `storage_objects` et figurent dans `STORAGE_REFERENCES`.
+- **Flux** : `DocumentService.addTo…` lit le PDF, le compresse via `PdfService`, puis le stocke par `StorageService.storeContent` (clé déterministe, `application/pdf`).
+- **Compression** : `gs -sDEVICE=pdfwrite -dPDFSETTINGS=/ebook`, derrière la classe abstraite `GhostscriptRunner`. Si `gs` est absent, échoue ou n'allège pas le fichier : PDF original, warning loggé.
+- **Retrait** : `removeOrganizationDocument` / `removeProductDocument` suppriment la ligne et libèrent le fichier dans la même transaction, puis planifient la purge.
+- **Non couvert** : interfaces (profil, annuaire, formulaire produit), routes HTTP.

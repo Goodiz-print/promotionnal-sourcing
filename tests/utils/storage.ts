@@ -84,7 +84,13 @@ export async function uploadedFile(
   await mkdir(directory, { recursive: true })
   const tmpPath = `${directory}/${randomUUID()}.${extension}`
   await writeFile(tmpPath, content)
-  return { tmpPath, extname: extension, type: 'image', subtype: extension } as MultipartFile
+  return {
+    tmpPath,
+    clientName: `upload.${extension}`,
+    extname: extension,
+    type: 'image',
+    subtype: extension,
+  } as MultipartFile
 }
 
 export function sha256(content: string): string {

@@ -26,13 +26,14 @@ Les fichiers (galerie produit, logos…) sont stockés sur Cellar. Détail et in
 - **Clé déterministe imposée** : `promotionnal-sourcing/<NODE_ENV>/<sha256>.<ext>` — jamais de nom aléatoire (casserait le dédoublonnage).
 - **Zéro orphelin** : registre `storage_objects` (`pending_upload` → `ready` → `pending_delete`). Tout upload passe par `StorageService.store`, tout remplacement/suppression de référence par `StorageService.release` **dans la transaction** qui met la référence à jour. Toute nouvelle colonne qui référence un fichier s'ajoute à `STORAGE_REFERENCES` (`shared/types/storage.ts`).
 
-### Ghostscript (compression PDF) — _prévu, non encore implémenté_
+### Ghostscript (compression PDF)
 
-> ⚠️ Cible : compresser les PDFs uploadés (`-dPDFSETTINGS=/ebook`) avant envoi sur Cellar via un futur `app/services/pdf_service.ts`. **Ce service n'existe pas encore.**
+Les documents PDF des fournisseurs (catalogue, certificat, fiche technique) sont compressés avant stockage : `app/services/pdf_service.ts` appelle `gs -sDEVICE=pdfwrite -dPDFSETTINGS=/ebook` via la classe abstraite `GhostscriptRunner` (liée dans `providers/pdf_provider.ts`).
 
 - **Local** : `brew install ghostscript`
 - **Docker/prod** : `apt-get install -y ghostscript` dans le Dockerfile
-- **Fallback** prévu : si `gs` n'est pas disponible, envoyer le PDF original sans compression (warning loggé, pas de crash)
+- **Repli** : si `gs` est absent, échoue ou n'allège pas le fichier, le PDF original est stocké avec un warning loggé. Jamais de crash.
+- **Stockage** : via `DocumentService` → `StorageService` (Cellar), comme les autres fichiers.
 
 ## Conventions de code
 

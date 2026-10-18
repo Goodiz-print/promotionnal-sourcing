@@ -368,6 +368,36 @@ export class NotificationSchema extends BaseModel {
   declare userId: number
 }
 
+export class OrganizationDocumentSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'id',
+    'kind',
+    'organizationId',
+    'originalName',
+    'sizeBytes',
+    'storageObjectId',
+    'updatedAt',
+  ] as const
+  $columns = OrganizationDocumentSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare kind: string
+  @column()
+  declare organizationId: number
+  @column()
+  declare originalName: string
+  @column()
+  declare sizeBytes: number
+  @column()
+  declare storageObjectId: number | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class OrganizationInvitationSchema extends BaseModel {
   static $columns = [
     'createdAt',
@@ -575,6 +605,33 @@ export class ProductAttributeSchema extends BaseModel {
   declare valueNumber: string | null
   @column()
   declare valueString: string | null
+}
+
+export class ProductDocumentSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'id',
+    'originalName',
+    'productId',
+    'sizeBytes',
+    'storageObjectId',
+    'updatedAt',
+  ] as const
+  $columns = ProductDocumentSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare originalName: string
+  @column()
+  declare productId: number
+  @column()
+  declare sizeBytes: number
+  @column()
+  declare storageObjectId: number | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
 }
 
 export class ProductImageVariantSchema extends BaseModel {
