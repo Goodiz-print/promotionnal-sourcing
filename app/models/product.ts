@@ -8,6 +8,7 @@ import AttributeValue from '#models/attribute_value'
 import ProductAttribute from '#models/product_attribute'
 import ProductTranslation from '#models/product_translation'
 import type { TranslationLocale } from '#shared/types/i18n'
+import { latestDecisionIsRejectedSql } from '#shared/helpers/moderation'
 import ProductImage from '#models/product_image'
 import ProductVariant from '#models/product_variant'
 import ProductPriceTier from '#models/product_price_tier'
@@ -20,14 +21,24 @@ export default class Product extends ProductSchema {
 
   /**
    * Pendant de `Supplier.fromLiveOrganization` : masque les produits dont la
-   * fiche fournisseur appartient à une organisation archivée.
+   * fiche fournisseur appartient à une organisation archivée **ou rejetée** (#54).
    */
   static fromLiveOrganization = scope((query: ModelQueryBuilderContract<typeof Product>) => {
     query.whereHas('supplier', (supplier) =>
       supplier.whereDoesntHave('organization', (organization) =>
-        organization.whereNotNull('archivedAt')
+        organization
+          .whereNotNull('archivedAt')
+          .orWhereRaw(latestDecisionIsRejectedSql('organization', 'organizations.id'))
       )
     )
+  })
+
+  /**
+   * Visible du public : la dernière décision de modération n'est pas un rejet.
+   * Une cible sans décision (`pending`) reste visible (#54).
+   */
+  static notRejected = scope((query: ModelQueryBuilderContract<typeof Product>) => {
+    query.whereRaw(`NOT ${latestDecisionIsRejectedSql('product', 'products.id')}`)
   })
 
   @hasMany(() => ProductTranslation)

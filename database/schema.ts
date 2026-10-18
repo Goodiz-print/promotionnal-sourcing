@@ -187,6 +187,187 @@ export class CategoryTranslationSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class ConversationReadSchema extends BaseModel {
+  static $columns = [
+    'conversationId',
+    'createdAt',
+    'id',
+    'lastReadMessageId',
+    'readAt',
+    'updatedAt',
+    'userId',
+  ] as const
+  $columns = ConversationReadSchema.$columns
+  @column()
+  declare conversationId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare lastReadMessageId: number | null
+  @column.dateTime()
+  declare readAt: DateTime
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: number
+}
+
+export class ConversationSchema extends BaseModel {
+  static $columns = [
+    'buyerOrganizationId',
+    'createdAt',
+    'createdByUserId',
+    'id',
+    'rfqId',
+    'subject',
+    'supplierOrganizationId',
+    'updatedAt',
+  ] as const
+  $columns = ConversationSchema.$columns
+  @column()
+  declare buyerOrganizationId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdByUserId: number | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare rfqId: number | null
+  @column()
+  declare subject: string | null
+  @column()
+  declare supplierOrganizationId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class ImportJobSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'createdByUserId',
+    'errorCount',
+    'errors',
+    'finishedAt',
+    'id',
+    'kind',
+    'organizationId',
+    'processedRows',
+    'sourceStorageObjectId',
+    'startedAt',
+    'status',
+    'totalRows',
+    'updatedAt',
+  ] as const
+  $columns = ImportJobSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdByUserId: number | null
+  @column()
+  declare errorCount: number
+  @column()
+  declare errors: any
+  @column.dateTime()
+  declare finishedAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare kind: string
+  @column()
+  declare organizationId: number
+  @column()
+  declare processedRows: number
+  @column()
+  declare sourceStorageObjectId: number | null
+  @column.dateTime()
+  declare startedAt: DateTime | null
+  @column()
+  declare status: string
+  @column()
+  declare totalRows: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class MessageSchema extends BaseModel {
+  static $columns = [
+    'authorUserId',
+    'body',
+    'conversationId',
+    'createdAt',
+    'id',
+    'updatedAt',
+  ] as const
+  $columns = MessageSchema.$columns
+  @column()
+  declare authorUserId: number | null
+  @column()
+  declare body: string
+  @column()
+  declare conversationId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class ModerationDecisionSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'decidedAt',
+    'decidedByUserId',
+    'id',
+    'reason',
+    'status',
+    'targetId',
+    'targetType',
+    'updatedAt',
+  ] as const
+  $columns = ModerationDecisionSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare decidedAt: DateTime
+  @column()
+  declare decidedByUserId: number | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare reason: string | null
+  @column()
+  declare status: string
+  @column()
+  declare targetId: number
+  @column()
+  declare targetType: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class NotificationSchema extends BaseModel {
+  static $columns = ['createdAt', 'data', 'id', 'readAt', 'type', 'updatedAt', 'userId'] as const
+  $columns = NotificationSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare data: any
+  @column({ isPrimary: true })
+  declare id: number
+  @column.dateTime()
+  declare readAt: DateTime | null
+  @column()
+  declare type: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: number
+}
+
 export class OrganizationInvitationSchema extends BaseModel {
   static $columns = [
     'createdAt',
