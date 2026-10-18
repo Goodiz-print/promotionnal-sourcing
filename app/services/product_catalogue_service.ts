@@ -45,7 +45,10 @@ export default class ProductCatalogueService {
 
     const query = Product.query()
       .where('isActive', true)
-      .withScopes((scopes) => scopes.fromLiveOrganization())
+      .withScopes((scopes) => {
+        scopes.fromLiveOrganization()
+        scopes.notRejected()
+      })
       .if(categoryId, (q) => q.where('categoryId', categoryId!))
       .if(madeInEurope, (q) => q.where('madeInEurope', true))
       .if(attributeValueIds.length > 0, (q) => {
@@ -92,7 +95,10 @@ export default class ProductCatalogueService {
     return Product.query()
       .where('slug', slug)
       .where('isActive', true)
-      .withScopes((scopes) => scopes.fromLiveOrganization())
+      .withScopes((scopes) => {
+        scopes.fromLiveOrganization()
+        scopes.notRejected()
+      })
       .preload('translations')
       .preload('images', (images) => images.orderBy('position').preload('variants'))
       .preload('variants', (variants) =>

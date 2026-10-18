@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import RealtimeService from '#services/realtime_service'
 import { NotificationFactory } from '#database/factories/notification_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import NotificationService from '#services/notification_service'
@@ -13,7 +14,7 @@ test.group('Notifications in-app', (group) => {
 
   test('notify crée une notification non lue pour le destinataire', async ({ assert }) => {
     const user = await UserFactory.create()
-    const service = new NotificationService()
+    const service = new NotificationService(new RealtimeService())
 
     const notification = await service.notify(user, 'rfq.received', { rfqId: 12 })
 
@@ -25,7 +26,7 @@ test.group('Notifications in-app', (group) => {
 
   test('notify refuse un type inconnu, sans rien écrire', async ({ assert }) => {
     const user = await UserFactory.create()
-    const service = new NotificationService()
+    const service = new NotificationService(new RealtimeService())
 
     await assert.rejects(
       () => service.notify(user, 'inconnu' as never),
@@ -41,13 +42,13 @@ test.group('Notifications in-app', (group) => {
     await NotificationFactory.merge({ userId: user.id }).apply('read').create()
     await NotificationFactory.merge({ userId: other.id }).create()
 
-    assert.equal(await new NotificationService().unreadCount(user), 2)
+    assert.equal(await new NotificationService(new RealtimeService()).unreadCount(user), 2)
   })
 
   test('markRead est idempotent et conserve la première date de lecture', async ({ assert }) => {
     const user = await UserFactory.create()
     const notification = await NotificationFactory.merge({ userId: user.id }).create()
-    const service = new NotificationService()
+    const service = new NotificationService(new RealtimeService())
 
     const first = await service.markRead(user, notification.id)
     const firstReadAt = first.readAt?.toMillis()
@@ -65,7 +66,7 @@ test.group('Notifications in-app', (group) => {
     const notification = await NotificationFactory.merge({ userId: owner.id }).create()
 
     await assert.rejects(
-      () => new NotificationService().markRead(intruder, notification.id),
+      () => new NotificationService(new RealtimeService()).markRead(intruder, notification.id),
       NotificationNotFoundException
     )
   })
@@ -75,7 +76,7 @@ test.group('Notifications in-app', (group) => {
     const other = await UserFactory.create()
     await NotificationFactory.merge({ userId: user.id }).createMany(3)
     await NotificationFactory.merge({ userId: other.id }).create()
-    const service = new NotificationService()
+    const service = new NotificationService(new RealtimeService())
 
     await service.markAllRead(user)
 
@@ -88,7 +89,7 @@ test.group('Notifications in-app', (group) => {
     await NotificationFactory.merge({ userId: user.id }).create()
     await NotificationFactory.merge({ userId: user.id }).create()
     const newest = await NotificationFactory.merge({ userId: user.id }).apply('read').create()
-    const service = new NotificationService()
+    const service = new NotificationService(new RealtimeService())
 
     const all = await service.listFor(user)
     const unread = await service.listFor(user, { unreadOnly: true })

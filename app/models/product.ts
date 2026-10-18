@@ -30,6 +30,25 @@ export default class Product extends ProductSchema {
     )
   })
 
+  /**
+   * Visible du public : la dernière décision de modération n'est pas un rejet.
+   * Une cible sans décision (`pending`) reste visible (#54).
+   */
+  static notRejected = scope((query: ModelQueryBuilderContract<typeof Product>) => {
+    query.whereRaw(
+      `NOT EXISTS (
+         SELECT 1 FROM moderation_decisions md
+         WHERE md.target_type = 'product' AND md.target_id = products.id
+           AND md.status = 'rejected'
+           AND md.id = (
+             SELECT m.id FROM moderation_decisions m
+             WHERE m.target_type = 'product' AND m.target_id = products.id
+             ORDER BY m.decided_at DESC, m.id DESC LIMIT 1
+           )
+       )`
+    )
+  })
+
   @hasMany(() => ProductTranslation)
   declare translations: HasMany<typeof ProductTranslation>
 

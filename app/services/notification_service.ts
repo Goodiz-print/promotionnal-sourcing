@@ -1,6 +1,7 @@
 import { inject } from '@adonisjs/core'
 import { DateTime } from 'luxon'
 import Notification from '#models/notification'
+import RealtimeService from '#services/realtime_service'
 import User from '#models/user'
 import {
   NotificationNotFoundException,
@@ -27,6 +28,8 @@ interface ListOptions {
  */
 @inject()
 export default class NotificationService {
+  constructor(private realtime: RealtimeService) {}
+
   /**
    * Crée une notification pour `user`. Le type doit appartenir à `NOTIFICATION_TYPES`.
    */
@@ -38,7 +41,13 @@ export default class NotificationService {
     if (!(NOTIFICATION_TYPES as readonly string[]).includes(type)) {
       throw new UnknownNotificationTypeException()
     }
-    return Notification.create({ userId: user.id, type, data, readAt: null })
+    const notification = await Notification.create({ userId: user.id, type, data, readAt: null })
+    this.realtime.notifyUser(user.id, {
+      type: 'notification.created',
+      notificationId: notification.id,
+      notificationType: type,
+    })
+    return notification
   }
 
   /** Notifications de l'utilisateur, les plus récentes d'abord. */

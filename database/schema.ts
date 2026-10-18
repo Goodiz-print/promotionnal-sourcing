@@ -187,6 +187,33 @@ export class CategoryTranslationSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class ConversationReadSchema extends BaseModel {
+  static $columns = [
+    'conversationId',
+    'createdAt',
+    'id',
+    'lastReadMessageId',
+    'readAt',
+    'updatedAt',
+    'userId',
+  ] as const
+  $columns = ConversationReadSchema.$columns
+  @column()
+  declare conversationId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare lastReadMessageId: number | null
+  @column.dateTime()
+  declare readAt: DateTime
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: number
+}
+
 export class ConversationSchema extends BaseModel {
   static $columns = [
     'buyerOrganizationId',

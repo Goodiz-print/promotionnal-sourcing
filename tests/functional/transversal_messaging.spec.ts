@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import RealtimeService from '#services/realtime_service'
 import { ConversationFactory } from '#database/factories/conversation_factory'
 import Conversation from '#models/conversation'
 import { OrganizationFactory } from '#database/factories/organization_factory'
@@ -30,7 +31,7 @@ test.group('Messagerie acheteur ↔ fournisseur', (group) => {
     assert,
   }) => {
     const { buyer, supplier, buyerUser } = await fixtures()
-    const service = new ConversationService()
+    const service = new ConversationService(new RealtimeService())
 
     const conversation = await service.start({
       buyerOrganizationId: buyer.id,
@@ -50,7 +51,7 @@ test.group('Messagerie acheteur ↔ fournisseur', (group) => {
   }) => {
     const { buyer, supplier, buyerUser, supplierUser } = await fixtures()
     const outsider = await UserFactory.create()
-    const service = new ConversationService()
+    const service = new ConversationService(new RealtimeService())
     const conversation = await service.start({
       buyerOrganizationId: buyer.id,
       supplierOrganizationId: supplier.id,
@@ -74,7 +75,7 @@ test.group('Messagerie acheteur ↔ fournisseur', (group) => {
 
     await assert.rejects(
       () =>
-        new ConversationService().start({
+        new ConversationService(new RealtimeService()).start({
           buyerOrganizationId: buyer.id,
           supplierOrganizationId: supplier.id,
           author: outsider,
@@ -86,7 +87,7 @@ test.group('Messagerie acheteur ↔ fournisseur', (group) => {
 
   test('un corps vide ou trop long est refusé', async ({ assert }) => {
     const { buyer, supplier, buyerUser } = await fixtures()
-    const service = new ConversationService()
+    const service = new ConversationService(new RealtimeService())
     const conversation = await service.start({
       buyerOrganizationId: buyer.id,
       supplierOrganizationId: supplier.id,
@@ -109,7 +110,7 @@ test.group('Messagerie acheteur ↔ fournisseur', (group) => {
   }) => {
     const { buyer, supplier, buyerUser } = await fixtures()
     const rfq = await RfqFactory.merge({ buyerOrganizationId: buyer.id }).create()
-    const conversation = await new ConversationService().start({
+    const conversation = await new ConversationService(new RealtimeService()).start({
       buyerOrganizationId: buyer.id,
       supplierOrganizationId: supplier.id,
       author: buyerUser,

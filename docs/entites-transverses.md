@@ -30,7 +30,9 @@ dans `shared/types/`, pas dans le schéma.
 - `readAt` : lue ou non. `markRead` est idempotent et ne déplace pas la date de lecture.
 - Lecture stricte : une notification d'un autre utilisateur donne une erreur 404,
   comme une notification inexistante.
-- **Non couvert** : l'envoi temps réel (Transmit). Il se branchera sur `notify`.
+- **Temps réel** : chaque notification est diffusée sur `notifications/users/:userId`
+  (événement `notification.created`, sans contenu : l'id et le type). Seul son
+  destinataire peut s'abonner à ce canal.
 
 ## Messagerie (#8)
 
@@ -38,7 +40,11 @@ dans `shared/types/`, pas dans le schéma.
   être rattaché à une RFQ ; si la RFQ disparaît, le fil reste (`rfq_id` passe à `NULL`).
 - Seuls les **membres** des deux organisations peuvent lire ou écrire
   (`ConversationService.assertParticipant`).
-- **Non couvert** : suivi de lecture par participant. Il fera l'objet d'une table dédiée.
+- **Temps réel** : chaque message est diffusé sur `conversations/:id` (événement
+  `message.posted`). Seuls les membres des deux organisations peuvent s'abonner.
+- **Suivi de lecture** (`conversation_reads`) : un dernier message lu par participant.
+  `markRead` est idempotent. `unreadCount` compte les messages postérieurs à la
+  lecture et écrits par d'autres. Les messages propres ne sont jamais non lus.
 
 ## Imports (#49, #77)
 
@@ -56,12 +62,19 @@ dans `shared/types/`, pas dans le schéma.
   courant est la dernière décision ; sans décision, la cible est `pending`.
 - Table polymorphe (`target_type` / `target_id`) : pas de clé étrangère, donc une
   cible supprimée garde son historique.
-- Ce service ne décide pas quoi modérer. Brancher une cible = consulter
-  `currentStatus` avant d'afficher ou de publier.
+- Effet implémenté sur le **catalogue public** : un produit dont la dernière
+  décision est `rejected` disparaît de la liste et de la fiche (`Product.notRejected`).
+  Il reste visible de son fournisseur, pour qu'il puisse corriger.
+- Un produit `pending` (sans décision) reste visible. Voir les questions ouvertes.
+
+## Temps réel : limite d'infrastructure
+
+Le transport Transmit est en mémoire (`config/transmit.ts`). Une notification n'atteint
+que les navigateurs connectés à **la même instance** web. Avec plusieurs instances en
+production, il faudra un transport partagé (Redis) avant de passer à l'échelle horizontale.
 
 ## Pistes et questions ouvertes
 
-- Suivi de lecture des messages (table dédiée, par participant).
-- Modération des organisations et des produits : quelles règles de publication
-  dépendent du statut ?
-- Imports : quel format d'erreur voulu pour l'export côté fournisseur ?
+- Modération : les produits `pending` restent-ils visibles, ou seulement les `approved` ?
+- Modération des organisations : même effet (organisation rejetée masquée) ?
+- Imports : propositions d'export des erreurs, voir la PR associée.
