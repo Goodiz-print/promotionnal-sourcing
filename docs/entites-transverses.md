@@ -52,6 +52,10 @@ dans `shared/types/`, pas dans le schéma.
   lève `ImportJobStateException`.
 - Les erreurs de ligne sont stockées en JSON, bornées à `IMPORT_MAX_STORED_ERRORS`
   (100). `errorCount` reste exact au-delà. L'échec global est consigné en ligne 0.
+- **Export CSV** (`ImportJobService.errorsToCsv`) : séparateur `;`, en-tête
+  `ligne;colonne;message;valeur_recue`. Les valeurs commençant par `=`, `+`, `-` ou `@`
+  sont neutralisées (injection de formules Excel).
+- Le téléchargement HTTP n'est pas encore exposé : il viendra avec l'écran d'import.
 - Un import échoué ne se relance pas : on crée un nouveau job.
 - **Limite** : `recordRow` écrit une fois par ligne. Au-delà de quelques milliers
   de lignes, il faudra regrouper les écritures.
@@ -65,7 +69,11 @@ dans `shared/types/`, pas dans le schéma.
 - Effet implémenté sur le **catalogue public** : un produit dont la dernière
   décision est `rejected` disparaît de la liste et de la fiche (`Product.notRejected`).
   Il reste visible de son fournisseur, pour qu'il puisse corriger.
-- Un produit `pending` (sans décision) reste visible. Voir les questions ouvertes.
+- Un produit `pending` (sans décision) reste visible : les produits sont actifs à la
+  création, la modération retire, elle ne valide pas.
+- Une **organisation rejetée** masque ses produits et sa fiche fournisseur, dans le
+  catalogue et l'annuaire (`Product.fromLiveOrganization`, `Supplier.fromLiveOrganization`).
+  Elle ne peut donc plus afficher ses produits au public.
 
 ## Temps réel : limite d'infrastructure
 
@@ -73,8 +81,7 @@ Le transport Transmit est en mémoire (`config/transmit.ts`). Une notification n
 que les navigateurs connectés à **la même instance** web. Avec plusieurs instances en
 production, il faudra un transport partagé (Redis) avant de passer à l'échelle horizontale.
 
-## Pistes et questions ouvertes
+## Questions ouvertes
 
-- Modération : les produits `pending` restent-ils visibles, ou seulement les `approved` ?
-- Modération des organisations : même effet (organisation rejetée masquée) ?
-- Imports : propositions d'export des erreurs, voir la PR associée.
+- Modération des organisations : traitée (voir plus haut). Reste à décider si une
+  organisation `pending` est visible (aujourd'hui oui, comme les produits).

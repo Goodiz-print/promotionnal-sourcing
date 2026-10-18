@@ -18,6 +18,14 @@ export type ImportStatus = (typeof IMPORT_STATUSES)[number]
 export const IMPORT_MAX_STORED_ERRORS = 100
 
 export interface ImportRowError {
+  /** Numéro de ligne dans le fichier (1 = première ligne de données), 0 = fichier entier. */
   row: number
   message: string
+  /** Colonne en cause, si connue. */
+  column?: string | null
+  /** Valeur reçue, telle quelle, pour que le fournisseur la corrige. */
+  receivedValue?: string | null
 }
+
+/** En-tête de l'export CSV des erreurs (v1). */
+export const IMPORT_ERROR_CSV_HEADER = ['ligne', 'colonne', 'message', 'valeur_recue'] as const

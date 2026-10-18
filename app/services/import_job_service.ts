@@ -4,7 +4,9 @@ import ImportJob from '#models/import_job'
 import Organization from '#models/organization'
 import User from '#models/user'
 import { ImportJobStateException } from '#exceptions/import_errors'
+import { csvLine } from '#shared/helpers/csv'
 import {
+  IMPORT_ERROR_CSV_HEADER,
   IMPORT_MAX_STORED_ERRORS,
   type ImportKind,
   type ImportRowError,
@@ -53,17 +55,33 @@ export default class ImportJobService {
    * Comptabilise une ligne traitée. `error` est renseigné si la ligne a échoué.
    * Les erreurs sont bornées à `IMPORT_MAX_STORED_ERRORS` ; `errorCount` reste exact.
    */
-  async recordRow(job: ImportJob, row: number, error?: string): Promise<ImportJob> {
+  async recordRow(
+    job: ImportJob,
+    row: number,
+    error?: Omit<ImportRowError, 'row'>
+  ): Promise<ImportJob> {
     this.assertStatus(job, ['running'], 'record')
     job.processedRows += 1
     if (error !== undefined) {
       job.errorCount += 1
       if (job.errors.length < IMPORT_MAX_STORED_ERRORS) {
-        const entry: ImportRowError = { row, message: error }
-        job.errors = [...job.errors, entry]
+        job.errors = [...job.errors, { row, ...error }]
       }
     }
     return job.save()
+  }
+
+  /**
+   * Export CSV des erreurs stockées (v1) : séparateur `;`, en-tête
+   * `ligne;colonne;message;valeur_recue`. Ne contient que les erreurs conservées
+   * (100 au plus) ; `errorCount` indique le total réel.
+   */
+  errorsToCsv(job: ImportJob): string {
+    const lines = [csvLine([...IMPORT_ERROR_CSV_HEADER])]
+    for (const error of job.errors) {
+      lines.push(csvLine([error.row, error.column ?? '', error.message, error.receivedValue ?? '']))
+    }
+    return lines.join('\r\n')
   }
 
   /** `running` → `completed`. */

@@ -41,7 +41,7 @@ test.group('Imports en masse', (group) => {
     await service.start(job, IMPORT_MAX_STORED_ERRORS + 5)
 
     for (let row = 1; row <= IMPORT_MAX_STORED_ERRORS + 5; row++) {
-      await service.recordRow(job, row, `ligne ${row} invalide`)
+      await service.recordRow(job, row, { message: `ligne ${row} invalide` })
     }
 
     await job.refresh()
@@ -87,5 +87,27 @@ test.group('Imports en masse', (group) => {
     assert.equal(running.status, 'running')
     assert.equal(failed.status, 'failed')
     assert.isAbove(failed.errorCount, 0)
+  })
+
+  test('l’export CSV contient les erreurs conservées, avec leur colonne et la valeur reçue', async ({
+    assert,
+  }) => {
+    const organization = await OrganizationFactory.create()
+    const user = await UserFactory.create()
+    const service = new ImportJobService()
+    const job = await service.create({ organization, createdBy: user, kind: 'products_csv' })
+    await service.start(job, 2)
+    await service.recordRow(job, 1, {
+      message: 'Prix invalide',
+      column: 'prix',
+      receivedValue: 'douze',
+    })
+    await service.recordRow(job, 2)
+    await service.complete(job)
+
+    assert.equal(
+      service.errorsToCsv(job),
+      'ligne;colonne;message;valeur_recue\r\n1;prix;Prix invalide;douze'
+    )
   })
 })
