@@ -205,6 +205,45 @@ Un produit porte une **galerie** d'images ordonnées, hébergées sur Cellar (vo
 
 > L'écran d'upload s'appuie sur l'infra de stockage Cellar (voir « Images produit » ci-dessus).
 
+## Variantes et paliers de prix (#53)
+
+Un objet publicitaire se décline (couleur, taille, marquage) et son prix dépend
+de la quantité commandée.
+
+- **`product_variants`** : `product_id` (CASCADE), `sku` (unique par produit),
+  `image_id` → `product_images` (SET NULL, image affichée quand la variante est
+  choisie), `is_active`. Pivot **`product_variant_attributes`** : une valeur
+  d'attribut par attribut et par variante (couleur = rouge, taille = L).
+- **`product_price_tiers`** : `product_id`, `variant_id` (NULL = palier du
+  produit, sinon palier propre à la variante), `min_quantity`,
+  `unit_price decimal(12,4)`, `currency`. Unicité `(product_id, variant_id,
+min_quantity)` en `NULLS NOT DISTINCT` (PostgreSQL ≥ 15) : deux paliers
+  produit de même quantité sont aussi refusés.
+- **`products.price_min` / `price_max` sont recalculés** depuis les paliers
+  (min / max de `unit_price`) à chaque synchronisation — dénormalisation pour
+  les cartes et le tri. Sans palier, la saisie manuelle est conservée. Colonnes
+  en `decimal(12,2)` : un prix à 4 décimales y est arrondi.
+- **Écriture** (`ProductVariantService`, appelé par `SupplierProductService`
+  **dans la transaction du produit**) : champs `variants[]` et `priceTiers[]` du
+  payload de création/mise à jour. `undefined` = inchangé ; un tableau (même
+  vide) remplace l'ensemble. Variantes rapprochées par SKU (id conservé) ;
+  paliers réécrits, `variantSku` désigne la variante visée. SKU en double,
+  palier dupliqué, SKU inconnu, image hors galerie ou deux valeurs du même
+  attribut → erreur de validation (422) et rien n'est écrit.
+- **Lecture** : la fiche publique (`ProductDetailTransformer`) expose les
+  variantes **actives** (facettes résolues) et la grille de prix ; le sélecteur
+  de variante change l'image de la galerie et affiche la grille de la variante
+  si elle a ses propres paliers, sinon celle du produit.
+- **Tri** : `GET /products?sort=price_asc` trie par prix unitaire du premier
+  palier (plus petite quantité) ; produits sans palier en fin de liste.
+- **Formulaire fournisseur** : sections `product_variants_fields.vue` et
+  `product_price_tiers_fields.vue` (provide/inject `ProductFormKey`). Limite :
+  Inertia omet les tableaux vides en multipart ; avec de nouvelles images dans
+  la même soumission, supprimer _toutes_ les variantes/paliers demande donc un
+  second enregistrement.
+- Hors périmètre : colonnes variantes/paliers de l'import CSV (issue dédiée),
+  contrôle de tri dans l'UI du catalogue.
+
 ## i18n du contenu (FR par défaut, EN, extensible à N langues)
 
 Tout le texte visible (nom, description, label) vit dans des **tables de
@@ -274,6 +313,9 @@ CRUD des catégories sous `/:locale/admin/categories` (`admin.categories.*`). Le
 - `tests/functional/catalogue_fts.spec.ts` — FTS par langue
   (`to_tsquery('english', …)` vs `to_tsquery('french', …)`), présence/absence
   de `products.embedding`.
+- `tests/functional/product_variants.spec.ts` — variantes, paliers, recalcul
+  de la fourchette de prix, unicité SKU/palier, tri par prix.
+- `tests/inertia/product_variants.spec.ts` — sélecteur de variante, grille de prix.
 - `tests/unit/translations.spec.ts` — `resolveTranslation` (résolution +
   repli).
 - Comme toute la suite, ces tests s'exécutent sous PostgreSQL

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useI18n } from '~/i18n'
 import type { ProductImageType } from '#shared/types/product'
 import type { ImageVariantName } from '#shared/types/image_variant'
@@ -8,6 +8,8 @@ const props = defineProps<{
   images: ProductImageType[]
   fallbackUrl: string | null
   alt: string
+  // Image à afficher en grand (ex. image de la variante choisie).
+  focusImageId?: number | null
 }>()
 
 const { t } = useI18n()
@@ -39,6 +41,14 @@ const items = computed<GalleryItem[]>(() => {
 })
 
 const selected = ref(0)
+
+watch(
+  () => props.focusImageId,
+  (imageId) => {
+    const index = props.images.findIndex((image) => image.id === imageId)
+    if (index >= 0) selected.value = index
+  }
+)
 </script>
 
 <template>

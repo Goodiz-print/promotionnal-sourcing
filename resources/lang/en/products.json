@@ -18,17 +18,23 @@
     "minQuantity": "Minimum quantity",
     "category": "Category",
     "origin": "Country of origin",
-    "requestQuote": "Request a quote"
+    "requestQuote": "Request a quote",
+    "variants": "Variants",
+    "priceTiers": "Price by quantity",
+    "tierQuantity": "Quantity",
+    "tierPrice": "Unit price",
+    "tierFrom": "From {quantity} pieces"
   },
   "manage": {
     "index": {
       "title": "My products",
       "empty": "You have no product yet. Create one."
     },
-    "create": { "title": "New product" },
-    "edit": { "title": "Edit product" },
-    "newProduct": "New product",
+    "create": {
+      "title": "New product"
+    },
     "edit": "Edit",
+    "newProduct": "New product",
     "delete": "Delete",
     "save": "Save",
     "cancel": "Cancel",
@@ -60,6 +66,25 @@
       "madeInEurope": "Made in Europe",
       "isActive": "Published",
       "images": "Add images"
+    },
+    "variants": {
+      "title": "Variants",
+      "empty": "No variant: the product is sold as is.",
+      "add": "Add a variant",
+      "remove": "Remove",
+      "sku": "SKU",
+      "image": "Variant image",
+      "isActive": "Variant offered"
+    },
+    "priceTiers": {
+      "title": "Price tiers",
+      "hint": "Decreasing unit price by ordered quantity. With tiers, the price range is computed automatically.",
+      "add": "Add a tier",
+      "remove": "Remove",
+      "appliesTo": "Applies to",
+      "allVariants": "All variants",
+      "minQuantity": "From (pieces)",
+      "unitPrice": "Unit price"
     }
   }
 }

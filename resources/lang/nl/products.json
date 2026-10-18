@@ -18,17 +18,23 @@
     "minQuantity": "Minimale hoeveelheid",
     "category": "Categorie",
     "origin": "Land van herkomst",
-    "requestQuote": "Offerte aanvragen"
+    "requestQuote": "Offerte aanvragen",
+    "variants": "Varianten",
+    "priceTiers": "Prijs per hoeveelheid",
+    "tierQuantity": "Aantal",
+    "tierPrice": "Stukprijs",
+    "tierFrom": "Vanaf {quantity} stuks"
   },
   "manage": {
     "index": {
       "title": "Mijn producten",
       "empty": "U hebt nog geen producten. Maak er een aan."
     },
-    "create": { "title": "Nieuw product" },
-    "edit": { "title": "Product bewerken" },
-    "newProduct": "Nieuw product",
+    "create": {
+      "title": "Nieuw product"
+    },
     "edit": "Bewerken",
+    "newProduct": "Nieuw product",
     "delete": "Verwijderen",
     "save": "Opslaan",
     "cancel": "Annuleren",
@@ -60,6 +66,25 @@
       "madeInEurope": "Gemaakt in Europa",
       "isActive": "Gepubliceerd",
       "images": "Afbeeldingen toevoegen"
+    },
+    "variants": {
+      "title": "Varianten",
+      "empty": "Geen variant: het product wordt zo verkocht.",
+      "add": "Variant toevoegen",
+      "remove": "Verwijderen",
+      "sku": "SKU",
+      "image": "Afbeelding van de variant",
+      "isActive": "Variant aangeboden"
+    },
+    "priceTiers": {
+      "title": "Prijstrappen",
+      "hint": "Dalende stukprijs naargelang de bestelde hoeveelheid. Met prijstrappen wordt het prijsbereik automatisch berekend.",
+      "add": "Prijstrap toevoegen",
+      "remove": "Verwijderen",
+      "appliesTo": "Geldt voor",
+      "allVariants": "Alle varianten",
+      "minQuantity": "Vanaf (stuks)",
+      "unitPrice": "Stukprijs"
     }
   }
 }

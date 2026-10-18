@@ -46,6 +46,7 @@ export default class ProductsController {
       perPage: PER_PAGE,
       locale,
       queryEmbedding,
+      sort: qs.sort === 'price_asc' ? 'price_asc' : null,
     })
     const categories = await this.service.availableCategories()
     const attributes = await this.service.filterableAttributes()

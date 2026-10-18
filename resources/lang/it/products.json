@@ -18,17 +18,23 @@
     "minQuantity": "Quantità minima",
     "category": "Categoria",
     "origin": "Paese di origine",
-    "requestQuote": "Richiedi un'offerta"
+    "requestQuote": "Richiedi un'offerta",
+    "variants": "Varianti",
+    "priceTiers": "Prezzo per quantità",
+    "tierQuantity": "Quantità",
+    "tierPrice": "Prezzo unitario",
+    "tierFrom": "Da {quantity} pezzi"
   },
   "manage": {
     "index": {
       "title": "I miei prodotti",
       "empty": "Non ha ancora alcun prodotto. Ne crei uno."
     },
-    "create": { "title": "Nuovo prodotto" },
-    "edit": { "title": "Modifica il prodotto" },
-    "newProduct": "Nuovo prodotto",
+    "create": {
+      "title": "Nuovo prodotto"
+    },
     "edit": "Modifica",
+    "newProduct": "Nuovo prodotto",
     "delete": "Elimina",
     "save": "Salva",
     "cancel": "Annulla",
@@ -60,6 +66,25 @@
       "madeInEurope": "Prodotto in Europa",
       "isActive": "Pubblicato",
       "images": "Aggiungi immagini"
+    },
+    "variants": {
+      "title": "Varianti",
+      "empty": "Nessuna variante: il prodotto è venduto così com’è.",
+      "add": "Aggiungi una variante",
+      "remove": "Rimuovi",
+      "sku": "SKU",
+      "image": "Immagine della variante",
+      "isActive": "Variante offerta"
+    },
+    "priceTiers": {
+      "title": "Scaglioni di prezzo",
+      "hint": "Prezzo unitario decrescente in base alla quantità ordinata. Con gli scaglioni, la fascia di prezzo è calcolata automaticamente.",
+      "add": "Aggiungi uno scaglione",
+      "remove": "Rimuovi",
+      "appliesTo": "Si applica a",
+      "allVariants": "Tutte le varianti",
+      "minQuantity": "Da (pezzi)",
+      "unitPrice": "Prezzo unitario"
     }
   }
 }

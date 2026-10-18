@@ -9,6 +9,8 @@ import ProductTranslationsFields from '~/components/products/form/product_transl
 import ProductDetailsFields from '~/components/products/form/product_details_fields.vue'
 import ProductFacetsFields from '~/components/products/form/product_facets_fields.vue'
 import ProductImagesFields from '~/components/products/form/product_images_fields.vue'
+import ProductVariantsFields from '~/components/products/form/product_variants_fields.vue'
+import ProductPriceTiersFields from '~/components/products/form/product_price_tiers_fields.vue'
 import type { CategoryType } from '#shared/types/category'
 import type { AttributeWithValuesType } from '#shared/types/attribute'
 import type { ProductEditType } from '#shared/types/product'
@@ -48,6 +50,17 @@ const form = useForm<ProductFormState>({
   attributeValueIds: props.product ? [...props.product.attributeValueIds] : [],
   images: [],
   removedImageIds: [],
+  variants: (props.product?.variants ?? []).map((variant) => ({
+    sku: variant.sku,
+    isActive: variant.isActive,
+    imageId: variant.imageId,
+    attributeValueIds: [...variant.attributeValueIds],
+  })),
+  priceTiers: (props.product?.priceTiers ?? []).map((tier) => ({
+    variantSku: props.product?.variants.find((v) => v.id === tier.variantId)?.sku ?? '',
+    minQuantity: tier.minQuantity,
+    unitPrice: Number(tier.unitPrice),
+  })),
 })
 
 provide(ProductFormKey, form)
@@ -89,6 +102,12 @@ function submit() {
         attributeValueIds: data.attributeValueIds,
         images: data.images,
         removedImageIds: data.removedImageIds,
+        variants: data.variants
+          .filter((variant) => variant.sku.trim())
+          .map((variant) => ({ ...variant, sku: variant.sku.trim() })),
+        priceTiers: data.priceTiers
+          .filter((tier) => tier.minQuantity !== null && tier.unitPrice !== null)
+          .map((tier) => ({ ...tier, variantSku: tier.variantSku || null })),
       }
       if (data.priceMin !== null) payload.priceMin = data.priceMin
       if (data.priceMax !== null) payload.priceMax = data.priceMax
@@ -96,7 +115,9 @@ function submit() {
       if (data.originCountry) payload.originCountry = data.originCountry
       return payload
     })
-    .post(target, { forceFormData: true, preserveScroll: true })
+    // Inertia omet les tableaux vides en multipart : sans fichier, on reste en JSON
+    // pour que « aucune variante / aucun palier » (`[]`) soit bien transmis.
+    .post(target, { forceFormData: form.images.length > 0, preserveScroll: true })
 }
 
 function cancel() {
@@ -117,6 +138,16 @@ function cancel() {
     <div>
       <h2 class="mb-2 font-medium">{{ t('products.manage.images') }}</h2>
       <ProductImagesFields :existing-images="product?.images ?? []" />
+    </div>
+
+    <div>
+      <h2 class="mb-2 font-medium">{{ t('products.manage.variants.title') }}</h2>
+      <ProductVariantsFields :attributes="attributes" :existing-images="product?.images ?? []" />
+    </div>
+
+    <div>
+      <h2 class="mb-2 font-medium">{{ t('products.manage.priceTiers.title') }}</h2>
+      <ProductPriceTiersFields />
     </div>
 
     <div class="flex gap-3">

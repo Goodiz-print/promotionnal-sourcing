@@ -157,6 +157,8 @@ describe('products/show.vue', () => {
               variants: [],
             },
           ],
+          variants: [],
+          priceTiers: [],
         },
       },
     })

@@ -3,6 +3,25 @@ import type { InertiaForm } from '@inertiajs/vue3'
 import type { ContentLocale } from '#shared/types/i18n'
 
 /**
+ * Ligne de variante du formulaire (`imageId` : image déjà en galerie).
+ */
+export interface ProductVariantFormRow {
+  sku: string
+  isActive: boolean
+  imageId: number | null
+  attributeValueIds: number[]
+}
+
+/**
+ * Ligne de palier du formulaire (`variantSku` vide = palier du produit).
+ */
+export interface ProductPriceTierFormRow {
+  variantSku: string
+  minQuantity: number | null
+  unitPrice: number | null
+}
+
+/**
  * État du formulaire produit fournisseur (payload `useForm`). Les prix sont des
  * `number | null` (coercés par VineJS) ; `images` porte les nouveaux fichiers,
  * `removedImageIds` les images existantes à supprimer. `sourceLocale` est la
@@ -22,6 +41,8 @@ export interface ProductFormState {
   attributeValueIds: number[]
   images: File[]
   removedImageIds: number[]
+  variants: ProductVariantFormRow[]
+  priceTiers: ProductPriceTierFormRow[]
 }
 
 /**

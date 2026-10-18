@@ -462,6 +462,36 @@ export class ProductImageSchema extends BaseModel {
   declare width: number | null
 }
 
+export class ProductPriceTierSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'currency',
+    'id',
+    'minQuantity',
+    'productId',
+    'unitPrice',
+    'updatedAt',
+    'variantId',
+  ] as const
+  $columns = ProductPriceTierSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare currency: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare minQuantity: number
+  @column()
+  declare productId: number
+  @column()
+  declare unitPrice: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare variantId: number | null
+}
+
 export class ProductTranslationSchema extends BaseModel {
   static $columns = [
     'createdAt',
@@ -491,6 +521,57 @@ export class ProductTranslationSchema extends BaseModel {
   declare productId: number
   @column()
   declare translationKey: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class ProductVariantAttributeSchema extends BaseModel {
+  static $columns = [
+    'attributeId',
+    'attributeValueId',
+    'createdAt',
+    'id',
+    'updatedAt',
+    'variantId',
+  ] as const
+  $columns = ProductVariantAttributeSchema.$columns
+  @column()
+  declare attributeId: number
+  @column()
+  declare attributeValueId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare variantId: number
+}
+
+export class ProductVariantSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'id',
+    'imageId',
+    'isActive',
+    'productId',
+    'sku',
+    'updatedAt',
+  ] as const
+  $columns = ProductVariantSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare imageId: number | null
+  @column()
+  declare isActive: boolean
+  @column()
+  declare productId: number
+  @column()
+  declare sku: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }

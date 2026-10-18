@@ -18,17 +18,23 @@
     "minQuantity": "Minimalna ilość",
     "category": "Kategoria",
     "origin": "Kraj pochodzenia",
-    "requestQuote": "Poproś o wycenę"
+    "requestQuote": "Poproś o wycenę",
+    "variants": "Warianty",
+    "priceTiers": "Cena zależna od ilości",
+    "tierQuantity": "Ilość",
+    "tierPrice": "Cena jednostkowa",
+    "tierFrom": "Od {quantity} szt."
   },
   "manage": {
     "index": {
       "title": "Moje produkty",
       "empty": "Nie mają Państwo jeszcze żadnego produktu. Proszę utworzyć pierwszy."
     },
-    "create": { "title": "Nowy produkt" },
-    "edit": { "title": "Edytuj produkt" },
-    "newProduct": "Nowy produkt",
+    "create": {
+      "title": "Nowy produkt"
+    },
     "edit": "Edytuj",
+    "newProduct": "Nowy produkt",
     "delete": "Usuń",
     "save": "Zapisz",
     "cancel": "Anuluj",
@@ -60,6 +66,25 @@
       "madeInEurope": "Wyprodukowano w Europie",
       "isActive": "Opublikowany",
       "images": "Dodaj obrazy"
+    },
+    "variants": {
+      "title": "Warianty",
+      "empty": "Brak wariantów: produkt jest sprzedawany w całości.",
+      "add": "Dodaj wariant",
+      "remove": "Usuń",
+      "sku": "SKU",
+      "image": "Obraz wariantu",
+      "isActive": "Wariant dostępny"
+    },
+    "priceTiers": {
+      "title": "Progi cenowe",
+      "hint": "Malejąca cena jednostkowa zależna od zamawianej ilości. Przy progach przedział cen jest wyliczany automatycznie.",
+      "add": "Dodaj próg",
+      "remove": "Usuń",
+      "appliesTo": "Dotyczy",
+      "allVariants": "Wszystkie warianty",
+      "minQuantity": "Od (szt.)",
+      "unitPrice": "Cena jednostkowa"
     }
   }
 }
