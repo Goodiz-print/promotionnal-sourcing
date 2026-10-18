@@ -137,4 +137,8 @@ de purge s'est perdu. Ne touche **jamais** une ligne `ready`.
 - **Flux** : `DocumentService.addTo…` lit le PDF, le compresse via `PdfService`, puis le stocke par `StorageService.storeContent` (clé déterministe, `application/pdf`).
 - **Compression** : `gs -sDEVICE=pdfwrite -dPDFSETTINGS=/ebook`, derrière la classe abstraite `GhostscriptRunner`. Si `gs` est absent, échoue ou n'allège pas le fichier : PDF original, warning loggé.
 - **Retrait** : `removeOrganizationDocument` / `removeProductDocument` suppriment la ligne et libèrent le fichier dans la même transaction, puis planifient la purge.
-- **Non couvert** : interfaces (profil, annuaire, formulaire produit), routes HTTP.
+- **Routes** (groupe authentifié et `onboarded`, `start/routes/documents.ts`) :
+  - `POST /fr/supplier/profile/documents` (champs `kind`, `file`) et `DELETE /fr/supplier/profile/documents/:id` — droits `canManageSupplierProfile`.
+  - `POST /fr/supplier/products/:id/documents` (champ `file`) et `DELETE /fr/supplier/products/:id/documents/:documentId` — droits `canManageProducts`.
+- **Validation** : PDF uniquement, 20 Mo maximum (`app/validators/document.ts`), et en-tête `%PDF-` vérifié au contenu.
+- **Non couvert** : interfaces (profil, annuaire public, formulaire produit).

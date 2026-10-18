@@ -26,6 +26,10 @@ class HalvingRunner extends GhostscriptRunner {
 
 const documents = () => app.container.make(DocumentService)
 
+/** Contenu commençant par l'en-tête PDF, de la taille demandée. */
+const pdfBuffer = (size: number) =>
+  Buffer.concat([Buffer.from('%PDF-1.4\n'), Buffer.alloc(size - 9, 'p')])
+
 test.group('Documents PDF des fournisseurs', (group) => {
   useDatabase(group, { seed: 'full' })
   const storage = useFakeStorage(group)
@@ -41,7 +45,7 @@ test.group('Documents PDF des fournisseurs', (group) => {
     assert,
   }) => {
     const organization = await OrganizationFactory.apply('supplier').create()
-    const file = await uploadedFile(Buffer.alloc(1000, 'p'), 'pdf')
+    const file = await uploadedFile(pdfBuffer(1000), 'pdf')
 
     const service = await documents()
     const document = await service.addToOrganization(organization, file, 'catalogue')
@@ -58,7 +62,7 @@ test.group('Documents PDF des fournisseurs', (group) => {
   test('sans Ghostscript, le PDF est stocké tel quel', async ({ assert }) => {
     runner = new HalvingRunner(false)
     const organization = await OrganizationFactory.apply('supplier').create()
-    const file = await uploadedFile(Buffer.alloc(1000, 'p'), 'pdf')
+    const file = await uploadedFile(pdfBuffer(1000), 'pdf')
 
     const service = await documents()
     const document = await service.addToOrganization(organization, file, 'certificate')
@@ -72,12 +76,12 @@ test.group('Documents PDF des fournisseurs', (group) => {
 
     await service.addToOrganization(
       organization,
-      await uploadedFile(Buffer.alloc(800, 'x'), 'pdf'),
+      await uploadedFile(pdfBuffer(800), 'pdf'),
       'other'
     )
     await service.addToOrganization(
       organization,
-      await uploadedFile(Buffer.alloc(800, 'x'), 'pdf'),
+      await uploadedFile(pdfBuffer(800), 'pdf'),
       'other'
     )
 
@@ -89,7 +93,7 @@ test.group('Documents PDF des fournisseurs', (group) => {
     const service = await documents()
     const document = await service.addToOrganization(
       organization,
-      await uploadedFile(Buffer.alloc(600, 'r'), 'pdf'),
+      await uploadedFile(pdfBuffer(600), 'pdf'),
       'catalogue'
     )
     const key = [...storage.driver.objects.keys()][0]
@@ -104,10 +108,7 @@ test.group('Documents PDF des fournisseurs', (group) => {
     const product = await Product.findByOrFail('slug', 'crayon-hb-bleu')
     const service = await documents()
 
-    const sheet = await service.addToProduct(
-      product,
-      await uploadedFile(Buffer.alloc(900, 'f'), 'pdf')
-    )
+    const sheet = await service.addToProduct(product, await uploadedFile(pdfBuffer(900), 'pdf'))
     assert.equal(sheet.productId, product.id)
     assert.isNotNull(await ProductDocument.find(sheet.id))
 

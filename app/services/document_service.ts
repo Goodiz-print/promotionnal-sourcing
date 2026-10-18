@@ -9,9 +9,12 @@ import ProductDocument from '#models/product_document'
 import PdfService from '#services/pdf_service'
 import StorageService from '#services/storage/storage_service'
 import { StorageSourceException } from '#exceptions/storage_errors'
+import { InvalidDocumentException } from '#exceptions/document_errors'
 import { DOCUMENT_MIME_TYPE, type OrganizationDocumentKind } from '#shared/types/document'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
 import type StorageObject from '#models/storage_object'
+
+const PDF_HEADER = Buffer.from('%PDF-')
 
 interface StoredPdf {
   storageObject: StorageObject
@@ -48,6 +51,19 @@ export default class DocumentService {
       await this.storage.discard([stored.storageObject.id])
       throw error
     }
+  }
+
+  /** Document d'une organisation, ou `null` s'il n'est pas le sien. */
+  findOrganizationDocument(organization: Organization, documentId: number) {
+    return OrganizationDocument.query()
+      .where('id', documentId)
+      .where('organizationId', organization.id)
+      .first()
+  }
+
+  /** Fiche technique d'un produit, ou `null` si elle ne lui appartient pas. */
+  findProductDocument(product: Product, documentId: number) {
+    return ProductDocument.query().where('id', documentId).where('productId', product.id).first()
   }
 
   async addToProduct(product: Product, file: MultipartFile): Promise<ProductDocument> {
@@ -97,6 +113,10 @@ export default class DocumentService {
   private async storePdf(file: MultipartFile): Promise<StoredPdf> {
     if (!file.tmpPath) throw new StorageSourceException()
     const original = await readFile(file.tmpPath)
+    // L'extension ne prouve rien : un PDF commence par son en-tête `%PDF-`.
+    if (!original.subarray(0, PDF_HEADER.length).equals(PDF_HEADER)) {
+      throw new InvalidDocumentException()
+    }
     const { content } = await this.pdf.compress(original)
     const storageObject = await this.storage.storeContent(content, 'pdf', DOCUMENT_MIME_TYPE)
     return { storageObject, sizeBytes: content.length }
