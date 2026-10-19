@@ -1,4 +1,22 @@
 {
   "uploaded": "Document toegevoegd.",
-  "deleted": "Document verwijderd."
+  "deleted": "Document verwijderd.",
+  "title": "Documenten",
+  "empty": "Nog geen documenten.",
+  "add": "Toevoegen",
+  "remove": "Verwijderen",
+  "confirmRemove": "“{name}” verwijderen?",
+  "fields": {
+    "kind": "Documenttype",
+    "file": "PDF-bestand (max. 20 MB)"
+  },
+  "kinds": {
+    "catalogue": "Catalogus",
+    "certificate": "Certificaat",
+    "other": "Overig"
+  },
+  "datasheet": {
+    "title": "Technische fiche",
+    "empty": "Nog geen technische fiche."
+  }
 }

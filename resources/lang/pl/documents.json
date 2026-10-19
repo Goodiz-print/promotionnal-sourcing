@@ -1,4 +1,22 @@
 {
   "uploaded": "Dokument dodany.",
-  "deleted": "Dokument usunięty."
+  "deleted": "Dokument usunięty.",
+  "title": "Dokumenty",
+  "empty": "Brak dokumentów.",
+  "add": "Dodaj",
+  "remove": "Usuń",
+  "confirmRemove": "Usunąć „{name}”?",
+  "fields": {
+    "kind": "Rodzaj dokumentu",
+    "file": "Plik PDF (maks. 20 MB)"
+  },
+  "kinds": {
+    "catalogue": "Katalog",
+    "certificate": "Certyfikat",
+    "other": "Inne"
+  },
+  "datasheet": {
+    "title": "Karta techniczna",
+    "empty": "Brak karty technicznej."
+  }
 }

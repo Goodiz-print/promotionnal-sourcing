@@ -293,6 +293,27 @@ traduction dédiées** — jamais dans les tables de base :
 
 CRUD des catégories sous `/:locale/admin/categories` (`admin.categories.*`). Les catégories sont une ressource **globale** de la plateforme : l'accès est réservé aux **admins plateforme** (`users.platform_role = 'admin'`, middleware `platformAdmin` + ability `canManageCategories`), quel que soit — ou même en l'absence de — rôle d'organisation. Avant #47, le `owner`/`admin` de n'importe quelle organisation pouvait modifier la taxonomie ; c'est corrigé. Voir `docs/organisations.md` (§ Rôles : organisation vs plateforme) pour l'attribution du rôle et le reste du back-office.
 
+## Fiche technique PDF (#60)
+
+Un produit peut porter des **fiches techniques** PDF (compressées Ghostscript puis stockées sur Cellar,
+cf. [`storage.md`](storage.md)).
+
+- **Table** `product_documents` : `product_id` (CASCADE), `storage_object_id` (nullable, `SET NULL`),
+  `original_name`, `size_bytes`. Modèle `ProductDocument` ; relation `Product hasMany documents`.
+- **Routes** (droit `canManageProducts`, produit de l'organisation courante) :
+  `POST /:locale/supplier/products/:id/documents` (`supplier.products.documents.store`, champ `file`) et
+  `DELETE /:locale/supplier/products/:id/documents/:documentId` (`supplier.products.documents.destroy`).
+- **Formulaire fournisseur** : sur `supplier/products/edit.vue`, sous le formulaire produit, un bloc
+  « Fiche technique » (`document_manager.vue`, sans choix de nature). Il n'existe pas à la création : un
+  `<form>` ne peut pas en contenir un autre et le téléversement exige un produit enregistré.
+- **Fiche publique** : `ProductDetailType.documents` ; `products/show.vue` affiche la section « Fiche
+  technique » (liens vers Cellar) si au moins un document existe. `ProductEditType.documents` alimente
+  le formulaire d'édition.
+- **Préchargement** : `findBySlug` (catalogue) et `findOwned` (fournisseur) chargent `documents` avec leur
+  `storageObject`, en écartant les lignes sans fichier.
+- **Tests** : `tests/functional/documents_routes.spec.ts`, `tests/functional/documents_pages.spec.ts`,
+  `tests/inertia/documents.spec.ts`, `tests/inertia/products.spec.ts`.
+
 ## Fichiers clés
 
 | Domaine               | Chemin                                                                                                       |

@@ -1,6 +1,7 @@
 import type { ContentLocale, Locale } from './i18n.js'
 import type { ProductType } from './product.js'
 import type { SupplierProfileType } from './organization.js'
+import type { OrganizationDocumentType } from './document.js'
 
 export interface SupplierTranslationType {
   locale: Locale
@@ -35,6 +36,7 @@ export type SupplierType = {
 export type SupplierDetailType = SupplierType & {
   supplierProfile: SupplierProfileType | null
   products: ProductType[]
+  documents: OrganizationDocumentType[]
 }
 
 /**

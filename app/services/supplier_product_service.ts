@@ -85,6 +85,9 @@ export default class SupplierProductService {
       .preload('attributeValues')
       .preload('variants', (variants) => variants.preload('attributes').orderBy('id'))
       .preload('priceTiers', (tiers) => tiers.orderBy('minQuantity'))
+      .preload('documents', (documents) =>
+        documents.whereNotNull('storageObjectId').preload('storageObject').orderBy('id')
+      )
       .first()
   }
 

@@ -6,10 +6,13 @@ import BaseInput from '~/components/base/base_input.vue'
 import BaseSelect from '~/components/base/base_select.vue'
 import BaseTextarea from '~/components/base/base_textarea.vue'
 import BaseButton from '~/components/base/base_button.vue'
+import DocumentManager from '~/components/documents/document_manager.vue'
 import { DELIVERY_SCOPES, type SupplierProfileType } from '#shared/types/organization'
+import { ORGANIZATION_DOCUMENT_KINDS, type OrganizationDocumentType } from '#shared/types/document'
 
 const props = defineProps<{
   profile: SupplierProfileType | null
+  documents: OrganizationDocumentType[]
 }>()
 
 const { t, locale } = useI18n()
@@ -29,6 +32,10 @@ function addCertification() {
 
 function removeCertification(index: number) {
   form.certifications.splice(index, 1)
+}
+
+function documentLabel(document: OrganizationDocumentType) {
+  return t(`documents.kinds.${document.kind}`)
 }
 
 function submit() {
@@ -125,5 +132,16 @@ function submit() {
         {{ t('supplier.profile.submit') }}
       </BaseButton>
     </form>
+
+    <DocumentManager
+      class="mt-12"
+      :documents="documents"
+      :kinds="ORGANIZATION_DOCUMENT_KINDS"
+      :label-for="documentLabel"
+      :store-url="urlFor('supplier.documents.store', { locale })"
+      :destroy-url="(document) => urlFor('supplier.documents.destroy', { locale, id: document.id })"
+      :title="t('documents.title')"
+      :empty-label="t('documents.empty')"
+    />
   </div>
 </template>

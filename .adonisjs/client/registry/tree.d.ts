@@ -104,6 +104,14 @@ export interface ApiDefinition {
       edit: typeof routes['supplier.products.edit']
       update: typeof routes['supplier.products.update']
       destroy: typeof routes['supplier.products.destroy']
+      documents: {
+        store: typeof routes['supplier.products.documents.store']
+        destroy: typeof routes['supplier.products.documents.destroy']
+      }
+    }
+    documents: {
+      store: typeof routes['supplier.documents.store']
+      destroy: typeof routes['supplier.documents.destroy']
     }
     rfqs: {
       index: typeof routes['supplier.rfqs.index']

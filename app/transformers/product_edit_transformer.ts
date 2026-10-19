@@ -3,6 +3,8 @@ import { BaseTransformer } from '@adonisjs/core/transformers'
 import ProductImageTransformer from '#transformers/product_image_transformer'
 import ProductVariantTransformer from '#transformers/product_variant_transformer'
 import ProductPriceTierTransformer from '#transformers/product_price_tier_transformer'
+import ProductDocumentTransformer from '#transformers/product_document_transformer'
+import type StorageObject from '#models/storage_object'
 import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
 import type { ProductEditType } from '#shared/types/product'
 
@@ -10,9 +12,16 @@ import type { ProductEditType } from '#shared/types/product'
  * Produit pour le formulaire d'édition fournisseur : traductions par locale
  * (les deux, vides si absentes), facettes sélectionnées et galerie. Requiert
  * `translations`, `attributeValues`, `images`, `variants.attributes` et
- * `priceTiers` préchargés (cf. `findOwned`).
+ * `priceTiers` et `documents.storageObject` préchargés (cf. `findOwned`).
  */
 export default class ProductEditTransformer extends BaseTransformer<Product> {
+  constructor(
+    resource: Product,
+    protected documentUrl: (object: StorageObject) => string
+  ) {
+    super(resource)
+  }
+
   toObject(): ProductEditType {
     const translations = {} as ProductEditType['translations']
     for (const locale of CONTENT_LOCALES) {
@@ -44,6 +53,9 @@ export default class ProductEditTransformer extends BaseTransformer<Product> {
       ),
       priceTiers: this.resource.priceTiers.map((tier) =>
         new ProductPriceTierTransformer(tier).toObject()
+      ),
+      documents: this.resource.documents.map((document) =>
+        new ProductDocumentTransformer(document, this.documentUrl).toObject()
       ),
     }
   }

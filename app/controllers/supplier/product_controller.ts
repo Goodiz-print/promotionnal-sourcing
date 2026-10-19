@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import SupplierProductService from '#services/supplier_product_service'
+import DocumentService from '#services/document_service'
 import ProductTransformer from '#transformers/product_transformer'
 import ProductEditTransformer from '#transformers/product_edit_transformer'
 import CategoryTransformer from '#transformers/category_transformer'
@@ -22,6 +23,7 @@ import OrganizationContextService from '#services/organization_context_service'
 export default class ProductController {
   constructor(
     private service: SupplierProductService,
+    private documents: DocumentService,
     private organizations: OrganizationContextService
   ) {}
 
@@ -75,7 +77,7 @@ export default class ProductController {
     if (!product) throw new ProductNotFoundException()
 
     return inertia.render('supplier/products/edit', {
-      product: new ProductEditTransformer(product).toObject(),
+      product: new ProductEditTransformer(product, this.documents.urlFor).toObject(),
       ...(await this.facetData(i18n.locale as Locale)),
     })
   }

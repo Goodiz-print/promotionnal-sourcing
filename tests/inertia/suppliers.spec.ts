@@ -20,6 +20,8 @@ const translations = {
   'supplier.fields.deliveryDays': 'Délai de livraison',
   'supplier.fields.responseTimeDays': 'Délai de réponse',
   'supplier.deliveryScope.europe': 'Europe',
+  'documents.title': 'Documents',
+  'documents.kinds.catalogue': 'Catalogue',
 }
 
 vi.mock('@inertiajs/vue3', async () => {
@@ -132,6 +134,15 @@ describe('suppliers/show.vue', () => {
             updatedAt: null,
           },
           products,
+          documents: [
+            {
+              id: 1,
+              kind: 'catalogue',
+              originalName: 'catalogue-2026.pdf',
+              sizeBytes: 1572864,
+              url: 'https://cellar.test/catalogue.pdf',
+            },
+          ],
         },
       },
     })
@@ -140,17 +151,27 @@ describe('suppliers/show.vue', () => {
     expect(wrapper.text()).toContain('Europe')
     expect(wrapper.text()).toContain('ISO 9001')
     expect(wrapper.text()).toContain('Crayon')
+    expect(wrapper.text()).toContain('Documents')
+    expect(wrapper.text()).toContain('catalogue-2026.pdf')
+    expect(wrapper.text()).toContain('1.5 MB')
+    expect(wrapper.find('a[href="https://cellar.test/catalogue.pdf"]').exists()).toBe(true)
   })
 
   it('masque le profil pour un fournisseur non lié', () => {
     const wrapper = mount(Show, {
       props: {
-        supplier: { ...supplier('nordic', 'Nordic'), supplierProfile: null, products: [] },
+        supplier: {
+          ...supplier('nordic', 'Nordic'),
+          supplierProfile: null,
+          products: [],
+          documents: [],
+        },
       },
     })
 
     expect(wrapper.text()).not.toContain('Profil fournisseur')
     expect(wrapper.text()).toContain('Aucun produit.')
+    expect(wrapper.text()).not.toContain('Documents')
   })
 })
 

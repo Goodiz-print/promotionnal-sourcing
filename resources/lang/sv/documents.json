@@ -1,4 +1,22 @@
 {
   "uploaded": "Dokument tillagt.",
-  "deleted": "Dokument borttaget."
+  "deleted": "Dokument borttaget.",
+  "title": "Dokument",
+  "empty": "Inga dokument ännu.",
+  "add": "Lägg till",
+  "remove": "Ta bort",
+  "confirmRemove": "Ta bort ”{name}”?",
+  "fields": {
+    "kind": "Dokumenttyp",
+    "file": "PDF-fil (max 20 MB)"
+  },
+  "kinds": {
+    "catalogue": "Katalog",
+    "certificate": "Certifikat",
+    "other": "Övrigt"
+  },
+  "datasheet": {
+    "title": "Tekniskt datablad",
+    "empty": "Inget tekniskt datablad ännu."
+  }
 }

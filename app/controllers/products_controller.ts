@@ -3,6 +3,7 @@ import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import EmbeddingService from '#services/embedding_service'
+import DocumentService from '#services/document_service'
 import ProductTransformer from '#transformers/product_transformer'
 import ProductDetailTransformer from '#transformers/product_detail_transformer'
 import CategoryTransformer from '#transformers/category_transformer'
@@ -19,7 +20,8 @@ const PER_PAGE = 12
 export default class ProductsController {
   constructor(
     private service: ProductCatalogueService,
-    private embeddings: EmbeddingService
+    private embeddings: EmbeddingService,
+    private documents: DocumentService
   ) {}
 
   /**
@@ -86,7 +88,7 @@ export default class ProductsController {
     }
 
     return inertia.render('products/show', {
-      product: new ProductDetailTransformer(product, locale).toObject(),
+      product: new ProductDetailTransformer(product, locale, this.documents.urlFor).toObject(),
     })
   }
 

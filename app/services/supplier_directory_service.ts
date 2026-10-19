@@ -42,7 +42,13 @@ export default class SupplierDirectoryService {
       .withScopes((scopes) => scopes.fromLiveOrganization())
       .preload('translations')
       .preload('products', (query) => query.where('isActive', true).preload('translations'))
-      .preload('organization', (query) => query.preload('supplierProfile'))
+      .preload('organization', (query) =>
+        query
+          .preload('supplierProfile')
+          .preload('documents', (documents) =>
+            documents.whereNotNull('storageObjectId').preload('storageObject').orderBy('id')
+          )
+      )
       .first()
   }
 

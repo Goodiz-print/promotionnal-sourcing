@@ -53,6 +53,18 @@ export default class DocumentService {
     }
   }
 
+  /** Documents du profil d'une organisation (fichier présent), du plus ancien au plus récent. */
+  listForOrganization(organization: Organization): Promise<OrganizationDocument[]> {
+    return OrganizationDocument.query()
+      .where('organizationId', organization.id)
+      .whereNotNull('storageObjectId')
+      .preload('storageObject')
+      .orderBy('id')
+  }
+
+  /** URL publique du fichier d'un document. */
+  urlFor = (object: StorageObject): string => this.storage.urlFor(object)
+
   /** Document d'une organisation, ou `null` s'il n'est pas le sien. */
   findOrganizationDocument(organization: Organization, documentId: number) {
     return OrganizationDocument.query()

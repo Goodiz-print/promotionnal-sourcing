@@ -751,6 +751,54 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['destroy']>>>
     }
   }
+  'supplier.documents.store': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/profile/documents'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/document').organizationDocumentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/document').organizationDocumentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/document_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/document_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.documents.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/supplier/profile/documents/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/document_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/document_controller').default['destroy']>>>
+    }
+  }
+  'supplier.products.documents.store': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/products/:id/documents'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/document').productDocumentValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/document').productDocumentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/product_document_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_document_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.products.documents.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/supplier/products/:id/documents/:documentId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; documentId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/product_document_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_document_controller').default['destroy']>>>
+    }
+  }
   'rfqs.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/rfqs'

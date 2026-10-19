@@ -10,6 +10,16 @@ Deux usages distincts, un même `docker-compose.yml` :
 | Image de production en local | `docker compose --profile app up -d --build` | + `migrate`, `web`, `worker`             |
 | Tests                        | `pnpm test:db`                               | `postgres_test` (port 5433, tmpfs)       |
 
+## Prérequis hors Docker : Ghostscript
+
+Avec `pnpm dev` (hors image de production), les PDF des fournisseurs sont compressés par Ghostscript, qui doit être installé sur la machine :
+
+```bash
+brew install ghostscript
+```
+
+Sans `gs`, tout fonctionne : le PDF est stocké tel quel et un warning est loggé (cf. [`storage.md`](storage.md)). L'image de production l'installe déjà (`Dockerfile`, étape `runtime`).
+
 ## Premier lancement de l'image locale
 
 ```bash

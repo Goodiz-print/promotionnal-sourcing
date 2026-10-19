@@ -25,6 +25,7 @@ vi.mock('@inertiajs/vue3', async () => {
   return {
     usePage: () => m.inertiaPage(translations),
     useForm: m.makeUseForm(),
+    router: { delete: vi.fn() },
     Head: m.HeadStub,
   }
 })
@@ -35,7 +36,7 @@ const { default: SupplierProfile } = await import('~/pages/supplier/profile.vue'
 
 describe('supplier/profile.vue', () => {
   it('affiche le formulaire avec les libellés traduits', () => {
-    const wrapper = mount(SupplierProfile, { props: { profile: null } })
+    const wrapper = mount(SupplierProfile, { props: { profile: null, documents: [] } })
 
     expect(wrapper.text()).toContain('Profil fournisseur')
     expect(wrapper.find('#minOrderQuantity').exists()).toBe(true)
@@ -44,7 +45,7 @@ describe('supplier/profile.vue', () => {
   })
 
   it('propose les 3 périmètres de livraison + option non précisé', () => {
-    const wrapper = mount(SupplierProfile, { props: { profile: null } })
+    const wrapper = mount(SupplierProfile, { props: { profile: null, documents: [] } })
     const options = wrapper.find('#deliveryScope').findAll('option')
 
     expect(options).toHaveLength(4)
@@ -70,14 +71,14 @@ describe('supplier/profile.vue', () => {
       updatedAt: null,
     }
 
-    const wrapper = mount(SupplierProfile, { props: { profile } })
+    const wrapper = mount(SupplierProfile, { props: { profile, documents: [] } })
 
     expect(wrapper.findAll('input[type="text"]')).toHaveLength(profile.certifications.length)
     expect((wrapper.find('#bio').element as HTMLTextAreaElement).value).toBe('Un fournisseur')
   })
 
   it('ajoute et retire une certification', async () => {
-    const wrapper = mount(SupplierProfile, { props: { profile: null } })
+    const wrapper = mount(SupplierProfile, { props: { profile: null, documents: [] } })
     const addButton = wrapper
       .findAll('button')
       .find((b) => b.text() === 'Ajouter une certification')!

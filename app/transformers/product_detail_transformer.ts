@@ -6,6 +6,8 @@ import ProductTransformer from '#transformers/product_transformer'
 import ProductImageTransformer from '#transformers/product_image_transformer'
 import { ProductDetailVariantTransformer } from '#transformers/product_variant_transformer'
 import ProductPriceTierTransformer from '#transformers/product_price_tier_transformer'
+import ProductDocumentTransformer from '#transformers/product_document_transformer'
+import type StorageObject from '#models/storage_object'
 import type { ProductDetailType } from '#shared/types/product'
 
 /**
@@ -14,12 +16,13 @@ import type { ProductDetailType } from '#shared/types/product'
  * libellé de valeur). Requiert `translations`, `supplier.translations`,
  * `category.translations`, `productAttributes.{attribute,attributeValue}.translations`
  * et `images`, `variants.attributes.{attribute,attributeValue}.translations` (actives)
- * et `priceTiers` préchargés (voir `ProductCatalogueService.findBySlug`).
+ * `priceTiers` et `documents.storageObject` préchargés (voir `ProductCatalogueService.findBySlug`).
  */
 export default class ProductDetailTransformer extends BaseTransformer<Product> {
   constructor(
     resource: Product,
-    protected locale: Locale = DEFAULT_LOCALE
+    protected locale: Locale = DEFAULT_LOCALE,
+    protected documentUrl: (object: StorageObject) => string
   ) {
     super(resource)
   }
@@ -54,6 +57,9 @@ export default class ProductDetailTransformer extends BaseTransformer<Product> {
       ),
       priceTiers: this.resource.priceTiers.map((tier) =>
         new ProductPriceTierTransformer(tier).toObject()
+      ),
+      documents: this.resource.documents.map((document) =>
+        new ProductDocumentTransformer(document, this.documentUrl).toObject()
       ),
     }
   }
