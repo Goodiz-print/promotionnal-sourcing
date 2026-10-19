@@ -54,6 +54,17 @@ Installés dans `/usr/share/hunspell` : bg, bs, cs, hr, is, lv, pl, sk, sl, uk (
 
 > ⚠️ PostgreSQL lit ses dictionnaires (`.dict` / `.affix`) dans `$SHAREDIR/tsearch_data` **sur le serveur de base**, pas dans le conteneur applicatif. Avec une base managée (#78), ces fichiers de l'image n'ont aucun effet sur la recherche plein texte : ils doivent être déposés côté PostgreSQL (et convertis en UTF-8 minuscules, noms `xx_xx.dict`/`.affix`).
 
+## Meilisearch (#112)
+
+Moteur de recherche hybride, auto-hébergé sur **son propre VPS** (distinct de celui de l'application).
+
+- Image officielle `getmeili/meilisearch`, version épinglée (jamais `latest`) dans `docker-compose.yml` du VPS de recherche.
+- Données sur un volume persistant. Sauvegarde : snapshot Meilisearch planifié, copié hors du VPS.
+- Clé master et clé API de l'application : variables `MEILISEARCH_HOST` et `MEILISEARCH_API_KEY`, validées dans `start/env.ts`, documentées dans `.env.example`. Jamais dans l'image.
+- Sonde : `GET /health` sur le port du moteur (healthcheck déclaré dans `docker-compose.yml`).
+- Source de vérité : PostgreSQL. Un index corrompu ou perdu se reconstruit par réindexation complète (commande dédiée, rejouable), sans perte de données.
+- Les mises à jour de version Meilisearch passent par une réindexation si la release l'exige : la noter dans le changelog.
+
 ## Migrations
 
 - Lancées avant le redémarrage : `docker compose run --rm app node ace migration:run --force`.
@@ -69,5 +80,5 @@ Si la release contenait une migration destructive, le rollback applicatif ne suf
 
 ## Secrets
 
-- GitHub Secrets : clé SSH de déploiement, identifiants du registre, hôte du VPS.
+- GitHub Secrets : clé SSH de déploiement, identifiants du registre, hôte du VPS, hôte du VPS Meilisearch, clé API Meilisearch.
 - `.env` sur le VPS : jamais committé.
