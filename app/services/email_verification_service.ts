@@ -4,6 +4,7 @@ import { signedUrlFor } from '@adonisjs/core/services/url_builder'
 import env from '#start/env'
 import User from '#models/user'
 import SendMailJob from '#jobs/send_mail_job'
+import { mailSendKey } from '#shared/helpers/mail'
 import { MAIL_KINDS } from '#shared/types/mail'
 import {
   EMAIL_VERIFICATION_SIGNATURE_PURPOSE,
@@ -35,6 +36,7 @@ export default class EmailVerificationService {
 
     await SendMailJob.dispatch({
       kind: MAIL_KINDS.emailVerification,
+      idempotencyKey: mailSendKey(MAIL_KINDS.emailVerification, { user: user.id }),
       to: user.email,
       data: { verifyUrl, expiresInHours: EMAIL_VERIFICATION_TTL_HOURS },
     })

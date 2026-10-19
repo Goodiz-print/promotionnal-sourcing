@@ -3,6 +3,10 @@ import type { JobOptions } from '@adonisjs/queue/types'
 import type { BaseMail } from '@adonisjs/mail'
 import mail from '@adonisjs/mail/services/main'
 import logger from '@adonisjs/core/services/logger'
+import app from '@adonisjs/core/services/app'
+import emitter from '@adonisjs/core/services/emitter'
+import MailDeliveryService from '#services/mail_delivery_service'
+import MailDeliveryFailed from '#events/mail_delivery_failed'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
 import EmailVerificationNotification from '#mails/email_verification_notification'
 import PasswordResetNotification from '#mails/password_reset_notification'
@@ -21,8 +25,15 @@ import { MAIL_KINDS, type SendMailPayload } from '#shared/types/mail'
  * destinataire et le type de mail, et l'enregistrement est conservé 30 jours
  * dans `queue_jobs` (`removeOnFail`) pour inspection / rejeu manuel.
  *
- * ⚠️ Pas de dédoublonnage : si l'échec survient *après* la remise SMTP, le rejeu
- * renvoie le mail. Bénin pour une invitation ; à revoir pour devis / commandes.
+ * **Idempotence** (#59) : la charge porte une `idempotencyKey`, réservée dans
+ * `mail_deliveries` (`INSERT … ON CONFLICT DO NOTHING`) avant l'envoi. Une clé
+ * déjà `sent` sort sans rien envoyer : un rejeu après un échec *postérieur* à la
+ * remise SMTP ne renvoie pas le mail. Un échec définitif laisse la ligne en
+ * `failed` (dead-letter, rejouable par `node ace mail:retry`) et émet
+ * `MailDeliveryFailed`.
+ *
+ * Limite : une erreur levée *par* `mail.send()` est indiscernable d'un mail non
+ * remis ; le rejeu renvoie alors le mail (mieux vaut un doublon qu'une perte).
  *
  * Note DI : `mail` est un **service singleton du framework**, importable au
  * sommet du module (ce n'est pas un `new`). La contrainte « pas de modèle Lucid
@@ -40,14 +51,69 @@ export default class SendMailJob extends Job<SendMailPayload> {
   }
 
   async execute() {
-    await mail.send(this.buildMail())
+    const payload = this.resolvedPayload()
+    const deliveries = await app.container.make(MailDeliveryService)
+
+    if (!(await deliveries.begin(payload))) {
+      logger.info(
+        { idempotencyKey: payload.idempotencyKey, kind: payload.kind },
+        'transactional mail already sent, skipping'
+      )
+      return
+    }
+
+    try {
+      await mail.send(this.buildMail(payload))
+    } catch (error) {
+      await deliveries.markFailed(payload, error as Error)
+      throw error
+    }
+
+    // Le mail est parti : ne jamais faire échouer (donc rejouer) le job pour un
+    // simple défaut de traçabilité.
+    try {
+      await deliveries.markSent(payload.idempotencyKey)
+    } catch (error) {
+      logger.error(
+        { err: error, idempotencyKey: payload.idempotencyKey },
+        'mail sent but delivery could not be marked as sent'
+      )
+    }
   }
 
   async failed(error: Error) {
+    const payload = this.resolvedPayload()
     logger.error(
-      { err: error, to: this.payload.to, kind: this.payload.kind },
+      { err: error, to: payload.to, kind: payload.kind, idempotencyKey: payload.idempotencyKey },
       'transactional mail permanently failed'
     )
+
+    try {
+      const deliveries = await app.container.make(MailDeliveryService)
+      await deliveries.markFailed(payload, error)
+      const attempts = await deliveries.attemptsFor(payload.idempotencyKey)
+      await emitter.emit(
+        MailDeliveryFailed,
+        new MailDeliveryFailed({
+          idempotencyKey: payload.idempotencyKey,
+          kind: payload.kind,
+          to: payload.to,
+          error: error.message,
+          attempts,
+        })
+      )
+    } catch (dlqError) {
+      logger.error({ err: dlqError }, 'could not record mail dead-letter')
+    }
+  }
+
+  /**
+   * Jobs mis en queue avant #59 n'ont pas de clé : on retombe sur l'id du job,
+   * stable d'une tentative à l'autre (le dédoublonnage couvre alors les rejeux).
+   */
+  private resolvedPayload(): SendMailPayload {
+    const key = (this.payload as { idempotencyKey?: string }).idempotencyKey
+    return key ? this.payload : { ...this.payload, idempotencyKey: `legacy:${this.context.jobId}` }
   }
 
   /**
@@ -55,8 +121,8 @@ export default class SendMailJob extends Job<SendMailPayload> {
    * est exhaustif : ajouter un `kind` dans `MAIL_KINDS` sans le traiter ici est
    * une erreur de compilation (`never`).
    */
-  private buildMail(): BaseMail {
-    const { kind, to, data } = this.payload
+  private buildMail(payload: SendMailPayload): BaseMail {
+    const { kind, to, data } = payload
 
     switch (kind) {
       case MAIL_KINDS.organizationInvitation:

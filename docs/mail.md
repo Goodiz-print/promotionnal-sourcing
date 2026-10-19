@@ -16,6 +16,7 @@ SMTP_USERNAME=           # laisser vide pour Mailpit (auth désactivée)
 SMTP_PASSWORD=
 MAIL_FROM_ADDRESS=noreply@promotionnal-sourcing.com
 MAIL_FROM_NAME=Promotionnal Sourcing
+MAIL_ALERT_ADDRESS=      # optionnel : alertes d'échec définitif (vide = log seul)
 ```
 
 En dev, utiliser [Mailpit](https://mailpit.axllent.org/) (`brew install mailpit`) — interface sur http://localhost:8025.
@@ -58,9 +59,11 @@ cf. [`docs/queue.md`](./queue.md)) via `app/jobs/send_mail_job.ts` :
 ```typescript
 import SendMailJob from '#jobs/send_mail_job'
 import { MAIL_KINDS } from '#shared/types/mail'
+import { mailSendKey } from '#shared/helpers/mail'
 
 await SendMailJob.dispatch({
   kind: MAIL_KINDS.organizationInvitation,
+  idempotencyKey: mailSendKey(MAIL_KINDS.organizationInvitation, { invitation: invitation.id }),
   to: invitation.email,
   data: {
     organizationName: org.name,
@@ -76,13 +79,23 @@ await SendMailJob.dispatch({
 - Côté worker, le job appelle `mail.send()` — envoi **synchrone** : la file,
   c'est la queue.
 - **Retries** : 5 tentatives, backoff exponentiel (30 s → 15 min max).
-- **Échec définitif** : `failed()` loggue `{ err, to, kind }` et
-  l'enregistrement est conservé **30 jours** dans `queue_jobs`
-  (`removeOnFail: { age: '30d' }`) pour inspection ou rejeu manuel.
-- ⚠️ **Pas d'idempotence** : si l'échec survient _après_ la remise SMTP, le
-  rejeu renvoie le mail. Bénin pour une invitation ou une notification de
-  demande de devis (un mail, un destinataire) ; à traiter (clé d'idempotence)
-  avant de brancher devis et commandes.
+- **Idempotence** : la charge porte une `idempotencyKey` (calculée à l'enqueue
+  par `mailIdempotencyKey` / `mailSendKey`, `shared/helpers/mail.ts`) réservée dans
+  `mail_deliveries` avant l'envoi. Clé déjà `sent` → le job sort sans rien
+  envoyer ; un échec _après_ la remise ne renvoie donc plus le mail. Mail lié à
+  un fait métier unique (devis) → clé déterministe ; envoi répétable
+  (invitation renvoyée, nouveau lien) → `mailSendKey` (uuid par envoi).
+- **Échec définitif / dead-letter** : `failed()` passe la ligne en `failed`
+  (+ `error`), loggue `{ err, to, kind, idempotencyKey }`, émet `MailDeliveryFailed`
+  (listener : log `error` + mail à `MAIL_ALERT_ADDRESS`). Le `queue_jobs` reste
+  conservé 30 jours (`removeOnFail`).
+- **Rejeu** : `node ace mail:retry <idempotencyKey>` ou `node ace mail:retry --all-failed`.
+- Limite : une erreur levée _par_ `mail.send()` est indiscernable d'un mail non
+  remis ; le rejeu peut alors produire un doublon (jamais une perte).
+
+```sql
+SELECT idempotency_key, kind, "to", attempts, error FROM mail_deliveries WHERE status = 'failed';
+```
 
 ### Types de mail existants
 
@@ -109,7 +122,8 @@ complète — la signature couvre l'URL.
    correspondante dans `shared/types/mail.ts`. `to` est **hissé hors de `data`**
    (commun à tous les mails, il permet de loguer le destinataire sans connaître
    le `kind`).
-3. Traiter le nouveau `kind` dans `SendMailJob#buildMail()` — le `switch` est
+3. Choisir sa clé d'idempotence à l'enqueue (`mailIdempotencyKey` si le mail est lié à un fait métier unique, `mailSendKey` sinon).
+4. Traiter le nouveau `kind` dans `SendMailJob#buildMail()` — le `switch` est
    exhaustif, l'oublier est une **erreur de compilation**.
 
 La charge transite par la base : elle doit rester **sérialisable**. Aucune
@@ -156,7 +170,8 @@ mail.restore()
 
 Le job lui-même est couvert par `tests/unit/send_mail_job.spec.ts` :
 reconstruction du mail depuis la charge, propagation de l'erreur SMTP (c'est ce
-qui déclenche le rejeu), `kind` inconnu, politique de retry.
+qui déclenche le rejeu), `kind` inconnu, politique de retry, idempotence et dead-letter ;
+`mail_retry.spec.ts` et `on_mail_delivery_failed.spec.ts` couvrent `mail:retry` et l'alerte.
 
 ## Références
 

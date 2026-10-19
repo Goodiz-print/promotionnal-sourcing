@@ -90,11 +90,11 @@ await SendEmail.dispatch(payload)
 
 ### Jobs dispatchés à la demande
 
-| Job                           | Dispatché depuis                                                  | Rôle                                                                                                                                    |
-| ----------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `SendMailJob`                 | Controllers / services envoyant un mail transactionnel            | Envoie un mail via `mail.send()` côté worker (5 retries, backoff exponentiel 30 s → 15 min, échecs conservés 30 j) — cf. `docs/mail.md` |
-| `GenerateProductEmbeddingJob` | `SupplierProductService` (création / mise à jour d'un produit)    | Calcule l'embedding du produit et le persiste dans `products.embedding` (pgvector)                                                      |
-| `TranslateEntityJob`          | `TranslationQueueService` (produits, catégories, à la sauvegarde) | Traduit l'entité de sa langue source vers les autres langues de contenu (`is_auto = true`), sans écraser une traduction manuelle        |
+| Job                           | Dispatché depuis                                                  | Rôle                                                                                                                                                                                                                    |
+| ----------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SendMailJob`                 | Controllers / services envoyant un mail transactionnel            | Envoie un mail via `mail.send()` côté worker (5 retries, backoff exponentiel 30 s → 15 min, échecs conservés 30 j), idempotent par `idempotencyKey` (`mail_deliveries`, dead-letter, `mail:retry`) — cf. `docs/mail.md` |
+| `GenerateProductEmbeddingJob` | `SupplierProductService` (création / mise à jour d'un produit)    | Calcule l'embedding du produit et le persiste dans `products.embedding` (pgvector)                                                                                                                                      |
+| `TranslateEntityJob`          | `TranslationQueueService` (produits, catégories, à la sauvegarde) | Traduit l'entité de sa langue source vers les autres langues de contenu (`is_auto = true`), sans écraser une traduction manuelle                                                                                        |
 
 ## Planifier un job (cron)
 
@@ -139,7 +139,8 @@ Vérifications utiles :
 -- Jobs en attente (worker arrêté ou saturé ?)
 SELECT queue, status, count(*) FROM queue_jobs GROUP BY queue, status;
 
--- Mails définitivement en échec (conservés 30 jours). Le nom du job et sa
+-- Dead-letter des mails : SELECT * FROM mail_deliveries WHERE status = 'failed'
+-- (rejeu : node ace mail:retry --all-failed). Côté queue, mails en échec (30 jours). Le nom du job et sa
 -- charge vivent dans la colonne `data` (JSON sérialisé), pas en colonnes.
 SELECT id, error, data::jsonb -> 'payload' AS payload
 FROM queue_jobs
