@@ -2,6 +2,7 @@ import type { ContentLocale, Locale } from './i18n.js'
 import type { CategoryType } from './category.js'
 import type { AttributeWithValuesType } from './attribute.js'
 import type { ImageVariantType } from './image_variant.js'
+import type { DocumentType } from './document.js'
 
 /**
  * Traduction d'un produit (une ligne par locale).
@@ -143,6 +144,8 @@ export type ProductDetailType = ProductType & {
   // Variantes actives et grille de prix dégressive.
   variants: ProductDetailVariantType[]
   priceTiers: ProductPriceTierType[]
+  // Fiches techniques PDF.
+  documents: DocumentType[]
 }
 
 /**
@@ -168,6 +171,7 @@ export type ProductEditType = {
   images: ProductImageType[]
   variants: ProductVariantType[]
   priceTiers: ProductPriceTierType[]
+  documents: DocumentType[]
 }
 
 /**

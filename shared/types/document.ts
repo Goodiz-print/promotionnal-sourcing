@@ -11,3 +11,19 @@ export const DOCUMENT_MAX_SIZE = '20mb' as const
 
 /** Type MIME servi pour tous les documents stockés. */
 export const DOCUMENT_MIME_TYPE = 'application/pdf' as const
+
+/**
+ * Document PDF exposé au frontend (`url` : lien public Cellar). Déclaré en `type`
+ * — contrainte props Inertia `Record<string, JSONDataTypes>`.
+ */
+export type DocumentType = {
+  id: number
+  originalName: string
+  sizeBytes: number
+  url: string
+}
+
+/** Document du profil fournisseur : un `DocumentType` classé par nature. */
+export type OrganizationDocumentType = DocumentType & {
+  kind: OrganizationDocumentKind
+}

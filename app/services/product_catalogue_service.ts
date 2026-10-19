@@ -112,6 +112,9 @@ export default class ProductCatalogueService {
           )
       )
       .preload('priceTiers', (tiers) => tiers.orderBy('minQuantity'))
+      .preload('documents', (documents) =>
+        documents.whereNotNull('storageObjectId').preload('storageObject').orderBy('id')
+      )
       .preload('supplier', (supplier) => supplier.preload('translations'))
       .preload('category', (category) => category.preload('translations'))
       .preload('productAttributes', (pa) =>

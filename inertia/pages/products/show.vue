@@ -7,6 +7,7 @@ import BaseButton from '~/components/base/base_button.vue'
 import ProductGallery from '~/components/product_gallery.vue'
 import VariantSelector from '~/components/products/variant_selector.vue'
 import PriceTierTable from '~/components/products/price_tier_table.vue'
+import DocumentList from '~/components/documents/document_list.vue'
 import type { ProductDetailType } from '#shared/types/product'
 
 const props = defineProps<{ product: ProductDetailType }>()
@@ -108,6 +109,11 @@ const price = computed(() => {
             <dd>{{ attribute.label }}</dd>
           </div>
         </dl>
+
+        <section v-if="product.documents.length > 0" class="flex flex-col gap-2">
+          <h2 class="font-medium">{{ t('documents.datasheet.title') }}</h2>
+          <DocumentList :documents="product.documents" />
+        </section>
 
         <div class="sm:w-56">
           <BaseButton>{{ t('products.show.requestQuote') }}</BaseButton>

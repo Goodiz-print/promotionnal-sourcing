@@ -378,6 +378,30 @@ const routes = {
     tokens: [{"old":"/:locale/supplier/products/:id","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/products/:id","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/products/:id","type":0,"val":"products","end":""},{"old":"/:locale/supplier/products/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['supplier.products.destroy']['types'],
   },
+  'supplier.documents.store': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/profile/documents',
+    tokens: [{"old":"/:locale/supplier/profile/documents","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/profile/documents","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/profile/documents","type":0,"val":"profile","end":""},{"old":"/:locale/supplier/profile/documents","type":0,"val":"documents","end":""}],
+    types: placeholder as Registry['supplier.documents.store']['types'],
+  },
+  'supplier.documents.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/supplier/profile/documents/:id',
+    tokens: [{"old":"/:locale/supplier/profile/documents/:id","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/profile/documents/:id","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/profile/documents/:id","type":0,"val":"profile","end":""},{"old":"/:locale/supplier/profile/documents/:id","type":0,"val":"documents","end":""},{"old":"/:locale/supplier/profile/documents/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['supplier.documents.destroy']['types'],
+  },
+  'supplier.products.documents.store': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/products/:id/documents',
+    tokens: [{"old":"/:locale/supplier/products/:id/documents","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/products/:id/documents","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/products/:id/documents","type":0,"val":"products","end":""},{"old":"/:locale/supplier/products/:id/documents","type":1,"val":"id","end":""},{"old":"/:locale/supplier/products/:id/documents","type":0,"val":"documents","end":""}],
+    types: placeholder as Registry['supplier.products.documents.store']['types'],
+  },
+  'supplier.products.documents.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/supplier/products/:id/documents/:documentId',
+    tokens: [{"old":"/:locale/supplier/products/:id/documents/:documentId","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/products/:id/documents/:documentId","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/products/:id/documents/:documentId","type":0,"val":"products","end":""},{"old":"/:locale/supplier/products/:id/documents/:documentId","type":1,"val":"id","end":""},{"old":"/:locale/supplier/products/:id/documents/:documentId","type":0,"val":"documents","end":""},{"old":"/:locale/supplier/products/:id/documents/:documentId","type":1,"val":"documentId","end":""}],
+    types: placeholder as Registry['supplier.products.documents.destroy']['types'],
+  },
   'rfqs.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/rfqs',

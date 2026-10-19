@@ -672,6 +672,32 @@ Architecture : controllers fins dans `app/controllers/admin/`, services `AdminDa
 
 Tests : `tests/functional/admin_platform_role.spec.ts` (accès, commandes, comptes de démo), `admin_dashboard.spec.ts`, `admin_organizations.spec.ts`, `admin_users.spec.ts`, `admin_categories.spec.ts` (non-régression owner → 403) ; `tests/inertia/admin_users.spec.ts`. Factory : `UserFactory.apply('platformAdmin')`.
 
+## Documents du fournisseur (#60)
+
+Un fournisseur joint des PDF (catalogue, certificat, autre) à son profil. Les fichiers sont compressés
+par Ghostscript puis stockés sur Cellar (voir [`storage.md`](storage.md)) ; le détail du pipeline
+(`PdfService`, `DocumentService`, repli sans `gs`) y est décrit.
+
+- **Table** `organization_documents` : `organization_id` (CASCADE), `kind` (`catalogue` | `certificate` |
+  `other`), `storage_object_id` (nullable, `SET NULL`), `original_name`, `size_bytes`. Modèle
+  `OrganizationDocument` ; relation `Organization hasMany documents`.
+- **Routes** (`start/routes/documents.ts`, groupe authentifié et `onboarded`, droit
+  `canManageSupplierProfile`) : `POST /:locale/supplier/profile/documents` (`supplier.documents.store`,
+  champs `kind` + `file`) et `DELETE /:locale/supplier/profile/documents/:id`
+  (`supplier.documents.destroy`, 404 si le document est d'une autre organisation). Réponses : redirection
+  Inertia + message flash.
+- **Profil** (`supplier/profile.vue`) : le controller passe la prop `documents` (documents de l'organisation
+  ayant un fichier, du plus ancien au plus récent). La section « Documents » utilise le composant
+  `inertia/components/documents/document_manager.vue` (liste, choix de la nature, ajout multipart via
+  `useForm`, retrait via `router.delete` après confirmation, `preserveScroll`).
+- **Fiche publique** (`suppliers/show.vue`) : `SupplierDetailType.documents` ; la section « Documents »
+  n'apparaît que s'il y en a. Le lien `url` pointe directement vers Cellar.
+- **Transformer** `OrganizationDocumentTransformer` : l'URL publique vient de `DocumentService.urlFor`
+  (passé au constructeur, un transformer n'a pas accès au conteneur).
+- **Tests** : `tests/functional/documents_routes.spec.ts` (ajout, retrait, droits, 404),
+  `tests/functional/documents_pages.spec.ts` (props du profil et de la fiche publique),
+  `tests/inertia/documents.spec.ts` et `tests/inertia/suppliers.spec.ts`.
+
 ## Roadmap
 
 Découpage de la Phase 2 en 4 PR :

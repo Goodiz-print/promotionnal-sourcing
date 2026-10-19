@@ -1,4 +1,22 @@
 {
   "uploaded": "Documento adicionado.",
-  "deleted": "Documento removido."
+  "deleted": "Documento removido.",
+  "title": "Documentos",
+  "empty": "Ainda não há documentos.",
+  "add": "Adicionar",
+  "remove": "Remover",
+  "confirmRemove": "Remover «{name}»?",
+  "fields": {
+    "kind": "Tipo de documento",
+    "file": "Ficheiro PDF (máx. 20 MB)"
+  },
+  "kinds": {
+    "catalogue": "Catálogo",
+    "certificate": "Certificado",
+    "other": "Outro"
+  },
+  "datasheet": {
+    "title": "Ficha técnica",
+    "empty": "Ainda não há ficha técnica."
+  }
 }

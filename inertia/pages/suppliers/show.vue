@@ -2,12 +2,18 @@
 import { Head } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import ProductCard from '~/components/product_card.vue'
+import DocumentList from '~/components/documents/document_list.vue'
 import type { SupplierDetailType } from '#shared/types/supplier'
+import type { OrganizationDocumentType } from '#shared/types/document'
 
 const props = defineProps<{ supplier: SupplierDetailType }>()
 
 const { t } = useI18n()
 const profile = props.supplier.supplierProfile
+
+function documentLabel(document: OrganizationDocumentType) {
+  return t(`documents.kinds.${document.kind}`)
+}
 </script>
 
 <template>
@@ -75,6 +81,11 @@ const profile = props.supplier.supplierProfile
         </span>
       </div>
       <p v-if="profile.bio" class="text-[var(--gray-6)]">{{ profile.bio }}</p>
+    </section>
+
+    <section v-if="supplier.documents.length > 0" class="flex flex-col gap-3">
+      <h2 class="text-xl font-semibold tracking-[-0.4px]">{{ t('documents.title') }}</h2>
+      <DocumentList :documents="supplier.documents" :label-for="documentLabel" />
     </section>
 
     <section class="flex flex-col gap-4">

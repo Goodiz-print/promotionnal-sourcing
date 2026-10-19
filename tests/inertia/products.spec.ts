@@ -16,6 +16,7 @@ const translations = {
   'products.index.previous': 'Précédent',
   'products.index.next': 'Suivant',
   'products.show.backToCatalogue': 'Retour au catalogue',
+  'documents.datasheet.title': 'Fiche technique',
   'products.show.viewImage': "Voir l'image",
   'products.show.minQuantity': 'Quantité minimum',
   'products.show.category': 'Catégorie',
@@ -159,10 +160,20 @@ describe('products/show.vue', () => {
           ],
           variants: [],
           priceTiers: [],
+          documents: [
+            {
+              id: 3,
+              originalName: 'fiche-crayon.pdf',
+              sizeBytes: 2048,
+              url: 'https://cellar.test/fiche.pdf',
+            },
+          ],
         },
       },
     })
 
+    expect(wrapper.text()).toContain('Fiche technique')
+    expect(wrapper.find('a[href="https://cellar.test/fiche.pdf"]').text()).toBe('fiche-crayon.pdf')
     expect(wrapper.text()).toContain('Crayon Aquarelle Bleu')
     expect(wrapper.text()).toContain('Nordic Promo')
     expect(wrapper.text()).toContain('1.50 – 2.00 EUR')

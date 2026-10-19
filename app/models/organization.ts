@@ -5,6 +5,7 @@ import OrganizationUser from '#models/organization_user'
 import Supplier from '#models/supplier'
 import SupplierProfile from '#models/supplier_profile'
 import User from '#models/user'
+import OrganizationDocument from '#models/organization_document'
 import type { OrganizationKind, OrganizationSize } from '#shared/types/organization'
 
 export default class Organization extends OrganizationSchema {
@@ -28,4 +29,7 @@ export default class Organization extends OrganizationSchema {
 
   @hasMany(() => Supplier)
   declare suppliers: HasMany<typeof Supplier>
+
+  @hasMany(() => OrganizationDocument)
+  declare documents: HasMany<typeof OrganizationDocument>
 }

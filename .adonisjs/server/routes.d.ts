@@ -66,6 +66,10 @@ export type ScannedRoutes = {
     'supplier.products.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.products.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.products.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.documents.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.documents.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.products.documents.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.products.documents.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'documentId': ParamValue} }
     'rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'rfqs.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'rfqs.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -200,6 +204,8 @@ export type ScannedRoutes = {
     'organization.invitations.resend': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.products.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.products.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.documents.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.products.documents.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'rfqs.suppliers.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.publish': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -224,6 +230,8 @@ export type ScannedRoutes = {
     'organization.members.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'organization.invitations.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.products.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.documents.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.products.documents.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'documentId': ParamValue} }
     'rfqs.suppliers.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'supplierId': ParamValue} }
     'admin.categories.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
   }

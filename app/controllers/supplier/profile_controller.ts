@@ -2,6 +2,8 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import { updateSupplierProfileValidator } from '#validators/supplier_profile'
 import SupplierProfileService from '#services/supplier_profile_service'
+import DocumentService from '#services/document_service'
+import OrganizationDocumentTransformer from '#transformers/organization_document_transformer'
 import SupplierProfileTransformer from '#transformers/supplier_profile_transformer'
 import OrganizationContextService from '#services/organization_context_service'
 
@@ -9,6 +11,7 @@ import OrganizationContextService from '#services/organization_context_service'
 export default class SupplierProfileController {
   constructor(
     private service: SupplierProfileService,
+    private documents: DocumentService,
     private organizations: OrganizationContextService
   ) {}
 
@@ -20,9 +23,13 @@ export default class SupplierProfileController {
     await bouncer.authorize('canManageSupplierProfile', org)
 
     const profile = await this.service.getForOrganization(org.id)
+    const documents = await this.documents.listForOrganization(org)
 
     return inertia.render('supplier/profile', {
       profile: profile ? new SupplierProfileTransformer(profile).toObject() : null,
+      documents: documents.map((document) =>
+        new OrganizationDocumentTransformer(document, this.documents.urlFor).toObject()
+      ),
     })
   }
 
