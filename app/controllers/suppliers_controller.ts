@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import { Exception } from '@adonisjs/core/exceptions'
 import SupplierDirectoryService from '#services/supplier_directory_service'
+import DocumentService from '#services/document_service'
 import SupplierTransformer from '#transformers/supplier_transformer'
 import SupplierDetailTransformer from '#transformers/supplier_detail_transformer'
 import type { Locale } from '#shared/types/i18n'
@@ -10,7 +11,10 @@ const PER_PAGE = 12
 
 @inject()
 export default class SuppliersController {
-  constructor(private service: SupplierDirectoryService) {}
+  constructor(
+    private service: SupplierDirectoryService,
+    private documents: DocumentService
+  ) {}
 
   /**
    * Annuaire public paginé + filtrable (recherche par nom, filtre pays).
@@ -57,7 +61,7 @@ export default class SuppliersController {
     }
 
     return inertia.render('suppliers/show', {
-      supplier: new SupplierDetailTransformer(supplier, locale).toObject(),
+      supplier: new SupplierDetailTransformer(supplier, locale, this.documents.urlFor).toObject(),
     })
   }
 }

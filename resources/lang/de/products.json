@@ -18,20 +18,31 @@
     "minQuantity": "Mindestmenge",
     "category": "Kategorie",
     "origin": "Herkunftsland",
-    "requestQuote": "Angebot anfordern"
+    "requestQuote": "Angebot anfordern",
+    "variants": "Varianten",
+    "priceTiers": "Preis nach Menge",
+    "tierQuantity": "Menge",
+    "tierPrice": "Stückpreis",
+    "tierFrom": "Ab {quantity} Stück"
   },
   "manage": {
     "index": {
       "title": "Meine Produkte",
       "empty": "Sie haben noch kein Produkt. Erstellen Sie eines."
     },
-    "create": { "title": "Neues Produkt" },
-    "edit": { "title": "Produkt bearbeiten" },
-    "newProduct": "Neues Produkt",
+    "create": {
+      "title": "Neues Produkt"
+    },
     "edit": "Bearbeiten",
+    "newProduct": "Neues Produkt",
     "delete": "Löschen",
     "save": "Speichern",
     "cancel": "Abbrechen",
+    "sourceLocale": "Ausgangssprache",
+    "sourceLocaleHint": "Andere Sprachen werden automatisch erzeugt, wenn sie leer bleiben.",
+    "sourceBadge": "Quelle",
+    "autoBadge": "Auto",
+    "autoHint": "Bleibt es leer, wird dieser Text automatisch erzeugt. Eine Änderung fixiert ihn.",
     "published": "Veröffentlicht",
     "draft": "Entwurf",
     "facets": "Merkmale",
@@ -55,6 +66,25 @@
       "madeInEurope": "In Europa hergestellt",
       "isActive": "Veröffentlicht",
       "images": "Bilder hinzufügen"
+    },
+    "variants": {
+      "title": "Varianten",
+      "empty": "Keine Variante: Das Produkt wird unverändert angeboten.",
+      "add": "Variante hinzufügen",
+      "remove": "Entfernen",
+      "sku": "SKU",
+      "image": "Variantenbild",
+      "isActive": "Variante angeboten"
+    },
+    "priceTiers": {
+      "title": "Staffelpreise",
+      "hint": "Sinkender Stückpreis je nach bestellter Menge. Mit Staffeln wird die Preisspanne automatisch berechnet.",
+      "add": "Staffel hinzufügen",
+      "remove": "Entfernen",
+      "appliesTo": "Gilt für",
+      "allVariants": "Alle Varianten",
+      "minQuantity": "Ab (Stück)",
+      "unitPrice": "Stückpreis"
     }
   }
 }

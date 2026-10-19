@@ -18,20 +18,31 @@
     "minQuantity": "Cantidad mínima",
     "category": "Categoría",
     "origin": "País de origen",
-    "requestQuote": "Solicitar presupuesto"
+    "requestQuote": "Solicitar presupuesto",
+    "variants": "Variantes",
+    "priceTiers": "Precio según cantidad",
+    "tierQuantity": "Cantidad",
+    "tierPrice": "Precio unitario",
+    "tierFrom": "Desde {quantity} unidades"
   },
   "manage": {
     "index": {
       "title": "Mis productos",
       "empty": "Todavía no tiene ningún producto. Cree uno."
     },
-    "create": { "title": "Nuevo producto" },
-    "edit": { "title": "Editar el producto" },
-    "newProduct": "Nuevo producto",
+    "create": {
+      "title": "Nuevo producto"
+    },
     "edit": "Editar",
+    "newProduct": "Nuevo producto",
     "delete": "Eliminar",
     "save": "Guardar",
     "cancel": "Cancelar",
+    "sourceLocale": "Idioma de origen",
+    "sourceLocaleHint": "Los demás idiomas se generan automáticamente si los deja vacíos.",
+    "sourceBadge": "Origen",
+    "autoBadge": "Auto",
+    "autoHint": "Si se deja vacío, este texto se genera automáticamente. Editarlo lo fija.",
     "published": "Publicado",
     "draft": "Borrador",
     "facets": "Características",
@@ -55,6 +66,25 @@
       "madeInEurope": "Fabricado en Europa",
       "isActive": "Publicado",
       "images": "Añadir imágenes"
+    },
+    "variants": {
+      "title": "Variantes",
+      "empty": "Sin variantes: el producto se vende tal cual.",
+      "add": "Añadir una variante",
+      "remove": "Quitar",
+      "sku": "SKU",
+      "image": "Imagen de la variante",
+      "isActive": "Variante ofrecida"
+    },
+    "priceTiers": {
+      "title": "Escalas de precio",
+      "hint": "Precio unitario decreciente según la cantidad pedida. Con escalas, el rango de precios se calcula automáticamente.",
+      "add": "Añadir una escala",
+      "remove": "Quitar",
+      "appliesTo": "Se aplica a",
+      "allVariants": "Todas las variantes",
+      "minQuantity": "Desde (unidades)",
+      "unitPrice": "Precio unitario"
     }
   }
 }

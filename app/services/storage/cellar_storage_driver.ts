@@ -1,5 +1,6 @@
 import {
   DeleteObjectCommand,
+  GetObjectCommand,
   HeadObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -45,6 +46,14 @@ export default class CellarStorageDriver extends StorageDriver {
     }
   }
 
+  async get(key: string): Promise<Buffer> {
+    const response = await this.s3().send(
+      new GetObjectCommand({ Bucket: storageConfig.bucket, Key: key })
+    )
+    if (!response.Body) throw new Error(`Objet vide : ${key}`)
+    return Buffer.from(await response.Body.transformToByteArray())
+  }
+
   url(key: string): string {
     return `${storageConfig.endpoint}/${storageConfig.bucket}/${key}`
   }
@@ -58,6 +67,10 @@ export default class CellarStorageDriver extends StorageDriver {
       endpoint: storageConfig.endpoint,
       region: storageConfig.region,
       forcePathStyle: true,
+      // Cellar n'accepte pas les checksums CRC32 ajoutés par défaut depuis le
+      // SDK v3.729 : on ne les calcule/valide que lorsque l'opération l'exige.
+      requestChecksumCalculation: 'WHEN_REQUIRED',
+      responseChecksumValidation: 'WHEN_REQUIRED',
       credentials: {
         accessKeyId: storageConfig.accessKeyId,
         secretAccessKey: storageConfig.secretAccessKey,

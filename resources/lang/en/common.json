@@ -3,7 +3,8 @@
   "nav": {
     "login": "Login",
     "signup": "Signup",
-    "logout": "Logout"
+    "logout": "Logout",
+    "admin": "Administration"
   },
   "language": {
     "label": "Language",

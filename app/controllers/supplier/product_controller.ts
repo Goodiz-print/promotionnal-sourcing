@@ -1,13 +1,17 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import SupplierProductService from '#services/supplier_product_service'
+import DocumentService from '#services/document_service'
 import ProductTransformer from '#transformers/product_transformer'
 import ProductEditTransformer from '#transformers/product_edit_transformer'
 import CategoryTransformer from '#transformers/category_transformer'
 import AttributeTransformer from '#transformers/attribute_transformer'
 import AttributeValueTransformer from '#transformers/attribute_value_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
-import { supplierProductValidator } from '#validators/supplier_product'
+import {
+  createSupplierProductValidator,
+  updateSupplierProductValidator,
+} from '#validators/supplier_product'
 import type { Locale } from '#shared/types/i18n'
 import OrganizationContextService from '#services/organization_context_service'
 
@@ -19,6 +23,7 @@ import OrganizationContextService from '#services/organization_context_service'
 export default class ProductController {
   constructor(
     private service: SupplierProductService,
+    private documents: DocumentService,
     private organizations: OrganizationContextService
   ) {}
 
@@ -54,7 +59,7 @@ export default class ProductController {
     const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageProducts', org)
 
-    const payload = await request.validateUsing(supplierProductValidator)
+    const payload = await request.validateUsing(createSupplierProductValidator)
     await this.service.create(org, payload, payload.images ?? [])
 
     session.flash('success', i18n.t('products.manage.created'))
@@ -72,7 +77,7 @@ export default class ProductController {
     if (!product) throw new ProductNotFoundException()
 
     return inertia.render('supplier/products/edit', {
-      product: new ProductEditTransformer(product).toObject(),
+      product: new ProductEditTransformer(product, this.documents.urlFor).toObject(),
       ...(await this.facetData(i18n.locale as Locale)),
     })
   }
@@ -87,7 +92,7 @@ export default class ProductController {
     const product = await this.service.findOwned(org, Number(params.id))
     if (!product) throw new ProductNotFoundException()
 
-    const payload = await request.validateUsing(supplierProductValidator)
+    const payload = await request.validateUsing(updateSupplierProductValidator)
     await this.service.update(product, payload, payload.images ?? [], payload.removedImageIds ?? [])
 
     session.flash('success', i18n.t('products.manage.updated'))

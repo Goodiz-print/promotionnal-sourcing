@@ -16,6 +16,8 @@ import {
   signupThrottle,
 } from '#start/limiter'
 import { registerRfqRoutes } from '#start/routes/rfqs'
+import { registerDocumentRoutes } from '#start/routes/documents'
+import { registerHealthRoutes } from '#start/routes/health'
 import { registerMarketingRoutes, registerMarketingLegacyRoutes } from '#start/routes/marketing'
 import { LOCALE_ROUTE_PATTERN } from '#shared/types/i18n'
 import { controllers } from '#generated/controllers'
@@ -39,6 +41,8 @@ router.get('/', ({ i18n, response }: HttpContext) => response.redirect(`/${i18n.
  * redirige vers l'URL préfixée de la nouvelle langue. Hors préfixe.
  */
 router.post('locale', [controllers.Locale, 'update']).as('locale.update')
+
+registerHealthRoutes()
 
 /**
  * Toutes les routes applicatives vivent sous un préfixe de locale
@@ -238,8 +242,28 @@ router
                   .delete('supplier/products/:id', [controllers.supplier.Product, 'destroy'])
                   .as('supplier.products.destroy')
 
+                // Documents PDF (profil et fiches produit) — cf. `start/routes/documents.ts`.
+                registerDocumentRoutes()
+
                 // Demandes de devis, acheteur et fournisseur — cf. `start/routes/rfqs.ts`.
                 registerRfqRoutes()
+              })
+              .use(middleware.onboarded())
+
+            // Back-office plateforme : réservé à l'équipe (`platform_role = admin`),
+            // sans lien avec une organisation — donc hors `onboarded`.
+            router
+              .group(() => {
+                router.get('admin', [controllers.admin.Dashboard, 'index']).as('admin.dashboard')
+
+                router
+                  .get('admin/organizations', [controllers.admin.Organization, 'index'])
+                  .as('admin.organizations.index')
+                router
+                  .get('admin/organizations/:id', [controllers.admin.Organization, 'show'])
+                  .as('admin.organizations.show')
+
+                router.get('admin/users', [controllers.admin.User, 'index']).as('admin.users.index')
 
                 // Administration de la taxonomie du catalogue (catégories globales).
                 router
@@ -261,7 +285,7 @@ router
                   .delete('admin/categories/:id', [controllers.admin.Category, 'destroy'])
                   .as('admin.categories.destroy')
               })
-              .use(middleware.onboarded())
+              .use(middleware.platformAdmin())
           })
           .use(middleware.emailVerified())
       })

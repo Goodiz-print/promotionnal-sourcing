@@ -4,7 +4,7 @@ import Attribute from '#models/attribute'
 import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
 import { contentLocaleFor, LOCALE_TSCONFIG, type Locale } from '#shared/types/i18n'
 import { toPgVector } from '#shared/helpers/pgvector'
-import type { ProductDirectoryFilters } from '#shared/types/product'
+import type { ProductDirectoryFilters, ProductSort } from '#shared/types/product'
 
 interface ListOptions extends ProductDirectoryFilters {
   page: number
@@ -13,6 +13,9 @@ interface ListOptions extends ProductDirectoryFilters {
   // Embedding de la requête (recherche sémantique). Fourni par le controller
   // quand la recherche IA est active ; sinon repli sur le full-text.
   queryEmbedding?: number[] | null
+  // `price_asc` : tri par prix unitaire du premier palier (hors recherche
+  // sémantique, qui garde son ordre de pertinence).
+  sort?: ProductSort | null
 }
 
 /**
@@ -42,7 +45,10 @@ export default class ProductCatalogueService {
 
     const query = Product.query()
       .where('isActive', true)
-      .withScopes((scopes) => scopes.fromLiveOrganization())
+      .withScopes((scopes) => {
+        scopes.fromLiveOrganization()
+        scopes.notRejected()
+      })
       .if(categoryId, (q) => q.where('categoryId', categoryId!))
       .if(madeInEurope, (q) => q.where('madeInEurope', true))
       .if(attributeValueIds.length > 0, (q) => {
@@ -57,7 +63,7 @@ export default class ProductCatalogueService {
       // index HNSW `products_embedding_idx`) parmi les produits vectorisés.
       query
         .whereNotNull('embedding')
-        .orderByRaw('embedding <=> ?::vector', [toPgVector(queryEmbedding)])
+        .orderByRaw('embedding <=> ?::halfvec', [toPgVector(queryEmbedding)])
     } else if (search) {
       // Repli full-text locale-aware (IA indisponible ou requête non vectorisée).
       query
@@ -65,6 +71,13 @@ export default class ProductCatalogueService {
           t
             .where('locale', searchLocale)
             .whereRaw(`search_vector @@ websearch_to_tsquery('${tsConfig}', ?)`, [search])
+        )
+        .orderBy('slug')
+    } else if (options.sort === 'price_asc') {
+      // Premier palier = plus petite quantité ; produits sans palier en fin de liste.
+      query
+        .orderByRaw(
+          `(SELECT unit_price FROM product_price_tiers t WHERE t.product_id = products.id ORDER BY t.min_quantity, t.unit_price LIMIT 1) ASC NULLS LAST`
         )
         .orderBy('slug')
     } else {
@@ -82,9 +95,26 @@ export default class ProductCatalogueService {
     return Product.query()
       .where('slug', slug)
       .where('isActive', true)
-      .withScopes((scopes) => scopes.fromLiveOrganization())
+      .withScopes((scopes) => {
+        scopes.fromLiveOrganization()
+        scopes.notRejected()
+      })
       .preload('translations')
-      .preload('images', (images) => images.orderBy('position'))
+      .preload('images', (images) => images.orderBy('position').preload('variants'))
+      .preload('variants', (variants) =>
+        variants
+          .where('isActive', true)
+          .orderBy('id')
+          .preload('attributes', (pivot) =>
+            pivot
+              .preload('attribute', (attribute) => attribute.preload('translations'))
+              .preload('attributeValue', (value) => value.preload('translations'))
+          )
+      )
+      .preload('priceTiers', (tiers) => tiers.orderBy('minQuantity'))
+      .preload('documents', (documents) =>
+        documents.whereNotNull('storageObjectId').preload('storageObject').orderBy('id')
+      )
       .preload('supplier', (supplier) => supplier.preload('translations'))
       .preload('category', (category) => category.preload('translations'))
       .preload('productAttributes', (pa) =>

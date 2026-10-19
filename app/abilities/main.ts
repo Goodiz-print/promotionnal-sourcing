@@ -104,14 +104,22 @@ export const canManageProducts = Bouncer.ability(async (user: User, org: Organiz
 })
 
 /**
- * Ability to check if a user can manage the catalogue taxonomy (categories).
- * Categories are a global, platform-level resource (not org-scoped), so any
- * organization type qualifies — but the user must be an owner/admin of their
- * current organization (permission `categories:manage`).
+ * Ability to check if a user belongs to the platform team (`users.platform_role
+ * = 'admin'`). Orthogonal to organization roles: an `owner` of an ordinary
+ * organization is not a platform admin, and a platform admin needs no
+ * membership at all.
  */
-export const canManageCategories = Bouncer.ability(async (user: User, org: Organization) => {
-  const m = await getMembership(user, org)
-  return m ? ['owner', 'admin'].includes(m.role.slug) : false
+export const isPlatformAdmin = Bouncer.ability((user: User) => {
+  return user.isPlatformAdmin
+})
+
+/**
+ * Ability to check if a user can manage the catalogue taxonomy (categories).
+ * Categories are a global, platform-level resource: only a platform admin may
+ * create, edit or delete them — never the owner/admin of an organization.
+ */
+export const canManageCategories = Bouncer.ability((user: User) => {
+  return user.isPlatformAdmin
 })
 
 /**

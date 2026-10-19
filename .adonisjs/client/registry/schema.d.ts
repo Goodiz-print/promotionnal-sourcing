@@ -67,6 +67,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/locale_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'health.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/health'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/health_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/health_controller').default['show']>>>
+    }
+  }
   'home': {
     methods: ["GET","HEAD"]
     pattern: '/:locale'
@@ -695,10 +707,10 @@ export interface Registry {
     methods: ["POST"]
     pattern: '/:locale/supplier/products'
     types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/supplier_product').supplierProductValidator)>>
+      body: ExtractBody<InferInput<(typeof import('#validators/supplier_product').createSupplierProductValidator)>>
       paramsTuple: [ParamValue]
       params: { locale: ParamValue }
-      query: ExtractQuery<InferInput<(typeof import('#validators/supplier_product').supplierProductValidator)>>
+      query: ExtractQuery<InferInput<(typeof import('#validators/supplier_product').createSupplierProductValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
@@ -719,10 +731,10 @@ export interface Registry {
     methods: ["POST"]
     pattern: '/:locale/supplier/products/:id'
     types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/supplier_product').supplierProductValidator)>>
+      body: ExtractBody<InferInput<(typeof import('#validators/supplier_product').updateSupplierProductValidator)>>
       paramsTuple: [ParamValue, ParamValue]
       params: { locale: ParamValue; id: ParamValue }
-      query: ExtractQuery<InferInput<(typeof import('#validators/supplier_product').supplierProductValidator)>>
+      query: ExtractQuery<InferInput<(typeof import('#validators/supplier_product').updateSupplierProductValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
@@ -737,6 +749,54 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['destroy']>>>
+    }
+  }
+  'supplier.documents.store': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/profile/documents'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/document').organizationDocumentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/document').organizationDocumentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/document_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/document_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.documents.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/supplier/profile/documents/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/document_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/document_controller').default['destroy']>>>
+    }
+  }
+  'supplier.products.documents.store': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/products/:id/documents'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/document').productDocumentValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/document').productDocumentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/product_document_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_document_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.products.documents.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/supplier/products/:id/documents/:documentId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; documentId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/product_document_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_document_controller').default['destroy']>>>
     }
   }
   'rfqs.index': {
@@ -893,6 +953,54 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['decline']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['decline']>>>
+    }
+  }
+  'admin.dashboard': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>>
+    }
+  }
+  'admin.organizations.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/organizations'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['index']>>>
+    }
+  }
+  'admin.organizations.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/organizations/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['show']>>>
+    }
+  }
+  'admin.users.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/users'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/user_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/user_controller').default['index']>>>
     }
   }
   'admin.categories.index': {

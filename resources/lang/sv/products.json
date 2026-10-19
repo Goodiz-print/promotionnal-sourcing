@@ -18,20 +18,31 @@
     "minQuantity": "Minsta kvantitet",
     "category": "Kategori",
     "origin": "Ursprungsland",
-    "requestQuote": "Begär offert"
+    "requestQuote": "Begär offert",
+    "variants": "Varianter",
+    "priceTiers": "Pris efter antal",
+    "tierQuantity": "Antal",
+    "tierPrice": "Styckpris",
+    "tierFrom": "Från {quantity} st"
   },
   "manage": {
     "index": {
       "title": "Mina produkter",
       "empty": "Du har ännu inga produkter. Skapa en."
     },
-    "create": { "title": "Ny produkt" },
-    "edit": { "title": "Redigera produkt" },
-    "newProduct": "Ny produkt",
+    "create": {
+      "title": "Ny produkt"
+    },
     "edit": "Redigera",
+    "newProduct": "Ny produkt",
     "delete": "Ta bort",
     "save": "Spara",
     "cancel": "Avbryt",
+    "sourceLocale": "Källspråk",
+    "sourceLocaleHint": "Övriga språk genereras automatiskt om de lämnas tomma.",
+    "sourceBadge": "Källa",
+    "autoBadge": "Auto",
+    "autoHint": "Om det lämnas tomt genereras texten automatiskt. Redigering låser den.",
     "published": "Publicerad",
     "draft": "Utkast",
     "facets": "Egenskaper",
@@ -55,6 +66,25 @@
       "madeInEurope": "Tillverkad i Europa",
       "isActive": "Publicerad",
       "images": "Lägg till bilder"
+    },
+    "variants": {
+      "title": "Varianter",
+      "empty": "Inga varianter: produkten säljs som den är.",
+      "add": "Lägg till en variant",
+      "remove": "Ta bort",
+      "sku": "SKU",
+      "image": "Variantens bild",
+      "isActive": "Variant erbjuds"
+    },
+    "priceTiers": {
+      "title": "Prisnivåer",
+      "hint": "Sjunkande styckpris efter beställt antal. Med prisnivåer beräknas prisintervallet automatiskt.",
+      "add": "Lägg till en nivå",
+      "remove": "Ta bort",
+      "appliesTo": "Gäller för",
+      "allVariants": "Alla varianter",
+      "minQuantity": "Från (st)",
+      "unitPrice": "Styckpris"
     }
   }
 }

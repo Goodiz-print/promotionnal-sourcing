@@ -15,6 +15,9 @@ export interface ApiDefinition {
   locale: {
     update: typeof routes['locale.update']
   }
+  health: {
+    show: typeof routes['health.show']
+  }
   home: typeof routes['home']
   suppliers: {
     index: typeof routes['suppliers.index']
@@ -101,6 +104,14 @@ export interface ApiDefinition {
       edit: typeof routes['supplier.products.edit']
       update: typeof routes['supplier.products.update']
       destroy: typeof routes['supplier.products.destroy']
+      documents: {
+        store: typeof routes['supplier.products.documents.store']
+        destroy: typeof routes['supplier.products.documents.destroy']
+      }
+    }
+    documents: {
+      store: typeof routes['supplier.documents.store']
+      destroy: typeof routes['supplier.documents.destroy']
     }
     rfqs: {
       index: typeof routes['supplier.rfqs.index']
@@ -123,6 +134,14 @@ export interface ApiDefinition {
     close: typeof routes['rfqs.close']
   }
   admin: {
+    dashboard: typeof routes['admin.dashboard']
+    organizations: {
+      index: typeof routes['admin.organizations.index']
+      show: typeof routes['admin.organizations.show']
+    }
+    users: {
+      index: typeof routes['admin.users.index']
+    }
     categories: {
       index: typeof routes['admin.categories.index']
       create: typeof routes['admin.categories.create']

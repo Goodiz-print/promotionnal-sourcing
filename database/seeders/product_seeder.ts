@@ -5,6 +5,8 @@ import Attribute from '#models/attribute'
 import AttributeValue from '#models/attribute_value'
 import Product from '#models/product'
 import ProductTranslation from '#models/product_translation'
+import ProductTranslationSearchService from '#services/product_translation_search_service'
+import app from '@adonisjs/core/services/app'
 import type { ContentLocale } from '#shared/types/i18n'
 
 /**
@@ -158,6 +160,7 @@ const PRODUCTS: ProductSeed[] = [
 
 export default class ProductSeeder extends BaseSeeder {
   async run() {
+    const translationSearch = await app.container.make(ProductTranslationSearchService)
     const suppliers = await Supplier.query().select('id', 'slug')
     const categories = await Category.query().select('id', 'slug')
     const attributes = await Attribute.query().select('id', 'slug')
@@ -199,6 +202,7 @@ export default class ProductSeeder extends BaseSeeder {
           seed.translations[locale]
         )
       }
+      await translationSearch.refreshForProduct(product.id)
 
       // Rattache les facettes via le pivot product_attributes (avec attribute_id).
       const pivot: Record<number, { attribute_id: number }> = {}

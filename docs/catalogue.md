@@ -50,21 +50,42 @@ Migration `…948_enable_search_extensions` active `vector` (pgvector),
 `pg_trgm` (recherche floue) et `unaccent` (normalisation FR côté requête) —
 no-op hors PostgreSQL.
 
-- **`products.embedding`** — `vector(1024)`, nullable, index **HNSW**
-  (`vector_cosine_ops`). Peuplé par le job `generate_product_embedding_job`
+- **`products.embedding`** — `halfvec(1024)`, nullable, index **HNSW**
+  (`halfvec_cosine_ops`, voir « Décision halfvec »). Les requêtes castent en `?::halfvec`. Peuplé par le job `generate_product_embedding_job`
   (`mistral-embed`) — voir « Recherche sémantique » ci-dessous.
-- **`product_translations.search_vector`** — colonne générée **immuable**,
-  un `CASE` par `locale` (`to_tsvector('french', …)` / `to_tsvector('english',
-…)`, repli `'simple'`) + index GIN. `unaccent()` est `STABLE` et interdit
-  dans une colonne `GENERATED` : il est appliqué côté requête, pas en
-  stockage.
-- Ajouter une langue à la recherche plein-texte = ajouter une entrée dans
-  `LOCALE_TSCONFIG` (`shared/types/i18n.ts`) **et** une branche `WHEN` dans
-  la migration `…959_create_product_translations_table`.
+- **`product_translations.search_vector`** — colonne `tsvector` **ordinaire**,
+  calculée par l'application à l'écriture d'une traduction
+  (`ProductTranslationSearchService.refreshForProduct`, config lue dans
+  `LOCALE_TSCONFIG`, repli `'simple'`) + un index GIN **partiel par locale**
+  (`WHERE locale = '<xx>'`). `unaccent()` reste appliqué côté requête.
+- Toute écriture de `product_translations` doit appeler le service (un test
+  vérifie qu'aucune ligne n'a un `search_vector` NULL).
+- Ajouter une langue à la recherche plein-texte = une entrée dans
+  `LOCALE_TSCONFIG` (`shared/types/i18n.ts`), une migration
+  `CREATE INDEX … WHERE locale = '<xx>'` et le backfill de ses lignes. Aucune
+  réécriture de la table (#84).
 
 `database/schema_rules.ts` exclut `products.embedding` et
 `product_translations.search_vector` du schéma généré par l'ORM (colonnes
 SQL brutes, jamais typées/sérialisées).
+
+## Décision halfvec (#71)
+
+**Décision : `halfvec(1024)`** (migration `…300000_products_embedding_halfvec`, à jouer avant le remplissage en masse).
+
+Mesures locales (pgvector 0.8.5, 20 000 vecteurs 1024 dim synthétiques) :
+
+|                               | `vector`   | `halfvec`  |
+| ----------------------------- | ---------- | ---------- |
+| Octets par embedding          | 4 100      | 2 052      |
+| Table (+TOAST)                | 107 Mo     | 54 Mo      |
+| Index HNSW                    | 156 Mo     | 52 Mo      |
+| Latence requête top-10 (moy.) | 3,2–4,8 ms | 2,2–2,5 ms |
+
+Soit ~1 Go d'index et ~2 Go de table économisés pour 1 M de produits.
+Précision : écart de distance cosinus halfvec vs vector ≤ 1,6·10⁻⁵ (moy. 3,6·10⁻⁶), contre un écart-type des distances de ~5·10⁻³ au sein d'un cluster ; le classement ne change que pour des quasi-égalités.
+
+Limites : le jeu synthétique (bruit uniforme) est quasi-équidistant, donc un rappel@10 par identifiants n'y est pas significatif (même `vector`+HNSW n'atteint que ~52 %) ; le temps de build de l'index (62 s vs 12 s) est biaisé par `maintenance_work_mem` trop faible pour `vector`. À revalider sur de vrais embeddings `mistral-embed` quand le catalogue sera rempli ; retour arrière possible via le `down()` de la migration.
 
 ## Recherche sémantique (embeddings Mistral)
 
@@ -88,13 +109,13 @@ exact (« stylo écologique » → produits verts).
   d'une autre taille lève `EmbeddingDimensionError`.
 - **Génération** — `EmbeddingService` (provider injecté, testable) calcule
   l'embedding depuis `productText` (nom + description, toutes locales) et l'écrit
-  en `products.embedding` (`?::vector`). Déclenchée en asynchrone par le job
+  en `products.embedding` (`?::halfvec`). Déclenchée en asynchrone par le job
   `generate_product_embedding_job`, dispatché à la création/mise à jour d'un
   produit (`supplier_product_service`, dispatch résilient — un échec queue ne
   casse jamais l'écriture produit).
 - **Requête** — `products_controller` calcule (best-effort) l'embedding du terme
   recherché quand l'IA est active ; `product_catalogue_service.list` trie alors
-  par distance cosinus (`embedding <=> ?::vector`, index HNSW) parmi les produits
+  par distance cosinus (`embedding <=> ?::halfvec`, index HNSW) parmi les produits
   vectorisés. **Repli automatique** sur le full-text si l'IA est indisponible ou
   la requête non vectorisée.
 - **Backfill** — `node ace embeddings:backfill` (re)génère les embeddings
@@ -145,7 +166,9 @@ Un produit porte une **galerie** d'images ordonnées, hébergées sur Cellar (vo
   produit fournisseur.
 - **Affichage** : `ProductDetailTransformer` expose `images` (triées par `position`) ;
   fiche `inertia/pages/products/show.vue` via `inertia/components/product_gallery.vue`
-  (image principale + miniatures, repli sur `imageUrl`).
+  (image principale + miniatures, repli sur `imageUrl`). L'image principale sert la
+  variante `detail` et les miniatures la variante `card` quand elles existent,
+  sinon l'original (voir « Variantes d'image » dans [`storage.md`](storage.md)).
 
 ## Gestion produit fournisseur (CRUD + upload)
 
@@ -182,6 +205,45 @@ Un produit porte une **galerie** d'images ordonnées, hébergées sur Cellar (vo
 
 > L'écran d'upload s'appuie sur l'infra de stockage Cellar (voir « Images produit » ci-dessus).
 
+## Variantes et paliers de prix (#53)
+
+Un objet publicitaire se décline (couleur, taille, marquage) et son prix dépend
+de la quantité commandée.
+
+- **`product_variants`** : `product_id` (CASCADE), `sku` (unique par produit),
+  `image_id` → `product_images` (SET NULL, image affichée quand la variante est
+  choisie), `is_active`. Pivot **`product_variant_attributes`** : une valeur
+  d'attribut par attribut et par variante (couleur = rouge, taille = L).
+- **`product_price_tiers`** : `product_id`, `variant_id` (NULL = palier du
+  produit, sinon palier propre à la variante), `min_quantity`,
+  `unit_price decimal(12,4)`, `currency`. Unicité `(product_id, variant_id,
+min_quantity)` en `NULLS NOT DISTINCT` (PostgreSQL ≥ 15) : deux paliers
+  produit de même quantité sont aussi refusés.
+- **`products.price_min` / `price_max` sont recalculés** depuis les paliers
+  (min / max de `unit_price`) à chaque synchronisation — dénormalisation pour
+  les cartes et le tri. Sans palier, la saisie manuelle est conservée. Colonnes
+  en `decimal(12,2)` : un prix à 4 décimales y est arrondi.
+- **Écriture** (`ProductVariantService`, appelé par `SupplierProductService`
+  **dans la transaction du produit**) : champs `variants[]` et `priceTiers[]` du
+  payload de création/mise à jour. `undefined` = inchangé ; un tableau (même
+  vide) remplace l'ensemble. Variantes rapprochées par SKU (id conservé) ;
+  paliers réécrits, `variantSku` désigne la variante visée. SKU en double,
+  palier dupliqué, SKU inconnu, image hors galerie ou deux valeurs du même
+  attribut → erreur de validation (422) et rien n'est écrit.
+- **Lecture** : la fiche publique (`ProductDetailTransformer`) expose les
+  variantes **actives** (facettes résolues) et la grille de prix ; le sélecteur
+  de variante change l'image de la galerie et affiche la grille de la variante
+  si elle a ses propres paliers, sinon celle du produit.
+- **Tri** : `GET /products?sort=price_asc` trie par prix unitaire du premier
+  palier (plus petite quantité) ; produits sans palier en fin de liste.
+- **Formulaire fournisseur** : sections `product_variants_fields.vue` et
+  `product_price_tiers_fields.vue` (provide/inject `ProductFormKey`). Limite :
+  Inertia omet les tableaux vides en multipart ; avec de nouvelles images dans
+  la même soumission, supprimer _toutes_ les variantes/paliers demande donc un
+  second enregistrement.
+- Hors périmètre : colonnes variantes/paliers de l'import CSV (issue dédiée),
+  contrôle de tri dans l'UI du catalogue.
+
 ## i18n du contenu (FR par défaut, EN, extensible à N langues)
 
 Tout le texte visible (nom, description, label) vit dans des **tables de
@@ -207,8 +269,50 @@ traduction dédiées** — jamais dans les tables de base :
   texte à plat (voir `shared/types/product.ts`).
 - **Seeders** : contenu de démo bilingue FR/EN pour les 5 domaines.
 
-> Les validateurs `create`/`update` et les endpoints d'écriture ne sont pas
-> encore adaptés au payload `translations` (prévu incrément suivant).
+### Politique de traduction (source + auto)
+
+- Le fournisseur saisit nom/description dans sa **langue source**
+  (`sourceLocale`, colonne `source_locale` sur `products`, `categories`,
+  `attributes`, `attribute_values`). Les autres langues de contenu sont générées
+  par `TranslateEntityJob` (Mistral) à la sauvegarde.
+- Chaque ligne de traduction porte `is_auto` : `true` = générée (corrigeable),
+  `false` = saisie ou corrigée à la main. `TranslationService` n'écrase jamais
+  une ligne `is_auto = false`. Renvoyer une traduction inchangée ne change pas son
+  marquage.
+- **Validateurs séparés** (`app/validators/supplier_product.ts`, `category.ts`) :
+  `create` exige `sourceLocale` et la seule traduction de cette langue ; `update`
+  est partiel (un champ absent n'est pas modifié, facettes conservées si
+  `attributeValueIds` est absent, une seule langue peut être corrigée).
+- Attributs et valeurs d'attributs : colonnes et prise en charge par
+  `TranslationService` en place ; le déclenchement sera branché avec leur futur
+  écran d'écriture (aujourd'hui : seeders).
+- Les 32 langues de #75 ne sont pas activées : `CONTENT_LOCALES` reste `fr`/`en`
+  tant que l'index plein texte n'est pas étendu (#84).
+
+## Administration de la taxonomie (catégories globales)
+
+CRUD des catégories sous `/:locale/admin/categories` (`admin.categories.*`). Les catégories sont une ressource **globale** de la plateforme : l'accès est réservé aux **admins plateforme** (`users.platform_role = 'admin'`, middleware `platformAdmin` + ability `canManageCategories`), quel que soit — ou même en l'absence de — rôle d'organisation. Avant #47, le `owner`/`admin` de n'importe quelle organisation pouvait modifier la taxonomie ; c'est corrigé. Voir `docs/organisations.md` (§ Rôles : organisation vs plateforme) pour l'attribution du rôle et le reste du back-office.
+
+## Fiche technique PDF (#60)
+
+Un produit peut porter des **fiches techniques** PDF (compressées Ghostscript puis stockées sur Cellar,
+cf. [`storage.md`](storage.md)).
+
+- **Table** `product_documents` : `product_id` (CASCADE), `storage_object_id` (nullable, `SET NULL`),
+  `original_name`, `size_bytes`. Modèle `ProductDocument` ; relation `Product hasMany documents`.
+- **Routes** (droit `canManageProducts`, produit de l'organisation courante) :
+  `POST /:locale/supplier/products/:id/documents` (`supplier.products.documents.store`, champ `file`) et
+  `DELETE /:locale/supplier/products/:id/documents/:documentId` (`supplier.products.documents.destroy`).
+- **Formulaire fournisseur** : sur `supplier/products/edit.vue`, sous le formulaire produit, un bloc
+  « Fiche technique » (`document_manager.vue`, sans choix de nature). Il n'existe pas à la création : un
+  `<form>` ne peut pas en contenir un autre et le téléversement exige un produit enregistré.
+- **Fiche publique** : `ProductDetailType.documents` ; `products/show.vue` affiche la section « Fiche
+  technique » (liens vers Cellar) si au moins un document existe. `ProductEditType.documents` alimente
+  le formulaire d'édition.
+- **Préchargement** : `findBySlug` (catalogue) et `findOwned` (fournisseur) chargent `documents` avec leur
+  `storageObject`, en écartant les lignes sans fichier.
+- **Tests** : `tests/functional/documents_routes.spec.ts`, `tests/functional/documents_pages.spec.ts`,
+  `tests/inertia/documents.spec.ts`, `tests/inertia/products.spec.ts`.
 
 ## Fichiers clés
 
@@ -230,6 +334,9 @@ traduction dédiées** — jamais dans les tables de base :
 - `tests/functional/catalogue_fts.spec.ts` — FTS par langue
   (`to_tsquery('english', …)` vs `to_tsquery('french', …)`), présence/absence
   de `products.embedding`.
+- `tests/functional/product_variants.spec.ts` — variantes, paliers, recalcul
+  de la fourchette de prix, unicité SKU/palier, tri par prix.
+- `tests/inertia/product_variants.spec.ts` — sélecteur de variante, grille de prix.
 - `tests/unit/translations.spec.ts` — `resolveTranslation` (résolution +
   repli).
 - Comme toute la suite, ces tests s'exécutent sous PostgreSQL

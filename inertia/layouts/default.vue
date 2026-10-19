@@ -53,6 +53,13 @@ watch(
         <nav class="flex items-center gap-6.5">
           <LanguageSwitcher />
           <template v-if="page.props.user">
+            <Link
+              v-if="page.props.user.isPlatformAdmin"
+              route="admin.dashboard"
+              :params="{ locale }"
+              class="font-medium text-[var(--gray-8)] hover:text-[var(--gray-12)]"
+              >{{ t('common.nav.admin') }}</Link
+            >
             <OrganizationSwitcher />
             <Link route="account.show" :params="{ locale }" :title="t('account.title')">{{
               page.props.user.initials

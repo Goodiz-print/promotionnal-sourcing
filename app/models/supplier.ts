@@ -1,6 +1,7 @@
 import { belongsTo, hasMany, scope } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import { SupplierSchema } from '#database/schema'
+import { latestDecisionIsRejectedSql } from '#shared/helpers/moderation'
 import Organization from '#models/organization'
 import Product from '#models/product'
 import SupplierTranslation from '#models/supplier_translation'
@@ -16,7 +17,11 @@ export default class Supplier extends SupplierSchema {
    * visibles, d'où `whereDoesntHave` plutôt qu'une jointure.
    */
   static fromLiveOrganization = scope((query: ModelQueryBuilderContract<typeof Supplier>) => {
-    query.whereDoesntHave('organization', (organization) => organization.whereNotNull('archivedAt'))
+    query.whereDoesntHave('organization', (organization) =>
+      organization
+        .whereNotNull('archivedAt')
+        .orWhereRaw(latestDecisionIsRejectedSql('organization', 'organizations.id'))
+    )
   })
 
   @hasMany(() => SupplierTranslation)

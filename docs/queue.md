@@ -90,10 +90,11 @@ await SendEmail.dispatch(payload)
 
 ### Jobs dispatchés à la demande
 
-| Job                           | Dispatché depuis                                               | Rôle                                                                                                                                                                                                                    |
-| ----------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SendMailJob`                 | Controllers / services envoyant un mail transactionnel         | Envoie un mail via `mail.send()` côté worker (5 retries, backoff exponentiel 30 s → 15 min, échecs conservés 30 j), idempotent par `idempotencyKey` (`mail_deliveries`, dead-letter, `mail:retry`) — cf. `docs/mail.md` |
-| `GenerateProductEmbeddingJob` | `SupplierProductService` (création / mise à jour d'un produit) | Calcule l'embedding du produit et le persiste dans `products.embedding` (pgvector)                                                                                                                                      |
+| Job                           | Dispatché depuis                                                  | Rôle                                                                                                                                                                                                                    |
+| ----------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SendMailJob`                 | Controllers / services envoyant un mail transactionnel            | Envoie un mail via `mail.send()` côté worker (5 retries, backoff exponentiel 30 s → 15 min, échecs conservés 30 j), idempotent par `idempotencyKey` (`mail_deliveries`, dead-letter, `mail:retry`) — cf. `docs/mail.md` |
+| `GenerateProductEmbeddingJob` | `SupplierProductService` (création / mise à jour d'un produit)    | Calcule l'embedding du produit et le persiste dans `products.embedding` (pgvector)                                                                                                                                      |
+| `TranslateEntityJob`          | `TranslationQueueService` (produits, catégories, à la sauvegarde) | Traduit l'entité de sa langue source vers les autres langues de contenu (`is_auto = true`), sans écraser une traduction manuelle                                                                                        |
 
 ## Planifier un job (cron)
 
@@ -146,6 +147,23 @@ FROM queue_jobs
 WHERE status = 'failed' AND data::jsonb ->> 'name' = 'SendMailJob'
 ORDER BY finished_at DESC;
 ```
+
+## Supervision
+
+Deux sondes (#61) :
+
+- **`GET /health`** (process web) : 200 `{ "status": "ok" }` si la base répond, 503 sinon.
+  Ne regarde pas la queue : un backlog ne doit pas faire redémarrer le web.
+- **`node ace queue:health`** (worker) : affiche un rapport JSON et sort en 1 si
+  - un job `pending` ou `delayed` a dépassé son échéance de plus de 15 min
+    (worker absent ou saturé) ;
+  - un job `active` est acquis depuis plus de 30 min (worker figé).
+
+  Les échecs des 24 dernières heures sont affichés mais ne dégradent pas la sonde.
+  Le healthcheck du service `worker` du compose l'exécute toutes les 60 s ; une
+  alerte externe peut faire de même depuis un cron.
+
+Seuils : `shared/types/health.ts` (`QUEUE_THRESHOLDS`).
 
 ## Variables d'environnement
 

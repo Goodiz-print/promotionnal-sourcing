@@ -39,6 +39,12 @@ export class FakeStorageDriver extends StorageDriver {
     return this.objects.has(key)
   }
 
+  async get(key: string): Promise<Buffer> {
+    const object = this.objects.get(key)
+    if (!object) throw new Error(`Objet introuvable : ${key}`)
+    return object.content
+  }
+
   url(key: string): string {
     return `https://cellar.test/test-bucket/${key}`
   }
@@ -70,12 +76,21 @@ export function useFakeStorage(group: Group): { readonly driver: FakeStorageDriv
  * (le service le relit comme un fichier de requête). Deux contenus identiques
  * donnent deux fichiers distincts mais le même checksum.
  */
-export async function uploadedFile(content: string, extension = 'png'): Promise<MultipartFile> {
+export async function uploadedFile(
+  content: string | Buffer,
+  extension = 'png'
+): Promise<MultipartFile> {
   const directory = app.tmpPath('storage-tests')
   await mkdir(directory, { recursive: true })
   const tmpPath = `${directory}/${randomUUID()}.${extension}`
   await writeFile(tmpPath, content)
-  return { tmpPath, extname: extension, type: 'image', subtype: extension } as MultipartFile
+  return {
+    tmpPath,
+    clientName: `upload.${extension}`,
+    extname: extension,
+    type: 'image',
+    subtype: extension,
+  } as MultipartFile
 }
 
 export function sha256(content: string): string {

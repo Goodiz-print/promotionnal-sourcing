@@ -3,7 +3,8 @@
   "nav": {
     "login": "Logga in",
     "signup": "Registrera dig",
-    "logout": "Logga ut"
+    "logout": "Logga ut",
+    "admin": "Administration"
   },
   "language": {
     "label": "Språk",

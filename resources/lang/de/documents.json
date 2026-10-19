@@ -1,0 +1,22 @@
+{
+  "uploaded": "Dokument hinzugefügt.",
+  "deleted": "Dokument entfernt.",
+  "title": "Dokumente",
+  "empty": "Noch keine Dokumente.",
+  "add": "Hinzufügen",
+  "remove": "Entfernen",
+  "confirmRemove": "„{name}“ entfernen?",
+  "fields": {
+    "kind": "Dokumenttyp",
+    "file": "PDF-Datei (max. 20 MB)"
+  },
+  "kinds": {
+    "catalogue": "Katalog",
+    "certificate": "Zertifikat",
+    "other": "Sonstiges"
+  },
+  "datasheet": {
+    "title": "Technisches Datenblatt",
+    "empty": "Noch kein technisches Datenblatt."
+  }
+}

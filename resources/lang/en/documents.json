@@ -1,0 +1,22 @@
+{
+  "uploaded": "Document added.",
+  "deleted": "Document removed.",
+  "title": "Documents",
+  "empty": "No documents yet.",
+  "add": "Add",
+  "remove": "Remove",
+  "confirmRemove": "Remove “{name}”?",
+  "fields": {
+    "kind": "Document type",
+    "file": "PDF file (20 MB max)"
+  },
+  "kinds": {
+    "catalogue": "Catalogue",
+    "certificate": "Certificate",
+    "other": "Other"
+  },
+  "datasheet": {
+    "title": "Technical datasheet",
+    "empty": "No technical datasheet yet."
+  }
+}

@@ -7,7 +7,6 @@ import CategoryTransformer from '#transformers/category_transformer'
 import { CategoryNotFoundException } from '#exceptions/catalogue_errors'
 import { createCategoryValidator, updateCategoryValidator } from '#validators/category'
 import type { Locale } from '#shared/types/i18n'
-import OrganizationContextService from '#services/organization_context_service'
 
 /**
  * Administration de la taxonomie du catalogue (catégories globales). CRUD
@@ -16,17 +15,13 @@ import OrganizationContextService from '#services/organization_context_service'
  */
 @inject()
 export default class CategoryController {
-  constructor(
-    private service: CategoryService,
-    private organizations: OrganizationContextService
-  ) {}
+  constructor(private service: CategoryService) {}
 
   /**
    * Liste des catégories (avec parent et nombre de produits).
    */
-  async index({ auth, bouncer, inertia, i18n }: HttpContext) {
-    const org = await this.organizations.currentFor(auth.getUserOrFail())
-    await bouncer.authorize('canManageCategories', org)
+  async index({ bouncer, inertia, i18n }: HttpContext) {
+    await bouncer.authorize('canManageCategories')
     const locale = i18n.locale as Locale
 
     const categories = await this.service.listForAdmin()
@@ -41,9 +36,8 @@ export default class CategoryController {
   /**
    * Formulaire de création (liste des parents assignables).
    */
-  async create({ auth, bouncer, inertia, i18n }: HttpContext) {
-    const org = await this.organizations.currentFor(auth.getUserOrFail())
-    await bouncer.authorize('canManageCategories', org)
+  async create({ bouncer, inertia, i18n }: HttpContext) {
+    await bouncer.authorize('canManageCategories')
 
     return inertia.render('admin/categories/create', {
       parents: await this.parentOptions(i18n.locale as Locale),
@@ -53,9 +47,8 @@ export default class CategoryController {
   /**
    * Crée la catégorie puis redirige vers la liste.
    */
-  async store({ auth, bouncer, request, response, i18n, session }: HttpContext) {
-    const org = await this.organizations.currentFor(auth.getUserOrFail())
-    await bouncer.authorize('canManageCategories', org)
+  async store({ bouncer, request, response, i18n, session }: HttpContext) {
+    await bouncer.authorize('canManageCategories')
 
     const payload = await request.validateUsing(createCategoryValidator)
     await this.service.create(payload)
@@ -68,9 +61,8 @@ export default class CategoryController {
    * Formulaire d'édition (parents assignables = tous sauf la catégorie et ses
    * descendants, pour éviter les cycles).
    */
-  async edit({ auth, bouncer, inertia, params, i18n }: HttpContext) {
-    const org = await this.organizations.currentFor(auth.getUserOrFail())
-    await bouncer.authorize('canManageCategories', org)
+  async edit({ bouncer, inertia, params, i18n }: HttpContext) {
+    await bouncer.authorize('canManageCategories')
 
     const category = await this.service.findById(Number(params.id))
     if (!category) throw new CategoryNotFoundException()
@@ -85,9 +77,8 @@ export default class CategoryController {
    * Met à jour la catégorie. Garde-fou anti-cycle (défense en profondeur : le
    * formulaire exclut déjà les descendants).
    */
-  async update({ auth, bouncer, request, response, params, i18n, session }: HttpContext) {
-    const org = await this.organizations.currentFor(auth.getUserOrFail())
-    await bouncer.authorize('canManageCategories', org)
+  async update({ bouncer, request, response, params, i18n, session }: HttpContext) {
+    await bouncer.authorize('canManageCategories')
 
     const category = await this.service.findById(Number(params.id))
     if (!category) throw new CategoryNotFoundException()
@@ -109,9 +100,8 @@ export default class CategoryController {
    * Supprime la catégorie. Bloquée si elle porte des sous-catégories ou des
    * produits (flash d'erreur + retour arrière).
    */
-  async destroy({ auth, bouncer, response, params, i18n, session }: HttpContext) {
-    const org = await this.organizations.currentFor(auth.getUserOrFail())
-    await bouncer.authorize('canManageCategories', org)
+  async destroy({ bouncer, response, params, i18n, session }: HttpContext) {
+    await bouncer.authorize('canManageCategories')
 
     const category = await this.service.findById(Number(params.id))
     if (!category) throw new CategoryNotFoundException()

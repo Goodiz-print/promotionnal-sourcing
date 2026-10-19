@@ -18,20 +18,31 @@
     "minQuantity": "Quantidade mínima",
     "category": "Categoria",
     "origin": "País de origem",
-    "requestQuote": "Pedir orçamento"
+    "requestQuote": "Pedir orçamento",
+    "variants": "Variantes",
+    "priceTiers": "Preço por quantidade",
+    "tierQuantity": "Quantidade",
+    "tierPrice": "Preço unitário",
+    "tierFrom": "A partir de {quantity} unidades"
   },
   "manage": {
     "index": {
       "title": "Os meus produtos",
       "empty": "Ainda não tem nenhum produto. Crie um."
     },
-    "create": { "title": "Novo produto" },
-    "edit": { "title": "Editar o produto" },
-    "newProduct": "Novo produto",
+    "create": {
+      "title": "Novo produto"
+    },
     "edit": "Editar",
+    "newProduct": "Novo produto",
     "delete": "Eliminar",
     "save": "Guardar",
     "cancel": "Cancelar",
+    "sourceLocale": "Idioma de origem",
+    "sourceLocaleHint": "Os outros idiomas são gerados automaticamente se ficarem vazios.",
+    "sourceBadge": "Origem",
+    "autoBadge": "Auto",
+    "autoHint": "Se ficar vazio, este texto é gerado automaticamente. Editá-lo fixa-o.",
     "published": "Publicado",
     "draft": "Rascunho",
     "facets": "Características",
@@ -55,6 +66,25 @@
       "madeInEurope": "Fabricado na Europa",
       "isActive": "Publicado",
       "images": "Adicionar imagens"
+    },
+    "variants": {
+      "title": "Variantes",
+      "empty": "Sem variantes: o produto é vendido tal como está.",
+      "add": "Adicionar uma variante",
+      "remove": "Remover",
+      "sku": "SKU",
+      "image": "Imagem da variante",
+      "isActive": "Variante disponível"
+    },
+    "priceTiers": {
+      "title": "Escalões de preço",
+      "hint": "Preço unitário decrescente consoante a quantidade encomendada. Com escalões, o intervalo de preços é calculado automaticamente.",
+      "add": "Adicionar um escalão",
+      "remove": "Remover",
+      "appliesTo": "Aplica-se a",
+      "allVariants": "Todas as variantes",
+      "minQuantity": "A partir de (unidades)",
+      "unitPrice": "Preço unitário"
     }
   }
 }

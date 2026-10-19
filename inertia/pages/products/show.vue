@@ -1,15 +1,29 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
 import BaseButton from '~/components/base/base_button.vue'
 import ProductGallery from '~/components/product_gallery.vue'
+import VariantSelector from '~/components/products/variant_selector.vue'
+import PriceTierTable from '~/components/products/price_tier_table.vue'
+import DocumentList from '~/components/documents/document_list.vue'
 import type { ProductDetailType } from '#shared/types/product'
 
 const props = defineProps<{ product: ProductDetailType }>()
 
 const { t, locale } = useI18n()
+
+const selectedVariantId = ref<number | null>(props.product.variants[0]?.id ?? null)
+const selectedVariant = computed(
+  () => props.product.variants.find((variant) => variant.id === selectedVariantId.value) ?? null
+)
+
+// Grille de la variante choisie si elle a ses propres paliers, sinon celle du produit.
+const tiers = computed(() => {
+  const own = props.product.priceTiers.filter((tier) => tier.variantId === selectedVariantId.value)
+  return own.length > 0 ? own : props.product.priceTiers.filter((tier) => tier.variantId === null)
+})
 
 const price = computed(() => {
   const { priceMin, priceMax, currency } = props.product
@@ -36,6 +50,7 @@ const price = computed(() => {
         :images="product.images"
         :fallback-url="product.imageUrl"
         :alt="product.name ?? product.slug"
+        :focus-image-id="selectedVariant?.imageId ?? null"
       />
 
       <div class="flex flex-1 flex-col gap-4">
@@ -52,6 +67,14 @@ const price = computed(() => {
 
         <p v-if="price" class="text-xl font-medium">{{ price }}</p>
         <p v-if="product.description" class="text-[var(--gray-6)]">{{ product.description }}</p>
+
+        <VariantSelector
+          v-if="product.variants.length > 0"
+          :variants="product.variants"
+          :selected-id="selectedVariantId"
+          @select="selectedVariantId = $event"
+        />
+        <PriceTierTable v-if="tiers.length > 0" :tiers="tiers" />
 
         <dl class="flex flex-col gap-2 text-sm">
           <div
@@ -86,6 +109,11 @@ const price = computed(() => {
             <dd>{{ attribute.label }}</dd>
           </div>
         </dl>
+
+        <section v-if="product.documents.length > 0" class="flex flex-col gap-2">
+          <h2 class="font-medium">{{ t('documents.datasheet.title') }}</h2>
+          <DocumentList :documents="product.documents" />
+        </section>
 
         <div class="sm:w-56">
           <BaseButton>{{ t('products.show.requestQuote') }}</BaseButton>

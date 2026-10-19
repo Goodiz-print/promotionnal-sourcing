@@ -23,4 +23,7 @@ export const UserFactory = factory
   .state('unverified', (user) => {
     user.emailVerifiedAt = null
   })
+  .state('platformAdmin', (user) => {
+    user.platformRole = 'admin'
+  })
   .build()

@@ -21,6 +21,28 @@ de bascule se confirment le jour J sur <https://www.postgresql.org/download/>.**
 > créé avec une image ≤ 17 n'est pas réutilisable tel quel (migration `pg_upgrade` ou
 > `pg_dump` / restauration).
 
+## Version minimale de pgvector (#107)
+
+| Fonctionnalité                                | Version minimale de `vector` | Où                                                          |
+| --------------------------------------------- | ---------------------------- | ----------------------------------------------------------- |
+| Type `halfvec` (embeddings en demi-précision) | **0.7.0**                    | migration `…products_embedding_halfvec`, `EmbeddingService` |
+| Index HNSW sur `halfvec`                      | 0.7.0                        | `products_embedding_idx`                                    |
+
+**Ne pas utiliser une version inférieure à 0.7.** Avec 0.6.x, la migration échoue
+(`type "halfvec" does not exist`) et quatre tests d'embeddings échouent.
+
+Vérification sur une base :
+
+```sql
+SELECT extversion FROM pg_extension WHERE extname = 'vector';  -- doit être >= 0.7
+```
+
+Environnements :
+
+- **Dev et tests** : `pgvector/pgvector:pg18` (`docker-compose.yml`), pgvector 0.8.x. C'est la voie recommandée.
+- **CI** : même image (`.github/workflows/ci.yml`).
+- **Installation manuelle** : le paquet Debian `postgresql-16-pgvector` de bookworm est en 0.6.0 et **ne convient pas**. Préférer le conteneur.
+
 ## Extensions requises (relevé sur 18.6)
 
 | Extension  | Usage                                  | Version livrée |

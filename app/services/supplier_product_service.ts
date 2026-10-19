@@ -7,15 +7,21 @@ import Category from '#models/category'
 import Attribute from '#models/attribute'
 import AttributeValue from '#models/attribute_value'
 import ProductImage from '#models/product_image'
+import ProductImageVariant from '#models/product_image_variant'
+import ProductVariantService from '#services/product_variant_service'
 import ProductTranslation from '#models/product_translation'
 import SupplierTranslation from '#models/supplier_translation'
 import StorageService from '#services/storage/storage_service'
+import TranslationQueueService from '#services/translation_queue_service'
+import { missingSourceTranslation } from '#exceptions/translation_errors'
+import ProductTranslationSearchService from '#services/product_translation_search_service'
 import GenerateProductEmbeddingJob from '#jobs/generate_product_embedding_job'
+import GenerateImageVariantsJob from '#jobs/generate_image_variants_job'
 import logger from '@adonisjs/core/services/logger'
-import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE } from '#shared/types/i18n'
+import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
 import type Organization from '#models/organization'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
-import type { SupplierProductInput } from '#shared/types/product'
+import type { SupplierProductInput, SupplierProductUpdateInput } from '#shared/types/product'
 
 /**
  * Gestion des produits côté fournisseur (CRUD + galerie Cellar). Toute la
@@ -24,7 +30,12 @@ import type { SupplierProductInput } from '#shared/types/product'
  */
 @inject()
 export default class SupplierProductService {
-  constructor(private storage: StorageService) {}
+  constructor(
+    private storage: StorageService,
+    private translationQueue: TranslationQueueService,
+    private translationSearch: ProductTranslationSearchService,
+    private variants: ProductVariantService
+  ) {}
 
   /**
    * Résout le fournisseur (fiche catalogue) de l'organisation. Le crée si l'org
@@ -57,7 +68,7 @@ export default class SupplierProductService {
     return Product.query()
       .whereHas('supplier', (supplier) => supplier.where('organizationId', org.id))
       .preload('translations')
-      .preload('images', (images) => images.orderBy('position'))
+      .preload('images', (images) => images.orderBy('position').preload('variants'))
       .orderBy('slug')
   }
 
@@ -70,8 +81,13 @@ export default class SupplierProductService {
       .where('id', productId)
       .whereHas('supplier', (supplier) => supplier.where('organizationId', org.id))
       .preload('translations')
-      .preload('images', (images) => images.orderBy('position'))
+      .preload('images', (images) => images.orderBy('position').preload('variants'))
       .preload('attributeValues')
+      .preload('variants', (variants) => variants.preload('attributes').orderBy('id'))
+      .preload('priceTiers', (tiers) => tiers.orderBy('minQuantity'))
+      .preload('documents', (documents) =>
+        documents.whereNotNull('storageObjectId').preload('storageObject').orderBy('id')
+      )
       .first()
   }
 
@@ -84,36 +100,67 @@ export default class SupplierProductService {
     data: SupplierProductInput,
     files: MultipartFile[]
   ): Promise<Product> {
+    const source = data.translations[data.sourceLocale]
+    if (!source) throw missingSourceTranslation(data.sourceLocale)
+
     const supplier = await this.resolveSupplier(org)
     const slug = await this.uniqueSlug(
-      data.translations[DEFAULT_CONTENT_LOCALE].name,
+      source.name,
       async (s) => !!(await Product.findBy('slug', s))
     )
 
-    const product = await Product.create({ supplierId: supplier.id, slug, ...this.toColumns(data) })
+    // Produit + variantes + paliers dans une même transaction : une variante
+    // invalide n'abandonne pas un produit à moitié créé.
+    const product = await db.transaction(async (trx) => {
+      const created = await Product.create(
+        {
+          supplierId: supplier.id,
+          slug,
+          sourceLocale: data.sourceLocale,
+          ...this.toColumns(data),
+          // Explicite : sans cela, `product.isActive` resterait indéfini après l'insert.
+          isActive: data.isActive ?? true,
+        },
+        { client: trx }
+      )
+      await this.variants.sync(trx, created, data.variants, data.priceTiers)
+      return created
+    })
 
     await this.writeTranslations(product, data.translations)
     await this.syncFacets(product, data.attributeValueIds)
     await this.attachImages(product, files, 0)
     await this.refreshPrimaryImage(product)
     await this.queueEmbedding(product)
+    if (product.isActive) {
+      await this.translationQueue.queue('product', product.id, data.sourceLocale)
+    }
 
     return product
   }
 
   /**
-   * Met à jour un produit : champs, traductions, facettes (remplacées), et
-   * galerie (suppression des images retirées + ajout des nouvelles).
+   * Met à jour un produit. **Partiel** : seuls les champs fournis sont modifiés
+   * (une seule langue peut être corrigée sans renvoyer le produit ; facettes
+   * conservées si `attributeValueIds` est absent). Galerie : suppression des
+   * images retirées + ajout des nouvelles.
    */
   async update(
     product: Product,
-    data: SupplierProductInput,
+    data: SupplierProductUpdateInput,
     files: MultipartFile[],
     removedImageIds: number[] = []
   ): Promise<Product> {
-    await product.merge(this.toColumns(data)).save()
+    const sourceLocale = (data.sourceLocale ?? product.sourceLocale) as ContentLocale
+    await this.assertSourceExists(product, sourceLocale, data.translations?.[sourceLocale])
+
+    await db.transaction(async (trx) => {
+      product.useTransaction(trx)
+      await product.merge({ ...this.toColumns(data), sourceLocale }).save()
+      await this.variants.sync(trx, product, data.variants, data.priceTiers)
+    })
     await this.writeTranslations(product, data.translations)
-    await this.syncFacets(product, data.attributeValueIds)
+    if (data.attributeValueIds !== undefined) await this.syncFacets(product, data.attributeValueIds)
 
     await this.removeImages(product, removedImageIds)
 
@@ -121,6 +168,7 @@ export default class SupplierProductService {
     await this.attachImages(product, files, last ? last.position + 1 : 0)
     await this.refreshPrimaryImage(product)
     await this.queueEmbedding(product)
+    if (product.isActive) await this.translationQueue.queue('product', product.id, sourceLocale)
 
     return product
   }
@@ -132,11 +180,12 @@ export default class SupplierProductService {
    */
   async delete(product: Product): Promise<void> {
     const images = await product.related('images').query()
+    const objectIds = await this.galleryObjectIds(images)
 
     const tombstones = await db.transaction(async (trx) => {
       await Product.query({ client: trx }).where('id', product.id).delete()
       const ids: Array<number | null> = []
-      for (const image of images) ids.push(await this.storage.release(trx, image.storageObjectId))
+      for (const objectId of objectIds) ids.push(await this.storage.release(trx, objectId))
       return ids
     })
 
@@ -153,6 +202,7 @@ export default class SupplierProductService {
     const removed = await ProductImage.query()
       .whereIn('id', imageIds)
       .where('productId', product.id)
+    const objectIds = await this.galleryObjectIds(removed)
 
     const tombstones = await db.transaction(async (trx) => {
       await ProductImage.query({ client: trx })
@@ -162,11 +212,42 @@ export default class SupplierProductService {
         )
         .delete()
       const ids: Array<number | null> = []
-      for (const image of removed) ids.push(await this.storage.release(trx, image.storageObjectId))
+      for (const objectId of objectIds) ids.push(await this.storage.release(trx, objectId))
       return ids
     })
 
     await this.storage.dispatchDeletions(tombstones)
+  }
+
+  /**
+   * Objets Cellar portés par ces images : l'original **et** ses variantes
+   * (les lignes variantes partent en cascade avec l'image, leurs objets doivent
+   * être libérés dans la même transaction).
+   */
+  private async galleryObjectIds(images: ProductImage[]): Promise<number[]> {
+    const variants = await ProductImageVariant.query().whereIn(
+      'productImageId',
+      images.map((image) => image.id)
+    )
+    const ids = [
+      ...images.map((image) => image.storageObjectId),
+      ...variants.map((variant) => variant.storageObjectId),
+    ]
+    return ids.filter((id): id is number => id !== null)
+  }
+
+  /**
+   * Planifie la génération des variantes (carte, fiche, zoom) des images. Un
+   * échec de queue n'est pas fatal : l'original reste servi.
+   */
+  private async queueVariants(images: ProductImage[]): Promise<void> {
+    for (const image of images) {
+      try {
+        await GenerateImageVariantsJob.dispatch({ productImageId: image.id })
+      } catch (error) {
+        logger.warn({ err: error, productImageId: image.id }, 'failed to queue image variants')
+      }
+    }
   }
 
   /**
@@ -203,32 +284,92 @@ export default class SupplierProductService {
 
   /**
    * Colonnes neutres du produit dérivées du payload (décimaux en string Lucid).
+   * Création : défauts appliqués. Mise à jour : seules les clés présentes sont
+   * retournées (`undefined` = ne pas toucher).
    */
-  private toColumns(data: SupplierProductInput) {
-    return {
-      categoryId: data.categoryId,
-      priceMin: typeof data.priceMin === 'number' ? String(data.priceMin) : null,
-      priceMax: typeof data.priceMax === 'number' ? String(data.priceMax) : null,
-      currency: data.currency ?? 'EUR',
-      minQuantity: data.minQuantity ?? null,
-      originCountry: data.originCountry ?? null,
-      madeInEurope: data.madeInEurope ?? false,
-      isActive: data.isActive ?? true,
-    }
+  private toColumns(data: SupplierProductUpdateInput) {
+    const columns: Partial<
+      Pick<
+        Product,
+        | 'categoryId'
+        | 'priceMin'
+        | 'priceMax'
+        | 'currency'
+        | 'minQuantity'
+        | 'originCountry'
+        | 'madeInEurope'
+        | 'isActive'
+      >
+    > = {}
+    const decimal = (value: number | null) => (typeof value === 'number' ? String(value) : null)
+
+    if (data.categoryId !== undefined) columns.categoryId = data.categoryId
+    if (data.priceMin !== undefined) columns.priceMin = decimal(data.priceMin)
+    if (data.priceMax !== undefined) columns.priceMax = decimal(data.priceMax)
+    if (data.currency !== undefined) columns.currency = data.currency
+    if (data.minQuantity !== undefined) columns.minQuantity = data.minQuantity
+    if (data.originCountry !== undefined) columns.originCountry = data.originCountry
+    if (data.madeInEurope !== undefined) columns.madeInEurope = data.madeInEurope
+    if (data.isActive !== undefined) columns.isActive = data.isActive
+    return columns
   }
 
+  /**
+   * La langue source doit avoir un texte à l'issue de la mise à jour : déjà en
+   * base, ou fourni (avec un nom) dans le payload.
+   */
+  private async assertSourceExists(
+    product: Product,
+    sourceLocale: ContentLocale,
+    provided: { name?: string } | undefined
+  ): Promise<void> {
+    if (provided?.name) return
+    const existing = await ProductTranslation.query()
+      .where('productId', product.id)
+      .where('locale', sourceLocale)
+      .first()
+    if (!existing) throw missingSourceTranslation(sourceLocale)
+  }
+
+  /**
+   * Écrit les traductions **saisies** (`is_auto = false`). Une ligne inchangée
+   * garde son marquage : renvoyer tout le formulaire ne transforme pas les
+   * traductions auto en manuelles. Une langue absente du payload n'est pas
+   * touchée.
+   */
   private async writeTranslations(
     product: Product,
-    translations: SupplierProductInput['translations']
+    translations: SupplierProductUpdateInput['translations']
   ): Promise<void> {
+    if (!translations) return
     for (const locale of CONTENT_LOCALES) {
       const translation = translations[locale]
       if (!translation) continue
-      await ProductTranslation.updateOrCreate(
-        { productId: product.id, locale },
-        { name: translation.name, description: translation.description ?? null }
-      )
+
+      const existing = await ProductTranslation.query()
+        .where('productId', product.id)
+        .where('locale', locale)
+        .first()
+
+      if (!existing) {
+        if (!translation.name) continue
+        await ProductTranslation.create({
+          productId: product.id,
+          locale,
+          name: translation.name,
+          description: translation.description ?? null,
+          isAuto: false,
+        })
+        continue
+      }
+
+      const name = translation.name ?? existing.name
+      const description =
+        translation.description === undefined ? existing.description : translation.description
+      if (name === existing.name && description === existing.description) continue
+      await existing.merge({ name, description, isAuto: false }).save()
     }
+    await this.translationSearch.refreshForProduct(product.id)
   }
 
   /**
@@ -261,8 +402,9 @@ export default class SupplierProductService {
     if (files.length === 0) return
     const objects = await this.storage.storeMany(files)
 
+    let created: ProductImage[]
     try {
-      await product.related('images').createMany(
+      created = await product.related('images').createMany(
         objects.map((object, index) => ({
           secureUrl: this.storage.urlFor(object),
           storageObjectId: object.id,
@@ -273,6 +415,7 @@ export default class SupplierProductService {
       await this.storage.discard(objects.map((object) => object.id))
       throw error
     }
+    await this.queueVariants(created)
   }
 
   /**

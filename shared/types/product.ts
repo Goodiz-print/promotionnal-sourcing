@@ -1,6 +1,8 @@
 import type { ContentLocale, Locale } from './i18n.js'
 import type { CategoryType } from './category.js'
 import type { AttributeWithValuesType } from './attribute.js'
+import type { ImageVariantType } from './image_variant.js'
+import type { DocumentType } from './document.js'
 
 /**
  * Traduction d'un produit (une ligne par locale).
@@ -49,6 +51,11 @@ export interface ProductAttributeValueType {
 }
 
 /**
+ * Tri du catalogue : défaut par slug ; `price_asc` par prix du premier palier.
+ */
+export type ProductSort = 'price_asc'
+
+/**
  * Filtres du catalogue public. `attributeValueIds` combine les facettes en
  * ET fiable (un produit doit porter *toutes* les valeurs sélectionnées).
  */
@@ -88,6 +95,40 @@ export type ProductImageType = {
   position: number
   width: number | null
   height: number | null
+  // Variantes redimensionnées disponibles (vide tant que le job n'a pas tourné).
+  variants: ImageVariantType[]
+}
+
+/**
+ * Variante d'un produit (rouge / L…) identifiée par son SKU. `imageId` pointe
+ * une image de la galerie (affichée quand la variante est choisie).
+ */
+export type ProductVariantType = {
+  id: number
+  sku: string
+  isActive: boolean
+  imageId: number | null
+  attributeValueIds: number[]
+}
+
+/**
+ * Variante de la fiche publique : + facettes résolues dans la locale active.
+ */
+export type ProductDetailVariantType = ProductVariantType & {
+  attributes: ProductDetailAttributeType[]
+}
+
+/**
+ * Palier de prix : à partir de `minQuantity` pièces, `unitPrice` par pièce.
+ * `variantId` null = palier du produit (toutes variantes). Décimal sérialisé
+ * en chaîne par Lucid.
+ */
+export type ProductPriceTierType = {
+  id: number
+  variantId: number | null
+  minQuantity: number
+  unitPrice: string
+  currency: string
 }
 
 /**
@@ -100,6 +141,11 @@ export type ProductDetailType = ProductType & {
   attributes: ProductDetailAttributeType[]
   // Galerie ordonnée (par `position`). `imageUrl` reste l'image principale.
   images: ProductImageType[]
+  // Variantes actives et grille de prix dégressive.
+  variants: ProductDetailVariantType[]
+  priceTiers: ProductPriceTierType[]
+  // Fiches techniques PDF.
+  documents: DocumentType[]
 }
 
 /**
@@ -118,18 +164,54 @@ export type ProductEditType = {
   originCountry: string | null
   madeInEurope: boolean
   isActive: boolean
-  translations: Record<ContentLocale, { name: string; description: string | null }>
+  // Langue saisie par le fournisseur ; les autres sont générées (`isAuto`).
+  sourceLocale: ContentLocale
+  translations: Record<ContentLocale, { name: string; description: string | null; isAuto: boolean }>
   attributeValueIds: number[]
   images: ProductImageType[]
+  variants: ProductVariantType[]
+  priceTiers: ProductPriceTierType[]
+  documents: DocumentType[]
 }
 
 /**
- * Payload validé du formulaire fournisseur (create/update). Le contenu est
- * fourni par locale ; les fichiers image sont traités hors de ce type.
+ * Variante saisie. `imageId` : image **déjà en galerie** du produit.
+ */
+export interface ProductVariantInput {
+  sku: string
+  isActive?: boolean
+  imageId?: number | null
+  attributeValueIds?: number[]
+}
+
+/**
+ * Palier saisi. `variantSku` absent/null = palier du produit ; sinon palier de
+ * la variante portant ce SKU (résolu par le service).
+ */
+export interface ProductPriceTierInput {
+  variantSku?: string | null
+  minQuantity: number
+  unitPrice: number
+}
+
+/**
+ * Contenu saisi pour une locale (nom + description).
+ */
+export interface LocalizedProductContent {
+  name: string
+  description?: string | null
+}
+
+/**
+ * Payload validé de création (formulaire fournisseur). `sourceLocale` est la
+ * langue saisie : seule sa traduction est requise, les autres sont optionnelles
+ * (les manquantes sont générées automatiquement). Les fichiers image sont
+ * traités hors de ce type.
  */
 export interface SupplierProductInput {
   categoryId: number
-  translations: Record<ContentLocale, { name: string; description?: string | null }>
+  sourceLocale: ContentLocale
+  translations: Partial<Record<ContentLocale, LocalizedProductContent>>
   priceMin?: number | null
   priceMax?: number | null
   currency?: string
@@ -138,6 +220,30 @@ export interface SupplierProductInput {
   madeInEurope?: boolean
   isActive?: boolean
   attributeValueIds?: number[]
+  variants?: ProductVariantInput[]
+  priceTiers?: ProductPriceTierInput[]
+}
+
+/**
+ * Payload validé de mise à jour : partiel. Un champ absent n'est pas modifié
+ * (`attributeValueIds` absent = facettes conservées). Une seule locale peut être
+ * corrigée sans renvoyer le produit.
+ */
+export interface SupplierProductUpdateInput {
+  categoryId?: number
+  sourceLocale?: ContentLocale
+  translations?: Partial<Record<ContentLocale, Partial<LocalizedProductContent>>>
+  priceMin?: number | null
+  priceMax?: number | null
+  currency?: string
+  minQuantity?: number | null
+  originCountry?: string | null
+  madeInEurope?: boolean
+  isActive?: boolean
+  attributeValueIds?: number[]
+  // Absent = inchangé ; tableau = remplace l'ensemble (variantes par SKU).
+  variants?: ProductVariantInput[]
+  priceTiers?: ProductPriceTierInput[]
 }
 
 export interface CreateProductData {

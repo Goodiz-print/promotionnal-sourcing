@@ -5,17 +5,24 @@ import { UserFactory } from '#database/factories/user_factory'
 import type User from '#models/user'
 import Category from '#models/category'
 import CategoryTranslation from '#models/category_translation'
-import { createMember } from '#tests/utils/organizations'
+import { createMember, joinOrganization } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
 import type { RoleSlug } from '#shared/types/role'
 
 /**
  * Membre d'une organisation acheteuse fraîche, qui devient son organisation
- * courante. Les catégories sont une ressource globale : l'organisation ne sert
- * qu'à porter le rôle testé.
+ * courante : sert à prouver que le rôle d'organisation n'ouvre pas la taxonomie.
  */
 function freshOrgMember(roleSlug: RoleSlug = 'owner'): Promise<User> {
   return OrganizationFactory.create().then((organization) => createMember(organization, roleSlug))
+}
+
+/**
+ * Admin plateforme **sans** organisation : la taxonomie est globale, elle ne
+ * dépend d'aucune adhésion.
+ */
+function platformAdmin(): Promise<User> {
+  return UserFactory.apply('platformAdmin').create()
 }
 
 const CONTENT = {
@@ -26,44 +33,86 @@ const CONTENT = {
 test.group('Administration des catégories — CRUD + ACL', (group) => {
   useDatabase(group, { extraSeeders: [CategorySeeder] })
 
-  test("l'owner voit la liste des catégories", async ({ client }) => {
-    const owner = await freshOrgMember()
+  test('un admin plateforme voit la liste des catégories', async ({ client }) => {
+    const admin = await platformAdmin()
 
-    const response = await client.get('/fr/admin/categories').withInertia().loginAs(owner)
+    const response = await client.get('/fr/admin/categories').withInertia().loginAs(admin)
 
     response.assertStatus(200)
     response.assertInertiaComponent('admin/categories/index')
   })
 
-  test('un membre ne peut pas gérer les catégories (403)', async ({ client }) => {
-    const member = await freshOrgMember('member')
+  test('un admin plateforme membre d’une organisation y accède aussi', async ({ client }) => {
+    const organization = await OrganizationFactory.create()
+    const admin = await UserFactory.apply('platformAdmin').create()
+    await joinOrganization(admin, organization, 'member')
 
-    const response = await client.get('/fr/admin/categories').withInertia().loginAs(member)
+    const response = await client.get('/fr/admin/categories').withInertia().loginAs(admin)
 
-    response.assertStatus(403)
+    response.assertStatus(200)
   })
 
-  test('un utilisateur sans organisation est renvoyé vers l’onboarding', async ({ client }) => {
+  for (const roleSlug of ['owner', 'admin', 'manager', 'member'] as const) {
+    test(`un ${roleSlug} d’organisation ordinaire ne peut pas gérer les catégories (403)`, async ({
+      client,
+      assert,
+    }) => {
+      const user = await freshOrgMember(roleSlug)
+      const sac = await Category.findByOrFail('slug', 'sac')
+
+      const list = await client.get('/fr/admin/categories').withInertia().loginAs(user)
+      const create = await client.get('/fr/admin/categories/new').withInertia().loginAs(user)
+      assert.equal(list.status(), 403)
+      assert.equal(create.status(), 403)
+
+      // Écritures : refusées sans suivre la redirection de retour du formulaire
+      // (le 403 devient un flash), et surtout **sans effet** en base.
+      const store = await client
+        .post('/fr/admin/categories')
+        .redirects(0)
+        .withCsrfToken()
+        .loginAs(user)
+        .json({ slug: 'intrus', parentId: null, sourceLocale: 'fr', translations: CONTENT })
+      const destroy = await client
+        .delete(`/fr/admin/categories/${sac.id}`)
+        .redirects(0)
+        .withCsrfToken()
+        .loginAs(user)
+      assert.isAtLeast(store.status(), 302)
+      assert.isAtLeast(destroy.status(), 302)
+      assert.isNull(await Category.findBy('slug', 'intrus'))
+      assert.isNotNull(await Category.find(sac.id))
+    })
+  }
+
+  test('un utilisateur sans organisation ni rôle plateforme reçoit un 403', async ({ client }) => {
     const user = await UserFactory.create()
 
     const response = await client.get('/fr/admin/categories').redirects(0).loginAs(user)
 
+    response.assertStatus(403)
+  })
+
+  test('un visiteur anonyme est renvoyé vers la connexion', async ({ client }) => {
+    const response = await client.get('/fr/admin/categories').redirects(0)
+
     response.assertStatus(302)
-    response.assertHeader('location', '/fr/onboarding')
+    response.assertHeader('location', '/login')
   })
 
   test('création d’une catégorie avec ses traductions', async ({ client, assert }) => {
-    const owner = await freshOrgMember()
+    const admin = await platformAdmin()
 
     const response = await client
       .post('/fr/admin/categories')
       .withInertia()
       .withCsrfToken()
-      .loginAs(owner)
+      .loginAs(admin)
       .json({
         slug: 'vetements',
         parentId: null,
         synonyms: ['tshirt', 'textile'],
+        sourceLocale: 'fr',
         translations: CONTENT,
       })
 
@@ -81,14 +130,14 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
   })
 
   test('le slug doit être unique', async ({ client, assert }) => {
-    const owner = await freshOrgMember()
+    const admin = await platformAdmin()
 
     const response = await client
       .post('/fr/admin/categories')
       .redirects(0)
       .withCsrfToken()
-      .loginAs(owner)
-      .json({ slug: 'crayon', parentId: null, translations: CONTENT })
+      .loginAs(admin)
+      .json({ slug: 'crayon', parentId: null, sourceLocale: 'fr', translations: CONTENT })
 
     // 'crayon' existe déjà (CategorySeeder) → échec de validation VineJS :
     // redirection arrière (302) avec les erreurs flashées, aucune création.
@@ -98,7 +147,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
   })
 
   test('mise à jour du nom et du parent', async ({ client, assert }) => {
-    const owner = await freshOrgMember()
+    const admin = await platformAdmin()
     const stylo = await Category.findByOrFail('slug', 'stylo')
     const crayon = await Category.findByOrFail('slug', 'crayon')
 
@@ -106,7 +155,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
       .patch(`/fr/admin/categories/${stylo.id}`)
       .withInertia()
       .withCsrfToken()
-      .loginAs(owner)
+      .loginAs(admin)
       .json({
         parentId: crayon.id,
         synonyms: [],
@@ -129,14 +178,14 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
   })
 
   test('la suppression d’une catégorie feuille réussit', async ({ client, assert }) => {
-    const owner = await freshOrgMember()
+    const admin = await platformAdmin()
     const sac = await Category.findByOrFail('slug', 'sac')
 
     const response = await client
       .delete(`/fr/admin/categories/${sac.id}`)
       .redirects(0)
       .withCsrfToken()
-      .loginAs(owner)
+      .loginAs(admin)
 
     response.assertStatus(302)
     assert.isNull(await Category.find(sac.id))
@@ -146,7 +195,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
     client,
     assert,
   }) => {
-    const owner = await freshOrgMember()
+    const admin = await platformAdmin()
     const crayon = await Category.findByOrFail('slug', 'crayon')
     const child = await Category.create({
       slug: 'crayon-couleur',
@@ -158,7 +207,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
       .delete(`/fr/admin/categories/${crayon.id}`)
       .redirects(0)
       .withCsrfToken()
-      .loginAs(owner)
+      .loginAs(admin)
 
     response.assertStatus(302)
     // Non supprimée : le parent et l'enfant existent toujours.
@@ -167,7 +216,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
   })
 
   test('un cycle de parenté est refusé à la mise à jour', async ({ client, assert }) => {
-    const owner = await freshOrgMember()
+    const admin = await platformAdmin()
     const crayon = await Category.findByOrFail('slug', 'crayon')
     const child = await Category.create({ slug: 'crayon-hb', parentId: crayon.id, synonyms: [] })
 
@@ -176,7 +225,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
       .patch(`/fr/admin/categories/${crayon.id}`)
       .redirects(0)
       .withCsrfToken()
-      .loginAs(owner)
+      .loginAs(admin)
       .json({
         parentId: child.id,
         synonyms: [],

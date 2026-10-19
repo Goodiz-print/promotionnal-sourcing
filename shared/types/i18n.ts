@@ -13,12 +13,55 @@ export const DEFAULT_LOCALE: Locale = 'fr'
  * fournisseurs) est saisi. Plus restreint que `SUPPORTED_LOCALES` : l'interface
  * est traduite en 9 langues, mais les fournisseurs ne renseignent leurs fiches
  * qu'en français et en anglais ; les autres langues retombent sur l'anglais.
- * Ajouter une langue de contenu = l'ajouter ici, dans `LOCALE_TSCONFIG` et dans
- * le `CASE` de `product_translations.search_vector`.
+ * Ajouter une langue de contenu = l'ajouter ici et dans `LOCALE_TSCONFIG`, puis
+ * migration `CREATE INDEX … WHERE locale = '<xx>'` + backfill de ses lignes.
  */
 export const CONTENT_LOCALES = ['fr', 'en'] as const
 
 export type ContentLocale = (typeof CONTENT_LOCALES)[number]
+
+/**
+ * Langues cibles de la traduction automatique du contenu (#75, liste figée) :
+ * 24 de l'UE et 8 hors UE. Ru et be sont exclues (décision du 15 octobre 2026).
+ * Une traduction est générée par produit, catégorie, attribut et valeur, pour
+ * chaque langue de cette liste sauf la langue source.
+ */
+export const TRANSLATION_LOCALES = [
+  'bg',
+  'cs',
+  'da',
+  'de',
+  'el',
+  'en',
+  'es',
+  'et',
+  'fi',
+  'fr',
+  'ga',
+  'hr',
+  'hu',
+  'it',
+  'lt',
+  'lv',
+  'mt',
+  'nl',
+  'pl',
+  'pt',
+  'ro',
+  'sk',
+  'sl',
+  'sv',
+  'no',
+  'is',
+  'uk',
+  'sr',
+  'bs',
+  'mk',
+  'sq',
+  'tr',
+] as const
+
+export type TranslationLocale = (typeof TRANSLATION_LOCALES)[number]
 
 /** Langue de contenu obligatoire à la saisie (sert notamment à dériver le slug). */
 export const DEFAULT_CONTENT_LOCALE: ContentLocale = 'fr'
@@ -66,10 +109,9 @@ export function isSupportedLocale(value: unknown): value is Locale {
 
 /**
  * Configuration de recherche plein-texte PostgreSQL par locale (stemming).
- * Doit rester synchronisé avec le `CASE` de la colonne générée
- * `product_translations.search_vector`. Toute locale absente retombe sur
- * `'simple'` (pas de stemming). Ajouter une langue = ajouter une entrée ici
- * ET une branche `WHEN` dans la migration.
+ * Source unique : `ProductTranslationSearchService` calcule
+ * `product_translations.search_vector` à l'écriture avec cette config. Toute
+ * locale absente retombe sur `'simple'` (pas de stemming).
  */
 export const LOCALE_TSCONFIG: Record<ContentLocale, string> = {
   fr: 'french',
@@ -83,7 +125,7 @@ export const DEFAULT_TSCONFIG = 'simple'
  * (textes juridiques, à faire valider par un humain avant publication) : une
  * langue qui n'a pas le fichier retombe sur l'anglais.
  */
-export const ENGLISH_FALLBACK_NAMESPACES = ['legal', 'privacy'] as const
+export const ENGLISH_FALLBACK_NAMESPACES = ['legal', 'privacy', 'admin'] as const
 
 /**
  * Dictionnaire plat de messages ICU pour une locale donnée
