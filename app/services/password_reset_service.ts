@@ -3,6 +3,7 @@ import { signedUrlFor } from '@adonisjs/core/services/url_builder'
 import env from '#start/env'
 import User from '#models/user'
 import SendMailJob from '#jobs/send_mail_job'
+import { mailSendKey } from '#shared/helpers/mail'
 import { MAIL_KINDS } from '#shared/types/mail'
 import { PASSWORD_RESET_SIGNATURE_PURPOSE, PASSWORD_RESET_TTL_MINUTES } from '#shared/types/auth'
 
@@ -41,6 +42,7 @@ export default class PasswordResetService {
 
     await SendMailJob.dispatch({
       kind: MAIL_KINDS.passwordReset,
+      idempotencyKey: mailSendKey(MAIL_KINDS.passwordReset, { user: user.id }),
       to: user.email,
       data: { resetUrl, expiresInMinutes: PASSWORD_RESET_TTL_MINUTES },
     })

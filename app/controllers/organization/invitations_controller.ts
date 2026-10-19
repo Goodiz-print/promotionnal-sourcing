@@ -4,6 +4,7 @@ import { signedUrlFor } from '@adonisjs/core/services/url_builder'
 import { inviteMemberValidator } from '#validators/organization_invitation'
 import OrganizationInvitationsService from '#services/organization_invitations_service'
 import SendMailJob from '#jobs/send_mail_job'
+import { mailSendKey } from '#shared/helpers/mail'
 import { MAIL_KINDS } from '#shared/types/mail'
 import OrganizationInvitation from '#models/organization_invitation'
 import {
@@ -125,6 +126,10 @@ export default class OrganizationInvitationsController {
 
     await SendMailJob.dispatch({
       kind: MAIL_KINDS.organizationInvitation,
+      // Un renvoi est un nouvel envoi voulu : la clé ne dédoublonne que les rejeux.
+      idempotencyKey: mailSendKey(MAIL_KINDS.organizationInvitation, {
+        invitation: invitation.id,
+      }),
       to: invitation.email,
       data: {
         organizationName: org.name,

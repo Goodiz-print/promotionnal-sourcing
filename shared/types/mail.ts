@@ -71,7 +71,7 @@ export interface EmailVerificationMailData {
  * Union **discriminée par `kind`** : ajouter un membre sans le traiter dans
  * `SendMailJob#buildMail()` est une erreur de compilation.
  */
-export type SendMailPayload =
+export type SendMailContent =
   | {
       kind: typeof MAIL_KINDS.organizationInvitation
       to: string
@@ -92,3 +92,39 @@ export type SendMailPayload =
       to: string
       data: EmailVerificationMailData
     }
+
+/**
+ * Charge complète d'un `SendMailJob` : le contenu du mail + sa **clé
+ * d'idempotence**, calculée par l'appelant à la mise en queue (cf.
+ * `mailIdempotencyKey`). Deux exécutions de la même clé n'envoient qu'un mail.
+ */
+export type SendMailPayload = SendMailContent & { idempotencyKey: string }
+
+/** États d'une ligne `mail_deliveries` (registre d'idempotence + dead-letter). */
+export const MAIL_DELIVERY_STATUSES = {
+  sent: 'sent',
+  failed: 'failed',
+} as const
+
+export type MailDeliveryStatus =
+  (typeof MAIL_DELIVERY_STATUSES)[keyof typeof MAIL_DELIVERY_STATUSES]
+
+/** Ligne de la dead-letter, telle que lue par `mail:retry`. */
+export interface FailedMailDelivery {
+  idempotencyKey: string
+  kind: string
+  to: string
+  error: string | null
+  attempts: number
+  /** `null` si la charge n'est plus disponible (rejeu impossible). */
+  payload: SendMailPayload | null
+}
+
+/** Données de l'événement `MailDeliveryFailed`. */
+export interface MailDeliveryFailure {
+  idempotencyKey: string
+  kind: string
+  to: string
+  error: string
+  attempts: number
+}

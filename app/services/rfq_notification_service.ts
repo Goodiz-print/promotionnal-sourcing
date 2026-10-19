@@ -3,6 +3,7 @@ import logger from '@adonisjs/core/services/logger'
 import db from '@adonisjs/lucid/services/db'
 import OrganizationUser from '#models/organization_user'
 import SendMailJob from '#jobs/send_mail_job'
+import { mailIdempotencyKey } from '#shared/helpers/mail'
 import { MAIL_KINDS } from '#shared/types/mail'
 import { RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
 import type Organization from '#models/organization'
@@ -53,6 +54,11 @@ export default class RfqNotificationService {
         try {
           await SendMailJob.dispatch({
             kind: MAIL_KINDS.rfqReceived,
+            idempotencyKey: mailIdempotencyKey(MAIL_KINDS.rfqReceived, {
+              rfq: rfq.id,
+              org: recipient.supplierOrganizationId,
+              to: email,
+            }),
             to: email,
             data: {
               buyerName: buyer.name,

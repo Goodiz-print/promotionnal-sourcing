@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mail transactionnel en échec</title>
+  </head>
+  <body style="font-family: sans-serif; color: #374151">
+    <h1 style="font-size: 20px">Mail transactionnel en échec définitif</h1>
+    <ul>
+      <li>Type : {{ delivery.kind }}</li>
+      <li>Destinataire : {{ delivery.to }}</li>
+      <li>Tentatives : {{ delivery.attempts }}</li>
+      <li>Clé : {{ delivery.idempotencyKey }}</li>
+      <li>Erreur : {{ delivery.error }}</li>
+    </ul>
+    <p>Rejouer : <code>node ace mail:retry "{{ delivery.idempotencyKey }}"</code></p>
+  </body>
+</html>
