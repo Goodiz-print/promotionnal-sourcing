@@ -57,6 +57,26 @@ services:
       - promotionnal-sourcing_s3_data:/data
     restart: unless-stopped
 
+  # Moteur de recherche hybride (#112) : index de lecture, PostgreSQL reste la
+  # source de vérité. Version épinglée (v1.55.0, dernière stable connue), jamais
+  # `latest`. La clé master vient de `.env` (MEILI_MASTER_KEY), jamais en dur.
+  meilisearch:
+    image: getmeili/meilisearch:v1.55.0
+    container_name: promotionnal-sourcing-meilisearch
+    environment:
+      MEILI_ENV: development
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-}
+    ports:
+      - '7700:7700'
+    volumes:
+      - promotionnal-sourcing_meili_data:/meili_data
+    healthcheck:
+      test: ['CMD', 'curl', '--fail', '--silent', 'http://localhost:7700/health']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
   # Image de production (même Dockerfile que le déploiement), en local. Les
   # variables viennent de `.env.compose` (non committé, cf. .env.compose.example).
   # Le compose surcharge seulement ce qui pointe vers les services locaux.
@@ -74,11 +94,14 @@ services:
       DB_HOST: postgres
       DB_PORT: '5432'
       CELLAR_ENDPOINT: http://s3:9090
+      MEILISEARCH_HOST: http://meilisearch:7700
     depends_on:
       postgres:
         condition: service_healthy
       s3:
         condition: service_started
+      meilisearch:
+        condition: service_healthy
     restart: 'no'
 
   web:
@@ -107,6 +130,8 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+      meilisearch:
+        condition: service_healthy
     restart: unless-stopped
 
   worker:
@@ -128,8 +153,11 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+      meilisearch:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
   promotionnal-sourcing_pg_data:
   promotionnal-sourcing_s3_data:
+  promotionnal-sourcing_meili_data:
