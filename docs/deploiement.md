@@ -1,11 +1,19 @@
 # Déploiement
 
-> Proposition, à valider. Hébergement : Scaleway (#80). Suivi : #78, #86.
+> Hébergement : **Clever Cloud** (ADR 0003). Suivi : #78 (CI/CD, sauvegardes).
+
+## Environnements
+
+| Environnement | Applications                           | PostgreSQL             | Cellar                    | Meilisearch                           | Déclenchement                       |
+| ------------- | -------------------------------------- | ---------------------- | ------------------------- | ------------------------------------- | ----------------------------------- |
+| Dev (local)   | `pnpm dev:all` sur le poste            | Conteneur local        | S3Mock (`localhost:9090`) | À confirmer dans `docker-compose.yml` | Manuel                              |
+| Staging       | Docker XS (web), Docker XS (worker)    | PostgreSQL XS Small    | Bucket staging            | Docker XS (test)                      | Push sur `main`                     |
+| Production    | Docker XS ×2 (web), Docker XS (worker) | PostgreSQL S Big Space | Bucket prod               | Docker M                              | Tag `vX.Y.Z` + approbation manuelle |
 
 ## Règles
 
 - **Staging** : déploiement automatique à chaque push sur `main`.
-- **Prod** : déploiement uniquement sur un tag `vX.Y.Z`, après approbation manuelle.
+- **Prod** : déploiement uniquement sur un tag `vX.Y.Z`, après approbation manuelle (environnement GitHub `production`).
 - **Une image par commit** : construite et testée une fois par la CI, taguée au SHA. La prod réutilise cette image, sans rebuild.
 
 ## Release
@@ -13,8 +21,8 @@
 1. Merge sur `main`. La CI teste, construit `app:<sha>`, déploie en staging.
 2. Vérification sur staging.
 3. `git tag vX.Y.Z && git push origin vX.Y.Z`.
-4. La CI retague l'image et attend l'approbation du job `production`.
-5. Sur approbation : `docker compose pull`, migrations, `docker compose up -d`.
+4. La CI attend l'approbation du job `production`.
+5. Sur approbation : migrations, puis déploiement de l'image sur Clever Cloud avec `clever deploy --tag vX.Y.Z` (applications web et worker).
 
 ## Image Docker
 
@@ -24,7 +32,7 @@ Un seul `Dockerfile` (racine) pour l'application web **et** le worker de queue :
 - Étapes : `deps` (toutes les dépendances) → `build` (`node ace build` : TypeScript + bundle Vite/SSR) → `prod-deps` (`pnpm install --prod --frozen-lockfile`) → `runtime` (ni sources TS, ni devDependencies, ni tests, ni pnpm).
 - Runtime : Ghostscript (compression PDF), dictionnaires hunspell (voir ci-dessous), utilisateur non root `app` (uid 10001), `PORT=3333`, `HOST=0.0.0.0`.
 - Aucun secret dans l'image : toutes les variables (voir `.env.example`) viennent de l'environnement d'exécution. L'application refuse de démarrer si une variable obligatoire manque.
-- Sondes : `GET /health` (web, 200 si la base répond, 503 sinon) et `node ace queue:health` (worker, sortie 1 si des jobs sont en retard ou figés). Healthchecks déclarés dans `docker-compose.yml` ; voir `docs/queue.md`.
+- Sondes : `GET /health` (web, 200 si la base répond, 503 sinon) et `node ace queue:health` (worker, sortie 1 si des jobs sont en retard ou figés). Voir `docs/queue.md`.
 
 ### Construire
 
@@ -35,50 +43,62 @@ docker image ls app   # taille de l'image
 
 `tests/` est exclu du contexte (`.dockerignore`) ; le `Dockerfile` retire donc `bin/test.ts` avant `ace build`.
 
-### Lancer
+### Démarrer les processus
+
+Sur Clever Cloud, chaque processus est une application distincte qui partage le même dépôt :
+
+- **Web** : commande par défaut de l'image (`HOST=0.0.0.0`, port `3333`).
+- **Worker** : `node ace queue:work` (les mails, les purges Cellar et la génération des miniatures en dépendent, voir `docs/queue.md`).
+
+Les variables d'environnement sont définies par application sur Clever Cloud. Les variables `CELLAR_ADDON_*` de l'add-on sont mappées vers `CELLAR_ENDPOINT`, `CELLAR_BUCKET`, `CELLAR_ACCESS_KEY_ID` et `CELLAR_SECRET_ACCESS_KEY` (voir `docs/storage.md`).
+
+### Migrations
+
+Lancées **avant** le redémarrage des applications, par la CI, jamais au démarrage de l'image :
 
 ```bash
-# Web (CMD par défaut)
-docker run -d --env-file .env.prod -p 3333:3333 app:<tag>
-
-# Worker de queue : même image, autre commande (les mails en dépendent, cf. docs/queue.md)
-docker run -d --env-file .env.prod app:<tag> node ace queue:work
-
-# Migrations : conteneur ponctuel, avant le redémarrage, jamais au démarrage de l'image
-docker run --rm --env-file .env.prod app:<tag> node ace migration:run --force
+node ace migration:run --force
 ```
+
+Une migration déjà exécutée ne se modifie jamais. Le `down()` ne se lance pas automatiquement.
 
 ### Dictionnaires hunspell (#84)
 
 Installés dans `/usr/share/hunspell` : bg, bs, cs, hr, is, lv, pl, sk, sl, uk (`hunspell-xx`) et et (`myspell-et`). **Non disponibles dans Debian bookworm : mk, mt, sq** (repli `simple`).
 
-> ⚠️ PostgreSQL lit ses dictionnaires (`.dict` / `.affix`) dans `$SHAREDIR/tsearch_data` **sur le serveur de base**, pas dans le conteneur applicatif. Avec une base managée (#78), ces fichiers de l'image n'ont aucun effet sur la recherche plein texte : ils doivent être déposés côté PostgreSQL (et convertis en UTF-8 minuscules, noms `xx_xx.dict`/`.affix`).
+> ⚠️ PostgreSQL lit ses dictionnaires (`.dict` / `.affix`) dans `$SHAREDIR/tsearch_data` **sur le serveur de base**, pas dans le conteneur applicatif. Sur la base managée Clever Cloud, ces fichiers de l'image n'ont aucun effet sur la recherche plein texte. À confirmer auprès du support : dépôt possible côté serveur ou repli sur `simple`.
 
 ## Meilisearch (#112)
 
-Moteur de recherche hybride, auto-hébergé sur **son propre VPS** (distinct de celui de l'application).
+Moteur de recherche hybride, déployé en **instance Docker Clever Cloud** (Docker M en prod), distinct de l'application web.
 
-- Image officielle `getmeili/meilisearch`, version épinglée (jamais `latest`) dans `docker-compose.yml` du VPS de recherche.
-- Données sur un volume persistant. Sauvegarde : snapshot Meilisearch planifié, copié hors du VPS.
+- Image officielle `getmeili/meilisearch`, version épinglée (jamais `latest`).
+- Données sur un volume persistant. Volume à confirmer sur instance Docker Clever Cloud.
+- Sauvegarde : snapshot Meilisearch planifié, copié hors de la plateforme.
 - Clé master et clé API de l'application : variables `MEILISEARCH_HOST` et `MEILISEARCH_API_KEY`, validées dans `start/env.ts`, documentées dans `.env.example`. Jamais dans l'image.
-- Sonde : `GET /health` sur le port du moteur (healthcheck déclaré dans `docker-compose.yml`).
+- Sonde : `GET /health` sur le port du moteur.
 - Source de vérité : PostgreSQL. Un index corrompu ou perdu se reconstruit par réindexation complète (commande dédiée, rejouable), sans perte de données.
 - Les mises à jour de version Meilisearch passent par une réindexation si la release l'exige : la noter dans le changelog.
 
-## Migrations
+## Base de données
 
-- Lancées avant le redémarrage : `docker compose run --rm app node ace migration:run --force`.
-- Une migration déjà exécutée ne se modifie jamais. Le `down()` ne se lance pas automatiquement.
+- Version : PostgreSQL 18 (Clever Cloud).
+- Extensions `vector` (pgvector), `pg_trgm` et `unaccent` : à activer via le support Clever Cloud. Ne pas exécuter `CREATE EXTENSION` sans accord du support.
+- Sauvegardes quotidiennes incluses, rétention 7 jours. Restauration à un instant donné (pgBackRest) disponible sur demande, à activer si le catalogue devient critique.
+- Réplication Leader-Follower : sur demande, non prévue au lancement.
 
 ## Rollback
 
+Redéployer le tag précédent :
+
 ```bash
-IMAGE_TAG=v1.3.2 docker compose up -d
+clever deploy --tag v1.3.2
 ```
 
 Si la release contenait une migration destructive, le rollback applicatif ne suffit pas.
 
 ## Secrets
 
-- GitHub Secrets : clé SSH de déploiement, identifiants du registre, hôte du VPS, hôte du VPS Meilisearch, clé API Meilisearch.
-- `.env` sur le VPS : jamais committé.
+- Secrets GitHub : token Clever Cloud pour le déploiement (`CLEVER_TOKEN`, `CLEVER_SECRET`), identifiants du registre si utilisé, clé API Meilisearch.
+- Variables Clever Cloud : une liste par application (web, worker), jamais committée.
+- `.env` local : jamais committé.
