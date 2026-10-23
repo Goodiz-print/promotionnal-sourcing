@@ -80,6 +80,18 @@ Moteur de recherche hybride, déployé en **instance Docker Clever Cloud** (Dock
 - Source de vérité : PostgreSQL. Un index corrompu ou perdu se reconstruit par réindexation complète (commande dédiée, rejouable), sans perte de données.
 - Les mises à jour de version Meilisearch passent par une réindexation si la release l'exige : la noter dans le changelog.
 
+### Développement local
+
+Le service `meilisearch` du `docker-compose.yml` démarre avec les autres services de dev (sans profil) :
+
+```bash
+docker compose up -d
+```
+
+`pnpm dev:all` le démarre également, avec Postgres, S3, le worker et le serveur.
+
+Sonde : <http://localhost:7700/health> (`{"status":"available"}`). La clé master vient de `MEILI_MASTER_KEY` dans `.env` (voir `.env.example`) ; données dans le volume `promotionnal-sourcing_meili_data`.
+
 ## Base de données
 
 - Version : PostgreSQL 18 (Clever Cloud).

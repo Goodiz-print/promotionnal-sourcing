@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Lance toutes les instances de développement : Postgres + S3 local (Docker),
+# Lance toutes les instances de développement : Postgres + S3 local + Meilisearch (Docker),
 # Mailpit (si installé), le worker de la queue et le serveur AdonisJS (HMR).
 # Ctrl+C arrête les processus lancés ici ; les conteneurs restent actifs
 # (`docker compose stop` pour les arrêter).
@@ -10,8 +10,8 @@ cd "$(dirname "$0")/.."
 [ -f .env ] || { echo "✗ .env manquant : cp .env.example .env (puis renseigner APP_KEY)"; exit 1; }
 docker info >/dev/null 2>&1 || { echo "✗ Docker n'est pas démarré"; exit 1; }
 
-echo "▶ Postgres + S3 local (Docker)…"
-docker compose up -d --wait postgres s3
+echo "▶ Postgres + S3 local + Meilisearch (Docker)…"
+docker compose up -d --wait postgres s3 meilisearch
 
 pids=()
 cleanup() {
