@@ -731,3 +731,10 @@ faites — série complète.
   rejeu après remise SMTP renvoie le mail — bénin pour une invitation, bloquant
   pour un devis) et **dead-letter / alerting** (aujourd'hui : log + rétention
   30 jours dans `queue_jobs`).
+
+## Menu applicatif et tableau de bord (#43)
+
+- `NavigationService#itemsFor({ organizationType, roleSlug } | null)` décide des entrées du menu ; `InertiaMiddleware` expose le résultat dans la prop partagée `navigation` (`[]` impossible : un visiteur reçoit au moins Catalogue et Fournisseurs). Une organisation courante archivée ou quittée n'apparaît pas dans `membershipsFor` → menu public.
+- `OrganizationSummaryType.organizationType` est exposé au front par `OrganizationSummaryTransformer`.
+- `GET /:locale/dashboard` (`dashboard.show`, groupe `onboarded`) : `DashboardService#forOrganization` renvoie un bloc `buyer` (`buyer`/`both`) et/ou `supplier` (`supplier`/`both`). Destination par défaut après connexion et après l'onboarding.
+- Détail et fichiers : `docs/changelog/2026-10-24-shell-applicatif.md`.
