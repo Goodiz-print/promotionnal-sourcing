@@ -1,0 +1,43 @@
+{
+  "layout": {
+    "automatic": "Ta wiadomość została wysłana automatycznie, prosimy nie odpowiadać."
+  },
+  "invitation": {
+    "subject": "Zaproszenie do organizacji",
+    "title": "Dołącz do {organizationName} w {brandName}",
+    "body": "{inviterName} zaprasza Cię do organizacji {organizationName} w roli: {roleName}.",
+    "cta": "Przyjmij zaproszenie",
+    "validity": "Ten link jest ważny przez 7 dni.",
+    "ignore": "Jeśli nie spodziewałeś(-aś) się tego zaproszenia, możesz je zignorować."
+  },
+  "rfqReceived": {
+    "subject": "Nowe zapytanie ofertowe od {buyerName}",
+    "title": "{buyerName} zwraca się do Ciebie w {brandName}",
+    "body": "{buyerName} prosi o wycenę zapytania „{rfqTitle}” ({itemCount, plural, one {# pozycja} few {# pozycje} many {# pozycji} other {# pozycji}}).",
+    "deadline": "Odpowiedź oczekiwana do {deadline}.",
+    "cta": "Zobacz zapytanie",
+    "footer": "Zaloguj się do panelu dostawcy, aby zobaczyć zapytanie lub je odrzucić."
+  },
+  "passwordReset": {
+    "subject": "Zresetuj hasło",
+    "title": "Zresetuj hasło",
+    "body": "Poprosiłeś(-aś) o zresetowanie hasła do konta {brandName}.",
+    "cta": "Ustaw nowe hasło",
+    "validity": "Ten link jest ważny przez {minutes, plural, one {# minutę} few {# minuty} many {# minut} other {# minuty}} i można go użyć tylko raz.",
+    "ignore": "Jeśli to nie Ty wysłałeś(-aś) tę prośbę, zignoruj tę wiadomość: Twoje hasło nie zostanie zmienione."
+  },
+  "emailVerification": {
+    "subject": "Potwierdź swój adres e-mail",
+    "title": "Potwierdź swój adres e-mail",
+    "body": "Witamy w {brandName}! Aby aktywować konto, potwierdź, że ten adres e-mail należy do Ciebie.",
+    "cta": "Potwierdź mój adres",
+    "validity": "Ten link jest ważny przez {hours, plural, one {# godzinę} few {# godziny} many {# godzin} other {# godziny}}.",
+    "ignore": "Jeśli nie zakładałeś(-aś) konta, zignoruj tę wiadomość."
+  },
+  "welcome": {
+    "subject": "Witamy w {brandName}",
+    "title": "Witaj {name}!",
+    "body": "Twoje konto w {brandName} zostało utworzone. Możesz się teraz zalogować i zacząć korzystać z aplikacji.",
+    "cta": "Przejdź do aplikacji"
+  }
+}

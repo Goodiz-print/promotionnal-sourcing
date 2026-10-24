@@ -12,6 +12,7 @@ import EmailVerificationNotification from '#mails/email_verification_notificatio
 import PasswordResetNotification from '#mails/password_reset_notification'
 import RfqReceivedNotification from '#mails/rfq_received_notification'
 import { UnknownMailKindException } from '#exceptions/mail_errors'
+import { DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
 import { MAIL_KINDS, type SendMailPayload } from '#shared/types/mail'
 
 /**
@@ -112,8 +113,13 @@ export default class SendMailJob extends Job<SendMailPayload> {
    * stable d'une tentative à l'autre (le dédoublonnage couvre alors les rejeux).
    */
   private resolvedPayload(): SendMailPayload {
-    const key = (this.payload as { idempotencyKey?: string }).idempotencyKey
-    return key ? this.payload : { ...this.payload, idempotencyKey: `legacy:${this.context.jobId}` }
+    const stored = this.payload as { idempotencyKey?: string; locale?: Locale }
+    return {
+      ...this.payload,
+      // Jobs mis en queue avant #58 : pas de langue, on retombe sur la défaut.
+      locale: stored.locale ?? DEFAULT_LOCALE,
+      idempotencyKey: stored.idempotencyKey ?? `legacy:${this.context.jobId}`,
+    }
   }
 
   /**
@@ -122,7 +128,7 @@ export default class SendMailJob extends Job<SendMailPayload> {
    * une erreur de compilation (`never`).
    */
   private buildMail(payload: SendMailPayload): BaseMail {
-    const { kind, to, data } = payload
+    const { kind, to, data, locale } = payload
 
     switch (kind) {
       case MAIL_KINDS.organizationInvitation:
@@ -131,7 +137,8 @@ export default class SendMailJob extends Job<SendMailPayload> {
           data.organizationName,
           data.roleName,
           data.inviterName,
-          data.acceptUrl
+          data.acceptUrl,
+          locale
         )
       case MAIL_KINDS.rfqReceived:
         return new RfqReceivedNotification(
@@ -140,12 +147,13 @@ export default class SendMailJob extends Job<SendMailPayload> {
           data.rfqTitle,
           data.itemCount,
           data.deadline,
-          data.rfqPath
+          data.rfqPath,
+          locale
         )
       case MAIL_KINDS.passwordReset:
-        return new PasswordResetNotification(to, data.resetUrl, data.expiresInMinutes)
+        return new PasswordResetNotification(to, data.resetUrl, data.expiresInMinutes, locale)
       case MAIL_KINDS.emailVerification:
-        return new EmailVerificationNotification(to, data.verifyUrl, data.expiresInHours)
+        return new EmailVerificationNotification(to, data.verifyUrl, data.expiresInHours, locale)
       default:
         throw new UnknownMailKindException(kind)
     }

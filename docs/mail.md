@@ -23,22 +23,27 @@ En dev, utiliser [Mailpit](https://mailpit.axllent.org/) (`brew install mailpit`
 
 ## Créer une mail class
 
+Toute mail class étend **`LocalizedMail`** (`app/mails/localized_mail.ts`) : elle
+reçoit la langue de son destinataire à la construction, et lit ses textes dans
+`resources/lang/<locale>/emails.json` (voir [Langue du destinataire](#langue-du-destinataire)).
+
 ```typescript
 // app/mails/order_confirmation.ts
-import { BaseMail } from '@adonisjs/mail'
+import LocalizedMail from '#mails/localized_mail'
 import type Order from '#models/order'
+import type { Locale } from '#shared/types/i18n'
 
-export default class OrderConfirmation extends BaseMail {
-  subject = 'Votre commande est confirmée'
-
-  constructor(private order: Order) {
-    super()
+export default class OrderConfirmation extends LocalizedMail {
+  constructor(
+    private order: Order,
+    locale: Locale
+  ) {
+    super(locale)
   }
 
   prepare() {
-    this.message
-      .to(this.order.user.email)
-      .htmlView('emails/order_confirmation', { order: this.order })
+    this.message.to(this.order.user.email).subject(this.t('emails.orderConfirmation.subject'))
+    this.htmlViewIn('emails/order_confirmation', { order: this.order })
   }
 }
 ```
@@ -65,6 +70,7 @@ await SendMailJob.dispatch({
   kind: MAIL_KINDS.organizationInvitation,
   idempotencyKey: mailSendKey(MAIL_KINDS.organizationInvitation, { invitation: invitation.id }),
   to: invitation.email,
+  locale: inviterLocale, // langue du destinataire, résolue ici (le worker n'a pas de requête)
   data: {
     organizationName: org.name,
     roleName: invitation.role.name,
@@ -115,13 +121,66 @@ complète — la signature couvre l'URL.
 > ⚠️ **Le worker doit tourner** (`node ace queue:work`) : sans lui, les mails
 > restent en base sans jamais partir. Voir [`docs/queue.md`](./queue.md#démarrer-le-worker).
 
+### Langue du destinataire
+
+Chaque mail est rédigé **dans la langue de la personne qui le reçoit** (#58) : le
+sujet, le corps, les pluriels, les dates et le lien (préfixé par la locale). Le
+worker n'a ni requête HTTP ni utilisateur connecté, donc la langue voyage dans la
+charge du job (`locale`, au même niveau que `to`) et est **résolue par l'appelant à
+la mise en queue** :
+
+| Mail                                   | Langue retenue                                                                                                                                                                                                                                        |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rfq-received`                         | `users.locale` de chaque membre habilité (`RFQ_RESPONDER_ROLES`) ; pour une adresse de contact d'organisation, celle du premier membre habilité (le plus ancien), à défaut la langue par défaut — un même envoi peut donc partir en plusieurs langues |
+| `organization-invitation`              | celle de **l'inviteur** (l'invité n'a pas encore de compte) ; le lien d'acceptation pointe vers la même                                                                                                                                               |
+| `password-reset`, `email-verification` | celle de la page d'où la demande est faite                                                                                                                                                                                                            |
+| `welcome`                              | `users.locale` du compte                                                                                                                                                                                                                              |
+
+Une charge mise en queue avant #58 n'a pas de `locale` : `SendMailJob` retombe sur
+la langue par défaut (`fr`). La charge d'un mail en dead-letter conserve sa langue,
+`mail:retry` le rejoue donc dans la même.
+
+**Textes** : `resources/lang/<locale>/emails.json`, clés `emails.<mail>.<texte>`, dans
+les **9 langues** (`SUPPORTED_LOCALES`), au format ICU (pluriels : `{hours, plural, one
+{# heure} other {# heures}}`, avec `few`/`many` en polonais). Un test vérifie que les
+neuf fichiers ont exactement les mêmes clés. Ces clés ne sont **pas** exposées au
+frontend (filtrées dans `InertiaMiddleware`).
+
+**Gabarits** : `resources/views/emails/layout.edge` est le gabarit commun (en-tête,
+titre, pied « envoyé automatiquement »), utilisé comme composant :
+
+```edge
+@let(title = t('emails.passwordReset.title'))
+@component('emails/layout', {
+  title,
+  locale,
+  i18n,
+  footer: t('emails.passwordReset.ignore'),
+})
+  <p>{{ t('emails.passwordReset.body', { brandName }) }}</p>
+@end
+```
+
+⚠️ `locale` et `i18n` doivent être passés au composant : l'état d'un composant Edge
+est isolé, et sans `i18n` le helper `t()` retomberait sur la langue par défaut.
+`LocalizedMail#htmlViewIn()` pose `i18n`, `locale` et `brandName` dans l'état de vue.
+
+Les textes ne contiennent **aucune balise HTML** : les valeurs saisies par des
+utilisateurs (nom d'acheteur, titre de demande…) restent échappées par Edge. Pas de
+gras dans un paragraphe traduit, donc pas de `{{{ }}}`.
+
+**Exception** : `MailDeliveryFailedAlert` (alerte interne vers `MAIL_ALERT_ADDRESS`)
+reste en français — son destinataire est l'équipe technique, pas un utilisateur de la
+plateforme.
+
 ### Ajouter un type de mail
 
 1. Créer la mail class dans `app/mails/` (voir ci-dessus).
 2. Ajouter le discriminant dans `MAIL_KINDS` et l'interface de données
-   correspondante dans `shared/types/mail.ts`. `to` est **hissé hors de `data`**
-   (commun à tous les mails, il permet de loguer le destinataire sans connaître
-   le `kind`).
+   correspondante dans `shared/types/mail.ts`. `to` et `locale` sont **hissés hors
+   de `data`** (communs à tous les mails : `to` permet de loguer le destinataire
+   sans connaître le `kind`, `locale` est la langue du destinataire).
+   Ajouter les textes dans `emails.json` des **9** langues.
 3. Choisir sa clé d'idempotence à l'enqueue (`mailIdempotencyKey` si le mail est lié à un fait métier unique, `mailSendKey` sinon).
 4. Traiter le nouveau `kind` dans `SendMailJob#buildMail()` — le `switch` est
    exhaustif, l'oublier est une **erreur de compilation**.
@@ -139,12 +198,12 @@ Réservé aux cas où la queue n'a pas de sens (commande ace ponctuelle, script)
 import mail from '@adonisjs/mail/services/main'
 import WelcomeNotification from '#mails/welcome_notification'
 
-await mail.send(new WelcomeNotification(user))
+await mail.send(new WelcomeNotification(user)) // langue : user.locale
 ```
 
 ## Templates Edge
 
-Les templates sont dans `resources/views/emails/`. Les `globals` définis dans `config/mail.ts` (`brandName`, `appUrl`) sont disponibles dans tous les templates sans les passer explicitement.
+Les templates sont dans `resources/views/emails/`, tous construits sur `emails/layout.edge`. Les `globals` définis dans `config/mail.ts` (`brandName`, `appUrl`) sont disponibles dans tous les templates sans les passer explicitement.
 
 ## Tests
 
@@ -172,6 +231,11 @@ Le job lui-même est couvert par `tests/unit/send_mail_job.spec.ts` :
 reconstruction du mail depuis la charge, propagation de l'erreur SMTP (c'est ce
 qui déclenche le rejeu), `kind` inconnu, politique de retry, idempotence et dead-letter ;
 `mail_retry.spec.ts` et `on_mail_delivery_failed.spec.ts` couvrent `mail:retry` et l'alerte.
+
+Le rendu par langue est couvert sans base par `tests/unit/mail_templates.spec.ts` (sujet
+et HTML des 5 mails dans les 9 langues, pluriels, échappement, symétrie des
+`emails.json`), et la langue de chaque destinataire d'une demande de devis par
+`tests/functional/rfq_mail_locale.spec.ts`.
 
 ## Références
 

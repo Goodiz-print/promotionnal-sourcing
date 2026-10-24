@@ -334,8 +334,8 @@ total, strictement symétriques).
 
 - ~~Aucune entrée de navigation vers `/supplier/rfqs`~~ : traité par le menu
   applicatif (voir `docs/changelog/2026-10-24-shell-applicatif.md`).
-- **Le mail est en français seulement**, comme le mail d'invitation : le worker
-  n'a pas de locale, et les templates Edge ne sont pas traduits.
+- ~~**Le mail est en français seulement**~~ : traité par #58, chaque destinataire
+  reçoit la demande dans sa langue (voir `docs/mail.md`, « Langue du destinataire »).
 - **Le dépôt de devis** est annoncé à l'écran mais n'existe pas : c'est la
   Phase 4 (#5), `markResponded` en est le point d'accroche.
 

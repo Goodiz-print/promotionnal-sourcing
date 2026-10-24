@@ -1,0 +1,43 @@
+{
+  "layout": {
+    "automatic": "Cet email a été envoyé automatiquement, merci de ne pas y répondre."
+  },
+  "invitation": {
+    "subject": "Invitation à rejoindre une organisation",
+    "title": "Rejoignez {organizationName} sur {brandName}",
+    "body": "{inviterName} vous invite à rejoindre l'organisation {organizationName} avec le rôle {roleName}.",
+    "cta": "Accepter l'invitation",
+    "validity": "Ce lien est valable 7 jours.",
+    "ignore": "Si vous ne vous attendiez pas à cette invitation, vous pouvez l'ignorer."
+  },
+  "rfqReceived": {
+    "subject": "Nouvelle demande de devis de {buyerName}",
+    "title": "{buyerName} vous consulte sur {brandName}",
+    "body": "{buyerName} vous invite à chiffrer la demande « {rfqTitle} » ({itemCount, plural, one {# ligne} other {# lignes}}).",
+    "deadline": "Réponse attendue avant le {deadline}.",
+    "cta": "Consulter la demande",
+    "footer": "Connectez-vous à votre espace fournisseur pour consulter la demande ou la décliner."
+  },
+  "passwordReset": {
+    "subject": "Réinitialisation de votre mot de passe",
+    "title": "Réinitialisation de votre mot de passe",
+    "body": "Vous avez demandé à réinitialiser le mot de passe de votre compte {brandName}.",
+    "cta": "Choisir un nouveau mot de passe",
+    "validity": "Ce lien est valable {minutes, plural, one {# minute} other {# minutes}} et ne peut servir qu'une seule fois.",
+    "ignore": "Si vous n'êtes pas à l'origine de cette demande, vous pouvez l'ignorer : votre mot de passe ne sera pas modifié."
+  },
+  "emailVerification": {
+    "subject": "Confirmez votre adresse e-mail",
+    "title": "Confirmez votre adresse e-mail",
+    "body": "Bienvenue sur {brandName} ! Pour activer votre compte, confirmez que cette adresse e-mail est bien la vôtre.",
+    "cta": "Confirmer mon adresse",
+    "validity": "Ce lien est valable {hours, plural, one {# heure} other {# heures}}.",
+    "ignore": "Si vous n'avez pas créé de compte, vous pouvez l'ignorer."
+  },
+  "welcome": {
+    "subject": "Bienvenue sur {brandName}",
+    "title": "Bienvenue {name} !",
+    "body": "Votre compte sur {brandName} a bien été créé. Vous pouvez dès maintenant vous connecter et commencer à utiliser l'application.",
+    "cta": "Accéder à l'application"
+  }
+}

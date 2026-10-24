@@ -1,3 +1,4 @@
+import type { Locale } from '#shared/types/i18n'
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import { signedUrlFor } from '@adonisjs/core/services/url_builder'
@@ -131,6 +132,8 @@ export default class OrganizationInvitationsController {
         invitation: invitation.id,
       }),
       to: invitation.email,
+      // Langue de l'inviteur : l'invité n'a pas encore de compte, donc pas de langue connue.
+      locale: locale as Locale,
       data: {
         organizationName: org.name,
         roleName: invitation.role.name,

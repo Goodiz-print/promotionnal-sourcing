@@ -1,0 +1,43 @@
+{
+  "layout": {
+    "automatic": "Dit e-mailbericht is automatisch verzonden, antwoord er alstublieft niet op."
+  },
+  "invitation": {
+    "subject": "Uitnodiging om lid te worden van een organisatie",
+    "title": "Word lid van {organizationName} op {brandName}",
+    "body": "{inviterName} nodigt u uit om lid te worden van de organisatie {organizationName} met de rol {roleName}.",
+    "cta": "Uitnodiging accepteren",
+    "validity": "Deze link is 7 dagen geldig.",
+    "ignore": "Als u deze uitnodiging niet verwachtte, kunt u hem negeren."
+  },
+  "rfqReceived": {
+    "subject": "Nieuwe offerteaanvraag van {buyerName}",
+    "title": "{buyerName} raadpleegt u op {brandName}",
+    "body": "{buyerName} nodigt u uit een offerte uit te brengen voor de aanvraag “{rfqTitle}” ({itemCount, plural, one {# regel} other {# regels}}).",
+    "deadline": "Antwoord verwacht vóór {deadline}.",
+    "cta": "Aanvraag bekijken",
+    "footer": "Meld u aan in uw leveranciersomgeving om de aanvraag te bekijken of af te wijzen."
+  },
+  "passwordReset": {
+    "subject": "Uw wachtwoord opnieuw instellen",
+    "title": "Uw wachtwoord opnieuw instellen",
+    "body": "U hebt gevraagd het wachtwoord van uw {brandName}-account opnieuw in te stellen.",
+    "cta": "Nieuw wachtwoord kiezen",
+    "validity": "Deze link is {minutes, plural, one {# minuut} other {# minuten}} geldig en kan maar één keer worden gebruikt.",
+    "ignore": "Als u deze aanvraag niet zelf hebt gedaan, kunt u dit bericht negeren: uw wachtwoord blijft ongewijzigd."
+  },
+  "emailVerification": {
+    "subject": "Bevestig uw e-mailadres",
+    "title": "Bevestig uw e-mailadres",
+    "body": "Welkom bij {brandName}! Bevestig dat dit e-mailadres van u is om uw account te activeren.",
+    "cta": "Mijn adres bevestigen",
+    "validity": "Deze link is {hours, plural, one {# uur} other {# uur}} geldig.",
+    "ignore": "Als u geen account hebt aangemaakt, kunt u deze e-mail negeren."
+  },
+  "welcome": {
+    "subject": "Welkom bij {brandName}",
+    "title": "Welkom {name}!",
+    "body": "Uw {brandName}-account is aangemaakt. U kunt nu inloggen en de applicatie gebruiken.",
+    "cta": "Naar de applicatie"
+  }
+}

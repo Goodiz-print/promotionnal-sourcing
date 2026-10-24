@@ -1,61 +1,11 @@
-<!DOCTYPE html>
-<html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Confirmation de votre adresse e-mail</title>
-    <style>
-      body {
-        font-family: sans-serif;
-        background: #f4f4f5;
-        margin: 0;
-        padding: 0;
-      }
-      .wrapper {
-        max-width: 600px;
-        margin: 40px auto;
-        background: #fff;
-        border-radius: 8px;
-        padding: 40px;
-      }
-      h1 {
-        color: #111827;
-        font-size: 24px;
-        margin-bottom: 8px;
-      }
-      p {
-        color: #374151;
-        line-height: 1.6;
-      }
-      .button {
-        display: inline-block;
-        margin-top: 16px;
-        padding: 12px 24px;
-        background: #4032c8;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 6px;
-      }
-      .footer {
-        margin-top: 32px;
-        color: #9ca3af;
-        font-size: 12px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="wrapper">
-      <h1>Confirmez votre adresse e-mail</h1>
-      <p>
-        Bienvenue sur
-        {{ brandName }}
-        ! Pour activer votre compte, confirmez que cette adresse e-mail est bien la vôtre.
-      </p>
-      <p><a class="button" href="{{ verifyUrl }}">Confirmer mon adresse</a></p>
-      <p>Ce lien est valable {{ expiresInHours }} heures.</p>
-      <div class="footer">
-        Cet email a été envoyé automatiquement, merci de ne pas y répondre. Si vous n'avez pas créé de compte, vous pouvez l'ignorer.
-      </div>
-    </div>
-  </body>
-</html>
+@let(title = t('emails.emailVerification.title'))
+@component('emails/layout', {
+  title,
+  locale,
+  i18n,
+  footer: t('emails.emailVerification.ignore'),
+})
+  <p>{{ t('emails.emailVerification.body', { brandName }) }}</p>
+  <p><a class="button" href="{{ verifyUrl }}">{{ t('emails.emailVerification.cta') }}</a></p>
+  <p>{{ t('emails.emailVerification.validity', { hours: expiresInHours }) }}</p>
+@end
