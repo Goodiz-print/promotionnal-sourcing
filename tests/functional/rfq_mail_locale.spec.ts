@@ -50,12 +50,7 @@ test.group('Mail RFQ — langue du destinataire', (group) => {
     const { mails } = mail.fake()
     try {
       await client.post(`/fr/rfqs/${rfq.id}/send`).withInertia().withCsrfToken().loginAs(owner)
-      const sent: Sent[] = []
-      mails.assertSent(RfqReceivedNotification, (mailer) => {
-        sent.push(mailer as unknown as Sent)
-        return true
-      })
-      return sent
+      return mails.sent((mailer) => mailer instanceof RfqReceivedNotification) as unknown as Sent[]
     } finally {
       mail.restore()
     }
