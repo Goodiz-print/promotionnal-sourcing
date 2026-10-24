@@ -36,6 +36,8 @@ export function registerRfqRoutes(): void {
   router.post('rfqs/:id/publish', [controllers.Rfqs, 'publish']).as('rfqs.publish')
   router.post('rfqs/:id/send', [controllers.Rfqs, 'send']).as('rfqs.send')
   router.post('rfqs/:id/close', [controllers.Rfqs, 'close']).as('rfqs.close')
+  // Prolongation d'échéance : ne change que `deadline`, et rouvre une demande échue.
+  router.patch('rfqs/:id/deadline', [controllers.Rfqs, 'extendDeadline']).as('rfqs.deadline.update')
 
   // Côté fournisseur : demandes reçues. Consulter le détail vaut accusé de
   // lecture (`sent` → `viewed`) ; décliner est la sortie explicite.

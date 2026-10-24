@@ -33,7 +33,8 @@
   "status": {
     "draft": "Entwurf",
     "published": "Veröffentlicht",
-    "closed": "Abgeschlossen"
+    "closed": "Abgeschlossen",
+    "expired": "Abgelaufen"
   },
   "supplierStatus": {
     "pending": "Zu senden",
@@ -83,7 +84,9 @@
     "suppliersAdded": "{count, plural, =0 {Kein neuer Empfänger} one {# Empfänger hinzugefügt} other {# Empfänger hinzugefügt}}.",
     "supplierRemoved": "Empfänger entfernt.",
     "productAdded": "{name} zur Anfrage hinzugefügt.",
-    "deleted": "Entwurf gelöscht."
+    "deleted": "Entwurf gelöscht.",
+    "deadlineExtended": "Frist verlängert.",
+    "reopened": "Frist verlängert: Die Anfrage ist wieder für Antworten geöffnet."
   },
   "errors": {
     "notEditable": "Nur ein Entwurf kann bearbeitet werden. Ein bereits benachrichtigter Empfänger kann nicht mehr entfernt werden.",
@@ -91,7 +94,9 @@
     "notSendable": "Diese Anfrage kann nicht gesendet werden: Veröffentlichen Sie sie und wählen Sie mindestens einen ausstehenden Empfänger aus.",
     "notClosable": "Nur eine veröffentlichte Anfrage kann abgeschlossen werden.",
     "notASupplier": "Einer der ausgewählten Empfänger ist keine aktive Lieferantenorganisation.",
-    "notDeletable": "Nur ein Entwurf kann gelöscht werden. Schließen Sie eine veröffentlichte Anfrage stattdessen ab."
+    "notDeletable": "Nur ein Entwurf kann gelöscht werden. Schließen Sie eine veröffentlichte Anfrage stattdessen ab.",
+    "notExtendable": "Nur die Frist einer veröffentlichten oder abgelaufenen Anfrage kann verlängert werden.",
+    "invalidDeadline": "Die neue Frist muss in der Zukunft liegen und nach der aktuellen Frist enden."
   },
   "supplier": {
     "index": {
@@ -108,7 +113,8 @@
       "noDeadline": "Ohne Frist",
       "declinedNotice": "Sie haben diese Anfrage abgelehnt. Der Einkäufer wurde informiert.",
       "closedNotice": "Der Einkäufer hat diese Anfrage abgeschlossen: Es wird keine Antwort mehr erwartet.",
-      "quoteSoon": "Die Online-Angebotsabgabe folgt in Kürze."
+      "quoteSoon": "Die Online-Angebotsabgabe folgt in Kürze.",
+      "expiredNotice": "Diese Anfrage ist abgelaufen: Der Käufer erwartet keine Antwort mehr."
     },
     "actions": {
       "decline": "Anfrage ablehnen",
@@ -132,5 +138,10 @@
     "placeholder": "Produkt nach Namen suchen …",
     "empty": "Kein Produkt gefunden.",
     "add": "Hinzufügen"
+  },
+  "deadline": {
+    "label": "Neue Frist",
+    "extend": "Frist verlängern",
+    "expiredNotice": "Diese Anfrage ist abgelaufen: Lieferanten können nicht mehr antworten. Verlängern Sie die Frist, um sie wieder zu öffnen."
   }
 }

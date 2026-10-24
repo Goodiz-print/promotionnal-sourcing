@@ -39,5 +39,13 @@
     "title": "Bem-vindo {name}!",
     "body": "A sua conta {brandName} foi criada. Já pode iniciar sessão e começar a utilizar a aplicação.",
     "cta": "Aceder à aplicação"
+  },
+  "rfqReminder": {
+    "subject": "Lembrete: pedido de orçamento «{rfqTitle}»",
+    "title": "Lembrete: «{rfqTitle}» aguarda a sua resposta",
+    "body": "{buyerName} enviou-lhe o pedido «{rfqTitle}» e ainda não o consultou.",
+    "deadline": "Resposta esperada até {deadline}.",
+    "cta": "Consultar o pedido",
+    "footer": "Este é o único lembrete para este pedido. Pode também recusá-lo na sua área de fornecedor."
   }
 }

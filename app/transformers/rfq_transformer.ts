@@ -17,6 +17,7 @@ export default class RfqTransformer extends BaseTransformer<Rfq> {
       respondedCount: this.resource.suppliers.filter((row) => row.status === 'responded').length,
       publishedAt: this.resource.publishedAt?.toISO() ?? null,
       closedAt: this.resource.closedAt?.toISO() ?? null,
+      expiredAt: this.resource.expiredAt?.toISO() ?? null,
       createdAt: this.resource.createdAt.toISO()!,
     }
   }

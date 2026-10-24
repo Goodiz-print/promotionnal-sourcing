@@ -13,6 +13,7 @@ import type { Locale } from './i18n.js'
 export const MAIL_KINDS = {
   organizationInvitation: 'organization-invitation',
   rfqReceived: 'rfq-received',
+  rfqReminder: 'rfq-reminder',
   passwordReset: 'password-reset',
   emailVerification: 'email-verification',
 } as const
@@ -41,6 +42,18 @@ export interface RfqReceivedMailData {
   rfqTitle: string
   itemCount: number
   /** Échéance déjà formatée par l'appelant (le worker n'a pas de locale). */
+  deadline: string | null
+  rfqPath: string
+}
+
+/**
+ * Données du mail de relance (`RfqReminderNotification`) : un fournisseur qui n'a
+ * pas ouvert une demande reçue il y a plusieurs jours. Mêmes conventions que
+ * `RfqReceivedMailData` (chemin relatif, échéance déjà formatée).
+ */
+export interface RfqReminderMailData {
+  buyerName: string
+  rfqTitle: string
   deadline: string | null
   rfqPath: string
 }
@@ -90,6 +103,12 @@ export type SendMailContent =
       to: string
       locale: Locale
       data: RfqReceivedMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.rfqReminder
+      to: string
+      locale: Locale
+      data: RfqReminderMailData
     }
   | {
       kind: typeof MAIL_KINDS.passwordReset

@@ -39,5 +39,13 @@
     "title": "Willkommen {name}!",
     "body": "Ihr Konto bei {brandName} wurde erstellt. Sie können sich jetzt anmelden und die Anwendung nutzen.",
     "cta": "Zur Anwendung"
+  },
+  "rfqReminder": {
+    "subject": "Erinnerung: Angebotsanfrage „{rfqTitle}“",
+    "title": "Erinnerung: „{rfqTitle}“ wartet auf Ihre Antwort",
+    "body": "{buyerName} hat Ihnen die Anfrage „{rfqTitle}“ gesendet, und Sie haben sie noch nicht geöffnet.",
+    "deadline": "Bitte antworten Sie bis zum {deadline}.",
+    "cta": "Anfrage ansehen",
+    "footer": "Dies ist die einzige Erinnerung zu dieser Anfrage. Sie können sie auch in Ihrem Lieferantenbereich ablehnen."
   }
 }

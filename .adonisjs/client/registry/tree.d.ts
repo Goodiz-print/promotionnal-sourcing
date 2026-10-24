@@ -139,6 +139,9 @@ export interface ApiDefinition {
     publish: typeof routes['rfqs.publish']
     send: typeof routes['rfqs.send']
     close: typeof routes['rfqs.close']
+    deadline: {
+      update: typeof routes['rfqs.deadline.update']
+    }
   }
   admin: {
     dashboard: typeof routes['admin.dashboard']

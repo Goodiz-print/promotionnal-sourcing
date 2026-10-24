@@ -52,6 +52,7 @@ export const RFQ_STATUS_TONES: Record<RfqStatus, Tone> = {
   draft: 'neutral',
   published: 'info',
   closed: 'success',
+  expired: 'warning',
 }
 
 /**

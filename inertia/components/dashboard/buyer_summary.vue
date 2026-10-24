@@ -23,7 +23,7 @@ const { t, locale } = useI18n()
       </Link>
     </div>
 
-    <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <dl class="grid grid-cols-1 gap-4 sm:grid-cols-4">
       <BaseStat
         v-for="status in RFQ_STATUSES"
         :key="status"

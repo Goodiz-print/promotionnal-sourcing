@@ -1009,6 +1009,7 @@ export class RfqSupplierSchema extends BaseModel {
   static $columns = [
     'createdAt',
     'id',
+    'remindedAt',
     'rfqId',
     'sentAt',
     'status',
@@ -1020,6 +1021,8 @@ export class RfqSupplierSchema extends BaseModel {
   declare createdAt: DateTime
   @column({ isPrimary: true })
   declare id: number
+  @column.dateTime()
+  declare remindedAt: DateTime | null
   @column()
   declare rfqId: number
   @column.dateTime()
@@ -1041,6 +1044,7 @@ export class RfqSchema extends BaseModel {
     'createdByUserId',
     'deadline',
     'description',
+    'expiredAt',
     'id',
     'publishedAt',
     'status',
@@ -1062,6 +1066,8 @@ export class RfqSchema extends BaseModel {
   declare deadline: DateTime | null
   @column()
   declare description: string | null
+  @column.dateTime()
+  declare expiredAt: DateTime | null
   @column({ isPrimary: true })
   declare id: number
   @column.dateTime()

@@ -39,5 +39,13 @@
     "title": "Welkom {name}!",
     "body": "Uw {brandName}-account is aangemaakt. U kunt nu inloggen en de applicatie gebruiken.",
     "cta": "Naar de applicatie"
+  },
+  "rfqReminder": {
+    "subject": "Herinnering: offerteaanvraag “{rfqTitle}”",
+    "title": "Herinnering: “{rfqTitle}” wacht op uw antwoord",
+    "body": "{buyerName} heeft u de aanvraag “{rfqTitle}” gestuurd en u hebt die nog niet geopend.",
+    "deadline": "Antwoord verwacht vóór {deadline}.",
+    "cta": "Aanvraag bekijken",
+    "footer": "Dit is de enige herinnering voor deze aanvraag. U kunt haar ook afwijzen in uw leveranciersomgeving."
   }
 }

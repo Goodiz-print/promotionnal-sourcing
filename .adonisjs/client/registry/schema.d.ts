@@ -955,6 +955,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['close']>>>
     }
   }
+  'rfqs.deadline.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/rfqs/:id/deadline'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/rfq').rfqDeadlineValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/rfq').rfqDeadlineValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['extendDeadline']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['extendDeadline']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'supplier.rfqs.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/supplier/rfqs'

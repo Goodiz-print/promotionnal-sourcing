@@ -43,3 +43,25 @@ await RecoverStorageUploadsJob.schedule({})
   .cron('30 * * * *')
   .timezone('Europe/Paris')
   .run()
+
+import ExpireRfqsJob from '#jobs/expire_rfqs_job'
+
+/**
+ * Expiration quotidienne des demandes de devis dont l'échéance est dépassée.
+ * Une échéance est une date : la demande est échue le lendemain à 00:00 (heure de
+ * Paris), le job passe donc juste après minuit pour que le statut soit juste dès
+ * le matin — cf. `RfqService#expireDue`.
+ */
+await ExpireRfqsJob.schedule({}).id('expire-rfqs').cron('10 0 * * *').timezone('Europe/Paris').run()
+
+import RemindRfqSuppliersJob from '#jobs/remind_rfq_suppliers_job'
+
+/**
+ * Relance quotidienne des fournisseurs qui n'ont pas ouvert une demande reçue.
+ * En matinée, heure de Paris : le mail arrive pendant les heures ouvrées.
+ */
+await RemindRfqSuppliersJob.schedule({})
+  .id('remind-rfq-suppliers')
+  .cron('0 9 * * *')
+  .timezone('Europe/Paris')
+  .run()

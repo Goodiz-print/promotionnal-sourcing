@@ -88,6 +88,57 @@ export default class RfqNotificationService {
   }
 
   /**
+   * Relance les destinataires silencieux : **un seul** mail par adresse, dans sa
+   * langue. Renvoie les lignes effectivement relancées — celles dont au moins un
+   * mail est parti en queue. L'appelant (`RemindRfqSuppliersJob`) les consigne
+   * ensuite via `RfqService#markReminded`, ce qui rend la relance unique.
+   *
+   * Même politique d'échec que `notifyRecipients` : une mise en queue ratée est
+   * loguée sans être propagée, et le destinataire, non consigné, sera
+   * reconsidéré au prochain passage. Suppose `rfq.buyerOrganization` et
+   * `supplierOrganization` préchargés (cf. `RfqService#dueForReminder`).
+   */
+  async remind(recipients: RfqSupplier[]): Promise<RfqSupplier[]> {
+    const reminded: RfqSupplier[] = []
+
+    for (const recipient of recipients) {
+      const { rfq } = recipient
+      let queued = 0
+
+      for (const { email, locale } of await this.addressesFor(recipient)) {
+        try {
+          await SendMailJob.dispatch({
+            kind: MAIL_KINDS.rfqReminder,
+            idempotencyKey: mailIdempotencyKey(MAIL_KINDS.rfqReminder, {
+              rfq: rfq.id,
+              org: recipient.supplierOrganizationId,
+              to: email,
+            }),
+            to: email,
+            locale,
+            data: {
+              buyerName: rfq.buyerOrganization.name,
+              rfqTitle: rfq.title,
+              deadline: rfq.deadline?.setLocale(locale).toLocaleString() ?? null,
+              rfqPath: urlFor('supplier.rfqs.show', { locale, id: rfq.id }),
+            },
+          })
+          queued += 1
+        } catch (error) {
+          logger.warn(
+            { err: error, rfqId: rfq.id, supplierOrganizationId: recipient.supplierOrganizationId },
+            'failed to queue rfq reminder'
+          )
+        }
+      }
+
+      if (queued > 0) reminded.push(recipient)
+    }
+
+    return reminded
+  }
+
+  /**
    * Compté plutôt que lu sur `rfq.items` : le service ne suppose rien des
    * relations préchargées par l'appelant.
    */

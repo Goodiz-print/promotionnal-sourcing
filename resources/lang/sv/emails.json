@@ -39,5 +39,13 @@
     "title": "Välkommen {name}!",
     "body": "Ditt {brandName}-konto har skapats. Du kan nu logga in och börja använda applikationen.",
     "cta": "Gå till applikationen"
+  },
+  "rfqReminder": {
+    "subject": "Påminnelse: offertförfrågan ”{rfqTitle}”",
+    "title": "Påminnelse: ”{rfqTitle}” väntar på ditt svar",
+    "body": "{buyerName} har skickat förfrågan ”{rfqTitle}” till dig och du har inte öppnat den än.",
+    "deadline": "Svar önskas senast {deadline}.",
+    "cta": "Visa förfrågan",
+    "footer": "Detta är den enda påminnelsen för den här förfrågan. Du kan också avböja den i ditt leverantörsområde."
   }
 }

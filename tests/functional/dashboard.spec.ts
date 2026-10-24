@@ -63,7 +63,7 @@ test.group('Tableau de bord — acheteur', (group) => {
     response.assertInertiaComponent('dashboard/show')
     const { dashboard } = response.inertiaProps
     assert.isUndefined(dashboard.supplier)
-    assert.deepEqual(dashboard.buyer.rfqCounts, { draft: 2, published: 1, closed: 0 })
+    assert.deepEqual(dashboard.buyer.rfqCounts, { draft: 2, published: 1, closed: 0, expired: 0 })
     assert.deepEqual(dashboard.buyer.recentResponses, [])
   })
 

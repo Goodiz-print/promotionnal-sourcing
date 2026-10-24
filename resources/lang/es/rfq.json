@@ -33,7 +33,8 @@
   "status": {
     "draft": "Borrador",
     "published": "Publicada",
-    "closed": "Cerrada"
+    "closed": "Cerrada",
+    "expired": "Vencida"
   },
   "supplierStatus": {
     "pending": "Por enviar",
@@ -83,7 +84,9 @@
     "suppliersAdded": "{count, plural, =0 {Ningún destinatario nuevo} one {# destinatario añadido} other {# destinatarios añadidos}}.",
     "supplierRemoved": "Destinatario quitado.",
     "productAdded": "{name} añadido a la solicitud.",
-    "deleted": "Borrador eliminado."
+    "deleted": "Borrador eliminado.",
+    "deadlineExtended": "Fecha límite prorrogada.",
+    "reopened": "Fecha límite prorrogada: la solicitud vuelve a estar abierta a respuestas."
   },
   "errors": {
     "notEditable": "Solo se puede modificar un borrador. Un destinatario que ya ha sido notificado no se puede quitar.",
@@ -91,7 +94,9 @@
     "notSendable": "Esta solicitud no se puede enviar: publíquela y seleccione al menos un destinatario pendiente.",
     "notClosable": "Solo se puede cerrar una solicitud publicada.",
     "notASupplier": "Uno de los destinatarios seleccionados no es una organización proveedora activa.",
-    "notDeletable": "Solo se puede eliminar un borrador. Cierre una solicitud publicada en su lugar."
+    "notDeletable": "Solo se puede eliminar un borrador. Cierre una solicitud publicada en su lugar.",
+    "notExtendable": "Solo se puede prorrogar la fecha límite de una solicitud publicada o vencida.",
+    "invalidDeadline": "La nueva fecha límite debe ser futura y posterior a la actual."
   },
   "supplier": {
     "index": {
@@ -108,7 +113,8 @@
       "noDeadline": "Sin fecha límite",
       "declinedNotice": "Ha declinado esta solicitud. Se ha informado al comprador.",
       "closedNotice": "El comprador ha cerrado esta solicitud: ya no espera respuesta.",
-      "quoteSoon": "El envío de presupuestos en línea estará disponible próximamente."
+      "quoteSoon": "El envío de presupuestos en línea estará disponible próximamente.",
+      "expiredNotice": "Esta solicitud ha vencido: el comprador ya no espera respuesta."
     },
     "actions": {
       "decline": "Declinar la solicitud",
@@ -132,5 +138,10 @@
     "placeholder": "Buscar un producto por nombre…",
     "empty": "No se encontró ningún producto.",
     "add": "Añadir"
+  },
+  "deadline": {
+    "label": "Nueva fecha límite",
+    "extend": "Prorrogar la fecha límite",
+    "expiredNotice": "Esta solicitud ha vencido: los proveedores ya no pueden responder. Prorrogue la fecha límite para reabrirla."
   }
 }
