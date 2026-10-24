@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
@@ -22,6 +22,9 @@ const { t, locale } = useI18n()
 const deadline = ref('')
 const saving = ref(false)
 
+// Une échéance passée serait refusée : autant ne pas la proposer.
+const minDate = computed(() => new Date().toISOString().slice(0, 10))
+
 function extend() {
   if (!deadline.value || saving.value) return
   saving.value = true
@@ -30,7 +33,12 @@ function extend() {
     { deadline: deadline.value },
     {
       preserveScroll: true,
-      onSuccess: () => (deadline.value = ''),
+      // Un refus serveur revient aussi en « succès » (redirection + flash) : on ne
+      // vide le champ que si la page a été rafraîchie avec la nouvelle échéance.
+      onSuccess: (page) => {
+        const flash = (page.props as { flash?: { error?: unknown } }).flash
+        if (!flash?.error) deadline.value = ''
+      },
       onFinish: () => (saving.value = false),
     }
   )
@@ -47,6 +55,7 @@ function extend() {
         id="rfq-extend-deadline"
         v-model="deadline"
         type="date"
+        :min="minDate"
         :label="t('rfq.deadline.label')"
       />
       <BaseButton variant="secondary" :disabled="!deadline || saving" @click="extend()">

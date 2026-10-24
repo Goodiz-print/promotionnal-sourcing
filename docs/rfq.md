@@ -517,6 +517,15 @@ brouillon, une demande close ou sans échéance n'expirent jamais.
 à **00:10 (Europe/Paris)**, juste après minuit pour que le statut soit juste dès le
 matin. Voir `docs/queue.md`.
 
+Garde-fous : la bascule est un `UPDATE … WHERE status = 'published'` (et échéance
+dépassée pour le lot) — une demande close ou prolongée entre la lecture et
+l'écriture n'est jamais écrasée ; un échec isolé est loggué sans interrompre le
+lot. Entre minuit et le passage du job (ou s'il tarde), `decline` et
+`markResponded` refusent déjà une demande dont l'échéance est passée. L'échéance
+est interprétée en heure de Paris, quel que soit le fuseau du serveur. Le compteur
+« non lues » du tableau de bord fournisseur ne compte que les demandes encore
+publiées.
+
 ### Prolonger l'échéance
 
 `PATCH /:locale/rfqs/:id/deadline` (`rfqs.deadline.update`, `canManageRfq`) →
@@ -530,7 +539,8 @@ modifiable », assumée parce qu'elle ne fausse aucun devis. Règles :
   raccourcit jamais ;
 - sur une demande `expired`, la nouvelle date la **rouvre** : elle repasse
   `published`, `expired_at` est remis à `NULL`, les fournisseurs peuvent répondre de
-  nouveau.
+  nouveau. Dans tous les cas, `reminded_at` des destinataires encore à `sent` est
+  remis à `NULL` : la nouvelle échéance ouvre droit à une nouvelle relance.
 
 UI : `components/rfqs/rfq_deadline_extension.vue` sur `rfqs/show.vue` (champ date +
 bouton « Prolonger l'échéance », avec une explication quand la demande est échue).
@@ -549,8 +559,11 @@ destinataires qui :
 - sur une demande encore ouverte : publiée et dont l'échéance n'est pas passée.
 
 **Une seule relance** : `reminded_at` est posé après la mise en queue du mail
-(`RfqService#markReminded`). Si la mise en queue échoue, le destinataire n'est pas
-consigné et sera reconsidéré le lendemain. En plus, le mail porte une clé
+(`RfqService#markReminded`, une seule requête pour le lot). Il n'est consigné que si
+**toutes** ses adresses sont parties en queue ; sinon il est reconsidéré le
+lendemain (les adresses déjà parties ne sont pas redoublées). Au déploiement, les
+destinataires déjà silencieux depuis plus de 3 jours sur une demande ouverte sont
+relancés au premier passage. En plus, le mail porte une clé
 d'idempotence `rfq-reminder:rfq=…:org=…:to=…` : un rejeu de la queue ne le
 renvoie pas. Le mail (`kind: 'rfq-reminder'`, `RfqReminderNotification`,
 `emails/rfq_reminder`) part dans la langue de chaque destinataire, avec les mêmes

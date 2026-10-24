@@ -24,7 +24,7 @@ export default class RemindRfqSuppliersJob extends Job {
     const notifications = await app.container.make(RfqNotificationService)
 
     const reminded = await notifications.remind(await rfqs.dueForReminder())
-    for (const recipient of reminded) await rfqs.markReminded(recipient)
+    await rfqs.markReminded(reminded)
 
     if (reminded.length > 0) {
       logger.info({ count: reminded.length }, 'rfq reminders queued')

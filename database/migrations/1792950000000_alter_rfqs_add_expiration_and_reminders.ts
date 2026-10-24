@@ -1,7 +1,11 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
-import { RFQ_STATUSES } from '#shared/types/rfq'
 
 const CONSTRAINT = 'rfqs_status_check'
+
+// Listes figées : une migration décrit le schéma tel qu'à sa date, pas tel que
+// l'application le voit aujourd'hui.
+const STATUSES_BEFORE = ['draft', 'published', 'closed']
+const STATUSES_AFTER = [...STATUSES_BEFORE, 'expired']
 
 function checkOn(statuses: readonly string[]) {
   return `CHECK (status IN (${statuses.map((s) => `'${s}'`).join(', ')}))`
@@ -21,7 +25,7 @@ function checkOn(statuses: readonly string[]) {
 export default class extends BaseSchema {
   async up() {
     this.schema.raw(`ALTER TABLE rfqs DROP CONSTRAINT IF EXISTS ${CONSTRAINT}`)
-    this.schema.raw(`ALTER TABLE rfqs ADD CONSTRAINT ${CONSTRAINT} ${checkOn(RFQ_STATUSES)}`)
+    this.schema.raw(`ALTER TABLE rfqs ADD CONSTRAINT ${CONSTRAINT} ${checkOn(STATUSES_AFTER)}`)
 
     this.schema.alterTable('rfqs', (table) => {
       table.timestamp('expired_at').nullable()
@@ -39,14 +43,11 @@ export default class extends BaseSchema {
       table.dropColumn('expired_at')
     })
 
-    // Les demandes échues redeviennent publiées (leur état d'avant : échéance
-    // dépassée de fait, mais jamais basculée).
-    this.schema.raw(`UPDATE rfqs SET status = 'published' WHERE status = 'expired'`)
+    // Une demande échue n'a pas d'équivalent avant cette migration : elle devient
+    // `closed` (terminale, non répondable) plutôt que `published`, qui rouvrirait
+    // les réponses sans plus aucun job pour la faire échoir.
+    this.schema.raw(`UPDATE rfqs SET status = 'closed' WHERE status = 'expired'`)
     this.schema.raw(`ALTER TABLE rfqs DROP CONSTRAINT IF EXISTS ${CONSTRAINT}`)
-    this.schema.raw(
-      `ALTER TABLE rfqs ADD CONSTRAINT ${CONSTRAINT} ${checkOn(
-        RFQ_STATUSES.filter((status) => status !== 'expired')
-      )}`
-    )
+    this.schema.raw(`ALTER TABLE rfqs ADD CONSTRAINT ${CONSTRAINT} ${checkOn(STATUSES_BEFORE)}`)
   }
 }

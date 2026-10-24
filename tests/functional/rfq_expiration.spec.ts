@@ -9,6 +9,7 @@ import { RfqSupplierFactory } from '#database/factories/rfq_supplier_factory'
 import ExpireRfqsJob from '#jobs/expire_rfqs_job'
 import RemindRfqSuppliersJob from '#jobs/remind_rfq_suppliers_job'
 import RfqReminderNotification from '#mails/rfq_reminder_notification'
+import Rfq from '#models/rfq'
 import RfqItem from '#models/rfq_item'
 import RfqSupplier from '#models/rfq_supplier'
 import RfqService from '#services/rfq_service'
@@ -38,7 +39,7 @@ async function publishedRfq(orgId: number, deadline: string | null) {
   return RfqFactory.apply('published')
     .merge({
       buyerOrganizationId: orgId,
-      deadline: deadline ? DateTime.fromISO(deadline) : null,
+      deadline: deadline ? DateTime.fromISO(deadline, { zone: PARIS }) : null,
     })
     .create()
 }
@@ -115,6 +116,35 @@ test.group('RFQ — expiration à l’échéance', (group) => {
     await assert.rejects(() => service.expire(draft), RfqNotExpirableException)
   })
 
+  test('une transition concurrente n’est pas écrasée par l’expiration', async ({ assert }) => {
+    const { org } = await buyer()
+    const service = await app.container.make(RfqService)
+    const rfq = await publishedRfq(org.id, '2020-01-01')
+    const stale = await Rfq.findOrFail(rfq.id)
+
+    // L'acheteur ferme la demande après la lecture du lot par le job.
+    await Rfq.query().where('id', rfq.id).update({ status: 'closed' })
+
+    await assert.rejects(() => service.expire(stale), RfqNotExpirableException)
+    await rfq.refresh()
+    assert.equal(rfq.status, 'closed')
+    assert.isNull(rfq.expiredAt)
+  })
+
+  test('un fournisseur ne peut plus répondre après l’échéance, même avant le passage du job', async ({
+    assert,
+  }) => {
+    const { org } = await buyer()
+    const service = await app.container.make(RfqService)
+    const supplier = await OrganizationFactory.apply('supplier').create()
+    const rfq = await publishedRfq(org.id, '2020-01-01')
+    await RfqSupplierFactory.apply('sent')
+      .merge({ rfqId: rfq.id, supplierOrganizationId: supplier.id })
+      .create()
+
+    await assert.rejects(() => service.decline(rfq, supplier.id), RfqNotEditableException)
+  })
+
   test('le job planifié fait expirer les demandes échues', async ({ assert }) => {
     const { org } = await buyer()
     const rfq = await publishedRfq(org.id, '2020-01-01')
@@ -175,6 +205,21 @@ test.group('RFQ — prolongation d’échéance', (group) => {
     assert.equal(rfq.status, 'published')
     assert.isNull(rfq.expiredAt)
     assert.equal(rfq.deadline!.toISODate(), '2026-11-15')
+  })
+
+  test('la prolongation permet une nouvelle relance des silencieux', async ({ assert }) => {
+    const { org } = await buyer()
+    const service = await app.container.make(RfqService)
+    const supplier = await OrganizationFactory.apply('supplier').create()
+    const rfq = await publishedRfq(org.id, '2026-11-05')
+    const recipient = await RfqSupplierFactory.apply('sent')
+      .merge({ rfqId: rfq.id, supplierOrganizationId: supplier.id, remindedAt: now })
+      .create()
+
+    await service.extendDeadline(rfq, { deadline: '2026-11-20' }, now)
+
+    await recipient.refresh()
+    assert.isNull(recipient.remindedAt)
   })
 
   test('refuse une date passée, ou pas postérieure à l’échéance actuelle', async ({ assert }) => {

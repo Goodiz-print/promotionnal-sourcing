@@ -17,6 +17,9 @@
 */
 
 import PurgeExpiredInvitationsJob from '#jobs/purge_expired_invitations_job'
+import RecoverStorageUploadsJob from '#jobs/recover_storage_uploads_job'
+import ExpireRfqsJob from '#jobs/expire_rfqs_job'
+import RemindRfqSuppliersJob from '#jobs/remind_rfq_suppliers_job'
 
 /**
  * Purge quotidienne des invitations d'organisation (bascule `pending` échues en
@@ -31,8 +34,6 @@ await PurgeExpiredInvitationsJob.schedule({})
   .timezone('Europe/Paris')
   .run()
 
-import RecoverStorageUploadsJob from '#jobs/recover_storage_uploads_job'
-
 /**
  * Reprise horaire du stockage : envois interrompus (`pending_upload` > 24 h) et
  * purges perdues (`pending_delete` > 24 h). Le seuil de 24 h, pas la fréquence,
@@ -44,8 +45,6 @@ await RecoverStorageUploadsJob.schedule({})
   .timezone('Europe/Paris')
   .run()
 
-import ExpireRfqsJob from '#jobs/expire_rfqs_job'
-
 /**
  * Expiration quotidienne des demandes de devis dont l'échéance est dépassée.
  * Une échéance est une date : la demande est échue le lendemain à 00:00 (heure de
@@ -53,8 +52,6 @@ import ExpireRfqsJob from '#jobs/expire_rfqs_job'
  * le matin — cf. `RfqService#expireDue`.
  */
 await ExpireRfqsJob.schedule({}).id('expire-rfqs').cron('10 0 * * *').timezone('Europe/Paris').run()
-
-import RemindRfqSuppliersJob from '#jobs/remind_rfq_suppliers_job'
 
 /**
  * Relance quotidienne des fournisseurs qui n'ont pas ouvert une demande reçue.
