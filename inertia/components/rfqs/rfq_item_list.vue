@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
 import type { RfqItemType } from '#shared/types/rfq'
 
@@ -9,7 +10,7 @@ import type { RfqItemType } from '#shared/types/rfq'
  */
 defineProps<{ items: RfqItemType[] }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 </script>
 
 <template>
@@ -30,6 +31,14 @@ const { t } = useI18n()
         </span>
         <span v-if="item.productName">· {{ t('rfq.show.product') }} : {{ item.productName }}</span>
       </p>
+      <Link
+        v-if="item.productSlug"
+        route="products.show"
+        :params="{ locale, slug: item.productSlug }"
+        class="mt-1 inline-block text-sm text-[var(--color-primary)] hover:underline"
+      >
+        {{ t('rfq.show.viewProduct') }}
+      </Link>
     </li>
   </ul>
 </template>

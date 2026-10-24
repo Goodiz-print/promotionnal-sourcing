@@ -20,6 +20,8 @@ const canPublish = () => props.rfq.status === 'draft' && props.rfq.itemCount > 0
 const canSend = () =>
   props.rfq.status === 'published' && props.rfq.suppliers.some((row) => row.status === 'pending')
 const canClose = () => props.rfq.status === 'published'
+/** Seul un brouillon se supprime ; une demande publiée se clôture. */
+const canDelete = () => props.rfq.status === 'draft'
 
 function post(route: 'rfqs.publish' | 'rfqs.send' | 'rfqs.close') {
   router.post(
@@ -27,6 +29,11 @@ function post(route: 'rfqs.publish' | 'rfqs.send' | 'rfqs.close') {
     {},
     { preserveScroll: true }
   )
+}
+
+function destroy() {
+  if (!window.confirm(t('rfq.actions.confirmDelete'))) return
+  router.delete(urlFor('rfqs.destroy', { locale: locale.value, id: props.rfq.id }))
 }
 
 function close() {
@@ -45,6 +52,9 @@ function close() {
     </BaseButton>
     <BaseButton v-if="canClose()" variant="danger" @click="close()">
       {{ t('rfq.actions.close') }}
+    </BaseButton>
+    <BaseButton v-if="canDelete()" variant="danger" @click="destroy()">
+      {{ t('rfq.actions.delete') }}
     </BaseButton>
   </div>
 </template>

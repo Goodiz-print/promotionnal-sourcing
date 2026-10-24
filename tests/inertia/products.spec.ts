@@ -143,6 +143,7 @@ describe('products/show.vue', () => {
   it('affiche le produit, le fournisseur, le prix et les facettes', () => {
     const wrapper = mount(Show, {
       props: {
+        rfqContext: { canCreateRfq: true, drafts: [] },
         product: {
           ...product(1, 'Crayon Aquarelle Bleu', 'crayon-aquarelle-bleu'),
           supplier: { slug: 'nordic-promo', name: 'Nordic Promo', country: 'SE' },

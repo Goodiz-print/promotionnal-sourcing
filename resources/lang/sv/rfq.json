@@ -27,7 +27,8 @@
     "product": "Produkt",
     "addSuppliers": "Lägg till mottagare",
     "removeSupplier": "Ta bort",
-    "sentAt": "Skickad {date}"
+    "sentAt": "Skickad {date}",
+    "viewProduct": "Visa produktsidan"
   },
   "status": {
     "draft": "Utkast",
@@ -46,7 +47,9 @@
     "send": "Skicka till mottagarna",
     "close": "Stäng",
     "save": "Spara",
-    "confirmClose": "Stänga den här förfrågan? Inga fler utskick blir möjliga."
+    "confirmClose": "Stänga den här förfrågan? Inga fler utskick blir möjliga.",
+    "delete": "Ta bort utkast",
+    "confirmDelete": "Ta bort det här utkastet? Det går inte att ångra."
   },
   "fields": {
     "title": "Titel",
@@ -78,14 +81,17 @@
     "sent": "{count, plural, =0 {Inget utskick} one {Förfrågan skickad till # leverantör} other {Förfrågan skickad till # leverantörer}}.",
     "closed": "Förfrågan stängd.",
     "suppliersAdded": "{count, plural, =0 {Ingen ny mottagare} one {# mottagare tillagd} other {# mottagare tillagda}}.",
-    "supplierRemoved": "Mottagare borttagen."
+    "supplierRemoved": "Mottagare borttagen.",
+    "productAdded": "{name} har lagts till i förfrågan.",
+    "deleted": "Utkastet har tagits bort."
   },
   "errors": {
     "notEditable": "Endast ett utkast kan ändras. En mottagare som redan har underrättats kan inte längre tas bort.",
     "notPublishable": "Förfrågan kan inte publiceras: det krävs ett utkast med minst en rad.",
     "notSendable": "Förfrågan kan inte skickas: publicera den och välj minst en väntande mottagare.",
     "notClosable": "Endast en publicerad förfrågan kan stängas.",
-    "notASupplier": "En av de valda mottagarna är inte en aktiv leverantörsorganisation."
+    "notASupplier": "En av de valda mottagarna är inte en aktiv leverantörsorganisation.",
+    "notDeletable": "Endast ett utkast kan tas bort. Stäng en publicerad förfrågan i stället."
   },
   "supplier": {
     "index": {
@@ -120,5 +126,11 @@
     "errors": {
       "notDecidable": "Den här förfrågan väntar inte längre på något beslut från dig."
     }
+  },
+  "product": {
+    "label": "Lägg till en produkt från katalogen",
+    "placeholder": "Sök en produkt efter namn …",
+    "empty": "Ingen produkt hittades.",
+    "add": "Lägg till"
   }
 }

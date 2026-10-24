@@ -1,13 +1,22 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
+import { errors as vineErrors } from '@vinejs/vine'
 import CategoryService from '#services/category_service'
+import ProductCatalogueService from '#services/product_catalogue_service'
 import OrganizationContextService from '#services/organization_context_service'
 import RfqNotificationService from '#services/rfq_notification_service'
 import RfqService from '#services/rfq_service'
 import CategoryTransformer from '#transformers/category_transformer'
 import RfqDetailTransformer from '#transformers/rfq_detail_transformer'
+import RfqProductOptionTransformer from '#transformers/rfq_product_option_transformer'
 import RfqTransformer from '#transformers/rfq_transformer'
-import { rfqSuppliersValidator, rfqValidator } from '#validators/rfq'
+import {
+  rfqLookupQueryValidator,
+  rfqProductValidator,
+  rfqSuppliersValidator,
+  rfqValidator,
+} from '#validators/rfq'
+import { ProductNotFoundException } from '#exceptions/catalogue_errors'
 import {
   NotASupplierOrganizationException,
   RfqNotClosableException,
@@ -31,6 +40,10 @@ const TRANSITION_ERRORS = [
   { type: NotASupplierOrganizationException, key: 'rfq.errors.notASupplier' },
 ] as const
 
+/** Longueur minimale de la saisie et nombre de résultats du sélecteur de produit. */
+const PRODUCT_SEARCH_MIN_LENGTH = 2
+const PRODUCT_SEARCH_LIMIT = 8
+
 /** Contexte minimal pour charger et autoriser une demande. */
 type RfqContext = Pick<HttpContext, 'auth' | 'bouncer' | 'params'>
 
@@ -49,6 +62,7 @@ export default class RfqsController {
     private service: RfqService,
     private notifications: RfqNotificationService,
     private categories: CategoryService,
+    private catalogue: ProductCatalogueService,
     private organizations: OrganizationContextService
   ) {}
 
@@ -69,12 +83,24 @@ export default class RfqsController {
 
   /**
    * Formulaire de création : besoin, lignes et destinataires en une passe.
+   *
+   * `?productId=` (bouton « Demander un devis » d'une fiche produit) pré-remplit
+   * une ligne avec le produit et pré-coche son fournisseur. Un produit
+   * introuvable ou plus visible n'est pas une erreur : le formulaire s'ouvre
+   * vide, comme sans paramètre.
    */
-  async create({ auth, bouncer, inertia, i18n }: HttpContext) {
+  async create({ auth, bouncer, inertia, i18n, request }: HttpContext) {
     const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canCreateRfq', org)
 
-    return inertia.render('rfqs/create', await this.formData(i18n.locale as Locale))
+    const locale = i18n.locale as Locale
+    const { productId, productSearch } = await this.lookupParams(request)
+
+    return inertia.render('rfqs/create', {
+      ...(await this.formData(locale)),
+      productResults: this.productResults(inertia, productSearch, locale),
+      prefillProduct: productId ? await this.findProduct(productId, locale) : undefined,
+    })
   }
 
   /**
@@ -109,17 +135,20 @@ export default class RfqsController {
    * Détail : le besoin, l'avancement par destinataire, et les actions
    * disponibles selon le statut.
    */
-  async show({ auth, bouncer, inertia, params, i18n }: HttpContext) {
+  async show({ auth, bouncer, inertia, params, i18n, request }: HttpContext) {
     const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canCreateRfq', org)
 
     const rfq = await this.service.findForBuyer(Number(params.id), org.id)
     const locale = i18n.locale as Locale
 
+    const { productSearch } = await this.lookupParams(request)
+
     return inertia.render('rfqs/show', {
       rfq: new RfqDetailTransformer(rfq, locale).toObject(),
       canManageRfq: await bouncer.allows('canManageRfq', org),
       ...(await this.formData(locale)),
+      productResults: this.productResults(inertia, productSearch, locale),
     })
   }
 
@@ -135,6 +164,43 @@ export default class RfqsController {
       await this.service.replaceItems(rfq, payload.items)
       ctx.session.flash('success', ctx.i18n.t('rfq.flash.updated'))
     })
+  }
+
+  /**
+   * Ajoute un produit du catalogue comme nouvelle ligne d'un brouillon, avec
+   * son fournisseur comme destinataire. Atterrit sur le brouillon, où
+   * l'acheteur ajuste la quantité avant de publier.
+   */
+  async addProduct(ctx: HttpContext) {
+    const { rfq } = await this.loadManageable(ctx)
+    const { productId } = await ctx.request.validateUsing(rfqProductValidator)
+    const product = await this.findProduct(productId, ctx.i18n.locale as Locale)
+    if (!product) throw new ProductNotFoundException()
+
+    return this.runTransition(ctx, rfq, async () => {
+      await this.service.addProductItem(rfq, product)
+      ctx.session.flash('success', ctx.i18n.t('rfq.flash.productAdded', { name: product.name }))
+    })
+  }
+
+  /**
+   * Supprime un brouillon. Une demande publiée ne se supprime pas : elle se
+   * clôture. Le refus devient un message flash sur la demande, comme pour les
+   * autres transitions.
+   */
+  async destroy(ctx: HttpContext) {
+    const { rfq } = await this.loadManageable(ctx)
+
+    try {
+      await this.service.delete(rfq)
+    } catch (error) {
+      if (!(error instanceof RfqNotEditableException)) throw error
+      ctx.session.flash('error', ctx.i18n.t('rfq.errors.notDeletable'))
+      return ctx.response.redirect().toRoute('rfqs.show', { locale: ctx.i18n.locale, id: rfq.id })
+    }
+
+    ctx.session.flash('success', ctx.i18n.t('rfq.flash.deleted'))
+    return ctx.response.redirect().toRoute('rfqs.index', { locale: ctx.i18n.locale })
   }
 
   /**
@@ -239,6 +305,49 @@ export default class RfqsController {
     }
 
     return response.redirect().toRoute('rfqs.show', { locale: i18n.locale, id: rfq.id })
+  }
+
+  /**
+   * Paramètres de requête `productId` / `productSearch`, validés. Une valeur
+   * invalide (`?productId=12abc`, tableau…) est ignorée plutôt que refusée : ce
+   * sont des aides à la saisie, pas des données — le formulaire s'ouvre vide.
+   */
+  private async lookupParams(
+    request: HttpContext['request']
+  ): Promise<{ productId?: number; productSearch?: string }> {
+    try {
+      return await rfqLookupQueryValidator.validate(request.qs())
+    } catch (error) {
+      if (error instanceof vineErrors.E_VALIDATION_ERROR) return {}
+      throw error
+    }
+  }
+
+  /**
+   * Produit du catalogue au format du formulaire, `undefined` s'il n'est pas
+   * (ou plus) demandable.
+   */
+  private async findProduct(id: number, locale: Locale) {
+    const product = await this.catalogue.findForRfq(id)
+    return product ? new RfqProductOptionTransformer(product, locale).toObject() : undefined
+  }
+
+  /**
+   * Résultats du sélecteur de produit. Prop **optionnelle** : n'est évaluée
+   * que lorsqu'un partial reload la demande (`only: ['productResults']`), donc
+   * jamais au simple affichage de la page.
+   */
+  private productResults(
+    inertia: HttpContext['inertia'],
+    search: string | undefined,
+    locale: Locale
+  ) {
+    return inertia.optional(async () => {
+      if (!search || search.length < PRODUCT_SEARCH_MIN_LENGTH) return []
+
+      const products = await this.catalogue.lookupForRfq(search, locale, PRODUCT_SEARCH_LIMIT)
+      return products.map((product) => new RfqProductOptionTransformer(product, locale).toObject())
+    })
   }
 
   /**

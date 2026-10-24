@@ -27,7 +27,8 @@
     "product": "Produkt",
     "addSuppliers": "Dodaj odbiorców",
     "removeSupplier": "Usuń",
-    "sentAt": "Wysłano {date}"
+    "sentAt": "Wysłano {date}",
+    "viewProduct": "Zobacz kartę produktu"
   },
   "status": {
     "draft": "Wersja robocza",
@@ -46,7 +47,9 @@
     "send": "Wyślij do odbiorców",
     "close": "Zamknij",
     "save": "Zapisz",
-    "confirmClose": "Zamknąć to zapytanie? Nie będzie można wysłać go ponownie."
+    "confirmClose": "Zamknąć to zapytanie? Nie będzie można wysłać go ponownie.",
+    "delete": "Usuń szkic",
+    "confirmDelete": "Usunąć ten szkic? Tej operacji nie można cofnąć."
   },
   "fields": {
     "title": "Tytuł",
@@ -78,14 +81,17 @@
     "sent": "{count, plural, =0 {Nic nie wysłano} one {Zapytanie wysłano do # dostawcy} few {Zapytanie wysłano do # dostawców} many {Zapytanie wysłano do # dostawców} other {Zapytanie wysłano do # dostawcy}}.",
     "closed": "Zapytanie zamknięte.",
     "suppliersAdded": "{count, plural, =0 {Nie dodano nowych odbiorców} one {Dodano # odbiorcę} few {Dodano # odbiorców} many {Dodano # odbiorców} other {Dodano # odbiorcy}}.",
-    "supplierRemoved": "Odbiorca usunięty."
+    "supplierRemoved": "Odbiorca usunięty.",
+    "productAdded": "Dodano {name} do zapytania.",
+    "deleted": "Szkic usunięty."
   },
   "errors": {
     "notEditable": "Edytować można tylko wersję roboczą. Odbiorcy, który został już powiadomiony, nie można usunąć.",
     "notPublishable": "Nie można opublikować tego zapytania: wymagana jest wersja robocza zawierająca co najmniej jedną pozycję.",
     "notSendable": "Nie można wysłać tego zapytania: proszę je opublikować i wybrać co najmniej jednego oczekującego odbiorcę.",
     "notClosable": "Zamknąć można tylko opublikowane zapytanie.",
-    "notASupplier": "Jeden z wybranych odbiorców nie jest aktywną organizacją dostawcy."
+    "notASupplier": "Jeden z wybranych odbiorców nie jest aktywną organizacją dostawcy.",
+    "notDeletable": "Usunąć można tylko szkic. Opublikowane zapytanie należy zamknąć."
   },
   "supplier": {
     "index": {
@@ -120,5 +126,11 @@
     "errors": {
       "notDecidable": "To zapytanie nie oczekuje już na Państwa decyzję."
     }
+  },
+  "product": {
+    "label": "Dodaj produkt z katalogu",
+    "placeholder": "Szukaj produktu po nazwie…",
+    "empty": "Nie znaleziono produktu.",
+    "add": "Dodaj"
   }
 }

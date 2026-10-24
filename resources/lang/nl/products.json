@@ -23,7 +23,10 @@
     "priceTiers": "Prijs per hoeveelheid",
     "tierQuantity": "Aantal",
     "tierPrice": "Stukprijs",
-    "tierFrom": "Vanaf {quantity} stuks"
+    "tierFrom": "Vanaf {quantity} stuks",
+    "addToDraft": "Toevoegen aan een conceptaanvraag",
+    "chooseDraft": "Kies een concept…",
+    "signInToRequest": "Log in om een offerte aan te vragen"
   },
   "manage": {
     "index": {

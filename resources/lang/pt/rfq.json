@@ -27,7 +27,8 @@
     "product": "Produto",
     "addSuppliers": "Adicionar destinatários",
     "removeSupplier": "Remover",
-    "sentAt": "Enviado em {date}"
+    "sentAt": "Enviado em {date}",
+    "viewProduct": "Ver a ficha do produto"
   },
   "status": {
     "draft": "Rascunho",
@@ -46,7 +47,9 @@
     "send": "Enviar aos destinatários",
     "close": "Encerrar",
     "save": "Guardar",
-    "confirmClose": "Encerrar este pedido? Deixará de ser possível qualquer novo envio."
+    "confirmClose": "Encerrar este pedido? Deixará de ser possível qualquer novo envio.",
+    "delete": "Eliminar rascunho",
+    "confirmDelete": "Eliminar este rascunho? Esta ação é irreversível."
   },
   "fields": {
     "title": "Título",
@@ -78,14 +81,17 @@
     "sent": "{count, plural, =0 {Nenhum envio} one {Pedido enviado a # fornecedor} other {Pedido enviado a # fornecedores}}.",
     "closed": "Pedido encerrado.",
     "suppliersAdded": "{count, plural, =0 {Nenhum novo destinatário} one {# destinatário adicionado} other {# destinatários adicionados}}.",
-    "supplierRemoved": "Destinatário removido."
+    "supplierRemoved": "Destinatário removido.",
+    "productAdded": "{name} adicionado ao pedido.",
+    "deleted": "Rascunho eliminado."
   },
   "errors": {
     "notEditable": "Apenas um rascunho pode ser modificado. Um destinatário já notificado já não pode ser removido.",
     "notPublishable": "Este pedido não pode ser publicado: é necessário um rascunho com pelo menos uma linha.",
     "notSendable": "Este pedido não pode ser enviado: publique-o e selecione pelo menos um destinatário pendente.",
     "notClosable": "Apenas um pedido publicado pode ser encerrado.",
-    "notASupplier": "Um dos destinatários selecionados não é uma organização fornecedora ativa."
+    "notASupplier": "Um dos destinatários selecionados não é uma organização fornecedora ativa.",
+    "notDeletable": "Só é possível eliminar um rascunho. Encerre antes um pedido publicado."
   },
   "supplier": {
     "index": {
@@ -120,5 +126,11 @@
     "errors": {
       "notDecidable": "Este pedido já não aguarda uma decisão da sua parte."
     }
+  },
+  "product": {
+    "label": "Adicionar um produto do catálogo",
+    "placeholder": "Pesquisar um produto pelo nome…",
+    "empty": "Nenhum produto encontrado.",
+    "add": "Adicionar"
   }
 }

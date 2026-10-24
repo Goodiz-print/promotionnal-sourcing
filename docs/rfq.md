@@ -237,9 +237,8 @@ i18n : `resources/lang/{fr,en}/rfq.json` (66 clés, strictement symétriques).
 
 ### Connu, non traité en PR 2
 
-- **Le sélecteur de produit** n'est pas dans l'UI : une ligne se cadre par
-  catégorie ou reste libre. `rfq_items.product_id` et le validateur l'acceptent
-  déjà — il manque un composant de recherche dans le catalogue.
+- ~~**Le sélecteur de produit** n'est pas dans l'UI~~ : traité par la demande
+  « en un clic » (#55, section ci-dessous).
 - ~~Aucune entrée de navigation vers `/rfqs`~~ : traité par le menu applicatif
   (voir `docs/changelog/2026-10-24-shell-applicatif.md`).
 - **L'envoi ne notifiait personne** en PR 2 : le mail est arrivé en PR 3.
@@ -364,3 +363,124 @@ La Phase 3 est complète : l'issue #4 est close.
   les devis et les commandes.
 - **Devis** — la réponse fournisseur (`quotes`) est la Phase 4 (#5) ;
   `markResponded` est le point d'accroche prévu.
+
+## Demande « en un clic » depuis le catalogue (#55)
+
+Le pitch promet une demande de devis en un clic : une fiche produit mène à un
+formulaire déjà rempli, et le formulaire sait chercher dans le catalogue.
+
+### Depuis une fiche produit
+
+`products/show.vue` délègue à `components/products/product_quote_actions.vue`.
+`ProductsController#show` expose la prop `rfqContext`
+(`ProductRfqContextType`, toujours définie — le sérialiseur de props refuse
+`null`) :
+
+| Visiteur                                  | `rfqContext`                          | Affichage                                                                                                                        |
+| ----------------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| anonyme, ou sans organisation courante    | `{ canCreateRfq: false, drafts: [] }` | bouton « Se connecter pour demander un devis » (anonyme seulement), qui revient sur le formulaire après connexion (`?redirect=`) |
+| fournisseur, ou rôle sans `canCreateRfq`  | idem                                  | rien                                                                                                                             |
+| acheteur (`canCreateRfq`)                 | `{ canCreateRfq: true, drafts: [] }`  | « Demander un devis »                                                                                                            |
+| acheteur pouvant piloter (`canManageRfq`) | `drafts` = ses brouillons             | + menu « Ajouter à une demande en brouillon »                                                                                    |
+
+Un simple `member` peut donc demander un devis mais ne voit pas le menu des
+brouillons : modifier un brouillon relève de `canManageRfq`, comme l'écran de
+détail.
+
+### Routes
+
+| Route                                       | Nom                       | Rôle                                                                                                                                                                                                                                                                   |
+| ------------------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /:locale/rfqs/new?productId=`          | `rfqs.create`             | pré-remplit une ligne (désignation, catégorie, quantité = `min_quantity`, sinon 1) et coche le fournisseur du produit. Un produit inconnu, inactif, rejeté ou d'une organisation archivée ouvre un formulaire vide                                                     |
+| `POST /:locale/rfqs/:id/items/from-product` | `rfqs.items.from_product` | ajoute le produit comme **nouvelle ligne** d'un brouillon et son fournisseur aux destinataires. Corps : `{ productId }` seul — nom, catégorie, quantité et fournisseur sont relus côté serveur. Brouillon uniquement (`RfqNotEditableException` sinon), `canManageRfq` |
+| `DELETE /:locale/rfqs/:id`                  | `rfqs.destroy`            | supprime un brouillon (lignes et destinataires partent en `CASCADE`). Une demande publiée ou close n'est jamais supprimée — elle se clôture. `canManageRfq`                                                                                                            |
+
+`RfqService` gagne `addProductItem`, `delete` et `listDrafts`. Ajouter deux fois
+le même produit crée deux lignes (deux quantités, deux marquages) mais un seul
+destinataire — l'unicité `(rfq_id, supplier_organization_id)` s'applique.
+
+Un produit dont la fiche fournisseur n'est pas rattachée à une organisation
+(`suppliers.organization_id` nul, import en masse non traité) donne une ligne
+sans destinataire : il n'y a personne à consulter.
+
+### Garanties
+
+- **Tout ou rien** : `addProductItem` vérifie l'éligibilité du fournisseur avant
+  d'écrire, puis écrit la ligne et le destinataire dans une transaction. Le
+  statut du brouillon est relu sous verrou (`FOR UPDATE`) : une demande publiée
+  dans un autre onglet entre-temps ne reçoit pas de ligne. Un fournisseur
+  inéligible (non fournisseur, archivé) donne un message flash et rien d'écrit.
+- **`productId` jamais cru sur parole** : à la création comme à l'enregistrement
+  d'un brouillon, un `productId` inconnu, inactif, rejeté ou d'une organisation
+  archivée est ramené à `null` (`RfqService#withRequestableProducts`). La ligne
+  survit par son `name`, comme à la suppression d'un produit, et un brouillon dont
+  un produit a quitté le catalogue reste enregistrable.
+- **Paramètres de requête validés** (`rfqLookupQueryValidator`) : `productId` et
+  `productSearch` invalides (`12abc`, tableau, négatif) sont ignorés, le
+  formulaire s'ouvre vide.
+
+### Sélecteur de produit
+
+`components/rfqs/rfq_product_picker.vue`, dans `rfq_form.vue` (création **et**
+édition d'un brouillon). La recherche est un **partial reload Inertia** de la
+page courante (`router.reload({ only: ['productResults'] })`), pas du JSON : les
+contrôleurs `create` et `show` exposent `productResults` en prop **optionnelle**
+(`inertia.optional`), évaluée seulement quand le client la demande, à partir du
+paramètre `?productSearch=` (2 caractères minimum, 100 maximum, 8 résultats ; le nom est cherché dans toutes les langues de contenu, le full-text dans celle de l'interface). L'URL n'en
+garde pas la trace (`preserveUrl`). Le sélecteur n'affiche une liste que si
+elle correspond à la saisie courante : pas de résultats périmés pendant la frappe.
+
+> L'issue prévoyait une route dédiée `GET /products/lookup`. Elle ne
+> fonctionnerait pas en partial reload (qui ne rejoue que la page courante) et
+> entrerait en collision avec `products/:slug` : la recherche vit donc sur les
+> pages du formulaire.
+
+Choisir un produit ajoute une ligne (`itemFromProduct`). À la création son
+fournisseur est coché ; en édition, les destinataires se gèrent hors du
+formulaire : l'écran de détail pré-coche le fournisseur dans « Ajouter des
+destinataires » (événement `product-picked`), l'acheteur valide d'un clic.
+
+Le formulaire **conserve désormais `productId`** à l'enregistrement. Avant #55 il
+ne l'envoyait pas, et un brouillon réenregistré perdait le lien avec le
+catalogue. `rfq_item_list.vue` affiche un lien vers la fiche produit quand
+`productSlug` est renseigné.
+
+### ⚠️ À remplacer par Meilisearch (#112)
+
+La recherche du sélecteur est un **stop-gap PostgreSQL**
+(`ProductCatalogueService#lookupForRfq`) : `ILIKE` sur le nom plus le full-text
+locale-aware du catalogue. Elle doit être remplacée par le moteur hybride
+Meilisearch (mots-clés + vecteurs) dès que #112 est livré. Ce qu'il faut savoir
+pour le remplacer sans rien casser :
+
+- **Seul le corps de `lookupForRfq` change.** La signature
+  `(search, locale, limit) → Product[]`, `RfqProductOptionTransformer`, la prop
+  `productResults` et `rfq_product_picker.vue` n'en dépendent pas.
+- **Contrat à conserver** : uniquement des produits _visibles_ (actifs,
+  organisation vivante, non rejetés — `fromLiveOrganization` + `notRejected`),
+  au plus `limit` résultats, nom localisé dans la langue de l'interface.
+  Meilisearch ne connaît pas ces règles : il faudra soit les indexer comme
+  filtres (`is_active`, statut de modération, organisation archivée) et les
+  tenir à jour, soit **recharger les produits retournés depuis PostgreSQL**
+  (source de vérité) et écarter ceux qui ne sont plus visibles.
+- `findForRfq` (pré-remplissage par identifiant) **reste sur PostgreSQL** : ce
+  n'est pas une recherche.
+- Tests à adapter : `tests/functional/rfq_one_click.spec.ts`, groupe « sélecteur
+  de produit » (il s'appuie sur le seed `full`).
+- Même chantier que la recherche du catalogue public
+  (`ProductCatalogueService#list`) : les deux se remplacent ensemble.
+
+Le marqueur `TODO(#112)` dans `lookupForRfq` renvoie ici.
+
+### Tests
+
+- `tests/functional/rfq_one_click.spec.ts` : pré-remplissage, `rfqContext`
+  (acheteur, `member`, visiteur, fournisseur), ajout à un brouillon (refus sur
+  publiée, produit inconnu, autre organisation), sélecteur (partial reload,
+  saisie courte, produits inactifs), suppression (brouillon, publiée, `member`,
+  autre organisation).
+- `tests/inertia/product_quote_actions.spec.ts`, `rfq_product_picker.spec.ts`.
+- i18n : `rfq.product.*`, `rfq.actions.delete`/`confirmDelete`,
+  `rfq.flash.productAdded`/`deleted`, `rfq.errors.notDeletable`,
+  `rfq.show.viewProduct`, `products.show.addToDraft`/`chooseDraft`/
+  `signInToRequest`, dans les 9 langues.

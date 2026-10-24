@@ -27,7 +27,8 @@
     "product": "Produkt",
     "addSuppliers": "Empfänger hinzufügen",
     "removeSupplier": "Entfernen",
-    "sentAt": "Gesendet am {date}"
+    "sentAt": "Gesendet am {date}",
+    "viewProduct": "Produktseite ansehen"
   },
   "status": {
     "draft": "Entwurf",
@@ -46,7 +47,9 @@
     "send": "An Empfänger senden",
     "close": "Abschließen",
     "save": "Speichern",
-    "confirmClose": "Diese Anfrage abschließen? Es sind keine weiteren Sendungen mehr möglich."
+    "confirmClose": "Diese Anfrage abschließen? Es sind keine weiteren Sendungen mehr möglich.",
+    "delete": "Entwurf löschen",
+    "confirmDelete": "Diesen Entwurf löschen? Dies kann nicht rückgängig gemacht werden."
   },
   "fields": {
     "title": "Titel",
@@ -78,14 +81,17 @@
     "sent": "{count, plural, =0 {Keine Sendung} one {Anfrage an # Lieferanten gesendet} other {Anfrage an # Lieferanten gesendet}}.",
     "closed": "Anfrage abgeschlossen.",
     "suppliersAdded": "{count, plural, =0 {Kein neuer Empfänger} one {# Empfänger hinzugefügt} other {# Empfänger hinzugefügt}}.",
-    "supplierRemoved": "Empfänger entfernt."
+    "supplierRemoved": "Empfänger entfernt.",
+    "productAdded": "{name} zur Anfrage hinzugefügt.",
+    "deleted": "Entwurf gelöscht."
   },
   "errors": {
     "notEditable": "Nur ein Entwurf kann bearbeitet werden. Ein bereits benachrichtigter Empfänger kann nicht mehr entfernt werden.",
     "notPublishable": "Diese Anfrage kann nicht veröffentlicht werden: Erforderlich ist ein Entwurf mit mindestens einer Position.",
     "notSendable": "Diese Anfrage kann nicht gesendet werden: Veröffentlichen Sie sie und wählen Sie mindestens einen ausstehenden Empfänger aus.",
     "notClosable": "Nur eine veröffentlichte Anfrage kann abgeschlossen werden.",
-    "notASupplier": "Einer der ausgewählten Empfänger ist keine aktive Lieferantenorganisation."
+    "notASupplier": "Einer der ausgewählten Empfänger ist keine aktive Lieferantenorganisation.",
+    "notDeletable": "Nur ein Entwurf kann gelöscht werden. Schließen Sie eine veröffentlichte Anfrage stattdessen ab."
   },
   "supplier": {
     "index": {
@@ -120,5 +126,11 @@
     "errors": {
       "notDecidable": "Für diese Anfrage wird keine Entscheidung mehr von Ihnen erwartet."
     }
+  },
+  "product": {
+    "label": "Produkt aus dem Katalog hinzufügen",
+    "placeholder": "Produkt nach Namen suchen …",
+    "empty": "Kein Produkt gefunden.",
+    "add": "Hinzufügen"
   }
 }

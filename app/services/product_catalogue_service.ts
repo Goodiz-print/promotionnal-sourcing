@@ -126,6 +126,71 @@ export default class ProductCatalogueService {
   }
 
   /**
+   * Produit visible du catalogue, par identifiant — pour pré-remplir une ligne
+   * de demande de devis. Mêmes règles de visibilité que la fiche publique : un
+   * produit inactif, rejeté ou d'une organisation archivée n'est pas
+   * demandable.
+   */
+  findForRfq(id: number): Promise<Product | null> {
+    return this.visibleForRfq()
+      .where('products.id', id)
+      .preload('translations')
+      .preload('supplier', (supplier) => supplier.preload('organization'))
+      .first()
+  }
+
+  /**
+   * Recherche légère pour le sélecteur de produit d'une demande de devis.
+   *
+   * TODO(#112) — **à remplacer par Meilisearch.** Cette recherche est un
+   * stop-gap PostgreSQL : préfixe/sous-chaîne (`ILIKE`) sur le nom, plus le
+   * full-text locale-aware déjà utilisé par le catalogue. Quand le moteur
+   * hybride (#112) sera en place, seul le corps de cette méthode change : la
+   * signature, le transformer et le sélecteur n'en dépendent pas. Le contrat à
+   * conserver est « produits visibles uniquement, `limit` résultats, nom
+   * localisé » — cf. `docs/rfq.md`.
+   */
+  async lookupForRfq(search: string, locale: Locale, limit: number): Promise<Product[]> {
+    const searchLocale = contentLocaleFor(locale)
+    // `tsConfig` vient d'une table fermée (`LOCALE_TSCONFIG`), jamais d'une
+    // entrée utilisateur : interpolable, comme dans `list()`. Seul le terme est bindé.
+    const tsConfig = LOCALE_TSCONFIG[searchLocale]
+    // `%` et `_` sont des jokers `LIKE` : la saisie est cherchée telle quelle.
+    const pattern = `%${search.replace(/[\\%_]/g, '\\$&')}%`
+
+    // Le nom est cherché dans **toutes** les langues de contenu : un produit
+    // saisi dans une seule langue reste trouvable depuis une autre interface,
+    // et le transformer affiche de toute façon son repli. Le full-text, lui,
+    // reste propre à la langue de l'interface.
+    return await this.visibleForRfq()
+      .whereHas('translations', (t) =>
+        t
+          .whereILike('name', pattern)
+          .orWhere((fts) =>
+            fts
+              .where('locale', searchLocale)
+              .whereRaw(`search_vector @@ websearch_to_tsquery('${tsConfig}', ?)`, [search])
+          )
+      )
+      .preload('translations')
+      .preload('supplier', (supplier) => supplier.preload('organization'))
+      .orderBy('slug')
+      .limit(limit)
+  }
+
+  /**
+   * Produits demandables : actifs, d'une organisation vivante et non rejetés.
+   */
+  private visibleForRfq() {
+    return Product.query()
+      .where('isActive', true)
+      .withScopes((scopes) => {
+        scopes.fromLiveOrganization()
+        scopes.notRejected()
+      })
+  }
+
+  /**
    * Catégories ayant au moins un produit actif (pour le filtre catégorie).
    */
   availableCategories(): Promise<Category[]> {

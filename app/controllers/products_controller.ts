@@ -4,15 +4,20 @@ import logger from '@adonisjs/core/services/logger'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import EmbeddingService from '#services/embedding_service'
 import DocumentService from '#services/document_service'
+import OrganizationContextService from '#services/organization_context_service'
+import RfqService from '#services/rfq_service'
 import ProductTransformer from '#transformers/product_transformer'
+import RfqDraftOptionTransformer from '#transformers/rfq_draft_option_transformer'
 import ProductDetailTransformer from '#transformers/product_detail_transformer'
 import CategoryTransformer from '#transformers/category_transformer'
 import AttributeTransformer from '#transformers/attribute_transformer'
 import AttributeValueTransformer from '#transformers/attribute_value_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
+import { NoCurrentOrganizationException } from '#exceptions/organization_errors'
 import aiConfig from '#config/ai'
 import type { Locale } from '#shared/types/i18n'
 import type { ProductDirectoryFilters } from '#shared/types/product'
+import type { ProductRfqContextType } from '#shared/types/rfq'
 
 const PER_PAGE = 12
 
@@ -21,7 +26,9 @@ export default class ProductsController {
   constructor(
     private service: ProductCatalogueService,
     private embeddings: EmbeddingService,
-    private documents: DocumentService
+    private documents: DocumentService,
+    private organizations: OrganizationContextService,
+    private rfqs: RfqService
   ) {}
 
   /**
@@ -79,7 +86,7 @@ export default class ProductsController {
   /**
    * Fiche produit publique : produit localisé + fournisseur, catégorie, facettes.
    */
-  async show({ inertia, params, i18n }: HttpContext) {
+  async show({ inertia, params, i18n, auth, bouncer }: HttpContext) {
     const locale = i18n.locale as Locale
     const product = await this.service.findBySlug(params.slug)
 
@@ -89,7 +96,39 @@ export default class ProductsController {
 
     return inertia.render('products/show', {
       product: new ProductDetailTransformer(product, locale, this.documents.urlFor).toObject(),
+      rfqContext: await this.rfqContext({ auth, bouncer }),
     })
+  }
+
+  /**
+   * Ce que l'acheteur connecté peut faire de cette fiche : demander un devis,
+   * ou l'ajouter à un brouillon. Page publique : un visiteur anonyme, ou un
+   * utilisateur sans organisation courante, reçoit simplement « non ».
+   */
+  private async rfqContext({
+    auth,
+    bouncer,
+  }: Pick<HttpContext, 'auth' | 'bouncer'>): Promise<ProductRfqContextType> {
+    const none = { canCreateRfq: false, drafts: [] }
+    if (!auth.user) return none
+
+    let org
+    try {
+      org = await this.organizations.currentFor(auth.user)
+    } catch (error) {
+      if (error instanceof NoCurrentOrganizationException) return none
+      throw error
+    }
+
+    if (!(await bouncer.allows('canCreateRfq', org))) return none
+
+    const drafts = (await bouncer.allows('canManageRfq', org))
+      ? await this.rfqs.listDrafts(org.id)
+      : []
+    return {
+      canCreateRfq: true,
+      drafts: drafts.map((draft) => new RfqDraftOptionTransformer(draft).toObject()),
+    }
   }
 
   /**

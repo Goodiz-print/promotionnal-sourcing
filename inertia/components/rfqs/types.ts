@@ -1,4 +1,5 @@
-import type { RfqSupplierStatus, RfqStatus } from '#shared/types/rfq'
+import { DEFAULT_RFQ_ITEM_QUANTITY } from '#shared/types/rfq'
+import type { RfqProductOptionType, RfqSupplierStatus, RfqStatus } from '#shared/types/rfq'
 
 /**
  * Ligne du formulaire de demande. `quantity` est `number | null` : le champ
@@ -10,6 +11,8 @@ export interface RfqItemFormState {
   quantity: number | null
   unit: string
   categoryId: number | null
+  // Produit du catalogue visé, s'il y en a un : doit survivre à l'édition.
+  productId: number | null
 }
 
 export interface RfqFormState {
@@ -22,7 +25,21 @@ export interface RfqFormState {
 }
 
 export function emptyRfqItem(): RfqItemFormState {
-  return { name: '', description: '', quantity: null, unit: '', categoryId: null }
+  return { name: '', description: '', quantity: null, unit: '', categoryId: null, productId: null }
+}
+
+/**
+ * Ligne pré-remplie depuis un produit du catalogue : désignation, catégorie et
+ * quantité minimale (à défaut, 1 — l'acheteur l'ajuste).
+ */
+export function itemFromProduct(product: RfqProductOptionType): RfqItemFormState {
+  return {
+    ...emptyRfqItem(),
+    name: product.name,
+    quantity: product.minQuantity ?? DEFAULT_RFQ_ITEM_QUANTITY,
+    categoryId: product.categoryId,
+    productId: product.id,
+  }
 }
 
 type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'danger'

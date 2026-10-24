@@ -23,7 +23,10 @@
     "priceTiers": "Cena zależna od ilości",
     "tierQuantity": "Ilość",
     "tierPrice": "Cena jednostkowa",
-    "tierFrom": "Od {quantity} szt."
+    "tierFrom": "Od {quantity} szt.",
+    "addToDraft": "Dodaj do szkicu zapytania",
+    "chooseDraft": "Wybierz szkic…",
+    "signInToRequest": "Zaloguj się, aby poprosić o wycenę"
   },
   "manage": {
     "index": {

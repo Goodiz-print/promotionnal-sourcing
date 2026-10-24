@@ -23,7 +23,10 @@
     "priceTiers": "Price by quantity",
     "tierQuantity": "Quantity",
     "tierPrice": "Unit price",
-    "tierFrom": "From {quantity} pieces"
+    "tierFrom": "From {quantity} pieces",
+    "addToDraft": "Add to a draft request",
+    "chooseDraft": "Choose a draft…",
+    "signInToRequest": "Sign in to request a quote"
   },
   "manage": {
     "index": {

@@ -128,6 +128,10 @@ export interface ApiDefinition {
     store: typeof routes['rfqs.store']
     show: typeof routes['rfqs.show']
     update: typeof routes['rfqs.update']
+    destroy: typeof routes['rfqs.destroy']
+    items: {
+      fromProduct: typeof routes['rfqs.items.from_product']
+    }
     suppliers: {
       store: typeof routes['rfqs.suppliers.store']
       destroy: typeof routes['rfqs.suppliers.destroy']

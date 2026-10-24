@@ -871,6 +871,30 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'rfqs.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/rfqs/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['destroy']>>>
+    }
+  }
+  'rfqs.items.from_product': {
+    methods: ["POST"]
+    pattern: '/:locale/rfqs/:id/items/from-product'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/rfq').rfqProductValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/rfq').rfqProductValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['addProduct']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['addProduct']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'rfqs.suppliers.store': {
     methods: ["POST"]
     pattern: '/:locale/rfqs/:id/suppliers'

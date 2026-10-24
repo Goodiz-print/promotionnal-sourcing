@@ -1,7 +1,9 @@
 import { DateTime } from 'luxon'
 import type { HasManyQueryBuilderContract } from '@adonisjs/lucid/types/relations'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import db from '@adonisjs/lucid/services/db'
 import Organization from '#models/organization'
+import Product from '#models/product'
 import Rfq from '#models/rfq'
 import RfqItem from '#models/rfq_item'
 import RfqSupplier from '#models/rfq_supplier'
@@ -15,8 +17,13 @@ import {
   RfqNotSendableException,
   RfqSupplierNotFoundException,
 } from '#exceptions/rfq_errors'
-import { TERMINAL_RFQ_SUPPLIER_STATUSES } from '#shared/types/rfq'
-import type { CreateRfqData, RfqItemData, UpdateRfqData } from '#shared/types/rfq'
+import { DEFAULT_RFQ_ITEM_QUANTITY, TERMINAL_RFQ_SUPPLIER_STATUSES } from '#shared/types/rfq'
+import type {
+  CreateRfqData,
+  RfqItemData,
+  RfqProductOptionType,
+  UpdateRfqData,
+} from '#shared/types/rfq'
 
 /**
  * Cycle de vie d'une demande de devis (RFQ).
@@ -118,7 +125,9 @@ export default class RfqService {
    * Crée un brouillon, avec ses items s'ils sont fournis. Transaction : une
    * demande sans ses lignes n'a pas de sens métier.
    */
-  create(organization: Organization, user: User, data: CreateRfqData): Promise<Rfq> {
+  async create(organization: Organization, user: User, data: CreateRfqData): Promise<Rfq> {
+    const requestable = await this.withRequestableProducts(data.items ?? [])
+
     return db.transaction(async (trx) => {
       const rfq = await Rfq.create(
         {
@@ -138,9 +147,9 @@ export default class RfqService {
         { client: trx }
       )
 
-      if (data.items?.length) {
+      if (requestable.length) {
         await RfqItem.createMany(
-          data.items.map((item) => this.itemAttributes(rfq.id, item)),
+          requestable.map((item) => this.itemAttributes(rfq.id, item)),
           { client: trx }
         )
       }
@@ -174,17 +183,79 @@ export default class RfqService {
    */
   async replaceItems(rfq: Rfq, items: RfqItemData[]): Promise<RfqItem[]> {
     this.assertDraft(rfq)
+    const requestable = await this.withRequestableProducts(items)
 
     return db.transaction(async (trx) => {
       await RfqItem.query({ client: trx }).where('rfqId', rfq.id).delete()
 
-      if (items.length === 0) return []
+      if (requestable.length === 0) return []
 
       return RfqItem.createMany(
-        items.map((item) => this.itemAttributes(rfq.id, item)),
+        requestable.map((item) => this.itemAttributes(rfq.id, item)),
         { client: trx }
       )
     })
+  }
+
+  /**
+   * Ajoute une ligne « produit du catalogue » à un brouillon, et son
+   * fournisseur aux destinataires (déjà destinataire : ignoré). C'est le geste
+   * « ajouter à une demande existante » de la fiche produit ; la ligne est
+   * ajoutée **à la suite**, jamais en remplacement (`replaceItems`).
+   *
+   * Un produit déjà présent dans la demande reçoit une seconde ligne plutôt
+   * qu'un refus : l'acheteur peut vouloir deux quantités ou deux marquages.
+   *
+   * Tout ou rien : l'éligibilité du fournisseur est vérifiée **avant** toute
+   * écriture, puis la ligne et le destinataire sont écrits dans une même
+   * transaction. Le statut est relu sous verrou (`FOR UPDATE`) : une demande
+   * publiée dans un autre onglet entre-temps ne reçoit pas de ligne.
+   */
+  async addProductItem(rfq: Rfq, product: RfqProductOptionType): Promise<RfqItem> {
+    this.assertDraft(rfq)
+
+    const supplierId = product.supplierOrganizationId
+    if (supplierId !== null) await this.assertSupplierOrganizations([supplierId])
+
+    return db.transaction(async (trx) => {
+      const current = await Rfq.query({ client: trx }).where('id', rfq.id).forUpdate().first()
+      if (!current) throw new RfqNotFoundException()
+      this.assertDraft(current)
+
+      const item = await RfqItem.create(
+        this.itemAttributes(rfq.id, {
+          name: product.name,
+          quantity: product.minQuantity ?? DEFAULT_RFQ_ITEM_QUANTITY,
+          categoryId: product.categoryId,
+          productId: product.id,
+        }),
+        { client: trx }
+      )
+
+      if (supplierId !== null) await this.addSuppliers(current, [supplierId], trx)
+      return item
+    })
+  }
+
+  /**
+   * Supprime un brouillon (lignes et destinataires partent avec lui, FK
+   * `CASCADE`). Une demande publiée n'est jamais supprimée : des fournisseurs
+   * l'ont peut-être reçue, elle se clôture.
+   */
+  async delete(rfq: Rfq): Promise<void> {
+    this.assertDraft(rfq)
+    await rfq.delete()
+  }
+
+  /**
+   * Brouillons de l'organisation, du plus récent au plus ancien — le menu
+   * « ajouter à une demande » de la fiche produit.
+   */
+  async listDrafts(organizationId: number): Promise<Rfq[]> {
+    return Rfq.query()
+      .where('buyerOrganizationId', organizationId)
+      .where('status', 'draft')
+      .orderBy('createdAt', 'desc')
   }
 
   /**
@@ -196,7 +267,11 @@ export default class RfqService {
    * contrainte d'unicité `(rfq_id, supplier_organization_id)` garantit
    * qu'aucune demande n'est reçue deux fois.
    */
-  async addSuppliers(rfq: Rfq, organizationIds: number[]): Promise<RfqSupplier[]> {
+  async addSuppliers(
+    rfq: Rfq,
+    organizationIds: number[],
+    client?: TransactionClientContract
+  ): Promise<RfqSupplier[]> {
     if (rfq.status === 'closed') throw new RfqNotEditableException()
 
     const unique = [...new Set(organizationIds)]
@@ -204,7 +279,7 @@ export default class RfqService {
 
     await this.assertSupplierOrganizations(unique)
 
-    const existing = await RfqSupplier.query()
+    const existing = await RfqSupplier.query({ client })
       .where('rfqId', rfq.id)
       .whereIn('supplierOrganizationId', unique)
     const alreadyTargeted = new Set(existing.map((row) => row.supplierOrganizationId))
@@ -217,7 +292,8 @@ export default class RfqService {
         rfqId: rfq.id,
         supplierOrganizationId,
         status: 'pending' as const,
-      }))
+      })),
+      { client }
     )
   }
 
@@ -396,6 +472,32 @@ export default class RfqService {
     items
       .preload('category', (category) => category.preload('translations'))
       .preload('product', (product) => product.preload('translations'))
+  }
+
+  /**
+   * Un `productId` envoyé par le formulaire n'est pas cru sur parole : un
+   * identifiant inexistant, inactif, rejeté ou d'une organisation archivée perd
+   * son lien avec le catalogue (`productId` → `null`). La ligne survit par son
+   * `name`, comme quand un produit est supprimé (FK `SET NULL`), et un brouillon
+   * dont un produit a été retiré du catalogue reste enregistrable.
+   */
+  private async withRequestableProducts(items: RfqItemData[]): Promise<RfqItemData[]> {
+    const ids = [...new Set(items.flatMap((item) => (item.productId ? [item.productId] : [])))]
+    if (ids.length === 0) return items
+
+    const visible = await Product.query()
+      .select('id')
+      .whereIn('id', ids)
+      .where('isActive', true)
+      .withScopes((scopes) => {
+        scopes.fromLiveOrganization()
+        scopes.notRejected()
+      })
+    const allowed = new Set(visible.map((product) => product.id))
+
+    return items.map((item) =>
+      item.productId && !allowed.has(item.productId) ? { ...item, productId: null } : item
+    )
   }
 
   private assertDraft(rfq: Rfq): void {

@@ -23,7 +23,10 @@
     "priceTiers": "Prix selon la quantité",
     "tierQuantity": "Quantité",
     "tierPrice": "Prix unitaire",
-    "tierFrom": "À partir de {quantity} pièces"
+    "tierFrom": "À partir de {quantity} pièces",
+    "addToDraft": "Ajouter à une demande en brouillon",
+    "chooseDraft": "Choisir un brouillon…",
+    "signInToRequest": "Se connecter pour demander un devis"
   },
   "manage": {
     "index": {

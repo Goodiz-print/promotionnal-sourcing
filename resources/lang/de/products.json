@@ -23,7 +23,10 @@
     "priceTiers": "Preis nach Menge",
     "tierQuantity": "Menge",
     "tierPrice": "Stückpreis",
-    "tierFrom": "Ab {quantity} Stück"
+    "tierFrom": "Ab {quantity} Stück",
+    "addToDraft": "Zu einem Anfrage-Entwurf hinzufügen",
+    "chooseDraft": "Entwurf wählen …",
+    "signInToRequest": "Anmelden, um ein Angebot anzufragen"
   },
   "manage": {
     "index": {

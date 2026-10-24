@@ -3,14 +3,15 @@ import { computed, ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
-import BaseButton from '~/components/base/base_button.vue'
 import ProductGallery from '~/components/product_gallery.vue'
 import VariantSelector from '~/components/products/variant_selector.vue'
 import PriceTierTable from '~/components/products/price_tier_table.vue'
 import DocumentList from '~/components/documents/document_list.vue'
+import ProductQuoteActions from '~/components/products/product_quote_actions.vue'
 import type { ProductDetailType } from '#shared/types/product'
+import type { ProductRfqContextType } from '#shared/types/rfq'
 
-const props = defineProps<{ product: ProductDetailType }>()
+const props = defineProps<{ product: ProductDetailType; rfqContext: ProductRfqContextType }>()
 
 const { t, locale } = useI18n()
 
@@ -115,9 +116,7 @@ const price = computed(() => {
           <DocumentList :documents="product.documents" />
         </section>
 
-        <div class="sm:w-56">
-          <BaseButton>{{ t('products.show.requestQuote') }}</BaseButton>
-        </div>
+        <ProductQuoteActions :product-id="product.id" :rfq-context="rfqContext" />
       </div>
     </div>
   </div>

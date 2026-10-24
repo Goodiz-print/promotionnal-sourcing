@@ -27,7 +27,8 @@
     "product": "Product",
     "addSuppliers": "Ontvangers toevoegen",
     "removeSupplier": "Verwijderen",
-    "sentAt": "Verstuurd op {date}"
+    "sentAt": "Verstuurd op {date}",
+    "viewProduct": "Productpagina bekijken"
   },
   "status": {
     "draft": "Concept",
@@ -46,7 +47,9 @@
     "send": "Naar ontvangers versturen",
     "close": "Sluiten",
     "save": "Opslaan",
-    "confirmClose": "Deze aanvraag sluiten? Er kunnen geen nieuwe verzendingen meer plaatsvinden."
+    "confirmClose": "Deze aanvraag sluiten? Er kunnen geen nieuwe verzendingen meer plaatsvinden.",
+    "delete": "Concept verwijderen",
+    "confirmDelete": "Dit concept verwijderen? Dit kan niet ongedaan worden gemaakt."
   },
   "fields": {
     "title": "Titel",
@@ -78,14 +81,17 @@
     "sent": "{count, plural, =0 {Niets verstuurd} one {Aanvraag verstuurd naar # leverancier} other {Aanvraag verstuurd naar # leveranciers}}.",
     "closed": "Aanvraag gesloten.",
     "suppliersAdded": "{count, plural, =0 {Geen nieuwe ontvangers} one {# ontvanger toegevoegd} other {# ontvangers toegevoegd}}.",
-    "supplierRemoved": "Ontvanger verwijderd."
+    "supplierRemoved": "Ontvanger verwijderd.",
+    "productAdded": "{name} toegevoegd aan de aanvraag.",
+    "deleted": "Concept verwijderd."
   },
   "errors": {
     "notEditable": "Alleen een concept kan worden gewijzigd. Een ontvanger die al is geïnformeerd, kan niet meer worden verwijderd.",
     "notPublishable": "Deze aanvraag kan niet worden gepubliceerd: er is een concept met minstens één regel nodig.",
     "notSendable": "Deze aanvraag kan niet worden verstuurd: publiceer ze en selecteer minstens één openstaande ontvanger.",
     "notClosable": "Alleen een gepubliceerde aanvraag kan worden gesloten.",
-    "notASupplier": "Een van de geselecteerde ontvangers is geen actieve leveranciersorganisatie."
+    "notASupplier": "Een van de geselecteerde ontvangers is geen actieve leveranciersorganisatie.",
+    "notDeletable": "Alleen een concept kan worden verwijderd. Sluit een gepubliceerde aanvraag in plaats daarvan af."
   },
   "supplier": {
     "index": {
@@ -120,5 +126,11 @@
     "errors": {
       "notDecidable": "Voor deze aanvraag wordt geen beslissing van u meer verwacht."
     }
+  },
+  "product": {
+    "label": "Product uit de catalogus toevoegen",
+    "placeholder": "Zoek een product op naam…",
+    "empty": "Geen product gevonden.",
+    "add": "Toevoegen"
   }
 }

@@ -6,10 +6,11 @@ import BaseButton from '~/components/base/base_button.vue'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseTextarea from '~/components/base/base_textarea.vue'
 import RfqItemsFields from '~/components/rfqs/rfq_items_fields.vue'
+import RfqProductPicker from '~/components/rfqs/rfq_product_picker.vue'
 import RfqSupplierPicker from '~/components/rfqs/rfq_supplier_picker.vue'
-import { emptyRfqItem, type RfqFormState } from '~/components/rfqs/types'
+import { emptyRfqItem, itemFromProduct, type RfqFormState } from '~/components/rfqs/types'
 import type { CategoryType } from '#shared/types/category'
-import type { RfqDetailType, SupplierOptionType } from '#shared/types/rfq'
+import type { RfqDetailType, RfqProductOptionType, SupplierOptionType } from '#shared/types/rfq'
 
 /**
  * Formulaire de demande, en création comme en édition d'un brouillon. Les
@@ -22,7 +23,13 @@ const props = defineProps<{
   categories: CategoryType[]
   supplierOptions: SupplierOptionType[]
   rfq?: RfqDetailType
+  // Produit d'une fiche (`?productId=`) : une ligne et son fournisseur d'emblée.
+  prefill?: RfqProductOptionType
+  // Réponse du dernier partial reload `productSearch` ; absente tant qu'on n'a rien cherché.
+  productResults?: RfqProductOptionType[]
 }>()
+
+const emit = defineEmits<{ 'product-picked': [product: RfqProductOptionType] }>()
 
 const { t, locale } = useI18n()
 
@@ -39,10 +46,27 @@ const form = useForm<RfqFormState>({
         quantity: item.quantity,
         unit: item.unit ?? '',
         categoryId: item.categoryId,
+        productId: item.productId,
       }))
-    : [emptyRfqItem()],
-  supplierOrganizationIds: [],
+    : [props.prefill ? itemFromProduct(props.prefill) : emptyRfqItem()],
+  supplierOrganizationIds: props.prefill?.supplierOrganizationId
+    ? [props.prefill.supplierOrganizationId]
+    : [],
 })
+
+/**
+ * Un produit choisi dans le catalogue devient une ligne. À la création son
+ * fournisseur est coché ; en édition, les destinataires se gèrent hors de ce
+ * formulaire, d'où l'événement relayé à l'écran de détail.
+ */
+function pickProduct(product: RfqProductOptionType) {
+  form.items = [...form.items, itemFromProduct(product)]
+  const supplierId = product.supplierOrganizationId
+  if (props.mode === 'create' && supplierId && !form.supplierOrganizationIds.includes(supplierId)) {
+    form.supplierOrganizationIds = [...form.supplierOrganizationIds, supplierId]
+  }
+  emit('product-picked', product)
+}
 
 function submit() {
   // Les champs texte vides sont omis : VineJS les traite alors comme absents
@@ -59,6 +83,7 @@ function submit() {
         quantity: item.quantity,
         unit: item.unit || null,
         categoryId: item.categoryId,
+        productId: item.productId,
       })),
       ...(props.mode === 'create' ? { supplierOrganizationIds: data.supplierOrganizationIds } : {}),
     }))
@@ -104,6 +129,8 @@ function submit() {
         :error="form.errors.budgetMax"
       />
     </div>
+
+    <RfqProductPicker :results="productResults" @pick="pickProduct" />
 
     <RfqItemsFields
       v-model="form.items"

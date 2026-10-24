@@ -27,7 +27,8 @@
     "product": "Prodotto",
     "addSuppliers": "Aggiungi destinatari",
     "removeSupplier": "Rimuovi",
-    "sentAt": "Inviata il {date}"
+    "sentAt": "Inviata il {date}",
+    "viewProduct": "Vedi la scheda prodotto"
   },
   "status": {
     "draft": "Bozza",
@@ -46,7 +47,9 @@
     "send": "Invia ai destinatari",
     "close": "Chiudi",
     "save": "Salva",
-    "confirmClose": "Chiudere questa richiesta? Non sarà più possibile effettuare nuovi invii."
+    "confirmClose": "Chiudere questa richiesta? Non sarà più possibile effettuare nuovi invii.",
+    "delete": "Elimina bozza",
+    "confirmDelete": "Eliminare questa bozza? L'azione è irreversibile."
   },
   "fields": {
     "title": "Titolo",
@@ -78,14 +81,17 @@
     "sent": "{count, plural, =0 {Nessun invio} one {Richiesta inviata a # fornitore} other {Richiesta inviata a # fornitori}}.",
     "closed": "Richiesta chiusa.",
     "suppliersAdded": "{count, plural, =0 {Nessun nuovo destinatario} one {# destinatario aggiunto} other {# destinatari aggiunti}}.",
-    "supplierRemoved": "Destinatario rimosso."
+    "supplierRemoved": "Destinatario rimosso.",
+    "productAdded": "{name} aggiunto alla richiesta.",
+    "deleted": "Bozza eliminata."
   },
   "errors": {
     "notEditable": "Solo una bozza può essere modificata. Un destinatario già notificato non può più essere rimosso.",
     "notPublishable": "Questa richiesta non può essere pubblicata: serve una bozza con almeno una riga.",
     "notSendable": "Questa richiesta non può essere inviata: la pubblichi e selezioni almeno un destinatario in attesa.",
     "notClosable": "Solo una richiesta pubblicata può essere chiusa.",
-    "notASupplier": "Uno dei destinatari selezionati non è un'organizzazione fornitrice attiva."
+    "notASupplier": "Uno dei destinatari selezionati non è un'organizzazione fornitrice attiva.",
+    "notDeletable": "Si può eliminare solo una bozza. Chiudi invece una richiesta pubblicata."
   },
   "supplier": {
     "index": {
@@ -120,5 +126,11 @@
     "errors": {
       "notDecidable": "Questa richiesta non attende più una Sua decisione."
     }
+  },
+  "product": {
+    "label": "Aggiungi un prodotto dal catalogo",
+    "placeholder": "Cerca un prodotto per nome…",
+    "empty": "Nessun prodotto trovato.",
+    "add": "Aggiungi"
   }
 }
