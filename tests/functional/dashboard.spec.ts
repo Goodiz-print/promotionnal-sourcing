@@ -13,7 +13,7 @@ test.group('Tableau de bord — accès', (group) => {
     const response = await client.get('/fr/dashboard').redirects(0)
 
     response.assertStatus(302)
-    assert.include(response.header('location'), '/fr/login')
+    assert.include(response.header('location'), '/login')
   })
 
   test("un utilisateur sans organisation est renvoyé vers l'onboarding", async ({ client }) => {
