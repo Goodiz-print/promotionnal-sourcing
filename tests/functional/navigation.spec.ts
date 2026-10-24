@@ -1,5 +1,6 @@
 import { test } from '@japa/runner'
 import { OrganizationFactory } from '#database/factories/organization_factory'
+import { UserFactory } from '#database/factories/user_factory'
 import { createMember } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
 
@@ -56,5 +57,21 @@ test.group('Menu applicatif — prop partagée `navigation`', (group) => {
     const response = await client.get('/fr/dashboard').withInertia().loginAs(owner)
 
     assert.equal(response.inertiaProps.organizations[0].organizationType, 'both')
+  })
+
+  test("l'entrée Administration n'est exposée qu'aux administrateurs plateforme", async ({
+    client,
+    assert,
+  }) => {
+    const owner = await createMember(await OrganizationFactory.create(), 'owner')
+    const admin = await UserFactory.apply('platformAdmin').create()
+
+    const asOwner = await client.get('/fr/products').withInertia().loginAs(owner)
+    const asAdmin = await client.get('/fr/products').withInertia().loginAs(admin)
+
+    const routesOf = (response: typeof asOwner) =>
+      response.inertiaProps.navigation.map((item: { route: string }) => item.route)
+    assert.notInclude(routesOf(asOwner), 'admin.dashboard')
+    assert.include(routesOf(asAdmin), 'admin.dashboard')
   })
 })

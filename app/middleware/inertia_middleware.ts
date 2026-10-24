@@ -67,7 +67,8 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
             organizationType: current.organization.organizationType,
             roleSlug: current.role.slug as RoleSlug,
           }
-        : null
+        : null,
+      auth?.user?.isPlatformAdmin ?? false
     )
 
     /**

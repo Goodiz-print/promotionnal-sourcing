@@ -13,6 +13,7 @@ export const NAVIGATION_ROUTES = [
   'supplier.profile',
   'organization.members',
   'organization.settings',
+  'admin.dashboard',
 ] as const
 
 export type NavigationRoute = (typeof NAVIGATION_ROUTES)[number]

@@ -19,7 +19,11 @@ const MANAGEMENT_ROLES: readonly RoleSlug[] = ['owner', 'admin']
  * jamais une autorisation — chaque route re-vérifie ses droits.
  */
 export default class NavigationService {
-  itemsFor(context: NavigationContext | null): NavigationItemType[] {
+  /**
+   * `isPlatformAdmin` ajoute l'entrée « Administration » : elle dépend du rôle
+   * plateforme, pas de l'organisation, donc elle vaut aussi sans contexte.
+   */
+  itemsFor(context: NavigationContext | null, isPlatformAdmin = false): NavigationItemType[] {
     const items: NavigationItemType[] = []
     const add = (key: string, route: NavigationRoute) =>
       items.push({ key, route, labelKey: `common.nav.${key}` })
@@ -27,6 +31,7 @@ export default class NavigationService {
     if (!context) {
       add('catalogue', 'products.index')
       add('suppliers', 'suppliers.index')
+      if (isPlatformAdmin) add('admin', 'admin.dashboard')
       return items
     }
 
@@ -48,6 +53,7 @@ export default class NavigationService {
       add('members', 'organization.members')
       add('settings', 'organization.settings')
     }
+    if (isPlatformAdmin) add('admin', 'admin.dashboard')
 
     return items
   }

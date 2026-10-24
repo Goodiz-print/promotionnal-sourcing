@@ -74,6 +74,28 @@ test.group('NavigationService', () => {
   })
 })
 
+test.group('NavigationService — administration', () => {
+  test("l'administrateur plateforme reçoit l'entrée Administration, avec ou sans organisation", ({
+    assert,
+  }) => {
+    const withOrg = service
+      .itemsFor({ organizationType: 'buyer', roleSlug: 'member' }, true)
+      .map((item) => item.route)
+    const withoutOrg = service.itemsFor(null, true).map((item) => item.route)
+
+    assert.include(withOrg, 'admin.dashboard')
+    assert.include(withoutOrg, 'admin.dashboard')
+  })
+
+  test("sans rôle plateforme, l'entrée Administration est absente", ({ assert }) => {
+    const routes = service
+      .itemsFor({ organizationType: 'both', roleSlug: 'owner' })
+      .map((item) => item.route)
+
+    assert.notInclude(routes, 'admin.dashboard')
+  })
+})
+
 test.group('isActivePath', () => {
   test('correspond à la cible exacte, à ses enfants, en ignorant query et ancre', ({ assert }) => {
     assert.isTrue(isActivePath('/fr/rfqs', '/fr/rfqs'))

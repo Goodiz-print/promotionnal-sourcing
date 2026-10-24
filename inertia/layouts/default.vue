@@ -60,13 +60,6 @@ watch(
       <div class="flex items-center gap-4 md:gap-6.5">
         <LanguageSwitcher />
         <template v-if="page.props.user">
-          <Link
-            v-if="page.props.user.isPlatformAdmin"
-            route="admin.dashboard"
-            :params="{ locale }"
-            class="hidden font-medium text-[var(--gray-8)] hover:text-[var(--gray-12)] md:inline"
-            >{{ t('common.nav.admin') }}</Link
-          >
           <OrganizationSwitcher />
           <UserMenu :initials="page.props.user.initials" />
         </template>

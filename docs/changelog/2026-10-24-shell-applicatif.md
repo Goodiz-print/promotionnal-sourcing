@@ -11,7 +11,8 @@ L'application se parcourt désormais sans connaître les URL.
   - connecté : Tableau de bord (`dashboard.show`) + les deux précédents ;
   - `buyer` / `both` : Mes demandes de devis (`rfqs.index`) ;
   - `supplier` / `both` : Mes produits, Demandes reçues, Profil fournisseur ;
-  - rôle `owner` / `admin` : Membres, Paramètres.
+  - rôle `owner` / `admin` : Membres, Paramètres ;
+  - administrateur plateforme (`platform_role = admin`) : Administration (`admin.dashboard`), avec ou sans organisation. Le lien vit dans le menu (donc aussi dans le panneau mobile) et non plus à part dans le header.
 - `OrganizationSummaryType` expose maintenant **`organizationType`**.
 - Front : `inertia/components/app_nav.vue` (horizontal ou vertical, état actif via `isActivePath`, `shared/helpers/navigation.ts`), `inertia/components/user_menu.vue` (initiales → « Mon compte », déconnexion) et panneau burger sur mobile dans `layouts/default.vue`.
 - i18n : clés `common.nav.*` dans les 9 langues.
