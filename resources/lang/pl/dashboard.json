@@ -1,0 +1,26 @@
+{
+  "title": "Pulpit",
+  "subtitle": "Twoja aktywność w skrócie.",
+  "buyer": {
+    "title": "Moje zapytania ofertowe",
+    "viewAll": "Zobacz wszystkie zapytania",
+    "status": {
+      "draft": "Szkice",
+      "published": "Opublikowane",
+      "closed": "Zamknięte"
+    },
+    "recent": {
+      "title": "Ostatnie odpowiedzi dostawców",
+      "empty": "Brak odpowiedzi.",
+      "item": "{supplier} odpowiedział na „{rfq}”"
+    }
+  },
+  "supplier": {
+    "title": "Aktywność dostawcy",
+    "viewRfqs": "Zobacz otrzymane zapytania",
+    "unread": "Nieprzeczytane zapytania",
+    "products": "Aktywne produkty",
+    "completeness": "Uzupełnienie profilu",
+    "completeProfile": "Uzupełnij mój profil"
+  }
+}

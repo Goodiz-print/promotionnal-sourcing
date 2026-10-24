@@ -1,0 +1,26 @@
+{
+  "title": "Tableau de bord",
+  "subtitle": "Votre activité en un coup d’œil.",
+  "buyer": {
+    "title": "Mes demandes de devis",
+    "viewAll": "Voir toutes les demandes",
+    "status": {
+      "draft": "Brouillons",
+      "published": "Publiées",
+      "closed": "Clôturées"
+    },
+    "recent": {
+      "title": "Dernières réponses fournisseurs",
+      "empty": "Aucune réponse pour le moment.",
+      "item": "{supplier} a répondu à « {rfq} »"
+    }
+  },
+  "supplier": {
+    "title": "Activité fournisseur",
+    "viewRfqs": "Voir les demandes reçues",
+    "unread": "Demandes non lues",
+    "products": "Produits actifs",
+    "completeness": "Profil complété",
+    "completeProfile": "Compléter mon profil"
+  }
+}

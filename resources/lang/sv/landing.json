@@ -32,6 +32,14 @@
     "ctaPrimary": "Upptäck",
     "ctaSecondary": "Kontakta oss"
   },
+  "discover": {
+    "searchLabel": "Sök en produkt",
+    "searchPlaceholder": "Sök produkt, material eller leverantör…",
+    "searchSubmit": "Sök",
+    "buyerCta": "Jag är inköpare",
+    "supplierCta": "Jag är leverantör",
+    "categoriesTitle": "Kategorier att utforska"
+  },
   "features": {
     "eyebrow": "För byråer",
     "heading": "Hitta rätt produkt på några sekunder.",

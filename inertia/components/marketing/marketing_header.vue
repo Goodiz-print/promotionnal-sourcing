@@ -51,7 +51,7 @@ const hrefForLocale = (code: Locale) => page.url.replace(LOCALE_PREFIX_PATTERN, 
 
 const isLoggedIn = computed(() => Boolean(page.props.user))
 const loginHref = computed(() => urlFor('session.create', { locale: locale.value }))
-const appHref = computed(() => urlFor('products.index', { locale: locale.value }))
+const appHref = computed(() => urlFor('dashboard.show', { locale: locale.value }))
 </script>
 
 <template>

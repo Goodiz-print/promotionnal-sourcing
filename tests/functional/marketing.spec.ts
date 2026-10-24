@@ -55,6 +55,18 @@ test.group('Landing — pages publiques', (group) => {
 
     response.assertStatus(200)
   })
+
+  test("l'accueil expose les catégories mises en avant et les textes de découverte", async ({
+    client,
+    assert,
+  }) => {
+    const response = await client.get('/fr').withInertia()
+
+    response.assertStatus(200)
+    assert.isArray(response.inertiaProps.featuredCategories)
+    assert.isAtMost(response.inertiaProps.featuredCategories.length, 6)
+    assert.exists(response.inertiaProps.translations['landing.discover.searchSubmit'])
+  })
 })
 
 test.group('Landing — rendu HTML (SSR)', () => {

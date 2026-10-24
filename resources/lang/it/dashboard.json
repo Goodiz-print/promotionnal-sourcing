@@ -1,0 +1,26 @@
+{
+  "title": "Dashboard",
+  "subtitle": "La tua attività a colpo d’occhio.",
+  "buyer": {
+    "title": "Le mie richieste di preventivo",
+    "viewAll": "Vedi tutte le richieste",
+    "status": {
+      "draft": "Bozze",
+      "published": "Pubblicate",
+      "closed": "Chiuse"
+    },
+    "recent": {
+      "title": "Ultime risposte dei fornitori",
+      "empty": "Nessuna risposta per ora.",
+      "item": "{supplier} ha risposto a «{rfq}»"
+    }
+  },
+  "supplier": {
+    "title": "Attività del fornitore",
+    "viewRfqs": "Vedi le richieste ricevute",
+    "unread": "Richieste non lette",
+    "products": "Prodotti attivi",
+    "completeness": "Profilo completato",
+    "completeProfile": "Completa il mio profilo"
+  }
+}

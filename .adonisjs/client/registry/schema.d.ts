@@ -499,6 +499,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/invitation_acceptance_controller').default['accept']>>>
     }
   }
+  'dashboard.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/dashboard'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/dashboard_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/dashboard_controller').default['show']>>>
+    }
+  }
   'organization.settings': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/organization/settings'

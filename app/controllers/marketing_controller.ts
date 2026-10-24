@@ -1,16 +1,31 @@
+import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import env from '#start/env'
-import { SUPPORTED_LOCALES } from '#shared/types/i18n'
+import ProductCatalogueService from '#services/product_catalogue_service'
+import CategoryTransformer from '#transformers/category_transformer'
+import { SUPPORTED_LOCALES, type Locale } from '#shared/types/i18n'
 import { SITEMAP_PAGES } from '#shared/types/marketing'
+
+const FEATURED_CATEGORIES_LIMIT = 6
 
 /**
  * Pages publiques de la landing (accueil, contact, mentions légales,
  * confidentialité, remerciement). Contenu statique : les textes viennent des
  * fichiers de traduction, aucune logique métier.
  */
+@inject()
 export default class MarketingController {
-  home({ inertia }: HttpContext) {
-    return inertia.render('marketing/home', { siteUrl: this.siteUrl() })
+  constructor(private catalogue: ProductCatalogueService) {}
+
+  /** Accueil : le contenu est statique, hormis les catégories mises en avant. */
+  async home({ inertia, i18n }: HttpContext) {
+    const categories = await this.catalogue.featuredCategories(FEATURED_CATEGORIES_LIMIT)
+    return inertia.render('marketing/home', {
+      siteUrl: this.siteUrl(),
+      featuredCategories: categories.map((category) =>
+        new CategoryTransformer(category, i18n.locale as Locale).toObject()
+      ),
+    })
   }
 
   contact({ inertia }: HttpContext) {

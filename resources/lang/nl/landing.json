@@ -32,6 +32,14 @@
     "ctaPrimary": "Ontdekken",
     "ctaSecondary": "Neem contact op"
   },
+  "discover": {
+    "searchLabel": "Zoek een product",
+    "searchPlaceholder": "Zoek een product, materiaal of leverancier…",
+    "searchSubmit": "Zoeken",
+    "buyerCta": "Ik ben inkoper",
+    "supplierCta": "Ik ben leverancier",
+    "categoriesTitle": "Categorieën om te ontdekken"
+  },
   "features": {
     "eyebrow": "Voor bureaus",
     "heading": "Vind het juiste product in enkele seconden.",

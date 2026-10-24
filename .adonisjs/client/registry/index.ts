@@ -252,6 +252,12 @@ const routes = {
     tokens: [{"old":"/:locale/organization/invitations/:id/accept","type":1,"val":"locale","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":0,"val":"organization","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":0,"val":"invitations","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":1,"val":"id","end":""},{"old":"/:locale/organization/invitations/:id/accept","type":0,"val":"accept","end":""}],
     types: placeholder as Registry['organization.invitations.accept']['types'],
   },
+  'dashboard.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/dashboard',
+    tokens: [{"old":"/:locale/dashboard","type":1,"val":"locale","end":""},{"old":"/:locale/dashboard","type":0,"val":"dashboard","end":""}],
+    types: placeholder as Registry['dashboard.show']['types'],
+  },
   'organization.settings': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/organization/settings',

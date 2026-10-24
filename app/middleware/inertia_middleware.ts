@@ -5,14 +5,17 @@ import i18nManager from '@adonisjs/i18n/services/main'
 import UserTransformer from '#transformers/user_transformer'
 import OrganizationSummaryTransformer from '#transformers/organization_summary_transformer'
 import OrganizationContextService from '#services/organization_context_service'
+import NavigationService from '#services/navigation_service'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
+import type { RoleSlug } from '#shared/types/role'
 import { DEFAULT_LOCALE, ENGLISH_FALLBACK_NAMESPACES, type Locale } from '#shared/types/i18n'
-import type User from '#models/user'
-import type { OrganizationSummaryType } from '#shared/types/organization'
 
 @inject()
 export default class InertiaMiddleware extends BaseInertiaMiddleware {
-  constructor(private organizations: OrganizationContextService) {
+  constructor(
+    private organizations: OrganizationContextService,
+    private navigation: NavigationService
+  ) {
     super()
   }
 
@@ -45,7 +48,27 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
      * identifiant de la courante. Une seule requête, jamais pour un visiteur
      * anonyme ; le sélecteur ne s'affiche qu'au-delà d'une organisation.
      */
-    const organizations = auth?.user ? await this.summariesFor(auth.user) : []
+    const memberships = auth?.user ? await this.organizations.membershipsFor(auth.user) : []
+    const organizations = memberships.map((membership) =>
+      new OrganizationSummaryTransformer(membership).toObject()
+    )
+
+    /**
+     * Menu applicatif : calculé depuis l'adhésion à l'organisation courante
+     * (type + rôle). Une organisation courante archivée ou quittée n'apparaît
+     * pas dans `memberships` → menu public.
+     */
+    const current = memberships.find(
+      (membership) => membership.organizationId === auth?.user?.currentOrganizationId
+    )
+    const navigation = this.navigation.itemsFor(
+      current
+        ? {
+            organizationType: current.organization.organizationType,
+            roleSlug: current.role.slug as RoleSlug,
+          }
+        : null
+    )
 
     /**
      * Data shared with all Inertia pages. Make sure you are using
@@ -62,6 +85,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       supportedLocales: ctx.inertia.always(i18nManager.supportedLocales()),
       translations: ctx.inertia.always(this.translationsFor(locale as Locale)),
       organizations: ctx.inertia.always(organizations),
+      navigation: ctx.inertia.always(navigation),
       // `undefined` et non `null` : le sérialiseur de props refuse une valeur
       // nulle (`Cannot serialize an item with null value`), y compris sur les
       // pages publiques rendues sans utilisateur connecté. Même convention que
@@ -94,13 +118,6 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       )
     )
     return { ...fallback, ...own }
-  }
-
-  private async summariesFor(user: User): Promise<OrganizationSummaryType[]> {
-    const memberships = await this.organizations.membershipsFor(user)
-    return memberships.map((membership) =>
-      new OrganizationSummaryTransformer(membership).toObject()
-    )
   }
 
   async handle(ctx: HttpContext, next: NextFn) {

@@ -4,7 +4,20 @@
     "login": "Login",
     "signup": "Signup",
     "logout": "Logout",
-    "admin": "Administration"
+    "admin": "Administration",
+    "dashboard": "Dashboard",
+    "catalogue": "Catalogue",
+    "suppliers": "Suppliers",
+    "rfqs": "My quote requests",
+    "supplierProducts": "My products",
+    "supplierRfqs": "Received requests",
+    "supplierProfile": "Supplier profile",
+    "members": "Members",
+    "settings": "Settings",
+    "account": "My account",
+    "main": "Main navigation",
+    "menu": "Menu",
+    "userMenu": "User menu"
   },
   "language": {
     "label": "Language",

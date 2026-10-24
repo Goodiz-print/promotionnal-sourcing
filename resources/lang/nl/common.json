@@ -4,7 +4,20 @@
     "login": "Aanmelden",
     "signup": "Registreren",
     "logout": "Afmelden",
-    "admin": "Beheer"
+    "admin": "Beheer",
+    "dashboard": "Dashboard",
+    "catalogue": "Catalogus",
+    "suppliers": "Leveranciers",
+    "rfqs": "Mijn offerteaanvragen",
+    "supplierProducts": "Mijn producten",
+    "supplierRfqs": "Ontvangen aanvragen",
+    "supplierProfile": "Leveranciersprofiel",
+    "members": "Leden",
+    "settings": "Instellingen",
+    "account": "Mijn account",
+    "main": "Hoofdnavigatie",
+    "menu": "Menu",
+    "userMenu": "Gebruikersmenu"
   },
   "language": {
     "label": "Taal",

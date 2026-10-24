@@ -1,0 +1,26 @@
+{
+  "title": "Painel",
+  "subtitle": "A sua atividade num relance.",
+  "buyer": {
+    "title": "Os meus pedidos de orçamento",
+    "viewAll": "Ver todos os pedidos",
+    "status": {
+      "draft": "Rascunhos",
+      "published": "Publicados",
+      "closed": "Encerrados"
+    },
+    "recent": {
+      "title": "Últimas respostas de fornecedores",
+      "empty": "Ainda sem respostas.",
+      "item": "{supplier} respondeu a «{rfq}»"
+    }
+  },
+  "supplier": {
+    "title": "Atividade do fornecedor",
+    "viewRfqs": "Ver pedidos recebidos",
+    "unread": "Pedidos por ler",
+    "products": "Produtos ativos",
+    "completeness": "Perfil concluído",
+    "completeProfile": "Completar o meu perfil"
+  }
+}
