@@ -1,0 +1,43 @@
+{
+  "layout": {
+    "automatic": "Detta e-postmeddelande skickades automatiskt, svara inte på det."
+  },
+  "invitation": {
+    "subject": "Inbjudan att gå med i en organisation",
+    "title": "Gå med i {organizationName} på {brandName}",
+    "body": "{inviterName} bjuder in dig att gå med i organisationen {organizationName} med rollen {roleName}.",
+    "cta": "Acceptera inbjudan",
+    "validity": "Länken är giltig i 7 dagar.",
+    "ignore": "Om du inte väntade dig den här inbjudan kan du bortse från den."
+  },
+  "rfqReceived": {
+    "subject": "Ny offertförfrågan från {buyerName}",
+    "title": "{buyerName} vänder sig till dig på {brandName}",
+    "body": "{buyerName} ber dig lämna offert på förfrågan ”{rfqTitle}” ({itemCount, plural, one {# rad} other {# rader}}).",
+    "deadline": "Svar önskas senast {deadline}.",
+    "cta": "Visa förfrågan",
+    "footer": "Logga in i ditt leverantörsområde för att visa förfrågan eller avböja den."
+  },
+  "passwordReset": {
+    "subject": "Återställ ditt lösenord",
+    "title": "Återställ ditt lösenord",
+    "body": "Du har begärt att få lösenordet för ditt {brandName}-konto återställt.",
+    "cta": "Välj ett nytt lösenord",
+    "validity": "Länken är giltig i {minutes, plural, one {# minut} other {# minuter}} och kan bara användas en gång.",
+    "ignore": "Om du inte har gjort den här begäran kan du bortse från den: ditt lösenord ändras inte."
+  },
+  "emailVerification": {
+    "subject": "Bekräfta din e-postadress",
+    "title": "Bekräfta din e-postadress",
+    "body": "Välkommen till {brandName}! Bekräfta att den här e-postadressen är din för att aktivera ditt konto.",
+    "cta": "Bekräfta min adress",
+    "validity": "Länken är giltig i {hours, plural, one {# timme} other {# timmar}}.",
+    "ignore": "Om du inte har skapat något konto kan du bortse från det här meddelandet."
+  },
+  "welcome": {
+    "subject": "Välkommen till {brandName}",
+    "title": "Välkommen {name}!",
+    "body": "Ditt {brandName}-konto har skapats. Du kan nu logga in och börja använda applikationen.",
+    "cta": "Gå till applikationen"
+  }
+}

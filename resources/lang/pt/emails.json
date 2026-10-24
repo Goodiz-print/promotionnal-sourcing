@@ -1,0 +1,43 @@
+{
+  "layout": {
+    "automatic": "Este e-mail foi enviado automaticamente, por favor não responda."
+  },
+  "invitation": {
+    "subject": "Convite para aderir a uma organização",
+    "title": "Junte-se a {organizationName} no {brandName}",
+    "body": "{inviterName} convida-o a juntar-se à organização {organizationName} com a função {roleName}.",
+    "cta": "Aceitar o convite",
+    "validity": "Esta ligação é válida durante 7 dias.",
+    "ignore": "Se não esperava este convite, pode ignorá-lo."
+  },
+  "rfqReceived": {
+    "subject": "Novo pedido de orçamento de {buyerName}",
+    "title": "{buyerName} consulta-o no {brandName}",
+    "body": "{buyerName} convida-o a orçamentar o pedido «{rfqTitle}» ({itemCount, plural, one {# linha} other {# linhas}}).",
+    "deadline": "Resposta esperada até {deadline}.",
+    "cta": "Consultar o pedido",
+    "footer": "Inicie sessão na sua área de fornecedor para consultar o pedido ou recusá-lo."
+  },
+  "passwordReset": {
+    "subject": "Redefinição da sua palavra-passe",
+    "title": "Redefinição da sua palavra-passe",
+    "body": "Pediu para redefinir a palavra-passe da sua conta {brandName}.",
+    "cta": "Escolher uma nova palavra-passe",
+    "validity": "Esta ligação é válida durante {minutes, plural, one {# minuto} other {# minutos}} e só pode ser utilizada uma vez.",
+    "ignore": "Se não fez este pedido, pode ignorá-lo: a sua palavra-passe não será alterada."
+  },
+  "emailVerification": {
+    "subject": "Confirme o seu endereço de e-mail",
+    "title": "Confirme o seu endereço de e-mail",
+    "body": "Bem-vindo ao {brandName}! Para ativar a sua conta, confirme que este endereço de e-mail é seu.",
+    "cta": "Confirmar o meu endereço",
+    "validity": "Esta ligação é válida durante {hours, plural, one {# hora} other {# horas}}.",
+    "ignore": "Se não criou uma conta, pode ignorar este e-mail."
+  },
+  "welcome": {
+    "subject": "Bem-vindo ao {brandName}",
+    "title": "Bem-vindo {name}!",
+    "body": "A sua conta {brandName} foi criada. Já pode iniciar sessão e começar a utilizar a aplicação.",
+    "cta": "Aceder à aplicação"
+  }
+}

@@ -15,6 +15,7 @@ function payload(key: string): SendMailPayload {
     idempotencyKey: key,
     kind: MAIL_KINDS.organizationInvitation,
     to: 'invited@example.com',
+    locale: 'fr',
     data: { organizationName: 'Acme', roleName: 'Membre', inviterName: 'Owner', acceptUrl: 'u' },
   }
 }

@@ -1,3 +1,4 @@
+import type { Locale } from '#shared/types/i18n'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { DateTime } from 'luxon'
 import { signedUrlFor } from '@adonisjs/core/services/url_builder'
@@ -38,6 +39,7 @@ export default class EmailVerificationService {
       kind: MAIL_KINDS.emailVerification,
       idempotencyKey: mailSendKey(MAIL_KINDS.emailVerification, { user: user.id }),
       to: user.email,
+      locale: locale as Locale,
       data: { verifyUrl, expiresInHours: EMAIL_VERIFICATION_TTL_HOURS },
     })
   }

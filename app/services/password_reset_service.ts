@@ -1,3 +1,4 @@
+import type { Locale } from '#shared/types/i18n'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { signedUrlFor } from '@adonisjs/core/services/url_builder'
 import env from '#start/env'
@@ -44,6 +45,7 @@ export default class PasswordResetService {
       kind: MAIL_KINDS.passwordReset,
       idempotencyKey: mailSendKey(MAIL_KINDS.passwordReset, { user: user.id }),
       to: user.email,
+      locale: locale as Locale,
       data: { resetUrl, expiresInMinutes: PASSWORD_RESET_TTL_MINUTES },
     })
   }

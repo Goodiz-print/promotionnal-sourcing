@@ -252,7 +252,7 @@ export default class RfqsController {
 
     return this.runTransition(ctx, rfq, async () => {
       const sent = await this.service.send(rfq)
-      await this.notifications.notifyRecipients(rfq, org, sent, ctx.i18n.locale)
+      await this.notifications.notifyRecipients(rfq, org, sent)
       ctx.session.flash('success', ctx.i18n.t('rfq.flash.sent', { count: sent.length }))
     })
   }

@@ -16,6 +16,7 @@ const PAYLOAD = {
   idempotencyKey: 'organization-invitation:invitation=1:send=test',
   kind: MAIL_KINDS.organizationInvitation,
   to: 'invited@example.com',
+  locale: 'fr',
   data: {
     organizationName: 'Acme',
     roleName: 'Membre',
@@ -51,6 +52,24 @@ test.group('SendMailJob', (group) => {
     return () => mail.restore()
   })
 
+  test('le mail est reconstruit dans la langue portée par la charge', async () => {
+    await jobFor({ ...PAYLOAD, locale: 'en' }).execute()
+
+    fakeMailer.mails.assertSent(OrganizationInvitationNotification, (sent) => {
+      return (sent as unknown as { locale: string }).locale === 'en'
+    })
+  })
+
+  test('une charge mise en queue avant #58 (sans langue) retombe sur le français', async () => {
+    const legacy: Record<string, unknown> = { ...PAYLOAD, idempotencyKey: 'legacy:no-locale' }
+    delete legacy.locale
+    await jobFor(legacy as unknown as SendMailPayload).execute()
+
+    fakeMailer.mails.assertSent(OrganizationInvitationNotification, (sent) => {
+      return (sent as unknown as { locale: string }).locale === 'fr'
+    })
+  })
+
   test("reconstruit le mail d'invitation depuis la charge et l'envoie", async () => {
     await jobFor(PAYLOAD).execute()
 
@@ -74,6 +93,7 @@ test.group('SendMailJob', (group) => {
       idempotencyKey: 'test:rfqReceived',
       kind: MAIL_KINDS.rfqReceived,
       to: 'contact@fournisseur.test',
+      locale: 'fr',
       data: {
         buyerName: 'Acme',
         rfqTitle: 'Tote bags coton bio',
@@ -102,6 +122,7 @@ test.group('SendMailJob', (group) => {
       idempotencyKey: 'test:passwordReset',
       kind: MAIL_KINDS.passwordReset,
       to: 'membre@example.com',
+      locale: 'fr',
       data: {
         resetUrl: 'https://example.test/fr/password/reset/1?signature=abc',
         expiresInMinutes: 60,
@@ -125,6 +146,7 @@ test.group('SendMailJob', (group) => {
       idempotencyKey: 'test:emailVerification',
       kind: MAIL_KINDS.emailVerification,
       to: 'nouveau@example.com',
+      locale: 'fr',
       data: {
         verifyUrl: 'https://example.test/fr/email/verify/1?signature=abc',
         expiresInHours: 24,

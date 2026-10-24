@@ -100,7 +100,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
    * langue n'a pas (cf. `ENGLISH_FALLBACK_NAMESPACES`).
    */
   private translationsFor(locale: Locale): Record<string, string> {
-    const own = i18nManager.getTranslationsFor(locale)
+    const own = this.withoutServerOnly(i18nManager.getTranslationsFor(locale))
     if (locale === 'en') {
       return own
     }
@@ -112,13 +112,23 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       return own
     }
 
-    const english = i18nManager.getTranslationsFor('en')
+    const english = this.withoutServerOnly(i18nManager.getTranslationsFor('en'))
     const fallback = Object.fromEntries(
       Object.entries(english).filter(([key]) =>
         missing.some((namespace) => key.startsWith(`${namespace}.`))
       )
     )
     return { ...fallback, ...own }
+  }
+
+  /**
+   * Les textes des mails (`emails.*`) ne servent qu'au worker : inutile de les
+   * embarquer dans chaque page.
+   */
+  private withoutServerOnly(translations: Record<string, string>): Record<string, string> {
+    return Object.fromEntries(
+      Object.entries(translations).filter(([key]) => !key.startsWith('emails.'))
+    )
   }
 
   async handle(ctx: HttpContext, next: NextFn) {

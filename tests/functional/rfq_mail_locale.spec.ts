@@ -1,0 +1,114 @@
+import { test } from '@japa/runner'
+import mail from '@adonisjs/mail/services/main'
+import { OrganizationFactory } from '#database/factories/organization_factory'
+import { RfqFactory } from '#database/factories/rfq_factory'
+import { RfqItemFactory } from '#database/factories/rfq_item_factory'
+import { RfqSupplierFactory } from '#database/factories/rfq_supplier_factory'
+import RfqReceivedNotification from '#mails/rfq_received_notification'
+import { createMember } from '#tests/utils/organizations'
+import { useDatabase } from '#tests/utils/setup'
+import type Rfq from '#models/rfq'
+import type User from '#models/user'
+import type { Locale } from '#shared/types/i18n'
+
+interface Sent {
+  email: string
+  locale: string
+  rfqPath: string
+}
+
+/**
+ * Mail « demande reçue » (#58) : chaque destinataire est écrit dans **sa**
+ * langue — texte, lien et échéance — quelle que soit celle de l'acheteur.
+ */
+async function publishedRfqTo(supplierId: number, buyerOwner: User, buyerOrgId: number) {
+  const rfq: Rfq = await RfqFactory.merge({ buyerOrganizationId: buyerOrgId }).create()
+  await RfqItemFactory.merge({ rfqId: rfq.id }).create()
+  await RfqSupplierFactory.merge({
+    rfqId: rfq.id,
+    supplierOrganizationId: supplierId,
+    status: 'pending',
+  }).create()
+  return { rfq, owner: buyerOwner }
+}
+
+async function memberWithLocale(
+  org: Parameters<typeof createMember>[0],
+  role: 'owner' | 'manager',
+  locale: Locale
+) {
+  const user = await createMember(org, role)
+  await user.merge({ locale }).save()
+  return user
+}
+
+test.group('Mail RFQ — langue du destinataire', (group) => {
+  useDatabase(group)
+
+  async function sendAs(client: any, rfq: Rfq, owner: User): Promise<Sent[]> {
+    await client.post(`/fr/rfqs/${rfq.id}/publish`).withInertia().withCsrfToken().loginAs(owner)
+    const { mails } = mail.fake()
+    try {
+      await client.post(`/fr/rfqs/${rfq.id}/send`).withInertia().withCsrfToken().loginAs(owner)
+      return mails.sent((mailer) => mailer instanceof RfqReceivedNotification) as unknown as Sent[]
+    } finally {
+      mail.restore()
+    }
+  }
+
+  test('chaque membre habilité reçoit le mail dans sa langue, avec son lien', async ({
+    client,
+    assert,
+  }) => {
+    const buyer = await OrganizationFactory.create()
+    const buyerOwner = await createMember(buyer, 'owner')
+    const supplier = await OrganizationFactory.apply('supplier').create()
+    const english = await memberWithLocale(supplier, 'manager', 'en')
+    const german = await memberWithLocale(supplier, 'owner', 'de')
+    const { rfq } = await publishedRfqTo(supplier.id, buyerOwner, buyer.id)
+
+    const sent = await sendAs(client, rfq, buyerOwner)
+
+    assert.lengthOf(sent, 2)
+    const toEnglish = sent.find((row) => row.email === english.email)!
+    const toGerman = sent.find((row) => row.email === german.email)!
+    assert.equal(toEnglish.locale, 'en')
+    assert.equal(toEnglish.rfqPath, `/en/supplier/rfqs/${rfq.id}`)
+    assert.equal(toGerman.locale, 'de')
+    assert.equal(toGerman.rfqPath, `/de/supplier/rfqs/${rfq.id}`)
+  })
+
+  test('une adresse de contact prend la langue du premier membre habilité', async ({
+    client,
+    assert,
+  }) => {
+    const buyer = await OrganizationFactory.create()
+    const buyerOwner = await createMember(buyer, 'owner')
+    const supplier = await OrganizationFactory.apply('supplier')
+      .merge({ email: 'contact@fournisseur.test' })
+      .create()
+    await memberWithLocale(supplier, 'owner', 'it')
+    const { rfq } = await publishedRfqTo(supplier.id, buyerOwner, buyer.id)
+
+    const sent = await sendAs(client, rfq, buyerOwner)
+
+    assert.lengthOf(sent, 1)
+    assert.equal(sent[0].email, 'contact@fournisseur.test')
+    assert.equal(sent[0].locale, 'it')
+    assert.equal(sent[0].rfqPath, `/it/supplier/rfqs/${rfq.id}`)
+  })
+
+  test('sans membre habilité, la langue par défaut s’applique', async ({ client, assert }) => {
+    const buyer = await OrganizationFactory.create()
+    const buyerOwner = await createMember(buyer, 'owner')
+    const supplier = await OrganizationFactory.apply('supplier')
+      .merge({ email: 'contact@fournisseur.test' })
+      .create()
+    const { rfq } = await publishedRfqTo(supplier.id, buyerOwner, buyer.id)
+
+    const sent = await sendAs(client, rfq, buyerOwner)
+
+    assert.equal(sent[0].locale, 'fr')
+    assert.equal(sent[0].rfqPath, `/fr/supplier/rfqs/${rfq.id}`)
+  })
+})

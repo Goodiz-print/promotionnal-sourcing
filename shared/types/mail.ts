@@ -1,3 +1,5 @@
+import type { Locale } from './i18n.js'
+
 /**
  * Charges des mails transactionnels envoyés via la queue (`SendMailJob`).
  *
@@ -68,6 +70,11 @@ export interface EmailVerificationMailData {
  * `to` est hissé hors de `data` : il est commun à tous les mails, ce qui permet
  * de loguer le destinataire dans `failed()` sans connaître le `kind`.
  *
+ * `locale` est la langue **du destinataire**, résolue par l'appelant à la mise
+ * en queue (le worker n'a ni requête HTTP ni utilisateur connecté) : sujet,
+ * gabarit et dates sont rendus dans cette langue. Une charge mise en queue avant
+ * #58 n'en a pas : `SendMailJob` retombe alors sur la langue par défaut.
+ *
  * Union **discriminée par `kind`** : ajouter un membre sans le traiter dans
  * `SendMailJob#buildMail()` est une erreur de compilation.
  */
@@ -75,21 +82,25 @@ export type SendMailContent =
   | {
       kind: typeof MAIL_KINDS.organizationInvitation
       to: string
+      locale: Locale
       data: OrganizationInvitationMailData
     }
   | {
       kind: typeof MAIL_KINDS.rfqReceived
       to: string
+      locale: Locale
       data: RfqReceivedMailData
     }
   | {
       kind: typeof MAIL_KINDS.passwordReset
       to: string
+      locale: Locale
       data: PasswordResetMailData
     }
   | {
       kind: typeof MAIL_KINDS.emailVerification
       to: string
+      locale: Locale
       data: EmailVerificationMailData
     }
 

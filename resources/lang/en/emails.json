@@ -1,0 +1,43 @@
+{
+  "layout": {
+    "automatic": "This email was sent automatically, please do not reply."
+  },
+  "invitation": {
+    "subject": "Invitation to join an organization",
+    "title": "Join {organizationName} on {brandName}",
+    "body": "{inviterName} has invited you to join the organization {organizationName} as {roleName}.",
+    "cta": "Accept the invitation",
+    "validity": "This link is valid for 7 days.",
+    "ignore": "If you were not expecting this invitation, you can ignore it."
+  },
+  "rfqReceived": {
+    "subject": "New request for quotation from {buyerName}",
+    "title": "{buyerName} is consulting you on {brandName}",
+    "body": "{buyerName} invites you to quote on the request “{rfqTitle}” ({itemCount, plural, one {# line} other {# lines}}).",
+    "deadline": "Please reply before {deadline}.",
+    "cta": "View the request",
+    "footer": "Sign in to your supplier area to view the request or decline it."
+  },
+  "passwordReset": {
+    "subject": "Reset your password",
+    "title": "Reset your password",
+    "body": "You asked to reset the password of your {brandName} account.",
+    "cta": "Choose a new password",
+    "validity": "This link is valid for {minutes, plural, one {# minute} other {# minutes}} and can only be used once.",
+    "ignore": "If you did not make this request, you can ignore it: your password will not be changed."
+  },
+  "emailVerification": {
+    "subject": "Confirm your email address",
+    "title": "Confirm your email address",
+    "body": "Welcome to {brandName}! To activate your account, please confirm that this email address is yours.",
+    "cta": "Confirm my address",
+    "validity": "This link is valid for {hours, plural, one {# hour} other {# hours}}.",
+    "ignore": "If you did not create an account, you can ignore this email."
+  },
+  "welcome": {
+    "subject": "Welcome to {brandName}",
+    "title": "Welcome {name}!",
+    "body": "Your {brandName} account has been created. You can now sign in and start using the application.",
+    "cta": "Open the application"
+  }
+}

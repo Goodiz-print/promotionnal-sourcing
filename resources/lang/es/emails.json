@@ -1,0 +1,43 @@
+{
+  "layout": {
+    "automatic": "Este correo se ha enviado automáticamente, por favor no responda."
+  },
+  "invitation": {
+    "subject": "Invitación para unirse a una organización",
+    "title": "Únase a {organizationName} en {brandName}",
+    "body": "{inviterName} le invita a unirse a la organización {organizationName} con el rol {roleName}.",
+    "cta": "Aceptar la invitación",
+    "validity": "Este enlace es válido durante 7 días.",
+    "ignore": "Si no esperaba esta invitación, puede ignorarla."
+  },
+  "rfqReceived": {
+    "subject": "Nueva solicitud de presupuesto de {buyerName}",
+    "title": "{buyerName} le consulta en {brandName}",
+    "body": "{buyerName} le invita a presupuestar la solicitud «{rfqTitle}» ({itemCount, plural, one {# línea} other {# líneas}}).",
+    "deadline": "Respuesta esperada antes del {deadline}.",
+    "cta": "Ver la solicitud",
+    "footer": "Inicie sesión en su espacio de proveedor para consultar la solicitud o rechazarla."
+  },
+  "passwordReset": {
+    "subject": "Restablecer su contraseña",
+    "title": "Restablecer su contraseña",
+    "body": "Ha solicitado restablecer la contraseña de su cuenta de {brandName}.",
+    "cta": "Elegir una nueva contraseña",
+    "validity": "Este enlace es válido durante {minutes, plural, one {# minuto} other {# minutos}} y solo puede usarse una vez.",
+    "ignore": "Si usted no ha hecho esta solicitud, puede ignorarla: su contraseña no se modificará."
+  },
+  "emailVerification": {
+    "subject": "Confirme su dirección de correo",
+    "title": "Confirme su dirección de correo",
+    "body": "¡Bienvenido a {brandName}! Para activar su cuenta, confirme que esta dirección de correo es suya.",
+    "cta": "Confirmar mi dirección",
+    "validity": "Este enlace es válido durante {hours, plural, one {# hora} other {# horas}}.",
+    "ignore": "Si no ha creado una cuenta, puede ignorar este correo."
+  },
+  "welcome": {
+    "subject": "Bienvenido a {brandName}",
+    "title": "¡Bienvenido {name}!",
+    "body": "Su cuenta de {brandName} se ha creado correctamente. Ya puede iniciar sesión y empezar a usar la aplicación.",
+    "cta": "Acceder a la aplicación"
+  }
+}

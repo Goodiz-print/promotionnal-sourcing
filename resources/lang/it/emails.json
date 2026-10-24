@@ -1,0 +1,43 @@
+{
+  "layout": {
+    "automatic": "Questa email è stata inviata automaticamente, si prega di non rispondere."
+  },
+  "invitation": {
+    "subject": "Invito a unirsi a un'organizzazione",
+    "title": "Unisciti a {organizationName} su {brandName}",
+    "body": "{inviterName} ti invita a unirti all'organizzazione {organizationName} con il ruolo {roleName}.",
+    "cta": "Accetta l'invito",
+    "validity": "Questo link è valido per 7 giorni.",
+    "ignore": "Se non ti aspettavi questo invito, puoi ignorarlo."
+  },
+  "rfqReceived": {
+    "subject": "Nuova richiesta di preventivo da {buyerName}",
+    "title": "{buyerName} ti consulta su {brandName}",
+    "body": "{buyerName} ti invita a quotare la richiesta «{rfqTitle}» ({itemCount, plural, one {# riga} other {# righe}}).",
+    "deadline": "Risposta attesa entro il {deadline}.",
+    "cta": "Consulta la richiesta",
+    "footer": "Accedi alla tua area fornitore per consultare la richiesta o rifiutarla."
+  },
+  "passwordReset": {
+    "subject": "Reimposta la tua password",
+    "title": "Reimposta la tua password",
+    "body": "Hai richiesto di reimpostare la password del tuo account {brandName}.",
+    "cta": "Scegli una nuova password",
+    "validity": "Questo link è valido per {minutes, plural, one {# minuto} other {# minuti}} e può essere usato una sola volta.",
+    "ignore": "Se non hai effettuato tu questa richiesta, puoi ignorarla: la tua password non verrà modificata."
+  },
+  "emailVerification": {
+    "subject": "Conferma il tuo indirizzo email",
+    "title": "Conferma il tuo indirizzo email",
+    "body": "Benvenuto su {brandName}! Per attivare il tuo account, conferma che questo indirizzo email è tuo.",
+    "cta": "Conferma il mio indirizzo",
+    "validity": "Questo link è valido per {hours, plural, one {# ora} other {# ore}}.",
+    "ignore": "Se non hai creato un account, puoi ignorare questa email."
+  },
+  "welcome": {
+    "subject": "Benvenuto su {brandName}",
+    "title": "Benvenuto {name}!",
+    "body": "Il tuo account {brandName} è stato creato. Puoi accedere subito e iniziare a usare l'applicazione.",
+    "cta": "Vai all'applicazione"
+  }
+}
