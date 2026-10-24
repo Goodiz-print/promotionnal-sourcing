@@ -323,7 +323,7 @@ test.group('RFQ en un clic — suppression d’un brouillon', (group) => {
       .redirects(0)
       .loginAs(owner)
 
-    response.assertStatus(302)
+    response.assertStatus(303)
     response.assertHeader('location', '/fr/rfqs')
     assert.isNull(await Rfq.find(rfq.id))
     assert.lengthOf(await RfqItem.query().where('rfqId', rfq.id), 0)
@@ -341,7 +341,7 @@ test.group('RFQ en un clic — suppression d’un brouillon', (group) => {
       .redirects(0)
       .loginAs(owner)
 
-    response.assertStatus(302)
+    response.assertStatus(303)
     response.assertHeader('location', `/fr/rfqs/${rfq.id}`)
     assert.isNotNull(await Rfq.find(rfq.id))
   })
@@ -358,9 +358,9 @@ test.group('RFQ en un clic — suppression d’un brouillon', (group) => {
       .redirects(0)
       .loginAs(member)
 
-    // Sur une soumission de formulaire, Bouncer renvoie l'utilisateur d'où il
+    // Inertia convertit la redirection d'un DELETE en 303. Sur une soumission de formulaire, Bouncer renvoie l'utilisateur d'où il
     // vient avec un message plutôt qu'une page 403.
-    response.assertStatus(302)
+    response.assertStatus(303)
     assert.isNotNull(await Rfq.find(rfq.id))
   })
 
