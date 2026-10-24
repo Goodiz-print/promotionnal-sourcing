@@ -95,6 +95,7 @@ function detail(overrides: Partial<RfqDetailType> = {}): RfqDetailType {
         categoryName: null,
         productId: null,
         productName: null,
+        productSlug: null,
         specs: null,
       },
     ],

@@ -38,6 +38,7 @@ export default class RfqItemTransformer extends BaseTransformer<RfqItem> {
       ]),
       categoryName: category?.name ?? null,
       productName: product?.name ?? null,
+      productSlug: this.resource.product?.slug ?? null,
       specs: this.resource.specs,
     }
   }

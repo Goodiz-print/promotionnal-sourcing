@@ -27,7 +27,8 @@
     "product": "Product",
     "addSuppliers": "Add recipients",
     "removeSupplier": "Remove",
-    "sentAt": "Sent on {date}"
+    "sentAt": "Sent on {date}",
+    "viewProduct": "View product page"
   },
   "status": {
     "draft": "Draft",
@@ -46,7 +47,9 @@
     "send": "Send to recipients",
     "close": "Close",
     "save": "Save",
-    "confirmClose": "Close this request? No further sending will be possible."
+    "confirmClose": "Close this request? No further sending will be possible.",
+    "delete": "Delete draft",
+    "confirmDelete": "Delete this draft? This cannot be undone."
   },
   "fields": {
     "title": "Title",
@@ -78,14 +81,17 @@
     "sent": "{count, plural, =0 {Nothing sent} one {Request sent to # supplier} other {Request sent to # suppliers}}.",
     "closed": "Request closed.",
     "suppliersAdded": "{count, plural, =0 {No new recipient} one {# recipient added} other {# recipients added}}.",
-    "supplierRemoved": "Recipient removed."
+    "supplierRemoved": "Recipient removed.",
+    "productAdded": "{name} added to the request.",
+    "deleted": "Draft deleted."
   },
   "errors": {
     "notEditable": "Only a draft can be edited. A recipient already notified cannot be removed.",
     "notPublishable": "This request cannot be published: it must be a draft with at least one line.",
     "notSendable": "This request cannot be sent: publish it and select at least one pending recipient.",
     "notClosable": "Only a published request can be closed.",
-    "notASupplier": "One of the selected recipients is not an active supplier organization."
+    "notASupplier": "One of the selected recipients is not an active supplier organization.",
+    "notDeletable": "Only a draft can be deleted. Close a published request instead."
   },
   "supplier": {
     "index": {
@@ -120,5 +126,11 @@
     "errors": {
       "notDecidable": "This request no longer awaits a decision from you."
     }
+  },
+  "product": {
+    "label": "Add a product from the catalogue",
+    "placeholder": "Search a product by name…",
+    "empty": "No product found.",
+    "add": "Add"
   }
 }

@@ -15,8 +15,13 @@ import {
   RfqNotSendableException,
   RfqSupplierNotFoundException,
 } from '#exceptions/rfq_errors'
-import { TERMINAL_RFQ_SUPPLIER_STATUSES } from '#shared/types/rfq'
-import type { CreateRfqData, RfqItemData, UpdateRfqData } from '#shared/types/rfq'
+import { DEFAULT_RFQ_ITEM_QUANTITY, TERMINAL_RFQ_SUPPLIER_STATUSES } from '#shared/types/rfq'
+import type {
+  CreateRfqData,
+  RfqItemData,
+  RfqProductOptionType,
+  UpdateRfqData,
+} from '#shared/types/rfq'
 
 /**
  * Cycle de vie d'une demande de devis (RFQ).
@@ -185,6 +190,55 @@ export default class RfqService {
         { client: trx }
       )
     })
+  }
+
+  /**
+   * Ajoute une ligne « produit du catalogue » à un brouillon, et son
+   * fournisseur aux destinataires (déjà destinataire : ignoré). C'est le geste
+   * « ajouter à une demande existante » de la fiche produit ; la ligne est
+   * ajoutée **à la suite**, jamais en remplacement (`replaceItems`).
+   *
+   * Un produit déjà présent dans la demande reçoit une seconde ligne plutôt
+   * qu'un refus : l'acheteur peut vouloir deux quantités ou deux marquages.
+   */
+  async addProductItem(rfq: Rfq, product: RfqProductOptionType): Promise<RfqItem> {
+    this.assertDraft(rfq)
+
+    const item = await RfqItem.create(
+      this.itemAttributes(rfq.id, {
+        name: product.name,
+        quantity: product.minQuantity ?? DEFAULT_RFQ_ITEM_QUANTITY,
+        categoryId: product.categoryId,
+        productId: product.id,
+      })
+    )
+
+    if (product.supplierOrganizationId !== null) {
+      await this.addSuppliers(rfq, [product.supplierOrganizationId])
+    }
+
+    return item
+  }
+
+  /**
+   * Supprime un brouillon (lignes et destinataires partent avec lui, FK
+   * `CASCADE`). Une demande publiée n'est jamais supprimée : des fournisseurs
+   * l'ont peut-être reçue, elle se clôture.
+   */
+  async delete(rfq: Rfq): Promise<void> {
+    this.assertDraft(rfq)
+    await rfq.delete()
+  }
+
+  /**
+   * Brouillons de l'organisation, du plus récent au plus ancien — le menu
+   * « ajouter à une demande » de la fiche produit.
+   */
+  async listDrafts(organizationId: number): Promise<Rfq[]> {
+    return Rfq.query()
+      .where('buyerOrganizationId', organizationId)
+      .where('status', 'draft')
+      .orderBy('createdAt', 'desc')
   }
 
   /**

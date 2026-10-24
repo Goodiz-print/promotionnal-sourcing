@@ -27,7 +27,8 @@
     "product": "Producto",
     "addSuppliers": "Añadir destinatarios",
     "removeSupplier": "Quitar",
-    "sentAt": "Enviada el {date}"
+    "sentAt": "Enviada el {date}",
+    "viewProduct": "Ver la ficha del producto"
   },
   "status": {
     "draft": "Borrador",
@@ -46,7 +47,9 @@
     "send": "Enviar a los destinatarios",
     "close": "Cerrar",
     "save": "Guardar",
-    "confirmClose": "¿Cerrar esta solicitud? Ya no se podrán realizar nuevos envíos."
+    "confirmClose": "¿Cerrar esta solicitud? Ya no se podrán realizar nuevos envíos.",
+    "delete": "Eliminar borrador",
+    "confirmDelete": "¿Eliminar este borrador? Esta acción no se puede deshacer."
   },
   "fields": {
     "title": "Título",
@@ -78,14 +81,17 @@
     "sent": "{count, plural, =0 {Ningún envío} one {Solicitud enviada a # proveedor} other {Solicitud enviada a # proveedores}}.",
     "closed": "Solicitud cerrada.",
     "suppliersAdded": "{count, plural, =0 {Ningún destinatario nuevo} one {# destinatario añadido} other {# destinatarios añadidos}}.",
-    "supplierRemoved": "Destinatario quitado."
+    "supplierRemoved": "Destinatario quitado.",
+    "productAdded": "{name} añadido a la solicitud.",
+    "deleted": "Borrador eliminado."
   },
   "errors": {
     "notEditable": "Solo se puede modificar un borrador. Un destinatario que ya ha sido notificado no se puede quitar.",
     "notPublishable": "Esta solicitud no se puede publicar: se necesita un borrador con al menos una línea.",
     "notSendable": "Esta solicitud no se puede enviar: publíquela y seleccione al menos un destinatario pendiente.",
     "notClosable": "Solo se puede cerrar una solicitud publicada.",
-    "notASupplier": "Uno de los destinatarios seleccionados no es una organización proveedora activa."
+    "notASupplier": "Uno de los destinatarios seleccionados no es una organización proveedora activa.",
+    "notDeletable": "Solo se puede eliminar un borrador. Cierre una solicitud publicada en su lugar."
   },
   "supplier": {
     "index": {
@@ -120,5 +126,11 @@
     "errors": {
       "notDecidable": "Esta solicitud ya no espera una decisión por su parte."
     }
+  },
+  "product": {
+    "label": "Añadir un producto del catálogo",
+    "placeholder": "Buscar un producto por nombre…",
+    "empty": "No se encontró ningún producto.",
+    "add": "Añadir"
   }
 }

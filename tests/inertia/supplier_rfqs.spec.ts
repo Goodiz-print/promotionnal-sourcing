@@ -76,6 +76,7 @@ function detail(overrides: Partial<SupplierRfqDetailType> = {}): SupplierRfqDeta
         categoryName: null,
         productId: null,
         productName: null,
+        productSlug: null,
         specs: null,
       },
     ],

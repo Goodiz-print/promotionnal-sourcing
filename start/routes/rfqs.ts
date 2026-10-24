@@ -17,6 +17,12 @@ export function registerRfqRoutes(): void {
   router.post('rfqs', [controllers.Rfqs, 'store']).as('rfqs.store')
   router.get('rfqs/:id', [controllers.Rfqs, 'show']).as('rfqs.show')
   router.patch('rfqs/:id', [controllers.Rfqs, 'update']).as('rfqs.update')
+  router.delete('rfqs/:id', [controllers.Rfqs, 'destroy']).as('rfqs.destroy')
+
+  // Ajout d'un produit du catalogue à un brouillon (menu de la fiche produit).
+  router
+    .post('rfqs/:id/items/from-product', [controllers.Rfqs, 'addProduct'])
+    .as('rfqs.items.from_product')
 
   // Destinataires : ajout (brouillon ou élargissement d'une demande publiée)
   // et retrait tant qu'ils n'ont pas été notifiés.

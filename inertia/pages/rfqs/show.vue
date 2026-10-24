@@ -13,13 +13,14 @@ import RfqSupplierList from '~/components/rfqs/rfq_supplier_list.vue'
 import RfqSupplierPicker from '~/components/rfqs/rfq_supplier_picker.vue'
 import { RFQ_STATUS_TONES } from '~/components/rfqs/types'
 import type { CategoryType } from '#shared/types/category'
-import type { RfqDetailType, SupplierOptionType } from '#shared/types/rfq'
+import type { RfqDetailType, RfqProductOptionType, SupplierOptionType } from '#shared/types/rfq'
 
 const props = defineProps<{
   rfq: RfqDetailType
   categories: CategoryType[]
   supplierOptions: SupplierOptionType[]
   canManageRfq: boolean
+  productResults?: RfqProductOptionType[]
 }>()
 
 const { t, locale } = useI18n()
@@ -41,6 +42,18 @@ function addSuppliers() {
     { supplierOrganizationIds: supplierIdsToAdd.value },
     { preserveScroll: true, onSuccess: () => (supplierIdsToAdd.value = []) }
   )
+}
+
+/**
+ * Un produit ajouté au brouillon propose son fournisseur dans « Ajouter des
+ * destinataires » (coché d'avance) ; l'acheteur valide d'un clic.
+ */
+function queueSupplier(product: RfqProductOptionType) {
+  const id = product.supplierOrganizationId
+  const addable = addableSuppliers.value.some((option) => option.id === id)
+  if (id && addable && !supplierIdsToAdd.value.includes(id)) {
+    supplierIdsToAdd.value = [...supplierIdsToAdd.value, id]
+  }
 }
 
 function formatDate(value: string): string {
@@ -92,6 +105,8 @@ function formatDate(value: string): string {
         :rfq="rfq"
         :categories="categories"
         :supplier-options="supplierOptions"
+        :product-results="productResults"
+        @product-picked="queueSupplier"
       />
     </section>
 

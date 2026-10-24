@@ -76,6 +76,8 @@ export type ScannedRoutes = {
     'rfqs.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'rfqs.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'rfqs.items.from_product': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.suppliers.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.suppliers.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'supplierId': ParamValue} }
     'rfqs.publish': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -210,6 +212,7 @@ export type ScannedRoutes = {
     'supplier.documents.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.products.documents.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'rfqs.items.from_product': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.suppliers.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.publish': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.send': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -235,6 +238,7 @@ export type ScannedRoutes = {
     'supplier.products.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.documents.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.products.documents.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'documentId': ParamValue} }
+    'rfqs.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.suppliers.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'supplierId': ParamValue} }
     'admin.categories.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
   }

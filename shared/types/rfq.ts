@@ -101,6 +101,7 @@ export type RfqItemType = {
   categoryName: string | null
   productId: number | null
   productName: string | null
+  productSlug: string | null
   specs: RfqItemSpecs | null
 }
 
@@ -176,3 +177,49 @@ export type SupplierRfqDetailType = SupplierRfqType & {
   description: string | null
   items: RfqItemType[]
 }
+
+/**
+ * Produit du catalogue tel que le formulaire RFQ le manipule : de quoi remplir
+ * une ligne (désignation, catégorie, quantité minimale) et cocher le
+ * fournisseur. Réponse du sélecteur de produit **et** pré-remplissage depuis
+ * une fiche.
+ *
+ * `supplierOrganizationId` est `null` pour une fiche fournisseur importée mais
+ * pas encore rattachée à une organisation : il n'y a alors personne à consulter.
+ */
+export type RfqProductOptionType = {
+  id: number
+  slug: string
+  name: string
+  categoryId: number | null
+  minQuantity: number | null
+  supplierName: string | null
+  supplierOrganizationId: number | null
+}
+
+/**
+ * Brouillon proposé dans le menu « ajouter à une demande » d'une fiche produit.
+ */
+export type RfqDraftOptionType = {
+  id: number
+  title: string
+}
+
+/**
+ * Ce que la fiche produit sait de l'acheteur connecté. Toujours défini (jamais
+ * `null`, que le sérialiseur de props refuse) : un visiteur anonyme reçoit
+ * `canCreateRfq: false`.
+ *
+ * `drafts` n'est rempli que pour qui peut piloter une demande : modifier un
+ * brouillon relève de `canManageRfq`, pas de `canCreateRfq`.
+ */
+export type ProductRfqContextType = {
+  canCreateRfq: boolean
+  drafts: RfqDraftOptionType[]
+}
+
+/**
+ * Quantité retenue quand le produit n'impose pas de minimum : la validation
+ * exige un entier positif, et « 1 » est la valeur neutre à corriger.
+ */
+export const DEFAULT_RFQ_ITEM_QUANTITY = 1

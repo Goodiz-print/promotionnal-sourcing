@@ -438,6 +438,18 @@ const routes = {
     tokens: [{"old":"/:locale/rfqs/:id","type":1,"val":"locale","end":""},{"old":"/:locale/rfqs/:id","type":0,"val":"rfqs","end":""},{"old":"/:locale/rfqs/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['rfqs.update']['types'],
   },
+  'rfqs.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/rfqs/:id',
+    tokens: [{"old":"/:locale/rfqs/:id","type":1,"val":"locale","end":""},{"old":"/:locale/rfqs/:id","type":0,"val":"rfqs","end":""},{"old":"/:locale/rfqs/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['rfqs.destroy']['types'],
+  },
+  'rfqs.items.from_product': {
+    methods: ["POST"],
+    pattern: '/:locale/rfqs/:id/items/from-product',
+    tokens: [{"old":"/:locale/rfqs/:id/items/from-product","type":1,"val":"locale","end":""},{"old":"/:locale/rfqs/:id/items/from-product","type":0,"val":"rfqs","end":""},{"old":"/:locale/rfqs/:id/items/from-product","type":1,"val":"id","end":""},{"old":"/:locale/rfqs/:id/items/from-product","type":0,"val":"items","end":""},{"old":"/:locale/rfqs/:id/items/from-product","type":0,"val":"from-product","end":""}],
+    types: placeholder as Registry['rfqs.items.from_product']['types'],
+  },
   'rfqs.suppliers.store': {
     methods: ["POST"],
     pattern: '/:locale/rfqs/:id/suppliers',

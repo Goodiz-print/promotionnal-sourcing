@@ -27,7 +27,8 @@
     "product": "Produit",
     "addSuppliers": "Ajouter des destinataires",
     "removeSupplier": "Retirer",
-    "sentAt": "Envoyée le {date}"
+    "sentAt": "Envoyée le {date}",
+    "viewProduct": "Voir la fiche produit"
   },
   "status": {
     "draft": "Brouillon",
@@ -46,7 +47,9 @@
     "send": "Envoyer aux destinataires",
     "close": "Clôturer",
     "save": "Enregistrer",
-    "confirmClose": "Clôturer cette demande ? Aucun nouvel envoi ne sera possible."
+    "confirmClose": "Clôturer cette demande ? Aucun nouvel envoi ne sera possible.",
+    "delete": "Supprimer le brouillon",
+    "confirmDelete": "Supprimer ce brouillon ? Cette action est définitive."
   },
   "fields": {
     "title": "Titre",
@@ -78,14 +81,17 @@
     "sent": "{count, plural, =0 {Aucun envoi} one {Demande envoyée à # fournisseur} other {Demande envoyée à # fournisseurs}}.",
     "closed": "Demande clôturée.",
     "suppliersAdded": "{count, plural, =0 {Aucun nouveau destinataire} one {# destinataire ajouté} other {# destinataires ajoutés}}.",
-    "supplierRemoved": "Destinataire retiré."
+    "supplierRemoved": "Destinataire retiré.",
+    "productAdded": "{name} ajouté à la demande.",
+    "deleted": "Brouillon supprimé."
   },
   "errors": {
     "notEditable": "Seul un brouillon peut être modifié. Un destinataire déjà notifié ne peut plus être retiré.",
     "notPublishable": "Cette demande ne peut pas être publiée : il faut un brouillon comportant au moins une ligne.",
     "notSendable": "Cette demande ne peut pas être envoyée : publiez-la et sélectionnez au moins un destinataire en attente.",
     "notClosable": "Seule une demande publiée peut être clôturée.",
-    "notASupplier": "Un des destinataires sélectionnés n'est pas une organisation fournisseuse active."
+    "notASupplier": "Un des destinataires sélectionnés n'est pas une organisation fournisseuse active.",
+    "notDeletable": "Seul un brouillon peut être supprimé. Clôturez plutôt une demande publiée."
   },
   "supplier": {
     "index": {
@@ -120,5 +126,11 @@
     "errors": {
       "notDecidable": "Cette demande n'attend plus de décision de votre part."
     }
+  },
+  "product": {
+    "label": "Ajouter un produit du catalogue",
+    "placeholder": "Rechercher un produit par son nom…",
+    "empty": "Aucun produit trouvé.",
+    "add": "Ajouter"
   }
 }

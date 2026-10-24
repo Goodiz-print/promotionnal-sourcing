@@ -23,7 +23,10 @@
     "priceTiers": "Prezzo per quantità",
     "tierQuantity": "Quantità",
     "tierPrice": "Prezzo unitario",
-    "tierFrom": "Da {quantity} pezzi"
+    "tierFrom": "Da {quantity} pezzi",
+    "addToDraft": "Aggiungi a una richiesta in bozza",
+    "chooseDraft": "Scegli una bozza…",
+    "signInToRequest": "Accedi per richiedere un preventivo"
   },
   "manage": {
     "index": {

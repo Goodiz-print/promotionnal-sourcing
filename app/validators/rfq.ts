@@ -43,3 +43,12 @@ export const rfqValidator = vine.create({
 export const rfqSuppliersValidator = vine.create({
   supplierOrganizationIds: vine.array(vine.number().positive()).minLength(1).maxLength(50),
 })
+
+/**
+ * Ajout d'un produit du catalogue à un brouillon existant (fiche produit).
+ * Seul l'identifiant voyage : nom, catégorie, quantité et fournisseur sont
+ * relus côté serveur depuis le catalogue, jamais crus sur parole.
+ */
+export const rfqProductValidator = vine.create({
+  productId: vine.number().positive(),
+})
