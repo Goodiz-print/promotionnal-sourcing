@@ -25,6 +25,9 @@ const MIN_LENGTH = 2
 const DEBOUNCE_MS = 250
 
 const term = ref('')
+// Saisie à laquelle correspond `results` : tant que la réponse du serveur n'est
+// pas arrivée, la liste affichée serait celle d'une saisie précédente.
+const resultsFor = ref('')
 let timer: ReturnType<typeof setTimeout> | undefined
 
 function search(value: string) {
@@ -32,11 +35,15 @@ function search(value: string) {
   clearTimeout(timer)
   if (value.trim().length < MIN_LENGTH) return
 
+  const requested = value.trim()
   timer = setTimeout(() => {
+    // Inertia annule la visite précédente quand une nouvelle démarre : une
+    // réponse tardive n'écrase donc pas une plus récente.
     router.reload({
-      data: { productSearch: value.trim() },
+      data: { productSearch: requested },
       only: ['productResults'],
       preserveUrl: true,
+      onSuccess: () => (resultsFor.value = requested),
     })
   }, DEBOUNCE_MS)
 }
@@ -44,6 +51,7 @@ function search(value: string) {
 function pick(product: RfqProductOptionType) {
   emit('pick', product)
   term.value = ''
+  resultsFor.value = ''
 }
 
 onBeforeUnmount(() => clearTimeout(timer))
@@ -59,7 +67,7 @@ onBeforeUnmount(() => clearTimeout(timer))
       @update:model-value="search(String($event))"
     />
 
-    <template v-if="term.trim().length >= MIN_LENGTH && results">
+    <template v-if="term.trim().length >= MIN_LENGTH && results && resultsFor === term.trim()">
       <p v-if="results.length === 0" class="text-sm text-[var(--gray-6)]">
         {{ t('rfq.product.empty') }}
       </p>

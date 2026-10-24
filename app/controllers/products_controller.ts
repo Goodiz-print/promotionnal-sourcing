@@ -7,6 +7,7 @@ import DocumentService from '#services/document_service'
 import OrganizationContextService from '#services/organization_context_service'
 import RfqService from '#services/rfq_service'
 import ProductTransformer from '#transformers/product_transformer'
+import RfqDraftOptionTransformer from '#transformers/rfq_draft_option_transformer'
 import ProductDetailTransformer from '#transformers/product_detail_transformer'
 import CategoryTransformer from '#transformers/category_transformer'
 import AttributeTransformer from '#transformers/attribute_transformer'
@@ -124,7 +125,10 @@ export default class ProductsController {
     const drafts = (await bouncer.allows('canManageRfq', org))
       ? await this.rfqs.listDrafts(org.id)
       : []
-    return { canCreateRfq: true, drafts: drafts.map(({ id, title }) => ({ id, title })) }
+    return {
+      canCreateRfq: true,
+      drafts: drafts.map((draft) => new RfqDraftOptionTransformer(draft).toObject()),
+    }
   }
 
   /**

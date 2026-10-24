@@ -29,7 +29,11 @@ const tote: RfqProductOptionType = {
 
 beforeEach(() => {
   vi.useFakeTimers()
-  vi.mocked(router.reload).mockClear()
+  vi.mocked(router.reload).mockReset()
+  // Le serveur répond aussitôt : Inertia appelle `onSuccess` avec la page.
+  vi.mocked(router.reload).mockImplementation((options) => {
+    options?.onSuccess?.({} as never)
+  })
 })
 afterEach(() => vi.useRealTimers())
 
@@ -45,6 +49,7 @@ describe('rfq_product_picker.vue', () => {
       data: { productSearch: 'tote' },
       only: ['productResults'],
       preserveUrl: true,
+      onSuccess: expect.any(Function),
     })
   })
 
@@ -60,6 +65,7 @@ describe('rfq_product_picker.vue', () => {
   it('liste les résultats et émet le produit choisi', async () => {
     const wrapper = mount(RfqProductPicker, { props: { results: [tote] } })
     await wrapper.find('input').setValue('tote')
+    await vi.advanceTimersByTimeAsync(300)
 
     expect(wrapper.text()).toContain('Tote bag coton')
     expect(wrapper.text()).toContain('Acme')
@@ -72,7 +78,29 @@ describe('rfq_product_picker.vue', () => {
   it("signale l'absence de résultat", async () => {
     const wrapper = mount(RfqProductPicker, { props: { results: [] } })
     await wrapper.find('input').setValue('zzz')
+    await vi.advanceTimersByTimeAsync(300)
 
     expect(wrapper.text()).toContain('Aucun produit trouvé.')
+  })
+
+  it("n'affiche pas les résultats d'une saisie précédente pendant la recherche", async () => {
+    // Le serveur ne répond pas : `onSuccess` n'est jamais appelé.
+    vi.mocked(router.reload).mockImplementation(() => {})
+    const wrapper = mount(RfqProductPicker, { props: { results: [tote] } })
+
+    await wrapper.find('input').setValue('tote')
+    await vi.advanceTimersByTimeAsync(300)
+
+    expect(wrapper.text()).not.toContain('Tote bag coton')
+  })
+
+  it('masque la liste une fois un produit choisi', async () => {
+    const wrapper = mount(RfqProductPicker, { props: { results: [tote] } })
+    await wrapper.find('input').setValue('tote')
+    await vi.advanceTimersByTimeAsync(300)
+
+    await wrapper.findAll('button')[0].trigger('click')
+
+    expect(wrapper.text()).not.toContain('Tote bag coton')
   })
 })

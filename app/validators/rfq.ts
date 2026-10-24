@@ -52,3 +52,13 @@ export const rfqSuppliersValidator = vine.create({
 export const rfqProductValidator = vine.create({
   productId: vine.number().positive(),
 })
+
+/**
+ * Paramètres de requête des écrans de demande : `productId` (pré-remplissage
+ * depuis une fiche) et `productSearch` (sélecteur de produit). Lus depuis la
+ * query string, donc potentiellement tout et n'importe quoi (`12abc`, tableau).
+ */
+export const rfqLookupQueryValidator = vine.create({
+  productId: vine.number().positive().optional(),
+  productSearch: vine.string().trim().maxLength(100).optional(),
+})

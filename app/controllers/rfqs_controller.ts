@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
+import { errors as vineErrors } from '@vinejs/vine'
 import CategoryService from '#services/category_service'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import OrganizationContextService from '#services/organization_context_service'
@@ -9,7 +10,12 @@ import CategoryTransformer from '#transformers/category_transformer'
 import RfqDetailTransformer from '#transformers/rfq_detail_transformer'
 import RfqProductOptionTransformer from '#transformers/rfq_product_option_transformer'
 import RfqTransformer from '#transformers/rfq_transformer'
-import { rfqProductValidator, rfqSuppliersValidator, rfqValidator } from '#validators/rfq'
+import {
+  rfqLookupQueryValidator,
+  rfqProductValidator,
+  rfqSuppliersValidator,
+  rfqValidator,
+} from '#validators/rfq'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
 import {
   NotASupplierOrganizationException,
@@ -88,14 +94,12 @@ export default class RfqsController {
     await bouncer.authorize('canCreateRfq', org)
 
     const locale = i18n.locale as Locale
-    const productId = Number.parseInt(request.qs().productId, 10)
+    const { productId, productSearch } = await this.lookupParams(request)
 
     return inertia.render('rfqs/create', {
       ...(await this.formData(locale)),
-      productResults: this.productResults(inertia, request.qs().productSearch, locale),
-      prefillProduct: Number.isInteger(productId)
-        ? await this.findProduct(productId, locale)
-        : undefined,
+      productResults: this.productResults(inertia, productSearch, locale),
+      prefillProduct: productId ? await this.findProduct(productId, locale) : undefined,
     })
   }
 
@@ -138,11 +142,13 @@ export default class RfqsController {
     const rfq = await this.service.findForBuyer(Number(params.id), org.id)
     const locale = i18n.locale as Locale
 
+    const { productSearch } = await this.lookupParams(request)
+
     return inertia.render('rfqs/show', {
       rfq: new RfqDetailTransformer(rfq, locale).toObject(),
       canManageRfq: await bouncer.allows('canManageRfq', org),
       ...(await this.formData(locale)),
-      productResults: this.productResults(inertia, request.qs().productSearch, locale),
+      productResults: this.productResults(inertia, productSearch, locale),
     })
   }
 
@@ -302,6 +308,22 @@ export default class RfqsController {
   }
 
   /**
+   * Paramètres de requête `productId` / `productSearch`, validés. Une valeur
+   * invalide (`?productId=12abc`, tableau…) est ignorée plutôt que refusée : ce
+   * sont des aides à la saisie, pas des données — le formulaire s'ouvre vide.
+   */
+  private async lookupParams(
+    request: HttpContext['request']
+  ): Promise<{ productId?: number; productSearch?: string }> {
+    try {
+      return await rfqLookupQueryValidator.validate(request.qs())
+    } catch (error) {
+      if (error instanceof vineErrors.E_VALIDATION_ERROR) return {}
+      throw error
+    }
+  }
+
+  /**
    * Produit du catalogue au format du formulaire, `undefined` s'il n'est pas
    * (ou plus) demandable.
    */
@@ -315,12 +337,15 @@ export default class RfqsController {
    * que lorsqu'un partial reload la demande (`only: ['productResults']`), donc
    * jamais au simple affichage de la page.
    */
-  private productResults(inertia: HttpContext['inertia'], search: unknown, locale: Locale) {
+  private productResults(
+    inertia: HttpContext['inertia'],
+    search: string | undefined,
+    locale: Locale
+  ) {
     return inertia.optional(async () => {
-      const term = typeof search === 'string' ? search.trim() : ''
-      if (term.length < PRODUCT_SEARCH_MIN_LENGTH) return []
+      if (!search || search.length < PRODUCT_SEARCH_MIN_LENGTH) return []
 
-      const products = await this.catalogue.lookupForRfq(term, locale, PRODUCT_SEARCH_LIMIT)
+      const products = await this.catalogue.lookupForRfq(search, locale, PRODUCT_SEARCH_LIMIT)
       return products.map((product) => new RfqProductOptionTransformer(product, locale).toObject())
     })
   }

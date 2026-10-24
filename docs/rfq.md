@@ -403,6 +403,22 @@ Un produit dont la fiche fournisseur n'est pas rattachée à une organisation
 (`suppliers.organization_id` nul, import en masse non traité) donne une ligne
 sans destinataire : il n'y a personne à consulter.
 
+### Garanties
+
+- **Tout ou rien** : `addProductItem` vérifie l'éligibilité du fournisseur avant
+  d'écrire, puis écrit la ligne et le destinataire dans une transaction. Le
+  statut du brouillon est relu sous verrou (`FOR UPDATE`) : une demande publiée
+  dans un autre onglet entre-temps ne reçoit pas de ligne. Un fournisseur
+  inéligible (non fournisseur, archivé) donne un message flash et rien d'écrit.
+- **`productId` jamais cru sur parole** : à la création comme à l'enregistrement
+  d'un brouillon, un `productId` inconnu, inactif, rejeté ou d'une organisation
+  archivée est ramené à `null` (`RfqService#withRequestableProducts`). La ligne
+  survit par son `name`, comme à la suppression d'un produit, et un brouillon dont
+  un produit a quitté le catalogue reste enregistrable.
+- **Paramètres de requête validés** (`rfqLookupQueryValidator`) : `productId` et
+  `productSearch` invalides (`12abc`, tableau, négatif) sont ignorés, le
+  formulaire s'ouvre vide.
+
 ### Sélecteur de produit
 
 `components/rfqs/rfq_product_picker.vue`, dans `rfq_form.vue` (création **et**
@@ -410,8 +426,9 @@ sans destinataire : il n'y a personne à consulter.
 page courante (`router.reload({ only: ['productResults'] })`), pas du JSON : les
 contrôleurs `create` et `show` exposent `productResults` en prop **optionnelle**
 (`inertia.optional`), évaluée seulement quand le client la demande, à partir du
-paramètre `?productSearch=` (2 caractères minimum, 8 résultats). L'URL n'en
-garde pas la trace (`preserveUrl`).
+paramètre `?productSearch=` (2 caractères minimum, 100 maximum, 8 résultats ; le nom est cherché dans toutes les langues de contenu, le full-text dans celle de l'interface). L'URL n'en
+garde pas la trace (`preserveUrl`). Le sélecteur n'affiche une liste que si
+elle correspond à la saisie courante : pas de résultats périmés pendant la frappe.
 
 > L'issue prévoyait une route dédiée `GET /products/lookup`. Elle ne
 > fonctionnerait pas en partial reload (qui ne rejoue que la page courante) et

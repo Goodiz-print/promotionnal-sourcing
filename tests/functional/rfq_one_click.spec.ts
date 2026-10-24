@@ -2,6 +2,7 @@ import { test } from '@japa/runner'
 import { OrganizationFactory } from '#database/factories/organization_factory'
 import { RfqFactory } from '#database/factories/rfq_factory'
 import { RfqItemFactory } from '#database/factories/rfq_item_factory'
+import Organization from '#models/organization'
 import Product from '#models/product'
 import Rfq from '#models/rfq'
 import RfqItem from '#models/rfq_item'
@@ -67,6 +68,17 @@ test.group('RFQ en un clic — pré-remplissage depuis un produit', (group) => {
     assert.isUndefined(unknown.inertiaProps.prefillProduct)
     inactive.assertStatus(200)
     assert.isUndefined(inactive.inertiaProps.prefillProduct)
+  })
+
+  test('un productId mal formé est ignoré', async ({ client, assert }) => {
+    const { owner } = await buyerWithOwner()
+
+    for (const query of ['productId=12abc', 'productId[]=3', 'productId=-4']) {
+      const response = await client.get(`/fr/rfqs/new?${query}`).withInertia().loginAs(owner)
+
+      response.assertStatus(200)
+      assert.isUndefined(response.inertiaProps.prefillProduct, query)
+    }
   })
 
   test('la fiche produit expose ce que peut faire un acheteur connecté', async ({
@@ -180,6 +192,30 @@ test.group('RFQ en un clic — ajout à un brouillon', (group) => {
     assert.lengthOf(await RfqSupplier.query().where('rfqId', rfq.id), 1)
   })
 
+  test("un fournisseur inéligible : ni ligne ni destinataire n'est écrit", async ({
+    client,
+    assert,
+  }) => {
+    const { org, owner } = await buyerWithOwner()
+    const product = await requestableProduct()
+    await Organization.query()
+      .where('id', product.supplier.organizationId!)
+      .update({ organizationType: 'buyer' })
+    const rfq = await RfqFactory.merge({ buyerOrganizationId: org.id }).create()
+
+    const response = await client
+      .post(`/fr/rfqs/${rfq.id}/items/from-product`)
+      .withInertia()
+      .withCsrfToken()
+      .redirects(0)
+      .loginAs(owner)
+      .json({ productId: product.id })
+
+    response.assertStatus(302)
+    assert.lengthOf(await RfqItem.query().where('rfqId', rfq.id), 0)
+    assert.lengthOf(await RfqSupplier.query().where('rfqId', rfq.id), 0)
+  })
+
   test("refuse l'ajout à une demande publiée", async ({ client, assert }) => {
     const { org, owner } = await buyerWithOwner()
     const product = await requestableProduct()
@@ -268,6 +304,22 @@ test.group('RFQ en un clic — sélecteur de produit', (group) => {
 
       assert.deepEqual(response.inertiaProps.productResults, [], term)
     }
+  })
+
+  test('le nom est cherché dans toutes les langues, quelle que soit celle du site', async ({
+    client,
+    assert,
+  }) => {
+    const { owner } = await buyerWithOwner()
+
+    const response = await client
+      .get('/en/rfqs/new?productSearch=crayon')
+      .withInertia()
+      .header('X-Inertia-Partial-Component', 'rfqs/create')
+      .header('X-Inertia-Partial-Data', 'productResults')
+      .loginAs(owner)
+
+    assert.isAbove((response.inertiaProps.productResults as unknown[]).length, 0)
   })
 
   test('les produits inactifs ne sont pas proposés', async ({ client, assert }) => {
@@ -378,5 +430,44 @@ test.group('RFQ en un clic — suppression d’un brouillon', (group) => {
 
     response.assertStatus(404)
     assert.isNotNull(await Rfq.find(rfq.id))
+  })
+})
+
+test.group('RFQ en un clic — lien avec le catalogue', (group) => {
+  useDatabase(group, { seed: 'full' })
+
+  test('un productId inconnu ou masqué est détaché de la ligne, pas refusé', async ({
+    client,
+    assert,
+  }) => {
+    const { owner } = await buyerWithOwner()
+    const visible = await requestableProduct()
+    const hidden = await Product.query()
+      .whereNot('id', visible.id)
+      .where('isActive', true)
+      .firstOrFail()
+    await hidden.merge({ isActive: false }).save()
+
+    const response = await client
+      .post('/fr/rfqs')
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(owner)
+      .json({
+        title: 'Liens catalogue',
+        items: [
+          { name: 'Produit visible', quantity: 10, productId: visible.id },
+          { name: 'Produit masqué', quantity: 10, productId: hidden.id },
+          { name: 'Produit inconnu', quantity: 10, productId: 999999 },
+        ],
+      })
+
+    response.assertStatus(200)
+    const rfq = await Rfq.findByOrFail('title', 'Liens catalogue')
+    const items = await RfqItem.query().where('rfqId', rfq.id).orderBy('id')
+    assert.deepEqual(
+      items.map((item) => item.productId),
+      [visible.id, null, null]
+    )
   })
 })

@@ -21,6 +21,8 @@ const { t, locale } = useI18n()
 const page = usePage()
 
 const draftId = ref<number | null>(null)
+// Évite le double clic : un second envoi ajouterait une seconde ligne.
+const adding = ref(false)
 
 function requestQuote() {
   router.get(urlFor('rfqs.create', { locale: locale.value }), { productId: props.productId })
@@ -32,11 +34,18 @@ function signIn() {
 }
 
 function addToDraft() {
-  if (draftId.value === null) return
+  if (draftId.value === null || adding.value) return
+  adding.value = true
   router.post(
     urlFor('rfqs.items.from_product', { locale: locale.value, id: draftId.value }),
     { productId: props.productId },
-    { preserveScroll: true }
+    {
+      preserveScroll: true,
+      onFinish: () => {
+        adding.value = false
+        draftId.value = null
+      },
+    }
   )
 }
 </script>
@@ -54,7 +63,7 @@ function addToDraft() {
           {{ draft.title }}
         </option>
       </BaseSelect>
-      <BaseButton variant="secondary" :disabled="draftId === null" @click="addToDraft()">
+      <BaseButton variant="secondary" :disabled="draftId === null || adding" @click="addToDraft()">
         {{ t('rfq.product.add') }}
       </BaseButton>
     </div>

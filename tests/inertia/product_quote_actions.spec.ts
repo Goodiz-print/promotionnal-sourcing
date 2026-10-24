@@ -89,7 +89,7 @@ describe('product_quote_actions.vue', () => {
     expect(router.post).toHaveBeenCalledWith(
       '/fr/rfqs/4/items/from-product',
       { productId: 7 },
-      { preserveScroll: true }
+      { preserveScroll: true, onFinish: expect.any(Function) }
     )
   })
 })
