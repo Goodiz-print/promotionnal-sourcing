@@ -45,6 +45,7 @@ export type ScannedRoutes = {
     'onboarding.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'onboarding.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.invitations.accept': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'dashboard.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.settings': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.settings.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.switch': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -118,6 +119,7 @@ export type ScannedRoutes = {
     'account.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'account.passkeys.options': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'onboarding.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'dashboard.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.settings': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.members': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -162,6 +164,7 @@ export type ScannedRoutes = {
     'account.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'account.passkeys.options': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'onboarding.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'dashboard.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.settings': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.members': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }

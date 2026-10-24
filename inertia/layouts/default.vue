@@ -1,19 +1,26 @@
 <script setup lang="ts">
-import { watch } from 'vue'
+import { ref, watch } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import { toast, Toaster } from 'vue-sonner'
 import type { Data } from '@generated/data'
-import { Link, Form } from '@adonisjs/inertia/vue'
+import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
+import AppNav from '~/components/app_nav.vue'
+import UserMenu from '~/components/user_menu.vue'
 import LanguageSwitcher from '~/components/language_switcher.vue'
 import OrganizationSwitcher from '~/components/organization/organization_switcher.vue'
 
 const page = usePage<Data.SharedProps>()
-const { locale } = useI18n()
+const { t, locale } = useI18n()
+
+const mobileMenuOpen = ref(false)
 
 watch(
   () => page.url,
-  () => toast.dismiss()
+  () => {
+    toast.dismiss()
+    mobileMenuOpen.value = false
+  }
 )
 
 watch(
@@ -49,46 +56,41 @@ watch(
           </svg>
         </Link>
       </div>
-      <div>
-        <nav class="flex items-center gap-6.5">
-          <LanguageSwitcher />
-          <template v-if="page.props.user">
-            <Link
-              v-if="page.props.user.isPlatformAdmin"
-              route="admin.dashboard"
-              :params="{ locale }"
-              class="font-medium text-[var(--gray-8)] hover:text-[var(--gray-12)]"
-              >{{ t('common.nav.admin') }}</Link
-            >
-            <OrganizationSwitcher />
-            <Link route="account.show" :params="{ locale }" :title="t('account.title')">{{
-              page.props.user.initials
-            }}</Link>
-            <Form route="session.destroy" :params="{ locale }">
-              <button
-                type="submit"
-                class="w-full cursor-pointer rounded bg-[var(--color-primary)] p-2.5 font-medium text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
-              >
-                {{ t('common.nav.logout') }}
-              </button>
-            </Form>
-          </template>
-          <template v-else>
-            <Link
-              route="new_account.create"
-              :params="{ locale }"
-              class="font-medium text-[var(--gray-8)] hover:text-[var(--gray-12)]"
-              >{{ t('common.nav.signup') }}</Link
-            >
-            <Link
-              route="session.create"
-              :params="{ locale }"
-              class="font-medium text-[var(--gray-8)] hover:text-[var(--gray-12)]"
-              >{{ t('common.nav.login') }}</Link
-            >
-          </template>
-        </nav>
+      <AppNav class="ml-6 hidden flex-1 md:flex" />
+      <div class="flex items-center gap-4 md:gap-6.5">
+        <LanguageSwitcher />
+        <template v-if="page.props.user">
+          <OrganizationSwitcher />
+          <UserMenu :initials="page.props.user.initials" />
+        </template>
+        <template v-else>
+          <Link
+            route="new_account.create"
+            :params="{ locale }"
+            class="font-medium text-[var(--gray-8)] hover:text-[var(--gray-12)]"
+            >{{ t('common.nav.signup') }}</Link
+          >
+          <Link
+            route="session.create"
+            :params="{ locale }"
+            class="font-medium text-[var(--gray-8)] hover:text-[var(--gray-12)]"
+            >{{ t('common.nav.login') }}</Link
+          >
+        </template>
+        <button
+          type="button"
+          class="cursor-pointer rounded p-2 hover:bg-[var(--gray-2)] md:hidden"
+          :aria-expanded="mobileMenuOpen"
+          aria-controls="mobile-menu"
+          :aria-label="t('common.nav.menu')"
+          @click="mobileMenuOpen = !mobileMenuOpen"
+        >
+          <span aria-hidden="true">☰</span>
+        </button>
       </div>
+    </div>
+    <div v-if="mobileMenuOpen" id="mobile-menu" class="pb-3 md:hidden">
+      <AppNav orientation="vertical" />
     </div>
   </header>
 

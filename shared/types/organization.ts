@@ -174,6 +174,7 @@ export type OrganizationSummaryType = {
   name: string
   slug: string
   logoUrl: string | null
+  organizationType: OrganizationKind
   role: RoleType
 }
 

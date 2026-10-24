@@ -32,6 +32,14 @@
     "ctaPrimary": "Descubrir",
     "ctaSecondary": "Contáctenos"
   },
+  "discover": {
+    "searchLabel": "Buscar un producto",
+    "searchPlaceholder": "Buscar un producto, un material, un proveedor…",
+    "searchSubmit": "Buscar",
+    "buyerCta": "Soy comprador",
+    "supplierCta": "Soy proveedor",
+    "categoriesTitle": "Categorías por descubrir"
+  },
   "features": {
     "eyebrow": "Para agencias",
     "heading": "Encuentre el producto adecuado en cuestión de segundos.",

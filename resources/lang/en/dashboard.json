@@ -1,0 +1,26 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Your activity at a glance.",
+  "buyer": {
+    "title": "My quote requests",
+    "viewAll": "View all requests",
+    "status": {
+      "draft": "Drafts",
+      "published": "Published",
+      "closed": "Closed"
+    },
+    "recent": {
+      "title": "Latest supplier responses",
+      "empty": "No responses yet.",
+      "item": "{supplier} responded to “{rfq}”"
+    }
+  },
+  "supplier": {
+    "title": "Supplier activity",
+    "viewRfqs": "View received requests",
+    "unread": "Unread requests",
+    "products": "Active products",
+    "completeness": "Profile completed",
+    "completeProfile": "Complete my profile"
+  }
+}

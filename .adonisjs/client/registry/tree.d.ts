@@ -93,6 +93,9 @@ export interface ApiDefinition {
     show: typeof routes['onboarding.show']
     store: typeof routes['onboarding.store']
   }
+  dashboard: {
+    show: typeof routes['dashboard.show']
+  }
   supplier: {
     profile: typeof routes['supplier.profile'] & {
       update: typeof routes['supplier.profile.update']

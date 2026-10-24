@@ -1,0 +1,26 @@
+{
+  "title": "Panel",
+  "subtitle": "Su actividad de un vistazo.",
+  "buyer": {
+    "title": "Mis solicitudes de presupuesto",
+    "viewAll": "Ver todas las solicitudes",
+    "status": {
+      "draft": "Borradores",
+      "published": "Publicadas",
+      "closed": "Cerradas"
+    },
+    "recent": {
+      "title": "Últimas respuestas de proveedores",
+      "empty": "Aún no hay respuestas.",
+      "item": "{supplier} ha respondido a «{rfq}»"
+    }
+  },
+  "supplier": {
+    "title": "Actividad de proveedor",
+    "viewRfqs": "Ver solicitudes recibidas",
+    "unread": "Solicitudes sin leer",
+    "products": "Productos activos",
+    "completeness": "Perfil completado",
+    "completeProfile": "Completar mi perfil"
+  }
+}

@@ -13,7 +13,7 @@ export default class OrganizationSummaryTransformer extends BaseTransformer<Orga
     const { organization } = this.resource
 
     return {
-      ...this.pick(organization, ['id', 'name', 'slug', 'logoUrl']),
+      ...this.pick(organization, ['id', 'name', 'slug', 'logoUrl', 'organizationType']),
       role: new RoleTransformer(this.resource.role).toObject(),
     }
   }

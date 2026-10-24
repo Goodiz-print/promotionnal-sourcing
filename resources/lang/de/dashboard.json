@@ -1,0 +1,26 @@
+{
+  "title": "Übersicht",
+  "subtitle": "Ihre Aktivität auf einen Blick.",
+  "buyer": {
+    "title": "Meine Angebotsanfragen",
+    "viewAll": "Alle Anfragen anzeigen",
+    "status": {
+      "draft": "Entwürfe",
+      "published": "Veröffentlicht",
+      "closed": "Geschlossen"
+    },
+    "recent": {
+      "title": "Neueste Antworten von Lieferanten",
+      "empty": "Noch keine Antworten.",
+      "item": "{supplier} hat auf „{rfq}“ geantwortet"
+    }
+  },
+  "supplier": {
+    "title": "Lieferantenaktivität",
+    "viewRfqs": "Erhaltene Anfragen anzeigen",
+    "unread": "Ungelesene Anfragen",
+    "products": "Aktive Produkte",
+    "completeness": "Profil vervollständigt",
+    "completeProfile": "Mein Profil vervollständigen"
+  }
+}

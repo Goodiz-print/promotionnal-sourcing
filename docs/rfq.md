@@ -240,8 +240,8 @@ i18n : `resources/lang/{fr,en}/rfq.json` (66 clés, strictement symétriques).
 - **Le sélecteur de produit** n'est pas dans l'UI : une ligne se cadre par
   catégorie ou reste libre. `rfq_items.product_id` et le validateur l'acceptent
   déjà — il manque un composant de recherche dans le catalogue.
-- **Aucune entrée de navigation** vers `/rfqs` : le layout n'a pas de menu
-  applicatif, les écrans se rejoignent par URL comme ceux des produits.
+- ~~Aucune entrée de navigation vers `/rfqs`~~ : traité par le menu applicatif
+  (voir `docs/changelog/2026-10-24-shell-applicatif.md`).
 - **L'envoi ne notifiait personne** en PR 2 : le mail est arrivé en PR 3.
 
 ## Écrans fournisseur et notification (PR 3)
@@ -333,8 +333,8 @@ total, strictement symétriques).
 
 ### Connu, non traité en PR 3
 
-- **Aucune entrée de navigation** vers `/supplier/rfqs` non plus (même limite
-  que côté acheteur : le layout n'a pas de menu applicatif).
+- ~~Aucune entrée de navigation vers `/supplier/rfqs`~~ : traité par le menu
+  applicatif (voir `docs/changelog/2026-10-24-shell-applicatif.md`).
 - **Le mail est en français seulement**, comme le mail d'invitation : le worker
   n'a pas de locale, et les templates Edge ne sont pas traduits.
 - **Le dépôt de devis** est annoncé à l'écran mais n'existe pas : c'est la

@@ -54,7 +54,7 @@ test.group('Onboarding — création de la 1re organisation', (group) => {
       .json({ name: 'Ma Boîte', organizationType: 'supplier' })
 
     response.assertStatus(302)
-    response.assertHeader('location', '/fr')
+    response.assertHeader('location', '/fr/dashboard')
 
     const org = await Organization.findByOrFail('slug', 'ma-boite')
     assert.equal(org.name, 'Ma Boîte')
@@ -79,7 +79,7 @@ test.group('Onboarding — création de la 1re organisation', (group) => {
     const response = await client.get('/fr/onboarding').redirects(0).loginAs(user)
 
     response.assertStatus(302)
-    response.assertHeader('location', '/fr')
+    response.assertHeader('location', '/fr/dashboard')
   })
 
   test('un utilisateur sans organisation est bloqué sur les écrans org (middleware)', async ({

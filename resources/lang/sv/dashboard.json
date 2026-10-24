@@ -1,0 +1,26 @@
+{
+  "title": "Översikt",
+  "subtitle": "Din aktivitet i korthet.",
+  "buyer": {
+    "title": "Mina offertförfrågningar",
+    "viewAll": "Visa alla förfrågningar",
+    "status": {
+      "draft": "Utkast",
+      "published": "Publicerade",
+      "closed": "Stängda"
+    },
+    "recent": {
+      "title": "Senaste svar från leverantörer",
+      "empty": "Inga svar ännu.",
+      "item": "{supplier} har svarat på ”{rfq}”"
+    }
+  },
+  "supplier": {
+    "title": "Leverantörsaktivitet",
+    "viewRfqs": "Visa mottagna förfrågningar",
+    "unread": "Olästa förfrågningar",
+    "products": "Aktiva produkter",
+    "completeness": "Profil ifylld",
+    "completeProfile": "Fyll i min profil"
+  }
+}

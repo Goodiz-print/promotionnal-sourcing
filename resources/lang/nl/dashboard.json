@@ -1,0 +1,26 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Uw activiteit in één oogopslag.",
+  "buyer": {
+    "title": "Mijn offerteaanvragen",
+    "viewAll": "Alle aanvragen bekijken",
+    "status": {
+      "draft": "Concepten",
+      "published": "Gepubliceerd",
+      "closed": "Gesloten"
+    },
+    "recent": {
+      "title": "Laatste reacties van leveranciers",
+      "empty": "Nog geen reacties.",
+      "item": "{supplier} heeft gereageerd op “{rfq}”"
+    }
+  },
+  "supplier": {
+    "title": "Leveranciersactiviteit",
+    "viewRfqs": "Ontvangen aanvragen bekijken",
+    "unread": "Ongelezen aanvragen",
+    "products": "Actieve producten",
+    "completeness": "Profiel voltooid",
+    "completeProfile": "Mijn profiel voltooien"
+  }
+}

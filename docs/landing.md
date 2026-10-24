@@ -32,6 +32,10 @@ Le bouton « Connexion » pointe vers `session.create`.
   (reveal/compteurs/header), `use_canvas_fx` + `canvas_fx/` (animations canvas, pilotées par
   `fx_canvas.vue`, arrêtées hors écran et si `prefers-reduced-motion`).
 
+## Section découverte (#43)
+
+`inertia/components/marketing/discover_section.vue`, sous le hero de l'accueil : recherche (`router.get` vers `products.index?search=`), CTA acheteur / fournisseur vers l'inscription, catégories mises en avant. `MarketingController#home` passe `featuredCategories` (six au plus, `ProductCatalogueService#featuredCategories`). Clés `landing.discover.*`.
+
 ## Traductions
 
 `resources/lang/{fr,en}/landing.json` (clés `landing.*`), `legal.json`, `privacy.json`.

@@ -4,7 +4,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 
 /**
  * Destination après une connexion réussie (mot de passe ou passkey) : la page
- * visitée (`?redirect=`) si elle est sûre, sinon onboarding ou accueil.
+ * visitée (`?redirect=`) si elle est sûre, sinon onboarding ou tableau de bord.
  */
 export default class LoginRedirectService {
   redirect({ request, response, i18n }: HttpContext, user: User) {
@@ -15,9 +15,9 @@ export default class LoginRedirectService {
       // (`?redirect=...`) serait rajoutée à la cible au lieu d'être remplacée.
       return response.redirect().withQs(false).toPath(redirect)
     }
-    // Sans organisation courante → onboarding, sinon accueil. `withQs(false)` :
+    // Sans organisation courante → onboarding, sinon tableau de bord. `withQs(false)` :
     // ne jamais faire fuiter un `?redirect=...` non sûr vers la destination.
-    const route = user.currentOrganizationId ? 'home' : 'onboarding.show'
+    const route = user.currentOrganizationId ? 'dashboard.show' : 'onboarding.show'
     return response.redirect().withQs(false).toRoute(route, { locale: i18n.locale })
   }
 }

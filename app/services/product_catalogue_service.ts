@@ -144,6 +144,15 @@ export default class ProductCatalogueService {
   }
 
   /**
+   * Catégories mises en avant sur l'accueil : les premières catégories ayant
+   * au moins un produit actif (même règle de visibilité que le filtre).
+   */
+  async featuredCategories(limit: number): Promise<Category[]> {
+    const categories = await this.availableCategories()
+    return categories.slice(0, limit)
+  }
+
+  /**
    * Attributs filtrables avec leurs valeurs (pour la barre de facettes).
    */
   filterableAttributes(): Promise<Attribute[]> {

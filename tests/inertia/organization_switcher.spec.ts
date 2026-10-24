@@ -36,7 +36,14 @@ function role(): RoleType {
 }
 
 function organization(id: number, name: string): OrganizationSummaryType {
-  return { id, name, slug: name.toLowerCase(), logoUrl: null, role: role() }
+  return {
+    id,
+    name,
+    slug: name.toLowerCase(),
+    logoUrl: null,
+    organizationType: 'buyer',
+    role: role(),
+  }
 }
 
 describe('OrganizationSwitcher', () => {

@@ -157,6 +157,9 @@ router
             // Écrans nécessitant une organisation : gardés par `onboarded`.
             router
               .group(() => {
+                // Tableau de bord de l'organisation courante (destination post-connexion).
+                router.get('dashboard', [controllers.Dashboard, 'show']).as('dashboard.show')
+
                 // Paramètres généraux de l'organisation courante (nom, coordonnées, logo).
                 router
                   .get('organization/settings', [controllers.organization.Settings, 'show'])
