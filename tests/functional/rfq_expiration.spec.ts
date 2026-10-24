@@ -53,9 +53,12 @@ test.group('RFQ — expiration à l’échéance', (group) => {
     const service = await app.container.make(RfqService)
     const rfq = await publishedRfq(org.id, '2026-10-29')
     const viewed = await OrganizationFactory.apply('supplier').create()
-    await RfqSupplierFactory.apply('sent')
-      .merge({ rfqId: rfq.id, supplierOrganizationId: viewed.id, status: 'viewed' })
-      .create()
+    // Sans l'état `sent` de la fabrique : il écraserait le statut demandé.
+    await RfqSupplierFactory.merge({
+      rfqId: rfq.id,
+      supplierOrganizationId: viewed.id,
+      status: 'viewed',
+    }).create()
 
     const expired = await service.expireDue(now)
 
