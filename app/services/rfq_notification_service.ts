@@ -5,7 +5,7 @@ import OrganizationUser from '#models/organization_user'
 import SendMailJob from '#jobs/send_mail_job'
 import { mailIdempotencyKey } from '#shared/helpers/mail'
 import { MAIL_KINDS, type SendMailContent, type SendMailPayload } from '#shared/types/mail'
-import { RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
+import { RFQ_DEADLINE_TIMEZONE, RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
 import type Organization from '#models/organization'
 import type Rfq from '#models/rfq'
 import { DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
@@ -65,7 +65,8 @@ export default class RfqNotificationService {
           buyerName: buyer.name,
           rfqTitle: rfq.title,
           itemCount,
-          deadline: rfq.deadline?.setLocale(locale).toLocaleString() ?? null,
+          deadline:
+            rfq.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).setLocale(locale).toLocaleString() ?? null,
           rfqPath: urlFor('supplier.rfqs.show', { locale, id: rfq.id }),
         })
       )
@@ -100,7 +101,8 @@ export default class RfqNotificationService {
         ({ locale }) => ({
           buyerName: rfq.buyerOrganization.name,
           rfqTitle: rfq.title,
-          deadline: rfq.deadline?.setLocale(locale).toLocaleString() ?? null,
+          deadline:
+            rfq.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).setLocale(locale).toLocaleString() ?? null,
           rfqPath: urlFor('supplier.rfqs.show', { locale, id: rfq.id }),
         })
       )

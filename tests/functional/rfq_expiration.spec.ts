@@ -186,7 +186,7 @@ test.group('RFQ — prolongation d’échéance', (group) => {
 
     await rfq.refresh()
     assert.equal(rfq.status, 'published')
-    assert.equal(rfq.deadline!.toISODate(), '2026-11-20')
+    assert.equal(rfq.deadline!.setZone(PARIS).toISODate(), '2026-11-20')
     const [item] = await RfqItem.query().where('rfqId', rfq.id)
     assert.equal(item.name, 'Tote bag')
     assert.equal(item.quantity, 100)
@@ -204,7 +204,7 @@ test.group('RFQ — prolongation d’échéance', (group) => {
     await rfq.refresh()
     assert.equal(rfq.status, 'published')
     assert.isNull(rfq.expiredAt)
-    assert.equal(rfq.deadline!.toISODate(), '2026-11-15')
+    assert.equal(rfq.deadline!.setZone(PARIS).toISODate(), '2026-11-15')
   })
 
   test('la prolongation permet une nouvelle relance des silencieux', async ({ assert }) => {
@@ -234,7 +234,7 @@ test.group('RFQ — prolongation d’échéance', (group) => {
       )
     }
     await rfq.refresh()
-    assert.equal(rfq.deadline!.toISODate(), '2026-11-10')
+    assert.equal(rfq.deadline!.setZone(PARIS).toISODate(), '2026-11-10')
   })
 
   test('refuse un brouillon et une demande close', async ({ assert }) => {
@@ -278,7 +278,7 @@ test.group('RFQ — prolongation d’échéance', (group) => {
     // Inertia convertit la redirection d'un PATCH en 303.
     for (const response of [extended, reopened, earlier]) response.assertStatus(303)
     await Promise.all([rfq.refresh(), expired.refresh()])
-    assert.equal(rfq.deadline!.toISODate(), '2099-02-01')
+    assert.equal(rfq.deadline!.setZone(PARIS).toISODate(), '2099-02-01')
     assert.equal(expired.status, 'published')
     assert.isNull(expired.expiredAt)
   })
@@ -297,7 +297,7 @@ test.group('RFQ — prolongation d’échéance', (group) => {
       .json({ deadline: '2099-02-01' })
 
     await rfq.refresh()
-    assert.equal(rfq.deadline!.toISODate(), '2099-01-10')
+    assert.equal(rfq.deadline!.setZone(PARIS).toISODate(), '2099-01-10')
   })
 
   test('le fournisseur voit une demande échue et ne peut plus la décliner', async ({
