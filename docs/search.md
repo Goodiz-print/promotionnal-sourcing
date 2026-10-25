@@ -20,9 +20,9 @@ Moteur de recherche hybride (mots-clés + vecteurs) des produits, décidé par l
 
 ## Document d'index (`ProductSearchDocument`)
 
-`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `attributeValueIds` (facettes, toutes valeurs confondues), `attributes` (facettes **aplaties par slug** : `attributes.color`, `attributes.color-shade`, `attributes.material`… — voir ci-dessous), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `embeddingText` (le texte que Meilisearch vectorise : voir « Vectorisation »).
+`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone` (provenance dérivée, voir « Provenance et Nouveautés »), `releasedAt` (date de sortie en **timestamp Unix secondes**, ou `null`), `attributeValueIds` (facettes, toutes valeurs confondues), `attributes` (facettes **aplaties par slug** : `attributes.color`, `attributes.color-shade`, `attributes.material`… — voir ci-dessous), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `embeddingText` (le texte que Meilisearch vectorise : voir « Vectorisation »).
 
-Réglages (`productIndexSettings(facetSlugs)`) : attributs cherchables `names`, `descriptions`, `reference` — un seul attribut par famille couvre toutes les langues, **ajouter une langue ne change aucun réglage** ; attributs filtrables `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `attributeValueIds`, **plus un champ `attributes.<slug>` par attribut filtrable** (`facetSlugs` dérivés de `category_attributes.is_filter`, via `FilterableFacetsService` — jamais une liste codée en dur) ; embedder `default` (voir « Vectorisation »), retiré des réglages quand il est coupé. Les réglages sont réappliqués au premier envoi d'un processus et à chaque `search:reindex` : un changement de `is_filter` est donc pris en compte au prochain reindex.
+Réglages (`productIndexSettings(facetSlugs)`) : attributs cherchables `names`, `descriptions`, `reference` — un seul attribut par famille couvre toutes les langues, **ajouter une langue ne change aucun réglage** ; attributs filtrables `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone`, `releasedAt`, `attributeValueIds`, **plus un champ `attributes.<slug>` par attribut filtrable** (`facetSlugs` dérivés de `category_attributes.is_filter`, via `FilterableFacetsService` — jamais une liste codée en dur) ; embedder `default` (voir « Vectorisation »), retiré des réglages quand il est coupé. Les réglages sont réappliqués au premier envoi d'un processus et à chaque `search:reindex` : un changement de `is_filter` est donc pris en compte au prochain reindex.
 
 Seuls les produits **visibles** sont indexés : actifs, organisation non archivée ni rejetée, non rejetés par la modération — les mêmes scopes que la fiche publique (`Product.fromLiveOrganization`, `Product.notRejected`).
 
@@ -74,6 +74,36 @@ Cette PR **n'ajoute pas** de comportement de filtrage : le ET multi-critères
 documents avec leur objet `attributes`). Frontend : `inertia/pages/products/index.vue`,
 `inertia/components/catalogue_filters.vue` + `inertia/components/catalogue/facet_group.vue`
 (pastille hex des couleurs, compteurs, tranches numériques).
+
+### Provenance et Nouveautés — ÉTAPE 2 du modèle produit (écarts 9 et 5)
+
+Deux facettes de fiche s'ajoutent aux réglages `filterableAttributes` :
+
+- **`originZone`** (provenance à 3 états, écart 9) : `france` / `europe` / `other`,
+  ou `null` quand l'origine est inconnue (exclue des cases France/Europe). C'est
+  une colonne **dérivée** (`products.origin_zone`), jamais saisie : calculée par
+  `ProductOriginService.deriveZone(originCountry, madeInEurope)` (France si `FR`,
+  Europe si pays ∈ UE/EEE ou `made_in_europe`, autre si pays connu hors Europe,
+  `null` sinon — liste `EU_EEA_COUNTRY_CODES` dans `shared/types/country.ts`). Elle
+  est **persistée au save produit** (`SupplierProductService`) et **rattrapée
+  (backfill) au passage d'indexation** (`ProductIndexService.documentsFor` recale
+  `origin_zone` sur la dérivation courante — idempotent, n'écrit que les lignes
+  qui changent). Les zones cochées se combinent en **OU** dans le filtre
+  (`(originZone = 'france' OR originZone = 'europe')`), groupées pour rester en ET
+  avec les autres critères.
+- **`releasedAt`** (filtre « Nouveautés », écart 5) : date de sortie en timestamp
+  Unix (secondes). Le filtre est un intervalle `releasedAt >= <seuil>`, le seuil
+  étant « il y a `NEW_PRODUCT_WINDOW_DAYS` jours » (90). `null` = pas de date,
+  jamais une nouveauté.
+
+Côté catalogue, ces deux filtres transitent par `ProductDirectoryFilters`
+(`originZones: OriginZone[]`, `newOnly: boolean`) : avec terme de recherche ils
+passent au moteur (`buildProductFilter`) **et** sont revérifiés sur PostgreSQL au
+rechargement ; sans terme, `ProductCatalogueService.list` applique les mêmes
+clauses directement en base. **Backfill** : `node ace search:reindex` recalcule et
+réécrit `origin_zone` puis republie tous les documents avec `originZone` /
+`releasedAt`. Frontend : cases France/Europe/Hors Europe et bascule « Nouveautés »
+dans `inertia/components/catalogue_filters.vue`.
 
 ## Vectorisation (embedder de Meilisearch)
 
@@ -172,6 +202,8 @@ En CI, le job `test-search` démarre un vrai Meilisearch et rejoue les requêtes
 - `tests/unit/meilisearch_engine.spec.ts` : le pilote contre un `fetch` simulé (création de l'index et de ses réglages une seule fois, tâche en échec, reconstruction par index temporaire et échange, requête hybride et filtre ET, **distributions de facettes** — `facets` + `limit: 0` + lecture de `facetDistribution` —, configuration de l'embedder `rest`).
 - `tests/functional/catalogue_facet_bar.spec.ts` : dérivation des slugs filtrables depuis `category_attributes.is_filter` (`FilterableFacetsService`) ; barre de filtres par catégorie (`CatalogueFacetBarService`) — attributs résolus (propres + hérités), facettes demandées au moteur, fusion des compteurs, repli sans compteur (moteur inerte ou injoignable).
 - `tests/functional/product_search.spec.ts` : rechargement depuis PostgreSQL (ordre, visibilité, facettes revérifiées), requête transmise au moteur, ratio sémantique et repli par mots-clés si l'API d'embeddings tombe, écrans (catalogue, sélecteur, message « recherche indisponible »).
+- `tests/unit/product_origin_service.spec.ts` : dérivation `origin_zone` (France, Europe UE/EEE ou `madeInEurope`, autre, inconnue → `null`).
+- `tests/functional/product_identity_commercial.spec.ts` : persistance des champs d'identité/commercial/médias, dérivation et recalcul d'`origin_zone`, filtres provenance (OU) et « Nouveautés » du catalogue.
 - `tests/unit/search_evaluation.spec.ts` : verdict, rappel, percentiles.
 - `tests/functional/search_reference.spec.ts` : le jeu de référence contre un vrai Meilisearch (job CI `test-search`).
 

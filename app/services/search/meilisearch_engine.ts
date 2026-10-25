@@ -5,6 +5,7 @@ import searchConfig from '#config/search'
 import SearchEngine from '#services/search/search_engine'
 import FilterableFacetsService from '#services/filterable_facets_service'
 import { SearchTaskFailedException } from '#exceptions/search_errors'
+import { ORIGIN_ZONES } from '#shared/types/product'
 import {
   facetField,
   SEARCH_EMBEDDER,
@@ -84,6 +85,9 @@ export function productIndexSettings(facetSlugs: readonly string[] = []): Settin
       'supplierId',
       'madeInEurope',
       'originCountry',
+      // Provenance à 3 états (écart 9) et filtre « Nouveautés » (écart 5).
+      'originZone',
+      'releasedAt',
       'attributeValueIds',
       ...facetSlugs.map(facetField),
     ],
@@ -105,6 +109,17 @@ export function buildProductFilter(filter: ProductSearchFilter): string | undefi
   if (filter.madeInEurope) clauses.push('madeInEurope = true')
   for (const valueId of filter.attributeValueIds ?? []) {
     clauses.push(`attributeValueIds = ${Number(valueId)}`)
+  }
+  // Provenance (écart 9) : les zones cochées se combinent en OU (France OU
+  // Europe), groupées pour rester en ET avec les autres critères. Les valeurs
+  // sont des littéraux de l'enum construits ici, jamais du texte utilisateur.
+  const zones = (filter.originZones ?? []).filter((zone) => ORIGIN_ZONES.includes(zone))
+  if (zones.length > 0) {
+    clauses.push(`(${zones.map((zone) => `originZone = '${zone}'`).join(' OR ')})`)
+  }
+  // Nouveautés (écart 5) : sorti depuis le seuil (timestamp Unix en secondes).
+  if (typeof filter.releasedAfter === 'number') {
+    clauses.push(`releasedAt >= ${Math.trunc(filter.releasedAfter)}`)
   }
   return clauses.length > 0 ? clauses.join(' AND ') : undefined
 }

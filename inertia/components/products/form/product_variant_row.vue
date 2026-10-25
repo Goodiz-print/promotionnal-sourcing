@@ -60,6 +60,13 @@ const field = (name: string) => `variants.${props.index}.${name}`
       }}</BaseButton>
     </div>
 
+    <BaseInput
+      :id="`variant-${index}-gtin`"
+      v-model="form.variants[index].gtin"
+      :label="t('products.manage.variants.gtin')"
+      :error="errors[field('gtin')]"
+    />
+
     <div class="grid gap-3 sm:grid-cols-2">
       <BaseSelect
         v-for="attribute in attributes"

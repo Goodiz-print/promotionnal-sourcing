@@ -14,6 +14,7 @@ export default class ProductVariantTransformer extends BaseTransformer<ProductVa
       sku: this.resource.sku,
       isActive: this.resource.isActive,
       imageId: this.resource.imageId,
+      gtin: this.resource.gtin,
       attributeValueIds: this.resource.attributes.map((pivot) => pivot.attributeValueId),
     }
   }

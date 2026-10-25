@@ -1,4 +1,5 @@
 import type { ContentLocale } from './i18n.js'
+import type { OriginZone } from './product.js'
 
 /**
  * Nom de l'embedder Meilisearch. Les vecteurs sont **calculés par Meilisearch**
@@ -53,6 +54,17 @@ export interface ProductSearchDocument {
   supplierId: number
   madeInEurope: boolean
   originCountry: string | null
+  /**
+   * Zone de provenance dérivée (écart 9) pour le filtre à 3 états. `null` =
+   * origine inconnue, exclue des cases France/Europe.
+   */
+  originZone: OriginZone | null
+  /**
+   * Date de sortie en **timestamp Unix (secondes)** pour le filtre « Nouveautés »
+   * (écart 5), ou `null`. Un nombre permet le filtre d'intervalle Meilisearch
+   * (`releasedAt >= <seuil>`).
+   */
+  releasedAt: number | null
   /** Valeurs de facettes (`attribute_values.id`), pour le filtre ET exact. */
   attributeValueIds: number[]
   /**
@@ -99,6 +111,17 @@ export interface ProductSearchFilter {
   categoryId?: number | null
   madeInEurope?: boolean
   attributeValueIds?: number[]
+  /**
+   * Provenance à 3 états (écart 9) : les zones demandées se combinent en **OU**
+   * (France OU Europe), car les cases ne s'excluent pas. Vide/absent = pas de
+   * filtre de provenance.
+   */
+  originZones?: OriginZone[]
+  /**
+   * Seuil « Nouveautés » (écart 5) en timestamp Unix (secondes) : ne garde que
+   * les produits dont `releasedAt >= releasedAfter`.
+   */
+  releasedAfter?: number | null
 }
 
 /**

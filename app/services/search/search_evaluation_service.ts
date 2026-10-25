@@ -93,6 +93,8 @@ export default class SearchEvaluationService {
       categoryId: await this.categoryId(query.category),
       madeInEurope: query.madeInEurope ?? false,
       attributeValueIds: await this.attributeValueIds(query.attributes ?? []),
+      originZones: [],
+      newOnly: false,
       page: 1,
       perPage: RANK_CUTOFF,
     })

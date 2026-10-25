@@ -1,4 +1,5 @@
 import { inject } from '@adonisjs/core'
+import { DateTime } from 'luxon'
 import db from '@adonisjs/lucid/services/db'
 import stringHelpers from '@adonisjs/core/helpers/string'
 import Product from '#models/product'
@@ -9,6 +10,7 @@ import AttributeValue from '#models/attribute_value'
 import ProductImage from '#models/product_image'
 import ProductImageVariant from '#models/product_image_variant'
 import ProductVariantService from '#services/product_variant_service'
+import ProductOriginService from '#services/product_origin_service'
 import ProductTranslation from '#models/product_translation'
 import SupplierTranslation from '#models/supplier_translation'
 import StorageService from '#services/storage/storage_service'
@@ -33,7 +35,8 @@ export default class SupplierProductService {
   constructor(
     private storage: StorageService,
     private translationQueue: TranslationQueueService,
-    private variants: ProductVariantService
+    private variants: ProductVariantService,
+    private origin: ProductOriginService
   ) {}
 
   /**
@@ -119,6 +122,11 @@ export default class SupplierProductService {
           ...this.toColumns(data),
           // Explicite : sans cela, `product.isActive` resterait indéfini après l'insert.
           isActive: data.isActive ?? true,
+          // Zone de provenance dérivée (écart 9) — jamais saisie.
+          originZone: this.origin.deriveZone(
+            data.originCountry ?? null,
+            data.madeInEurope ?? false
+          ),
         },
         { client: trx }
       )
@@ -155,7 +163,11 @@ export default class SupplierProductService {
 
     await db.transaction(async (trx) => {
       product.useTransaction(trx)
-      await product.merge({ ...this.toColumns(data), sourceLocale }).save()
+      product.merge({ ...this.toColumns(data), sourceLocale })
+      // Recalcule la zone dérivée (écart 9) sur les valeurs effectives après merge :
+      // un changement de pays OU du drapeau « made in Europe » la met à jour.
+      product.originZone = this.origin.deriveZone(product.originCountry, product.madeInEurope)
+      await product.save()
       await this.variants.sync(trx, product, data.variants, data.priceTiers)
     })
     await this.writeTranslations(product, data.translations)
@@ -287,6 +299,16 @@ export default class SupplierProductService {
         | 'originCountry'
         | 'madeInEurope'
         | 'isActive'
+        | 'brand'
+        | 'hsCode'
+        | 'isConfigurable'
+        | 'lifecycleStatus'
+        | 'releasedAt'
+        | 'supplierCategoryRaw'
+        | 'leadTimeDays'
+        | 'rushService'
+        | 'rushLeadTimeDays'
+        | 'videoUrl'
       >
     > = {}
     const decimal = (value: number | null) => (typeof value === 'number' ? String(value) : null)
@@ -299,6 +321,25 @@ export default class SupplierProductService {
     if (data.originCountry !== undefined) columns.originCountry = data.originCountry
     if (data.madeInEurope !== undefined) columns.madeInEurope = data.madeInEurope
     if (data.isActive !== undefined) columns.isActive = data.isActive
+
+    // Identité / classification (écart 5).
+    if (data.brand !== undefined) columns.brand = data.brand
+    if (data.hsCode !== undefined) columns.hsCode = data.hsCode
+    if (data.isConfigurable !== undefined) columns.isConfigurable = data.isConfigurable
+    if (data.lifecycleStatus !== undefined) columns.lifecycleStatus = data.lifecycleStatus
+    if (data.releasedAt !== undefined) {
+      columns.releasedAt = data.releasedAt ? DateTime.fromISO(data.releasedAt) : null
+    }
+    if (data.supplierCategoryRaw !== undefined)
+      columns.supplierCategoryRaw = data.supplierCategoryRaw
+
+    // Commercial (écart 7).
+    if (data.leadTimeDays !== undefined) columns.leadTimeDays = data.leadTimeDays
+    if (data.rushService !== undefined) columns.rushService = data.rushService
+    if (data.rushLeadTimeDays !== undefined) columns.rushLeadTimeDays = data.rushLeadTimeDays
+
+    // Médias (écart 8).
+    if (data.videoUrl !== undefined) columns.videoUrl = data.videoUrl
     return columns
   }
 
@@ -346,6 +387,8 @@ export default class SupplierProductService {
           locale,
           name: translation.name,
           description: translation.description ?? null,
+          keywords: translation.keywords ?? null,
+          marketingPoints: translation.marketingPoints ?? null,
           isAuto: false,
         })
         continue
@@ -354,8 +397,19 @@ export default class SupplierProductService {
       const name = translation.name ?? existing.name
       const description =
         translation.description === undefined ? existing.description : translation.description
-      if (name === existing.name && description === existing.description) continue
-      await existing.merge({ name, description, isAuto: false }).save()
+      // Listes par locale (écart 5) : absentes = conservées.
+      const keywords = translation.keywords === undefined ? existing.keywords : translation.keywords
+      const marketingPoints =
+        translation.marketingPoints === undefined
+          ? existing.marketingPoints
+          : translation.marketingPoints
+      const unchanged =
+        name === existing.name &&
+        description === existing.description &&
+        JSON.stringify(keywords) === JSON.stringify(existing.keywords) &&
+        JSON.stringify(marketingPoints) === JSON.stringify(existing.marketingPoints)
+      if (unchanged) continue
+      await existing.merge({ name, description, keywords, marketingPoints, isAuto: false }).save()
     }
   }
 

@@ -67,6 +67,7 @@ export default class ProductVariantService {
         variant.merge({
           isActive: input.isActive ?? variant.isActive,
           imageId: input.imageId === undefined ? variant.imageId : input.imageId,
+          gtin: input.gtin === undefined ? variant.gtin : input.gtin,
         })
         await variant.save()
       } else {
@@ -76,6 +77,7 @@ export default class ProductVariantService {
             sku: input.sku,
             isActive: input.isActive ?? true,
             imageId: input.imageId ?? null,
+            gtin: input.gtin ?? null,
           },
           { client: trx }
         )

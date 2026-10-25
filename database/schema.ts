@@ -1018,6 +1018,7 @@ export class ProductImageSchema extends BaseModel {
     'id',
     'position',
     'productId',
+    'role',
     'secureUrl',
     'storageObjectId',
     'updatedAt',
@@ -1034,6 +1035,8 @@ export class ProductImageSchema extends BaseModel {
   declare position: number
   @column()
   declare productId: number
+  @column()
+  declare role: string | null
   @column()
   declare secureUrl: string
   @column()
@@ -1080,7 +1083,9 @@ export class ProductTranslationSchema extends BaseModel {
     'description',
     'id',
     'isAuto',
+    'keywords',
     'locale',
+    'marketingPoints',
     'name',
     'productId',
     'translationKey',
@@ -1096,7 +1101,11 @@ export class ProductTranslationSchema extends BaseModel {
   @column()
   declare isAuto: boolean
   @column()
+  declare keywords: any | null
+  @column()
   declare locale: string
+  @column()
+  declare marketingPoints: any | null
   @column()
   declare name: string
   @column()
@@ -1134,6 +1143,7 @@ export class ProductVariantAttributeSchema extends BaseModel {
 export class ProductVariantSchema extends BaseModel {
   static $columns = [
     'createdAt',
+    'gtin',
     'id',
     'imageId',
     'isActive',
@@ -1144,6 +1154,8 @@ export class ProductVariantSchema extends BaseModel {
   $columns = ProductVariantSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column()
+  declare gtin: string | null
   @column({ isPrimary: true })
   declare id: number
   @column()
@@ -1160,30 +1172,45 @@ export class ProductVariantSchema extends BaseModel {
 
 export class ProductSchema extends BaseModel {
   static $columns = [
+    'brand',
     'categoryId',
     'createdAt',
     'currency',
+    'hsCode',
     'id',
     'imageUrl',
     'isActive',
+    'isConfigurable',
+    'leadTimeDays',
+    'lifecycleStatus',
     'madeInEurope',
     'minQuantity',
     'originCountry',
+    'originZone',
     'priceMax',
     'priceMin',
     'reference',
+    'releasedAt',
+    'rushLeadTimeDays',
+    'rushService',
     'slug',
     'sourceLocale',
+    'supplierCategoryRaw',
     'supplierId',
     'updatedAt',
+    'videoUrl',
   ] as const
   $columns = ProductSchema.$columns
+  @column()
+  declare brand: string | null
   @column()
   declare categoryId: number
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
   declare currency: string
+  @column()
+  declare hsCode: string | null
   @column({ isPrimary: true })
   declare id: number
   @column()
@@ -1191,25 +1218,43 @@ export class ProductSchema extends BaseModel {
   @column()
   declare isActive: boolean
   @column()
+  declare isConfigurable: boolean
+  @column()
+  declare leadTimeDays: number | null
+  @column()
+  declare lifecycleStatus: string
+  @column()
   declare madeInEurope: boolean
   @column()
   declare minQuantity: number | null
   @column()
   declare originCountry: string | null
   @column()
+  declare originZone: string | null
+  @column()
   declare priceMax: string | null
   @column()
   declare priceMin: string | null
   @column()
   declare reference: string | null
+  @column.date()
+  declare releasedAt: DateTime | null
+  @column()
+  declare rushLeadTimeDays: number | null
+  @column()
+  declare rushService: boolean
   @column()
   declare slug: string
   @column()
   declare sourceLocale: string
   @column()
+  declare supplierCategoryRaw: string | null
+  @column()
   declare supplierId: number
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
+  @column()
+  declare videoUrl: string | null
 }
 
 export class QueueJobSchema extends BaseModel {
@@ -1637,6 +1682,7 @@ export class SupplierProfileSchema extends BaseModel {
     'commercialStatus',
     'companyType',
     'createdAt',
+    'defaultOriginScope',
     'deliveryCountries',
     'deliveryDays',
     'deliveryScope',
@@ -1672,6 +1718,8 @@ export class SupplierProfileSchema extends BaseModel {
   declare companyType: string | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column()
+  declare defaultOriginScope: string | null
   @column()
   declare deliveryCountries: any | null
   @column()

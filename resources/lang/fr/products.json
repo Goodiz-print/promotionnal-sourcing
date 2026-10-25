@@ -15,7 +15,14 @@
     "selectCategoryForFilters": "Sélectionnez une catégorie pour afficher ses filtres.",
     "rangeUnder": "< {max}",
     "rangeOver": "≥ {min}",
-    "rangeBetween": "{min}–{max}"
+    "rangeBetween": "{min}–{max}",
+    "newOnly": "Nouveautés",
+    "origin": {
+      "title": "Provenance",
+      "france": "France",
+      "europe": "Europe",
+      "other": "Hors Europe"
+    }
   },
   "show": {
     "backToCatalogue": "Retour au catalogue",
@@ -73,7 +80,17 @@
       "originCountry": "Pays d'origine",
       "madeInEurope": "Fabriqué en Europe",
       "isActive": "Publié",
-      "images": "Ajouter des images"
+      "images": "Ajouter des images",
+      "brand": "Marque",
+      "hsCode": "Code douanier (HS)",
+      "lifecycleStatus": "Statut du produit",
+      "releasedAt": "Date de sortie",
+      "supplierCategoryRaw": "Catégorie fournisseur (brute)",
+      "videoUrl": "Vidéo (URL)",
+      "leadTimeDays": "Délai indicatif (jours)",
+      "rushLeadTimeDays": "Délai express (jours)",
+      "rushService": "Service express",
+      "isConfigurable": "Produit configurable"
     },
     "variants": {
       "title": "Variantes",
@@ -82,7 +99,8 @@
       "remove": "Retirer",
       "sku": "SKU",
       "image": "Image de la variante",
-      "isActive": "Variante proposée"
+      "isActive": "Variante proposée",
+      "gtin": "Code EAN/GTIN"
     },
     "priceTiers": {
       "title": "Paliers de prix",
@@ -93,6 +111,13 @@
       "allVariants": "Toutes les variantes",
       "minQuantity": "À partir de (pièces)",
       "unitPrice": "Prix unitaire"
-    }
+    },
+    "lifecycle": {
+      "active": "Actif",
+      "new": "Nouveauté",
+      "end_of_series": "Fin de série",
+      "retired": "Retiré"
+    },
+    "commercial": "Identité, commercial et médias"
   }
 }

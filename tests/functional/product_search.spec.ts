@@ -21,6 +21,8 @@ const OPTIONS = {
   categoryId: null,
   madeInEurope: false,
   attributeValueIds: [],
+  originZones: [],
+  newOnly: false,
   page: 1,
   perPage: 12,
 }
@@ -82,7 +84,13 @@ test.group('Recherche — rechargement depuis PostgreSQL', (group) => {
       query: 'crayon',
       // Embedder coupé en test : mots-clés seuls.
       semanticRatio: 0,
-      filter: { categoryId: crayon.id, madeInEurope: true, attributeValueIds: [blue.id] },
+      filter: {
+        categoryId: crayon.id,
+        madeInEurope: true,
+        attributeValueIds: [blue.id],
+        originZones: [],
+        releasedAfter: null,
+      },
       page: 2,
       perPage: 5,
     })

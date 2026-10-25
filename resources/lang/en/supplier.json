@@ -14,12 +14,20 @@
     "certificationPlaceholder": "e.g. ISO 9001",
     "certificationAdd": "Add a certification",
     "certificationRemove": "Remove",
-    "bio": "About"
+    "bio": "About",
+    "defaultOriginScope": "Default origin"
   },
   "deliveryScope": {
     "none": "Not specified",
     "national": "National",
     "europe": "Europe",
     "worldwide": "Worldwide"
+  },
+  "originScope": {
+    "none": "Unspecified",
+    "france": "France",
+    "europe": "Europe",
+    "outside_europe": "Outside Europe",
+    "per_product": "Per product"
   }
 }

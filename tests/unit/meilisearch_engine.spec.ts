@@ -97,6 +97,8 @@ function document(id: number): ProductSearchDocument {
     supplierId: 1,
     madeInEurope: true,
     originCountry: 'FR',
+    originZone: 'france',
+    releasedAt: null,
     attributeValueIds: [3],
     attributes: { color: [3] },
     names: { fr: 'Stylo' },
@@ -247,6 +249,31 @@ test.group('Meilisearch — recherche', (group) => {
       buildProductFilter({ categoryId: 4, madeInEurope: true, attributeValueIds: [3, 7] }),
       'categoryId = 4 AND madeInEurope = true AND attributeValueIds = 3 AND attributeValueIds = 7'
     )
+  })
+
+  test('provenance (écart 9) : les zones cochées se combinent en OU, groupées', ({ assert }) => {
+    assert.equal(buildProductFilter({ originZones: ['france'] }), "(originZone = 'france')")
+    assert.equal(
+      buildProductFilter({ originZones: ['france', 'europe'] }),
+      "(originZone = 'france' OR originZone = 'europe')"
+    )
+    // Combiné avec une catégorie : ET entre critères, OU interne pour la zone.
+    assert.equal(
+      buildProductFilter({ categoryId: 4, originZones: ['france', 'europe'] }),
+      "categoryId = 4 AND (originZone = 'france' OR originZone = 'europe')"
+    )
+    // Zone vide ou inconnue : aucune clause de provenance.
+    assert.isUndefined(buildProductFilter({ originZones: [] }))
+  })
+
+  test('nouveautés (écart 5) : filtre d’intervalle sur releasedAt (timestamp)', ({ assert }) => {
+    assert.equal(buildProductFilter({ releasedAfter: 1_700_000_000 }), 'releasedAt >= 1700000000')
+    assert.equal(
+      buildProductFilter({ categoryId: 4, releasedAfter: 1_700_000_000 }),
+      'categoryId = 4 AND releasedAt >= 1700000000'
+    )
+    // Pas de seuil : aucune clause de nouveauté.
+    assert.isUndefined(buildProductFilter({ releasedAfter: null }))
   })
 
   test('requête hybride : Meilisearch vectorise la requête, aucun vecteur n’est envoyé', async ({

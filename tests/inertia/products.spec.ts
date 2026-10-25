@@ -64,6 +64,17 @@ function product(id: number, name: string, slug: string) {
     originCountry: 'FR',
     madeInEurope: true,
     isActive: true,
+    brand: null,
+    hsCode: null,
+    isConfigurable: false,
+    lifecycleStatus: 'active' as const,
+    releasedAt: null,
+    supplierCategoryRaw: null,
+    leadTimeDays: null,
+    rushService: false,
+    rushLeadTimeDays: null,
+    videoUrl: null,
+    originZone: 'france' as const,
     createdAt: '2026-07-11T00:00:00.000Z',
     updatedAt: null,
   }
@@ -121,7 +132,14 @@ const facetBar: CategoryFacetBarType = {
 const emptyFacetBar: CategoryFacetBarType = { attributes: [], hasCounts: false }
 
 const meta = { total: 2, perPage: 12, currentPage: 1, lastPage: 1 }
-const emptyFilters = { search: null, categoryId: 1, madeInEurope: false, attributeValueIds: [] }
+const emptyFilters = {
+  search: null,
+  categoryId: 1,
+  madeInEurope: false,
+  attributeValueIds: [],
+  originZones: [],
+  newOnly: false,
+}
 
 describe('products/index.vue', () => {
   it('affiche une carte par produit + la barre de filtres par catégorie', () => {
@@ -181,7 +199,14 @@ describe('products/index.vue', () => {
       props: {
         searchUnavailable: false,
         products: { data: [], meta: { ...meta, total: 0 } },
-        filters: { search: null, categoryId: null, madeInEurope: false, attributeValueIds: [] },
+        filters: {
+          search: null,
+          categoryId: null,
+          madeInEurope: false,
+          attributeValueIds: [],
+          originZones: [],
+          newOnly: false,
+        },
         categories: [category(1, 'Crayon', 'crayon')],
         facetBar: emptyFacetBar,
       },
@@ -207,6 +232,7 @@ describe('products/show.vue', () => {
               position: 0,
               width: 800,
               height: 600,
+              role: null,
               variants: [],
             },
           ],
@@ -242,6 +268,7 @@ describe('product_gallery.vue', () => {
     position,
     width: 800,
     height: 600,
+    role: null,
     variants: [],
   })
 

@@ -1,8 +1,13 @@
+import { DateTime } from 'luxon'
 import Product from '#models/product'
 import Category from '#models/category'
 import Attribute from '#models/attribute'
 import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
-import type { ProductDirectoryFilters, ProductSort } from '#shared/types/product'
+import {
+  NEW_PRODUCT_WINDOW_DAYS,
+  type ProductDirectoryFilters,
+  type ProductSort,
+} from '#shared/types/product'
 
 interface ListOptions extends ProductDirectoryFilters {
   page: number
@@ -26,7 +31,13 @@ export default class ProductCatalogueService {
    *   contrainte est combinée en `AND`, cf. `docs/catalogue.md`).
    */
   list(options: ListOptions): Promise<ModelPaginatorContract<Product>> {
-    const { page, perPage, categoryId, madeInEurope, attributeValueIds } = options
+    const { page, perPage, categoryId, madeInEurope, attributeValueIds, originZones, newOnly } =
+      options
+
+    // Nouveautés (écart 5) : début de la fenêtre récente.
+    const newThreshold = newOnly
+      ? DateTime.now().minus({ days: NEW_PRODUCT_WINDOW_DAYS }).startOf('day')
+      : null
 
     const query = Product.query()
       .where('isActive', true)
@@ -41,6 +52,10 @@ export default class ProductCatalogueService {
           q.whereHas('attributeValues', (av) => av.where('attribute_values.id', valueId))
         }
       })
+      // Provenance à 3 états (écart 9) : OU entre les zones cochées.
+      .if(originZones.length > 0, (q) => q.whereIn('originZone', originZones))
+      // Nouveautés (écart 5).
+      .if(newThreshold, (q) => q.where('releasedAt', '>=', newThreshold!.toSQLDate()!))
       .preload('translations')
 
     if (options.sort === 'price_asc') {

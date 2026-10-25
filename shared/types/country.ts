@@ -290,6 +290,58 @@ export const VIES_COUNTRY_CODES = [
   'XI',
 ] as const
 
+/**
+ * Pays de l'Espace économique européen (UE 27 + Islande, Liechtenstein,
+ * Norvège), en ISO 3166-1 alpha-2 standard (Grèce = `GR`). Sert à dériver la
+ * zone de provenance d'un produit (écart 9, `ProductOriginService`).
+ */
+export const EU_EEA_COUNTRY_CODES = [
+  'AT',
+  'BE',
+  'BG',
+  'HR',
+  'CY',
+  'CZ',
+  'DK',
+  'EE',
+  'FI',
+  'FR',
+  'DE',
+  'GR',
+  'HU',
+  'IE',
+  'IT',
+  'LV',
+  'LT',
+  'LU',
+  'MT',
+  'NL',
+  'PL',
+  'PT',
+  'RO',
+  'SK',
+  'SI',
+  'ES',
+  'SE',
+  'IS',
+  'LI',
+  'NO',
+] as const
+
+const EU_EEA_SET: ReadonlySet<string> = new Set(EU_EEA_COUNTRY_CODES)
+
+/** Vrai si le code pays (alpha-2) appartient à l'UE/EEE. Insensible à la casse. */
+export function isEuEeaCountry(code: string): boolean {
+  return EU_EEA_SET.has(code.toUpperCase())
+}
+
+const COUNTRY_SET: ReadonlySet<string> = new Set(COUNTRY_CODES)
+
+/** Vrai si le code pays (alpha-2) est un pays connu du référentiel. */
+export function isKnownCountry(code: string): boolean {
+  return COUNTRY_SET.has(code.toUpperCase())
+}
+
 /** Langue d'interface proposée par défaut selon le pays ; l'anglais sinon. */
 const LOCALE_BY_COUNTRY: Partial<Record<string, Locale>> = {
   FR: 'fr',

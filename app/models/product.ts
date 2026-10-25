@@ -8,6 +8,7 @@ import AttributeValue from '#models/attribute_value'
 import ProductAttribute from '#models/product_attribute'
 import ProductTranslation from '#models/product_translation'
 import type { TranslationLocale } from '#shared/types/i18n'
+import type { OriginZone, ProductLifecycleStatus } from '#shared/types/product'
 import { latestDecisionIsRejectedSql } from '#shared/helpers/moderation'
 import ProductImage from '#models/product_image'
 import ProductVariant from '#models/product_variant'
@@ -19,6 +20,15 @@ export default class Product extends ProductSchema {
 
   /** Langue dans laquelle le fournisseur a saisi le contenu (#75). */
   declare sourceLocale: TranslationLocale
+
+  /** Statut « cycle de vie » (écart 5) ; distinct de `isActive` (publication). */
+  declare lifecycleStatus: ProductLifecycleStatus
+
+  /**
+   * Zone de provenance **dérivée** (écart 9) : `ProductOriginService` la calcule
+   * à partir de `originCountry`/`madeInEurope`. Jamais saisie à la main.
+   */
+  declare originZone: OriginZone | null
 
   /**
    * Pendant de `Supplier.fromLiveOrganization` : masque les produits dont la

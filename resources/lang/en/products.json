@@ -15,7 +15,14 @@
     "selectCategoryForFilters": "Select a category to show its filters.",
     "rangeUnder": "< {max}",
     "rangeOver": "≥ {min}",
-    "rangeBetween": "{min}–{max}"
+    "rangeBetween": "{min}–{max}",
+    "newOnly": "New arrivals",
+    "origin": {
+      "title": "Origin",
+      "france": "France",
+      "europe": "Europe",
+      "other": "Outside Europe"
+    }
   },
   "show": {
     "backToCatalogue": "Back to catalogue",
@@ -73,7 +80,17 @@
       "originCountry": "Country of origin",
       "madeInEurope": "Made in Europe",
       "isActive": "Published",
-      "images": "Add images"
+      "images": "Add images",
+      "brand": "Brand",
+      "hsCode": "Customs code (HS)",
+      "lifecycleStatus": "Product status",
+      "releasedAt": "Release date",
+      "supplierCategoryRaw": "Supplier category (raw)",
+      "videoUrl": "Video (URL)",
+      "leadTimeDays": "Lead time (days)",
+      "rushLeadTimeDays": "Rush lead time (days)",
+      "rushService": "Rush service",
+      "isConfigurable": "Configurable product"
     },
     "variants": {
       "title": "Variants",
@@ -82,7 +99,8 @@
       "remove": "Remove",
       "sku": "SKU",
       "image": "Variant image",
-      "isActive": "Variant offered"
+      "isActive": "Variant offered",
+      "gtin": "EAN/GTIN code"
     },
     "priceTiers": {
       "title": "Price tiers",
@@ -93,6 +111,13 @@
       "allVariants": "All variants",
       "minQuantity": "From (pieces)",
       "unitPrice": "Unit price"
-    }
+    },
+    "lifecycle": {
+      "active": "Active",
+      "new": "New",
+      "end_of_series": "End of series",
+      "retired": "Retired"
+    },
+    "commercial": "Identity, commercial and media"
   }
 }

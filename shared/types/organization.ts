@@ -82,6 +82,15 @@ export const CATALOGUE_UPDATE_MODES = ['managed', 'self_service', 'automatic'] a
 
 export type CatalogueUpdateMode = (typeof CATALOGUE_UPDATE_MODES)[number]
 
+/**
+ * Provenance par défaut déclarée par le fournisseur (écart 9), appliquée à son
+ * catalogue à défaut d'origine saisie par produit. `per_product` = chaque fiche
+ * porte sa propre origine.
+ */
+export const DEFAULT_ORIGIN_SCOPES = ['france', 'europe', 'outside_europe', 'per_product'] as const
+
+export type DefaultOriginScope = (typeof DEFAULT_ORIGIN_SCOPES)[number]
+
 export const CATALOGUE_UPDATE_FREQUENCIES = ['weekly', 'monthly', 'quarterly', 'on_demand'] as const
 
 export type CatalogueUpdateFrequency = (typeof CATALOGUE_UPDATE_FREQUENCIES)[number]
@@ -146,6 +155,7 @@ export type SupplierProfileType = {
   reportFrequency: ReportFrequency
   catalogueUpdateMode: CatalogueUpdateMode | null
   catalogueUpdateFrequency: CatalogueUpdateFrequency | null
+  defaultOriginScope: DefaultOriginScope | null
   isFoundingPartner: boolean
   foundingPartnerUntil: string | null
   createdAt: string
@@ -172,6 +182,7 @@ export interface UpdateSupplierProfileData {
   reportFrequency?: ReportFrequency
   catalogueUpdateMode?: CatalogueUpdateMode | null
   catalogueUpdateFrequency?: CatalogueUpdateFrequency | null
+  defaultOriginScope?: DefaultOriginScope | null
 }
 
 /**
