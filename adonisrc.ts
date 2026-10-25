@@ -66,6 +66,7 @@ export default defineConfig({
     () => import('#providers/ai_provider'),
     () => import('#providers/storage_provider'),
     () => import('#providers/pdf_provider'),
+    () => import('#providers/search_provider'),
     () => import('@adonisjs/queue/queue_provider'),
     () => import('@adonisjs/bouncer/bouncer_provider'),
     () => import('@adonisjs/mail/mail_provider'),

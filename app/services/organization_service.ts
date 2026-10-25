@@ -2,6 +2,8 @@ import { DateTime } from 'luxon'
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
 import stringHelpers from '@adonisjs/core/helpers/string'
+import emitter from '@adonisjs/core/services/emitter'
+import OrganizationCatalogueChanged from '#events/organization_catalogue_changed'
 import Organization from '#models/organization'
 import OrganizationInvitation from '#models/organization_invitation'
 import OrganizationUser from '#models/organization_user'
@@ -122,6 +124,12 @@ export default class OrganizationService {
         .where('status', 'pending')
         .update({ status: 'revoked', updated_at: DateTime.now().toJSDate() })
     })
+
+    // Son catalogue sort de la recherche publique.
+    await emitter.emit(
+      OrganizationCatalogueChanged,
+      new OrganizationCatalogueChanged(organization.id)
+    )
   }
 
   /**

@@ -1,5 +1,8 @@
 import { inject } from '@adonisjs/core'
 import { DateTime } from 'luxon'
+import emitter from '@adonisjs/core/services/emitter'
+import OrganizationCatalogueChanged from '#events/organization_catalogue_changed'
+import ProductChanged from '#events/product_changed'
 import ModerationDecisionRecord from '#models/moderation_decision'
 import User from '#models/user'
 import { InvalidModerationInputException } from '#exceptions/moderation_errors'
@@ -34,7 +37,7 @@ export default class ModerationService {
     if (!(MODERATION_DECISIONS as readonly string[]).includes(input.status)) {
       throw new InvalidModerationInputException()
     }
-    return ModerationDecisionRecord.create({
+    const record = await ModerationDecisionRecord.create({
       targetType: input.targetType,
       targetId: input.targetId,
       status: input.status,
@@ -42,6 +45,18 @@ export default class ModerationService {
       decidedByUserId: input.decidedBy.id,
       decidedAt: DateTime.now(),
     })
+
+    // Un rejet (ou sa levée) change la visibilité du produit, ou de tout le
+    // catalogue de l'organisation : l'index de recherche suit.
+    if (input.targetType === 'product') {
+      await emitter.emit(ProductChanged, new ProductChanged(input.targetId))
+    } else if (input.targetType === 'organization') {
+      await emitter.emit(
+        OrganizationCatalogueChanged,
+        new OrganizationCatalogueChanged(input.targetId)
+      )
+    }
+    return record
   }
 
   /** Statut courant : la dernière décision, ou `pending` si la cible n'en a aucune. */
