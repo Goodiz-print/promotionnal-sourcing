@@ -169,7 +169,9 @@ const PRODUCTS: ProductSeed[] = [
     facets: {
       'color': 'blue',
       'color-shade': 'bleu-marine',
-      'material': 'cotton',
+      // Coton bio (coton brossé bio, cf. compositions « Casquettes » du classeur) :
+      // valeur distincte de `cotton`, pour ne pas croiser le filtre bleu+coton.
+      'material': 'organic-cotton',
       'cap-panels': '6',
       'cap-type': 'baseball',
       'cap-closure': 'metal-buckle',
@@ -177,11 +179,11 @@ const PRODUCTS: ProductSeed[] = [
     translations: {
       fr: {
         name: 'Casquette 6 panneaux marine',
-        description: 'Casquette baseball 6 panneaux en coton brossé, fermeture boucle métal',
+        description: 'Casquette baseball 6 panneaux en coton bio brossé, fermeture boucle métal',
       },
       en: {
         name: 'Navy 6-panel cap',
-        description: 'Six-panel brushed-cotton baseball cap with metal buckle closure',
+        description: 'Six-panel organic brushed-cotton baseball cap with metal buckle closure',
       },
     },
   },
