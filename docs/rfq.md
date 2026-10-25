@@ -450,32 +450,22 @@ ne l'envoyait pas, et un brouillon réenregistré perdait le lien avec le
 catalogue. `rfq_item_list.vue` affiche un lien vers la fiche produit quand
 `productSlug` est renseigné.
 
-### ⚠️ À remplacer par Meilisearch (#112)
+### Recherche : Meilisearch d'abord, PostgreSQL en repli (#112)
 
-La recherche du sélecteur est un **stop-gap PostgreSQL**
-(`ProductCatalogueService#lookupForRfq`) : `ILIKE` sur le nom plus le full-text
-locale-aware du catalogue. Elle doit être remplacée par le moteur hybride
-Meilisearch (mots-clés + vecteurs) dès que #112 est livré. Ce qu'il faut savoir
-pour le remplacer sans rien casser :
+Le sélecteur passe par `ProductSearchService#lookup` : recherche par **mots-clés
+seuls** dans l'index Meilisearch (pas d'appel au provider d'embeddings à chaque
+frappe), puis **rechargement des produits depuis PostgreSQL** — uniquement des
+produits _visibles_ (actifs, organisation vivante, non rejetés), au plus `limit`
+résultats, nom localisé dans la langue de l'interface.
 
-- **Seul le corps de `lookupForRfq` change.** La signature
-  `(search, locale, limit) → Product[]`, `RfqProductOptionTransformer`, la prop
-  `productResults` et `rfq_product_picker.vue` n'en dépendent pas.
-- **Contrat à conserver** : uniquement des produits _visibles_ (actifs,
-  organisation vivante, non rejetés — `fromLiveOrganization` + `notRejected`),
-  au plus `limit` résultats, nom localisé dans la langue de l'interface.
-  Meilisearch ne connaît pas ces règles : il faudra soit les indexer comme
-  filtres (`is_active`, statut de modération, organisation archivée) et les
-  tenir à jour, soit **recharger les produits retournés depuis PostgreSQL**
-  (source de vérité) et écarter ceux qui ne sont plus visibles.
-- `findForRfq` (pré-remplissage par identifiant) **reste sur PostgreSQL** : ce
-  n'est pas une recherche.
-- Tests à adapter : `tests/functional/rfq_one_click.spec.ts`, groupe « sélecteur
-  de produit » (il s'appuie sur le seed `full`).
-- Même chantier que la recherche du catalogue public
-  (`ProductCatalogueService#list`) : les deux se remplacent ensemble.
-
-Le marqueur `TODO(#112)` dans `lookupForRfq` renvoie ici.
+Si Meilisearch est inerte (pas de `MEILISEARCH_HOST`) ou injoignable,
+`lookup` renvoie `null` et `RfqsController` retombe sur
+`ProductCatalogueService#lookupForRfq` (`ILIKE` sur le nom + full-text
+locale-aware), qui disparaît avec la PR 3 de #112. La signature, le transformer
+(`RfqProductOptionTransformer`), la prop `productResults` et
+`rfq_product_picker.vue` n'ont pas changé. `findForRfq` (pré-remplissage par
+identifiant) reste sur PostgreSQL : ce n'est pas une recherche. Détail :
+[`search.md`](search.md).
 
 ### Tests
 

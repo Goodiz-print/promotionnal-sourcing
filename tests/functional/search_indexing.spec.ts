@@ -10,58 +10,23 @@ import Product from '#models/product'
 import ModerationService from '#services/moderation_service'
 import OrganizationService from '#services/organization_service'
 import ProductIndexService from '#services/product_index_service'
-import SearchEngine from '#services/search/search_engine'
+import FakeSearchEngine, { installFakeEngine } from '#tests/utils/fake_search_engine'
 import { useDatabase } from '#tests/utils/setup'
-import { SEARCH_EMBEDDER, type ProductSearchDocument } from '#shared/types/search'
+import { SEARCH_EMBEDDER } from '#shared/types/search'
 
 /**
  * Synchronisation PostgreSQL → index de recherche (#112). Le moteur est un
  * double qui enregistre ses appels : on vérifie ce que l'application envoie,
  * pas Meilisearch.
  */
-class FakeSearchEngine extends SearchEngine {
-  enabled = true
-  upserted: ProductSearchDocument[][] = []
-  removed: number[][] = []
-  replaced: ProductSearchDocument[][] = []
-
-  async upsert(documents: ProductSearchDocument[]) {
-    if (documents.length > 0) this.upserted.push(documents)
-  }
-
-  async remove(ids: number[]) {
-    if (ids.length > 0) this.removed.push(ids)
-  }
-
-  async replaceAll(batches: AsyncIterable<ProductSearchDocument[]>) {
-    let count = 0
-    for await (const batch of batches) {
-      this.replaced.push(batch)
-      count += batch.length
-    }
-    return count
-  }
-
-  get indexedIds(): number[] {
-    return this.upserted.flat().map((document) => document.id)
-  }
-}
-
 /** Active la recherche le temps d'un test, avec un moteur factice. */
 function useFakeEngine(group: Parameters<typeof useDatabase>[0], enabled = true) {
   const state = { engine: new FakeSearchEngine() }
-  const previous = { enabled: searchConfig.enabled, batchSize: searchConfig.batchSize }
 
-  group.each.setup(async () => {
-    state.engine = new FakeSearchEngine()
-    state.engine.enabled = enabled
-    searchConfig.enabled = enabled
-    app.container.swap(SearchEngine, () => state.engine)
-    return () => {
-      searchConfig.enabled = previous.enabled
-      searchConfig.batchSize = previous.batchSize
-      app.container.restore(SearchEngine)
-    }
+  group.each.setup(() => {
+    const handle = installFakeEngine(enabled)
+    state.engine = handle.engine
+    return () => handle.restore()
   })
   return state
 }
@@ -251,16 +216,5 @@ test.group('Recherche — déclencheurs de synchronisation', (group) => {
 
 /** Variante sans hook de groupe, pour les tests qui basculent le moteur eux-mêmes. */
 function useFakeEngineOnce(enabled = true) {
-  const engine = new FakeSearchEngine()
-  engine.enabled = enabled
-  const previous = searchConfig.enabled
-  searchConfig.enabled = enabled
-  app.container.swap(SearchEngine, () => engine)
-  return {
-    engine,
-    restore() {
-      searchConfig.enabled = previous
-      app.container.restore(SearchEngine)
-    },
-  }
+  return installFakeEngine(enabled)
 }

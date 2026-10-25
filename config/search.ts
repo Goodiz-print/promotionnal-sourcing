@@ -19,6 +19,13 @@ const searchConfig = {
   batchSize: 500,
   /** Délai maximal d'attente d'une tâche Meilisearch (ms). */
   taskTimeoutMs: 120_000,
+  /**
+   * Poids du sémantique dans la recherche hybride (0 = mots-clés, 1 = vecteurs).
+   * Point de départ de l'ADR 0002 ; à régler par `node ace search:evaluate`.
+   */
+  semanticRatio: env.get('SEARCH_SEMANTIC_RATIO', 0.5),
+  /** Cache des vecteurs de requête (par processus) : durée de vie et taille. */
+  queryVectorCache: { ttlMs: 6 * 60 * 60 * 1000, maxEntries: 1000 },
 }
 
 export default searchConfig

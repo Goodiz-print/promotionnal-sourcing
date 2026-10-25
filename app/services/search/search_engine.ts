@@ -1,4 +1,8 @@
-import type { ProductSearchDocument } from '#shared/types/search'
+import type {
+  ProductSearchDocument,
+  ProductSearchHits,
+  ProductSearchRequest,
+} from '#shared/types/search'
 
 /**
  * Moteur de recherche des produits (#112). Classe abstraite = jeton
@@ -15,6 +19,13 @@ export default abstract class SearchEngine {
 
   /** Crée ou remplace ces documents (clé : `id`). */
   abstract upsert(documents: ProductSearchDocument[]): Promise<void>
+
+  /**
+   * Recherche hybride (mots-clés + vecteur) filtrée. Renvoie des identifiants
+   * ordonnés par pertinence : l'appelant recharge les produits depuis PostgreSQL.
+   * Lève si le moteur est injoignable.
+   */
+  abstract search(request: ProductSearchRequest): Promise<ProductSearchHits>
 
   /** Retire ces produits de l'index (ids absents ignorés). */
   abstract remove(ids: number[]): Promise<void>
