@@ -1,8 +1,9 @@
 import type { Locale } from '#shared/types/i18n'
 
-/** Champs modifiables de la page « mon compte » (nom, email, langue). */
+/** Champs modifiables de la page « mon compte » (prénom, nom, email, langue). */
 export interface UpdateAccountData {
-  fullName: string | null
+  firstName: string | null
+  lastName: string | null
   email: string
   locale: Locale
 }
@@ -13,7 +14,8 @@ export interface UpdateAccountData {
  * `Record<string, JSONDataTypes>` (cf. `OrganizationType`).
  */
 export type AccountType = {
-  fullName: string | null
+  firstName: string | null
+  lastName: string | null
   email: string
   locale: Locale | null
   isEmailVerified: boolean

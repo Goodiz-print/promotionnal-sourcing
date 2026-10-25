@@ -88,7 +88,7 @@ test.group('Acceptation d’une invitation', (group) => {
     }).create()
     const invitee = await UserFactory.merge({
       email: 'invited@example.com',
-      fullName: 'Invitee',
+      firstName: 'Invitee',
     }).create()
 
     const response = await client
@@ -158,7 +158,8 @@ test.group('Acceptation d’une invitation', (group) => {
     }).create()
     const someoneElse = await UserFactory.merge({
       email: 'someone-else@example.com',
-      fullName: 'Someone Else',
+      firstName: 'Someone',
+      lastName: 'Else',
     }).create()
 
     await client.post(acceptUrl(invitation.id)).withInertia().withCsrfToken().loginAs(someoneElse)
@@ -198,7 +199,7 @@ test.group(
     })
 
     test('login redirige vers le paramètre redirect fourni (chemin sûr)', async ({ client }) => {
-      await UserFactory.merge({ email: 'user@example.com', fullName: 'User' }).create()
+      await UserFactory.merge({ email: 'user@example.com', firstName: 'User' }).create()
 
       const response = await client
         .post('/fr/login')
@@ -212,7 +213,7 @@ test.group(
     })
 
     test('login ignore un paramètre redirect non sûr', async ({ client }) => {
-      await UserFactory.merge({ email: 'user@example.com', fullName: 'User' }).create()
+      await UserFactory.merge({ email: 'user@example.com', firstName: 'User' }).create()
 
       const response = await client
         .post('/fr/login')
@@ -232,7 +233,8 @@ test.group(
         .withCsrfToken()
         .redirects(0)
         .json({
-          fullName: 'New User',
+          firstName: 'New',
+          lastName: 'User',
           email: 'newuser@example.com',
           password: 'password123',
           passwordConfirmation: 'password123',

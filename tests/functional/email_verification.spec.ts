@@ -25,7 +25,8 @@ test.group('Vérification d’email', (group) => {
 
   async function signUp(client: ApiClient, email = 'nouveau@example.com') {
     return client.post('/fr/signup').redirects(0).withCsrfToken().json({
-      fullName: 'Nouveau Client',
+      firstName: 'Nouveau',
+      lastName: 'Client',
       email,
       password: 'password123',
       passwordConfirmation: 'password123',

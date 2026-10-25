@@ -18,7 +18,8 @@ test.group('Auth — inscription & connexion (useForm)', (group) => {
     assert,
   }) => {
     const response = await client.post('/fr/signup').redirects(0).withCsrfToken().json({
-      fullName: 'Nouveau Client',
+      firstName: 'Nouveau',
+      lastName: 'Client',
       email: 'nouveau@example.com',
       password: 'password123',
       passwordConfirmation: 'password123',

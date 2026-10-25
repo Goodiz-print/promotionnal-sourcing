@@ -35,7 +35,12 @@ export default class AccountService {
   async updateProfile(user: User, data: UpdateAccountData, locale: string): Promise<boolean> {
     const emailChanged = data.email.toLowerCase() !== user.email.toLowerCase()
 
-    user.merge({ fullName: data.fullName, email: data.email, locale: data.locale })
+    user.merge({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      locale: data.locale,
+    })
     if (emailChanged) user.emailVerifiedAt = null
     await user.save()
 
@@ -112,7 +117,8 @@ export default class AccountService {
       user.useTransaction(trx)
       user.merge({
         email: `deleted-${user.id}@${ANONYMIZED_EMAIL_DOMAIN}`,
-        fullName: null,
+        firstName: null,
+        lastName: null,
         password: randomBytes(32).toString('hex'),
         locale: DEFAULT_LOCALE,
         currentOrganizationId: null,

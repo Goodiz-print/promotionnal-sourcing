@@ -11,6 +11,8 @@ export default class OrganizationTransformer extends BaseTransformer<Organizatio
         'slug',
         'siret',
         'vatNumber',
+        'locale',
+        'subscriptionPlan',
         'email',
         'phone',
         'website',
@@ -25,6 +27,7 @@ export default class OrganizationTransformer extends BaseTransformer<Organizatio
         'postalCode',
         'country',
       ]),
+      vatVerifiedAt: this.resource.vatVerifiedAt?.toISO() ?? null,
       createdAt: this.resource.createdAt.toISO()!,
       updatedAt: this.resource.updatedAt?.toISO() ?? null,
     }

@@ -35,6 +35,53 @@ export const DELIVERY_SCOPES = ['national', 'europe', 'worldwide'] as const
 export type DeliveryScope = (typeof DELIVERY_SCOPES)[number]
 
 /**
+ * Formule d'abonnement d'une organisation (fournisseur : gratuit · Business ·
+ * Premium ; agence : gratuit · Premium). Le premier élément est la valeur par défaut.
+ */
+export const SUBSCRIPTION_PLANS = ['free', 'business', 'premium'] as const
+
+export type SubscriptionPlan = (typeof SUBSCRIPTION_PLANS)[number]
+
+/**
+ * Statut commercial interne d'un fournisseur, dans l'ordre du parcours de
+ * prospection (suivi par l'équipe, jamais montré au fournisseur).
+ */
+export const SUPPLIER_COMMERCIAL_STATUSES = [
+  'prospect',
+  'followed_up',
+  'catalogue_received',
+  'importing',
+  'published',
+  'suspended',
+] as const
+
+export type SupplierCommercialStatus = (typeof SUPPLIER_COMMERCIAL_STATUSES)[number]
+
+/** Format sous lequel le fournisseur nous a envoyé son catalogue (pipeline d'import). */
+export const CATALOGUE_SOURCE_FORMATS = ['excel', 'csv', 'xml', 'api', 'pdf_only'] as const
+
+export type CatalogueSourceFormat = (typeof CATALOGUE_SOURCE_FORMATS)[number]
+
+/** Nature de l'entreprise fournisseur. */
+export const SUPPLIER_COMPANY_TYPES = ['manufacturer', 'importer_wholesaler', 'both'] as const
+
+export type SupplierCompanyType = (typeof SUPPLIER_COMPANY_TYPES)[number]
+
+/** Mode de mise à jour du catalogue souhaité par le fournisseur. */
+export const CATALOGUE_UPDATE_MODES = ['managed', 'self_service', 'automatic'] as const
+
+export type CatalogueUpdateMode = (typeof CATALOGUE_UPDATE_MODES)[number]
+
+export const CATALOGUE_UPDATE_FREQUENCIES = ['weekly', 'monthly', 'quarterly', 'on_demand'] as const
+
+export type CatalogueUpdateFrequency = (typeof CATALOGUE_UPDATE_FREQUENCIES)[number]
+
+/** Fréquence du rapport statistique envoyé par email au fournisseur. */
+export const REPORT_FREQUENCIES = ['weekly', 'monthly', 'none'] as const
+
+export type ReportFrequency = (typeof REPORT_FREQUENCIES)[number]
+
+/**
  * DTO exposé aux pages Inertia. Défini en `type` (et non `interface`) pour
  * rester assignable à `Record<string, JSONDataTypes>` — contrainte de typage
  * des props Inertia (`inertia.render`). Une interface, sans signature d'index
@@ -46,6 +93,9 @@ export type OrganizationType = {
   slug: string
   siret: string | null
   vatNumber: string | null
+  vatVerifiedAt: string | null
+  locale: string
+  subscriptionPlan: SubscriptionPlan
   email: string | null
   phone: string | null
   website: string | null
@@ -78,10 +128,25 @@ export type SupplierProfileType = {
   certifications: string[] | null
   bio: string | null
   responseTimeDays: number | null
+  companyType: SupplierCompanyType | null
+  deliveryCountries: string[] | null
+  spokenLanguages: string[] | null
+  minOrderNote: string | null
+  quoteEmail: string | null
+  reportFrequency: ReportFrequency
+  catalogueUpdateMode: CatalogueUpdateMode | null
+  catalogueUpdateFrequency: CatalogueUpdateFrequency | null
+  isFoundingPartner: boolean
+  foundingPartnerUntil: string | null
   createdAt: string
   updatedAt: string | null
 }
 
+/**
+ * Champs que le **fournisseur** édite lui-même (étapes 2 à 4 du classeur de
+ * collecte). Le suivi commercial interne (statut, notes, contact principal,
+ * partenaire fondateur) est volontairement absent : il est réservé à l'équipe.
+ */
 export interface UpdateSupplierProfileData {
   minOrderQuantity?: number | null
   deliveryDays?: number | null
@@ -89,6 +154,28 @@ export interface UpdateSupplierProfileData {
   certifications?: string[] | null
   bio?: string | null
   responseTimeDays?: number | null
+  companyType?: SupplierCompanyType | null
+  deliveryCountries?: string[] | null
+  spokenLanguages?: string[] | null
+  minOrderNote?: string | null
+  quoteEmail?: string | null
+  reportFrequency?: ReportFrequency
+  catalogueUpdateMode?: CatalogueUpdateMode | null
+  catalogueUpdateFrequency?: CatalogueUpdateFrequency | null
+}
+
+/**
+ * Suivi commercial d'un fournisseur, saisi par l'équipe à la création du compte
+ * depuis le fichier de prospection. Jamais exposé au fournisseur.
+ */
+export interface UpdateSupplierProspectingData {
+  commercialStatus?: SupplierCommercialStatus
+  primaryContactName?: string | null
+  primaryContactEmail?: string | null
+  isFoundingPartner?: boolean
+  foundingPartnerUntil?: string | null
+  catalogueSourceFormat?: CatalogueSourceFormat | null
+  internalNotes?: string | null
 }
 
 /**

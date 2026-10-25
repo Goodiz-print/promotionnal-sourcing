@@ -51,7 +51,7 @@ export async function joinOrganization(
 export async function createMember(
   organization: Organization,
   roleSlug: RoleSlug = 'member',
-  overrides: Partial<{ email: string; fullName: string }> = {},
+  overrides: Partial<{ email: string; firstName: string; lastName: string }> = {},
   options: JoinOptions = {}
 ): Promise<User> {
   const user = await UserFactory.merge(overrides).create()
@@ -65,7 +65,7 @@ export async function createMember(
  */
 export async function createOrganizationWithOwner(
   overrides: Partial<{ name: string; slug: string }> = {},
-  ownerOverrides: Partial<{ email: string; fullName: string }> = {}
+  ownerOverrides: Partial<{ email: string; firstName: string; lastName: string }> = {}
 ): Promise<{ organization: Organization; owner: User }> {
   const organization = await OrganizationFactory.merge(overrides).create()
   const owner = await createMember(organization, 'owner', ownerOverrides)

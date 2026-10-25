@@ -3,7 +3,8 @@ import { mount } from '@vue/test-utils'
 import type { AccountType } from '#shared/types/account'
 
 const translations = {
-  'auth.fields.fullName': 'Nom complet',
+  'auth.fields.firstName': 'Prénom',
+  'auth.fields.lastName': 'Nom',
   'auth.fields.email': 'E-mail',
   'account.profile.title': 'Informations personnelles',
   'account.profile.language': 'Langue',
@@ -41,7 +42,8 @@ const { default: PasswordForm } = await import('~/components/account/password_fo
 const { default: DangerZone } = await import('~/components/account/danger_zone.vue')
 
 const account: AccountType = {
-  fullName: 'Marie Membre',
+  firstName: 'Marie',
+  lastName: 'Membre',
   email: 'marie@example.com',
   locale: 'fr',
   isEmailVerified: true,
@@ -58,7 +60,8 @@ describe('account/profile_form', () => {
     const wrapper = mount(ProfileForm, { props: { account } })
 
     expect((wrapper.find('#email').element as HTMLInputElement).value).toBe('marie@example.com')
-    expect((wrapper.find('#fullName').element as HTMLInputElement).value).toBe('Marie Membre')
+    expect((wrapper.find('#firstName').element as HTMLInputElement).value).toBe('Marie')
+    expect((wrapper.find('#lastName').element as HTMLInputElement).value).toBe('Membre')
     expect(wrapper.text()).not.toContain('Adresse non vérifiée')
 
     await wrapper.find('form').trigger('submit')

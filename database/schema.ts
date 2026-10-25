@@ -7,6 +7,53 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class AgencyFavoriteSupplierSchema extends BaseModel {
+  static $columns = ['createdAt', 'organizationId', 'supplierId'] as const
+  $columns = AgencyFavoriteSupplierSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare organizationId: number
+  @column()
+  declare supplierId: number
+}
+
+export class AgencyProfileSchema extends BaseModel {
+  static $columns = [
+    'activity',
+    'activityOther',
+    'clientSectors',
+    'createdAt',
+    'defaultMarginPercent',
+    'id',
+    'organizationId',
+    'purchaseVolume',
+    'teamSize',
+    'updatedAt',
+  ] as const
+  $columns = AgencyProfileSchema.$columns
+  @column()
+  declare activity: string
+  @column()
+  declare activityOther: string | null
+  @column()
+  declare clientSectors: any | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare defaultMarginPercent: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare organizationId: number
+  @column()
+  declare purchaseVolume: string | null
+  @column()
+  declare teamSize: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class AttributeTranslationSchema extends BaseModel {
   static $columns = [
     'attributeId',
@@ -123,6 +170,48 @@ export class AttributeSchema extends BaseModel {
   declare type: string
   @column()
   declare unit: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class BillingProfileSchema extends BaseModel {
+  static $columns = [
+    'addressLine1',
+    'addressLine2',
+    'city',
+    'country',
+    'createdAt',
+    'email',
+    'id',
+    'organizationId',
+    'postalCode',
+    'purchaseOrderReference',
+    'stripeCustomerId',
+    'updatedAt',
+  ] as const
+  $columns = BillingProfileSchema.$columns
+  @column()
+  declare addressLine1: string | null
+  @column()
+  declare addressLine2: string | null
+  @column()
+  declare city: string | null
+  @column()
+  declare country: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare email: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare organizationId: number
+  @column()
+  declare postalCode: string | null
+  @column()
+  declare purchaseOrderReference: string | null
+  @column()
+  declare stripeCustomerId: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }
@@ -292,6 +381,78 @@ export class ImportJobSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class LegalConsentSchema extends BaseModel {
+  static $columns = [
+    'acceptedAt',
+    'createdAt',
+    'id',
+    'ipAddress',
+    'kind',
+    'organizationId',
+    'revokedAt',
+    'userId',
+    'version',
+  ] as const
+  $columns = LegalConsentSchema.$columns
+  @column.dateTime()
+  declare acceptedAt: DateTime
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare ipAddress: string | null
+  @column()
+  declare kind: string
+  @column()
+  declare organizationId: number
+  @column.dateTime()
+  declare revokedAt: DateTime | null
+  @column()
+  declare userId: number | null
+  @column()
+  declare version: string
+}
+
+export class MailDeliverySchema extends BaseModel {
+  static $columns = [
+    'attempts',
+    'createdAt',
+    'error',
+    'id',
+    'idempotencyKey',
+    'kind',
+    'payload',
+    'sentAt',
+    'status',
+    'to',
+    'updatedAt',
+  ] as const
+  $columns = MailDeliverySchema.$columns
+  @column()
+  declare attempts: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare error: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare idempotencyKey: string
+  @column()
+  declare kind: string
+  @column()
+  declare payload: any | null
+  @column.dateTime()
+  declare sentAt: DateTime | null
+  @column()
+  declare status: string
+  @column()
+  declare to: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
 export class MessageSchema extends BaseModel {
   static $columns = [
     'authorUserId',
@@ -366,6 +527,15 @@ export class NotificationSchema extends BaseModel {
   declare updatedAt: DateTime | null
   @column()
   declare userId: number
+}
+
+export class OrganizationCategorySchema extends BaseModel {
+  static $columns = ['categoryId', 'organizationId'] as const
+  $columns = OrganizationCategorySchema.$columns
+  @column()
+  declare categoryId: number
+  @column({ isPrimary: true })
+  declare organizationId: number
 }
 
 export class OrganizationDocumentSchema extends BaseModel {
@@ -451,13 +621,16 @@ export class OrganizationSchema extends BaseModel {
     'addressLine1',
     'addressLine2',
     'archivedAt',
+    'bannerStorageObjectId',
     'city',
     'country',
     'createdAt',
     'description',
+    'domainVerifiedAt',
     'email',
     'id',
     'industry',
+    'locale',
     'logoStorageObjectId',
     'logoUrl',
     'name',
@@ -467,8 +640,10 @@ export class OrganizationSchema extends BaseModel {
     'siret',
     'size',
     'slug',
+    'subscriptionPlan',
     'updatedAt',
     'vatNumber',
+    'vatVerifiedAt',
     'website',
   ] as const
   $columns = OrganizationSchema.$columns
@@ -479,6 +654,8 @@ export class OrganizationSchema extends BaseModel {
   @column.dateTime()
   declare archivedAt: DateTime | null
   @column()
+  declare bannerStorageObjectId: number | null
+  @column()
   declare city: string | null
   @column()
   declare country: string
@@ -486,12 +663,16 @@ export class OrganizationSchema extends BaseModel {
   declare createdAt: DateTime
   @column()
   declare description: string | null
+  @column.dateTime()
+  declare domainVerifiedAt: DateTime | null
   @column()
   declare email: string | null
   @column({ isPrimary: true })
   declare id: number
   @column()
   declare industry: string | null
+  @column()
+  declare locale: string
   @column()
   declare logoStorageObjectId: number | null
   @column()
@@ -510,10 +691,14 @@ export class OrganizationSchema extends BaseModel {
   declare size: string | null
   @column()
   declare slug: string
+  @column()
+  declare subscriptionPlan: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
   @column()
   declare vatNumber: string | null
+  @column.dateTime()
+  declare vatVerifiedAt: DateTime | null
   @column()
   declare website: string | null
 }
@@ -1214,40 +1399,181 @@ export class StorageObjectSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class SupplierContactSchema extends BaseModel {
+  static $columns = [
+    'coverage',
+    'createdAt',
+    'email',
+    'id',
+    'jobTitle',
+    'languages',
+    'name',
+    'organizationId',
+    'phone',
+    'position',
+    'updatedAt',
+  ] as const
+  $columns = SupplierContactSchema.$columns
+  @column()
+  declare coverage: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare email: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare jobTitle: string | null
+  @column()
+  declare languages: any
+  @column()
+  declare name: string
+  @column()
+  declare organizationId: number
+  @column()
+  declare phone: string | null
+  @column()
+  declare position: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class SupplierNewSchema extends BaseModel {
+  static $columns = [
+    'body',
+    'createdAt',
+    'id',
+    'imageStorageObjectId',
+    'organizationId',
+    'publishedAt',
+    'title',
+    'updatedAt',
+  ] as const
+  $columns = SupplierNewSchema.$columns
+  @column()
+  declare body: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare imageStorageObjectId: number | null
+  @column()
+  declare organizationId: number
+  @column.dateTime()
+  declare publishedAt: DateTime
+  @column()
+  declare title: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class SupplierProfileSchema extends BaseModel {
   static $columns = [
     'bio',
+    'catalogueSourceFormat',
+    'catalogueUpdateFrequency',
+    'catalogueUpdateMode',
     'certifications',
+    'commercialStatus',
+    'companyType',
     'createdAt',
+    'deliveryCountries',
     'deliveryDays',
     'deliveryScope',
+    'foundingPartnerUntil',
     'id',
+    'internalNotes',
+    'isFoundingPartner',
+    'minOrderNote',
     'minOrderQuantity',
     'organizationId',
+    'primaryContactEmail',
+    'primaryContactName',
+    'quoteEmail',
+    'reportFrequency',
     'responseTimeDays',
+    'spokenLanguages',
     'updatedAt',
   ] as const
   $columns = SupplierProfileSchema.$columns
   @column()
   declare bio: string | null
   @column()
+  declare catalogueSourceFormat: string | null
+  @column()
+  declare catalogueUpdateFrequency: string | null
+  @column()
+  declare catalogueUpdateMode: string | null
+  @column()
   declare certifications: any | null
+  @column()
+  declare commercialStatus: string
+  @column()
+  declare companyType: string | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column()
+  declare deliveryCountries: any | null
   @column()
   declare deliveryDays: number | null
   @column()
   declare deliveryScope: string | null
+  @column.date()
+  declare foundingPartnerUntil: DateTime | null
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare internalNotes: string | null
+  @column()
+  declare isFoundingPartner: boolean
+  @column()
+  declare minOrderNote: string | null
   @column()
   declare minOrderQuantity: number | null
   @column()
   declare organizationId: number
   @column()
+  declare primaryContactEmail: string | null
+  @column()
+  declare primaryContactName: string | null
+  @column()
+  declare quoteEmail: string | null
+  @column()
+  declare reportFrequency: string
+  @column()
   declare responseTimeDays: number | null
+  @column()
+  declare spokenLanguages: any | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
+}
+
+export class SupplierTradeShowSchema extends BaseModel {
+  static $columns = [
+    'booth',
+    'createdAt',
+    'id',
+    'name',
+    'organizationId',
+    'updatedAt',
+    'year',
+  ] as const
+  $columns = SupplierTradeShowSchema.$columns
+  @column()
+  declare booth: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column()
+  declare organizationId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare year: number
 }
 
 export class SupplierTranslationSchema extends BaseModel {
@@ -1318,18 +1644,23 @@ export class SupplierSchema extends BaseModel {
 
 export class UserSchema extends BaseModel {
   static $columns = [
+    'civility',
     'createdAt',
     'currentOrganizationId',
     'email',
     'emailVerifiedAt',
-    'fullName',
+    'firstName',
     'id',
+    'lastLoginAt',
+    'lastName',
     'locale',
     'password',
     'platformRole',
     'updatedAt',
   ] as const
   $columns = UserSchema.$columns
+  @column()
+  declare civility: string | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
@@ -1339,9 +1670,13 @@ export class UserSchema extends BaseModel {
   @column.dateTime()
   declare emailVerifiedAt: DateTime | null
   @column()
-  declare fullName: string | null
+  declare firstName: string | null
   @column({ isPrimary: true })
   declare id: number
+  @column.dateTime()
+  declare lastLoginAt: DateTime | null
+  @column()
+  declare lastName: string | null
   @column()
   declare locale: string
   @column({ serializeAs: null })

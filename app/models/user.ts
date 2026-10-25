@@ -7,10 +7,12 @@ import type { BelongsTo, HasMany, ManyToMany } from '@adonisjs/lucid/types/relat
 import Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
 import Passkey from '#models/passkey'
+import type { Civility } from '#shared/types/agency'
 import type { PlatformRole } from '#shared/types/user'
 
 export default class User extends compose(UserSchema, withAuthFinder(hash)) {
   declare platformRole: PlatformRole
+  declare civility: Civility | null
 
   @belongsTo(() => Organization, {
     foreignKey: 'currentOrganizationId',
@@ -39,11 +41,18 @@ export default class User extends compose(UserSchema, withAuthFinder(hash)) {
   }
 
   get initials() {
-    const [first, last] = this.fullName ? this.fullName.split(' ') : this.email.split('@')
-    if (first && last) {
-      return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase()
+    if (this.firstName && this.lastName) {
+      return `${this.firstName.charAt(0)}${this.lastName.charAt(0)}`.toUpperCase()
     }
 
+    const [first] = this.fullName ? this.fullName.split(' ') : this.email.split('@')
     return `${first.slice(0, 2)}`.toUpperCase()
+  }
+
+  /**
+   * Nom d'affichage (prénom + nom), ou `null` si aucun des deux n'est renseigné.
+   */
+  get fullName(): string | null {
+    return [this.firstName, this.lastName].filter(Boolean).join(' ') || null
   }
 }

@@ -7,7 +7,7 @@ import type { Locale } from '#shared/types/i18n'
 export default class AccountTransformer extends BaseTransformer<User> {
   toObject(): AccountType {
     return {
-      ...this.pick(this.resource, ['fullName', 'email']),
+      ...this.pick(this.resource, ['firstName', 'lastName', 'email']),
       locale: this.resource.locale as Locale | null,
       isEmailVerified: this.resource.emailVerifiedAt !== null,
     }

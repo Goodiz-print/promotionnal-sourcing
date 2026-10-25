@@ -114,7 +114,8 @@ test.group('Rate limiting — authentification', (group) => {
         .redirects(0)
         .withCsrfToken()
         .json({
-          fullName: 'Nouveau',
+          firstName: 'Nouveau',
+          lastName: 'Client',
           email: `nouveau${index}@example.com`,
           password: 'password123',
           passwordConfirmation: 'password123',

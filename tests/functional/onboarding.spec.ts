@@ -19,7 +19,8 @@ test.group('Onboarding — création de la 1re organisation', (group) => {
     client,
   }) => {
     const response = await client.post('/fr/signup').redirects(0).withCsrfToken().json({
-      fullName: 'Nouveau',
+      firstName: 'Nouveau',
+      lastName: 'Client',
       email: 'new@example.com',
       password: 'password123',
       passwordConfirmation: 'password123',

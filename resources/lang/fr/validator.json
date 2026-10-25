@@ -1,7 +1,8 @@
 {
   "shared": {
     "fields": {
-      "fullName": "nom complet",
+      "firstName": "prénom",
+      "lastName": "nom",
       "email": "e-mail",
       "password": "mot de passe",
       "passwordConfirmation": "confirmation du mot de passe",
