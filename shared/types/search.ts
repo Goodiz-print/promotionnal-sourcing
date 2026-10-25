@@ -2,7 +2,8 @@ import type { ContentLocale } from './i18n.js'
 
 /**
  * Nom de l'embedder Meilisearch. Les vecteurs sont **fournis par l'application**
- * (`userProvided`, calculés par `EmbeddingService` avec `mistral-embed`) :
+ * (`userProvided`, calculés par `EmbeddingService` avec le provider configuré,
+ * `mistral-embed` par défaut — ADR 0002, décision 3) :
  * Meilisearch ne fait que les stocker et les comparer.
  */
 export const SEARCH_EMBEDDER = 'default'
@@ -32,7 +33,7 @@ export interface ProductSearchDocument {
   names: Partial<Record<ContentLocale, string>>
   /** Description par langue de contenu. */
   descriptions: Partial<Record<ContentLocale, string>>
-  /** Vecteur `mistral-embed`, absent tant que le produit n'est pas vectorisé. */
+  /** Vecteur de `products.embedding`, absent tant que le produit n'est pas vectorisé. */
   _vectors: { [SEARCH_EMBEDDER]: number[] | null }
 }
 

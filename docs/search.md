@@ -20,7 +20,7 @@ Moteur de recherche hybride (mots-clés + vecteurs) des produits, décidé par l
 
 ## Document d'index (`ProductSearchDocument`)
 
-`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `attributeValueIds` (facettes), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `_vectors.default` (le vecteur `mistral-embed` de `products.embedding`, `null` tant que le produit n'est pas vectorisé).
+`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `attributeValueIds` (facettes), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `_vectors.default` (le vecteur de `products.embedding`, calculé par `EmbeddingService` avec le provider configuré, `mistral-embed` par défaut ; `null` tant que le produit n'est pas vectorisé).
 
 Réglages (`PRODUCT_INDEX_SETTINGS`) : attributs cherchables `names`, `descriptions`, `reference` — un seul attribut par famille couvre toutes les langues, **ajouter une langue ne change aucun réglage** ; attributs filtrables `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `attributeValueIds` ; embedder `default` en `userProvided`, 1024 dimensions (les vecteurs viennent de l'application).
 
