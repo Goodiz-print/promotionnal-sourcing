@@ -102,11 +102,15 @@ exact (« stylo écologique » → produits verts).
   (`container.singleton`), résolu par le **conteneur IoC** puis injecté dans
   `EmbeddingService`. Ajouter un provider = un fichier dans
   `app/services/embeddings/` + un `case` dans `provider_registry.ts`.
-- **Config** `config/ai.ts` + `AI_EMBEDDINGS_ENABLED` (défaut **faux** →
-  désactivée en dev/test/CI, aucun appel réseau). La **dimension est figée à
-  1024** (colonne `products.embedding`) : chaque provider est configuré pour
-  réduire à 1024 (`outputDimension` Mistral, `dimensions` OpenAI) ; un vecteur
-  d'une autre taille lève `EmbeddingDimensionError`.
+- **Config** `config/ai.ts`. La vectorisation est **active par défaut dès que le
+  provider est configuré** : renseigner `MISTRAL_API_KEY` (ou `AI_API_KEY` /
+  `AI_BASE_URL` pour `openai-compatible`) suffit. Sans identifiants, elle reste
+  coupée (dev local, CI) et aucun appel réseau n'a lieu ; en `NODE_ENV=test`, elle
+  est coupée sauf demande explicite. `AI_EMBEDDINGS_ENABLED=false` la coupe même
+  avec une clé ; `=true` sans identifiants est une **erreur au démarrage**. La
+  **dimension est figée à 1024** (colonne `products.embedding`) : chaque provider
+  est configuré pour réduire à 1024 (`outputDimension` Mistral, `dimensions`
+  OpenAI) ; un vecteur d'une autre taille lève `EmbeddingDimensionError`.
 - **Génération** — `EmbeddingService` (provider injecté, testable) calcule
   l'embedding depuis `productText` (nom + description, toutes locales) et l'écrit
   en `products.embedding` (`?::halfvec`). Déclenchée en asynchrone par le job
@@ -118,8 +122,28 @@ exact (« stylo écologique » → produits verts).
   par distance cosinus (`embedding <=> ?::halfvec`, index HNSW) parmi les produits
   vectorisés. **Repli automatique** sur le full-text si l'IA est indisponible ou
   la requête non vectorisée.
-- **Backfill** — `node ace embeddings:backfill` (re)génère les embeddings
-  manquants (produits importés en masse, activation initiale).
+- **Backfill** — `node ace embeddings:backfill` génère les embeddings manquants
+  (produits importés en masse, activation initiale), par lots de 200 ; `--all`
+  repasse tout le catalogue (seuls les produits dont la clé d'idempotence a
+  changé rappellent l'API — à faire après un changement de modèle). Chaque
+  vecteur écrit déclenche la synchronisation de l'index Meilisearch.
+
+### Activer la vectorisation (production)
+
+1. Définir `MISTRAL_API_KEY` sur les applications **web et worker** (variables
+   d'environnement Clever Cloud) ; `AI_EMBEDDINGS_ENABLED` n'a pas à être défini.
+2. Redéployer : les créations et mises à jour de produits déclenchent alors le
+   calcul de leur vecteur (`GenerateProductEmbeddingJob`).
+3. Vectoriser l'existant : `node ace embeddings:backfill`. Coût indicatif :
+   ~0,10 $ par million de tokens, soit une vingtaine de dollars pour 1 M de fiches
+   (à confirmer sur la grille du fournisseur).
+4. Si la recherche passe par Meilisearch, les vecteurs y arrivent au fil du
+   backfill ; `node ace search:reindex` rattrape l'index en une passe (sans
+   rappel d'API : les vecteurs sont en base).
+5. Mesurer : `node ace search:evaluate` (les requêtes sémantiques cessent d'être
+   ignorées) — cf. `docs/search.md`.
+
+Pour couper la vectorisation sans retirer la clé : `AI_EMBEDDINGS_ENABLED=false`.
 
 ## Catalogue public (lecture)
 

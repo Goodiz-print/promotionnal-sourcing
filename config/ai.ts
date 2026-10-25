@@ -1,4 +1,5 @@
 import env from '#start/env'
+import { resolveEmbeddingsEnabled } from '#shared/helpers/embeddings_activation'
 
 /**
  * Configuration IA. Les embeddings produits alimentent la recherche sémantique
@@ -9,16 +10,37 @@ import env from '#start/env'
  * Groq / Ollama / vLLM… via `AI_BASE_URL`, `AI_API_KEY`, `AI_EMBED_MODEL`).
  *
  * `embeddings.enabled` gouverne la génération (job + calcul de l'embedding de
- * la requête). **Désactivé par défaut** (dev / test / CI) : aucune API n'est
- * appelée. `embeddings.dimensions` est **figé à 1024** pour correspondre à la
- * colonne `products.embedding` — chaque provider est configuré pour réduire à
- * cette dimension.
+ * la requête). **Activée par défaut dès que le provider est configuré** : il
+ * suffit de renseigner `MISTRAL_API_KEY` (ou `AI_API_KEY` / `AI_BASE_URL` pour
+ * un driver compatible OpenAI). Sans identifiants, elle reste désactivée
+ * (dev local, CI) et aucune API n'est appelée. En `NODE_ENV=test`, elle est
+ * désactivée sauf demande explicite : la suite ne dépend jamais d'un réseau.
+ * `AI_EMBEDDINGS_ENABLED=false` la coupe explicitement ; `=true` sans
+ * identifiants est une erreur de configuration (échec au démarrage plutôt
+ * qu'une recherche sémantique qui échoue silencieusement).
+ * `embeddings.dimensions` est **figé à 1024** pour correspondre à la colonne
+ * `products.embedding` — chaque provider est configuré pour réduire à cette
+ * dimension.
  */
+const provider = env.get('AI_PROVIDER', 'mistral')
+
+/** Le provider choisi dispose-t-il de quoi appeler son API ? */
+function providerConfigured(): boolean {
+  if (provider === 'mistral') return Boolean(env.get('MISTRAL_API_KEY'))
+  // Un endpoint compatible OpenAI local (Ollama, vLLM…) n'a pas de clé : l'URL suffit.
+  return Boolean(env.get('AI_API_KEY') || env.get('AI_BASE_URL'))
+}
+
 const aiConfig = {
-  provider: env.get('AI_PROVIDER', 'mistral'),
+  provider,
 
   embeddings: {
-    enabled: env.get('AI_EMBEDDINGS_ENABLED', false),
+    enabled: resolveEmbeddingsEnabled({
+      provider,
+      requested: env.get('AI_EMBEDDINGS_ENABLED'),
+      configured: providerConfigured(),
+      nodeEnv: env.get('NODE_ENV'),
+    }),
     dimensions: 1024,
   },
 
