@@ -113,7 +113,7 @@ export function isSupportedLocale(value: unknown): value is Locale {
  * (textes juridiques, à faire valider par un humain avant publication) : une
  * langue qui n'a pas le fichier retombe sur l'anglais.
  */
-export const ENGLISH_FALLBACK_NAMESPACES = ['legal', 'privacy', 'admin'] as const
+export const ENGLISH_FALLBACK_NAMESPACES = ['legal', 'privacy', 'admin', 'notifications'] as const
 
 /**
  * Dictionnaire plat de messages ICU pour une locale donnée

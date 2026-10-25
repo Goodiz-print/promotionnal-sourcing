@@ -7,6 +7,7 @@ import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
 import AppNav from '~/components/app_nav.vue'
 import UserMenu from '~/components/user_menu.vue'
+import NotificationBell from '~/components/notifications/notification_bell.vue'
 import LanguageSwitcher from '~/components/language_switcher.vue'
 import OrganizationSwitcher from '~/components/organization/organization_switcher.vue'
 
@@ -61,6 +62,7 @@ watch(
         <LanguageSwitcher />
         <template v-if="page.props.user">
           <OrganizationSwitcher />
+          <NotificationBell />
           <UserMenu :initials="page.props.user.initials" />
         </template>
         <template v-else>

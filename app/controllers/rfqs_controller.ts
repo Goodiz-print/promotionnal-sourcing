@@ -6,7 +6,8 @@ import ProductCatalogueService from '#services/product_catalogue_service'
 import ProductSearchService from '#services/product_search_service'
 import OrganizationContextService from '#services/organization_context_service'
 import QuoteService from '#services/quote_service'
-import RfqNotificationService from '#services/rfq_notification_service'
+import emitter from '@adonisjs/core/services/emitter'
+import RfqSent from '#events/rfq_sent'
 import RfqService from '#services/rfq_service'
 import CategoryTransformer from '#transformers/category_transformer'
 import QuoteTransformer from '#transformers/quote_transformer'
@@ -69,7 +70,6 @@ type RfqContext = Pick<HttpContext, 'auth' | 'bouncer' | 'params'>
 export default class RfqsController {
   constructor(
     private service: RfqService,
-    private notifications: RfqNotificationService,
     private quotes: QuoteService,
     private categories: CategoryService,
     private catalogue: ProductCatalogueService,
@@ -256,8 +256,8 @@ export default class RfqsController {
   }
 
   /**
-   * Notifie les destinataires en attente : bascule leur statut, puis met en
-   * queue un mail par destinataire. Seules les lignes réellement basculées
+   * Notifie les destinataires en attente : bascule leur statut, puis publie
+   * `RfqSent` (un mail et une notification in-app par destinataire). Seules les lignes réellement basculées
    * sont notifiées — un fournisseur déjà destinataire d'un envoi précédent
    * n'est pas relancé.
    */
@@ -266,7 +266,8 @@ export default class RfqsController {
 
     return this.runTransition(ctx, rfq, async () => {
       const sent = await this.service.send(rfq)
-      await this.notifications.notifyRecipients(rfq, org, sent)
+      // Mail et notification in-app : deux listeners de `RfqSent`.
+      await emitter.emit(RfqSent, new RfqSent(rfq, org, sent))
       ctx.session.flash('success', ctx.i18n.t('rfq.flash.sent', { count: sent.length }))
     })
   }

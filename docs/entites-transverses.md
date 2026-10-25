@@ -34,6 +34,41 @@ dans `shared/types/`, pas dans le schéma.
   (événement `notification.created`, sans contenu : l'id et le type). Seul son
   destinataire peut s'abonner à ce canal.
 
+### Qui est notifié, et quand
+
+`InAppNotificationService` traduit un événement métier en notifications pour les
+membres qui peuvent **agir** (mêmes rôles que les mails) ; un `member` n'est pas
+notifié d'une impasse. Un échec est loggué sans faire échouer la requête.
+
+| Événement (publié par)                                   | Type                           | Destinataires                                    |
+| -------------------------------------------------------- | ------------------------------ | ------------------------------------------------ |
+| `RfqSent` (`RfqsController#send`)                        | `rfq.received`                 | owner / admin / manager du fournisseur           |
+| `RfqDeclined` (`supplier/RfqsController#decline`)        | `rfq.declined`                 | owner / admin / manager de l'acheteur            |
+| `QuoteSubmitted` (`QuoteService`)                        | `quote.received`               | owner / admin / manager de l'acheteur            |
+| `QuoteAccepted` / `QuoteRejected` (`QuoteService`)       | `quote.accepted` / `.rejected` | owner / admin / manager du fournisseur           |
+| `MemberJoined` (`InvitationAcceptanceController#accept`) | `organization.member_joined`   | owner / admin de l'organisation, sauf l'arrivant |
+
+Les listeners (`app/listeners/on_*.ts`) sont enregistrés dans `start/events.ts`. `OnRfqSent`
+et `OnQuoteSubmitted` envoient aussi le mail : deux canaux indépendants.
+
+### Écrans
+
+- **Routes** : `GET /:locale/notifications` (`notifications.index`),
+  `PATCH /:locale/notifications/:id/read` (marque lue **puis redirige** vers l'écran
+  concerné, résolu par `NotificationTransformer` selon le type), `POST
+/:locale/notifications/read-all`. Une notification d'un autre utilisateur donne une 404.
+- **Props partagées** (`InertiaMiddleware`) : `unreadNotificationsCount` à chaque page ;
+  `recentNotifications` (10 dernières) **optionnelle**, chargée à l'ouverture du menu.
+- **Cloche** (`components/notifications/notification_bell.vue`, dans le bandeau) : pastille,
+  menu, « tout marquer comme lu ». `useNotificationStream` s'abonne au canal Transmit
+  (`@adonisjs/transmit-client`) ; à l'arrivée d'une notification : toast + rechargement
+  partiel du compteur. Sans temps réel, le compteur reste exact à la navigation suivante.
+- **Textes** : `resources/lang/{fr,en}/notifications.json`, un libellé par type
+  (`notifications.types.<type>`) ; les autres langues retombent sur l'anglais
+  (`ENGLISH_FALLBACK_NAMESPACES`).
+- Ajouter un type : une entrée dans `NOTIFICATION_TYPES`, un libellé fr/en, un cas dans
+  `NotificationTransformer#href`, et l'appel dans `InAppNotificationService`.
+
 ## Messagerie (#8)
 
 - Un fil relie une organisation acheteuse et une organisation fournisseur. Il peut

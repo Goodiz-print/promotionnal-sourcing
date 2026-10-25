@@ -1,6 +1,8 @@
 import { DateTime } from 'luxon'
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
+import emitter from '@adonisjs/core/services/emitter'
+import MemberJoined from '#events/member_joined'
 import OrganizationInvitationsService from '#services/organization_invitations_service'
 import type OrganizationInvitation from '#models/organization_invitation'
 
@@ -81,6 +83,7 @@ export default class InvitationAcceptanceController {
     }
 
     await this.service.accept(invitation, user)
+    await emitter.emit(MemberJoined, new MemberJoined(invitation.organization, user))
     // L'organisation rejointe devient la courante (cf. `accept()`) : le flash la
     // nomme pour que la bascule soit lisible plutôt que subie.
     session.flash(

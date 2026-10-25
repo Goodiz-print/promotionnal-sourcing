@@ -1123,6 +1123,42 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['destroy']>>>
     }
   }
+  'notifications.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/notifications'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['index']>>>
+    }
+  }
+  'notifications.read': {
+    methods: ["PATCH"]
+    pattern: '/:locale/notifications/:id/read'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['read']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['read']>>>
+    }
+  }
+  'notifications.readAll': {
+    methods: ["POST"]
+    pattern: '/:locale/notifications/read-all'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['readAll']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['readAll']>>>
+    }
+  }
   'admin.dashboard': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin'
