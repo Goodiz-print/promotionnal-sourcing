@@ -109,6 +109,20 @@ docker compose up -d
 
 Sonde : <http://localhost:7700/health> (`{"status":"available"}`). La clé master vient de `MEILI_MASTER_KEY` dans `.env` (voir `.env.example`) ; données dans le volume `promotionnal-sourcing_meili_data`.
 
+## Temps réel (Transmit)
+
+Avec plusieurs instances web, définir **`TRANSMIT_TRANSPORT=postgres`** sur chacune
+(staging et production) : sans cela, une notification n'atteint que les navigateurs
+connectés à l'instance qui l'a créée. Le transport relaie par `LISTEN` / `NOTIFY` sur la
+base PostgreSQL existante (détails : [`entites-transverses.md`](entites-transverses.md)).
+
+- **Connexions** : +2 par instance web (écoute dédiée + une connexion de publication),
+  à compter dans la limite de connexions de la base managée. Le worker n'en ouvre aucune.
+- **À valider sur Clever Cloud** (non testé en conditions réelles) : que la connexion
+  d'écoute survive aux coupures idle de la plateforme (le transport se reconnecte seul et
+  le loggue), et qu'aucun pooler en mode transaction n'est placé devant la base.
+- Sans la variable (dev, tests, instance unique), le transport reste en mémoire.
+
 ## Base de données
 
 - Version : PostgreSQL 18 (Clever Cloud).

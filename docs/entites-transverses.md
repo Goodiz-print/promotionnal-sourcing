@@ -110,11 +110,26 @@ et `OnQuoteSubmitted` envoient aussi le mail : deux canaux indépendants.
   catalogue et l'annuaire (`Product.fromLiveOrganization`, `Supplier.fromLiveOrganization`).
   Elle ne peut donc plus afficher ses produits au public.
 
-## Temps réel : limite d'infrastructure
+## Temps réel : transport entre instances web
 
-Le transport Transmit est en mémoire (`config/transmit.ts`). Une notification n'atteint
-que les navigateurs connectés à **la même instance** web. Avec plusieurs instances en
-production, il faudra un transport partagé (Redis) avant de passer à l'échelle horizontale.
+Par défaut, le transport Transmit est en mémoire (`config/transmit.ts`) : une
+notification n'atteint que les navigateurs connectés à **la même instance** web. Avec
+plusieurs instances (web ×2 en production, ADR 0003), on active le transport partagé
+**`TRANSMIT_TRANSPORT=postgres`** : `PostgresTransport`
+(`app/services/realtime/postgres_transport.ts`) relaie les diffusions par
+`LISTEN` / `NOTIFY` sur la base déjà exploitée — pas de Redis à provisionner.
+
+- Un canal PostgreSQL (`transmit_bus`) porte tout ; le nom du canal Transmit voyage dans
+  l'enveloppe et chaque instance route localement. Une instance ne se rejoue pas ses messages.
+- Deux connexions par instance web : une **dédiée** à l'écoute, un pool d'une connexion
+  pour `pg_notify`. Rien ne se connecte avant le premier usage (le worker n'en ouvre pas).
+- Limites : charge de `NOTIFY` plafonnée à ~8 000 octets (les événements ne portent que
+  des identifiants ; un message trop gros est loggué et abandonné) ; livraison au mieux —
+  une instance coupée rate les messages émis pendant la coupure, puis se réabonne seule
+  (attente croissante, jusqu'à 30 s). L'état fait foi en base : la cloche est exacte à la
+  navigation suivante.
+- **Pas de pooler PgBouncer en mode transaction** entre l'application et la base :
+  `LISTEN` exige une session.
 
 ## Questions ouvertes
 

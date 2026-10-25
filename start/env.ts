@@ -10,6 +10,7 @@
 */
 
 import { Env } from '@adonisjs/core/env'
+import { TRANSMIT_TRANSPORTS } from '#shared/types/realtime'
 
 export default await Env.create(new URL('../', import.meta.url), {
   // Node
@@ -30,6 +31,15 @@ export default await Env.create(new URL('../', import.meta.url), {
   DB_USER: Env.schema.string(),
   DB_PASSWORD: Env.schema.string(),
   DB_DATABASE: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Temps réel (Transmit)
+  |----------------------------------------------------------
+  | `memory` (défaut) : une seule instance web. `postgres` : transport partagé
+  | par LISTEN/NOTIFY, obligatoire dès qu'il y a plusieurs instances web.
+  */
+  TRANSMIT_TRANSPORT: Env.schema.enum.optional(TRANSMIT_TRANSPORTS),
 
   // Session
   SESSION_DRIVER: Env.schema.enum(['cookie', 'memory', 'database'] as const),
