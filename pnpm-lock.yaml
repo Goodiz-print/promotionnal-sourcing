@@ -62,6 +62,9 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.1152.0
         version: 3.1152.0
+      '@boringnode/bus':
+        specifier: 0.9.0
+        version: 0.9.0
       '@fontsource/instrument-sans':
         specifier: ^5.3.0
         version: 5.3.0
