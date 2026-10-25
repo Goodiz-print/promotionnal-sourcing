@@ -14,9 +14,9 @@ test.group('Catalogue — contenu multilingue', (group) => {
   // aussi chaque seeder isolément (dev_user avant les rôles => échec).
   useDatabase(group, { seed: 'full', perTest: false })
 
-  test('le seed crée 6 produits, chacun traduit en fr et en', async ({ assert }) => {
-    assert.lengthOf(await Product.all(), 6)
-    assert.lengthOf(await ProductTranslation.all(), 12)
+  test('le seed crée 7 produits, chacun traduit en fr et en', async ({ assert }) => {
+    assert.lengthOf(await Product.all(), 7)
+    assert.lengthOf(await ProductTranslation.all(), 14)
   })
 
   test('ProductTransformer résout le nom dans la locale demandée', async ({ assert }) => {

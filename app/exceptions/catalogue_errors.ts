@@ -22,6 +22,23 @@ export class CategoryNotFoundException extends Exception {
 }
 
 /**
+ * Publication bloquée : la fiche ne renseigne pas tous les attributs marqués
+ * `is_required_for_publication` par sa catégorie (ou un de ses ancêtres).
+ * `missingSlugs` liste les attributs manquants, pour l'affichage fournisseur
+ * « xx produits ont des informations manquantes » (écart 6 du plan).
+ */
+export class ProductPublicationBlockedException extends Exception {
+  static status = 422
+  static code = 'E_PRODUCT_PUBLICATION_BLOCKED'
+
+  constructor(readonly missingSlugs: string[]) {
+    super(
+      `Publication bloquée : attribut(s) obligatoire(s) manquant(s) — ${missingSlugs.join(', ')}`
+    )
+  }
+}
+
+/**
  * Variantes / paliers de prix incohérents (SKU en double, palier dupliqué,
  * valeur d'attribut inconnue…). Erreur de validation (422) rattachée au champ
  * concerné, rendue comme les autres erreurs de formulaire Inertia.

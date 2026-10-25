@@ -11,10 +11,12 @@ export default class MainSeeder extends BaseSeeder {
     await this.seed(await import('./role_permission_seeder.js'))
     await this.seed(await import('./dev_user_seeder.js'))
 
-    // Catalogue : fournisseurs -> categories -> attributs/valeurs -> produits
+    // Catalogue : fournisseurs -> categories -> attributs/valeurs ->
+    // rattachement catégorie↔attribut (+ tranches) -> produits
     await this.seed(await import('./supplier_seeder.js'))
     await this.seed(await import('./category_seeder.js'))
     await this.seed(await import('./attribute_seeder.js'))
+    await this.seed(await import('./category_attribute_seeder.js'))
     await this.seed(await import('./product_seeder.js'))
   }
 }

@@ -1,4 +1,5 @@
 import type { ContentLocale, Locale } from './i18n.js'
+import type { AttributeDataType, AttributeValueType } from './attribute.js'
 
 export interface CategoryTranslationType {
   locale: Locale
@@ -20,6 +21,37 @@ export type CategoryType = {
   synonyms: string[]
   createdAt: string
   updatedAt: string | null
+}
+
+/**
+ * Une tranche de filtre (ex. contenance « 400-600 ml »). Le libellé n'est pas
+ * stocké : il se rend depuis les bornes + l'unité de l'attribut + la locale.
+ * Une borne `null` est ouverte (`< 400` : `minValue` null ; `> 900` : `maxValue`
+ * null).
+ */
+export interface CategoryAttributeRangeType {
+  minValue: number | null
+  maxValue: number | null
+}
+
+/**
+ * Attribut filtrable résolu pour une catégorie (`CatalogueFacetsService`) :
+ * attribut propre ou hérité d'un ancêtre, avec ses valeurs énumérées et ses
+ * tranches. Déclaré en `type` (contrainte props Inertia).
+ */
+export type CategoryAttributeType = {
+  attributeId: number
+  slug: string
+  name: string | null
+  type: AttributeDataType
+  unit: string | null
+  isRequiredForPublication: boolean
+  isFilter: boolean
+  position: number
+  /** Catégorie à laquelle l'attribut est rattaché (propre ou ancêtre). */
+  categoryId: number
+  values: AttributeValueType[]
+  ranges: CategoryAttributeRangeType[]
 }
 
 /**

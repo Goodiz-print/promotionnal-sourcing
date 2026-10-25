@@ -26,6 +26,26 @@ Réglages (`productIndexSettings()`) : attributs cherchables `names`, `descripti
 
 Seuls les produits **visibles** sont indexés : actifs, organisation non archivée ni rejetée, non rejetés par la modération — les mêmes scopes que la fiche publique (`Product.fromLiveOrganization`, `Product.notRejected`).
 
+### Facettes attributs (dont couleur N1/N2) — ÉTAPE 1 du modèle produit
+
+`attributeValueIds` porte **toutes** les valeurs de facette d'un produit, sans
+distinction d'attribut : la couleur **famille** (N1) et **nuance** (N2), la
+matière, et les attributs propres aux catégories (voir `docs/catalogue.md`,
+§ « Attributs filtrables par catégorie »). Le filtre `attributeValueIds = X AND
+attributeValueIds = Y` exige donc **toutes** les valeurs cochées — le ET fiable
+s'applique tel quel aux nouvelles facettes, sans changement du moteur. Le
+**backfill** se fait par `node ace search:reindex` : les nouveaux identifiants de
+valeur entrent dans l'index au passage, aucun nouveau champ n'est à déclarer.
+
+> **Suite (2e PR, signalée)** — exposer en plus une facette **aplatie par slug**
+> (`attributes.color`, `attributes.cap-panels`…) pour les attributs dont
+> `category_attributes.is_filter = true`, afin d'obtenir les **distributions de
+> facettes** par attribut (compteurs par valeur) de Meilisearch et piloter la
+> barre de filtres dépendante de la catégorie. Cela demande des
+> `filterableAttributes` dérivés de la base (liste des slugs filtrables) et un
+> branchement sur la page catalogue : livré séparément. Le ET multi-critères sur
+> ces facettes fonctionne déjà via `attributeValueIds` (ci-dessus).
+
 ## Vectorisation (embedder de Meilisearch)
 
 **Meilisearch calcule lui-même les vecteurs** (ADR 0002, décision 3), à partir du champ `embeddingText` de chaque document (`documentTemplate: '{{ doc.embeddingText }}'`) à l'indexation, et du texte `q` à la recherche. L'application ne fait aucun appel à un modèle d'embeddings, n'a pas de copie des vecteurs en base et ne gère ni lots ni rejeux d'embeddings.

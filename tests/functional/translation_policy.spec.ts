@@ -207,13 +207,14 @@ test.group('Politique de traduction — catégories', (group) => {
         .withCsrfToken()
         .loginAs(admin)
         .json({
-          slug: 'textile',
+          // Slug absent du seed catalogue (l'arbre Virgile occupe déjà 'textile').
+          slug: 'objets-connectes',
           sourceLocale: 'fr',
-          translations: { fr: { name: 'Textile' } },
+          translations: { fr: { name: 'Objets connectés' } },
         })
         .then((r) => r.assertStatus(200))
 
-      const category = await Category.findByOrFail('slug', 'textile')
+      const category = await Category.findByOrFail('slug', 'objets-connectes')
       const rows = await CategoryTranslation.query().where('categoryId', category.id)
       const byLocale = Object.fromEntries(rows.map((row) => [row.locale, row]))
       assert.isFalse(byLocale.fr.isAuto)
