@@ -7,7 +7,6 @@ import aiConfig from '#config/ai'
 import { MissingTranslationSourceError } from '#exceptions/ai_errors'
 import { idempotencyKey, textHash } from '#shared/helpers/idempotency'
 import TranslationProvider from '#services/translation/translation_provider'
-import ProductTranslationSearchService from '#services/product_translation_search_service'
 import type { TranslatableEntity, TranslationOutcome, TranslationTarget } from '#shared/types/ai'
 
 interface EntityTable {
@@ -50,10 +49,7 @@ const ENTITY_TABLES: Record<TranslatableEntity, EntityTable> = {
  */
 @inject()
 export default class TranslationService {
-  constructor(
-    private provider: TranslationProvider,
-    private search: ProductTranslationSearchService
-  ) {}
+  constructor(private provider: TranslationProvider) {}
 
   async translate(target: TranslationTarget): Promise<TranslationOutcome> {
     const { entity, entityId, sourceLocale } = target
@@ -122,9 +118,7 @@ export default class TranslationService {
       .onConflict([foreignKey, 'locale'])
       .merge([...Object.keys(sourceFields), 'translation_key', 'is_auto', 'updated_at'])
 
-    // Les lignes traduites doivent être recherchables dans leur langue (#84).
     if (entity === 'product') {
-      await this.search.refreshForProduct(entityId)
       await emitter.emit(ProductChanged, new ProductChanged(entityId))
     }
 

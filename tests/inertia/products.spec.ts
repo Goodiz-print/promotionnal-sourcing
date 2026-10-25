@@ -13,6 +13,7 @@ const translations = {
   'products.index.resultsCount':
     '{count, plural, =0 {Aucun produit} one {# produit} other {# produits}}',
   'products.index.empty': 'Aucun produit ne correspond à votre recherche.',
+  'products.index.searchUnavailable': 'La recherche est momentanément indisponible.',
   'products.index.previous': 'Précédent',
   'products.index.next': 'Suivant',
   'products.show.backToCatalogue': 'Retour au catalogue',
@@ -108,6 +109,7 @@ describe('products/index.vue', () => {
   it('affiche une carte par produit + la barre de filtres', () => {
     const wrapper = mount(Index, {
       props: {
+        searchUnavailable: false,
         products: {
           data: [product(1, 'Crayon Bleu', 'crayon-bleu'), product(2, 'Stylo Noir', 'stylo-noir')],
           meta,
@@ -129,6 +131,7 @@ describe('products/index.vue', () => {
   it('affiche un état vide', () => {
     const wrapper = mount(Index, {
       props: {
+        searchUnavailable: false,
         products: { data: [], meta: { ...meta, total: 0 } },
         filters: emptyFilters,
         categories: [],
@@ -136,6 +139,20 @@ describe('products/index.vue', () => {
       },
     })
     expect(wrapper.text()).toContain('Aucun produit ne correspond à votre recherche.')
+  })
+
+  it("annonce l'indisponibilité de la recherche au lieu d'un état vide", () => {
+    const wrapper = mount(Index, {
+      props: {
+        searchUnavailable: true,
+        products: { data: [], meta: { ...meta, total: 0 } },
+        filters: emptyFilters,
+        categories: [],
+        attributes: [],
+      },
+    })
+    expect(wrapper.text()).toContain('La recherche est momentanément indisponible.')
+    expect(wrapper.text()).not.toContain('Aucun produit ne correspond à votre recherche.')
   })
 })
 

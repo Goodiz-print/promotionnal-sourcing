@@ -14,7 +14,6 @@ import SupplierTranslation from '#models/supplier_translation'
 import StorageService from '#services/storage/storage_service'
 import TranslationQueueService from '#services/translation_queue_service'
 import { missingSourceTranslation } from '#exceptions/translation_errors'
-import ProductTranslationSearchService from '#services/product_translation_search_service'
 import GenerateImageVariantsJob from '#jobs/generate_image_variants_job'
 import logger from '@adonisjs/core/services/logger'
 import emitter from '@adonisjs/core/services/emitter'
@@ -34,7 +33,6 @@ export default class SupplierProductService {
   constructor(
     private storage: StorageService,
     private translationQueue: TranslationQueueService,
-    private translationSearch: ProductTranslationSearchService,
     private variants: ProductVariantService
   ) {}
 
@@ -359,7 +357,6 @@ export default class SupplierProductService {
       if (name === existing.name && description === existing.description) continue
       await existing.merge({ name, description, isAuto: false }).save()
     }
-    await this.translationSearch.refreshForProduct(product.id)
   }
 
   /**

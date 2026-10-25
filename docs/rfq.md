@@ -450,7 +450,7 @@ ne l'envoyait pas, et un brouillon réenregistré perdait le lien avec le
 catalogue. `rfq_item_list.vue` affiche un lien vers la fiche produit quand
 `productSlug` est renseigné.
 
-### Recherche : Meilisearch d'abord, PostgreSQL en repli (#112)
+### Recherche : Meilisearch (#112)
 
 Le sélecteur passe par `ProductSearchService#lookup` : recherche par **mots-clés
 seuls** dans l'index Meilisearch (pas d'appel au provider d'embeddings à chaque
@@ -459,11 +459,10 @@ produits _visibles_ (actifs, organisation vivante, non rejetés), au plus `limit
 résultats, nom localisé dans la langue de l'interface.
 
 Si Meilisearch est inerte (pas de `MEILISEARCH_HOST`) ou injoignable,
-`lookup` renvoie `null` et `RfqsController` retombe sur
-`ProductCatalogueService#lookupForRfq` (`ILIKE` sur le nom + full-text
-locale-aware), qui disparaît avec la PR 3 de #112. La signature, le transformer
-(`RfqProductOptionTransformer`), la prop `productResults` et
-`rfq_product_picker.vue` n'ont pas changé. `findForRfq` (pré-remplissage par
+`lookup` renvoie `null`, `RfqsController` envoie `productResults: null` et
+`rfq_product_picker.vue` affiche « recherche indisponible » (`rfq.product.unavailable`)
+au lieu de « aucun produit trouvé » : il n'y a plus de repli PostgreSQL
+(`lookupForRfq` a été retiré avec la PR 3 de #112). `findForRfq` (pré-remplissage par
 identifiant) reste sur PostgreSQL : ce n'est pas une recherche. Détail :
 [`search.md`](search.md).
 

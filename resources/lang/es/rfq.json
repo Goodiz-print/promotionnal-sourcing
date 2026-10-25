@@ -136,6 +136,7 @@
     "label": "Añadir un producto del catálogo",
     "placeholder": "Buscar un producto por nombre…",
     "empty": "No se encontró ningún producto.",
+    "unavailable": "La búsqueda no está disponible por el momento.",
     "add": "Añadir"
   },
   "deadline": {

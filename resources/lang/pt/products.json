@@ -9,6 +9,7 @@
     "madeInEurope": "Fabricado na Europa",
     "resultsCount": "{count, plural, =0 {Nenhum produto} one {# produto} other {# produtos}}",
     "empty": "Nenhum produto corresponde à sua pesquisa.",
+    "searchUnavailable": "A pesquisa está temporariamente indisponível. Tente novamente daqui a pouco ou explore as categorias.",
     "previous": "Anterior",
     "next": "Seguinte"
   },

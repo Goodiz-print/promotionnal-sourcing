@@ -136,6 +136,7 @@
     "label": "Product uit de catalogus toevoegen",
     "placeholder": "Zoek een product op naam…",
     "empty": "Geen product gevonden.",
+    "unavailable": "Zoeken is tijdelijk niet beschikbaar.",
     "add": "Toevoegen"
   },
   "deadline": {

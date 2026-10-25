@@ -136,6 +136,7 @@
     "label": "Lägg till en produkt från katalogen",
     "placeholder": "Sök en produkt efter namn …",
     "empty": "Ingen produkt hittades.",
+    "unavailable": "Sökningen är tillfälligt otillgänglig.",
     "add": "Lägg till"
   },
   "deadline": {

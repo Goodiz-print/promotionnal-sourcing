@@ -9,13 +9,13 @@ import type { RfqProductOptionType } from '#shared/types/rfq'
 /**
  * Recherche dans le catalogue pour remplir une ligne de demande. La recherche
  * passe par un **partial reload** de la page courante
- * (`only: ['productResults']`) : le serveur ne calcule la prop que sur
+ * (`only: ['productResults', 'productSearchUnavailable']`) : le serveur ne calcule la prop que sur
  * demande, et l'état du formulaire n'est pas touché (`preserveState`).
  *
- * Le moteur derrière est un stop-gap PostgreSQL, à remplacer par Meilisearch
- * (#112) sans que ce composant change — cf. `docs/rfq.md`.
+ * Le moteur derrière est Meilisearch (#112, ADR 0002) : `unavailable` signale qu'il est
+ * injoignable — cf. `docs/rfq.md`.
  */
-defineProps<{ results?: RfqProductOptionType[] }>()
+defineProps<{ results?: RfqProductOptionType[]; unavailable?: boolean }>()
 
 const emit = defineEmits<{ pick: [product: RfqProductOptionType] }>()
 
@@ -41,7 +41,7 @@ function search(value: string) {
     // réponse tardive n'écrase donc pas une plus récente.
     router.reload({
       data: { productSearch: requested },
-      only: ['productResults'],
+      only: ['productResults', 'productSearchUnavailable'],
       preserveUrl: true,
       onSuccess: () => (resultsFor.value = requested),
     })
@@ -68,7 +68,10 @@ onBeforeUnmount(() => clearTimeout(timer))
     />
 
     <template v-if="term.trim().length >= MIN_LENGTH && results && resultsFor === term.trim()">
-      <p v-if="results.length === 0" class="text-sm text-[var(--gray-6)]">
+      <p v-if="unavailable" role="alert" class="text-sm text-[var(--gray-6)]">
+        {{ t('rfq.product.unavailable') }}
+      </p>
+      <p v-else-if="results.length === 0" class="text-sm text-[var(--gray-6)]">
         {{ t('rfq.product.empty') }}
       </p>
       <ul v-else class="flex flex-col gap-2">

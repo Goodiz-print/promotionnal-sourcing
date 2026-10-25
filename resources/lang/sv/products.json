@@ -9,6 +9,7 @@
     "madeInEurope": "Tillverkad i Europa",
     "resultsCount": "{count, plural, =0 {Inga produkter} one {# produkt} other {# produkter}}",
     "empty": "Ingen produkt matchar din sökning.",
+    "searchUnavailable": "Sökningen är tillfälligt otillgänglig. Försök igen om en stund eller bläddra bland kategorierna.",
     "previous": "Föregående",
     "next": "Nästa"
   },

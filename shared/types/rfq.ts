@@ -232,6 +232,12 @@ export type RfqProductOptionType = {
   supplierOrganizationId: number | null
 }
 
+/** Résultat de la recherche du sélecteur de produit (`unavailable` : moteur injoignable). */
+export interface RfqProductLookupType {
+  results: RfqProductOptionType[]
+  unavailable: boolean
+}
+
 /**
  * Brouillon proposé dans le menu « ajouter à une demande » d'une fiche produit.
  */

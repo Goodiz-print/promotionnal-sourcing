@@ -13,6 +13,7 @@ import type { ProductType, ProductDirectoryFilters } from '#shared/types/product
 
 const props = defineProps<{
   products: Paginated<ProductType>
+  searchUnavailable: boolean
   filters: ProductDirectoryFilters
   categories: CategoryType[]
   attributes: AttributeWithValuesType[]
@@ -30,7 +31,11 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
       attributeValueIds: filters.attributeValueIds.length ? filters.attributeValueIds : undefined,
       page,
     },
-    { preserveState: true, preserveScroll: true, only: ['products', 'filters'] }
+    {
+      preserveState: true,
+      preserveScroll: true,
+      only: ['products', 'filters', 'searchUnavailable'],
+    }
   )
 }
 </script>
@@ -55,11 +60,14 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
       </aside>
 
       <div class="flex flex-1 flex-col gap-6">
-        <p class="text-sm text-[var(--gray-6)]">
+        <p v-if="searchUnavailable" role="alert" class="text-[var(--gray-6)]">
+          {{ t('products.index.searchUnavailable') }}
+        </p>
+        <p v-else class="text-sm text-[var(--gray-6)]">
           {{ t('products.index.resultsCount', { count: products.meta.total }) }}
         </p>
 
-        <p v-if="products.data.length === 0" class="text-[var(--gray-6)]">
+        <p v-if="!searchUnavailable && products.data.length === 0" class="text-[var(--gray-6)]">
           {{ t('products.index.empty') }}
         </p>
 

@@ -13,8 +13,9 @@ export const DEFAULT_LOCALE: Locale = 'fr'
  * fournisseurs) est saisi. Plus restreint que `SUPPORTED_LOCALES` : l'interface
  * est traduite en 9 langues, mais les fournisseurs ne renseignent leurs fiches
  * qu'en français et en anglais ; les autres langues retombent sur l'anglais.
- * Ajouter une langue de contenu = l'ajouter ici et dans `LOCALE_TSCONFIG`, puis
- * migration `CREATE INDEX … WHERE locale = '<xx>'` + backfill de ses lignes.
+ * Ajouter une langue de contenu = l'ajouter ici : Meilisearch indexe les noms et
+ * descriptions de toutes les langues sous des sous-clés (ADR 0002), sans index ni
+ * migration par langue.
  */
 export const CONTENT_LOCALES = ['fr', 'en'] as const
 
@@ -106,19 +107,6 @@ export const LOCALE_PREFIX_PATTERN = new RegExp(`^/(${LOCALE_ALTERNATION})(?=/|$
 export function isSupportedLocale(value: unknown): value is Locale {
   return typeof value === 'string' && (SUPPORTED_LOCALES as readonly string[]).includes(value)
 }
-
-/**
- * Configuration de recherche plein-texte PostgreSQL par locale (stemming).
- * Source unique : `ProductTranslationSearchService` calcule
- * `product_translations.search_vector` à l'écriture avec cette config. Toute
- * locale absente retombe sur `'simple'` (pas de stemming).
- */
-export const LOCALE_TSCONFIG: Record<ContentLocale, string> = {
-  fr: 'french',
-  en: 'english',
-}
-
-export const DEFAULT_TSCONFIG = 'simple'
 
 /**
  * Domaines de traduction qui ne sont pas traduits dans chaque langue d'interface

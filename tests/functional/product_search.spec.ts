@@ -270,13 +270,16 @@ test.group('Recherche — écrans', (group) => {
     assert.lengthOf(handle.engine.requests, 0)
   })
 
-  test('moteur injoignable : la recherche retombe sur PostgreSQL', async ({ client, assert }) => {
+  test('moteur injoignable : la page le dit au lieu d’afficher « aucun résultat »', async ({
+    client,
+    assert,
+  }) => {
     handle.engine.hits = new Error('connect ECONNREFUSED')
 
     const response = await client.get('/fr/products').qs({ search: 'aquarelle' }).withInertia()
 
     response.assertStatus(200)
-    assert.lengthOf(response.inertiaProps.products.data, 1)
-    assert.equal(response.inertiaProps.products.data[0].slug, 'crayon-aquarelle-bleu')
+    assert.isTrue(response.inertiaProps.searchUnavailable)
+    assert.lengthOf(response.inertiaProps.products.data, 0)
   })
 })

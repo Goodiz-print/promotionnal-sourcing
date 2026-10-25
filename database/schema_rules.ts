@@ -15,22 +15,6 @@ export default {
 
   tables: {
     /**
-     * `embedding` (vector, futur job d'embeddings Mistral) : colonne SQL brute
-     * non typable par l'ORM et jamais exposee => exclue du schema genere.
-     */
-    products: {
-      skipColumns: ['embedding'],
-    },
-
-    /**
-     * `search_vector` (tsvector par langue, calcule par l'application via
-     * `ProductTranslationSearchService`) : idem, exclue.
-     */
-    product_translations: {
-      skipColumns: ['search_vector'],
-    },
-
-    /**
      * `transports` (text[]) : liste WebAuthn (`usb`, `internal`, `hybrid`…), typée
      * pour éviter un `any` dans le service.
      */

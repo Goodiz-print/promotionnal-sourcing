@@ -10,6 +10,7 @@ defineProps<{
   supplierOptions: SupplierOptionType[]
   prefillProduct?: RfqProductOptionType
   productResults?: RfqProductOptionType[]
+  productSearchUnavailable?: boolean
 }>()
 
 const { t } = useI18n()
@@ -26,6 +27,7 @@ const { t } = useI18n()
       :supplier-options="supplierOptions"
       :prefill="prefillProduct"
       :product-results="productResults"
+      :product-search-unavailable="productSearchUnavailable"
     />
   </div>
 </template>

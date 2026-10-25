@@ -30,7 +30,7 @@ export default class ProductsController {
   ) {}
 
   /**
-   * Catalogue public paginé + filtrable : recherche full-text locale-aware,
+   * Catalogue public paginé + filtrable : recherche par terme (Meilisearch),
    * filtre catégorie / made-in-Europe, facettes attributs en ET fiable.
    */
   async index({ inertia, request, i18n }: HttpContext) {
@@ -45,32 +45,37 @@ export default class ProductsController {
     }
     const page = Number.parseInt(qs.page, 10) || 1
 
-    // Recherche par mots-clés : Meilisearch quand il est disponible (ADR 0002).
-    // Sinon — moteur inerte ou injoignable, ou simple navigation sans terme —
-    // la liste PostgreSQL, avec son repli full-text.
-    const searched = await this.productSearch.search({ ...filters, page, perPage: PER_PAGE })
-    const paginator =
-      searched ??
-      (await this.service.list({
-        ...filters,
-        page,
-        perPage: PER_PAGE,
-        locale,
-        sort: qs.sort === 'price_asc' ? 'price_asc' : null,
-      }))
+    // Avec un terme : Meilisearch (ADR 0002). Sans terme, simple navigation par
+    // catégories et filtres, servie par PostgreSQL. Moteur indisponible : la
+    // recherche l'est aussi, la page le dit au lieu de répondre « aucun résultat ».
+    const searched = filters.search
+      ? await this.productSearch.search({ ...filters, page, perPage: PER_PAGE })
+      : undefined
+    const searchUnavailable = searched === null
+    const paginator = filters.search
+      ? searched
+      : await this.service.list({
+          ...filters,
+          page,
+          perPage: PER_PAGE,
+          sort: qs.sort === 'price_asc' ? 'price_asc' : null,
+        })
     const categories = await this.service.availableCategories()
     const attributes = await this.service.filterableAttributes()
 
     return inertia.render('products/index', {
       products: {
-        data: paginator.all().map((product) => new ProductTransformer(product, locale).toObject()),
+        data: (paginator?.all() ?? []).map((product) =>
+          new ProductTransformer(product, locale).toObject()
+        ),
         meta: {
-          total: paginator.total,
-          perPage: paginator.perPage,
-          currentPage: paginator.currentPage,
-          lastPage: paginator.lastPage,
+          total: paginator?.total ?? 0,
+          perPage: paginator?.perPage ?? PER_PAGE,
+          currentPage: paginator?.currentPage ?? 1,
+          lastPage: paginator?.lastPage ?? 1,
         },
       },
+      searchUnavailable,
       filters,
       categories: categories.map((category) =>
         new CategoryTransformer(category, locale).toObject()

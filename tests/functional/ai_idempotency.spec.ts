@@ -2,7 +2,6 @@ import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import Product from '#models/product'
 import TranslationService from '#services/translation_service'
-import ProductTranslationSearchService from '#services/product_translation_search_service'
 import MistralTranslationProvider from '#services/translation/mistral_translation_provider'
 import aiConfig from '#config/ai'
 import { useDatabase } from '#tests/utils/setup'
@@ -60,7 +59,7 @@ test.group('Idempotence — traductions', (group) => {
 
   test('toutes les locales passent dans un seul appel', async ({ assert }) => {
     const { provider, calls, requested } = countingTranslator()
-    const service = new TranslationService(provider, new ProductTranslationSearchService())
+    const service = new TranslationService(provider)
     const product = await loadProduct('crayon-hb-bleu')
 
     const outcome = await service.translate({
@@ -84,7 +83,7 @@ test.group('Idempotence — traductions', (group) => {
 
   test('relancer sans changement de source n’appelle pas le provider', async ({ assert }) => {
     const { provider, calls } = countingTranslator()
-    const service = new TranslationService(provider, new ProductTranslationSearchService())
+    const service = new TranslationService(provider)
     const product = await loadProduct('crayon-hb-bleu')
     const target = {
       entity: 'product' as const,
@@ -102,7 +101,7 @@ test.group('Idempotence — traductions', (group) => {
     assert,
   }) => {
     const { provider, calls, requested } = countingTranslator()
-    const service = new TranslationService(provider, new ProductTranslationSearchService())
+    const service = new TranslationService(provider)
     const product = await loadProduct('crayon-hb-bleu')
     const target = {
       entity: 'product' as const,
@@ -130,7 +129,7 @@ test.group('Idempotence — traductions', (group) => {
 
   test('une traduction saisie à la main n’est jamais écrasée', async ({ assert }) => {
     const { provider, requested } = countingTranslator()
-    const service = new TranslationService(provider, new ProductTranslationSearchService())
+    const service = new TranslationService(provider)
     const product = await loadProduct('crayon-hb-bleu')
     const now = new Date()
     await db.table('product_translations').insert({
@@ -162,7 +161,7 @@ test.group('Idempotence — traductions', (group) => {
     assert,
   }) => {
     const { provider, requested } = countingTranslator()
-    const service = new TranslationService(provider, new ProductTranslationSearchService())
+    const service = new TranslationService(provider)
     const product = await loadProduct('crayon-hb-bleu')
     const target = {
       entity: 'product' as const,
@@ -194,7 +193,7 @@ test.group('Idempotence — traductions', (group) => {
 
   test('les lignes générées sont marquées is_auto', async ({ assert }) => {
     const { provider } = countingTranslator()
-    const service = new TranslationService(provider, new ProductTranslationSearchService())
+    const service = new TranslationService(provider)
     const product = await loadProduct('crayon-hb-bleu')
 
     await service.translate({
@@ -214,7 +213,7 @@ test.group('Idempotence — traductions', (group) => {
 
   test('sans traduction source : lève, sans appel', async ({ assert }) => {
     const { provider, calls } = countingTranslator()
-    const service = new TranslationService(provider, new ProductTranslationSearchService())
+    const service = new TranslationService(provider)
     const product = await loadProduct('crayon-hb-bleu')
 
     await assert.rejects(
@@ -232,7 +231,7 @@ test.group('Idempotence — traductions', (group) => {
 
   test('catégories : même mécanisme', async ({ assert }) => {
     const { provider, calls } = countingTranslator()
-    const service = new TranslationService(provider, new ProductTranslationSearchService())
+    const service = new TranslationService(provider)
     const category = await db.from('category_translations').where('locale', 'fr').firstOrFail()
     const target = {
       entity: 'category' as const,

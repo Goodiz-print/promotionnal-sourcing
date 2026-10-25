@@ -136,6 +136,7 @@
     "label": "Add a product from the catalogue",
     "placeholder": "Search a product by name…",
     "empty": "No product found.",
+    "unavailable": "Search is temporarily unavailable.",
     "add": "Add"
   },
   "deadline": {

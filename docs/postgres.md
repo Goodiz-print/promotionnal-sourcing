@@ -29,9 +29,10 @@ de bascule se confirment le jour J sur <https://www.postgresql.org/download/>.**
 | Index HNSW sur `halfvec`                      | 0.7.0                        | `products_embedding_idx`                                                   |
 
 **Ne pas utiliser une version inférieure à 0.7.** Avec 0.6.x, la migration échoue
-(`type "halfvec" does not exist`). Les colonnes d'embeddings ne sont plus utilisées
-(Meilisearch calcule les vecteurs, ADR 0002) et seront supprimées par une migration de
-la PR 3 de #112 : cette exigence disparaîtra alors.
+(`type "halfvec" does not exist`). Les colonnes d'embeddings ont été supprimées par la
+migration `…drop_postgres_search_columns` (Meilisearch calcule les vecteurs, ADR 0002) :
+plus aucune table ne s'en sert, mais **l'historique des migrations** (`down()` compris)
+crée encore `halfvec` — la version minimale reste donc requise pour rejouer toutes les migrations.
 
 Vérification sur une base :
 
@@ -68,8 +69,7 @@ Relevé : `SELECT cfgname FROM pg_ts_config ORDER BY 1` sur 18.6 — **30 config
 Dictionnaires : un `<langue>_stem` (Snowball) par configuration, plus `simple` et
 `unaccent` (ce dernier est celui de l'extension, absent tant qu'elle n'est pas créée).
 
-Configurations utilisées aujourd'hui par l'application (`LOCALE_TSCONFIG`,
-`shared/types/i18n.ts`) : `fr → french`, `en → english`, repli `simple`.
+Plus aucune configuration n'est utilisée par l'application : la recherche de produits est servie par Meilisearch (ADR 0002).
 
 ## Vérification sur la version cible
 

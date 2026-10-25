@@ -33,6 +33,7 @@ import {
 import type Organization from '#models/organization'
 import type Rfq from '#models/rfq'
 import type { Locale } from '#shared/types/i18n'
+import type { RfqProductLookupType } from '#shared/types/rfq'
 
 /**
  * Refus de transition → clé de traduction. Une exception absente de cette
@@ -108,7 +109,7 @@ export default class RfqsController {
 
     return inertia.render('rfqs/create', {
       ...(await this.formData(locale)),
-      productResults: this.productResults(inertia, productSearch, locale),
+      ...this.productLookup(inertia, productSearch, locale),
       prefillProduct: productId ? await this.findProduct(productId, locale) : undefined,
     })
   }
@@ -161,7 +162,7 @@ export default class RfqsController {
       quotes: quotes.map((quote) => new QuoteTransformer(quote).toObject()),
       canManageRfq: await bouncer.allows('canManageRfq', org),
       ...(await this.formData(locale)),
-      productResults: this.productResults(inertia, productSearch, locale),
+      ...this.productLookup(inertia, productSearch, locale),
     })
   }
 
@@ -364,24 +365,48 @@ export default class RfqsController {
   }
 
   /**
-   * Résultats du sélecteur de produit. Prop **optionnelle** : n'est évaluée
-   * que lorsqu'un partial reload la demande (`only: ['productResults']`), donc
-   * jamais au simple affichage de la page.
+   * Props du sélecteur de produit : `productResults` (les produits) et
+   * `productSearchUnavailable` (moteur injoignable). Props **optionnelles** :
+   * évaluées seulement quand un partial reload les demande
+   * (`only: ['productResults', 'productSearchUnavailable']`), jamais au simple
+   * affichage de la page ; la recherche n'est faite qu'une fois pour les deux.
    */
-  private productResults(
+  private productLookup(
     inertia: HttpContext['inertia'],
     search: string | undefined,
     locale: Locale
   ) {
-    return inertia.optional(async () => {
-      if (!search || search.length < PRODUCT_SEARCH_MIN_LENGTH) return []
+    let lookup: Promise<RfqProductLookupType> | undefined
 
-      // Meilisearch d'abord (mots-clés seuls) ; repli PostgreSQL s'il est indisponible.
-      const products =
-        (await this.productSearch.lookup(search, PRODUCT_SEARCH_LIMIT)) ??
-        (await this.catalogue.lookupForRfq(search, locale, PRODUCT_SEARCH_LIMIT))
-      return products.map((product) => new RfqProductOptionTransformer(product, locale).toObject())
-    })
+    const run = () => {
+      lookup ??= (async () => {
+        if (!search || search.length < PRODUCT_SEARCH_MIN_LENGTH) {
+          return { results: [], unavailable: false }
+        }
+        // Mots-clés seuls via Meilisearch (ADR 0002) ; `null` : moteur indisponible,
+        // que le sélecteur annonce au lieu d'afficher « aucun produit ».
+        const products = await this.productSearch.lookup(search, PRODUCT_SEARCH_LIMIT)
+        if (products === null) return { results: [], unavailable: true }
+        return {
+          results: products.map((product) =>
+            new RfqProductOptionTransformer(product, locale).toObject()
+          ),
+          unavailable: false,
+        }
+      })()
+      return lookup
+    }
+
+    return {
+      productResults: inertia.optional(async () => {
+        const { results } = await run()
+        return results
+      }),
+      productSearchUnavailable: inertia.optional(async () => {
+        const { unavailable } = await run()
+        return unavailable
+      }),
+    }
   }
 
   /**

@@ -1,6 +1,6 @@
 # Recherche (Meilisearch)
 
-Moteur de recherche hybride (mots-clés + vecteurs) des produits, décidé par l'[ADR 0002](adr/0002-recherche-meilisearch-hybride.md) (#112). Le catalogue public (recherche par terme) et le sélecteur de produit des demandes de devis interrogent Meilisearch quand il est disponible ; la navigation sans terme et le repli restent sur PostgreSQL jusqu'au retrait de la PR 3.
+Moteur de recherche hybride (mots-clés + vecteurs) des produits, décidé par l'[ADR 0002](adr/0002-recherche-meilisearch-hybride.md) (#112). Le catalogue public (recherche par terme) et le sélecteur de produit des demandes de devis interrogent Meilisearch quand il est disponible ; la navigation sans terme (catégories, filtres, tri par prix) reste servie par PostgreSQL. Il n'y a plus de repli de recherche sur PostgreSQL : moteur indisponible, la recherche l'est aussi, avec un message explicite.
 
 ## Principe
 
@@ -85,13 +85,13 @@ Parcourt tous les produits par identifiant croissant, par lots (mémoire bornée
 
 Branchement :
 
-| Écran                                               | Méthode                                               | Repli si moteur inerte ou injoignable         |
-| --------------------------------------------------- | ----------------------------------------------------- | --------------------------------------------- |
-| Catalogue public, avec terme (`ProductsController`) | `ProductSearchService#search` → paginateur            | `ProductCatalogueService#list` (full-text PG) |
-| Catalogue public, sans terme                        | `ProductCatalogueService#list` (navigation, tri prix) | —                                             |
-| Sélecteur de produit RFQ (`RfqsController`)         | `ProductSearchService#lookup` (mots-clés seuls)       | `ProductCatalogueService#lookupForRfq`        |
+| Écran                                               | Méthode                                               | Moteur inerte ou injoignable                                     |
+| --------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------- |
+| Catalogue public, avec terme (`ProductsController`) | `ProductSearchService#search` → paginateur            | page « recherche indisponible » (`searchUnavailable`)            |
+| Catalogue public, sans terme                        | `ProductCatalogueService#list` (navigation, tri prix) | inchangé (PostgreSQL)                                            |
+| Sélecteur de produit RFQ (`RfqsController`)         | `ProductSearchService#lookup` (mots-clés seuls)       | `productResults: null` → « recherche indisponible » du sélecteur |
 
-Les méthodes renvoient `null` quand la recherche est indisponible : l'appelant bascule sur PostgreSQL et la panne est loggée (`warn`). Ce repli disparaît avec la PR 3 de #112 ; il garde l'application utilisable pendant la transition.
+Les méthodes renvoient `null` quand la recherche est indisponible et la panne est loggée (`warn`). Aucune recherche de repli sur PostgreSQL (retirée avec la PR 3 de #112) ; seule la **navigation** reste servie par la base.
 
 ## Jeu de requêtes de référence et mesure
 
@@ -113,15 +113,15 @@ En CI, le job `test-search` démarre un vrai Meilisearch et rejoue les requêtes
 - **Embedder à valider en conditions réelles** : voir l'avertissement de « Vectorisation » (support du modèle, débit d'indexation, mémoire de l'instance).
 - **Choix du modèle, du ratio et de la quantification** : à faire avec des vecteurs réels (les valeurs par défaut — `mistral-embed`, 0,5, pas de quantification — sont celles de l'ADR).
 - **Mesure de latence p95 à 1 M de produits** : `search:evaluate` la mesure sur l'index courant ; il reste à l'exécuter sur un catalogue de cette taille.
-- Retrait du `tsvector` par langue et du HNSW, traductions (PR 3).
-- Suppression des colonnes `products.embedding` / `embedding_key` et de l'index HNSW devenus inutiles (migration, PR 3).
+- **Traductions** (ADR 0002, décision 12) : titres traduits à l'import, descriptions à la première ouverture par langue — PR dédiée.
+- Le `tsvector` par langue, le HNSW et les colonnes d'embeddings ont été retirés (migration `…drop_postgres_search_columns`, PR 3).
 - Réindexation à la montée de version de Meilisearch, snapshots et supervision : voir `docs/deploiement.md`.
 
 ## Tests
 
 - `tests/functional/search_indexing.spec.ts` : documents (noms par langue, facettes, texte vectorisé), retrait des produits invisibles ou supprimés, idempotence, archivage et modération, réindexation par lots, déclencheurs — avec un moteur factice.
 - `tests/unit/meilisearch_engine.spec.ts` : le pilote contre un `fetch` simulé (création de l'index et de ses réglages une seule fois, tâche en échec, reconstruction par index temporaire et échange, requête hybride et filtre ET, configuration de l'embedder `rest`).
-- `tests/functional/product_search.spec.ts` : rechargement depuis PostgreSQL (ordre, visibilité, facettes revérifiées), requête transmise au moteur, ratio sémantique et repli par mots-clés si l'API d'embeddings tombe, écrans (catalogue, sélecteur).
+- `tests/functional/product_search.spec.ts` : rechargement depuis PostgreSQL (ordre, visibilité, facettes revérifiées), requête transmise au moteur, ratio sémantique et repli par mots-clés si l'API d'embeddings tombe, écrans (catalogue, sélecteur, message « recherche indisponible »).
 - `tests/unit/search_evaluation.spec.ts` : verdict, rappel, percentiles.
 - `tests/functional/search_reference.spec.ts` : le jeu de référence contre un vrai Meilisearch (job CI `test-search`).
 

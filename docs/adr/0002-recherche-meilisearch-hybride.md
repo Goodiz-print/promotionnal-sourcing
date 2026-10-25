@@ -125,10 +125,10 @@ Décision reportée à la PR 3 : titres traduits à l'import dans les 32 langues
 
 ### 13. Ce qui disparaît après la bascule
 
-- `products.embedding`, `products.embedding_key` et `products_embedding_idx` (HNSW) : plus rien ne les écrit ni ne les lit (le tri par distance de `ProductCatalogueService#list` est déjà retiré). Suppression par une **nouvelle** migration en PR 3.
-- `product_translations.search_vector`, `ProductTranslationSearchService`, les index GIN par locale et l'entrée de `schema_rules.ts`, par une **nouvelle** migration (jamais en modifiant une migration exécutée).
+- `products.embedding`, `products.embedding_key` et `products_embedding_idx` (HNSW) : supprimés par la **nouvelle** migration `…drop_postgres_search_columns` (PR 3).
+- `product_translations.search_vector`, `ProductTranslationSearchService`, les index GIN par locale et l'entrée de `schema_rules.ts` : supprimés par la même migration (jamais en modifiant une migration exécutée). L'extension `vector` reste installée : l'historique des migrations la requiert.
 - La règle « ajouter une langue = une entrée `LOCALE_TSCONFIG` + une migration » ; ajouter une langue devient une sous-clé de plus dans `names` / `descriptions`.
-- Le repli full-text PostgreSQL : le repli devient « Meilisearch mots-clés seuls ». Si Meilisearch est indisponible, la recherche l'est aussi (message explicite) ; le catalogue par navigation (catégories, fiches) reste servi par PostgreSQL.
+- Le repli full-text PostgreSQL (retiré en PR 3, `ProductCatalogueService#lookupForRfq` compris) : le repli devient « Meilisearch mots-clés seuls ». Si Meilisearch est indisponible, la recherche l'est aussi (message explicite) ; le catalogue par navigation (catégories, fiches) reste servi par PostgreSQL.
 
 ## Alternatives écartées
 
@@ -161,14 +161,14 @@ Décision reportée à la PR 3 : titres traduits à l'import dans les 32 langues
 - Avec un provider API, la clé est aussi stockée dans les réglages de Meilisearch, qui appelle lui-même le provider (échec d'API = tâche d'indexation en échec, rejouée par notre job). Avec `huggingface`, l'instance Meilisearch porte le calcul : plus de RAM et de CPU, et un temps d'indexation à mesurer.
 - Une indisponibilité de Meilisearch rend la recherche indisponible.
 - Chaque réindexation complète, changement de modèle ou de texte vectorisé recalcule tous les vecteurs : du temps de calcul avec le modèle local, une vingtaine de dollars par million de fiches avec une API.
-- Le code de recherche PostgreSQL (`tsvector` par langue, `ILIKE`) reste en place jusqu'à la bascule, puis est retiré (PR 3).
+- Le code de recherche PostgreSQL (`tsvector` par langue, `ILIKE`) a été retiré en PR 3.
 
 ## Plan de livraison
 
 1. **PR 1 (cette ADR)** : configuration, pilote Meilisearch (`SearchEngine` → `MeilisearchEngine` / `NullSearchEngine`), synchronisation par la queue, `search:reindex`. La recherche de l'application n'est pas encore modifiée.
 2. **PR 2** : bascule du catalogue public et du sélecteur RFQ sur Meilisearch (`ProductSearchService`) avec repli (PostgreSQL pendant la transition, puis mots-clés seuls), jeu de requêtes de référence et `search:evaluate` (décision 8), job CI contre un vrai Meilisearch.
    **PR 2b** : embedder de Meilisearch (`huggingface` par défaut, `rest` en alternative) et texte vectorisé (décisions 3 et 4), suppression de la vectorisation applicative ; puis choix du modèle, du ratio et de la quantification par la mesure (`search:evaluate`) sur des fiches multilingues ; mesure de latence à volume.
-3. **PR 3** : retrait du HNSW et du `tsvector` par langue par une nouvelle migration (décision 13) ; traductions (décision 12).
+3. **PR 3** : retrait du HNSW, des colonnes d'embeddings et du `tsvector` par langue par une nouvelle migration, retrait du repli PostgreSQL de la recherche (décision 13) — fait. **Traductions** (décision 12) : PR dédiée, non commencée.
 
 ## Critères de révision
 
