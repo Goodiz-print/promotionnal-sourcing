@@ -819,7 +819,6 @@ export class ProductSchema extends BaseModel {
     'categoryId',
     'createdAt',
     'currency',
-    'embeddingKey',
     'id',
     'imageUrl',
     'isActive',
@@ -841,8 +840,6 @@ export class ProductSchema extends BaseModel {
   declare createdAt: DateTime
   @column()
   declare currency: string
-  @column()
-  declare embeddingKey: string | null
   @column({ isPrimary: true })
   declare id: number
   @column()

@@ -25,6 +25,7 @@ const props = defineProps<{
   supplierOptions: SupplierOptionType[]
   canManageRfq: boolean
   productResults?: RfqProductOptionType[]
+  productSearchUnavailable?: boolean
 }>()
 
 const { t, locale } = useI18n()
@@ -120,6 +121,7 @@ function formatDate(value: string): string {
         :categories="categories"
         :supplier-options="supplierOptions"
         :product-results="productResults"
+        :product-search-unavailable="productSearchUnavailable"
         @product-picked="queueSupplier"
       />
     </section>

@@ -13,22 +13,7 @@ test.group('Catalogue public produits', (group) => {
     response.assertInertiaComponent('products/index')
     assert.lengthOf(response.inertiaProps.products.data, 6)
     assert.equal(response.inertiaProps.products.meta.currentPage, 1)
-  })
-
-  test('la recherche full-text française filtre par nom localisé', async ({ client, assert }) => {
-    const response = await client.get('/fr/products').qs({ search: 'aquarelle' }).withInertia()
-
-    response.assertStatus(200)
-    assert.lengthOf(response.inertiaProps.products.data, 1)
-    assert.equal(response.inertiaProps.products.data[0].slug, 'crayon-aquarelle-bleu')
-  })
-
-  test('la recherche full-text anglaise matche le contenu EN', async ({ client, assert }) => {
-    const response = await client.get('/en/products').qs({ search: 'watercolor' }).withInertia()
-
-    response.assertStatus(200)
-    assert.lengthOf(response.inertiaProps.products.data, 1)
-    assert.equal(response.inertiaProps.products.data[0].name, 'Blue Watercolor Pencil')
+    assert.isFalse(response.inertiaProps.searchUnavailable)
   })
 
   test('le filtre catégorie restreint la liste', async ({ client, assert }) => {

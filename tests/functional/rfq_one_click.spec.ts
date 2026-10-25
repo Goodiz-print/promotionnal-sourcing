@@ -8,7 +8,10 @@ import Rfq from '#models/rfq'
 import RfqItem from '#models/rfq_item'
 import RfqSupplier from '#models/rfq_supplier'
 import { createMember } from '#tests/utils/organizations'
+import { installFakeEngine, type FakeEngineHandle } from '#tests/utils/fake_search_engine'
 import { useDatabase } from '#tests/utils/setup'
+import type User from '#models/user'
+import type { ApiClient } from '@japa/api-client'
 
 /**
  * Demande de devis « en un clic » (#55) : pré-remplissage depuis une fiche
@@ -271,68 +274,76 @@ test.group('RFQ en un clic — ajout à un brouillon', (group) => {
 test.group('RFQ en un clic — sélecteur de produit', (group) => {
   useDatabase(group, { seed: 'full' })
 
-  test('la recherche ne tourne que sur partial reload', async ({ client, assert }) => {
-    const { owner } = await buyerWithOwner()
+  // Le sélecteur interroge le moteur (#112, ADR 0002) : un double répond ce qu'on lui dit.
+  let handle: FakeEngineHandle
+  group.each.setup(() => {
+    handle = installFakeEngine()
+    return () => handle.restore()
+  })
 
-    const full = await client.get('/fr/rfqs/new?productSearch=crayon').withInertia().loginAs(owner)
-    const reload = await client
-      .get('/fr/rfqs/new?productSearch=crayon')
+  async function slugIds(...slugs: string[]): Promise<number[]> {
+    const products = await Product.query().whereIn('slug', slugs)
+    return slugs.map((slug) => products.find((product) => product.slug === slug)!.id)
+  }
+
+  async function lookup(client: ApiClient, owner: User, term: string, locale = 'fr') {
+    return client
+      .get(`/${locale}/rfqs/new?productSearch=${term}`)
       .withInertia()
       .header('X-Inertia-Partial-Component', 'rfqs/create')
-      .header('X-Inertia-Partial-Data', 'productResults')
+      .header('X-Inertia-Partial-Data', 'productResults,productSearchUnavailable')
       .loginAs(owner)
+  }
+
+  test('la recherche ne tourne que sur partial reload', async ({ client, assert }) => {
+    const { owner } = await buyerWithOwner()
+    handle.engine.hits = { ids: await slugIds('crayon-hb-bleu', 'crayon-hb-rouge'), total: 2 }
+
+    const full = await client.get('/fr/rfqs/new?productSearch=crayon').withInertia().loginAs(owner)
+    const reload = await lookup(client, owner, 'crayon')
 
     assert.isUndefined(full.inertiaProps.productResults)
     const results = reload.inertiaProps.productResults as Array<{ name: string }>
-    assert.isAbove(results.length, 0)
+    assert.lengthOf(results, 2)
+    assert.isFalse(reload.inertiaProps.productSearchUnavailable)
     assert.isTrue(results.some((row) => row.name.toLowerCase().includes('crayon')))
   })
 
-  test('une saisie trop courte ou sans correspondance renvoie une liste vide', async ({
+  test('une saisie trop courte n’interroge pas le moteur ; sans correspondance : liste vide', async ({
     client,
     assert,
   }) => {
     const { owner } = await buyerWithOwner()
 
-    for (const term of ['c', 'zzzzzzzz']) {
-      const response = await client
-        .get(`/fr/rfqs/new?productSearch=${term}`)
-        .withInertia()
-        .header('X-Inertia-Partial-Component', 'rfqs/create')
-        .header('X-Inertia-Partial-Data', 'productResults')
-        .loginAs(owner)
+    const short = await lookup(client, owner, 'c')
+    assert.deepEqual(short.inertiaProps.productResults, [])
+    assert.lengthOf(handle.engine.requests, 0)
 
-      assert.deepEqual(response.inertiaProps.productResults, [], term)
-    }
-  })
-
-  test('le nom est cherché dans toutes les langues, quelle que soit celle du site', async ({
-    client,
-    assert,
-  }) => {
-    const { owner } = await buyerWithOwner()
-
-    const response = await client
-      .get('/en/rfqs/new?productSearch=crayon')
-      .withInertia()
-      .header('X-Inertia-Partial-Component', 'rfqs/create')
-      .header('X-Inertia-Partial-Data', 'productResults')
-      .loginAs(owner)
-
-    assert.isAbove((response.inertiaProps.productResults as unknown[]).length, 0)
+    const none = await lookup(client, owner, 'zzzzzzzz')
+    assert.deepEqual(none.inertiaProps.productResults, [])
+    assert.lengthOf(handle.engine.requests, 1)
   })
 
   test('les produits inactifs ne sont pas proposés', async ({ client, assert }) => {
     const { owner } = await buyerWithOwner()
+    handle.engine.hits = { ids: await slugIds('crayon-hb-bleu'), total: 1 }
     await Product.query().update({ isActive: false })
 
-    const response = await client
-      .get('/fr/rfqs/new?productSearch=crayon')
-      .withInertia()
-      .header('X-Inertia-Partial-Component', 'rfqs/create')
-      .header('X-Inertia-Partial-Data', 'productResults')
-      .loginAs(owner)
+    const response = await lookup(client, owner, 'crayon')
 
+    assert.deepEqual(response.inertiaProps.productResults, [])
+  })
+
+  test('moteur indisponible : le sélecteur le signale, ce n’est pas « aucun produit »', async ({
+    client,
+    assert,
+  }) => {
+    const { owner } = await buyerWithOwner()
+    handle.engine.hits = new Error('connect ECONNREFUSED')
+
+    const response = await lookup(client, owner, 'crayon')
+
+    assert.isTrue(response.inertiaProps.productSearchUnavailable)
     assert.deepEqual(response.inertiaProps.productResults, [])
   })
 
@@ -342,6 +353,7 @@ test.group('RFQ en un clic — sélecteur de produit', (group) => {
   }) => {
     const { org, owner } = await buyerWithOwner()
     const rfq = await RfqFactory.merge({ buyerOrganizationId: org.id }).create()
+    handle.engine.hits = { ids: await slugIds('crayon-hb-bleu'), total: 1 }
 
     const response = await client
       .get(`/fr/rfqs/${rfq.id}?productSearch=crayon`)
@@ -350,7 +362,7 @@ test.group('RFQ en un clic — sélecteur de produit', (group) => {
       .header('X-Inertia-Partial-Data', 'productResults')
       .loginAs(owner)
 
-    assert.isAbove((response.inertiaProps.productResults as unknown[]).length, 0)
+    assert.lengthOf(response.inertiaProps.productResults as unknown[], 1)
   })
 })
 

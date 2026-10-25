@@ -2,15 +2,12 @@ import Product from '#models/product'
 import Category from '#models/category'
 import Attribute from '#models/attribute'
 import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
-import { contentLocaleFor, LOCALE_TSCONFIG, type Locale } from '#shared/types/i18n'
 import type { ProductDirectoryFilters, ProductSort } from '#shared/types/product'
 
 interface ListOptions extends ProductDirectoryFilters {
   page: number
   perPage: number
-  locale: Locale
-  // `price_asc` : tri par prix unitaire du premier palier (hors recherche
-  // sémantique, qui garde son ordre de pertinence).
+  // `price_asc` : tri par prix unitaire du premier palier.
   sort?: ProductSort | null
 }
 
@@ -22,21 +19,14 @@ interface ListOptions extends ProductDirectoryFilters {
 export default class ProductCatalogueService {
   /**
    * Liste paginée + filtrable :
-   * - recherche full-text locale-aware sur `product_translations.search_vector`
-   *   (`websearch_to_tsquery` : accepte du texte libre utilisateur) ;
+   * - navigation sans terme de recherche (la recherche par terme est servie par
+   *   `ProductSearchService`, ADR 0002) ;
    * - filtre catégorie et made-in-Europe ;
    * - facettes attributs en **ET fiable** (un `whereHas` par valeur → chaque
    *   contrainte est combinée en `AND`, cf. `docs/catalogue.md`).
    */
   list(options: ListOptions): Promise<ModelPaginatorContract<Product>> {
-    const { page, perPage, locale, search, categoryId, madeInEurope, attributeValueIds } = options
-
-    // `tsConfig` provient d'une table contrôlée (jamais d'entrée utilisateur),
-    // donc interpolable sans risque ; seul le terme recherché est bindé.
-    // La recherche porte sur la langue de contenu servie pour cette langue d'interface
-    // (les langues d'UI sans contenu dédié lisent les fiches anglaises).
-    const searchLocale = contentLocaleFor(locale)
-    const tsConfig = LOCALE_TSCONFIG[searchLocale]
+    const { page, perPage, categoryId, madeInEurope, attributeValueIds } = options
 
     const query = Product.query()
       .where('isActive', true)
@@ -53,17 +43,7 @@ export default class ProductCatalogueService {
       })
       .preload('translations')
 
-    if (search) {
-      // Full-text locale-aware : repli quand Meilisearch est inerte ou injoignable
-      // (`ProductSearchService`), supprimé avec la PR 3 de #112.
-      query
-        .whereHas('translations', (t) =>
-          t
-            .where('locale', searchLocale)
-            .whereRaw(`search_vector @@ websearch_to_tsquery('${tsConfig}', ?)`, [search])
-        )
-        .orderBy('slug')
-    } else if (options.sort === 'price_asc') {
+    if (options.sort === 'price_asc') {
       // Premier palier = plus petite quantité ; produits sans palier en fin de liste.
       query
         .orderByRaw(
@@ -127,43 +107,6 @@ export default class ProductCatalogueService {
       .preload('translations')
       .preload('supplier', (supplier) => supplier.preload('organization'))
       .first()
-  }
-
-  /**
-   * Recherche légère pour le sélecteur de produit d'une demande de devis.
-   *
-   * Repli PostgreSQL de `ProductSearchService#lookup` (#112) : utilisé quand
-   * Meilisearch est inerte ou injoignable. Préfixe/sous-chaîne (`ILIKE`) sur le
-   * nom, plus le full-text locale-aware du catalogue ; supprimé avec la PR 3 de
-   * #112. Contrat : « produits visibles uniquement, `limit` résultats, nom
-   * localisé » — cf. `docs/rfq.md`.
-   */
-  async lookupForRfq(search: string, locale: Locale, limit: number): Promise<Product[]> {
-    const searchLocale = contentLocaleFor(locale)
-    // `tsConfig` vient d'une table fermée (`LOCALE_TSCONFIG`), jamais d'une
-    // entrée utilisateur : interpolable, comme dans `list()`. Seul le terme est bindé.
-    const tsConfig = LOCALE_TSCONFIG[searchLocale]
-    // `%` et `_` sont des jokers `LIKE` : la saisie est cherchée telle quelle.
-    const pattern = `%${search.replace(/[\\%_]/g, '\\$&')}%`
-
-    // Le nom est cherché dans **toutes** les langues de contenu : un produit
-    // saisi dans une seule langue reste trouvable depuis une autre interface,
-    // et le transformer affiche de toute façon son repli. Le full-text, lui,
-    // reste propre à la langue de l'interface.
-    return await this.visibleForRfq()
-      .whereHas('translations', (t) =>
-        t
-          .whereILike('name', pattern)
-          .orWhere((fts) =>
-            fts
-              .where('locale', searchLocale)
-              .whereRaw(`search_vector @@ websearch_to_tsquery('${tsConfig}', ?)`, [search])
-          )
-      )
-      .preload('translations')
-      .preload('supplier', (supplier) => supplier.preload('organization'))
-      .orderBy('slug')
-      .limit(limit)
   }
 
   /**

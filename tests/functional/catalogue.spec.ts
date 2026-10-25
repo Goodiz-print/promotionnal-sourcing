@@ -4,6 +4,7 @@ import ProductTranslation from '#models/product_translation'
 import AttributeValue from '#models/attribute_value'
 import ProductTransformer from '#transformers/product_transformer'
 import AttributeValueTransformer from '#transformers/attribute_value_transformer'
+import db from '@adonisjs/lucid/services/db'
 import { useDatabase } from '#tests/utils/setup'
 
 test.group('Catalogue — contenu multilingue', (group) => {
@@ -59,5 +60,28 @@ test.group('Catalogue — contenu multilingue', (group) => {
     assert.deepEqual(slugs, ['crayon-aquarelle-bleu', 'crayon-hb-bleu'])
     assert.notInclude(slugs, 'crayon-hb-rouge')
     assert.notInclude(slugs, 'stylo-bille-bleu')
+  })
+})
+
+test.group('Catalogue — colonnes de recherche PostgreSQL retirées (#112)', (group) => {
+  useDatabase(group, { seed: 'none' })
+
+  test('plus de vecteur, de clé d’embedding ni de tsvector en base', async ({ assert }) => {
+    const result = await db.rawQuery(
+      `SELECT table_name, column_name FROM information_schema.columns
+       WHERE (table_name = 'products' AND column_name IN ('embedding', 'embedding_key'))
+          OR (table_name = 'product_translations' AND column_name = 'search_vector')`
+    )
+
+    assert.deepEqual(result.rows, [])
+  })
+
+  test('plus d’index HNSW ni GIN de recherche', async ({ assert }) => {
+    const result = await db.rawQuery(
+      `SELECT indexname FROM pg_indexes
+       WHERE indexname = 'products_embedding_idx' OR indexname LIKE 'product_translations_search_vector%'`
+    )
+
+    assert.deepEqual(result.rows, [])
   })
 })

@@ -6,6 +6,7 @@ const translations = {
   'rfq.product.label': 'Ajouter un produit du catalogue',
   'rfq.product.placeholder': 'Rechercher un produit par son nom…',
   'rfq.product.empty': 'Aucun produit trouvé.',
+  'rfq.product.unavailable': 'La recherche est momentanément indisponible.',
   'rfq.product.add': 'Ajouter',
 }
 
@@ -47,7 +48,7 @@ describe('rfq_product_picker.vue', () => {
     vi.advanceTimersByTime(300)
     expect(router.reload).toHaveBeenCalledWith({
       data: { productSearch: 'tote' },
-      only: ['productResults'],
+      only: ['productResults', 'productSearchUnavailable'],
       preserveUrl: true,
       onSuccess: expect.any(Function),
     })
@@ -81,6 +82,15 @@ describe('rfq_product_picker.vue', () => {
     await vi.advanceTimersByTimeAsync(300)
 
     expect(wrapper.text()).toContain('Aucun produit trouvé.')
+  })
+
+  it("annonce l'indisponibilité de la recherche au lieu de « aucun produit »", async () => {
+    const wrapper = mount(RfqProductPicker, { props: { results: [], unavailable: true } })
+    await wrapper.find('input').setValue('zzz')
+    await vi.advanceTimersByTimeAsync(300)
+
+    expect(wrapper.text()).toContain('La recherche est momentanément indisponible.')
+    expect(wrapper.text()).not.toContain('Aucun produit trouvé.')
   })
 
   it("n'affiche pas les résultats d'une saisie précédente pendant la recherche", async () => {

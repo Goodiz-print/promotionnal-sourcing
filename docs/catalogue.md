@@ -44,48 +44,24 @@ sur `product_attributes` combine plusieurs facettes en `AND` SQL. Voir
 `tests/functional/catalogue.spec.ts` pour la preuve (crayon + bleu → 2
 crayons bleus, jamais un produit bleu non-crayon).
 
-## Vectorisation & full-text (PostgreSQL uniquement)
+## Extensions PostgreSQL et colonnes de recherche retirées
 
 Migration `…948_enable_search_extensions` active `vector` (pgvector),
-`pg_trgm` (recherche floue) et `unaccent` (normalisation FR côté requête) —
-no-op hors PostgreSQL.
+`pg_trgm` et `unaccent` — no-op hors PostgreSQL. Ces extensions restent
+installées (les anciennes migrations les créent) mais **plus aucune table ne s'en
+sert** depuis la migration `…drop_postgres_search_columns` (#112, PR 3), qui a
+retiré :
 
-- **`products.embedding`** — `halfvec(1024)`, nullable, index **HNSW**
-  (`halfvec_cosine_ops`, voir « Décision halfvec »). Les requêtes castent en `?::halfvec`. Peuplé par le job `generate_product_embedding_job`
-  (`mistral-embed`) — voir « Recherche sémantique » ci-dessous.
-- **`product_translations.search_vector`** — colonne `tsvector` **ordinaire**,
-  calculée par l'application à l'écriture d'une traduction
-  (`ProductTranslationSearchService.refreshForProduct`, config lue dans
-  `LOCALE_TSCONFIG`, repli `'simple'`) + un index GIN **partiel par locale**
-  (`WHERE locale = '<xx>'`). `unaccent()` reste appliqué côté requête.
-- Toute écriture de `product_translations` doit appeler le service (un test
-  vérifie qu'aucune ligne n'a un `search_vector` NULL).
-- Ajouter une langue à la recherche plein-texte = une entrée dans
-  `LOCALE_TSCONFIG` (`shared/types/i18n.ts`), une migration
-  `CREATE INDEX … WHERE locale = '<xx>'` et le backfill de ses lignes. Aucune
-  réécriture de la table (#84).
+- `products.embedding` (`halfvec(1024)`) et son index HNSW `products_embedding_idx`
+  — Meilisearch calcule et garde les vecteurs (ADR 0002) ;
+- `products.embedding_key` ;
+- `product_translations.search_vector` (`tsvector`) et ses index GIN par locale,
+  ainsi que `ProductTranslationSearchService` et `LOCALE_TSCONFIG`.
 
-`database/schema_rules.ts` exclut `products.embedding` et
-`product_translations.search_vector` du schéma généré par l'ORM (colonnes
-SQL brutes, jamais typées/sérialisées).
-
-## Décision halfvec (#71)
-
-**Décision : `halfvec(1024)`** (migration `…300000_products_embedding_halfvec`, à jouer avant le remplissage en masse).
-
-Mesures locales (pgvector 0.8.5, 20 000 vecteurs 1024 dim synthétiques) :
-
-|                               | `vector`   | `halfvec`  |
-| ----------------------------- | ---------- | ---------- |
-| Octets par embedding          | 4 100      | 2 052      |
-| Table (+TOAST)                | 107 Mo     | 54 Mo      |
-| Index HNSW                    | 156 Mo     | 52 Mo      |
-| Latence requête top-10 (moy.) | 3,2–4,8 ms | 2,2–2,5 ms |
-
-Soit ~1 Go d'index et ~2 Go de table économisés pour 1 M de produits.
-Précision : écart de distance cosinus halfvec vs vector ≤ 1,6·10⁻⁵ (moy. 3,6·10⁻⁶), contre un écart-type des distances de ~5·10⁻³ au sein d'un cluster ; le classement ne change que pour des quasi-égalités.
-
-Limites : le jeu synthétique (bruit uniforme) est quasi-équidistant, donc un rappel@10 par identifiants n'y est pas significatif (même `vector`+HNSW n'atteint que ~52 %) ; le temps de build de l'index (62 s vs 12 s) est biaisé par `maintenance_work_mem` trop faible pour `vector`. À revalider sur de vrais embeddings `mistral-embed` quand le catalogue sera rempli ; retour arrière possible via le `down()` de la migration.
+Ajouter une langue de contenu ne demande donc plus ni index ni migration : il suffit
+de l'ajouter à `CONTENT_LOCALES` (`shared/types/i18n.ts`) ; l'index Meilisearch porte
+les noms et descriptions de toutes les langues sous des sous-clés. `down()` recrée
+les colonnes vides (vecteurs : `search:reindex` ; tsvector : réécrire la traduction).
 
 ## Recherche sémantique (embedder de Meilisearch)
 
@@ -109,9 +85,9 @@ de service, de commande ni de cache d'embeddings. Décision et compromis :
   d'embeddings. `AI_EMBEDDINGS_ENABLED=false` la coupe (mots-clés seuls) ; `=true`
   avec un provider API sans identifiants est une **erreur au démarrage** ; en
   `NODE_ENV=test`, elle est coupée sauf demande explicite.
-- **Colonnes héritées** — `products.embedding`, `products.embedding_key` et l'index
-  HNSW `products_embedding_idx` (voir « Décision halfvec » ci-dessus) ne sont plus
-  écrits ni lus ; leur suppression est une migration de la PR 3 de #112.
+- **Colonnes PostgreSQL** — `products.embedding`, `products.embedding_key` et l'index
+  HNSW ont été supprimés (migration `…drop_postgres_search_columns`) : les vecteurs
+  n'existent que dans l'index.
 
 ### Activer la vectorisation (production)
 
@@ -143,10 +119,10 @@ vectorisation : `AI_EMBEDDINGS_ENABLED=false`, puis `node ace search:reindex`
   (`ProductNotFoundException`, `app/exceptions/catalogue_errors.ts`).
 - **Service** : `app/services/product_catalogue_service.ts` — toute la logique ORM
   (controller fin `products_controller.ts`). `PER_PAGE = 12`.
-- **Recherche full-text locale-aware** : sur `product_translations.search_vector`
-  via `websearch_to_tsquery(<config locale>, terme)` (texte libre utilisateur, sans
-  sanitizer). La config vient de `LOCALE_TSCONFIG` (`fr`→`french`, `en`→`english`,
-  repli `simple`) ; la requête est scopée à la traduction de la locale active.
+- **Recherche par terme** : `ProductSearchService` (Meilisearch, [`search.md`](search.md)) ;
+  `ProductCatalogueService#list` ne sert plus que la navigation **sans terme**
+  (catégories, filtres, tri par prix). Moteur indisponible : la page affiche
+  « recherche indisponible » (prop `searchUnavailable`) au lieu d'un faux « aucun résultat ».
 - **Filtres** : catégorie (`categoryId`), made-in-Europe (`madeInEurope`), et
   **facettes attributs** (`attributeValueIds[]`) en **ET fiable** — un `whereHas`
   par valeur sélectionnée, cf. la section « ET » ci-dessus.
@@ -157,8 +133,8 @@ vectorisation : `AI_EMBEDDINGS_ENABLED=false`, puis `node ace search:reindex`
   cartes `product_card.vue`. i18n : `resources/lang/{fr,en}/products.json`.
 
 > Hors périmètre de cette tranche : CRUD fournisseur (dépend de l'auth fournisseur),
-> recherche sémantique par embeddings (`products.embedding` reste `NULL`),
-> ranking `ts_rank`, tolérance typo `pg_trgm`.
+> recherche sémantique par embeddings, ranking `ts_rank`, tolérance typo `pg_trgm`
+> (désormais portés par Meilisearch, ADR 0002).
 
 ## Images produit (galerie + Cellar)
 
@@ -329,24 +305,21 @@ cf. [`storage.md`](storage.md)).
 
 ## Fichiers clés
 
-| Domaine               | Chemin                                                                                                       |
-| --------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Modèles               | `app/models/{supplier,category,attribute,attribute_value,product,product_attribute}.ts` + `*_translation.ts` |
-| Transformers          | `app/transformers/*_transformer.ts`                                                                          |
-| Validators            | `app/validators/{supplier,category,attribute,product}.ts`                                                    |
-| Types partagés        | `shared/types/{supplier,category,attribute,product}.ts`                                                      |
-| Helper traduction     | `shared/helpers/translations.ts`                                                                             |
-| Config FTS par locale | `shared/types/i18n.ts` (`LOCALE_TSCONFIG`)                                                                   |
-| Règles de schéma      | `database/schema_rules.ts`                                                                                   |
-| Seeders               | `database/seeders/{supplier,category,attribute,product}_seeder.ts`                                           |
+| Domaine            | Chemin                                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Modèles            | `app/models/{supplier,category,attribute,attribute_value,product,product_attribute}.ts` + `*_translation.ts` |
+| Transformers       | `app/transformers/*_transformer.ts`                                                                          |
+| Validators         | `app/validators/{supplier,category,attribute,product}.ts`                                                    |
+| Types partagés     | `shared/types/{supplier,category,attribute,product}.ts`                                                      |
+| Helper traduction  | `shared/helpers/translations.ts`                                                                             |
+| Langues de contenu | `shared/types/i18n.ts` (`CONTENT_LOCALES`)                                                                   |
+| Règles de schéma   | `database/schema_rules.ts`                                                                                   |
+| Seeders            | `database/seeders/{supplier,category,attribute,product}_seeder.ts`                                           |
 
 ## Tests
 
 - `tests/functional/catalogue.spec.ts` — sanity du seed, transformers
   localisés, filtrage `ET` via relations réelles.
-- `tests/functional/catalogue_fts.spec.ts` — FTS par langue
-  (`to_tsquery('english', …)` vs `to_tsquery('french', …)`), présence/absence
-  de `products.embedding`.
 - `tests/functional/product_variants.spec.ts` — variantes, paliers, recalcul
   de la fourchette de prix, unicité SKU/palier, tri par prix.
 - `tests/inertia/product_variants.spec.ts` — sélecteur de variante, grille de prix.

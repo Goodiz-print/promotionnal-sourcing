@@ -27,6 +27,7 @@ const props = defineProps<{
   prefill?: RfqProductOptionType
   // Réponse du dernier partial reload `productSearch` ; absente tant qu'on n'a rien cherché.
   productResults?: RfqProductOptionType[]
+  productSearchUnavailable?: boolean
 }>()
 
 const emit = defineEmits<{ 'product-picked': [product: RfqProductOptionType] }>()
@@ -130,7 +131,11 @@ function submit() {
       />
     </div>
 
-    <RfqProductPicker :results="productResults" @pick="pickProduct" />
+    <RfqProductPicker
+      :results="productResults"
+      :unavailable="productSearchUnavailable"
+      @pick="pickProduct"
+    />
 
     <RfqItemsFields
       v-model="form.items"
