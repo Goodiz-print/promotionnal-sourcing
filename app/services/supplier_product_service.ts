@@ -18,6 +18,8 @@ import ProductTranslationSearchService from '#services/product_translation_searc
 import GenerateProductEmbeddingJob from '#jobs/generate_product_embedding_job'
 import GenerateImageVariantsJob from '#jobs/generate_image_variants_job'
 import logger from '@adonisjs/core/services/logger'
+import emitter from '@adonisjs/core/services/emitter'
+import ProductChanged from '#events/product_changed'
 import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
 import type Organization from '#models/organization'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
@@ -132,6 +134,7 @@ export default class SupplierProductService {
     await this.attachImages(product, files, 0)
     await this.refreshPrimaryImage(product)
     await this.queueEmbedding(product)
+    await emitter.emit(ProductChanged, new ProductChanged(product.id))
     if (product.isActive) {
       await this.translationQueue.queue('product', product.id, data.sourceLocale)
     }
@@ -168,6 +171,7 @@ export default class SupplierProductService {
     await this.attachImages(product, files, last ? last.position + 1 : 0)
     await this.refreshPrimaryImage(product)
     await this.queueEmbedding(product)
+    await emitter.emit(ProductChanged, new ProductChanged(product.id))
     if (product.isActive) await this.translationQueue.queue('product', product.id, sourceLocale)
 
     return product
@@ -190,6 +194,8 @@ export default class SupplierProductService {
     })
 
     await this.storage.dispatchDeletions(tombstones)
+    // Le produit n'existe plus : la synchronisation le retire de l'index.
+    await emitter.emit(ProductChanged, new ProductChanged(product.id))
   }
 
   /**

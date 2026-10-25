@@ -1,6 +1,8 @@
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
 import logger from '@adonisjs/core/services/logger'
+import emitter from '@adonisjs/core/services/emitter'
+import ProductChanged from '#events/product_changed'
 import aiConfig from '#config/ai'
 import { MissingTranslationSourceError } from '#exceptions/ai_errors'
 import { idempotencyKey, textHash } from '#shared/helpers/idempotency'
@@ -121,7 +123,10 @@ export default class TranslationService {
       .merge([...Object.keys(sourceFields), 'translation_key', 'is_auto', 'updated_at'])
 
     // Les lignes traduites doivent être recherchables dans leur langue (#84).
-    if (entity === 'product') await this.search.refreshForProduct(entityId)
+    if (entity === 'product') {
+      await this.search.refreshForProduct(entityId)
+      await emitter.emit(ProductChanged, new ProductChanged(entityId))
+    }
 
     logger.info({ ...logContext, outcome: 'called', targetLocales: pending }, 'ai translation')
     return 'called'

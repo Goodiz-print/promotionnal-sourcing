@@ -67,6 +67,17 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Meilisearch — moteur de recherche hybride (#112)
+  |----------------------------------------------------------
+  | Optionnelles : sans `MEILISEARCH_HOST`, l'indexation est désactivée (dev,
+  | test, CI) et PostgreSQL reste le seul moteur. `MEILISEARCH_API_KEY` doit
+  | autoriser l'écriture dans l'index (clé master ou clé dédiée).
+  */
+  MEILISEARCH_HOST: Env.schema.string.optional(),
+  MEILISEARCH_API_KEY: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
   | IA — embeddings produits (recherche sémantique)
   |----------------------------------------------------------
   | Provider-agnostique : `AI_PROVIDER` choisit le driver

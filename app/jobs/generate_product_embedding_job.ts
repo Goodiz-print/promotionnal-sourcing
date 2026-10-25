@@ -2,6 +2,8 @@ import { inject } from '@adonisjs/core'
 import { Job } from '@adonisjs/queue'
 import type { JobOptions } from '@adonisjs/queue/types'
 import logger from '@adonisjs/core/services/logger'
+import emitter from '@adonisjs/core/services/emitter'
+import ProductChanged from '#events/product_changed'
 import EmbeddingService from '#services/embedding_service'
 import aiConfig from '#config/ai'
 
@@ -46,7 +48,10 @@ export default class GenerateProductEmbeddingJob extends Job<GenerateProductEmbe
       .first()
     if (!product) return
 
-    await this.embeddings.embedAndStore(product)
+    // Le vecteur change le document d'index : on resynchronise.
+    if (await this.embeddings.embedAndStore(product)) {
+      await emitter.emit(ProductChanged, new ProductChanged(product.id))
+    }
   }
 
   async failed(error: Error) {

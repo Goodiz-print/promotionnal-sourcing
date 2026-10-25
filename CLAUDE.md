@@ -7,7 +7,7 @@
 - **Backend** : AdonisJS v7 (TypeScript strict)
 - **Frontend** : Vue 3 (Composition API) + Inertia.js (SSR)
 - **Base de données** : PostgreSQL via Lucid ORM (y compris en test)
-- **Recherche** : Meilisearch hébergé sur Clever Cloud (instance Docker, recherche hybride : mots-clés + vecteurs `mistral-embed`). Index alimenté depuis PostgreSQL par la queue, PostgreSQL reste la source de vérité (issue #112, ADR 0002 à rédiger)
+- **Recherche** : Meilisearch hébergé sur Clever Cloud (instance Docker, recherche hybride : mots-clés + vecteurs `mistral-embed`). Index alimenté depuis PostgreSQL par la queue, PostgreSQL reste la source de vérité (issue #112, ADR 0002, `docs/search.md`)
 - **ORM** : Lucid (migrations, seeders)
 - **Auth** : @adonisjs/auth avec bouncer + abilities pour les ACL
 - **IA** : Mistral AI via `@mistralai/mistralai` + système de queue AdonisJS
