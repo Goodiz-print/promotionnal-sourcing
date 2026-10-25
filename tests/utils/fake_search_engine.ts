@@ -20,6 +20,8 @@ export default class FakeSearchEngine extends SearchEngine {
   requests: ProductSearchRequest[] = []
   /** Réponse de `search` ; `Error` pour simuler un moteur injoignable. */
   hits: ProductSearchHits | Error = { ids: [], total: 0 }
+  /** Simule une API d'embeddings indisponible : seules les requêtes sémantiques échouent. */
+  failSemantic = false
 
   async upsert(documents: ProductSearchDocument[]) {
     if (documents.length > 0) this.upserted.push(documents)
@@ -31,6 +33,7 @@ export default class FakeSearchEngine extends SearchEngine {
 
   async search(request: ProductSearchRequest): Promise<ProductSearchHits> {
     this.requests.push(request)
+    if (this.failSemantic && request.semanticRatio > 0) throw new Error('embedding API unavailable')
     if (this.hits instanceof Error) throw this.hits
     return this.hits
   }

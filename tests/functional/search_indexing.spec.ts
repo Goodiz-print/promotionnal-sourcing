@@ -12,7 +12,6 @@ import OrganizationService from '#services/organization_service'
 import ProductIndexService from '#services/product_index_service'
 import FakeSearchEngine, { installFakeEngine } from '#tests/utils/fake_search_engine'
 import { useDatabase } from '#tests/utils/setup'
-import { SEARCH_EMBEDDER } from '#shared/types/search'
 
 /**
  * Synchronisation PostgreSQL → index de recherche (#112). Le moteur est un
@@ -61,23 +60,53 @@ test.group('Recherche — documents d’index', (group) => {
       document.attributeValueIds,
       product.productAttributes.map((row) => row.attributeValueId!).filter(Boolean)
     )
-    assert.isNull(document._vectors[SEARCH_EMBEDDER])
+    assert.isString(document.embeddingText)
   })
 
-  test('le vecteur stocké en base est repris tel quel', async ({ assert }) => {
+  test('le texte vectorisé : nom source, catégorie, facettes, début de description', async ({
+    assert,
+  }) => {
     const product = await Product.findByOrFail('slug', 'crayon-hb-bleu')
-    const vector = Array.from({ length: 1024 }, (_, index) => (index % 7) / 8)
-    await db.rawQuery('UPDATE products SET embedding = ?::halfvec WHERE id = ?', [
-      `[${vector.join(',')}]`,
-      product.id,
-    ])
 
     const index = await service()
     await index.sync([product.id])
 
-    const [document] = fake.engine.upserted[0]
-    assert.lengthOf(document._vectors[SEARCH_EMBEDDER]!, 1024)
-    assert.closeTo(document._vectors[SEARCH_EMBEDDER]![7], vector[7], 0.01)
+    const lines = fake.engine.upserted[0][0].embeddingText.split('\n')
+    assert.equal(lines[0], 'Crayon HB Bleu')
+    assert.equal(lines[1], 'Crayon')
+    // Facettes « attribut : valeur », dans la langue source.
+    const facets = lines.filter((line) => line.includes(' : '))
+    assert.lengthOf(facets, 2)
+    assert.isTrue(facets.some((line) => /bleu/i.test(line)))
+    assert.include(lines[lines.length - 1], 'Crayon graphite laque bleu')
+    // Une seule langue : la traduction anglaise n'entre pas dans le texte.
+    assert.notInclude(fake.engine.upserted[0][0].embeddingText, 'Blue HB Pencil')
+  })
+
+  test('le texte vectorisé suit la langue source de la fiche', async ({ assert }) => {
+    const product = await Product.findByOrFail('slug', 'crayon-hb-bleu')
+    await product.merge({ sourceLocale: 'en' }).save()
+
+    const index = await service()
+    await index.sync([product.id])
+
+    const lines = fake.engine.upserted[0][0].embeddingText.split('\n')
+    assert.equal(lines[0], 'Blue HB Pencil')
+    assert.equal(lines[1], 'Pencil')
+  })
+
+  test('la description est tronquée, le texte reste borné', async ({ assert }) => {
+    const product = await Product.findByOrFail('slug', 'crayon-hb-bleu')
+    await db
+      .from('product_translations')
+      .where('product_id', product.id)
+      .where('locale', 'fr')
+      .update({ description: 'x'.repeat(5000) })
+
+    const index = await service()
+    await index.sync([product.id])
+
+    assert.isBelow(fake.engine.upserted[0][0].embeddingText.length, 500)
   })
 
   test('un produit inactif, rejeté ou inexistant est retiré de l’index', async ({ assert }) => {

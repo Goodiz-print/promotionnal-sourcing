@@ -87,63 +87,46 @@ Précision : écart de distance cosinus halfvec vs vector ≤ 1,6·10⁻⁵ (moy
 
 Limites : le jeu synthétique (bruit uniforme) est quasi-équidistant, donc un rappel@10 par identifiants n'y est pas significatif (même `vector`+HNSW n'atteint que ~52 %) ; le temps de build de l'index (62 s vs 12 s) est biaisé par `maintenance_work_mem` trop faible pour `vector`. À revalider sur de vrais embeddings `mistral-embed` quand le catalogue sera rempli ; retour arrière possible via le `down()` de la migration.
 
-## Recherche sémantique (embeddings Mistral)
+## Recherche sémantique (embedder de Meilisearch)
 
-En complément du full-text (correspondance lexicale), le catalogue offre une
-**recherche sémantique** : des produits pertinents remontent même sans mot-clé
-exact (« stylo écologique » → produits verts).
+En complément du mot-clé, la recherche est **sémantique** : des produits pertinents
+remontent même sans mot-clé exact (« stylo écologique » → produits verts), et dans
+une autre langue que celle de la fiche. **Meilisearch calcule lui-même les vecteurs**
+(embedder `rest` appelant l'API d'embeddings) : l'application n'a plus de job,
+de service, de commande ni de cache d'embeddings. Décision et compromis :
+[ADR 0002](adr/0002-recherche-meilisearch-hybride.md) ; fonctionnement :
+[`search.md`](search.md).
 
-- **Provider-agnostique** — `AI_PROVIDER` choisit le driver d'embeddings :
-  `mistral` (SDK natif) ou `openai-compatible` (driver générique HTTP parlant le
-  protocole OpenAI `/embeddings` : OpenAI, Together, Groq, Ollama, vLLM, LM
-  Studio… via `AI_BASE_URL` / `AI_API_KEY` / `AI_EMBED_MODEL`). Chaque driver
-  étend la classe abstraite `EmbeddingProvider` (token d'injection) ; le
-  **service provider** `providers/ai_provider.ts` lie ce token au driver choisi
-  (`container.singleton`), résolu par le **conteneur IoC** puis injecté dans
-  `EmbeddingService`. Ajouter un provider = un fichier dans
-  `app/services/embeddings/` + un `case` dans `provider_registry.ts`.
-- **Config** `config/ai.ts`. La vectorisation est **active par défaut dès que le
-  provider est configuré** : renseigner `MISTRAL_API_KEY` (ou `AI_API_KEY` /
-  `AI_BASE_URL` pour `openai-compatible`) suffit. Sans identifiants, elle reste
-  coupée (dev local, CI) et aucun appel réseau n'a lieu ; en `NODE_ENV=test`, elle
-  est coupée sauf demande explicite. `AI_EMBEDDINGS_ENABLED=false` la coupe même
-  avec une clé ; `=true` sans identifiants est une **erreur au démarrage**. La
-  **dimension est figée à 1024** (colonne `products.embedding`) : chaque provider
-  est configuré pour réduire à 1024 (`outputDimension` Mistral, `dimensions`
-  OpenAI) ; un vecteur d'une autre taille lève `EmbeddingDimensionError`.
-- **Génération** — `EmbeddingService` (provider injecté, testable) calcule
-  l'embedding depuis `productText` (nom + description, toutes locales) et l'écrit
-  en `products.embedding` (`?::halfvec`). Déclenchée en asynchrone par le job
-  `generate_product_embedding_job`, dispatché à la création/mise à jour d'un
-  produit (`supplier_product_service`, dispatch résilient — un échec queue ne
-  casse jamais l'écriture produit).
-- **Requête** — `products_controller` calcule (best-effort) l'embedding du terme
-  recherché quand l'IA est active ; `product_catalogue_service.list` trie alors
-  par distance cosinus (`embedding <=> ?::halfvec`, index HNSW) parmi les produits
-  vectorisés. **Repli automatique** sur le full-text si l'IA est indisponible ou
-  la requête non vectorisée.
-- **Backfill** — `node ace embeddings:backfill` génère les embeddings manquants
-  (produits importés en masse, activation initiale), par lots de 200 ; `--all`
-  repasse tout le catalogue (seuls les produits dont la clé d'idempotence a
-  changé rappellent l'API — à faire après un changement de modèle). Chaque
-  vecteur écrit déclenche la synchronisation de l'index Meilisearch.
+- **Texte vectorisé** — `ProductIndexService.embeddingText` : nom dans la langue
+  source, catégorie, facettes « attribut : valeur », début de description (300
+  caractères). Poussé dans chaque document (`embeddingText`), lu par le
+  `documentTemplate` de l'embedder.
+- **Activation** — `config/search.ts` (`embedder`). **Active par défaut dès que le
+  provider est configuré** : `MISTRAL_API_KEY` suffit (ou `AI_API_KEY` /
+  `AI_BASE_URL` avec `AI_PROVIDER=openai-compatible`, pour OpenAI, Together,
+  Ollama, vLLM…). Sans identifiants, ou en `NODE_ENV=test`, l'embedder est retiré
+  des réglages de l'index et la recherche reste par mots-clés.
+  `AI_EMBEDDINGS_ENABLED=false` la coupe même avec une clé ; `=true` sans
+  identifiants est une **erreur au démarrage**. Dimension : 1024.
+- **Colonnes héritées** — `products.embedding`, `products.embedding_key` et l'index
+  HNSW `products_embedding_idx` (voir « Décision halfvec » ci-dessus) ne sont plus
+  écrits ni lus ; leur suppression est une migration de la PR 3 de #112.
 
 ### Activer la vectorisation (production)
 
 1. Définir `MISTRAL_API_KEY` sur les applications **web et worker** (variables
    d'environnement Clever Cloud) ; `AI_EMBEDDINGS_ENABLED` n'a pas à être défini.
-2. Redéployer : les créations et mises à jour de produits déclenchent alors le
-   calcul de leur vecteur (`GenerateProductEmbeddingJob`).
-3. Vectoriser l'existant : `node ace embeddings:backfill`. Coût indicatif :
+2. Redéployer, puis `node ace search:reindex` : l'index est reconstruit avec
+   l'embedder, et Meilisearch vectorise tout le catalogue. Coût indicatif :
    ~0,10 $ par million de tokens, soit une vingtaine de dollars pour 1 M de fiches
    (à confirmer sur la grille du fournisseur).
-4. Si la recherche passe par Meilisearch, les vecteurs y arrivent au fil du
-   backfill ; `node ace search:reindex` rattrape l'index en une passe (sans
-   rappel d'API : les vecteurs sont en base).
-5. Mesurer : `node ace search:evaluate` (les requêtes sémantiques cessent d'être
+3. Ensuite, chaque création ou mise à jour de produit resynchronise son document ;
+   Meilisearch ne rappelle l'API que si le texte vectorisé change.
+4. Mesurer : `node ace search:evaluate` (les requêtes sémantiques cessent d'être
    ignorées) — cf. `docs/search.md`.
 
-Pour couper la vectorisation sans retirer la clé : `AI_EMBEDDINGS_ENABLED=false`.
+Pour couper la vectorisation sans retirer la clé : `AI_EMBEDDINGS_ENABLED=false`,
+puis `node ace search:reindex` (qui retire l'embedder et ses vecteurs).
 
 ## Catalogue public (lecture)
 

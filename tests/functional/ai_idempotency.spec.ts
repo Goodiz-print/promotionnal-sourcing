@@ -1,36 +1,17 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import Product from '#models/product'
-import EmbeddingService from '#services/embedding_service'
 import TranslationService from '#services/translation_service'
 import ProductTranslationSearchService from '#services/product_translation_search_service'
 import MistralTranslationProvider from '#services/translation/mistral_translation_provider'
 import aiConfig from '#config/ai'
 import { useDatabase } from '#tests/utils/setup'
-import type EmbeddingProvider from '#services/embeddings/embedding_provider'
 import type TranslationProvider from '#services/translation/translation_provider'
 import type { MistralChatClientLike } from '#shared/types/ai'
 import {
   createSupplierProductValidator,
   updateSupplierProductValidator,
 } from '#validators/supplier_product'
-
-const DIMS = aiConfig.embeddings.dimensions
-
-function countingEmbedder(): { provider: EmbeddingProvider; calls: () => number } {
-  let calls = 0
-  return {
-    calls: () => calls,
-    provider: {
-      name: 'mistral',
-      model: 'test-embed',
-      async embed() {
-        calls++
-        return new Array<number>(DIMS).fill(0.1)
-      },
-    },
-  }
-}
 
 /**
  * Faux traducteur : une entrée par appel, avec les locales demandées. Permet de
@@ -65,34 +46,6 @@ function countingTranslator(): {
 async function loadProduct(slug: string): Promise<Product> {
   return Product.query().where('slug', slug).preload('translations').firstOrFail()
 }
-
-test.group('Idempotence — embeddings', (group) => {
-  useDatabase(group, { seed: 'full' })
-
-  test('relancer sans changement du texte source n’appelle pas le provider', async ({ assert }) => {
-    const { provider, calls } = countingEmbedder()
-    const service = new EmbeddingService(provider)
-    const product = await loadProduct('crayon-hb-bleu')
-
-    assert.isTrue(await service.embedAndStore(product))
-    assert.isFalse(await service.embedAndStore(product))
-    assert.equal(calls(), 1)
-
-    const row = await db.from('products').where('id', product.id).first()
-    assert.equal(row.embedding_key, service.embeddingKey(EmbeddingService.productText(product)))
-  })
-
-  test('modifier le texte source recalcule l’embedding', async ({ assert }) => {
-    const { provider, calls } = countingEmbedder()
-    const service = new EmbeddingService(provider)
-    const product = await loadProduct('crayon-hb-bleu')
-
-    await service.embedAndStore(product)
-    product.translations[0].name = `${product.translations[0].name} v2`
-    assert.isTrue(await service.embedAndStore(product))
-    assert.equal(calls(), 2)
-  })
-})
 
 test.group('Idempotence — traductions', (group) => {
   useDatabase(group, { seed: 'full' })

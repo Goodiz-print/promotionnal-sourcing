@@ -1,8 +1,9 @@
 import { test } from '@japa/runner'
 import searchConfig from '#config/search'
 import MeilisearchEngine, {
-  PRODUCT_INDEX_SETTINGS,
+  buildEmbedders,
   buildProductFilter,
+  productIndexSettings,
 } from '#services/search/meilisearch_engine'
 import { SearchTaskFailedException } from '#exceptions/search_errors'
 import { SEARCH_EMBEDDER, type ProductSearchDocument } from '#shared/types/search'
@@ -98,7 +99,7 @@ function document(id: number): ProductSearchDocument {
     attributeValueIds: [3],
     names: { fr: 'Stylo' },
     descriptions: {},
-    _vectors: { [SEARCH_EMBEDDER]: null },
+    embeddingText: 'Stylo\nStylo\ncouleur : noir',
   }
 }
 
@@ -131,10 +132,9 @@ test.group('Meilisearch — pilote', (group) => {
       })
       const settings = stub.calls.filter((call) => call.path.endsWith('/settings'))
       assert.lengthOf(settings, 1)
-      assert.deepEqual(settings[0].body, PRODUCT_INDEX_SETTINGS)
-      const embedder = (settings[0].body as { embedders: Record<string, { source: string }> })
-        .embedders[SEARCH_EMBEDDER]
-      assert.equal(embedder.source, 'userProvided')
+      assert.deepEqual(settings[0].body, productIndexSettings())
+      // Embedder coupé (pas de clé en test) : réglage retiré, mots-clés seuls.
+      assert.isNull((settings[0].body as { embedders: unknown }).embedders)
 
       const writes = stub.calls.filter((call) => call.path.endsWith('/documents'))
       assert.lengthOf(writes, 2)
@@ -222,7 +222,11 @@ test.group('Meilisearch — pilote', (group) => {
 })
 
 test.group('Meilisearch — recherche', (group) => {
-  const previous = { host: searchConfig.host, key: searchConfig.apiKey }
+  const previous = {
+    host: searchConfig.host,
+    key: searchConfig.apiKey,
+    embedderEnabled: searchConfig.embedder.enabled,
+  }
 
   group.each.setup(() => {
     searchConfig.host = 'http://meili.test'
@@ -230,6 +234,7 @@ test.group('Meilisearch — recherche', (group) => {
     return () => {
       searchConfig.host = previous.host
       searchConfig.apiKey = previous.key
+      searchConfig.embedder.enabled = previous.embedderEnabled
     }
   })
 
@@ -242,15 +247,14 @@ test.group('Meilisearch — recherche', (group) => {
     )
   })
 
-  test('le vecteur et le ratio partent dans une requête hybride, avec les filtres', async ({
+  test('requête hybride : Meilisearch vectorise la requête, aucun vecteur n’est envoyé', async ({
     assert,
   }) => {
     const stub = stubMeilisearch()
+    searchConfig.embedder.enabled = true
     try {
-      const vector = [0.1, 0.2]
       const hits = await new MeilisearchEngine().search({
         query: 'crayon bleu',
-        vector,
         semanticRatio: 0.4,
         filter: { categoryId: 2, attributeValueIds: [5] },
         page: 2,
@@ -265,9 +269,9 @@ test.group('Meilisearch — recherche', (group) => {
         filter: 'categoryId = 2 AND attributeValueIds = 5',
         page: 2,
         hitsPerPage: 12,
-        vector,
         hybrid: { embedder: SEARCH_EMBEDDER, semanticRatio: 0.4 },
       })
+      assert.notProperty(call.body as object, 'vector')
       // Une recherche ne crée ni index ni réglages.
       assert.isUndefined(stub.calls.find((entry) => entry.path.endsWith('/settings')))
     } finally {
@@ -275,24 +279,99 @@ test.group('Meilisearch — recherche', (group) => {
     }
   })
 
-  test('sans vecteur, la requête est par mots-clés seuls', async ({ assert }) => {
+  test('ratio nul ou embedder coupé : mots-clés seuls, pas de hybrid', async ({ assert }) => {
     const stub = stubMeilisearch()
     try {
+      searchConfig.embedder.enabled = true
       await new MeilisearchEngine().search({
         query: 'crayon',
-        vector: null,
+        semanticRatio: 0,
+        filter: {},
+        page: 1,
+        perPage: 12,
+      })
+      searchConfig.embedder.enabled = false
+      await new MeilisearchEngine().search({
+        query: 'crayon',
         semanticRatio: 0.5,
         filter: {},
         page: 1,
         perPage: 12,
       })
 
-      const body = stub.calls.find((entry) => entry.path.endsWith('/search'))!.body as object
-      assert.notProperty(body, 'hybrid')
-      assert.notProperty(body, 'vector')
-      assert.notProperty(body, 'filter')
+      for (const call of stub.calls.filter((entry) => entry.path.endsWith('/search'))) {
+        assert.notProperty(call.body as object, 'hybrid')
+        assert.notProperty(call.body as object, 'filter')
+      }
     } finally {
       stub.restore()
     }
+  })
+})
+
+test.group('Meilisearch — embedder', (group) => {
+  const previous = { ...searchConfig.embedder }
+
+  group.each.setup(() => {
+    return () => {
+      Object.assign(searchConfig.embedder, previous)
+    }
+  })
+
+  const MISTRAL = {
+    enabled: true,
+    provider: 'mistral',
+    url: 'https://api.mistral.ai/v1/embeddings',
+    apiKey: 'secret',
+    model: 'mistral-embed',
+    dimensions: 1024,
+  }
+
+  test('coupé, aucun embedder : le réglage est retiré', ({ assert }) => {
+    assert.isNull(buildEmbedders({ ...MISTRAL, enabled: false }))
+  })
+
+  test('Mistral : Meilisearch vectorise embeddingText par lots via l’API OpenAI-compatible', ({
+    assert,
+  }) => {
+    const embedders = buildEmbedders(MISTRAL)!
+
+    assert.deepEqual(embedders[SEARCH_EMBEDDER], {
+      source: 'rest',
+      url: 'https://api.mistral.ai/v1/embeddings',
+      apiKey: 'secret',
+      dimensions: 1024,
+      documentTemplate: '{{ doc.embeddingText }}',
+      documentTemplateMaxBytes: 2000,
+      request: { model: 'mistral-embed', input: ['{{text}}', '{{..}}'] },
+      response: { data: [{ embedding: '{{embedding}}' }, '{{..}}'] },
+    })
+  })
+
+  test('endpoint compatible OpenAI : la dimension est demandée au modèle', ({ assert }) => {
+    const embedders = buildEmbedders({
+      ...MISTRAL,
+      provider: 'openai-compatible',
+      url: 'http://ollama:11434/v1/embeddings',
+      model: 'bge-m3',
+    })!
+
+    const embedder = embedders[SEARCH_EMBEDDER] as { request: Record<string, unknown> }
+    assert.deepEqual(embedder.request, {
+      model: 'bge-m3',
+      input: ['{{text}}', '{{..}}'],
+      dimensions: 1024,
+    })
+  })
+
+  test('les réglages de l’index embarquent l’embedder quand il est actif', ({ assert }) => {
+    Object.assign(searchConfig.embedder, MISTRAL)
+
+    const settings = productIndexSettings()
+
+    assert.property(settings.embedders as object, SEARCH_EMBEDDER)
+    assert.include(settings.searchableAttributes as string[], 'names')
+    // Le texte vectorisé n'est pas un champ cherchable : seul l'embedder le lit.
+    assert.notInclude(settings.searchableAttributes as string[], 'embeddingText')
   })
 })

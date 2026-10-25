@@ -12,8 +12,7 @@ import app from '@adonisjs/core/services/app'
  * modules de job **au boot** (`loadJobs`), or `OrganizationInvitationsService`
  * importe des **modèles Lucid** — les évaluer à ce stade casse la résolution du
  * service `hash` (`@adonisjs/auth`). Le service est donc importé et résolu dans
- * `execute()`, à l'image du modèle `Product` dans
- * `GenerateProductEmbeddingJob`. Voir la règle DI de `CLAUDE.md`.
+ * `execute()`, à l'image de `ExpireRfqsJob`. Voir la règle DI de `CLAUDE.md`.
  */
 export default class PurgeExpiredInvitationsJob extends Job {
   static options: JobOptions = {

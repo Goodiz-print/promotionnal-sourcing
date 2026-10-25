@@ -1,6 +1,4 @@
 import { test } from '@japa/runner'
-import searchConfig from '#config/search'
-import QueryVectorCache from '#services/search/query_vector_cache'
 import { REFERENCE_QUERIES } from '#services/search/reference_queries'
 import SearchEvaluationService from '#services/search/search_evaluation_service'
 import { REFERENCE_QUERY_KINDS, type ReferenceQuery } from '#shared/types/search'
@@ -91,53 +89,5 @@ test.group('Jeu de référence — verdict', () => {
       [...new Set(REFERENCE_QUERIES.map((query) => query.kind))],
       [...REFERENCE_QUERY_KINDS]
     )
-  })
-})
-
-test.group('Cache des vecteurs de requête', (group) => {
-  const previous = { ...searchConfig.queryVectorCache }
-
-  group.each.setup(() => {
-    searchConfig.queryVectorCache.ttlMs = 1000
-    searchConfig.queryVectorCache.maxEntries = 2
-    return () => {
-      Object.assign(searchConfig.queryVectorCache, previous)
-    }
-  })
-
-  test('une entrée expire après sa durée de vie', ({ assert }) => {
-    const cache = new QueryVectorCache()
-
-    cache.set('k', [1], 0)
-
-    assert.deepEqual(cache.get('k', 999), [1])
-    assert.isNull(cache.get('k', 1000))
-    assert.equal(cache.size, 0)
-  })
-
-  test('au-delà de la taille maximale, la plus ancienne est évincée', ({ assert }) => {
-    const cache = new QueryVectorCache()
-
-    cache.set('a', [1], 0)
-    cache.set('b', [2], 0)
-    cache.set('c', [3], 0)
-
-    assert.isNull(cache.get('a', 1))
-    assert.deepEqual(cache.get('b', 1), [2])
-    assert.deepEqual(cache.get('c', 1), [3])
-  })
-
-  test('réécrire une clé la rajeunit et vide le cache sur demande', ({ assert }) => {
-    const cache = new QueryVectorCache()
-
-    cache.set('a', [1], 0)
-    cache.set('b', [2], 0)
-    cache.set('a', [9], 0)
-    cache.set('c', [3], 0)
-
-    assert.deepEqual(cache.get('a', 1), [9])
-    assert.isNull(cache.get('b', 1))
-    cache.clear()
-    assert.equal(cache.size, 0)
   })
 })

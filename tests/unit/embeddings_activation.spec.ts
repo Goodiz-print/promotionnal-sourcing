@@ -1,5 +1,5 @@
 import { test } from '@japa/runner'
-import aiConfig from '#config/ai'
+import searchConfig from '#config/search'
 import {
   resolveEmbeddingsEnabled,
   type EmbeddingsActivationInput,
@@ -57,6 +57,6 @@ test.group('Vectorisation — activation', () => {
   })
 
   test('la suite de tests tourne avec la vectorisation coupée', ({ assert }) => {
-    assert.isFalse(aiConfig.embeddings.enabled)
+    assert.isFalse(searchConfig.embedder.enabled)
   })
 })

@@ -1,14 +1,15 @@
 import type { ContentLocale } from './i18n.js'
 
 /**
- * Nom de l'embedder Meilisearch. Les vecteurs sont **fournis par l'application**
- * (`userProvided`, calculés par `EmbeddingService` avec le provider configuré,
- * `mistral-embed` par défaut — ADR 0002, décision 3) :
- * Meilisearch ne fait que les stocker et les comparer.
+ * Nom de l'embedder Meilisearch. Les vecteurs sont **calculés par Meilisearch**
+ * (embedder `rest` appelant l'API d'embeddings, `mistral-embed` par défaut —
+ * ADR 0002, décision 3) à partir du champ `embeddingText` de chaque document :
+ * l'application n'appelle jamais le provider, ni pour les fiches ni pour les
+ * requêtes.
  */
 export const SEARCH_EMBEDDER = 'default'
 
-/** Dimension des vecteurs, figée avec `products.embedding` (`halfvec(1024)`). */
+/** Dimension des vecteurs de l'embedder (1024 : `mistral-embed`). */
 export const SEARCH_EMBEDDING_DIMENSIONS = 1024
 
 /**
@@ -33,8 +34,14 @@ export interface ProductSearchDocument {
   names: Partial<Record<ContentLocale, string>>
   /** Description par langue de contenu. */
   descriptions: Partial<Record<ContentLocale, string>>
-  /** Vecteur de `products.embedding`, absent tant que le produit n'est pas vectorisé. */
-  _vectors: { [SEARCH_EMBEDDER]: number[] | null }
+  /**
+   * Texte que Meilisearch vectorise (`documentTemplate` de l'embedder) : nom dans
+   * la langue source, catégorie, facettes « attribut : valeur », début de la
+   * description. Conçu pour la recherche, pas pour l'affichage (ADR 0002,
+   * décision 4) ; toute modification de sa construction se répercute à la
+   * prochaine synchronisation du produit, ou par `search:reindex`.
+   */
+  embeddingText: string
 }
 
 /** Résultat d'une synchronisation de produits vers l'index. */
@@ -58,9 +65,10 @@ export interface ProductSearchFilter {
 export interface ProductSearchRequest {
   /** Mots-clés saisis par l'utilisateur (tolérance aux fautes côté moteur). */
   query: string
-  /** Vecteur de la requête ; `null` = mots-clés seuls. */
-  vector: number[] | null
-  /** Poids du sémantique, de 0 (mots-clés) à 1 (vecteurs) ; ignoré sans vecteur. */
+  /**
+   * Poids du sémantique, de 0 à 1. À 0, recherche par mots-clés seuls : Meilisearch
+   * n'appelle pas l'API d'embeddings. Au-dessus, il vectorise lui-même `query`.
+   */
   semanticRatio: number
   filter: ProductSearchFilter
   /** Page demandée, à partir de 1. */
