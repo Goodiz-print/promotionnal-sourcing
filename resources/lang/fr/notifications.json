@@ -20,6 +20,14 @@
     "organization": {
       "invited": "Vous avez été invité à rejoindre une organisation.",
       "member_joined": "{memberName} a rejoint {organizationName}."
+    },
+    "order": {
+      "created": "Une commande a été créée suite à l'acceptation de votre devis pour {rfqTitle}. Confirmez-la.",
+      "confirmed": "{supplierName} a confirmé votre commande pour {rfqTitle}.",
+      "in_production": "Votre commande pour {rfqTitle} est en production chez {supplierName}.",
+      "shipped": "{supplierName} a expédié votre commande pour {rfqTitle}.",
+      "delivered": "{buyerName} a confirmé la réception de la commande pour {rfqTitle}.",
+      "cancelled": "La commande pour {rfqTitle} a été annulée."
     }
   }
 }

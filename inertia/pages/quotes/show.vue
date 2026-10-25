@@ -13,7 +13,7 @@ import type { QuoteType } from '#shared/types/quote'
  * Devis remis, côté acheteur. Accepter rejette d'office les autres devis et
  * clôture la demande — d'où la confirmation ; rejeter laisse la demande ouverte.
  */
-const props = defineProps<{ quote: QuoteType; canDecide: boolean }>()
+const props = defineProps<{ quote: QuoteType; canDecide: boolean; orderId?: number }>()
 
 const { t, locale } = useI18n()
 
@@ -55,6 +55,15 @@ function decide(decision: 'accept' | 'reject') {
         {{ t('quote.form.validUntilOn', { date: formatDay(quote.validUntil, locale) }) }}
       </p>
     </div>
+
+    <Link
+      v-if="orderId"
+      route="orders.show"
+      :params="{ locale, id: orderId }"
+      class="text-sm text-[var(--color-primary)] hover:underline"
+    >
+      {{ t('order.viewOrder') }}
+    </Link>
 
     <QuoteLinesTable :quote="quote" />
 

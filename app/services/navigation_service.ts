@@ -43,11 +43,15 @@ export default class NavigationService {
     add('catalogue', 'products.index')
     add('suppliers', 'suppliers.index')
 
-    if (isBuyer) add('rfqs', 'rfqs.index')
+    if (isBuyer) {
+      add('rfqs', 'rfqs.index')
+      add('orders', 'orders.index')
+    }
     if (isSupplier) {
       add('supplierProducts', 'supplier.products.index')
       add('supplierRfqs', 'supplier.rfqs.index')
       add('supplierQuotes', 'supplier.quotes.index')
+      add('supplierOrders', 'supplier.orders.index')
       add('supplierProfile', 'supplier.profile')
     }
     if (MANAGEMENT_ROLES.includes(roleSlug)) {

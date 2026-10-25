@@ -10,11 +10,20 @@ export const NOTIFICATION_TYPES = [
   'quote.received',
   'quote.accepted',
   'quote.rejected',
+  'order.created',
+  'order.confirmed',
+  'order.in_production',
+  'order.shipped',
+  'order.delivered',
+  'order.cancelled',
   'organization.invited',
   'organization.member_joined',
 ] as const
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number]
+
+/** Types liés aux commandes (#6) : `order.created`, `order.shipped`… */
+export type OrderNotificationType = Extract<NotificationType, `order.${string}`>
 
 export interface NotificationData {
   [key: string]: string | number | boolean | null

@@ -42,7 +42,7 @@ draft ──submit──▶ submitted ──accept──▶ accepted
 - **Accepter** (`accept`) : en une transaction, le devis passe `accepted`, la
   demande est clôturée (`closed`) et tous les autres devis **remis** passent
   `rejected` (les brouillons ne sont pas touchés). Émet `QuoteAccepted` — le point
-  d'entrée de la création de commande (#6) — puis `QuoteRejected` pour chaque
+  d'entrée de la création de commande (voir [`orders.md`](orders.md)) — puis `QuoteRejected` pour chaque
   perdant.
 - **Rejeter** (`reject`) : un seul devis, la demande reste ouverte. Émet `QuoteRejected`.
 - **Expirer** : `ExpireRfqsJob` fait expirer les brouillons et devis remis des

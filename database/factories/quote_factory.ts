@@ -16,4 +16,9 @@ export const QuoteFactory = factory
     quote.status = 'submitted'
     quote.submittedAt = DateTime.now()
   })
+  .state('accepted', (quote) => {
+    quote.status = 'accepted'
+    quote.submittedAt = DateTime.now()
+    quote.decidedAt = DateTime.now()
+  })
   .build()

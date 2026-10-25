@@ -31,7 +31,7 @@ export default class NotificationTransformer extends BaseTransformer<Notificatio
   /** Écran où la notification mène ; retombe sur la liste si le contexte manque. */
   private href(): string {
     const { locale } = this
-    const { rfqId, quoteId } = this.resource.data
+    const { rfqId, quoteId, orderId, side } = this.resource.data
 
     switch (this.resource.type) {
       case 'rfq.received':
@@ -48,6 +48,20 @@ export default class NotificationTransformer extends BaseTransformer<Notificatio
       case 'quote.rejected':
         if (typeof quoteId === 'number') {
           return urlFor('supplier.quotes.show', { locale, id: quoteId })
+        }
+        break
+      case 'order.created':
+      case 'order.confirmed':
+      case 'order.in_production':
+      case 'order.shipped':
+      case 'order.delivered':
+      case 'order.cancelled':
+        // `side` : le côté du destinataire, qui détermine l'écran de la commande.
+        if (typeof orderId === 'number') {
+          return urlFor(side === 'supplier' ? 'supplier.orders.show' : 'orders.show', {
+            locale,
+            id: orderId,
+          })
         }
         break
       case 'organization.member_joined':
