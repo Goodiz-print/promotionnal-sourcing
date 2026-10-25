@@ -97,6 +97,9 @@ export type ScannedRoutes = {
     'supplier.quotes.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.submit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'notifications.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'notifications.read': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'notifications.readAll': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -149,6 +152,7 @@ export type ScannedRoutes = {
     'supplier.quotes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.quotes.create': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
     'supplier.quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'notifications.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -198,6 +202,7 @@ export type ScannedRoutes = {
     'supplier.quotes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.quotes.create': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
     'supplier.quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'notifications.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -239,6 +244,7 @@ export type ScannedRoutes = {
     'supplier.rfqs.decline': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
     'supplier.quotes.submit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'notifications.readAll': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
   }
   PATCH: {
@@ -252,6 +258,7 @@ export type ScannedRoutes = {
     'quotes.accept': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quotes.reject': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'notifications.read': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.categories.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
   }
   DELETE: {

@@ -17,6 +17,7 @@ import {
 } from '#start/limiter'
 import { registerRfqRoutes } from '#start/routes/rfqs'
 import { registerQuoteRoutes } from '#start/routes/quotes'
+import { registerNotificationRoutes } from '#start/routes/notifications'
 import { registerDocumentRoutes } from '#start/routes/documents'
 import { registerHealthRoutes } from '#start/routes/health'
 import { registerMarketingRoutes, registerMarketingLegacyRoutes } from '#start/routes/marketing'
@@ -252,6 +253,7 @@ router
                 // Demandes de devis, acheteur et fournisseur — cf. `start/routes/rfqs.ts`.
                 registerRfqRoutes()
                 registerQuoteRoutes()
+                registerNotificationRoutes()
               })
               .use(middleware.onboarded())
 

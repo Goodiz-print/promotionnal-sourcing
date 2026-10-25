@@ -6,15 +6,19 @@ import UserTransformer from '#transformers/user_transformer'
 import OrganizationSummaryTransformer from '#transformers/organization_summary_transformer'
 import OrganizationContextService from '#services/organization_context_service'
 import NavigationService from '#services/navigation_service'
+import NotificationService from '#services/notification_service'
+import NotificationTransformer from '#transformers/notification_transformer'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
 import type { RoleSlug } from '#shared/types/role'
 import { DEFAULT_LOCALE, ENGLISH_FALLBACK_NAMESPACES, type Locale } from '#shared/types/i18n'
+import { NOTIFICATION_DROPDOWN_SIZE } from '#shared/types/notification'
 
 @inject()
 export default class InertiaMiddleware extends BaseInertiaMiddleware {
   constructor(
     private organizations: OrganizationContextService,
-    private navigation: NavigationService
+    private navigation: NavigationService,
+    private notifications: NotificationService
   ) {
     super()
   }
@@ -92,6 +96,21 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       // pages publiques rendues sans utilisateur connecté. Même convention que
       // le prop `user` ci-dessus.
       currentOrganizationId: ctx.inertia.always(auth?.user?.currentOrganizationId ?? undefined),
+      // Cloche (#57) : le compteur accompagne chaque page ; la liste, plus coûteuse,
+      // n'est calculée que quand le menu s'ouvre (partial reload). `undefined`
+      // hors connexion, pour la même raison que `user`.
+      unreadNotificationsCount: ctx.inertia.always(
+        auth?.user ? await this.notifications.unreadCount(auth.user) : undefined
+      ),
+      recentNotifications: ctx.inertia.optional(async () => {
+        if (!auth?.user) return []
+        const recent = await this.notifications.listFor(auth.user, {
+          limit: NOTIFICATION_DROPDOWN_SIZE,
+        })
+        return recent.map((notification) =>
+          new NotificationTransformer(notification, locale as Locale).toObject()
+        )
+      }),
     }
   }
 

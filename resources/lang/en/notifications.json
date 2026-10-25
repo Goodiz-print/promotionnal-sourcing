@@ -1,0 +1,25 @@
+{
+  "title": "Notifications",
+  "empty": "No notifications yet.",
+  "seeAll": "See all",
+  "markAllRead": "Mark all as read",
+  "unread": "Unread",
+  "unreadCount": "{count, plural, one {# unread notification} other {# unread notifications}}",
+  "toast": "You have a new notification.",
+  "types": {
+    "rfq": {
+      "received": "{buyerName} sent you a request for quotation: {rfqTitle}.",
+      "responded": "A supplier replied to the request {rfqTitle}.",
+      "declined": "{supplierName} declined the request {rfqTitle}."
+    },
+    "quote": {
+      "received": "{supplierName} submitted a quote for {rfqTitle}.",
+      "accepted": "{buyerName} accepted your quote for {rfqTitle}.",
+      "rejected": "{buyerName} rejected your quote for {rfqTitle}."
+    },
+    "organization": {
+      "invited": "You have been invited to join an organization.",
+      "member_joined": "{memberName} joined {organizationName}."
+    }
+  }
+}

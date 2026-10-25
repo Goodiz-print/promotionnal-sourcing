@@ -157,6 +157,11 @@ export interface ApiDefinition {
     accept: typeof routes['quotes.accept']
     reject: typeof routes['quotes.reject']
   }
+  notifications: {
+    index: typeof routes['notifications.index']
+    read: typeof routes['notifications.read']
+    readAll: typeof routes['notifications.readAll']
+  }
   admin: {
     dashboard: typeof routes['admin.dashboard']
     organizations: {

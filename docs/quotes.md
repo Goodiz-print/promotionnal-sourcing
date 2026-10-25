@@ -80,8 +80,11 @@ refus métier (`app/exceptions/quote_errors.ts`) deviennent des messages flash.
 un mail `quote-received` par responsable de l'organisation acheteuse (rôles
 `RFQ_MANAGER_ROLES`, dans leur langue). Un échec de mise en queue est loggué sans
 faire échouer la remise ; un listener défaillant non plus (`QuoteService` publie
-les événements après la transition et logge l'erreur). La notification in-app
-suivra avec #57.
+les événements après la transition et logge l'erreur). Le même listener crée une
+**notification in-app** `quote.received` pour ces responsables
+(`InAppNotificationService#quoteSubmitted`) ; `QuoteAccepted` / `QuoteRejected`
+en créent une `quote.accepted` / `quote.rejected` pour les responsables du
+fournisseur (`RFQ_RESPONDER_ROLES`). Voir [`entites-transverses.md`](entites-transverses.md).
 
 ## Écrans
 

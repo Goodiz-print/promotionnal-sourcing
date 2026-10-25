@@ -564,6 +564,24 @@ const routes = {
     tokens: [{"old":"/:locale/supplier/quotes/:id","type":1,"val":"locale","end":""},{"old":"/:locale/supplier/quotes/:id","type":0,"val":"supplier","end":""},{"old":"/:locale/supplier/quotes/:id","type":0,"val":"quotes","end":""},{"old":"/:locale/supplier/quotes/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['supplier.quotes.destroy']['types'],
   },
+  'notifications.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/notifications',
+    tokens: [{"old":"/:locale/notifications","type":1,"val":"locale","end":""},{"old":"/:locale/notifications","type":0,"val":"notifications","end":""}],
+    types: placeholder as Registry['notifications.index']['types'],
+  },
+  'notifications.read': {
+    methods: ["PATCH"],
+    pattern: '/:locale/notifications/:id/read',
+    tokens: [{"old":"/:locale/notifications/:id/read","type":1,"val":"locale","end":""},{"old":"/:locale/notifications/:id/read","type":0,"val":"notifications","end":""},{"old":"/:locale/notifications/:id/read","type":1,"val":"id","end":""},{"old":"/:locale/notifications/:id/read","type":0,"val":"read","end":""}],
+    types: placeholder as Registry['notifications.read']['types'],
+  },
+  'notifications.readAll': {
+    methods: ["POST"],
+    pattern: '/:locale/notifications/read-all',
+    tokens: [{"old":"/:locale/notifications/read-all","type":1,"val":"locale","end":""},{"old":"/:locale/notifications/read-all","type":0,"val":"notifications","end":""},{"old":"/:locale/notifications/read-all","type":0,"val":"read-all","end":""}],
+    types: placeholder as Registry['notifications.readAll']['types'],
+  },
   'admin.dashboard': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin',
