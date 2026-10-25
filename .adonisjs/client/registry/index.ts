@@ -120,6 +120,18 @@ const routes = {
     tokens: [{"old":"/:locale/signup","type":1,"val":"locale","end":""},{"old":"/:locale/signup","type":0,"val":"signup","end":""}],
     types: placeholder as Registry['new_account.store']['types'],
   },
+  'agency_signup.create': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/signup/agency',
+    tokens: [{"old":"/:locale/signup/agency","type":1,"val":"locale","end":""},{"old":"/:locale/signup/agency","type":0,"val":"signup","end":""},{"old":"/:locale/signup/agency","type":0,"val":"agency","end":""}],
+    types: placeholder as Registry['agency_signup.create']['types'],
+  },
+  'agency_signup.store': {
+    methods: ["POST"],
+    pattern: '/:locale/signup/agency',
+    tokens: [{"old":"/:locale/signup/agency","type":1,"val":"locale","end":""},{"old":"/:locale/signup/agency","type":0,"val":"signup","end":""},{"old":"/:locale/signup/agency","type":0,"val":"agency","end":""}],
+    types: placeholder as Registry['agency_signup.store']['types'],
+  },
   'session.create': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/login',

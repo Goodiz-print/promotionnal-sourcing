@@ -730,6 +730,7 @@ export class OrganizationSchema extends BaseModel {
     'organizationType',
     'phone',
     'postalCode',
+    'reviewReasons',
     'siret',
     'size',
     'slug',
@@ -778,6 +779,8 @@ export class OrganizationSchema extends BaseModel {
   declare phone: string | null
   @column()
   declare postalCode: string | null
+  @column()
+  declare reviewReasons: any
   @column()
   declare siret: string | null
   @column()

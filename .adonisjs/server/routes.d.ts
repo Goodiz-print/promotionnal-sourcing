@@ -23,6 +23,8 @@ export type ScannedRoutes = {
     'email.verify': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'new_account.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'agency_signup.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'agency_signup.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'passkey.login.options': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -137,6 +139,7 @@ export type ScannedRoutes = {
     'organization.invitations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'email.verify': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'agency_signup.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'passkey.login.options': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'password.forgot': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -191,6 +194,7 @@ export type ScannedRoutes = {
     'organization.invitations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'email.verify': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'agency_signup.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'passkey.login.options': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'password.forgot': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -234,6 +238,7 @@ export type ScannedRoutes = {
     'unsubscribe': { paramsTuple?: []; params?: {} }
     'locale.update': { paramsTuple?: []; params?: {} }
     'new_account.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'agency_signup.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'passkey.login': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'password.email': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }

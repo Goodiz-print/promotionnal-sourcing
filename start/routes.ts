@@ -83,6 +83,13 @@ router
         router.get('signup', [controllers.NewAccount, 'create'])
         router.post('signup', [controllers.NewAccount, 'store']).use(signupThrottle)
 
+        // Inscription agence : compte utilisateur + organisation acheteur en une étape.
+        router.get('signup/agency', [controllers.AgencySignup, 'create']).as('agency_signup.create')
+        router
+          .post('signup/agency', [controllers.AgencySignup, 'store'])
+          .as('agency_signup.store')
+          .use(signupThrottle)
+
         router.get('login', [controllers.Session, 'create'])
         router.post('login', [controllers.Session, 'store']).use(loginThrottle)
 

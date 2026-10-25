@@ -1,0 +1,48 @@
+{
+  "title": "Registo de agências",
+  "subtitle": "Dois minutos, sem cartão de crédito nem chamada comercial.",
+  "submit": "Criar a minha conta de agência",
+  "haveAccount": "Já tenho uma conta",
+  "taxIdHelp": "Número de IVA intracomunitário, ou SIRET para França. Verificado automaticamente.",
+  "websiteHelp": "Se o domínio do seu e-mail for o do seu site, a conta é ativada de imediato. Sem site, validação manual em 24 h.",
+  "active": "Conta criada e ativada. Confirme o seu e-mail para continuar.",
+  "pending_review": "Conta criada. A nossa equipa valida-a em 24 h; entretanto, confirme o seu e-mail.",
+  "sections": {
+    "account": "Sobre si",
+    "company": "A sua empresa",
+    "consents": "Consentimentos"
+  },
+  "fields": {
+    "civility": "Tratamento",
+    "email": "E-mail profissional",
+    "companyName": "Denominação social",
+    "country": "País",
+    "taxId": "Número de IVA ou SIRET",
+    "website": "Site",
+    "phone": "Telefone",
+    "activity": "Atividade",
+    "activityOther": "Descreva a sua atividade",
+    "locale": "Idioma"
+  },
+  "civility": {
+    "none": "Não indicado",
+    "madame": "Senhora",
+    "monsieur": "Senhor"
+  },
+  "country": {
+    "placeholder": "Escolher um país"
+  },
+  "activity": {
+    "placeholder": "Escolher uma atividade",
+    "object_communication_agency": "Agência de comunicação por objetos",
+    "distributor_reseller": "Distribuidor / revendedor",
+    "printer_marker": "Impressor / personalizador",
+    "communication_events_agency": "Agência de comunicação / eventos",
+    "other": "Outra"
+  },
+  "consents": {
+    "professional": "Certifico ser profissional do objeto e do têxtil personalizado.",
+    "terms": "Aceito as condições gerais de utilização.",
+    "partners": "Aceito receber a newsletter e as comunicações dos parceiros (facultativo)."
+  }
+}

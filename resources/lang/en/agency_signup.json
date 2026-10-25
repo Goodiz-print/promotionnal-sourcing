@@ -1,0 +1,48 @@
+{
+  "title": "Agency sign-up",
+  "subtitle": "Two minutes, no credit card, no sales call.",
+  "submit": "Create my agency account",
+  "haveAccount": "I already have an account",
+  "taxIdHelp": "EU VAT number, or SIRET for France. Checked automatically.",
+  "websiteHelp": "If your email domain matches your website, your account is activated immediately. Without a website, manual review within 24 h.",
+  "active": "Account created and active. Confirm your email address to continue.",
+  "pending_review": "Account created. Our team will review it within 24 h; meanwhile, confirm your email address.",
+  "sections": {
+    "account": "About you",
+    "company": "Your company",
+    "consents": "Consents"
+  },
+  "fields": {
+    "civility": "Title",
+    "email": "Work email",
+    "companyName": "Company name",
+    "country": "Country",
+    "taxId": "VAT number or SIRET",
+    "website": "Website",
+    "phone": "Phone",
+    "activity": "Activity",
+    "activityOther": "Describe your activity",
+    "locale": "Language"
+  },
+  "civility": {
+    "none": "Not specified",
+    "madame": "Ms",
+    "monsieur": "Mr"
+  },
+  "country": {
+    "placeholder": "Select a country"
+  },
+  "activity": {
+    "placeholder": "Select an activity",
+    "object_communication_agency": "Promotional products agency",
+    "distributor_reseller": "Distributor / reseller",
+    "printer_marker": "Printer / decorator",
+    "communication_events_agency": "Communication / events agency",
+    "other": "Other"
+  },
+  "consents": {
+    "professional": "I certify that I am a professional in promotional products and custom textiles.",
+    "terms": "I accept the terms of use.",
+    "partners": "I agree to receive the newsletter and partner communications (optional)."
+  }
+}

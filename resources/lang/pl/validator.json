@@ -7,7 +7,16 @@
       "password": "hasło",
       "passwordConfirmation": "potwierdzenie hasła",
       "locale": "język",
-      "currentPassword": "obecne hasło"
+      "currentPassword": "obecne hasło",
+      "companyName": "firma",
+      "country": "kraj",
+      "taxId": "numer VAT lub SIRET",
+      "website": "strona internetowa",
+      "phone": "telefon",
+      "activity": "działalność",
+      "activityOther": "opis działalności",
+      "certifiesProfessional": "oświadczenie zawodowe",
+      "acceptsTerms": "regulamin"
     },
     "messages": {
       "required": "Pole {field} jest wymagane",
@@ -18,7 +27,10 @@
       "confirmed": "Potwierdzenie pola {field} nie jest zgodne",
       "enum": "Wartość pola {field} jest nieprawidłowa",
       "database.unique": "Ta wartość pola {field} jest już używana",
-      "notSameAs": "Nowa wartość pola {field} musi różnić się od poprzedniej"
+      "notSameAs": "Nowa wartość pola {field} musi różnić się od poprzedniej",
+      "regex": "Pole {field} ma nieprawidłowy format",
+      "accepted": "Musisz zaznaczyć „{field}”",
+      "url": "Pole {field} musi być prawidłowym adresem URL"
     }
   }
 }

@@ -235,6 +235,30 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/new_account_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'agency_signup.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/signup/agency'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/agency_signup_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/agency_signup_controller').default['create']>>>
+    }
+  }
+  'agency_signup.store': {
+    methods: ["POST"]
+    pattern: '/:locale/signup/agency'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/agency_signup').agencySignupValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/agency_signup').agencySignupValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/agency_signup_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/agency_signup_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'session.create': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/login'

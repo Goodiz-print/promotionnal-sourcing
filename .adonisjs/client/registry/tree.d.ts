@@ -59,6 +59,10 @@ export interface ApiDefinition {
     create: typeof routes['new_account.create']
     store: typeof routes['new_account.store']
   }
+  agencySignup: {
+    create: typeof routes['agency_signup.create']
+    store: typeof routes['agency_signup.store']
+  }
   session: {
     create: typeof routes['session.create']
     store: typeof routes['session.store']

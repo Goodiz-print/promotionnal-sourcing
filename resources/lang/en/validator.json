@@ -7,7 +7,16 @@
       "password": "password",
       "passwordConfirmation": "password confirmation",
       "locale": "language",
-      "currentPassword": "current password"
+      "currentPassword": "current password",
+      "companyName": "company",
+      "country": "country",
+      "taxId": "VAT number or SIRET",
+      "website": "website",
+      "phone": "phone",
+      "activity": "activity",
+      "activityOther": "activity details",
+      "certifiesProfessional": "professional certification",
+      "acceptsTerms": "terms of use"
     },
     "messages": {
       "required": "The {field} field is required",
@@ -18,7 +27,10 @@
       "confirmed": "The {field} field confirmation does not match",
       "enum": "The selected {field} is invalid",
       "database.unique": "This {field} is already in use",
-      "notSameAs": "The new {field} must be different from the current one"
+      "notSameAs": "The new {field} must be different from the current one",
+      "regex": "The {field} field format is invalid",
+      "accepted": "You must tick “{field}”",
+      "url": "The {field} field must be a valid URL"
     }
   }
 }

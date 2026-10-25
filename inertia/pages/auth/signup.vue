@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
+import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseInput from '~/components/base/base_input.vue'
@@ -77,5 +78,11 @@ function submit() {
         {{ t('auth.signup.submit') }}
       </BaseButton>
     </form>
+
+    <p class="mt-6 text-sm text-[var(--gray-6)]">
+      <Link route="agency_signup.create" :params="{ locale }" class="underline">
+        {{ t('auth.signup.agencyLink') }}
+      </Link>
+    </p>
   </div>
 </template>

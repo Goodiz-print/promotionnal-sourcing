@@ -1,6 +1,7 @@
 import { hasMany, hasOne, manyToMany } from '@adonisjs/lucid/orm'
 import type { HasMany, HasOne, ManyToMany } from '@adonisjs/lucid/types/relations'
 import { OrganizationSchema } from '#database/schema'
+import type { AgencyReviewReason } from '#shared/types/agency_signup'
 import OrganizationUser from '#models/organization_user'
 import Supplier from '#models/supplier'
 import SupplierProfile from '#models/supplier_profile'
@@ -25,6 +26,7 @@ export default class Organization extends OrganizationSchema {
   declare size: OrganizationSize | null
   declare organizationType: OrganizationKind
   declare subscriptionPlan: SubscriptionPlan
+  declare reviewReasons: AgencyReviewReason[]
 
   @hasMany(() => OrganizationUser)
   declare organizationUsers: HasMany<typeof OrganizationUser>

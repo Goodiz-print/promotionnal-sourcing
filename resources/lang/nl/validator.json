@@ -7,7 +7,16 @@
       "password": "wachtwoord",
       "passwordConfirmation": "wachtwoordbevestiging",
       "locale": "taal",
-      "currentPassword": "huidig wachtwoord"
+      "currentPassword": "huidig wachtwoord",
+      "companyName": "bedrijf",
+      "country": "land",
+      "taxId": "btw-nummer of SIRET",
+      "website": "website",
+      "phone": "telefoon",
+      "activity": "activiteit",
+      "activityOther": "omschrijving van de activiteit",
+      "certifiesProfessional": "beroepsverklaring",
+      "acceptsTerms": "gebruiksvoorwaarden"
     },
     "messages": {
       "required": "Het veld {field} is verplicht",
@@ -18,7 +27,10 @@
       "confirmed": "De bevestiging van het veld {field} komt niet overeen",
       "enum": "De waarde van het veld {field} is ongeldig",
       "database.unique": "Deze waarde voor {field} is al in gebruik",
-      "notSameAs": "Het nieuwe {field} moet verschillen van het oude"
+      "notSameAs": "Het nieuwe {field} moet verschillen van het oude",
+      "regex": "Het formaat van het veld {field} is ongeldig",
+      "accepted": "Je moet “{field}” aanvinken",
+      "url": "Het veld {field} moet een geldige URL zijn"
     }
   }
 }

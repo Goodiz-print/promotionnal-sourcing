@@ -28,6 +28,16 @@ export interface OnboardingData {
 }
 
 /**
+ * Options de création d'une organisation : transaction de l'appelant et colonnes
+ * à poser dès la création (coordonnées, vérifications…). Les colonnes sont
+ * typées en `Record` pour ne pas importer le modèle depuis `shared/`.
+ */
+export interface CreateOrganizationOptions {
+  client?: import('@adonisjs/lucid/types/database').TransactionClientContract
+  attributes?: Record<string, unknown>
+}
+
+/**
  * Périmètre de livraison d'un fournisseur.
  */
 export const DELIVERY_SCOPES = ['national', 'europe', 'worldwide'] as const

@@ -1,0 +1,48 @@
+{
+  "title": "Registratie voor bureaus",
+  "subtitle": "Twee minuten, zonder creditcard en zonder verkoopgesprek.",
+  "submit": "Mijn bureau-account aanmaken",
+  "haveAccount": "Ik heb al een account",
+  "taxIdHelp": "Intracommunautair btw-nummer, of SIRET voor Frankrijk. Wordt automatisch gecontroleerd.",
+  "websiteHelp": "Komt het domein van je e-mail overeen met je website, dan wordt je account meteen geactiveerd. Zonder website: handmatige controle binnen 24 uur.",
+  "active": "Account aangemaakt en geactiveerd. Bevestig je e-mailadres om verder te gaan.",
+  "pending_review": "Account aangemaakt. Ons team controleert het binnen 24 uur; bevestig intussen je e-mailadres.",
+  "sections": {
+    "account": "Over jou",
+    "company": "Je bedrijf",
+    "consents": "Toestemmingen"
+  },
+  "fields": {
+    "civility": "Aanhef",
+    "email": "Zakelijk e-mailadres",
+    "companyName": "Bedrijfsnaam",
+    "country": "Land",
+    "taxId": "Btw-nummer of SIRET",
+    "website": "Website",
+    "phone": "Telefoon",
+    "activity": "Activiteit",
+    "activityOther": "Beschrijf je activiteit",
+    "locale": "Taal"
+  },
+  "civility": {
+    "none": "Niet opgegeven",
+    "madame": "Mevrouw",
+    "monsieur": "De heer"
+  },
+  "country": {
+    "placeholder": "Kies een land"
+  },
+  "activity": {
+    "placeholder": "Kies een activiteit",
+    "object_communication_agency": "Bureau voor reclamegeschenken",
+    "distributor_reseller": "Distributeur / wederverkoper",
+    "printer_marker": "Drukker / bedrukker",
+    "communication_events_agency": "Communicatie- / evenementenbureau",
+    "other": "Andere"
+  },
+  "consents": {
+    "professional": "Ik verklaar professional te zijn in reclameartikelen en bedrukt textiel.",
+    "terms": "Ik accepteer de gebruiksvoorwaarden.",
+    "partners": "Ik wil de nieuwsbrief en mededelingen van partners ontvangen (optioneel)."
+  }
+}

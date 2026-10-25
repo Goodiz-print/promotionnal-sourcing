@@ -7,7 +7,16 @@
       "password": "password",
       "passwordConfirmation": "conferma della password",
       "locale": "lingua",
-      "currentPassword": "password attuale"
+      "currentPassword": "password attuale",
+      "companyName": "azienda",
+      "country": "paese",
+      "taxId": "partita IVA o SIRET",
+      "website": "sito web",
+      "phone": "telefono",
+      "activity": "attività",
+      "activityOther": "dettaglio dell'attività",
+      "certifiesProfessional": "certificazione professionale",
+      "acceptsTerms": "condizioni generali"
     },
     "messages": {
       "required": "Il campo {field} è obbligatorio",
@@ -18,7 +27,10 @@
       "confirmed": "La conferma del campo {field} non corrisponde",
       "enum": "Il valore del campo {field} non è valido",
       "database.unique": "Questo valore di {field} è già in uso",
-      "notSameAs": "Il nuovo valore di {field} deve essere diverso dal precedente"
+      "notSameAs": "Il nuovo valore di {field} deve essere diverso dal precedente",
+      "regex": "Il formato del campo {field} non è valido",
+      "accepted": "Devi selezionare «{field}»",
+      "url": "Il campo {field} deve essere un URL valido"
     }
   }
 }

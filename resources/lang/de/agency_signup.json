@@ -1,0 +1,48 @@
+{
+  "title": "Registrierung für Agenturen",
+  "subtitle": "Zwei Minuten, ohne Kreditkarte und ohne Verkaufsgespräch.",
+  "submit": "Agenturkonto erstellen",
+  "haveAccount": "Ich habe bereits ein Konto",
+  "taxIdHelp": "EU-USt-IdNr. oder SIRET für Frankreich. Wird automatisch geprüft.",
+  "websiteHelp": "Stimmt Ihre E-Mail-Domain mit Ihrer Website überein, wird Ihr Konto sofort aktiviert. Ohne Website: manuelle Prüfung innerhalb von 24 Std.",
+  "active": "Konto erstellt und aktiviert. Bestätigen Sie Ihre E-Mail-Adresse, um fortzufahren.",
+  "pending_review": "Konto erstellt. Unser Team prüft es innerhalb von 24 Std.; bestätigen Sie in der Zwischenzeit Ihre E-Mail-Adresse.",
+  "sections": {
+    "account": "Zu Ihrer Person",
+    "company": "Ihr Unternehmen",
+    "consents": "Einwilligungen"
+  },
+  "fields": {
+    "civility": "Anrede",
+    "email": "Geschäftliche E-Mail",
+    "companyName": "Firmenname",
+    "country": "Land",
+    "taxId": "USt-IdNr. oder SIRET",
+    "website": "Website",
+    "phone": "Telefon",
+    "activity": "Tätigkeit",
+    "activityOther": "Tätigkeit beschreiben",
+    "locale": "Sprache"
+  },
+  "civility": {
+    "none": "Keine Angabe",
+    "madame": "Frau",
+    "monsieur": "Herr"
+  },
+  "country": {
+    "placeholder": "Land auswählen"
+  },
+  "activity": {
+    "placeholder": "Tätigkeit auswählen",
+    "object_communication_agency": "Agentur für Werbeartikel",
+    "distributor_reseller": "Händler / Wiederverkäufer",
+    "printer_marker": "Druckerei / Veredler",
+    "communication_events_agency": "Kommunikations- / Eventagentur",
+    "other": "Sonstiges"
+  },
+  "consents": {
+    "professional": "Ich bestätige, dass ich Fachmann für Werbeartikel und individuell bedruckte Textilien bin.",
+    "terms": "Ich akzeptiere die Nutzungsbedingungen.",
+    "partners": "Ich möchte den Newsletter und Mitteilungen von Partnern erhalten (optional)."
+  }
+}
