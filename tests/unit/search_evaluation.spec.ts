@@ -34,6 +34,15 @@ test.group('Jeu de référence — verdict', () => {
     assert.equal(SearchEvaluationService.judge(query, late).status, 'failed')
   })
 
+  test('rank resserre la fenêtre : une fiche attendue trop loin ne compte pas', ({ assert }) => {
+    const query = { ...EXACT, exact: false, rank: 2 }
+
+    assert.equal(SearchEvaluationService.judge(query, ['a', 'b', 'c']).status, 'passed')
+    const far = SearchEvaluationService.judge(query, ['a', 'c', 'b'])
+    assert.equal(far.status, 'failed')
+    assert.deepEqual(far.missing, ['b'])
+  })
+
   test('un ET sans résultat attendu réussit seulement s’il ne renvoie rien', ({ assert }) => {
     const empty: ReferenceQuery = { ...EXACT, expected: [] }
 

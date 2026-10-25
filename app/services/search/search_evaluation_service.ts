@@ -60,7 +60,7 @@ export default class SearchEvaluationService {
     query: ReferenceQuery,
     returned: string[]
   ): Pick<ReferenceQueryResult, 'status' | 'recallAt10' | 'missing' | 'unexpected'> {
-    const top = returned.slice(0, RANK_CUTOFF)
+    const top = returned.slice(0, query.rank ?? RANK_CUTOFF)
     const missing = query.expected.filter((slug) => !top.includes(slug))
     const unexpected = returned.filter((slug) => !query.expected.includes(slug))
     const recallAt10 =

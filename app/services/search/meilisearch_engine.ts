@@ -11,12 +11,18 @@ import {
   type ProductSearchRequest,
 } from '#shared/types/search'
 
+/** Texte vectorisé : `embeddingText` de chaque document, rien d'autre. */
+const DOCUMENT_TEMPLATE = '{{ doc.embeddingText }}'
+
 /**
- * Embedder `rest` de Meilisearch (ADR 0002, décision 3) : Meilisearch appelle
- * l'API d'embeddings (Mistral, ou tout endpoint compatible OpenAI) pour les
- * fiches — il vectorise `embeddingText` — et pour les requêtes. Le format de
- * requête et de réponse est celui de l'API OpenAI `/embeddings`, que Mistral
- * partage : `input` reçoit un lot de textes, `data[].embedding` les vecteurs.
+ * Embedder de l'index (ADR 0002, décision 3) : c'est Meilisearch qui calcule les
+ * vecteurs, à partir de `embeddingText`, pour les fiches et pour les requêtes.
+ *
+ * - `huggingface` (défaut) : Meilisearch télécharge le modèle et le fait tourner
+ *   lui-même, sans clé. Sa dimension est celle du modèle (non déclarée) ;
+ * - `mistral` / `openai-compatible` : embedder `rest` appelant l'API
+ *   d'embeddings. Le format est celui de l'API OpenAI `/embeddings`, que Mistral
+ *   partage : `input` reçoit un lot de textes, `data[].embedding` les vecteurs.
  *
  * `null` quand l'embedder est coupé : appliqué aux réglages, il retire un
  * embedder existant, et la recherche redevient par mots-clés seuls.
@@ -24,16 +30,23 @@ import {
 export function buildEmbedders(embedder: typeof searchConfig.embedder): Embedders {
   if (!embedder.enabled) return null
 
+  // Le défaut (400 octets) tronquerait le texte : ~1 500 caractères suffisent
+  // pour nom, catégorie, facettes et début de description.
+  const documentTemplate = { documentTemplate: DOCUMENT_TEMPLATE, documentTemplateMaxBytes: 2000 }
+
+  if (embedder.provider === 'huggingface') {
+    return {
+      [SEARCH_EMBEDDER]: { source: 'huggingFace', model: embedder.model, ...documentTemplate },
+    }
+  }
+
   return {
     [SEARCH_EMBEDDER]: {
       source: 'rest',
       url: embedder.url,
       apiKey: embedder.apiKey,
       dimensions: embedder.dimensions,
-      documentTemplate: '{{ doc.embeddingText }}',
-      // Le défaut (400 octets) tronquerait le texte : ~1 500 caractères suffisent
-      // pour nom, catégorie, facettes et début de description.
-      documentTemplateMaxBytes: 2000,
+      ...documentTemplate,
       request: {
         model: embedder.model,
         input: ['{{text}}', '{{..}}'],

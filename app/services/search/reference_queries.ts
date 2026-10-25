@@ -96,10 +96,19 @@ export const REFERENCE_QUERIES: ReferenceQuery[] = [
     exact: true,
   },
   {
+    // Tous les instruments d'écriture (3 crayons, 2 stylos) devant le sac : sur un
+    // seed de 6 fiches, c'est ce qui sépare le sémantique du hasard.
     id: 'sem-ecrire',
     kind: 'semantic',
     query: 'something to write with',
-    expected: ['stylo-bille-bleu', 'stylo-bille-noir'],
+    expected: [
+      'stylo-bille-bleu',
+      'stylo-bille-noir',
+      'crayon-hb-bleu',
+      'crayon-aquarelle-bleu',
+      'crayon-hb-rouge',
+    ],
+    rank: 5,
     requiresEmbeddings: true,
   },
   {
@@ -107,6 +116,7 @@ export const REFERENCE_QUERIES: ReferenceQuery[] = [
     kind: 'semantic',
     query: 'bolígrafo azul',
     expected: ['stylo-bille-bleu'],
+    rank: 3,
     requiresEmbeddings: true,
   },
 ]

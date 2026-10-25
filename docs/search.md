@@ -28,15 +28,24 @@ Seuls les produits **visibles** sont indexés : actifs, organisation non archiv�
 
 ## Vectorisation (embedder de Meilisearch)
 
-**Meilisearch calcule lui-même les vecteurs** (ADR 0002, décision 3). L'index déclare un embedder `rest` (`buildEmbedders`) qui appelle l'API d'embeddings — format OpenAI `/embeddings`, que Mistral partage — avec `documentTemplate: '{{ doc.embeddingText }}'` : à l'indexation il vectorise `embeddingText` de chaque fiche, à la recherche le texte `q`. L'application ne fait aucun appel au provider, n'a pas de copie des vecteurs en base et ne gère ni lots ni rejeux d'embeddings.
+**Meilisearch calcule lui-même les vecteurs** (ADR 0002, décision 3), à partir du champ `embeddingText` de chaque document (`documentTemplate: '{{ doc.embeddingText }}'`) à l'indexation, et du texte `q` à la recherche. L'application ne fait aucun appel à un modèle d'embeddings, n'a pas de copie des vecteurs en base et ne gère ni lots ni rejeux d'embeddings.
 
+| `AI_PROVIDER`              | Embedder Meilisearch | Où tourne le modèle                                             | Clé                           |
+| -------------------------- | -------------------- | --------------------------------------------------------------- | ----------------------------- |
+| `huggingface` (**défaut**) | `huggingFace`        | Dans Meilisearch (modèle téléchargé)                            | Aucune                        |
+| `mistral`                  | `rest`               | API Mistral                                                     | `MISTRAL_API_KEY`             |
+| `openai-compatible`        | `rest`               | Endpoint OpenAI `/embeddings` (OpenAI, Together, Ollama, vLLM…) | `AI_API_KEY` ou `AI_BASE_URL` |
+
+- **Modèle par défaut** : `intfloat/multilingual-e5-base` (multilingue, 768 dimensions, ~1 Go), modifiable par `HF_EMBED_MODEL` (`MISTRAL_EMBED_MODEL`, `AI_EMBED_MODEL` pour les autres providers). C'est un point de départ, à trancher par `search:evaluate`.
 - **Texte vectorisé** (`ProductIndexService.embeddingText`) : nom dans la **langue source**, catégorie, facettes « attribut : valeur », début de description (300 caractères). Une seule langue : le modèle est multilingue, et concaténer les traductions ferait changer le texte à chaque traduction automatique.
-- **Activation** (`config/search.ts`, `embedder`) : active dès que le provider est configuré (`MISTRAL_API_KEY`, ou `AI_API_KEY` / `AI_BASE_URL` avec `AI_PROVIDER=openai-compatible`) ; coupée sans identifiants et en `NODE_ENV=test` ; `AI_EMBEDDINGS_ENABLED=false` la coupe, `=true` sans identifiants échoue au démarrage. Coupée, elle est retirée des réglages : mots-clés seuls.
-- **Réglages appliqués à la création de l'index** : activer, couper ou changer d'embedder se fait donc par `node ace search:reindex` (index temporaire créé avec les nouveaux réglages, puis échangé).
-- **Coût** : la reconstruction complète rappelle l'API pour tout le catalogue (~20 $ pour 1 M de fiches avec `mistral-embed`, à confirmer). Les mises à jour de fiches ne coûtent que si le texte vectorisé change.
-- **Panne de l'API d'embeddings** : à l'indexation, la tâche Meilisearch échoue → `SearchTaskFailedException`, le job est rejoué ; à la recherche, la requête est rejouée en mots-clés seuls.
+- **Activation** (`config/search.ts`, `embedder`) : **active par défaut** (le provider `huggingface` n'a rien à configurer). `AI_EMBEDDINGS_ENABLED=false` la coupe (mots-clés seuls) ; `=true` avec un provider API sans identifiants échoue au démarrage ; en `NODE_ENV=test`, coupée sauf demande explicite. Coupée, elle est retirée des réglages de l'index.
+- **Les réglages sont appliqués à la création de l'index** : activer, couper ou changer d'embedder ou de modèle se fait par `node ace search:reindex` (index temporaire créé avec les nouveaux réglages, puis échangé).
+- **Coût** : la reconstruction complète recalcule tous les vecteurs — du temps de calcul sur l'instance Meilisearch avec `huggingface`, ~20 $ pour 1 M de fiches avec `mistral-embed` (à confirmer). Les mises à jour de fiches ne recalculent que si le texte vectorisé change.
+- **Premier usage avec `huggingface`** : Meilisearch télécharge le modèle (~1 Go) depuis Hugging Face ; la première tâche d'indexation est longue (délai d'attente : 10 minutes). L'instance doit joindre Hugging Face en sortie (cf. `docs/deploiement.md`).
+- **Embedder indisponible** (API en panne ou limitée, modèle pas encore chargé) : à l'indexation, la tâche Meilisearch échoue → `SearchTaskFailedException`, le job est rejoué ; à la recherche, la requête est rejouée en mots-clés seuls.
+- **Latence** : la requête est vectorisée par Meilisearch à chaque recherche hybride (sur son CPU avec `huggingface`) ; à mesurer par `search:evaluate`. Le sélecteur de produit des demandes de devis reste par mots-clés pour ne pas payer ce calcul à chaque frappe.
 
-⚠️ La configuration `rest` est celle de la documentation de Meilisearch pour les API de type OpenAI, mais **elle n'a pas été exécutée contre une vraie API d'embeddings** (la CI n'a pas de clé) : le premier `search:reindex` avec une clé en préproduction fera foi.
+⚠️ **Jamais exécuté contre un vrai modèle en local** (pas de Docker ici). Le job CI `test-search-semantic` fait tourner Meilisearch avec l'embedder `huggingface` et rejoue les requêtes sémantiques ; tant qu'il n'est pas vert, le support du modèle par Meilisearch et la qualité sur le seed restent à confirmer. À valider ensuite en préproduction sur de vraies fiches multilingues. Les modèles e5 recommandent des préfixes `query:` / `passage:` que Meilisearch n'ajoute pas côté requête : on n'en met d'aucun côté.
 
 ## Qui déclenche une synchronisation
 
@@ -95,13 +104,13 @@ node ace search:evaluate --reindex    # reconstruit l'index puis mesure
 
 `search:evaluate` rejoue chaque requête **à travers le vrai chemin** (`ProductSearchService`, rechargement PostgreSQL compris) et affiche verdict, rappel@10 et latence par requête, puis le rappel moyen et les latences p50 / p95 ; code de sortie 1 si une requête échoue. C'est l'outil qui sert à **choisir par la mesure** le modèle d'embeddings, `SEARCH_SEMANTIC_RATIO` et la quantification (ADR 0002, décisions 3, 7 et 10) : changer l'un d'eux, relancer, comparer.
 
-En CI, le job `test-search` démarre un vrai Meilisearch et rejoue les requêtes non sémantiques (`tests/functional/search_reference.spec.ts`) ; `pnpm test` ignore ce fichier faute de `MEILISEARCH_HOST`.
+En CI, le job `test-search` démarre un vrai Meilisearch et rejoue les requêtes non sémantiques ; `test-search-semantic` y ajoute l'embedder `huggingface` et rejoue aussi les requêtes sémantiques (`tests/functional/search_reference.spec.ts`). `pnpm test` ignore ce fichier faute de `MEILISEARCH_HOST`.
 
-⚠️ Le seed ne contient que du français et de l'anglais, et la CI n'a pas de clé d'embeddings : il éprouve le pipeline (mots-clés, fautes, ET, rechargement) mais **pas la qualité multilingue du modèle**. Avant de figer le modèle, étendre le jeu avec de vraies fiches dans plusieurs langues et activer l'embedder.
+⚠️ Le seed ne contient que du français et de l'anglais, sur six fiches : il éprouve le pipeline (mots-clés, fautes, ET, rechargement, et le sémantique en CI) mais **pas la qualité multilingue du modèle**. Avant de figer le modèle, étendre le jeu avec de vraies fiches dans plusieurs langues.
 
 ## Connu, non traité (étapes suivantes de #112)
 
-- **Embedder jamais exécuté contre une vraie API** : voir l'avertissement de « Vectorisation ». À valider avec une clé en préproduction.
+- **Embedder à valider en conditions réelles** : voir l'avertissement de « Vectorisation » (support du modèle, débit d'indexation, mémoire de l'instance).
 - **Choix du modèle, du ratio et de la quantification** : à faire avec des vecteurs réels (les valeurs par défaut — `mistral-embed`, 0,5, pas de quantification — sont celles de l'ADR).
 - **Mesure de latence p95 à 1 M de produits** : `search:evaluate` la mesure sur l'index courant ; il reste à l'exécuter sur un catalogue de cette taille.
 - Retrait du `tsvector` par langue et du HNSW, traductions (PR 3).

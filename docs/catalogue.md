@@ -92,7 +92,7 @@ Limites : le jeu synthétique (bruit uniforme) est quasi-équidistant, donc un r
 En complément du mot-clé, la recherche est **sémantique** : des produits pertinents
 remontent même sans mot-clé exact (« stylo écologique » → produits verts), et dans
 une autre langue que celle de la fiche. **Meilisearch calcule lui-même les vecteurs**
-(embedder `rest` appelant l'API d'embeddings) : l'application n'a plus de job,
+(modèle local `huggingFace` par défaut, ou API d'embeddings) : l'application n'a plus de job,
 de service, de commande ni de cache d'embeddings. Décision et compromis :
 [ADR 0002](adr/0002-recherche-meilisearch-hybride.md) ; fonctionnement :
 [`search.md`](search.md).
@@ -101,32 +101,38 @@ de service, de commande ni de cache d'embeddings. Décision et compromis :
   source, catégorie, facettes « attribut : valeur », début de description (300
   caractères). Poussé dans chaque document (`embeddingText`), lu par le
   `documentTemplate` de l'embedder.
-- **Activation** — `config/search.ts` (`embedder`). **Active par défaut dès que le
-  provider est configuré** : `MISTRAL_API_KEY` suffit (ou `AI_API_KEY` /
-  `AI_BASE_URL` avec `AI_PROVIDER=openai-compatible`, pour OpenAI, Together,
-  Ollama, vLLM…). Sans identifiants, ou en `NODE_ENV=test`, l'embedder est retiré
-  des réglages de l'index et la recherche reste par mots-clés.
-  `AI_EMBEDDINGS_ENABLED=false` la coupe même avec une clé ; `=true` sans
-  identifiants est une **erreur au démarrage**. Dimension : 1024.
+- **Activation** — `config/search.ts` (`embedder`). **Active par défaut** : le
+  provider par défaut, `huggingface`, fait tourner un modèle multilingue
+  open-weight (`intfloat/multilingual-e5-base`) **dans Meilisearch, sans clé ni
+  coût par token**. `AI_PROVIDER=mistral` (avec `MISTRAL_API_KEY`) ou
+  `openai-compatible` (`AI_API_KEY` / `AI_BASE_URL`) appellent à la place une API
+  d'embeddings. `AI_EMBEDDINGS_ENABLED=false` la coupe (mots-clés seuls) ; `=true`
+  avec un provider API sans identifiants est une **erreur au démarrage** ; en
+  `NODE_ENV=test`, elle est coupée sauf demande explicite.
 - **Colonnes héritées** — `products.embedding`, `products.embedding_key` et l'index
   HNSW `products_embedding_idx` (voir « Décision halfvec » ci-dessus) ne sont plus
   écrits ni lus ; leur suppression est une migration de la PR 3 de #112.
 
 ### Activer la vectorisation (production)
 
-1. Définir `MISTRAL_API_KEY` sur les applications **web et worker** (variables
-   d'environnement Clever Cloud) ; `AI_EMBEDDINGS_ENABLED` n'a pas à être défini.
+La vectorisation est active par défaut ; il n'y a **aucune clé à définir** avec le
+provider `huggingface`.
+
+1. S'assurer que l'instance Meilisearch peut joindre Hugging Face en sortie (le
+   modèle, ~1 Go, est téléchargé au premier usage) et qu'elle a assez de RAM / CPU
+   (voir `docs/deploiement.md`).
 2. Redéployer, puis `node ace search:reindex` : l'index est reconstruit avec
-   l'embedder, et Meilisearch vectorise tout le catalogue. Coût indicatif :
-   ~0,10 $ par million de tokens, soit une vingtaine de dollars pour 1 M de fiches
-   (à confirmer sur la grille du fournisseur).
+   l'embedder et Meilisearch vectorise tout le catalogue. La première tâche est
+   longue (téléchargement du modèle, calcul sur CPU).
 3. Ensuite, chaque création ou mise à jour de produit resynchronise son document ;
-   Meilisearch ne rappelle l'API que si le texte vectorisé change.
+   Meilisearch ne recalcule le vecteur que si le texte vectorisé change.
 4. Mesurer : `node ace search:evaluate` (les requêtes sémantiques cessent d'être
    ignorées) — cf. `docs/search.md`.
 
-Pour couper la vectorisation sans retirer la clé : `AI_EMBEDDINGS_ENABLED=false`,
-puis `node ace search:reindex` (qui retire l'embedder et ses vecteurs).
+Pour utiliser l'API Mistral à la place : `AI_PROVIDER=mistral` et
+`MISTRAL_API_KEY` sur web et worker, puis `node ace search:reindex`. Pour couper la
+vectorisation : `AI_EMBEDDINGS_ENABLED=false`, puis `node ace search:reindex`
+(retire l'embedder et ses vecteurs).
 
 ## Catalogue public (lecture)
 

@@ -318,7 +318,18 @@ test.group('Meilisearch — embedder', (group) => {
     }
   })
 
-  const MISTRAL = {
+  type Embedder = typeof searchConfig.embedder
+
+  const HUGGING_FACE: Embedder = {
+    enabled: true,
+    provider: 'huggingface',
+    url: '',
+    apiKey: undefined,
+    model: 'intfloat/multilingual-e5-base',
+    dimensions: 1024,
+  }
+
+  const MISTRAL: Embedder = {
     enabled: true,
     provider: 'mistral',
     url: 'https://api.mistral.ai/v1/embeddings',
@@ -328,7 +339,21 @@ test.group('Meilisearch — embedder', (group) => {
   }
 
   test('coupé, aucun embedder : le réglage est retiré', ({ assert }) => {
+    assert.isNull(buildEmbedders({ ...HUGGING_FACE, enabled: false }))
     assert.isNull(buildEmbedders({ ...MISTRAL, enabled: false }))
+  })
+
+  test('huggingface : Meilisearch fait tourner le modèle lui-même, sans clé ni URL', ({
+    assert,
+  }) => {
+    const embedders = buildEmbedders(HUGGING_FACE)!
+
+    assert.deepEqual(embedders[SEARCH_EMBEDDER], {
+      source: 'huggingFace',
+      model: 'intfloat/multilingual-e5-base',
+      documentTemplate: '{{ doc.embeddingText }}',
+      documentTemplateMaxBytes: 2000,
+    })
   })
 
   test('Mistral : Meilisearch vectorise embeddingText par lots via l’API OpenAI-compatible', ({
@@ -365,7 +390,7 @@ test.group('Meilisearch — embedder', (group) => {
   })
 
   test('les réglages de l’index embarquent l’embedder quand il est actif', ({ assert }) => {
-    Object.assign(searchConfig.embedder, MISTRAL)
+    Object.assign(searchConfig.embedder, HUGGING_FACE)
 
     const settings = productIndexSettings()
 

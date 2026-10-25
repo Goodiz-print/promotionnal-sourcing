@@ -77,6 +77,7 @@ Moteur de recherche hybride, déployé en **instance Docker Clever Cloud** (Dock
 - Sauvegarde : snapshot Meilisearch planifié, copié hors de la plateforme.
 - Clé master et clé API de l'application : variables `MEILISEARCH_HOST` et `MEILISEARCH_API_KEY`, validées dans `start/env.ts`, documentées dans `.env.example`. Jamais dans l'image.
 - Sonde : `GET /health` sur le port du moteur.
+- **Modèle d'embeddings (défaut `huggingface`)** : Meilisearch télécharge le modèle (~1 Go pour `multilingual-e5-base`) depuis Hugging Face au premier usage, puis le garde sur son volume — l'instance doit pouvoir joindre Hugging Face en sortie et garder ses données entre redéploiements, sinon le modèle est retéléchargé. Il calcule aussi les vecteurs sur son CPU : prévoir plus que l'instance Docker M (4 Go), à dimensionner par la mesure (`node ace search:reindex`, puis `search:evaluate`). Un provider API (`AI_PROVIDER=mistral`) évite ce dimensionnement, au prix d'une clé et d'un coût par token.
 - Source de vérité : PostgreSQL. Un index corrompu ou perdu se reconstruit par réindexation complète (commande dédiée, rejouable), sans perte de données.
 - Les mises à jour de version Meilisearch passent par une réindexation si la release l'exige : la noter dans le changelog.
 

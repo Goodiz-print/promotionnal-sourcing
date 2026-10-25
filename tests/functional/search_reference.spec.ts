@@ -12,11 +12,14 @@ import type { SearchEvaluationReport } from '#shared/types/search'
  * Meilisearch : réindexe le seed `full`, rejoue chaque requête à travers le
  * chemin de recherche de l'application et vérifie le verdict.
  *
- * Nécessite `MEILISEARCH_HOST` (job CI `test-search`, ou `docker compose up -d`
- * en local) ; ignorée sinon, pour que `pnpm test` reste autonome. Les requêtes
- * sémantiques sont ignorées tant que la vectorisation est désactivée.
+ * Nécessite `MEILISEARCH_HOST` (jobs CI `test-search` et `test-search-semantic`,
+ * ou `docker compose up -d` en local) ; ignorée sinon, pour que `pnpm test` reste
+ * autonome. Les requêtes sémantiques ne sont rejouées que si l'embedder est actif
+ * (`AI_EMBEDDINGS_ENABLED=true` : le modèle `huggingface` est alors téléchargé par
+ * Meilisearch, sans clé).
  */
 const SKIP_REASON = 'MEILISEARCH_HOST absent : Meilisearch non joignable'
+const SEMANTIC_SKIP_REASON = 'embedder coupé : requête sémantique ignorée'
 
 test.group('Recherche — jeu de référence (Meilisearch réel)', (group) => {
   useDatabase(group, { seed: 'full', perTest: false })
@@ -31,7 +34,12 @@ test.group('Recherche — jeu de référence (Meilisearch réel)', (group) => {
     report = await evaluation.evaluate()
   })
 
-  for (const query of REFERENCE_QUERIES.filter((entry) => !entry.requiresEmbeddings)) {
+  // Mots-clés, fautes de frappe, ET : toujours rejoués. Les requêtes sémantiques ne
+  // le sont que si l'embedder est actif (job CI `test-search-semantic`).
+  for (const query of REFERENCE_QUERIES) {
+    const semantic = Boolean(query.requiresEmbeddings)
+    const active = searchConfig.enabled && (!semantic || searchConfig.embedder.enabled)
+
     test(`${query.id} (${query.kind}) : « ${query.query} »`, ({ assert }) => {
       const result = report.results.find((entry) => entry.id === query.id)!
 
@@ -40,17 +48,17 @@ test.group('Recherche — jeu de référence (Meilisearch réel)', (group) => {
         'passed',
         `manque [${result.missing.join(', ')}], en trop [${result.unexpected.join(', ')}], reçu [${result.returned.join(', ')}]`
       )
-    }).skip(!searchConfig.enabled, SKIP_REASON)
+    }).skip(!active, semantic && searchConfig.enabled ? SEMANTIC_SKIP_REASON : SKIP_REASON)
   }
 
-  test('les requêtes sémantiques sont ignorées sans vecteurs', ({ assert }) => {
+  test('les requêtes sémantiques sont ignorées quand l’embedder est coupé', ({ assert }) => {
     const skipped = report.results.filter((entry) => entry.status === 'skipped')
 
     assert.sameMembers(
       skipped.map((entry) => entry.id),
       REFERENCE_QUERIES.filter((entry) => entry.requiresEmbeddings).map((entry) => entry.id)
     )
-  }).skip(!searchConfig.enabled, SKIP_REASON)
+  }).skip(!searchConfig.enabled || searchConfig.embedder.enabled, SKIP_REASON)
 
   test('le rappel@10 des requêtes évaluées est complet', ({ assert }) => {
     assert.equal(report.recallAt10, 1)
