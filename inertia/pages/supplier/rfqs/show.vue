@@ -8,9 +8,15 @@ import BaseBadge from '~/components/base/base_badge.vue'
 import BaseButton from '~/components/base/base_button.vue'
 import RfqItemList from '~/components/rfqs/rfq_item_list.vue'
 import { RFQ_SUPPLIER_STATUS_TONES } from '~/components/rfqs/types'
+import { QUOTE_STATUS_TONES } from '~/components/quotes/types'
+import type { RfqQuoteSummaryType } from '#shared/types/quote'
 import type { SupplierRfqDetailType } from '#shared/types/rfq'
 
-const props = defineProps<{ rfq: SupplierRfqDetailType }>()
+const props = defineProps<{
+  rfq: SupplierRfqDetailType
+  quote: RfqQuoteSummaryType | null
+  canQuote: boolean
+}>()
 
 const { t, locale } = useI18n()
 
@@ -86,13 +92,29 @@ function formatDate(value: string): string {
       <RfqItemList :items="rfq.items" />
     </section>
 
-    <div v-if="canDecline" class="flex flex-wrap items-center gap-4">
-      <BaseButton variant="danger" @click="decline()">
+    <div v-if="quote || canQuote || canDecline" class="flex flex-wrap items-center gap-4">
+      <Link
+        v-if="quote"
+        route="supplier.quotes.show"
+        :params="{ locale, id: quote.id }"
+        class="rounded border border-[var(--gray-4)] px-3 py-2 text-sm font-medium hover:bg-[var(--gray-2)]"
+      >
+        {{ t('quote.supplier.rfq.viewQuote') }}
+      </Link>
+      <Link
+        v-else-if="canQuote"
+        route="supplier.quotes.create"
+        :params="{ locale, rfqId: rfq.id }"
+        class="rounded border border-[var(--gray-4)] px-3 py-2 text-sm font-medium hover:bg-[var(--gray-2)]"
+      >
+        {{ t('quote.supplier.rfq.respond') }}
+      </Link>
+      <BaseBadge v-if="quote" :tone="QUOTE_STATUS_TONES[quote.status]">
+        {{ t(`quote.status.${quote.status}`) }}
+      </BaseBadge>
+      <BaseButton v-if="canDecline && !quote" variant="danger" @click="decline()">
         {{ t('rfq.supplier.actions.decline') }}
       </BaseButton>
-      <!-- Le dépôt de devis est la Phase 4 (#5) : on l'annonce plutôt que de
-           laisser le fournisseur chercher un bouton qui n'existe pas. -->
-      <span class="text-sm text-[var(--gray-6)]">{{ t('rfq.supplier.show.quoteSoon') }}</span>
     </div>
   </div>
 </template>

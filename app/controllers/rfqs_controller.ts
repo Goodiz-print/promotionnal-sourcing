@@ -4,9 +4,11 @@ import { errors as vineErrors } from '@vinejs/vine'
 import CategoryService from '#services/category_service'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import OrganizationContextService from '#services/organization_context_service'
+import QuoteService from '#services/quote_service'
 import RfqNotificationService from '#services/rfq_notification_service'
 import RfqService from '#services/rfq_service'
 import CategoryTransformer from '#transformers/category_transformer'
+import QuoteTransformer from '#transformers/quote_transformer'
 import RfqDetailTransformer from '#transformers/rfq_detail_transformer'
 import RfqProductOptionTransformer from '#transformers/rfq_product_option_transformer'
 import RfqTransformer from '#transformers/rfq_transformer'
@@ -66,6 +68,7 @@ export default class RfqsController {
   constructor(
     private service: RfqService,
     private notifications: RfqNotificationService,
+    private quotes: QuoteService,
     private categories: CategoryService,
     private catalogue: ProductCatalogueService,
     private organizations: OrganizationContextService
@@ -148,9 +151,12 @@ export default class RfqsController {
     const locale = i18n.locale as Locale
 
     const { productSearch } = await this.lookupParams(request)
+    // Devis remis par les fournisseurs, du moins cher au plus cher.
+    const quotes = await this.quotes.listForRfq(rfq.id)
 
     return inertia.render('rfqs/show', {
       rfq: new RfqDetailTransformer(rfq, locale).toObject(),
+      quotes: quotes.map((quote) => new QuoteTransformer(quote).toObject()),
       canManageRfq: await bouncer.allows('canManageRfq', org),
       ...(await this.formData(locale)),
       productResults: this.productResults(inertia, productSearch, locale),

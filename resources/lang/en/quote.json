@@ -1,0 +1,94 @@
+{
+  "status": {
+    "draft": "Draft",
+    "submitted": "Submitted",
+    "accepted": "Accepted",
+    "rejected": "Rejected",
+    "expired": "Expired"
+  },
+  "flash": {
+    "created": "Quote draft saved.",
+    "updated": "Quote updated.",
+    "submitted": "Quote submitted to the buyer.",
+    "deleted": "Draft deleted.",
+    "accepted": "Quote accepted. The other quotes were rejected and the request is closed.",
+    "rejected": "Quote rejected."
+  },
+  "errors": {
+    "notAllowed": "This request no longer accepts quotes.",
+    "alreadyExists": "You already have a quote for this request.",
+    "notEditable": "Only a draft can be edited or deleted.",
+    "notSubmittable": "This quote cannot be submitted: make sure it has at least one line and that its validity has not passed.",
+    "invalidItems": "The quote lines do not match the request.",
+    "invalidValidity": "The validity date cannot be in the past.",
+    "notDecidable": "This quote can no longer be accepted or rejected."
+  },
+  "form": {
+    "requested": "Requested: {quantity}",
+    "unitPrice": "Unit price ({currency})",
+    "quantity": "Quantity",
+    "leadTime": "Lead time (days)",
+    "customization": "Customization",
+    "customizationHint": "Marking, material, finish…",
+    "lineTotal": "Line total: {total}",
+    "validUntil": "Valid until",
+    "validUntilOn": "Valid until {date}",
+    "notes": "Notes for the buyer",
+    "total": "Total: {total}",
+    "save": "Save",
+    "saveFirst": "Save your changes before submitting the quote.",
+    "submit": "Submit quote",
+    "delete": "Delete draft",
+    "confirmSubmit": "Submit this quote to the buyer? It will no longer be editable.",
+    "confirmDelete": "Delete this draft?"
+  },
+  "table": {
+    "item": "Item",
+    "unitPrice": "Unit price",
+    "quantity": "Quantity",
+    "leadTime": "Lead time",
+    "total": "Total",
+    "days": "{count, plural, one {# day} other {# days}}"
+  },
+  "comparison": {
+    "title": "Quotes received",
+    "empty": "No quotes received yet.",
+    "notQuoted": "Not quoted",
+    "cheapest": "Cheapest",
+    "fastest": "Fastest",
+    "leadTime": "Overall lead time",
+    "validUntil": "Valid until"
+  },
+  "show": {
+    "title": "Quote from {supplierName}",
+    "backToRfq": "Back to request “{rfqTitle}”",
+    "accept": "Accept this quote",
+    "reject": "Reject this quote",
+    "confirm": {
+      "accept": "Accept this quote? The other quotes will be rejected and the request closed.",
+      "reject": "Reject this quote?"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "My quotes",
+      "subtitle": "The quotes you wrote in response to requests.",
+      "empty": "No quotes yet."
+    },
+    "edit": {
+      "title": "Quote: {rfqTitle}",
+      "backToRfq": "Back to the request",
+      "notice": {
+        "draft": "This request no longer accepts quotes: this draft can no longer be edited.",
+        "submitted": "Quote submitted: it is locked and the buyer can review it.",
+        "accepted": "The buyer accepted this quote.",
+        "rejected": "The buyer did not select this quote.",
+        "expired": "This quote has expired."
+      }
+    },
+    "rfq": {
+      "respond": "Respond with a quote",
+      "viewQuote": "View my quote"
+    }
+  }
+}

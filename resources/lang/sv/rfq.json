@@ -113,7 +113,6 @@
       "noDeadline": "Ingen sista svarsdag",
       "declinedNotice": "Du har avböjt den här förfrågan. Köparen har underrättats.",
       "closedNotice": "Köparen har stängt den här förfrågan: den väntar inte längre på något svar.",
-      "quoteSoon": "Möjligheten att lämna offert online kommer inom kort.",
       "expiredNotice": "Den här förfrågan har gått ut: köparen väntar inte längre på något svar."
     },
     "actions": {

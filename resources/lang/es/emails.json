@@ -47,5 +47,13 @@
     "deadline": "Respuesta esperada antes del {deadline}.",
     "cta": "Ver la solicitud",
     "footer": "Este es el único recordatorio de esta solicitud. También puede rechazarla desde su espacio de proveedor."
+  },
+  "quoteReceived": {
+    "subject": "Nuevo presupuesto de {supplierName} para «{rfqTitle}»",
+    "title": "{supplierName} ha enviado un presupuesto",
+    "body": "{supplierName} acaba de responder a su solicitud «{rfqTitle}».",
+    "total": "Importe total: {total}.",
+    "cta": "Consultar el presupuesto",
+    "footer": "Recibe este mensaje porque gestiona esta solicitud de presupuesto."
   }
 }

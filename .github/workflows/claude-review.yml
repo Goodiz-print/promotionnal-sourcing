@@ -11,8 +11,11 @@ concurrency:
 
 jobs:
   review:
-    # Jamais sur une PR en draft : la review démarre au passage en « Ready for review ».
-    if: github.event.pull_request.draft == false
+    # Désactivé tant que le secret ANTHROPIC_API_KEY n'est pas défini dans le dépôt
+    # (sans lui, le job échoue sur chaque PR). Pour le réactiver : remettre la
+    # condition `github.event.pull_request.draft == false` (jamais sur une PR en
+    # draft : la review démarre au passage en « Ready for review »).
+    if: false
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:

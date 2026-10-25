@@ -1,0 +1,94 @@
+{
+  "status": {
+    "draft": "Szkic",
+    "submitted": "Złożona",
+    "accepted": "Zaakceptowana",
+    "rejected": "Odrzucona",
+    "expired": "Wygasła"
+  },
+  "flash": {
+    "created": "Szkic oferty zapisany.",
+    "updated": "Oferta zaktualizowana.",
+    "submitted": "Oferta przekazana kupującemu.",
+    "deleted": "Szkic usunięty.",
+    "accepted": "Oferta zaakceptowana. Pozostałe oferty zostały odrzucone, a zapytanie jest zamknięte.",
+    "rejected": "Oferta odrzucona."
+  },
+  "errors": {
+    "notAllowed": "To zapytanie nie przyjmuje już ofert.",
+    "alreadyExists": "Masz już ofertę na to zapytanie.",
+    "notEditable": "Tylko szkic można edytować lub usunąć.",
+    "notSubmittable": "Nie można złożyć tej oferty: upewnij się, że zawiera co najmniej jedną pozycję i że jej ważność nie upłynęła.",
+    "invalidItems": "Pozycje oferty nie odpowiadają zapytaniu.",
+    "invalidValidity": "Data ważności nie może być w przeszłości.",
+    "notDecidable": "Tej oferty nie można już zaakceptować ani odrzucić."
+  },
+  "form": {
+    "requested": "Zapytano o: {quantity}",
+    "unitPrice": "Cena jednostkowa ({currency})",
+    "quantity": "Ilość",
+    "leadTime": "Czas realizacji (dni)",
+    "customization": "Personalizacja",
+    "customizationHint": "Znakowanie, materiał, wykończenie…",
+    "lineTotal": "Suma pozycji: {total}",
+    "validUntil": "Ważna do",
+    "validUntilOn": "Ważna do {date}",
+    "notes": "Uwagi dla kupującego",
+    "total": "Razem: {total}",
+    "save": "Zapisz",
+    "saveFirst": "Zapisz zmiany przed złożeniem oferty.",
+    "submit": "Złóż ofertę",
+    "delete": "Usuń szkic",
+    "confirmSubmit": "Przekazać tę ofertę kupującemu? Nie będzie można jej już edytować.",
+    "confirmDelete": "Usunąć ten szkic?"
+  },
+  "table": {
+    "item": "Pozycja",
+    "unitPrice": "Cena jednostkowa",
+    "quantity": "Ilość",
+    "leadTime": "Czas realizacji",
+    "total": "Razem",
+    "days": "{count, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}"
+  },
+  "comparison": {
+    "title": "Otrzymane oferty",
+    "empty": "Nie otrzymano jeszcze żadnych ofert.",
+    "notQuoted": "Nie wyceniono",
+    "cheapest": "Najtańsza",
+    "fastest": "Najszybsza",
+    "leadTime": "Łączny czas realizacji",
+    "validUntil": "Ważna do"
+  },
+  "show": {
+    "title": "Oferta od {supplierName}",
+    "backToRfq": "Wróć do zapytania „{rfqTitle}”",
+    "accept": "Zaakceptuj tę ofertę",
+    "reject": "Odrzuć tę ofertę",
+    "confirm": {
+      "accept": "Zaakceptować tę ofertę? Pozostałe zostaną odrzucone, a zapytanie zamknięte.",
+      "reject": "Odrzucić tę ofertę?"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "Moje oferty",
+      "subtitle": "Oferty, które przygotowałeś w odpowiedzi na zapytania.",
+      "empty": "Brak ofert."
+    },
+    "edit": {
+      "title": "Oferta: {rfqTitle}",
+      "backToRfq": "Wróć do zapytania",
+      "notice": {
+        "draft": "To zapytanie nie przyjmuje już ofert: tego szkicu nie można już edytować.",
+        "submitted": "Oferta złożona: jest zablokowana, a kupujący może ją przeglądać.",
+        "accepted": "Kupujący zaakceptował tę ofertę.",
+        "rejected": "Kupujący nie wybrał tej oferty.",
+        "expired": "Ta oferta wygasła."
+      }
+    },
+    "rfq": {
+      "respond": "Odpowiedz ofertą",
+      "viewQuote": "Zobacz moją ofertę"
+    }
+  }
+}

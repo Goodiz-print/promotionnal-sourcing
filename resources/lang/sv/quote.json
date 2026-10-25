@@ -1,0 +1,94 @@
+{
+  "status": {
+    "draft": "Utkast",
+    "submitted": "Inskickad",
+    "accepted": "Accepterad",
+    "rejected": "Avvisad",
+    "expired": "Utgången"
+  },
+  "flash": {
+    "created": "Offertutkast sparat.",
+    "updated": "Offerten har uppdaterats.",
+    "submitted": "Offerten har skickats till köparen.",
+    "deleted": "Utkastet har raderats.",
+    "accepted": "Offerten har accepterats. Övriga offerter har avvisats och förfrågan är stängd.",
+    "rejected": "Offerten har avvisats."
+  },
+  "errors": {
+    "notAllowed": "Den här förfrågan tar inte längre emot offerter.",
+    "alreadyExists": "Du har redan en offert för den här förfrågan.",
+    "notEditable": "Bara ett utkast kan redigeras eller raderas.",
+    "notSubmittable": "Offerten kan inte skickas in: kontrollera att den har minst en rad och att giltigheten inte har gått ut.",
+    "invalidItems": "Offertraderna motsvarar inte förfrågan.",
+    "invalidValidity": "Giltighetsdatumet får inte ligga i det förflutna.",
+    "notDecidable": "Offerten kan inte längre accepteras eller avvisas."
+  },
+  "form": {
+    "requested": "Efterfrågat: {quantity}",
+    "unitPrice": "Styckpris ({currency})",
+    "quantity": "Antal",
+    "leadTime": "Leveranstid (dagar)",
+    "customization": "Anpassning",
+    "customizationHint": "Tryck, material, finish …",
+    "lineTotal": "Radsumma: {total}",
+    "validUntil": "Giltig till",
+    "validUntilOn": "Giltig till {date}",
+    "notes": "Anteckningar till köparen",
+    "total": "Totalt: {total}",
+    "save": "Spara",
+    "saveFirst": "Spara ändringarna innan du skickar in offerten.",
+    "submit": "Skicka in offerten",
+    "delete": "Radera utkastet",
+    "confirmSubmit": "Skicka den här offerten till köparen? Den går inte att ändra efteråt.",
+    "confirmDelete": "Radera det här utkastet?"
+  },
+  "table": {
+    "item": "Artikel",
+    "unitPrice": "Styckpris",
+    "quantity": "Antal",
+    "leadTime": "Leveranstid",
+    "total": "Totalt",
+    "days": "{count, plural, one {# dag} other {# dagar}}"
+  },
+  "comparison": {
+    "title": "Mottagna offerter",
+    "empty": "Inga offerter har kommit in ännu.",
+    "notQuoted": "Ej offererad",
+    "cheapest": "Billigast",
+    "fastest": "Snabbast",
+    "leadTime": "Total leveranstid",
+    "validUntil": "Giltig till"
+  },
+  "show": {
+    "title": "Offert från {supplierName}",
+    "backToRfq": "Tillbaka till förfrågan ”{rfqTitle}”",
+    "accept": "Acceptera offerten",
+    "reject": "Avvisa offerten",
+    "confirm": {
+      "accept": "Acceptera den här offerten? Övriga offerter avvisas och förfrågan stängs.",
+      "reject": "Avvisa den här offerten?"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "Mina offerter",
+      "subtitle": "De offerter du har skrivit som svar på förfrågningar.",
+      "empty": "Inga offerter ännu."
+    },
+    "edit": {
+      "title": "Offert: {rfqTitle}",
+      "backToRfq": "Tillbaka till förfrågan",
+      "notice": {
+        "draft": "Den här förfrågan tar inte längre emot offerter: utkastet kan inte längre redigeras.",
+        "submitted": "Offerten är inskickad: den är låst och köparen kan läsa den.",
+        "accepted": "Köparen har accepterat den här offerten.",
+        "rejected": "Köparen valde inte den här offerten.",
+        "expired": "Den här offerten har gått ut."
+      }
+    },
+    "rfq": {
+      "respond": "Svara med en offert",
+      "viewQuote": "Visa min offert"
+    }
+  }
+}

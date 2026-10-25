@@ -113,7 +113,6 @@
       "noDeadline": "No deadline",
       "declinedNotice": "You declined this request. The buyer has been notified.",
       "closedNotice": "The buyer closed this request: it no longer expects an answer.",
-      "quoteSoon": "Submitting a quote online is coming soon.",
       "expiredNotice": "This request has expired: the buyer no longer expects a reply."
     },
     "actions": {

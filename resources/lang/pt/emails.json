@@ -47,5 +47,13 @@
     "deadline": "Resposta esperada até {deadline}.",
     "cta": "Consultar o pedido",
     "footer": "Este é o único lembrete para este pedido. Pode também recusá-lo na sua área de fornecedor."
+  },
+  "quoteReceived": {
+    "subject": "Novo orçamento de {supplierName} para «{rfqTitle}»",
+    "title": "{supplierName} enviou um orçamento",
+    "body": "{supplierName} acabou de responder ao seu pedido «{rfqTitle}».",
+    "total": "Montante total: {total}.",
+    "cta": "Consultar o orçamento",
+    "footer": "Recebe esta mensagem porque gere este pedido de orçamento."
   }
 }

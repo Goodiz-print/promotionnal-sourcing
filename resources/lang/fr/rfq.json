@@ -113,7 +113,6 @@
       "noDeadline": "Sans échéance",
       "declinedNotice": "Vous avez décliné cette demande. L'acheteur en a été informé.",
       "closedNotice": "L'acheteur a clôturé cette demande : elle n'attend plus de réponse.",
-      "quoteSoon": "Le dépôt de devis en ligne arrive prochainement.",
       "expiredNotice": "Cette demande est échue : l'acheteur n'attend plus de réponse."
     },
     "actions": {

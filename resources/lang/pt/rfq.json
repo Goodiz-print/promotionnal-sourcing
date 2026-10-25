@@ -113,7 +113,6 @@
       "noDeadline": "Sem prazo",
       "declinedNotice": "Recusou este pedido. O comprador foi informado.",
       "closedNotice": "O comprador encerrou este pedido: já não aguarda resposta.",
-      "quoteSoon": "A submissão de orçamentos online estará disponível em breve.",
       "expiredNotice": "Este pedido expirou: o comprador já não espera resposta."
     },
     "actions": {

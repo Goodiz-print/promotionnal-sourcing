@@ -113,7 +113,6 @@
       "noDeadline": "Sin fecha límite",
       "declinedNotice": "Ha declinado esta solicitud. Se ha informado al comprador.",
       "closedNotice": "El comprador ha cerrado esta solicitud: ya no espera respuesta.",
-      "quoteSoon": "El envío de presupuestos en línea estará disponible próximamente.",
       "expiredNotice": "Esta solicitud ha vencido: el comprador ya no espera respuesta."
     },
     "actions": {

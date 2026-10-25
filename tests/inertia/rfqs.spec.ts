@@ -129,7 +129,7 @@ describe('rfqs/index.vue', () => {
 })
 
 describe('rfqs/show.vue', () => {
-  const baseProps = { categories: [], supplierOptions: [], canManageRfq: true }
+  const baseProps = { categories: [], supplierOptions: [], canManageRfq: true, quotes: [] }
 
   it('propose de publier un brouillon comportant des lignes', () => {
     const wrapper = mount(RfqShow, { props: { ...baseProps, rfq: detail() } })

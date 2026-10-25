@@ -1003,6 +1003,126 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['decline']>>>
     }
   }
+  'quotes.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/quotes/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['show']>>>
+    }
+  }
+  'quotes.accept': {
+    methods: ["PATCH"]
+    pattern: '/:locale/quotes/:id/accept'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['accept']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['accept']>>>
+    }
+  }
+  'quotes.reject': {
+    methods: ["PATCH"]
+    pattern: '/:locale/quotes/:id/reject'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['reject']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['reject']>>>
+    }
+  }
+  'supplier.quotes.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/quotes'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['index']>>>
+    }
+  }
+  'supplier.quotes.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/rfqs/:rfqId/quotes/new'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; rfqId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['create']>>>
+    }
+  }
+  'supplier.quotes.store': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/rfqs/:rfqId/quotes'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/quote').quoteValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; rfqId: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/quote').quoteValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.quotes.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/quotes/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['show']>>>
+    }
+  }
+  'supplier.quotes.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/supplier/quotes/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/quote').quoteValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/quote').quoteValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.quotes.submit': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/quotes/:id/submit'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['submit']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['submit']>>>
+    }
+  }
+  'supplier.quotes.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/supplier/quotes/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['destroy']>>>
+    }
+  }
   'admin.dashboard': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin'

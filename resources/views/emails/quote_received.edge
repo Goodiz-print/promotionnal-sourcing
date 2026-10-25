@@ -1,0 +1,14 @@
+@let(title = t('emails.quoteReceived.title', { supplierName, rfqTitle }))
+@component('emails/layout', {
+  title,
+  locale,
+  i18n,
+  footer: t('emails.quoteReceived.footer'),
+})
+  <p>{{ t('emails.quoteReceived.body', { supplierName, rfqTitle }) }}</p>
+  <p>{{ t('emails.quoteReceived.total', { total }) }}</p>
+
+  <p>
+    <a class="button" href="{{ appUrl }}{{ quotePath }}">{{ t('emails.quoteReceived.cta') }}</a>
+  </p>
+@end

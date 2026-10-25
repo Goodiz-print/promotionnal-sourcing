@@ -1,0 +1,94 @@
+{
+  "status": {
+    "draft": "Concept",
+    "submitted": "Ingediend",
+    "accepted": "Geaccepteerd",
+    "rejected": "Afgewezen",
+    "expired": "Verlopen"
+  },
+  "flash": {
+    "created": "Concept van de offerte opgeslagen.",
+    "updated": "Offerte bijgewerkt.",
+    "submitted": "Offerte naar de koper verstuurd.",
+    "deleted": "Concept verwijderd.",
+    "accepted": "Offerte geaccepteerd. De overige offertes zijn afgewezen en de aanvraag is gesloten.",
+    "rejected": "Offerte afgewezen."
+  },
+  "errors": {
+    "notAllowed": "Deze aanvraag accepteert geen offertes meer.",
+    "alreadyExists": "U hebt al een offerte voor deze aanvraag.",
+    "notEditable": "Alleen een concept kan worden gewijzigd of verwijderd.",
+    "notSubmittable": "Deze offerte kan niet worden ingediend: controleer of ze minstens één regel bevat en of de geldigheid niet is verstreken.",
+    "invalidItems": "De offerteregels komen niet overeen met de aanvraag.",
+    "invalidValidity": "De geldigheidsdatum mag niet in het verleden liggen.",
+    "notDecidable": "Deze offerte kan niet meer worden geaccepteerd of afgewezen."
+  },
+  "form": {
+    "requested": "Gevraagd: {quantity}",
+    "unitPrice": "Stukprijs ({currency})",
+    "quantity": "Aantal",
+    "leadTime": "Levertijd (dagen)",
+    "customization": "Personalisatie",
+    "customizationHint": "Bedrukking, materiaal, afwerking…",
+    "lineTotal": "Regeltotaal: {total}",
+    "validUntil": "Geldig tot",
+    "validUntilOn": "Geldig tot {date}",
+    "notes": "Opmerkingen voor de koper",
+    "total": "Totaal: {total}",
+    "save": "Opslaan",
+    "saveFirst": "Sla uw wijzigingen op voordat u de offerte indient.",
+    "submit": "Offerte indienen",
+    "delete": "Concept verwijderen",
+    "confirmSubmit": "Deze offerte naar de koper sturen? Ze kan daarna niet meer worden gewijzigd.",
+    "confirmDelete": "Dit concept verwijderen?"
+  },
+  "table": {
+    "item": "Artikel",
+    "unitPrice": "Stukprijs",
+    "quantity": "Aantal",
+    "leadTime": "Levertijd",
+    "total": "Totaal",
+    "days": "{count, plural, one {# dag} other {# dagen}}"
+  },
+  "comparison": {
+    "title": "Ontvangen offertes",
+    "empty": "Nog geen offertes ontvangen.",
+    "notQuoted": "Niet geoffreerd",
+    "cheapest": "Goedkoopst",
+    "fastest": "Snelst",
+    "leadTime": "Totale levertijd",
+    "validUntil": "Geldig tot"
+  },
+  "show": {
+    "title": "Offerte van {supplierName}",
+    "backToRfq": "Terug naar de aanvraag “{rfqTitle}”",
+    "accept": "Deze offerte accepteren",
+    "reject": "Deze offerte afwijzen",
+    "confirm": {
+      "accept": "Deze offerte accepteren? De overige offertes worden afgewezen en de aanvraag gesloten.",
+      "reject": "Deze offerte afwijzen?"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "Mijn offertes",
+      "subtitle": "De offertes die u hebt opgesteld naar aanleiding van aanvragen.",
+      "empty": "Nog geen offertes."
+    },
+    "edit": {
+      "title": "Offerte: {rfqTitle}",
+      "backToRfq": "Terug naar de aanvraag",
+      "notice": {
+        "draft": "Deze aanvraag accepteert geen offertes meer: dit concept kan niet meer worden gewijzigd.",
+        "submitted": "Offerte ingediend: ze is vergrendeld en de koper kan ze inzien.",
+        "accepted": "De koper heeft deze offerte geaccepteerd.",
+        "rejected": "De koper heeft deze offerte niet gekozen.",
+        "expired": "Deze offerte is verlopen."
+      }
+    },
+    "rfq": {
+      "respond": "Reageren met een offerte",
+      "viewQuote": "Mijn offerte bekijken"
+    }
+  }
+}

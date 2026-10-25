@@ -121,6 +121,15 @@ export interface ApiDefinition {
       show: typeof routes['supplier.rfqs.show']
       decline: typeof routes['supplier.rfqs.decline']
     }
+    quotes: {
+      index: typeof routes['supplier.quotes.index']
+      create: typeof routes['supplier.quotes.create']
+      store: typeof routes['supplier.quotes.store']
+      show: typeof routes['supplier.quotes.show']
+      update: typeof routes['supplier.quotes.update']
+      submit: typeof routes['supplier.quotes.submit']
+      destroy: typeof routes['supplier.quotes.destroy']
+    }
   }
   rfqs: {
     index: typeof routes['rfqs.index']
@@ -142,6 +151,11 @@ export interface ApiDefinition {
     deadline: {
       update: typeof routes['rfqs.deadline.update']
     }
+  }
+  quotes: {
+    show: typeof routes['quotes.show']
+    accept: typeof routes['quotes.accept']
+    reject: typeof routes['quotes.reject']
   }
   admin: {
     dashboard: typeof routes['admin.dashboard']

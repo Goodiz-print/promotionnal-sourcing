@@ -12,12 +12,15 @@ import RfqForm from '~/components/rfqs/rfq_form.vue'
 import RfqItemList from '~/components/rfqs/rfq_item_list.vue'
 import RfqSupplierList from '~/components/rfqs/rfq_supplier_list.vue'
 import RfqSupplierPicker from '~/components/rfqs/rfq_supplier_picker.vue'
+import QuoteComparisonTable from '~/components/quotes/quote_comparison_table.vue'
 import { RFQ_STATUS_TONES } from '~/components/rfqs/types'
 import type { CategoryType } from '#shared/types/category'
+import type { QuoteType } from '#shared/types/quote'
 import type { RfqDetailType, RfqProductOptionType, SupplierOptionType } from '#shared/types/rfq'
 
 const props = defineProps<{
   rfq: RfqDetailType
+  quotes: QuoteType[]
   categories: CategoryType[]
   supplierOptions: SupplierOptionType[]
   canManageRfq: boolean
@@ -127,6 +130,11 @@ function formatDate(value: string): string {
         {{ rfq.description }}
       </p>
       <RfqItemList :items="rfq.items" />
+    </section>
+
+    <section v-if="rfq.status !== 'draft'" class="flex flex-col gap-3">
+      <h2 class="font-medium">{{ t('quote.comparison.title') }}</h2>
+      <QuoteComparisonTable :quotes="quotes" :items="rfq.items" />
     </section>
 
     <section class="flex flex-col gap-3">

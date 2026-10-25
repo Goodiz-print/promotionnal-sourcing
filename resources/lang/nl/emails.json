@@ -47,5 +47,13 @@
     "deadline": "Antwoord verwacht vóór {deadline}.",
     "cta": "Aanvraag bekijken",
     "footer": "Dit is de enige herinnering voor deze aanvraag. U kunt haar ook afwijzen in uw leveranciersomgeving."
+  },
+  "quoteReceived": {
+    "subject": "Nieuwe offerte van {supplierName} voor “{rfqTitle}”",
+    "title": "{supplierName} heeft een offerte ingediend",
+    "body": "{supplierName} heeft zojuist gereageerd op uw aanvraag “{rfqTitle}”.",
+    "total": "Totaalbedrag: {total}.",
+    "cta": "Offerte bekijken",
+    "footer": "U ontvangt dit bericht omdat u deze offerteaanvraag beheert."
   }
 }
