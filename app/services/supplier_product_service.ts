@@ -466,7 +466,15 @@ export default class SupplierProductService {
     product: Product,
     certificationIds: number[] = []
   ): Promise<void> {
-    await product.related('certifications').sync(certificationIds)
+    if (certificationIds.length === 0) {
+      await product.related('certifications').sync([])
+      return
+    }
+    // Ne synchronise que des labels **existants** : un id inconnu (requête
+    // obsolète ou forgée) est ignoré plutôt que de lever une violation de clé
+    // étrangère (500) — même garde que `syncFacets` pour les facettes.
+    const existing = await Certification.query().whereIn('id', certificationIds).select('id')
+    await product.related('certifications').sync(existing.map((certification) => certification.id))
   }
 
   /**

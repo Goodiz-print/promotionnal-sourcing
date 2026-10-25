@@ -152,6 +152,24 @@ test.group('Conformité produit — persistance & dérivation is_eco', (group) =
     assert.include(slugs, 'casquette-6-panneaux-marine')
   })
 
+  test('un id de label inexistant est ignoré (pas de 500 sur clé étrangère)', async ({
+    client,
+    assert,
+  }) => {
+    const gots = await Certification.findByOrFail('slug', 'gots')
+
+    // Le second id n'existe pas : il doit être écarté, pas provoquer une
+    // violation de clé étrangère. Seul le label valide est synchronisé.
+    const product = await createProduct(client, 'conformite-label-inconnu', {
+      certificationIds: [gots.id, 999_999],
+    })
+
+    assert.deepEqual(
+      product.certifications.map((c) => c.slug),
+      ['gots']
+    )
+  })
+
   test('product_documents.type : nature saisie et valeur par défaut', async ({ assert }) => {
     const product = await Product.findByOrFail('slug', 'crayon-hb-bleu')
 
