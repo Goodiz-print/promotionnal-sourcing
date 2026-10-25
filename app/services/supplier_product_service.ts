@@ -15,7 +15,6 @@ import StorageService from '#services/storage/storage_service'
 import TranslationQueueService from '#services/translation_queue_service'
 import { missingSourceTranslation } from '#exceptions/translation_errors'
 import ProductTranslationSearchService from '#services/product_translation_search_service'
-import GenerateProductEmbeddingJob from '#jobs/generate_product_embedding_job'
 import GenerateImageVariantsJob from '#jobs/generate_image_variants_job'
 import logger from '@adonisjs/core/services/logger'
 import emitter from '@adonisjs/core/services/emitter'
@@ -133,7 +132,6 @@ export default class SupplierProductService {
     await this.syncFacets(product, data.attributeValueIds)
     await this.attachImages(product, files, 0)
     await this.refreshPrimaryImage(product)
-    await this.queueEmbedding(product)
     await emitter.emit(ProductChanged, new ProductChanged(product.id))
     if (product.isActive) {
       await this.translationQueue.queue('product', product.id, data.sourceLocale)
@@ -170,7 +168,6 @@ export default class SupplierProductService {
     const last = await product.related('images').query().orderBy('position', 'desc').first()
     await this.attachImages(product, files, last ? last.position + 1 : 0)
     await this.refreshPrimaryImage(product)
-    await this.queueEmbedding(product)
     await emitter.emit(ProductChanged, new ProductChanged(product.id))
     if (product.isActive) await this.translationQueue.queue('product', product.id, sourceLocale)
 
@@ -253,19 +250,6 @@ export default class SupplierProductService {
       } catch (error) {
         logger.warn({ err: error, productImageId: image.id }, 'failed to queue image variants')
       }
-    }
-  }
-
-  /**
-   * Planifie le (re)calcul de l'embedding sémantique du produit. Résilient : un
-   * échec de queue ne doit jamais faire échouer la création/mise à jour produit
-   * (no-op côté job tant que l'IA est désactivée).
-   */
-  private async queueEmbedding(product: Product): Promise<void> {
-    try {
-      await GenerateProductEmbeddingJob.dispatch({ productId: product.id })
-    } catch (error) {
-      logger.warn({ err: error, productId: product.id }, 'failed to queue product embedding')
     }
   }
 

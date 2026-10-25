@@ -23,13 +23,15 @@ de bascule se confirment le jour J sur <https://www.postgresql.org/download/>.**
 
 ## Version minimale de pgvector (#107)
 
-| Fonctionnalité                                | Version minimale de `vector` | Où                                                          |
-| --------------------------------------------- | ---------------------------- | ----------------------------------------------------------- |
-| Type `halfvec` (embeddings en demi-précision) | **0.7.0**                    | migration `…products_embedding_halfvec`, `EmbeddingService` |
-| Index HNSW sur `halfvec`                      | 0.7.0                        | `products_embedding_idx`                                    |
+| Fonctionnalité                                | Version minimale de `vector` | Où                                                                         |
+| --------------------------------------------- | ---------------------------- | -------------------------------------------------------------------------- |
+| Type `halfvec` (embeddings en demi-précision) | **0.7.0**                    | migration `…products_embedding_halfvec` (colonne héritée, voir ci-dessous) |
+| Index HNSW sur `halfvec`                      | 0.7.0                        | `products_embedding_idx`                                                   |
 
 **Ne pas utiliser une version inférieure à 0.7.** Avec 0.6.x, la migration échoue
-(`type "halfvec" does not exist`) et quatre tests d'embeddings échouent.
+(`type "halfvec" does not exist`). Les colonnes d'embeddings ne sont plus utilisées
+(Meilisearch calcule les vecteurs, ADR 0002) et seront supprimées par une migration de
+la PR 3 de #112 : cette exigence disparaîtra alors.
 
 Vérification sur une base :
 

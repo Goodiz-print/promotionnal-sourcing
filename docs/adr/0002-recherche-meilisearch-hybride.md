@@ -1,4 +1,4 @@
-# ADR 0002 : recherche hybride Meilisearch, vecteurs calculés par l'application
+# ADR 0002 : recherche hybride Meilisearch, vecteurs calculés par Meilisearch
 
 - **Statut** : proposé (à valider par le titulaire du projet)
 - **Date** : 2026-10-25
@@ -19,7 +19,7 @@ L'ADR 0001 prévoyait ce cas comme plan de repli : _Meilisearch comme index de l
 
 État du pipeline de vectorisation au moment de la décision, qui motive plusieurs points :
 
-- La vectorisation existe mais est désactivée par défaut (`AI_EMBEDDINGS_ENABLED`) et n'a jamais tourné sur de vrais embeddings. `EmbeddingService` calcule un vecteur par produit via l'abstraction `EmbeddingProvider` (driver Mistral natif ou tout endpoint OpenAI-compatible), avec clé d'idempotence, et l'écrit dans `products.embedding` (`halfvec(1024)`, index HNSW).
+- Une vectorisation applicative existait (`EmbeddingService`, `GenerateProductEmbeddingJob`, `products.embedding` en `halfvec(1024)` avec index HNSW) mais n'avait jamais tourné sur de vrais embeddings : désactivée par défaut. Elle est **supprimée** au profit de l'embedder de Meilisearch (décision 3).
 - La recherche sémantique PostgreSQL n'est pas hybride : dès qu'un vecteur de requête existe, le plein texte est abandonné et tout le catalogue vectorisé est trié par distance, sans seuil. Les filtres ET sont appliqués après le parcours de l'index HNSW (post-filtrage), ce qui peut renvoyer zéro résultat sur une requête sélective.
 - Le texte vectorisé concatène toutes les traductions : chaque traduction automatique qui arrive change la clé d'idempotence et provoque un recalcul payant.
 - Un appel API par produit, sans lot ; un appel synchrone par recherche, sans cache.
@@ -29,56 +29,59 @@ Le projet est porté par une seule personne, avec un budget d'infrastructure de 
 
 ## Décision
 
-**Meilisearch sert la recherche (mots-clés + vecteurs, filtres exacts). PostgreSQL reste la source de vérité. L'application calcule et conserve les vecteurs ; Meilisearch les reçoit tels quels.**
+**Meilisearch sert la recherche (mots-clés + vecteurs, filtres exacts) et calcule lui-même les vecteurs. PostgreSQL reste la source de vérité des fiches.**
 
-| Rôle                                             | Où                                                                      |
-| ------------------------------------------------ | ----------------------------------------------------------------------- |
-| Source de vérité (fiches, traductions, facettes) | PostgreSQL                                                              |
-| Calcul des embeddings                            | Application (`EmbeddingService`, provider injecté)                      |
-| Conservation durable des vecteurs                | PostgreSQL (`products.embedding`), **sans index HNSW** après la bascule |
-| Index de recherche, hybride, filtres, facettes   | Meilisearch (embedder `userProvided`)                                   |
-| Vecteur de la requête                            | Application (même provider que l'index), avec cache                     |
-| Règles de visibilité finales                     | PostgreSQL (rechargement des résultats)                                 |
+| Rôle                                             | Où                                                                            |
+| ------------------------------------------------ | ----------------------------------------------------------------------------- |
+| Source de vérité (fiches, traductions, facettes) | PostgreSQL                                                                    |
+| Texte à vectoriser (`embeddingText`)             | Application (`ProductIndexService`), poussé dans chaque document              |
+| Calcul des embeddings (fiches et requêtes)       | Meilisearch, embedder `rest` appelant l'API d'embeddings (Mistral par défaut) |
+| Conservation des vecteurs                        | Meilisearch seul (aucune copie PostgreSQL)                                    |
+| Index de recherche, hybride, filtres, facettes   | Meilisearch                                                                   |
+| Règles de visibilité finales                     | PostgreSQL (rechargement des résultats)                                       |
 
 ### 1. PostgreSQL reste la source de vérité
 
-Meilisearch est un **index de lecture**, jamais écrit autrement que depuis la base. Un index perdu ou corrompu se reconstruit par `node ace search:reindex`, sans perte et **sans appel au provider d'embeddings**, puisque les vecteurs sont conservés dans `products.embedding`.
+Meilisearch est un **index de lecture**, jamais écrit autrement que depuis la base. Un index perdu ou corrompu se reconstruit par `node ace search:reindex`, sans perte de données. **La reconstruction recalcule tous les vecteurs** (ils ne sont conservés que dans l'index). Avec le modèle local par défaut, c'est du temps de calcul sur l'instance Meilisearch et aucun coût par token ; avec une API (`mistral-embed`), environ 20 $ pour 1 M de fiches, à confirmer sur la grille. Ce coût, à ce rythme de réindexation (premier déploiement, montée de version, changement de modèle), est assumé (voir « Alternatives écartées »).
 
 ### 2. Synchronisation par la queue, jamais dans la requête HTTP
 
 Toute écriture qui change ce que l'index doit contenir (création, mise à jour, suppression, traduction, vecteur, modération, archivage) émet un événement (`ProductChanged`, `OrganizationCatalogueChanged`) ; son listener met en queue `IndexProductJob` (ou `IndexOrganizationProductsJob`). Le job **reconstruit le document depuis la base** à chaque exécution : il est idempotent, sûr dans le désordre (le dernier passage reflète l'état courant) et rejouable après échec (5 tentatives). Un échec de mise en queue est loggé sans être propagé : la base est à jour, la prochaine synchronisation ou `search:reindex` rattrape.
 
-### 3. Vecteurs fournis par l'application, provider non imposé
+### 3. Vecteurs calculés par Meilisearch, par défaut avec un modèle local
 
-Les vecteurs sont calculés par `EmbeddingService` (clé d'idempotence, gestion du coût) et poussés dans l'embedder Meilisearch `userProvided` (`SEARCH_EMBEDDER`, dimension `SEARCH_EMBEDDING_DIMENSIONS`). On ne confie pas à Meilisearch l'appel à l'API d'embeddings : un seul endroit appelle le fournisseur d'IA, et les vecteurs restent en base pour la réindexation.
+L'index déclare un **embedder** (`buildEmbedders`, `app/services/search/meilisearch_engine.ts`) : c'est Meilisearch qui calcule les vecteurs, pour le champ `embeddingText` de chaque document à l'indexation et pour le texte de la requête à la recherche. L'application n'appelle jamais de modèle d'embeddings, et n'a plus de job, de service, de cache ni de colonne d'embeddings. Trois façons de fournir le modèle (`AI_PROVIDER`) :
 
-**Mistral n'est pas une obligation.** Le contrat est l'abstraction `EmbeddingProvider` ; le modèle est un paramètre de configuration, choisi par la mesure sur le jeu de requêtes de référence (décision 8), pas par l'architecture. Ce qui est figé :
+| Provider (`AI_PROVIDER`)   | Où tourne le modèle                                                  | Clé   | Pour                                                                          | Contre                                                                                                  |
+| -------------------------- | -------------------------------------------------------------------- | ----- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `huggingface` (**défaut**) | Dans Meilisearch (embedder `huggingFace`, modèle téléchargé)         | Non   | Aucun coût par token, aucune clé, les textes ne quittent pas l'infrastructure | RAM et CPU sur l'instance Meilisearch, indexation plus lente, téléchargement du modèle au premier usage |
+| `mistral`                  | API Mistral, appelée par Meilisearch (embedder `rest`)               | Oui   | Rapide, pas de ressources à dimensionner, hébergeur européen                  | Payant, textes envoyés au fournisseur, clé stockée aussi dans Meilisearch                               |
+| `openai-compatible`        | Tout endpoint OpenAI `/embeddings` (OpenAI, Together, Ollama, vLLM…) | Selon | Choix libre, auto-hébergement possible                                        | Un serveur à exploiter si auto-hébergé ; données hors UE chez OpenAI                                    |
 
-- un **seul** modèle actif à la fois pour l'index et les requêtes (un vecteur de requête n'est comparable qu'à des vecteurs du même modèle) ;
-- le provider, le modèle et la dimension entrent dans la clé d'idempotence (déjà le cas) : changer de modèle provoque un recalcul complet des vecteurs puis un `search:reindex`, jamais un mélange ;
-- la dimension de l'embedder Meilisearch et celle de la colonne PostgreSQL sont la même constante ; un modèle d'une autre dimension impose une migration de la colonne et une mise à jour des réglages de l'index.
+**Défaut : `huggingface`, modèle `intfloat/multilingual-e5-base`** (multilingue, 768 dimensions, ~1 Go, `HF_EMBED_MODEL` pour en changer). Le choix repose sur l'absence de clé et de coût récurrent, et sur le fait que les textes ne sortent pas de l'infrastructure ; le modèle est un compromis entre `multilingual-e5-small` (384, plus léger) et `multilingual-e5-large` / `bge-m3` (1024, plus précis, plus lourds). **Ce défaut n'est pas figé** : il se tranche par `search:evaluate` sur de vraies fiches multilingues (décision 8).
 
-Candidats à comparer, par ordre de préférence a priori :
+Ce qui est figé :
 
-| Modèle                                    | Accès                                                         | Pour                                                                                   | Contre                                                                                    |
-| ----------------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `mistral-embed` (1024)                    | API Mistral, driver déjà écrit                                | Hébergeur européen (RGPD sans transfert), SDK en place, multilingue                    | Dimension fixe à vérifier (`output_dimension` non documenté pour ce modèle)               |
-| `bge-m3`, `multilingual-e5-large`         | Auto-hébergé (Ollama, vLLM, TEI) via driver OpenAI-compatible | Open-weight, 100+ langues, aucun coût par token, données qui ne sortent pas de l'infra | Un serveur GPU ou CPU à exploiter, en contradiction avec l'ADR 0003 (zéro administration) |
-| `text-embedding-3-small` (1536 ou réduit) | API OpenAI via driver OpenAI-compatible                       | Peu coûteux, dimension réductible                                                      | Données hors UE, à cadrer contractuellement                                               |
-| `voyage-3`, `embed-multilingual` (Cohere) | API                                                           | Très bons scores multilingues rapportés                                                | Fournisseurs non européens, drivers à écrire ou API compatible à vérifier                 |
+- un **seul** embedder actif à la fois : un vecteur de requête n'est comparable qu'à des vecteurs du même modèle ;
+- changer de provider ou de modèle change les réglages de l'index puis exige `search:reindex` (Meilisearch ne mélange pas deux modèles dans un index) ;
+- avec un provider API, la dimension demandée est `SEARCH_EMBEDDING_DIMENSIONS` (1024) ; avec `huggingface`, c'est celle du modèle, inférée par Meilisearch.
 
-Tant que la mesure n'est pas faite, `mistral-embed` reste la valeur par défaut de la configuration : le driver existe et le fournisseur est européen.
+**Activation** : active par défaut ; `AI_EMBEDDINGS_ENABLED=false` la coupe, `=true` avec un provider API sans identifiants échoue au démarrage. Coupée en `NODE_ENV=test` sauf demande explicite. Coupé, l'embedder est retiré des réglages et la recherche reste par mots-clés.
+
+**Réserves à lever avant de s'y fier** (aucune n'a pu être vérifiée sans instance réelle) : le support par Meilisearch du modèle retenu ; l'absence de préfixes `query:` / `passage:` que les modèles e5 recommandent (Meilisearch n'ajoute pas de préfixe côté requête, on n'en met donc d'aucun côté, pour rester symétrique) ; le débit d'indexation sur CPU et l'empreinte mémoire de l'instance, qui dépasseront sans doute l'instance Docker M de l'ADR 0003.
+
+Autres candidats : `voyage-3`, `embed-multilingual` (Cohere) — très bons scores multilingues rapportés, fournisseurs non européens, format de réponse à vérifier.
 
 ### 4. Texte vectorisé
 
-Le texte envoyé au modèle (`EmbeddingService.productText`) est conçu pour la recherche, pas pour l'affichage :
+Le texte que Meilisearch vectorise (`ProductIndexService.embeddingText`, poussé dans chaque document sous `embeddingText`, lu par le `documentTemplate` de l'embedder) est conçu pour la recherche, pas pour l'affichage :
 
-1. nom dans la **langue source** de la fiche uniquement (les modèles retenus sont multilingues ; ne pas concaténer les traductions, qui rendent la clé instable et le texte long) ;
+1. nom dans la **langue source** de la fiche uniquement (les modèles retenus sont multilingues ; concaténer les traductions allonge le texte et le fait changer à chaque traduction automatique, donc ré-embedder) ;
 2. libellé de la catégorie (langue source) ;
 3. libellés des facettes sous forme « attribut : valeur » (« couleur : noir », « matière : coton », « grammage : 200 g/m² ») ;
-4. début de la description, tronqué à une longueur fixe.
+4. début de la description, tronqué à 300 caractères.
 
-Toute modification de cette fonction est un changement de version du texte, intégré à la clé d'idempotence (`textVersion`), donc un ré-embedding complet assumé. `embedMany` par lots (50 à 100 textes par appel) pour l'import et le backfill.
+Meilisearch ne rappelle l'API que lorsque ce texte change pour un document donné (à confirmer à l'usage). Toute modification de la construction du texte se répercute à la prochaine synchronisation du produit, ou par `search:reindex` pour tout le catalogue. Les lots d'appels à l'API sont gérés par Meilisearch (`input` reçoit un tableau de textes).
 
 ### 5. Visibilité jugée par PostgreSQL à la lecture
 
@@ -90,10 +93,10 @@ Les filtres Meilisearch sur des identifiants (`attributeValueIds = 3 AND attribu
 
 ### 7. Requête hybride
 
-- L'application calcule le vecteur de la requête avec le provider actif, derrière un **cache** (clé = hachage de la requête normalisée + provider + modèle, durée de vie de quelques heures) pour ne pas payer un appel par page vue.
-- Envoi à Meilisearch de `q` (mots-clés, tolérance aux fautes) et du vecteur avec `hybrid.semanticRatio`. Le ratio est un réglage mesuré sur le jeu de référence (point de départ : 0,5).
-- Provider indisponible ou désactivé : recherche **mots-clés seule** (`semanticRatio` 0). Jamais d'erreur utilisateur à cause de l'IA.
-- Les deux recherches de l'application (catalogue public `ProductCatalogueService#list`, sélecteur RFQ `#lookupForRfq`) passent par un même service, qui renvoie des identifiants ordonnés et le total.
+- L'application envoie `q`, les filtres et `hybrid: { embedder, semanticRatio }` ; **Meilisearch vectorise `q`** lui-même. Le ratio (`SEARCH_SEMANTIC_RATIO`, point de départ 0,5) est un réglage mesuré sur le jeu de référence.
+- Embedder indisponible (API d'embeddings en panne ou limitée en débit, modèle pas encore chargé) ou désactivé : la recherche est **rejouée par mots-clés seuls** (`semanticRatio` 0, sans appel à l'API). Jamais d'erreur utilisateur à cause de l'IA.
+- Le sélecteur de produit des demandes de devis est toujours par mots-clés seuls : pas d'appel à l'API à chaque frappe.
+- Les deux recherches de l'application (catalogue public `ProductCatalogueService#list`, sélecteur RFQ `#lookupForRfq`) passent par `ProductSearchService`, qui renvoie des produits rechargés depuis PostgreSQL et le total.
 
 ### 8. Jeu de requêtes de référence
 
@@ -110,7 +113,7 @@ Avant de figer modèle, ratio et quantification, et à chaque changement du pipe
 - **quantification binaire** Meilisearch (`binaryQuantized`) : mémoire divisée par 32. Irréversible, et la documentation signale une perte de qualité sensible sous 512 dimensions et minime au-delà de 1 500 ; à 1 024 l'effet doit être mesuré sur le jeu de référence avant activation ;
 - instance plus grande (8 à 16 Go, estimation de #112).
 
-Côté PostgreSQL, les vecteurs restent (environ 2 Go en `halfvec`) mais l'index HNSW (environ 1 Go et sa RAM) est supprimé une fois Meilisearch en service.
+Côté PostgreSQL, les colonnes `products.embedding` et `embedding_key` ainsi que l'index HNSW (environ 3 Go avec les vecteurs, plus la RAM de l'index) sont supprimés (décision 13) : les vecteurs ne vivent plus que dans Meilisearch, **une seule fois**.
 
 ### 11. Hébergement
 
@@ -122,23 +125,22 @@ Décision reportée à la PR 3 : titres traduits à l'import dans les 32 langues
 
 ### 13. Ce qui disparaît après la bascule
 
-- `products_embedding_idx` (HNSW) et le tri par distance dans `ProductCatalogueService#list`.
+- `products.embedding`, `products.embedding_key` et `products_embedding_idx` (HNSW) : plus rien ne les écrit ni ne les lit (le tri par distance de `ProductCatalogueService#list` est déjà retiré). Suppression par une **nouvelle** migration en PR 3.
 - `product_translations.search_vector`, `ProductTranslationSearchService`, les index GIN par locale et l'entrée de `schema_rules.ts`, par une **nouvelle** migration (jamais en modifiant une migration exécutée).
 - La règle « ajouter une langue = une entrée `LOCALE_TSCONFIG` + une migration » ; ajouter une langue devient une sous-clé de plus dans `names` / `descriptions`.
 - Le repli full-text PostgreSQL : le repli devient « Meilisearch mots-clés seuls ». Si Meilisearch est indisponible, la recherche l'est aussi (message explicite) ; le catalogue par navigation (catégories, fiches) reste servi par PostgreSQL.
 
 ## Alternatives écartées
 
-| Option                                                          | Raison du rejet                                                                                                                                                                                                                                                                                                   |
-| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Rester sur PostgreSQL seul (ADR 0001) en corrigeant le pipeline | Décision du client, et il faudrait construire soi-même la fusion mots-clés + vecteurs (RRF), la tolérance aux fautes (`pg_trgm`), le scan itératif HNSW, et contourner l'absence de dictionnaires sur la base managée. Meilisearch fournit les trois nativement ; c'est ce qui paie la seconde source de données. |
-| Embedder REST de Meilisearch (appel direct au provider)         | Plus simple à brancher, mais la clé API vivrait aussi dans Meilisearch, et l'application perdrait l'idempotence, le lot, le cache de requête et le choix libre du provider ; chaque réindexation complète rappellerait l'API.                                                                                     |
-| Vecteurs uniquement dans Meilisearch (sans copie PostgreSQL)    | Réindexation = ré-embedding complet. Une panne d'index ou une montée de version qui exige une réindexation coûte alors en API et en temps.                                                                                                                                                                        |
-| Imposer `mistral-embed` dans l'architecture                     | Le modèle le mieux placé change vite ; l'abstraction existe déjà et ne coûte rien à conserver. Le choix se fait par la mesure, Mistral restant le défaut.                                                                                                                                                         |
-| Écrire dans Meilisearch depuis la requête HTTP                  | Couple la disponibilité d'une écriture catalogue à celle du moteur ; un échec laisserait la base et l'index divergents sans reprise.                                                                                                                                                                              |
-| Faire confiance à l'index pour la visibilité                    | Un retard de synchronisation exposerait un produit rejeté ou archivé.                                                                                                                                                                                                                                             |
-| Un document par traduction                                      | Multiplie les documents par le nombre de langues, duplique vecteurs et facettes, complique la déduplication. Un document par produit avec des sous-clés par locale suffit, le modèle étant multilingue.                                                                                                           |
-| Typesense, OpenSearch, Qdrant/Weaviate + plein texte à côté     | Hors périmètre de la décision du client ; même coût de synchronisation avec, soit une exploitation plus lourde pour une personne seule, soit deux moteurs à combiner.                                                                                                                                             |
+| Option                                                          | Raison du rejet                                                                                                                                                                                                                                                                                                                                             |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Rester sur PostgreSQL seul (ADR 0001) en corrigeant le pipeline | Décision du client, et il faudrait construire soi-même la fusion mots-clés + vecteurs (RRF), la tolérance aux fautes (`pg_trgm`), le scan itératif HNSW, et contourner l'absence de dictionnaires sur la base managée. Meilisearch fournit les trois nativement ; c'est ce qui paie la seconde source de données.                                           |
+| Vecteurs calculés par l'application (embedder `userProvided`)   | Solution retenue d'abord : `EmbeddingService`, job d'embedding, copie en `products.embedding`, backfill, cache des vecteurs de requête, tout cela à maintenir pour une personne seule. Son avantage — réindexer sans recalculer — ne vaut pas ce code à ce volume. À reconsidérer si la fréquence des réindexations ou le volume change cette arithmétique. |
+| Imposer `mistral-embed` dans l'architecture                     | Le modèle le mieux placé change vite ; l'embedder est un paramètre de configuration. Le choix se fait par la mesure, Mistral restant le défaut.                                                                                                                                                                                                             |
+| Écrire dans Meilisearch depuis la requête HTTP                  | Couple la disponibilité d'une écriture catalogue à celle du moteur ; un échec laisserait la base et l'index divergents sans reprise.                                                                                                                                                                                                                        |
+| Faire confiance à l'index pour la visibilité                    | Un retard de synchronisation exposerait un produit rejeté ou archivé.                                                                                                                                                                                                                                                                                       |
+| Un document par traduction                                      | Multiplie les documents par le nombre de langues, duplique vecteurs et facettes, complique la déduplication. Un document par produit avec des sous-clés par locale suffit, le modèle étant multilingue.                                                                                                                                                     |
+| Typesense, OpenSearch, Qdrant/Weaviate + plein texte à côté     | Hors périmètre de la décision du client ; même coût de synchronisation avec, soit une exploitation plus lourde pour une personne seule, soit deux moteurs à combiner.                                                                                                                                                                                       |
 
 ## Conséquences
 
@@ -147,24 +149,25 @@ Décision reportée à la PR 3 : titres traduits à l'import dans les 32 langues
 - Recherche multilingue, tolérante aux fautes et hybride sans dictionnaire ni index par langue ; ajouter une langue ne touche ni l'index ni le schéma.
 - ET exact garanti deux fois (filtres Meilisearch, puis rechargement PostgreSQL).
 - Une seule source de vérité : l'index se reconstruit, la base ne dépend pas de lui. Un incident Meilisearch dégrade la recherche, pas les écritures du catalogue.
-- Modèle d'embeddings remplaçable par configuration et ré-embedding explicite ; aucune dépendance architecturale à Mistral.
-- Réindexation complète gratuite en appels IA.
-- Allègement de PostgreSQL après la bascule (index HNSW et GIN retirés).
+- Moins de code applicatif : plus de job, de service, de cache, de colonne ni de commande d'embeddings. Meilisearch gère les lots, les rejeux et la vectorisation des requêtes.
+- Modèle d'embeddings remplaçable par configuration (réglages de l'index puis `search:reindex`) ; aucune dépendance architecturale à Mistral.
+- Allègement de PostgreSQL après la bascule (vecteurs, index HNSW et GIN retirés).
 
 **Négatives**
 
 - Une deuxième brique à exploiter (sauvegarde, mise à jour, supervision, volume persistant à valider dans l'ADR 0003).
 - Retard de synchronisation possible (quelques secondes), neutralisé à la lecture par la décision 5.
-- Les vecteurs sont stockés deux fois (base et index).
+- Les vecteurs n'existent que dans l'index : le perdre, c'est ré-embedder (payant) pour le reconstruire, et on ne compare pas deux modèles hors de Meilisearch.
+- Avec un provider API, la clé est aussi stockée dans les réglages de Meilisearch, qui appelle lui-même le provider (échec d'API = tâche d'indexation en échec, rejouée par notre job). Avec `huggingface`, l'instance Meilisearch porte le calcul : plus de RAM et de CPU, et un temps d'indexation à mesurer.
 - Une indisponibilité de Meilisearch rend la recherche indisponible.
-- Coût d'embedding initial (quelques dizaines d'euros pour 1 M de fiches) et à chaque changement de modèle ou de version du texte vectorisé.
+- Chaque réindexation complète, changement de modèle ou de texte vectorisé recalcule tous les vecteurs : du temps de calcul avec le modèle local, une vingtaine de dollars par million de fiches avec une API.
 - Le code de recherche PostgreSQL (`tsvector` par langue, `ILIKE`) reste en place jusqu'à la bascule, puis est retiré (PR 3).
 
 ## Plan de livraison
 
 1. **PR 1 (cette ADR)** : configuration, pilote Meilisearch (`SearchEngine` → `MeilisearchEngine` / `NullSearchEngine`), synchronisation par la queue, `search:reindex`. La recherche de l'application n'est pas encore modifiée.
-2. **PR 2** : bascule du catalogue public et du sélecteur RFQ sur Meilisearch (`ProductSearchService`) avec cache des vecteurs de requête et repli (PostgreSQL pendant la transition, puis mots-clés seuls), jeu de requêtes de référence et `search:evaluate` (décision 8), job CI contre un vrai Meilisearch.
-   **PR 2b** : texte vectorisé et `embedMany` (décision 4), puis choix du modèle, du ratio et de la quantification par la mesure (`search:evaluate`) avec des vecteurs réels et des fiches multilingues ; mesure de latence à volume.
+2. **PR 2** : bascule du catalogue public et du sélecteur RFQ sur Meilisearch (`ProductSearchService`) avec repli (PostgreSQL pendant la transition, puis mots-clés seuls), jeu de requêtes de référence et `search:evaluate` (décision 8), job CI contre un vrai Meilisearch.
+   **PR 2b** : embedder de Meilisearch (`huggingface` par défaut, `rest` en alternative) et texte vectorisé (décisions 3 et 4), suppression de la vectorisation applicative ; puis choix du modèle, du ratio et de la quantification par la mesure (`search:evaluate`) sur des fiches multilingues ; mesure de latence à volume.
 3. **PR 3** : retrait du HNSW et du `tsvector` par langue par une nouvelle migration (décision 13) ; traductions (décision 12).
 
 ## Critères de révision

@@ -3,7 +3,6 @@ import searchConfig from '#config/search'
 import SearchEngine from '#services/search/search_engine'
 import MeilisearchEngine from '#services/search/meilisearch_engine'
 import NullSearchEngine from '#services/search/null_search_engine'
-import QueryVectorCache from '#services/search/query_vector_cache'
 
 /**
  * Lie l'abstraction `SearchEngine` : Meilisearch quand `MEILISEARCH_HOST` est
@@ -18,8 +17,5 @@ export default class SearchProvider {
     this.app.container.singleton(SearchEngine, async (resolver) => {
       return resolver.make(searchConfig.enabled ? MeilisearchEngine : NullSearchEngine)
     })
-
-    // Un seul cache par processus : c'est l'objet qui rend le cache utile.
-    this.app.container.singleton(QueryVectorCache, () => new QueryVectorCache())
   }
 }

@@ -1,16 +1,63 @@
 import { Meilisearch } from 'meilisearch'
-import type { Settings, Task } from 'meilisearch'
+import type { Embedders, Settings, Task } from 'meilisearch'
 import searchConfig from '#config/search'
 import SearchEngine from '#services/search/search_engine'
 import { SearchTaskFailedException } from '#exceptions/search_errors'
 import {
   SEARCH_EMBEDDER,
-  SEARCH_EMBEDDING_DIMENSIONS,
   type ProductSearchDocument,
   type ProductSearchFilter,
   type ProductSearchHits,
   type ProductSearchRequest,
 } from '#shared/types/search'
+
+/** Texte vectorisé : `embeddingText` de chaque document, rien d'autre. */
+const DOCUMENT_TEMPLATE = '{{ doc.embeddingText }}'
+
+/**
+ * Embedder de l'index (ADR 0002, décision 3) : c'est Meilisearch qui calcule les
+ * vecteurs, à partir de `embeddingText`, pour les fiches et pour les requêtes.
+ *
+ * - `huggingface` (défaut) : Meilisearch télécharge le modèle et le fait tourner
+ *   lui-même, sans clé. Sa dimension est celle du modèle (non déclarée) ;
+ * - `mistral` / `openai-compatible` : embedder `rest` appelant l'API
+ *   d'embeddings. Le format est celui de l'API OpenAI `/embeddings`, que Mistral
+ *   partage : `input` reçoit un lot de textes, `data[].embedding` les vecteurs.
+ *
+ * `null` quand l'embedder est coupé : appliqué aux réglages, il retire un
+ * embedder existant, et la recherche redevient par mots-clés seuls.
+ */
+export function buildEmbedders(embedder: typeof searchConfig.embedder): Embedders {
+  if (!embedder.enabled) return null
+
+  // Le défaut (400 octets) tronquerait le texte : ~1 500 caractères suffisent
+  // pour nom, catégorie, facettes et début de description.
+  const documentTemplate = { documentTemplate: DOCUMENT_TEMPLATE, documentTemplateMaxBytes: 2000 }
+
+  if (embedder.provider === 'huggingface') {
+    return {
+      [SEARCH_EMBEDDER]: { source: 'huggingFace', model: embedder.model, ...documentTemplate },
+    }
+  }
+
+  return {
+    [SEARCH_EMBEDDER]: {
+      source: 'rest',
+      url: embedder.url,
+      apiKey: embedder.apiKey,
+      dimensions: embedder.dimensions,
+      ...documentTemplate,
+      request: {
+        model: embedder.model,
+        input: ['{{text}}', '{{..}}'],
+        // Les modèles OpenAI réduisent à la dimension demandée ; `mistral-embed`
+        // produit toujours 1024 et refuserait le paramètre.
+        ...(embedder.provider === 'mistral' ? {} : { dimensions: embedder.dimensions }),
+      },
+      response: { data: [{ embedding: '{{embedding}}' }, '{{..}}'] },
+    },
+  }
+}
 
 /**
  * Réglages de l'index produits.
@@ -19,20 +66,20 @@ import {
  *   cherchable couvre toutes les langues, ajouter une langue ne change rien ici ;
  * - les attributs filtrables servent au ET exact côté moteur (facettes, pays,
  *   catégorie) ;
- * - l'embedder est `userProvided` : les vecteurs viennent de l'application.
+ * - l'embedder vectorise `embeddingText`, jamais les autres champs.
  */
-export const PRODUCT_INDEX_SETTINGS: Settings = {
-  searchableAttributes: ['names', 'descriptions', 'reference'],
-  filterableAttributes: [
-    'categoryId',
-    'supplierId',
-    'madeInEurope',
-    'originCountry',
-    'attributeValueIds',
-  ],
-  embedders: {
-    [SEARCH_EMBEDDER]: { source: 'userProvided', dimensions: SEARCH_EMBEDDING_DIMENSIONS },
-  },
+export function productIndexSettings(): Settings {
+  return {
+    searchableAttributes: ['names', 'descriptions', 'reference'],
+    filterableAttributes: [
+      'categoryId',
+      'supplierId',
+      'madeInEurope',
+      'originCountry',
+      'attributeValueIds',
+    ],
+    embedders: buildEmbedders(searchConfig.embedder),
+  }
 }
 
 const INDEX_NOT_FOUND = 'index_not_found'
@@ -78,16 +125,19 @@ export default class MeilisearchEngine extends SearchEngine {
   async search(request: ProductSearchRequest): Promise<ProductSearchHits> {
     // Pas de `ensureIndex` : une recherche ne crée rien. Un index absent (pas
     // encore de `search:reindex`) est une erreur que l'appelant traite en repli.
-    const hybrid = request.vector
-      ? { embedder: SEARCH_EMBEDDER, semanticRatio: request.semanticRatio }
-      : undefined
+    // Hybride seulement si le sémantique pèse et que l'embedder existe : sinon
+    // Meilisearch n'appelle pas l'API d'embeddings.
+    const hybrid =
+      request.semanticRatio > 0 && searchConfig.embedder.enabled
+        ? { embedder: SEARCH_EMBEDDER, semanticRatio: request.semanticRatio }
+        : undefined
 
     const response = await this.client.index(searchConfig.index).search(request.query, {
       filter: buildProductFilter(request.filter),
       page: request.page,
       hitsPerPage: request.perPage,
       attributesToRetrieve: ['id'],
-      ...(hybrid ? { hybrid, vector: request.vector! } : {}),
+      ...(hybrid ? { hybrid } : {}),
     })
 
     return {
@@ -156,7 +206,7 @@ export default class MeilisearchEngine extends SearchEngine {
       this.assertSucceeded(await this.client.tasks.waitForTask(created.taskUid, this.waitOptions))
     }
 
-    const settings = await this.client.index(uid).updateSettings(PRODUCT_INDEX_SETTINGS)
+    const settings = await this.client.index(uid).updateSettings(productIndexSettings())
     this.assertSucceeded(await this.client.tasks.waitForTask(settings.taskUid, this.waitOptions))
   }
 

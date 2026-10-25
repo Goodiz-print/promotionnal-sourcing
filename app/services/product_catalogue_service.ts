@@ -3,16 +3,12 @@ import Category from '#models/category'
 import Attribute from '#models/attribute'
 import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
 import { contentLocaleFor, LOCALE_TSCONFIG, type Locale } from '#shared/types/i18n'
-import { toPgVector } from '#shared/helpers/pgvector'
 import type { ProductDirectoryFilters, ProductSort } from '#shared/types/product'
 
 interface ListOptions extends ProductDirectoryFilters {
   page: number
   perPage: number
   locale: Locale
-  // Embedding de la requête (recherche sémantique). Fourni par le controller
-  // quand la recherche IA est active ; sinon repli sur le full-text.
-  queryEmbedding?: number[] | null
   // `price_asc` : tri par prix unitaire du premier palier (hors recherche
   // sémantique, qui garde son ordre de pertinence).
   sort?: ProductSort | null
@@ -34,7 +30,6 @@ export default class ProductCatalogueService {
    */
   list(options: ListOptions): Promise<ModelPaginatorContract<Product>> {
     const { page, perPage, locale, search, categoryId, madeInEurope, attributeValueIds } = options
-    const queryEmbedding = options.queryEmbedding
 
     // `tsConfig` provient d'une table contrôlée (jamais d'entrée utilisateur),
     // donc interpolable sans risque ; seul le terme recherché est bindé.
@@ -58,14 +53,9 @@ export default class ProductCatalogueService {
       })
       .preload('translations')
 
-    if (search && queryEmbedding && queryEmbedding.length > 0) {
-      // Recherche sémantique : plus proches voisins (distance cosinus pgvector,
-      // index HNSW `products_embedding_idx`) parmi les produits vectorisés.
-      query
-        .whereNotNull('embedding')
-        .orderByRaw('embedding <=> ?::halfvec', [toPgVector(queryEmbedding)])
-    } else if (search) {
-      // Repli full-text locale-aware (IA indisponible ou requête non vectorisée).
+    if (search) {
+      // Full-text locale-aware : repli quand Meilisearch est inerte ou injoignable
+      // (`ProductSearchService`), supprimé avec la PR 3 de #112.
       query
         .whereHas('translations', (t) =>
           t

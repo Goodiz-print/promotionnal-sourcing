@@ -1,5 +1,5 @@
 import { inject } from '@adonisjs/core'
-import aiConfig from '#config/ai'
+import searchConfig from '#config/search'
 import AttributeValue from '#models/attribute_value'
 import Category from '#models/category'
 import ProductSearchService from '#services/product_search_service'
@@ -60,7 +60,7 @@ export default class SearchEvaluationService {
     query: ReferenceQuery,
     returned: string[]
   ): Pick<ReferenceQueryResult, 'status' | 'recallAt10' | 'missing' | 'unexpected'> {
-    const top = returned.slice(0, RANK_CUTOFF)
+    const top = returned.slice(0, query.rank ?? RANK_CUTOFF)
     const missing = query.expected.filter((slug) => !top.includes(slug))
     const unexpected = returned.filter((slug) => !query.expected.includes(slug))
     const recallAt10 =
@@ -75,7 +75,7 @@ export default class SearchEvaluationService {
   private async run(query: ReferenceQuery): Promise<ReferenceQueryResult> {
     const base = { id: query.id, kind: query.kind, query: query.query }
 
-    if (query.requiresEmbeddings && !aiConfig.embeddings.enabled) {
+    if (query.requiresEmbeddings && !searchConfig.embedder.enabled) {
       return {
         ...base,
         status: 'skipped',

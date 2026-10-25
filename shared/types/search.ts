@@ -1,14 +1,40 @@
 import type { ContentLocale } from './i18n.js'
 
 /**
- * Nom de l'embedder Meilisearch. Les vecteurs sont **fournis par l'application**
- * (`userProvided`, calculés par `EmbeddingService` avec le provider configuré,
- * `mistral-embed` par défaut — ADR 0002, décision 3) :
- * Meilisearch ne fait que les stocker et les comparer.
+ * Nom de l'embedder Meilisearch. Les vecteurs sont **calculés par Meilisearch**
+ * (embedder `rest` appelant l'API d'embeddings, `mistral-embed` par défaut —
+ * ADR 0002, décision 3) à partir du champ `embeddingText` de chaque document :
+ * l'application n'appelle jamais le provider, ni pour les fiches ni pour les
+ * requêtes.
  */
 export const SEARCH_EMBEDDER = 'default'
 
-/** Dimension des vecteurs, figée avec `products.embedding` (`halfvec(1024)`). */
+/**
+ * Où tourne le modèle d'embeddings (ADR 0002, décision 3) :
+ *
+ * - `huggingface` (**défaut**) — Meilisearch télécharge un modèle open-weight et
+ *   le fait tourner lui-même : aucune clé, aucun coût par token, les textes ne
+ *   quittent pas l'infrastructure. Demande de la RAM et du CPU sur son instance ;
+ * - `mistral` — API Mistral, appelée par Meilisearch (clé `MISTRAL_API_KEY`) ;
+ * - `openai-compatible` — tout endpoint parlant le protocole OpenAI `/embeddings`
+ *   (OpenAI, Together, Ollama, vLLM…).
+ */
+export const EMBEDDER_PROVIDERS = ['huggingface', 'mistral', 'openai-compatible'] as const
+
+export type EmbedderProvider = (typeof EMBEDDER_PROVIDERS)[number]
+
+export const DEFAULT_EMBEDDER_PROVIDER: EmbedderProvider = 'huggingface'
+
+/**
+ * Modèle `huggingface` par défaut : multilingue (100+ langues), 768 dimensions,
+ * environ 1 Go. Choix de compromis entre qualité et ressources d'une instance
+ * Docker ; `multilingual-e5-small` (384) est plus léger, `multilingual-e5-large`
+ * (1024) plus précis. À trancher par `node ace search:evaluate` sur de vraies
+ * fiches.
+ */
+export const DEFAULT_HUGGINGFACE_MODEL = 'intfloat/multilingual-e5-base'
+
+/** Dimension demandée aux API d'embeddings (`mistral-embed` : 1024 natifs). */
 export const SEARCH_EMBEDDING_DIMENSIONS = 1024
 
 /**
@@ -33,8 +59,14 @@ export interface ProductSearchDocument {
   names: Partial<Record<ContentLocale, string>>
   /** Description par langue de contenu. */
   descriptions: Partial<Record<ContentLocale, string>>
-  /** Vecteur de `products.embedding`, absent tant que le produit n'est pas vectorisé. */
-  _vectors: { [SEARCH_EMBEDDER]: number[] | null }
+  /**
+   * Texte que Meilisearch vectorise (`documentTemplate` de l'embedder) : nom dans
+   * la langue source, catégorie, facettes « attribut : valeur », début de la
+   * description. Conçu pour la recherche, pas pour l'affichage (ADR 0002,
+   * décision 4) ; toute modification de sa construction se répercute à la
+   * prochaine synchronisation du produit, ou par `search:reindex`.
+   */
+  embeddingText: string
 }
 
 /** Résultat d'une synchronisation de produits vers l'index. */
@@ -58,9 +90,10 @@ export interface ProductSearchFilter {
 export interface ProductSearchRequest {
   /** Mots-clés saisis par l'utilisateur (tolérance aux fautes côté moteur). */
   query: string
-  /** Vecteur de la requête ; `null` = mots-clés seuls. */
-  vector: number[] | null
-  /** Poids du sémantique, de 0 (mots-clés) à 1 (vecteurs) ; ignoré sans vecteur. */
+  /**
+   * Poids du sémantique, de 0 à 1. À 0, recherche par mots-clés seuls : Meilisearch
+   * n'appelle pas l'API d'embeddings. Au-dessus, il vectorise lui-même `query`.
+   */
   semanticRatio: number
   filter: ProductSearchFilter
   /** Page demandée, à partir de 1. */
@@ -93,7 +126,11 @@ export type ReferenceQueryKind = (typeof REFERENCE_QUERY_KINDS)[number]
  *
  * - `expected` : slugs attendus ;
  * - `exact` : le résultat doit être **exactement** `expected` (ET exact : ni
- *   plus, ni moins) — sinon seul le rappel compte ;
+ *   plus, ni moins). Réservé aux requêtes à filtres : une recherche hybride
+ *   complète toujours la liste avec des voisins sémantiques, un filtre non ;
+ * - `rank` : nombre de premiers résultats où les fiches attendues doivent
+ *   figurer (10 par défaut). Une requête sémantique sur un petit jeu le resserre :
+ *   sinon, dans les 10 premiers, tout le seed y figure et la requête ne prouve rien ;
  * - `requiresEmbeddings` : requête qui n'a de sens qu'avec des vecteurs
  *   (sémantique, synonymes) — ignorée tant que la vectorisation est désactivée.
  */
@@ -108,6 +145,7 @@ export interface ReferenceQuery {
   madeInEurope?: boolean
   expected: string[]
   exact?: boolean
+  rank?: number
   requiresEmbeddings?: boolean
 }
 
@@ -118,7 +156,7 @@ export interface ReferenceQueryResult {
   query: string
   /** `skipped` : requête sémantique sans vecteurs disponibles. */
   status: 'passed' | 'failed' | 'skipped'
-  /** Part des fiches attendues retrouvées dans les 10 premières. */
+  /** Part des fiches attendues retrouvées dans les `rank` premières (10 par défaut). */
   recallAt10: number
   returned: string[]
   missing: string[]

@@ -29,7 +29,6 @@ env:
   DB_USER: test
   DB_PASSWORD: test
   DB_DATABASE: test
-  AI_PROVIDER: mistral
   MISTRAL_API_KEY: test
   CELLAR_ENDPOINT: cellar.test
   CELLAR_BUCKET: test
@@ -121,6 +120,49 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
       - name: Jeu de référence (Meilisearch)
+        run: node ace test functional --files="tests/functional/search_reference.spec.ts"
+
+  # Même jeu, **avec l'embedder** : Meilisearch télécharge le modèle `huggingface`
+  # (sans clé) et calcule les vecteurs, ce qui rejoue aussi les requêtes sémantiques.
+  # Job à part : le téléchargement du modèle (~1 Go) dépend du réseau.
+  test-search-semantic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      MEILISEARCH_HOST: http://localhost:7700
+      MEILISEARCH_API_KEY: ci-master-key
+      AI_EMBEDDINGS_ENABLED: true
+      AI_PROVIDER: huggingface
+    services:
+      postgres:
+        image: pgvector/pgvector:pg18
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      meilisearch:
+        image: getmeili/meilisearch:v1.55.0
+        env:
+          MEILI_ENV: development
+          MEILI_MASTER_KEY: ci-master-key
+        ports:
+          - 7700:7700
+        options: >-
+          --health-cmd "curl --fail --silent http://localhost:7700/health"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Jeu de référence (Meilisearch + embedder huggingface)
         run: node ace test functional --files="tests/functional/search_reference.spec.ts"
 
   test-frontend:

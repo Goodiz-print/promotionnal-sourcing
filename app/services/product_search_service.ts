@@ -2,14 +2,11 @@ import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
 import { ModelPaginator } from '@adonisjs/lucid/orm'
 import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
-import aiConfig from '#config/ai'
 import searchConfig from '#config/search'
 import Product from '#models/product'
-import EmbeddingService from '#services/embedding_service'
-import QueryVectorCache from '#services/search/query_vector_cache'
 import SearchEngine from '#services/search/search_engine'
 import type { ProductDirectoryFilters } from '#shared/types/product'
-import type { ProductSearchHits } from '#shared/types/search'
+import type { ProductSearchHits, ProductSearchRequest } from '#shared/types/search'
 
 /** Paramètres d'une recherche du catalogue public. */
 export interface CatalogueSearchOptions extends ProductDirectoryFilters {
@@ -18,8 +15,9 @@ export interface CatalogueSearchOptions extends ProductDirectoryFilters {
 }
 
 /**
- * Recherche des produits par Meilisearch (#112, ADR 0002) : mots-clés + vecteur
- * de la requête, filtres exacts, puis **rechargement depuis PostgreSQL**.
+ * Recherche des produits par Meilisearch (#112, ADR 0002) : mots-clés + sémantique
+ * (Meilisearch vectorise lui-même la requête), filtres exacts, puis
+ * **rechargement depuis PostgreSQL**.
  *
  * Ce que le moteur renvoie n'est qu'une liste ordonnée d'identifiants. La base
  * reste juge de ce qu'on affiche : un produit retiré, rejeté ou d'une
@@ -33,11 +31,7 @@ export interface CatalogueSearchOptions extends ProductDirectoryFilters {
  */
 @inject()
 export default class ProductSearchService {
-  constructor(
-    private engine: SearchEngine,
-    private embeddings: EmbeddingService,
-    private cache: QueryVectorCache
-  ) {}
+  constructor(private engine: SearchEngine) {}
 
   get enabled(): boolean {
     return this.engine.enabled
@@ -51,26 +45,18 @@ export default class ProductSearchService {
     const query = options.search?.trim()
     if (!this.enabled || !query) return null
 
-    const vector = await this.queryVector(query)
-
-    let hits: ProductSearchHits
-    try {
-      hits = await this.engine.search({
-        query,
-        vector,
-        semanticRatio: searchConfig.semanticRatio,
-        filter: {
-          categoryId: options.categoryId,
-          madeInEurope: options.madeInEurope,
-          attributeValueIds: options.attributeValueIds,
-        },
-        page: options.page,
-        perPage: options.perPage,
-      })
-    } catch (error) {
-      logger.warn({ err: error }, 'search engine unavailable, falling back to postgres')
-      return null
-    }
+    const hits = await this.query({
+      query,
+      semanticRatio: searchConfig.embedder.enabled ? searchConfig.semanticRatio : 0,
+      filter: {
+        categoryId: options.categoryId,
+        madeInEurope: options.madeInEurope,
+        attributeValueIds: options.attributeValueIds,
+      },
+      page: options.page,
+      perPage: options.perPage,
+    })
+    if (!hits) return null
 
     const products = await this.reload(hits.ids, options)
     return new ModelPaginator(hits.total, options.perPage, options.page, ...products)
@@ -85,42 +71,33 @@ export default class ProductSearchService {
     const query = search.trim()
     if (!this.enabled || !query) return null
 
-    let hits: ProductSearchHits
-    try {
-      hits = await this.engine.search({
-        query,
-        vector: null,
-        semanticRatio: 0,
-        filter: {},
-        page: 1,
-        perPage: limit,
-      })
-    } catch (error) {
-      logger.warn({ err: error }, 'search engine unavailable, falling back to postgres')
-      return null
-    }
+    const hits = await this.query({
+      query,
+      semanticRatio: 0,
+      filter: {},
+      page: 1,
+      perPage: limit,
+    })
+    if (!hits) return null
 
     return this.reload(hits.ids, null, true)
   }
 
   /**
-   * Vecteur de la requête, ou `null` pour une recherche par mots-clés seuls :
-   * vectorisation désactivée, provider en erreur — la recherche ne tombe jamais
-   * à cause de l'IA. Mis en cache (provider et modèle dans la clé).
+   * Interroge le moteur. Une recherche sémantique qui échoue — l'API d'embeddings
+   * est indisponible ou limitée en débit, Meilisearch ne peut pas vectoriser la
+   * requête — est **rejouée par mots-clés seuls** : la recherche ne tombe jamais
+   * à cause de l'IA. Moteur injoignable, même en mots-clés : `null` (repli).
    */
-  private async queryVector(query: string): Promise<number[] | null> {
-    if (!aiConfig.embeddings.enabled) return null
-
-    const key = this.embeddings.embeddingKey(query.toLowerCase())
-    const cached = this.cache.get(key)
-    if (cached) return cached
-
+  private async query(request: ProductSearchRequest): Promise<ProductSearchHits | null> {
     try {
-      const vector = await this.embeddings.embed(query)
-      if (vector) this.cache.set(key, vector)
-      return vector
+      return await this.engine.search(request)
     } catch (error) {
-      logger.warn({ err: error }, 'query embedding failed, using keyword search only')
+      if (request.semanticRatio > 0) {
+        logger.warn({ err: error }, 'semantic search failed, retrying with keywords only')
+        return this.query({ ...request, semanticRatio: 0 })
+      }
+      logger.warn({ err: error }, 'search engine unavailable, falling back to postgres')
       return null
     }
   }

@@ -1,6 +1,5 @@
 import { test } from '@japa/runner'
 import app from '@adonisjs/core/services/app'
-import aiConfig from '#config/ai'
 import searchConfig from '#config/search'
 import AttributeValue from '#models/attribute_value'
 import Category from '#models/category'
@@ -8,8 +7,6 @@ import Product from '#models/product'
 import { UserFactory } from '#database/factories/user_factory'
 import ModerationService from '#services/moderation_service'
 import ProductSearchService from '#services/product_search_service'
-import EmbeddingProvider from '#services/embeddings/embedding_provider'
-import QueryVectorCache from '#services/search/query_vector_cache'
 import { installFakeEngine, type FakeEngineHandle } from '#tests/utils/fake_search_engine'
 import { useDatabase } from '#tests/utils/setup'
 
@@ -83,8 +80,8 @@ test.group('Recherche — rechargement depuis PostgreSQL', (group) => {
     assert.lengthOf(handle.engine.requests, 1)
     assert.deepEqual(handle.engine.requests[0], {
       query: 'crayon',
-      vector: null,
-      semanticRatio: searchConfig.semanticRatio,
+      // Embedder coupé en test : mots-clés seuls.
+      semanticRatio: 0,
       filter: { categoryId: crayon.id, madeInEurope: true, attributeValueIds: [blue.id] },
       page: 2,
       perPage: 5,
@@ -169,88 +166,75 @@ test.group('Recherche — rechargement depuis PostgreSQL', (group) => {
     assert.isDefined(products![0].supplier.organization)
     assert.deepInclude(handle.engine.requests[0], {
       query: 'stylo',
-      vector: null,
       semanticRatio: 0,
       perPage: 8,
     })
   })
 })
 
-test.group('Recherche — vecteur de la requête', (group) => {
+test.group('Recherche — sémantique (embedder de Meilisearch)', (group) => {
   useDatabase(group, { seed: 'full' })
 
-  const calls: string[] = []
-  let failing = false
   let handle: FakeEngineHandle
-  const previous = { enabled: aiConfig.embeddings.enabled }
+  const previous = { enabled: searchConfig.embedder.enabled, ratio: searchConfig.semanticRatio }
 
   group.each.setup(() => {
-    calls.length = 0
-    failing = false
     handle = installFakeEngine()
-    aiConfig.embeddings.enabled = true
-    app.container.swap(EmbeddingProvider, () => ({
-      name: 'mistral' as const,
-      model: 'test-embed',
-      async embed(text: string) {
-        calls.push(text)
-        if (failing) throw new Error('provider down')
-        return new Array<number>(aiConfig.embeddings.dimensions).fill(0.25)
-      },
-    }))
-    return async () => {
+    return () => {
       handle.restore()
-      aiConfig.embeddings.enabled = previous.enabled
-      app.container.restore(EmbeddingProvider)
-      const cache = await app.container.make(QueryVectorCache)
-      cache.clear()
+      searchConfig.embedder.enabled = previous.enabled
+      searchConfig.semanticRatio = previous.ratio
     }
   })
 
   async function service() {
-    const cache = await app.container.make(QueryVectorCache)
-    cache.clear()
     return app.container.make(ProductSearchService)
   }
 
-  test('le vecteur calculé accompagne les mots-clés', async ({ assert }) => {
+  test('embedder actif : la requête demande le ratio sémantique configuré', async ({ assert }) => {
+    searchConfig.embedder.enabled = true
+    searchConfig.semanticRatio = 0.7
     const search = await service()
 
     await search.search(OPTIONS)
 
-    assert.deepEqual(calls, ['crayon'])
-    assert.lengthOf(handle.engine.requests[0].vector!, aiConfig.embeddings.dimensions)
+    assert.equal(handle.engine.requests[0].semanticRatio, 0.7)
   })
 
-  test('la même requête ne paie pas deux fois le provider', async ({ assert }) => {
+  test('embedder coupé : mots-clés seuls, quel que soit le ratio configuré', async ({ assert }) => {
+    searchConfig.embedder.enabled = false
+    searchConfig.semanticRatio = 0.7
     const search = await service()
 
     await search.search(OPTIONS)
-    await search.search({ ...OPTIONS, page: 2 })
-    await search.search({ ...OPTIONS, search: 'CRAYON ' })
 
-    assert.lengthOf(calls, 1)
-    assert.lengthOf(handle.engine.requests, 3)
-    assert.isNotNull(handle.engine.requests[2].vector)
+    assert.equal(handle.engine.requests[0].semanticRatio, 0)
   })
 
-  test('un provider en panne laisse la recherche par mots-clés seuls', async ({ assert }) => {
-    failing = true
+  test('une API d’embeddings en panne rejoue la requête par mots-clés seuls', async ({
+    assert,
+  }) => {
+    searchConfig.embedder.enabled = true
+    handle.engine.failSemantic = true
     handle.engine.hits = { ids: await ids('crayon-hb-bleu'), total: 1 }
     const search = await service()
 
     const page = await search.search(OPTIONS)
 
-    assert.isNull(handle.engine.requests[0].vector)
+    assert.deepEqual(
+      handle.engine.requests.map((request) => request.semanticRatio),
+      [searchConfig.semanticRatio, 0]
+    )
     assert.lengthOf(page!.all(), 1)
   })
 
-  test('le sélecteur de demande n’appelle jamais le provider', async ({ assert }) => {
+  test('le sélecteur de demande reste par mots-clés seuls, embedder actif', async ({ assert }) => {
+    searchConfig.embedder.enabled = true
     const search = await service()
 
     await search.lookup('crayon', 8)
 
-    assert.lengthOf(calls, 0)
+    assert.equal(handle.engine.requests[0].semanticRatio, 0)
   })
 })
 

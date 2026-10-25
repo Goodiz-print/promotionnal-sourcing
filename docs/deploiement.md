@@ -77,8 +77,25 @@ Moteur de recherche hybride, déployé en **instance Docker Clever Cloud** (Dock
 - Sauvegarde : snapshot Meilisearch planifié, copié hors de la plateforme.
 - Clé master et clé API de l'application : variables `MEILISEARCH_HOST` et `MEILISEARCH_API_KEY`, validées dans `start/env.ts`, documentées dans `.env.example`. Jamais dans l'image.
 - Sonde : `GET /health` sur le port du moteur.
+- **Modèle d'embeddings (défaut `huggingface`)** : Meilisearch télécharge le modèle (~1 Go pour `multilingual-e5-base`) depuis Hugging Face au premier usage, puis le garde sur son volume — l'instance doit pouvoir joindre Hugging Face en sortie et garder ses données entre redéploiements, sinon le modèle est retéléchargé. Il calcule aussi les vecteurs sur son CPU : prévoir plus que l'instance Docker M (4 Go), à dimensionner par la mesure (`node ace search:reindex`, puis `search:evaluate`). Un provider API (`AI_PROVIDER=mistral`) évite ce dimensionnement, au prix d'une clé et d'un coût par token.
 - Source de vérité : PostgreSQL. Un index corrompu ou perdu se reconstruit par réindexation complète (commande dédiée, rejouable), sans perte de données.
 - Les mises à jour de version Meilisearch passent par une réindexation si la release l'exige : la noter dans le changelog.
+
+#### Dimensionnement de l'instance Meilisearch
+
+Meilisearch tourne sur une **instance dédiée** : l'inférence ne concurrence ni le web ni le worker, et si l'instance sature le catalogue retombe sur la recherche PostgreSQL. Ces chiffres sont des **points de départ estimés, non mesurés** — à confirmer par un vrai `search:reindex` en observant mémoire et CPU.
+
+| Modèle (`HF_EMBED_MODEL`)                | Usage                           | Point de départ                 |
+| ---------------------------------------- | ------------------------------- | ------------------------------- |
+| `intfloat/multilingual-e5-base` (défaut) | Qualité multilingue             | ~4 Go de RAM, 2 vCPU (flavor L) |
+| `intfloat/multilingual-e5-small`         | Si le CPU ou la RAM pèsent trop | Plus petit (flavor M à valider) |
+| `AI_PROVIDER=mistral` (REST)             | Aucun calcul local              | Dimensionner pour l'index seul  |
+
+- **CPU, sans GPU** : l'indexation initiale et chaque modification de fiche calculent des vecteurs ; chaque recherche calcule celui de la requête (quelques dizaines à centaines de ms selon le CPU).
+- **Volume persistant obligatoire** pour le modèle (~1 Go) : sans lui, il est retéléchargé à chaque redéploiement, avec un démarrage à froid lent.
+- **Sortie réseau vers Hugging Face** à ouvrir pour cette instance seulement.
+- **Changer de modèle** change les vecteurs : réindexer (`node ace search:reindex`) puis rejouer `search:evaluate`.
+- Vérifier après déploiement : mémoire stable après le premier `search:reindex`, latence de recherche, et `search:evaluate` au vert.
 
 ### Développement local
 

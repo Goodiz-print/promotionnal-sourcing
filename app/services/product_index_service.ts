@@ -3,8 +3,8 @@ import db from '@adonisjs/lucid/services/db'
 import searchConfig from '#config/search'
 import Product from '#models/product'
 import SearchEngine from '#services/search/search_engine'
-import { SEARCH_EMBEDDER } from '#shared/types/search'
-import type { ContentLocale } from '#shared/types/i18n'
+import { resolveTranslation } from '#shared/helpers/translations'
+import type { ContentLocale, Locale } from '#shared/types/i18n'
 import type { ProductSearchDocument, ProductSyncResult } from '#shared/types/search'
 
 /**
@@ -19,6 +19,9 @@ import type { ProductSearchDocument, ProductSyncResult } from '#shared/types/sea
  * Un produit devenu invisible (inactif, rejeté, organisation archivée ou
  * rejetée) sort de l'index, mêmes règles que la fiche publique.
  */
+/** Longueur maximale du début de description envoyé au modèle d'embeddings. */
+const DESCRIPTION_LENGTH = 300
+
 @inject()
 export default class ProductIndexService {
   constructor(private engine: SearchEngine) {}
@@ -96,11 +99,15 @@ export default class ProductIndexService {
     const products = await this.visibleProducts()
       .whereIn('products.id', ids)
       .preload('translations')
-      .preload('productAttributes')
+      .preload('category', (category) => category.preload('translations'))
+      .preload('productAttributes', (rows) =>
+        rows
+          .preload('attribute', (attribute) => attribute.preload('translations'))
+          .preload('attributeValue', (value) => value.preload('translations'))
+      )
     if (products.length === 0) return []
 
-    const vectors = await this.vectorsFor(products.map((product) => product.id))
-    return products.map((product) => this.toDocument(product, vectors.get(product.id) ?? null))
+    return products.map((product) => this.toDocument(product))
   }
 
   /** Mêmes règles de visibilité que la fiche publique (`findBySlug`). */
@@ -113,26 +120,7 @@ export default class ProductIndexService {
       })
   }
 
-  /**
-   * Vecteurs stockés, lus en texte (`halfvec` n'a pas de type côté driver) puis
-   * décodés — le littéral pgvector `[0.1,0.2]` est aussi du JSON.
-   */
-  private async vectorsFor(ids: number[]): Promise<Map<number, number[]>> {
-    const rows = await db
-      .from('products')
-      .whereIn('id', ids)
-      .whereNotNull('embedding')
-      .select('id', db.raw('embedding::text as embedding'))
-
-    return new Map(
-      rows.map((row: { id: number; embedding: string }) => [
-        row.id,
-        JSON.parse(row.embedding) as number[],
-      ])
-    )
-  }
-
-  private toDocument(product: Product, vector: number[] | null): ProductSearchDocument {
+  private toDocument(product: Product): ProductSearchDocument {
     const names: Partial<Record<ContentLocale, string>> = {}
     const descriptions: Partial<Record<ContentLocale, string>> = {}
     for (const translation of product.translations) {
@@ -158,7 +146,45 @@ export default class ProductIndexService {
       ],
       names,
       descriptions,
-      _vectors: { [SEARCH_EMBEDDER]: vector },
+      embeddingText: ProductIndexService.embeddingText(product),
     }
+  }
+
+  /**
+   * Texte que Meilisearch vectorise (ADR 0002, décision 4) — conçu pour la
+   * recherche, pas pour l'affichage :
+   *
+   * 1. le nom dans la **langue source** de la fiche seule (le modèle est
+   *    multilingue ; concaténer les traductions allonge le texte et le fait
+   *    changer à chaque traduction automatique, donc ré-embedder) ;
+   * 2. la catégorie, dans la même langue ;
+   * 3. les facettes « attribut : valeur » (« couleur : noir ») ;
+   * 4. le début de la description, tronqué à `DESCRIPTION_LENGTH` caractères.
+   *
+   * Suppose `translations`, `category` et `productAttributes` (avec leurs
+   * traductions) préchargés. Les libellés absents dans la langue source
+   * retombent sur la langue par défaut, puis sur la première traduction.
+   */
+  static embeddingText(product: Product): string {
+    const locale = (product.sourceLocale || 'fr') as Locale
+    const name = resolveTranslation(product.translations, locale)
+
+    const facets = product.productAttributes.flatMap((row) => {
+      const attribute = resolveTranslation(row.attribute.translations, locale)?.name
+      const value = row.attributeValue
+        ? resolveTranslation(row.attributeValue.translations, locale)?.label
+        : (row.valueString ??
+          (row.valueNumber ? `${row.valueNumber} ${row.attribute.unit ?? ''}` : null))
+      return attribute && value ? [`${attribute} : ${value}`.trim()] : []
+    })
+
+    const description = name?.description?.trim().slice(0, DESCRIPTION_LENGTH)
+    const category = product.category
+      ? resolveTranslation(product.category.translations, locale)?.name
+      : null
+
+    return [name?.name, category, ...facets, description]
+      .filter((part): part is string => Boolean(part))
+      .join('\n')
   }
 }
