@@ -1,4 +1,6 @@
 import type {
+  FacetDistribution,
+  FacetDistributionRequest,
   ProductSearchDocument,
   ProductSearchHits,
   ProductSearchRequest,
@@ -26,6 +28,15 @@ export default abstract class SearchEngine {
    * Lève si le moteur est injoignable.
    */
   abstract search(request: ProductSearchRequest): Promise<ProductSearchHits>
+
+  /**
+   * Distributions de facettes (`facetDistribution`) des champs demandés, pour le
+   * filtre donné : par champ (`attributes.color`), le nombre de produits par
+   * valeur. Sert la barre de filtres dépendante de la catégorie — ne recharge
+   * rien depuis PostgreSQL, ne renvoie pas de produits. Lève si le moteur est
+   * injoignable.
+   */
+  abstract facetDistribution(request: FacetDistributionRequest): Promise<FacetDistribution>
 
   /** Retire ces produits de l'index (ids absents ignorés). */
   abstract remove(ids: number[]): Promise<void>

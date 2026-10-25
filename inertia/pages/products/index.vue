@@ -7,16 +7,15 @@ import BaseButton from '~/components/base/base_button.vue'
 import ProductCard from '~/components/product_card.vue'
 import CatalogueFilters from '~/components/catalogue_filters.vue'
 import type { Paginated } from '#shared/types/pagination'
-import type { CategoryType } from '#shared/types/category'
-import type { AttributeWithValuesType } from '#shared/types/attribute'
+import type { CategoryType, CategoryFacetBarType } from '#shared/types/category'
 import type { ProductType, ProductDirectoryFilters } from '#shared/types/product'
 
-const props = defineProps<{
+defineProps<{
   products: Paginated<ProductType>
   searchUnavailable: boolean
   filters: ProductDirectoryFilters
   categories: CategoryType[]
-  attributes: AttributeWithValuesType[]
+  facetBar: CategoryFacetBarType
 }>()
 
 const { t, locale } = useI18n()
@@ -34,7 +33,9 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
     {
       preserveState: true,
       preserveScroll: true,
-      only: ['products', 'filters', 'searchUnavailable'],
+      // `facetBar` est rechargé aussi : les attributs filtrables et leurs
+      // compteurs dépendent de la catégorie et des filtres de navigation.
+      only: ['products', 'filters', 'searchUnavailable', 'facetBar'],
     }
   )
 }
@@ -54,7 +55,7 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
         <CatalogueFilters
           :filters="filters"
           :categories="categories"
-          :attributes="attributes"
+          :facet-bar="facetBar"
           @apply="visit($event)"
         />
       </aside>

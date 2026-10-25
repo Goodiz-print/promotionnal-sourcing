@@ -59,6 +59,7 @@ function stubMeilisearch(options: { existing?: string[]; failTasks?: boolean } =
         totalPages: 1,
         processingTimeMs: 1,
         query: 'x',
+        facetDistribution: { 'attributes.color': { '3': 2, '7': 5 } },
       })
     }
 
@@ -97,6 +98,7 @@ function document(id: number): ProductSearchDocument {
     madeInEurope: true,
     originCountry: 'FR',
     attributeValueIds: [3],
+    attributes: { color: [3] },
     names: { fr: 'Stylo' },
     descriptions: {},
     embeddingText: 'Stylo\nStylo\ncouleur : noir',
@@ -274,6 +276,48 @@ test.group('Meilisearch — recherche', (group) => {
       assert.notProperty(call.body as object, 'vector')
       // Une recherche ne crée ni index ni réglages.
       assert.isUndefined(stub.calls.find((entry) => entry.path.endsWith('/settings')))
+    } finally {
+      stub.restore()
+    }
+  })
+
+  test('distributions de facettes : facets demandés, limit 0, lecture de facetDistribution', async ({
+    assert,
+  }) => {
+    const stub = stubMeilisearch()
+    try {
+      const distribution = await new MeilisearchEngine().facetDistribution({
+        query: '',
+        filter: { categoryId: 2, madeInEurope: true },
+        facets: ['attributes.color', 'attributes.material'],
+      })
+
+      assert.deepEqual(distribution, { 'attributes.color': { '3': 2, '7': 5 } })
+      const call = stub.calls.find((entry) => entry.path.endsWith('/search'))!
+      assert.deepInclude(call.body as object, {
+        q: '',
+        filter: 'categoryId = 2 AND madeInEurope = true',
+        facets: ['attributes.color', 'attributes.material'],
+        limit: 0,
+      })
+      // Une distribution de facettes ne crée ni index ni réglages.
+      assert.isUndefined(stub.calls.find((entry) => entry.path.endsWith('/settings')))
+    } finally {
+      stub.restore()
+    }
+  })
+
+  test('aucun champ de facette demandé : rien n’est envoyé au moteur', async ({ assert }) => {
+    const stub = stubMeilisearch()
+    try {
+      const distribution = await new MeilisearchEngine().facetDistribution({
+        query: '',
+        filter: {},
+        facets: [],
+      })
+
+      assert.deepEqual(distribution, {})
+      assert.isUndefined(stub.calls.find((entry) => entry.path.endsWith('/search')))
     } finally {
       stub.restore()
     }

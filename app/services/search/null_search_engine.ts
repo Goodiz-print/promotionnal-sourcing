@@ -1,5 +1,6 @@
 import SearchEngine from '#services/search/search_engine'
 import type {
+  FacetDistribution,
   ProductSearchDocument,
   ProductSearchHits,
   ProductSearchRequest,
@@ -16,6 +17,10 @@ export default class NullSearchEngine extends SearchEngine {
 
   async search(_request: ProductSearchRequest): Promise<ProductSearchHits> {
     return { ids: [], total: 0 }
+  }
+
+  async facetDistribution(): Promise<FacetDistribution> {
+    return {}
   }
 
   async remove(_ids: number[]): Promise<void> {}

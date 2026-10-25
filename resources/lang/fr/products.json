@@ -11,7 +11,11 @@
     "empty": "Aucun produit ne correspond à votre recherche.",
     "searchUnavailable": "La recherche est momentanément indisponible. Réessayez dans un instant ou parcourez les catégories.",
     "previous": "Précédent",
-    "next": "Suivant"
+    "next": "Suivant",
+    "selectCategoryForFilters": "Sélectionnez une catégorie pour afficher ses filtres.",
+    "rangeUnder": "< {max}",
+    "rangeOver": "≥ {min}",
+    "rangeBetween": "{min}–{max}"
   },
   "show": {
     "backToCatalogue": "Retour au catalogue",

@@ -2,6 +2,8 @@ import app from '@adonisjs/core/services/app'
 import searchConfig from '#config/search'
 import SearchEngine from '#services/search/search_engine'
 import type {
+  FacetDistribution,
+  FacetDistributionRequest,
   ProductSearchDocument,
   ProductSearchHits,
   ProductSearchRequest,
@@ -22,6 +24,9 @@ export default class FakeSearchEngine extends SearchEngine {
   hits: ProductSearchHits | Error = { ids: [], total: 0 }
   /** Simule une API d'embeddings indisponible : seules les requêtes sémantiques échouent. */
   failSemantic = false
+  /** Réponse de `facetDistribution` ; `Error` pour simuler un moteur injoignable. */
+  distribution: FacetDistribution | Error = {}
+  facetRequests: FacetDistributionRequest[] = []
 
   async upsert(documents: ProductSearchDocument[]) {
     if (documents.length > 0) this.upserted.push(documents)
@@ -36,6 +41,12 @@ export default class FakeSearchEngine extends SearchEngine {
     if (this.failSemantic && request.semanticRatio > 0) throw new Error('embedding API unavailable')
     if (this.hits instanceof Error) throw this.hits
     return this.hits
+  }
+
+  async facetDistribution(request: FacetDistributionRequest): Promise<FacetDistribution> {
+    this.facetRequests.push(request)
+    if (this.distribution instanceof Error) throw this.distribution
+    return this.distribution
   }
 
   async replaceAll(batches: AsyncIterable<ProductSearchDocument[]>) {

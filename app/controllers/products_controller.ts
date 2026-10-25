@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import ProductSearchService from '#services/product_search_service'
+import CatalogueFacetBarService from '#services/catalogue_facet_bar_service'
 import DocumentService from '#services/document_service'
 import OrganizationContextService from '#services/organization_context_service'
 import RfqService from '#services/rfq_service'
@@ -9,8 +10,6 @@ import ProductTransformer from '#transformers/product_transformer'
 import RfqDraftOptionTransformer from '#transformers/rfq_draft_option_transformer'
 import ProductDetailTransformer from '#transformers/product_detail_transformer'
 import CategoryTransformer from '#transformers/category_transformer'
-import AttributeTransformer from '#transformers/attribute_transformer'
-import AttributeValueTransformer from '#transformers/attribute_value_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
 import { NoCurrentOrganizationException } from '#exceptions/organization_errors'
 import type { Locale } from '#shared/types/i18n'
@@ -24,6 +23,7 @@ export default class ProductsController {
   constructor(
     private service: ProductCatalogueService,
     private productSearch: ProductSearchService,
+    private facetBar: CatalogueFacetBarService,
     private documents: DocumentService,
     private organizations: OrganizationContextService,
     private rfqs: RfqService
@@ -61,7 +61,13 @@ export default class ProductsController {
           sort: qs.sort === 'price_asc' ? 'price_asc' : null,
         })
     const categories = await this.service.availableCategories()
-    const attributes = await this.service.filterableAttributes()
+    // Barre de filtres pilotée par la catégorie sélectionnée : attributs
+    // filtrables résolus (propres + hérités) + compteurs (distributions de
+    // facettes). Sans catégorie, pas de filtres d'attributs (bar vide).
+    const facetBar = await this.facetBar.forCategory(filters.categoryId, locale, {
+      search: filters.search,
+      madeInEurope: filters.madeInEurope,
+    })
 
     return inertia.render('products/index', {
       products: {
@@ -80,12 +86,7 @@ export default class ProductsController {
       categories: categories.map((category) =>
         new CategoryTransformer(category, locale).toObject()
       ),
-      attributes: attributes.map((attribute) => ({
-        ...new AttributeTransformer(attribute, locale).toObject(),
-        values: attribute.values.map((value) =>
-          new AttributeValueTransformer(value, locale).toObject()
-        ),
-      })),
+      facetBar,
     })
   }
 
