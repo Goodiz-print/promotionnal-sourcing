@@ -1,0 +1,75 @@
+{
+  "status": {
+    "pending": "En attente de confirmation",
+    "confirmed": "Confirmée",
+    "in_production": "En production",
+    "shipped": "Expédiée",
+    "delivered": "Livrée",
+    "cancelled": "Annulée"
+  },
+  "actions": {
+    "confirm": "Confirmer la commande",
+    "startProduction": "Lancer la production",
+    "ship": "Marquer comme expédiée",
+    "deliver": "Confirmer la réception",
+    "cancel": "Annuler la commande"
+  },
+  "confirm": {
+    "confirm": "Confirmer cette commande ? Vous vous engagez à la honorer.",
+    "startProduction": "Lancer la production de cette commande ?",
+    "ship": "Marquer cette commande comme expédiée ?",
+    "deliver": "Confirmer que vous avez bien reçu cette commande ?",
+    "cancel": "Annuler cette commande ? Cette action est définitive."
+  },
+  "flash": {
+    "confirm": "Commande confirmée.",
+    "startProduction": "Commande en production.",
+    "ship": "Commande expédiée.",
+    "deliver": "Réception confirmée. La commande est livrée.",
+    "cancel": "Commande annulée."
+  },
+  "errors": {
+    "transition": "Cette action n'est plus possible : la commande a changé d'état."
+  },
+  "index": {
+    "title": "Mes commandes",
+    "subtitle": "Les commandes issues de vos devis acceptés.",
+    "empty": "Aucune commande pour le moment. Une commande est créée dès que vous acceptez un devis."
+  },
+  "supplier": {
+    "index": {
+      "title": "Commandes reçues",
+      "subtitle": "Confirmez les commandes et faites-les avancer jusqu'à l'expédition.",
+      "empty": "Aucune commande pour le moment. Une commande arrive dès qu'un acheteur accepte l'un de vos devis."
+    }
+  },
+  "show": {
+    "title": "Commande n° {id}",
+    "backToList": "Retour aux commandes",
+    "forRfq": "Pour la demande « {rfqTitle} »",
+    "buyer": "Acheteur",
+    "supplier": "Fournisseur",
+    "shippingAddress": "Adresse de livraison",
+    "billingAddress": "Adresse de facturation",
+    "noAddress": "Non renseignée",
+    "viewQuote": "Voir le devis",
+    "timeline": "Suivi de la commande"
+  },
+  "timeline": {
+    "created": "Commande créée",
+    "confirmed": "Confirmée par le fournisseur",
+    "inProduction": "Mise en production",
+    "shipped": "Expédiée",
+    "delivered": "Livrée",
+    "cancelled": "Annulée",
+    "pending": "En attente"
+  },
+  "table": {
+    "item": "Article",
+    "unitPrice": "Prix unitaire",
+    "quantity": "Quantité",
+    "total": "Total"
+  },
+  "total": "Total : {total}",
+  "viewOrder": "Voir la commande"
+}

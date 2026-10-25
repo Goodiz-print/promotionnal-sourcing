@@ -3,13 +3,19 @@ import logger from '@adonisjs/core/services/logger'
 import OrganizationUser from '#models/organization_user'
 import NotificationService from '#services/notification_service'
 import { RFQ_MANAGER_ROLES, RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
+import type Order from '#models/order'
 import type Organization from '#models/organization'
 import type Quote from '#models/quote'
 import type Rfq from '#models/rfq'
 import type RfqSupplier from '#models/rfq_supplier'
 import type User from '#models/user'
+import type { OrderSide } from '#shared/types/order'
 import type { RoleSlug } from '#shared/types/role'
-import type { NotificationData, NotificationType } from '#shared/types/notification'
+import type {
+  NotificationData,
+  NotificationType,
+  OrderNotificationType,
+} from '#shared/types/notification'
 
 /** Rôles qui voient arriver un nouveau membre dans leur organisation. */
 const MEMBER_ADMIN_ROLES: readonly RoleSlug[] = ['owner', 'admin']
@@ -70,6 +76,34 @@ export default class InAppNotificationService {
       rfqTitle: quote.rfq.title,
       buyerName: buyer.name,
     })
+  }
+
+  /**
+   * Une commande a changé d'état : les responsables du côté `recipient` sont
+   * prévenus. Charge ce qu'il faut de la commande (demande, deux organisations).
+   * `side` part dans les données : il détermine l'écran que le lien ouvre.
+   */
+  async orderChanged(
+    order: Order,
+    type: OrderNotificationType,
+    recipient: OrderSide
+  ): Promise<number> {
+    await order.load('quote', (quote) => quote.preload('rfq'))
+    await order.load('buyerOrganization')
+    await order.load('supplierOrganization')
+
+    return this.notifyMembers(
+      recipient === 'buyer' ? order.buyerOrganizationId : order.supplierOrganizationId,
+      recipient === 'buyer' ? RFQ_MANAGER_ROLES : RFQ_RESPONDER_ROLES,
+      type,
+      {
+        orderId: order.id,
+        rfqTitle: order.quote.rfq.title,
+        buyerName: order.buyerOrganization.name,
+        supplierName: order.supplierOrganization.name,
+        side: recipient,
+      }
+    )
   }
 
   /** Les propriétaires et administrateurs voient arriver le nouveau membre. */

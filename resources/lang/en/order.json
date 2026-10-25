@@ -1,0 +1,75 @@
+{
+  "status": {
+    "pending": "Awaiting confirmation",
+    "confirmed": "Confirmed",
+    "in_production": "In production",
+    "shipped": "Shipped",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled"
+  },
+  "actions": {
+    "confirm": "Confirm order",
+    "startProduction": "Start production",
+    "ship": "Mark as shipped",
+    "deliver": "Confirm receipt",
+    "cancel": "Cancel order"
+  },
+  "confirm": {
+    "confirm": "Confirm this order? You commit to fulfilling it.",
+    "startProduction": "Start production for this order?",
+    "ship": "Mark this order as shipped?",
+    "deliver": "Confirm that you received this order?",
+    "cancel": "Cancel this order? This cannot be undone."
+  },
+  "flash": {
+    "confirm": "Order confirmed.",
+    "startProduction": "Order in production.",
+    "ship": "Order shipped.",
+    "deliver": "Receipt confirmed. The order is delivered.",
+    "cancel": "Order cancelled."
+  },
+  "errors": {
+    "transition": "This action is no longer possible: the order has changed status."
+  },
+  "index": {
+    "title": "My orders",
+    "subtitle": "Orders created from the quotes you accepted.",
+    "empty": "No orders yet. An order is created as soon as you accept a quote."
+  },
+  "supplier": {
+    "index": {
+      "title": "Orders received",
+      "subtitle": "Confirm orders and move them along until they ship.",
+      "empty": "No orders yet. One arrives as soon as a buyer accepts one of your quotes."
+    }
+  },
+  "show": {
+    "title": "Order #{id}",
+    "backToList": "Back to orders",
+    "forRfq": "For the request \"{rfqTitle}\"",
+    "buyer": "Buyer",
+    "supplier": "Supplier",
+    "shippingAddress": "Shipping address",
+    "billingAddress": "Billing address",
+    "noAddress": "Not provided",
+    "viewQuote": "View the quote",
+    "timeline": "Order tracking"
+  },
+  "timeline": {
+    "created": "Order created",
+    "confirmed": "Confirmed by the supplier",
+    "inProduction": "Production started",
+    "shipped": "Shipped",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "pending": "Pending"
+  },
+  "table": {
+    "item": "Item",
+    "unitPrice": "Unit price",
+    "quantity": "Quantity",
+    "total": "Total"
+  },
+  "total": "Total: {total}",
+  "viewOrder": "View the order"
+}

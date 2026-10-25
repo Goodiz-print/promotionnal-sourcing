@@ -40,13 +40,17 @@ dans `shared/types/`, pas dans le schéma.
 membres qui peuvent **agir** (mêmes rôles que les mails) ; un `member` n'est pas
 notifié d'une impasse. Un échec est loggué sans faire échouer la requête.
 
-| Événement (publié par)                                   | Type                           | Destinataires                                    |
-| -------------------------------------------------------- | ------------------------------ | ------------------------------------------------ |
-| `RfqSent` (`RfqsController#send`)                        | `rfq.received`                 | owner / admin / manager du fournisseur           |
-| `RfqDeclined` (`supplier/RfqsController#decline`)        | `rfq.declined`                 | owner / admin / manager de l'acheteur            |
-| `QuoteSubmitted` (`QuoteService`)                        | `quote.received`               | owner / admin / manager de l'acheteur            |
-| `QuoteAccepted` / `QuoteRejected` (`QuoteService`)       | `quote.accepted` / `.rejected` | owner / admin / manager du fournisseur           |
-| `MemberJoined` (`InvitationAcceptanceController#accept`) | `organization.member_joined`   | owner / admin de l'organisation, sauf l'arrivant |
+| Événement (publié par)                                   | Type                                              | Destinataires                                    |
+| -------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------ |
+| `RfqSent` (`RfqsController#send`)                        | `rfq.received`                                    | owner / admin / manager du fournisseur           |
+| `RfqDeclined` (`supplier/RfqsController#decline`)        | `rfq.declined`                                    | owner / admin / manager de l'acheteur            |
+| `QuoteSubmitted` (`QuoteService`)                        | `quote.received`                                  | owner / admin / manager de l'acheteur            |
+| `QuoteAccepted` / `QuoteRejected` (`QuoteService`)       | `quote.accepted` / `.rejected`                    | owner / admin / manager du fournisseur           |
+| `OrderCreated` (`OrderService`)                          | `order.created`                                   | owner / admin / manager du fournisseur           |
+| `OrderConfirmed` / `OrderInProduction` / `OrderShipped`  | `order.confirmed` / `.in_production` / `.shipped` | owner / admin / manager de l'acheteur            |
+| `OrderDelivered` (`OrderService`)                        | `order.delivered`                                 | owner / admin / manager du fournisseur           |
+| `OrderCancelled` (`OrderService`)                        | `order.cancelled`                                 | l'autre côté que l'auteur de l'annulation        |
+| `MemberJoined` (`InvitationAcceptanceController#accept`) | `organization.member_joined`                      | owner / admin de l'organisation, sauf l'arrivant |
 
 Les listeners (`app/listeners/on_*.ts`) sont enregistrés dans `start/events.ts`. `OnRfqSent`
 et `OnQuoteSubmitted` envoient aussi le mail : deux canaux indépendants.

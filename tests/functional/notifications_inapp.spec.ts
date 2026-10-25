@@ -113,14 +113,16 @@ test.group('Notifications in-app — événements métier', (group) => {
 
   test('QuoteAccepted / QuoteRejected : le fournisseur apprend la décision', async ({ assert }) => {
     const { rfq, buyer, supplier, supplierOwner, supplierMember } = await scenario()
-    const quote = await QuoteFactory.apply('submitted')
+    const quote = await QuoteFactory.apply('accepted')
       .merge({ rfqId: rfq.id, supplierOrganizationId: supplier.id })
       .create()
 
     await emitter.emit(QuoteAccepted, new QuoteAccepted(quote))
     await emitter.emit(QuoteRejected, new QuoteRejected(quote))
 
-    const notifications = await notificationsOf(supplierOwner)
+    // L'acceptation crée aussi la commande (#6) : ses notifications se testent dans `orders.spec.ts`.
+    const all = await notificationsOf(supplierOwner)
+    const notifications = all.filter((notification) => notification.type.startsWith('quote.'))
     assert.deepEqual(
       notifications.map((notification) => notification.type),
       ['quote.accepted', 'quote.rejected']
