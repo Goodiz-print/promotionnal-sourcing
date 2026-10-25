@@ -154,6 +154,39 @@ const PRODUCTS: ProductSeed[] = [
       en: { name: 'Blue Cotton Bag', description: 'Blue organic cotton tote bag, 180gsm' },
     },
   },
+  // Démo de l'arbre N1 > N2 et des nouvelles facettes (couleur famille + nuance,
+  // matière, attributs propres à la catégorie). Porte les attributs obligatoires
+  // de « Casquettes » (cap-panels, cap-type) : la fiche est donc publiable.
+  {
+    slug: 'casquette-6-panneaux-marine',
+    supplier: 'eurogoods',
+    category: 'casquettes-chapeaux-casquettes',
+    priceMin: 3.2,
+    priceMax: 5.9,
+    minQuantity: 50,
+    originCountry: 'FR',
+    madeInEurope: true,
+    facets: {
+      'color': 'blue',
+      'color-shade': 'bleu-marine',
+      // Coton bio (coton brossé bio, cf. compositions « Casquettes » du classeur) :
+      // valeur distincte de `cotton`, pour ne pas croiser le filtre bleu+coton.
+      'material': 'organic-cotton',
+      'cap-panels': '6',
+      'cap-type': 'baseball',
+      'cap-closure': 'metal-buckle',
+    },
+    translations: {
+      fr: {
+        name: 'Casquette 6 panneaux marine',
+        description: 'Casquette baseball 6 panneaux en coton bio brossé, fermeture boucle métal',
+      },
+      en: {
+        name: 'Navy 6-panel cap',
+        description: 'Six-panel organic brushed-cotton baseball cap with metal buckle closure',
+      },
+    },
+  },
 ]
 
 export default class ProductSeeder extends BaseSeeder {

@@ -106,6 +106,8 @@ describe('product_facets_fields.vue', () => {
             label: 'Bleu',
             slug: 'blue',
             synonyms: [],
+            hex: '#1F5FBF',
+            parentValueId: null,
             createdAt: '2026-07-11T00:00:00.000Z',
             updatedAt: null,
           },

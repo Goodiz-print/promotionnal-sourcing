@@ -44,6 +44,46 @@ sur `product_attributes` combine plusieurs facettes en `AND` SQL. Voir
 `tests/functional/catalogue.spec.ts` pour la preuve (crayon + bleu → 2
 crayons bleus, jamais un produit bleu non-crayon).
 
+## Attributs filtrables par catégorie (ÉTAPE 1 du modèle produit)
+
+Fondations pour des filtres **qui changent selon la catégorie** (écarts 1 et 6 du
+plan d'extension), alignées sur les classeurs Virgile (PromoStandards / Midocean).
+
+- **`category_attributes`** — pivot catégorie ↔ attribut : `category_id`,
+  `attribute_id`, `is_required_for_publication`, `is_filter`, `position`,
+  `unique(category_id, attribute_id)`. Déclare quels attributs sont pertinents
+  pour une catégorie, lesquels sont obligatoires pour publier, lesquels servent de
+  filtre, et dans quel ordre.
+- **`category_attribute_ranges`** — tranches d'un attribut numérique (table
+  enfant, pas de JSONB) : `min_value` / `max_value` (nullable = borne ouverte),
+  `position`. **Le libellé n'est pas stocké** (rendu côté UI depuis les bornes +
+  l'unité + la locale).
+- **`attribute_values.hex` / `parent_value_id`** — couleur à 2 niveaux : une
+  nuance (N2) pointe vers sa famille (N1) via `parent_value_id` (self-FK,
+  `SET NULL`) ; `hex` porte la pastille. Deux attributs : `color` (14 familles) et
+  `color-shade` (26 nuances).
+
+**Résolution** — `CatalogueFacetsService` (`app/services/catalogue_facets_service.ts`,
+injecté) : l'ensemble d'attributs d'une catégorie est la réunion de ses attributs
+**propres et de ceux de tous ses ancêtres** (remontée `parent_id` jusqu'à la
+racine) ; un attribut peut donc être rattaché à n'importe quel niveau (N2 ou N3).
+`resolveForCategory` trie par `position` et résout valeurs + tranches ;
+`resolveFilters` ne garde que `is_filter = true`.
+
+**Garde de publication** — `assertPublishable` / `missingRequiredAttributes`
+lèvent `ProductPublicationBlockedException` (`app/exceptions/catalogue_errors.ts`)
+tant qu'un attribut `is_required_for_publication` de la catégorie ou d'un ancêtre
+n'est pas renseigné sur la fiche.
+
+**Facettes de recherche** — les valeurs de ces attributs entrent dans
+`attributeValueIds` de l'index : le ET multi-critères (dont couleur N1/N2)
+fonctionne tel quel, backfill par `search:reindex` (voir `docs/search.md`).
+
+**Seeders** — arbre N1 > N2 (15 / 45) + synonymes, couleurs (familles + nuances),
+matières, et un jeu curé d'attributs par catégorie, depuis
+`database/data/catalogue/*`. Certifications et techniques de marquage arrivent
+dans des étapes ultérieures.
+
 ## Extensions PostgreSQL et colonnes de recherche retirées
 
 Migration `…948_enable_search_extensions` active `vector` (pgvector),

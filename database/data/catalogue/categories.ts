@@ -1,0 +1,334 @@
+// GÉNÉRÉ depuis les classeurs Virgile (19 oct. 2026) — voir docs/changelog.
+// Données de démonstration : régénérable, éditable à la main ensuite.
+
+export interface CategorySeed {
+  slug: string
+  parentSlug: string | null
+  synonyms: string[]
+  /** Nom FR (langue source). L'EN retombe sur le FR tant qu'il n'est pas saisi. */
+  name: string
+}
+
+/** Arbre N1 > N2 du classeur Virgile (15 N1, 45 N2). */
+export const CATEGORY_TREE: CategorySeed[] = [
+  { slug: 'ecriture', parentSlug: null, synonyms: ['ecriture'], name: 'Écriture' },
+  {
+    slug: 'papeterie-bureau',
+    parentSlug: null,
+    synonyms: ['bureau', 'papeterie'],
+    name: 'Papeterie & bureau',
+  },
+  { slug: 'boissons', parentSlug: null, synonyms: ['boissons'], name: 'Boissons' },
+  {
+    slug: 'sacs-bagagerie',
+    parentSlug: null,
+    synonyms: ['bagagerie', 'sacs'],
+    name: 'Sacs & bagagerie',
+  },
+  { slug: 'textile', parentSlug: null, synonyms: ['textile'], name: 'Textile' },
+  {
+    slug: 'casquettes-chapeaux',
+    parentSlug: null,
+    synonyms: ['casquettes', 'chapeaux'],
+    name: 'Casquettes & chapeaux',
+  },
+  { slug: 'technologie', parentSlug: null, synonyms: ['technologie'], name: 'Technologie' },
+  {
+    slug: 'maison-cuisine',
+    parentSlug: null,
+    synonyms: ['cuisine', 'maison'],
+    name: 'Maison & cuisine',
+  },
+  {
+    slug: 'porte-cles-petits-objets',
+    parentSlug: null,
+    synonyms: ['cles', 'objets', 'petits', 'porte'],
+    name: 'Porte-clés & petits objets',
+  },
+  { slug: 'parapluies', parentSlug: null, synonyms: ['parapluies'], name: 'Parapluies' },
+  {
+    slug: 'sport-plein-air',
+    parentSlug: null,
+    synonyms: ['air', 'plein', 'sport'],
+    name: 'Sport & plein air',
+  },
+  {
+    slug: 'beaute-bien-etre',
+    parentSlug: null,
+    synonyms: ['beaute', 'bien', 'etre'],
+    name: 'Beauté & bien-être',
+  },
+  {
+    slug: 'lanyards-badges',
+    parentSlug: null,
+    synonyms: ['badges', 'lanyards'],
+    name: 'Lanyards & badges',
+  },
+  { slug: 'enfants-jeux', parentSlug: null, synonyms: ['enfants', 'jeux'], name: 'Enfants & jeux' },
+  {
+    slug: 'saisonnier-cadeaux',
+    parentSlug: null,
+    synonyms: ['cadeaux', 'saisonnier'],
+    name: 'Saisonnier & cadeaux',
+  },
+  {
+    slug: 'ecriture-stylos-bille-roller-gel',
+    parentSlug: 'ecriture',
+    synonyms: ['bille', 'gel', 'roller', 'stylos'],
+    name: 'Stylos (bille, roller, gel)',
+  },
+  {
+    slug: 'ecriture-crayons-marqueurs-surligneurs',
+    parentSlug: 'ecriture',
+    synonyms: ['crayons', 'marqueurs', 'surligneurs'],
+    name: 'Crayons, marqueurs, surligneurs',
+  },
+  {
+    slug: 'ecriture-parures-et-coffrets-d-ecriture',
+    parentSlug: 'ecriture',
+    synonyms: ['coffrets', 'ecriture', 'parures'],
+    name: "Parures et coffrets d'écriture",
+  },
+  {
+    slug: 'papeterie-bureau-carnets-et-blocs-notes',
+    parentSlug: 'papeterie-bureau',
+    synonyms: ['blocs', 'carnets', 'notes'],
+    name: 'Carnets et blocs-notes',
+  },
+  {
+    slug: 'papeterie-bureau-agendas-et-calendriers',
+    parentSlug: 'papeterie-bureau',
+    synonyms: ['agendas', 'calendriers'],
+    name: 'Agendas et calendriers',
+  },
+  {
+    slug: 'papeterie-bureau-accessoires-de-bureau',
+    parentSlug: 'papeterie-bureau',
+    synonyms: ['accessoires', 'bureau'],
+    name: 'Accessoires de bureau',
+  },
+  {
+    slug: 'boissons-gourdes-et-bouteilles',
+    parentSlug: 'boissons',
+    synonyms: ['bouteilles', 'gourdes'],
+    name: 'Gourdes et bouteilles',
+  },
+  {
+    slug: 'boissons-mugs-et-tasses',
+    parentSlug: 'boissons',
+    synonyms: ['mugs', 'tasses'],
+    name: 'Mugs et tasses',
+  },
+  {
+    slug: 'boissons-gobelets-et-verres',
+    parentSlug: 'boissons',
+    synonyms: ['gobelets', 'verres'],
+    name: 'Gobelets et verres',
+  },
+  {
+    slug: 'sacs-bagagerie-sacs-shopping-et-tote-bags',
+    parentSlug: 'sacs-bagagerie',
+    synonyms: ['bags', 'sacs', 'shopping', 'tote'],
+    name: 'Sacs shopping et tote bags',
+  },
+  {
+    slug: 'sacs-bagagerie-sacs-a-dos',
+    parentSlug: 'sacs-bagagerie',
+    synonyms: ['dos', 'sacs'],
+    name: 'Sacs à dos',
+  },
+  {
+    slug: 'sacs-bagagerie-sacoches-sacs-de-voyage-trolleys',
+    parentSlug: 'sacs-bagagerie',
+    synonyms: ['sacoches', 'sacs', 'trolleys', 'voyage'],
+    name: 'Sacoches, sacs de voyage, trolleys',
+  },
+  {
+    slug: 'sacs-bagagerie-pochettes-trousses-portefeuilles',
+    parentSlug: 'sacs-bagagerie',
+    synonyms: ['pochettes', 'portefeuilles', 'trousses'],
+    name: 'Pochettes, trousses, portefeuilles',
+  },
+  { slug: 'textile-t-shirts', parentSlug: 'textile', synonyms: ['shirts'], name: 'T-shirts' },
+  { slug: 'textile-polos', parentSlug: 'textile', synonyms: ['polos'], name: 'Polos' },
+  {
+    slug: 'textile-sweats-et-hoodies',
+    parentSlug: 'textile',
+    synonyms: ['hoodies', 'sweats'],
+    name: 'Sweats et hoodies',
+  },
+  {
+    slug: 'textile-vestes-softshells-polaires',
+    parentSlug: 'textile',
+    synonyms: ['polaires', 'softshells', 'vestes'],
+    name: 'Vestes, softshells, polaires',
+  },
+  {
+    slug: 'textile-vetements-de-travail-et-haute-visibilite',
+    parentSlug: 'textile',
+    synonyms: ['haute', 'travail', 'vetements', 'visibilite'],
+    name: 'Vêtements de travail et haute visibilité',
+  },
+  {
+    slug: 'casquettes-chapeaux-casquettes',
+    parentSlug: 'casquettes-chapeaux',
+    synonyms: ['casquettes'],
+    name: 'Casquettes',
+  },
+  {
+    slug: 'casquettes-chapeaux-bonnets',
+    parentSlug: 'casquettes-chapeaux',
+    synonyms: ['bonnets'],
+    name: 'Bonnets',
+  },
+  {
+    slug: 'casquettes-chapeaux-chapeaux-et-bobs',
+    parentSlug: 'casquettes-chapeaux',
+    synonyms: ['bobs', 'chapeaux'],
+    name: 'Chapeaux et bobs',
+  },
+  {
+    slug: 'technologie-powerbanks',
+    parentSlug: 'technologie',
+    synonyms: ['powerbanks'],
+    name: 'Powerbanks',
+  },
+  {
+    slug: 'technologie-cles-usb',
+    parentSlug: 'technologie',
+    synonyms: ['cles', 'usb'],
+    name: 'Clés USB',
+  },
+  {
+    slug: 'technologie-chargeurs-et-cables',
+    parentSlug: 'technologie',
+    synonyms: ['cables', 'chargeurs'],
+    name: 'Chargeurs et câbles',
+  },
+  {
+    slug: 'technologie-audio-enceintes-ecouteurs-casques',
+    parentSlug: 'technologie',
+    synonyms: ['audio', 'casques', 'ecouteurs', 'enceintes'],
+    name: 'Audio (enceintes, écouteurs, casques)',
+  },
+  {
+    slug: 'technologie-accessoires-informatiques',
+    parentSlug: 'technologie',
+    synonyms: ['accessoires', 'informatiques'],
+    name: 'Accessoires informatiques',
+  },
+  {
+    slug: 'maison-cuisine-lunch-box-et-contenants-alimentaires',
+    parentSlug: 'maison-cuisine',
+    synonyms: ['alimentaires', 'box', 'contenants', 'lunch'],
+    name: 'Lunch box et contenants alimentaires',
+  },
+  {
+    slug: 'maison-cuisine-ustensiles-couteaux-accessoires-de-cuisine',
+    parentSlug: 'maison-cuisine',
+    synonyms: ['accessoires', 'couteaux', 'cuisine', 'ustensiles'],
+    name: 'Ustensiles, couteaux, accessoires de cuisine',
+  },
+  {
+    slug: 'maison-cuisine-tabliers-et-textile-de-cuisine',
+    parentSlug: 'maison-cuisine',
+    synonyms: ['cuisine', 'tabliers', 'textile'],
+    name: 'Tabliers et textile de cuisine',
+  },
+  {
+    slug: 'maison-cuisine-plaids-coussins-textile-maison',
+    parentSlug: 'maison-cuisine',
+    synonyms: ['coussins', 'maison', 'plaids', 'textile'],
+    name: 'Plaids, coussins, textile maison',
+  },
+  {
+    slug: 'porte-cles-petits-objets-porte-cles',
+    parentSlug: 'porte-cles-petits-objets',
+    synonyms: ['cles', 'porte'],
+    name: 'Porte-clés',
+  },
+  {
+    slug: 'porte-cles-petits-objets-lampes-de-poche',
+    parentSlug: 'porte-cles-petits-objets',
+    synonyms: ['lampes', 'poche'],
+    name: 'Lampes de poche',
+  },
+  {
+    slug: 'porte-cles-petits-objets-outils-multifonctions',
+    parentSlug: 'porte-cles-petits-objets',
+    synonyms: ['multifonctions', 'outils'],
+    name: 'Outils multifonctions',
+  },
+  {
+    slug: 'parapluies-parapluies',
+    parentSlug: 'parapluies',
+    synonyms: ['parapluies'],
+    name: 'Parapluies',
+  },
+  {
+    slug: 'sport-plein-air-serviettes',
+    parentSlug: 'sport-plein-air',
+    synonyms: ['serviettes'],
+    name: 'Serviettes',
+  },
+  {
+    slug: 'sport-plein-air-accessoires-sport-et-bien-etre-actif',
+    parentSlug: 'sport-plein-air',
+    synonyms: ['accessoires', 'actif', 'bien', 'etre', 'sport'],
+    name: 'Accessoires sport et bien-être actif',
+  },
+  {
+    slug: 'sport-plein-air-pique-nique-camping-exterieur',
+    parentSlug: 'sport-plein-air',
+    synonyms: ['camping', 'exterieur', 'nique', 'pique'],
+    name: 'Pique-nique, camping, extérieur',
+  },
+  {
+    slug: 'beaute-bien-etre-soins-hygiene-bien-etre',
+    parentSlug: 'beaute-bien-etre',
+    synonyms: ['bien', 'etre', 'hygiene', 'soins'],
+    name: 'Soins, hygiène, bien-être',
+  },
+  {
+    slug: 'beaute-bien-etre-kits-et-accessoires-de-voyage',
+    parentSlug: 'beaute-bien-etre',
+    synonyms: ['accessoires', 'kits', 'voyage'],
+    name: 'Kits et accessoires de voyage',
+  },
+  {
+    slug: 'lanyards-badges-lanyards-tours-de-cou',
+    parentSlug: 'lanyards-badges',
+    synonyms: ['cou', 'lanyards', 'tours'],
+    name: 'Lanyards (tours de cou)',
+  },
+  {
+    slug: 'lanyards-badges-porte-badges-et-accessoires',
+    parentSlug: 'lanyards-badges',
+    synonyms: ['accessoires', 'badges', 'porte'],
+    name: 'Porte-badges et accessoires',
+  },
+  {
+    slug: 'enfants-jeux-peluches',
+    parentSlug: 'enfants-jeux',
+    synonyms: ['peluches'],
+    name: 'Peluches',
+  },
+  {
+    slug: 'enfants-jeux-jeux-puzzles-jouets',
+    parentSlug: 'enfants-jeux',
+    synonyms: ['jeux', 'jouets', 'puzzles'],
+    name: 'Jeux, puzzles, jouets',
+  },
+  {
+    slug: 'saisonnier-cadeaux-noel-et-objets-saisonniers',
+    parentSlug: 'saisonnier-cadeaux',
+    synonyms: ['noel', 'objets', 'saisonniers'],
+    name: 'Noël et objets saisonniers',
+  },
+  {
+    slug: 'saisonnier-cadeaux-boites-cadeaux-et-emballages',
+    parentSlug: 'saisonnier-cadeaux',
+    synonyms: ['boites', 'cadeaux', 'emballages'],
+    name: 'Boîtes cadeaux et emballages',
+  },
+]

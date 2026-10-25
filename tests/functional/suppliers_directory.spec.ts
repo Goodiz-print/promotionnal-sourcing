@@ -42,7 +42,8 @@ test.group('Annuaire public fournisseurs', (group) => {
     assert.equal(supplier.name, 'EuroGoods')
     assert.isNotNull(supplier.supplierProfile)
     assert.equal(supplier.supplierProfile.deliveryScope, 'europe')
-    assert.lengthOf(supplier.products, 2)
+    // eurogoods porte 3 fiches de démo : 2 crayons + la casquette (arbre N1>N2).
+    assert.lengthOf(supplier.products, 3)
   })
 
   test('un fournisseur non rattaché à une organisation a un profil null', async ({

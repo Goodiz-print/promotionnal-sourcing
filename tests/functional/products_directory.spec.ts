@@ -11,7 +11,7 @@ test.group('Catalogue public produits', (group) => {
 
     response.assertStatus(200)
     response.assertInertiaComponent('products/index')
-    assert.lengthOf(response.inertiaProps.products.data, 6)
+    assert.lengthOf(response.inertiaProps.products.data, 7)
     assert.equal(response.inertiaProps.products.meta.currentPage, 1)
     assert.isFalse(response.inertiaProps.searchUnavailable)
   })

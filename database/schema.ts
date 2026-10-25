@@ -118,7 +118,9 @@ export class AttributeValueSchema extends BaseModel {
   static $columns = [
     'attributeId',
     'createdAt',
+    'hex',
     'id',
+    'parentValueId',
     'slug',
     'sourceLocale',
     'synonyms',
@@ -130,8 +132,12 @@ export class AttributeValueSchema extends BaseModel {
   declare attributeId: number
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column()
+  declare hex: string | null
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare parentValueId: number | null
   @column()
   declare slug: string
   @column()
@@ -239,6 +245,63 @@ export class CategorySchema extends BaseModel {
   declare sourceLocale: string
   @column()
   declare synonyms: any
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class CategoryAttributeRangeSchema extends BaseModel {
+  static $columns = [
+    'categoryAttributeId',
+    'createdAt',
+    'id',
+    'maxValue',
+    'minValue',
+    'position',
+    'updatedAt',
+  ] as const
+  $columns = CategoryAttributeRangeSchema.$columns
+  @column()
+  declare categoryAttributeId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare maxValue: string | null
+  @column()
+  declare minValue: string | null
+  @column()
+  declare position: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class CategoryAttributeSchema extends BaseModel {
+  static $columns = [
+    'attributeId',
+    'categoryId',
+    'createdAt',
+    'id',
+    'isFilter',
+    'isRequiredForPublication',
+    'position',
+    'updatedAt',
+  ] as const
+  $columns = CategoryAttributeSchema.$columns
+  @column()
+  declare attributeId: number
+  @column()
+  declare categoryId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare isFilter: boolean
+  @column()
+  declare isRequiredForPublication: boolean
+  @column()
+  declare position: number
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }

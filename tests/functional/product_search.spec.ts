@@ -266,7 +266,7 @@ test.group('Recherche — écrans', (group) => {
   test('sans terme, le catalogue reste servi par PostgreSQL', async ({ client, assert }) => {
     const response = await client.get('/fr/products').withInertia()
 
-    assert.lengthOf(response.inertiaProps.products.data, 6)
+    assert.lengthOf(response.inertiaProps.products.data, 7)
     assert.lengthOf(handle.engine.requests, 0)
   })
 

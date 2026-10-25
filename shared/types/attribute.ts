@@ -40,6 +40,13 @@ export type AttributeValueType = {
   label: string | null
   slug: string
   synonyms: string[]
+  /** Code couleur `#RRGGBB` pour la pastille à l'écran (couleurs uniquement). */
+  hex: string | null
+  /**
+   * Couleur à 2 niveaux : identifiant de la valeur famille (N1) d'une nuance
+   * (N2). `null` pour une valeur sans parent (familles, matières…).
+   */
+  parentValueId: number | null
   createdAt: string
   updatedAt: string | null
 }
