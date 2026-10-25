@@ -4,6 +4,7 @@ import app from '@adonisjs/core/services/app'
 import EmailVerificationNotification from '#mails/email_verification_notification'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
 import PasswordResetNotification from '#mails/password_reset_notification'
+import QuoteReceivedNotification from '#mails/quote_received_notification'
 import RfqReceivedNotification from '#mails/rfq_received_notification'
 import RfqReminderNotification from '#mails/rfq_reminder_notification'
 import WelcomeNotification from '#mails/welcome_notification'
@@ -50,6 +51,15 @@ const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> 
       'Tote bags',
       '30/10/2026',
       '/x/supplier/rfqs/1',
+      locale
+    ) as never,
+  quoteReceived: (locale) =>
+    new QuoteReceivedNotification(
+      'buyer@example.com',
+      'Textiles SA',
+      'Tote bags',
+      '1 000,00 €',
+      '/x/quotes/1',
       locale
     ) as never,
   passwordReset: (locale) =>

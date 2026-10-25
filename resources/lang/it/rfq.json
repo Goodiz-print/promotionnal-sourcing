@@ -113,7 +113,6 @@
       "noDeadline": "Senza scadenza",
       "declinedNotice": "Ha rifiutato questa richiesta. L'acquirente è stato informato.",
       "closedNotice": "L'acquirente ha chiuso questa richiesta: non attende più risposta.",
-      "quoteSoon": "L'invio delle offerte online sarà presto disponibile.",
       "expiredNotice": "Questa richiesta è scaduta: l'acquirente non attende più una risposta."
     },
     "actions": {

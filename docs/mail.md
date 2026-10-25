@@ -105,13 +105,14 @@ SELECT idempotency_key, kind, "to", attempts, error FROM mail_deliveries WHERE s
 
 ### Types de mail existants
 
-| `kind`                    | Classe                               | Template Edge                    | Déclencheur                                                                             |
-| ------------------------- | ------------------------------------ | -------------------------------- | --------------------------------------------------------------------------------------- |
-| `organization-invitation` | `OrganizationInvitationNotification` | `emails/organization_invitation` | Invitation d'un membre (`OrganizationInvitationsController`)                            |
-| `rfq-received`            | `RfqReceivedNotification`            | `emails/rfq_received`            | Envoi d'une demande de devis (`RfqNotificationService`)                                 |
-| `rfq-reminder`            | `RfqReminderNotification`            | `emails/rfq_reminder`            | Relance unique d'un fournisseur qui n'a pas ouvert la demande (`RemindRfqSuppliersJob`) |
-| `password-reset`          | `PasswordResetNotification`          | `emails/password_reset`          | Demande « mot de passe oublié » (`PasswordResetService`)                                |
-| `email-verification`      | `EmailVerificationNotification`      | `emails/email_verification`      | Inscription, renvoi (`EmailVerificationService`)                                        |
+| `kind`                    | Classe                               | Template Edge                    | Déclencheur                                                                                  |
+| ------------------------- | ------------------------------------ | -------------------------------- | -------------------------------------------------------------------------------------------- |
+| `organization-invitation` | `OrganizationInvitationNotification` | `emails/organization_invitation` | Invitation d'un membre (`OrganizationInvitationsController`)                                 |
+| `rfq-received`            | `RfqReceivedNotification`            | `emails/rfq_received`            | Envoi d'une demande de devis (`RfqNotificationService`)                                      |
+| `rfq-reminder`            | `RfqReminderNotification`            | `emails/rfq_reminder`            | Relance unique d'un fournisseur qui n'a pas ouvert la demande (`RemindRfqSuppliersJob`)      |
+| `quote-received`          | `QuoteReceivedNotification`          | `emails/quote_received`          | Un fournisseur remet un devis : prévient les responsables de l'acheteur (`OnQuoteSubmitted`) |
+| `password-reset`          | `PasswordResetNotification`          | `emails/password_reset`          | Demande « mot de passe oublié » (`PasswordResetService`)                                     |
+| `email-verification`      | `EmailVerificationNotification`      | `emails/email_verification`      | Inscription, renvoi (`EmailVerificationService`)                                             |
 
 `rfq-received` porte un chemin **relatif** (`rfqPath`) et non une URL absolue :
 la charge est persistée et peut être rejouée bien plus tard, éventuellement sous

@@ -1,0 +1,94 @@
+{
+  "status": {
+    "draft": "Rascunho",
+    "submitted": "Enviado",
+    "accepted": "Aceite",
+    "rejected": "Recusado",
+    "expired": "Expirado"
+  },
+  "flash": {
+    "created": "Rascunho de orçamento guardado.",
+    "updated": "Orçamento atualizado.",
+    "submitted": "Orçamento enviado ao comprador.",
+    "deleted": "Rascunho eliminado.",
+    "accepted": "Orçamento aceite. Os restantes orçamentos foram recusados e o pedido está encerrado.",
+    "rejected": "Orçamento recusado."
+  },
+  "errors": {
+    "notAllowed": "Este pedido já não aceita orçamentos.",
+    "alreadyExists": "Já tem um orçamento para este pedido.",
+    "notEditable": "Apenas um rascunho pode ser editado ou eliminado.",
+    "notSubmittable": "Não é possível enviar este orçamento: verifique se tem pelo menos uma linha e se a validade não expirou.",
+    "invalidItems": "As linhas do orçamento não correspondem ao pedido.",
+    "invalidValidity": "A data de validade não pode estar no passado.",
+    "notDecidable": "Este orçamento já não pode ser aceite nem recusado."
+  },
+  "form": {
+    "requested": "Pedido: {quantity}",
+    "unitPrice": "Preço unitário ({currency})",
+    "quantity": "Quantidade",
+    "leadTime": "Prazo (dias)",
+    "customization": "Personalização",
+    "customizationHint": "Marcação, material, acabamento…",
+    "lineTotal": "Total da linha: {total}",
+    "validUntil": "Válido até",
+    "validUntilOn": "Válido até {date}",
+    "notes": "Notas para o comprador",
+    "total": "Total: {total}",
+    "save": "Guardar",
+    "saveFirst": "Guarde as alterações antes de enviar o orçamento.",
+    "submit": "Enviar o orçamento",
+    "delete": "Eliminar o rascunho",
+    "confirmSubmit": "Enviar este orçamento ao comprador? Deixará de ser editável.",
+    "confirmDelete": "Eliminar este rascunho?"
+  },
+  "table": {
+    "item": "Artigo",
+    "unitPrice": "Preço unitário",
+    "quantity": "Quantidade",
+    "leadTime": "Prazo",
+    "total": "Total",
+    "days": "{count, plural, one {# dia} other {# dias}}"
+  },
+  "comparison": {
+    "title": "Orçamentos recebidos",
+    "empty": "Ainda não foi recebido nenhum orçamento.",
+    "notQuoted": "Não orçamentado",
+    "cheapest": "Mais barato",
+    "fastest": "Mais rápido",
+    "leadTime": "Prazo global",
+    "validUntil": "Válido até"
+  },
+  "show": {
+    "title": "Orçamento de {supplierName}",
+    "backToRfq": "Voltar ao pedido «{rfqTitle}»",
+    "accept": "Aceitar este orçamento",
+    "reject": "Recusar este orçamento",
+    "confirm": {
+      "accept": "Aceitar este orçamento? Os restantes serão recusados e o pedido encerrado.",
+      "reject": "Recusar este orçamento?"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "Os meus orçamentos",
+      "subtitle": "Os orçamentos que redigiu em resposta a pedidos.",
+      "empty": "Ainda não há orçamentos."
+    },
+    "edit": {
+      "title": "Orçamento: {rfqTitle}",
+      "backToRfq": "Voltar ao pedido",
+      "notice": {
+        "draft": "Este pedido já não aceita orçamentos: este rascunho já não pode ser editado.",
+        "submitted": "Orçamento enviado: ficou bloqueado e o comprador pode consultá-lo.",
+        "accepted": "O comprador aceitou este orçamento.",
+        "rejected": "O comprador não escolheu este orçamento.",
+        "expired": "Este orçamento expirou."
+      }
+    },
+    "rfq": {
+      "respond": "Responder com um orçamento",
+      "viewQuote": "Ver o meu orçamento"
+    }
+  }
+}

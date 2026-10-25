@@ -47,5 +47,13 @@
     "deadline": "Odpowiedź oczekiwana do {deadline}.",
     "cta": "Zobacz zapytanie",
     "footer": "To jedyne przypomnienie dotyczące tego zapytania. Możesz je także odrzucić w panelu dostawcy."
+  },
+  "quoteReceived": {
+    "subject": "Nowa oferta od {supplierName} na „{rfqTitle}”",
+    "title": "{supplierName} złożył ofertę",
+    "body": "{supplierName} właśnie odpowiedział na Twoje zapytanie „{rfqTitle}”.",
+    "total": "Kwota całkowita: {total}.",
+    "cta": "Zobacz ofertę",
+    "footer": "Otrzymujesz tę wiadomość, ponieważ zarządzasz tym zapytaniem ofertowym."
   }
 }

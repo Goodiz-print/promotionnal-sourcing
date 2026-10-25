@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import OrganizationContextService from '#services/organization_context_service'
+import QuoteService from '#services/quote_service'
 import RfqService from '#services/rfq_service'
 import SupplierRfqDetailTransformer from '#transformers/supplier_rfq_detail_transformer'
 import SupplierRfqTransformer from '#transformers/supplier_rfq_transformer'
@@ -22,6 +23,7 @@ import type { Locale } from '#shared/types/i18n'
 export default class SupplierRfqsController {
   constructor(
     private service: RfqService,
+    private quotes: QuoteService,
     private organizations: OrganizationContextService
   ) {}
 
@@ -52,8 +54,15 @@ export default class SupplierRfqsController {
 
     const rfq = await this.service.openForSupplier(Number(params.id), org.id)
 
+    const quote = await this.quotes.findLiveForRfq(rfq.id, org.id)
+    const [recipient] = rfq.suppliers
+
     return inertia.render('supplier/rfqs/show', {
       rfq: new SupplierRfqDetailTransformer(rfq, i18n.locale as Locale).toObject(),
+      // Le devis vivant du fournisseur, s'il en a un : l'écran y renvoie.
+      quote: quote ? { id: quote.id, status: quote.status } : null,
+      // Chiffrer suppose une demande encore ouverte et non déclinée.
+      canQuote: this.service.acceptsResponses(rfq) && recipient?.status !== 'declined',
     })
   }
 

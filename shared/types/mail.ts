@@ -14,6 +14,7 @@ export const MAIL_KINDS = {
   organizationInvitation: 'organization-invitation',
   rfqReceived: 'rfq-received',
   rfqReminder: 'rfq-reminder',
+  quoteReceived: 'quote-received',
   passwordReset: 'password-reset',
   emailVerification: 'email-verification',
 } as const
@@ -56,6 +57,19 @@ export interface RfqReminderMailData {
   rfqTitle: string
   deadline: string | null
   rfqPath: string
+}
+
+/**
+ * Données du mail « nouveau devis » (`QuoteReceivedNotification`), envoyé aux
+ * responsables de l'organisation acheteuse quand un fournisseur remet un devis.
+ * `total` est déjà formaté (montant et devise, dans la langue du destinataire) ;
+ * `quotePath` est un chemin relatif, comme `RfqReceivedMailData#rfqPath`.
+ */
+export interface QuoteReceivedMailData {
+  supplierName: string
+  rfqTitle: string
+  total: string
+  quotePath: string
 }
 
 /**
@@ -109,6 +123,12 @@ export type SendMailContent =
       to: string
       locale: Locale
       data: RfqReminderMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.quoteReceived
+      to: string
+      locale: Locale
+      data: QuoteReceivedMailData
     }
   | {
       kind: typeof MAIL_KINDS.passwordReset

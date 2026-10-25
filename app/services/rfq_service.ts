@@ -518,6 +518,17 @@ export default class RfqService {
   }
 
   /**
+   * Une demande attend-elle encore des réponses (décliner, chiffrer, accepter un
+   * devis) ? Oui tant qu'elle est publiée **et** que son échéance n'est pas
+   * passée. Le job d'expiration passe à 00:10 : entre minuit et lui (ou s'il
+   * tarde), une demande dont l'échéance est passée est déjà échue de fait.
+   */
+  acceptsResponses(rfq: Rfq, now: DateTime = DateTime.now()): boolean {
+    if (rfq.status !== 'published') return false
+    return !rfq.deadline || rfq.deadline >= this.startOfToday(now)
+  }
+
+  /**
    * Accusé de lecture côté fournisseur : `sent` → `viewed`. Idempotent, et
    * jamais régressif — une demande déjà `responded`/`declined` ne redevient
    * pas « simplement consultée » parce que le fournisseur rouvre l'écran.
@@ -574,13 +585,7 @@ export default class RfqService {
     supplierOrganizationId: number,
     status: 'responded' | 'declined'
   ): Promise<RfqSupplier> {
-    // Une demande échue n'attend plus de réponse : décliner ou chiffrer est refusé.
-    if (rfq.status === 'expired') throw new RfqNotEditableException()
-    // Le job d'expiration passe à 00:10 : entre minuit et lui (ou s'il tarde), une
-    // demande dont l'échéance est passée est déjà échue de fait.
-    if (rfq.deadline && rfq.deadline < this.startOfToday(DateTime.now())) {
-      throw new RfqNotEditableException()
-    }
+    if (!this.acceptsResponses(rfq)) throw new RfqNotEditableException()
 
     const target = await this.findRecipient(rfq, supplierOrganizationId)
 

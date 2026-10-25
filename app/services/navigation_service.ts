@@ -47,6 +47,7 @@ export default class NavigationService {
     if (isSupplier) {
       add('supplierProducts', 'supplier.products.index')
       add('supplierRfqs', 'supplier.rfqs.index')
+      add('supplierQuotes', 'supplier.quotes.index')
       add('supplierProfile', 'supplier.profile')
     }
     if (MANAGEMENT_ROLES.includes(roleSlug)) {

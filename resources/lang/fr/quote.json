@@ -1,0 +1,94 @@
+{
+  "status": {
+    "draft": "Brouillon",
+    "submitted": "Remis",
+    "accepted": "Accepté",
+    "rejected": "Rejeté",
+    "expired": "Expiré"
+  },
+  "flash": {
+    "created": "Brouillon de devis enregistré.",
+    "updated": "Devis mis à jour.",
+    "submitted": "Devis remis à l'acheteur.",
+    "deleted": "Brouillon supprimé.",
+    "accepted": "Devis accepté. Les autres devis ont été rejetés et la demande est clôturée.",
+    "rejected": "Devis rejeté."
+  },
+  "errors": {
+    "notAllowed": "Cette demande n'accepte plus de devis.",
+    "alreadyExists": "Vous avez déjà un devis pour cette demande.",
+    "notEditable": "Seul un brouillon peut être modifié ou supprimé.",
+    "notSubmittable": "Ce devis ne peut pas être remis : vérifiez qu'il contient au moins une ligne et que sa validité n'est pas dépassée.",
+    "invalidItems": "Les lignes du devis ne correspondent pas à la demande.",
+    "invalidValidity": "La date de validité ne peut pas être passée.",
+    "notDecidable": "Ce devis ne peut plus être accepté ou rejeté."
+  },
+  "form": {
+    "requested": "Demandé : {quantity}",
+    "unitPrice": "Prix unitaire ({currency})",
+    "quantity": "Quantité",
+    "leadTime": "Délai (jours)",
+    "customization": "Personnalisation",
+    "customizationHint": "Marquage, matière, finition…",
+    "lineTotal": "Total de la ligne : {total}",
+    "validUntil": "Valable jusqu'au",
+    "validUntilOn": "Valable jusqu'au {date}",
+    "notes": "Notes pour l'acheteur",
+    "total": "Total : {total}",
+    "save": "Enregistrer",
+    "saveFirst": "Enregistrez vos modifications avant de remettre le devis.",
+    "submit": "Remettre le devis",
+    "delete": "Supprimer le brouillon",
+    "confirmSubmit": "Remettre ce devis à l'acheteur ? Il ne sera plus modifiable.",
+    "confirmDelete": "Supprimer ce brouillon ?"
+  },
+  "table": {
+    "item": "Article",
+    "unitPrice": "Prix unitaire",
+    "quantity": "Quantité",
+    "leadTime": "Délai",
+    "total": "Total",
+    "days": "{count, plural, one {# jour} other {# jours}}"
+  },
+  "comparison": {
+    "title": "Devis reçus",
+    "empty": "Aucun devis reçu pour le moment.",
+    "notQuoted": "Non chiffré",
+    "cheapest": "Moins cher",
+    "fastest": "Plus rapide",
+    "leadTime": "Délai global",
+    "validUntil": "Valable jusqu'au"
+  },
+  "show": {
+    "title": "Devis de {supplierName}",
+    "backToRfq": "Retour à la demande « {rfqTitle} »",
+    "accept": "Accepter ce devis",
+    "reject": "Rejeter ce devis",
+    "confirm": {
+      "accept": "Accepter ce devis ? Les autres devis seront rejetés et la demande clôturée.",
+      "reject": "Rejeter ce devis ?"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "Mes devis",
+      "subtitle": "Les devis que vous avez rédigés en réponse à des demandes.",
+      "empty": "Aucun devis pour le moment."
+    },
+    "edit": {
+      "title": "Devis : {rfqTitle}",
+      "backToRfq": "Retour à la demande",
+      "notice": {
+        "draft": "Cette demande n'accepte plus de devis : ce brouillon ne peut plus être modifié.",
+        "submitted": "Devis remis : il est figé et l'acheteur peut le consulter.",
+        "accepted": "L'acheteur a accepté ce devis.",
+        "rejected": "L'acheteur n'a pas retenu ce devis.",
+        "expired": "Ce devis a expiré."
+      }
+    },
+    "rfq": {
+      "respond": "Répondre par un devis",
+      "viewQuote": "Voir mon devis"
+    }
+  }
+}

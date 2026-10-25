@@ -111,11 +111,11 @@ planifiés ne tournent donc pas pendant les tests.
 
 Jobs planifiés actuels :
 
-| Job                          | Fréquence                   | Rôle                                                                                                                                               |
-| ---------------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ExpireRfqsJob`              | `10 0 * * *` (Europe/Paris) | Bascule en `expired` les demandes de devis publiées dont l'échéance est dépassée (échues le lendemain à 00:00, heure de Paris) — cf. `docs/rfq.md` |
-| `RemindRfqSuppliersJob`      | `0 9 * * *` (Europe/Paris)  | Relance une fois les fournisseurs qui n'ont pas ouvert une demande reçue depuis `RFQ_REMINDER_AFTER_DAYS` jours — cf. `docs/rfq.md`                |
-| `PurgeExpiredInvitationsJob` | `15 3 * * *` (Europe/Paris) | Bascule les invitations d'organisation échues en `expired`, puis supprime celles en état terminal après 90 jours (cf. `docs/organisations.md`)     |
+| Job                          | Fréquence                   | Rôle                                                                                                                                                                                                                                            |
+| ---------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ExpireRfqsJob`              | `10 0 * * *` (Europe/Paris) | Bascule en `expired` les demandes de devis publiées dont l'échéance est dépassée (échues le lendemain à 00:00, heure de Paris), puis fait expirer leurs devis ouverts et ceux dont la validité est passée — cf. `docs/rfq.md`, `docs/quotes.md` |
+| `RemindRfqSuppliersJob`      | `0 9 * * *` (Europe/Paris)  | Relance une fois les fournisseurs qui n'ont pas ouvert une demande reçue depuis `RFQ_REMINDER_AFTER_DAYS` jours — cf. `docs/rfq.md`                                                                                                             |
+| `PurgeExpiredInvitationsJob` | `15 3 * * *` (Europe/Paris) | Bascule les invitations d'organisation échues en `expired`, puis supprime celles en état terminal après 90 jours (cf. `docs/organisations.md`)                                                                                                  |
 
 ## Démarrer le worker
 

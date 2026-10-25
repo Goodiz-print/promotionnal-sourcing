@@ -15,7 +15,9 @@ const translations = {
   'rfq.supplier.show.declinedNotice': 'Vous avez décliné cette demande.',
   'rfq.supplier.show.closedNotice': "L'acheteur a clôturé cette demande.",
   'rfq.supplier.show.expiredNotice': 'Cette demande est échue.',
-  'rfq.supplier.show.quoteSoon': 'Le dépôt de devis arrive prochainement.',
+  'quote.supplier.rfq.respond': 'Répondre par un devis',
+  'quote.supplier.rfq.viewQuote': 'Voir mon devis',
+  'quote.status.draft': 'Brouillon',
   'rfq.supplier.actions.decline': 'Décliner la demande',
   'rfq.supplier.actions.confirmDecline': 'Décliner cette demande ?',
   'rfq.supplier.status.sent': 'À traiter',
@@ -108,22 +110,44 @@ describe('supplier/rfqs/index.vue', () => {
 })
 
 describe('supplier/rfqs/show.vue', () => {
+  // Demande ouverte, sans devis encore : le fournisseur peut y répondre.
+  const open = { quote: null, canQuote: true }
+
   it('propose de décliner une demande reçue et non encore tranchée', () => {
-    const wrapper = mount(SupplierRfqShow, { props: { rfq: detail() } })
+    const wrapper = mount(SupplierRfqShow, { props: { ...open, rfq: detail() } })
 
     expect(wrapper.text()).toContain('Décliner la demande')
     expect(wrapper.text()).toContain('Tote bag 240g')
   })
 
+  it('propose de répondre par un devis tant que la demande est ouverte', () => {
+    const wrapper = mount(SupplierRfqShow, { props: { ...open, rfq: detail() } })
+
+    expect(wrapper.text()).toContain('Répondre par un devis')
+  })
+
+  it('renvoie vers le devis existant au lieu d’en proposer un second', () => {
+    const wrapper = mount(SupplierRfqShow, {
+      props: { rfq: detail(), canQuote: true, quote: { id: 7, status: 'draft' } },
+    })
+
+    expect(wrapper.text()).toContain('Voir mon devis')
+    expect(wrapper.text()).not.toContain('Répondre par un devis')
+    // Un devis en cours : décliner n'a plus de sens.
+    expect(wrapper.text()).not.toContain('Décliner la demande')
+  })
+
   it('n’expose pas le budget de l’acheteur', () => {
-    const wrapper = mount(SupplierRfqShow, { props: { rfq: detail() } })
+    const wrapper = mount(SupplierRfqShow, { props: { ...open, rfq: detail() } })
 
     expect(wrapper.text()).not.toContain('4500')
     expect(wrapper.text()).not.toContain('Budget')
   })
 
   it('remplace l’action par un rappel une fois la demande déclinée', () => {
-    const wrapper = mount(SupplierRfqShow, { props: { rfq: detail({ myStatus: 'declined' }) } })
+    const wrapper = mount(SupplierRfqShow, {
+      props: { ...open, canQuote: false, rfq: detail({ myStatus: 'declined' }) },
+    })
 
     expect(wrapper.text()).toContain('Vous avez décliné cette demande.')
     expect(wrapper.text()).not.toContain('Décliner la demande')
@@ -131,7 +155,7 @@ describe('supplier/rfqs/show.vue', () => {
 
   it('n’offre plus de décliner une demande clôturée par l’acheteur', () => {
     const wrapper = mount(SupplierRfqShow, {
-      props: { rfq: detail({ status: 'closed', myStatus: 'viewed' }) },
+      props: { ...open, canQuote: false, rfq: detail({ status: 'closed', myStatus: 'viewed' }) },
     })
 
     expect(wrapper.text()).toContain("L'acheteur a clôturé cette demande.")
@@ -140,7 +164,7 @@ describe('supplier/rfqs/show.vue', () => {
 
   it('signale une demande échue et ne propose plus de la décliner', () => {
     const wrapper = mount(SupplierRfqShow, {
-      props: { rfq: detail({ status: 'expired', myStatus: 'viewed' }) },
+      props: { ...open, canQuote: false, rfq: detail({ status: 'expired', myStatus: 'viewed' }) },
     })
 
     expect(wrapper.text()).toContain('Cette demande est échue.')
@@ -152,7 +176,7 @@ describe('supplier/rfqs/show.vue', () => {
     // plutôt que de l'espionner.
     const confirm = vi.fn().mockReturnValue(false)
     vi.stubGlobal('confirm', confirm)
-    const wrapper = mount(SupplierRfqShow, { props: { rfq: detail() } })
+    const wrapper = mount(SupplierRfqShow, { props: { ...open, rfq: detail() } })
     const button = wrapper.findAll('button').find((b) => b.text() === 'Décliner la demande')!
 
     await button.trigger('click')

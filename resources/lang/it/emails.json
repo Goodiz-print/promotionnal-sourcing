@@ -47,5 +47,13 @@
     "deadline": "Risposta attesa entro il {deadline}.",
     "cta": "Consulta la richiesta",
     "footer": "Questo è l'unico promemoria per questa richiesta. Puoi anche rifiutarla dalla tua area fornitore."
+  },
+  "quoteReceived": {
+    "subject": "Nuovo preventivo di {supplierName} per «{rfqTitle}»",
+    "title": "{supplierName} ha inviato un preventivo",
+    "body": "{supplierName} ha appena risposto alla tua richiesta «{rfqTitle}».",
+    "total": "Importo totale: {total}.",
+    "cta": "Consulta il preventivo",
+    "footer": "Ricevi questo messaggio perché gestisci questa richiesta di preventivo."
   }
 }

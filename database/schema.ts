@@ -955,6 +955,87 @@ export class QueueScheduleSchema extends BaseModel {
   declare toDate: DateTime | null
 }
 
+export class QuoteItemSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'customizationDetails',
+    'id',
+    'leadTimeDays',
+    'productId',
+    'quantity',
+    'quoteId',
+    'rfqItemId',
+    'totalPrice',
+    'unitPrice',
+    'updatedAt',
+  ] as const
+  $columns = QuoteItemSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare customizationDetails: any | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare leadTimeDays: number
+  @column()
+  declare productId: number | null
+  @column()
+  declare quantity: number
+  @column()
+  declare quoteId: number
+  @column()
+  declare rfqItemId: number
+  @column()
+  declare totalPrice: string
+  @column()
+  declare unitPrice: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class QuoteSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'currency',
+    'decidedAt',
+    'id',
+    'notes',
+    'rfqId',
+    'status',
+    'submittedAt',
+    'supplierOrganizationId',
+    'totalAmount',
+    'updatedAt',
+    'validUntil',
+  ] as const
+  $columns = QuoteSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare currency: string
+  @column.dateTime()
+  declare decidedAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare notes: string | null
+  @column()
+  declare rfqId: number
+  @column()
+  declare status: string
+  @column.dateTime()
+  declare submittedAt: DateTime | null
+  @column()
+  declare supplierOrganizationId: number
+  @column()
+  declare totalAmount: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column.date()
+  declare validUntil: DateTime | null
+}
+
 export class RateLimitSchema extends BaseModel {
   static $columns = ['expire', 'key', 'points'] as const
   $columns = RateLimitSchema.$columns

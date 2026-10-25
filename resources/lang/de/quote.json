@@ -1,0 +1,94 @@
+{
+  "status": {
+    "draft": "Entwurf",
+    "submitted": "Eingereicht",
+    "accepted": "Angenommen",
+    "rejected": "Abgelehnt",
+    "expired": "Abgelaufen"
+  },
+  "flash": {
+    "created": "Angebotsentwurf gespeichert.",
+    "updated": "Angebot aktualisiert.",
+    "submitted": "Angebot an den Käufer übermittelt.",
+    "deleted": "Entwurf gelöscht.",
+    "accepted": "Angebot angenommen. Die übrigen Angebote wurden abgelehnt und die Anfrage ist geschlossen.",
+    "rejected": "Angebot abgelehnt."
+  },
+  "errors": {
+    "notAllowed": "Diese Anfrage nimmt keine Angebote mehr an.",
+    "alreadyExists": "Sie haben bereits ein Angebot für diese Anfrage.",
+    "notEditable": "Nur ein Entwurf kann bearbeitet oder gelöscht werden.",
+    "notSubmittable": "Dieses Angebot kann nicht eingereicht werden: Es braucht mindestens eine Position, und die Gültigkeit darf nicht abgelaufen sein.",
+    "invalidItems": "Die Angebotspositionen passen nicht zur Anfrage.",
+    "invalidValidity": "Das Gültigkeitsdatum darf nicht in der Vergangenheit liegen.",
+    "notDecidable": "Dieses Angebot kann nicht mehr angenommen oder abgelehnt werden."
+  },
+  "form": {
+    "requested": "Angefragt: {quantity}",
+    "unitPrice": "Stückpreis ({currency})",
+    "quantity": "Menge",
+    "leadTime": "Lieferzeit (Tage)",
+    "customization": "Veredelung",
+    "customizationHint": "Druck, Material, Ausführung …",
+    "lineTotal": "Positionssumme: {total}",
+    "validUntil": "Gültig bis",
+    "validUntilOn": "Gültig bis {date}",
+    "notes": "Hinweise für den Käufer",
+    "total": "Gesamt: {total}",
+    "save": "Speichern",
+    "saveFirst": "Speichern Sie Ihre Änderungen, bevor Sie das Angebot einreichen.",
+    "submit": "Angebot einreichen",
+    "delete": "Entwurf löschen",
+    "confirmSubmit": "Dieses Angebot an den Käufer übermitteln? Es kann danach nicht mehr bearbeitet werden.",
+    "confirmDelete": "Diesen Entwurf löschen?"
+  },
+  "table": {
+    "item": "Artikel",
+    "unitPrice": "Stückpreis",
+    "quantity": "Menge",
+    "leadTime": "Lieferzeit",
+    "total": "Gesamt",
+    "days": "{count, plural, one {# Tag} other {# Tage}}"
+  },
+  "comparison": {
+    "title": "Eingegangene Angebote",
+    "empty": "Noch keine Angebote eingegangen.",
+    "notQuoted": "Nicht angeboten",
+    "cheapest": "Günstigstes",
+    "fastest": "Schnellstes",
+    "leadTime": "Gesamtlieferzeit",
+    "validUntil": "Gültig bis"
+  },
+  "show": {
+    "title": "Angebot von {supplierName}",
+    "backToRfq": "Zurück zur Anfrage „{rfqTitle}“",
+    "accept": "Angebot annehmen",
+    "reject": "Angebot ablehnen",
+    "confirm": {
+      "accept": "Dieses Angebot annehmen? Die übrigen Angebote werden abgelehnt und die Anfrage geschlossen.",
+      "reject": "Dieses Angebot ablehnen?"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "Meine Angebote",
+      "subtitle": "Die Angebote, die Sie auf Anfragen hin erstellt haben.",
+      "empty": "Noch keine Angebote."
+    },
+    "edit": {
+      "title": "Angebot: {rfqTitle}",
+      "backToRfq": "Zurück zur Anfrage",
+      "notice": {
+        "draft": "Diese Anfrage nimmt keine Angebote mehr an: Dieser Entwurf kann nicht mehr bearbeitet werden.",
+        "submitted": "Angebot eingereicht: Es ist gesperrt und der Käufer kann es einsehen.",
+        "accepted": "Der Käufer hat dieses Angebot angenommen.",
+        "rejected": "Der Käufer hat dieses Angebot nicht berücksichtigt.",
+        "expired": "Dieses Angebot ist abgelaufen."
+      }
+    },
+    "rfq": {
+      "respond": "Mit einem Angebot antworten",
+      "viewQuote": "Mein Angebot ansehen"
+    }
+  }
+}

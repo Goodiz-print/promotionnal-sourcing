@@ -113,7 +113,6 @@
       "noDeadline": "Ohne Frist",
       "declinedNotice": "Sie haben diese Anfrage abgelehnt. Der Einkäufer wurde informiert.",
       "closedNotice": "Der Einkäufer hat diese Anfrage abgeschlossen: Es wird keine Antwort mehr erwartet.",
-      "quoteSoon": "Die Online-Angebotsabgabe folgt in Kürze.",
       "expiredNotice": "Diese Anfrage ist abgelaufen: Der Käufer erwartet keine Antwort mehr."
     },
     "actions": {

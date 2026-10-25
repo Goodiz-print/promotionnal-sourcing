@@ -47,5 +47,13 @@
     "deadline": "Réponse attendue avant le {deadline}.",
     "cta": "Consulter la demande",
     "footer": "Ceci est l'unique rappel pour cette demande. Vous pouvez aussi la décliner depuis votre espace fournisseur."
+  },
+  "quoteReceived": {
+    "subject": "Nouveau devis de {supplierName} pour « {rfqTitle} »",
+    "title": "{supplierName} a remis un devis",
+    "body": "{supplierName} vient de répondre à votre demande « {rfqTitle} ».",
+    "total": "Montant total : {total}.",
+    "cta": "Consulter le devis",
+    "footer": "Vous recevez ce message car vous pilotez cette demande de devis."
   }
 }

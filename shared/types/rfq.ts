@@ -67,6 +67,13 @@ export const TERMINAL_RFQ_SUPPLIER_STATUSES: readonly RfqSupplierStatus[] = [
 export const RFQ_RESPONDER_ROLES: readonly RoleSlug[] = ['owner', 'admin', 'manager']
 
 /**
+ * Rôles de l'organisation acheteuse qui pilotent une demande (publier, clore,
+ * accepter un devis). Alignés sur l'ability `canManageRfq` ; ce sont aussi eux
+ * que prévient `QuoteNotificationService` quand un devis arrive.
+ */
+export const RFQ_MANAGER_ROLES: readonly RoleSlug[] = ['owner', 'admin', 'manager']
+
+/**
  * Spécifications libres d'un item (marquage, couleur, matière…) : paires
  * clé/valeur saisies par l'acheteur, stockées en `jsonb`. Volontairement non
  * typé plus finement — la normalisation passera par les attributs du catalogue

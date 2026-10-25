@@ -1,0 +1,94 @@
+{
+  "status": {
+    "draft": "Borrador",
+    "submitted": "Enviado",
+    "accepted": "Aceptado",
+    "rejected": "Rechazado",
+    "expired": "Caducado"
+  },
+  "flash": {
+    "created": "Borrador de presupuesto guardado.",
+    "updated": "Presupuesto actualizado.",
+    "submitted": "Presupuesto enviado al comprador.",
+    "deleted": "Borrador eliminado.",
+    "accepted": "Presupuesto aceptado. Los demás presupuestos se han rechazado y la solicitud está cerrada.",
+    "rejected": "Presupuesto rechazado."
+  },
+  "errors": {
+    "notAllowed": "Esta solicitud ya no acepta presupuestos.",
+    "alreadyExists": "Ya tiene un presupuesto para esta solicitud.",
+    "notEditable": "Solo se puede modificar o eliminar un borrador.",
+    "notSubmittable": "No se puede enviar este presupuesto: compruebe que tiene al menos una línea y que su validez no ha vencido.",
+    "invalidItems": "Las líneas del presupuesto no corresponden a la solicitud.",
+    "invalidValidity": "La fecha de validez no puede estar en el pasado.",
+    "notDecidable": "Este presupuesto ya no se puede aceptar ni rechazar."
+  },
+  "form": {
+    "requested": "Solicitado: {quantity}",
+    "unitPrice": "Precio unitario ({currency})",
+    "quantity": "Cantidad",
+    "leadTime": "Plazo (días)",
+    "customization": "Personalización",
+    "customizationHint": "Marcaje, material, acabado…",
+    "lineTotal": "Total de la línea: {total}",
+    "validUntil": "Válido hasta",
+    "validUntilOn": "Válido hasta el {date}",
+    "notes": "Notas para el comprador",
+    "total": "Total: {total}",
+    "save": "Guardar",
+    "saveFirst": "Guarde los cambios antes de enviar el presupuesto.",
+    "submit": "Enviar el presupuesto",
+    "delete": "Eliminar el borrador",
+    "confirmSubmit": "¿Enviar este presupuesto al comprador? Ya no se podrá modificar.",
+    "confirmDelete": "¿Eliminar este borrador?"
+  },
+  "table": {
+    "item": "Artículo",
+    "unitPrice": "Precio unitario",
+    "quantity": "Cantidad",
+    "leadTime": "Plazo",
+    "total": "Total",
+    "days": "{count, plural, one {# día} other {# días}}"
+  },
+  "comparison": {
+    "title": "Presupuestos recibidos",
+    "empty": "Aún no se ha recibido ningún presupuesto.",
+    "notQuoted": "Sin cotizar",
+    "cheapest": "Más barato",
+    "fastest": "Más rápido",
+    "leadTime": "Plazo global",
+    "validUntil": "Válido hasta"
+  },
+  "show": {
+    "title": "Presupuesto de {supplierName}",
+    "backToRfq": "Volver a la solicitud «{rfqTitle}»",
+    "accept": "Aceptar este presupuesto",
+    "reject": "Rechazar este presupuesto",
+    "confirm": {
+      "accept": "¿Aceptar este presupuesto? Los demás se rechazarán y la solicitud se cerrará.",
+      "reject": "¿Rechazar este presupuesto?"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "Mis presupuestos",
+      "subtitle": "Los presupuestos que ha redactado en respuesta a solicitudes.",
+      "empty": "Aún no hay presupuestos."
+    },
+    "edit": {
+      "title": "Presupuesto: {rfqTitle}",
+      "backToRfq": "Volver a la solicitud",
+      "notice": {
+        "draft": "Esta solicitud ya no acepta presupuestos: este borrador ya no se puede modificar.",
+        "submitted": "Presupuesto enviado: queda bloqueado y el comprador puede consultarlo.",
+        "accepted": "El comprador ha aceptado este presupuesto.",
+        "rejected": "El comprador no ha elegido este presupuesto.",
+        "expired": "Este presupuesto ha caducado."
+      }
+    },
+    "rfq": {
+      "respond": "Responder con un presupuesto",
+      "viewQuote": "Ver mi presupuesto"
+    }
+  }
+}

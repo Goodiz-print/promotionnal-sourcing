@@ -10,6 +10,7 @@ import MailDeliveryFailed from '#events/mail_delivery_failed'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
 import EmailVerificationNotification from '#mails/email_verification_notification'
 import PasswordResetNotification from '#mails/password_reset_notification'
+import QuoteReceivedNotification from '#mails/quote_received_notification'
 import RfqReceivedNotification from '#mails/rfq_received_notification'
 import RfqReminderNotification from '#mails/rfq_reminder_notification'
 import { UnknownMailKindException } from '#exceptions/mail_errors'
@@ -158,6 +159,15 @@ export default class SendMailJob extends Job<SendMailPayload> {
           data.rfqTitle,
           data.deadline,
           data.rfqPath,
+          locale
+        )
+      case MAIL_KINDS.quoteReceived:
+        return new QuoteReceivedNotification(
+          to,
+          data.supplierName,
+          data.rfqTitle,
+          data.total,
+          data.quotePath,
           locale
         )
       case MAIL_KINDS.passwordReset:

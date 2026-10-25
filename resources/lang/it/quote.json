@@ -1,0 +1,94 @@
+{
+  "status": {
+    "draft": "Bozza",
+    "submitted": "Inviato",
+    "accepted": "Accettato",
+    "rejected": "Rifiutato",
+    "expired": "Scaduto"
+  },
+  "flash": {
+    "created": "Bozza del preventivo salvata.",
+    "updated": "Preventivo aggiornato.",
+    "submitted": "Preventivo inviato all'acquirente.",
+    "deleted": "Bozza eliminata.",
+    "accepted": "Preventivo accettato. Gli altri preventivi sono stati rifiutati e la richiesta è chiusa.",
+    "rejected": "Preventivo rifiutato."
+  },
+  "errors": {
+    "notAllowed": "Questa richiesta non accetta più preventivi.",
+    "alreadyExists": "Hai già un preventivo per questa richiesta.",
+    "notEditable": "Solo una bozza può essere modificata o eliminata.",
+    "notSubmittable": "Questo preventivo non può essere inviato: verifica che contenga almeno una riga e che la validità non sia scaduta.",
+    "invalidItems": "Le righe del preventivo non corrispondono alla richiesta.",
+    "invalidValidity": "La data di validità non può essere nel passato.",
+    "notDecidable": "Questo preventivo non può più essere accettato o rifiutato."
+  },
+  "form": {
+    "requested": "Richiesto: {quantity}",
+    "unitPrice": "Prezzo unitario ({currency})",
+    "quantity": "Quantità",
+    "leadTime": "Tempi di consegna (giorni)",
+    "customization": "Personalizzazione",
+    "customizationHint": "Marcatura, materiale, finitura…",
+    "lineTotal": "Totale riga: {total}",
+    "validUntil": "Valido fino al",
+    "validUntilOn": "Valido fino al {date}",
+    "notes": "Note per l'acquirente",
+    "total": "Totale: {total}",
+    "save": "Salva",
+    "saveFirst": "Salva le modifiche prima di inviare il preventivo.",
+    "submit": "Invia il preventivo",
+    "delete": "Elimina la bozza",
+    "confirmSubmit": "Inviare questo preventivo all'acquirente? Non sarà più modificabile.",
+    "confirmDelete": "Eliminare questa bozza?"
+  },
+  "table": {
+    "item": "Articolo",
+    "unitPrice": "Prezzo unitario",
+    "quantity": "Quantità",
+    "leadTime": "Tempi di consegna",
+    "total": "Totale",
+    "days": "{count, plural, one {# giorno} other {# giorni}}"
+  },
+  "comparison": {
+    "title": "Preventivi ricevuti",
+    "empty": "Nessun preventivo ricevuto per il momento.",
+    "notQuoted": "Non quotato",
+    "cheapest": "Più economico",
+    "fastest": "Più rapido",
+    "leadTime": "Tempi complessivi",
+    "validUntil": "Valido fino al"
+  },
+  "show": {
+    "title": "Preventivo di {supplierName}",
+    "backToRfq": "Torna alla richiesta «{rfqTitle}»",
+    "accept": "Accetta questo preventivo",
+    "reject": "Rifiuta questo preventivo",
+    "confirm": {
+      "accept": "Accettare questo preventivo? Gli altri verranno rifiutati e la richiesta chiusa.",
+      "reject": "Rifiutare questo preventivo?"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "I miei preventivi",
+      "subtitle": "I preventivi che hai redatto in risposta alle richieste.",
+      "empty": "Nessun preventivo per il momento."
+    },
+    "edit": {
+      "title": "Preventivo: {rfqTitle}",
+      "backToRfq": "Torna alla richiesta",
+      "notice": {
+        "draft": "Questa richiesta non accetta più preventivi: questa bozza non può più essere modificata.",
+        "submitted": "Preventivo inviato: è bloccato e l'acquirente può consultarlo.",
+        "accepted": "L'acquirente ha accettato questo preventivo.",
+        "rejected": "L'acquirente non ha scelto questo preventivo.",
+        "expired": "Questo preventivo è scaduto."
+      }
+    },
+    "rfq": {
+      "respond": "Rispondi con un preventivo",
+      "viewQuote": "Vedi il mio preventivo"
+    }
+  }
+}

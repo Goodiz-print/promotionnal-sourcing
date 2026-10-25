@@ -47,5 +47,13 @@
     "deadline": "Bitte antworten Sie bis zum {deadline}.",
     "cta": "Anfrage ansehen",
     "footer": "Dies ist die einzige Erinnerung zu dieser Anfrage. Sie können sie auch in Ihrem Lieferantenbereich ablehnen."
+  },
+  "quoteReceived": {
+    "subject": "Neues Angebot von {supplierName} für „{rfqTitle}“",
+    "title": "{supplierName} hat ein Angebot eingereicht",
+    "body": "{supplierName} hat soeben auf Ihre Anfrage „{rfqTitle}“ geantwortet.",
+    "total": "Gesamtbetrag: {total}.",
+    "cta": "Angebot ansehen",
+    "footer": "Sie erhalten diese Nachricht, weil Sie diese Angebotsanfrage betreuen."
   }
 }

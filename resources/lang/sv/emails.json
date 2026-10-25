@@ -47,5 +47,13 @@
     "deadline": "Svar önskas senast {deadline}.",
     "cta": "Visa förfrågan",
     "footer": "Detta är den enda påminnelsen för den här förfrågan. Du kan också avböja den i ditt leverantörsområde."
+  },
+  "quoteReceived": {
+    "subject": "Ny offert från {supplierName} på ”{rfqTitle}”",
+    "title": "{supplierName} har skickat in en offert",
+    "body": "{supplierName} har just svarat på din förfrågan ”{rfqTitle}”.",
+    "total": "Totalbelopp: {total}.",
+    "cta": "Visa offerten",
+    "footer": "Du får det här meddelandet eftersom du hanterar den här offertförfrågan."
   }
 }

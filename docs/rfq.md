@@ -366,8 +366,8 @@ La Phase 3 est complète : l'issue #4 est close.
 - **Idempotence des mails** — dette signalée dans `docs/organisations.md`, non
   aggravée par la notification RFQ (voir l'encadré ci-dessus) ; à régler avant
   les devis et les commandes.
-- **Devis** — la réponse fournisseur (`quotes`) est la Phase 4 (#5) ;
-  `markResponded` est le point d'accroche prévu.
+- **Devis** — traités par la Phase 4 (#5) : voir [`quotes.md`](quotes.md).
+  `markResponded` est appelé à la remise du devis.
 
 ## Demande « en un clic » depuis le catalogue (#55)
 

@@ -47,5 +47,13 @@
     "deadline": "Please reply before {deadline}.",
     "cta": "View the request",
     "footer": "This is the only reminder for this request. You can also decline it from your supplier area."
+  },
+  "quoteReceived": {
+    "subject": "New quote from {supplierName} for “{rfqTitle}”",
+    "title": "{supplierName} submitted a quote",
+    "body": "{supplierName} just responded to your request “{rfqTitle}”.",
+    "total": "Total amount: {total}.",
+    "cta": "View the quote",
+    "footer": "You are receiving this message because you manage this request for quotation."
   }
 }
