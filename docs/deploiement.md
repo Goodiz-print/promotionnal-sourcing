@@ -81,6 +81,22 @@ Moteur de recherche hybride, déployé en **instance Docker Clever Cloud** (Dock
 - Source de vérité : PostgreSQL. Un index corrompu ou perdu se reconstruit par réindexation complète (commande dédiée, rejouable), sans perte de données.
 - Les mises à jour de version Meilisearch passent par une réindexation si la release l'exige : la noter dans le changelog.
 
+#### Dimensionnement de l'instance Meilisearch
+
+Meilisearch tourne sur une **instance dédiée** : l'inférence ne concurrence ni le web ni le worker, et si l'instance sature le catalogue retombe sur la recherche PostgreSQL. Ces chiffres sont des **points de départ estimés, non mesurés** — à confirmer par un vrai `search:reindex` en observant mémoire et CPU.
+
+| Modèle (`HF_EMBED_MODEL`)                | Usage                           | Point de départ                 |
+| ---------------------------------------- | ------------------------------- | ------------------------------- |
+| `intfloat/multilingual-e5-base` (défaut) | Qualité multilingue             | ~4 Go de RAM, 2 vCPU (flavor L) |
+| `intfloat/multilingual-e5-small`         | Si le CPU ou la RAM pèsent trop | Plus petit (flavor M à valider) |
+| `AI_PROVIDER=mistral` (REST)             | Aucun calcul local              | Dimensionner pour l'index seul  |
+
+- **CPU, sans GPU** : l'indexation initiale et chaque modification de fiche calculent des vecteurs ; chaque recherche calcule celui de la requête (quelques dizaines à centaines de ms selon le CPU).
+- **Volume persistant obligatoire** pour le modèle (~1 Go) : sans lui, il est retéléchargé à chaque redéploiement, avec un démarrage à froid lent.
+- **Sortie réseau vers Hugging Face** à ouvrir pour cette instance seulement.
+- **Changer de modèle** change les vecteurs : réindexer (`node ace search:reindex`) puis rejouer `search:evaluate`.
+- Vérifier après déploiement : mémoire stable après le premier `search:reindex`, latence de recherche, et `search:evaluate` au vert.
+
 ### Développement local
 
 Le service `meilisearch` du `docker-compose.yml` démarre avec les autres services de dev (sans profil) :
