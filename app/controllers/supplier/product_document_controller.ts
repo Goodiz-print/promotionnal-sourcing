@@ -26,7 +26,7 @@ export default class ProductDocumentController {
     if (!product) throw new ProductNotFoundException()
 
     const payload = await request.validateUsing(productDocumentValidator)
-    await this.documents.addToProduct(product, payload.file)
+    await this.documents.addToProduct(product, payload.file, payload.type)
 
     session.flash('success', i18n.t('documents.uploaded'))
     return response.redirect().back()

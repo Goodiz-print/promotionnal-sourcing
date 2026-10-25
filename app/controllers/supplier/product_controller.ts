@@ -7,6 +7,7 @@ import ProductEditTransformer from '#transformers/product_edit_transformer'
 import CategoryTransformer from '#transformers/category_transformer'
 import AttributeTransformer from '#transformers/attribute_transformer'
 import AttributeValueTransformer from '#transformers/attribute_value_transformer'
+import CertificationTransformer from '#transformers/certification_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
 import {
   createSupplierProductValidator,
@@ -121,6 +122,7 @@ export default class ProductController {
   private async facetData(locale: Locale) {
     const categories = await this.service.allCategories()
     const attributes = await this.service.filterableAttributes()
+    const certifications = await this.service.allCertifications()
 
     return {
       categories: categories.map((category) =>
@@ -132,6 +134,10 @@ export default class ProductController {
           new AttributeValueTransformer(value, locale).toObject()
         ),
       })),
+      // Labels de conformité disponibles (écart 4) pour la sélection au formulaire.
+      certifications: certifications.map((certification) =>
+        new CertificationTransformer(certification, locale).toObject()
+      ),
     }
   }
 }

@@ -23,6 +23,7 @@ const OPTIONS = {
   attributeValueIds: [],
   originZones: [],
   newOnly: false,
+  ecoOnly: false,
   page: 1,
   perPage: 12,
 }
@@ -90,6 +91,7 @@ test.group('Recherche — rechargement depuis PostgreSQL', (group) => {
         attributeValueIds: [blue.id],
         originZones: [],
         releasedAfter: null,
+        isEco: false,
       },
       page: 2,
       perPage: 5,

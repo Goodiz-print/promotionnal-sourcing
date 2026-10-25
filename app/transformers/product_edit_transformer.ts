@@ -60,6 +60,11 @@ export default class ProductEditTransformer extends BaseTransformer<Product> {
       videoUrl: this.resource.videoUrl,
       // Provenance dérivée (écart 9), lecture seule.
       originZone: this.resource.originZone,
+      // Conformité (écart 4) : saisies ; `isEco` dérivé (lecture seule).
+      recycledContentPercent: this.resource.recycledContentPercent,
+      cautionComment: this.resource.cautionComment,
+      isEco: this.resource.isEco,
+      certificationIds: this.resource.certifications.map((certification) => certification.id),
       translations,
       attributeValueIds: this.resource.attributeValues.map((value) => value.id),
       images: this.resource.images.map((image) => new ProductImageTransformer(image).toObject()),

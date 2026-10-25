@@ -4,6 +4,7 @@ import searchConfig from '#config/search'
 import Product from '#models/product'
 import SearchEngine from '#services/search/search_engine'
 import ProductOriginService from '#services/product_origin_service'
+import ProductEcoService from '#services/product_eco_service'
 import { resolveTranslation } from '#shared/helpers/translations'
 import type { ContentLocale, Locale } from '#shared/types/i18n'
 import type { ProductSearchDocument, ProductSyncResult } from '#shared/types/search'
@@ -27,7 +28,8 @@ const DESCRIPTION_LENGTH = 300
 export default class ProductIndexService {
   constructor(
     private engine: SearchEngine,
-    private origin: ProductOriginService
+    private origin: ProductOriginService,
+    private eco: ProductEcoService
   ) {}
 
   get enabled(): boolean {
@@ -116,24 +118,37 @@ export default class ProductIndexService {
               .preload('parent', (parent) => parent.preload('attribute'))
           )
       )
+      .preload('certifications')
     if (products.length === 0) return []
 
-    // Backfill : la zone de provenance dérivée (écart 9) est recalculée et
-    // persistée au passage. PostgreSQL reste la source de vérité ; une
-    // réindexation complète rattrape ainsi les fiches dont l'origine a changé
-    // sans repasser par le formulaire. Idempotent : seules les lignes qui
-    // changent sont réécrites.
-    await this.backfillOriginZone(products)
+    // Backfill : les colonnes dérivées (zone de provenance — écart 9 — et
+    // « Éco-responsable » — écart 4) sont recalculées et persistées au passage.
+    // PostgreSQL reste la source de vérité ; une réindexation complète rattrape
+    // ainsi les fiches dont l'origine, les matières ou les labels ont changé sans
+    // repasser par le formulaire. Idempotent : seules les lignes qui changent
+    // sont réécrites.
+    await this.backfillDerivedColumns(products)
 
     return products.map((product) => this.toDocument(product))
   }
 
-  /** Recale `products.origin_zone` sur la dérivation courante (écart 9). */
-  private async backfillOriginZone(products: Product[]): Promise<void> {
+  /**
+   * Recale les colonnes dérivées (`origin_zone`, écart 9 ; `is_eco`, écart 4) sur
+   * leur dérivation courante. Idempotent : n'écrit que les lignes qui changent.
+   */
+  private async backfillDerivedColumns(products: Product[]): Promise<void> {
     for (const product of products) {
       const zone = this.origin.deriveZone(product.originCountry, product.madeInEurope)
-      if (zone !== product.originZone) {
+      const isEco = this.eco.deriveIsEco({
+        recycledContentPercent: product.recycledContentPercent,
+        materialSlugs: product.productAttributes.flatMap((row) =>
+          row.attributeValue ? [row.attributeValue.slug] : []
+        ),
+        hasEcoCertification: product.certifications.some((certification) => certification.isEco),
+      })
+      if (zone !== product.originZone || isEco !== product.isEco) {
         product.originZone = zone
+        product.isEco = isEco
         await product.save()
       }
     }
@@ -170,6 +185,8 @@ export default class ProductIndexService {
       // le filtre « Nouveautés » (écart 5).
       originZone: product.originZone,
       releasedAt: product.releasedAt ? Math.trunc(product.releasedAt.toSeconds()) : null,
+      // Filtre dérivé « Éco-responsable » (écart 4) — recalé au backfill ci-dessus.
+      isEco: product.isEco,
       attributeValueIds: [
         ...new Set(
           product.productAttributes.flatMap((row) =>

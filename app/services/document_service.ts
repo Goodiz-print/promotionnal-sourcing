@@ -10,7 +10,12 @@ import PdfService from '#services/pdf_service'
 import StorageService from '#services/storage/storage_service'
 import { StorageSourceException } from '#exceptions/storage_errors'
 import { InvalidDocumentException } from '#exceptions/document_errors'
-import { DOCUMENT_MIME_TYPE, type OrganizationDocumentKind } from '#shared/types/document'
+import {
+  DOCUMENT_MIME_TYPE,
+  DEFAULT_PRODUCT_DOCUMENT_TYPE,
+  type OrganizationDocumentKind,
+  type ProductDocumentType,
+} from '#shared/types/document'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
 import type StorageObject from '#models/storage_object'
 
@@ -78,11 +83,16 @@ export default class DocumentService {
     return ProductDocument.query().where('id', documentId).where('productId', product.id).first()
   }
 
-  async addToProduct(product: Product, file: MultipartFile): Promise<ProductDocument> {
+  async addToProduct(
+    product: Product,
+    file: MultipartFile,
+    type: ProductDocumentType = DEFAULT_PRODUCT_DOCUMENT_TYPE
+  ): Promise<ProductDocument> {
     const stored = await this.storePdf(file)
     try {
       return await ProductDocument.create({
         productId: product.id,
+        type,
         storageObjectId: stored.storageObject.id,
         originalName: file.clientName,
         sizeBytes: stored.sizeBytes,

@@ -5,9 +5,11 @@ import Supplier from '#models/supplier'
 import Category from '#models/category'
 import Attribute from '#models/attribute'
 import AttributeValue from '#models/attribute_value'
+import Certification from '#models/certification'
 import Product from '#models/product'
 import ProductTranslation from '#models/product_translation'
 import ProductOriginService from '#services/product_origin_service'
+import ProductEcoService from '#services/product_eco_service'
 import type { ContentLocale } from '#shared/types/i18n'
 import type { ProductLifecycleStatus } from '#shared/types/product'
 
@@ -44,6 +46,10 @@ type ProductSeed = {
   rushService?: boolean
   rushLeadTimeDays?: number
   videoUrl?: string
+  // Conformité (écart 4) : labels (slugs), part de recyclé, mise en garde.
+  certifications?: string[]
+  recycledContentPercent?: number
+  cautionComment?: string
 }
 
 /**
@@ -196,6 +202,11 @@ const PRODUCTS: ProductSeed[] = [
     rushService: true,
     rushLeadTimeDays: 7,
     videoUrl: 'https://videos.example/casquette-6-panneaux.mp4',
+    // Conformité (écart 4) : label GOTS (éco) + part de recyclé → la fiche est
+    // « Éco-responsable » bout en bout (matière bio, label éco ET recyclé).
+    certifications: ['gots', 'oeko-tex-standard-100'],
+    recycledContentPercent: 35,
+    cautionComment: 'Lavage à 30 °C maximum, ne pas repasser la visière.',
     facets: {
       'color': 'blue',
       'color-shade': 'bleu-marine',
@@ -234,14 +245,17 @@ const PRODUCTS: ProductSeed[] = [
 export default class ProductSeeder extends BaseSeeder {
   async run() {
     const origin = await app.container.make(ProductOriginService)
+    const eco = await app.container.make(ProductEcoService)
     const suppliers = await Supplier.query().select('id', 'slug')
     const categories = await Category.query().select('id', 'slug')
     const attributes = await Attribute.query().select('id', 'slug')
     const values = await AttributeValue.query().select('id', 'slug', 'attributeId')
+    const certifications = await Certification.query().select('id', 'slug', 'isEco')
 
     const supplierBySlug = new Map(suppliers.map((s) => [s.slug, s.id]))
     const categoryBySlug = new Map(categories.map((c) => [c.slug, c.id]))
     const attributeBySlug = new Map(attributes.map((a) => [a.slug, a.id]))
+    const certificationBySlug = new Map(certifications.map((c) => [c.slug, c]))
 
     const resolveValueId = (attributeSlug: string, valueSlug: string): number | undefined => {
       const attributeId = attributeBySlug.get(attributeSlug)
@@ -278,6 +292,9 @@ export default class ProductSeeder extends BaseSeeder {
           videoUrl: seed.videoUrl ?? null,
           // Provenance dérivée (écart 9), jamais saisie.
           originZone: origin.deriveZone(seed.originCountry, seed.madeInEurope),
+          // Conformité (écart 4) : saisies ; `isEco` dérivé plus bas.
+          recycledContentPercent: seed.recycledContentPercent ?? null,
+          cautionComment: seed.cautionComment ?? null,
         }
       )
 
@@ -303,6 +320,21 @@ export default class ProductSeeder extends BaseSeeder {
         pivot[valueId] = { attribute_id: attributeId }
       }
       await product.related('attributeValues').sync(pivot)
+
+      // Labels de conformité au niveau produit (écart 4).
+      const seededCertifications = (seed.certifications ?? [])
+        .map((slug) => certificationBySlug.get(slug))
+        .filter((certification): certification is Certification => certification !== undefined)
+      await product.related('certifications').sync(seededCertifications.map((c) => c.id))
+
+      // Dérive « Éco-responsable » (écart 4) comme le ferait le pipeline : part
+      // de recyclé, matières portées, labels éco. Jamais saisi.
+      product.isEco = eco.deriveIsEco({
+        recycledContentPercent: product.recycledContentPercent,
+        materialSlugs: Object.values(seed.facets),
+        hasEcoCertification: seededCertifications.some((c) => c.isEco),
+      })
+      await product.save()
     }
   }
 }

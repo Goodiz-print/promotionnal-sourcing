@@ -75,6 +75,9 @@ function product(id: number, name: string, slug: string) {
     rushLeadTimeDays: null,
     videoUrl: null,
     originZone: 'france' as const,
+    recycledContentPercent: null,
+    cautionComment: null,
+    isEco: false,
     createdAt: '2026-07-11T00:00:00.000Z',
     updatedAt: null,
   }
@@ -139,6 +142,7 @@ const emptyFilters = {
   attributeValueIds: [],
   originZones: [],
   newOnly: false,
+  ecoOnly: false,
 }
 
 describe('products/index.vue', () => {
@@ -206,6 +210,7 @@ describe('products/index.vue', () => {
           attributeValueIds: [],
           originZones: [],
           newOnly: false,
+          ecoOnly: false,
         },
         categories: [category(1, 'Crayon', 'crayon')],
         facetBar: emptyFacetBar,
@@ -225,6 +230,7 @@ describe('products/show.vue', () => {
           supplier: { slug: 'nordic-promo', name: 'Nordic Promo', country: 'SE' },
           category: { slug: 'crayon', name: 'Crayon' },
           attributes: [{ attributeSlug: 'color', attributeName: 'Couleur', label: 'Bleu' }],
+          certifications: [],
           images: [
             {
               id: 1,
@@ -244,6 +250,7 @@ describe('products/show.vue', () => {
               originalName: 'fiche-crayon.pdf',
               sizeBytes: 2048,
               url: 'https://cellar.test/fiche.pdf',
+              type: 'spec_sheet' as const,
             },
           ],
         },

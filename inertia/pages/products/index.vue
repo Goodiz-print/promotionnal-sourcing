@@ -30,6 +30,7 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
       attributeValueIds: filters.attributeValueIds.length ? filters.attributeValueIds : undefined,
       originZones: filters.originZones.length ? filters.originZones : undefined,
       newOnly: filters.newOnly ? 'true' : undefined,
+      ecoOnly: filters.ecoOnly ? 'true' : undefined,
       page,
     },
     {

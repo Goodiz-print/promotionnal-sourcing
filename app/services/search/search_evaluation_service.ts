@@ -95,6 +95,7 @@ export default class SearchEvaluationService {
       attributeValueIds: await this.attributeValueIds(query.attributes ?? []),
       originZones: [],
       newOnly: false,
+      ecoOnly: false,
       page: 1,
       perPage: RANK_CUTOFF,
     })

@@ -6,6 +6,24 @@ export const ORGANIZATION_DOCUMENT_KINDS = ['catalogue', 'certificate', 'other']
 
 export type OrganizationDocumentKind = (typeof ORGANIZATION_DOCUMENT_KINDS)[number]
 
+/**
+ * Nature d'une fiche PDF rattachée à un produit (écart 4). Enum SQL sur
+ * `product_documents.type` (défaut `spec_sheet`). `marking_template` est réservé
+ * au futur gabarit de marquage (écart 2). Son libellé est rendu côté UI via
+ * `t('documents.types.<type>')`, pas stocké en base.
+ */
+export const PRODUCT_DOCUMENT_TYPES = [
+  'spec_sheet',
+  'safety',
+  'certificate',
+  'marking_template',
+  'other',
+] as const
+
+export type ProductDocumentType = (typeof PRODUCT_DOCUMENT_TYPES)[number]
+
+export const DEFAULT_PRODUCT_DOCUMENT_TYPE: ProductDocumentType = 'spec_sheet'
+
 /** Taille maximale d'un PDF accepté, avant compression. */
 export const DOCUMENT_MAX_SIZE = '20mb' as const
 
@@ -26,4 +44,9 @@ export type DocumentType = {
 /** Document du profil fournisseur : un `DocumentType` classé par nature. */
 export type OrganizationDocumentType = DocumentType & {
   kind: OrganizationDocumentKind
+}
+
+/** Fiche PDF d'un produit : un `DocumentType` typé par sa nature (écart 4). */
+export type ProductDocumentFile = DocumentType & {
+  type: ProductDocumentType
 }

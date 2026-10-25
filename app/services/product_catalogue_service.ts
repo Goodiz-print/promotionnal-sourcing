@@ -31,8 +31,16 @@ export default class ProductCatalogueService {
    *   contrainte est combinée en `AND`, cf. `docs/catalogue.md`).
    */
   list(options: ListOptions): Promise<ModelPaginatorContract<Product>> {
-    const { page, perPage, categoryId, madeInEurope, attributeValueIds, originZones, newOnly } =
-      options
+    const {
+      page,
+      perPage,
+      categoryId,
+      madeInEurope,
+      attributeValueIds,
+      originZones,
+      newOnly,
+      ecoOnly,
+    } = options
 
     // Nouveautés (écart 5) : début de la fenêtre récente.
     const newThreshold = newOnly
@@ -56,6 +64,8 @@ export default class ProductCatalogueService {
       .if(originZones.length > 0, (q) => q.whereIn('originZone', originZones))
       // Nouveautés (écart 5).
       .if(newThreshold, (q) => q.where('releasedAt', '>=', newThreshold!.toSQLDate()!))
+      // Éco-responsable (écart 4) : filtre dérivé booléen.
+      .if(ecoOnly, (q) => q.where('isEco', true))
       .preload('translations')
 
     if (options.sort === 'price_asc') {
@@ -77,37 +87,41 @@ export default class ProductCatalogueService {
    * (attribut + valeur) préchargés/localisés. `null` si introuvable/inactif.
    */
   findBySlug(slug: string): Promise<Product | null> {
-    return Product.query()
-      .where('slug', slug)
-      .where('isActive', true)
-      .withScopes((scopes) => {
-        scopes.fromLiveOrganization()
-        scopes.notRejected()
-      })
-      .preload('translations')
-      .preload('images', (images) => images.orderBy('position').preload('variants'))
-      .preload('variants', (variants) =>
-        variants
-          .where('isActive', true)
-          .orderBy('id')
-          .preload('attributes', (pivot) =>
-            pivot
-              .preload('attribute', (attribute) => attribute.preload('translations'))
-              .preload('attributeValue', (value) => value.preload('translations'))
-          )
-      )
-      .preload('priceTiers', (tiers) => tiers.orderBy('minQuantity'))
-      .preload('documents', (documents) =>
-        documents.whereNotNull('storageObjectId').preload('storageObject').orderBy('id')
-      )
-      .preload('supplier', (supplier) => supplier.preload('translations'))
-      .preload('category', (category) => category.preload('translations'))
-      .preload('productAttributes', (pa) =>
-        pa
-          .preload('attribute', (attribute) => attribute.preload('translations'))
-          .preload('attributeValue', (value) => value.preload('translations'))
-      )
-      .first()
+    return (
+      Product.query()
+        .where('slug', slug)
+        .where('isActive', true)
+        .withScopes((scopes) => {
+          scopes.fromLiveOrganization()
+          scopes.notRejected()
+        })
+        .preload('translations')
+        .preload('images', (images) => images.orderBy('position').preload('variants'))
+        .preload('variants', (variants) =>
+          variants
+            .where('isActive', true)
+            .orderBy('id')
+            .preload('attributes', (pivot) =>
+              pivot
+                .preload('attribute', (attribute) => attribute.preload('translations'))
+                .preload('attributeValue', (value) => value.preload('translations'))
+            )
+        )
+        .preload('priceTiers', (tiers) => tiers.orderBy('minQuantity'))
+        .preload('documents', (documents) =>
+          documents.whereNotNull('storageObjectId').preload('storageObject').orderBy('id')
+        )
+        .preload('supplier', (supplier) => supplier.preload('translations'))
+        .preload('category', (category) => category.preload('translations'))
+        .preload('productAttributes', (pa) =>
+          pa
+            .preload('attribute', (attribute) => attribute.preload('translations'))
+            .preload('attributeValue', (value) => value.preload('translations'))
+        )
+        // Labels de conformité (écart 4) avec leurs traductions.
+        .preload('certifications', (certifications) => certifications.preload('translations'))
+        .first()
+    )
   }
 
   /**

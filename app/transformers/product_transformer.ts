@@ -44,6 +44,10 @@ export default class ProductTransformer extends BaseTransformer<Product> {
         'rushLeadTimeDays',
         'videoUrl',
         'originZone',
+        // Conformité (écart 4) : `isEco` dérivé par la plateforme.
+        'recycledContentPercent',
+        'cautionComment',
+        'isEco',
       ]),
       releasedAt: this.resource.releasedAt?.toISODate() ?? null,
       name: translation?.name ?? null,

@@ -7,6 +7,7 @@ import ProductGallery from '~/components/product_gallery.vue'
 import VariantSelector from '~/components/products/variant_selector.vue'
 import PriceTierTable from '~/components/products/price_tier_table.vue'
 import DocumentList from '~/components/documents/document_list.vue'
+import BaseBadge from '~/components/base/base_badge.vue'
 import ProductQuoteActions from '~/components/products/product_quote_actions.vue'
 import type { ProductDetailType } from '#shared/types/product'
 import type { ProductRfqContextType } from '#shared/types/rfq'
@@ -111,9 +112,37 @@ const price = computed(() => {
           </div>
         </dl>
 
+        <section
+          v-if="product.isEco || product.certifications.length > 0 || product.cautionComment"
+          class="flex flex-col gap-3"
+        >
+          <h2 class="font-medium">{{ t('products.show.compliance') }}</h2>
+          <div class="flex flex-wrap gap-2">
+            <BaseBadge v-if="product.isEco" tone="success">
+              {{ t('products.show.eco') }}
+            </BaseBadge>
+            <BaseBadge
+              v-for="certification in product.certifications"
+              :key="certification.id"
+              tone="info"
+            >
+              {{ certification.name ?? certification.slug }}
+            </BaseBadge>
+          </div>
+          <p v-if="product.recycledContentPercent" class="text-sm text-[var(--gray-7)]">
+            {{ t('products.show.recycledContent', { percent: product.recycledContentPercent }) }}
+          </p>
+          <p v-if="product.cautionComment" class="text-sm text-[var(--gray-7)]">
+            {{ product.cautionComment }}
+          </p>
+        </section>
+
         <section v-if="product.documents.length > 0" class="flex flex-col gap-2">
           <h2 class="font-medium">{{ t('documents.datasheet.title') }}</h2>
-          <DocumentList :documents="product.documents" />
+          <DocumentList
+            :documents="product.documents"
+            :label-for="(document) => t(`documents.types.${document.type}`)"
+          />
         </section>
 
         <ProductQuoteActions :product-id="product.id" :rfq-context="rfqContext" />

@@ -99,6 +99,7 @@ function document(id: number): ProductSearchDocument {
     originCountry: 'FR',
     originZone: 'france',
     releasedAt: null,
+    isEco: false,
     attributeValueIds: [3],
     attributes: { color: [3] },
     names: { fr: 'Stylo' },
