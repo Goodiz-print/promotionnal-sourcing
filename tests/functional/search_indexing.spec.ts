@@ -95,6 +95,38 @@ test.group('Recherche — documents d’index', (group) => {
     ])
   })
 
+  test('le document porte la zone de provenance et la date de sortie (timestamp)', async ({
+    assert,
+  }) => {
+    // La casquette de démo : origine FR (→ france) et une date de sortie récente.
+    const product = await Product.findByOrFail('slug', 'casquette-6-panneaux-marine')
+
+    const index = await service()
+    await index.sync([product.id])
+
+    const document = fake.engine.upserted[0][0]
+    assert.equal(document.originZone, 'france')
+    assert.isNumber(document.releasedAt)
+    // Un crayon bleu FR sans date de sortie : france, releasedAt null.
+    const pencil = await Product.findByOrFail('slug', 'crayon-hb-bleu')
+    fake.engine.upserted = []
+    await index.sync([pencil.id])
+    assert.equal(fake.engine.upserted[0][0].originZone, 'france')
+    assert.isNull(fake.engine.upserted[0][0].releasedAt)
+  })
+
+  test('l’indexation rattrape (backfill) origin_zone sur la base', async ({ assert }) => {
+    const product = await Product.findByOrFail('slug', 'crayon-hb-bleu')
+    // Valeur obsolète : le pipeline doit la recalculer et la réécrire.
+    await product.merge({ originZone: 'other' }).save()
+
+    const index = await service()
+    await index.sync([product.id])
+
+    await product.refresh()
+    assert.equal(product.originZone, 'france')
+  })
+
   test('le texte vectorisé : nom source, catégorie, facettes, début de description', async ({
     assert,
   }) => {

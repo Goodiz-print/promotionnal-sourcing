@@ -7,7 +7,11 @@ import BaseSelect from '~/components/base/base_select.vue'
 import BaseTextarea from '~/components/base/base_textarea.vue'
 import BaseButton from '~/components/base/base_button.vue'
 import DocumentManager from '~/components/documents/document_manager.vue'
-import { DELIVERY_SCOPES, type SupplierProfileType } from '#shared/types/organization'
+import {
+  DEFAULT_ORIGIN_SCOPES,
+  DELIVERY_SCOPES,
+  type SupplierProfileType,
+} from '#shared/types/organization'
 import { ORGANIZATION_DOCUMENT_KINDS, type OrganizationDocumentType } from '#shared/types/document'
 
 const props = defineProps<{
@@ -21,6 +25,7 @@ const form = useForm({
   minOrderQuantity: props.profile?.minOrderQuantity ?? null,
   deliveryDays: props.profile?.deliveryDays ?? null,
   deliveryScope: props.profile?.deliveryScope ?? null,
+  defaultOriginScope: props.profile?.defaultOriginScope ?? null,
   certifications: props.profile?.certifications ? [...props.profile.certifications] : [],
   bio: props.profile?.bio ?? '',
   responseTimeDays: props.profile?.responseTimeDays ?? null,
@@ -43,6 +48,7 @@ function submit() {
     .transform((data) => ({
       ...data,
       deliveryScope: data.deliveryScope || null,
+      defaultOriginScope: data.defaultOriginScope || null,
       bio: data.bio.trim() ? data.bio.trim() : null,
       certifications: data.certifications.map((c) => c.trim()).filter((c) => c !== ''),
     }))
@@ -94,6 +100,17 @@ function submit() {
           <option :value="null">{{ t('supplier.deliveryScope.none') }}</option>
           <option v-for="scope in DELIVERY_SCOPES" :key="scope" :value="scope">
             {{ t(`supplier.deliveryScope.${scope}`) }}
+          </option>
+        </BaseSelect>
+        <BaseSelect
+          id="defaultOriginScope"
+          v-model="form.defaultOriginScope"
+          :label="t('supplier.fields.defaultOriginScope')"
+          :error="form.errors.defaultOriginScope"
+        >
+          <option :value="null">{{ t('supplier.originScope.none') }}</option>
+          <option v-for="scope in DEFAULT_ORIGIN_SCOPES" :key="scope" :value="scope">
+            {{ t(`supplier.originScope.${scope}`) }}
           </option>
         </BaseSelect>
       </div>

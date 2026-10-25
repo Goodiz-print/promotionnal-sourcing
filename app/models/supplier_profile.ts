@@ -6,6 +6,7 @@ import type {
   CatalogueSourceFormat,
   CatalogueUpdateFrequency,
   CatalogueUpdateMode,
+  DefaultOriginScope,
   DeliveryScope,
   ReportFrequency,
   SupplierCommercialStatus,
@@ -25,6 +26,8 @@ export default class SupplierProfile extends SupplierProfileSchema {
   declare catalogueUpdateFrequency: CatalogueUpdateFrequency | null
   declare commercialStatus: SupplierCommercialStatus
   declare catalogueSourceFormat: CatalogueSourceFormat | null
+  /** Provenance par défaut déclarée par le fournisseur (écart 9). */
+  declare defaultOriginScope: DefaultOriginScope | null
 
   @belongsTo(() => Organization)
   declare organization: BelongsTo<typeof Organization>

@@ -2,6 +2,7 @@ import vine from '@vinejs/vine'
 import {
   CATALOGUE_UPDATE_FREQUENCIES,
   CATALOGUE_UPDATE_MODES,
+  DEFAULT_ORIGIN_SCOPES,
   DELIVERY_SCOPES,
   REPORT_FREQUENCIES,
   SUPPLIER_COMPANY_TYPES,
@@ -27,4 +28,5 @@ export const updateSupplierProfileValidator = vine.create({
   reportFrequency: vine.enum(REPORT_FREQUENCIES).optional(),
   catalogueUpdateMode: vine.enum(CATALOGUE_UPDATE_MODES).optional().nullable(),
   catalogueUpdateFrequency: vine.enum(CATALOGUE_UPDATE_FREQUENCIES).optional().nullable(),
+  defaultOriginScope: vine.enum(DEFAULT_ORIGIN_SCOPES).optional().nullable(),
 })

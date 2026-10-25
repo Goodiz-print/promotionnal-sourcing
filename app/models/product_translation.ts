@@ -9,6 +9,10 @@ export default class ProductTranslation extends ProductTranslationSchema {
 
   declare locale: TranslationLocale
 
+  /** Mots-clés et arguments marketing par locale (écart 5). */
+  declare keywords: string[] | null
+  declare marketingPoints: string[] | null
+
   @belongsTo(() => Product)
   declare product: BelongsTo<typeof Product>
 }

@@ -1,12 +1,21 @@
 import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
+import { DateTime } from 'luxon'
 import { ModelPaginator } from '@adonisjs/lucid/orm'
 import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
 import searchConfig from '#config/search'
 import Product from '#models/product'
 import SearchEngine from '#services/search/search_engine'
-import type { ProductDirectoryFilters } from '#shared/types/product'
+import { NEW_PRODUCT_WINDOW_DAYS, type ProductDirectoryFilters } from '#shared/types/product'
 import type { ProductSearchHits, ProductSearchRequest } from '#shared/types/search'
+
+/**
+ * Seuil « Nouveautés » (écart 5) : début de la fenêtre récente. `null` quand le
+ * filtre n'est pas demandé.
+ */
+function newProductThreshold(newOnly: boolean): DateTime | null {
+  return newOnly ? DateTime.now().minus({ days: NEW_PRODUCT_WINDOW_DAYS }).startOf('day') : null
+}
 
 /** Paramètres d'une recherche du catalogue public. */
 export interface CatalogueSearchOptions extends ProductDirectoryFilters {
@@ -45,6 +54,7 @@ export default class ProductSearchService {
     const query = options.search?.trim()
     if (!this.enabled || !query) return null
 
+    const threshold = newProductThreshold(options.newOnly)
     const hits = await this.query({
       query,
       semanticRatio: searchConfig.embedder.enabled ? searchConfig.semanticRatio : 0,
@@ -52,6 +62,8 @@ export default class ProductSearchService {
         categoryId: options.categoryId,
         madeInEurope: options.madeInEurope,
         attributeValueIds: options.attributeValueIds,
+        originZones: options.originZones,
+        releasedAfter: threshold ? Math.trunc(threshold.toSeconds()) : null,
       },
       page: options.page,
       perPage: options.perPage,
@@ -120,6 +132,12 @@ export default class ProductSearchService {
     for (const valueId of filters?.attributeValueIds ?? []) {
       query.whereHas('attributeValues', (av) => av.where('attribute_values.id', valueId))
     }
+    // Provenance (écart 9) : OU entre zones cochées ; revérifié sur la base.
+    const zones = filters?.originZones ?? []
+    if (zones.length > 0) query.whereIn('originZone', zones)
+    // Nouveautés (écart 5) : sorti depuis le seuil.
+    const threshold = newProductThreshold(filters?.newOnly ?? false)
+    if (threshold) query.where('releasedAt', '>=', threshold.toSQLDate()!)
     if (withSupplier) query.preload('supplier', (supplier) => supplier.preload('organization'))
 
     const found = await query

@@ -3,6 +3,7 @@ import db from '@adonisjs/lucid/services/db'
 import searchConfig from '#config/search'
 import Product from '#models/product'
 import SearchEngine from '#services/search/search_engine'
+import ProductOriginService from '#services/product_origin_service'
 import { resolveTranslation } from '#shared/helpers/translations'
 import type { ContentLocale, Locale } from '#shared/types/i18n'
 import type { ProductSearchDocument, ProductSyncResult } from '#shared/types/search'
@@ -24,7 +25,10 @@ const DESCRIPTION_LENGTH = 300
 
 @inject()
 export default class ProductIndexService {
-  constructor(private engine: SearchEngine) {}
+  constructor(
+    private engine: SearchEngine,
+    private origin: ProductOriginService
+  ) {}
 
   get enabled(): boolean {
     return this.engine.enabled
@@ -114,7 +118,25 @@ export default class ProductIndexService {
       )
     if (products.length === 0) return []
 
+    // Backfill : la zone de provenance dérivée (écart 9) est recalculée et
+    // persistée au passage. PostgreSQL reste la source de vérité ; une
+    // réindexation complète rattrape ainsi les fiches dont l'origine a changé
+    // sans repasser par le formulaire. Idempotent : seules les lignes qui
+    // changent sont réécrites.
+    await this.backfillOriginZone(products)
+
     return products.map((product) => this.toDocument(product))
+  }
+
+  /** Recale `products.origin_zone` sur la dérivation courante (écart 9). */
+  private async backfillOriginZone(products: Product[]): Promise<void> {
+    for (const product of products) {
+      const zone = this.origin.deriveZone(product.originCountry, product.madeInEurope)
+      if (zone !== product.originZone) {
+        product.originZone = zone
+        await product.save()
+      }
+    }
   }
 
   /** Mêmes règles de visibilité que la fiche publique (`findBySlug`). */
@@ -144,6 +166,10 @@ export default class ProductIndexService {
       supplierId: product.supplierId,
       madeInEurope: product.madeInEurope,
       originCountry: product.originCountry,
+      // Provenance dérivée (écart 9) et date de sortie en timestamp Unix pour
+      // le filtre « Nouveautés » (écart 5).
+      originZone: product.originZone,
+      releasedAt: product.releasedAt ? Math.trunc(product.releasedAt.toSeconds()) : null,
       attributeValueIds: [
         ...new Set(
           product.productAttributes.flatMap((row) =>

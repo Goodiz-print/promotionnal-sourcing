@@ -1,18 +1,27 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
+import { DateTime } from 'luxon'
+import app from '@adonisjs/core/services/app'
 import Supplier from '#models/supplier'
 import Category from '#models/category'
 import Attribute from '#models/attribute'
 import AttributeValue from '#models/attribute_value'
 import Product from '#models/product'
 import ProductTranslation from '#models/product_translation'
+import ProductOriginService from '#services/product_origin_service'
 import type { ContentLocale } from '#shared/types/i18n'
+import type { ProductLifecycleStatus } from '#shared/types/product'
 
 /**
  * Facettes d'un produit : { attributeSlug: valueSlug }.
  */
 type Facets = Record<string, string>
 
-type Text = { name: string; description: string }
+type Text = {
+  name: string
+  description: string
+  keywords?: string[]
+  marketingPoints?: string[]
+}
 
 type ProductSeed = {
   slug: string
@@ -25,6 +34,16 @@ type ProductSeed = {
   madeInEurope: boolean
   facets: Facets
   translations: Record<ContentLocale, Text>
+  // Identité/classification (écart 5), commercial (écart 7), médias (écart 8).
+  brand?: string
+  hsCode?: string
+  lifecycleStatus?: ProductLifecycleStatus
+  releasedAt?: string
+  supplierCategoryRaw?: string
+  leadTimeDays?: number
+  rushService?: boolean
+  rushLeadTimeDays?: number
+  videoUrl?: string
 }
 
 /**
@@ -166,6 +185,17 @@ const PRODUCTS: ProductSeed[] = [
     minQuantity: 50,
     originCountry: 'FR',
     madeInEurope: true,
+    // Identité/classification, commercial, médias (ÉTAPE 2) : fiche de démo
+    // complète pour valider les filtres « Nouveautés » et provenance bout en bout.
+    brand: 'EuroCaps',
+    hsCode: '650500',
+    lifecycleStatus: 'new',
+    releasedAt: DateTime.now().minus({ days: 15 }).toISODate()!,
+    supplierCategoryRaw: 'Casquettes & bonnets',
+    leadTimeDays: 21,
+    rushService: true,
+    rushLeadTimeDays: 7,
+    videoUrl: 'https://videos.example/casquette-6-panneaux.mp4',
     facets: {
       'color': 'blue',
       'color-shade': 'bleu-marine',
@@ -180,10 +210,22 @@ const PRODUCTS: ProductSeed[] = [
       fr: {
         name: 'Casquette 6 panneaux marine',
         description: 'Casquette baseball 6 panneaux en coton bio brossé, fermeture boucle métal',
+        keywords: ['casquette', 'coton bio', 'baseball', 'marine'],
+        marketingPoints: [
+          'Coton biologique certifié',
+          'Boucle métal réglable',
+          'Marquage 6 positions',
+        ],
       },
       en: {
         name: 'Navy 6-panel cap',
         description: 'Six-panel organic brushed-cotton baseball cap with metal buckle closure',
+        keywords: ['cap', 'organic cotton', 'baseball', 'navy'],
+        marketingPoints: [
+          'Certified organic cotton',
+          'Adjustable metal buckle',
+          'Six marking positions',
+        ],
       },
     },
   },
@@ -191,6 +233,7 @@ const PRODUCTS: ProductSeed[] = [
 
 export default class ProductSeeder extends BaseSeeder {
   async run() {
+    const origin = await app.container.make(ProductOriginService)
     const suppliers = await Supplier.query().select('id', 'slug')
     const categories = await Category.query().select('id', 'slug')
     const attributes = await Attribute.query().select('id', 'slug')
@@ -223,13 +266,31 @@ export default class ProductSeeder extends BaseSeeder {
           originCountry: seed.originCountry,
           madeInEurope: seed.madeInEurope,
           isActive: true,
+          // Identité/classification (écart 5), commercial (écart 7), médias (écart 8).
+          brand: seed.brand ?? null,
+          hsCode: seed.hsCode ?? null,
+          lifecycleStatus: seed.lifecycleStatus ?? 'active',
+          releasedAt: seed.releasedAt ? DateTime.fromISO(seed.releasedAt) : null,
+          supplierCategoryRaw: seed.supplierCategoryRaw ?? null,
+          leadTimeDays: seed.leadTimeDays ?? null,
+          rushService: seed.rushService ?? false,
+          rushLeadTimeDays: seed.rushLeadTimeDays ?? null,
+          videoUrl: seed.videoUrl ?? null,
+          // Provenance dérivée (écart 9), jamais saisie.
+          originZone: origin.deriveZone(seed.originCountry, seed.madeInEurope),
         }
       )
 
       for (const locale of Object.keys(seed.translations) as ContentLocale[]) {
+        const text = seed.translations[locale]
         await ProductTranslation.updateOrCreate(
           { productId: product.id, locale },
-          seed.translations[locale]
+          {
+            name: text.name,
+            description: text.description,
+            keywords: text.keywords ?? null,
+            marketingPoints: text.marketingPoints ?? null,
+          }
         )
       }
 

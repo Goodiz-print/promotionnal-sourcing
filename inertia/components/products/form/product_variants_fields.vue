@@ -16,7 +16,7 @@ const { t } = useI18n()
 function add() {
   form.variants = [
     ...form.variants,
-    { sku: '', isActive: true, imageId: null, attributeValueIds: [] },
+    { sku: '', isActive: true, imageId: null, gtin: '', attributeValueIds: [] },
   ]
 }
 

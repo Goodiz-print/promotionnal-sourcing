@@ -28,6 +28,8 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
       categoryId: filters.categoryId ?? undefined,
       madeInEurope: filters.madeInEurope ? 'true' : undefined,
       attributeValueIds: filters.attributeValueIds.length ? filters.attributeValueIds : undefined,
+      originZones: filters.originZones.length ? filters.originZones : undefined,
+      newOnly: filters.newOnly ? 'true' : undefined,
       page,
     },
     {

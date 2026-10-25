@@ -22,6 +22,7 @@ export default class SupplierProfileTransformer extends BaseTransformer<Supplier
         'reportFrequency',
         'catalogueUpdateMode',
         'catalogueUpdateFrequency',
+        'defaultOriginScope',
         'isFoundingPartner',
       ]),
       foundingPartnerUntil: this.resource.foundingPartnerUntil?.toISODate() ?? null,

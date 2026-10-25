@@ -6,7 +6,7 @@ import BaseSelect from '~/components/base/base_select.vue'
 import BaseCheckbox from '~/components/base/base_checkbox.vue'
 import FacetGroup from '~/components/catalogue/facet_group.vue'
 import type { CategoryType, CategoryFacetBarType } from '#shared/types/category'
-import type { ProductDirectoryFilters } from '#shared/types/product'
+import { ORIGIN_ZONES, type OriginZone, type ProductDirectoryFilters } from '#shared/types/product'
 
 const props = defineProps<{
   filters: ProductDirectoryFilters
@@ -27,7 +27,12 @@ const state = reactive<ProductDirectoryFilters>({
   categoryId: props.filters.categoryId,
   madeInEurope: props.filters.madeInEurope,
   attributeValueIds: [...props.filters.attributeValueIds],
+  originZones: [...props.filters.originZones],
+  newOnly: props.filters.newOnly,
 })
+
+// Zones de provenance à 3 états (écart 9) : France / Europe / Hors Europe.
+const ORIGIN_ZONE_OPTIONS = ORIGIN_ZONES
 
 function apply() {
   emit('apply', {
@@ -35,6 +40,8 @@ function apply() {
     categoryId: state.categoryId,
     madeInEurope: state.madeInEurope,
     attributeValueIds: [...state.attributeValueIds],
+    originZones: [...state.originZones],
+    newOnly: state.newOnly,
   })
 }
 
@@ -55,6 +62,18 @@ function onCategory(value: string | null) {
 
 function onMadeInEurope(value: boolean) {
   state.madeInEurope = value
+  apply()
+}
+
+function toggleOriginZone(zone: OriginZone, checked: boolean) {
+  state.originZones = checked
+    ? [...state.originZones, zone]
+    : state.originZones.filter((value) => value !== zone)
+  apply()
+}
+
+function onNewOnly(value: boolean) {
+  state.newOnly = value
   apply()
 }
 
@@ -95,6 +114,25 @@ function toggleValue(valueId: number, checked: boolean) {
       :label="t('products.index.madeInEurope')"
       @update:model-value="onMadeInEurope"
     />
+
+    <BaseCheckbox
+      id="newOnly"
+      :model-value="state.newOnly"
+      :label="t('products.index.newOnly')"
+      @update:model-value="onNewOnly"
+    />
+
+    <fieldset class="flex flex-col gap-2">
+      <legend class="mb-1 text-sm font-medium">{{ t('products.index.origin.title') }}</legend>
+      <BaseCheckbox
+        v-for="zone in ORIGIN_ZONE_OPTIONS"
+        :id="`origin-${zone}`"
+        :key="zone"
+        :model-value="state.originZones.includes(zone)"
+        :label="t(`products.index.origin.${zone}`)"
+        @update:model-value="(checked: boolean) => toggleOriginZone(zone, checked)"
+      />
+    </fieldset>
 
     <p v-if="state.categoryId === null" class="text-sm text-[var(--gray-6)]">
       {{ t('products.index.selectCategoryForFilters') }}

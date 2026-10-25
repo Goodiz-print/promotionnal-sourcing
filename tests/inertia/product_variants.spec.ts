@@ -35,6 +35,7 @@ const image = (id: number, url: string, position: number) => ({
   position,
   width: 800,
   height: 600,
+  role: null,
   variants: [],
 })
 
@@ -43,6 +44,7 @@ const variant = (id: number, sku: string, color: string, imageId: number | null)
   sku,
   isActive: true,
   imageId,
+  gtin: null,
   attributeValueIds: [id],
   attributes: [{ attributeSlug: 'color', attributeName: 'Couleur', label: color }],
 })
@@ -75,6 +77,17 @@ function mountShow() {
         originCountry: null,
         madeInEurope: true,
         isActive: true,
+        brand: null,
+        hsCode: null,
+        isConfigurable: false,
+        lifecycleStatus: 'active' as const,
+        releasedAt: null,
+        supplierCategoryRaw: null,
+        leadTimeDays: null,
+        rushService: false,
+        rushLeadTimeDays: null,
+        videoUrl: null,
+        originZone: null,
         createdAt: '2026-07-11T00:00:00.000Z',
         updatedAt: null,
         supplier: { slug: 'acme', name: 'Acme', country: 'FR' },

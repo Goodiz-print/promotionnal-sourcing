@@ -20,6 +20,7 @@ export default class ProductImageTransformer extends BaseTransformer<ProductImag
       position: this.resource.position,
       width: this.resource.width,
       height: this.resource.height,
+      role: this.resource.role,
       variants: variants.map((variant) => ({
         name: variant.name,
         url: variant.url,

@@ -30,6 +30,8 @@ export default class ProductEditTransformer extends BaseTransformer<Product> {
         name: row?.name ?? '',
         description: row?.description ?? null,
         isAuto: row?.isAuto ?? false,
+        keywords: row?.keywords ?? null,
+        marketingPoints: row?.marketingPoints ?? null,
       }
     }
 
@@ -45,6 +47,19 @@ export default class ProductEditTransformer extends BaseTransformer<Product> {
       originCountry: this.resource.originCountry,
       madeInEurope: this.resource.madeInEurope,
       isActive: this.resource.isActive,
+      // Identité/classification (écart 5), commercial (écart 7), médias (écart 8).
+      brand: this.resource.brand,
+      hsCode: this.resource.hsCode,
+      isConfigurable: this.resource.isConfigurable,
+      lifecycleStatus: this.resource.lifecycleStatus,
+      releasedAt: this.resource.releasedAt?.toISODate() ?? null,
+      supplierCategoryRaw: this.resource.supplierCategoryRaw,
+      leadTimeDays: this.resource.leadTimeDays,
+      rushService: this.resource.rushService,
+      rushLeadTimeDays: this.resource.rushLeadTimeDays,
+      videoUrl: this.resource.videoUrl,
+      // Provenance dérivée (écart 9), lecture seule.
+      originZone: this.resource.originZone,
       translations,
       attributeValueIds: this.resource.attributeValues.map((value) => value.id),
       images: this.resource.images.map((image) => new ProductImageTransformer(image).toObject()),

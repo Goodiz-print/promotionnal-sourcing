@@ -4,9 +4,11 @@ import { useForm, router } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE, type ContentLocale } from '#shared/types/i18n'
+import { DEFAULT_PRODUCT_LIFECYCLE_STATUS } from '#shared/types/product'
 import BaseButton from '~/components/base/base_button.vue'
 import ProductTranslationsFields from '~/components/products/form/product_translations_fields.vue'
 import ProductDetailsFields from '~/components/products/form/product_details_fields.vue'
+import ProductCommercialFields from '~/components/products/form/product_commercial_fields.vue'
 import ProductFacetsFields from '~/components/products/form/product_facets_fields.vue'
 import ProductImagesFields from '~/components/products/form/product_images_fields.vue'
 import ProductVariantsFields from '~/components/products/form/product_variants_fields.vue'
@@ -47,6 +49,16 @@ const form = useForm<ProductFormState>({
   originCountry: props.product?.originCountry ?? '',
   madeInEurope: props.product?.madeInEurope ?? false,
   isActive: props.product?.isActive ?? true,
+  brand: props.product?.brand ?? '',
+  hsCode: props.product?.hsCode ?? '',
+  isConfigurable: props.product?.isConfigurable ?? false,
+  lifecycleStatus: props.product?.lifecycleStatus ?? DEFAULT_PRODUCT_LIFECYCLE_STATUS,
+  releasedAt: props.product?.releasedAt ?? '',
+  supplierCategoryRaw: props.product?.supplierCategoryRaw ?? '',
+  leadTimeDays: props.product?.leadTimeDays ?? null,
+  rushService: props.product?.rushService ?? false,
+  rushLeadTimeDays: props.product?.rushLeadTimeDays ?? null,
+  videoUrl: props.product?.videoUrl ?? '',
   attributeValueIds: props.product ? [...props.product.attributeValueIds] : [],
   images: [],
   removedImageIds: [],
@@ -54,6 +66,7 @@ const form = useForm<ProductFormState>({
     sku: variant.sku,
     isActive: variant.isActive,
     imageId: variant.imageId,
+    gtin: variant.gtin ?? '',
     attributeValueIds: [...variant.attributeValueIds],
   })),
   priceTiers: (props.product?.priceTiers ?? []).map((tier) => ({
@@ -99,12 +112,19 @@ function submit() {
         currency: data.currency || 'EUR',
         madeInEurope: data.madeInEurope,
         isActive: data.isActive,
+        isConfigurable: data.isConfigurable,
+        lifecycleStatus: data.lifecycleStatus,
+        rushService: data.rushService,
         attributeValueIds: data.attributeValueIds,
         images: data.images,
         removedImageIds: data.removedImageIds,
         variants: data.variants
           .filter((variant) => variant.sku.trim())
-          .map((variant) => ({ ...variant, sku: variant.sku.trim() })),
+          .map((variant) => ({
+            ...variant,
+            sku: variant.sku.trim(),
+            gtin: variant.gtin.trim() || null,
+          })),
         priceTiers: data.priceTiers
           .filter((tier) => tier.minQuantity !== null && tier.unitPrice !== null)
           .map((tier) => ({ ...tier, variantSku: tier.variantSku || null })),
@@ -113,6 +133,15 @@ function submit() {
       if (data.priceMax !== null) payload.priceMax = data.priceMax
       if (data.minQuantity !== null) payload.minQuantity = data.minQuantity
       if (data.originCountry) payload.originCountry = data.originCountry
+      // Champs texte optionnels : omis quand vides (VineJS = absents).
+      if (data.brand.trim()) payload.brand = data.brand.trim()
+      if (data.hsCode.trim()) payload.hsCode = data.hsCode.trim()
+      if (data.releasedAt) payload.releasedAt = data.releasedAt
+      if (data.supplierCategoryRaw.trim())
+        payload.supplierCategoryRaw = data.supplierCategoryRaw.trim()
+      if (data.leadTimeDays !== null) payload.leadTimeDays = data.leadTimeDays
+      if (data.rushLeadTimeDays !== null) payload.rushLeadTimeDays = data.rushLeadTimeDays
+      if (data.videoUrl.trim()) payload.videoUrl = data.videoUrl.trim()
       return payload
     })
     // Inertia omet les tableaux vides en multipart : sans fichier, on reste en JSON
@@ -129,6 +158,11 @@ function cancel() {
   <form class="flex max-w-[720px] flex-col gap-8" @submit.prevent="submit">
     <ProductTranslationsFields />
     <ProductDetailsFields :categories="categories" />
+
+    <div>
+      <h2 class="mb-2 font-medium">{{ t('products.manage.commercial') }}</h2>
+      <ProductCommercialFields />
+    </div>
 
     <div>
       <h2 class="mb-2 font-medium">{{ t('products.manage.facets') }}</h2>

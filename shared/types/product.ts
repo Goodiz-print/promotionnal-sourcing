@@ -5,12 +5,50 @@ import type { ImageVariantType } from './image_variant.js'
 import type { DocumentType } from './document.js'
 
 /**
- * Traduction d'un produit (une ligne par locale).
+ * Statut « cycle de vie » d'un produit (écart 5). Distinct de `isActive`, qui
+ * reste le simple interrupteur de publication : un produit peut être `active` et
+ * dépublié, ou `new` et publié.
+ */
+export const PRODUCT_LIFECYCLE_STATUSES = ['active', 'new', 'end_of_series', 'retired'] as const
+
+export type ProductLifecycleStatus = (typeof PRODUCT_LIFECYCLE_STATUSES)[number]
+
+export const DEFAULT_PRODUCT_LIFECYCLE_STATUS: ProductLifecycleStatus = 'active'
+
+/**
+ * Zone de provenance **dérivée** servant le filtre à 3 états (écart 9). Jamais
+ * saisie : calculée à partir de `originCountry`/`madeInEurope` par
+ * `ProductOriginService`. `null` (hors de cet enum) = origine inconnue, exclue
+ * des cases France/Europe.
+ */
+export const ORIGIN_ZONES = ['france', 'europe', 'other'] as const
+
+export type OriginZone = (typeof ORIGIN_ZONES)[number]
+
+/**
+ * Rôle d'une image de la galerie (écart 8) : principale, vue produit, mise en
+ * situation, visuel marqué.
+ */
+export const PRODUCT_IMAGE_ROLES = ['primary', 'view', 'lifestyle', 'marked'] as const
+
+export type ProductImageRole = (typeof PRODUCT_IMAGE_ROLES)[number]
+
+/**
+ * Fenêtre « Nouveautés » : un produit est neuf tant que `releasedAt` est à moins
+ * de N jours. Sert à construire le seuil `releasedAfter` du filtre (écart 5).
+ */
+export const NEW_PRODUCT_WINDOW_DAYS = 90
+
+/**
+ * Traduction d'un produit (une ligne par locale). `keywords` et
+ * `marketingPoints` sont des listes par locale (écart 5).
  */
 export interface ProductTranslationType {
   locale: Locale
   name: string
   description: string | null
+  keywords: string[] | null
+  marketingPoints: string[] | null
 }
 
 /**
@@ -34,6 +72,21 @@ export type ProductType = {
   originCountry: string | null
   madeInEurope: boolean
   isActive: boolean
+  // Identité / classification (écart 5).
+  brand: string | null
+  hsCode: string | null
+  isConfigurable: boolean
+  lifecycleStatus: ProductLifecycleStatus
+  releasedAt: string | null
+  supplierCategoryRaw: string | null
+  // Commercial (écart 7).
+  leadTimeDays: number | null
+  rushService: boolean
+  rushLeadTimeDays: number | null
+  // Médias (écart 8).
+  videoUrl: string | null
+  // Provenance dérivée (écart 9) — jamais saisie.
+  originZone: OriginZone | null
   createdAt: string
   updatedAt: string | null
 }
@@ -64,6 +117,11 @@ export type ProductDirectoryFilters = {
   categoryId: number | null
   madeInEurope: boolean
   attributeValueIds: number[]
+  // Provenance à 3 états (écart 9) : les zones cochées se combinent en OU
+  // (France OU Europe). Vide = pas de filtre de provenance.
+  originZones: OriginZone[]
+  // Filtre « Nouveautés » (écart 5) : produits sortis dans la fenêtre récente.
+  newOnly: boolean
 }
 
 /**
@@ -95,6 +153,8 @@ export type ProductImageType = {
   position: number
   width: number | null
   height: number | null
+  // Rôle de l'image dans la galerie (écart 8) ; `null` = non typé.
+  role: ProductImageRole | null
   // Variantes redimensionnées disponibles (vide tant que le job n'a pas tourné).
   variants: ImageVariantType[]
 }
@@ -108,6 +168,8 @@ export type ProductVariantType = {
   sku: string
   isActive: boolean
   imageId: number | null
+  // EAN/GTIN par variante (écart 5).
+  gtin: string | null
   attributeValueIds: number[]
 }
 
@@ -164,9 +226,33 @@ export type ProductEditType = {
   originCountry: string | null
   madeInEurope: boolean
   isActive: boolean
+  // Identité / classification (écart 5).
+  brand: string | null
+  hsCode: string | null
+  isConfigurable: boolean
+  lifecycleStatus: ProductLifecycleStatus
+  releasedAt: string | null
+  supplierCategoryRaw: string | null
+  // Commercial (écart 7).
+  leadTimeDays: number | null
+  rushService: boolean
+  rushLeadTimeDays: number | null
+  // Médias (écart 8).
+  videoUrl: string | null
+  // Provenance dérivée (écart 9), lecture seule dans le formulaire.
+  originZone: OriginZone | null
   // Langue saisie par le fournisseur ; les autres sont générées (`isAuto`).
   sourceLocale: ContentLocale
-  translations: Record<ContentLocale, { name: string; description: string | null; isAuto: boolean }>
+  translations: Record<
+    ContentLocale,
+    {
+      name: string
+      description: string | null
+      isAuto: boolean
+      keywords: string[] | null
+      marketingPoints: string[] | null
+    }
+  >
   attributeValueIds: number[]
   images: ProductImageType[]
   variants: ProductVariantType[]
@@ -181,6 +267,7 @@ export interface ProductVariantInput {
   sku: string
   isActive?: boolean
   imageId?: number | null
+  gtin?: string | null
   attributeValueIds?: number[]
 }
 
@@ -200,6 +287,9 @@ export interface ProductPriceTierInput {
 export interface LocalizedProductContent {
   name: string
   description?: string | null
+  // Mots-clés et arguments marketing par locale (écart 5).
+  keywords?: string[] | null
+  marketingPoints?: string[] | null
 }
 
 /**
@@ -219,6 +309,19 @@ export interface SupplierProductInput {
   originCountry?: string | null
   madeInEurope?: boolean
   isActive?: boolean
+  // Identité / classification (écart 5).
+  brand?: string | null
+  hsCode?: string | null
+  isConfigurable?: boolean
+  lifecycleStatus?: ProductLifecycleStatus
+  releasedAt?: string | null
+  supplierCategoryRaw?: string | null
+  // Commercial (écart 7).
+  leadTimeDays?: number | null
+  rushService?: boolean
+  rushLeadTimeDays?: number | null
+  // Médias (écart 8).
+  videoUrl?: string | null
   attributeValueIds?: number[]
   variants?: ProductVariantInput[]
   priceTiers?: ProductPriceTierInput[]
@@ -240,6 +343,19 @@ export interface SupplierProductUpdateInput {
   originCountry?: string | null
   madeInEurope?: boolean
   isActive?: boolean
+  // Identité / classification (écart 5).
+  brand?: string | null
+  hsCode?: string | null
+  isConfigurable?: boolean
+  lifecycleStatus?: ProductLifecycleStatus
+  releasedAt?: string | null
+  supplierCategoryRaw?: string | null
+  // Commercial (écart 7).
+  leadTimeDays?: number | null
+  rushService?: boolean
+  rushLeadTimeDays?: number | null
+  // Médias (écart 8).
+  videoUrl?: string | null
   attributeValueIds?: number[]
   // Absent = inchangé ; tableau = remplace l'ensemble (variantes par SKU).
   variants?: ProductVariantInput[]

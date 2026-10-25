@@ -13,7 +13,7 @@ import CategoryTransformer from '#transformers/category_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
 import { NoCurrentOrganizationException } from '#exceptions/organization_errors'
 import type { Locale } from '#shared/types/i18n'
-import type { ProductDirectoryFilters } from '#shared/types/product'
+import { ORIGIN_ZONES, type OriginZone, type ProductDirectoryFilters } from '#shared/types/product'
 import type { ProductRfqContextType } from '#shared/types/rfq'
 
 const PER_PAGE = 12
@@ -42,6 +42,9 @@ export default class ProductsController {
       categoryId: Number.parseInt(qs.categoryId, 10) || null,
       madeInEurope: qs.madeInEurope === 'true',
       attributeValueIds: this.parseIds(qs.attributeValueIds),
+      // Provenance à 3 états (écart 9) et filtre « Nouveautés » (écart 5).
+      originZones: this.parseOriginZones(qs.originZones),
+      newOnly: qs.newOnly === 'true',
     }
     const page = Number.parseInt(qs.page, 10) || 1
 
@@ -146,5 +149,17 @@ export default class ProductsController {
     return list
       .map((value) => Number.parseInt(String(value), 10))
       .filter((value) => Number.isInteger(value) && value > 0)
+  }
+
+  /**
+   * Normalise le paramètre `originZones` (répété ou unique) en zones valides
+   * (écart 9) ; ignore toute valeur hors de l'enum.
+   */
+  private parseOriginZones(raw: unknown): OriginZone[] {
+    const list = Array.isArray(raw) ? raw : raw !== undefined ? [raw] : []
+    const valid = new Set<string>(ORIGIN_ZONES)
+    return list
+      .map((value) => String(value))
+      .filter((value): value is OriginZone => valid.has(value))
   }
 }

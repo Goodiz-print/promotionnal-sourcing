@@ -75,6 +75,7 @@ describe('supplier/profile.vue', () => {
       reportFrequency: 'none' as const,
       catalogueUpdateMode: null,
       catalogueUpdateFrequency: null,
+      defaultOriginScope: null,
       isFoundingPartner: false,
       foundingPartnerUntil: null,
       createdAt: '2026-07-10T00:00:00.000Z',
