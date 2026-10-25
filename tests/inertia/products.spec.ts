@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import type { AttributeWithValuesType } from '#shared/types/attribute'
+import type { CategoryFacetBarType } from '#shared/types/category'
 
 const translations = {
   'products.index.title': 'Catalogue produits',
@@ -16,6 +16,11 @@ const translations = {
   'products.index.searchUnavailable': 'La recherche est momentanément indisponible.',
   'products.index.previous': 'Précédent',
   'products.index.next': 'Suivant',
+  'products.index.selectCategoryForFilters':
+    'Sélectionnez une catégorie pour afficher ses filtres.',
+  'products.index.rangeUnder': '< {max}',
+  'products.index.rangeOver': '≥ {min}',
+  'products.index.rangeBetween': '{min}–{max}',
   'products.show.backToCatalogue': 'Retour au catalogue',
   'documents.datasheet.title': 'Fiche technique',
   'products.show.viewImage': "Voir l'image",
@@ -77,38 +82,49 @@ function category(id: number, name: string, slug: string) {
   }
 }
 
-const attributes: AttributeWithValuesType[] = [
-  {
-    id: 1,
-    name: 'Couleur',
-    slug: 'color',
-    type: 'enum',
-    unit: null,
-    isFilterable: true,
+function facetValue(id: number, label: string, hex: string | null, count: number | null) {
+  return {
+    id,
+    attributeId: 1,
+    value: label.toLowerCase(),
+    label,
+    slug: label.toLowerCase(),
+    synonyms: [],
+    hex,
+    parentValueId: null,
     createdAt: '2026-07-11T00:00:00.000Z',
     updatedAt: null,
-    values: [
-      {
-        id: 10,
-        attributeId: 1,
-        value: 'blue',
-        label: 'Bleu',
-        slug: 'blue',
-        synonyms: [],
-        hex: '#1F5FBF',
-        parentValueId: null,
-        createdAt: '2026-07-11T00:00:00.000Z',
-        updatedAt: null,
-      },
-    ],
-  },
-]
+    count,
+  }
+}
+
+const facetBar: CategoryFacetBarType = {
+  hasCounts: true,
+  attributes: [
+    {
+      attributeId: 1,
+      name: 'Couleur',
+      slug: 'color',
+      type: 'enum',
+      unit: null,
+      position: 1,
+      values: [
+        facetValue(10, 'Bleu', '#1F5FBF', 3),
+        // Compteur 0 : masquée dans la barre quand les compteurs sont dispo.
+        facetValue(11, 'Rouge', '#D62828', 0),
+      ],
+      ranges: [],
+    },
+  ],
+}
+
+const emptyFacetBar: CategoryFacetBarType = { attributes: [], hasCounts: false }
 
 const meta = { total: 2, perPage: 12, currentPage: 1, lastPage: 1 }
-const emptyFilters = { search: null, categoryId: null, madeInEurope: false, attributeValueIds: [] }
+const emptyFilters = { search: null, categoryId: 1, madeInEurope: false, attributeValueIds: [] }
 
 describe('products/index.vue', () => {
-  it('affiche une carte par produit + la barre de filtres', () => {
+  it('affiche une carte par produit + la barre de filtres par catégorie', () => {
     const wrapper = mount(Index, {
       props: {
         searchUnavailable: false,
@@ -118,7 +134,7 @@ describe('products/index.vue', () => {
         },
         filters: emptyFilters,
         categories: [category(1, 'Crayon', 'crayon')],
-        attributes,
+        facetBar,
       },
     })
 
@@ -127,7 +143,10 @@ describe('products/index.vue', () => {
     expect(wrapper.find('#search').exists()).toBe(true)
     expect(wrapper.find('#category').findAll('option')).toHaveLength(2)
     expect(wrapper.find('#madeInEurope').exists()).toBe(true)
+    // La valeur avec compteur > 0 est rendue, avec son badge ; celle à 0 masquée.
     expect(wrapper.find('#attr-10').exists()).toBe(true)
+    expect(wrapper.find('#attr-11').exists()).toBe(false)
+    expect(wrapper.text()).toContain('3')
   })
 
   it('affiche un état vide', () => {
@@ -137,7 +156,7 @@ describe('products/index.vue', () => {
         products: { data: [], meta: { ...meta, total: 0 } },
         filters: emptyFilters,
         categories: [],
-        attributes: [],
+        facetBar: emptyFacetBar,
       },
     })
     expect(wrapper.text()).toContain('Aucun produit ne correspond à votre recherche.')
@@ -150,11 +169,24 @@ describe('products/index.vue', () => {
         products: { data: [], meta: { ...meta, total: 0 } },
         filters: emptyFilters,
         categories: [],
-        attributes: [],
+        facetBar: emptyFacetBar,
       },
     })
     expect(wrapper.text()).toContain('La recherche est momentanément indisponible.')
     expect(wrapper.text()).not.toContain('Aucun produit ne correspond à votre recherche.')
+  })
+
+  it('invite à choisir une catégorie quand aucune n’est sélectionnée', () => {
+    const wrapper = mount(Index, {
+      props: {
+        searchUnavailable: false,
+        products: { data: [], meta: { ...meta, total: 0 } },
+        filters: { search: null, categoryId: null, madeInEurope: false, attributeValueIds: [] },
+        categories: [category(1, 'Crayon', 'crayon')],
+        facetBar: emptyFacetBar,
+      },
+    })
+    expect(wrapper.text()).toContain('Sélectionnez une catégorie pour afficher ses filtres.')
   })
 })
 

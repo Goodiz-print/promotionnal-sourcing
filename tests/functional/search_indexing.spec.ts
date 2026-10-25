@@ -63,6 +63,38 @@ test.group('Recherche — documents d’index', (group) => {
     assert.isString(document.embeddingText)
   })
 
+  test('les facettes sont aplaties par slug, couleur famille N1 déduite de la nuance N2', async ({
+    assert,
+  }) => {
+    // La casquette porte couleur (famille), nuance, matière et attributs propres.
+    const product = await Product.findByOrFail('slug', 'casquette-6-panneaux-marine')
+    const values = await db
+      .from('attribute_values')
+      .join('attributes', 'attributes.id', 'attribute_values.attribute_id')
+      .select('attribute_values.id', 'attribute_values.slug', 'attributes.slug as attribute_slug')
+    const idOf = (attributeSlug: string, valueSlug: string) =>
+      values.find((v) => v.attribute_slug === attributeSlug && v.slug === valueSlug)!.id
+
+    const index = await service()
+    await index.sync([product.id])
+
+    const { attributes } = fake.engine.upserted[0][0]
+    // La nuance (N2) sous `color-shade`, et la famille (N1) sous `color`.
+    assert.deepEqual(attributes['color-shade'], [idOf('color-shade', 'bleu-marine')])
+    assert.include(attributes['color'], idOf('color', 'blue'))
+    assert.deepEqual(attributes['material'], [idOf('material', 'organic-cotton')])
+    assert.deepEqual(attributes['cap-panels'], [idOf('cap-panels', '6')])
+    // Les clés sont des slugs d'attribut, les valeurs des identifiants de valeur.
+    assert.sameMembers(Object.keys(attributes), [
+      'color',
+      'color-shade',
+      'material',
+      'cap-panels',
+      'cap-type',
+      'cap-closure',
+    ])
+  })
+
   test('le texte vectorisé : nom source, catégorie, facettes, début de description', async ({
     assert,
   }) => {

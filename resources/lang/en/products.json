@@ -11,7 +11,11 @@
     "empty": "No product matches your search.",
     "searchUnavailable": "Search is temporarily unavailable. Try again in a moment or browse the categories.",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "selectCategoryForFilters": "Select a category to show its filters.",
+    "rangeUnder": "< {max}",
+    "rangeOver": "≥ {min}",
+    "rangeBetween": "{min}–{max}"
   },
   "show": {
     "backToCatalogue": "Back to catalogue",

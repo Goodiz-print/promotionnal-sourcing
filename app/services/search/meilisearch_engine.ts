@@ -1,10 +1,15 @@
 import { Meilisearch } from 'meilisearch'
 import type { Embedders, Settings, Task } from 'meilisearch'
+import { inject } from '@adonisjs/core'
 import searchConfig from '#config/search'
 import SearchEngine from '#services/search/search_engine'
+import FilterableFacetsService from '#services/filterable_facets_service'
 import { SearchTaskFailedException } from '#exceptions/search_errors'
 import {
+  facetField,
   SEARCH_EMBEDDER,
+  type FacetDistribution,
+  type FacetDistributionRequest,
   type ProductSearchDocument,
   type ProductSearchFilter,
   type ProductSearchHits,
@@ -66,9 +71,12 @@ export function buildEmbedders(embedder: typeof searchConfig.embedder): Embedder
  *   cherchable couvre toutes les langues, ajouter une langue ne change rien ici ;
  * - les attributs filtrables servent au ET exact côté moteur (facettes, pays,
  *   catégorie) ;
+ * - les facettes **aplaties par slug** (`attributes.<slug>`, `facetSlugs` dérivés
+ *   de `category_attributes.is_filter`) sont filtrables et facettables : elles
+ *   donnent les distributions par attribut (compteurs par valeur) ;
  * - l'embedder vectorise `embeddingText`, jamais les autres champs.
  */
-export function productIndexSettings(): Settings {
+export function productIndexSettings(facetSlugs: readonly string[] = []): Settings {
   return {
     searchableAttributes: ['names', 'descriptions', 'reference'],
     filterableAttributes: [
@@ -77,6 +85,7 @@ export function productIndexSettings(): Settings {
       'madeInEurope',
       'originCountry',
       'attributeValueIds',
+      ...facetSlugs.map(facetField),
     ],
     embedders: buildEmbedders(searchConfig.embedder),
   }
@@ -105,11 +114,21 @@ export function buildProductFilter(filter: ProductSearchFilter): string | undefi
  * à la première utilisation ; l'index et ses réglages sont garantis une fois par
  * processus.
  */
+@inject()
 export default class MeilisearchEngine extends SearchEngine {
   readonly enabled = true
 
   #client?: Meilisearch
   #ready?: Promise<void>
+
+  /**
+   * `facets` est injecté en production (conteneur IoC) ; optionnel pour pouvoir
+   * piloter le moteur sans base dans les tests unitaires — la liste des slugs
+   * filtrables est alors vide (réglages statiques seuls).
+   */
+  constructor(private facets?: FilterableFacetsService) {
+    super()
+  }
 
   async upsert(documents: ProductSearchDocument[]): Promise<void> {
     if (documents.length === 0) return
@@ -144,6 +163,20 @@ export default class MeilisearchEngine extends SearchEngine {
       ids: response.hits.map((hit) => Number(hit.id)),
       total: response.totalHits ?? response.hits.length,
     }
+  }
+
+  async facetDistribution(request: FacetDistributionRequest): Promise<FacetDistribution> {
+    if (request.facets.length === 0) return {}
+
+    // `limit: 0` : on ne veut que les compteurs, aucun hit. Pas de `ensureIndex`
+    // (lecture seule) ; un index absent est une erreur traitée par l'appelant.
+    const response = await this.client.index(searchConfig.index).search(request.query, {
+      filter: buildProductFilter(request.filter),
+      facets: request.facets,
+      limit: 0,
+    })
+
+    return response.facetDistribution ?? {}
   }
 
   async remove(ids: number[]): Promise<void> {
@@ -206,7 +239,11 @@ export default class MeilisearchEngine extends SearchEngine {
       this.assertSucceeded(await this.client.tasks.waitForTask(created.taskUid, this.waitOptions))
     }
 
-    const settings = await this.client.index(uid).updateSettings(productIndexSettings())
+    // Les attributs filtrables aplatis (`attributes.<slug>`) sont dérivés de la
+    // base (`category_attributes.is_filter`) : un changement est appliqué au
+    // prochain `search:reindex` (ou au premier envoi d'un nouveau processus).
+    const facetSlugs = this.facets ? await this.facets.filterableSlugs() : []
+    const settings = await this.client.index(uid).updateSettings(productIndexSettings(facetSlugs))
     this.assertSucceeded(await this.client.tasks.waitForTask(settings.taskUid, this.waitOptions))
   }
 

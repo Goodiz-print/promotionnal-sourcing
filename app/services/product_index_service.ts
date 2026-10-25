@@ -103,7 +103,14 @@ export default class ProductIndexService {
       .preload('productAttributes', (rows) =>
         rows
           .preload('attribute', (attribute) => attribute.preload('translations'))
-          .preload('attributeValue', (value) => value.preload('translations'))
+          .preload('attributeValue', (value) =>
+            value
+              .preload('translations')
+              // La **famille** (N1) d'une nuance (N2) : on l'émet sous
+              // `attributes.<slug de la famille>` même sans ligne de facette
+              // explicite (cf. `flattenedFacets`).
+              .preload('parent', (parent) => parent.preload('attribute'))
+          )
       )
     if (products.length === 0) return []
 
@@ -144,10 +151,49 @@ export default class ProductIndexService {
           )
         ),
       ],
+      attributes: ProductIndexService.flattenedFacets(product),
       names,
       descriptions,
       embeddingText: ProductIndexService.embeddingText(product),
     }
+  }
+
+  /**
+   * Facettes **aplaties par slug d'attribut** (`attributes.color`,
+   * `attributes.color-shade`…) pour les distributions de facettes et la barre de
+   * filtres dépendante de la catégorie :
+   *
+   * - une valeur énumérée porte son **identifiant** (`attribute_values.id`) sous
+   *   le slug de son attribut ;
+   * - la **famille** (N1) d'une nuance (N2) est aussi émise sous le slug de la
+   *   famille, dérivée du `parent_value_id` — le filtre et le compteur par
+   *   famille fonctionnent même sans ligne de facette famille explicite ;
+   * - un attribut numérique porte sa **valeur brute**.
+   *
+   * Suppose `productAttributes` préchargés avec `attribute`, `attributeValue` et
+   * `attributeValue.parent.attribute`.
+   */
+  static flattenedFacets(product: Product): Record<string, number[]> {
+    const bySlug = new Map<string, Set<number>>()
+    const add = (slug: string, value: number) => {
+      const set = bySlug.get(slug) ?? new Set<number>()
+      set.add(value)
+      bySlug.set(slug, set)
+    }
+
+    for (const row of product.productAttributes) {
+      const value = row.attributeValue
+      if (value) {
+        add(row.attribute.slug, value.id)
+        if (value.parent) add(value.parent.attribute.slug, value.parent.id)
+      } else if (row.valueNumber !== null) {
+        add(row.attribute.slug, Number(row.valueNumber))
+      }
+    }
+
+    const facets: Record<string, number[]> = {}
+    for (const [slug, values] of bySlug) facets[slug] = [...values]
+    return facets
   }
 
   /**

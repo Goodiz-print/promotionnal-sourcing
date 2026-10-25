@@ -20,9 +20,9 @@ Moteur de recherche hybride (mots-clés + vecteurs) des produits, décidé par l
 
 ## Document d'index (`ProductSearchDocument`)
 
-`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `attributeValueIds` (facettes), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `embeddingText` (le texte que Meilisearch vectorise : voir « Vectorisation »).
+`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `attributeValueIds` (facettes, toutes valeurs confondues), `attributes` (facettes **aplaties par slug** : `attributes.color`, `attributes.color-shade`, `attributes.material`… — voir ci-dessous), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `embeddingText` (le texte que Meilisearch vectorise : voir « Vectorisation »).
 
-Réglages (`productIndexSettings()`) : attributs cherchables `names`, `descriptions`, `reference` — un seul attribut par famille couvre toutes les langues, **ajouter une langue ne change aucun réglage** ; attributs filtrables `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `attributeValueIds` ; embedder `default` (voir « Vectorisation »), retiré des réglages quand il est coupé.
+Réglages (`productIndexSettings(facetSlugs)`) : attributs cherchables `names`, `descriptions`, `reference` — un seul attribut par famille couvre toutes les langues, **ajouter une langue ne change aucun réglage** ; attributs filtrables `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `attributeValueIds`, **plus un champ `attributes.<slug>` par attribut filtrable** (`facetSlugs` dérivés de `category_attributes.is_filter`, via `FilterableFacetsService` — jamais une liste codée en dur) ; embedder `default` (voir « Vectorisation »), retiré des réglages quand il est coupé. Les réglages sont réappliqués au premier envoi d'un processus et à chaque `search:reindex` : un changement de `is_filter` est donc pris en compte au prochain reindex.
 
 Seuls les produits **visibles** sont indexés : actifs, organisation non archivée ni rejetée, non rejetés par la modération — les mêmes scopes que la fiche publique (`Product.fromLiveOrganization`, `Product.notRejected`).
 
@@ -37,14 +37,43 @@ s'applique tel quel aux nouvelles facettes, sans changement du moteur. Le
 **backfill** se fait par `node ace search:reindex` : les nouveaux identifiants de
 valeur entrent dans l'index au passage, aucun nouveau champ n'est à déclarer.
 
-> **Suite (2e PR, signalée)** — exposer en plus une facette **aplatie par slug**
-> (`attributes.color`, `attributes.cap-panels`…) pour les attributs dont
-> `category_attributes.is_filter = true`, afin d'obtenir les **distributions de
-> facettes** par attribut (compteurs par valeur) de Meilisearch et piloter la
-> barre de filtres dépendante de la catégorie. Cela demande des
-> `filterableAttributes` dérivés de la base (liste des slugs filtrables) et un
-> branchement sur la page catalogue : livré séparément. Le ET multi-critères sur
-> ces facettes fonctionne déjà via `attributeValueIds` (ci-dessus).
+### Facettes aplaties par slug et distributions (2e PR — livré)
+
+En plus de `attributeValueIds`, chaque document porte un objet **aplati par slug
+d'attribut** `attributes.<slug>` (`attributes.color`, `attributes.color-shade`,
+`attributes.material`, `attributes.cap-panels`…), construit par
+`ProductIndexService.flattenedFacets` :
+
+- une valeur énumérée porte son **identifiant** (`attribute_values.id`) sous le
+  slug de son attribut ;
+- la couleur **famille** (N1) est émise sous `attributes.color` **même quand le
+  produit ne porte qu'une nuance** (N2) : elle est dérivée du `parent_value_id`
+  de la nuance ;
+- un attribut numérique porte sa **valeur brute**.
+
+Ces champs sont déclarés `filterableAttributes` (donc facettables) à partir de
+`FilterableFacetsService.filterableSlugs()` (les slugs `category_attributes.is_filter`,
+distincts et triés). `SearchEngine.facetDistribution({ query, filter, facets })`
+renvoie alors les **distributions de facettes** (compteurs par valeur) de
+Meilisearch (`search` avec `facets` et `limit: 0`).
+
+`CatalogueFacetBarService.forCategory(categoryId, locale, { search, madeInEurope })`
+assemble la **barre de filtres dépendante de la catégorie** : les attributs
+filtrables résolus par `CatalogueFacetsService.resolveFilters` (propres +
+hérités des ancêtres) enrichis des compteurs. Sans catégorie, la barre
+d'attributs est vide ; moteur de recherche inerte ou injoignable, les attributs
+sont renvoyés sans compteur (`hasCounts: false`, `count: null`). La distribution
+est cadrée par la catégorie (+ terme de recherche et made-in-Europe), **sans**
+les valeurs déjà cochées — un attribut déjà filtré garde ainsi des compteurs non
+nuls sur ses autres valeurs.
+
+Cette PR **n'ajoute pas** de comportement de filtrage : le ET multi-critères
+(dont couleur N1/N2) fonctionne déjà via `attributeValueIds` (ci-dessus). Le
+**backfill** est `node ace search:reindex` (réapplique les réglages — dont les
+`attributes.<slug>` filtrables dérivés de la base — et réécrit tous les
+documents avec leur objet `attributes`). Frontend : `inertia/pages/products/index.vue`,
+`inertia/components/catalogue_filters.vue` + `inertia/components/catalogue/facet_group.vue`
+(pastille hex des couleurs, compteurs, tranches numériques).
 
 ## Vectorisation (embedder de Meilisearch)
 
@@ -139,8 +168,9 @@ En CI, le job `test-search` démarre un vrai Meilisearch et rejoue les requêtes
 
 ## Tests
 
-- `tests/functional/search_indexing.spec.ts` : documents (noms par langue, facettes, texte vectorisé), retrait des produits invisibles ou supprimés, idempotence, archivage et modération, réindexation par lots, déclencheurs — avec un moteur factice.
-- `tests/unit/meilisearch_engine.spec.ts` : le pilote contre un `fetch` simulé (création de l'index et de ses réglages une seule fois, tâche en échec, reconstruction par index temporaire et échange, requête hybride et filtre ET, configuration de l'embedder `rest`).
+- `tests/functional/search_indexing.spec.ts` : documents (noms par langue, facettes `attributeValueIds`, **facettes aplaties par slug** avec couleur famille déduite de la nuance, texte vectorisé), retrait des produits invisibles ou supprimés, idempotence, archivage et modération, réindexation par lots, déclencheurs — avec un moteur factice.
+- `tests/unit/meilisearch_engine.spec.ts` : le pilote contre un `fetch` simulé (création de l'index et de ses réglages une seule fois, tâche en échec, reconstruction par index temporaire et échange, requête hybride et filtre ET, **distributions de facettes** — `facets` + `limit: 0` + lecture de `facetDistribution` —, configuration de l'embedder `rest`).
+- `tests/functional/catalogue_facet_bar.spec.ts` : dérivation des slugs filtrables depuis `category_attributes.is_filter` (`FilterableFacetsService`) ; barre de filtres par catégorie (`CatalogueFacetBarService`) — attributs résolus (propres + hérités), facettes demandées au moteur, fusion des compteurs, repli sans compteur (moteur inerte ou injoignable).
 - `tests/functional/product_search.spec.ts` : rechargement depuis PostgreSQL (ordre, visibilité, facettes revérifiées), requête transmise au moteur, ratio sémantique et repli par mots-clés si l'API d'embeddings tombe, écrans (catalogue, sélecteur, message « recherche indisponible »).
 - `tests/unit/search_evaluation.spec.ts` : verdict, rappel, percentiles.
 - `tests/functional/search_reference.spec.ts` : le jeu de référence contre un vrai Meilisearch (job CI `test-search`).

@@ -55,6 +55,53 @@ export type CategoryAttributeType = {
 }
 
 /**
+ * Valeur d'une facette dans la barre de filtres, avec son **compteur** issu de
+ * la distribution de facettes du moteur. `count` vaut `null` quand les compteurs
+ * ne sont pas disponibles (moteur de recherche inerte) : l'UI affiche alors la
+ * valeur sans badge. Déclaré en `type` (contrainte props Inertia).
+ */
+export type CategoryFacetValueType = AttributeValueType & { count: number | null }
+
+/**
+ * Tranche d'un attribut numérique dans la barre de filtres, avec son compteur
+ * (somme de la distribution des valeurs comprises dans la tranche). Champs
+ * réénumérés (et non `CategoryAttributeRangeType & …`) : une `interface` n'a pas
+ * de signature d'index implicite et ne serait pas assignable aux props Inertia.
+ */
+export type CategoryFacetRangeType = {
+  minValue: number | null
+  maxValue: number | null
+  count: number | null
+}
+
+/**
+ * Attribut filtrable d'une catégorie prêt pour la barre de filtres : l'attribut
+ * résolu (`CatalogueFacetsService`) enrichi des compteurs de la distribution de
+ * facettes (`facetDistribution`). Déclaré en `type` (contrainte props Inertia).
+ */
+export type CategoryFacetType = {
+  attributeId: number
+  slug: string
+  name: string | null
+  type: AttributeDataType
+  unit: string | null
+  position: number
+  values: CategoryFacetValueType[]
+  ranges: CategoryFacetRangeType[]
+}
+
+/**
+ * Barre de filtres dépendante de la catégorie : les attributs filtrables résolus
+ * (propres + hérités) avec leurs compteurs. `hasCounts` est `false` quand le
+ * moteur de recherche est indisponible (compteurs `null`, aucun filtrage par
+ * disponibilité côté UI). Déclaré en `type` (contrainte props Inertia).
+ */
+export type CategoryFacetBarType = {
+  attributes: CategoryFacetType[]
+  hasCounts: boolean
+}
+
+/**
  * Catégorie telle qu'affichée dans la liste d'administration : nom résolu dans
  * la locale active, nom du parent, et nombre de produits rattachés. Déclaré en
  * `type` (contrainte props Inertia).

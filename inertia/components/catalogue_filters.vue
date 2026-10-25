@@ -4,14 +4,14 @@ import { useI18n } from '~/i18n'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseSelect from '~/components/base/base_select.vue'
 import BaseCheckbox from '~/components/base/base_checkbox.vue'
-import type { CategoryType } from '#shared/types/category'
-import type { AttributeWithValuesType } from '#shared/types/attribute'
+import FacetGroup from '~/components/catalogue/facet_group.vue'
+import type { CategoryType, CategoryFacetBarType } from '#shared/types/category'
 import type { ProductDirectoryFilters } from '#shared/types/product'
 
 const props = defineProps<{
   filters: ProductDirectoryFilters
   categories: CategoryType[]
-  attributes: AttributeWithValuesType[]
+  facetBar: CategoryFacetBarType
 }>()
 
 const emit = defineEmits<{
@@ -47,6 +47,9 @@ function onSearch(value: string | null) {
 
 function onCategory(value: string | null) {
   state.categoryId = value ? Number(value) : null
+  // Les facettes dépendent de la catégorie : on repart d'une sélection vide pour
+  // ne pas garder des valeurs qui n'appartiennent pas à la nouvelle catégorie.
+  state.attributeValueIds = []
   apply()
 }
 
@@ -93,16 +96,17 @@ function toggleValue(valueId: number, checked: boolean) {
       @update:model-value="onMadeInEurope"
     />
 
-    <fieldset v-for="attribute in attributes" :key="attribute.id" class="flex flex-col gap-2">
-      <legend class="mb-1 text-sm font-medium">{{ attribute.name ?? attribute.slug }}</legend>
-      <BaseCheckbox
-        v-for="value in attribute.values"
-        :id="`attr-${value.id}`"
-        :key="value.id"
-        :model-value="state.attributeValueIds.includes(value.id)"
-        :label="value.label ?? value.value"
-        @update:model-value="(checked) => toggleValue(value.id, checked)"
-      />
-    </fieldset>
+    <p v-if="state.categoryId === null" class="text-sm text-[var(--gray-6)]">
+      {{ t('products.index.selectCategoryForFilters') }}
+    </p>
+
+    <FacetGroup
+      v-for="attribute in facetBar.attributes"
+      :key="attribute.attributeId"
+      :attribute="attribute"
+      :selected-ids="state.attributeValueIds"
+      :has-counts="facetBar.hasCounts"
+      @toggle="toggleValue"
+    />
   </div>
 </template>

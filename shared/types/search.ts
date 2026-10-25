@@ -55,6 +55,21 @@ export interface ProductSearchDocument {
   originCountry: string | null
   /** Valeurs de facettes (`attribute_values.id`), pour le filtre ET exact. */
   attributeValueIds: number[]
+  /**
+   * Facettes **aplaties par slug d'attribut** (`attributes.color`,
+   * `attributes.color-shade`, `attributes.material`…) : chaque clé porte la ou
+   * les valeurs de facette du produit pour cet attribut. Les attributs énumérés
+   * (couleur famille N1, nuance N2, matière…) portent les **identifiants** de
+   * valeur (`attribute_values.id`), les attributs numériques la **valeur brute**.
+   *
+   * Complète `attributeValueIds` (qui mélange toutes les valeurs sans distinction
+   * d'attribut et sert le filtre ET) : la forme aplatie donne les **distributions
+   * de facettes** par attribut (compteurs par valeur, `facetDistribution`) et
+   * pilote la barre de filtres dépendante de la catégorie. La couleur **famille**
+   * (N1) est émise sous `attributes.color` même quand le produit ne porte qu'une
+   * **nuance** (N2) : elle est dérivée du `parent_value_id` de la nuance.
+   */
+  attributes: Record<string, number[]>
   /** Nom par langue de contenu — `names.fr`, `names.en`… */
   names: Partial<Record<ContentLocale, string>>
   /** Description par langue de contenu. */
@@ -84,6 +99,36 @@ export interface ProductSearchFilter {
   categoryId?: number | null
   madeInEurope?: boolean
   attributeValueIds?: number[]
+}
+
+/**
+ * Préfixe des champs de facette **aplatis par slug** dans l'index : l'attribut
+ * de slug `color` est indexé sous le champ `attributes.color`. C'est ce champ
+ * qu'on déclare `filterableAttributes` (dérivés de `category_attributes.is_filter`)
+ * et qu'on demande en `facets` pour obtenir ses distributions.
+ */
+export const FACET_FIELD_PREFIX = 'attributes'
+
+/** Champ d'index d'une facette aplatie, depuis le slug de l'attribut. */
+export function facetField(slug: string): string {
+  return `${FACET_FIELD_PREFIX}.${slug}`
+}
+
+/**
+ * Distribution de facettes renvoyée par le moteur (`facetDistribution` de
+ * Meilisearch) : par champ de facette (`attributes.color`), le nombre de
+ * produits par valeur. Les clés de valeur sont des chaînes — identifiants de
+ * valeur pour les attributs énumérés, nombres pour les numériques.
+ */
+export type FacetDistribution = Record<string, Record<string, number>>
+
+/** Requête de distribution de facettes (`SearchEngine#facetDistribution`). */
+export interface FacetDistributionRequest {
+  /** Mots-clés : la distribution porte alors sur les résultats de la recherche. */
+  query: string
+  filter: ProductSearchFilter
+  /** Champs de facette demandés (`attributes.color`…), via `facetField`. */
+  facets: string[]
 }
 
 /** Requête envoyée au moteur (`SearchEngine#search`). */

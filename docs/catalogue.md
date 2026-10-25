@@ -77,7 +77,10 @@ n'est pas renseigné sur la fiche.
 
 **Facettes de recherche** — les valeurs de ces attributs entrent dans
 `attributeValueIds` de l'index : le ET multi-critères (dont couleur N1/N2)
-fonctionne tel quel, backfill par `search:reindex` (voir `docs/search.md`).
+fonctionne tel quel, backfill par `search:reindex`. L'index porte en plus des
+facettes **aplaties par slug** (`attributes.<slug>`) pour exposer les
+**distributions** (compteurs par valeur) et piloter la barre de filtres
+dépendante de la catégorie (`CatalogueFacetBarService`) — voir `docs/search.md`.
 
 **Seeders** — arbre N1 > N2 (15 / 45) + synonymes, couleurs (familles + nuances),
 matières, et un jeu curé d'attributs par catégorie, depuis
@@ -167,10 +170,14 @@ vectorisation : `AI_EMBEDDINGS_ENABLED=false`, puis `node ace search:reindex`
   **facettes attributs** (`attributeValueIds[]`) en **ET fiable** — un `whereHas`
   par valeur sélectionnée, cf. la section « ET » ci-dessus.
 - **Facettes exposées à l'UI** : `availableCategories()` (catégories ayant au moins
-  un produit actif) + `filterableAttributes()` (attributs `is_filterable` + valeurs).
+  un produit actif) + **barre de filtres dépendante de la catégorie** (prop `facetBar`,
+  `CatalogueFacetBarService`) : les attributs filtrables résolus de la catégorie
+  sélectionnée (propres + hérités) avec leurs compteurs. Sans catégorie, la barre
+  d'attributs est vide.
 - **Frontend** : `inertia/pages/products/{index,show}.vue`, barre de filtres
-  `inertia/components/catalogue_filters.vue` (+ générique `base_checkbox.vue`),
-  cartes `product_card.vue`. i18n : `resources/lang/{fr,en}/products.json`.
+  `inertia/components/catalogue_filters.vue` + `inertia/components/catalogue/facet_group.vue`
+  (pastille hex des couleurs, compteurs par valeur, tranches numériques ; générique
+  `base_checkbox.vue`), cartes `product_card.vue`. i18n : `resources/lang/{fr,en}/products.json`.
 
 > Hors périmètre de cette tranche : CRUD fournisseur (dépend de l'auth fournisseur),
 > recherche sémantique par embeddings, ranking `ts_rank`, tolérance typo `pg_trgm`
