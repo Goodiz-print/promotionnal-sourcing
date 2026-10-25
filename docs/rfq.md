@@ -290,7 +290,8 @@ régresse : une demande `responded`/`declined` reste dans son état.
 
 `RfqNotificationService` traduit « ces destinataires viennent de passer en
 `sent` » en mails mis en queue (`kind` `rfq-received`, cf. [`docs/mail.md`](./mail.md)).
-Il est appelé par `RfqsController#send`, avec **exactement** les lignes que
+Il est appelé par le listener `OnRfqSent` (l'événement `RfqSent` est publié par
+`RfqsController#send`, qui y ajoute la notification in-app), avec **exactement** les lignes que
 `RfqService#send` a basculées — élargir une demande déjà publiée puis relancer
 `send` ne relance donc pas ceux qui l'avaient déjà reçue.
 
@@ -559,8 +560,8 @@ renvoie pas. Le mail (`kind: 'rfq-reminder'`, `RfqReminderNotification`,
 règles que `rfq-received` (voir `docs/mail.md`).
 
 Pas de notification de l'acheteur à l'expiration : il voit le statut dans sa liste
-et son tableau de bord. Une notification pourra venir avec les notifications
-in-app (#57).
+et son tableau de bord. Les notifications in-app (#57) ne couvrent pas non plus
+l'expiration ni la relance : seulement l'envoi, le refus et les devis.
 
 ### Tests
 

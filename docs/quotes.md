@@ -42,7 +42,7 @@ draft ──submit──▶ submitted ──accept──▶ accepted
 - **Accepter** (`accept`) : en une transaction, le devis passe `accepted`, la
   demande est clôturée (`closed`) et tous les autres devis **remis** passent
   `rejected` (les brouillons ne sont pas touchés). Émet `QuoteAccepted` — le point
-  d'entrée de la création de commande (#6) — puis `QuoteRejected` pour chaque
+  d'entrée de la création de commande (voir [`orders.md`](orders.md)) — puis `QuoteRejected` pour chaque
   perdant.
 - **Rejeter** (`reject`) : un seul devis, la demande reste ouverte. Émet `QuoteRejected`.
 - **Expirer** : `ExpireRfqsJob` fait expirer les brouillons et devis remis des
@@ -80,8 +80,11 @@ refus métier (`app/exceptions/quote_errors.ts`) deviennent des messages flash.
 un mail `quote-received` par responsable de l'organisation acheteuse (rôles
 `RFQ_MANAGER_ROLES`, dans leur langue). Un échec de mise en queue est loggué sans
 faire échouer la remise ; un listener défaillant non plus (`QuoteService` publie
-les événements après la transition et logge l'erreur). La notification in-app
-suivra avec #57.
+les événements après la transition et logge l'erreur). Le même listener crée une
+**notification in-app** `quote.received` pour ces responsables
+(`InAppNotificationService#quoteSubmitted`) ; `QuoteAccepted` / `QuoteRejected`
+en créent une `quote.accepted` / `quote.rejected` pour les responsables du
+fournisseur (`RFQ_RESPONDER_ROLES`). Voir [`entites-transverses.md`](entites-transverses.md).
 
 ## Écrans
 

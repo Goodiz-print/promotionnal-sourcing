@@ -529,6 +529,99 @@ export class NotificationSchema extends BaseModel {
   declare userId: number
 }
 
+export class OrderItemSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'customizationDetails',
+    'id',
+    'name',
+    'orderId',
+    'productId',
+    'quantity',
+    'quoteItemId',
+    'totalPrice',
+    'unitPrice',
+    'updatedAt',
+  ] as const
+  $columns = OrderItemSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare customizationDetails: any | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column()
+  declare orderId: number
+  @column()
+  declare productId: number | null
+  @column()
+  declare quantity: number
+  @column()
+  declare quoteItemId: number
+  @column()
+  declare totalPrice: string
+  @column()
+  declare unitPrice: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class OrderSchema extends BaseModel {
+  static $columns = [
+    'billingAddress',
+    'buyerOrganizationId',
+    'cancelledAt',
+    'confirmedAt',
+    'createdAt',
+    'currency',
+    'deliveredAt',
+    'id',
+    'inProductionAt',
+    'quoteId',
+    'shippedAt',
+    'shippingAddress',
+    'status',
+    'supplierOrganizationId',
+    'totalAmount',
+    'updatedAt',
+  ] as const
+  $columns = OrderSchema.$columns
+  @column()
+  declare billingAddress: any | null
+  @column()
+  declare buyerOrganizationId: number
+  @column.dateTime()
+  declare cancelledAt: DateTime | null
+  @column.dateTime()
+  declare confirmedAt: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare currency: string
+  @column.dateTime()
+  declare deliveredAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column.dateTime()
+  declare inProductionAt: DateTime | null
+  @column()
+  declare quoteId: number
+  @column.dateTime()
+  declare shippedAt: DateTime | null
+  @column()
+  declare shippingAddress: any | null
+  @column()
+  declare status: string
+  @column()
+  declare supplierOrganizationId: number
+  @column()
+  declare totalAmount: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class OrganizationCategorySchema extends BaseModel {
   static $columns = ['categoryId', 'organizationId'] as const
   $columns = OrganizationCategorySchema.$columns
@@ -647,9 +740,9 @@ export class OrganizationSchema extends BaseModel {
     'website',
   ] as const
   $columns = OrganizationSchema.$columns
-  @column()
+  @column({ columnName: 'address_line1' })
   declare addressLine1: string | null
-  @column()
+  @column({ columnName: 'address_line2' })
   declare addressLine2: string | null
   @column.dateTime()
   declare archivedAt: DateTime | null

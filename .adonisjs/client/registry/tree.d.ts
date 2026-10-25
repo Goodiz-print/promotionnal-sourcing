@@ -130,6 +130,14 @@ export interface ApiDefinition {
       submit: typeof routes['supplier.quotes.submit']
       destroy: typeof routes['supplier.quotes.destroy']
     }
+    orders: {
+      index: typeof routes['supplier.orders.index']
+      show: typeof routes['supplier.orders.show']
+      confirm: typeof routes['supplier.orders.confirm']
+      produce: typeof routes['supplier.orders.produce']
+      ship: typeof routes['supplier.orders.ship']
+      cancel: typeof routes['supplier.orders.cancel']
+    }
   }
   rfqs: {
     index: typeof routes['rfqs.index']
@@ -156,6 +164,17 @@ export interface ApiDefinition {
     show: typeof routes['quotes.show']
     accept: typeof routes['quotes.accept']
     reject: typeof routes['quotes.reject']
+  }
+  orders: {
+    index: typeof routes['orders.index']
+    show: typeof routes['orders.show']
+    deliver: typeof routes['orders.deliver']
+    cancel: typeof routes['orders.cancel']
+  }
+  notifications: {
+    index: typeof routes['notifications.index']
+    read: typeof routes['notifications.read']
+    readAll: typeof routes['notifications.readAll']
   }
   admin: {
     dashboard: typeof routes['admin.dashboard']

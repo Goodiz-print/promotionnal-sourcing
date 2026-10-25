@@ -1,0 +1,33 @@
+{
+  "title": "Notifications",
+  "empty": "Aucune notification pour le moment.",
+  "seeAll": "Tout voir",
+  "markAllRead": "Tout marquer comme lu",
+  "unread": "Non lue",
+  "unreadCount": "{count, plural, one {# notification non lue} other {# notifications non lues}}",
+  "toast": "Vous avez une nouvelle notification.",
+  "types": {
+    "rfq": {
+      "received": "{buyerName} vous a envoyé une demande de devis : {rfqTitle}.",
+      "responded": "Un fournisseur a répondu à la demande {rfqTitle}.",
+      "declined": "{supplierName} a décliné la demande {rfqTitle}."
+    },
+    "quote": {
+      "received": "{supplierName} a remis un devis pour {rfqTitle}.",
+      "accepted": "{buyerName} a accepté votre devis pour {rfqTitle}.",
+      "rejected": "{buyerName} a rejeté votre devis pour {rfqTitle}."
+    },
+    "organization": {
+      "invited": "Vous avez été invité à rejoindre une organisation.",
+      "member_joined": "{memberName} a rejoint {organizationName}."
+    },
+    "order": {
+      "created": "Une commande a été créée suite à l'acceptation de votre devis pour {rfqTitle}. Confirmez-la.",
+      "confirmed": "{supplierName} a confirmé votre commande pour {rfqTitle}.",
+      "in_production": "Votre commande pour {rfqTitle} est en production chez {supplierName}.",
+      "shipped": "{supplierName} a expédié votre commande pour {rfqTitle}.",
+      "delivered": "{buyerName} a confirmé la réception de la commande pour {rfqTitle}.",
+      "cancelled": "La commande pour {rfqTitle} a été annulée."
+    }
+  }
+}

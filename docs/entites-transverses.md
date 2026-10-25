@@ -34,6 +34,45 @@ dans `shared/types/`, pas dans le schéma.
   (événement `notification.created`, sans contenu : l'id et le type). Seul son
   destinataire peut s'abonner à ce canal.
 
+### Qui est notifié, et quand
+
+`InAppNotificationService` traduit un événement métier en notifications pour les
+membres qui peuvent **agir** (mêmes rôles que les mails) ; un `member` n'est pas
+notifié d'une impasse. Un échec est loggué sans faire échouer la requête.
+
+| Événement (publié par)                                   | Type                                              | Destinataires                                    |
+| -------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------ |
+| `RfqSent` (`RfqsController#send`)                        | `rfq.received`                                    | owner / admin / manager du fournisseur           |
+| `RfqDeclined` (`supplier/RfqsController#decline`)        | `rfq.declined`                                    | owner / admin / manager de l'acheteur            |
+| `QuoteSubmitted` (`QuoteService`)                        | `quote.received`                                  | owner / admin / manager de l'acheteur            |
+| `QuoteAccepted` / `QuoteRejected` (`QuoteService`)       | `quote.accepted` / `.rejected`                    | owner / admin / manager du fournisseur           |
+| `OrderCreated` (`OrderService`)                          | `order.created`                                   | owner / admin / manager du fournisseur           |
+| `OrderConfirmed` / `OrderInProduction` / `OrderShipped`  | `order.confirmed` / `.in_production` / `.shipped` | owner / admin / manager de l'acheteur            |
+| `OrderDelivered` (`OrderService`)                        | `order.delivered`                                 | owner / admin / manager du fournisseur           |
+| `OrderCancelled` (`OrderService`)                        | `order.cancelled`                                 | l'autre côté que l'auteur de l'annulation        |
+| `MemberJoined` (`InvitationAcceptanceController#accept`) | `organization.member_joined`                      | owner / admin de l'organisation, sauf l'arrivant |
+
+Les listeners (`app/listeners/on_*.ts`) sont enregistrés dans `start/events.ts`. `OnRfqSent`
+et `OnQuoteSubmitted` envoient aussi le mail : deux canaux indépendants.
+
+### Écrans
+
+- **Routes** : `GET /:locale/notifications` (`notifications.index`),
+  `PATCH /:locale/notifications/:id/read` (marque lue **puis redirige** vers l'écran
+  concerné, résolu par `NotificationTransformer` selon le type), `POST
+/:locale/notifications/read-all`. Une notification d'un autre utilisateur donne une 404.
+- **Props partagées** (`InertiaMiddleware`) : `unreadNotificationsCount` à chaque page ;
+  `recentNotifications` (10 dernières) **optionnelle**, chargée à l'ouverture du menu.
+- **Cloche** (`components/notifications/notification_bell.vue`, dans le bandeau) : pastille,
+  menu, « tout marquer comme lu ». `useNotificationStream` s'abonne au canal Transmit
+  (`@adonisjs/transmit-client`) ; à l'arrivée d'une notification : toast + rechargement
+  partiel du compteur. Sans temps réel, le compteur reste exact à la navigation suivante.
+- **Textes** : `resources/lang/{fr,en}/notifications.json`, un libellé par type
+  (`notifications.types.<type>`) ; les autres langues retombent sur l'anglais
+  (`ENGLISH_FALLBACK_NAMESPACES`).
+- Ajouter un type : une entrée dans `NOTIFICATION_TYPES`, un libellé fr/en, un cas dans
+  `NotificationTransformer#href`, et l'appel dans `InAppNotificationService`.
+
 ## Messagerie (#8)
 
 - Un fil relie une organisation acheteuse et une organisation fournisseur. Il peut
@@ -75,11 +114,26 @@ dans `shared/types/`, pas dans le schéma.
   catalogue et l'annuaire (`Product.fromLiveOrganization`, `Supplier.fromLiveOrganization`).
   Elle ne peut donc plus afficher ses produits au public.
 
-## Temps réel : limite d'infrastructure
+## Temps réel : transport entre instances web
 
-Le transport Transmit est en mémoire (`config/transmit.ts`). Une notification n'atteint
-que les navigateurs connectés à **la même instance** web. Avec plusieurs instances en
-production, il faudra un transport partagé (Redis) avant de passer à l'échelle horizontale.
+Par défaut, le transport Transmit est en mémoire (`config/transmit.ts`) : une
+notification n'atteint que les navigateurs connectés à **la même instance** web. Avec
+plusieurs instances (web ×2 en production, ADR 0003), on active le transport partagé
+**`TRANSMIT_TRANSPORT=postgres`** : `PostgresTransport`
+(`app/services/realtime/postgres_transport.ts`) relaie les diffusions par
+`LISTEN` / `NOTIFY` sur la base déjà exploitée — pas de Redis à provisionner.
+
+- Un canal PostgreSQL (`transmit_bus`) porte tout ; le nom du canal Transmit voyage dans
+  l'enveloppe et chaque instance route localement. Une instance ne se rejoue pas ses messages.
+- Deux connexions par instance web : une **dédiée** à l'écoute, un pool d'une connexion
+  pour `pg_notify`. Rien ne se connecte avant le premier usage (le worker n'en ouvre pas).
+- Limites : charge de `NOTIFY` plafonnée à ~8 000 octets (les événements ne portent que
+  des identifiants ; un message trop gros est loggué et abandonné) ; livraison au mieux —
+  une instance coupée rate les messages émis pendant la coupure, puis se réabonne seule
+  (attente croissante, jusqu'à 30 s). L'état fait foi en base : la cloche est exacte à la
+  navigation suivante.
+- **Pas de pooler PgBouncer en mode transaction** entre l'application et la base :
+  `LISTEN` exige une session.
 
 ## Questions ouvertes
 

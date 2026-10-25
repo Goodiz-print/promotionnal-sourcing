@@ -1,5 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
+import emitter from '@adonisjs/core/services/emitter'
+import RfqDeclined from '#events/rfq_declined'
 import OrganizationContextService from '#services/organization_context_service'
 import QuoteService from '#services/quote_service'
 import RfqService from '#services/rfq_service'
@@ -78,6 +80,7 @@ export default class SupplierRfqsController {
 
     try {
       await this.service.decline(rfq, org.id)
+      await emitter.emit(RfqDeclined, new RfqDeclined(rfq, org.id))
       session.flash('success', i18n.t('rfq.supplier.flash.declined'))
     } catch (error) {
       if (!(error instanceof RfqNotEditableException)) throw error
