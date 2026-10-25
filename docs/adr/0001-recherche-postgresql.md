@@ -1,6 +1,6 @@
 # ADR 0001 : recherche multi-critères sur PostgreSQL, sans moteur dédié
 
-- **Statut** : accepté
+- **Statut** : remplacé par [ADR 0002](0002-recherche-meilisearch-hybride.md) (2026-10-25)
 - **Date** : 2026-10-15
 - **Issues liées** : #69 (benchmark à 1 M de produits), #70 (pgvector), #71 (halfvec)
 
