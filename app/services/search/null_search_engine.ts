@@ -1,5 +1,9 @@
 import SearchEngine from '#services/search/search_engine'
-import type { ProductSearchDocument } from '#shared/types/search'
+import type {
+  ProductSearchDocument,
+  ProductSearchHits,
+  ProductSearchRequest,
+} from '#shared/types/search'
 
 /**
  * Moteur inerte, lié quand `MEILISEARCH_HOST` est absent (dev, test, CI) : rien
@@ -9,6 +13,10 @@ export default class NullSearchEngine extends SearchEngine {
   readonly enabled = false
 
   async upsert(_documents: ProductSearchDocument[]): Promise<void> {}
+
+  async search(_request: ProductSearchRequest): Promise<ProductSearchHits> {
+    return { ids: [], total: 0 }
+  }
 
   async remove(_ids: number[]): Promise<void> {}
 

@@ -7,6 +7,9 @@ import {
   SEARCH_EMBEDDER,
   SEARCH_EMBEDDING_DIMENSIONS,
   type ProductSearchDocument,
+  type ProductSearchFilter,
+  type ProductSearchHits,
+  type ProductSearchRequest,
 } from '#shared/types/search'
 
 /**
@@ -35,6 +38,22 @@ export const PRODUCT_INDEX_SETTINGS: Settings = {
 const INDEX_NOT_FOUND = 'index_not_found'
 
 /**
+ * Filtre Meilisearch d'une recherche : une clause par critère, jointes par `AND`.
+ * Les valeurs sont des entiers et des booléens construits ici — jamais du texte
+ * de l'utilisateur —, donc sans échappement à prévoir. `attributeValueIds = 3
+ * AND attributeValueIds = 7` exige les **deux** valeurs : le ET fiable.
+ */
+export function buildProductFilter(filter: ProductSearchFilter): string | undefined {
+  const clauses: string[] = []
+  if (filter.categoryId) clauses.push(`categoryId = ${Number(filter.categoryId)}`)
+  if (filter.madeInEurope) clauses.push('madeInEurope = true')
+  for (const valueId of filter.attributeValueIds ?? []) {
+    clauses.push(`attributeValueIds = ${Number(valueId)}`)
+  }
+  return clauses.length > 0 ? clauses.join(' AND ') : undefined
+}
+
+/**
  * Meilisearch (instance Docker, cf. `docs/deploiement.md`). Le client est créé
  * à la première utilisation ; l'index et ses réglages sont garantis une fois par
  * processus.
@@ -53,6 +72,27 @@ export default class MeilisearchEngine extends SearchEngine {
     // base disparaît aussi de l'index (`updateDocuments` la fusionnerait).
     for (const task of index.addDocumentsInBatches(documents, searchConfig.batchSize)) {
       this.assertSucceeded(await task.waitTask(this.waitOptions))
+    }
+  }
+
+  async search(request: ProductSearchRequest): Promise<ProductSearchHits> {
+    // Pas de `ensureIndex` : une recherche ne crée rien. Un index absent (pas
+    // encore de `search:reindex`) est une erreur que l'appelant traite en repli.
+    const hybrid = request.vector
+      ? { embedder: SEARCH_EMBEDDER, semanticRatio: request.semanticRatio }
+      : undefined
+
+    const response = await this.client.index(searchConfig.index).search(request.query, {
+      filter: buildProductFilter(request.filter),
+      page: request.page,
+      hitsPerPage: request.perPage,
+      attributesToRetrieve: ['id'],
+      ...(hybrid ? { hybrid, vector: request.vector! } : {}),
+    })
+
+    return {
+      ids: response.hits.map((hit) => Number(hit.id)),
+      total: response.totalHits ?? response.hits.length,
     }
   }
 

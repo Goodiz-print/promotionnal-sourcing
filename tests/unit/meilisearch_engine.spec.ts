@@ -1,6 +1,9 @@
 import { test } from '@japa/runner'
 import searchConfig from '#config/search'
-import MeilisearchEngine, { PRODUCT_INDEX_SETTINGS } from '#services/search/meilisearch_engine'
+import MeilisearchEngine, {
+  PRODUCT_INDEX_SETTINGS,
+  buildProductFilter,
+} from '#services/search/meilisearch_engine'
 import { SearchTaskFailedException } from '#exceptions/search_errors'
 import { SEARCH_EMBEDDER, type ProductSearchDocument } from '#shared/types/search'
 
@@ -43,6 +46,18 @@ function stubMeilisearch(options: { existing?: string[]; failTasks?: boolean } =
         status: options.failTasks ? 'failed' : 'succeeded',
         error: options.failTasks ? { message: 'boom' } : null,
         type: 'documentAdditionOrUpdate',
+      })
+    }
+
+    if (method === 'POST' && path.endsWith('/search')) {
+      return json(200, {
+        hits: [{ id: 7 }, { id: 3 }],
+        page: 1,
+        hitsPerPage: 12,
+        totalHits: 2,
+        totalPages: 1,
+        processingTimeMs: 1,
+        query: 'x',
       })
     }
 
@@ -200,6 +215,82 @@ test.group('Meilisearch — pilote', (group) => {
           (call) => call.method === 'DELETE' && call.path === `/indexes/${searchConfig.index}_next`
         )
       )
+    } finally {
+      stub.restore()
+    }
+  })
+})
+
+test.group('Meilisearch — recherche', (group) => {
+  const previous = { host: searchConfig.host, key: searchConfig.apiKey }
+
+  group.each.setup(() => {
+    searchConfig.host = 'http://meili.test'
+    searchConfig.apiKey = 'key'
+    return () => {
+      searchConfig.host = previous.host
+      searchConfig.apiKey = previous.key
+    }
+  })
+
+  test('le filtre combine les critères en ET, une clause par valeur de facette', ({ assert }) => {
+    assert.isUndefined(buildProductFilter({}))
+    assert.isUndefined(buildProductFilter({ categoryId: null, attributeValueIds: [] }))
+    assert.equal(
+      buildProductFilter({ categoryId: 4, madeInEurope: true, attributeValueIds: [3, 7] }),
+      'categoryId = 4 AND madeInEurope = true AND attributeValueIds = 3 AND attributeValueIds = 7'
+    )
+  })
+
+  test('le vecteur et le ratio partent dans une requête hybride, avec les filtres', async ({
+    assert,
+  }) => {
+    const stub = stubMeilisearch()
+    try {
+      const vector = [0.1, 0.2]
+      const hits = await new MeilisearchEngine().search({
+        query: 'crayon bleu',
+        vector,
+        semanticRatio: 0.4,
+        filter: { categoryId: 2, attributeValueIds: [5] },
+        page: 2,
+        perPage: 12,
+      })
+
+      assert.deepEqual(hits, { ids: [7, 3], total: 2 })
+      const call = stub.calls.find((entry) => entry.path.endsWith('/search'))!
+      assert.equal(call.path, `/indexes/${searchConfig.index}/search`)
+      assert.deepInclude(call.body as object, {
+        q: 'crayon bleu',
+        filter: 'categoryId = 2 AND attributeValueIds = 5',
+        page: 2,
+        hitsPerPage: 12,
+        vector,
+        hybrid: { embedder: SEARCH_EMBEDDER, semanticRatio: 0.4 },
+      })
+      // Une recherche ne crée ni index ni réglages.
+      assert.isUndefined(stub.calls.find((entry) => entry.path.endsWith('/settings')))
+    } finally {
+      stub.restore()
+    }
+  })
+
+  test('sans vecteur, la requête est par mots-clés seuls', async ({ assert }) => {
+    const stub = stubMeilisearch()
+    try {
+      await new MeilisearchEngine().search({
+        query: 'crayon',
+        vector: null,
+        semanticRatio: 0.5,
+        filter: {},
+        page: 1,
+        perPage: 12,
+      })
+
+      const body = stub.calls.find((entry) => entry.path.endsWith('/search'))!.body as object
+      assert.notProperty(body, 'hybrid')
+      assert.notProperty(body, 'vector')
+      assert.notProperty(body, 'filter')
     } finally {
       stub.restore()
     }

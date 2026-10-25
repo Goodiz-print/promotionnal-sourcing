@@ -75,6 +75,8 @@ export default await Env.create(new URL('../', import.meta.url), {
   */
   MEILISEARCH_HOST: Env.schema.string.optional(),
   MEILISEARCH_API_KEY: Env.schema.string.optional(),
+  // Poids du sémantique dans la recherche hybride, de 0 à 1 (défaut 0,5).
+  SEARCH_SEMANTIC_RATIO: Env.schema.number.optional(),
 
   /*
   |----------------------------------------------------------
