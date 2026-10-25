@@ -4,7 +4,8 @@ import { SUPPORTED_LOCALES } from '#shared/types/i18n'
 
 /** `meta.userId` : le compte modifié, exclu du contrôle d'unicité de l'email. */
 export const updateAccountValidator = vine.withMetaData<{ userId: number }>().create({
-  fullName: vine.string().trim().maxLength(255).nullable(),
+  firstName: vine.string().trim().maxLength(100).nullable(),
+  lastName: vine.string().trim().maxLength(100).nullable(),
   email: vine
     .string()
     .trim()

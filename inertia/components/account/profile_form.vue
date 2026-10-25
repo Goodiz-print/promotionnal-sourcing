@@ -12,15 +12,20 @@ const props = defineProps<{ account: AccountType }>()
 
 const { t, locale } = useI18n()
 
-const form = useForm<{ fullName: string; email: string; locale: Locale }>({
-  fullName: props.account.fullName ?? '',
+const form = useForm<{ firstName: string; lastName: string; email: string; locale: Locale }>({
+  firstName: props.account.firstName ?? '',
+  lastName: props.account.lastName ?? '',
   email: props.account.email,
   locale: props.account.locale ?? DEFAULT_LOCALE,
 })
 
 function submit() {
   form
-    .transform((data) => ({ ...data, fullName: data.fullName.trim() || null }))
+    .transform((data) => ({
+      ...data,
+      firstName: data.firstName.trim() || null,
+      lastName: data.lastName.trim() || null,
+    }))
     .patch(urlFor('account.update', { locale: locale.value }), { preserveScroll: true })
 }
 </script>
@@ -30,11 +35,18 @@ function submit() {
     <h2 class="mb-4 text-lg font-medium">{{ t('account.profile.title') }}</h2>
     <form class="flex flex-col gap-6" @submit.prevent="submit">
       <BaseInput
-        id="fullName"
-        v-model="form.fullName"
-        autocomplete="name"
-        :label="t('auth.fields.fullName')"
-        :error="form.errors.fullName"
+        id="firstName"
+        v-model="form.firstName"
+        autocomplete="given-name"
+        :label="t('auth.fields.firstName')"
+        :error="form.errors.firstName"
+      />
+      <BaseInput
+        id="lastName"
+        v-model="form.lastName"
+        autocomplete="family-name"
+        :label="t('auth.fields.lastName')"
+        :error="form.errors.lastName"
       />
       <div>
         <BaseInput

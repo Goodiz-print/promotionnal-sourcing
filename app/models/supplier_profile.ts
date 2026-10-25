@@ -2,13 +2,29 @@ import { belongsTo } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import { SupplierProfileSchema } from '#database/schema'
 import Organization from '#models/organization'
-import type { DeliveryScope } from '#shared/types/organization'
+import type {
+  CatalogueSourceFormat,
+  CatalogueUpdateFrequency,
+  CatalogueUpdateMode,
+  DeliveryScope,
+  ReportFrequency,
+  SupplierCommercialStatus,
+  SupplierCompanyType,
+} from '#shared/types/organization'
 
 export default class SupplierProfile extends SupplierProfileSchema {
   static table = 'supplier_profiles'
 
   declare deliveryScope: DeliveryScope | null
   declare certifications: string[] | null
+  declare deliveryCountries: string[] | null
+  declare spokenLanguages: string[] | null
+  declare companyType: SupplierCompanyType | null
+  declare reportFrequency: ReportFrequency
+  declare catalogueUpdateMode: CatalogueUpdateMode | null
+  declare catalogueUpdateFrequency: CatalogueUpdateFrequency | null
+  declare commercialStatus: SupplierCommercialStatus
+  declare catalogueSourceFormat: CatalogueSourceFormat | null
 
   @belongsTo(() => Organization)
   declare organization: BelongsTo<typeof Organization>

@@ -28,7 +28,8 @@ export default class DevUserSeeder extends BaseSeeder {
     const user = await User.updateOrCreate(
       { email: DEV_USER_EMAIL },
       {
-        fullName: 'Malo Lebrin',
+        firstName: 'Malo',
+        lastName: 'Lebrin',
         password: 'password',
         emailVerifiedAt: DateTime.now(),
       }
@@ -84,7 +85,8 @@ export default class DevUserSeeder extends BaseSeeder {
     await User.updateOrCreate(
       { email: DEV_ADMIN_EMAIL },
       {
-        fullName: 'Admin Plateforme',
+        firstName: 'Admin',
+        lastName: 'Plateforme',
         password: 'password',
         emailVerifiedAt: DateTime.now(),
         platformRole: 'admin',

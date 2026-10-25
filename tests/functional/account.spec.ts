@@ -58,11 +58,13 @@ test.group('Mon compte — profil', (group) => {
       .loginAs(user)
       .redirects(0)
       .withCsrfToken()
-      .json({ fullName: 'Nouveau Nom', email: user.email, locale: 'en' })
+      .json({ firstName: 'Nouveau', lastName: 'Nom', email: user.email, locale: 'en' })
 
     response.assertStatus(302)
     response.assertHeader('location', '/en/account')
     await user.refresh()
+    assert.equal(user.firstName, 'Nouveau')
+    assert.equal(user.lastName, 'Nom')
     assert.equal(user.fullName, 'Nouveau Nom')
     assert.equal(user.locale, 'en')
     assert.isNotNull(user.emailVerifiedAt)
@@ -80,7 +82,12 @@ test.group('Mon compte — profil', (group) => {
       .loginAs(user)
       .redirects(0)
       .withCsrfToken()
-      .json({ fullName: user.fullName, email: 'Nouvelle@Example.com', locale: 'fr' })
+      .json({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: 'Nouvelle@Example.com',
+        locale: 'fr',
+      })
 
     response.assertStatus(302)
     response.assertHeader('location', '/fr/email/verify')
@@ -105,7 +112,7 @@ test.group('Mon compte — profil', (group) => {
       .redirects(0)
       .withCsrfToken()
       .withInertia()
-      .json({ fullName: 'Moi', email: 'PRIS@example.com', locale: 'fr' })
+      .json({ firstName: 'Moi', lastName: 'Même', email: 'PRIS@example.com', locale: 'fr' })
     // Échec de validation d'une requête Inertia : redirection 303 vers la page.
     taken.assertStatus(303)
     await user.refresh()
@@ -116,7 +123,7 @@ test.group('Mon compte — profil', (group) => {
       .loginAs(user)
       .redirects(0)
       .withCsrfToken()
-      .json({ fullName: 'Moi', email: 'MOI@example.com', locale: 'fr' })
+      .json({ firstName: 'Moi', lastName: 'Même', email: 'MOI@example.com', locale: 'fr' })
     own.assertHeader('location', '/fr/account')
     fakeMailer.mails.assertNoneSent()
   })
@@ -251,7 +258,8 @@ test.group('Mon compte — suppression (anonymisation)', (group) => {
     const { organization } = await createOrganizationWithOwner()
     const member = await createMember(organization, 'member', {
       email: 'membre@example.com',
-      fullName: 'Marie Membre',
+      firstName: 'Marie',
+      lastName: 'Membre',
     })
     const rfq = await Rfq.create({
       buyerOrganizationId: organization.id,
@@ -276,6 +284,8 @@ test.group('Mon compte — suppression (anonymisation)', (group) => {
     await member.refresh()
     assert.equal(member.email, `deleted-${member.id}@anonymized.invalid`)
     assert.isNull(member.fullName)
+    assert.isNull(member.firstName)
+    assert.isNull(member.lastName)
     assert.isNull(member.currentOrganizationId)
     assert.isNull(member.emailVerifiedAt)
     assert.isFalse(await canLogin('membre@example.com', TEST_PASSWORD))

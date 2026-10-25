@@ -10,7 +10,8 @@ const props = defineProps<{ redirect?: string | null; email?: string | null }>()
 const { t, locale } = useI18n()
 
 const form = useForm({
-  fullName: '',
+  firstName: '',
+  lastName: '',
   email: props.email ?? '',
   password: '',
   passwordConfirmation: '',
@@ -33,11 +34,20 @@ function submit() {
 
     <form class="flex flex-col gap-6" @submit.prevent="submit">
       <BaseInput
-        id="fullName"
-        v-model="form.fullName"
+        id="firstName"
+        v-model="form.firstName"
         type="text"
-        :label="t('auth.fields.fullName')"
-        :error="form.errors.fullName"
+        autocomplete="given-name"
+        :label="t('auth.fields.firstName')"
+        :error="form.errors.firstName"
+      />
+      <BaseInput
+        id="lastName"
+        v-model="form.lastName"
+        type="text"
+        autocomplete="family-name"
+        :label="t('auth.fields.lastName')"
+        :error="form.errors.lastName"
       />
       <BaseInput
         id="email"

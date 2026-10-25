@@ -14,7 +14,8 @@ export const TEST_PASSWORD = 'password123'
 export const UserFactory = factory
   .define(User, ({ faker }) => ({
     email: faker.internet.email().toLowerCase(),
-    fullName: faker.person.fullName(),
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
     password: TEST_PASSWORD,
     // Vérifié par défaut : la quasi-totalité des specs ne portent pas sur la
     // vérification et ne doivent pas être bloquées par `emailVerified`.

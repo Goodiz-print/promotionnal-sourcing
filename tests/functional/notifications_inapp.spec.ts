@@ -135,7 +135,10 @@ test.group('Notifications in-app — événements métier', (group) => {
     assert,
   }) => {
     const { buyer, buyerOwner, buyerMember } = await scenario()
-    const joiner = await createMember(buyer, 'manager', { fullName: 'Camille Durand' })
+    const joiner = await createMember(buyer, 'manager', {
+      firstName: 'Camille',
+      lastName: 'Durand',
+    })
 
     await emitter.emit(MemberJoined, new MemberJoined(buyer, joiner))
 
