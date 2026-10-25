@@ -17,7 +17,12 @@ import {
   NotAMemberException,
   OrganizationArchivedException,
 } from '#exceptions/organization_errors'
-import type { OnboardingData, UpdateOrganizationSettingsData } from '#shared/types/organization'
+import type {
+  CreateOrganizationOptions,
+  OnboardingData,
+  UpdateOrganizationSettingsData,
+} from '#shared/types/organization'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
 
 /**
@@ -41,13 +46,23 @@ export default class OrganizationService {
    * création d'une organisation supplémentaire — d'où la transaction : les
    * trois écritures (organisation, adhésion, bascule) forment un tout.
    */
-  create(user: User, data: OnboardingData): Promise<Organization> {
-    return db.transaction(async (trx) => {
+  create(
+    user: User,
+    data: OnboardingData,
+    options: CreateOrganizationOptions = {}
+  ): Promise<Organization> {
+    const run = async (trx: TransactionClientContract) => {
       const slug = await this.uniqueSlug(data.name)
       const ownerRole = await Role.findByOrFail('slug', 'owner', { client: trx })
 
       const organization = await Organization.create(
-        { name: data.name, slug, country: 'FR', organizationType: data.organizationType },
+        {
+          country: 'FR',
+          ...options.attributes,
+          name: data.name,
+          slug,
+          organizationType: data.organizationType,
+        },
         { client: trx }
       )
 
@@ -65,7 +80,11 @@ export default class OrganizationService {
       await user.merge({ currentOrganizationId: organization.id }).save()
 
       return organization
-    })
+    }
+
+    // Un appelant qui a déjà une transaction (inscription : utilisateur et
+    // organisation doivent naître ensemble) la fournit ; sinon on ouvre la nôtre.
+    return options.client ? run(options.client) : db.transaction(run)
   }
 
   /**

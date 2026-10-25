@@ -1,0 +1,48 @@
+{
+  "title": "Inscription agence",
+  "subtitle": "Deux minutes, sans carte bancaire ni appel commercial.",
+  "submit": "Créer mon compte agence",
+  "haveAccount": "J'ai déjà un compte",
+  "taxIdHelp": "Numéro de TVA intracommunautaire, ou SIRET pour la France. Vérifié automatiquement.",
+  "websiteHelp": "Si le domaine de votre e-mail est celui de votre site, votre compte est activé immédiatement. Sans site, validation manuelle sous 24 h.",
+  "active": "Compte créé et activé. Confirmez votre adresse e-mail pour continuer.",
+  "pending_review": "Compte créé. Notre équipe le valide sous 24 h ; confirmez en attendant votre adresse e-mail.",
+  "sections": {
+    "account": "Vous",
+    "company": "Votre entreprise",
+    "consents": "Consentements"
+  },
+  "fields": {
+    "civility": "Civilité",
+    "email": "E-mail professionnel",
+    "companyName": "Raison sociale",
+    "country": "Pays",
+    "taxId": "Numéro de TVA ou SIRET",
+    "website": "Site web",
+    "phone": "Téléphone",
+    "activity": "Activité",
+    "activityOther": "Précisez votre activité",
+    "locale": "Langue"
+  },
+  "civility": {
+    "none": "Non précisée",
+    "madame": "Madame",
+    "monsieur": "Monsieur"
+  },
+  "country": {
+    "placeholder": "Choisir un pays"
+  },
+  "activity": {
+    "placeholder": "Choisir une activité",
+    "object_communication_agency": "Agence de communication par l'objet",
+    "distributor_reseller": "Distributeur / revendeur",
+    "printer_marker": "Imprimeur / marqueur",
+    "communication_events_agency": "Agence de communication / événementiel",
+    "other": "Autre"
+  },
+  "consents": {
+    "professional": "Je certifie être un professionnel de l'objet et du textile personnalisé.",
+    "terms": "J'accepte les conditions générales d'utilisation.",
+    "partners": "J'accepte de recevoir la newsletter et les communications des partenaires (facultatif)."
+  }
+}

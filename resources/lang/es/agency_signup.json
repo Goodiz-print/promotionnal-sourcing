@@ -1,0 +1,48 @@
+{
+  "title": "Registro de agencias",
+  "subtitle": "Dos minutos, sin tarjeta de crédito ni llamada comercial.",
+  "submit": "Crear mi cuenta de agencia",
+  "haveAccount": "Ya tengo una cuenta",
+  "taxIdHelp": "NIF-IVA intracomunitario, o SIRET para Francia. Se verifica automáticamente.",
+  "websiteHelp": "Si el dominio de su correo coincide con el de su web, su cuenta se activa de inmediato. Sin web, validación manual en 24 h.",
+  "active": "Cuenta creada y activada. Confirme su correo electrónico para continuar.",
+  "pending_review": "Cuenta creada. Nuestro equipo la valida en 24 h; mientras tanto, confirme su correo electrónico.",
+  "sections": {
+    "account": "Sobre usted",
+    "company": "Su empresa",
+    "consents": "Consentimientos"
+  },
+  "fields": {
+    "civility": "Tratamiento",
+    "email": "Correo profesional",
+    "companyName": "Razón social",
+    "country": "País",
+    "taxId": "NIF-IVA o SIRET",
+    "website": "Sitio web",
+    "phone": "Teléfono",
+    "activity": "Actividad",
+    "activityOther": "Describa su actividad",
+    "locale": "Idioma"
+  },
+  "civility": {
+    "none": "Sin especificar",
+    "madame": "Señora",
+    "monsieur": "Señor"
+  },
+  "country": {
+    "placeholder": "Elegir un país"
+  },
+  "activity": {
+    "placeholder": "Elegir una actividad",
+    "object_communication_agency": "Agencia de comunicación por objetos",
+    "distributor_reseller": "Distribuidor / revendedor",
+    "printer_marker": "Impresor / marcador",
+    "communication_events_agency": "Agencia de comunicación / eventos",
+    "other": "Otra"
+  },
+  "consents": {
+    "professional": "Certifico ser profesional del objeto y del textil personalizado.",
+    "terms": "Acepto las condiciones generales de uso.",
+    "partners": "Acepto recibir el boletín y las comunicaciones de los socios (opcional)."
+  }
+}

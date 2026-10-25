@@ -1,0 +1,48 @@
+{
+  "title": "Registrazione agenzie",
+  "subtitle": "Due minuti, senza carta di credito né chiamata commerciale.",
+  "submit": "Crea il mio account agenzia",
+  "haveAccount": "Ho già un account",
+  "taxIdHelp": "Partita IVA intracomunitaria, o SIRET per la Francia. Verificata automaticamente.",
+  "websiteHelp": "Se il dominio della tua e-mail coincide con quello del sito, l'account viene attivato subito. Senza sito, convalida manuale entro 24 ore.",
+  "active": "Account creato e attivato. Conferma il tuo indirizzo e-mail per continuare.",
+  "pending_review": "Account creato. Il nostro team lo convalida entro 24 ore; nel frattempo conferma il tuo indirizzo e-mail.",
+  "sections": {
+    "account": "Su di te",
+    "company": "La tua azienda",
+    "consents": "Consensi"
+  },
+  "fields": {
+    "civility": "Titolo",
+    "email": "E-mail professionale",
+    "companyName": "Ragione sociale",
+    "country": "Paese",
+    "taxId": "Partita IVA o SIRET",
+    "website": "Sito web",
+    "phone": "Telefono",
+    "activity": "Attività",
+    "activityOther": "Descrivi la tua attività",
+    "locale": "Lingua"
+  },
+  "civility": {
+    "none": "Non indicato",
+    "madame": "Signora",
+    "monsieur": "Signor"
+  },
+  "country": {
+    "placeholder": "Scegli un paese"
+  },
+  "activity": {
+    "placeholder": "Scegli un'attività",
+    "object_communication_agency": "Agenzia di comunicazione tramite oggetti",
+    "distributor_reseller": "Distributore / rivenditore",
+    "printer_marker": "Stampatore / personalizzatore",
+    "communication_events_agency": "Agenzia di comunicazione / eventi",
+    "other": "Altro"
+  },
+  "consents": {
+    "professional": "Certifico di essere un professionista dell'oggettistica e del tessile personalizzato.",
+    "terms": "Accetto le condizioni generali d'uso.",
+    "partners": "Accetto di ricevere la newsletter e le comunicazioni dei partner (facoltativo)."
+  }
+}

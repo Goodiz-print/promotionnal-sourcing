@@ -1,0 +1,122 @@
+<script setup lang="ts">
+import { computed, inject, watch } from 'vue'
+import { useI18n } from '~/i18n'
+import BaseInput from '~/components/base/base_input.vue'
+import BaseSelect from '~/components/base/base_select.vue'
+import { AGENCY_ACTIVITIES } from '#shared/types/agency'
+import { COUNTRY_CODES, defaultLocaleForCountry } from '#shared/types/country'
+import { SUPPORTED_LOCALES } from '#shared/types/i18n'
+import { AgencySignupFormKey } from './types'
+
+const form = inject(AgencySignupFormKey)!
+
+const { t, locale } = useI18n()
+
+// Noms de pays et de langues dans la langue de la page, sans table de traduction.
+const regionNames = computed(() => new Intl.DisplayNames([locale.value], { type: 'region' }))
+const languageNames = computed(() => new Intl.DisplayNames([locale.value], { type: 'language' }))
+
+const countries = computed(() =>
+  COUNTRY_CODES.map((code) => ({ code, name: regionNames.value.of(code) ?? code })).sort((a, b) =>
+    a.name.localeCompare(b.name, locale.value)
+  )
+)
+
+// La langue est déduite du pays tant que l'utilisateur ne l'a pas choisie lui-même.
+let localeTouched = false
+watch(
+  () => form.country,
+  (country) => {
+    if (!localeTouched && country) form.locale = defaultLocaleForCountry(country)
+  }
+)
+
+function pickLocale(value: string) {
+  localeTouched = true
+  form.locale = value as typeof form.locale
+}
+</script>
+
+<template>
+  <fieldset class="flex flex-col gap-6">
+    <legend class="mb-1 text-lg font-medium">{{ t('agency_signup.sections.company') }}</legend>
+    <BaseInput
+      id="companyName"
+      v-model="form.companyName"
+      autocomplete="organization"
+      :label="t('agency_signup.fields.companyName')"
+      :error="form.errors.companyName"
+    />
+    <BaseSelect
+      id="country"
+      v-model="form.country"
+      :label="t('agency_signup.fields.country')"
+      :error="form.errors.country"
+    >
+      <option value="" disabled>{{ t('agency_signup.country.placeholder') }}</option>
+      <option v-for="country in countries" :key="country.code" :value="country.code">
+        {{ country.name }}
+      </option>
+    </BaseSelect>
+    <div>
+      <BaseInput
+        id="taxId"
+        v-model="form.taxId"
+        autocomplete="off"
+        placeholder="FR12345678901"
+        :label="t('agency_signup.fields.taxId')"
+        :error="form.errors.taxId"
+      />
+      <p class="mt-1 text-sm text-[var(--gray-6)]">{{ t('agency_signup.taxIdHelp') }}</p>
+    </div>
+    <div>
+      <BaseInput
+        id="website"
+        v-model="form.website"
+        type="url"
+        autocomplete="url"
+        placeholder="https://agence.fr"
+        :label="t('agency_signup.fields.website')"
+        :error="form.errors.website"
+      />
+      <p class="mt-1 text-sm text-[var(--gray-6)]">{{ t('agency_signup.websiteHelp') }}</p>
+    </div>
+    <BaseInput
+      id="phone"
+      v-model="form.phone"
+      type="tel"
+      autocomplete="tel"
+      :label="t('agency_signup.fields.phone')"
+      :error="form.errors.phone"
+    />
+    <BaseSelect
+      id="activity"
+      v-model="form.activity"
+      :label="t('agency_signup.fields.activity')"
+      :error="form.errors.activity"
+    >
+      <option value="" disabled>{{ t('agency_signup.activity.placeholder') }}</option>
+      <option v-for="activity in AGENCY_ACTIVITIES" :key="activity" :value="activity">
+        {{ t(`agency_signup.activity.${activity}`) }}
+      </option>
+    </BaseSelect>
+    <BaseInput
+      v-if="form.activity === 'other'"
+      id="activityOther"
+      v-model="form.activityOther"
+      :label="t('agency_signup.fields.activityOther')"
+      :error="form.errors.activityOther"
+    />
+    <BaseSelect
+      id="locale"
+      :model-value="form.locale"
+      :label="t('agency_signup.fields.locale')"
+      :error="form.errors.locale"
+      @update:model-value="pickLocale"
+    >
+      <option v-for="code in SUPPORTED_LOCALES" :key="code" :value="code">
+        {{ languageNames.of(code) ?? code }}
+      </option>
+    </BaseSelect>
+  </fieldset>
+</template>

@@ -1,0 +1,48 @@
+{
+  "title": "Rejestracja agencji",
+  "subtitle": "Dwie minuty, bez karty płatniczej i rozmowy handlowej.",
+  "submit": "Utwórz konto agencji",
+  "haveAccount": "Mam już konto",
+  "taxIdHelp": "Wewnątrzwspólnotowy numer VAT lub SIRET dla Francji. Sprawdzany automatycznie.",
+  "websiteHelp": "Jeśli domena Twojego e-maila jest taka sama jak strony, konto zostanie aktywowane od razu. Bez strony: ręczna weryfikacja w ciągu 24 godz.",
+  "active": "Konto utworzone i aktywne. Potwierdź adres e-mail, aby kontynuować.",
+  "pending_review": "Konto utworzone. Nasz zespół zweryfikuje je w ciągu 24 godz.; w międzyczasie potwierdź adres e-mail.",
+  "sections": {
+    "account": "O Tobie",
+    "company": "Twoja firma",
+    "consents": "Zgody"
+  },
+  "fields": {
+    "civility": "Zwrot grzecznościowy",
+    "email": "Służbowy e-mail",
+    "companyName": "Nazwa firmy",
+    "country": "Kraj",
+    "taxId": "Numer VAT lub SIRET",
+    "website": "Strona internetowa",
+    "phone": "Telefon",
+    "activity": "Działalność",
+    "activityOther": "Opisz swoją działalność",
+    "locale": "Język"
+  },
+  "civility": {
+    "none": "Nie podano",
+    "madame": "Pani",
+    "monsieur": "Pan"
+  },
+  "country": {
+    "placeholder": "Wybierz kraj"
+  },
+  "activity": {
+    "placeholder": "Wybierz działalność",
+    "object_communication_agency": "Agencja komunikacji przez gadżety",
+    "distributor_reseller": "Dystrybutor / odsprzedawca",
+    "printer_marker": "Drukarnia / zdobienie",
+    "communication_events_agency": "Agencja komunikacji / eventowa",
+    "other": "Inna"
+  },
+  "consents": {
+    "professional": "Oświadczam, że jestem profesjonalistą w branży gadżetów i tekstyliów personalizowanych.",
+    "terms": "Akceptuję regulamin.",
+    "partners": "Wyrażam zgodę na newsletter i komunikaty partnerów (opcjonalnie)."
+  }
+}

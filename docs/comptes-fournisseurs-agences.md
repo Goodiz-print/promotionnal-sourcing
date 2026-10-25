@@ -67,3 +67,39 @@ Toutes les listes vivent dans `shared/types/{organization,agency,legal}.ts`
 - **Limites par formule** (3 utilisateurs en gratuit, illimité en Premium) :
   règle métier, pas de colonne.
 - **Présentation traduite automatiquement** : `bio` reste monolingue pour l'instant.
+
+## Inscription agence (`/:locale/signup/agency`)
+
+Une seule étape, publique, sans carte bancaire : `AgencySignupController` →
+`AgencySignupService#register`, en une transaction (utilisateur, organisation
+`buyer` dont il est `owner`, `agency_profiles`, journal `legal_consents`).
+Le mail de vérification d'adresse part comme à l'inscription simple.
+
+**Activation automatique** quand tout concorde, sinon l'inscription aboutit et
+l'équipe valide sous 24 h. Les motifs sont posés dans `organizations.review_reasons`
+(vide = actif immédiatement) :
+
+| Motif               | Déclencheur                                                                   |
+| ------------------- | ----------------------------------------------------------------------------- |
+| `vat_unverified`    | VIES ne confirme pas le numéro (invalide, indisponible, pays hors UE)         |
+| `free_email_domain` | adresse gmail, hotmail, orange… (liste dans `shared/helpers/email_domain.ts`) |
+| `domain_mismatch`   | domaine de l'email ≠ site web (le sous-domaine est accepté)                   |
+| `no_website`        | pas de site web renseigné                                                     |
+| `other_activity`    | activité « Autre »                                                            |
+
+- **TVA ou SIRET** : un SIRET (14 chiffres, Luhn) est conservé comme SIRET et
+  contrôlé via le numéro de TVA français dérivé du SIREN. `vat_verified_at` et
+  `domain_verified_at` tracent les contrôles réussis.
+- **VIES** : `VatVerifier` (classe abstraite) liée à `ViesVatVerifier` dans
+  `providers/vat_provider.ts` ; délai de 5 s, jamais d'exception (indisponible →
+  validation manuelle). Faux de test : `tests/utils/fake_vat_verifier.ts`.
+- **Langue** : proposée selon le pays (`defaultLocaleForCountry`), modifiable.
+  Pays et langues sont affichés avec `Intl.DisplayNames`, sans table de traduction.
+- **Consentements** : CGU et certification professionnelle obligatoires (version
+  `CURRENT_LEGAL_VERSION`, IP, date) ; communications partenaires facultatives,
+  jamais pré-cochées. La formulation de la certification reste à faire valider
+  par l'avocat.
+
+Non traité ici : écran de validation manuelle pour l'équipe (les motifs sont en
+base mais aucune liste ni action « approuver »), blocage des fonctions tant que
+le compte n'est pas validé, détection d'une entreprise déjà inscrite (même TVA).

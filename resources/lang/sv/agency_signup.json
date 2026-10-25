@@ -1,0 +1,48 @@
+{
+  "title": "Registrering för byråer",
+  "subtitle": "Två minuter, utan kreditkort och utan säljsamtal.",
+  "submit": "Skapa mitt byråkonto",
+  "haveAccount": "Jag har redan ett konto",
+  "taxIdHelp": "Momsregistreringsnummer inom EU, eller SIRET för Frankrike. Kontrolleras automatiskt.",
+  "websiteHelp": "Om din e-postdomän är samma som webbplatsens aktiveras kontot direkt. Utan webbplats: manuell granskning inom 24 timmar.",
+  "active": "Kontot är skapat och aktivt. Bekräfta din e-postadress för att fortsätta.",
+  "pending_review": "Kontot är skapat. Vårt team granskar det inom 24 timmar; bekräfta under tiden din e-postadress.",
+  "sections": {
+    "account": "Om dig",
+    "company": "Ditt företag",
+    "consents": "Samtycken"
+  },
+  "fields": {
+    "civility": "Titel",
+    "email": "Jobb-e-post",
+    "companyName": "Företagsnamn",
+    "country": "Land",
+    "taxId": "Momsnummer eller SIRET",
+    "website": "Webbplats",
+    "phone": "Telefon",
+    "activity": "Verksamhet",
+    "activityOther": "Beskriv din verksamhet",
+    "locale": "Språk"
+  },
+  "civility": {
+    "none": "Ej angivet",
+    "madame": "Fru",
+    "monsieur": "Herr"
+  },
+  "country": {
+    "placeholder": "Välj ett land"
+  },
+  "activity": {
+    "placeholder": "Välj en verksamhet",
+    "object_communication_agency": "Reklamprodukter – byrå",
+    "distributor_reseller": "Distributör / återförsäljare",
+    "printer_marker": "Tryckeri / dekoratör",
+    "communication_events_agency": "Kommunikations- / eventbyrå",
+    "other": "Annan"
+  },
+  "consents": {
+    "professional": "Jag intygar att jag är yrkesverksam inom reklamprodukter och tryckta textilier.",
+    "terms": "Jag godkänner användarvillkoren.",
+    "partners": "Jag vill ta emot nyhetsbrev och meddelanden från partner (valfritt)."
+  }
+}

@@ -7,7 +7,16 @@
       "password": "lösenord",
       "passwordConfirmation": "lösenordsbekräftelse",
       "locale": "språk",
-      "currentPassword": "nuvarande lösenord"
+      "currentPassword": "nuvarande lösenord",
+      "companyName": "företag",
+      "country": "land",
+      "taxId": "momsnummer eller SIRET",
+      "website": "webbplats",
+      "phone": "telefon",
+      "activity": "verksamhet",
+      "activityOther": "beskrivning av verksamheten",
+      "certifiesProfessional": "yrkesintyg",
+      "acceptsTerms": "användarvillkor"
     },
     "messages": {
       "required": "Fältet {field} är obligatoriskt",
@@ -18,7 +27,10 @@
       "confirmed": "Bekräftelsen av fältet {field} stämmer inte överens",
       "enum": "Värdet i fältet {field} är inte giltigt",
       "database.unique": "Det här värdet för {field} används redan",
-      "notSameAs": "Det nya värdet för {field} måste skilja sig från det gamla"
+      "notSameAs": "Det nya värdet för {field} måste skilja sig från det gamla",
+      "regex": "Fältet {field} har ett ogiltigt format",
+      "accepted": "Du måste markera ”{field}”",
+      "url": "Fältet {field} måste vara en giltig URL"
     }
   }
 }

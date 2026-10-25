@@ -25,3 +25,9 @@ export interface RecordConsentData {
   version: string
   ipAddress: string | null
 }
+
+/**
+ * Version des textes juridiques acceptés à l'inscription (date de publication).
+ * À incrémenter quand le texte change : le journal garde la version signée.
+ */
+export const CURRENT_LEGAL_VERSION = '2026-10-19'

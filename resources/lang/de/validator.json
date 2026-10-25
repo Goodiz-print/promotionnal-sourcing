@@ -7,7 +7,16 @@
       "password": "Passwort",
       "passwordConfirmation": "Passwortbestätigung",
       "locale": "Sprache",
-      "currentPassword": "Aktuelles Passwort"
+      "currentPassword": "Aktuelles Passwort",
+      "companyName": "Unternehmen",
+      "country": "Land",
+      "taxId": "USt-IdNr. oder SIRET",
+      "website": "Website",
+      "phone": "Telefon",
+      "activity": "Tätigkeit",
+      "activityOther": "Tätigkeitsbeschreibung",
+      "certifiesProfessional": "Berufsbestätigung",
+      "acceptsTerms": "Nutzungsbedingungen"
     },
     "messages": {
       "required": "Das Feld {field} ist erforderlich",
@@ -18,7 +27,10 @@
       "confirmed": "Die Bestätigung des Feldes {field} stimmt nicht überein",
       "enum": "Der Wert des Feldes {field} ist ungültig",
       "database.unique": "Dieser Wert für {field} wird bereits verwendet",
-      "notSameAs": "{field} muss sich vom bisherigen Wert unterscheiden"
+      "notSameAs": "{field} muss sich vom bisherigen Wert unterscheiden",
+      "regex": "Das Format des Felds {field} ist ungültig",
+      "accepted": "Sie müssen „{field}“ ankreuzen",
+      "url": "Das Feld {field} muss eine gültige URL sein"
     }
   }
 }
