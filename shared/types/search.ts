@@ -126,7 +126,8 @@ export type ReferenceQueryKind = (typeof REFERENCE_QUERY_KINDS)[number]
  *
  * - `expected` : slugs attendus ;
  * - `exact` : le résultat doit être **exactement** `expected` (ET exact : ni
- *   plus, ni moins) — sinon seul le rappel compte ;
+ *   plus, ni moins). Réservé aux requêtes à filtres : une recherche hybride
+ *   complète toujours la liste avec des voisins sémantiques, un filtre non ;
  * - `rank` : nombre de premiers résultats où les fiches attendues doivent
  *   figurer (10 par défaut). Une requête sémantique sur un petit jeu le resserre :
  *   sinon, dans les 10 premiers, tout le seed y figure et la requête ne prouve rien ;

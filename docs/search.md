@@ -95,7 +95,7 @@ Les méthodes renvoient `null` quand la recherche est indisponible : l'appelant 
 
 ## Jeu de requêtes de référence et mesure
 
-`app/services/search/reference_queries.ts` : 12 requêtes versionnées sur le seed `full` — mots-clés, multilingue, fautes de frappe, ET multi-critères (dont un ET qui ne doit rien renvoyer) et requêtes sémantiques (ignorées sans vecteurs). `exact` exige le résultat exact (ni plus, ni moins) ; sinon le rappel@10 compte.
+`app/services/search/reference_queries.ts` : 12 requêtes versionnées sur le seed `full` — mots-clés, multilingue, fautes de frappe, ET multi-critères (dont un ET qui ne doit rien renvoyer) et requêtes sémantiques (ignorées sans vecteurs). `rank: N` exige les fiches attendues aux `N` premières places (mots-clés, fautes, sémantique) ; `exact` exige le résultat exact (ni plus, ni moins) et n'est demandé qu'aux requêtes **à filtres** : une recherche hybride complète toujours la liste avec les voisins sémantiques, mais un filtre est strict.
 
 ```bash
 node ace db:seed                      # seed « full »
