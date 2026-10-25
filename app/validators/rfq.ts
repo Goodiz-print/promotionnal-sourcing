@@ -62,3 +62,11 @@ export const rfqLookupQueryValidator = vine.create({
   productId: vine.number().positive().optional(),
   productSearch: vine.string().trim().maxLength(100).optional(),
 })
+
+/**
+ * Prolongation d'échéance : une date `AAAA-MM-JJ` (champ `<input type="date">`).
+ * L'ordre par rapport à l'échéance actuelle est vérifié par le service.
+ */
+export const rfqDeadlineValidator = vine.create({
+  deadline: vine.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+})

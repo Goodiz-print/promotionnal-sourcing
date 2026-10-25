@@ -1,7 +1,7 @@
 import { BaseTransformer } from '@adonisjs/core/transformers'
 import { RfqNotFoundException } from '#exceptions/rfq_errors'
 import type Rfq from '#models/rfq'
-import type { SupplierRfqType } from '#shared/types/rfq'
+import { RFQ_DEADLINE_TIMEZONE, type SupplierRfqType } from '#shared/types/rfq'
 
 /**
  * Ligne « demandes reçues », vue du fournisseur. Suppose la demande chargée
@@ -16,7 +16,7 @@ export default class SupplierRfqTransformer extends BaseTransformer<Rfq> {
   toObject(): SupplierRfqType {
     return {
       ...this.pick(this.resource, ['id', 'title', 'status']),
-      deadline: this.resource.deadline?.toISO() ?? null,
+      deadline: this.resource.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).toISO() ?? null,
       itemCount: this.resource.items.length,
       buyerName: this.resource.buyerOrganization.name,
       buyerLogoUrl: this.resource.buyerOrganization.logoUrl,

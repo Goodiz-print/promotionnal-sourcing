@@ -63,7 +63,7 @@ test.group('Tableau de bord — acheteur', (group) => {
     response.assertInertiaComponent('dashboard/show')
     const { dashboard } = response.inertiaProps
     assert.isUndefined(dashboard.supplier)
-    assert.deepEqual(dashboard.buyer.rfqCounts, { draft: 2, published: 1, closed: 0 })
+    assert.deepEqual(dashboard.buyer.rfqCounts, { draft: 2, published: 1, closed: 0, expired: 0 })
     assert.deepEqual(dashboard.buyer.recentResponses, [])
   })
 
@@ -123,6 +123,22 @@ test.group('Tableau de bord — fournisseur', (group) => {
     assert.isAtLeast(dashboard.supplier.activeProducts, 1)
     assert.isAtLeast(dashboard.supplier.profileCompleteness, 0)
     assert.isAtMost(dashboard.supplier.profileCompleteness, 100)
+  })
+
+  test('ne compte pas comme non lues les demandes échues ou closes', async ({ client, assert }) => {
+    const buyer = await OrganizationFactory.create()
+    const supplier = await OrganizationFactory.apply('supplier').create()
+    const user = await createMember(supplier, 'owner')
+    for (const state of ['expired', 'published'] as const) {
+      const rfq = await RfqFactory.apply(state).merge({ buyerOrganizationId: buyer.id }).create()
+      await RfqSupplierFactory.apply('sent')
+        .merge({ rfqId: rfq.id, supplierOrganizationId: supplier.id })
+        .create()
+    }
+
+    const response = await client.get('/fr/dashboard').withInertia().loginAs(user)
+
+    assert.equal(response.inertiaProps.dashboard.supplier.unreadRfqs, 1)
   })
 
   test('une organisation « both » reçoit les deux blocs', async ({ client, assert }) => {

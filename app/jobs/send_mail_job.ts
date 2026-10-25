@@ -11,6 +11,7 @@ import OrganizationInvitationNotification from '#mails/organization_invitation_n
 import EmailVerificationNotification from '#mails/email_verification_notification'
 import PasswordResetNotification from '#mails/password_reset_notification'
 import RfqReceivedNotification from '#mails/rfq_received_notification'
+import RfqReminderNotification from '#mails/rfq_reminder_notification'
 import { UnknownMailKindException } from '#exceptions/mail_errors'
 import { DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
 import { MAIL_KINDS, type SendMailPayload } from '#shared/types/mail'
@@ -146,6 +147,15 @@ export default class SendMailJob extends Job<SendMailPayload> {
           data.buyerName,
           data.rfqTitle,
           data.itemCount,
+          data.deadline,
+          data.rfqPath,
+          locale
+        )
+      case MAIL_KINDS.rfqReminder:
+        return new RfqReminderNotification(
+          to,
+          data.buyerName,
+          data.rfqTitle,
           data.deadline,
           data.rfqPath,
           locale

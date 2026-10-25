@@ -39,5 +39,13 @@
     "title": "Benvenuto {name}!",
     "body": "Il tuo account {brandName} è stato creato. Puoi accedere subito e iniziare a usare l'applicazione.",
     "cta": "Vai all'applicazione"
+  },
+  "rfqReminder": {
+    "subject": "Promemoria: richiesta di preventivo «{rfqTitle}»",
+    "title": "Promemoria: «{rfqTitle}» attende la tua risposta",
+    "body": "{buyerName} ti ha inviato la richiesta «{rfqTitle}» e non l'hai ancora consultata.",
+    "deadline": "Risposta attesa entro il {deadline}.",
+    "cta": "Consulta la richiesta",
+    "footer": "Questo è l'unico promemoria per questa richiesta. Puoi anche rifiutarla dalla tua area fornitore."
   }
 }

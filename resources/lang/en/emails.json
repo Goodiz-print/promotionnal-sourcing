@@ -39,5 +39,13 @@
     "title": "Welcome {name}!",
     "body": "Your {brandName} account has been created. You can now sign in and start using the application.",
     "cta": "Open the application"
+  },
+  "rfqReminder": {
+    "subject": "Reminder: request for quotation “{rfqTitle}”",
+    "title": "Reminder: “{rfqTitle}” is waiting for your reply",
+    "body": "{buyerName} sent you the request “{rfqTitle}” and you have not opened it yet.",
+    "deadline": "Please reply before {deadline}.",
+    "cta": "View the request",
+    "footer": "This is the only reminder for this request. You can also decline it from your supplier area."
   }
 }

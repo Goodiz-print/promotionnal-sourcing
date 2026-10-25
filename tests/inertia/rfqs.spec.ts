@@ -61,6 +61,7 @@ function rfq(overrides: Partial<RfqType> = {}): RfqType {
     respondedCount: 0,
     publishedAt: null,
     closedAt: null,
+    expiredAt: null,
     createdAt: '2026-08-20T00:00:00.000Z',
     ...overrides,
   }

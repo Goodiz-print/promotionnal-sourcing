@@ -39,5 +39,13 @@
     "title": "Witaj {name}!",
     "body": "Twoje konto w {brandName} zostało utworzone. Możesz się teraz zalogować i zacząć korzystać z aplikacji.",
     "cta": "Przejdź do aplikacji"
+  },
+  "rfqReminder": {
+    "subject": "Przypomnienie: zapytanie ofertowe „{rfqTitle}”",
+    "title": "Przypomnienie: „{rfqTitle}” czeka na Twoją odpowiedź",
+    "body": "{buyerName} wysłał(a) do Ciebie zapytanie „{rfqTitle}”, którego jeszcze nie otworzyłeś(-aś).",
+    "deadline": "Odpowiedź oczekiwana do {deadline}.",
+    "cta": "Zobacz zapytanie",
+    "footer": "To jedyne przypomnienie dotyczące tego zapytania. Możesz je także odrzucić w panelu dostawcy."
   }
 }

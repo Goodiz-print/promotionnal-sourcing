@@ -71,6 +71,8 @@ export default class DashboardService {
       RfqSupplier.query()
         .where('supplierOrganizationId', organizationId)
         .where('status', 'sent')
+        // Une demande échue ou close n'attend plus d'ouverture.
+        .whereHas('rfq', (rfq) => rfq.where('status', 'published'))
         .count('* as total')
         .firstOrFail(),
       Product.query()

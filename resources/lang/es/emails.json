@@ -39,5 +39,13 @@
     "title": "¡Bienvenido {name}!",
     "body": "Su cuenta de {brandName} se ha creado correctamente. Ya puede iniciar sesión y empezar a usar la aplicación.",
     "cta": "Acceder a la aplicación"
+  },
+  "rfqReminder": {
+    "subject": "Recordatorio: solicitud de presupuesto «{rfqTitle}»",
+    "title": "Recordatorio: «{rfqTitle}» espera su respuesta",
+    "body": "{buyerName} le envió la solicitud «{rfqTitle}» y aún no la ha consultado.",
+    "deadline": "Respuesta esperada antes del {deadline}.",
+    "cta": "Ver la solicitud",
+    "footer": "Este es el único recordatorio de esta solicitud. También puede rechazarla desde su espacio de proveedor."
   }
 }

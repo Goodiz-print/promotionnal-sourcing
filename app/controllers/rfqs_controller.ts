@@ -11,6 +11,7 @@ import RfqDetailTransformer from '#transformers/rfq_detail_transformer'
 import RfqProductOptionTransformer from '#transformers/rfq_product_option_transformer'
 import RfqTransformer from '#transformers/rfq_transformer'
 import {
+  rfqDeadlineValidator,
   rfqLookupQueryValidator,
   rfqProductValidator,
   rfqSuppliersValidator,
@@ -19,6 +20,8 @@ import {
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
 import {
   NotASupplierOrganizationException,
+  RfqInvalidDeadlineException,
+  RfqNotExtendableException,
   RfqNotClosableException,
   RfqNotEditableException,
   RfqNotPublishableException,
@@ -38,6 +41,8 @@ const TRANSITION_ERRORS = [
   { type: RfqNotSendableException, key: 'rfq.errors.notSendable' },
   { type: RfqNotClosableException, key: 'rfq.errors.notClosable' },
   { type: NotASupplierOrganizationException, key: 'rfq.errors.notASupplier' },
+  { type: RfqNotExtendableException, key: 'rfq.errors.notExtendable' },
+  { type: RfqInvalidDeadlineException, key: 'rfq.errors.invalidDeadline' },
 ] as const
 
 /** Longueur minimale de la saisie et nombre de résultats du sélecteur de produit. */
@@ -254,6 +259,24 @@ export default class RfqsController {
       const sent = await this.service.send(rfq)
       await this.notifications.notifyRecipients(rfq, org, sent)
       ctx.session.flash('success', ctx.i18n.t('rfq.flash.sent', { count: sent.length }))
+    })
+  }
+
+  /**
+   * Prolonge l'échéance d'une demande publiée ou échue. Sur une demande échue,
+   * la nouvelle date la rouvre. Ne touche à rien d'autre que `deadline`.
+   */
+  async extendDeadline(ctx: HttpContext) {
+    const { rfq } = await this.loadManageable(ctx)
+    const payload = await ctx.request.validateUsing(rfqDeadlineValidator)
+
+    return this.runTransition(ctx, rfq, async () => {
+      const wasExpired = rfq.status === 'expired'
+      await this.service.extendDeadline(rfq, payload)
+      ctx.session.flash(
+        'success',
+        ctx.i18n.t(wasExpired ? 'rfq.flash.reopened' : 'rfq.flash.deadlineExtended')
+      )
     })
   }
 

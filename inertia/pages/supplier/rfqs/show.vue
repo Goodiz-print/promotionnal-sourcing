@@ -74,6 +74,9 @@ function formatDate(value: string): string {
     <p v-else-if="rfq.status === 'closed'" class="text-sm text-[var(--gray-6)]">
       {{ t('rfq.supplier.show.closedNotice') }}
     </p>
+    <p v-else-if="rfq.status === 'expired'" class="text-sm text-[var(--gray-6)]">
+      {{ t('rfq.supplier.show.expiredNotice') }}
+    </p>
 
     <section class="flex flex-col gap-3">
       <h2 class="font-medium">{{ t('rfq.supplier.show.needTitle') }}</h2>

@@ -16,4 +16,9 @@ export const RfqFactory = factory
     rfq.status = 'published'
     rfq.publishedAt = DateTime.now()
   })
+  .state('expired', (rfq) => {
+    rfq.status = 'expired'
+    rfq.publishedAt = DateTime.now().minus({ days: 10 })
+    rfq.expiredAt = DateTime.now()
+  })
   .build()

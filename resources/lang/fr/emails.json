@@ -39,5 +39,13 @@
     "title": "Bienvenue {name} !",
     "body": "Votre compte sur {brandName} a bien été créé. Vous pouvez dès maintenant vous connecter et commencer à utiliser l'application.",
     "cta": "Accéder à l'application"
+  },
+  "rfqReminder": {
+    "subject": "Rappel : demande de devis « {rfqTitle} »",
+    "title": "Rappel : « {rfqTitle} » attend votre réponse",
+    "body": "{buyerName} vous a adressé la demande « {rfqTitle} » et vous n'avez pas encore pu la consulter.",
+    "deadline": "Réponse attendue avant le {deadline}.",
+    "cta": "Consulter la demande",
+    "footer": "Ceci est l'unique rappel pour cette demande. Vous pouvez aussi la décliner depuis votre espace fournisseur."
   }
 }

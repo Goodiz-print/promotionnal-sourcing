@@ -9,13 +9,31 @@ import type { RoleSlug } from '#shared/types/role'
  *   sélectionnés en `sent` (une RFQ peut être publiée puis envoyée à d'autres
  *   fournisseurs plus tard, d'où deux transitions distinctes) ;
  * - `closed` — l'acheteur a assez de réponses : plus aucun envoi, plus aucune
- *   réponse fournisseur acceptée.
+ *   réponse fournisseur acceptée ;
+ * - `expired` — l'échéance est passée sans que l'acheteur ait clôturé
+ *   (`ExpireRfqsJob`). Comme `closed`, plus d'envoi ni de réponse ; mais
+ *   l'acheteur peut la rouvrir en prolongeant l'échéance. Les destinataires
+ *   gardent leur statut (trace de qui avait lu, répondu ou décliné).
  */
-export const RFQ_STATUSES = ['draft', 'published', 'closed'] as const
+export const RFQ_STATUSES = ['draft', 'published', 'closed', 'expired'] as const
 
 export type RfqStatus = (typeof RFQ_STATUSES)[number]
 
 export const DEFAULT_RFQ_STATUS: RfqStatus = 'draft'
+
+/**
+ * Fuseau dans lequel s'évalue l'échéance. Une échéance est une **date** saisie
+ * par l'acheteur : « 30 octobre » laisse toute la journée du 30 aux
+ * fournisseurs, la demande est échue le 31 à 00:00 (heure de Paris).
+ */
+export const RFQ_DEADLINE_TIMEZONE = 'Europe/Paris'
+
+/**
+ * Délai, en jours après l'envoi, au bout duquel un fournisseur qui n'a pas
+ * ouvert la demande (`sent`, jamais `viewed`) reçoit **une** relance
+ * (`rfq_suppliers.reminded_at`).
+ */
+export const RFQ_REMINDER_AFTER_DAYS = 3
 
 /**
  * Statut d'une RFQ **pour un fournisseur donné** (table pivot `rfq_suppliers`).
@@ -79,6 +97,15 @@ export interface CreateRfqData {
   items?: RfqItemData[]
 }
 
+/**
+ * Prolongation d'échéance (`RfqService#extendDeadline`) : seule `deadline`
+ * change, jamais le besoin — exception assumée à « seul un brouillon est
+ * modifiable », cf. `docs/rfq.md`.
+ */
+export interface ExtendRfqDeadlineData {
+  deadline: string
+}
+
 export interface UpdateRfqData {
   title?: string
   description?: string | null
@@ -130,6 +157,7 @@ export type RfqType = {
   respondedCount: number
   publishedAt: string | null
   closedAt: string | null
+  expiredAt: string | null
   createdAt: string
 }
 

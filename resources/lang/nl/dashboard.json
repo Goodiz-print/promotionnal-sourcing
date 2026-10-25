@@ -7,7 +7,8 @@
     "status": {
       "draft": "Concepten",
       "published": "Gepubliceerd",
-      "closed": "Gesloten"
+      "closed": "Gesloten",
+      "expired": "Verlopen"
     },
     "recent": {
       "title": "Laatste reacties van leveranciers",

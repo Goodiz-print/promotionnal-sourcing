@@ -4,12 +4,15 @@ import db from '@adonisjs/lucid/services/db'
 import OrganizationUser from '#models/organization_user'
 import SendMailJob from '#jobs/send_mail_job'
 import { mailIdempotencyKey } from '#shared/helpers/mail'
-import { MAIL_KINDS } from '#shared/types/mail'
-import { RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
+import { MAIL_KINDS, type SendMailContent, type SendMailPayload } from '#shared/types/mail'
+import { RFQ_DEADLINE_TIMEZONE, RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
 import type Organization from '#models/organization'
 import type Rfq from '#models/rfq'
 import { DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
 import type RfqSupplier from '#models/rfq_supplier'
+
+/** Les mails de demande de devis envoyés aux fournisseurs. */
+type QueuedKind = typeof MAIL_KINDS.rfqReceived | typeof MAIL_KINDS.rfqReminder
 
 /** Adresse à prévenir et langue dans laquelle lui écrire. */
 interface MailAddress {
@@ -53,38 +56,100 @@ export default class RfqNotificationService {
     let queued = 0
 
     for (const recipient of recipients) {
-      const addresses = await this.addressesFor(recipient)
-
-      for (const { email, locale } of addresses) {
-        try {
-          await SendMailJob.dispatch({
-            kind: MAIL_KINDS.rfqReceived,
-            idempotencyKey: mailIdempotencyKey(MAIL_KINDS.rfqReceived, {
-              rfq: rfq.id,
-              org: recipient.supplierOrganizationId,
-              to: email,
-            }),
-            to: email,
-            locale,
-            data: {
-              buyerName: buyer.name,
-              rfqTitle: rfq.title,
-              itemCount,
-              deadline: rfq.deadline?.setLocale(locale).toLocaleString() ?? null,
-              rfqPath: urlFor('supplier.rfqs.show', { locale, id: rfq.id }),
-            },
-          })
-          queued += 1
-        } catch (error) {
-          logger.warn(
-            { err: error, rfqId: rfq.id, supplierOrganizationId: recipient.supplierOrganizationId },
-            'failed to queue rfq notification'
-          )
-        }
-      }
+      const { queued: count } = await this.queueMails(
+        rfq,
+        recipient,
+        MAIL_KINDS.rfqReceived,
+        'failed to queue rfq notification',
+        ({ locale }) => ({
+          buyerName: buyer.name,
+          rfqTitle: rfq.title,
+          itemCount,
+          deadline:
+            rfq.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).setLocale(locale).toLocaleString() ?? null,
+          rfqPath: urlFor('supplier.rfqs.show', { locale, id: rfq.id }),
+        })
+      )
+      queued += count
     }
 
     return queued
+  }
+
+  /**
+   * Relance les destinataires silencieux : **un seul** mail par adresse, dans sa
+   * langue. Renvoie les lignes **entièrement** relancées — celles dont toutes
+   * les adresses ont été mises en queue. L'appelant (`RemindRfqSuppliersJob`) les
+   * consigne ensuite via `RfqService#markReminded`, ce qui rend la relance unique.
+   *
+   * Même politique d'échec que `notifyRecipients` : une mise en queue ratée est
+   * loguée sans être propagée, et le destinataire, non consigné, est reconsidéré
+   * au prochain passage — les adresses déjà parties ne sont pas redoublées
+   * (clé d'idempotence). Suppose `rfq.buyerOrganization` et
+   * `supplierOrganization` préchargés (cf. `RfqService#dueForReminder`).
+   */
+  async remind(recipients: RfqSupplier[]): Promise<RfqSupplier[]> {
+    const reminded: RfqSupplier[] = []
+
+    for (const recipient of recipients) {
+      const { rfq } = recipient
+      const { queued, total } = await this.queueMails(
+        rfq,
+        recipient,
+        MAIL_KINDS.rfqReminder,
+        'failed to queue rfq reminder',
+        ({ locale }) => ({
+          buyerName: rfq.buyerOrganization.name,
+          rfqTitle: rfq.title,
+          deadline:
+            rfq.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).setLocale(locale).toLocaleString() ?? null,
+          rfqPath: urlFor('supplier.rfqs.show', { locale, id: rfq.id }),
+        })
+      )
+
+      if (total > 0 && queued === total) reminded.push(recipient)
+    }
+
+    return reminded
+  }
+
+  /**
+   * Met en queue le mail `kind` pour chaque adresse du destinataire, sans jamais
+   * propager un échec. Renvoie le nombre d'adresses visées et mises en queue.
+   */
+  private async queueMails<K extends QueuedKind>(
+    rfq: Rfq,
+    recipient: RfqSupplier,
+    kind: K,
+    failureMessage: string,
+    buildData: (address: MailAddress) => Extract<SendMailContent, { kind: K }>['data']
+  ): Promise<{ queued: number; total: number }> {
+    const addresses = await this.addressesFor(recipient)
+    let queued = 0
+
+    for (const address of addresses) {
+      try {
+        await SendMailJob.dispatch({
+          kind,
+          idempotencyKey: mailIdempotencyKey(kind, {
+            rfq: rfq.id,
+            org: recipient.supplierOrganizationId,
+            to: address.email,
+          }),
+          to: address.email,
+          locale: address.locale,
+          data: buildData(address),
+        } as SendMailPayload)
+        queued += 1
+      } catch (error) {
+        logger.warn(
+          { err: error, rfqId: rfq.id, supplierOrganizationId: recipient.supplierOrganizationId },
+          failureMessage
+        )
+      }
+    }
+
+    return { queued, total: addresses.length }
   }
 
   /**

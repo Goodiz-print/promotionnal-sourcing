@@ -71,3 +71,33 @@ export class RfqSupplierNotFoundException extends Exception {
   static code = 'E_RFQ_SUPPLIER_NOT_FOUND'
   static message = 'This supplier is not a recipient of the request for quotation'
 }
+
+/**
+ * Bascule en `expired` demandée sur une demande qui n'est pas publiée : un
+ * brouillon n'a pas d'échéance qui court, une demande close ne se périme pas.
+ */
+export class RfqNotExpirableException extends Exception {
+  static status = 422
+  static code = 'E_RFQ_NOT_EXPIRABLE'
+  static message = 'Only a published request for quotation can expire'
+}
+
+/**
+ * Prolongation d'échéance demandée sur une demande qui n'est ni publiée ni
+ * échue : un brouillon se modifie librement, une demande close est terminée.
+ */
+export class RfqNotExtendableException extends Exception {
+  static status = 422
+  static code = 'E_RFQ_NOT_EXTENDABLE'
+  static message = 'Only a published or expired request for quotation can be extended'
+}
+
+/**
+ * La nouvelle échéance est déjà passée, ou n'est pas postérieure à l'actuelle :
+ * « prolonger » ne raccourcit jamais.
+ */
+export class RfqInvalidDeadlineException extends Exception {
+  static status = 422
+  static code = 'E_RFQ_INVALID_DEADLINE'
+  static message = 'The new deadline must be in the future and later than the current one'
+}

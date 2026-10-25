@@ -14,6 +14,7 @@ const translations = {
   'rfq.supplier.show.noDeadline': 'Sans échéance',
   'rfq.supplier.show.declinedNotice': 'Vous avez décliné cette demande.',
   'rfq.supplier.show.closedNotice': "L'acheteur a clôturé cette demande.",
+  'rfq.supplier.show.expiredNotice': 'Cette demande est échue.',
   'rfq.supplier.show.quoteSoon': 'Le dépôt de devis arrive prochainement.',
   'rfq.supplier.actions.decline': 'Décliner la demande',
   'rfq.supplier.actions.confirmDecline': 'Décliner cette demande ?',
@@ -135,6 +136,15 @@ describe('supplier/rfqs/show.vue', () => {
 
     expect(wrapper.text()).toContain("L'acheteur a clôturé cette demande.")
     expect(wrapper.text()).not.toContain('Décliner la demande')
+  })
+
+  it('signale une demande échue et ne propose plus de la décliner', () => {
+    const wrapper = mount(SupplierRfqShow, {
+      props: { rfq: detail({ status: 'expired', myStatus: 'viewed' }) },
+    })
+
+    expect(wrapper.text()).toContain('Cette demande est échue.')
+    expect(wrapper.text()).not.toContain('Décliner')
   })
 
   it('demande confirmation avant de décliner', async () => {

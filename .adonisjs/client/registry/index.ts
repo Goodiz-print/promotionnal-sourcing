@@ -480,6 +480,12 @@ const routes = {
     tokens: [{"old":"/:locale/rfqs/:id/close","type":1,"val":"locale","end":""},{"old":"/:locale/rfqs/:id/close","type":0,"val":"rfqs","end":""},{"old":"/:locale/rfqs/:id/close","type":1,"val":"id","end":""},{"old":"/:locale/rfqs/:id/close","type":0,"val":"close","end":""}],
     types: placeholder as Registry['rfqs.close']['types'],
   },
+  'rfqs.deadline.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/rfqs/:id/deadline',
+    tokens: [{"old":"/:locale/rfqs/:id/deadline","type":1,"val":"locale","end":""},{"old":"/:locale/rfqs/:id/deadline","type":0,"val":"rfqs","end":""},{"old":"/:locale/rfqs/:id/deadline","type":1,"val":"id","end":""},{"old":"/:locale/rfqs/:id/deadline","type":0,"val":"deadline","end":""}],
+    types: placeholder as Registry['rfqs.deadline.update']['types'],
+  },
   'supplier.rfqs.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/supplier/rfqs',

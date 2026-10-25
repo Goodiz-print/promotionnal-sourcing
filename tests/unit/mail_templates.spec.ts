@@ -5,6 +5,7 @@ import EmailVerificationNotification from '#mails/email_verification_notificatio
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
 import PasswordResetNotification from '#mails/password_reset_notification'
 import RfqReceivedNotification from '#mails/rfq_received_notification'
+import RfqReminderNotification from '#mails/rfq_reminder_notification'
 import WelcomeNotification from '#mails/welcome_notification'
 import { SUPPORTED_LOCALES, type Locale } from '#shared/types/i18n'
 import type User from '#models/user'
@@ -38,6 +39,15 @@ const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> 
       'Acme',
       'Tote bags',
       3,
+      '30/10/2026',
+      '/x/supplier/rfqs/1',
+      locale
+    ) as never,
+  rfqReminder: (locale) =>
+    new RfqReminderNotification(
+      'supplier@example.com',
+      'Acme',
+      'Tote bags',
       '30/10/2026',
       '/x/supplier/rfqs/1',
       locale

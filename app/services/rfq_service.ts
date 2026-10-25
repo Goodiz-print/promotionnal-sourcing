@@ -1,3 +1,4 @@
+import logger from '@adonisjs/core/services/logger'
 import { DateTime } from 'luxon'
 import type { HasManyQueryBuilderContract } from '@adonisjs/lucid/types/relations'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
@@ -10,16 +11,25 @@ import RfqSupplier from '#models/rfq_supplier'
 import type User from '#models/user'
 import {
   NotASupplierOrganizationException,
+  RfqInvalidDeadlineException,
   RfqNotClosableException,
   RfqNotEditableException,
+  RfqNotExpirableException,
+  RfqNotExtendableException,
   RfqNotFoundException,
   RfqNotPublishableException,
   RfqNotSendableException,
   RfqSupplierNotFoundException,
 } from '#exceptions/rfq_errors'
-import { DEFAULT_RFQ_ITEM_QUANTITY, TERMINAL_RFQ_SUPPLIER_STATUSES } from '#shared/types/rfq'
+import {
+  DEFAULT_RFQ_ITEM_QUANTITY,
+  RFQ_DEADLINE_TIMEZONE,
+  RFQ_REMINDER_AFTER_DAYS,
+  TERMINAL_RFQ_SUPPLIER_STATUSES,
+} from '#shared/types/rfq'
 import type {
   CreateRfqData,
+  ExtendRfqDeadlineData,
   RfqItemData,
   RfqProductOptionType,
   UpdateRfqData,
@@ -30,7 +40,9 @@ import type {
  *
  * ```
  * draft ──publish──▶ published ──close──▶ closed
- *                        │
+ *                        │  ▲
+ *                        │  └──extendDeadline── expired
+ *                        ├──expire (échéance dépassée)──▶ expired
  *                        └──send──▶ destinataires `pending` → `sent`
  * ```
  *
@@ -41,7 +53,9 @@ import type {
  *
  * Seul un brouillon est modifiable (titre, items, retrait d'un destinataire
  * non encore notifié) : une fois la demande partie chez un fournisseur, la
- * réécrire silencieusement fausserait les devis reçus.
+ * réécrire silencieusement fausserait les devis reçus. **Une seule exception** :
+ * l'échéance se prolonge (`extendDeadline`) tant que la demande est publiée ou
+ * échue — elle ne change pas le besoin, seulement le temps laissé pour y répondre.
  */
 export default class RfqService {
   /**
@@ -259,7 +273,7 @@ export default class RfqService {
   }
 
   /**
-   * Ajoute des destinataires. Autorisé tant que la demande n'est pas close :
+   * Ajoute des destinataires. Autorisé tant que la demande n'est ni close ni échue :
    * élargir la consultation d'une demande publiée est un cas nominal (les
    * nouveaux arrivent en `pending`, le prochain `send` les notifie).
    *
@@ -272,7 +286,7 @@ export default class RfqService {
     organizationIds: number[],
     client?: TransactionClientContract
   ): Promise<RfqSupplier[]> {
-    if (rfq.status === 'closed') throw new RfqNotEditableException()
+    if (rfq.status === 'closed' || rfq.status === 'expired') throw new RfqNotEditableException()
 
     const unique = [...new Set(organizationIds)]
     if (unique.length === 0) return []
@@ -372,6 +386,138 @@ export default class RfqService {
   }
 
   /**
+   * Bascule une demande publiée en `expired`. Les destinataires gardent leur
+   * statut : c'est la trace de qui avait lu, répondu ou décliné.
+   */
+  async expire(rfq: Rfq, now: DateTime = DateTime.now()): Promise<Rfq> {
+    return this.switchToExpired(rfq, now, false)
+  }
+
+  /**
+   * Fait expirer toutes les demandes publiées dont l'échéance est dépassée.
+   * Appelé par `ExpireRfqsJob` ; renvoie les demandes **effectivement** basculées.
+   *
+   * L'échéance est une **date** : la demande est échue le lendemain à 00:00,
+   * heure de Paris (`RFQ_DEADLINE_TIMEZONE`). Un brouillon, une demande close
+   * ou sans échéance n'expirent jamais.
+   *
+   * Chaque bascule est conditionnelle (statut et échéance revérifiés en base) :
+   * une demande close ou prolongée entre la lecture et l'écriture est laissée
+   * telle quelle. Un échec isolé est loggué sans interrompre le lot.
+   */
+  async expireDue(now: DateTime = DateTime.now()): Promise<Rfq[]> {
+    const due = await Rfq.query()
+      .where('status', 'published')
+      .whereNotNull('deadline')
+      .where('deadline', '<', this.startOfToday(now).toSQL()!)
+
+    const expired: Rfq[] = []
+    for (const rfq of due) {
+      try {
+        expired.push(await this.switchToExpired(rfq, now, true))
+      } catch (error) {
+        if (error instanceof RfqNotExpirableException) continue
+        logger.error({ err: error, rfqId: rfq.id }, 'failed to expire rfq')
+      }
+    }
+    return expired
+  }
+
+  /**
+   * `UPDATE … WHERE status = 'published'` (et échéance dépassée si `onlyIfDue`) :
+   * la garde est en base, pas sur l'instance chargée, donc une transition
+   * concurrente n'est jamais écrasée.
+   */
+  private async switchToExpired(rfq: Rfq, now: DateTime, onlyIfDue: boolean): Promise<Rfq> {
+    const query = Rfq.query().where('id', rfq.id).where('status', 'published')
+    if (onlyIfDue) query.where('deadline', '<', this.startOfToday(now).toSQL()!)
+
+    const [updated] = await query.update({ status: 'expired', expiredAt: now.toJSDate() })
+    if (!Number(updated)) throw new RfqNotExpirableException()
+
+    await rfq.refresh()
+    return rfq
+  }
+
+  /**
+   * Prolonge l'échéance d'une demande publiée ou échue — et **seulement**
+   * l'échéance. Sur une demande échue, la nouvelle date la rouvre : elle
+   * repasse `published` et les fournisseurs peuvent répondre de nouveau.
+   *
+   * « Prolonger » ne raccourcit jamais : la nouvelle date ne peut être ni passée
+   * ni antérieure ou égale à l'échéance actuelle.
+   */
+  async extendDeadline(
+    rfq: Rfq,
+    data: ExtendRfqDeadlineData,
+    now: DateTime = DateTime.now()
+  ): Promise<Rfq> {
+    if (rfq.status !== 'published' && rfq.status !== 'expired') {
+      throw new RfqNotExtendableException()
+    }
+
+    const deadline = this.parseDeadline(data.deadline)
+    if (!deadline) throw new RfqInvalidDeadlineException()
+    if (deadline < this.startOfToday(now)) throw new RfqInvalidDeadlineException()
+    if (rfq.deadline && deadline <= rfq.deadline) throw new RfqInvalidDeadlineException()
+
+    rfq.merge({
+      deadline,
+      ...(rfq.status === 'expired' ? { status: 'published' as const, expiredAt: null } : {}),
+    })
+    await rfq.save()
+
+    // Nouvelle échéance, nouvelle chance : les destinataires qui n'avaient rien
+    // ouvert peuvent être relancés une fois de plus avant elle.
+    await RfqSupplier.query()
+      .where('rfqId', rfq.id)
+      .where('status', 'sent')
+      .update({ remindedAt: null })
+    return rfq
+  }
+
+  /**
+   * Destinataires à relancer : ils ont reçu la demande (`sent`) mais ne l'ont
+   * **jamais ouverte** (`viewed` les exclut), il y a au moins
+   * `RFQ_REMINDER_AFTER_DAYS` jours, et ne l'ont pas déjà été (`reminded_at`).
+   * La demande doit encore être ouverte : publiée et non échue — relancer pour
+   * une échéance passée serait absurde. Préchargés : `rfq` (avec l'acheteur) et
+   * `supplierOrganization`, ce dont `RfqNotificationService#remind` a besoin.
+   */
+  dueForReminder(now: DateTime = DateTime.now()): Promise<RfqSupplier[]> {
+    const sentBefore = now.minus({ days: RFQ_REMINDER_AFTER_DAYS })
+    const today = this.startOfToday(now)
+
+    return RfqSupplier.query()
+      .where('status', 'sent')
+      .whereNull('remindedAt')
+      .where('sentAt', '<=', sentBefore.toSQL()!)
+      .whereHas('rfq', (rfq) =>
+        rfq
+          .where('status', 'published')
+          .where((open) => open.whereNull('deadline').orWhere('deadline', '>=', today.toSQL()!))
+      )
+      .preload('rfq', (rfq) => rfq.preload('buyerOrganization'))
+      .preload('supplierOrganization')
+      .orderBy('id')
+  }
+
+  /**
+   * Consigne la relance des destinataires : c'est ce qui la rend unique. Une seule
+   * requête, pour réduire la fenêtre entre « mails en queue » et « relance
+   * consignée ».
+   */
+  async markReminded(recipients: RfqSupplier[], now: DateTime = DateTime.now()): Promise<void> {
+    if (recipients.length === 0) return
+    await RfqSupplier.query()
+      .whereIn(
+        'id',
+        recipients.map(({ id }) => id)
+      )
+      .update({ remindedAt: now.toJSDate() })
+  }
+
+  /**
    * Accusé de lecture côté fournisseur : `sent` → `viewed`. Idempotent, et
    * jamais régressif — une demande déjà `responded`/`declined` ne redevient
    * pas « simplement consultée » parce que le fournisseur rouvre l'écran.
@@ -428,6 +574,14 @@ export default class RfqService {
     supplierOrganizationId: number,
     status: 'responded' | 'declined'
   ): Promise<RfqSupplier> {
+    // Une demande échue n'attend plus de réponse : décliner ou chiffrer est refusé.
+    if (rfq.status === 'expired') throw new RfqNotEditableException()
+    // Le job d'expiration passe à 00:10 : entre minuit et lui (ou s'il tarde), une
+    // demande dont l'échéance est passée est déjà échue de fait.
+    if (rfq.deadline && rfq.deadline < this.startOfToday(DateTime.now())) {
+      throw new RfqNotEditableException()
+    }
+
     const target = await this.findRecipient(rfq, supplierOrganizationId)
 
     if (target.status === 'pending' || TERMINAL_RFQ_SUPPLIER_STATUSES.includes(target.status)) {
@@ -500,6 +654,14 @@ export default class RfqService {
     )
   }
 
+  /**
+   * Minuit, heure de Paris, du jour de `now` : une échéance strictement
+   * antérieure est passée (cf. `RFQ_DEADLINE_TIMEZONE`).
+   */
+  private startOfToday(now: DateTime): DateTime {
+    return now.setZone(RFQ_DEADLINE_TIMEZONE).startOf('day')
+  }
+
   private assertDraft(rfq: Rfq): void {
     if (rfq.status !== 'draft') throw new RfqNotEditableException()
   }
@@ -527,7 +689,7 @@ export default class RfqService {
 
   private parseDeadline(deadline: string | null | undefined): DateTime | null {
     if (!deadline) return null
-    const parsed = DateTime.fromISO(deadline)
+    const parsed = DateTime.fromISO(deadline, { zone: RFQ_DEADLINE_TIMEZONE })
     return parsed.isValid ? parsed : null
   }
 }

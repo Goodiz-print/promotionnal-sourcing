@@ -7,6 +7,7 @@ import { urlFor } from '~/client'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseButton from '~/components/base/base_button.vue'
 import RfqActions from '~/components/rfqs/rfq_actions.vue'
+import RfqDeadlineExtension from '~/components/rfqs/rfq_deadline_extension.vue'
 import RfqForm from '~/components/rfqs/rfq_form.vue'
 import RfqItemList from '~/components/rfqs/rfq_item_list.vue'
 import RfqSupplierList from '~/components/rfqs/rfq_supplier_list.vue'
@@ -25,8 +26,16 @@ const props = defineProps<{
 
 const { t, locale } = useI18n()
 
+/** Ni close ni échue : on peut encore élargir la consultation. */
+const isOpen = computed(() => props.rfq.status !== 'closed' && props.rfq.status !== 'expired')
+
 /** Un brouillon s'édite en place ; une demande publiée se lit seulement. */
 const isDraft = computed(() => props.rfq.status === 'draft')
+
+/** Seule l'échéance d'une demande publiée ou échue se prolonge. */
+const canExtendDeadline = computed(
+  () => props.rfq.status === 'published' || props.rfq.status === 'expired'
+)
 
 /** Fournisseurs pas encore destinataires : les seuls qu'on puisse ajouter. */
 const addableSuppliers = computed(() => {
@@ -98,6 +107,8 @@ function formatDate(value: string): string {
 
     <RfqActions v-if="canManageRfq" :rfq="rfq" />
 
+    <RfqDeadlineExtension v-if="canManageRfq && canExtendDeadline" :rfq="rfq" />
+
     <section v-if="isDraft && canManageRfq">
       <h2 class="mb-4 font-medium">{{ t('rfq.show.needTitle') }}</h2>
       <RfqForm
@@ -123,7 +134,7 @@ function formatDate(value: string): string {
       <RfqSupplierList :rfq-id="rfq.id" :suppliers="rfq.suppliers" :can-manage="canManageRfq" />
 
       <div
-        v-if="canManageRfq && rfq.status !== 'closed' && addableSuppliers.length > 0"
+        v-if="canManageRfq && isOpen && addableSuppliers.length > 0"
         class="mt-4 flex flex-col gap-3 rounded border border-[var(--gray-3)] p-4"
       >
         <RfqSupplierPicker v-model="supplierIdsToAdd" :options="addableSuppliers" />

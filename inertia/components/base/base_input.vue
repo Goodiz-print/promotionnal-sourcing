@@ -8,7 +8,7 @@ const props = withDefaults(
     label?: string
     type?: 'text' | 'number' | 'email' | 'password' | 'date'
     error?: string
-    min?: number
+    min?: number | string
     placeholder?: string
     autocomplete?: string
   }>(),

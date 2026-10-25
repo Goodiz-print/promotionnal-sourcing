@@ -33,7 +33,8 @@
   "status": {
     "draft": "Bozza",
     "published": "Pubblicata",
-    "closed": "Chiusa"
+    "closed": "Chiusa",
+    "expired": "Scaduta"
   },
   "supplierStatus": {
     "pending": "Da inviare",
@@ -83,7 +84,9 @@
     "suppliersAdded": "{count, plural, =0 {Nessun nuovo destinatario} one {# destinatario aggiunto} other {# destinatari aggiunti}}.",
     "supplierRemoved": "Destinatario rimosso.",
     "productAdded": "{name} aggiunto alla richiesta.",
-    "deleted": "Bozza eliminata."
+    "deleted": "Bozza eliminata.",
+    "deadlineExtended": "Scadenza prolungata.",
+    "reopened": "Scadenza prolungata: la richiesta è di nuovo aperta alle risposte."
   },
   "errors": {
     "notEditable": "Solo una bozza può essere modificata. Un destinatario già notificato non può più essere rimosso.",
@@ -91,7 +94,9 @@
     "notSendable": "Questa richiesta non può essere inviata: la pubblichi e selezioni almeno un destinatario in attesa.",
     "notClosable": "Solo una richiesta pubblicata può essere chiusa.",
     "notASupplier": "Uno dei destinatari selezionati non è un'organizzazione fornitrice attiva.",
-    "notDeletable": "Si può eliminare solo una bozza. Chiudi invece una richiesta pubblicata."
+    "notDeletable": "Si può eliminare solo una bozza. Chiudi invece una richiesta pubblicata.",
+    "notExtendable": "Si può prolungare solo la scadenza di una richiesta pubblicata o scaduta.",
+    "invalidDeadline": "La nuova scadenza deve essere futura e successiva a quella attuale."
   },
   "supplier": {
     "index": {
@@ -108,7 +113,8 @@
       "noDeadline": "Senza scadenza",
       "declinedNotice": "Ha rifiutato questa richiesta. L'acquirente è stato informato.",
       "closedNotice": "L'acquirente ha chiuso questa richiesta: non attende più risposta.",
-      "quoteSoon": "L'invio delle offerte online sarà presto disponibile."
+      "quoteSoon": "L'invio delle offerte online sarà presto disponibile.",
+      "expiredNotice": "Questa richiesta è scaduta: l'acquirente non attende più una risposta."
     },
     "actions": {
       "decline": "Rifiuta la richiesta",
@@ -132,5 +138,10 @@
     "placeholder": "Cerca un prodotto per nome…",
     "empty": "Nessun prodotto trovato.",
     "add": "Aggiungi"
+  },
+  "deadline": {
+    "label": "Nuova scadenza",
+    "extend": "Prolunga la scadenza",
+    "expiredNotice": "Questa richiesta è scaduta: i fornitori non possono più rispondere. Prolunga la scadenza per riaprirla."
   }
 }

@@ -1,0 +1,14 @@
+@let(title = t('emails.rfqReminder.title', { rfqTitle }))
+@component('emails/layout', {
+  title,
+  locale,
+  i18n,
+  footer: t('emails.rfqReminder.footer'),
+})
+  <p>{{ t('emails.rfqReminder.body', { buyerName, rfqTitle }) }}</p>
+  @if(deadline)
+    <p>{{ t('emails.rfqReminder.deadline', { deadline }) }}</p>
+  @end
+
+  <p><a class="button" href="{{ appUrl }}{{ rfqPath }}">{{ t('emails.rfqReminder.cta') }}</a></p>
+@end

@@ -7,7 +7,8 @@
     "status": {
       "draft": "Bozze",
       "published": "Pubblicate",
-      "closed": "Chiuse"
+      "closed": "Chiuse",
+      "expired": "Scadute"
     },
     "recent": {
       "title": "Ultime risposte dei fornitori",
