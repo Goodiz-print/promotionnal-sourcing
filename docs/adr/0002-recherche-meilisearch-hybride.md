@@ -163,7 +163,8 @@ Décision reportée à la PR 3 : titres traduits à l'import dans les 32 langues
 ## Plan de livraison
 
 1. **PR 1 (cette ADR)** : configuration, pilote Meilisearch (`SearchEngine` → `MeilisearchEngine` / `NullSearchEngine`), synchronisation par la queue, `search:reindex`. La recherche de l'application n'est pas encore modifiée.
-2. **PR 2** : texte vectorisé et `embedMany` (décision 4), jeu de requêtes de référence (décision 8), choix du modèle, du ratio et de la quantification par la mesure ; bascule du catalogue public et du sélecteur RFQ sur Meilisearch avec cache des vecteurs de requête et repli mots-clés ; mesure de latence.
+2. **PR 2** : bascule du catalogue public et du sélecteur RFQ sur Meilisearch (`ProductSearchService`) avec cache des vecteurs de requête et repli (PostgreSQL pendant la transition, puis mots-clés seuls), jeu de requêtes de référence et `search:evaluate` (décision 8), job CI contre un vrai Meilisearch.
+   **PR 2b** : texte vectorisé et `embedMany` (décision 4), puis choix du modèle, du ratio et de la quantification par la mesure (`search:evaluate`) avec des vecteurs réels et des fiches multilingues ; mesure de latence à volume.
 3. **PR 3** : retrait du HNSW et du `tsvector` par langue par une nouvelle migration (décision 13) ; traductions (décision 12).
 
 ## Critères de révision

@@ -3,6 +3,7 @@ import { inject } from '@adonisjs/core'
 import { errors as vineErrors } from '@vinejs/vine'
 import CategoryService from '#services/category_service'
 import ProductCatalogueService from '#services/product_catalogue_service'
+import ProductSearchService from '#services/product_search_service'
 import OrganizationContextService from '#services/organization_context_service'
 import QuoteService from '#services/quote_service'
 import RfqNotificationService from '#services/rfq_notification_service'
@@ -71,6 +72,7 @@ export default class RfqsController {
     private quotes: QuoteService,
     private categories: CategoryService,
     private catalogue: ProductCatalogueService,
+    private productSearch: ProductSearchService,
     private organizations: OrganizationContextService
   ) {}
 
@@ -374,7 +376,10 @@ export default class RfqsController {
     return inertia.optional(async () => {
       if (!search || search.length < PRODUCT_SEARCH_MIN_LENGTH) return []
 
-      const products = await this.catalogue.lookupForRfq(search, locale, PRODUCT_SEARCH_LIMIT)
+      // Meilisearch d'abord (mots-clés seuls) ; repli PostgreSQL s'il est indisponible.
+      const products =
+        (await this.productSearch.lookup(search, PRODUCT_SEARCH_LIMIT)) ??
+        (await this.catalogue.lookupForRfq(search, locale, PRODUCT_SEARCH_LIMIT))
       return products.map((product) => new RfqProductOptionTransformer(product, locale).toObject())
     })
   }

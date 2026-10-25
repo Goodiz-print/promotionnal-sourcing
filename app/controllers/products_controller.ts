@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
 import ProductCatalogueService from '#services/product_catalogue_service'
+import ProductSearchService from '#services/product_search_service'
 import EmbeddingService from '#services/embedding_service'
 import DocumentService from '#services/document_service'
 import OrganizationContextService from '#services/organization_context_service'
@@ -25,6 +26,7 @@ const PER_PAGE = 12
 export default class ProductsController {
   constructor(
     private service: ProductCatalogueService,
+    private productSearch: ProductSearchService,
     private embeddings: EmbeddingService,
     private documents: DocumentService,
     private organizations: OrganizationContextService,
@@ -47,16 +49,20 @@ export default class ProductsController {
     }
     const page = Number.parseInt(qs.page, 10) || 1
 
-    const queryEmbedding = await this.searchEmbedding(filters.search)
-
-    const paginator = await this.service.list({
-      ...filters,
-      page,
-      perPage: PER_PAGE,
-      locale,
-      queryEmbedding,
-      sort: qs.sort === 'price_asc' ? 'price_asc' : null,
-    })
+    // Recherche par mots-clés : Meilisearch quand il est disponible (ADR 0002).
+    // Sinon — moteur inerte ou injoignable, ou simple navigation sans terme —
+    // la liste PostgreSQL, avec son repli full-text.
+    const searched = await this.productSearch.search({ ...filters, page, perPage: PER_PAGE })
+    const paginator =
+      searched ??
+      (await this.service.list({
+        ...filters,
+        page,
+        perPage: PER_PAGE,
+        locale,
+        queryEmbedding: await this.searchEmbedding(filters.search),
+        sort: qs.sort === 'price_asc' ? 'price_asc' : null,
+      }))
     const categories = await this.service.availableCategories()
     const attributes = await this.service.filterableAttributes()
 

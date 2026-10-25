@@ -42,3 +42,98 @@ export interface ProductSyncResult {
   indexed: number
   removed: number
 }
+
+/**
+ * Filtres exacts d'une recherche. Chaque critère est un **pré-filtre booléen**
+ * du moteur (ET) appliqué avant le classement — jamais de la pertinence. Les
+ * facettes se combinent en ET : le produit doit porter **toutes** les valeurs.
+ */
+export interface ProductSearchFilter {
+  categoryId?: number | null
+  madeInEurope?: boolean
+  attributeValueIds?: number[]
+}
+
+/** Requête envoyée au moteur (`SearchEngine#search`). */
+export interface ProductSearchRequest {
+  /** Mots-clés saisis par l'utilisateur (tolérance aux fautes côté moteur). */
+  query: string
+  /** Vecteur de la requête ; `null` = mots-clés seuls. */
+  vector: number[] | null
+  /** Poids du sémantique, de 0 (mots-clés) à 1 (vecteurs) ; ignoré sans vecteur. */
+  semanticRatio: number
+  filter: ProductSearchFilter
+  /** Page demandée, à partir de 1. */
+  page: number
+  perPage: number
+}
+
+/** Réponse du moteur : identifiants ordonnés par pertinence et total. */
+export interface ProductSearchHits {
+  ids: number[]
+  total: number
+}
+
+/**
+ * Famille d'une requête de référence : ce qu'elle éprouve dans le pipeline.
+ */
+export const REFERENCE_QUERY_KINDS = [
+  'keyword',
+  'multilingual',
+  'typo',
+  'criteria',
+  'semantic',
+] as const
+
+export type ReferenceQueryKind = (typeof REFERENCE_QUERY_KINDS)[number]
+
+/**
+ * Requête du jeu de référence (ADR 0002, décision 8) : une recherche, ses
+ * filtres, et les fiches attendues sur le seed `full`.
+ *
+ * - `expected` : slugs attendus ;
+ * - `exact` : le résultat doit être **exactement** `expected` (ET exact : ni
+ *   plus, ni moins) — sinon seul le rappel compte ;
+ * - `requiresEmbeddings` : requête qui n'a de sens qu'avec des vecteurs
+ *   (sémantique, synonymes) — ignorée tant que la vectorisation est désactivée.
+ */
+export interface ReferenceQuery {
+  id: string
+  kind: ReferenceQueryKind
+  query: string
+  /** Facettes demandées, par slug de valeur (`blue`), résolues en identifiants. */
+  attributes?: string[]
+  /** Catégorie demandée, par slug. */
+  category?: string
+  madeInEurope?: boolean
+  expected: string[]
+  exact?: boolean
+  requiresEmbeddings?: boolean
+}
+
+/** Résultat d'une requête du jeu de référence. */
+export interface ReferenceQueryResult {
+  id: string
+  kind: ReferenceQueryKind
+  query: string
+  /** `skipped` : requête sémantique sans vecteurs disponibles. */
+  status: 'passed' | 'failed' | 'skipped'
+  /** Part des fiches attendues retrouvées dans les 10 premières. */
+  recallAt10: number
+  returned: string[]
+  missing: string[]
+  unexpected: string[]
+  latencyMs: number
+}
+
+/** Rapport d'une évaluation du jeu de référence. */
+export interface SearchEvaluationReport {
+  results: ReferenceQueryResult[]
+  /** Rappel@10 moyen sur les requêtes évaluées (hors ignorées). */
+  recallAt10: number
+  passed: number
+  failed: number
+  skipped: number
+  latencyP50Ms: number
+  latencyP95Ms: number
+}

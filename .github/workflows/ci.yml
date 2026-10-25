@@ -83,6 +83,46 @@ jobs:
       - name: Backend tests (PostgreSQL)
         run: pnpm test
 
+  # Jeu de requêtes de référence contre un vrai Meilisearch (#112, ADR 0002) :
+  # `pnpm test` l'ignore faute de MEILISEARCH_HOST, ce job le rejoue seul.
+  test-search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      MEILISEARCH_HOST: http://localhost:7700
+      MEILISEARCH_API_KEY: ci-master-key
+    services:
+      postgres:
+        image: pgvector/pgvector:pg18
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      meilisearch:
+        image: getmeili/meilisearch:v1.55.0
+        env:
+          MEILI_ENV: development
+          MEILI_MASTER_KEY: ci-master-key
+        ports:
+          - 7700:7700
+        options: >-
+          --health-cmd "curl --fail --silent http://localhost:7700/health"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Jeu de référence (Meilisearch)
+        run: node ace test functional --files="tests/functional/search_reference.spec.ts"
+
   test-frontend:
     runs-on: ubuntu-latest
     timeout-minutes: 10

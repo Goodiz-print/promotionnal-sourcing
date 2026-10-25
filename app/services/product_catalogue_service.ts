@@ -142,12 +142,10 @@ export default class ProductCatalogueService {
   /**
    * Recherche légère pour le sélecteur de produit d'une demande de devis.
    *
-   * TODO(#112) — **à remplacer par Meilisearch.** Cette recherche est un
-   * stop-gap PostgreSQL : préfixe/sous-chaîne (`ILIKE`) sur le nom, plus le
-   * full-text locale-aware déjà utilisé par le catalogue. Quand le moteur
-   * hybride (#112) sera en place, seul le corps de cette méthode change : la
-   * signature, le transformer et le sélecteur n'en dépendent pas. Le contrat à
-   * conserver est « produits visibles uniquement, `limit` résultats, nom
+   * Repli PostgreSQL de `ProductSearchService#lookup` (#112) : utilisé quand
+   * Meilisearch est inerte ou injoignable. Préfixe/sous-chaîne (`ILIKE`) sur le
+   * nom, plus le full-text locale-aware du catalogue ; supprimé avec la PR 3 de
+   * #112. Contrat : « produits visibles uniquement, `limit` résultats, nom
    * localisé » — cf. `docs/rfq.md`.
    */
   async lookupForRfq(search: string, locale: Locale, limit: number): Promise<Product[]> {
