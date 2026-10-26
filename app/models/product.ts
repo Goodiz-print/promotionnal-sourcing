@@ -16,6 +16,8 @@ import ProductVariant from '#models/product_variant'
 import ProductPriceTier from '#models/product_price_tier'
 import ProductDocument from '#models/product_document'
 import ProductPackaging from '#models/product_packaging'
+import ProductMarkingPosition from '#models/product_marking_position'
+import ProductMarkingPriceTier from '#models/product_marking_price_tier'
 
 export default class Product extends ProductSchema {
   static table = 'products'
@@ -75,6 +77,17 @@ export default class Product extends ProductSchema {
    */
   @hasOne(() => ProductPackaging)
   declare packaging: HasOne<typeof ProductPackaging>
+
+  /**
+   * Zones de marquage du produit (écart 2), 1..N. Chaque position porte ses
+   * techniques possibles (`techniques`) et peut pointer un gabarit.
+   */
+  @hasMany(() => ProductMarkingPosition)
+  declare markingPositions: HasMany<typeof ProductMarkingPosition>
+
+  /** Grille de prix de marquage (écart 2), par technique et quantité. */
+  @hasMany(() => ProductMarkingPriceTier)
+  declare markingPriceTiers: HasMany<typeof ProductMarkingPriceTier>
 
   @belongsTo(() => Supplier)
   declare supplier: BelongsTo<typeof Supplier>

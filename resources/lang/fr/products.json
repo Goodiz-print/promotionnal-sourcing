@@ -44,7 +44,9 @@
     "eco": "Éco-responsable",
     "recycledContent": "{percent} % de matière recyclée",
     "packaging": "Conditionnement / logistique",
-    "cartonDimensions": "Dimensions carton maître (L × l × H, mm)"
+    "cartonDimensions": "Dimensions carton maître (L × l × H, mm)",
+    "marking": "Marquage",
+    "markingPrices": "Prix de marquage"
   },
   "manage": {
     "index": {
@@ -140,6 +142,27 @@
     "compliance": "Conformité",
     "packaging": "Conditionnement / logistique",
     "packageTypeHint": "Polybag, Boîte cadeau, Étui, Tube, Vrac, Blister…",
-    "noCertifications": "Aucun label disponible."
+    "noCertifications": "Aucun label disponible.",
+    "marking": {
+      "title": "Marquage",
+      "hint": "Zones de marquage du produit, techniques possibles par zone et grille de prix de marquage par technique et quantité.",
+      "empty": "Aucune zone de marquage.",
+      "printable": "Produit personnalisable (marquage possible)",
+      "addPosition": "Ajouter une zone",
+      "removePosition": "Retirer",
+      "positionName": "Nom de la zone",
+      "maxWidthMm": "Largeur max (mm)",
+      "maxHeightMm": "Hauteur max (mm)",
+      "template": "Gabarit de marquage",
+      "noTemplate": "Aucun gabarit",
+      "techniques": "Techniques possibles",
+      "technique": "Technique",
+      "addTechnique": "Ajouter une technique",
+      "removeTechnique": "Retirer",
+      "maxColors": "Couleurs max",
+      "setupCharge": "Frais techniques",
+      "priceTiers": "Grille de prix de marquage",
+      "priceTiersHint": "Prix de marquage unitaire selon la technique et la quantité commandée."
+    }
   }
 }

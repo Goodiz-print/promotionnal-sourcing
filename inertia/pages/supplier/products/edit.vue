@@ -7,6 +7,7 @@ import DocumentManager from '~/components/documents/document_manager.vue'
 import type { CategoryType } from '#shared/types/category'
 import type { AttributeWithValuesType } from '#shared/types/attribute'
 import type { CertificationType } from '#shared/types/certification'
+import type { MarkingTechniqueType } from '#shared/types/marking'
 import type { ProductEditType } from '#shared/types/product'
 import { PRODUCT_DOCUMENT_TYPES } from '#shared/types/document'
 
@@ -15,6 +16,7 @@ const props = defineProps<{
   categories: CategoryType[]
   attributes: AttributeWithValuesType[]
   certifications: CertificationType[]
+  markingTechniques: MarkingTechniqueType[]
 }>()
 
 const { t, locale } = useI18n()
@@ -31,6 +33,7 @@ const { t, locale } = useI18n()
       :categories="categories"
       :attributes="attributes"
       :certifications="certifications"
+      :marking-techniques="markingTechniques"
     />
 
     <DocumentManager

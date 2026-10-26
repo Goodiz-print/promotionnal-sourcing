@@ -81,6 +81,7 @@ function product(id: number, name: string, slug: string) {
     recycledContentPercent: null,
     cautionComment: null,
     isEco: false,
+    printable: false,
     createdAt: '2026-07-11T00:00:00.000Z',
     updatedAt: null,
   }
@@ -257,6 +258,8 @@ describe('products/show.vue', () => {
             },
           ],
           packaging: null,
+          markingPositions: [],
+          markingPriceTiers: [],
         },
       },
     })
@@ -296,6 +299,8 @@ describe('products/show.vue', () => {
             outerCartonGrossWeightG: null,
             outerCartonVolumeM3: null,
           },
+          markingPositions: [],
+          markingPriceTiers: [],
         },
       },
     })

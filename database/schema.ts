@@ -573,6 +573,50 @@ export class MailDeliverySchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class MarkingTechniqueTranslationSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'id',
+    'isAuto',
+    'locale',
+    'markingTechniqueId',
+    'name',
+    'updatedAt',
+  ] as const
+  $columns = MarkingTechniqueTranslationSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare isAuto: boolean
+  @column()
+  declare locale: string
+  @column()
+  declare markingTechniqueId: number
+  @column()
+  declare name: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class MarkingTechniqueSchema extends BaseModel {
+  static $columns = ['createdAt', 'family', 'id', 'slug', 'synonyms', 'updatedAt'] as const
+  $columns = MarkingTechniqueSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare family: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare slug: string
+  @column()
+  declare synonyms: any
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class MessageSchema extends BaseModel {
   static $columns = [
     'authorUserId',
@@ -1116,6 +1160,96 @@ export class ProductImageSchema extends BaseModel {
   declare width: number | null
 }
 
+export class ProductMarkingPositionTechniqueSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'defaultSetupCharge',
+    'id',
+    'markingPositionId',
+    'markingTechniqueId',
+    'maxColors',
+    'updatedAt',
+  ] as const
+  $columns = ProductMarkingPositionTechniqueSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare defaultSetupCharge: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare markingPositionId: number
+  @column()
+  declare markingTechniqueId: number
+  @column()
+  declare maxColors: number | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class ProductMarkingPositionSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'id',
+    'maxHeightMm',
+    'maxWidthMm',
+    'name',
+    'position',
+    'productId',
+    'templateDocumentId',
+    'updatedAt',
+  ] as const
+  $columns = ProductMarkingPositionSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare maxHeightMm: number | null
+  @column()
+  declare maxWidthMm: number | null
+  @column()
+  declare name: string
+  @column()
+  declare position: number
+  @column()
+  declare productId: number
+  @column()
+  declare templateDocumentId: number | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class ProductMarkingPriceTierSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'currency',
+    'id',
+    'markingTechniqueId',
+    'minQuantity',
+    'productId',
+    'unitPrice',
+    'updatedAt',
+  ] as const
+  $columns = ProductMarkingPriceTierSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare currency: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare markingTechniqueId: number
+  @column()
+  declare minQuantity: number
+  @column()
+  declare productId: number
+  @column()
+  declare unitPrice: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class ProductPackagingSchema extends BaseModel {
   static $columns = [
     'createdAt',
@@ -1305,6 +1439,7 @@ export class ProductSchema extends BaseModel {
     'originZone',
     'priceMax',
     'priceMin',
+    'printable',
     'recycledContentPercent',
     'reference',
     'releasedAt',
@@ -1356,6 +1491,8 @@ export class ProductSchema extends BaseModel {
   declare priceMax: string | null
   @column()
   declare priceMin: string | null
+  @column()
+  declare printable: boolean
   @column()
   declare recycledContentPercent: number | null
   @column()

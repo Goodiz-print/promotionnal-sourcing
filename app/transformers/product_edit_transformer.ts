@@ -5,8 +5,10 @@ import ProductVariantTransformer from '#transformers/product_variant_transformer
 import ProductPriceTierTransformer from '#transformers/product_price_tier_transformer'
 import ProductDocumentTransformer from '#transformers/product_document_transformer'
 import ProductPackagingTransformer from '#transformers/product_packaging_transformer'
+import ProductMarkingPositionTransformer from '#transformers/product_marking_position_transformer'
+import ProductMarkingPriceTierTransformer from '#transformers/product_marking_price_tier_transformer'
 import type StorageObject from '#models/storage_object'
-import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
+import { CONTENT_LOCALES, type ContentLocale, type Locale } from '#shared/types/i18n'
 import type { ProductEditType } from '#shared/types/product'
 
 /**
@@ -18,7 +20,8 @@ import type { ProductEditType } from '#shared/types/product'
 export default class ProductEditTransformer extends BaseTransformer<Product> {
   constructor(
     resource: Product,
-    protected documentUrl: (object: StorageObject) => string
+    protected documentUrl: (object: StorageObject) => string,
+    protected locale: Locale
   ) {
     super(resource)
   }
@@ -65,6 +68,8 @@ export default class ProductEditTransformer extends BaseTransformer<Product> {
       recycledContentPercent: this.resource.recycledContentPercent,
       cautionComment: this.resource.cautionComment,
       isEco: this.resource.isEco,
+      // Marquage structuré (écart 2) : produit personnalisable ?
+      printable: this.resource.printable,
       certificationIds: this.resource.certifications.map((certification) => certification.id),
       translations,
       attributeValueIds: this.resource.attributeValues.map((value) => value.id),
@@ -82,6 +87,13 @@ export default class ProductEditTransformer extends BaseTransformer<Product> {
       packaging: this.resource.packaging
         ? new ProductPackagingTransformer(this.resource.packaging).toObject()
         : null,
+      // Marquage structuré (écart 2) : positions (avec techniques) + grille de prix.
+      markingPositions: this.resource.markingPositions.map((position) =>
+        new ProductMarkingPositionTransformer(position, this.locale).toObject()
+      ),
+      markingPriceTiers: this.resource.markingPriceTiers.map((tier) =>
+        new ProductMarkingPriceTierTransformer(tier, this.locale).toObject()
+      ),
     }
   }
 }

@@ -12,12 +12,14 @@ import ProductCommercialFields from '~/components/products/form/product_commerci
 import ProductFacetsFields from '~/components/products/form/product_facets_fields.vue'
 import ProductComplianceFields from '~/components/products/form/product_compliance_fields.vue'
 import ProductPackagingFields from '~/components/products/form/product_packaging_fields.vue'
+import ProductMarkingFields from '~/components/products/form/product_marking_fields.vue'
 import ProductImagesFields from '~/components/products/form/product_images_fields.vue'
 import ProductVariantsFields from '~/components/products/form/product_variants_fields.vue'
 import ProductPriceTiersFields from '~/components/products/form/product_price_tiers_fields.vue'
 import type { CategoryType } from '#shared/types/category'
 import type { AttributeWithValuesType } from '#shared/types/attribute'
 import type { CertificationType } from '#shared/types/certification'
+import type { MarkingTechniqueType } from '#shared/types/marking'
 import type { ProductEditType } from '#shared/types/product'
 import { ProductFormKey, type ProductFormState } from './types'
 
@@ -26,6 +28,7 @@ const props = defineProps<{
   categories: CategoryType[]
   attributes: AttributeWithValuesType[]
   certifications: CertificationType[]
+  markingTechniques: MarkingTechniqueType[]
   product?: ProductEditType
 }>()
 
@@ -96,6 +99,26 @@ const form = useForm<ProductFormState>({
       ? Number(props.product.packaging.outerCartonVolumeM3)
       : null,
   },
+  // Marquage structuré (écart 2) : positions (avec techniques) et grille de prix.
+  // Les décimaux (frais technique, prix) reviennent en chaîne, reconvertis.
+  printable: props.product?.printable ?? false,
+  markingPositions: (props.product?.markingPositions ?? []).map((position) => ({
+    name: position.name,
+    maxWidthMm: position.maxWidthMm,
+    maxHeightMm: position.maxHeightMm,
+    templateDocumentId: position.templateDocumentId,
+    techniques: position.techniques.map((technique) => ({
+      markingTechniqueId: technique.markingTechniqueId,
+      maxColors: technique.maxColors,
+      defaultSetupCharge:
+        technique.defaultSetupCharge !== null ? Number(technique.defaultSetupCharge) : null,
+    })),
+  })),
+  markingPriceTiers: (props.product?.markingPriceTiers ?? []).map((tier) => ({
+    markingTechniqueId: tier.markingTechniqueId,
+    minQuantity: tier.minQuantity,
+    unitPrice: Number(tier.unitPrice),
+  })),
 })
 
 provide(ProductFormKey, form)
@@ -152,6 +175,36 @@ function submit() {
         priceTiers: data.priceTiers
           .filter((tier) => tier.minQuantity !== null && tier.unitPrice !== null)
           .map((tier) => ({ ...tier, variantSku: tier.variantSku || null })),
+        // Marquage structuré (écart 2) : `printable` + remplacement d'ensemble des
+        // positions (avec leurs techniques) et de la grille de prix de marquage.
+        printable: data.printable,
+        markingPositions: data.markingPositions
+          .filter((position) => position.name.trim())
+          .map((position) => ({
+            name: position.name.trim(),
+            maxWidthMm: position.maxWidthMm,
+            maxHeightMm: position.maxHeightMm,
+            templateDocumentId: position.templateDocumentId,
+            techniques: position.techniques
+              .filter((technique) => technique.markingTechniqueId !== null)
+              .map((technique) => ({
+                markingTechniqueId: technique.markingTechniqueId,
+                maxColors: technique.maxColors,
+                defaultSetupCharge: technique.defaultSetupCharge,
+              })),
+          })),
+        markingPriceTiers: data.markingPriceTiers
+          .filter(
+            (tier) =>
+              tier.markingTechniqueId !== null &&
+              tier.minQuantity !== null &&
+              tier.unitPrice !== null
+          )
+          .map((tier) => ({
+            markingTechniqueId: tier.markingTechniqueId,
+            minQuantity: tier.minQuantity,
+            unitPrice: tier.unitPrice,
+          })),
       }
       if (data.priceMin !== null) payload.priceMin = data.priceMin
       if (data.priceMax !== null) payload.priceMax = data.priceMax
@@ -219,6 +272,14 @@ function cancel() {
     <div>
       <h2 class="mb-2 font-medium">{{ t('products.manage.packaging') }}</h2>
       <ProductPackagingFields />
+    </div>
+
+    <div>
+      <h2 class="mb-2 font-medium">{{ t('products.manage.marking.title') }}</h2>
+      <ProductMarkingFields
+        :marking-techniques="markingTechniques"
+        :documents="product?.documents ?? []"
+      />
     </div>
 
     <div>

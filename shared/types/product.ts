@@ -4,6 +4,12 @@ import type { AttributeWithValuesType } from './attribute.js'
 import type { ImageVariantType } from './image_variant.js'
 import type { ProductDocumentFile } from './document.js'
 import type { CertificationType } from './certification.js'
+import type {
+  ProductMarkingPositionType,
+  ProductMarkingPositionInput,
+  ProductMarkingPriceTierType,
+  ProductMarkingPriceTierInput,
+} from './marking.js'
 
 /**
  * Statut « cycle de vie » d'un produit (écart 5). Distinct de `isActive`, qui
@@ -93,6 +99,8 @@ export type ProductType = {
   recycledContentPercent: number | null
   cautionComment: string | null
   isEco: boolean
+  // Marquage structuré (écart 2) : le produit accepte-t-il un marquage ?
+  printable: boolean
   createdAt: string
   updatedAt: string | null
 }
@@ -239,6 +247,10 @@ export type ProductDetailType = ProductType & {
   documents: ProductDocumentFile[]
   // Conditionnement / logistique (écart 3) ; `null` si non renseigné.
   packaging: ProductPackagingType | null
+  // Marquage structuré (écart 2) : positions résolues (avec leurs techniques)
+  // et grille de prix de marquage. Donnée de fiche, jamais un filtre.
+  markingPositions: ProductMarkingPositionType[]
+  markingPriceTiers: ProductMarkingPriceTierType[]
 }
 
 /**
@@ -276,6 +288,8 @@ export type ProductEditType = {
   recycledContentPercent: number | null
   cautionComment: string | null
   isEco: boolean
+  // Marquage structuré (écart 2) : le produit accepte-t-il un marquage ?
+  printable: boolean
   // Labels de conformité sélectionnés (écart 4), par identifiant.
   certificationIds: number[]
   // Langue saisie par le fournisseur ; les autres sont générées (`isAuto`).
@@ -297,6 +311,9 @@ export type ProductEditType = {
   documents: ProductDocumentFile[]
   // Conditionnement / logistique (écart 3) ; `null` si non renseigné.
   packaging: ProductPackagingType | null
+  // Marquage structuré (écart 2) : positions (avec techniques) et grille de prix.
+  markingPositions: ProductMarkingPositionType[]
+  markingPriceTiers: ProductMarkingPriceTierType[]
 }
 
 /**
@@ -391,6 +408,12 @@ export interface SupplierProductInput {
   priceTiers?: ProductPriceTierInput[]
   // Conditionnement / logistique (écart 3). Absent = inchangé.
   packaging?: ProductPackagingInput
+  // Marquage structuré (écart 2) : le produit accepte-t-il un marquage ?
+  printable?: boolean
+  // Absent = inchangé ; tableau = remplace l'ensemble (positions + techniques).
+  markingPositions?: ProductMarkingPositionInput[]
+  // Absent = inchangé ; tableau = remplace l'ensemble (grille de prix de marquage).
+  markingPriceTiers?: ProductMarkingPriceTierInput[]
 }
 
 /**
@@ -433,6 +456,12 @@ export interface SupplierProductUpdateInput {
   priceTiers?: ProductPriceTierInput[]
   // Conditionnement / logistique (écart 3). Absent = inchangé.
   packaging?: ProductPackagingInput
+  // Marquage structuré (écart 2) : le produit accepte-t-il un marquage ?
+  printable?: boolean
+  // Absent = inchangé ; tableau = remplace l'ensemble (positions + techniques).
+  markingPositions?: ProductMarkingPositionInput[]
+  // Absent = inchangé ; tableau = remplace l'ensemble (grille de prix de marquage).
+  markingPriceTiers?: ProductMarkingPriceTierInput[]
 }
 
 export interface CreateProductData {

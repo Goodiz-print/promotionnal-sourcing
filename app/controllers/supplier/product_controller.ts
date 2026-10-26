@@ -8,6 +8,7 @@ import CategoryTransformer from '#transformers/category_transformer'
 import AttributeTransformer from '#transformers/attribute_transformer'
 import AttributeValueTransformer from '#transformers/attribute_value_transformer'
 import CertificationTransformer from '#transformers/certification_transformer'
+import MarkingTechniqueTransformer from '#transformers/marking_technique_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
 import {
   createSupplierProductValidator,
@@ -78,7 +79,11 @@ export default class ProductController {
     if (!product) throw new ProductNotFoundException()
 
     return inertia.render('supplier/products/edit', {
-      product: new ProductEditTransformer(product, this.documents.urlFor).toObject(),
+      product: new ProductEditTransformer(
+        product,
+        this.documents.urlFor,
+        i18n.locale as Locale
+      ).toObject(),
       ...(await this.facetData(i18n.locale as Locale)),
     })
   }
@@ -123,6 +128,7 @@ export default class ProductController {
     const categories = await this.service.allCategories()
     const attributes = await this.service.filterableAttributes()
     const certifications = await this.service.allCertifications()
+    const markingTechniques = await this.service.allMarkingTechniques()
 
     return {
       categories: categories.map((category) =>
@@ -137,6 +143,10 @@ export default class ProductController {
       // Labels de conformité disponibles (écart 4) pour la sélection au formulaire.
       certifications: certifications.map((certification) =>
         new CertificationTransformer(certification, locale).toObject()
+      ),
+      // Techniques de marquage disponibles (écart 2) pour les positions + grille de prix.
+      markingTechniques: markingTechniques.map((technique) =>
+        new MarkingTechniqueTransformer(technique, locale).toObject()
       ),
     }
   }

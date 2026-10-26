@@ -91,6 +91,7 @@ function mountShow() {
         recycledContentPercent: null,
         cautionComment: null,
         isEco: false,
+        printable: false,
         createdAt: '2026-07-11T00:00:00.000Z',
         updatedAt: null,
         supplier: { slug: 'acme', name: 'Acme', country: 'FR' },
@@ -109,6 +110,8 @@ function mountShow() {
         ],
         documents: [],
         packaging: null,
+        markingPositions: [],
+        markingPriceTiers: [],
       },
     },
   })

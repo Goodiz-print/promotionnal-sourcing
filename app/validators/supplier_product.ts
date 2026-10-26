@@ -94,6 +94,47 @@ const packagingInput = () =>
   })
 
 /**
+ * Technique possible sur une position de marquage (écart 2). `markingTechniqueId`
+ * doit référencer une technique existante (contrôlé par le service). `maxColors`
+ * borné (une impression dépasse rarement 16 couleurs) ; `defaultSetupCharge` est
+ * un décimal positif borné (dans `numeric(12,4)`, pas = 0,0001).
+ */
+const markingPositionTechniqueInput = () =>
+  vine.object({
+    markingTechniqueId: vine.number().withoutDecimals().positive(),
+    maxColors: vine.number().withoutDecimals().min(1).max(32).optional().nullable(),
+    defaultSetupCharge: vine.number().min(0).max(1_000_000).optional().nullable(),
+  })
+
+/**
+ * Position de marquage saisie (écart 2) : nom requis, dimensions max entières
+ * positives optionnelles, gabarit (`templateDocumentId`, contrôlé par le service
+ * = document du produit de type `marking_template`) et techniques possibles.
+ * L'ordre du tableau donne la `position`.
+ */
+const markingPositionInput = () =>
+  vine.object({
+    name: vine.string().trim().minLength(1).maxLength(255),
+    // Dimensions en mm : jusqu'à 100 m (comme les dimensions logistiques).
+    maxWidthMm: boundedInt(100_000),
+    maxHeightMm: boundedInt(100_000),
+    templateDocumentId: vine.number().withoutDecimals().positive().optional().nullable(),
+    techniques: vine.array(markingPositionTechniqueInput()).maxLength(32).optional(),
+  })
+
+/**
+ * Palier de la grille de prix de marquage (écart 2) : quantité mini > 0, prix
+ * unitaire >= 0, technique référencée (contrôlée par le service). La devise est
+ * reprise du produit.
+ */
+const markingPriceTierInput = () =>
+  vine.object({
+    markingTechniqueId: vine.number().withoutDecimals().positive(),
+    minQuantity: vine.number().withoutDecimals().positive(),
+    unitPrice: vine.number().min(0),
+  })
+
+/**
  * Champs communs (colonnes neutres, facettes, galerie).
  */
 const commonFields = () => ({
@@ -137,6 +178,11 @@ const commonFields = () => ({
   priceTiers: vine.array(priceTierInput()).maxLength(50).optional(),
   // Conditionnement / logistique (écart 3). Absent = inchangé.
   packaging: packagingInput().optional(),
+  // Marquage structuré (écart 2). `printable` = produit personnalisable ;
+  // positions et grille de prix en remplacement d'ensemble (absent = inchangé).
+  printable: vine.boolean().optional(),
+  markingPositions: vine.array(markingPositionInput()).maxLength(20).optional(),
+  markingPriceTiers: vine.array(markingPriceTierInput()).maxLength(100).optional(),
   images: vine
     .array(vine.file({ size: '5mb', extnames: ['jpg', 'jpeg', 'png', 'webp'] }))
     .maxLength(8)
