@@ -10,6 +10,7 @@ const props = withDefaults(
     error?: string
     min?: number | string
     max?: number | string
+    step?: number | string
     placeholder?: string
     autocomplete?: string
   }>(),
@@ -19,6 +20,7 @@ const props = withDefaults(
     error: '',
     min: undefined,
     max: undefined,
+    step: undefined,
     placeholder: '',
     autocomplete: '',
   }
@@ -43,6 +45,7 @@ function onInput(event: Event) {
       :value="modelValue"
       :min="min"
       :max="max"
+      :step="step"
       :placeholder="placeholder"
       :autocomplete="autocomplete"
       :data-invalid="error ? 'true' : undefined"

@@ -42,7 +42,9 @@
     "signInToRequest": "Sign in to request a quote",
     "compliance": "Compliance",
     "eco": "Eco-friendly",
-    "recycledContent": "{percent}% recycled content"
+    "recycledContent": "{percent}% recycled content",
+    "packaging": "Packaging / logistics",
+    "cartonDimensions": "Outer carton dimensions (L × W × H, mm)"
   },
   "manage": {
     "index": {
@@ -97,7 +99,16 @@
       "isConfigurable": "Configurable product",
       "recycledContentPercent": "Recycled content (%)",
       "cautionComment": "Cautions / warnings",
-      "certifications": "Compliance labels"
+      "certifications": "Compliance labels",
+      "packageType": "Packaging type",
+      "unitGrossWeightG": "Unit gross weight (g)",
+      "innerCartonQty": "Inner carton quantity",
+      "outerCartonQty": "Outer carton quantity",
+      "outerCartonLengthMm": "Outer carton length (mm)",
+      "outerCartonWidthMm": "Outer carton width (mm)",
+      "outerCartonHeightMm": "Outer carton height (mm)",
+      "outerCartonGrossWeightG": "Outer carton gross weight (g)",
+      "outerCartonVolumeM3": "Outer carton volume (m³)"
     },
     "variants": {
       "title": "Variants",
@@ -127,6 +138,8 @@
     },
     "commercial": "Identity, commercial and media",
     "compliance": "Compliance",
+    "packaging": "Packaging / logistics",
+    "packageTypeHint": "Polybag, Gift box, Sleeve, Tube, Bulk, Blister…",
     "noCertifications": "No label available."
   }
 }

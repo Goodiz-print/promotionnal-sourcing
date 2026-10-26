@@ -42,7 +42,9 @@
     "signInToRequest": "Se connecter pour demander un devis",
     "compliance": "Conformité",
     "eco": "Éco-responsable",
-    "recycledContent": "{percent} % de matière recyclée"
+    "recycledContent": "{percent} % de matière recyclée",
+    "packaging": "Conditionnement / logistique",
+    "cartonDimensions": "Dimensions carton maître (L × l × H, mm)"
   },
   "manage": {
     "index": {
@@ -97,7 +99,16 @@
       "isConfigurable": "Produit configurable",
       "recycledContentPercent": "Part de matière recyclée (%)",
       "cautionComment": "Précautions / mise en garde",
-      "certifications": "Labels de conformité"
+      "certifications": "Labels de conformité",
+      "packageType": "Type de conditionnement",
+      "unitGrossWeightG": "Poids brut unitaire (g)",
+      "innerCartonQty": "Quantité par carton intérieur",
+      "outerCartonQty": "Quantité par carton maître",
+      "outerCartonLengthMm": "Longueur carton maître (mm)",
+      "outerCartonWidthMm": "Largeur carton maître (mm)",
+      "outerCartonHeightMm": "Hauteur carton maître (mm)",
+      "outerCartonGrossWeightG": "Poids brut carton maître (g)",
+      "outerCartonVolumeM3": "Volume carton maître (m³)"
     },
     "variants": {
       "title": "Variantes",
@@ -127,6 +138,8 @@
     },
     "commercial": "Identité, commercial et médias",
     "compliance": "Conformité",
+    "packaging": "Conditionnement / logistique",
+    "packageTypeHint": "Polybag, Boîte cadeau, Étui, Tube, Vrac, Blister…",
     "noCertifications": "Aucun label disponible."
   }
 }

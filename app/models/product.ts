@@ -1,5 +1,5 @@
-import { belongsTo, hasMany, manyToMany, scope } from '@adonisjs/lucid/orm'
-import type { BelongsTo, HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
+import { belongsTo, hasMany, hasOne, manyToMany, scope } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany, HasOne, ManyToMany } from '@adonisjs/lucid/types/relations'
 import type { ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
 import { ProductSchema } from '#database/schema'
 import Supplier from '#models/supplier'
@@ -15,6 +15,7 @@ import ProductImage from '#models/product_image'
 import ProductVariant from '#models/product_variant'
 import ProductPriceTier from '#models/product_price_tier'
 import ProductDocument from '#models/product_document'
+import ProductPackaging from '#models/product_packaging'
 
 export default class Product extends ProductSchema {
   static table = 'products'
@@ -67,6 +68,13 @@ export default class Product extends ProductSchema {
 
   @hasMany(() => ProductDocument)
   declare documents: HasMany<typeof ProductDocument>
+
+  /**
+   * Conditionnement / logistique (écart 3). Relation 1:1 (au plus une ligne
+   * `product_packagings` par produit, `product_id` unique).
+   */
+  @hasOne(() => ProductPackaging)
+  declare packaging: HasOne<typeof ProductPackaging>
 
   @belongsTo(() => Supplier)
   declare supplier: BelongsTo<typeof Supplier>

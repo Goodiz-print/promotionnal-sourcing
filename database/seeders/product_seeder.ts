@@ -8,6 +8,7 @@ import AttributeValue from '#models/attribute_value'
 import Certification from '#models/certification'
 import Product from '#models/product'
 import ProductTranslation from '#models/product_translation'
+import ProductPackaging from '#models/product_packaging'
 import ProductOriginService from '#services/product_origin_service'
 import ProductEcoService from '#services/product_eco_service'
 import { MATERIAL_ATTRIBUTE_SLUG } from '#shared/types/certification'
@@ -51,6 +52,18 @@ type ProductSeed = {
   certifications?: string[]
   recycledContentPercent?: number
   cautionComment?: string
+  // Conditionnement / logistique (écart 3) : bloc 1:1 optionnel.
+  packaging?: {
+    packageType?: string
+    unitGrossWeightG?: number
+    innerCartonQty?: number
+    outerCartonQty?: number
+    outerCartonLengthMm?: number
+    outerCartonWidthMm?: number
+    outerCartonHeightMm?: number
+    outerCartonGrossWeightG?: number
+    outerCartonVolumeM3?: number
+  }
 }
 
 /**
@@ -208,6 +221,18 @@ const PRODUCTS: ProductSeed[] = [
     certifications: ['gots', 'oeko-tex-standard-100'],
     recycledContentPercent: 35,
     cautionComment: 'Lavage à 30 °C maximum, ne pas repasser la visière.',
+    // Conditionnement / logistique (écart 3) : fiche de démo complète.
+    packaging: {
+      packageType: 'Polybag',
+      unitGrossWeightG: 95,
+      innerCartonQty: 25,
+      outerCartonQty: 100,
+      outerCartonLengthMm: 600,
+      outerCartonWidthMm: 400,
+      outerCartonHeightMm: 350,
+      outerCartonGrossWeightG: 11500,
+      outerCartonVolumeM3: 0.084,
+    },
     facets: {
       'color': 'blue',
       'color-shade': 'bleu-marine',
@@ -339,6 +364,27 @@ export default class ProductSeeder extends BaseSeeder {
         hasEcoCertification: seededCertifications.some((c) => c.isEco),
       })
       await product.save()
+
+      // Conditionnement / logistique (écart 3) : upsert 1:1 si renseigné.
+      if (seed.packaging) {
+        await ProductPackaging.updateOrCreate(
+          { productId: product.id },
+          {
+            packageType: seed.packaging.packageType ?? null,
+            unitGrossWeightG: seed.packaging.unitGrossWeightG ?? null,
+            innerCartonQty: seed.packaging.innerCartonQty ?? null,
+            outerCartonQty: seed.packaging.outerCartonQty ?? null,
+            outerCartonLengthMm: seed.packaging.outerCartonLengthMm ?? null,
+            outerCartonWidthMm: seed.packaging.outerCartonWidthMm ?? null,
+            outerCartonHeightMm: seed.packaging.outerCartonHeightMm ?? null,
+            outerCartonGrossWeightG: seed.packaging.outerCartonGrossWeightG ?? null,
+            outerCartonVolumeM3:
+              seed.packaging.outerCartonVolumeM3 !== undefined
+                ? String(seed.packaging.outerCartonVolumeM3)
+                : null,
+          }
+        )
+      }
     }
   }
 }

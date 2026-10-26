@@ -33,6 +33,32 @@ const price = computed(() => {
   if (priceMin && priceMax && priceMin !== priceMax) return `${priceMin} – ${priceMax} ${currency}`
   return `${priceMin ?? priceMax} ${currency}`
 })
+
+// Conditionnement / logistique (écart 3) : lignes renseignées uniquement.
+// Les 3 dimensions du carton maître sont regroupées en « L × l × H ».
+const packagingRows = computed(() => {
+  const p = props.product.packaging
+  if (!p) return []
+  const rows: { label: string; value: string }[] = []
+  const add = (key: string, value: string | number | null) => {
+    if (value !== null && value !== '') rows.push({ label: t(key), value: String(value) })
+  }
+  add('products.manage.fields.packageType', p.packageType)
+  add('products.manage.fields.unitGrossWeightG', p.unitGrossWeightG)
+  add('products.manage.fields.innerCartonQty', p.innerCartonQty)
+  add('products.manage.fields.outerCartonQty', p.outerCartonQty)
+  if (p.outerCartonLengthMm || p.outerCartonWidthMm || p.outerCartonHeightMm) {
+    rows.push({
+      label: t('products.show.cartonDimensions'),
+      value: [p.outerCartonLengthMm, p.outerCartonWidthMm, p.outerCartonHeightMm]
+        .map((mm) => mm ?? '—')
+        .join(' × '),
+    })
+  }
+  add('products.manage.fields.outerCartonGrossWeightG', p.outerCartonGrossWeightG)
+  add('products.manage.fields.outerCartonVolumeM3', p.outerCartonVolumeM3)
+  return rows
+})
 </script>
 
 <template>
@@ -135,6 +161,20 @@ const price = computed(() => {
           <p v-if="product.cautionComment" class="text-sm text-[var(--gray-7)]">
             {{ product.cautionComment }}
           </p>
+        </section>
+
+        <section v-if="packagingRows.length > 0" class="flex flex-col gap-2">
+          <h2 class="font-medium">{{ t('products.show.packaging') }}</h2>
+          <dl class="flex flex-col gap-2 text-sm">
+            <div
+              v-for="row in packagingRows"
+              :key="row.label"
+              class="flex justify-between border-b border-[var(--gray-3)] py-1"
+            >
+              <dt class="text-[var(--gray-6)]">{{ row.label }}</dt>
+              <dd>{{ row.value }}</dd>
+            </div>
+          </dl>
         </section>
 
         <section v-if="product.documents.length > 0" class="flex flex-col gap-2">

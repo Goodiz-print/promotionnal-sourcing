@@ -1116,6 +1116,51 @@ export class ProductImageSchema extends BaseModel {
   declare width: number | null
 }
 
+export class ProductPackagingSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'id',
+    'innerCartonQty',
+    'outerCartonGrossWeightG',
+    'outerCartonHeightMm',
+    'outerCartonLengthMm',
+    'outerCartonQty',
+    'outerCartonVolumeM3',
+    'outerCartonWidthMm',
+    'packageType',
+    'productId',
+    'unitGrossWeightG',
+    'updatedAt',
+  ] as const
+  $columns = ProductPackagingSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare innerCartonQty: number | null
+  @column()
+  declare outerCartonGrossWeightG: number | null
+  @column()
+  declare outerCartonHeightMm: number | null
+  @column()
+  declare outerCartonLengthMm: number | null
+  @column()
+  declare outerCartonQty: number | null
+  @column()
+  declare outerCartonVolumeM3: string | null
+  @column()
+  declare outerCartonWidthMm: number | null
+  @column()
+  declare packageType: string | null
+  @column()
+  declare productId: number
+  @column()
+  declare unitGrossWeightG: number | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class ProductPriceTierSchema extends BaseModel {
   static $columns = [
     'createdAt',

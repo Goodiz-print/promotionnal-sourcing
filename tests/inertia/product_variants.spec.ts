@@ -108,6 +108,7 @@ function mountShow() {
           tier(3, 11, 100, '9.0000'),
         ],
         documents: [],
+        packaging: null,
       },
     },
   })

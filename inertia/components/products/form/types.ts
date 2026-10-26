@@ -24,6 +24,22 @@ export interface ProductPriceTierFormRow {
 }
 
 /**
+ * Conditionnement / logistique du formulaire (écart 3). Champs numériques en
+ * `number | null` (coercés par VineJS, `null` = non renseigné).
+ */
+export interface ProductPackagingFormState {
+  packageType: string
+  unitGrossWeightG: number | null
+  innerCartonQty: number | null
+  outerCartonQty: number | null
+  outerCartonLengthMm: number | null
+  outerCartonWidthMm: number | null
+  outerCartonHeightMm: number | null
+  outerCartonGrossWeightG: number | null
+  outerCartonVolumeM3: number | null
+}
+
+/**
  * État du formulaire produit fournisseur (payload `useForm`). Les prix sont des
  * `number | null` (coercés par VineJS) ; `images` porte les nouveaux fichiers,
  * `removedImageIds` les images existantes à supprimer. `sourceLocale` est la
@@ -62,6 +78,8 @@ export interface ProductFormState {
   removedImageIds: number[]
   variants: ProductVariantFormRow[]
   priceTiers: ProductPriceTierFormRow[]
+  // Conditionnement / logistique (écart 3).
+  packaging: ProductPackagingFormState
 }
 
 /**
