@@ -6,6 +6,7 @@ import SearchEngine from '#services/search/search_engine'
 import ProductOriginService from '#services/product_origin_service'
 import ProductEcoService from '#services/product_eco_service'
 import { resolveTranslation } from '#shared/helpers/translations'
+import { MATERIAL_ATTRIBUTE_SLUG } from '#shared/types/certification'
 import type { ContentLocale, Locale } from '#shared/types/i18n'
 import type { ProductSearchDocument, ProductSyncResult } from '#shared/types/search'
 
@@ -141,8 +142,11 @@ export default class ProductIndexService {
       const zone = this.origin.deriveZone(product.originCountry, product.madeInEurope)
       const isEco = this.eco.deriveIsEco({
         recycledContentPercent: product.recycledContentPercent,
+        // Seules les valeurs de l'attribut `material` comptent comme matière éco.
         materialSlugs: product.productAttributes.flatMap((row) =>
-          row.attributeValue ? [row.attributeValue.slug] : []
+          row.attribute?.slug === MATERIAL_ATTRIBUTE_SLUG && row.attributeValue
+            ? [row.attributeValue.slug]
+            : []
         ),
         hasEcoCertification: product.certifications.some((certification) => certification.isEco),
       })

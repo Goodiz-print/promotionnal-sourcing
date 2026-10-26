@@ -23,6 +23,7 @@ import logger from '@adonisjs/core/services/logger'
 import emitter from '@adonisjs/core/services/emitter'
 import ProductChanged from '#events/product_changed'
 import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
+import { MATERIAL_ATTRIBUTE_SLUG } from '#shared/types/certification'
 import type Organization from '#models/organization'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
 import type { SupplierProductInput, SupplierProductUpdateInput } from '#shared/types/product'
@@ -484,7 +485,13 @@ export default class SupplierProductService {
    * si la valeur change.
    */
   private async refreshIsEco(product: Product): Promise<void> {
-    const values = await product.related('attributeValues').query().select('slug')
+    // Seules les valeurs de l'attribut `material` comptent comme matière éco
+    // (un slug homonyme sous un autre attribut ne doit pas marquer éco).
+    const materials = await product
+      .related('attributeValues')
+      .query()
+      .whereHas('attribute', (attribute) => attribute.where('slug', MATERIAL_ATTRIBUTE_SLUG))
+      .select('slug')
     const ecoCertification = await product
       .related('certifications')
       .query()
@@ -493,7 +500,7 @@ export default class SupplierProductService {
 
     const isEco = this.eco.deriveIsEco({
       recycledContentPercent: product.recycledContentPercent,
-      materialSlugs: values.map((value) => value.slug),
+      materialSlugs: materials.map((value) => value.slug),
       hasEcoCertification: ecoCertification !== null,
     })
     if (isEco !== product.isEco) {

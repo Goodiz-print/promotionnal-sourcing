@@ -10,6 +10,7 @@ import Product from '#models/product'
 import ProductTranslation from '#models/product_translation'
 import ProductOriginService from '#services/product_origin_service'
 import ProductEcoService from '#services/product_eco_service'
+import { MATERIAL_ATTRIBUTE_SLUG } from '#shared/types/certification'
 import type { ContentLocale } from '#shared/types/i18n'
 import type { ProductLifecycleStatus } from '#shared/types/product'
 
@@ -331,7 +332,10 @@ export default class ProductSeeder extends BaseSeeder {
       // de recyclé, matières portées, labels éco. Jamais saisi.
       product.isEco = eco.deriveIsEco({
         recycledContentPercent: product.recycledContentPercent,
-        materialSlugs: Object.values(seed.facets),
+        // Seule la valeur de l'attribut `material` compte (pas couleur/nuance…).
+        materialSlugs: seed.facets[MATERIAL_ATTRIBUTE_SLUG]
+          ? [seed.facets[MATERIAL_ATTRIBUTE_SLUG]]
+          : [],
         hasEcoCertification: seededCertifications.some((c) => c.isEco),
       })
       await product.save()

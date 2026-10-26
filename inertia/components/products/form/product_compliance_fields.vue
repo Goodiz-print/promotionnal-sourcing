@@ -27,6 +27,7 @@ function toggle(certificationId: number, checked: boolean) {
       v-model="form.recycledContentPercent"
       type="number"
       :min="0"
+      :max="100"
       :label="t('products.manage.fields.recycledContentPercent')"
       :error="form.errors.recycledContentPercent"
     />

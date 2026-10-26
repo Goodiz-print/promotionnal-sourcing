@@ -1,6 +1,14 @@
 import type { ContentLocale } from './i18n.js'
 
 /**
+ * Slug de l'attribut « Matière ». La dérivation « Éco-responsable » ne teste
+ * `ECO_MATERIAL_SLUGS` que contre les valeurs de **cet** attribut : un slug
+ * homonyme sous un autre attribut (finition, couleur…) ne doit pas marquer un
+ * produit éco.
+ */
+export const MATERIAL_ATTRIBUTE_SLUG = 'material'
+
+/**
  * Domaines d'un label de conformité (écart 4). Liste fermée, sert à regrouper
  * les certifications dans la fiche produit. Valeur **neutre** (slug) : son
  * libellé d'affichage est rendu côté UI via `t('certifications.domains.<slug>')`,

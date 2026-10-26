@@ -9,10 +9,19 @@ const props = withDefaults(
     type?: 'text' | 'number' | 'email' | 'password' | 'date' | 'url' | 'tel'
     error?: string
     min?: number | string
+    max?: number | string
     placeholder?: string
     autocomplete?: string
   }>(),
-  { type: 'text', label: '', error: '', min: undefined, placeholder: '', autocomplete: '' }
+  {
+    type: 'text',
+    label: '',
+    error: '',
+    min: undefined,
+    max: undefined,
+    placeholder: '',
+    autocomplete: '',
+  }
 )
 
 const emit = defineEmits<{
@@ -33,6 +42,7 @@ function onInput(event: Event) {
       :type="type"
       :value="modelValue"
       :min="min"
+      :max="max"
       :placeholder="placeholder"
       :autocomplete="autocomplete"
       :data-invalid="error ? 'true' : undefined"

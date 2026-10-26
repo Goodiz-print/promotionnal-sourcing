@@ -150,10 +150,11 @@ function submit() {
       if (data.leadTimeDays !== null) payload.leadTimeDays = data.leadTimeDays
       if (data.rushLeadTimeDays !== null) payload.rushLeadTimeDays = data.rushLeadTimeDays
       if (data.videoUrl.trim()) payload.videoUrl = data.videoUrl.trim()
-      // Conformité (écart 4) : omis quand vides (VineJS = absents).
-      if (data.recycledContentPercent !== null)
-        payload.recycledContentPercent = data.recycledContentPercent
-      if (data.cautionComment.trim()) payload.cautionComment = data.cautionComment.trim()
+      // Conformité (écart 4) : toujours envoyés (null quand vides) pour pouvoir
+      // être **effacés** à l'édition — vider le recyclé retire l'allégation et
+      // recale `is_eco` (une valeur omise serait conservée en base).
+      payload.recycledContentPercent = data.recycledContentPercent
+      payload.cautionComment = data.cautionComment.trim() || null
       return payload
     })
     // Inertia omet les tableaux vides en multipart : sans fichier, on reste en JSON
