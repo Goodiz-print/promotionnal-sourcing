@@ -30,8 +30,20 @@ export default class ProductMarkingService {
     positions: ProductMarkingPositionInput[] | undefined,
     priceTiers: ProductMarkingPriceTierInput[] | undefined
   ): Promise<void> {
-    if (positions !== undefined) await this.syncPositions(trx, product, positions)
-    if (priceTiers !== undefined) await this.syncPriceTiers(trx, product, priceTiers)
+    if (positions === undefined && priceTiers === undefined) return
+
+    // Techniques référencées par les positions **et** la grille, résolues en une
+    // seule requête d'existence partagée par les deux synchronisations.
+    const referenced = new Set<number>()
+    for (const position of positions ?? [])
+      for (const technique of position.techniques ?? [])
+        referenced.add(technique.markingTechniqueId)
+    for (const tier of priceTiers ?? []) referenced.add(tier.markingTechniqueId)
+    const knownTechniques = await this.knownTechniqueIds(trx, [...referenced])
+
+    if (positions !== undefined) await this.syncPositions(trx, product, positions, knownTechniques)
+    if (priceTiers !== undefined)
+      await this.syncPriceTiers(trx, product, priceTiers, knownTechniques)
   }
 
   /**
@@ -44,15 +56,9 @@ export default class ProductMarkingService {
   private async syncPositions(
     trx: TransactionClientContract,
     product: Product,
-    inputs: ProductMarkingPositionInput[]
+    inputs: ProductMarkingPositionInput[],
+    knownTechniques: Set<number>
   ): Promise<void> {
-    // Techniques référencées (toutes positions) : une seule requête d'existence.
-    const techniqueIds = new Set<number>()
-    for (const input of inputs) {
-      for (const technique of input.techniques ?? []) techniqueIds.add(technique.markingTechniqueId)
-    }
-    const knownTechniques = await this.knownTechniqueIds(trx, [...techniqueIds])
-
     // Gabarits valides : documents du produit de type `marking_template`.
     const validTemplates = await this.validTemplateIds(trx, product, inputs)
 
@@ -113,13 +119,9 @@ export default class ProductMarkingService {
   private async syncPriceTiers(
     trx: TransactionClientContract,
     product: Product,
-    inputs: ProductMarkingPriceTierInput[]
+    inputs: ProductMarkingPriceTierInput[],
+    knownTechniques: Set<number>
   ): Promise<void> {
-    const knownTechniques = await this.knownTechniqueIds(
-      trx,
-      inputs.map((input) => input.markingTechniqueId)
-    )
-
     const seen = new Set<string>()
     const rows = inputs.map((input, index) => {
       if (!knownTechniques.has(input.markingTechniqueId)) {

@@ -3,6 +3,7 @@ import Product from '#models/product'
 import MarkingTechnique from '#models/marking_technique'
 import ProductMarkingPosition from '#models/product_marking_position'
 import ProductMarkingPriceTier from '#models/product_marking_price_tier'
+import ProductTranslation from '#models/product_translation'
 import { ProductMarkingPositionFactory } from '#database/factories/product_marking_position_factory'
 import { ProductMarkingPositionTechniqueFactory } from '#database/factories/product_marking_position_technique_factory'
 import { ProductMarkingPriceTierFactory } from '#database/factories/product_marking_price_tier_factory'
@@ -169,8 +170,15 @@ test.group('Marquage produit fournisseur (écart 2)', (group) => {
         markingPriceTiers: [{ markingTechniqueId: 999999, minQuantity: 100, unitPrice: 0.5 }],
       })
 
-    // La transaction est annulée : aucun palier de marquage n'est créé.
+    // La mise à jour est **rejetée**, pas appliquée en ignorant le palier fautif :
+    // la transaction est annulée (aucun palier créé) ET le reste du payload
+    // (renommage du produit) n'est pas écrit non plus.
     assert.lengthOf(await ProductMarkingPriceTier.query().where('productId', product.id), 0)
+    const fr = await ProductTranslation.query()
+      .where('productId', product.id)
+      .where('locale', 'fr')
+      .firstOrFail()
+    assert.equal(fr.name, 'Crayon HB Bleu')
   })
 
   test('le gabarit doit être un document du produit de type marking_template', async ({
