@@ -324,8 +324,10 @@ export interface ProductPriceTierInput {
  * Conditionnement / logistique saisi (écart 3). Tous les champs sont optionnels.
  * Dans le payload d'un produit, `packaging` **absent = inchangé** ; fourni, il
  * crée ou met à jour l'unique ligne 1:1 (les champs absents de l'objet fourni
- * sont remis à `null` — remplacement complet du bloc). Le volume est un nombre
- * (décimal) ; les poids / quantités / dimensions sont des entiers positifs.
+ * sont remis à `null` — remplacement complet du bloc, pas un merge partiel). Un
+ * bloc entièrement vide ne crée pas de ligne et retire celle existante. Le
+ * volume est un nombre (décimal) ; les poids / quantités / dimensions sont des
+ * entiers positifs.
  */
 export interface ProductPackagingInput {
   packageType?: string | null

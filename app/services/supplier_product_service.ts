@@ -496,7 +496,9 @@ export default class SupplierProductService {
    * Upsert 1:1 du conditionnement / logistique (écart 3). `packaging` absent =
    * inchangé ; fourni = crée ou met à jour l'unique ligne `product_packagings`
    * (les champs absents de l'objet fourni sont remis à `null` : remplacement
-   * complet du bloc). `outerCartonVolumeM3` est un décimal (string en base).
+   * complet du bloc). Un bloc **entièrement vide** ne crée pas de ligne et
+   * supprime celle existante (pas de ligne fantôme en base). `outerCartonVolumeM3`
+   * est un décimal (string en base).
    */
   private async syncPackaging(
     trx: TransactionClientContract,
@@ -506,21 +508,27 @@ export default class SupplierProductService {
     if (packaging === undefined) return
     const decimal = (value: number | null | undefined) =>
       typeof value === 'number' ? String(value) : null
-    await ProductPackaging.updateOrCreate(
-      { productId: product.id },
-      {
-        packageType: packaging.packageType ?? null,
-        unitGrossWeightG: packaging.unitGrossWeightG ?? null,
-        innerCartonQty: packaging.innerCartonQty ?? null,
-        outerCartonQty: packaging.outerCartonQty ?? null,
-        outerCartonLengthMm: packaging.outerCartonLengthMm ?? null,
-        outerCartonWidthMm: packaging.outerCartonWidthMm ?? null,
-        outerCartonHeightMm: packaging.outerCartonHeightMm ?? null,
-        outerCartonGrossWeightG: packaging.outerCartonGrossWeightG ?? null,
-        outerCartonVolumeM3: decimal(packaging.outerCartonVolumeM3),
-      },
-      { client: trx }
-    )
+    const columns = {
+      packageType: packaging.packageType ?? null,
+      unitGrossWeightG: packaging.unitGrossWeightG ?? null,
+      innerCartonQty: packaging.innerCartonQty ?? null,
+      outerCartonQty: packaging.outerCartonQty ?? null,
+      outerCartonLengthMm: packaging.outerCartonLengthMm ?? null,
+      outerCartonWidthMm: packaging.outerCartonWidthMm ?? null,
+      outerCartonHeightMm: packaging.outerCartonHeightMm ?? null,
+      outerCartonGrossWeightG: packaging.outerCartonGrossWeightG ?? null,
+      outerCartonVolumeM3: decimal(packaging.outerCartonVolumeM3),
+    }
+
+    // Bloc vide (rien de renseigné) : ne crée pas de ligne, et retire celle qui
+    // existait (effacement complet depuis le formulaire). Évite une ligne vide
+    // par produit + un preload inutile.
+    if (Object.values(columns).every((value) => value === null)) {
+      await ProductPackaging.query({ client: trx }).where('productId', product.id).delete()
+      return
+    }
+
+    await ProductPackaging.updateOrCreate({ productId: product.id }, columns, { client: trx })
   }
 
   /**

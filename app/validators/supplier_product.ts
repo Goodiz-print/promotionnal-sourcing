@@ -60,25 +60,37 @@ const priceTierInput = () =>
     unitPrice: vine.number().positive(),
   })
 
-/** Entier logistique positif et optionnel (poids / quantité / dimension). */
-const positiveInt = () => vine.number().withoutDecimals().positive().optional().nullable()
+/**
+ * Entier logistique borné (poids / quantité / dimension), optionnel. `min(1)`
+ * (pas seulement « positif ») aligne la borne basse sur le formulaire ; `max`
+ * garde la valeur dans un `integer` PostgreSQL — sans quoi une saisie énorme
+ * lèverait un `out of range` (500) qui perdrait toute la sauvegarde produit.
+ */
+const boundedInt = (max: number) =>
+  vine.number().withoutDecimals().min(1).max(max).optional().nullable()
 
 /**
  * Conditionnement / logistique (écart 3) : tous les champs optionnels. Poids,
- * quantités et dimensions = entiers positifs ; volume = décimal positif. `null`
- * explicite autorisé (efface le champ à la mise à jour).
+ * quantités et dimensions = entiers positifs **bornés** ; volume = décimal
+ * positif borné (dans `numeric(12,4)`, min = pas de la colonne pour éviter un
+ * arrondi silencieux à `0`). Un champ **absent de l'objet** `packaging` fourni
+ * est remis à `null` (remplacement complet du bloc, pas un merge partiel) ; voir
+ * `SupplierProductService.syncPackaging`.
  */
 const packagingInput = () =>
   vine.object({
     packageType: vine.string().trim().maxLength(120).optional().nullable(),
-    unitGrossWeightG: positiveInt(),
-    innerCartonQty: positiveInt(),
-    outerCartonQty: positiveInt(),
-    outerCartonLengthMm: positiveInt(),
-    outerCartonWidthMm: positiveInt(),
-    outerCartonHeightMm: positiveInt(),
-    outerCartonGrossWeightG: positiveInt(),
-    outerCartonVolumeM3: vine.number().positive().optional().nullable(),
+    // Poids en grammes : jusqu'à 100 t.
+    unitGrossWeightG: boundedInt(100_000_000),
+    innerCartonQty: boundedInt(1_000_000),
+    outerCartonQty: boundedInt(1_000_000),
+    // Dimensions en mm : jusqu'à 100 m.
+    outerCartonLengthMm: boundedInt(100_000),
+    outerCartonWidthMm: boundedInt(100_000),
+    outerCartonHeightMm: boundedInt(100_000),
+    outerCartonGrossWeightG: boundedInt(100_000_000),
+    // Volume m³ dans `numeric(12,4)` (≤ 99 999 999,9999) ; pas = 0,0001.
+    outerCartonVolumeM3: vine.number().min(0.0001).max(100_000).optional().nullable(),
   })
 
 /**

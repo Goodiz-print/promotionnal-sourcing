@@ -2,11 +2,30 @@
 import { inject } from 'vue'
 import { useI18n } from '~/i18n'
 import BaseInput from '~/components/base/base_input.vue'
-import { ProductFormKey } from './types'
+import { ProductFormKey, type ProductPackagingFormState } from './types'
 
 const form = inject(ProductFormKey)!
 
 const { t } = useI18n()
+
+/** Clés numériques du bloc conditionnement (hors `packageType`, texte). */
+type NumberKey = Exclude<keyof ProductPackagingFormState, 'packageType'>
+
+/**
+ * Descripteurs des champs numériques — évite neuf `BaseInput` quasi identiques.
+ * Les dimensions / poids / quantités sont des entiers (`min` 1) ; le volume est
+ * un décimal (`min` du pas de la colonne, `step` 0,0001).
+ */
+const numberFields: { key: NumberKey; min: number; step?: string }[] = [
+  { key: 'unitGrossWeightG', min: 1 },
+  { key: 'innerCartonQty', min: 1 },
+  { key: 'outerCartonQty', min: 1 },
+  { key: 'outerCartonLengthMm', min: 1 },
+  { key: 'outerCartonWidthMm', min: 1 },
+  { key: 'outerCartonHeightMm', min: 1 },
+  { key: 'outerCartonGrossWeightG', min: 1 },
+  { key: 'outerCartonVolumeM3', min: 0.0001, step: '0.0001' },
+]
 </script>
 
 <template>
@@ -20,85 +39,17 @@ const { t } = useI18n()
       :error="form.errors['packaging.packageType']"
     />
 
-    <BaseInput
-      id="unitGrossWeightG"
-      v-model="form.packaging.unitGrossWeightG"
-      type="number"
-      :min="1"
-      :label="t('products.manage.fields.unitGrossWeightG')"
-      :error="form.errors['packaging.unitGrossWeightG']"
-    />
-
-    <div class="flex flex-col gap-4 sm:flex-row">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <BaseInput
-        id="innerCartonQty"
-        v-model="form.packaging.innerCartonQty"
+        v-for="field in numberFields"
+        :id="field.key"
+        :key="field.key"
+        v-model="form.packaging[field.key]"
         type="number"
-        :min="1"
-        :label="t('products.manage.fields.innerCartonQty')"
-        :error="form.errors['packaging.innerCartonQty']"
-        class="flex-1"
-      />
-      <BaseInput
-        id="outerCartonQty"
-        v-model="form.packaging.outerCartonQty"
-        type="number"
-        :min="1"
-        :label="t('products.manage.fields.outerCartonQty')"
-        :error="form.errors['packaging.outerCartonQty']"
-        class="flex-1"
-      />
-    </div>
-
-    <div class="flex flex-col gap-4 sm:flex-row">
-      <BaseInput
-        id="outerCartonLengthMm"
-        v-model="form.packaging.outerCartonLengthMm"
-        type="number"
-        :min="1"
-        :label="t('products.manage.fields.outerCartonLengthMm')"
-        :error="form.errors['packaging.outerCartonLengthMm']"
-        class="flex-1"
-      />
-      <BaseInput
-        id="outerCartonWidthMm"
-        v-model="form.packaging.outerCartonWidthMm"
-        type="number"
-        :min="1"
-        :label="t('products.manage.fields.outerCartonWidthMm')"
-        :error="form.errors['packaging.outerCartonWidthMm']"
-        class="flex-1"
-      />
-      <BaseInput
-        id="outerCartonHeightMm"
-        v-model="form.packaging.outerCartonHeightMm"
-        type="number"
-        :min="1"
-        :label="t('products.manage.fields.outerCartonHeightMm')"
-        :error="form.errors['packaging.outerCartonHeightMm']"
-        class="flex-1"
-      />
-    </div>
-
-    <div class="flex flex-col gap-4 sm:flex-row">
-      <BaseInput
-        id="outerCartonGrossWeightG"
-        v-model="form.packaging.outerCartonGrossWeightG"
-        type="number"
-        :min="1"
-        :label="t('products.manage.fields.outerCartonGrossWeightG')"
-        :error="form.errors['packaging.outerCartonGrossWeightG']"
-        class="flex-1"
-      />
-      <BaseInput
-        id="outerCartonVolumeM3"
-        v-model="form.packaging.outerCartonVolumeM3"
-        type="number"
-        :min="0"
-        step="0.0001"
-        :label="t('products.manage.fields.outerCartonVolumeM3')"
-        :error="form.errors['packaging.outerCartonVolumeM3']"
-        class="flex-1"
+        :min="field.min"
+        :step="field.step"
+        :label="t(`products.manage.fields.${field.key}`)"
+        :error="form.errors[`packaging.${field.key}`]"
       />
     </div>
   </div>

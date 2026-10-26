@@ -44,6 +44,26 @@ test.group('Logistique produit — conditionnement 1:1 (écart 3)', (group) => {
     return Product.query().where('slug', slug).preload('packaging').firstOrFail()
   }
 
+  /** Tente une création et renvoie la réponse brute (sans assertion de statut). */
+  function attemptCreate(client: ApiClient, slug: string, packaging: Record<string, unknown>) {
+    return (async () => {
+      const user = await seededDevUser('eurogoods-org')
+      const crayon = await Category.findByOrFail('slug', 'crayon')
+      return client
+        .post('/fr/supplier/products')
+        .withInertia()
+        .withCsrfToken()
+        .loginAs(user)
+        .json({
+          categoryId: crayon.id,
+          sourceLocale: 'fr',
+          translations: { fr: { name: slug, description: null }, en: { name: slug } },
+          isActive: true,
+          packaging,
+        })
+    })()
+  }
+
   test('persiste le conditionnement (crée l’unique ligne 1:1)', async ({ client, assert }) => {
     const product = await createProduct(client, 'logistique-creation', {
       packaging: {
@@ -151,6 +171,99 @@ test.group('Logistique produit — conditionnement 1:1 (écart 3)', (group) => {
 
     const rows = await ProductPackaging.query().where('productId', product.id)
     assert.lengthOf(rows, 0)
+  })
+
+  test('un bloc entièrement vide ne crée pas de ligne', async ({ client, assert }) => {
+    const product = await createProduct(client, 'logistique-vide', {
+      packaging: {
+        packageType: null,
+        unitGrossWeightG: null,
+        outerCartonVolumeM3: null,
+      },
+    })
+
+    assert.isNull(product.packaging)
+    const rows = await ProductPackaging.query().where('productId', product.id)
+    assert.lengthOf(rows, 0)
+  })
+
+  test('vider le bloc à l’édition supprime la ligne', async ({ client, assert }) => {
+    const product = await createProduct(client, 'logistique-effacement', {
+      packaging: { packageType: 'Tube', unitGrossWeightG: 70 },
+    })
+    assert.lengthOf(await ProductPackaging.query().where('productId', product.id), 1)
+
+    const user = await seededDevUser('eurogoods-org')
+    const response = await client
+      .post(`/fr/supplier/products/${product.id}`)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(user)
+      .json({ packaging: { packageType: null, unitGrossWeightG: null } })
+    response.assertStatus(200)
+
+    const rows = await ProductPackaging.query().where('productId', product.id)
+    assert.lengthOf(rows, 0)
+  })
+
+  test('remplacement complet : un champ absent de l’objet est remis à null', async ({
+    client,
+    assert,
+  }) => {
+    const product = await createProduct(client, 'logistique-remplacement', {
+      packaging: { packageType: 'Boîte cadeau', unitGrossWeightG: 90, outerCartonQty: 100 },
+    })
+    const user = await seededDevUser('eurogoods-org')
+
+    // L'objet fourni ne contient que `packageType` : poids et quantité (absents)
+    // doivent repasser à null (remplacement complet, pas un merge partiel).
+    const response = await client
+      .post(`/fr/supplier/products/${product.id}`)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(user)
+      .json({ packaging: { packageType: 'Étui' } })
+    response.assertStatus(200)
+
+    const packaging = await ProductPackaging.query().where('productId', product.id).firstOrFail()
+    assert.equal(packaging.packageType, 'Étui')
+    assert.isNull(packaging.unitGrossWeightG)
+    assert.isNull(packaging.outerCartonQty)
+  })
+
+  test('refuse un entier hors bornes sans 500 ni produit à moitié créé', async ({
+    client,
+    assert,
+  }) => {
+    // 3 000 000 000 > max `integer` PostgreSQL : doit être rejeté par la
+    // validation (pas un `out of range` 500 qui perdrait la sauvegarde).
+    const response = await attemptCreate(client, 'logistique-overflow', {
+      unitGrossWeightG: 3_000_000_000,
+    })
+    response.assertStatus(200)
+
+    const product = await Product.findBy('slug', 'logistique-overflow')
+    assert.isNull(product)
+  })
+
+  test('refuse valeurs invalides : négatif, décimal sur entier, type trop long', async ({
+    client,
+    assert,
+  }) => {
+    const negative = await attemptCreate(client, 'logistique-negatif', { unitGrossWeightG: -5 })
+    negative.assertStatus(200)
+
+    const fractional = await attemptCreate(client, 'logistique-decimal', { innerCartonQty: 2.5 })
+    fractional.assertStatus(200)
+
+    const tooLong = await attemptCreate(client, 'logistique-type-long', {
+      packageType: 'x'.repeat(121),
+    })
+    tooLong.assertStatus(200)
+
+    for (const slug of ['logistique-negatif', 'logistique-decimal', 'logistique-type-long']) {
+      assert.isNull(await Product.findBy('slug', slug))
+    }
   })
 
   test('la factory crée un conditionnement rattaché à un produit', async ({ assert }) => {
