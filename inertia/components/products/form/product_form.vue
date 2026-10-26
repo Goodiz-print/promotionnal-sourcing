@@ -11,6 +11,7 @@ import ProductDetailsFields from '~/components/products/form/product_details_fie
 import ProductCommercialFields from '~/components/products/form/product_commercial_fields.vue'
 import ProductFacetsFields from '~/components/products/form/product_facets_fields.vue'
 import ProductComplianceFields from '~/components/products/form/product_compliance_fields.vue'
+import ProductPackagingFields from '~/components/products/form/product_packaging_fields.vue'
 import ProductImagesFields from '~/components/products/form/product_images_fields.vue'
 import ProductVariantsFields from '~/components/products/form/product_variants_fields.vue'
 import ProductPriceTiersFields from '~/components/products/form/product_price_tiers_fields.vue'
@@ -80,6 +81,21 @@ const form = useForm<ProductFormState>({
     minQuantity: tier.minQuantity,
     unitPrice: Number(tier.unitPrice),
   })),
+  // Conditionnement / logistique (écart 3) : le volume (décimal) revient en
+  // chaîne, converti en nombre pour le champ.
+  packaging: {
+    packageType: props.product?.packaging?.packageType ?? '',
+    unitGrossWeightG: props.product?.packaging?.unitGrossWeightG ?? null,
+    innerCartonQty: props.product?.packaging?.innerCartonQty ?? null,
+    outerCartonQty: props.product?.packaging?.outerCartonQty ?? null,
+    outerCartonLengthMm: props.product?.packaging?.outerCartonLengthMm ?? null,
+    outerCartonWidthMm: props.product?.packaging?.outerCartonWidthMm ?? null,
+    outerCartonHeightMm: props.product?.packaging?.outerCartonHeightMm ?? null,
+    outerCartonGrossWeightG: props.product?.packaging?.outerCartonGrossWeightG ?? null,
+    outerCartonVolumeM3: props.product?.packaging?.outerCartonVolumeM3
+      ? Number(props.product.packaging.outerCartonVolumeM3)
+      : null,
+  },
 })
 
 provide(ProductFormKey, form)
@@ -155,6 +171,19 @@ function submit() {
       // recale `is_eco` (une valeur omise serait conservée en base).
       payload.recycledContentPercent = data.recycledContentPercent
       payload.cautionComment = data.cautionComment.trim() || null
+      // Conditionnement (écart 3) : toujours envoyé (null quand vide) pour pouvoir
+      // être effacé à l'édition — un champ omis serait conservé en base.
+      payload.packaging = {
+        packageType: data.packaging.packageType.trim() || null,
+        unitGrossWeightG: data.packaging.unitGrossWeightG,
+        innerCartonQty: data.packaging.innerCartonQty,
+        outerCartonQty: data.packaging.outerCartonQty,
+        outerCartonLengthMm: data.packaging.outerCartonLengthMm,
+        outerCartonWidthMm: data.packaging.outerCartonWidthMm,
+        outerCartonHeightMm: data.packaging.outerCartonHeightMm,
+        outerCartonGrossWeightG: data.packaging.outerCartonGrossWeightG,
+        outerCartonVolumeM3: data.packaging.outerCartonVolumeM3,
+      }
       return payload
     })
     // Inertia omet les tableaux vides en multipart : sans fichier, on reste en JSON
@@ -185,6 +214,11 @@ function cancel() {
     <div>
       <h2 class="mb-2 font-medium">{{ t('products.manage.compliance') }}</h2>
       <ProductComplianceFields :certifications="certifications" />
+    </div>
+
+    <div>
+      <h2 class="mb-2 font-medium">{{ t('products.manage.packaging') }}</h2>
+      <ProductPackagingFields />
     </div>
 
     <div>

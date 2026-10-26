@@ -253,6 +253,7 @@ describe('products/show.vue', () => {
               type: 'spec_sheet' as const,
             },
           ],
+          packaging: null,
         },
       },
     })

@@ -60,6 +60,27 @@ const priceTierInput = () =>
     unitPrice: vine.number().positive(),
   })
 
+/** Entier logistique positif et optionnel (poids / quantité / dimension). */
+const positiveInt = () => vine.number().withoutDecimals().positive().optional().nullable()
+
+/**
+ * Conditionnement / logistique (écart 3) : tous les champs optionnels. Poids,
+ * quantités et dimensions = entiers positifs ; volume = décimal positif. `null`
+ * explicite autorisé (efface le champ à la mise à jour).
+ */
+const packagingInput = () =>
+  vine.object({
+    packageType: vine.string().trim().maxLength(120).optional().nullable(),
+    unitGrossWeightG: positiveInt(),
+    innerCartonQty: positiveInt(),
+    outerCartonQty: positiveInt(),
+    outerCartonLengthMm: positiveInt(),
+    outerCartonWidthMm: positiveInt(),
+    outerCartonHeightMm: positiveInt(),
+    outerCartonGrossWeightG: positiveInt(),
+    outerCartonVolumeM3: vine.number().positive().optional().nullable(),
+  })
+
 /**
  * Champs communs (colonnes neutres, facettes, galerie).
  */
@@ -102,6 +123,8 @@ const commonFields = () => ({
   attributeValueIds: vine.array(vine.number().positive()).optional(),
   variants: vine.array(variantInput()).maxLength(100).optional(),
   priceTiers: vine.array(priceTierInput()).maxLength(50).optional(),
+  // Conditionnement / logistique (écart 3). Absent = inchangé.
+  packaging: packagingInput().optional(),
   images: vine
     .array(vine.file({ size: '5mb', extnames: ['jpg', 'jpeg', 'png', 'webp'] }))
     .maxLength(8)

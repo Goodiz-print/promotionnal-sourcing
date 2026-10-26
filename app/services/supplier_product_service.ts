@@ -8,6 +8,7 @@ import Category from '#models/category'
 import Attribute from '#models/attribute'
 import AttributeValue from '#models/attribute_value'
 import Certification from '#models/certification'
+import ProductPackaging from '#models/product_packaging'
 import ProductImage from '#models/product_image'
 import ProductImageVariant from '#models/product_image_variant'
 import ProductVariantService from '#services/product_variant_service'
@@ -26,7 +27,12 @@ import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
 import { MATERIAL_ATTRIBUTE_SLUG } from '#shared/types/certification'
 import type Organization from '#models/organization'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
-import type { SupplierProductInput, SupplierProductUpdateInput } from '#shared/types/product'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
+import type {
+  ProductPackagingInput,
+  SupplierProductInput,
+  SupplierProductUpdateInput,
+} from '#shared/types/product'
 
 /**
  * Gestion des produits côté fournisseur (CRUD + galerie Cellar). Toute la
@@ -83,19 +89,23 @@ export default class SupplierProductService {
    * le nécessaire à l'édition. `null` si introuvable ou hors de l'org.
    */
   findOwned(org: Organization, productId: number): Promise<Product | null> {
-    return Product.query()
-      .where('id', productId)
-      .whereHas('supplier', (supplier) => supplier.where('organizationId', org.id))
-      .preload('translations')
-      .preload('images', (images) => images.orderBy('position').preload('variants'))
-      .preload('attributeValues')
-      .preload('certifications')
-      .preload('variants', (variants) => variants.preload('attributes').orderBy('id'))
-      .preload('priceTiers', (tiers) => tiers.orderBy('minQuantity'))
-      .preload('documents', (documents) =>
-        documents.whereNotNull('storageObjectId').preload('storageObject').orderBy('id')
-      )
-      .first()
+    return (
+      Product.query()
+        .where('id', productId)
+        .whereHas('supplier', (supplier) => supplier.where('organizationId', org.id))
+        .preload('translations')
+        .preload('images', (images) => images.orderBy('position').preload('variants'))
+        .preload('attributeValues')
+        .preload('certifications')
+        .preload('variants', (variants) => variants.preload('attributes').orderBy('id'))
+        .preload('priceTiers', (tiers) => tiers.orderBy('minQuantity'))
+        .preload('documents', (documents) =>
+          documents.whereNotNull('storageObjectId').preload('storageObject').orderBy('id')
+        )
+        // Conditionnement / logistique (écart 3) : relation 1:1.
+        .preload('packaging')
+        .first()
+    )
   }
 
   /**
@@ -136,6 +146,8 @@ export default class SupplierProductService {
         { client: trx }
       )
       await this.variants.sync(trx, created, data.variants, data.priceTiers)
+      // Conditionnement (écart 3) dans la même transaction que le save produit.
+      await this.syncPackaging(trx, created, data.packaging)
       return created
     })
 
@@ -178,6 +190,8 @@ export default class SupplierProductService {
       product.originZone = this.origin.deriveZone(product.originCountry, product.madeInEurope)
       await product.save()
       await this.variants.sync(trx, product, data.variants, data.priceTiers)
+      // Conditionnement (écart 3) dans la même transaction que le save produit.
+      await this.syncPackaging(trx, product, data.packaging)
     })
     await this.writeTranslations(product, data.translations)
     if (data.attributeValueIds !== undefined) await this.syncFacets(product, data.attributeValueIds)
@@ -476,6 +490,37 @@ export default class SupplierProductService {
     // étrangère (500) — même garde que `syncFacets` pour les facettes.
     const existing = await Certification.query().whereIn('id', certificationIds).select('id')
     await product.related('certifications').sync(existing.map((certification) => certification.id))
+  }
+
+  /**
+   * Upsert 1:1 du conditionnement / logistique (écart 3). `packaging` absent =
+   * inchangé ; fourni = crée ou met à jour l'unique ligne `product_packagings`
+   * (les champs absents de l'objet fourni sont remis à `null` : remplacement
+   * complet du bloc). `outerCartonVolumeM3` est un décimal (string en base).
+   */
+  private async syncPackaging(
+    trx: TransactionClientContract,
+    product: Product,
+    packaging: ProductPackagingInput | undefined
+  ): Promise<void> {
+    if (packaging === undefined) return
+    const decimal = (value: number | null | undefined) =>
+      typeof value === 'number' ? String(value) : null
+    await ProductPackaging.updateOrCreate(
+      { productId: product.id },
+      {
+        packageType: packaging.packageType ?? null,
+        unitGrossWeightG: packaging.unitGrossWeightG ?? null,
+        innerCartonQty: packaging.innerCartonQty ?? null,
+        outerCartonQty: packaging.outerCartonQty ?? null,
+        outerCartonLengthMm: packaging.outerCartonLengthMm ?? null,
+        outerCartonWidthMm: packaging.outerCartonWidthMm ?? null,
+        outerCartonHeightMm: packaging.outerCartonHeightMm ?? null,
+        outerCartonGrossWeightG: packaging.outerCartonGrossWeightG ?? null,
+        outerCartonVolumeM3: decimal(packaging.outerCartonVolumeM3),
+      },
+      { client: trx }
+    )
   }
 
   /**

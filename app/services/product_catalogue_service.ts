@@ -120,6 +120,8 @@ export default class ProductCatalogueService {
         )
         // Labels de conformité (écart 4) avec leurs traductions.
         .preload('certifications', (certifications) => certifications.preload('translations'))
+        // Conditionnement / logistique (écart 3) : relation 1:1.
+        .preload('packaging')
         .first()
     )
   }

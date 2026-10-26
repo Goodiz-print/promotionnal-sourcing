@@ -7,6 +7,7 @@ import ProductImageTransformer from '#transformers/product_image_transformer'
 import { ProductDetailVariantTransformer } from '#transformers/product_variant_transformer'
 import ProductPriceTierTransformer from '#transformers/product_price_tier_transformer'
 import ProductDocumentTransformer from '#transformers/product_document_transformer'
+import ProductPackagingTransformer from '#transformers/product_packaging_transformer'
 import CertificationTransformer from '#transformers/certification_transformer'
 import type StorageObject from '#models/storage_object'
 import type { ProductDetailType } from '#shared/types/product'
@@ -66,6 +67,10 @@ export default class ProductDetailTransformer extends BaseTransformer<Product> {
       documents: this.resource.documents.map((document) =>
         new ProductDocumentTransformer(document, this.documentUrl).toObject()
       ),
+      // Conditionnement / logistique (écart 3), `null` si non renseigné.
+      packaging: this.resource.packaging
+        ? new ProductPackagingTransformer(this.resource.packaging).toObject()
+        : null,
     }
   }
 }

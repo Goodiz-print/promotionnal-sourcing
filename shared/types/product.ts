@@ -190,6 +190,24 @@ export type ProductDetailVariantType = ProductVariantType & {
 }
 
 /**
+ * Conditionnement / logistique produit (écart 3), sérialisé pour le frontend.
+ * Relation 1:1 avec le produit : rarement filtré, donc colonnes simples (pas
+ * d'EAV, pas de facette). `outerCartonVolumeM3` est un décimal sérialisé en
+ * chaîne par Lucid, comme les autres colonnes decimal du projet.
+ */
+export type ProductPackagingType = {
+  packageType: string | null
+  unitGrossWeightG: number | null
+  innerCartonQty: number | null
+  outerCartonQty: number | null
+  outerCartonLengthMm: number | null
+  outerCartonWidthMm: number | null
+  outerCartonHeightMm: number | null
+  outerCartonGrossWeightG: number | null
+  outerCartonVolumeM3: string | null
+}
+
+/**
  * Palier de prix : à partir de `minQuantity` pièces, `unitPrice` par pièce.
  * `variantId` null = palier du produit (toutes variantes). Décimal sérialisé
  * en chaîne par Lucid.
@@ -219,6 +237,8 @@ export type ProductDetailType = ProductType & {
   priceTiers: ProductPriceTierType[]
   // Fiches techniques PDF (typées par nature, écart 4).
   documents: ProductDocumentFile[]
+  // Conditionnement / logistique (écart 3) ; `null` si non renseigné.
+  packaging: ProductPackagingType | null
 }
 
 /**
@@ -275,6 +295,8 @@ export type ProductEditType = {
   variants: ProductVariantType[]
   priceTiers: ProductPriceTierType[]
   documents: ProductDocumentFile[]
+  // Conditionnement / logistique (écart 3) ; `null` si non renseigné.
+  packaging: ProductPackagingType | null
 }
 
 /**
@@ -296,6 +318,25 @@ export interface ProductPriceTierInput {
   variantSku?: string | null
   minQuantity: number
   unitPrice: number
+}
+
+/**
+ * Conditionnement / logistique saisi (écart 3). Tous les champs sont optionnels.
+ * Dans le payload d'un produit, `packaging` **absent = inchangé** ; fourni, il
+ * crée ou met à jour l'unique ligne 1:1 (les champs absents de l'objet fourni
+ * sont remis à `null` — remplacement complet du bloc). Le volume est un nombre
+ * (décimal) ; les poids / quantités / dimensions sont des entiers positifs.
+ */
+export interface ProductPackagingInput {
+  packageType?: string | null
+  unitGrossWeightG?: number | null
+  innerCartonQty?: number | null
+  outerCartonQty?: number | null
+  outerCartonLengthMm?: number | null
+  outerCartonWidthMm?: number | null
+  outerCartonHeightMm?: number | null
+  outerCartonGrossWeightG?: number | null
+  outerCartonVolumeM3?: number | null
 }
 
 /**
@@ -346,6 +387,8 @@ export interface SupplierProductInput {
   attributeValueIds?: number[]
   variants?: ProductVariantInput[]
   priceTiers?: ProductPriceTierInput[]
+  // Conditionnement / logistique (écart 3). Absent = inchangé.
+  packaging?: ProductPackagingInput
 }
 
 /**
@@ -386,6 +429,8 @@ export interface SupplierProductUpdateInput {
   // Absent = inchangé ; tableau = remplace l'ensemble (variantes par SKU).
   variants?: ProductVariantInput[]
   priceTiers?: ProductPriceTierInput[]
+  // Conditionnement / logistique (écart 3). Absent = inchangé.
+  packaging?: ProductPackagingInput
 }
 
 export interface CreateProductData {
