@@ -22,7 +22,8 @@
       "france": "France",
       "europe": "Europe",
       "other": "Hors Europe"
-    }
+    },
+    "ecoOnly": "Éco-responsable"
   },
   "show": {
     "backToCatalogue": "Retour au catalogue",
@@ -38,7 +39,10 @@
     "tierFrom": "À partir de {quantity} pièces",
     "addToDraft": "Ajouter à une demande en brouillon",
     "chooseDraft": "Choisir un brouillon…",
-    "signInToRequest": "Se connecter pour demander un devis"
+    "signInToRequest": "Se connecter pour demander un devis",
+    "compliance": "Conformité",
+    "eco": "Éco-responsable",
+    "recycledContent": "{percent} % de matière recyclée"
   },
   "manage": {
     "index": {
@@ -90,7 +94,10 @@
       "leadTimeDays": "Délai indicatif (jours)",
       "rushLeadTimeDays": "Délai express (jours)",
       "rushService": "Service express",
-      "isConfigurable": "Produit configurable"
+      "isConfigurable": "Produit configurable",
+      "recycledContentPercent": "Part de matière recyclée (%)",
+      "cautionComment": "Précautions / mise en garde",
+      "certifications": "Labels de conformité"
     },
     "variants": {
       "title": "Variantes",
@@ -118,6 +125,8 @@
       "end_of_series": "Fin de série",
       "retired": "Retiré"
     },
-    "commercial": "Identité, commercial et médias"
+    "commercial": "Identité, commercial et médias",
+    "compliance": "Conformité",
+    "noCertifications": "Aucun label disponible."
   }
 }

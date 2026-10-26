@@ -7,6 +7,7 @@ import ProductImageTransformer from '#transformers/product_image_transformer'
 import { ProductDetailVariantTransformer } from '#transformers/product_variant_transformer'
 import ProductPriceTierTransformer from '#transformers/product_price_tier_transformer'
 import ProductDocumentTransformer from '#transformers/product_document_transformer'
+import CertificationTransformer from '#transformers/certification_transformer'
 import type StorageObject from '#models/storage_object'
 import type { ProductDetailType } from '#shared/types/product'
 
@@ -51,6 +52,10 @@ export default class ProductDetailTransformer extends BaseTransformer<Product> {
           ? (resolveTranslation(pa.attributeValue.translations, this.locale)?.label ?? null)
           : (pa.valueString ?? pa.valueNumber ?? null),
       })),
+      // Labels de conformité résolus dans la locale active (écart 4).
+      certifications: this.resource.certifications.map((certification) =>
+        new CertificationTransformer(certification, this.locale).toObject()
+      ),
       images: this.resource.images.map((image) => new ProductImageTransformer(image).toObject()),
       variants: this.resource.variants.map((variant) =>
         new ProductDetailVariantTransformer(variant, this.locale).toObject()

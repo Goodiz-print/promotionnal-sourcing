@@ -65,6 +65,12 @@ export interface ProductSearchDocument {
    * (`releasedAt >= <seuil>`).
    */
   releasedAt: number | null
+  /**
+   * Filtre dérivé « Éco-responsable » (écart 4) : `true` si le produit déclare
+   * du recyclé, porte une matière éco ou un label éco. Calculé par la plateforme
+   * (`ProductEcoService`), jamais saisi.
+   */
+  isEco: boolean
   /** Valeurs de facettes (`attribute_values.id`), pour le filtre ET exact. */
   attributeValueIds: number[]
   /**
@@ -122,6 +128,11 @@ export interface ProductSearchFilter {
    * les produits dont `releasedAt >= releasedAfter`.
    */
   releasedAfter?: number | null
+  /**
+   * Filtre « Éco-responsable » (écart 4) : `true` ne garde que les produits
+   * `is_eco`. Absent/`false` = pas de filtre éco.
+   */
+  isEco?: boolean
 }
 
 /**

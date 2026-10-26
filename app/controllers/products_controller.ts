@@ -45,6 +45,8 @@ export default class ProductsController {
       // Provenance à 3 états (écart 9) et filtre « Nouveautés » (écart 5).
       originZones: this.parseOriginZones(qs.originZones),
       newOnly: qs.newOnly === 'true',
+      // Filtre dérivé « Éco-responsable » (écart 4).
+      ecoOnly: qs.ecoOnly === 'true',
     }
     const page = Number.parseInt(qs.page, 10) || 1
 

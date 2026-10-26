@@ -88,6 +88,8 @@ export function productIndexSettings(facetSlugs: readonly string[] = []): Settin
       // Provenance à 3 états (écart 9) et filtre « Nouveautés » (écart 5).
       'originZone',
       'releasedAt',
+      // Filtre dérivé « Éco-responsable » (écart 4).
+      'isEco',
       'attributeValueIds',
       ...facetSlugs.map(facetField),
     ],
@@ -107,6 +109,8 @@ export function buildProductFilter(filter: ProductSearchFilter): string | undefi
   const clauses: string[] = []
   if (filter.categoryId) clauses.push(`categoryId = ${Number(filter.categoryId)}`)
   if (filter.madeInEurope) clauses.push('madeInEurope = true')
+  // Éco-responsable (écart 4) : filtre dérivé booléen.
+  if (filter.isEco) clauses.push('isEco = true')
   for (const valueId of filter.attributeValueIds ?? []) {
     clauses.push(`attributeValueIds = ${Number(valueId)}`)
   }

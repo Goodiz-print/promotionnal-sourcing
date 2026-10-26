@@ -2,7 +2,8 @@ import type { ContentLocale, Locale } from './i18n.js'
 import type { CategoryType } from './category.js'
 import type { AttributeWithValuesType } from './attribute.js'
 import type { ImageVariantType } from './image_variant.js'
-import type { DocumentType } from './document.js'
+import type { ProductDocumentFile } from './document.js'
+import type { CertificationType } from './certification.js'
 
 /**
  * Statut « cycle de vie » d'un produit (écart 5). Distinct de `isActive`, qui
@@ -87,6 +88,11 @@ export type ProductType = {
   videoUrl: string | null
   // Provenance dérivée (écart 9) — jamais saisie.
   originZone: OriginZone | null
+  // Conformité (écart 4) : part de recyclé et mise en garde saisies ;
+  // `isEco` est dérivé par la plateforme (jamais saisi).
+  recycledContentPercent: number | null
+  cautionComment: string | null
+  isEco: boolean
   createdAt: string
   updatedAt: string | null
 }
@@ -122,6 +128,9 @@ export type ProductDirectoryFilters = {
   originZones: OriginZone[]
   // Filtre « Nouveautés » (écart 5) : produits sortis dans la fenêtre récente.
   newOnly: boolean
+  // Filtre dérivé « Éco-responsable » (écart 4) : ne garde que les produits
+  // `is_eco`. `false` = pas de filtre éco.
+  ecoOnly: boolean
 }
 
 /**
@@ -201,13 +210,15 @@ export type ProductDetailType = ProductType & {
   supplier: { slug: string; name: string | null; country: string }
   category: { slug: string; name: string | null } | null
   attributes: ProductDetailAttributeType[]
+  // Labels de conformité résolus dans la locale active (écart 4).
+  certifications: CertificationType[]
   // Galerie ordonnée (par `position`). `imageUrl` reste l'image principale.
   images: ProductImageType[]
   // Variantes actives et grille de prix dégressive.
   variants: ProductDetailVariantType[]
   priceTiers: ProductPriceTierType[]
-  // Fiches techniques PDF.
-  documents: DocumentType[]
+  // Fiches techniques PDF (typées par nature, écart 4).
+  documents: ProductDocumentFile[]
 }
 
 /**
@@ -241,6 +252,12 @@ export type ProductEditType = {
   videoUrl: string | null
   // Provenance dérivée (écart 9), lecture seule dans le formulaire.
   originZone: OriginZone | null
+  // Conformité (écart 4) : saisies ; `isEco` dérivé, lecture seule.
+  recycledContentPercent: number | null
+  cautionComment: string | null
+  isEco: boolean
+  // Labels de conformité sélectionnés (écart 4), par identifiant.
+  certificationIds: number[]
   // Langue saisie par le fournisseur ; les autres sont générées (`isAuto`).
   sourceLocale: ContentLocale
   translations: Record<
@@ -257,7 +274,7 @@ export type ProductEditType = {
   images: ProductImageType[]
   variants: ProductVariantType[]
   priceTiers: ProductPriceTierType[]
-  documents: DocumentType[]
+  documents: ProductDocumentFile[]
 }
 
 /**
@@ -322,6 +339,10 @@ export interface SupplierProductInput {
   rushLeadTimeDays?: number | null
   // Médias (écart 8).
   videoUrl?: string | null
+  // Conformité (écart 4). `isEco` n'est PAS saisissable (dérivé).
+  recycledContentPercent?: number | null
+  cautionComment?: string | null
+  certificationIds?: number[]
   attributeValueIds?: number[]
   variants?: ProductVariantInput[]
   priceTiers?: ProductPriceTierInput[]
@@ -356,6 +377,11 @@ export interface SupplierProductUpdateInput {
   rushLeadTimeDays?: number | null
   // Médias (écart 8).
   videoUrl?: string | null
+  // Conformité (écart 4). `isEco` n'est PAS saisissable (dérivé).
+  recycledContentPercent?: number | null
+  cautionComment?: string | null
+  // Absent = inchangé ; tableau = remplace l'ensemble des labels.
+  certificationIds?: number[]
   attributeValueIds?: number[]
   // Absent = inchangé ; tableau = remplace l'ensemble (variantes par SKU).
   variants?: ProductVariantInput[]

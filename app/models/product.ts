@@ -5,6 +5,7 @@ import { ProductSchema } from '#database/schema'
 import Supplier from '#models/supplier'
 import Category from '#models/category'
 import AttributeValue from '#models/attribute_value'
+import Certification from '#models/certification'
 import ProductAttribute from '#models/product_attribute'
 import ProductTranslation from '#models/product_translation'
 import type { TranslationLocale } from '#shared/types/i18n'
@@ -82,4 +83,14 @@ export default class Product extends ProductSchema {
     pivotTimestamps: false,
   })
   declare attributeValues: ManyToMany<typeof AttributeValue>
+
+  /**
+   * Labels de conformité portés par le produit (écart 4), via le pivot
+   * `product_certifications`. Alimentent entre autres la dérivation `is_eco`.
+   */
+  @manyToMany(() => Certification, {
+    pivotTable: 'product_certifications',
+    pivotTimestamps: false,
+  })
+  declare certifications: ManyToMany<typeof Certification>
 }

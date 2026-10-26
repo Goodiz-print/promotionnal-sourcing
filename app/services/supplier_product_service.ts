@@ -7,10 +7,12 @@ import Supplier from '#models/supplier'
 import Category from '#models/category'
 import Attribute from '#models/attribute'
 import AttributeValue from '#models/attribute_value'
+import Certification from '#models/certification'
 import ProductImage from '#models/product_image'
 import ProductImageVariant from '#models/product_image_variant'
 import ProductVariantService from '#services/product_variant_service'
 import ProductOriginService from '#services/product_origin_service'
+import ProductEcoService from '#services/product_eco_service'
 import ProductTranslation from '#models/product_translation'
 import SupplierTranslation from '#models/supplier_translation'
 import StorageService from '#services/storage/storage_service'
@@ -21,6 +23,7 @@ import logger from '@adonisjs/core/services/logger'
 import emitter from '@adonisjs/core/services/emitter'
 import ProductChanged from '#events/product_changed'
 import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
+import { MATERIAL_ATTRIBUTE_SLUG } from '#shared/types/certification'
 import type Organization from '#models/organization'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
 import type { SupplierProductInput, SupplierProductUpdateInput } from '#shared/types/product'
@@ -36,7 +39,8 @@ export default class SupplierProductService {
     private storage: StorageService,
     private translationQueue: TranslationQueueService,
     private variants: ProductVariantService,
-    private origin: ProductOriginService
+    private origin: ProductOriginService,
+    private eco: ProductEcoService
   ) {}
 
   /**
@@ -85,6 +89,7 @@ export default class SupplierProductService {
       .preload('translations')
       .preload('images', (images) => images.orderBy('position').preload('variants'))
       .preload('attributeValues')
+      .preload('certifications')
       .preload('variants', (variants) => variants.preload('attributes').orderBy('id'))
       .preload('priceTiers', (tiers) => tiers.orderBy('minQuantity'))
       .preload('documents', (documents) =>
@@ -136,6 +141,10 @@ export default class SupplierProductService {
 
     await this.writeTranslations(product, data.translations)
     await this.syncFacets(product, data.attributeValueIds)
+    await this.syncCertifications(product, data.certificationIds)
+    // Dérive « Éco-responsable » (écart 4) sur l'état effectif : facettes +
+    // labels synchronisés, part de recyclé déjà sur `product`.
+    await this.refreshIsEco(product)
     await this.attachImages(product, files, 0)
     await this.refreshPrimaryImage(product)
     await emitter.emit(ProductChanged, new ProductChanged(product.id))
@@ -172,6 +181,11 @@ export default class SupplierProductService {
     })
     await this.writeTranslations(product, data.translations)
     if (data.attributeValueIds !== undefined) await this.syncFacets(product, data.attributeValueIds)
+    if (data.certificationIds !== undefined)
+      await this.syncCertifications(product, data.certificationIds)
+    // Recalcule « Éco-responsable » (écart 4) : la part de recyclé, les matières
+    // ou les labels ont pu changer.
+    await this.refreshIsEco(product)
 
     await this.removeImages(product, removedImageIds)
 
@@ -272,6 +286,14 @@ export default class SupplierProductService {
   }
 
   /**
+   * Référentiel des labels de conformité (écart 4) avec leurs traductions, pour
+   * la sélection dans le formulaire fournisseur.
+   */
+  allCertifications(): Promise<Certification[]> {
+    return Certification.query().preload('translations').orderBy('slug')
+  }
+
+  /**
    * Attributs filtrables + valeurs (facettes éditables dans le formulaire).
    */
   filterableAttributes(): Promise<Attribute[]> {
@@ -309,6 +331,8 @@ export default class SupplierProductService {
         | 'rushService'
         | 'rushLeadTimeDays'
         | 'videoUrl'
+        | 'recycledContentPercent'
+        | 'cautionComment'
       >
     > = {}
     const decimal = (value: number | null) => (typeof value === 'number' ? String(value) : null)
@@ -340,6 +364,11 @@ export default class SupplierProductService {
 
     // Médias (écart 8).
     if (data.videoUrl !== undefined) columns.videoUrl = data.videoUrl
+
+    // Conformité (écart 4) — `is_eco` est dérivé (`refreshIsEco`), jamais ici.
+    if (data.recycledContentPercent !== undefined)
+      columns.recycledContentPercent = data.recycledContentPercent
+    if (data.cautionComment !== undefined) columns.cautionComment = data.cautionComment
     return columns
   }
 
@@ -428,6 +457,56 @@ export default class SupplierProductService {
       pivot[value.id] = { attribute_id: value.attributeId }
     }
     await product.related('attributeValues').sync(pivot)
+  }
+
+  /**
+   * Remplace les labels de conformité du produit (écart 4). Pivot
+   * `product_certifications` sans colonne additionnelle : une simple liste d'ids.
+   */
+  private async syncCertifications(
+    product: Product,
+    certificationIds: number[] = []
+  ): Promise<void> {
+    if (certificationIds.length === 0) {
+      await product.related('certifications').sync([])
+      return
+    }
+    // Ne synchronise que des labels **existants** : un id inconnu (requête
+    // obsolète ou forgée) est ignoré plutôt que de lever une violation de clé
+    // étrangère (500) — même garde que `syncFacets` pour les facettes.
+    const existing = await Certification.query().whereIn('id', certificationIds).select('id')
+    await product.related('certifications').sync(existing.map((certification) => certification.id))
+  }
+
+  /**
+   * Recale le filtre dérivé « Éco-responsable » (écart 4) sur l'état courant du
+   * produit : part de recyclé, matières portées et labels éco. Jamais saisi —
+   * toujours calculé ici (et rattrapé à l'indexation). Idempotent : n'écrit que
+   * si la valeur change.
+   */
+  private async refreshIsEco(product: Product): Promise<void> {
+    // Seules les valeurs de l'attribut `material` comptent comme matière éco
+    // (un slug homonyme sous un autre attribut ne doit pas marquer éco).
+    const materials = await product
+      .related('attributeValues')
+      .query()
+      .whereHas('attribute', (attribute) => attribute.where('slug', MATERIAL_ATTRIBUTE_SLUG))
+      .select('slug')
+    const ecoCertification = await product
+      .related('certifications')
+      .query()
+      .where('is_eco', true)
+      .first()
+
+    const isEco = this.eco.deriveIsEco({
+      recycledContentPercent: product.recycledContentPercent,
+      materialSlugs: materials.map((value) => value.slug),
+      hasEcoCertification: ecoCertification !== null,
+    })
+    if (isEco !== product.isEco) {
+      product.isEco = isEco
+      await product.save()
+    }
   }
 
   /**

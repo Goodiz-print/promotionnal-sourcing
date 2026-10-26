@@ -20,9 +20,9 @@ Moteur de recherche hybride (mots-clés + vecteurs) des produits, décidé par l
 
 ## Document d'index (`ProductSearchDocument`)
 
-`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone` (provenance dérivée, voir « Provenance et Nouveautés »), `releasedAt` (date de sortie en **timestamp Unix secondes**, ou `null`), `attributeValueIds` (facettes, toutes valeurs confondues), `attributes` (facettes **aplaties par slug** : `attributes.color`, `attributes.color-shade`, `attributes.material`… — voir ci-dessous), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `embeddingText` (le texte que Meilisearch vectorise : voir « Vectorisation »).
+`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone` (provenance dérivée, voir « Provenance et Nouveautés »), `releasedAt` (date de sortie en **timestamp Unix secondes**, ou `null`), `isEco` (filtre « Éco-responsable » dérivé, voir « Conformité »), `attributeValueIds` (facettes, toutes valeurs confondues), `attributes` (facettes **aplaties par slug** : `attributes.color`, `attributes.color-shade`, `attributes.material`… — voir ci-dessous), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `embeddingText` (le texte que Meilisearch vectorise : voir « Vectorisation »).
 
-Réglages (`productIndexSettings(facetSlugs)`) : attributs cherchables `names`, `descriptions`, `reference` — un seul attribut par famille couvre toutes les langues, **ajouter une langue ne change aucun réglage** ; attributs filtrables `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone`, `releasedAt`, `attributeValueIds`, **plus un champ `attributes.<slug>` par attribut filtrable** (`facetSlugs` dérivés de `category_attributes.is_filter`, via `FilterableFacetsService` — jamais une liste codée en dur) ; embedder `default` (voir « Vectorisation »), retiré des réglages quand il est coupé. Les réglages sont réappliqués au premier envoi d'un processus et à chaque `search:reindex` : un changement de `is_filter` est donc pris en compte au prochain reindex.
+Réglages (`productIndexSettings(facetSlugs)`) : attributs cherchables `names`, `descriptions`, `reference` — un seul attribut par famille couvre toutes les langues, **ajouter une langue ne change aucun réglage** ; attributs filtrables `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone`, `releasedAt`, `isEco`, `attributeValueIds`, **plus un champ `attributes.<slug>` par attribut filtrable** (`facetSlugs` dérivés de `category_attributes.is_filter`, via `FilterableFacetsService` — jamais une liste codée en dur) ; embedder `default` (voir « Vectorisation »), retiré des réglages quand il est coupé. Les réglages sont réappliqués au premier envoi d'un processus et à chaque `search:reindex` : un changement de `is_filter` est donc pris en compte au prochain reindex.
 
 Seuls les produits **visibles** sont indexés : actifs, organisation non archivée ni rejetée, non rejetés par la modération — les mêmes scopes que la fiche publique (`Product.fromLiveOrganization`, `Product.notRejected`).
 
@@ -104,6 +104,32 @@ clauses directement en base. **Backfill** : `node ace search:reindex` recalcule 
 réécrit `origin_zone` puis republie tous les documents avec `originZone` /
 `releasedAt`. Frontend : cases France/Europe/Hors Europe et bascule « Nouveautés »
 dans `inertia/components/catalogue_filters.vue`.
+
+### Conformité — ÉTAPE 3 du modèle produit (écart 4)
+
+Une facette de fiche s'ajoute aux réglages `filterableAttributes` :
+
+- **`isEco`** (filtre « Éco-responsable ») : booléen **dérivé** (`products.is_eco`),
+  jamais saisi. Calculé par `ProductEcoService.deriveIsEco` : vrai si
+  `recycled_content_percent > 0`, **ou** le produit porte une matière
+  éco-responsable (bio / recyclé / naturel — `ECO_MATERIAL_SLUGS` dans
+  `shared/types/certification.ts`), **ou** au moins un label de conformité éco
+  (`certifications.is_eco`). Comme `origin_zone`, il est **persisté au save
+  produit** (`SupplierProductService.refreshIsEco`, après synchronisation des
+  facettes et des labels) et **rattrapé (backfill) au passage d'indexation**
+  (`ProductIndexService.documentsFor` recale `is_eco` sur la dérivation courante,
+  en même temps qu'`origin_zone` — idempotent). Le filtre est une clause booléenne
+  (`isEco = true`), jamais une négation : ne pas cocher la case ne filtre rien.
+
+Côté catalogue, ce filtre transite par `ProductDirectoryFilters` (`ecoOnly:
+boolean`) : avec terme de recherche il passe au moteur (`buildProductFilter`) **et**
+est revérifié sur PostgreSQL au rechargement ; sans terme,
+`ProductCatalogueService.list` applique la même clause directement en base.
+**Backfill** : `node ace search:reindex` recalcule et réécrit `is_eco` puis
+republie tous les documents. Frontend : case « Éco-responsable » dans
+`inertia/components/catalogue_filters.vue`. Les **certifications** restent au
+niveau produit (pivot `product_certifications`, affichées sur la fiche) mais ne
+sont **pas** une facette filtrable du moteur à ce stade.
 
 ## Vectorisation (embedder de Meilisearch)
 

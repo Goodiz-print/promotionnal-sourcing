@@ -29,6 +29,7 @@ const state = reactive<ProductDirectoryFilters>({
   attributeValueIds: [...props.filters.attributeValueIds],
   originZones: [...props.filters.originZones],
   newOnly: props.filters.newOnly,
+  ecoOnly: props.filters.ecoOnly,
 })
 
 // Zones de provenance à 3 états (écart 9) : France / Europe / Hors Europe.
@@ -42,6 +43,7 @@ function apply() {
     attributeValueIds: [...state.attributeValueIds],
     originZones: [...state.originZones],
     newOnly: state.newOnly,
+    ecoOnly: state.ecoOnly,
   })
 }
 
@@ -74,6 +76,11 @@ function toggleOriginZone(zone: OriginZone, checked: boolean) {
 
 function onNewOnly(value: boolean) {
   state.newOnly = value
+  apply()
+}
+
+function onEcoOnly(value: boolean) {
+  state.ecoOnly = value
   apply()
 }
 
@@ -120,6 +127,13 @@ function toggleValue(valueId: number, checked: boolean) {
       :model-value="state.newOnly"
       :label="t('products.index.newOnly')"
       @update:model-value="onNewOnly"
+    />
+
+    <BaseCheckbox
+      id="ecoOnly"
+      :model-value="state.ecoOnly"
+      :label="t('products.index.ecoOnly')"
+      @update:model-value="onEcoOnly"
     />
 
     <fieldset class="flex flex-col gap-2">

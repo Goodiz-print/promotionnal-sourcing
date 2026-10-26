@@ -22,7 +22,8 @@
       "france": "France",
       "europe": "Europe",
       "other": "Outside Europe"
-    }
+    },
+    "ecoOnly": "Eco-friendly"
   },
   "show": {
     "backToCatalogue": "Back to catalogue",
@@ -38,7 +39,10 @@
     "tierFrom": "From {quantity} pieces",
     "addToDraft": "Add to a draft request",
     "chooseDraft": "Choose a draft…",
-    "signInToRequest": "Sign in to request a quote"
+    "signInToRequest": "Sign in to request a quote",
+    "compliance": "Compliance",
+    "eco": "Eco-friendly",
+    "recycledContent": "{percent}% recycled content"
   },
   "manage": {
     "index": {
@@ -90,7 +94,10 @@
       "leadTimeDays": "Lead time (days)",
       "rushLeadTimeDays": "Rush lead time (days)",
       "rushService": "Rush service",
-      "isConfigurable": "Configurable product"
+      "isConfigurable": "Configurable product",
+      "recycledContentPercent": "Recycled content (%)",
+      "cautionComment": "Cautions / warnings",
+      "certifications": "Compliance labels"
     },
     "variants": {
       "title": "Variants",
@@ -118,6 +125,8 @@
       "end_of_series": "End of series",
       "retired": "Retired"
     },
-    "commercial": "Identity, commercial and media"
+    "commercial": "Identity, commercial and media",
+    "compliance": "Compliance",
+    "noCertifications": "No label available."
   }
 }

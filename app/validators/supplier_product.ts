@@ -94,6 +94,11 @@ const commonFields = () => ({
   rushLeadTimeDays: vine.number().withoutDecimals().min(0).max(3650).optional().nullable(),
   // Médias (écart 8).
   videoUrl: vine.string().trim().url().maxLength(2048).optional().nullable(),
+  // Conformité (écart 4). `is_eco` n'est PAS saisissable : colonne dérivée
+  // (`ProductEcoService`), calculée au save et à l'indexation.
+  recycledContentPercent: vine.number().withoutDecimals().min(0).max(100).optional().nullable(),
+  cautionComment: vine.string().trim().maxLength(2000).optional().nullable(),
+  certificationIds: vine.array(vine.number().positive()).optional(),
   attributeValueIds: vine.array(vine.number().positive()).optional(),
   variants: vine.array(variantInput()).maxLength(100).optional(),
   priceTiers: vine.array(priceTierInput()).maxLength(50).optional(),

@@ -10,11 +10,13 @@ import ProductTranslationsFields from '~/components/products/form/product_transl
 import ProductDetailsFields from '~/components/products/form/product_details_fields.vue'
 import ProductCommercialFields from '~/components/products/form/product_commercial_fields.vue'
 import ProductFacetsFields from '~/components/products/form/product_facets_fields.vue'
+import ProductComplianceFields from '~/components/products/form/product_compliance_fields.vue'
 import ProductImagesFields from '~/components/products/form/product_images_fields.vue'
 import ProductVariantsFields from '~/components/products/form/product_variants_fields.vue'
 import ProductPriceTiersFields from '~/components/products/form/product_price_tiers_fields.vue'
 import type { CategoryType } from '#shared/types/category'
 import type { AttributeWithValuesType } from '#shared/types/attribute'
+import type { CertificationType } from '#shared/types/certification'
 import type { ProductEditType } from '#shared/types/product'
 import { ProductFormKey, type ProductFormState } from './types'
 
@@ -22,6 +24,7 @@ const props = defineProps<{
   mode: 'create' | 'edit'
   categories: CategoryType[]
   attributes: AttributeWithValuesType[]
+  certifications: CertificationType[]
   product?: ProductEditType
 }>()
 
@@ -59,6 +62,9 @@ const form = useForm<ProductFormState>({
   rushService: props.product?.rushService ?? false,
   rushLeadTimeDays: props.product?.rushLeadTimeDays ?? null,
   videoUrl: props.product?.videoUrl ?? '',
+  recycledContentPercent: props.product?.recycledContentPercent ?? null,
+  cautionComment: props.product?.cautionComment ?? '',
+  certificationIds: props.product ? [...props.product.certificationIds] : [],
   attributeValueIds: props.product ? [...props.product.attributeValueIds] : [],
   images: [],
   removedImageIds: [],
@@ -116,6 +122,8 @@ function submit() {
         lifecycleStatus: data.lifecycleStatus,
         rushService: data.rushService,
         attributeValueIds: data.attributeValueIds,
+        // Conformité (écart 4) : labels sélectionnés (tableau toujours envoyé).
+        certificationIds: data.certificationIds,
         images: data.images,
         removedImageIds: data.removedImageIds,
         variants: data.variants
@@ -142,6 +150,11 @@ function submit() {
       if (data.leadTimeDays !== null) payload.leadTimeDays = data.leadTimeDays
       if (data.rushLeadTimeDays !== null) payload.rushLeadTimeDays = data.rushLeadTimeDays
       if (data.videoUrl.trim()) payload.videoUrl = data.videoUrl.trim()
+      // Conformité (écart 4) : toujours envoyés (null quand vides) pour pouvoir
+      // être **effacés** à l'édition — vider le recyclé retire l'allégation et
+      // recale `is_eco` (une valeur omise serait conservée en base).
+      payload.recycledContentPercent = data.recycledContentPercent
+      payload.cautionComment = data.cautionComment.trim() || null
       return payload
     })
     // Inertia omet les tableaux vides en multipart : sans fichier, on reste en JSON
@@ -167,6 +180,11 @@ function cancel() {
     <div>
       <h2 class="mb-2 font-medium">{{ t('products.manage.facets') }}</h2>
       <ProductFacetsFields :attributes="attributes" />
+    </div>
+
+    <div>
+      <h2 class="mb-2 font-medium">{{ t('products.manage.compliance') }}</h2>
+      <ProductComplianceFields :certifications="certifications" />
     </div>
 
     <div>

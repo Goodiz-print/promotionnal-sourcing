@@ -53,6 +53,10 @@ export interface ProductFormState {
   rushLeadTimeDays: number | null
   // Médias (écart 8).
   videoUrl: string
+  // Conformité (écart 4) : `isEco` reste dérivé, non éditable.
+  recycledContentPercent: number | null
+  cautionComment: string
+  certificationIds: number[]
   attributeValueIds: number[]
   images: File[]
   removedImageIds: number[]

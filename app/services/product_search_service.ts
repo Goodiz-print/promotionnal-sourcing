@@ -64,6 +64,8 @@ export default class ProductSearchService {
         attributeValueIds: options.attributeValueIds,
         originZones: options.originZones,
         releasedAfter: threshold ? Math.trunc(threshold.toSeconds()) : null,
+        // Éco-responsable (écart 4).
+        isEco: options.ecoOnly,
       },
       page: options.page,
       perPage: options.perPage,
@@ -138,6 +140,8 @@ export default class ProductSearchService {
     // Nouveautés (écart 5) : sorti depuis le seuil.
     const threshold = newProductThreshold(filters?.newOnly ?? false)
     if (threshold) query.where('releasedAt', '>=', threshold.toSQLDate()!)
+    // Éco-responsable (écart 4) : revérifié sur la base.
+    if (filters?.ecoOnly) query.where('isEco', true)
     if (withSupplier) query.preload('supplier', (supplier) => supplier.preload('organization'))
 
     const found = await query

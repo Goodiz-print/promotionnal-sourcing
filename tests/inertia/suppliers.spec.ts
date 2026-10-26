@@ -86,6 +86,9 @@ function product() {
     rushLeadTimeDays: null,
     videoUrl: null,
     originZone: null,
+    recycledContentPercent: null,
+    cautionComment: null,
+    isEco: false,
     createdAt: '2026-07-10T00:00:00.000Z',
     updatedAt: null,
   }

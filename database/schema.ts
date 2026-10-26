@@ -339,6 +339,63 @@ export class CategoryTranslationSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class CertificationTranslationSchema extends BaseModel {
+  static $columns = [
+    'certificationId',
+    'createdAt',
+    'id',
+    'isAuto',
+    'locale',
+    'name',
+    'updatedAt',
+  ] as const
+  $columns = CertificationTranslationSchema.$columns
+  @column()
+  declare certificationId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare isAuto: boolean
+  @column()
+  declare locale: string
+  @column()
+  declare name: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class CertificationSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'domain',
+    'id',
+    'isEco',
+    'slug',
+    'sourceLocale',
+    'synonyms',
+    'updatedAt',
+  ] as const
+  $columns = CertificationSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare domain: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare isEco: boolean
+  @column()
+  declare slug: string
+  @column()
+  declare sourceLocale: string
+  @column()
+  declare synonyms: any
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class ConversationReadSchema extends BaseModel {
   static $columns = [
     'conversationId',
@@ -951,6 +1008,15 @@ export class ProductAttributeSchema extends BaseModel {
   declare valueString: string | null
 }
 
+export class ProductCertificationSchema extends BaseModel {
+  static $columns = ['certificationId', 'productId'] as const
+  $columns = ProductCertificationSchema.$columns
+  @column()
+  declare certificationId: number
+  @column({ isPrimary: true })
+  declare productId: number
+}
+
 export class ProductDocumentSchema extends BaseModel {
   static $columns = [
     'createdAt',
@@ -959,6 +1025,7 @@ export class ProductDocumentSchema extends BaseModel {
     'productId',
     'sizeBytes',
     'storageObjectId',
+    'type',
     'updatedAt',
   ] as const
   $columns = ProductDocumentSchema.$columns
@@ -974,6 +1041,8 @@ export class ProductDocumentSchema extends BaseModel {
   declare sizeBytes: number
   @column()
   declare storageObjectId: number | null
+  @column()
+  declare type: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }
@@ -1174,6 +1243,7 @@ export class ProductSchema extends BaseModel {
   static $columns = [
     'brand',
     'categoryId',
+    'cautionComment',
     'createdAt',
     'currency',
     'hsCode',
@@ -1181,6 +1251,7 @@ export class ProductSchema extends BaseModel {
     'imageUrl',
     'isActive',
     'isConfigurable',
+    'isEco',
     'leadTimeDays',
     'lifecycleStatus',
     'madeInEurope',
@@ -1189,6 +1260,7 @@ export class ProductSchema extends BaseModel {
     'originZone',
     'priceMax',
     'priceMin',
+    'recycledContentPercent',
     'reference',
     'releasedAt',
     'rushLeadTimeDays',
@@ -1205,6 +1277,8 @@ export class ProductSchema extends BaseModel {
   declare brand: string | null
   @column()
   declare categoryId: number
+  @column()
+  declare cautionComment: string | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
@@ -1219,6 +1293,8 @@ export class ProductSchema extends BaseModel {
   declare isActive: boolean
   @column()
   declare isConfigurable: boolean
+  @column()
+  declare isEco: boolean
   @column()
   declare leadTimeDays: number | null
   @column()
@@ -1235,6 +1311,8 @@ export class ProductSchema extends BaseModel {
   declare priceMax: string | null
   @column()
   declare priceMin: string | null
+  @column()
+  declare recycledContentPercent: number | null
   @column()
   declare reference: string | null
   @column.date()
