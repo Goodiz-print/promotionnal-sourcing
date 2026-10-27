@@ -40,6 +40,37 @@ export interface ProductPackagingFormState {
 }
 
 /**
+ * Technique saisie sur une position de marquage (écart 2). `markingTechniqueId`
+ * vide (`null`) = ligne ignorée à l'envoi.
+ */
+export interface ProductMarkingTechniqueFormRow {
+  markingTechniqueId: number | null
+  maxColors: number | null
+  defaultSetupCharge: number | null
+}
+
+/**
+ * Position de marquage du formulaire (écart 2). `templateDocumentId` pointe un
+ * document du produit de type gabarit (`marking_template`).
+ */
+export interface ProductMarkingPositionFormRow {
+  name: string
+  maxWidthMm: number | null
+  maxHeightMm: number | null
+  templateDocumentId: number | null
+  techniques: ProductMarkingTechniqueFormRow[]
+}
+
+/**
+ * Palier de la grille de prix de marquage du formulaire (écart 2).
+ */
+export interface ProductMarkingPriceTierFormRow {
+  markingTechniqueId: number | null
+  minQuantity: number | null
+  unitPrice: number | null
+}
+
+/**
  * État du formulaire produit fournisseur (payload `useForm`). Les prix sont des
  * `number | null` (coercés par VineJS) ; `images` porte les nouveaux fichiers,
  * `removedImageIds` les images existantes à supprimer. `sourceLocale` est la
@@ -80,6 +111,11 @@ export interface ProductFormState {
   priceTiers: ProductPriceTierFormRow[]
   // Conditionnement / logistique (écart 3).
   packaging: ProductPackagingFormState
+  // Marquage structuré (écart 2) : produit personnalisable, positions (avec
+  // techniques) et grille de prix de marquage.
+  printable: boolean
+  markingPositions: ProductMarkingPositionFormRow[]
+  markingPriceTiers: ProductMarkingPriceTierFormRow[]
 }
 
 /**

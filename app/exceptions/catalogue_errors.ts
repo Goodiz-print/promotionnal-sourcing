@@ -46,3 +46,14 @@ export class ProductPublicationBlockedException extends Exception {
 export function invalidVariantInput(field: string, message: string, rule: string) {
   return new errors.E_VALIDATION_ERROR([{ field, message, rule }])
 }
+
+/**
+ * Marquage incohérent (écart 2) : technique inconnue, technique dupliquée sur une
+ * position, palier de marquage dupliqué, ou gabarit (`templateDocumentId`) qui ne
+ * pointe pas un document du produit de type `marking_template`. Erreur de
+ * validation (422) rattachée au champ concerné, rendue comme les autres erreurs
+ * de formulaire Inertia.
+ */
+export function invalidMarkingInput(field: string, message: string, rule: string) {
+  return new errors.E_VALIDATION_ERROR([{ field, message, rule }])
+}

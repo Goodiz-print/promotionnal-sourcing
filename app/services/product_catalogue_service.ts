@@ -122,6 +122,25 @@ export default class ProductCatalogueService {
         .preload('certifications', (certifications) => certifications.preload('translations'))
         // Conditionnement / logistique (écart 3) : relation 1:1.
         .preload('packaging')
+        // Marquage structuré (écart 2) : positions (avec techniques localisées) +
+        // grille de prix de marquage. Donnée de fiche, jamais un filtre.
+        .preload('markingPositions', (positions) =>
+          positions
+            .orderBy('position')
+            .preload('techniques', (techniques) =>
+              techniques
+                .orderBy('id')
+                .preload('technique', (technique) => technique.preload('translations'))
+            )
+        )
+        // Grille groupée par technique, puis quantité croissante (chaque échelle
+        // dégressive reste lisible d'un bloc).
+        .preload('markingPriceTiers', (tiers) =>
+          tiers
+            .orderBy('markingTechniqueId')
+            .orderBy('minQuantity')
+            .preload('technique', (technique) => technique.preload('translations'))
+        )
         .first()
     )
   }

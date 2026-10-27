@@ -6,9 +6,13 @@ import Category from '#models/category'
 import Attribute from '#models/attribute'
 import AttributeValue from '#models/attribute_value'
 import Certification from '#models/certification'
+import MarkingTechnique from '#models/marking_technique'
 import Product from '#models/product'
 import ProductTranslation from '#models/product_translation'
 import ProductPackaging from '#models/product_packaging'
+import ProductMarkingPosition from '#models/product_marking_position'
+import ProductMarkingPositionTechnique from '#models/product_marking_position_technique'
+import ProductMarkingPriceTier from '#models/product_marking_price_tier'
 import ProductOriginService from '#services/product_origin_service'
 import ProductEcoService from '#services/product_eco_service'
 import { MATERIAL_ATTRIBUTE_SLUG } from '#shared/types/certification'
@@ -64,6 +68,16 @@ type ProductSeed = {
     outerCartonGrossWeightG?: number
     outerCartonVolumeM3?: number
   }
+  // Marquage structuré (écart 2) : produit personnalisable, positions (avec
+  // techniques par slug) et grille de prix de marquage par technique/quantité.
+  printable?: boolean
+  markingPositions?: {
+    name: string
+    maxWidthMm?: number
+    maxHeightMm?: number
+    techniques: { technique: string; maxColors?: number; defaultSetupCharge?: number }[]
+  }[]
+  markingPriceTiers?: { technique: string; minQuantity: number; unitPrice: number }[]
 }
 
 /**
@@ -233,6 +247,39 @@ const PRODUCTS: ProductSeed[] = [
       outerCartonGrossWeightG: 11500,
       outerCartonVolumeM3: 0.084,
     },
+    // Marquage structuré (écart 2) : 3 positions, techniques possibles et grille
+    // de prix de marquage — fiche de démo complète (« Exemple casquette »).
+    printable: true,
+    markingPositions: [
+      {
+        name: 'Devant',
+        maxWidthMm: 90,
+        maxHeightMm: 50,
+        techniques: [
+          { technique: 'embroidery', maxColors: 8, defaultSetupCharge: 35 },
+          { technique: 'transfer', maxColors: 6, defaultSetupCharge: 25 },
+        ],
+      },
+      {
+        name: 'Côté gauche',
+        maxWidthMm: 50,
+        maxHeightMm: 40,
+        techniques: [{ technique: 'embroidery', maxColors: 6, defaultSetupCharge: 30 }],
+      },
+      {
+        name: 'Arrière (bande de serrage)',
+        maxWidthMm: 60,
+        maxHeightMm: 20,
+        techniques: [{ technique: 'woven-badge', defaultSetupCharge: 20 }],
+      },
+    ],
+    markingPriceTiers: [
+      { technique: 'embroidery', minQuantity: 50, unitPrice: 1.2 },
+      { technique: 'embroidery', minQuantity: 250, unitPrice: 0.85 },
+      { technique: 'embroidery', minQuantity: 500, unitPrice: 0.65 },
+      { technique: 'transfer', minQuantity: 50, unitPrice: 0.9 },
+      { technique: 'transfer', minQuantity: 250, unitPrice: 0.6 },
+    ],
     facets: {
       'color': 'blue',
       'color-shade': 'bleu-marine',
@@ -277,11 +324,13 @@ export default class ProductSeeder extends BaseSeeder {
     const attributes = await Attribute.query().select('id', 'slug')
     const values = await AttributeValue.query().select('id', 'slug', 'attributeId')
     const certifications = await Certification.query().select('id', 'slug', 'isEco')
+    const markingTechniques = await MarkingTechnique.query().select('id', 'slug')
 
     const supplierBySlug = new Map(suppliers.map((s) => [s.slug, s.id]))
     const categoryBySlug = new Map(categories.map((c) => [c.slug, c.id]))
     const attributeBySlug = new Map(attributes.map((a) => [a.slug, a.id]))
     const certificationBySlug = new Map(certifications.map((c) => [c.slug, c]))
+    const markingTechniqueBySlug = new Map(markingTechniques.map((t) => [t.slug, t.id]))
 
     const resolveValueId = (attributeSlug: string, valueSlug: string): number | undefined => {
       const attributeId = attributeBySlug.get(attributeSlug)
@@ -321,6 +370,8 @@ export default class ProductSeeder extends BaseSeeder {
           // Conformité (écart 4) : saisies ; `isEco` dérivé plus bas.
           recycledContentPercent: seed.recycledContentPercent ?? null,
           cautionComment: seed.cautionComment ?? null,
+          // Marquage structuré (écart 2) : produit personnalisable ?
+          printable: seed.printable ?? false,
         }
       )
 
@@ -384,6 +435,47 @@ export default class ProductSeeder extends BaseSeeder {
                 : null,
           }
         )
+      }
+
+      // Marquage structuré (écart 2) : remplacement d'ensemble (comme le service).
+      // Supprime positions (techniques en cascade) + grille de prix, puis recrée.
+      if (seed.markingPositions !== undefined || seed.markingPriceTiers !== undefined) {
+        await ProductMarkingPosition.query().where('productId', product.id).delete()
+        await ProductMarkingPriceTier.query().where('productId', product.id).delete()
+      }
+      for (const [index, pos] of (seed.markingPositions ?? []).entries()) {
+        const position = await ProductMarkingPosition.create({
+          productId: product.id,
+          name: pos.name,
+          maxWidthMm: pos.maxWidthMm ?? null,
+          maxHeightMm: pos.maxHeightMm ?? null,
+          templateDocumentId: null,
+          position: index,
+        })
+        for (const technique of pos.techniques) {
+          const techniqueId = markingTechniqueBySlug.get(technique.technique)
+          if (techniqueId === undefined) continue
+          await ProductMarkingPositionTechnique.create({
+            markingPositionId: position.id,
+            markingTechniqueId: techniqueId,
+            maxColors: technique.maxColors ?? null,
+            defaultSetupCharge:
+              technique.defaultSetupCharge !== undefined
+                ? String(technique.defaultSetupCharge)
+                : null,
+          })
+        }
+      }
+      for (const tier of seed.markingPriceTiers ?? []) {
+        const techniqueId = markingTechniqueBySlug.get(tier.technique)
+        if (techniqueId === undefined) continue
+        await ProductMarkingPriceTier.create({
+          productId: product.id,
+          markingTechniqueId: techniqueId,
+          minQuantity: tier.minQuantity,
+          unitPrice: String(tier.unitPrice),
+          currency: 'EUR',
+        })
       }
     }
   }

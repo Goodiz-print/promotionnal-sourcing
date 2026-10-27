@@ -8,10 +8,12 @@ import Category from '#models/category'
 import Attribute from '#models/attribute'
 import AttributeValue from '#models/attribute_value'
 import Certification from '#models/certification'
+import MarkingTechnique from '#models/marking_technique'
 import ProductPackaging from '#models/product_packaging'
 import ProductImage from '#models/product_image'
 import ProductImageVariant from '#models/product_image_variant'
 import ProductVariantService from '#services/product_variant_service'
+import ProductMarkingService from '#services/product_marking_service'
 import ProductOriginService from '#services/product_origin_service'
 import ProductEcoService from '#services/product_eco_service'
 import ProductTranslation from '#models/product_translation'
@@ -45,6 +47,7 @@ export default class SupplierProductService {
     private storage: StorageService,
     private translationQueue: TranslationQueueService,
     private variants: ProductVariantService,
+    private marking: ProductMarkingService,
     private origin: ProductOriginService,
     private eco: ProductEcoService
   ) {}
@@ -104,6 +107,24 @@ export default class SupplierProductService {
         )
         // Conditionnement / logistique (écart 3) : relation 1:1.
         .preload('packaging')
+        // Marquage structuré (écart 2) : positions (avec techniques localisées) +
+        // grille de prix de marquage, pour pré-remplir le formulaire d'édition.
+        .preload('markingPositions', (positions) =>
+          positions
+            .orderBy('position')
+            .preload('techniques', (techniques) =>
+              techniques
+                .orderBy('id')
+                .preload('technique', (technique) => technique.preload('translations'))
+            )
+        )
+        // Grille groupée par technique, puis quantité croissante (comme la fiche).
+        .preload('markingPriceTiers', (tiers) =>
+          tiers
+            .orderBy('markingTechniqueId')
+            .orderBy('minQuantity')
+            .preload('technique', (technique) => technique.preload('translations'))
+        )
         .first()
     )
   }
@@ -148,6 +169,8 @@ export default class SupplierProductService {
       await this.variants.sync(trx, created, data.variants, data.priceTiers)
       // Conditionnement (écart 3) dans la même transaction que le save produit.
       await this.syncPackaging(trx, created, data.packaging)
+      // Marquage structuré (écart 2) dans la même transaction (remplacement d'ensemble).
+      await this.marking.sync(trx, created, data.markingPositions, data.markingPriceTiers)
       return created
     })
 
@@ -192,6 +215,8 @@ export default class SupplierProductService {
       await this.variants.sync(trx, product, data.variants, data.priceTiers)
       // Conditionnement (écart 3) dans la même transaction que le save produit.
       await this.syncPackaging(trx, product, data.packaging)
+      // Marquage structuré (écart 2) dans la même transaction (remplacement d'ensemble).
+      await this.marking.sync(trx, product, data.markingPositions, data.markingPriceTiers)
     })
     await this.writeTranslations(product, data.translations)
     if (data.attributeValueIds !== undefined) await this.syncFacets(product, data.attributeValueIds)
@@ -308,6 +333,14 @@ export default class SupplierProductService {
   }
 
   /**
+   * Référentiel des techniques de marquage (écart 2) avec leurs traductions, pour
+   * la sélection dans le formulaire fournisseur (positions + grille de prix).
+   */
+  allMarkingTechniques(): Promise<MarkingTechnique[]> {
+    return MarkingTechnique.query().preload('translations').orderBy('slug')
+  }
+
+  /**
    * Attributs filtrables + valeurs (facettes éditables dans le formulaire).
    */
   filterableAttributes(): Promise<Attribute[]> {
@@ -347,6 +380,7 @@ export default class SupplierProductService {
         | 'videoUrl'
         | 'recycledContentPercent'
         | 'cautionComment'
+        | 'printable'
       >
     > = {}
     const decimal = (value: number | null) => (typeof value === 'number' ? String(value) : null)
@@ -383,6 +417,9 @@ export default class SupplierProductService {
     if (data.recycledContentPercent !== undefined)
       columns.recycledContentPercent = data.recycledContentPercent
     if (data.cautionComment !== undefined) columns.cautionComment = data.cautionComment
+
+    // Marquage structuré (écart 2) : produit personnalisable ?
+    if (data.printable !== undefined) columns.printable = data.printable
     return columns
   }
 

@@ -5,11 +5,13 @@ import ProductForm from '~/components/products/form/product_form.vue'
 import type { CategoryType } from '#shared/types/category'
 import type { AttributeWithValuesType } from '#shared/types/attribute'
 import type { CertificationType } from '#shared/types/certification'
+import type { MarkingTechniqueType } from '#shared/types/marking'
 
 defineProps<{
   categories: CategoryType[]
   attributes: AttributeWithValuesType[]
   certifications: CertificationType[]
+  markingTechniques: MarkingTechniqueType[]
 }>()
 
 const { t } = useI18n()
@@ -25,6 +27,7 @@ const { t } = useI18n()
       :categories="categories"
       :attributes="attributes"
       :certifications="certifications"
+      :marking-techniques="markingTechniques"
     />
   </div>
 </template>

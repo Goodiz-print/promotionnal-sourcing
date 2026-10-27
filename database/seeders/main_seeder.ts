@@ -19,6 +19,8 @@ export default class MainSeeder extends BaseSeeder {
     await this.seed(await import('./category_attribute_seeder.js'))
     // Labels de conformité (écart 4) : avant les produits qui les référencent.
     await this.seed(await import('./certification_seeder.js'))
+    // Techniques de marquage (écart 2) : avant les produits qui les référencent.
+    await this.seed(await import('./marking_technique_seeder.js'))
     await this.seed(await import('./product_seeder.js'))
   }
 }

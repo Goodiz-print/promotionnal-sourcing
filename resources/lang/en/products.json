@@ -44,7 +44,9 @@
     "eco": "Eco-friendly",
     "recycledContent": "{percent}% recycled content",
     "packaging": "Packaging / logistics",
-    "cartonDimensions": "Outer carton dimensions (L × W × H, mm)"
+    "cartonDimensions": "Outer carton dimensions (L × W × H, mm)",
+    "marking": "Marking",
+    "markingPrices": "Marking prices"
   },
   "manage": {
     "index": {
@@ -140,6 +142,27 @@
     "compliance": "Compliance",
     "packaging": "Packaging / logistics",
     "packageTypeHint": "Polybag, Gift box, Sleeve, Tube, Bulk, Blister…",
-    "noCertifications": "No label available."
+    "noCertifications": "No label available.",
+    "marking": {
+      "title": "Marking",
+      "hint": "Product marking positions, available techniques per position, and the marking price grid by technique and quantity.",
+      "empty": "No marking position.",
+      "printable": "Customizable product (marking available)",
+      "addPosition": "Add a position",
+      "removePosition": "Remove",
+      "positionName": "Position name",
+      "maxWidthMm": "Max width (mm)",
+      "maxHeightMm": "Max height (mm)",
+      "template": "Marking template",
+      "noTemplate": "No template",
+      "techniques": "Available techniques",
+      "technique": "Technique",
+      "addTechnique": "Add a technique",
+      "removeTechnique": "Remove",
+      "maxColors": "Max colors",
+      "setupCharge": "Setup charge",
+      "priceTiers": "Marking price grid",
+      "priceTiersHint": "Unit marking price by technique and ordered quantity."
+    }
   }
 }

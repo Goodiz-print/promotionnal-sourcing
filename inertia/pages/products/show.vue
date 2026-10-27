@@ -59,6 +59,12 @@ const packagingRows = computed(() => {
   add('products.manage.fields.outerCartonVolumeM3', p.outerCartonVolumeM3)
   return rows
 })
+
+// Marquage structuré (écart 2) : donnée de fiche (jamais un filtre). Affiché dès
+// qu'une position ou un palier de prix de marquage est renseigné.
+const hasMarking = computed(
+  () => props.product.markingPositions.length > 0 || props.product.markingPriceTiers.length > 0
+)
 </script>
 
 <template>
@@ -175,6 +181,51 @@ const packagingRows = computed(() => {
               <dd>{{ row.value }}</dd>
             </div>
           </dl>
+        </section>
+
+        <section v-if="hasMarking" class="flex flex-col gap-3">
+          <h2 class="font-medium">{{ t('products.show.marking') }}</h2>
+          <ul v-if="product.markingPositions.length > 0" class="flex flex-col gap-2 text-sm">
+            <li
+              v-for="position in product.markingPositions"
+              :key="position.id"
+              class="border-b border-[var(--gray-3)] py-1"
+            >
+              <div class="flex justify-between">
+                <span class="font-medium">{{ position.name }}</span>
+                <span
+                  v-if="position.maxWidthMm || position.maxHeightMm"
+                  class="text-[var(--gray-6)]"
+                >
+                  {{ position.maxWidthMm ?? '—' }} × {{ position.maxHeightMm ?? '—' }} mm
+                </span>
+              </div>
+              <p v-if="position.techniques.length > 0" class="text-[var(--gray-7)]">
+                {{
+                  position.techniques
+                    .map((technique) => technique.techniqueName ?? technique.techniqueSlug)
+                    .join(', ')
+                }}
+              </p>
+            </li>
+          </ul>
+
+          <div v-if="product.markingPriceTiers.length > 0" class="flex flex-col gap-1">
+            <h3 class="text-sm font-medium">{{ t('products.show.markingPrices') }}</h3>
+            <dl class="flex flex-col gap-1 text-sm">
+              <div
+                v-for="tier in product.markingPriceTiers"
+                :key="tier.id"
+                class="flex justify-between border-b border-[var(--gray-3)] py-1"
+              >
+                <dt class="text-[var(--gray-6)]">
+                  {{ tier.techniqueName ?? tier.techniqueSlug }} ·
+                  {{ t('products.show.tierFrom', { quantity: tier.minQuantity }) }}
+                </dt>
+                <dd>{{ Number(tier.unitPrice) }} {{ tier.currency }}</dd>
+              </div>
+            </dl>
+          </div>
         </section>
 
         <section v-if="product.documents.length > 0" class="flex flex-col gap-2">

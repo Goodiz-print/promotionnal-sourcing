@@ -48,6 +48,8 @@ export default class ProductTransformer extends BaseTransformer<Product> {
         'recycledContentPercent',
         'cautionComment',
         'isEco',
+        // Marquage structuré (écart 2) : produit personnalisable ?
+        'printable',
       ]),
       releasedAt: this.resource.releasedAt?.toISODate() ?? null,
       name: translation?.name ?? null,

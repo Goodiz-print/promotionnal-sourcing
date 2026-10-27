@@ -3,7 +3,7 @@ import { provide } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE, type ContentLocale } from '#shared/types/i18n'
+import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE } from '#shared/types/i18n'
 import { DEFAULT_PRODUCT_LIFECYCLE_STATUS } from '#shared/types/product'
 import BaseButton from '~/components/base/base_button.vue'
 import ProductTranslationsFields from '~/components/products/form/product_translations_fields.vue'
@@ -12,20 +12,24 @@ import ProductCommercialFields from '~/components/products/form/product_commerci
 import ProductFacetsFields from '~/components/products/form/product_facets_fields.vue'
 import ProductComplianceFields from '~/components/products/form/product_compliance_fields.vue'
 import ProductPackagingFields from '~/components/products/form/product_packaging_fields.vue'
+import ProductMarkingFields from '~/components/products/form/product_marking_fields.vue'
 import ProductImagesFields from '~/components/products/form/product_images_fields.vue'
 import ProductVariantsFields from '~/components/products/form/product_variants_fields.vue'
 import ProductPriceTiersFields from '~/components/products/form/product_price_tiers_fields.vue'
 import type { CategoryType } from '#shared/types/category'
 import type { AttributeWithValuesType } from '#shared/types/attribute'
 import type { CertificationType } from '#shared/types/certification'
+import type { MarkingTechniqueType } from '#shared/types/marking'
 import type { ProductEditType } from '#shared/types/product'
 import { ProductFormKey, type ProductFormState } from './types'
+import { buildProductPayload } from './payload'
 
 const props = defineProps<{
   mode: 'create' | 'edit'
   categories: CategoryType[]
   attributes: AttributeWithValuesType[]
   certifications: CertificationType[]
+  markingTechniques: MarkingTechniqueType[]
   product?: ProductEditType
 }>()
 
@@ -96,27 +100,29 @@ const form = useForm<ProductFormState>({
       ? Number(props.product.packaging.outerCartonVolumeM3)
       : null,
   },
+  // Marquage structuré (écart 2) : positions (avec techniques) et grille de prix.
+  // Les décimaux (frais technique, prix) reviennent en chaîne, reconvertis.
+  printable: props.product?.printable ?? false,
+  markingPositions: (props.product?.markingPositions ?? []).map((position) => ({
+    name: position.name,
+    maxWidthMm: position.maxWidthMm,
+    maxHeightMm: position.maxHeightMm,
+    templateDocumentId: position.templateDocumentId,
+    techniques: position.techniques.map((technique) => ({
+      markingTechniqueId: technique.markingTechniqueId,
+      maxColors: technique.maxColors,
+      defaultSetupCharge:
+        technique.defaultSetupCharge !== null ? Number(technique.defaultSetupCharge) : null,
+    })),
+  })),
+  markingPriceTiers: (props.product?.markingPriceTiers ?? []).map((tier) => ({
+    markingTechniqueId: tier.markingTechniqueId,
+    minQuantity: tier.minQuantity,
+    unitPrice: Number(tier.unitPrice),
+  })),
 })
 
 provide(ProductFormKey, form)
-
-/**
- * Locales à envoyer : la source toujours, les autres seulement si renseignées et
- * modifiées (une traduction auto non touchée n'est pas renvoyée — elle resterait
- * « auto »). Une langue laissée vide est générée par le serveur.
- */
-function changedTranslations(data: ProductFormState) {
-  const payload: Partial<Record<ContentLocale, { name?: string; description: string | null }>> = {}
-  for (const current of CONTENT_LOCALES) {
-    const { name, description } = data.translations[current]
-    const initial = props.product?.translations[current]
-    const unchanged =
-      initial !== undefined && initial.name === name && (initial.description ?? '') === description
-    if (current !== data.sourceLocale && (!name || unchanged)) continue
-    payload[current] = { name: name || undefined, description: description || null }
-  }
-  return payload
-}
 
 function submit() {
   const target =
@@ -124,68 +130,10 @@ function submit() {
       ? urlFor('supplier.products.store', { locale: locale.value })
       : urlFor('supplier.products.update', { locale: locale.value, id: props.product!.id })
 
-  // Omet les champs numériques/texte vides (VineJS les traite comme absents).
+  // Construit le payload (champs vides omis, blocs « remplacement d'ensemble »
+  // toujours transmis) — voir `buildProductPayload`.
   form
-    .transform((data) => {
-      const payload: Record<string, unknown> = {
-        categoryId: data.categoryId,
-        sourceLocale: data.sourceLocale,
-        translations: changedTranslations(data),
-        currency: data.currency || 'EUR',
-        madeInEurope: data.madeInEurope,
-        isActive: data.isActive,
-        isConfigurable: data.isConfigurable,
-        lifecycleStatus: data.lifecycleStatus,
-        rushService: data.rushService,
-        attributeValueIds: data.attributeValueIds,
-        // Conformité (écart 4) : labels sélectionnés (tableau toujours envoyé).
-        certificationIds: data.certificationIds,
-        images: data.images,
-        removedImageIds: data.removedImageIds,
-        variants: data.variants
-          .filter((variant) => variant.sku.trim())
-          .map((variant) => ({
-            ...variant,
-            sku: variant.sku.trim(),
-            gtin: variant.gtin.trim() || null,
-          })),
-        priceTiers: data.priceTiers
-          .filter((tier) => tier.minQuantity !== null && tier.unitPrice !== null)
-          .map((tier) => ({ ...tier, variantSku: tier.variantSku || null })),
-      }
-      if (data.priceMin !== null) payload.priceMin = data.priceMin
-      if (data.priceMax !== null) payload.priceMax = data.priceMax
-      if (data.minQuantity !== null) payload.minQuantity = data.minQuantity
-      if (data.originCountry) payload.originCountry = data.originCountry
-      // Champs texte optionnels : omis quand vides (VineJS = absents).
-      if (data.brand.trim()) payload.brand = data.brand.trim()
-      if (data.hsCode.trim()) payload.hsCode = data.hsCode.trim()
-      if (data.releasedAt) payload.releasedAt = data.releasedAt
-      if (data.supplierCategoryRaw.trim())
-        payload.supplierCategoryRaw = data.supplierCategoryRaw.trim()
-      if (data.leadTimeDays !== null) payload.leadTimeDays = data.leadTimeDays
-      if (data.rushLeadTimeDays !== null) payload.rushLeadTimeDays = data.rushLeadTimeDays
-      if (data.videoUrl.trim()) payload.videoUrl = data.videoUrl.trim()
-      // Conformité (écart 4) : toujours envoyés (null quand vides) pour pouvoir
-      // être **effacés** à l'édition — vider le recyclé retire l'allégation et
-      // recale `is_eco` (une valeur omise serait conservée en base).
-      payload.recycledContentPercent = data.recycledContentPercent
-      payload.cautionComment = data.cautionComment.trim() || null
-      // Conditionnement (écart 3) : toujours envoyé (null quand vide) pour pouvoir
-      // être effacé à l'édition — un champ omis serait conservé en base.
-      payload.packaging = {
-        packageType: data.packaging.packageType.trim() || null,
-        unitGrossWeightG: data.packaging.unitGrossWeightG,
-        innerCartonQty: data.packaging.innerCartonQty,
-        outerCartonQty: data.packaging.outerCartonQty,
-        outerCartonLengthMm: data.packaging.outerCartonLengthMm,
-        outerCartonWidthMm: data.packaging.outerCartonWidthMm,
-        outerCartonHeightMm: data.packaging.outerCartonHeightMm,
-        outerCartonGrossWeightG: data.packaging.outerCartonGrossWeightG,
-        outerCartonVolumeM3: data.packaging.outerCartonVolumeM3,
-      }
-      return payload
-    })
+    .transform((data) => buildProductPayload(data, props.product))
     // Inertia omet les tableaux vides en multipart : sans fichier, on reste en JSON
     // pour que « aucune variante / aucun palier » (`[]`) soit bien transmis.
     .post(target, { forceFormData: form.images.length > 0, preserveScroll: true })
@@ -219,6 +167,14 @@ function cancel() {
     <div>
       <h2 class="mb-2 font-medium">{{ t('products.manage.packaging') }}</h2>
       <ProductPackagingFields />
+    </div>
+
+    <div>
+      <h2 class="mb-2 font-medium">{{ t('products.manage.marking.title') }}</h2>
+      <ProductMarkingFields
+        :marking-techniques="markingTechniques"
+        :documents="product?.documents ?? []"
+      />
     </div>
 
     <div>

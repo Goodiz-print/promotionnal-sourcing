@@ -65,6 +65,7 @@ function product(id: number, name: string, slug: string) {
     recycledContentPercent: null,
     cautionComment: null,
     isEco: false,
+    printable: false,
     createdAt: '2026-07-11T00:00:00.000Z',
     updatedAt: null,
   }
