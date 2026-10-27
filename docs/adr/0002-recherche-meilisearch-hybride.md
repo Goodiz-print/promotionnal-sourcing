@@ -1,6 +1,6 @@
 # ADR 0002 : recherche hybride Meilisearch, vecteurs calculés par Meilisearch
 
-- **Statut** : partiellement remplacé par l'[ADR 0004](0004-recherche-elasticsearch-manage.md) (moteur, embeddings, hébergement) ; les principes (PostgreSQL source de vérité, queue, ET exact, rechargement) restent en vigueur
+- **Statut** : proposé (à valider par le titulaire du projet)
 - **Date** : 2026-10-25
 - **Issues liées** : #112 (migration vers Meilisearch) ; #69, #70, #71 (benchmark et pgvector de l'ADR 0001, à réorienter ou fermer)
 - **Remplace** : [ADR 0001](0001-recherche-postgresql.md)

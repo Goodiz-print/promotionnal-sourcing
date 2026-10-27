@@ -1,6 +1,6 @@
 # ADR 0004 : Elasticsearch managé (Clever Cloud) à la place de Meilisearch
 
-- **Statut** : accepté le 2026-10-27 (suit la recommandation de Clever Cloud) ; les six réserves de la décision 5 sont **supposées levées** ; Meilisearch a été retiré du code (PR 2 et 3 fusionnées, 2026-10-27)
+- **Statut** : accepté le 2026-10-27 (suit la recommandation de Clever Cloud) ; les six réserves de la décision 5 sont **supposées levées** pour la PR 1 et se vérifient en PR 2 sur un vrai cluster
 - **Date** : 2026-10-27
 - **Issues liées** : #112 (moteur de recherche)
 - **Remplace** : [ADR 0002](0002-recherche-meilisearch-hybride.md), décisions 3 (embedder), 10 (dimensionnement) et 11 (hébergement) ; amende [ADR 0003](0003-hebergement-clever-cloud.md) (ligne « Meilisearch »)

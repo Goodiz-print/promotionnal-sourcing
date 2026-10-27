@@ -57,13 +57,34 @@ services:
       - promotionnal-sourcing_s3_data:/data
     restart: unless-stopped
 
-  # Moteur de recherche hybride (#112, ADR 0004) : index de lecture, PostgreSQL
-  # reste la source de vérité. En local : nœud unique, sécurité coupée, licence
-  # d'essai (retrievers `linear`, `semantic_text`). Version épinglée, alignée sur
-  # l'add-on Clever Cloud (à confirmer), jamais `latest`.
+  # Moteur de recherche hybride (#112) : index de lecture, PostgreSQL reste la
+  # source de vérité. Version épinglée (v1.55.0, dernière stable connue), jamais
+  # `latest`. La clé master vient de `.env` (MEILI_MASTER_KEY), jamais en dur.
+  meilisearch:
+    image: getmeili/meilisearch:v1.55.0
+    container_name: promotionnal-sourcing-meilisearch
+    environment:
+      MEILI_ENV: development
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-}
+    ports:
+      - '7700:7700'
+    volumes:
+      - promotionnal-sourcing_meili_data:/meili_data
+    healthcheck:
+      test: ['CMD', 'curl', '--fail', '--silent', 'http://localhost:7700/health']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  # Elasticsearch (ADR 0004), alternative à Meilisearch : en local, nœud unique,
+  # sécurité coupée, licence d'essai (retrievers `linear`, `semantic_text`). Profil
+  # `elasticsearch` pour ne pas alourdir `docker compose up -d`. Version alignée
+  # sur l'add-on Clever Cloud (à confirmer).
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.19.1
     container_name: promotionnal-sourcing-elasticsearch
+    profiles: [elasticsearch]
     environment:
       discovery.type: single-node
       xpack.security.enabled: 'false'
@@ -97,13 +118,13 @@ services:
       DB_HOST: postgres
       DB_PORT: '5432'
       CELLAR_ENDPOINT: http://s3:9090
-      ELASTICSEARCH_URL: http://elasticsearch:9200
+      MEILISEARCH_HOST: http://meilisearch:7700
     depends_on:
       postgres:
         condition: service_healthy
       s3:
         condition: service_started
-      elasticsearch:
+      meilisearch:
         condition: service_healthy
     restart: 'no'
 
@@ -133,7 +154,7 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
-      elasticsearch:
+      meilisearch:
         condition: service_healthy
     restart: unless-stopped
 
@@ -156,11 +177,12 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
-      elasticsearch:
+      meilisearch:
         condition: service_healthy
     restart: unless-stopped
 
 volumes:
   promotionnal-sourcing_pg_data:
   promotionnal-sourcing_s3_data:
+  promotionnal-sourcing_meili_data:
   promotionnal-sourcing_es_data:

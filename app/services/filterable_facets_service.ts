@@ -8,7 +8,7 @@ import db from '@adonisjs/lucid/services/db'
  * `attributes.<slug>` par attribut filtrable) et les `facets` demandés pour
  * obtenir les distributions.
  *
- * N'importe **aucun modèle Lucid** (requête `db` brute) : le pilote Elasticsearch
+ * N'importe **aucun modèle Lucid** (requête `db` brute) : le pilote Meilisearch
  * l'injecte pour appliquer les réglages de l'index, et doit rester utilisable
  * sans dépendre du graphe des modèles.
  */

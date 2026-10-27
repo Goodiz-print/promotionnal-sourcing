@@ -12,7 +12,7 @@ import type { RfqProductOptionType } from '#shared/types/rfq'
  * (`only: ['productResults', 'productSearchUnavailable']`) : le serveur ne calcule la prop que sur
  * demande, et l'état du formulaire n'est pas touché (`preserveState`).
  *
- * Le moteur derrière est Elasticsearch (#112, ADR 0002) : `unavailable` signale qu'il est
+ * Le moteur derrière est Meilisearch (#112, ADR 0002) : `unavailable` signale qu'il est
  * injoignable — cf. `docs/rfq.md`.
  */
 defineProps<{ results?: RfqProductOptionType[]; unavailable?: boolean }>()

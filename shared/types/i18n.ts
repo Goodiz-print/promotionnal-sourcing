@@ -13,7 +13,7 @@ export const DEFAULT_LOCALE: Locale = 'fr'
  * fournisseurs) est saisi. Plus restreint que `SUPPORTED_LOCALES` : l'interface
  * est traduite en 9 langues, mais les fournisseurs ne renseignent leurs fiches
  * qu'en français et en anglais ; les autres langues retombent sur l'anglais.
- * Ajouter une langue de contenu = l'ajouter ici : Elasticsearch indexe les noms et
+ * Ajouter une langue de contenu = l'ajouter ici : Meilisearch indexe les noms et
  * descriptions de toutes les langues sous des sous-clés (ADR 0002), sans index ni
  * migration par langue.
  */

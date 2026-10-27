@@ -7,7 +7,7 @@ import type {
 } from '#shared/types/search'
 
 /**
- * Moteur inerte, lié quand `ELASTICSEARCH_URL` est absent (dev, test, CI) : rien
+ * Moteur inerte, lié quand `MEILISEARCH_HOST` est absent (dev, test, CI) : rien
  * n'est indexé, rien n'est appelé.
  */
 export default class NullSearchEngine extends SearchEngine {

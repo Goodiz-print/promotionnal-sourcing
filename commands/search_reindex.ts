@@ -5,7 +5,7 @@ import ProductIndexService from '#services/product_index_service'
 
 /**
  * Reconstruit tout l'index de recherche depuis PostgreSQL (#112) : à lancer au
- * premier déploiement d'Elasticsearch, après une perte de l'index, ou pour
+ * premier déploiement de Meilisearch, après une perte de l'index, ou pour
  * rattraper un écart : `node ace search:reindex`.
  *
  * Sûre à relancer à tout moment : l'index est construit à côté puis échangé
@@ -22,7 +22,7 @@ export default class SearchReindex extends BaseCommand {
   @inject()
   async run(index: ProductIndexService) {
     if (!index.enabled) {
-      this.logger.warning('ELASTICSEARCH_URL est absent : renseignez-le, puis relancez.')
+      this.logger.warning('MEILISEARCH_HOST est absent : renseignez-le, puis relancez.')
       return
     }
 

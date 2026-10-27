@@ -77,9 +77,19 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Meilisearch — moteur de recherche hybride (#112)
+  |----------------------------------------------------------
+  | Optionnelles : sans `MEILISEARCH_HOST`, l'indexation est désactivée (dev,
+  | test, CI) et PostgreSQL reste le seul moteur. `MEILISEARCH_API_KEY` doit
+  | autoriser l'écriture dans l'index (clé master ou clé dédiée).
+  */
+  MEILISEARCH_HOST: Env.schema.string.optional(),
+  MEILISEARCH_API_KEY: Env.schema.string.optional(),
+  /*
+  |----------------------------------------------------------
   | Elasticsearch — moteur de recherche managé (ADR 0004)
   |----------------------------------------------------------
-  | Sans `ELASTICSEARCH_URL`, l'indexation est désactivée (dev, test, CI). Sur
+  | Prioritaire sur Meilisearch quand `ELASTICSEARCH_URL` est défini. Sur
   | Clever Cloud, les variables de l'add-on sont mappées vers celles-ci (cf.
   | `docs/deploiement.md`). Identifiants facultatifs (instance locale sans
   | sécurité).
@@ -94,15 +104,21 @@ export default await Env.create(new URL('../', import.meta.url), {
   |----------------------------------------------------------
   | IA — embeddings produits (recherche sémantique)
   |----------------------------------------------------------
-  | Elasticsearch appelle l'API Mistral par un endpoint d'inférence. Toutes
-  | optionnelles : sans `MISTRAL_API_KEY`, ou avec AI_EMBEDDINGS_ENABLED=false,
-  | la recherche reste par mots-clés seuls.
+  | Provider-agnostique : `AI_PROVIDER` choisit le driver
+  | (`mistral` | `openai-compatible`). Toutes optionnelles :
+  | la génération est désactivée par défaut (AI_EMBEDDINGS_ENABLED).
   */
+  AI_PROVIDER: Env.schema.string.optional(),
   AI_EMBEDDINGS_ENABLED: Env.schema.boolean.optional(),
+  // Driver Mistral (natif)
   MISTRAL_API_KEY: Env.schema.string.optional(),
   MISTRAL_EMBED_MODEL: Env.schema.string.optional(),
   AI_TRANSLATION_ENABLED: Env.schema.boolean.optional(),
   MISTRAL_TRANSLATION_MODEL: Env.schema.string.optional(),
+  // Driver OpenAI-compatible (générique)
+  AI_BASE_URL: Env.schema.string.optional(),
+  AI_API_KEY: Env.schema.string.optional(),
+  AI_EMBED_MODEL: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------

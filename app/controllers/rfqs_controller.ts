@@ -384,7 +384,7 @@ export default class RfqsController {
         if (!search || search.length < PRODUCT_SEARCH_MIN_LENGTH) {
           return { results: [], unavailable: false }
         }
-        // Mots-clés seuls via Elasticsearch (ADR 0002) ; `null` : moteur indisponible,
+        // Mots-clés seuls via Meilisearch (ADR 0002) ; `null` : moteur indisponible,
         // que le sélecteur annonce au lieu d'afficher « aucun produit ».
         const products = await this.productSearch.lookup(search, PRODUCT_SEARCH_LIMIT)
         if (products === null) return { results: [], unavailable: true }

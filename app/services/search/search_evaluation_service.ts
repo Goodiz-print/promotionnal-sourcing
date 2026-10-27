@@ -102,8 +102,8 @@ export default class SearchEvaluationService {
     const latencyMs = performance.now() - startedAt
 
     // `null` : le moteur n'a pas répondu (inerte ou injoignable). Une évaluation
-    // qui retomberait sur PostgreSQL ne mesurerait pas le pipeline Elasticsearch.
-    if (!page) throw new Error('Elasticsearch unavailable: nothing to evaluate')
+    // qui retomberait sur PostgreSQL ne mesurerait pas le pipeline Meilisearch.
+    if (!page) throw new Error('Meilisearch unavailable: nothing to evaluate')
 
     const returned = page.all().map((product) => product.slug)
     return { ...base, ...SearchEvaluationService.judge(query, returned), returned, latencyMs }

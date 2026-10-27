@@ -96,50 +96,62 @@ sert** depuis la migration `…drop_postgres_search_columns` (#112, PR 3), qui a
 retiré :
 
 - `products.embedding` (`halfvec(1024)`) et son index HNSW `products_embedding_idx`
-  — Elasticsearch calcule et garde les vecteurs (ADR 0004) ;
+  — Meilisearch calcule et garde les vecteurs (ADR 0002) ;
 - `products.embedding_key` ;
 - `product_translations.search_vector` (`tsvector`) et ses index GIN par locale,
   ainsi que `ProductTranslationSearchService` et `LOCALE_TSCONFIG`.
 
 Ajouter une langue de contenu ne demande donc plus ni index ni migration : il suffit
-de l'ajouter à `CONTENT_LOCALES` (`shared/types/i18n.ts`) ; l'index Elasticsearch porte
+de l'ajouter à `CONTENT_LOCALES` (`shared/types/i18n.ts`) ; l'index Meilisearch porte
 les noms et descriptions de toutes les langues sous des sous-clés. `down()` recrée
 les colonnes vides (vecteurs : `search:reindex` ; tsvector : réécrire la traduction).
 
-## Recherche sémantique (inférence Elasticsearch)
+## Recherche sémantique (embedder de Meilisearch)
 
 En complément du mot-clé, la recherche est **sémantique** : des produits pertinents
 remontent même sans mot-clé exact (« stylo écologique » → produits verts), et dans
-une autre langue que celle de la fiche. **Elasticsearch calcule lui-même les vecteurs**
-en appelant l'API Mistral (endpoint d'inférence, champ `semantic_text`) : l'application
-n'a ni job, ni service, ni commande, ni cache d'embeddings. Décision et compromis :
-[ADR 0004](adr/0004-recherche-elasticsearch-manage.md) ; fonctionnement :
+une autre langue que celle de la fiche. **Meilisearch calcule lui-même les vecteurs**
+(modèle local `huggingFace` par défaut, ou API d'embeddings) : l'application n'a plus de job,
+de service, de commande ni de cache d'embeddings. Décision et compromis :
+[ADR 0002](adr/0002-recherche-meilisearch-hybride.md) ; fonctionnement :
 [`search.md`](search.md).
 
 - **Texte vectorisé** — `ProductIndexService.embeddingText` : nom dans la langue
   source, catégorie, facettes « attribut : valeur », début de description (300
-  caractères). Poussé dans chaque document (`embeddingText`), copié dans le champ
-  `semantic_text`.
-- **Activation** — `config/search.ts` (`embedder`). **Active par défaut** dès que
-  `MISTRAL_API_KEY` est définie. `AI_EMBEDDINGS_ENABLED=false` la coupe (mots-clés
-  seuls) ; `=true` sans clé est une **erreur au démarrage** ; en `NODE_ENV=test`,
-  elle est coupée sauf demande explicite.
+  caractères). Poussé dans chaque document (`embeddingText`), lu par le
+  `documentTemplate` de l'embedder.
+- **Activation** — `config/search.ts` (`embedder`). **Active par défaut** : le
+  provider par défaut, `huggingface`, fait tourner un modèle multilingue
+  open-weight (`intfloat/multilingual-e5-base`) **dans Meilisearch, sans clé ni
+  coût par token**. `AI_PROVIDER=mistral` (avec `MISTRAL_API_KEY`) ou
+  `openai-compatible` (`AI_API_KEY` / `AI_BASE_URL`) appellent à la place une API
+  d'embeddings. `AI_EMBEDDINGS_ENABLED=false` la coupe (mots-clés seuls) ; `=true`
+  avec un provider API sans identifiants est une **erreur au démarrage** ; en
+  `NODE_ENV=test`, elle est coupée sauf demande explicite.
 - **Colonnes PostgreSQL** — `products.embedding`, `products.embedding_key` et l'index
   HNSW ont été supprimés (migration `…drop_postgres_search_columns`) : les vecteurs
   n'existent que dans l'index.
 
 ### Activer la vectorisation (production)
 
-1. Définir `MISTRAL_API_KEY` sur web et worker, et s'assurer que le cluster peut joindre
-   `api.mistral.ai` en sortie.
-2. Redéployer, puis `node ace search:reindex` : l'index est reconstruit avec le champ
-   `semantic_text` et Elasticsearch vectorise tout le catalogue.
-3. Ensuite, chaque création ou mise à jour de produit resynchronise son document.
+La vectorisation est active par défaut ; il n'y a **aucune clé à définir** avec le
+provider `huggingface`.
+
+1. S'assurer que l'instance Meilisearch peut joindre Hugging Face en sortie (le
+   modèle, ~1 Go, est téléchargé au premier usage) et qu'elle a assez de RAM / CPU
+   (voir `docs/deploiement.md`).
+2. Redéployer, puis `node ace search:reindex` : l'index est reconstruit avec
+   l'embedder et Meilisearch vectorise tout le catalogue. La première tâche est
+   longue (téléchargement du modèle, calcul sur CPU).
+3. Ensuite, chaque création ou mise à jour de produit resynchronise son document ;
+   Meilisearch ne recalcule le vecteur que si le texte vectorisé change.
 4. Mesurer : `node ace search:evaluate` (les requêtes sémantiques cessent d'être
    ignorées) — cf. `docs/search.md`.
 
-Pour couper la vectorisation : `AI_EMBEDDINGS_ENABLED=false`, puis
-`node ace search:reindex` (reconstruit l'index sans le champ vectoriel).
+Pour utiliser l'API Mistral à la place : `AI_PROVIDER=mistral` et
+`MISTRAL_API_KEY` sur web et worker, puis `node ace search:reindex`. Pour couper la
+vectorisation : `AI_EMBEDDINGS_ENABLED=false`, puis `node ace search:reindex`
+(retire l'embedder et ses vecteurs).
 
 ## Catalogue public (lecture)
 
@@ -150,7 +162,7 @@ Pour couper la vectorisation : `AI_EMBEDDINGS_ENABLED=false`, puis
   (`ProductNotFoundException`, `app/exceptions/catalogue_errors.ts`).
 - **Service** : `app/services/product_catalogue_service.ts` — toute la logique ORM
   (controller fin `products_controller.ts`). `PER_PAGE = 12`.
-- **Recherche par terme** : `ProductSearchService` (Elasticsearch, [`search.md`](search.md)) ;
+- **Recherche par terme** : `ProductSearchService` (Meilisearch, [`search.md`](search.md)) ;
   `ProductCatalogueService#list` ne sert plus que la navigation **sans terme**
   (catégories, filtres, tri par prix). Moteur indisponible : la page affiche
   « recherche indisponible » (prop `searchUnavailable`) au lieu d'un faux « aucun résultat ».
@@ -169,7 +181,7 @@ Pour couper la vectorisation : `AI_EMBEDDINGS_ENABLED=false`, puis
 
 > Hors périmètre de cette tranche : CRUD fournisseur (dépend de l'auth fournisseur),
 > recherche sémantique par embeddings, ranking `ts_rank`, tolérance typo `pg_trgm`
-> (désormais portés par Elasticsearch, ADR 0004).
+> (désormais portés par Meilisearch, ADR 0002).
 
 ## Images produit (galerie + Cellar)
 

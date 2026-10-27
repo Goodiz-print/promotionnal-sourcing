@@ -24,8 +24,8 @@ export interface CatalogueSearchOptions extends ProductDirectoryFilters {
 }
 
 /**
- * Recherche des produits par Elasticsearch (#112, ADR 0002) : mots-clés + sémantique
- * (Elasticsearch vectorise lui-même la requête), filtres exacts, puis
+ * Recherche des produits par Meilisearch (#112, ADR 0002) : mots-clés + sémantique
+ * (Meilisearch vectorise lui-même la requête), filtres exacts, puis
  * **rechargement depuis PostgreSQL**.
  *
  * Ce que le moteur renvoie n'est qu'une liste ordonnée d'identifiants. La base
@@ -35,7 +35,7 @@ export interface CatalogueSearchOptions extends ProductDirectoryFilters {
  * garanti deux fois, par le filtre du moteur puis par la base).
  *
  * Les méthodes renvoient `null` quand la recherche n'est pas disponible — moteur
- * inerte (pas de `ELASTICSEARCH_URL`) ou injoignable : l'appelant retombe sur la
+ * inerte (pas de `MEILISEARCH_HOST`) ou injoignable : l'appelant retombe sur la
  * recherche PostgreSQL, qui disparaît avec la PR 3 de #112.
  */
 @inject()
@@ -99,7 +99,7 @@ export default class ProductSearchService {
 
   /**
    * Interroge le moteur. Une recherche sémantique qui échoue — l'API d'embeddings
-   * est indisponible ou limitée en débit, Elasticsearch ne peut pas vectoriser la
+   * est indisponible ou limitée en débit, Meilisearch ne peut pas vectoriser la
    * requête — est **rejouée par mots-clés seuls** : la recherche ne tombe jamais
    * à cause de l'IA. Moteur injoignable, même en mots-clés : `null` (repli).
    */
