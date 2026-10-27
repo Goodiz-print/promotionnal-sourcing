@@ -69,17 +69,22 @@ export default class ProductsController {
           perPage: PER_PAGE,
           sort: qs.sort === 'price_asc' ? 'price_asc' : null,
         })
-    const categories = await this.service.availableCategories()
-    // Barre de filtres pilotée par la catégorie sélectionnée : attributs
-    // filtrables résolus (propres + hérités) + compteurs (distributions de
-    // facettes). Sans catégorie, pas de filtres d'attributs (bar vide).
-    const facetBar = await this.facetBar.forCategory(filters.categoryId, locale, {
-      search: filters.search,
-      madeInEurope: filters.madeInEurope,
-    })
-    // Barre de filtres certifications : transverse aux catégories (écart 4,
-    // ÉTAPE 6), donc globale — disponible même sans catégorie sélectionnée.
-    const certificationFacet = await this.certificationFacets.forCatalogue(filters, locale)
+    // Lectures indépendantes, exécutées en parallèle (un round-trip Meilisearch
+    // chacune pour les deux barres) :
+    // - `categories` : catégories disponibles ;
+    // - `facetBar` : barre pilotée par la catégorie sélectionnée — attributs
+    //   filtrables résolus (propres + hérités) + compteurs (distributions de
+    //   facettes). Sans catégorie, pas de filtres d'attributs (bar vide) ;
+    // - `certificationFacet` : barre certifications, transverse aux catégories
+    //   (écart 4, ÉTAPE 6), donc globale — disponible même sans catégorie.
+    const [categories, facetBar, certificationFacet] = await Promise.all([
+      this.service.availableCategories(),
+      this.facetBar.forCategory(filters.categoryId, locale, {
+        search: filters.search,
+        madeInEurope: filters.madeInEurope,
+      }),
+      this.certificationFacets.forCatalogue(filters, locale),
+    ])
 
     return inertia.render('products/index', {
       products: {
