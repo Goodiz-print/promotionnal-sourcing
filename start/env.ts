@@ -85,18 +85,6 @@ export default await Env.create(new URL('../', import.meta.url), {
   */
   MEILISEARCH_HOST: Env.schema.string.optional(),
   MEILISEARCH_API_KEY: Env.schema.string.optional(),
-  /*
-  |----------------------------------------------------------
-  | Elasticsearch — moteur de recherche managé (ADR 0004)
-  |----------------------------------------------------------
-  | Prioritaire sur Meilisearch quand `ELASTICSEARCH_URL` est défini. Sur
-  | Clever Cloud, les variables de l'add-on sont mappées vers celles-ci (cf.
-  | `docs/deploiement.md`). Identifiants facultatifs (instance locale sans
-  | sécurité).
-  */
-  ELASTICSEARCH_URL: Env.schema.string.optional(),
-  ELASTICSEARCH_USER: Env.schema.string.optional(),
-  ELASTICSEARCH_PASSWORD: Env.schema.string.optional(),
   // Poids du sémantique dans la recherche hybride, de 0 à 1 (défaut 0,5).
   SEARCH_SEMANTIC_RATIO: Env.schema.number.optional(),
 

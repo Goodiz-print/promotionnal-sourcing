@@ -77,30 +77,6 @@ services:
       retries: 20
     restart: unless-stopped
 
-  # Elasticsearch (ADR 0004), alternative à Meilisearch : en local, nœud unique,
-  # sécurité coupée, licence d'essai (retrievers `linear`, `semantic_text`). Profil
-  # `elasticsearch` pour ne pas alourdir `docker compose up -d`. Version alignée
-  # sur l'add-on Clever Cloud (à confirmer).
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.1
-    container_name: promotionnal-sourcing-elasticsearch
-    profiles: [elasticsearch]
-    environment:
-      discovery.type: single-node
-      xpack.security.enabled: 'false'
-      xpack.license.self_generated.type: trial
-      ES_JAVA_OPTS: -Xms1g -Xmx1g
-    ports:
-      - '9200:9200'
-    volumes:
-      - promotionnal-sourcing_es_data:/usr/share/elasticsearch/data
-    healthcheck:
-      test: ['CMD-SHELL', 'curl --fail --silent http://localhost:9200/_cluster/health']
-      interval: 5s
-      timeout: 3s
-      retries: 30
-    restart: unless-stopped
-
   # Image de production (même Dockerfile que le déploiement), en local. Les
   # variables viennent de `.env.compose` (non committé, cf. .env.compose.example).
   # Le compose surcharge seulement ce qui pointe vers les services locaux.
@@ -185,4 +161,3 @@ volumes:
   promotionnal-sourcing_pg_data:
   promotionnal-sourcing_s3_data:
   promotionnal-sourcing_meili_data:
-  promotionnal-sourcing_es_data:

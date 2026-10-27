@@ -1,6 +1,4 @@
-# Recherche (Meilisearch, Elasticsearch en cours de bascule)
-
-> **Migration en cours (ADR 0004)** : `ElasticsearchEngine` est disponible derrière `SearchEngine` ; il est choisi quand `ELASTICSEARCH_URL` est défini (prioritaire sur `MEILISEARCH_HOST`). Mapping, requêtes et reconstruction par alias : voir `app/services/search/elasticsearch_engine.ts` et `docs/changelog/2026-10-27-moteur-elasticsearch.md`. Cette page décrit encore Meilisearch ; elle sera réécrite à la bascule (PR 3).
+# Recherche (Meilisearch)
 
 Moteur de recherche hybride (mots-clés + vecteurs) des produits, décidé par l'[ADR 0002](adr/0002-recherche-meilisearch-hybride.md) (#112). Le catalogue public (recherche par terme) et le sélecteur de produit des demandes de devis interrogent Meilisearch quand il est disponible ; la navigation sans terme (catégories, filtres, tri par prix) reste servie par PostgreSQL. Il n'y a plus de repli de recherche sur PostgreSQL : moteur indisponible, la recherche l'est aussi, avec un message explicite.
 

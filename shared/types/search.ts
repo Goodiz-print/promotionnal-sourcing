@@ -10,9 +10,6 @@ import type { OriginZone } from './product.js'
  */
 export const SEARCH_EMBEDDER = 'default'
 
-/** Moteur de recherche actif (`config/search.ts`) ; `none` = indexation inerte. */
-export type SearchEngineName = 'elasticsearch' | 'meilisearch' | 'none'
-
 /**
  * Où tourne le modèle d'embeddings (ADR 0002, décision 3) :
  *
