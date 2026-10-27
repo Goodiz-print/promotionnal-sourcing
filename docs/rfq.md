@@ -451,15 +451,15 @@ ne l'envoyait pas, et un brouillon réenregistré perdait le lien avec le
 catalogue. `rfq_item_list.vue` affiche un lien vers la fiche produit quand
 `productSlug` est renseigné.
 
-### Recherche : Meilisearch (#112)
+### Recherche : Elasticsearch (#112)
 
 Le sélecteur passe par `ProductSearchService#lookup` : recherche par **mots-clés
-seuls** dans l'index Meilisearch (pas d'appel au provider d'embeddings à chaque
+seuls** dans l'index Elasticsearch (pas d'appel à l'API d'embeddings à chaque
 frappe), puis **rechargement des produits depuis PostgreSQL** — uniquement des
 produits _visibles_ (actifs, organisation vivante, non rejetés), au plus `limit`
 résultats, nom localisé dans la langue de l'interface.
 
-Si Meilisearch est inerte (pas de `MEILISEARCH_HOST`) ou injoignable,
+Si Elasticsearch est inerte (pas de `ELASTICSEARCH_URL`) ou injoignable,
 `lookup` renvoie `null`, `RfqsController` envoie `productResults: null` et
 `rfq_product_picker.vue` affiche « recherche indisponible » (`rfq.product.unavailable`)
 au lieu de « aucun produit trouvé » : il n'y a plus de repli PostgreSQL

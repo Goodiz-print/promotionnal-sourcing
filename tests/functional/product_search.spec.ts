@@ -182,7 +182,7 @@ test.group('Recherche — rechargement depuis PostgreSQL', (group) => {
   })
 })
 
-test.group('Recherche — sémantique (embedder de Meilisearch)', (group) => {
+test.group('Recherche — sémantique (embedder de Elasticsearch)', (group) => {
   useDatabase(group, { seed: 'full' })
 
   let handle: FakeEngineHandle

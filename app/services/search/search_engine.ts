@@ -16,7 +16,7 @@ import type {
  * lecture.
  */
 export default abstract class SearchEngine {
-  /** `false` pour le moteur inerte (pas de `MEILISEARCH_HOST`). */
+  /** `false` pour le moteur inerte (pas de `ELASTICSEARCH_URL`). */
   abstract readonly enabled: boolean
 
   /** Crée ou remplace ces documents (clé : `id`). */
@@ -30,7 +30,7 @@ export default abstract class SearchEngine {
   abstract search(request: ProductSearchRequest): Promise<ProductSearchHits>
 
   /**
-   * Distributions de facettes (`facetDistribution`) des champs demandés, pour le
+   * Distributions de facettes (distribution de facettes) des champs demandés, pour le
    * filtre donné : par champ (`attributes.color`), le nombre de produits par
    * valeur. Sert la barre de filtres dépendante de la catégorie — ne recharge
    * rien depuis PostgreSQL, ne renvoie pas de produits. Lève si le moteur est

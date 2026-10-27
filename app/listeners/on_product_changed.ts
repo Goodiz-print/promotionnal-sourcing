@@ -4,7 +4,7 @@ import type ProductChanged from '#events/product_changed'
 
 /**
  * Met en queue la synchronisation de l'index de recherche du produit (no-op sans
- * `MEILISEARCH_HOST`).
+ * `ELASTICSEARCH_URL`).
  */
 @inject()
 export default class OnProductChanged {

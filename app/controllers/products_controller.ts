@@ -30,7 +30,7 @@ export default class ProductsController {
   ) {}
 
   /**
-   * Catalogue public paginé + filtrable : recherche par terme (Meilisearch),
+   * Catalogue public paginé + filtrable : recherche par terme (Elasticsearch),
    * filtre catégorie / made-in-Europe, facettes attributs en ET fiable.
    */
   async index({ inertia, request, i18n }: HttpContext) {
@@ -50,7 +50,7 @@ export default class ProductsController {
     }
     const page = Number.parseInt(qs.page, 10) || 1
 
-    // Avec un terme : Meilisearch (ADR 0002). Sans terme, simple navigation par
+    // Avec un terme : Elasticsearch (ADR 0002). Sans terme, simple navigation par
     // catégories et filtres, servie par PostgreSQL. Moteur indisponible : la
     // recherche l'est aussi, la page le dit au lieu de répondre « aucun résultat ».
     const searched = filters.search

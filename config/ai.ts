@@ -2,8 +2,8 @@ import env from '#start/env'
 
 /**
  * Configuration IA. Reste ici la **traduction automatique** (Mistral). Les
- * embeddings ne sont plus calculés par l'application : Meilisearch les calcule
- * lui-même, voir `config/search.ts` (`embedder`) et l'ADR 0002.
+ * embeddings ne sont plus calculés par l'application : Elasticsearch les calcule
+ * lui-même, voir `config/search.ts` (`embedder`) et l'ADR 0004.
  */
 const aiConfig = {
   mistral: {

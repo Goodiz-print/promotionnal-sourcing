@@ -1,10 +1,8 @@
 /** Entrées de la décision d'activer ou non la vectorisation. */
 export interface EmbeddingsActivationInput {
-  /** `AI_PROVIDER` (`mistral`, `openai-compatible`). */
-  provider: string
   /** `AI_EMBEDDINGS_ENABLED` : `undefined` quand la variable n'est pas définie. */
   requested: boolean | undefined
-  /** Le provider dispose-t-il des identifiants de son API ? */
+  /** `MISTRAL_API_KEY` est-elle définie ? */
   configured: boolean
   nodeEnv: 'development' | 'production' | 'test'
 }
@@ -20,13 +18,10 @@ export interface EmbeddingsActivationInput {
  *   `NODE_ENV=test` où la suite ne dépend jamais d'un réseau.
  */
 export function resolveEmbeddingsEnabled(input: EmbeddingsActivationInput): boolean {
-  const { provider, requested, configured, nodeEnv } = input
+  const { requested, configured, nodeEnv } = input
 
   if (requested === true && !configured) {
-    throw new Error(
-      `AI_EMBEDDINGS_ENABLED=true mais le provider « ${provider} » n'est pas configuré ` +
-        `(${provider === 'mistral' ? 'MISTRAL_API_KEY' : 'AI_API_KEY ou AI_BASE_URL'} manquant)`
-    )
+    throw new Error('AI_EMBEDDINGS_ENABLED=true mais MISTRAL_API_KEY manquant')
   }
   if (requested !== undefined) return requested
   return nodeEnv !== 'test' && configured

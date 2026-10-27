@@ -16,7 +16,7 @@ import { useDatabase } from '#tests/utils/setup'
 /**
  * Synchronisation PostgreSQL → index de recherche (#112). Le moteur est un
  * double qui enregistre ses appels : on vérifie ce que l'application envoie,
- * pas Meilisearch.
+ * pas Elasticsearch.
  */
 /** Active la recherche le temps d'un test, avec un moteur factice. */
 function useFakeEngine(group: Parameters<typeof useDatabase>[0], enabled = true) {
@@ -279,7 +279,7 @@ test.group('Recherche — déclencheurs de synchronisation', (group) => {
     state.restore()
   })
 
-  test('sans MEILISEARCH_HOST, rien n’est mis en queue ni envoyé', async ({ assert }) => {
+  test('sans ELASTICSEARCH_URL, rien n’est mis en queue ni envoyé', async ({ assert }) => {
     const state = useFakeEngineOnce(false)
     const product = await Product.findByOrFail('slug', 'crayon-hb-bleu')
 

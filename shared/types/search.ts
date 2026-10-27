@@ -1,45 +1,8 @@
 import type { ContentLocale } from './i18n.js'
 import type { OriginZone } from './product.js'
 
-/**
- * Nom de l'embedder Meilisearch. Les vecteurs sont **calculés par Meilisearch**
- * (embedder `rest` appelant l'API d'embeddings, `mistral-embed` par défaut —
- * ADR 0002, décision 3) à partir du champ `embeddingText` de chaque document :
- * l'application n'appelle jamais le provider, ni pour les fiches ni pour les
- * requêtes.
- */
-export const SEARCH_EMBEDDER = 'default'
-
 /** Moteur de recherche actif (`config/search.ts`) ; `none` = indexation inerte. */
-export type SearchEngineName = 'elasticsearch' | 'meilisearch' | 'none'
-
-/**
- * Où tourne le modèle d'embeddings (ADR 0002, décision 3) :
- *
- * - `huggingface` (**défaut**) — Meilisearch télécharge un modèle open-weight et
- *   le fait tourner lui-même : aucune clé, aucun coût par token, les textes ne
- *   quittent pas l'infrastructure. Demande de la RAM et du CPU sur son instance ;
- * - `mistral` — API Mistral, appelée par Meilisearch (clé `MISTRAL_API_KEY`) ;
- * - `openai-compatible` — tout endpoint parlant le protocole OpenAI `/embeddings`
- *   (OpenAI, Together, Ollama, vLLM…).
- */
-export const EMBEDDER_PROVIDERS = ['huggingface', 'mistral', 'openai-compatible'] as const
-
-export type EmbedderProvider = (typeof EMBEDDER_PROVIDERS)[number]
-
-export const DEFAULT_EMBEDDER_PROVIDER: EmbedderProvider = 'huggingface'
-
-/**
- * Modèle `huggingface` par défaut : multilingue (100+ langues), 768 dimensions,
- * environ 1 Go. Choix de compromis entre qualité et ressources d'une instance
- * Docker ; `multilingual-e5-small` (384) est plus léger, `multilingual-e5-large`
- * (1024) plus précis. À trancher par `node ace search:evaluate` sur de vraies
- * fiches.
- */
-export const DEFAULT_HUGGINGFACE_MODEL = 'intfloat/multilingual-e5-base'
-
-/** Dimension demandée aux API d'embeddings (`mistral-embed` : 1024 natifs). */
-export const SEARCH_EMBEDDING_DIMENSIONS = 1024
+export type SearchEngineName = 'elasticsearch' | 'none'
 
 /**
  * Document d'un produit dans l'index de recherche.
@@ -64,7 +27,7 @@ export interface ProductSearchDocument {
   originZone: OriginZone | null
   /**
    * Date de sortie en **timestamp Unix (secondes)** pour le filtre « Nouveautés »
-   * (écart 5), ou `null`. Un nombre permet le filtre d'intervalle Meilisearch
+   * (écart 5), ou `null`. Un nombre permet le filtre d'intervalle du moteur
    * (`releasedAt >= <seuil>`).
    */
   releasedAt: number | null
@@ -96,7 +59,7 @@ export interface ProductSearchDocument {
   /** Description par langue de contenu. */
   descriptions: Partial<Record<ContentLocale, string>>
   /**
-   * Texte que Meilisearch vectorise (`documentTemplate` de l'embedder) : nom dans
+   * Texte qu'Elasticsearch vectorise (copié dans le champ `semantic_text`) : nom dans
    * la langue source, catégorie, facettes « attribut : valeur », début de la
    * description. Conçu pour la recherche, pas pour l'affichage (ADR 0002,
    * décision 4) ; toute modification de sa construction se répercute à la
@@ -152,8 +115,7 @@ export function facetField(slug: string): string {
 }
 
 /**
- * Distribution de facettes renvoyée par le moteur (`facetDistribution` de
- * Meilisearch) : par champ de facette (`attributes.color`), le nombre de
+ * Distribution de facettes renvoyée par le moteur (agrégations `terms`) : par champ de facette (`attributes.color`), le nombre de
  * produits par valeur. Les clés de valeur sont des chaînes — identifiants de
  * valeur pour les attributs énumérés, nombres pour les numériques.
  */
@@ -173,7 +135,7 @@ export interface ProductSearchRequest {
   /** Mots-clés saisis par l'utilisateur (tolérance aux fautes côté moteur). */
   query: string
   /**
-   * Poids du sémantique, de 0 à 1. À 0, recherche par mots-clés seuls : Meilisearch
+   * Poids du sémantique, de 0 à 1. À 0, recherche par mots-clés seuls : Elasticsearch
    * n'appelle pas l'API d'embeddings. Au-dessus, il vectorise lui-même `query`.
    */
   semanticRatio: number

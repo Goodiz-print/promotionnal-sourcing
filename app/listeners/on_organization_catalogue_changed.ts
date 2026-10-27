@@ -4,7 +4,7 @@ import type OrganizationCatalogueChanged from '#events/organization_catalogue_ch
 
 /**
  * Met en queue la synchronisation de l'index de recherche pour tout le catalogue
- * de l'organisation (no-op sans `MEILISEARCH_HOST`).
+ * de l'organisation (no-op sans `ELASTICSEARCH_URL`).
  */
 @inject()
 export default class OnOrganizationCatalogueChanged {

@@ -117,7 +117,7 @@ test.group('Barre de filtres par catégorie', (group) => {
 
   test('moteur injoignable : repli sans compteur, pas d’échec', async ({ assert }) => {
     const categoryId = await categoryIdBySlug('casquettes-chapeaux-casquettes')
-    handle.engine.distribution = new Error('meili down')
+    handle.engine.distribution = new Error('search down')
 
     const svc = await service()
     const bar = await svc.forCategory(categoryId)

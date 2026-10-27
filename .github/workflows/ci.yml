@@ -82,14 +82,15 @@ jobs:
       - name: Backend tests (PostgreSQL)
         run: pnpm test
 
-  # Jeu de requêtes de référence contre un vrai Meilisearch (#112, ADR 0002) :
-  # `pnpm test` l'ignore faute de MEILISEARCH_HOST, ce job le rejoue seul.
+  # Jeu de requêtes de référence contre un vrai Elasticsearch (#112, ADR 0004) :
+  # `pnpm test` l'ignore faute de ELASTICSEARCH_URL, ce job le rejoue seul. Mots-clés,
+  # fautes et ET ; les requêtes sémantiques sont ignorées (elles demandent
+  # l'API Mistral : à rejouer à la main avec une clé, `AI_EMBEDDINGS_ENABLED=true`).
   test-search:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      MEILISEARCH_HOST: http://localhost:7700
-      MEILISEARCH_API_KEY: ci-master-key
+      ELASTICSEARCH_URL: http://localhost:9200
     services:
       postgres:
         image: pgvector/pgvector:pg18
@@ -104,65 +105,23 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      meilisearch:
-        image: getmeili/meilisearch:v1.55.0
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.19.1
         env:
-          MEILI_ENV: development
-          MEILI_MASTER_KEY: ci-master-key
+          discovery.type: single-node
+          xpack.security.enabled: false
+          ES_JAVA_OPTS: -Xms1g -Xmx1g
         ports:
-          - 7700:7700
+          - 9200:9200
         options: >-
-          --health-cmd "curl --fail --silent http://localhost:7700/health"
+          --health-cmd "curl --fail --silent http://localhost:9200/_cluster/health"
           --health-interval 5s
           --health-timeout 3s
-          --health-retries 20
+          --health-retries 30
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - name: Jeu de référence (Meilisearch)
-        run: node ace test functional --files="tests/functional/search_reference.spec.ts"
-
-  # Même jeu, **avec l'embedder** : Meilisearch télécharge le modèle `huggingface`
-  # (sans clé) et calcule les vecteurs, ce qui rejoue aussi les requêtes sémantiques.
-  # Job à part : le téléchargement du modèle (~1 Go) dépend du réseau.
-  test-search-semantic:
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    env:
-      MEILISEARCH_HOST: http://localhost:7700
-      MEILISEARCH_API_KEY: ci-master-key
-      AI_EMBEDDINGS_ENABLED: true
-      AI_PROVIDER: huggingface
-    services:
-      postgres:
-        image: pgvector/pgvector:pg18
-        env:
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      meilisearch:
-        image: getmeili/meilisearch:v1.55.0
-        env:
-          MEILI_ENV: development
-          MEILI_MASTER_KEY: ci-master-key
-        ports:
-          - 7700:7700
-        options: >-
-          --health-cmd "curl --fail --silent http://localhost:7700/health"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 20
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
-      - name: Jeu de référence (Meilisearch + embedder huggingface)
+      - name: Jeu de référence (Elasticsearch)
         run: node ace test functional --files="tests/functional/search_reference.spec.ts"
 
   test-frontend:

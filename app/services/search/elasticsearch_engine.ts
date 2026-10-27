@@ -136,7 +136,7 @@ function textQuery(query: string): estypes.QueryDslQueryContainer {
  * Corps de recherche. Mots-clés seuls : `bool` (texte + filtres). Hybride : un
  * retriever `linear` pondère BM25 `(1 − ratio)` et sémantique `ratio`, scores
  * normalisés (`minmax`), filtres appliqués aux deux branches — l'équivalent du
- * `semanticRatio` de Meilisearch.
+ * `semanticRatio` de l'ancien moteur.
  */
 export function buildSearchBody(
   request: ProductSearchRequest,

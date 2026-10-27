@@ -244,7 +244,7 @@ export default class ProductIndexService {
   }
 
   /**
-   * Texte que Meilisearch vectorise (ADR 0002, décision 4) — conçu pour la
+   * Texte que Elasticsearch vectorise (ADR 0004, décision 3) — conçu pour la
    * recherche, pas pour l'affichage :
    *
    * 1. le nom dans la **langue source** de la fiche seule (le modèle est

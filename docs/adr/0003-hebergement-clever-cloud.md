@@ -21,13 +21,13 @@ Deux options ont été comparées :
 
 Composants :
 
-| Composant            | Instance Clever Cloud (prod)         | Remarque                                                             |
-| -------------------- | ------------------------------------ | -------------------------------------------------------------------- |
-| Application web (×2) | Docker XS                            | Image Docker du `Dockerfile` racine                                  |
-| Worker de queue      | Docker XS                            | Même image, commande `node ace queue:work`                           |
-| PostgreSQL 18        | S Big Space (2 vCPU, 2 Go, 20 Go)    | pgvector, pg_trgm, unaccent à activer via le support                 |
-| Cellar               | Stockage et trafic à la consommation | Bucket dédié par environnement                                       |
-| Meilisearch          | Docker M (4 vCPU, 4 Go)              | Image `getmeili/meilisearch` épinglée, volume persistant à confirmer |
+| Composant            | Instance Clever Cloud (prod)         | Remarque                                                  |
+| -------------------- | ------------------------------------ | --------------------------------------------------------- |
+| Application web (×2) | Docker XS                            | Image Docker du `Dockerfile` racine                       |
+| Worker de queue      | Docker XS                            | Même image, commande `node ace queue:work`                |
+| PostgreSQL 18        | S Big Space (2 vCPU, 2 Go, 20 Go)    | pgvector, pg_trgm, unaccent à activer via le support      |
+| Cellar               | Stockage et trafic à la consommation | Bucket dédié par environnement                            |
+| Meilisearch          | Docker M (4 vCPU, 4 Go)              | **Remplacé par l'add-on Elasticsearch managé (ADR 0004)** |
 
 Coût de la production (devis commercial, par mois) : **176,50 € HT, soit 211,80 € TTC**, avec 50 Go de trafic sortant Cellar. Les frais de réplication sont exclus. Le staging n'est pas encore chiffré.
 

@@ -8,7 +8,7 @@ import SearchEvaluationService from '#services/search/search_evaluation_service'
 /**
  * Rejoue le jeu de requêtes de référence sur l'index (ADR 0002, décision 8) et
  * affiche rappel@10 et latences : `node ace search:evaluate`. À lancer sur une
- * base semée (`db:seed`) et un Meilisearch joignable ; `--reindex` reconstruit
+ * base semée (`db:seed`) et un Elasticsearch joignable ; `--reindex` reconstruit
  * l'index avant de mesurer. Sort en erreur si une requête échoue.
  */
 export default class SearchEvaluate extends BaseCommand {
@@ -25,7 +25,7 @@ export default class SearchEvaluate extends BaseCommand {
   @inject()
   async run(index: ProductIndexService, evaluation: SearchEvaluationService) {
     if (!searchConfig.enabled) {
-      this.logger.warning('MEILISEARCH_HOST est absent : renseignez-le, puis relancez.')
+      this.logger.warning('ELASTICSEARCH_URL est absent : renseignez-le, puis relancez.')
       this.exitCode = 1
       return
     }

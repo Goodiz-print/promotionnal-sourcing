@@ -4,11 +4,11 @@
 
 ## Environnements
 
-| Environnement | Applications                           | PostgreSQL             | Cellar                    | Meilisearch                           | Déclenchement                       |
+| Environnement | Applications                           | PostgreSQL             | Cellar                    | Elasticsearch                         | Déclenchement                       |
 | ------------- | -------------------------------------- | ---------------------- | ------------------------- | ------------------------------------- | ----------------------------------- |
-| Dev (local)   | `pnpm dev:all` sur le poste            | Conteneur local        | S3Mock (`localhost:9090`) | À confirmer dans `docker-compose.yml` | Manuel                              |
-| Staging       | Docker XS (web), Docker XS (worker)    | PostgreSQL XS Small    | Bucket staging            | Docker XS (test)                      | Push sur `main`                     |
-| Production    | Docker XS ×2 (web), Docker XS (worker) | PostgreSQL S Big Space | Bucket prod               | Docker M                              | Tag `vX.Y.Z` + approbation manuelle |
+| Dev (local)   | `pnpm dev:all` sur le poste            | Conteneur local        | S3Mock (`localhost:9090`) | Conteneur local (`docker compose`)    | Manuel                              |
+| Staging       | Docker XS (web), Docker XS (worker)    | PostgreSQL XS Small    | Bucket staging            | Add-on Elasticsearch XS (à confirmer) | Push sur `main`                     |
+| Production    | Docker XS ×2 (web), Docker XS (worker) | PostgreSQL S Big Space | Bucket prod               | Add-on Elasticsearch M (puis L)       | Tag `vX.Y.Z` + approbation manuelle |
 
 ## Règles
 
@@ -70,54 +70,25 @@ Installés dans `/usr/share/hunspell` : bg, bs, cs, hr, is, lv, pl, sk, sl, uk (
 
 ## Elasticsearch (ADR 0004)
 
-Moteur de recherche cible : **add-on Elasticsearch managé de Clever Cloud** (sauvegardes quotidiennes, supervision et mises à jour incluses). Il remplace l'instance Docker Meilisearch, dont le volume persistant n'a jamais été confirmé.
+Moteur de recherche hybride : **add-on Elasticsearch managé de Clever Cloud** (sauvegardes quotidiennes, supervision et mises à jour incluses), distinct de l'application web. Il a remplacé Meilisearch en instance Docker, dont le volume persistant n'avait jamais été confirmé.
 
 - **Dimensionnement de départ** (300 000 produits) : Elasticsearch **M** (2 vCPU, 4 Go, 120 Go, 80 € HT/mois) ; **L** (4 vCPU, 8 Go, 240 Go, 160 € HT/mois) si le catalogue entier est indexé avec vecteurs 1 024 dimensions et de nombreux filtres. À trancher par `search:evaluate` (ADR 0004). Pas de haute disponibilité à ce prix.
-- **Variables** : `ELASTICSEARCH_URL`, `ELASTICSEARCH_USER`, `ELASTICSEARCH_PASSWORD`, mappées depuis les variables de l'add-on (à relever dans la console Clever Cloud). Avec embeddings : `AI_PROVIDER=mistral` et `MISTRAL_API_KEY` ; le cluster doit pouvoir joindre `api.mistral.ai`.
+- **Variables** : `ELASTICSEARCH_URL`, `ELASTICSEARCH_USER`, `ELASTICSEARCH_PASSWORD`, mappées depuis les variables de l'add-on (à relever dans la console Clever Cloud). Avec embeddings : `MISTRAL_API_KEY` ; le cluster doit pouvoir joindre `api.mistral.ai`.
 - **Premier déploiement** : `node ace search:reindex` crée l'index, l'alias et l'endpoint d'inférence `embeddings_<env>`.
 - **Sauvegarde** : snapshots de l'add-on ; l'index se reconstruit de toute façon depuis PostgreSQL (`search:reindex`).
-- **Local** : `docker compose --profile elasticsearch up -d`, puis `ELASTICSEARCH_URL=http://localhost:9200`.
-
-## Meilisearch (#112)
-
-Moteur de recherche hybride, déployé en **instance Docker Clever Cloud** (Docker M en prod), distinct de l'application web.
-
-- Image officielle `getmeili/meilisearch`, version épinglée (jamais `latest`).
-- Données sur un volume persistant. Volume à confirmer sur instance Docker Clever Cloud.
-- Sauvegarde : snapshot Meilisearch planifié, copié hors de la plateforme.
-- Clé master et clé API de l'application : variables `MEILISEARCH_HOST` et `MEILISEARCH_API_KEY`, validées dans `start/env.ts`, documentées dans `.env.example`. Jamais dans l'image.
-- Sonde : `GET /health` sur le port du moteur.
-- **Modèle d'embeddings (défaut `huggingface`)** : Meilisearch télécharge le modèle (~1 Go pour `multilingual-e5-base`) depuis Hugging Face au premier usage, puis le garde sur son volume — l'instance doit pouvoir joindre Hugging Face en sortie et garder ses données entre redéploiements, sinon le modèle est retéléchargé. Il calcule aussi les vecteurs sur son CPU : prévoir plus que l'instance Docker M (4 Go), à dimensionner par la mesure (`node ace search:reindex`, puis `search:evaluate`). Un provider API (`AI_PROVIDER=mistral`) évite ce dimensionnement, au prix d'une clé et d'un coût par token.
-- Source de vérité : PostgreSQL. Un index corrompu ou perdu se reconstruit par réindexation complète (commande dédiée, rejouable), sans perte de données.
-- Les mises à jour de version Meilisearch passent par une réindexation si la release l'exige : la noter dans le changelog.
-
-#### Dimensionnement de l'instance Meilisearch
-
-Meilisearch tourne sur une **instance dédiée** : l'inférence ne concurrence ni le web ni le worker, et si l'instance sature le catalogue retombe sur la recherche PostgreSQL. Ces chiffres sont des **points de départ estimés, non mesurés** — à confirmer par un vrai `search:reindex` en observant mémoire et CPU.
-
-| Modèle (`HF_EMBED_MODEL`)                | Usage                           | Point de départ                 |
-| ---------------------------------------- | ------------------------------- | ------------------------------- |
-| `intfloat/multilingual-e5-base` (défaut) | Qualité multilingue             | ~4 Go de RAM, 2 vCPU (flavor L) |
-| `intfloat/multilingual-e5-small`         | Si le CPU ou la RAM pèsent trop | Plus petit (flavor M à valider) |
-| `AI_PROVIDER=mistral` (REST)             | Aucun calcul local              | Dimensionner pour l'index seul  |
-
-- **CPU, sans GPU** : l'indexation initiale et chaque modification de fiche calculent des vecteurs ; chaque recherche calcule celui de la requête (quelques dizaines à centaines de ms selon le CPU).
-- **Volume persistant obligatoire** pour le modèle (~1 Go) : sans lui, il est retéléchargé à chaque redéploiement, avec un démarrage à froid lent.
-- **Sortie réseau vers Hugging Face** à ouvrir pour cette instance seulement.
-- **Changer de modèle** change les vecteurs : réindexer (`node ace search:reindex`) puis rejouer `search:evaluate`.
-- Vérifier après déploiement : mémoire stable après le premier `search:reindex`, latence de recherche, et `search:evaluate` au vert.
+- **Version** : épinglée à 8.19.x en local et en CI (`docker-compose.yml`, `.github/workflows/ci.yml`) ; retriever `linear` et `semantic_text` demandent ≥ 8.18 et une licence qui les couvre — à vérifier sur l'add-on.
+- **Montée de version de l'add-on** : réindexer (`node ace search:reindex`) si la release l'exige et le noter dans le changelog.
+- **Vérifier après déploiement** : mémoire stable après le premier `search:reindex`, latence de recherche, `search:evaluate` au vert.
 
 ### Développement local
 
-Le service `meilisearch` du `docker-compose.yml` démarre avec les autres services de dev (sans profil) :
+Le service `elasticsearch` du `docker-compose.yml` démarre avec les autres services de dev (nœud unique, sécurité coupée, licence d'essai, ~1 Go de heap) :
 
 ```bash
 docker compose up -d
 ```
 
-`pnpm dev:all` le démarre également, avec Postgres, S3, le worker et le serveur.
-
-Sonde : <http://localhost:7700/health> (`{"status":"available"}`). La clé master vient de `MEILI_MASTER_KEY` dans `.env` (voir `.env.example`) ; données dans le volume `promotionnal-sourcing_meili_data`.
+`pnpm dev:all` le démarre également, avec Postgres, S3, le worker et le serveur. Sonde : <http://localhost:9200/_cluster/health>. Données dans le volume `promotionnal-sourcing_es_data`.
 
 ## Temps réel (Transmit)
 
@@ -152,6 +123,6 @@ Si la release contenait une migration destructive, le rollback applicatif ne suf
 
 ## Secrets
 
-- Secrets GitHub : token Clever Cloud pour le déploiement (`CLEVER_TOKEN`, `CLEVER_SECRET`), identifiants du registre si utilisé, clé API Meilisearch.
+- Secrets GitHub : token Clever Cloud pour le déploiement (`CLEVER_TOKEN`, `CLEVER_SECRET`), identifiants du registre si utilisé, identifiants Elasticsearch.
 - Variables Clever Cloud : une liste par application (web, worker), jamais committée.
 - `.env` local : jamais committé.

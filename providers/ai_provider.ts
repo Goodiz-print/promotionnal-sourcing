@@ -4,8 +4,8 @@ import MistralTranslationProvider from '#services/translation/mistral_translatio
 
 /**
  * Lie l'abstraction `TranslationProvider` au driver Mistral (voir #75). Les
- * embeddings ne passent plus par l'application : Meilisearch les calcule lui-même
- * (embedder `rest`, cf. `config/search.ts` et ADR 0002).
+ * embeddings ne passent plus par l'application : Elasticsearch les calcule lui-même
+ * (endpoint d'inférence, cf. `config/search.ts` et ADR 0004).
  */
 export default class AiProvider {
   constructor(protected app: ApplicationService) {}

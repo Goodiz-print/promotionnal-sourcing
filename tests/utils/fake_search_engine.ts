@@ -12,7 +12,7 @@ import type {
 /**
  * Moteur de recherche factice : enregistre ce que l'application lui envoie et
  * répond ce qu'on lui a dit de répondre. Sert à vérifier le code applicatif
- * (synchronisation, recherche, rechargement) sans Meilisearch.
+ * (synchronisation, recherche, rechargement) sans Elasticsearch.
  */
 export default class FakeSearchEngine extends SearchEngine {
   enabled = true

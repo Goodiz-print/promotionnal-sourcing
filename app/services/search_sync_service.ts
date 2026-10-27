@@ -8,9 +8,9 @@ import IndexOrganizationProductsJob from '#jobs/index_organization_products_job'
  * Point d'entrée des écritures qui changent ce que l'index doit contenir : met
  * en queue la synchronisation du produit (ou du catalogue d'une organisation).
  *
- * **No-op sans `MEILISEARCH_HOST`**. Un échec de mise en queue est loggué sans
+ * **No-op sans `ELASTICSEARCH_URL`**. Un échec de mise en queue est loggué sans
  * être propagé : la base est déjà à jour, et la prochaine synchronisation du
- * produit — ou `search:reindex` — rattrape l'index. Aucun appel à Meilisearch
+ * produit — ou `search:reindex` — rattrape l'index. Aucun appel à Elasticsearch
  * dans la requête HTTP.
  */
 @inject()

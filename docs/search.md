@@ -1,30 +1,30 @@
-# Recherche (Meilisearch, Elasticsearch en cours de bascule)
+# Recherche (Elasticsearch)
 
-> **Migration en cours (ADR 0004)** : `ElasticsearchEngine` est disponible derrière `SearchEngine` ; il est choisi quand `ELASTICSEARCH_URL` est défini (prioritaire sur `MEILISEARCH_HOST`). Mapping, requêtes et reconstruction par alias : voir `app/services/search/elasticsearch_engine.ts` et `docs/changelog/2026-10-27-moteur-elasticsearch.md`. Cette page décrit encore Meilisearch ; elle sera réécrite à la bascule (PR 3).
-
-Moteur de recherche hybride (mots-clés + vecteurs) des produits, décidé par l'[ADR 0002](adr/0002-recherche-meilisearch-hybride.md) (#112). Le catalogue public (recherche par terme) et le sélecteur de produit des demandes de devis interrogent Meilisearch quand il est disponible ; la navigation sans terme (catégories, filtres, tri par prix) reste servie par PostgreSQL. Il n'y a plus de repli de recherche sur PostgreSQL : moteur indisponible, la recherche l'est aussi, avec un message explicite.
+Moteur de recherche hybride (mots-clés + vecteurs) des produits, décidé par l'[ADR 0002](adr/0002-recherche-meilisearch-hybride.md) (#112) puis porté sur **Elasticsearch managé** par l'[ADR 0004](adr/0004-recherche-elasticsearch-manage.md). Le catalogue public (recherche par terme) et le sélecteur de produit des demandes de devis l'interrogent quand il est disponible ; la navigation sans terme (catégories, filtres, tri par prix) reste servie par PostgreSQL. Il n'y a pas de repli de recherche sur PostgreSQL : moteur indisponible, la recherche l'est aussi, avec un message explicite.
 
 ## Principe
 
-- **PostgreSQL est la source de vérité.** Meilisearch est un index de lecture qu'on peut jeter et reconstruire.
-- **Rien n'est écrit dans Meilisearch depuis une requête HTTP** : toute écriture qui change l'index met un job en queue.
+- **PostgreSQL est la source de vérité.** Elasticsearch est un index de lecture qu'on peut jeter et reconstruire.
+- **Rien n'est écrit dans Elasticsearch depuis une requête HTTP** : toute écriture qui change l'index met un job en queue.
 - **Le document est reconstruit depuis la base à chaque passage**, jamais depuis un état mémorisé : synchroniser deux fois, dans le désordre ou après un échec donne le même index.
-- **Sans `MEILISEARCH_HOST`, tout est inerte** (dev, test, CI) : `NullSearchEngine` est lié, aucun job n'est mis en queue, aucune connexion n'est tentée.
+- **Sans `ELASTICSEARCH_URL`, tout est inerte** (dev, test, CI) : `NullSearchEngine` est lié, aucun job n'est mis en queue, aucune connexion n'est tentée.
 
 ## Configuration
 
-| Variable              | Rôle                                                                                    |
-| --------------------- | --------------------------------------------------------------------------------------- |
-| `MEILISEARCH_HOST`    | URL de l'instance (ex. `http://localhost:7700`). Absente = indexation désactivée.       |
-| `MEILISEARCH_API_KEY` | Clé autorisant l'écriture dans l'index (clé master ou clé dédiée). Jamais dans l'image. |
+| Variable                 | Rôle                                                                           |
+| ------------------------ | ------------------------------------------------------------------------------ |
+| `ELASTICSEARCH_URL`      | URL du cluster (ex. `http://localhost:9200`). Absente = indexation désactivée. |
+| `ELASTICSEARCH_USER`     | Utilisateur (facultatif en local, sécurité coupée).                            |
+| `ELASTICSEARCH_PASSWORD` | Mot de passe. Jamais dans l'image.                                             |
+| `MISTRAL_API_KEY`        | Active les embeddings (voir « Vectorisation »).                                |
 
-`config/search.ts` : `index` = `products_<NODE_ENV>` (un Meilisearch partagé entre environnements ne mélange pas leurs fiches), `batchSize` (500), `taskTimeoutMs`. Instance locale : `docker compose up -d` (voir `docs/deploiement.md`).
+`config/search.ts` : `index` = `products_<NODE_ENV>` (un cluster partagé entre environnements ne mélange pas leurs fiches), `batchSize` (500), `taskTimeoutMs`. Cluster local : `docker compose up -d` (voir `docs/deploiement.md`).
 
 ## Document d'index (`ProductSearchDocument`)
 
-`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone` (provenance dérivée, voir « Provenance et Nouveautés »), `releasedAt` (date de sortie en **timestamp Unix secondes**, ou `null`), `isEco` (filtre « Éco-responsable » dérivé, voir « Conformité »), `attributeValueIds` (facettes, toutes valeurs confondues), `attributes` (facettes **aplaties par slug** : `attributes.color`, `attributes.color-shade`, `attributes.material`… — voir ci-dessous), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `embeddingText` (le texte que Meilisearch vectorise : voir « Vectorisation »).
+`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone` (provenance dérivée, voir « Provenance et Nouveautés »), `releasedAt` (date de sortie en **timestamp Unix secondes**, ou `null`), `isEco` (filtre « Éco-responsable » dérivé, voir « Conformité »), `attributeValueIds` (facettes, toutes valeurs confondues), `attributes` (facettes **aplaties par slug** : `attributes.color`, `attributes.color-shade`, `attributes.material`… — voir ci-dessous), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `embeddingText` (le texte qu'Elasticsearch vectorise : voir « Vectorisation »).
 
-Réglages (`productIndexSettings(facetSlugs)`) : attributs cherchables `names`, `descriptions`, `reference` — un seul attribut par famille couvre toutes les langues, **ajouter une langue ne change aucun réglage** ; attributs filtrables `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone`, `releasedAt`, `isEco`, `attributeValueIds`, **plus un champ `attributes.<slug>` par attribut filtrable** (`facetSlugs` dérivés de `category_attributes.is_filter`, via `FilterableFacetsService` — jamais une liste codée en dur) ; embedder `default` (voir « Vectorisation »), retiré des réglages quand il est coupé. Les réglages sont réappliqués au premier envoi d'un processus et à chaque `search:reindex` : un changement de `is_filter` est donc pris en compte au prochain reindex.
+Mapping (`buildIndexDefinition`, `app/services/search/elasticsearch_engine.ts`) : `names.<locale>` et `descriptions.<locale>` sont des champs texte avec l'analyzer de leur langue (`french`, `english` ; `standard` pour toute langue sans analyzer dédié) ; la recherche couvre toutes les langues d'un motif (`names.*`, `descriptions.*`, `reference`), donc **ajouter une langue ne change aucun réglage**. Les filtres (`categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone`, `releasedAt`, `isEco`, `attributeValueIds`) sont des champs exacts. Les facettes `attributes.<slug>` sont créées **à la volée** (`double`) par un gabarit dynamique : aucune liste de slugs à connaître ni à synchroniser (`FilterableFacetsService` n'est plus utilisé par le moteur). `embeddingText` est copié dans un champ `semantic_text` quand l'embedder est actif. **Le mapping est immuable** : le changer, ou activer/couper l'embedder, passe par `node ace search:reindex`.
 
 Seuls les produits **visibles** sont indexés : actifs, organisation non archivée ni rejetée, non rejetés par la modération — les mêmes scopes que la fiche publique (`Product.fromLiveOrganization`, `Product.notRejected`).
 
@@ -53,11 +53,10 @@ d'attribut** `attributes.<slug>` (`attributes.color`, `attributes.color-shade`,
   de la nuance ;
 - un attribut numérique porte sa **valeur brute**.
 
-Ces champs sont déclarés `filterableAttributes` (donc facettables) à partir de
-`FilterableFacetsService.filterableSlugs()` (les slugs `category_attributes.is_filter`,
-distincts et triés). `SearchEngine.facetDistribution({ query, filter, facets })`
+Ces champs sont mappés automatiquement (gabarit dynamique `attributes.*`).
+`SearchEngine.facetDistribution({ query, filter, facets })`
 renvoie alors les **distributions de facettes** (compteurs par valeur) de
-Meilisearch (`search` avec `facets` et `limit: 0`).
+`facets` et `limit: 0`).
 
 `CatalogueFacetBarService.forCategory(categoryId, locale, { search, madeInEurope })`
 assemble la **barre de filtres dépendante de la catégorie** : les attributs
@@ -71,15 +70,14 @@ nuls sur ses autres valeurs.
 
 Cette PR **n'ajoute pas** de comportement de filtrage : le ET multi-critères
 (dont couleur N1/N2) fonctionne déjà via `attributeValueIds` (ci-dessus). Le
-**backfill** est `node ace search:reindex` (réapplique les réglages — dont les
-`attributes.<slug>` filtrables dérivés de la base — et réécrit tous les
+**backfill** est `node ace search:reindex` (reconstruit l'index et réécrit tous les
 documents avec leur objet `attributes`). Frontend : `inertia/pages/products/index.vue`,
 `inertia/components/catalogue_filters.vue` + `inertia/components/catalogue/facet_group.vue`
 (pastille hex des couleurs, compteurs, tranches numériques).
 
 ### Provenance et Nouveautés — ÉTAPE 2 du modèle produit (écarts 9 et 5)
 
-Deux facettes de fiche s'ajoutent aux réglages `filterableAttributes` :
+Deux facettes de fiche s'ajoutent au mapping :
 
 - **`originZone`** (provenance à 3 états, écart 9) : `france` / `europe` / `other`,
   ou `null` quand l'origine est inconnue (exclue des cases France/Europe). C'est
@@ -91,16 +89,15 @@ Deux facettes de fiche s'ajoutent aux réglages `filterableAttributes` :
   (backfill) au passage d'indexation** (`ProductIndexService.documentsFor` recale
   `origin_zone` sur la dérivation courante — idempotent, n'écrit que les lignes
   qui changent). Les zones cochées se combinent en **OU** dans le filtre
-  (`(originZone = 'france' OR originZone = 'europe')`), groupées pour rester en ET
-  avec les autres critères.
+  (un seul `terms` sur `originZone`), en ET avec les autres critères.
 - **`releasedAt`** (filtre « Nouveautés », écart 5) : date de sortie en timestamp
-  Unix (secondes). Le filtre est un intervalle `releasedAt >= <seuil>`, le seuil
+  Unix (secondes). Le filtre est un intervalle (`range`, `releasedAt >= <seuil>`), le seuil
   étant « il y a `NEW_PRODUCT_WINDOW_DAYS` jours » (90). `null` = pas de date,
   jamais une nouveauté.
 
 Côté catalogue, ces deux filtres transitent par `ProductDirectoryFilters`
 (`originZones: OriginZone[]`, `newOnly: boolean`) : avec terme de recherche ils
-passent au moteur (`buildProductFilter`) **et** sont revérifiés sur PostgreSQL au
+passent au moteur (`buildProductFilters`) **et** sont revérifiés sur PostgreSQL au
 rechargement ; sans terme, `ProductCatalogueService.list` applique les mêmes
 clauses directement en base. **Backfill** : `node ace search:reindex` recalcule et
 réécrit `origin_zone` puis republie tous les documents avec `originZone` /
@@ -109,7 +106,7 @@ dans `inertia/components/catalogue_filters.vue`.
 
 ### Conformité — ÉTAPE 3 du modèle produit (écart 4)
 
-Une facette de fiche s'ajoute aux réglages `filterableAttributes` :
+Une facette de fiche s'ajoute au mapping :
 
 - **`isEco`** (filtre « Éco-responsable ») : booléen **dérivé** (`products.is_eco`),
   jamais saisi. Calculé par `ProductEcoService.deriveIsEco` : vrai si
@@ -121,10 +118,10 @@ Une facette de fiche s'ajoute aux réglages `filterableAttributes` :
   facettes et des labels) et **rattrapé (backfill) au passage d'indexation**
   (`ProductIndexService.documentsFor` recale `is_eco` sur la dérivation courante,
   en même temps qu'`origin_zone` — idempotent). Le filtre est une clause booléenne
-  (`isEco = true`), jamais une négation : ne pas cocher la case ne filtre rien.
+  (`isEco: true`), jamais une négation : ne pas cocher la case ne filtre rien.
 
 Côté catalogue, ce filtre transite par `ProductDirectoryFilters` (`ecoOnly:
-boolean`) : avec terme de recherche il passe au moteur (`buildProductFilter`) **et**
+boolean`) : avec terme de recherche il passe au moteur (`buildProductFilters`) **et**
 est revérifié sur PostgreSQL au rechargement ; sans terme,
 `ProductCatalogueService.list` applique la même clause directement en base.
 **Backfill** : `node ace search:reindex` recalcule et réécrit `is_eco` puis
@@ -133,26 +130,19 @@ republie tous les documents. Frontend : case « Éco-responsable » dans
 niveau produit (pivot `product_certifications`, affichées sur la fiche) mais ne
 sont **pas** une facette filtrable du moteur à ce stade.
 
-## Vectorisation (embedder de Meilisearch)
+## Vectorisation (inférence Elasticsearch)
 
-**Meilisearch calcule lui-même les vecteurs** (ADR 0002, décision 3), à partir du champ `embeddingText` de chaque document (`documentTemplate: '{{ doc.embeddingText }}'`) à l'indexation, et du texte `q` à la recherche. L'application ne fait aucun appel à un modèle d'embeddings, n'a pas de copie des vecteurs en base et ne gère ni lots ni rejeux d'embeddings.
+**Elasticsearch calcule lui-même les vecteurs** (ADR 0004, décision 3) : le champ `embeddingText` de chaque document est copié dans un champ `semantic_text`, et le texte `q` est vectorisé à la recherche. L'application ne fait aucun appel à un modèle d'embeddings, n'a pas de copie des vecteurs en base et ne gère ni lots ni rejeux d'embeddings. Le fournisseur est **Mistral** (`mistral-embed`, 1 024 dimensions) : Elasticsearch l'appelle par un **endpoint d'inférence** `embeddings_<NODE_ENV>` que l'application crée une fois dans le cluster (`ensureInference`, à la création de l'index ou de `search:reindex`) avec `MISTRAL_API_KEY`.
 
-| `AI_PROVIDER`              | Embedder Meilisearch | Où tourne le modèle                                             | Clé                           |
-| -------------------------- | -------------------- | --------------------------------------------------------------- | ----------------------------- |
-| `huggingface` (**défaut**) | `huggingFace`        | Dans Meilisearch (modèle téléchargé)                            | Aucune                        |
-| `mistral`                  | `rest`               | API Mistral                                                     | `MISTRAL_API_KEY`             |
-| `openai-compatible`        | `rest`               | Endpoint OpenAI `/embeddings` (OpenAI, Together, Ollama, vLLM…) | `AI_API_KEY` ou `AI_BASE_URL` |
-
-- **Modèle par défaut** : `intfloat/multilingual-e5-base` (multilingue, 768 dimensions, ~1 Go), modifiable par `HF_EMBED_MODEL` (`MISTRAL_EMBED_MODEL`, `AI_EMBED_MODEL` pour les autres providers). C'est un point de départ, à trancher par `search:evaluate`.
 - **Texte vectorisé** (`ProductIndexService.embeddingText`) : nom dans la **langue source**, catégorie, facettes « attribut : valeur », début de description (300 caractères). Une seule langue : le modèle est multilingue, et concaténer les traductions ferait changer le texte à chaque traduction automatique.
-- **Activation** (`config/search.ts`, `embedder`) : **active par défaut** (le provider `huggingface` n'a rien à configurer). `AI_EMBEDDINGS_ENABLED=false` la coupe (mots-clés seuls) ; `=true` avec un provider API sans identifiants échoue au démarrage ; en `NODE_ENV=test`, coupée sauf demande explicite. Coupée, elle est retirée des réglages de l'index.
-- **Les réglages sont appliqués à la création de l'index** : activer, couper ou changer d'embedder ou de modèle se fait par `node ace search:reindex` (index temporaire créé avec les nouveaux réglages, puis échangé).
-- **Coût** : la reconstruction complète recalcule tous les vecteurs — du temps de calcul sur l'instance Meilisearch avec `huggingface`, ~20 $ pour 1 M de fiches avec `mistral-embed` (à confirmer). Les mises à jour de fiches ne recalculent que si le texte vectorisé change.
-- **Premier usage avec `huggingface`** : Meilisearch télécharge le modèle (~1 Go) depuis Hugging Face ; la première tâche d'indexation est longue (délai d'attente : 10 minutes). L'instance doit joindre Hugging Face en sortie (cf. `docs/deploiement.md`).
-- **Embedder indisponible** (API en panne ou limitée, modèle pas encore chargé) : à l'indexation, la tâche Meilisearch échoue → `SearchTaskFailedException`, le job est rejoué ; à la recherche, la requête est rejouée en mots-clés seuls.
-- **Latence** : la requête est vectorisée par Meilisearch à chaque recherche hybride (sur son CPU avec `huggingface`) ; à mesurer par `search:evaluate`. Le sélecteur de produit des demandes de devis reste par mots-clés pour ne pas payer ce calcul à chaque frappe.
+- **Activation** (`config/search.ts`, `embedder`) : **active par défaut** dès que `MISTRAL_API_KEY` est définie. `AI_EMBEDDINGS_ENABLED=false` la coupe (mots-clés seuls) ; `=true` sans clé échoue au démarrage ; en `NODE_ENV=test`, coupée sauf demande explicite. Coupée, le champ `semantic_text` n'est pas créé.
+- **Modèle** : `MISTRAL_EMBED_MODEL` (`mistral-embed` par défaut). Changer de modèle change les vecteurs : supprimer l'endpoint d'inférence puis `node ace search:reindex`, et rejouer `search:evaluate`.
+- **Hybride** : un retriever `linear` pondère le score BM25 par `1 − ratio` et le score sémantique par `ratio` (`SEARCH_SEMANTIC_RATIO`, 0,5 par défaut), scores normalisés (`minmax`) ; les filtres s'appliquent aux deux branches. Sans embedder, ou sans mots-clés, la requête est du BM25 seul.
+- **Coût** : la reconstruction complète recalcule tous les vecteurs, ~20 $ pour 1 M de fiches avec `mistral-embed` (à confirmer). Les mises à jour de fiches ne recalculent que si le texte vectorisé change (à confirmer à l'usage).
+- **Embedder indisponible** (API en panne ou limitée) : à l'indexation, un lot en erreur → `SearchTaskFailedException`, le job est rejoué ; à la recherche, la requête est rejouée en mots-clés seuls.
+- **Latence** : la requête est vectorisée par un appel à l'API à chaque recherche hybride ; à mesurer par `search:evaluate`. Le sélecteur de produit des demandes de devis reste par mots-clés pour ne pas payer cet appel à chaque frappe.
 
-⚠️ **Jamais exécuté contre un vrai modèle en local** (pas de Docker ici). Le job CI `test-search-semantic` fait tourner Meilisearch avec l'embedder `huggingface` et rejoue les requêtes sémantiques ; tant qu'il n'est pas vert, le support du modèle par Meilisearch et la qualité sur le seed restent à confirmer. À valider ensuite en préproduction sur de vraies fiches multilingues. Les modèles e5 recommandent des préfixes `query:` / `passage:` que Meilisearch n'ajoute pas côté requête : on n'en met d'aucun côté.
+⚠️ **Le chemin sémantique n'a jamais tourné contre la vraie API Mistral.** Ce qui est vérifié sur un vrai Elasticsearch 8.19.1 : le mapping `semantic_text` avec `copy_to`, le retriever `linear` avec filtres et la tolérance aux fautes (essai avec un faux serveur d'embeddings compatible OpenAI) ; le jeu de référence non sémantique passe (12 requêtes). Reste à valider : l'endpoint d'inférence `mistral` (clé, quota, accès sortant du cluster), la qualité multilingue de `mistral-embed` et le ratio, avec une clé et de vraies fiches (`AI_EMBEDDINGS_ENABLED=true node ace search:evaluate --reindex`).
 
 ## Qui déclenche une synchronisation
 
@@ -172,22 +162,22 @@ Les services émetteurs ne connaissent pas le moteur : ils émettent l'événeme
 node ace search:reindex
 ```
 
-Parcourt tous les produits par identifiant croissant, par lots (mémoire bornée), écrit dans un index temporaire `<index>_next` puis l'**échange atomiquement** avec l'index actif (`swap-indexes`) et supprime l'ancien. Les recherches ne voient jamais un index à moitié rempli ; un échec en route laisse l'ancien index en place et la commande peut être relancée. À lancer au premier déploiement de Meilisearch, après une perte de l'index, ou après une montée de version qui l'exige.
+Parcourt tous les produits par identifiant croissant, par lots (mémoire bornée), écrit dans un nouvel index horodaté (`<index>_<timestamp>`) puis **bascule atomiquement l'alias** `products_<NODE_ENV>` sur lui (une seule requête `_aliases`) et supprime l'ancien. Les recherches ne voient jamais un index à moitié rempli ; un échec en route laisse l'ancien index en place et la commande peut être relancée. À lancer au premier déploiement, après une perte de l'index, après un changement de mapping ou de modèle d'embeddings, ou après une montée de version qui l'exige.
 
 ## Architecture
 
-- `SearchEngine` (classe abstraite, jeton d'injection) → `MeilisearchEngine` ou `NullSearchEngine`, liés par `providers/search_provider.ts`.
+- `SearchEngine` (classe abstraite, jeton d'injection) → `ElasticsearchEngine` ou `NullSearchEngine`, liés par `providers/search_provider.ts`.
 - `ProductIndexService` : construit les documents, `sync`, `syncOrganization`, `reindexAll`.
 - `SearchSyncService` : met les jobs en queue (no-op si désactivé).
-- L'index et ses réglages sont garantis une fois par processus, au premier envoi (`createIndex` si absent, `updateSettings` sinon — idempotent).
-- Une tâche Meilisearch en échec lève `SearchTaskFailedException` : le job est rejoué (5 tentatives).
+- L'index est garanti une fois par processus, au premier envoi : si l'alias n'existe pas, un index horodaté est créé avec son mapping et rattaché à l'alias.
+- Un lot d'écriture en erreur lève `SearchTaskFailedException` : le job est rejoué (5 tentatives).
 
 ## Recherche (lecture)
 
 `ProductSearchService` (`app/services/product_search_service.ts`) :
 
-1. **Moteur** (`SearchEngine#search`) : `q`, filtres exacts `categoryId = … AND madeInEurope = true AND attributeValueIds = 3 AND attributeValueIds = 7` (une clause par valeur de facette : le ET), pagination `page` / `hitsPerPage`, et `hybrid: { embedder, semanticRatio }` quand l'embedder est actif et le ratio non nul — **Meilisearch vectorise `q`**. Renvoie des identifiants ordonnés et le total.
-2. **Repli par mots-clés** : si la requête sémantique échoue (API d'embeddings indisponible ou limitée en débit), elle est rejouée avec `semanticRatio` 0 ; la recherche ne tombe jamais à cause de l'IA. Moteur injoignable même en mots-clés : `null`, l'appelant bascule sur PostgreSQL.
+1. **Moteur** (`SearchEngine#search`) : `q`, filtres exacts en clauses `filter` (`categoryId`, `madeInEurope`, et **une clause `term` par valeur de facette** `attributeValueIds` : le ET), pagination `from` / `size`, et le retriever `linear` hybride quand l'embedder est actif et le ratio non nul — **Elasticsearch vectorise `q`**. Renvoie des identifiants ordonnés et le total.
+2. **Repli par mots-clés** : si la requête sémantique échoue (API d'embeddings indisponible ou limitée en débit), elle est rejouée avec un ratio de 0 ; la recherche ne tombe jamais à cause de l'IA. Moteur injoignable même en mots-clés : `null`, l'appelant bascule sur PostgreSQL.
 3. **Rechargement depuis PostgreSQL**, dans l'ordre du moteur : seuls les produits visibles (mêmes scopes que la fiche publique) sont gardés et **les facettes demandées sont revérifiées** — le ET est garanti deux fois. Un produit retiré depuis la dernière synchronisation n'apparaît jamais ; la page peut alors compter moins que `perPage`.
 
 Branchement :
@@ -209,30 +199,31 @@ node ace db:seed                      # seed « full »
 node ace search:evaluate --reindex    # reconstruit l'index puis mesure
 ```
 
-`search:evaluate` rejoue chaque requête **à travers le vrai chemin** (`ProductSearchService`, rechargement PostgreSQL compris) et affiche verdict, rappel@10 et latence par requête, puis le rappel moyen et les latences p50 / p95 ; code de sortie 1 si une requête échoue. C'est l'outil qui sert à **choisir par la mesure** le modèle d'embeddings, `SEARCH_SEMANTIC_RATIO` et la quantification (ADR 0002, décisions 3, 7 et 10) : changer l'un d'eux, relancer, comparer.
+`search:evaluate` rejoue chaque requête **à travers le vrai chemin** (`ProductSearchService`, rechargement PostgreSQL compris) et affiche verdict, rappel@10 et latence par requête, puis le rappel moyen et les latences p50 / p95 ; code de sortie 1 si une requête échoue. C'est l'outil qui sert à **choisir par la mesure** le modèle d'embeddings, `SEARCH_SEMANTIC_RATIO`, la fuzziness et le dimensionnement M/L (ADR 0004) : changer l'un d'eux, relancer, comparer.
 
-En CI, le job `test-search` démarre un vrai Meilisearch et rejoue les requêtes non sémantiques ; `test-search-semantic` y ajoute l'embedder `huggingface` et rejoue aussi les requêtes sémantiques (`tests/functional/search_reference.spec.ts`). `pnpm test` ignore ce fichier faute de `MEILISEARCH_HOST`.
+En CI, le job `test-search` démarre un vrai Elasticsearch et rejoue les requêtes non sémantiques (`tests/functional/search_reference.spec.ts`) ; les requêtes sémantiques demandent l'API Mistral et sont ignorées. `pnpm test` ignore ce fichier faute de `ELASTICSEARCH_URL`.
 
-⚠️ Le seed ne contient que du français et de l'anglais, sur six fiches : il éprouve le pipeline (mots-clés, fautes, ET, rechargement, et le sémantique en CI) mais **pas la qualité multilingue du modèle**. Avant de figer le modèle, étendre le jeu avec de vraies fiches dans plusieurs langues.
+⚠️ Le seed ne contient que du français et de l'anglais, sur six fiches : il éprouve le pipeline (mots-clés, fautes, ET, rechargement) mais **ni le sémantique ni la qualité multilingue du modèle**. Avant de figer le modèle, étendre le jeu avec de vraies fiches dans plusieurs langues.
 
 ## Connu, non traité (étapes suivantes de #112)
 
-- **Embedder à valider en conditions réelles** : voir l'avertissement de « Vectorisation » (support du modèle, débit d'indexation, mémoire de l'instance).
-- **Choix du modèle, du ratio et de la quantification** : à faire avec des vecteurs réels (les valeurs par défaut — `mistral-embed`, 0,5, pas de quantification — sont celles de l'ADR).
-- **Mesure de latence p95 à 1 M de produits** : `search:evaluate` la mesure sur l'index courant ; il reste à l'exécuter sur un catalogue de cette taille.
+- **Embeddings à valider en conditions réelles** : voir l'avertissement de « Vectorisation ».
+- **Pertinence** : `fuzziness: AUTO`, `minimum_should_match: 2<75%`, poids `names^3` / `reference^2` et ratio sont des points de départ, à régler par `search:evaluate` sur de vraies fiches multilingues.
+- **Analyzers** : seules `fr` et `en` ont un analyzer dédié (`CONTENT_LOCALES`) ; ajouter une langue de contenu demande d'ajouter son analyzer à `LOCALE_ANALYZERS`, sinon `standard`.
+- **Total de résultats** : avec le retriever hybride, le total est borné par la fenêtre de classement (`rank_window_size`, au moins 100 et `from + size`).
+- **Mesure de latence p95 à 300 000 puis 1 M de produits**, et choix M ou L : `search:evaluate` sur le cluster de test (voucher Clever Cloud).
 - **Traductions** (ADR 0002, décision 12) : titres traduits à l'import, descriptions à la première ouverture par langue — PR dédiée.
-- Le `tsvector` par langue, le HNSW et les colonnes d'embeddings ont été retirés (migration `…drop_postgres_search_columns`, PR 3).
-- Réindexation à la montée de version de Meilisearch, snapshots et supervision : voir `docs/deploiement.md`.
+- Supervision, snapshots et montées de version de l'add-on : voir `docs/deploiement.md`.
 
 ## Tests
 
 - `tests/functional/search_indexing.spec.ts` : documents (noms par langue, facettes `attributeValueIds`, **facettes aplaties par slug** avec couleur famille déduite de la nuance, texte vectorisé), retrait des produits invisibles ou supprimés, idempotence, archivage et modération, réindexation par lots, déclencheurs — avec un moteur factice.
-- `tests/unit/meilisearch_engine.spec.ts` : le pilote contre un `fetch` simulé (création de l'index et de ses réglages une seule fois, tâche en échec, reconstruction par index temporaire et échange, requête hybride et filtre ET, **distributions de facettes** — `facets` + `limit: 0` + lecture de `facetDistribution` —, configuration de l'embedder `rest`).
+- `tests/unit/elasticsearch_engine.spec.ts` : le pilote contre un client factice (filtres ET, provenance, nouveautés, corps hybride `linear`, mapping, création de l'index et de l'alias une seule fois, endpoint d'inférence, lot en erreur, suppression idempotente, **distributions de facettes** par agrégations, reconstruction atomique et interrompue).
 - `tests/functional/catalogue_facet_bar.spec.ts` : dérivation des slugs filtrables depuis `category_attributes.is_filter` (`FilterableFacetsService`) ; barre de filtres par catégorie (`CatalogueFacetBarService`) — attributs résolus (propres + hérités), facettes demandées au moteur, fusion des compteurs, repli sans compteur (moteur inerte ou injoignable).
 - `tests/functional/product_search.spec.ts` : rechargement depuis PostgreSQL (ordre, visibilité, facettes revérifiées), requête transmise au moteur, ratio sémantique et repli par mots-clés si l'API d'embeddings tombe, écrans (catalogue, sélecteur, message « recherche indisponible »).
 - `tests/unit/product_origin_service.spec.ts` : dérivation `origin_zone` (France, Europe UE/EEE ou `madeInEurope`, autre, inconnue → `null`).
 - `tests/functional/product_identity_commercial.spec.ts` : persistance des champs d'identité/commercial/médias, dérivation et recalcul d'`origin_zone`, filtres provenance (OU) et « Nouveautés » du catalogue.
 - `tests/unit/search_evaluation.spec.ts` : verdict, rappel, percentiles.
-- `tests/functional/search_reference.spec.ts` : le jeu de référence contre un vrai Meilisearch (job CI `test-search`).
+- `tests/functional/search_reference.spec.ts` : le jeu de référence contre un vrai Elasticsearch (job CI `test-search`).
 
-Le pilote est testé contre un vrai Meilisearch par le jeu de référence en CI (`test-search`) ; en local, le lancer avec `docker compose up -d` puis `MEILISEARCH_HOST=http://localhost:7700 MEILISEARCH_API_KEY=… node ace test functional --files=tests/functional/search_reference.spec.ts`.
+Le pilote est testé contre un vrai Elasticsearch par le jeu de référence en CI (`test-search`) ; en local, le lancer avec `docker compose up -d` puis `ELASTICSEARCH_URL=http://localhost:9200 node ace test functional --files=tests/functional/search_reference.spec.ts`.

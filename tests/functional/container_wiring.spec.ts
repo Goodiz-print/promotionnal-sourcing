@@ -42,7 +42,7 @@ test.group('Conteneur IoC — câblage des dépendances', () => {
     assert.instanceOf(await app.container.make(SupplierProductService), SupplierProductService)
   })
 
-  test('lie SearchEngine au moteur inerte sans MEILISEARCH_HOST', async ({ assert }) => {
+  test('lie SearchEngine au moteur inerte sans ELASTICSEARCH_URL', async ({ assert }) => {
     const engine = await app.container.make(SearchEngine)
     assert.instanceOf(engine, NullSearchEngine)
     assert.isFalse(engine.enabled)

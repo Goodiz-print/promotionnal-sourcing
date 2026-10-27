@@ -7,14 +7,14 @@
 - **Backend** : AdonisJS v7 (TypeScript strict)
 - **Frontend** : Vue 3 (Composition API) + Inertia.js (SSR)
 - **Base de données** : PostgreSQL via Lucid ORM (y compris en test)
-- **Recherche** : Elasticsearch managé sur Clever Cloud (ADR 0004, migration depuis Meilisearch en cours : `ElasticsearchEngine` derrière la classe abstraite `SearchEngine`, choisi par `ELASTICSEARCH_URL`). Recherche hybride mots-clés + vecteurs ; les embeddings sont calculés **par le moteur** (endpoint d'inférence Mistral, champ `semantic_text`), pas par l'application. Index alimenté depuis PostgreSQL par la queue, PostgreSQL reste la source de vérité (issue #112, ADR 0002 et 0004, `docs/search.md`)
+- **Recherche** : Elasticsearch managé sur Clever Cloud (ADR 0004, `ElasticsearchEngine` derrière la classe abstraite `SearchEngine`). Recherche hybride mots-clés + vecteurs ; les embeddings sont calculés **par le moteur** (endpoint d'inférence Mistral, champ `semantic_text`), pas par l'application. Index alimenté depuis PostgreSQL par la queue, PostgreSQL reste la source de vérité (issue #112, ADR 0002 et 0004, `docs/search.md`)
 - **ORM** : Lucid (migrations, seeders)
 - **Auth** : @adonisjs/auth avec bouncer + abilities pour les ACL
 - **IA** : Mistral AI via `@mistralai/mistralai` + système de queue AdonisJS
 - **Tests backend** : Japa (functional + unit)
 - **Tests frontend** : Vitest + @vue/test-utils
 - **Package manager** : pnpm
-- **Déploiement** : Clever Cloud (applications Docker web et worker, PostgreSQL managé, Cellar, Meilisearch) + CI/CD GitHub Actions (ADR 0003, `docs/deploiement.md`)
+- **Déploiement** : Clever Cloud (applications Docker web et worker, PostgreSQL managé, Cellar, Elasticsearch) + CI/CD GitHub Actions (ADR 0003, `docs/deploiement.md`)
 
 ## Dépendances système
 

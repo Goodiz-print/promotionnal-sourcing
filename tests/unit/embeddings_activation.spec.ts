@@ -6,7 +6,6 @@ import {
 } from '#shared/helpers/embeddings_activation'
 
 const BASE: EmbeddingsActivationInput = {
-  provider: 'mistral',
   requested: undefined,
   configured: true,
   nodeEnv: 'production',
@@ -43,16 +42,6 @@ test.group('Vectorisation — activation', () => {
     assert.throws(
       () => resolveEmbeddingsEnabled({ ...BASE, requested: true, configured: false }),
       /MISTRAL_API_KEY manquant/
-    )
-    assert.throws(
-      () =>
-        resolveEmbeddingsEnabled({
-          ...BASE,
-          provider: 'openai-compatible',
-          requested: true,
-          configured: false,
-        }),
-      /AI_API_KEY ou AI_BASE_URL manquant/
     )
   })
 
