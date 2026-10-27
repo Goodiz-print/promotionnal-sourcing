@@ -5,7 +5,7 @@
 #
 # Node 24 LTS (package.json : engines.node >=24), pnpm épinglé comme `packageManager`.
 ARG NODE_VERSION=24.20.0
-ARG PNPM_VERSION=11.9.0
+ARG PNPM_VERSION=12.15.0
 
 # ---------------------------------------------------------------------------
 # deps : toutes les dépendances (dev comprises), nécessaires au build.
