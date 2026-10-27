@@ -68,6 +68,16 @@ Installés dans `/usr/share/hunspell` : bg, bs, cs, hr, is, lv, pl, sk, sl, uk (
 
 > ⚠️ PostgreSQL lit ses dictionnaires (`.dict` / `.affix`) dans `$SHAREDIR/tsearch_data` **sur le serveur de base**, pas dans le conteneur applicatif. Sur la base managée Clever Cloud, ces fichiers de l'image n'ont aucun effet sur la recherche plein texte. À confirmer auprès du support : dépôt possible côté serveur ou repli sur `simple`.
 
+## Elasticsearch (ADR 0004)
+
+Moteur de recherche cible : **add-on Elasticsearch managé de Clever Cloud** (sauvegardes quotidiennes, supervision et mises à jour incluses). Il remplace l'instance Docker Meilisearch, dont le volume persistant n'a jamais été confirmé.
+
+- **Dimensionnement de départ** (300 000 produits) : Elasticsearch **M** (2 vCPU, 4 Go, 120 Go, 80 € HT/mois) ; **L** (4 vCPU, 8 Go, 240 Go, 160 € HT/mois) si le catalogue entier est indexé avec vecteurs 1 024 dimensions et de nombreux filtres. À trancher par `search:evaluate` (ADR 0004). Pas de haute disponibilité à ce prix.
+- **Variables** : `ELASTICSEARCH_URL`, `ELASTICSEARCH_USER`, `ELASTICSEARCH_PASSWORD`, mappées depuis les variables de l'add-on (à relever dans la console Clever Cloud). Avec embeddings : `AI_PROVIDER=mistral` et `MISTRAL_API_KEY` ; le cluster doit pouvoir joindre `api.mistral.ai`.
+- **Premier déploiement** : `node ace search:reindex` crée l'index, l'alias et l'endpoint d'inférence `embeddings_<env>`.
+- **Sauvegarde** : snapshots de l'add-on ; l'index se reconstruit de toute façon depuis PostgreSQL (`search:reindex`).
+- **Local** : `docker compose --profile elasticsearch up -d`, puis `ELASTICSEARCH_URL=http://localhost:9200`.
+
 ## Meilisearch (#112)
 
 Moteur de recherche hybride, déployé en **instance Docker Clever Cloud** (Docker M en prod), distinct de l'application web.

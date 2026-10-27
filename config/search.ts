@@ -6,6 +6,7 @@ import {
   EMBEDDER_PROVIDERS,
   SEARCH_EMBEDDING_DIMENSIONS,
   type EmbedderProvider,
+  type SearchEngineName,
 } from '#shared/types/search'
 
 /**
@@ -32,8 +33,19 @@ function resolveProvider(): EmbedderProvider {
 
 const provider = resolveProvider()
 
+/** Moteur actif : Elasticsearch prime (ADR 0004), puis Meilisearch, sinon aucun. */
+const engine: SearchEngineName = env.get('ELASTICSEARCH_URL')
+  ? 'elasticsearch'
+  : env.get('MEILISEARCH_HOST')
+    ? 'meilisearch'
+    : 'none'
+
 /** Le provider d'embeddings choisi dispose-t-il de ce qu'il lui faut ? */
 function embedderConfigured(): boolean {
+  // Elasticsearch appelle lui-même l'API Mistral (endpoint d'inférence) : c'est
+  // le seul provider qu'il sait porter ici (ADR 0004, décision 3).
+  if (engine === 'elasticsearch')
+    return provider === 'mistral' && Boolean(env.get('MISTRAL_API_KEY'))
   // Le modèle tourne dans Meilisearch : rien à configurer.
   if (provider === 'huggingface') return true
   if (provider === 'mistral') return Boolean(env.get('MISTRAL_API_KEY'))
@@ -56,9 +68,18 @@ function embedderModel(): string {
 }
 
 const searchConfig = {
+  engine,
   host: env.get('MEILISEARCH_HOST'),
   apiKey: env.get('MEILISEARCH_API_KEY'),
-  enabled: Boolean(env.get('MEILISEARCH_HOST')),
+  /** Elasticsearch managé (ADR 0004). */
+  elasticsearch: {
+    url: env.get('ELASTICSEARCH_URL'),
+    username: env.get('ELASTICSEARCH_USER'),
+    password: env.get('ELASTICSEARCH_PASSWORD'),
+    /** Endpoint d'inférence créé dans le cluster, un par environnement. */
+    inferenceId: `embeddings_${env.get('NODE_ENV')}`,
+  },
+  enabled: engine !== 'none',
   index: `products_${env.get('NODE_ENV')}`,
   /** Taille des lots de documents envoyés à Meilisearch. */
   batchSize: 500,
