@@ -131,6 +131,10 @@ export type ProductDirectoryFilters = {
   categoryId: number | null
   madeInEurope: boolean
   attributeValueIds: number[]
+  // Labels de conformité (écart 4, ÉTAPE 6) : facette transverse aux catégories,
+  // combinée en ET fiable (le produit doit porter *tous* les labels cochés).
+  // Vide = pas de filtre certifications.
+  certificationIds: number[]
   // Provenance à 3 états (écart 9) : les zones cochées se combinent en OU
   // (France OU Europe). Vide = pas de filtre de provenance.
   originZones: OriginZone[]

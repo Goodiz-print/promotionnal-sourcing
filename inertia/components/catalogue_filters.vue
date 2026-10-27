@@ -5,13 +5,16 @@ import BaseInput from '~/components/base/base_input.vue'
 import BaseSelect from '~/components/base/base_select.vue'
 import BaseCheckbox from '~/components/base/base_checkbox.vue'
 import FacetGroup from '~/components/catalogue/facet_group.vue'
+import CertificationFacet from '~/components/catalogue/certification_facet.vue'
 import type { CategoryType, CategoryFacetBarType } from '#shared/types/category'
+import type { CertificationFacetBarType } from '#shared/types/certification'
 import { ORIGIN_ZONES, type OriginZone, type ProductDirectoryFilters } from '#shared/types/product'
 
 const props = defineProps<{
   filters: ProductDirectoryFilters
   categories: CategoryType[]
   facetBar: CategoryFacetBarType
+  certificationFacet: CertificationFacetBarType
 }>()
 
 const emit = defineEmits<{
@@ -27,6 +30,7 @@ const state = reactive<ProductDirectoryFilters>({
   categoryId: props.filters.categoryId,
   madeInEurope: props.filters.madeInEurope,
   attributeValueIds: [...props.filters.attributeValueIds],
+  certificationIds: [...props.filters.certificationIds],
   originZones: [...props.filters.originZones],
   newOnly: props.filters.newOnly,
   ecoOnly: props.filters.ecoOnly,
@@ -41,6 +45,7 @@ function apply() {
     categoryId: state.categoryId,
     madeInEurope: state.madeInEurope,
     attributeValueIds: [...state.attributeValueIds],
+    certificationIds: [...state.certificationIds],
     originZones: [...state.originZones],
     newOnly: state.newOnly,
     ecoOnly: state.ecoOnly,
@@ -88,6 +93,13 @@ function toggleValue(valueId: number, checked: boolean) {
   state.attributeValueIds = checked
     ? [...state.attributeValueIds, valueId]
     : state.attributeValueIds.filter((id) => id !== valueId)
+  apply()
+}
+
+function toggleCertification(certificationId: number, checked: boolean) {
+  state.certificationIds = checked
+    ? [...state.certificationIds, certificationId]
+    : state.certificationIds.filter((id) => id !== certificationId)
   apply()
 }
 </script>
@@ -147,6 +159,14 @@ function toggleValue(valueId: number, checked: boolean) {
         @update:model-value="(checked: boolean) => toggleOriginZone(zone, checked)"
       />
     </fieldset>
+
+    <!-- Labels de conformité (écart 4, ÉTAPE 6) : facette transverse aux
+         catégories, donc toujours affichée (indépendante de la sélection). -->
+    <CertificationFacet
+      :facet="certificationFacet"
+      :selected-ids="state.certificationIds"
+      @toggle="toggleCertification"
+    />
 
     <p v-if="state.categoryId === null" class="text-sm text-[var(--gray-6)]">
       {{ t('products.index.selectCategoryForFilters') }}

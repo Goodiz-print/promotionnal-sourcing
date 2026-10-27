@@ -62,6 +62,34 @@ export type CertificationType = {
   isEco: boolean
 }
 
+/**
+ * Label de conformité exposé à la **barre de filtres du catalogue** (ÉTAPE 6),
+ * avec son **compteur** issu de la distribution de facettes du moteur
+ * (`facetDistribution` sur `certificationIds`). `count` vaut `null` quand les
+ * compteurs ne sont pas disponibles (moteur de recherche inerte ou injoignable) :
+ * l'UI affiche alors le label sans badge. Déclaré en `type` (contrainte props
+ * Inertia `Record<string, JSONDataTypes>`).
+ */
+export type CertificationFacetType = {
+  id: number
+  slug: string
+  name: string | null
+  domain: CertificationDomain
+  count: number | null
+}
+
+/**
+ * Barre de filtres **certifications** du catalogue (ÉTAPE 6). Transverse aux
+ * catégories (contrairement aux attributs EAV) : disponible **sans catégorie
+ * sélectionnée**, à côté de la barre dépendante de la catégorie. `hasCounts` est
+ * `false` quand le moteur de recherche est indisponible (compteurs `null`).
+ * Déclaré en `type` (contrainte props Inertia).
+ */
+export type CertificationFacetBarType = {
+  certifications: CertificationFacetType[]
+  hasCounts: boolean
+}
+
 /** Donnée de référence d'un label (seed) : libellé bilingue + synonymes d'import. */
 export interface CertificationSeed {
   slug: string

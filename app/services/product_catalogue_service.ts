@@ -37,6 +37,7 @@ export default class ProductCatalogueService {
       categoryId,
       madeInEurope,
       attributeValueIds,
+      certificationIds,
       originZones,
       newOnly,
       ecoOnly,
@@ -58,6 +59,14 @@ export default class ProductCatalogueService {
       .if(attributeValueIds.length > 0, (q) => {
         for (const valueId of attributeValueIds) {
           q.whereHas('attributeValues', (av) => av.where('attribute_values.id', valueId))
+        }
+      })
+      // Labels de conformité (écart 4, ÉTAPE 6) : ET fiable, un `whereHas` par
+      // label → chaque contrainte combinée en AND (le produit porte *tous* les
+      // labels cochés). Mêmes résultats que le filtre du moteur.
+      .if(certificationIds.length > 0, (q) => {
+        for (const certificationId of certificationIds) {
+          q.whereHas('certifications', (c) => c.where('certifications.id', certificationId))
         }
       })
       // Provenance à 3 états (écart 9) : OU entre les zones cochées.

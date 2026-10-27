@@ -95,6 +95,27 @@ test.group('Recherche — documents d’index', (group) => {
     ])
   })
 
+  test('le document porte les identifiants des labels de conformité (écart 4)', async ({
+    assert,
+  }) => {
+    // La casquette de démo porte GOTS + OEKO-TEX Standard 100.
+    const product = await Product.findByOrFail('slug', 'casquette-6-panneaux-marine')
+    const certifications = await db
+      .from('product_certifications')
+      .where('product_id', product.id)
+      .select('certification_id')
+
+    const index = await service()
+    await index.sync([product.id])
+
+    const document = fake.engine.upserted[0][0]
+    assert.sameMembers(
+      document.certificationIds,
+      certifications.map((row) => row.certification_id)
+    )
+    assert.isAbove(document.certificationIds.length, 0)
+  })
+
   test('le document porte la zone de provenance et la date de sortie (timestamp)', async ({
     assert,
   }) => {

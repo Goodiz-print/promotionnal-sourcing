@@ -8,6 +8,7 @@ import ProductCard from '~/components/product_card.vue'
 import CatalogueFilters from '~/components/catalogue_filters.vue'
 import type { Paginated } from '#shared/types/pagination'
 import type { CategoryType, CategoryFacetBarType } from '#shared/types/category'
+import type { CertificationFacetBarType } from '#shared/types/certification'
 import type { ProductType, ProductDirectoryFilters } from '#shared/types/product'
 
 defineProps<{
@@ -16,6 +17,7 @@ defineProps<{
   filters: ProductDirectoryFilters
   categories: CategoryType[]
   facetBar: CategoryFacetBarType
+  certificationFacet: CertificationFacetBarType
 }>()
 
 const { t, locale } = useI18n()
@@ -28,6 +30,7 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
       categoryId: filters.categoryId ?? undefined,
       madeInEurope: filters.madeInEurope ? 'true' : undefined,
       attributeValueIds: filters.attributeValueIds.length ? filters.attributeValueIds : undefined,
+      certificationIds: filters.certificationIds.length ? filters.certificationIds : undefined,
       originZones: filters.originZones.length ? filters.originZones : undefined,
       newOnly: filters.newOnly ? 'true' : undefined,
       ecoOnly: filters.ecoOnly ? 'true' : undefined,
@@ -36,9 +39,10 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
     {
       preserveState: true,
       preserveScroll: true,
-      // `facetBar` est rechargé aussi : les attributs filtrables et leurs
-      // compteurs dépendent de la catégorie et des filtres de navigation.
-      only: ['products', 'filters', 'searchUnavailable', 'facetBar'],
+      // `facetBar` et `certificationFacet` sont rechargés aussi : les attributs
+      // filtrables, les labels et leurs compteurs dépendent de la catégorie et
+      // des filtres de navigation.
+      only: ['products', 'filters', 'searchUnavailable', 'facetBar', 'certificationFacet'],
     }
   )
 }
@@ -59,6 +63,7 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
           :filters="filters"
           :categories="categories"
           :facet-bar="facetBar"
+          :certification-facet="certificationFacet"
           @apply="visit($event)"
         />
       </aside>

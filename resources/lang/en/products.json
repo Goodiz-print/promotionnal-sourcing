@@ -23,7 +23,19 @@
       "europe": "Europe",
       "other": "Outside Europe"
     },
-    "ecoOnly": "Eco-friendly"
+    "ecoOnly": "Eco-friendly",
+    "certifications": {
+      "title": "Compliance labels",
+      "domains": {
+        "environment": "Environment",
+        "textile": "Textile",
+        "social": "Social",
+        "safety": "Safety",
+        "food_contact": "Food contact",
+        "forestry": "Forestry",
+        "quality": "Quality"
+      }
+    }
   },
   "show": {
     "backToCatalogue": "Back to catalogue",

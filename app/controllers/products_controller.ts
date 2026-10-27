@@ -3,6 +3,7 @@ import { inject } from '@adonisjs/core'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import ProductSearchService from '#services/product_search_service'
 import CatalogueFacetBarService from '#services/catalogue_facet_bar_service'
+import CatalogueCertificationFacetService from '#services/catalogue_certification_facet_service'
 import DocumentService from '#services/document_service'
 import OrganizationContextService from '#services/organization_context_service'
 import RfqService from '#services/rfq_service'
@@ -24,6 +25,7 @@ export default class ProductsController {
     private service: ProductCatalogueService,
     private productSearch: ProductSearchService,
     private facetBar: CatalogueFacetBarService,
+    private certificationFacets: CatalogueCertificationFacetService,
     private documents: DocumentService,
     private organizations: OrganizationContextService,
     private rfqs: RfqService
@@ -42,6 +44,8 @@ export default class ProductsController {
       categoryId: Number.parseInt(qs.categoryId, 10) || null,
       madeInEurope: qs.madeInEurope === 'true',
       attributeValueIds: this.parseIds(qs.attributeValueIds),
+      // Labels de conformité (écart 4, ÉTAPE 6) : facette transverse aux catégories.
+      certificationIds: this.parseIds(qs.certificationIds),
       // Provenance à 3 états (écart 9) et filtre « Nouveautés » (écart 5).
       originZones: this.parseOriginZones(qs.originZones),
       newOnly: qs.newOnly === 'true',
@@ -73,6 +77,9 @@ export default class ProductsController {
       search: filters.search,
       madeInEurope: filters.madeInEurope,
     })
+    // Barre de filtres certifications : transverse aux catégories (écart 4,
+    // ÉTAPE 6), donc globale — disponible même sans catégorie sélectionnée.
+    const certificationFacet = await this.certificationFacets.forCatalogue(filters, locale)
 
     return inertia.render('products/index', {
       products: {
@@ -92,6 +99,7 @@ export default class ProductsController {
         new CategoryTransformer(category, locale).toObject()
       ),
       facetBar,
+      certificationFacet,
     })
   }
 

@@ -23,7 +23,19 @@
       "europe": "Europe",
       "other": "Hors Europe"
     },
-    "ecoOnly": "Éco-responsable"
+    "ecoOnly": "Éco-responsable",
+    "certifications": {
+      "title": "Labels de conformité",
+      "domains": {
+        "environment": "Environnement",
+        "textile": "Textile",
+        "social": "Social",
+        "safety": "Sécurité",
+        "food_contact": "Contact alimentaire",
+        "forestry": "Forêt / bois",
+        "quality": "Qualité"
+      }
+    }
   },
   "show": {
     "backToCatalogue": "Retour au catalogue",
