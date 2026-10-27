@@ -9,11 +9,7 @@ import type { OrderSide } from '#shared/types/order'
 import type { OrderNotificationType } from '#shared/types/notification'
 
 type StatusEvent =
-  | OrderConfirmed
-  | OrderInProduction
-  | OrderShipped
-  | OrderDelivered
-  | OrderCancelled
+  OrderConfirmed | OrderInProduction | OrderShipped | OrderDelivered | OrderCancelled
 
 /**
  * Qui est prévenu de quoi : l'acheteur suit l'avancement du fournisseur, le
