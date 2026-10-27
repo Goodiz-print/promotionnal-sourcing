@@ -70,7 +70,7 @@ Installés dans `/usr/share/hunspell` : bg, bs, cs, hr, is, lv, pl, sk, sl, uk (
 
 ## Meilisearch (#112)
 
-Moteur de recherche hybride, déployé en **instance Docker Clever Cloud** (Docker M en prod), distinct de l'application web.
+Moteur de recherche hybride, distinct de l'application web. Hébergement : **Meilisearch Cloud** ou **instance Docker Clever Cloud** (Docker M en prod) avec volume confirmé — voir [ADR 0004](adr/0004-maintien-meilisearch-hebergement.md).
 
 - Image officielle `getmeili/meilisearch`, version épinglée (jamais `latest`).
 - Données sur un volume persistant. Volume à confirmer sur instance Docker Clever Cloud.
