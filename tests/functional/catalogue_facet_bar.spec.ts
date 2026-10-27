@@ -3,12 +3,14 @@ import app from '@adonisjs/core/services/app'
 import db from '@adonisjs/lucid/services/db'
 import Category from '#models/category'
 import CatalogueFacetBarService from '#services/catalogue_facet_bar_service'
+import FilterableFacetsService from '#services/filterable_facets_service'
 import { facetField } from '#shared/types/search'
 import { installFakeEngine, type FakeEngineHandle } from '#tests/utils/fake_search_engine'
 import { useDatabase } from '#tests/utils/setup'
 
 /**
  * Barre de filtres dépendante de la catégorie (2e PR du modèle produit) :
+ * dérivation des slugs filtrables depuis `category_attributes.is_filter` et
  * fusion des compteurs (distributions de facettes) avec les attributs résolus.
  */
 async function categoryIdBySlug(slug: string): Promise<number> {
@@ -26,6 +28,20 @@ async function valueId(attributeSlug: string, valueSlug: string): Promise<number
     .firstOrFail()
   return row.id
 }
+
+test.group('Facettes filtrables — dérivation depuis la base', (group) => {
+  useDatabase(group, { seed: 'full' })
+
+  test('liste les slugs marqués is_filter, distincts et triés', async ({ assert }) => {
+    const service = await app.container.make(FilterableFacetsService)
+    const slugs = await service.filterableSlugs()
+
+    // Attributs transverses + propres aux catégories curées (seed).
+    assert.includeMembers(slugs, ['cap-panels', 'color', 'color-shade', 'material'])
+    // Trié ascendant et sans doublon (color est filtrable dans plusieurs catégories).
+    assert.deepEqual(slugs, [...new Set(slugs)].sort())
+  })
+})
 
 test.group('Barre de filtres par catégorie', (group) => {
   useDatabase(group, { seed: 'full' })
