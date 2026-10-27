@@ -158,7 +158,8 @@ export default defineConfig({
       indexEntities({
         transformers: { enabled: true, withSharedProps: true },
       }),
-      indexPages({ framework: 'vue3' }),
+      // @adonisjs/inertia 4.x type son hook sans `CodeGen` (ajouté dans assembler 8.6) ; le hook ignore `parent`.
+      indexPages({ framework: 'vue3' }) as unknown as ReturnType<typeof generateRegistry>,
       generateRegistry(),
       indexPolicies(),
     ],
