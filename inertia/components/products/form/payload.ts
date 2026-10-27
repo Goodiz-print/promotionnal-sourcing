@@ -7,7 +7,7 @@ import type { ProductFormState } from './types'
  * modifiées (une traduction auto non touchée n'est pas renvoyée — elle resterait
  * « auto »). Une langue laissée vide est générée par le serveur.
  */
-export function changedTranslations(data: ProductFormState, product?: ProductEditType) {
+function changedTranslations(data: ProductFormState, product?: ProductEditType) {
   const payload: Partial<Record<ContentLocale, { name?: string; description: string | null }>> = {}
   for (const current of CONTENT_LOCALES) {
     const { name, description } = data.translations[current]

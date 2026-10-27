@@ -181,6 +181,60 @@ test.group('Marquage produit fournisseur (écart 2)', (group) => {
     assert.equal(fr.name, 'Crayon HB Bleu')
   })
 
+  test('une technique dupliquée sur une position est rejetée', async ({ client, assert }) => {
+    const user = await seededDevUser('eurogoods-org')
+    const product = await Product.findByOrFail('slug', 'crayon-hb-bleu')
+    const embroidery = await MarkingTechnique.findByOrFail('slug', 'embroidery')
+
+    // La même technique deux fois sur une position viole l'unicité
+    // (marking_position_id, marking_technique_id) : rejet 422, rien persisté.
+    await client
+      .post(`/fr/supplier/products/${product.id}`)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(user)
+      .json({
+        ...baseUpdate(product),
+        markingPositions: [
+          {
+            name: 'Devant',
+            techniques: [
+              { markingTechniqueId: embroidery.id },
+              { markingTechniqueId: embroidery.id },
+            ],
+          },
+        ],
+      })
+
+    assert.lengthOf(await ProductMarkingPosition.query().where('productId', product.id), 0)
+  })
+
+  test('un palier de marquage dupliqué (technique, quantité) est rejeté', async ({
+    client,
+    assert,
+  }) => {
+    const user = await seededDevUser('eurogoods-org')
+    const product = await Product.findByOrFail('slug', 'crayon-hb-bleu')
+    const embroidery = await MarkingTechnique.findByOrFail('slug', 'embroidery')
+
+    // Deux paliers (technique, quantité) identiques violent l'unicité
+    // (product_id, marking_technique_id, min_quantity) : rejet 422, rien persisté.
+    await client
+      .post(`/fr/supplier/products/${product.id}`)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(user)
+      .json({
+        ...baseUpdate(product),
+        markingPriceTiers: [
+          { markingTechniqueId: embroidery.id, minQuantity: 100, unitPrice: 0.5 },
+          { markingTechniqueId: embroidery.id, minQuantity: 100, unitPrice: 0.4 },
+        ],
+      })
+
+    assert.lengthOf(await ProductMarkingPriceTier.query().where('productId', product.id), 0)
+  })
+
   test('le gabarit doit être un document du produit de type marking_template', async ({
     client,
     assert,

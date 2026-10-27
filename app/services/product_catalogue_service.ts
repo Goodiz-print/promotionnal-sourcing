@@ -133,8 +133,11 @@ export default class ProductCatalogueService {
                 .preload('technique', (technique) => technique.preload('translations'))
             )
         )
+        // Grille groupée par technique, puis quantité croissante (chaque échelle
+        // dégressive reste lisible d'un bloc).
         .preload('markingPriceTiers', (tiers) =>
           tiers
+            .orderBy('markingTechniqueId')
             .orderBy('minQuantity')
             .preload('technique', (technique) => technique.preload('translations'))
         )

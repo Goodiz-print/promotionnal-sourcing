@@ -222,7 +222,7 @@ const hasMarking = computed(
                   {{ tier.techniqueName ?? tier.techniqueSlug }} ·
                   {{ t('products.show.tierFrom', { quantity: tier.minQuantity }) }}
                 </dt>
-                <dd>{{ tier.unitPrice }} {{ tier.currency }}</dd>
+                <dd>{{ Number(tier.unitPrice) }} {{ tier.currency }}</dd>
               </div>
             </dl>
           </div>

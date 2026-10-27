@@ -118,8 +118,10 @@ export default class SupplierProductService {
                 .preload('technique', (technique) => technique.preload('translations'))
             )
         )
+        // Grille groupée par technique, puis quantité croissante (comme la fiche).
         .preload('markingPriceTiers', (tiers) =>
           tiers
+            .orderBy('markingTechniqueId')
             .orderBy('minQuantity')
             .preload('technique', (technique) => technique.preload('translations'))
         )

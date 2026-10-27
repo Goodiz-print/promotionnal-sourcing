@@ -56,8 +56,11 @@ const variantInput = () =>
 const priceTierInput = () =>
   vine.object({
     variantSku: vine.string().maxLength(100).trim().optional().nullable(),
-    minQuantity: vine.number().withoutDecimals().positive(),
-    unitPrice: vine.number().positive(),
+    // Bornes : `min_quantity` reste dans un `integer` et `unit_price` dans
+    // `numeric(12,4)` — sans quoi une saisie énorme lèverait un overflow (500)
+    // qui perdrait toute la sauvegarde produit (cf. `boundedInt`).
+    minQuantity: vine.number().withoutDecimals().positive().max(1_000_000),
+    unitPrice: vine.number().positive().max(1_000_000),
   })
 
 /**
@@ -130,8 +133,11 @@ const markingPositionInput = () =>
 const markingPriceTierInput = () =>
   vine.object({
     markingTechniqueId: vine.number().withoutDecimals().positive(),
-    minQuantity: vine.number().withoutDecimals().positive(),
-    unitPrice: vine.number().min(0),
+    // Bornes : `min_quantity` reste dans un `integer` et `unit_price` dans
+    // `numeric(12,4)` — sinon une saisie énorme lèverait un overflow (500) qui
+    // annulerait toute la sauvegarde produit (cf. `boundedInt`, `defaultSetupCharge`).
+    minQuantity: vine.number().withoutDecimals().positive().max(1_000_000),
+    unitPrice: vine.number().min(0).max(1_000_000),
   })
 
 /**
