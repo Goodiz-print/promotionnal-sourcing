@@ -25,12 +25,7 @@ import type { OrderAction, OrderAddress, OrderSide } from '#shared/types/order'
 const UNIQUE_VIOLATION = '23505'
 
 type OrderEvent =
-  | OrderCreated
-  | OrderConfirmed
-  | OrderInProduction
-  | OrderShipped
-  | OrderDelivered
-  | OrderCancelled
+  OrderCreated | OrderConfirmed | OrderInProduction | OrderShipped | OrderDelivered | OrderCancelled
 
 /**
  * Cycle de vie d'une commande (#6).
