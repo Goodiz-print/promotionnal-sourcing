@@ -7,6 +7,7 @@ import FilterableFacetsService from '#services/filterable_facets_service'
 import { SearchTaskFailedException } from '#exceptions/search_errors'
 import { ORIGIN_ZONES } from '#shared/types/product'
 import {
+  CERTIFICATION_FACET_FIELD,
   facetField,
   SEARCH_EMBEDDER,
   type FacetDistribution,
@@ -91,6 +92,9 @@ export function productIndexSettings(facetSlugs: readonly string[] = []): Settin
       // Filtre dérivé « Éco-responsable » (écart 4).
       'isEco',
       'attributeValueIds',
+      // Labels de conformité (écart 4, ÉTAPE 6) : facette transverse aux
+      // catégories, filtrable et facettable (distribution par label).
+      CERTIFICATION_FACET_FIELD,
       ...facetSlugs.map(facetField),
     ],
     embedders: buildEmbedders(searchConfig.embedder),
@@ -113,6 +117,12 @@ export function buildProductFilter(filter: ProductSearchFilter): string | undefi
   if (filter.isEco) clauses.push('isEco = true')
   for (const valueId of filter.attributeValueIds ?? []) {
     clauses.push(`attributeValueIds = ${Number(valueId)}`)
+  }
+  // Labels de conformité (écart 4, ÉTAPE 6) : ET exact comme les facettes —
+  // une clause par label, `certificationIds = X AND certificationIds = Y` exige
+  // les deux. Valeurs entières construites ici, jamais du texte utilisateur.
+  for (const certificationId of filter.certificationIds ?? []) {
+    clauses.push(`${CERTIFICATION_FACET_FIELD} = ${Number(certificationId)}`)
   }
   // Provenance (écart 9) : les zones cochées se combinent en OU (France OU
   // Europe), groupées pour rester en ET avec les autres critères. Les valeurs

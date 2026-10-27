@@ -62,6 +62,8 @@ export default class ProductSearchService {
         categoryId: options.categoryId,
         madeInEurope: options.madeInEurope,
         attributeValueIds: options.attributeValueIds,
+        // Labels de conformité (écart 4, ÉTAPE 6) : ET exact.
+        certificationIds: options.certificationIds,
         originZones: options.originZones,
         releasedAfter: threshold ? Math.trunc(threshold.toSeconds()) : null,
         // Éco-responsable (écart 4).
@@ -133,6 +135,11 @@ export default class ProductSearchService {
     if (filters?.madeInEurope) query.where('madeInEurope', true)
     for (const valueId of filters?.attributeValueIds ?? []) {
       query.whereHas('attributeValues', (av) => av.where('attribute_values.id', valueId))
+    }
+    // Labels de conformité (écart 4, ÉTAPE 6) : ET fiable, revérifié sur la base
+    // (un `whereHas` par label → chaque contrainte est combinée en AND).
+    for (const certificationId of filters?.certificationIds ?? []) {
+      query.whereHas('certifications', (c) => c.where('certifications.id', certificationId))
     }
     // Provenance (écart 9) : OU entre zones cochées ; revérifié sur la base.
     const zones = filters?.originZones ?? []

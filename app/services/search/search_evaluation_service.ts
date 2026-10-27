@@ -93,6 +93,7 @@ export default class SearchEvaluationService {
       categoryId: await this.categoryId(query.category),
       madeInEurope: query.madeInEurope ?? false,
       attributeValueIds: await this.attributeValueIds(query.attributes ?? []),
+      certificationIds: [],
       originZones: [],
       newOnly: false,
       ecoOnly: false,

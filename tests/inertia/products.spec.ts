@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import type { CategoryFacetBarType } from '#shared/types/category'
+import type { CertificationFacetBarType } from '#shared/types/certification'
 
 const translations = {
   'products.index.title': 'Catalogue produits',
@@ -21,6 +22,9 @@ const translations = {
   'products.index.rangeUnder': '< {max}',
   'products.index.rangeOver': '≥ {min}',
   'products.index.rangeBetween': '{min}–{max}',
+  'products.index.certifications.title': 'Labels de conformité',
+  'products.index.certifications.domains.environment': 'Environnement',
+  'products.index.certifications.domains.textile': 'Textile',
   'products.show.backToCatalogue': 'Retour au catalogue',
   'documents.datasheet.title': 'Fiche technique',
   'products.show.viewImage': "Voir l'image",
@@ -138,12 +142,27 @@ const facetBar: CategoryFacetBarType = {
 
 const emptyFacetBar: CategoryFacetBarType = { attributes: [], hasCounts: false }
 
+const certificationFacet: CertificationFacetBarType = {
+  hasCounts: true,
+  certifications: [
+    { id: 20, slug: 'gots', name: 'GOTS', domain: 'textile', count: 2 },
+    // Compteur 0 : masquée dans la barre quand les compteurs sont dispo.
+    { id: 21, slug: 'grs', name: 'GRS', domain: 'environment', count: 0 },
+  ],
+}
+
+const emptyCertificationFacet: CertificationFacetBarType = {
+  certifications: [],
+  hasCounts: false,
+}
+
 const meta = { total: 2, perPage: 12, currentPage: 1, lastPage: 1 }
 const emptyFilters = {
   search: null,
   categoryId: 1,
   madeInEurope: false,
   attributeValueIds: [],
+  certificationIds: [],
   originZones: [],
   newOnly: false,
   ecoOnly: false,
@@ -161,6 +180,7 @@ describe('products/index.vue', () => {
         filters: emptyFilters,
         categories: [category(1, 'Crayon', 'crayon')],
         facetBar,
+        certificationFacet,
       },
     })
 
@@ -173,6 +193,11 @@ describe('products/index.vue', () => {
     expect(wrapper.find('#attr-10').exists()).toBe(true)
     expect(wrapper.find('#attr-11').exists()).toBe(false)
     expect(wrapper.text()).toContain('3')
+    // Barre certifications (transverse aux catégories) : label avec compteur > 0
+    // rendu, label à 0 masqué, titre et domaine affichés.
+    expect(wrapper.text()).toContain('Labels de conformité')
+    expect(wrapper.find('#certification-20').exists()).toBe(true)
+    expect(wrapper.find('#certification-21').exists()).toBe(false)
   })
 
   it('affiche un état vide', () => {
@@ -183,6 +208,7 @@ describe('products/index.vue', () => {
         filters: emptyFilters,
         categories: [],
         facetBar: emptyFacetBar,
+        certificationFacet: emptyCertificationFacet,
       },
     })
     expect(wrapper.text()).toContain('Aucun produit ne correspond à votre recherche.')
@@ -196,6 +222,7 @@ describe('products/index.vue', () => {
         filters: emptyFilters,
         categories: [],
         facetBar: emptyFacetBar,
+        certificationFacet: emptyCertificationFacet,
       },
     })
     expect(wrapper.text()).toContain('La recherche est momentanément indisponible.')
@@ -212,12 +239,14 @@ describe('products/index.vue', () => {
           categoryId: null,
           madeInEurope: false,
           attributeValueIds: [],
+          certificationIds: [],
           originZones: [],
           newOnly: false,
           ecoOnly: false,
         },
         categories: [category(1, 'Crayon', 'crayon')],
         facetBar: emptyFacetBar,
+        certificationFacet: emptyCertificationFacet,
       },
     })
     expect(wrapper.text()).toContain('Sélectionnez une catégorie pour afficher ses filtres.')

@@ -3,6 +3,7 @@ import { inject } from '@adonisjs/core'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import ProductSearchService from '#services/product_search_service'
 import CatalogueFacetBarService from '#services/catalogue_facet_bar_service'
+import CatalogueCertificationFacetService from '#services/catalogue_certification_facet_service'
 import DocumentService from '#services/document_service'
 import OrganizationContextService from '#services/organization_context_service'
 import RfqService from '#services/rfq_service'
@@ -24,6 +25,7 @@ export default class ProductsController {
     private service: ProductCatalogueService,
     private productSearch: ProductSearchService,
     private facetBar: CatalogueFacetBarService,
+    private certificationFacets: CatalogueCertificationFacetService,
     private documents: DocumentService,
     private organizations: OrganizationContextService,
     private rfqs: RfqService
@@ -42,6 +44,8 @@ export default class ProductsController {
       categoryId: Number.parseInt(qs.categoryId, 10) || null,
       madeInEurope: qs.madeInEurope === 'true',
       attributeValueIds: this.parseIds(qs.attributeValueIds),
+      // Labels de conformité (écart 4, ÉTAPE 6) : facette transverse aux catégories.
+      certificationIds: this.parseIds(qs.certificationIds),
       // Provenance à 3 états (écart 9) et filtre « Nouveautés » (écart 5).
       originZones: this.parseOriginZones(qs.originZones),
       newOnly: qs.newOnly === 'true',
@@ -65,14 +69,22 @@ export default class ProductsController {
           perPage: PER_PAGE,
           sort: qs.sort === 'price_asc' ? 'price_asc' : null,
         })
-    const categories = await this.service.availableCategories()
-    // Barre de filtres pilotée par la catégorie sélectionnée : attributs
-    // filtrables résolus (propres + hérités) + compteurs (distributions de
-    // facettes). Sans catégorie, pas de filtres d'attributs (bar vide).
-    const facetBar = await this.facetBar.forCategory(filters.categoryId, locale, {
-      search: filters.search,
-      madeInEurope: filters.madeInEurope,
-    })
+    // Lectures indépendantes, exécutées en parallèle (un round-trip Meilisearch
+    // chacune pour les deux barres) :
+    // - `categories` : catégories disponibles ;
+    // - `facetBar` : barre pilotée par la catégorie sélectionnée — attributs
+    //   filtrables résolus (propres + hérités) + compteurs (distributions de
+    //   facettes). Sans catégorie, pas de filtres d'attributs (bar vide) ;
+    // - `certificationFacet` : barre certifications, transverse aux catégories
+    //   (écart 4, ÉTAPE 6), donc globale — disponible même sans catégorie.
+    const [categories, facetBar, certificationFacet] = await Promise.all([
+      this.service.availableCategories(),
+      this.facetBar.forCategory(filters.categoryId, locale, {
+        search: filters.search,
+        madeInEurope: filters.madeInEurope,
+      }),
+      this.certificationFacets.forCatalogue(filters, locale),
+    ])
 
     return inertia.render('products/index', {
       products: {
@@ -92,6 +104,7 @@ export default class ProductsController {
         new CategoryTransformer(category, locale).toObject()
       ),
       facetBar,
+      certificationFacet,
     })
   }
 

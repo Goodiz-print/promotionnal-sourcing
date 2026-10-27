@@ -198,6 +198,12 @@ export default class ProductIndexService {
           )
         ),
       ],
+      // Labels de conformité (écart 4, ÉTAPE 6) : facette transverse aux
+      // catégories. Donnée directe (pivot `product_certifications`, préchargé),
+      // jamais dérivée — `search:reindex` suffit à peupler la facette.
+      certificationIds: [
+        ...new Set(product.certifications.map((certification) => certification.id)),
+      ],
       attributes: ProductIndexService.flattenedFacets(product),
       names,
       descriptions,

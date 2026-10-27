@@ -20,9 +20,9 @@ Moteur de recherche hybride (mots-clés + vecteurs) des produits, décidé par l
 
 ## Document d'index (`ProductSearchDocument`)
 
-`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone` (provenance dérivée, voir « Provenance et Nouveautés »), `releasedAt` (date de sortie en **timestamp Unix secondes**, ou `null`), `isEco` (filtre « Éco-responsable » dérivé, voir « Conformité »), `attributeValueIds` (facettes, toutes valeurs confondues), `attributes` (facettes **aplaties par slug** : `attributes.color`, `attributes.color-shade`, `attributes.material`… — voir ci-dessous), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `embeddingText` (le texte que Meilisearch vectorise : voir « Vectorisation »).
+`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone` (provenance dérivée, voir « Provenance et Nouveautés »), `releasedAt` (date de sortie en **timestamp Unix secondes**, ou `null`), `isEco` (filtre « Éco-responsable » dérivé, voir « Conformité »), `attributeValueIds` (facettes, toutes valeurs confondues), `certificationIds` (labels de conformité, voir « Certifications »), `attributes` (facettes **aplaties par slug** : `attributes.color`, `attributes.color-shade`, `attributes.material`… — voir ci-dessous), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `embeddingText` (le texte que Meilisearch vectorise : voir « Vectorisation »).
 
-Réglages (`productIndexSettings(facetSlugs)`) : attributs cherchables `names`, `descriptions`, `reference` — un seul attribut par famille couvre toutes les langues, **ajouter une langue ne change aucun réglage** ; attributs filtrables `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone`, `releasedAt`, `isEco`, `attributeValueIds`, **plus un champ `attributes.<slug>` par attribut filtrable** (`facetSlugs` dérivés de `category_attributes.is_filter`, via `FilterableFacetsService` — jamais une liste codée en dur) ; embedder `default` (voir « Vectorisation »), retiré des réglages quand il est coupé. Les réglages sont réappliqués au premier envoi d'un processus et à chaque `search:reindex` : un changement de `is_filter` est donc pris en compte au prochain reindex.
+Réglages (`productIndexSettings(facetSlugs)`) : attributs cherchables `names`, `descriptions`, `reference` — un seul attribut par famille couvre toutes les langues, **ajouter une langue ne change aucun réglage** ; attributs filtrables `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone`, `releasedAt`, `isEco`, `attributeValueIds`, `certificationIds`, **plus un champ `attributes.<slug>` par attribut filtrable** (`facetSlugs` dérivés de `category_attributes.is_filter`, via `FilterableFacetsService` — jamais une liste codée en dur) ; embedder `default` (voir « Vectorisation »), retiré des réglages quand il est coupé. Les réglages sont réappliqués au premier envoi d'un processus et à chaque `search:reindex` : un changement de `is_filter` est donc pris en compte au prochain reindex.
 
 Seuls les produits **visibles** sont indexés : actifs, organisation non archivée ni rejetée, non rejetés par la modération — les mêmes scopes que la fiche publique (`Product.fromLiveOrganization`, `Product.notRejected`).
 
@@ -127,9 +127,35 @@ est revérifié sur PostgreSQL au rechargement ; sans terme,
 `ProductCatalogueService.list` applique la même clause directement en base.
 **Backfill** : `node ace search:reindex` recalcule et réécrit `is_eco` puis
 republie tous les documents. Frontend : case « Éco-responsable » dans
-`inertia/components/catalogue_filters.vue`. Les **certifications** restent au
-niveau produit (pivot `product_certifications`, affichées sur la fiche) mais ne
-sont **pas** une facette filtrable du moteur à ce stade.
+`inertia/components/catalogue_filters.vue`. Les **certifications**, elles, sont
+depuis l'ÉTAPE 6 une **facette filtrable** à part entière (voir « Certifications »
+ci-dessous).
+
+### Certifications — ÉTAPE 6 du modèle produit (écart 4)
+
+Une facette de fiche s'ajoute aux réglages `filterableAttributes` :
+
+- **`certificationIds`** : identifiants des labels de conformité du produit
+  (pivot `product_certifications`). **Donnée directe**, jamais dérivée : remplie
+  par `ProductIndexService.toDocument` depuis `product.certifications` (déjà
+  préchargé). Champ **plat** (pas sous `attributes.<slug>`) car les certifications
+  sont **transverses aux catégories**, contrairement aux attributs EAV
+  (dépendants de la catégorie). Le filtre est un **ET exact** comme
+  `attributeValueIds` (une clause `certificationIds = X` par label coché), cohérent
+  avec le différenciateur « filtres multi-critères fiables en ET logique ».
+
+Côté catalogue, ce filtre transite par `ProductDirectoryFilters`
+(`certificationIds: number[]`) : avec terme de recherche il passe au moteur
+(`buildProductFilter`) **et** est revérifié sur PostgreSQL au rechargement ; sans
+terme, `ProductCatalogueService.list` applique les mêmes clauses M2M directement
+en base. La **barre de filtres certifications** est **globale** (transverse aux
+catégories) : assemblée par `CatalogueCertificationFacetService` et exposée par le
+contrôleur **sans catégorie sélectionnée**, elle part du référentiel fermé
+(`certifications`) enrichi des compteurs de `facetDistribution` sur
+`certificationIds`. **Backfill** : aucun (donnée directe) — `node ace search:reindex`
+réapplique les réglages et réécrit `certificationIds` pour peupler la facette.
+Frontend : cases groupées par domaine dans
+`inertia/components/catalogue/certification_facet.vue`.
 
 ## Vectorisation (embedder de Meilisearch)
 
@@ -227,6 +253,8 @@ En CI, le job `test-search` démarre un vrai Meilisearch et rejoue les requêtes
 - `tests/functional/search_indexing.spec.ts` : documents (noms par langue, facettes `attributeValueIds`, **facettes aplaties par slug** avec couleur famille déduite de la nuance, texte vectorisé), retrait des produits invisibles ou supprimés, idempotence, archivage et modération, réindexation par lots, déclencheurs — avec un moteur factice.
 - `tests/unit/meilisearch_engine.spec.ts` : le pilote contre un `fetch` simulé (création de l'index et de ses réglages une seule fois, tâche en échec, reconstruction par index temporaire et échange, requête hybride et filtre ET, **distributions de facettes** — `facets` + `limit: 0` + lecture de `facetDistribution` —, configuration de l'embedder `rest`).
 - `tests/functional/catalogue_facet_bar.spec.ts` : dérivation des slugs filtrables depuis `category_attributes.is_filter` (`FilterableFacetsService`) ; barre de filtres par catégorie (`CatalogueFacetBarService`) — attributs résolus (propres + hérités), facettes demandées au moteur, fusion des compteurs, repli sans compteur (moteur inerte ou injoignable).
+- `tests/functional/catalogue_certification_facet.spec.ts` : barre de filtres certifications (`CatalogueCertificationFacetService`) — référentiel exposé, fusion des compteurs (`facetDistribution` sur `certificationIds`), cadrage excluant les labels cochés, repli sans compteur (moteur inerte ou injoignable).
+- `tests/functional/catalogue_certifications.spec.ts` : filtrage du catalogue par certification (écart 4, ÉTAPE 6) — sous-ensemble, ET sur plusieurs labels, combinaison avec un autre critère, transmission au moteur et revérification au rechargement PostgreSQL.
 - `tests/functional/product_search.spec.ts` : rechargement depuis PostgreSQL (ordre, visibilité, facettes revérifiées), requête transmise au moteur, ratio sémantique et repli par mots-clés si l'API d'embeddings tombe, écrans (catalogue, sélecteur, message « recherche indisponible »).
 - `tests/unit/product_origin_service.spec.ts` : dérivation `origin_zone` (France, Europe UE/EEE ou `madeInEurope`, autre, inconnue → `null`).
 - `tests/functional/product_identity_commercial.spec.ts` : persistance des champs d'identité/commercial/médias, dérivation et recalcul d'`origin_zone`, filtres provenance (OU) et « Nouveautés » du catalogue.

@@ -74,6 +74,14 @@ export interface ProductSearchDocument {
   /** Valeurs de facettes (`attribute_values.id`), pour le filtre ET exact. */
   attributeValueIds: number[]
   /**
+   * Identifiants des labels de conformité du produit (`certifications.id`, écart 4)
+   * — facette **transverse aux catégories** (ÉTAPE 6). Filtre ET exact comme
+   * `attributeValueIds` : `certificationIds = X AND certificationIds = Y` exige
+   * **tous** les labels cochés. Donnée directe (pivot `product_certifications`),
+   * jamais dérivée : `search:reindex` suffit à peupler la facette.
+   */
+  certificationIds: number[]
+  /**
    * Facettes **aplaties par slug d'attribut** (`attributes.color`,
    * `attributes.color-shade`, `attributes.material`…) : chaque clé porte la ou
    * les valeurs de facette du produit pour cet attribut. Les attributs énumérés
@@ -118,6 +126,12 @@ export interface ProductSearchFilter {
   madeInEurope?: boolean
   attributeValueIds?: number[]
   /**
+   * Labels de conformité (écart 4, ÉTAPE 6) : filtre **ET exact** comme
+   * `attributeValueIds` — le produit doit porter **tous** les labels cochés.
+   * Vide/absent = pas de filtre certifications.
+   */
+  certificationIds?: number[]
+  /**
    * Provenance à 3 états (écart 9) : les zones demandées se combinent en **OU**
    * (France OU Europe), car les cases ne s'excluent pas. Vide/absent = pas de
    * filtre de provenance.
@@ -147,6 +161,15 @@ export const FACET_FIELD_PREFIX = 'attributes'
 export function facetField(slug: string): string {
   return `${FACET_FIELD_PREFIX}.${slug}`
 }
+
+/**
+ * Champ d'index de la facette **certifications** (écart 4, ÉTAPE 6). Contrairement
+ * aux attributs EAV (dépendants de la catégorie, aplatis sous `attributes.<slug>`),
+ * les labels de conformité sont **transverses aux catégories** : un seul champ
+ * plat porte tous leurs identifiants. C'est ce champ qu'on déclare `filterableAttributes`
+ * et qu'on demande en `facets` pour obtenir sa distribution (compteurs par label).
+ */
+export const CERTIFICATION_FACET_FIELD = 'certificationIds'
 
 /**
  * Distribution de facettes renvoyée par le moteur (`facetDistribution` de

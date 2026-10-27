@@ -101,6 +101,7 @@ function document(id: number): ProductSearchDocument {
     releasedAt: null,
     isEco: false,
     attributeValueIds: [3],
+    certificationIds: [],
     attributes: { color: [3] },
     names: { fr: 'Stylo' },
     descriptions: {},
@@ -250,6 +251,21 @@ test.group('Meilisearch — recherche', (group) => {
       buildProductFilter({ categoryId: 4, madeInEurope: true, attributeValueIds: [3, 7] }),
       'categoryId = 4 AND madeInEurope = true AND attributeValueIds = 3 AND attributeValueIds = 7'
     )
+  })
+
+  test('certifications (écart 4, ÉTAPE 6) : ET exact, une clause par label', ({ assert }) => {
+    assert.equal(buildProductFilter({ certificationIds: [5] }), 'certificationIds = 5')
+    assert.equal(
+      buildProductFilter({ certificationIds: [5, 8] }),
+      'certificationIds = 5 AND certificationIds = 8'
+    )
+    // Combiné avec les autres critères : ET entre tout.
+    assert.equal(
+      buildProductFilter({ categoryId: 4, attributeValueIds: [3], certificationIds: [5] }),
+      'categoryId = 4 AND attributeValueIds = 3 AND certificationIds = 5'
+    )
+    // Aucun label : aucune clause de certification.
+    assert.isUndefined(buildProductFilter({ certificationIds: [] }))
   })
 
   test('provenance (écart 9) : les zones cochées se combinent en OU, groupées', ({ assert }) => {
