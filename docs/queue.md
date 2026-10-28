@@ -187,7 +187,7 @@ Seuils : `shared/types/health.ts` (`QUEUE_THRESHOLDS`).
 | -------------- | ----------------- | ----------------------------------------------- |
 | `QUEUE_DRIVER` | `database`        | Driver à utiliser (`database`, `redis`, `sync`) |
 | `DB_HOST`      | `localhost`       | Hôte PostgreSQL                                 |
-| `DB_PORT`      | `5430`            | Port PostgreSQL                                 |
+| `DB_PORT`      | `5440`            | Port PostgreSQL                                 |
 | `DB_USER`      | —                 | Utilisateur PostgreSQL                          |
 | `DB_PASSWORD`  | —                 | Mot de passe PostgreSQL                         |
 | `DB_DATABASE`  | —                 | Nom de la base                                  |

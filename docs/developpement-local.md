@@ -6,9 +6,9 @@ Deux usages distincts, un même `docker-compose.yml` :
 
 | Usage                        | Commande                                     | Services                                 |
 | ---------------------------- | -------------------------------------------- | ---------------------------------------- |
-| Dev courant (`pnpm dev`)     | `docker compose up -d`                       | `postgres` (port 5430), `s3` (port 9090) |
+| Dev courant (`pnpm dev`)     | `docker compose up -d`                       | `postgres` (port 5440), `s3` (port 9090) |
 | Image de production en local | `docker compose --profile app up -d --build` | + `migrate`, `web`, `worker`             |
-| Tests                        | `pnpm test:db`                               | `postgres_test` (port 5433, tmpfs)       |
+| Tests                        | `pnpm test:db`                               | `postgres_test` (port 5441, tmpfs)       |
 
 ## Prérequis hors Docker : Ghostscript
 

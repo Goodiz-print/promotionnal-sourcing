@@ -48,7 +48,7 @@ Plugins Japa enregistrés :
 `DB_CONNECTION`, ni de repli SQLite (il ne faisait plus tourner les migrations, et testait
 de toute façon un moteur différent de la production).
 
-`.env.test` porte la configuration de la base de test (`127.0.0.1:5433`, base `test`), donc
+`.env.test` porte la configuration de la base de test (`127.0.0.1:5441`, base `test`), donc
 **aucune variable à passer à la main** :
 
 ```bash
@@ -56,8 +56,8 @@ pnpm test:db   # docker compose --profile test up -d postgres_test
 pnpm test
 ```
 
-Le service `postgres_test` du `docker-compose.yml` écoute sur **5433** (5432 est souvent pris
-par un autre projet) et stocke ses données en `tmpfs` — rien ne survit à l'arrêt du
+Le service `postgres_test` du `docker-compose.yml` écoute sur **5441** (les ports 5430-5439 sont pris
+par d'autres projets) et stocke ses données en `tmpfs` — rien ne survit à l'arrêt du
 conteneur, c'est voulu.
 
 Ordre de chargement AdonisJS : `.env.test.local` → `.env.test` → `.env`. Les valeurs de
