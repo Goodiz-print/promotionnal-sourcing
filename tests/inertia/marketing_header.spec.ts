@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { defineComponent, h } from 'vue'
 
 const pageState = vi.hoisted(() => ({
   url: '/fr/contact',
@@ -9,14 +8,16 @@ const pageState = vi.hoisted(() => ({
 
 vi.mock('@inertiajs/vue3', () => ({ usePage: () => pageState }))
 
-vi.mock('@adonisjs/inertia/vue', () => ({
-  Link: defineComponent({
+vi.mock('@adonisjs/inertia/vue', async () => {
+  const { defineComponent, h } = await import('vue')
+  const Link = defineComponent({
     props: { href: { type: String, default: '' } },
     setup(props, { slots }) {
       return () => h('a', { href: props.href }, slots.default?.())
     },
-  }),
-}))
+  })
+  return { Link }
+})
 
 vi.mock('~/client', () => ({
   urlFor: (name: string, params: { locale: string }) =>

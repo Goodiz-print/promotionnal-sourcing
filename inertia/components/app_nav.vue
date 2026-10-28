@@ -22,7 +22,7 @@ const { t, locale } = useI18n()
 const items = computed(() =>
   (page.props.navigation ?? []).map((item) => {
     const href = urlFor(item.route, { locale: locale.value })
-    return { ...item, active: isActivePath(page.url, href) }
+    return { ...item, href, active: isActivePath(page.url, href) }
   })
 )
 </script>
@@ -36,8 +36,7 @@ const items = computed(() =>
     <Link
       v-for="item in items"
       :key="item.key"
-      :route="item.route"
-      :params="{ locale }"
+      :href="item.href"
       :aria-current="item.active ? 'page' : undefined"
       class="rounded px-3 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
       :class="
