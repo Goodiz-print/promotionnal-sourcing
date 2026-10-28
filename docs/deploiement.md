@@ -60,6 +60,14 @@ Lancées **avant** le redémarrage des applications, par la CI, jamais au démar
 node ace migration:run --force
 ```
 
+Puis, pour la queue (mise à niveau des tables de `@adonisjs/queue` 0.6, voir `docs/queue.md`) :
+
+```bash
+node ace queue:migrate
+```
+
+Les deux commandes sont idempotentes, à lancer avant le redémarrage des applications.
+
 Une migration déjà exécutée ne se modifie jamais. Le `down()` ne se lance pas automatiquement.
 
 ### Dictionnaires hunspell (#84)

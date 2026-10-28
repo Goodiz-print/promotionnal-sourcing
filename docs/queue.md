@@ -118,6 +118,19 @@ Jobs planifiés actuels :
 | `RemindRfqSuppliersJob`      | `0 9 * * *` (Europe/Paris)  | Relance une fois les fournisseurs qui n'ont pas ouvert une demande reçue depuis `RFQ_REMINDER_AFTER_DAYS` jours — cf. `docs/rfq.md`                                                                                                             |
 | `PurgeExpiredInvitationsJob` | `15 3 * * *` (Europe/Paris) | Bascule les invitations d'organisation échues en `expired`, puis supprime celles en état terminal après 90 jours (cf. `docs/organisations.md`)                                                                                                  |
 
+## Mise à niveau de @adonisjs/queue
+
+Les tables créées par la version 0.6 (`queue_jobs`, `queue_schedules`) doivent être mises à niveau une fois, après la migration et **avant** le démarrage du worker :
+
+```bash
+node ace queue:migrate
+```
+
+- La commande est idempotente : elle ne fait rien sur des tables déjà à jour (base neuve incluse).
+- Elle convertit les dates de `queue_schedules` en epoch millisecondes (PostgreSQL n'exige pas `--timezone`).
+- Testée sur une base 0.6 avec un job et un schedule : données préservées, dates converties à l'identique.
+- Ordre de déploiement : `migration:run --force` → `queue:migrate` → redémarrage web et worker.
+
 ## Démarrer le worker
 
 Le worker doit tourner en tant que **processus séparé** :
