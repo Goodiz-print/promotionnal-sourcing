@@ -61,6 +61,99 @@ export type ProductImageRole = (typeof PRODUCT_IMAGE_ROLES)[number]
 export const NEW_PRODUCT_WINDOW_DAYS = 90
 
 /**
+ * Tranche numérique fermée (plan L125). Sémantique `[minValue, maxValue[` : borne
+ * basse **incluse**, borne haute **exclue** (pas de double comptage aux limites) ;
+ * une borne `null` est **ouverte** (`< maxValue` ou `≥ minValue`). Identique à la
+ * sémantique des tranches d'attributs de catégorie (`CategoryAttributeRangeType`).
+ * Le libellé n'est jamais stocké : il se rend côté UI depuis les bornes + unité /
+ * devise + locale (`rangeBetween`/`rangeUnder`/`rangeOver`).
+ */
+export interface NumericBucket {
+  minValue: number | null
+  maxValue: number | null
+}
+
+/**
+ * Tranches de **prix** (facette transverse à buckets, plan L125) sur le palier le
+ * plus bas (`products.price_min`). Bornes **partagées** codées ici — pas en base,
+ * pas via `category_attribute_ranges` qui ne concerne que les attributs de
+ * catégorie. En **EUR**, devise d'affichage par défaut : pas de conversion
+ * multi-devises, le filtre porte sur `price_min` brut (limite documentée dans
+ * `docs/search.md`).
+ */
+export const PRICE_BUCKETS: NumericBucket[] = [
+  { minValue: null, maxValue: 1 },
+  { minValue: 1, maxValue: 2 },
+  { minValue: 2, maxValue: 5 },
+  { minValue: 5, maxValue: 10 },
+  { minValue: 10, maxValue: 25 },
+  { minValue: 25, maxValue: null },
+]
+
+/**
+ * Tranches de **quantité minimum de commande** (facette transverse à buckets,
+ * plan L125) sur `products.min_quantity`. Bornes **partagées** codées ici.
+ */
+export const MOQ_BUCKETS: NumericBucket[] = [
+  { minValue: null, maxValue: 50 },
+  { minValue: 50, maxValue: 100 },
+  { minValue: 100, maxValue: 250 },
+  { minValue: 250, maxValue: 500 },
+  { minValue: 500, maxValue: 1000 },
+  { minValue: 1000, maxValue: null },
+]
+
+/**
+ * Sélection d'une tranche d'attribut numérique EAV (plan L125) : le slug de
+ * l'attribut + les bornes `[minValue, maxValue[` cochées (une borne `null` est
+ * ouverte). C'est le couple **slug + bornes** qui identifie la tranche (jamais un
+ * index : contrairement aux buckets prix/MOQ, les tranches EAV sont propres à la
+ * catégorie, pas une liste fermée partagée). Déclaré en `type` (contrainte props
+ * Inertia).
+ */
+export type AttributeRangeSelectionType = {
+  slug: string
+  minValue: number | null
+  maxValue: number | null
+}
+
+/**
+ * Tranche numérique d'une facette à buckets (prix/MOQ) prête pour l'UI : son
+ * `index` dans la liste fermée partagée (`PRICE_BUCKETS`/`MOQ_BUCKETS`) — c'est lui
+ * que l'UI renvoie pour cocher/décocher —, ses bornes (pour le libellé) et son
+ * **compteur** (somme de la distribution de facette sur la tranche). `count` vaut
+ * `null` quand le moteur est indisponible (l'UI affiche la tranche sans badge).
+ * Déclaré en `type` (contrainte props Inertia).
+ */
+export type NumericFacetBucketType = {
+  index: number
+  minValue: number | null
+  maxValue: number | null
+  count: number | null
+}
+
+/**
+ * Facette à buckets (prix ou MOQ) : les tranches de la liste fermée partagée
+ * enrichies de compteurs. `hasCounts` est `false` quand le moteur de recherche
+ * est indisponible (compteurs `null`). Déclaré en `type` (contrainte props Inertia).
+ */
+export type NumericFacetBarType = {
+  buckets: NumericFacetBucketType[]
+  hasCounts: boolean
+}
+
+/**
+ * Facettes numériques **transverses** du catalogue (plan L125) : prix (palier le
+ * plus bas) et MOQ. Transverses aux catégories (comme certifications / stock),
+ * donc disponibles **sans catégorie sélectionnée**. Déclaré en `type` (contrainte
+ * props Inertia).
+ */
+export type CatalogueNumericFacetsType = {
+  price: NumericFacetBarType
+  moq: NumericFacetBarType
+}
+
+/**
  * Traduction d'un produit (une ligne par locale). `keywords` et
  * `marketingPoints` sont des listes par locale (écart 5).
  */
@@ -156,6 +249,16 @@ export type ProductDirectoryFilters = {
   // niveau produit. Les statuts cochés se combinent en OU (disponible OU sur
   // commande). Vide = pas de filtre de stock.
   stockStatuses: ProductStockStatus[]
+  // Tranches de prix (plan L125) : facette transverse à buckets. Indices dans
+  // `PRICE_BUCKETS` (liste fermée partagée) ; plusieurs tranches cochées se
+  // combinent en OU. Vide = pas de filtre prix.
+  priceBuckets: number[]
+  // Tranches de MOQ (plan L125) : idem, indices dans `MOQ_BUCKETS`.
+  moqBuckets: number[]
+  // Tranches d'attributs numériques EAV (plan L125) : dépendantes de la catégorie
+  // (slug + bornes). Plusieurs tranches d'un même attribut se combinent en OU, des
+  // attributs différents en ET. Vide = pas de filtre de tranche EAV.
+  attributeRanges: AttributeRangeSelectionType[]
   // Filtre « Nouveautés » (écart 5) : produits sortis dans la fenêtre récente.
   newOnly: boolean
   // Filtre dérivé « Éco-responsable » (écart 4) : ne garde que les produits

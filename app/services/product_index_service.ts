@@ -204,6 +204,11 @@ export default class ProductIndexService {
       originZone: product.originZone,
       // Statut de stock agrégé (plan L98) — recalé au backfill ci-dessus.
       stockStatus: product.stockStatus,
+      // Prix du palier le plus bas et MOQ (plan L125) pour les facettes à buckets
+      // « Prix » / « MOQ ». Données directes (colonnes existantes), jamais dérivées :
+      // `price_min` est un décimal sérialisé en chaîne → émis en nombre.
+      priceMin: product.priceMin === null ? null : Number(product.priceMin),
+      moq: product.minQuantity,
       releasedAt: product.releasedAt ? Math.trunc(product.releasedAt.toSeconds()) : null,
       // Filtre dérivé « Éco-responsable » (écart 4) — recalé au backfill ci-dessus.
       isEco: product.isEco,

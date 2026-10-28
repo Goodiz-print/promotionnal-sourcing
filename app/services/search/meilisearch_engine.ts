@@ -9,10 +9,13 @@ import { ORIGIN_ZONES, PRODUCT_STOCK_STATUSES } from '#shared/types/product'
 import {
   CERTIFICATION_FACET_FIELD,
   STOCK_FACET_FIELD,
+  PRICE_FACET_FIELD,
+  MOQ_FACET_FIELD,
   facetField,
   SEARCH_EMBEDDER,
   type FacetDistribution,
   type FacetDistributionRequest,
+  type NumericRangeFilter,
   type ProductSearchDocument,
   type ProductSearchFilter,
   type ProductSearchHits,
@@ -98,13 +101,55 @@ export function productIndexSettings(facetSlugs: readonly string[] = []): Settin
       CERTIFICATION_FACET_FIELD,
       // Statut de stock agrégé (plan L98) : facette transverse, filtrable.
       STOCK_FACET_FIELD,
+      // Prix (palier le plus bas) et MOQ (plan L125) : facettes transverses à
+      // buckets — filtre d'intervalle + distribution par valeur agrégée en tranches.
+      PRICE_FACET_FIELD,
+      MOQ_FACET_FIELD,
       ...facetSlugs.map(facetField),
     ],
+    // Les facettes prix/MOQ sont transverses (tout le catalogue) : la distribution
+    // d'un champ numérique porte une entrée par valeur distincte. Le défaut (100)
+    // tronquerait le comptage des buckets dès que le catalogue dépasse 100 prix (ou
+    // MOQ) distincts ; on relève le plafond pour que les compteurs restent exacts.
+    faceting: { maxValuesPerFacet: 1000 },
     embedders: buildEmbedders(searchConfig.embedder),
   }
 }
 
 const INDEX_NOT_FOUND = 'index_not_found'
+
+/**
+ * Clause d'un filtre à tranches sur un champ numérique (plan L125) : chaque
+ * tranche devient `(field >= min AND field < max)` (borne basse incluse, haute
+ * exclue ; borne `null` omise), les tranches se combinant en **OU** et le tout
+ * groupé pour rester en ET avec les autres critères. `undefined` si aucune tranche
+ * exploitable. Les bornes sont des nombres finis construits par l'application,
+ * jamais du texte utilisateur — aucun échappement à prévoir.
+ *
+ * ATTENTION — champ tableau : `attributes.<slug>` est un `number[]`. Sur un
+ * attribut numérique **mono-valué** (cas réel), `>= min AND < max` équivaut à
+ * `[min, max[`. Sur un multi-valué, Meilisearch satisfait chaque borne dès qu'**un**
+ * élément la satisfait (deux éléments distincts pourraient donc valider la tranche).
+ */
+function rangeFieldClause(
+  field: string,
+  ranges: readonly NumericRangeFilter[]
+): string | undefined {
+  const parts: string[] = []
+  for (const range of ranges) {
+    const bounds: string[] = []
+    if (typeof range.min === 'number' && Number.isFinite(range.min)) {
+      bounds.push(`${field} >= ${range.min}`)
+    }
+    if (typeof range.max === 'number' && Number.isFinite(range.max)) {
+      bounds.push(`${field} < ${range.max}`)
+    }
+    if (bounds.length === 0) continue
+    parts.push(bounds.length > 1 ? `(${bounds.join(' AND ')})` : bounds[0])
+  }
+  if (parts.length === 0) return undefined
+  return parts.length > 1 ? `(${parts.join(' OR ')})` : parts[0]
+}
 
 /**
  * Filtre Meilisearch d'une recherche : une clause par critère, jointes par `AND`.
@@ -142,6 +187,25 @@ export function buildProductFilter(filter: ProductSearchFilter): string | undefi
   )
   if (statuses.length > 0) {
     clauses.push(`(${statuses.map((status) => `${STOCK_FACET_FIELD} = '${status}'`).join(' OR ')})`)
+  }
+  // Tranches numériques (plan L125) : prix (palier le plus bas) et MOQ, facettes
+  // transverses à buckets ; OU entre tranches d'un même champ, groupé.
+  const priceClause = rangeFieldClause(PRICE_FACET_FIELD, filter.priceRanges ?? [])
+  if (priceClause) clauses.push(priceClause)
+  const moqClause = rangeFieldClause(MOQ_FACET_FIELD, filter.moqRanges ?? [])
+  if (moqClause) clauses.push(moqClause)
+  // Tranches d'attributs EAV (plan L125) : regroupées par slug (OU interne entre
+  // tranches d'un même attribut, ET entre attributs). Champ tableau
+  // `attributes.<slug>` — cf. `rangeFieldClause`.
+  const rangesBySlug = new Map<string, NumericRangeFilter[]>()
+  for (const range of filter.attributeRanges ?? []) {
+    const list = rangesBySlug.get(range.slug) ?? []
+    list.push({ min: range.min, max: range.max })
+    rangesBySlug.set(range.slug, list)
+  }
+  for (const [slug, ranges] of rangesBySlug) {
+    const clause = rangeFieldClause(facetField(slug), ranges)
+    if (clause) clauses.push(clause)
   }
   // Nouveautés (écart 5) : sorti depuis le seuil (timestamp Unix en secondes).
   if (typeof filter.releasedAfter === 'number') {

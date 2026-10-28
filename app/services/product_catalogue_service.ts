@@ -3,6 +3,7 @@ import Product from '#models/product'
 import Category from '#models/category'
 import Attribute from '#models/attribute'
 import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
+import { applyProductRangeFilters } from '#services/product_range_filters'
 import {
   NEW_PRODUCT_WINDOW_DAYS,
   type ProductDirectoryFilters,
@@ -40,6 +41,9 @@ export default class ProductCatalogueService {
       certificationIds,
       originZones,
       stockStatuses,
+      priceBuckets,
+      moqBuckets,
+      attributeRanges,
       newOnly,
       ecoOnly,
     } = options
@@ -75,6 +79,11 @@ export default class ProductCatalogueService {
       // Statut de stock (plan L98) : OU entre les statuts cochés ; colonne dérivée
       // agrégée au niveau produit. Mêmes résultats que le filtre du moteur.
       .if(stockStatuses.length > 0, (q) => q.whereIn('stockStatus', stockStatuses))
+      // Tranches numériques (plan L125) : prix, MOQ et attributs EAV, `[min, max[`.
+      // Mêmes résultats que le filtre du moteur (`applyProductRangeFilters`).
+      .if(priceBuckets.length > 0 || moqBuckets.length > 0 || attributeRanges.length > 0, (q) =>
+        applyProductRangeFilters(q, { priceBuckets, moqBuckets, attributeRanges })
+      )
       // Nouveautés (écart 5).
       .if(newThreshold, (q) => q.where('releasedAt', '>=', newThreshold!.toSQLDate()!))
       // Éco-responsable (écart 4) : filtre dérivé booléen.

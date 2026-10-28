@@ -9,7 +9,11 @@ import CatalogueFilters from '~/components/catalogue_filters.vue'
 import type { Paginated } from '#shared/types/pagination'
 import type { CategoryType, CategoryFacetBarType } from '#shared/types/category'
 import type { CertificationFacetBarType } from '#shared/types/certification'
-import type { ProductType, ProductDirectoryFilters } from '#shared/types/product'
+import type {
+  ProductType,
+  ProductDirectoryFilters,
+  CatalogueNumericFacetsType,
+} from '#shared/types/product'
 
 defineProps<{
   products: Paginated<ProductType>
@@ -18,6 +22,7 @@ defineProps<{
   categories: CategoryType[]
   facetBar: CategoryFacetBarType
   certificationFacet: CertificationFacetBarType
+  numericFacets: CatalogueNumericFacetsType
 }>()
 
 const { t, locale } = useI18n()
@@ -33,6 +38,15 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
       certificationIds: filters.certificationIds.length ? filters.certificationIds : undefined,
       originZones: filters.originZones.length ? filters.originZones : undefined,
       stockStatuses: filters.stockStatuses.length ? filters.stockStatuses : undefined,
+      // Tranches numériques (plan L125) : buckets par index, tranches EAV encodées
+      // `slug:min:max` (borne vide = ouverte).
+      priceBuckets: filters.priceBuckets.length ? filters.priceBuckets : undefined,
+      moqBuckets: filters.moqBuckets.length ? filters.moqBuckets : undefined,
+      attributeRanges: filters.attributeRanges.length
+        ? filters.attributeRanges.map(
+            (range) => `${range.slug}:${range.minValue ?? ''}:${range.maxValue ?? ''}`
+          )
+        : undefined,
       newOnly: filters.newOnly ? 'true' : undefined,
       ecoOnly: filters.ecoOnly ? 'true' : undefined,
       page,
@@ -40,10 +54,17 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
     {
       preserveState: true,
       preserveScroll: true,
-      // `facetBar` et `certificationFacet` sont rechargés aussi : les attributs
-      // filtrables, les labels et leurs compteurs dépendent de la catégorie et
-      // des filtres de navigation.
-      only: ['products', 'filters', 'searchUnavailable', 'facetBar', 'certificationFacet'],
+      // `facetBar`, `certificationFacet` et `numericFacets` sont rechargés aussi :
+      // attributs filtrables, labels, buckets prix/MOQ et leurs compteurs dépendent
+      // de la catégorie et des filtres de navigation.
+      only: [
+        'products',
+        'filters',
+        'searchUnavailable',
+        'facetBar',
+        'certificationFacet',
+        'numericFacets',
+      ],
     }
   )
 }
@@ -65,6 +86,7 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
           :categories="categories"
           :facet-bar="facetBar"
           :certification-facet="certificationFacet"
+          :numeric-facets="numericFacets"
           @apply="visit($event)"
         />
       </aside>

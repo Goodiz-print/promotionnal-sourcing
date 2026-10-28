@@ -30,6 +30,13 @@
       "out_of_stock": "Out of stock",
       "on_order": "On order"
     },
+    "price": {
+      "title": "Price",
+      "currency": "€"
+    },
+    "moq": {
+      "title": "Minimum quantity"
+    },
     "certifications": {
       "title": "Compliance labels",
       "domains": {

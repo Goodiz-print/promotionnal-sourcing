@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import { router } from '@inertiajs/vue3'
 import type { CategoryFacetBarType } from '#shared/types/category'
 import type { CertificationFacetBarType } from '#shared/types/certification'
+import { MOQ_BUCKETS, PRICE_BUCKETS, type CatalogueNumericFacetsType } from '#shared/types/product'
 
 const translations = {
   'products.index.title': 'Catalogue produits',
@@ -23,6 +24,9 @@ const translations = {
   'products.index.rangeUnder': '< {max}',
   'products.index.rangeOver': '≥ {min}',
   'products.index.rangeBetween': '{min}–{max}',
+  'products.index.price.title': 'Prix',
+  'products.index.price.currency': '€',
+  'products.index.moq.title': 'Quantité minimum',
   'products.index.stock.title': 'Stock',
   'products.index.stock.in_stock': 'Disponible',
   'products.index.stock.out_of_stock': 'Épuisé',
@@ -161,6 +165,36 @@ const emptyCertificationFacet: CertificationFacetBarType = {
   hasCounts: false,
 }
 
+// Facettes prix / MOQ (plan L125) : toutes les tranches avec un compteur > 0 pour
+// qu'aucune ne soit masquée dans la barre.
+const numericFacets: CatalogueNumericFacetsType = {
+  price: {
+    hasCounts: true,
+    buckets: PRICE_BUCKETS.map((bucket, index) => ({ ...bucket, index, count: 1 })),
+  },
+  moq: {
+    hasCounts: true,
+    buckets: MOQ_BUCKETS.map((bucket, index) => ({ ...bucket, index, count: 1 })),
+  },
+}
+
+// Barre d'attributs avec une tranche numérique cliquable (plan L125).
+const facetBarWithRange: CategoryFacetBarType = {
+  hasCounts: true,
+  attributes: [
+    {
+      attributeId: 2,
+      name: 'Grammage',
+      slug: 'grammage',
+      type: 'number',
+      unit: 'g',
+      position: 1,
+      values: [],
+      ranges: [{ minValue: 400, maxValue: 600, count: 4 }],
+    },
+  ],
+}
+
 const meta = { total: 2, perPage: 12, currentPage: 1, lastPage: 1 }
 const emptyFilters = {
   search: null,
@@ -170,6 +204,9 @@ const emptyFilters = {
   certificationIds: [],
   originZones: [],
   stockStatuses: [],
+  priceBuckets: [],
+  moqBuckets: [],
+  attributeRanges: [],
   newOnly: false,
   ecoOnly: false,
 }
@@ -187,6 +224,7 @@ describe('products/index.vue', () => {
         categories: [category(1, 'Crayon', 'crayon')],
         facetBar,
         certificationFacet,
+        numericFacets,
       },
     })
 
@@ -215,6 +253,7 @@ describe('products/index.vue', () => {
         categories: [],
         facetBar: emptyFacetBar,
         certificationFacet: emptyCertificationFacet,
+        numericFacets,
       },
     })
     expect(wrapper.text()).toContain('Aucun produit ne correspond à votre recherche.')
@@ -229,6 +268,7 @@ describe('products/index.vue', () => {
         categories: [],
         facetBar: emptyFacetBar,
         certificationFacet: emptyCertificationFacet,
+        numericFacets,
       },
     })
     expect(wrapper.text()).toContain('La recherche est momentanément indisponible.')
@@ -248,12 +288,16 @@ describe('products/index.vue', () => {
           certificationIds: [],
           originZones: [],
           stockStatuses: [],
+          priceBuckets: [],
+          moqBuckets: [],
+          attributeRanges: [],
           newOnly: false,
           ecoOnly: false,
         },
         categories: [category(1, 'Crayon', 'crayon')],
         facetBar: emptyFacetBar,
         certificationFacet: emptyCertificationFacet,
+        numericFacets,
       },
     })
     expect(wrapper.text()).toContain('Sélectionnez une catégorie pour afficher ses filtres.')
@@ -269,6 +313,7 @@ describe('products/index.vue', () => {
         categories: [category(1, 'Crayon', 'crayon')],
         facetBar: emptyFacetBar,
         certificationFacet: emptyCertificationFacet,
+        numericFacets,
       },
     })
 
@@ -283,6 +328,60 @@ describe('products/index.vue', () => {
     expect(router.get).toHaveBeenCalledTimes(1)
     const params = vi.mocked(router.get).mock.calls[0][1] as { stockStatuses?: string[] }
     expect(params.stockStatuses).toEqual(['in_stock'])
+  })
+
+  it('affiche les facettes Prix et MOQ et pousse l’index du bucket coché', async () => {
+    vi.mocked(router.get).mockClear()
+    const wrapper = mount(Index, {
+      props: {
+        searchUnavailable: false,
+        products: { data: [], meta: { ...meta, total: 0 } },
+        filters: emptyFilters,
+        categories: [category(1, 'Crayon', 'crayon')],
+        facetBar: emptyFacetBar,
+        certificationFacet: emptyCertificationFacet,
+        numericFacets,
+      },
+    })
+
+    // Facettes transverses toujours affichées, libellés rendus depuis les bornes.
+    expect(wrapper.text()).toContain('Prix')
+    expect(wrapper.text()).toContain('Quantité minimum')
+    // Les id de cases MOQ utilisent le préfixe slug stable (pas le titre localisé
+    // « Quantité minimum » qui donnerait un id HTML invalide avec espace).
+    expect(wrapper.find('#numeric-moq-0').exists()).toBe(true)
+    // Premier bucket prix (« < 1 € ») cliquable ; on coche le 3ᵉ (index 2 : 2–5 €).
+    // L'id utilise un préfixe slug stable (`price`), jamais le titre localisé.
+    expect(wrapper.find('#numeric-price-0').exists()).toBe(true)
+    await wrapper.find('#numeric-price-2').setValue(true)
+
+    expect(router.get).toHaveBeenCalledTimes(1)
+    const params = vi.mocked(router.get).mock.calls[0][1] as { priceBuckets?: number[] }
+    expect(params.priceBuckets).toEqual([2])
+  })
+
+  it('rend une tranche d’attribut EAV cliquable et pousse slug:min:max', async () => {
+    vi.mocked(router.get).mockClear()
+    const wrapper = mount(Index, {
+      props: {
+        searchUnavailable: false,
+        products: { data: [], meta: { ...meta, total: 0 } },
+        filters: emptyFilters,
+        categories: [category(1, 'Crayon', 'crayon')],
+        facetBar: facetBarWithRange,
+        certificationFacet: emptyCertificationFacet,
+        numericFacets,
+      },
+    })
+
+    // La tranche « 400–600 g » est désormais une case cliquable (filtrage actif).
+    const range = wrapper.find('#attr-range-grammage-0')
+    expect(range.exists()).toBe(true)
+    await range.setValue(true)
+
+    expect(router.get).toHaveBeenCalledTimes(1)
+    const params = vi.mocked(router.get).mock.calls[0][1] as { attributeRanges?: string[] }
+    expect(params.attributeRanges).toEqual(['grammage:400:600'])
   })
 })
 

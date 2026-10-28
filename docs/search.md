@@ -20,9 +20,9 @@ Moteur de recherche hybride (mots-clés + vecteurs) des produits, décidé par l
 
 ## Document d'index (`ProductSearchDocument`)
 
-`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone` (provenance dérivée, voir « Provenance et Nouveautés »), `releasedAt` (date de sortie en **timestamp Unix secondes**, ou `null`), `isEco` (filtre « Éco-responsable » dérivé, voir « Conformité »), `stockStatus` (statut de stock agrégé au niveau produit, dérivé, voir « Stock »), `attributeValueIds` (facettes, toutes valeurs confondues), `certificationIds` (labels de conformité, voir « Certifications »), `attributes` (facettes **aplaties par slug** : `attributes.color`, `attributes.color-shade`, `attributes.material`… — voir ci-dessous), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `embeddingText` (le texte que Meilisearch vectorise : voir « Vectorisation »).
+`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone` (provenance dérivée, voir « Provenance et Nouveautés »), `releasedAt` (date de sortie en **timestamp Unix secondes**, ou `null`), `isEco` (filtre « Éco-responsable » dérivé, voir « Conformité »), `stockStatus` (statut de stock agrégé au niveau produit, dérivé, voir « Stock »), `priceMin` (palier le plus bas en **nombre**, ou `null`) et `moq` (quantité minimum de commande, voir « Tranches numériques »), `attributeValueIds` (facettes, toutes valeurs confondues), `certificationIds` (labels de conformité, voir « Certifications »), `attributes` (facettes **aplaties par slug** : `attributes.color`, `attributes.color-shade`, `attributes.material`… — voir ci-dessous), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `embeddingText` (le texte que Meilisearch vectorise : voir « Vectorisation »).
 
-Réglages (`productIndexSettings(facetSlugs)`) : attributs cherchables `names`, `descriptions`, `reference` — un seul attribut par famille couvre toutes les langues, **ajouter une langue ne change aucun réglage** ; attributs filtrables `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone`, `releasedAt`, `isEco`, `stockStatus`, `attributeValueIds`, `certificationIds`, **plus un champ `attributes.<slug>` par attribut filtrable** (`facetSlugs` dérivés de `category_attributes.is_filter`, via `FilterableFacetsService` — jamais une liste codée en dur) ; embedder `default` (voir « Vectorisation »), retiré des réglages quand il est coupé. Les réglages sont réappliqués au premier envoi d'un processus et à chaque `search:reindex` : un changement de `is_filter` est donc pris en compte au prochain reindex.
+Réglages (`productIndexSettings(facetSlugs)`) : attributs cherchables `names`, `descriptions`, `reference` — un seul attribut par famille couvre toutes les langues, **ajouter une langue ne change aucun réglage** ; attributs filtrables `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone`, `releasedAt`, `isEco`, `stockStatus`, `priceMin`, `moq`, `attributeValueIds`, `certificationIds`, **plus un champ `attributes.<slug>` par attribut filtrable** (`facetSlugs` dérivés de `category_attributes.is_filter`, via `FilterableFacetsService` — jamais une liste codée en dur) ; `faceting.maxValuesPerFacet` relevé à `1000` (comptage exact des buckets prix/MOQ transverses) ; embedder `default` (voir « Vectorisation »), retiré des réglages quand il est coupé. Les réglages sont réappliqués au premier envoi d'un processus et à chaque `search:reindex` : un changement de `is_filter` est donc pris en compte au prochain reindex.
 
 Seuls les produits **visibles** sont indexés : actifs, organisation non archivée ni rejetée, non rejetés par la modération — les mêmes scopes que la fiche publique (`Product.fromLiveOrganization`, `Product.notRejected`).
 
@@ -185,6 +185,61 @@ search:reindex` recale `products.stock_status` (agrégation) puis réécrit
 `stockStatus` pour peupler la facette. Frontend : cases à cocher (transverse,
 toujours affichée) dans `inertia/components/catalogue_filters.vue`.
 
+### Tranches numériques (EAV, prix, MOQ) — plan L125
+
+Filtrage par **intervalle numérique**, sémantique `[min, max[` partout (borne
+basse **incluse**, borne haute **exclue** — pas de double comptage aux limites ;
+une borne `null` est **ouverte**). Logique factorisée dans
+`shared/helpers/numeric_ranges.ts` (`rangeContains`, `sumRangeCount`,
+`bucketsToRanges`) — même code pour le comptage, le filtre moteur et le repli
+PostgreSQL.
+
+Deux champs numériques de fiche s'ajoutent aux `filterableAttributes` :
+
+- **`priceMin`** : prix du **palier le plus bas** (`products.price_min`, maintenu
+  par `ProductVariantService.refreshPriceRange`), émis en **nombre** (le décimal
+  est sérialisé en chaîne en base). `null` = sans palier ni prix.
+- **`moq`** : quantité minimum de commande (`products.min_quantity`). `null` = non
+  renseignée.
+
+Données **directes** (pas de dérivation, pas de backfill) : `node ace
+search:reindex` suffit à peupler les facettes. Les réglages relèvent aussi
+`faceting.maxValuesPerFacet` à `1000` pour que le comptage par bucket de ces
+facettes **transverses** reste exact au-delà de 100 valeurs distinctes.
+
+Trois sortes de tranches, toutes en `[min, max[` :
+
+- **Prix** et **MOQ** : facettes **transverses** à **buckets** (liste fermée
+  **partagée** `PRICE_BUCKETS` / `MOQ_BUCKETS` dans `shared/types/product.ts` —
+  pas en base, pas via `category_attribute_ranges`). Disponibles **sans catégorie
+  sélectionnée**, avec compteurs calculés par `CatalogueNumericFacetService`
+  (`facetDistribution` sur `priceMin` / `moq`, agrégée par bucket) ; `hasCounts:
+false` si le moteur est indisponible. Le libellé n'est jamais stocké : rendu
+  côté UI depuis les bornes + unité/devise + locale.
+- **Attributs EAV** : les tranches de `category_attribute_ranges` (dépendantes de
+  la catégorie), déjà **comptées** dans la barre de facettes, sont désormais
+  **filtrables** sur `attributes.<slug>` (champ tableau ; sur un attribut numérique
+  mono-valué, `>= min AND < max` équivaut à `[min, max[`).
+
+Le filtre (`buildProductFilter`) construit une clause `(field >= min AND field <
+max)` par tranche, combine les tranches d'un même champ en **OU** (groupées) et le
+tout en **ET** avec les autres critères. Côté `ProductDirectoryFilters` :
+`priceBuckets` / `moqBuckets` (index dans la liste fermée partagée — le serveur ne
+fait jamais confiance à la query string pour les bornes) et `attributeRanges`
+(`{ slug, minValue, maxValue }`, encodé `slug:min:max` en query). Avec terme de
+recherche, ces tranches passent au moteur **et** sont revérifiées sur PostgreSQL
+au rechargement (`ProductSearchService.reload`) ; sans terme,
+`ProductCatalogueService.list` applique les mêmes intervalles en base
+(`applyProductRangeFilters`, partagé : `price_min`, `min_quantity`,
+`product_attributes.value_number`). Frontend : `numeric_facet_group.vue` (prix /
+MOQ) et tranches cliquables de `facet_group.vue` (EAV).
+
+**Limite — devises** : les buckets de prix sont définis pour la **devise
+d'affichage par défaut (EUR)**. Pas de conversion multi-devises : le filtre porte
+sur `price_min` brut. Si `products.currency` varie, un produit est classé par la
+valeur numérique de `price_min` quelle que soit sa devise. Conversion
+multi-devises : hors périmètre.
+
 ## Vectorisation (embedder de Meilisearch)
 
 **Meilisearch calcule lui-même les vecteurs** (ADR 0002, décision 3), à partir du champ `embeddingText` de chaque document (`documentTemplate: '{{ doc.embeddingText }}'`) à l'indexation, et du texte `q` à la recherche. L'application ne fait aucun appel à un modèle d'embeddings, n'a pas de copie des vecteurs en base et ne gère ni lots ni rejeux d'embeddings.
@@ -285,6 +340,8 @@ En CI, le job `test-search` démarre un vrai Meilisearch et rejoue les requêtes
 - `tests/functional/catalogue_certifications.spec.ts` : filtrage du catalogue par certification (écart 4, ÉTAPE 6) — sous-ensemble, ET sur plusieurs labels, combinaison avec un autre critère, transmission au moteur et revérification au rechargement PostgreSQL.
 - `tests/unit/product_stock_service.spec.ts` + `tests/functional/product_stock.spec.ts` : agrégation du statut de stock (plan L98, priorité au disponible, variantes inactives ignorées, `null` sans info), colonne dérivée persistée au backfill, filtre catalogue par statut (OU) en repli PostgreSQL et transmission au moteur, saisie fournisseur round-trip.
 - `tests/functional/product_search.spec.ts` : rechargement depuis PostgreSQL (ordre, visibilité, facettes revérifiées), requête transmise au moteur, ratio sémantique et repli par mots-clés si l'API d'embeddings tombe, écrans (catalogue, sélecteur, message « recherche indisponible »).
+- `tests/unit/numeric_ranges.spec.ts` + `tests/functional/product_numeric_facets.spec.ts` : tranches numériques (plan L125) — sémantique `[min, max[` (bornes incluses/exclues, borne `null` ouverte), résolution des buckets, document d'index (`priceMin`/`moq`), transmission au moteur et ignorance des valeurs invalides, repli PostgreSQL (prix, MOQ, EAV). Clauses d'intervalle aussi dans `tests/unit/meilisearch_engine.spec.ts`.
+- `tests/functional/catalogue_numeric_facet.spec.ts` : barre de facettes prix/MOQ (`CatalogueNumericFacetService`) — compteurs par bucket (`facetDistribution` agrégée par tranche), un seul appel sans sélection puis deux appels avec cadrage excluant le champ compté, repli sans compteur (moteur inerte ou injoignable).
 - `tests/unit/product_origin_service.spec.ts` : dérivation `origin_zone` (France, Europe UE/EEE ou `madeInEurope`, autre, inconnue → `null`).
 - `tests/functional/product_identity_commercial.spec.ts` : persistance des champs d'identité/commercial/médias, dérivation et recalcul d'`origin_zone`, filtres provenance (OU) et « Nouveautés » du catalogue.
 - `tests/unit/search_evaluation.spec.ts` : verdict, rappel, percentiles.

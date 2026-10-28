@@ -1,16 +1,17 @@
 import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
-import { DateTime } from 'luxon'
 import Certification from '#models/certification'
 import SearchEngine from '#services/search/search_engine'
+import { newProductThreshold } from '#services/new_product_window'
 import CertificationTransformer from '#transformers/certification_transformer'
 import { DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
-import { NEW_PRODUCT_WINDOW_DAYS, type ProductDirectoryFilters } from '#shared/types/product'
+import { MOQ_BUCKETS, PRICE_BUCKETS, type ProductDirectoryFilters } from '#shared/types/product'
 import {
   CERTIFICATION_FACET_FIELD,
   type FacetDistribution,
   type ProductSearchFilter,
 } from '#shared/types/search'
+import { attributeSelectionsToFilters, bucketsToRanges } from '#shared/helpers/numeric_ranges'
 import type { CertificationFacetBarType, CertificationFacetType } from '#shared/types/certification'
 
 /**
@@ -88,9 +89,7 @@ export default class CatalogueCertificationFacetService {
 
   /** Filtre de cadrage de la distribution — tous les critères sauf `certificationIds`. */
   private scopingFilter(filters: ProductDirectoryFilters): ProductSearchFilter {
-    const threshold = filters.newOnly
-      ? DateTime.now().minus({ days: NEW_PRODUCT_WINDOW_DAYS }).startOf('day')
-      : null
+    const threshold = newProductThreshold(filters.newOnly)
     return {
       categoryId: filters.categoryId,
       madeInEurope: filters.madeInEurope,
@@ -98,6 +97,10 @@ export default class CatalogueCertificationFacetService {
       originZones: filters.originZones,
       // Statut de stock (plan L98) : cadre aussi la distribution des labels.
       stockStatuses: filters.stockStatuses,
+      // Tranches numériques (plan L125) : cadrent aussi la distribution des labels.
+      priceRanges: bucketsToRanges(filters.priceBuckets, PRICE_BUCKETS),
+      moqRanges: bucketsToRanges(filters.moqBuckets, MOQ_BUCKETS),
+      attributeRanges: attributeSelectionsToFilters(filters.attributeRanges),
       releasedAfter: threshold ? Math.trunc(threshold.toSeconds()) : null,
       isEco: filters.ecoOnly,
     }

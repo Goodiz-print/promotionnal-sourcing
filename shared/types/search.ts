@@ -68,6 +68,19 @@ export interface ProductSearchDocument {
    */
   stockStatus: ProductStockStatus | null
   /**
+   * Prix du **palier le plus bas** (`products.price_min`, maintenu par
+   * `ProductVariantService.refreshPriceRange`) émis en **nombre** (la colonne est
+   * un décimal sérialisé en chaîne) pour le filtre d'intervalle et la facette à
+   * buckets « Prix » (plan L125). `null` = sans palier ni prix. Devise d'affichage
+   * par défaut (EUR) : pas de conversion multi-devises (cf. `docs/search.md`).
+   */
+  priceMin: number | null
+  /**
+   * Quantité minimum de commande (`products.min_quantity`) pour le filtre
+   * d'intervalle et la facette à buckets « MOQ » (plan L125). `null` = non renseignée.
+   */
+  moq: number | null
+  /**
    * Date de sortie en **timestamp Unix (secondes)** pour le filtre « Nouveautés »
    * (écart 5), ou `null`. Un nombre permet le filtre d'intervalle Meilisearch
    * (`releasedAt >= <seuil>`).
@@ -152,6 +165,21 @@ export interface ProductSearchFilter {
    */
   stockStatuses?: ProductStockStatus[]
   /**
+   * Tranches de **prix** (plan L125) sur `priceMin` (palier le plus bas). Les
+   * tranches cochées se combinent en **OU** (chaque tranche = `[min, max[`).
+   * Vide/absent = pas de filtre prix.
+   */
+  priceRanges?: NumericRangeFilter[]
+  /**
+   * Tranches de **MOQ** (plan L125) sur `moq`. OU entre tranches, `[min, max[`.
+   */
+  moqRanges?: NumericRangeFilter[]
+  /**
+   * Tranches d'**attributs numériques EAV** (plan L125) sur `attributes.<slug>`.
+   * Par slug, les tranches se combinent en **OU** ; des slugs différents en **ET**.
+   */
+  attributeRanges?: AttributeRangeFilter[]
+  /**
    * Seuil « Nouveautés » (écart 5) en timestamp Unix (secondes) : ne garde que
    * les produits dont `releasedAt >= releasedAfter`.
    */
@@ -161,6 +189,25 @@ export interface ProductSearchFilter {
    * `is_eco`. Absent/`false` = pas de filtre éco.
    */
   isEco?: boolean
+}
+
+/**
+ * Intervalle numérique `[min, max[` d'un filtre de recherche (plan L125) : borne
+ * basse **incluse**, borne haute **exclue** ; une borne `null` est **ouverte**.
+ * Même sémantique que le comptage par tranche (`sumRangeCount`), pas de double
+ * comptage aux limites.
+ */
+export interface NumericRangeFilter {
+  min: number | null
+  max: number | null
+}
+
+/**
+ * Intervalle numérique sur un attribut EAV, identifié par le **slug** de
+ * l'attribut (champ d'index `attributes.<slug>`, cf. `facetField`).
+ */
+export interface AttributeRangeFilter extends NumericRangeFilter {
+  slug: string
 }
 
 /**
@@ -194,6 +241,19 @@ export const CERTIFICATION_FACET_FIELD = 'certificationIds'
  * (un enum fixe à trois valeurs), sans compteur par statut.
  */
 export const STOCK_FACET_FIELD = 'stockStatus'
+
+/**
+ * Champ d'index de la facette **prix** (plan L125) : palier le plus bas
+ * (`products.price_min`) émis en nombre. Transverse aux catégories, filtrable
+ * (filtre d'intervalle) et facettable (distribution par valeur → buckets).
+ */
+export const PRICE_FACET_FIELD = 'priceMin'
+
+/**
+ * Champ d'index de la facette **MOQ** (plan L125) : quantité minimum de commande
+ * (`products.min_quantity`). Transverse, filtrable et facettable, comme le prix.
+ */
+export const MOQ_FACET_FIELD = 'moq'
 
 /**
  * Distribution de facettes renvoyée par le moteur (`facetDistribution` de

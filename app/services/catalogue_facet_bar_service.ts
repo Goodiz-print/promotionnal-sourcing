@@ -3,6 +3,7 @@ import logger from '@adonisjs/core/services/logger'
 import CatalogueFacetsService from '#services/catalogue_facets_service'
 import SearchEngine from '#services/search/search_engine'
 import { facetField, type FacetDistribution } from '#shared/types/search'
+import { sumRangeCount } from '#shared/helpers/numeric_ranges'
 import { DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
 import type { CategoryAttributeType } from '#shared/types/category'
 import type {
@@ -98,7 +99,7 @@ export default class CatalogueFacetBarService {
 
     const ranges: CategoryFacetRangeType[] = attribute.ranges.map((range) => ({
       ...range,
-      count: hasCounts ? this.rangeCount(counts, range.minValue, range.maxValue) : null,
+      count: hasCounts ? sumRangeCount(counts, range.minValue, range.maxValue) : null,
     }))
 
     return {
@@ -111,26 +112,5 @@ export default class CatalogueFacetBarService {
       values,
       ranges,
     }
-  }
-
-  /**
-   * Compteur d'une tranche numérique : somme des valeurs de la distribution
-   * comprises dans `[min, max[` (borne basse incluse, borne haute exclue — pas
-   * de double comptage aux limites ; une borne `null` est ouverte).
-   */
-  private rangeCount(
-    counts: Record<string, number>,
-    minValue: number | null,
-    maxValue: number | null
-  ): number {
-    let total = 0
-    for (const [key, count] of Object.entries(counts)) {
-      const value = Number(key)
-      if (!Number.isFinite(value)) continue
-      if (minValue !== null && value < minValue) continue
-      if (maxValue !== null && value >= maxValue) continue
-      total += count
-    }
-    return total
   }
 }

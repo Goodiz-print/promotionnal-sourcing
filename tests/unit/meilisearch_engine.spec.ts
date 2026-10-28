@@ -99,6 +99,8 @@ function document(id: number): ProductSearchDocument {
     originCountry: 'FR',
     originZone: 'france',
     stockStatus: null,
+    priceMin: null,
+    moq: null,
     releasedAt: null,
     isEco: false,
     attributeValueIds: [3],
@@ -292,6 +294,67 @@ test.group('Meilisearch — recherche', (group) => {
     )
     // Pas de seuil : aucune clause de nouveauté.
     assert.isUndefined(buildProductFilter({ releasedAfter: null }))
+  })
+
+  test('tranches prix/MOQ (plan L125) : `[min, max[`, OU entre tranches, groupé', ({ assert }) => {
+    // Tranche bornée des deux côtés : les deux bornes, groupées.
+    assert.equal(
+      buildProductFilter({ priceRanges: [{ min: 1, max: 2 }] }),
+      '(priceMin >= 1 AND priceMin < 2)'
+    )
+    // Borne ouverte d'un côté : une seule borne, sans groupe inutile.
+    assert.equal(buildProductFilter({ priceRanges: [{ min: null, max: 1 }] }), 'priceMin < 1')
+    assert.equal(buildProductFilter({ priceRanges: [{ min: 25, max: null }] }), 'priceMin >= 25')
+    // Plusieurs tranches d'un même champ : OU, le tout groupé.
+    assert.equal(
+      buildProductFilter({
+        priceRanges: [
+          { min: null, max: 1 },
+          { min: 2, max: 5 },
+        ],
+      }),
+      '(priceMin < 1 OR (priceMin >= 2 AND priceMin < 5))'
+    )
+    // MOQ combiné au prix : ET entre les deux champs.
+    assert.equal(
+      buildProductFilter({
+        priceRanges: [{ min: 5, max: 10 }],
+        moqRanges: [{ min: 100, max: 250 }],
+      }),
+      '(priceMin >= 5 AND priceMin < 10) AND (moq >= 100 AND moq < 250)'
+    )
+    // Tranche entièrement ouverte : aucune clause.
+    assert.isUndefined(buildProductFilter({ priceRanges: [{ min: null, max: null }] }))
+  })
+
+  test('tranches d’attributs EAV (plan L125) : par slug, OU interne, ET entre slugs', ({
+    assert,
+  }) => {
+    assert.equal(
+      buildProductFilter({ attributeRanges: [{ slug: 'grammage', min: 400, max: 600 }] }),
+      '(attributes.grammage >= 400 AND attributes.grammage < 600)'
+    )
+    // Deux tranches du même attribut : OU, groupé.
+    assert.equal(
+      buildProductFilter({
+        attributeRanges: [
+          { slug: 'grammage', min: 400, max: 600 },
+          { slug: 'grammage', min: 600, max: 900 },
+        ],
+      }),
+      '((attributes.grammage >= 400 AND attributes.grammage < 600) OR (attributes.grammage >= 600 AND attributes.grammage < 900))'
+    )
+    // Deux attributs différents : ET entre eux.
+    assert.equal(
+      buildProductFilter({
+        attributeRanges: [
+          { slug: 'grammage', min: 400, max: null },
+          { slug: 'contenance', min: null, max: 500 },
+        ],
+      }),
+      'attributes.grammage >= 400 AND attributes.contenance < 500'
+    )
+    assert.isUndefined(buildProductFilter({ attributeRanges: [] }))
   })
 
   test('requête hybride : Meilisearch vectorise la requête, aucun vecteur n’est envoyé', async ({
