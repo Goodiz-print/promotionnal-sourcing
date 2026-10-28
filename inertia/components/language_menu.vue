@@ -17,6 +17,9 @@ const props = defineProps<{
 
 const emit = defineEmits<{ select: [locale: Locale] }>()
 
+const itemClass =
+  'flex w-full cursor-pointer items-center gap-2.5 px-3.5 py-2 text-left text-sm text-[var(--gray-10)] hover:bg-[var(--gray-2)]'
+
 const open = ref(false)
 const root = ref<HTMLElement | null>(null)
 
@@ -73,16 +76,25 @@ onBeforeUnmount(() => {
       class="absolute right-0 z-50 mt-2 min-w-44 overflow-hidden rounded-lg border border-[var(--gray-3)] bg-white py-1 shadow-lg"
     >
       <li v-for="code in locales" :key="code" role="option" :aria-selected="code === current">
-        <component
-          :is="hrefFor ? Link : 'button'"
-          v-bind="hrefFor ? { href: hrefFor(code), hreflang: code } : { type: 'button' }"
-          class="flex w-full cursor-pointer items-center gap-2.5 px-3.5 py-2 text-left text-sm text-[var(--gray-10)] hover:bg-[var(--gray-2)]"
-          :class="{ 'font-semibold': code === current }"
+        <Link
+          v-if="hrefFor"
+          :href="hrefFor(code)"
+          :hreflang="code"
+          :class="[itemClass, { 'font-semibold': code === current }]"
           @click="pick(code)"
         >
           <FlagIcon :code="code" />
           {{ LOCALE_LABELS[code] }}
-        </component>
+        </Link>
+        <button
+          v-else
+          type="button"
+          :class="[itemClass, { 'font-semibold': code === current }]"
+          @click="pick(code)"
+        >
+          <FlagIcon :code="code" />
+          {{ LOCALE_LABELS[code] }}
+        </button>
       </li>
     </ul>
   </div>

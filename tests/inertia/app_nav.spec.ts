@@ -30,8 +30,8 @@ vi.mock('~/client', () => ({
 }))
 vi.mock('@adonisjs/inertia/vue', () => ({
   Link: {
-    props: ['route', 'params'],
-    template: '<a :data-route="route" :aria-current="$attrs[\'aria-current\']"><slot /></a>',
+    props: ['href'],
+    template: '<a :href="href" :aria-current="$attrs[\'aria-current\']"><slot /></a>',
   },
 }))
 
