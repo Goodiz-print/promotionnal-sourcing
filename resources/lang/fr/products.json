@@ -30,6 +30,13 @@
       "out_of_stock": "Épuisé",
       "on_order": "Sur commande"
     },
+    "price": {
+      "title": "Prix",
+      "currency": "€"
+    },
+    "moq": {
+      "title": "Quantité minimum"
+    },
     "certifications": {
       "title": "Labels de conformité",
       "domains": {

@@ -6,7 +6,14 @@ import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
 import searchConfig from '#config/search'
 import Product from '#models/product'
 import SearchEngine from '#services/search/search_engine'
-import { NEW_PRODUCT_WINDOW_DAYS, type ProductDirectoryFilters } from '#shared/types/product'
+import { applyProductRangeFilters } from '#services/product_range_filters'
+import {
+  MOQ_BUCKETS,
+  NEW_PRODUCT_WINDOW_DAYS,
+  PRICE_BUCKETS,
+  type ProductDirectoryFilters,
+} from '#shared/types/product'
+import { attributeSelectionsToFilters, bucketsToRanges } from '#shared/helpers/numeric_ranges'
 import type { ProductSearchHits, ProductSearchRequest } from '#shared/types/search'
 
 /**
@@ -67,6 +74,11 @@ export default class ProductSearchService {
         originZones: options.originZones,
         // Statut de stock (plan L98) : OU entre les statuts cochés.
         stockStatuses: options.stockStatuses,
+        // Tranches numériques (plan L125) : prix, MOQ (buckets → intervalles) et
+        // attributs EAV. OU entre tranches d'un même champ, ET entre champs.
+        priceRanges: bucketsToRanges(options.priceBuckets, PRICE_BUCKETS),
+        moqRanges: bucketsToRanges(options.moqBuckets, MOQ_BUCKETS),
+        attributeRanges: attributeSelectionsToFilters(options.attributeRanges),
         releasedAfter: threshold ? Math.trunc(threshold.toSeconds()) : null,
         // Éco-responsable (écart 4).
         isEco: options.ecoOnly,
@@ -149,6 +161,15 @@ export default class ProductSearchService {
     // Statut de stock (plan L98) : OU entre statuts cochés ; revérifié sur la base.
     const statuses = filters?.stockStatuses ?? []
     if (statuses.length > 0) query.whereIn('stockStatus', statuses)
+    // Tranches numériques (plan L125) : prix, MOQ, attributs EAV ; `[min, max[`
+    // revérifié sur la base (le ET est garanti deux fois, comme les autres facettes).
+    if (filters) {
+      applyProductRangeFilters(query, {
+        priceBuckets: filters.priceBuckets,
+        moqBuckets: filters.moqBuckets,
+        attributeRanges: filters.attributeRanges,
+      })
+    }
     // Nouveautés (écart 5) : sorti depuis le seuil.
     const threshold = newProductThreshold(filters?.newOnly ?? false)
     if (threshold) query.where('releasedAt', '>=', threshold.toSQLDate()!)

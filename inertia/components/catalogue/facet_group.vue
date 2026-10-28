@@ -1,20 +1,24 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from '~/i18n'
 import BaseCheckbox from '~/components/base/base_checkbox.vue'
+import { useRangeLabel } from '~/composables/use_range_label'
 import type { CategoryFacetType, CategoryFacetValueType } from '#shared/types/category'
+import type { AttributeRangeSelectionType } from '#shared/types/product'
 
 const props = defineProps<{
   attribute: CategoryFacetType
   selectedIds: number[]
+  // Tranches d'attributs EAV cochées (tous attributs confondus) — filtrées par slug.
+  selectedRanges: AttributeRangeSelectionType[]
   hasCounts: boolean
 }>()
 
 const emit = defineEmits<{
   toggle: [valueId: number, checked: boolean]
+  toggleRange: [slug: string, minValue: number | null, maxValue: number | null, checked: boolean]
 }>()
 
-const { t } = useI18n()
+const rangeLabel = useRangeLabel()
 
 // Avec des compteurs, on masque les valeurs à 0 (indisponibles dans la
 // catégorie) — sauf celles déjà cochées, pour pouvoir les décocher. Sans
@@ -29,19 +33,17 @@ const visibleValues = computed<CategoryFacetValueType[]>(() =>
   )
 )
 
-const unitSuffix = computed(() => (props.attribute.unit ? ` ${props.attribute.unit}` : ''))
+const unitSuffix = computed(() => props.attribute.unit ?? '')
 
-function rangeLabel(minValue: number | null, maxValue: number | null): string {
-  if (minValue !== null && maxValue !== null) {
-    return t('products.index.rangeBetween', { min: minValue, max: maxValue }) + unitSuffix.value
-  }
-  if (maxValue !== null) {
-    return t('products.index.rangeUnder', { max: maxValue }) + unitSuffix.value
-  }
-  if (minValue !== null) {
-    return t('products.index.rangeOver', { min: minValue }) + unitSuffix.value
-  }
-  return unitSuffix.value.trim()
+// Une tranche est cochée quand le slug de l'attribut + ses bornes figurent dans la
+// sélection courante (`[min, max[` identifié par slug + bornes).
+function isRangeSelected(minValue: number | null, maxValue: number | null): boolean {
+  return props.selectedRanges.some(
+    (range) =>
+      range.slug === props.attribute.slug &&
+      range.minValue === minValue &&
+      range.maxValue === maxValue
+  )
 }
 </script>
 
@@ -73,18 +75,22 @@ function rangeLabel(minValue: number | null, maxValue: number | null): string {
       </span>
     </BaseCheckbox>
 
-    <!-- Tranches numériques : affichées avec leur compteur (filtrage à venir). -->
-    <ul v-if="attribute.ranges.length > 0" class="flex flex-col gap-1">
-      <li
-        v-for="(range, index) in attribute.ranges"
-        :key="index"
-        class="flex items-center justify-between text-sm text-[var(--gray-7)]"
-      >
-        <span>{{ rangeLabel(range.minValue, range.maxValue) }}</span>
+    <!-- Tranches numériques (plan L125) : cliquables, mêmes OU/compteurs que les valeurs. -->
+    <BaseCheckbox
+      v-for="(range, index) in attribute.ranges"
+      :id="`attr-range-${attribute.slug}-${index}`"
+      :key="`range-${index}`"
+      :model-value="isRangeSelected(range.minValue, range.maxValue)"
+      @update:model-value="
+        (checked) => emit('toggleRange', attribute.slug, range.minValue, range.maxValue, checked)
+      "
+    >
+      <span class="flex flex-1 items-center gap-2">
+        <span class="flex-1">{{ rangeLabel(range.minValue, range.maxValue, unitSuffix) }}</span>
         <span v-if="hasCounts && range.count !== null" class="text-xs text-[var(--gray-6)]">
           {{ range.count }}
         </span>
-      </li>
-    </ul>
+      </span>
+    </BaseCheckbox>
   </fieldset>
 </template>

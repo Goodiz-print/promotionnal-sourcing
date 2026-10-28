@@ -4,6 +4,7 @@ import ProductCatalogueService from '#services/product_catalogue_service'
 import ProductSearchService from '#services/product_search_service'
 import CatalogueFacetBarService from '#services/catalogue_facet_bar_service'
 import CatalogueCertificationFacetService from '#services/catalogue_certification_facet_service'
+import CatalogueNumericFacetService from '#services/catalogue_numeric_facet_service'
 import DocumentService from '#services/document_service'
 import OrganizationContextService from '#services/organization_context_service'
 import RfqService from '#services/rfq_service'
@@ -17,8 +18,12 @@ import type { Locale } from '#shared/types/i18n'
 import {
   ORIGIN_ZONES,
   PRODUCT_STOCK_STATUSES,
+  PRICE_BUCKETS,
+  MOQ_BUCKETS,
+  type NumericBucket,
   type OriginZone,
   type ProductStockStatus,
+  type AttributeRangeSelectionType,
   type ProductDirectoryFilters,
 } from '#shared/types/product'
 import type { ProductRfqContextType } from '#shared/types/rfq'
@@ -32,6 +37,7 @@ export default class ProductsController {
     private productSearch: ProductSearchService,
     private facetBar: CatalogueFacetBarService,
     private certificationFacets: CatalogueCertificationFacetService,
+    private numericFacets: CatalogueNumericFacetService,
     private documents: DocumentService,
     private organizations: OrganizationContextService,
     private rfqs: RfqService
@@ -56,6 +62,11 @@ export default class ProductsController {
       originZones: this.parseOriginZones(qs.originZones),
       // Statut de stock (plan L98) : facette transverse aux catégories.
       stockStatuses: this.parseStockStatuses(qs.stockStatuses),
+      // Tranches numériques (plan L125) : prix et MOQ (facettes transverses, index
+      // dans la liste fermée partagée), tranches d'attributs EAV (slug + bornes).
+      priceBuckets: this.parseBuckets(qs.priceBuckets, PRICE_BUCKETS),
+      moqBuckets: this.parseBuckets(qs.moqBuckets, MOQ_BUCKETS),
+      attributeRanges: this.parseAttributeRanges(qs.attributeRanges),
       newOnly: qs.newOnly === 'true',
       // Filtre dérivé « Éco-responsable » (écart 4).
       ecoOnly: qs.ecoOnly === 'true',
@@ -85,13 +96,16 @@ export default class ProductsController {
     //   facettes). Sans catégorie, pas de filtres d'attributs (bar vide) ;
     // - `certificationFacet` : barre certifications, transverse aux catégories
     //   (écart 4, ÉTAPE 6), donc globale — disponible même sans catégorie.
-    const [categories, facetBar, certificationFacet] = await Promise.all([
+    // - `numericFacets` : facettes transverses prix / MOQ à buckets (plan L125),
+    //   globales (comme certifications), avec compteurs par tranche.
+    const [categories, facetBar, certificationFacet, numericFacets] = await Promise.all([
       this.service.availableCategories(),
       this.facetBar.forCategory(filters.categoryId, locale, {
         search: filters.search,
         madeInEurope: filters.madeInEurope,
       }),
       this.certificationFacets.forCatalogue(filters, locale),
+      this.numericFacets.forCatalogue(filters),
     ])
 
     return inertia.render('products/index', {
@@ -113,6 +127,7 @@ export default class ProductsController {
       ),
       facetBar,
       certificationFacet,
+      numericFacets,
     })
   }
 
@@ -196,5 +211,51 @@ export default class ProductsController {
     return list
       .map((value) => String(value))
       .filter((value): value is ProductStockStatus => valid.has(value))
+  }
+
+  /**
+   * Normalise le paramètre d'une facette à buckets (`priceBuckets`/`moqBuckets`,
+   * plan L125) : des **index** dans la liste fermée partagée. Dédoublonne et ignore
+   * tout index non entier ou hors bornes — le serveur ne fait jamais confiance à la
+   * query string pour les bornes elles-mêmes (codées dans la constante partagée).
+   */
+  private parseBuckets(raw: unknown, buckets: readonly NumericBucket[]): number[] {
+    const list = Array.isArray(raw) ? raw : raw !== undefined ? [raw] : []
+    const seen = new Set<number>()
+    for (const value of list) {
+      const index = Number.parseInt(String(value), 10)
+      if (Number.isInteger(index) && index >= 0 && index < buckets.length) seen.add(index)
+    }
+    return [...seen]
+  }
+
+  /**
+   * Normalise le paramètre `attributeRanges` (plan L125) : des chaînes
+   * `"<slug>:<min>:<max>"` (borne vide = ouverte). Ignore toute entrée malformée —
+   * slug invalide, borne non numérique, ou tranche entièrement ouverte.
+   */
+  private parseAttributeRanges(raw: unknown): AttributeRangeSelectionType[] {
+    const list = Array.isArray(raw) ? raw : raw !== undefined ? [raw] : []
+    const result: AttributeRangeSelectionType[] = []
+    for (const entry of list) {
+      const parts = String(entry).split(':')
+      if (parts.length !== 3) continue
+      const [slug, rawMin, rawMax] = parts
+      if (!/^[a-z0-9-]+$/.test(slug)) continue
+      const minValue = this.parseBound(rawMin)
+      const maxValue = this.parseBound(rawMax)
+      // Borne invalide, ou tranche entièrement ouverte : on ignore.
+      if (minValue === undefined || maxValue === undefined) continue
+      if (minValue === null && maxValue === null) continue
+      result.push({ slug, minValue, maxValue })
+    }
+    return result
+  }
+
+  /** Une borne de tranche : vide = ouverte (`null`), nombre fini sinon ; `undefined` = invalide. */
+  private parseBound(raw: string): number | null | undefined {
+    if (raw === '') return null
+    const value = Number(raw)
+    return Number.isFinite(value) ? value : undefined
   }
 }

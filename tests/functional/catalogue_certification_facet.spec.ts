@@ -21,6 +21,9 @@ const NO_FILTERS: ProductDirectoryFilters = {
   certificationIds: [],
   originZones: [],
   stockStatuses: [],
+  priceBuckets: [],
+  moqBuckets: [],
+  attributeRanges: [],
   newOnly: false,
   ecoOnly: false,
 }

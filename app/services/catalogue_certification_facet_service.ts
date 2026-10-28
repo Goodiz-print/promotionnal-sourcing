@@ -5,12 +5,18 @@ import Certification from '#models/certification'
 import SearchEngine from '#services/search/search_engine'
 import CertificationTransformer from '#transformers/certification_transformer'
 import { DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
-import { NEW_PRODUCT_WINDOW_DAYS, type ProductDirectoryFilters } from '#shared/types/product'
+import {
+  MOQ_BUCKETS,
+  NEW_PRODUCT_WINDOW_DAYS,
+  PRICE_BUCKETS,
+  type ProductDirectoryFilters,
+} from '#shared/types/product'
 import {
   CERTIFICATION_FACET_FIELD,
   type FacetDistribution,
   type ProductSearchFilter,
 } from '#shared/types/search'
+import { attributeSelectionsToFilters, bucketsToRanges } from '#shared/helpers/numeric_ranges'
 import type { CertificationFacetBarType, CertificationFacetType } from '#shared/types/certification'
 
 /**
@@ -98,6 +104,10 @@ export default class CatalogueCertificationFacetService {
       originZones: filters.originZones,
       // Statut de stock (plan L98) : cadre aussi la distribution des labels.
       stockStatuses: filters.stockStatuses,
+      // Tranches numériques (plan L125) : cadrent aussi la distribution des labels.
+      priceRanges: bucketsToRanges(filters.priceBuckets, PRICE_BUCKETS),
+      moqRanges: bucketsToRanges(filters.moqBuckets, MOQ_BUCKETS),
+      attributeRanges: attributeSelectionsToFilters(filters.attributeRanges),
       releasedAfter: threshold ? Math.trunc(threshold.toSeconds()) : null,
       isEco: filters.ecoOnly,
     }
