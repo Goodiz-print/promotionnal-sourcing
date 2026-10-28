@@ -1,25 +1,26 @@
 import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
-import { DateTime } from 'luxon'
 import SearchEngine from '#services/search/search_engine'
+import { newProductThreshold } from '#services/new_product_window'
 import {
   MOQ_BUCKETS,
-  NEW_PRODUCT_WINDOW_DAYS,
   PRICE_BUCKETS,
   type CatalogueNumericFacetsType,
   type NumericBucket,
   type NumericFacetBarType,
   type ProductDirectoryFilters,
 } from '#shared/types/product'
-import { MOQ_FACET_FIELD, PRICE_FACET_FIELD, type ProductSearchFilter } from '#shared/types/search'
+import {
+  MOQ_FACET_FIELD,
+  PRICE_FACET_FIELD,
+  type FacetDistribution,
+  type ProductSearchFilter,
+} from '#shared/types/search'
 import {
   attributeSelectionsToFilters,
   bucketsToRanges,
   sumRangeCount,
 } from '#shared/helpers/numeric_ranges'
-
-/** Champ compté, exclu de son propre cadrage de distribution. */
-type CountingField = 'price' | 'moq'
 
 /**
  * Facettes numériques **transverses** du catalogue (plan L125) : prix (palier le
@@ -43,14 +44,24 @@ export default class CatalogueNumericFacetService {
 
   async forCatalogue(filters: ProductDirectoryFilters): Promise<CatalogueNumericFacetsType> {
     if (!this.engine.enabled) {
-      return { price: this.withoutCounts(PRICE_BUCKETS), moq: this.withoutCounts(MOQ_BUCKETS) }
+      return { price: this.bars(PRICE_BUCKETS, null), moq: this.bars(MOQ_BUCKETS, null) }
     }
 
     const query = filters.search?.trim() || ''
     try {
-      // Deux distributions : chaque champ s'exclut de son propre cadrage (ses
-      // tranches cochées gardent un compteur, les autres restent non nulles), mais
-      // reste cadré par l'autre champ et par les filtres de navigation.
+      // Tant qu'aucune tranche numérique n'est cochée, le cadrage des deux champs
+      // est identique → **un seul** appel (`facets: [priceMin, moq]`). Dès qu'un
+      // champ est filtré, chaque distribution doit s'exclure elle-même mais garder
+      // l'autre → deux appels distincts (en parallèle).
+      if (filters.priceBuckets.length === 0 && filters.moqBuckets.length === 0) {
+        const distribution = await this.engine.facetDistribution({
+          query,
+          filter: this.scopingFilter(filters, 'price'),
+          facets: [PRICE_FACET_FIELD, MOQ_FACET_FIELD],
+        })
+        return this.fromDistributions(distribution, distribution)
+      }
+
       const [priceDistribution, moqDistribution] = await Promise.all([
         this.engine.facetDistribution({
           query,
@@ -63,43 +74,43 @@ export default class CatalogueNumericFacetService {
           facets: [MOQ_FACET_FIELD],
         }),
       ])
-      return {
-        price: this.withCounts(PRICE_BUCKETS, priceDistribution[PRICE_FACET_FIELD] ?? {}),
-        moq: this.withCounts(MOQ_BUCKETS, moqDistribution[MOQ_FACET_FIELD] ?? {}),
-      }
+      return this.fromDistributions(priceDistribution, moqDistribution)
     } catch (error) {
       logger.warn(
         { err: error },
         'numeric facet distribution unavailable, serving buckets without counts'
       )
-      return { price: this.withoutCounts(PRICE_BUCKETS), moq: this.withoutCounts(MOQ_BUCKETS) }
+      return { price: this.bars(PRICE_BUCKETS, null), moq: this.bars(MOQ_BUCKETS, null) }
     }
   }
 
-  private withCounts(
+  private fromDistributions(
+    priceDistribution: FacetDistribution,
+    moqDistribution: FacetDistribution
+  ): CatalogueNumericFacetsType {
+    return {
+      price: this.bars(PRICE_BUCKETS, priceDistribution[PRICE_FACET_FIELD] ?? {}),
+      moq: this.bars(MOQ_BUCKETS, moqDistribution[MOQ_FACET_FIELD] ?? {}),
+    }
+  }
+
+  /**
+   * Tranches prêtes pour l'UI. `counts` = distribution du champ → compteur par
+   * tranche (`sumRangeCount`) et `hasCounts: true` ; `null` (moteur indisponible)
+   * → tranches sans compteur.
+   */
+  private bars(
     buckets: readonly NumericBucket[],
-    counts: Record<string, number>
+    counts: Record<string, number> | null
   ): NumericFacetBarType {
     return {
       buckets: buckets.map((bucket, index) => ({
         index,
         minValue: bucket.minValue,
         maxValue: bucket.maxValue,
-        count: sumRangeCount(counts, bucket.minValue, bucket.maxValue),
+        count: counts ? sumRangeCount(counts, bucket.minValue, bucket.maxValue) : null,
       })),
-      hasCounts: true,
-    }
-  }
-
-  private withoutCounts(buckets: readonly NumericBucket[]): NumericFacetBarType {
-    return {
-      buckets: buckets.map((bucket, index) => ({
-        index,
-        minValue: bucket.minValue,
-        maxValue: bucket.maxValue,
-        count: null,
-      })),
-      hasCounts: false,
+      hasCounts: counts !== null,
     }
   }
 
@@ -111,11 +122,9 @@ export default class CatalogueNumericFacetService {
    */
   private scopingFilter(
     filters: ProductDirectoryFilters,
-    counting: CountingField
+    counting: 'price' | 'moq'
   ): ProductSearchFilter {
-    const threshold = filters.newOnly
-      ? DateTime.now().minus({ days: NEW_PRODUCT_WINDOW_DAYS }).startOf('day')
-      : null
+    const threshold = newProductThreshold(filters.newOnly)
     return {
       categoryId: filters.categoryId,
       madeInEurope: filters.madeInEurope,

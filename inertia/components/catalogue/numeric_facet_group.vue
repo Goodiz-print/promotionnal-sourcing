@@ -5,8 +5,11 @@ import { useRangeLabel } from '~/composables/use_range_label'
 import type { NumericFacetBarType, NumericFacetBucketType } from '#shared/types/product'
 
 const props = defineProps<{
-  // Titre déjà localisé (« Prix », « Quantité minimum »).
+  // Titre déjà localisé (« Prix », « Quantité minimum ») — texte de la légende.
   title: string
+  // Préfixe stable (slug) des id de cases (« price », « moq ») — jamais le titre
+  // localisé, qui contiendrait espaces/accents et produirait un id HTML invalide.
+  idPrefix: string
   facet: NumericFacetBarType
   // Index des buckets cochés (dans la liste fermée partagée).
   selectedIndices: number[]
@@ -39,7 +42,7 @@ const visibleBuckets = computed<NumericFacetBucketType[]>(() =>
 
     <BaseCheckbox
       v-for="bucket in visibleBuckets"
-      :id="`numeric-${title}-${bucket.index}`"
+      :id="`numeric-${idPrefix}-${bucket.index}`"
       :key="bucket.index"
       :model-value="selectedIndices.includes(bucket.index)"
       @update:model-value="(checked) => emit('toggle', bucket.index, checked)"

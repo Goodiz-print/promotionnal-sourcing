@@ -1,28 +1,15 @@
 import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
-import { DateTime } from 'luxon'
 import { ModelPaginator } from '@adonisjs/lucid/orm'
 import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
 import searchConfig from '#config/search'
 import Product from '#models/product'
 import SearchEngine from '#services/search/search_engine'
 import { applyProductRangeFilters } from '#services/product_range_filters'
-import {
-  MOQ_BUCKETS,
-  NEW_PRODUCT_WINDOW_DAYS,
-  PRICE_BUCKETS,
-  type ProductDirectoryFilters,
-} from '#shared/types/product'
+import { newProductThreshold } from '#services/new_product_window'
+import { MOQ_BUCKETS, PRICE_BUCKETS, type ProductDirectoryFilters } from '#shared/types/product'
 import { attributeSelectionsToFilters, bucketsToRanges } from '#shared/helpers/numeric_ranges'
 import type { ProductSearchHits, ProductSearchRequest } from '#shared/types/search'
-
-/**
- * Seuil « Nouveautés » (écart 5) : début de la fenêtre récente. `null` quand le
- * filtre n'est pas demandé.
- */
-function newProductThreshold(newOnly: boolean): DateTime | null {
-  return newOnly ? DateTime.now().minus({ days: NEW_PRODUCT_WINDOW_DAYS }).startOf('day') : null
-}
 
 /** Paramètres d'une recherche du catalogue public. */
 export interface CatalogueSearchOptions extends ProductDirectoryFilters {

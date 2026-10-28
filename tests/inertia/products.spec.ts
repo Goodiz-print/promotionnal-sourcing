@@ -347,9 +347,13 @@ describe('products/index.vue', () => {
     // Facettes transverses toujours affichées, libellés rendus depuis les bornes.
     expect(wrapper.text()).toContain('Prix')
     expect(wrapper.text()).toContain('Quantité minimum')
+    // Les id de cases MOQ utilisent le préfixe slug stable (pas le titre localisé
+    // « Quantité minimum » qui donnerait un id HTML invalide avec espace).
+    expect(wrapper.find('#numeric-moq-0').exists()).toBe(true)
     // Premier bucket prix (« < 1 € ») cliquable ; on coche le 3ᵉ (index 2 : 2–5 €).
-    expect(wrapper.find('#numeric-Prix-0').exists()).toBe(true)
-    await wrapper.find('#numeric-Prix-2').setValue(true)
+    // L'id utilise un préfixe slug stable (`price`), jamais le titre localisé.
+    expect(wrapper.find('#numeric-price-0').exists()).toBe(true)
+    await wrapper.find('#numeric-price-2').setValue(true)
 
     expect(router.get).toHaveBeenCalledTimes(1)
     const params = vi.mocked(router.get).mock.calls[0][1] as { priceBuckets?: number[] }

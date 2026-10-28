@@ -208,6 +208,7 @@ function toggleAttributeRange(
     <!-- Prix & MOQ (plan L125) : facettes transverses à buckets, toujours affichées. -->
     <NumericFacetGroup
       :title="t('products.index.price.title')"
+      id-prefix="price"
       :facet="numericFacets.price"
       :selected-indices="state.priceBuckets"
       :suffix="t('products.index.price.currency')"
@@ -215,6 +216,7 @@ function toggleAttributeRange(
     />
     <NumericFacetGroup
       :title="t('products.index.moq.title')"
+      id-prefix="moq"
       :facet="numericFacets.moq"
       :selected-indices="state.moqBuckets"
       @toggle="(index, checked) => toggleBucket('moqBuckets', index, checked)"

@@ -1,16 +1,11 @@
 import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
-import { DateTime } from 'luxon'
 import Certification from '#models/certification'
 import SearchEngine from '#services/search/search_engine'
+import { newProductThreshold } from '#services/new_product_window'
 import CertificationTransformer from '#transformers/certification_transformer'
 import { DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
-import {
-  MOQ_BUCKETS,
-  NEW_PRODUCT_WINDOW_DAYS,
-  PRICE_BUCKETS,
-  type ProductDirectoryFilters,
-} from '#shared/types/product'
+import { MOQ_BUCKETS, PRICE_BUCKETS, type ProductDirectoryFilters } from '#shared/types/product'
 import {
   CERTIFICATION_FACET_FIELD,
   type FacetDistribution,
@@ -94,9 +89,7 @@ export default class CatalogueCertificationFacetService {
 
   /** Filtre de cadrage de la distribution — tous les critères sauf `certificationIds`. */
   private scopingFilter(filters: ProductDirectoryFilters): ProductSearchFilter {
-    const threshold = filters.newOnly
-      ? DateTime.now().minus({ days: NEW_PRODUCT_WINDOW_DAYS }).startOf('day')
-      : null
+    const threshold = newProductThreshold(filters.newOnly)
     return {
       categoryId: filters.categoryId,
       madeInEurope: filters.madeInEurope,
