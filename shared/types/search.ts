@@ -189,8 +189,9 @@ export const CERTIFICATION_FACET_FIELD = 'certificationIds'
  * Champ d'index de la facette **stock** (plan L98). Statut **agrégé** au niveau
  * produit (colonne dérivée `products.stock_status`), transverse aux catégories :
  * un seul champ plat porte le statut du produit. C'est ce champ qu'on déclare
- * `filterableAttributes` et qu'on demande en `facets` pour obtenir sa
- * distribution (compteurs par statut).
+ * `filterableAttributes` pour le filtre OU. Contrairement aux certifications, sa
+ * distribution n'est **pas** demandée en `facets` : l'UI affiche de simples cases
+ * (un enum fixe à trois valeurs), sans compteur par statut.
  */
 export const STOCK_FACET_FIELD = 'stockStatus'
 

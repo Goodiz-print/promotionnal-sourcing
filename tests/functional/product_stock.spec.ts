@@ -133,14 +133,17 @@ test.group('Stock — indexation (agrégation au niveau produit)', (group) => {
 test.group('Stock — filtre catalogue (repli PostgreSQL)', (group) => {
   useDatabase(group, { seed: 'full' })
 
-  /** Crée un produit et force son statut agrégé persisté (comme après indexation). */
+  /**
+   * Crée un produit via l'endpoint fournisseur : `products.stock_status` doit
+   * être recalé **au save** (comme `origin_zone` / `is_eco`), sans réindexation —
+   * c'est ce que lit le repli PostgreSQL du catalogue.
+   */
   async function withStatus(
     client: ApiClient,
     slug: string,
     status: 'in_stock' | 'out_of_stock' | 'on_order'
   ): Promise<void> {
-    const product = await createProduct(client, slug, [{ sku: `${slug}-v`, stockStatus: status }])
-    await product.merge({ stockStatus: status }).save()
+    await createProduct(client, slug, [{ sku: `${slug}-v`, stockStatus: status }])
   }
 
   test('un statut ne renvoie que les produits agrégés sur ce statut', async ({
@@ -184,6 +187,20 @@ test.group('Stock — saisie fournisseur (round-trip)', (group) => {
     assert.equal(dispo.stockStatus, 'in_stock')
     assert.isNull(sans.stockQuantity)
     assert.isNull(sans.stockStatus)
+  })
+
+  test('le statut agrégé produit est recalé au save (sans réindexation)', async ({
+    client,
+    assert,
+  }) => {
+    // Aucun appel à l'indexation : la colonne dérivée `products.stock_status`
+    // doit déjà porter l'agrégat (priorité au disponible) dès le save, comme
+    // `origin_zone` / `is_eco` — c'est ce que lit le repli PostgreSQL.
+    const product = await createProduct(client, 'stock-agg-save', [
+      { sku: 'SA-EPUISE', stockStatus: 'out_of_stock' },
+      { sku: 'SA-DISPO', stockStatus: 'in_stock' },
+    ])
+    assert.equal(product.stockStatus, 'in_stock')
   })
 
   test('la mise à jour sans champ stock conserve la valeur (undefined = inchangé)', async ({
