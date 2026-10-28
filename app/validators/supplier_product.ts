@@ -1,6 +1,6 @@
 import vine from '@vinejs/vine'
 import { CONTENT_LOCALES } from '#shared/types/i18n'
-import { PRODUCT_LIFECYCLE_STATUSES } from '#shared/types/product'
+import { PRODUCT_LIFECYCLE_STATUSES, PRODUCT_STOCK_STATUSES } from '#shared/types/product'
 
 /** Listes par locale (écart 5) : mots-clés et arguments marketing. */
 const localizedList = () =>
@@ -47,6 +47,10 @@ const variantInput = () =>
       .regex(/^\d{8,14}$/)
       .optional()
       .nullable(),
+    // Stock par variante (plan L98) : quantité entière >= 0 bornée (reste dans un
+    // `integer` PostgreSQL) et statut parmi l'enum ; tout optionnel/nullable.
+    stockQuantity: vine.number().withoutDecimals().min(0).max(1_000_000_000).optional().nullable(),
+    stockStatus: vine.enum(PRODUCT_STOCK_STATUSES).optional().nullable(),
     attributeValueIds: vine.array(vine.number().positive()).optional(),
   })
 

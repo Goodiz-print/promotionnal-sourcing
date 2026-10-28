@@ -39,6 +39,7 @@ export default class ProductCatalogueService {
       attributeValueIds,
       certificationIds,
       originZones,
+      stockStatuses,
       newOnly,
       ecoOnly,
     } = options
@@ -71,6 +72,9 @@ export default class ProductCatalogueService {
       })
       // Provenance à 3 états (écart 9) : OU entre les zones cochées.
       .if(originZones.length > 0, (q) => q.whereIn('originZone', originZones))
+      // Statut de stock (plan L98) : OU entre les statuts cochés ; colonne dérivée
+      // agrégée au niveau produit. Mêmes résultats que le filtre du moteur.
+      .if(stockStatuses.length > 0, (q) => q.whereIn('stockStatus', stockStatuses))
       // Nouveautés (écart 5).
       .if(newThreshold, (q) => q.where('releasedAt', '>=', newThreshold!.toSQLDate()!))
       // Éco-responsable (écart 4) : filtre dérivé booléen.

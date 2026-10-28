@@ -6,7 +6,7 @@ import BaseSelect from '~/components/base/base_select.vue'
 import BaseCheckbox from '~/components/base/base_checkbox.vue'
 import BaseButton from '~/components/base/base_button.vue'
 import type { AttributeWithValuesType } from '#shared/types/attribute'
-import type { ProductImageType } from '#shared/types/product'
+import { PRODUCT_STOCK_STATUSES, type ProductImageType } from '#shared/types/product'
 import { ProductFormKey } from './types'
 
 const props = defineProps<{
@@ -42,6 +42,12 @@ function onImage(raw: string | null) {
   variant.value.imageId = raw ? Number(raw) : null
 }
 
+// Statut de stock (plan L98) : `''` = non renseigné (`null`).
+const STOCK_STATUSES = PRODUCT_STOCK_STATUSES
+function onStockStatus(raw: string | null) {
+  variant.value.stockStatus = raw ? (raw as (typeof STOCK_STATUSES)[number]) : null
+}
+
 const field = (name: string) => `variants.${props.index}.${name}`
 </script>
 
@@ -66,6 +72,30 @@ const field = (name: string) => `variants.${props.index}.${name}`
       :label="t('products.manage.variants.gtin')"
       :error="errors[field('gtin')]"
     />
+
+    <div class="grid gap-3 sm:grid-cols-2">
+      <BaseInput
+        :id="`variant-${index}-stock-quantity`"
+        v-model="form.variants[index].stockQuantity"
+        type="number"
+        :min="0"
+        :label="t('products.manage.variants.stockQuantity')"
+        :error="errors[field('stockQuantity')]"
+      />
+
+      <BaseSelect
+        :id="`variant-${index}-stock-status`"
+        :model-value="variant.stockStatus ?? ''"
+        :label="t('products.manage.variants.stockStatus')"
+        :error="errors[field('stockStatus')]"
+        @update:model-value="onStockStatus"
+      >
+        <option value="">{{ t('products.manage.variants.stockUnknown') }}</option>
+        <option v-for="status in STOCK_STATUSES" :key="status" :value="status">
+          {{ t(`products.manage.variants.stockStatuses.${status}`) }}
+        </option>
+      </BaseSelect>
+    </div>
 
     <div class="grid gap-3 sm:grid-cols-2">
       <BaseSelect

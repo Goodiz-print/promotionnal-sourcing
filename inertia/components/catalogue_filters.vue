@@ -8,7 +8,13 @@ import FacetGroup from '~/components/catalogue/facet_group.vue'
 import CertificationFacet from '~/components/catalogue/certification_facet.vue'
 import type { CategoryType, CategoryFacetBarType } from '#shared/types/category'
 import type { CertificationFacetBarType } from '#shared/types/certification'
-import { ORIGIN_ZONES, type OriginZone, type ProductDirectoryFilters } from '#shared/types/product'
+import {
+  ORIGIN_ZONES,
+  PRODUCT_STOCK_STATUSES,
+  type OriginZone,
+  type ProductStockStatus,
+  type ProductDirectoryFilters,
+} from '#shared/types/product'
 
 const props = defineProps<{
   filters: ProductDirectoryFilters
@@ -32,12 +38,15 @@ const state = reactive<ProductDirectoryFilters>({
   attributeValueIds: [...props.filters.attributeValueIds],
   certificationIds: [...props.filters.certificationIds],
   originZones: [...props.filters.originZones],
+  stockStatuses: [...props.filters.stockStatuses],
   newOnly: props.filters.newOnly,
   ecoOnly: props.filters.ecoOnly,
 })
 
 // Zones de provenance à 3 états (écart 9) : France / Europe / Hors Europe.
 const ORIGIN_ZONE_OPTIONS = ORIGIN_ZONES
+// Statuts de stock (plan L98) : disponible / épuisé / sur commande.
+const STOCK_STATUS_OPTIONS = PRODUCT_STOCK_STATUSES
 
 function apply() {
   emit('apply', {
@@ -47,6 +56,7 @@ function apply() {
     attributeValueIds: [...state.attributeValueIds],
     certificationIds: [...state.certificationIds],
     originZones: [...state.originZones],
+    stockStatuses: [...state.stockStatuses],
     newOnly: state.newOnly,
     ecoOnly: state.ecoOnly,
   })
@@ -76,6 +86,13 @@ function toggleOriginZone(zone: OriginZone, checked: boolean) {
   state.originZones = checked
     ? [...state.originZones, zone]
     : state.originZones.filter((value) => value !== zone)
+  apply()
+}
+
+function toggleStockStatus(status: ProductStockStatus, checked: boolean) {
+  state.stockStatuses = checked
+    ? [...state.stockStatuses, status]
+    : state.stockStatuses.filter((value) => value !== status)
   apply()
 }
 
@@ -157,6 +174,20 @@ function toggleCertification(certificationId: number, checked: boolean) {
         :model-value="state.originZones.includes(zone)"
         :label="t(`products.index.origin.${zone}`)"
         @update:model-value="(checked: boolean) => toggleOriginZone(zone, checked)"
+      />
+    </fieldset>
+
+    <!-- Statut de stock (plan L98) : facette transverse aux catégories (agrégée
+         au niveau produit), donc toujours affichée. -->
+    <fieldset class="flex flex-col gap-2">
+      <legend class="mb-1 text-sm font-medium">{{ t('products.index.stock.title') }}</legend>
+      <BaseCheckbox
+        v-for="status in STOCK_STATUS_OPTIONS"
+        :id="`stock-${status}`"
+        :key="status"
+        :model-value="state.stockStatuses.includes(status)"
+        :label="t(`products.index.stock.${status}`)"
+        @update:model-value="(checked: boolean) => toggleStockStatus(status, checked)"
       />
     </fieldset>
 

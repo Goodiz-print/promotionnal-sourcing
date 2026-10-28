@@ -20,9 +20,9 @@ Moteur de recherche hybride (mots-clés + vecteurs) des produits, décidé par l
 
 ## Document d'index (`ProductSearchDocument`)
 
-`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone` (provenance dérivée, voir « Provenance et Nouveautés »), `releasedAt` (date de sortie en **timestamp Unix secondes**, ou `null`), `isEco` (filtre « Éco-responsable » dérivé, voir « Conformité »), `attributeValueIds` (facettes, toutes valeurs confondues), `certificationIds` (labels de conformité, voir « Certifications »), `attributes` (facettes **aplaties par slug** : `attributes.color`, `attributes.color-shade`, `attributes.material`… — voir ci-dessous), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `embeddingText` (le texte que Meilisearch vectorise : voir « Vectorisation »).
+`id`, `slug`, `reference`, `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone` (provenance dérivée, voir « Provenance et Nouveautés »), `releasedAt` (date de sortie en **timestamp Unix secondes**, ou `null`), `isEco` (filtre « Éco-responsable » dérivé, voir « Conformité »), `stockStatus` (statut de stock agrégé au niveau produit, dérivé, voir « Stock »), `attributeValueIds` (facettes, toutes valeurs confondues), `certificationIds` (labels de conformité, voir « Certifications »), `attributes` (facettes **aplaties par slug** : `attributes.color`, `attributes.color-shade`, `attributes.material`… — voir ci-dessous), `names` et `descriptions` **par langue de contenu** (`names.fr`, `names.en`…), et `embeddingText` (le texte que Meilisearch vectorise : voir « Vectorisation »).
 
-Réglages (`productIndexSettings(facetSlugs)`) : attributs cherchables `names`, `descriptions`, `reference` — un seul attribut par famille couvre toutes les langues, **ajouter une langue ne change aucun réglage** ; attributs filtrables `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone`, `releasedAt`, `isEco`, `attributeValueIds`, `certificationIds`, **plus un champ `attributes.<slug>` par attribut filtrable** (`facetSlugs` dérivés de `category_attributes.is_filter`, via `FilterableFacetsService` — jamais une liste codée en dur) ; embedder `default` (voir « Vectorisation »), retiré des réglages quand il est coupé. Les réglages sont réappliqués au premier envoi d'un processus et à chaque `search:reindex` : un changement de `is_filter` est donc pris en compte au prochain reindex.
+Réglages (`productIndexSettings(facetSlugs)`) : attributs cherchables `names`, `descriptions`, `reference` — un seul attribut par famille couvre toutes les langues, **ajouter une langue ne change aucun réglage** ; attributs filtrables `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone`, `releasedAt`, `isEco`, `stockStatus`, `attributeValueIds`, `certificationIds`, **plus un champ `attributes.<slug>` par attribut filtrable** (`facetSlugs` dérivés de `category_attributes.is_filter`, via `FilterableFacetsService` — jamais une liste codée en dur) ; embedder `default` (voir « Vectorisation »), retiré des réglages quand il est coupé. Les réglages sont réappliqués au premier envoi d'un processus et à chaque `search:reindex` : un changement de `is_filter` est donc pris en compte au prochain reindex.
 
 Seuls les produits **visibles** sont indexés : actifs, organisation non archivée ni rejetée, non rejetés par la modération — les mêmes scopes que la fiche publique (`Product.fromLiveOrganization`, `Product.notRejected`).
 
@@ -157,6 +157,34 @@ réapplique les réglages et réécrit `certificationIds` pour peupler la facett
 Frontend : cases groupées par domaine dans
 `inertia/components/catalogue/certification_facet.vue`.
 
+### Stock — plan L98 (stock par variante)
+
+Une facette de fiche s'ajoute aux réglages `filterableAttributes` :
+
+- **`stockStatus`** : statut de stock **agrégé au niveau produit**
+  (`products.stock_status`, enum `in_stock` / `out_of_stock` / `on_order`, ou
+  `null`). Le stock est porté par les **variantes** (`product_variants.stock_status`
+  - `stock_quantity`, saisis par le fournisseur) ; la facette l'agrège avec la
+    sémantique **« priorité au disponible »** (`ProductStockService.deriveStatus`,
+    logique pure) : `in_stock` si **au moins une** variante **active** est
+    `in_stock` ; sinon `on_order` ; sinon `out_of_stock` ; sinon `null` (aucune
+    variante active n'a de statut → exclu de la facette). Seules les variantes
+    `is_active = true` comptent. Comme `is_eco` / `origin_zone`, c'est une **colonne
+    dérivée persistée**, recalée au passage d'indexation
+    (`ProductIndexService.backfillDerivedColumns`, idempotent — n'écrit que si la
+    valeur change). Champ **plat** (transverse aux catégories). Le filtre combine
+    les statuts cochés en **OU** (`(stockStatus = 'in_stock' OR stockStatus =
+'on_order')`), comme `originZone`.
+
+Côté catalogue, ce filtre transite par `ProductDirectoryFilters`
+(`stockStatuses: ProductStockStatus[]`) : avec terme de recherche il passe au
+moteur (`buildProductFilter`) **et** est revérifié sur PostgreSQL au rechargement
+(`ProductSearchService.reload`) ; sans terme, `ProductCatalogueService.list`
+applique `whereIn('stockStatus', …)` directement en base. **Backfill** : `node ace
+search:reindex` recale `products.stock_status` (agrégation) puis réécrit
+`stockStatus` pour peupler la facette. Frontend : cases à cocher (transverse,
+toujours affichée) dans `inertia/components/catalogue_filters.vue`.
+
 ## Vectorisation (embedder de Meilisearch)
 
 **Meilisearch calcule lui-même les vecteurs** (ADR 0002, décision 3), à partir du champ `embeddingText` de chaque document (`documentTemplate: '{{ doc.embeddingText }}'`) à l'indexation, et du texte `q` à la recherche. L'application ne fait aucun appel à un modèle d'embeddings, n'a pas de copie des vecteurs en base et ne gère ni lots ni rejeux d'embeddings.
@@ -255,6 +283,7 @@ En CI, le job `test-search` démarre un vrai Meilisearch et rejoue les requêtes
 - `tests/functional/catalogue_facet_bar.spec.ts` : dérivation des slugs filtrables depuis `category_attributes.is_filter` (`FilterableFacetsService`) ; barre de filtres par catégorie (`CatalogueFacetBarService`) — attributs résolus (propres + hérités), facettes demandées au moteur, fusion des compteurs, repli sans compteur (moteur inerte ou injoignable).
 - `tests/functional/catalogue_certification_facet.spec.ts` : barre de filtres certifications (`CatalogueCertificationFacetService`) — référentiel exposé, fusion des compteurs (`facetDistribution` sur `certificationIds`), cadrage excluant les labels cochés, repli sans compteur (moteur inerte ou injoignable).
 - `tests/functional/catalogue_certifications.spec.ts` : filtrage du catalogue par certification (écart 4, ÉTAPE 6) — sous-ensemble, ET sur plusieurs labels, combinaison avec un autre critère, transmission au moteur et revérification au rechargement PostgreSQL.
+- `tests/unit/product_stock_service.spec.ts` + `tests/functional/product_stock.spec.ts` : agrégation du statut de stock (plan L98, priorité au disponible, variantes inactives ignorées, `null` sans info), colonne dérivée persistée au backfill, filtre catalogue par statut (OU) en repli PostgreSQL et transmission au moteur, saisie fournisseur round-trip.
 - `tests/functional/product_search.spec.ts` : rechargement depuis PostgreSQL (ordre, visibilité, facettes revérifiées), requête transmise au moteur, ratio sémantique et repli par mots-clés si l'API d'embeddings tombe, écrans (catalogue, sélecteur, message « recherche indisponible »).
 - `tests/unit/product_origin_service.spec.ts` : dérivation `origin_zone` (France, Europe UE/EEE ou `madeInEurope`, autre, inconnue → `null`).
 - `tests/functional/product_identity_commercial.spec.ts` : persistance des champs d'identité/commercial/médias, dérivation et recalcul d'`origin_zone`, filtres provenance (OU) et « Nouveautés » du catalogue.

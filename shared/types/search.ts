@@ -1,5 +1,5 @@
 import type { ContentLocale } from './i18n.js'
-import type { OriginZone } from './product.js'
+import type { OriginZone, ProductStockStatus } from './product.js'
 
 /**
  * Nom de l'embedder Meilisearch. Les vecteurs sont **calculés par Meilisearch**
@@ -59,6 +59,14 @@ export interface ProductSearchDocument {
    * origine inconnue, exclue des cases France/Europe.
    */
   originZone: OriginZone | null
+  /**
+   * Statut de stock **agrégé** au niveau produit (plan L98) pour la facette
+   * « Stock ». Dérivé des variantes actives par `ProductStockService` avec la
+   * sémantique « priorité au disponible » et persisté sur `products.stock_status`
+   * (colonne dérivée, recalée au backfill de `ProductIndexService`). `null` =
+   * aucune variante active ne porte de statut → exclu de la facette.
+   */
+  stockStatus: ProductStockStatus | null
   /**
    * Date de sortie en **timestamp Unix (secondes)** pour le filtre « Nouveautés »
    * (écart 5), ou `null`. Un nombre permet le filtre d'intervalle Meilisearch
@@ -138,6 +146,12 @@ export interface ProductSearchFilter {
    */
   originZones?: OriginZone[]
   /**
+   * Statut de stock (plan L98) : les statuts demandés se combinent en **OU**
+   * (disponible OU sur commande), car les cases ne s'excluent pas. Vide/absent =
+   * pas de filtre de stock.
+   */
+  stockStatuses?: ProductStockStatus[]
+  /**
    * Seuil « Nouveautés » (écart 5) en timestamp Unix (secondes) : ne garde que
    * les produits dont `releasedAt >= releasedAfter`.
    */
@@ -170,6 +184,16 @@ export function facetField(slug: string): string {
  * et qu'on demande en `facets` pour obtenir sa distribution (compteurs par label).
  */
 export const CERTIFICATION_FACET_FIELD = 'certificationIds'
+
+/**
+ * Champ d'index de la facette **stock** (plan L98). Statut **agrégé** au niveau
+ * produit (colonne dérivée `products.stock_status`), transverse aux catégories :
+ * un seul champ plat porte le statut du produit. C'est ce champ qu'on déclare
+ * `filterableAttributes` pour le filtre OU. Contrairement aux certifications, sa
+ * distribution n'est **pas** demandée en `facets` : l'UI affiche de simples cases
+ * (un enum fixe à trois valeurs), sans compteur par statut.
+ */
+export const STOCK_FACET_FIELD = 'stockStatus'
 
 /**
  * Distribution de facettes renvoyée par le moteur (`facetDistribution` de

@@ -9,7 +9,7 @@ import Certification from '#models/certification'
 import ProductAttribute from '#models/product_attribute'
 import ProductTranslation from '#models/product_translation'
 import type { TranslationLocale } from '#shared/types/i18n'
-import type { OriginZone, ProductLifecycleStatus } from '#shared/types/product'
+import type { OriginZone, ProductLifecycleStatus, ProductStockStatus } from '#shared/types/product'
 import { latestDecisionIsRejectedSql } from '#shared/helpers/moderation'
 import ProductImage from '#models/product_image'
 import ProductVariant from '#models/product_variant'
@@ -33,6 +33,13 @@ export default class Product extends ProductSchema {
    * à partir de `originCountry`/`madeInEurope`. Jamais saisie à la main.
    */
   declare originZone: OriginZone | null
+
+  /**
+   * Statut de stock **agrégé** au niveau produit (plan L98) : colonne **dérivée**
+   * recalée par `ProductStockService` depuis les variantes actives (priorité au
+   * disponible). Jamais saisie. `null` = aucune variante active n'a de statut.
+   */
+  declare stockStatus: ProductStockStatus | null
 
   /**
    * Pendant de `Supplier.fromLiveOrganization` : masque les produits dont la

@@ -15,6 +15,9 @@ export default class ProductVariantTransformer extends BaseTransformer<ProductVa
       isActive: this.resource.isActive,
       imageId: this.resource.imageId,
       gtin: this.resource.gtin,
+      // Stock par variante (plan L98) : exposé pour l'aller-retour édition.
+      stockQuantity: this.resource.stockQuantity,
+      stockStatus: this.resource.stockStatus,
       attributeValueIds: this.resource.attributes.map((pivot) => pivot.attributeValueId),
     }
   }

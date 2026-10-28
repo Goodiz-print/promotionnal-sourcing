@@ -33,6 +33,20 @@ export const ORIGIN_ZONES = ['france', 'europe', 'other'] as const
 export type OriginZone = (typeof ORIGIN_ZONES)[number]
 
 /**
+ * Statut de stock d'une **variante** (plan L98) : disponible, épuisé, sur
+ * commande. `null` (hors de cet enum) = information de stock inconnue. Valeur
+ * **neutre** (slug) : son libellé d'affichage est rendu côté UI via
+ * `t('products.…stock.<slug>')`, pas stocké en base (comme les autres enums).
+ *
+ * La facette de recherche `stockStatus` est portée au **niveau produit**,
+ * **agrégée** depuis les variantes actives par `ProductStockService` avec la
+ * sémantique « priorité au disponible » (cf. `ProductStockService.deriveStatus`).
+ */
+export const PRODUCT_STOCK_STATUSES = ['in_stock', 'out_of_stock', 'on_order'] as const
+
+export type ProductStockStatus = (typeof PRODUCT_STOCK_STATUSES)[number]
+
+/**
  * Rôle d'une image de la galerie (écart 8) : principale, vue produit, mise en
  * situation, visuel marqué.
  */
@@ -138,6 +152,10 @@ export type ProductDirectoryFilters = {
   // Provenance à 3 états (écart 9) : les zones cochées se combinent en OU
   // (France OU Europe). Vide = pas de filtre de provenance.
   originZones: OriginZone[]
+  // Statut de stock (plan L98) : facette transverse aux catégories, agrégée au
+  // niveau produit. Les statuts cochés se combinent en OU (disponible OU sur
+  // commande). Vide = pas de filtre de stock.
+  stockStatuses: ProductStockStatus[]
   // Filtre « Nouveautés » (écart 5) : produits sortis dans la fenêtre récente.
   newOnly: boolean
   // Filtre dérivé « Éco-responsable » (écart 4) : ne garde que les produits
@@ -191,6 +209,10 @@ export type ProductVariantType = {
   imageId: number | null
   // EAN/GTIN par variante (écart 5).
   gtin: string | null
+  // Stock par variante (plan L98) : quantité disponible (informative, `null` =
+  // inconnue) et statut (`in_stock`/`out_of_stock`/`on_order`, `null` = inconnu).
+  stockQuantity: number | null
+  stockStatus: ProductStockStatus | null
   attributeValueIds: number[]
 }
 
@@ -328,6 +350,10 @@ export interface ProductVariantInput {
   isActive?: boolean
   imageId?: number | null
   gtin?: string | null
+  // Stock par variante (plan L98) : `undefined` = inchangé (comme `gtin`),
+  // `null` = information effacée.
+  stockQuantity?: number | null
+  stockStatus?: ProductStockStatus | null
   attributeValueIds?: number[]
 }
 

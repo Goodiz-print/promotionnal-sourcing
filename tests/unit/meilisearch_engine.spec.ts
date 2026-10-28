@@ -98,6 +98,7 @@ function document(id: number): ProductSearchDocument {
     madeInEurope: true,
     originCountry: 'FR',
     originZone: 'france',
+    stockStatus: null,
     releasedAt: null,
     isEco: false,
     attributeValueIds: [3],

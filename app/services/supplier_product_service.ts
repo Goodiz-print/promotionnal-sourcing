@@ -16,6 +16,7 @@ import ProductVariantService from '#services/product_variant_service'
 import ProductMarkingService from '#services/product_marking_service'
 import ProductOriginService from '#services/product_origin_service'
 import ProductEcoService from '#services/product_eco_service'
+import ProductStockService from '#services/product_stock_service'
 import ProductTranslation from '#models/product_translation'
 import SupplierTranslation from '#models/supplier_translation'
 import StorageService from '#services/storage/storage_service'
@@ -49,7 +50,8 @@ export default class SupplierProductService {
     private variants: ProductVariantService,
     private marking: ProductMarkingService,
     private origin: ProductOriginService,
-    private eco: ProductEcoService
+    private eco: ProductEcoService,
+    private stock: ProductStockService
   ) {}
 
   /**
@@ -180,6 +182,8 @@ export default class SupplierProductService {
     // Dérive « Éco-responsable » (écart 4) sur l'état effectif : facettes +
     // labels synchronisés, part de recyclé déjà sur `product`.
     await this.refreshIsEco(product)
+    // Stock agrégé (plan L98) : recalé sur les variantes tout juste synchronisées.
+    await this.refreshStockStatus(product)
     await this.attachImages(product, files, 0)
     await this.refreshPrimaryImage(product)
     await emitter.emit(ProductChanged, new ProductChanged(product.id))
@@ -225,6 +229,8 @@ export default class SupplierProductService {
     // Recalcule « Éco-responsable » (écart 4) : la part de recyclé, les matières
     // ou les labels ont pu changer.
     await this.refreshIsEco(product)
+    // Stock agrégé (plan L98) : les variantes (donc leur stock) ont pu changer.
+    await this.refreshStockStatus(product)
 
     await this.removeImages(product, removedImageIds)
 
@@ -595,6 +601,24 @@ export default class SupplierProductService {
     })
     if (isEco !== product.isEco) {
       product.isEco = isEco
+      await product.save()
+    }
+  }
+
+  /**
+   * Recale `products.stock_status` (plan L98) sur l'agrégation courante de ses
+   * variantes **actives** (priorité au disponible), comme `is_eco` /
+   * `origin_zone` : la colonne dérivée est maintenue dès le save fournisseur,
+   * donc correcte immédiatement pour le repli PostgreSQL (navigation catalogue)
+   * même sans réindexation. Le backfill de `ProductIndexService` reste le filet
+   * (rattrape une modification faite hors formulaire). N'écrit que si la valeur
+   * change.
+   */
+  private async refreshStockStatus(product: Product): Promise<void> {
+    const variants = await product.related('variants').query().select('isActive', 'stockStatus')
+    const stockStatus = this.stock.deriveStatus(variants)
+    if (stockStatus !== product.stockStatus) {
+      product.stockStatus = stockStatus
       await product.save()
     }
   }

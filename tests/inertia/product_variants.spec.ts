@@ -45,6 +45,8 @@ const variant = (id: number, sku: string, color: string, imageId: number | null)
   isActive: true,
   imageId,
   gtin: null,
+  stockQuantity: null,
+  stockStatus: null,
   attributeValueIds: [id],
   attributes: [{ attributeSlug: 'color', attributeName: 'Couleur', label: color }],
 })

@@ -68,6 +68,10 @@ export default class ProductVariantService {
           isActive: input.isActive ?? variant.isActive,
           imageId: input.imageId === undefined ? variant.imageId : input.imageId,
           gtin: input.gtin === undefined ? variant.gtin : input.gtin,
+          // Stock (plan L98) : `undefined` = inchangé, comme `gtin`.
+          stockQuantity:
+            input.stockQuantity === undefined ? variant.stockQuantity : input.stockQuantity,
+          stockStatus: input.stockStatus === undefined ? variant.stockStatus : input.stockStatus,
         })
         await variant.save()
       } else {
@@ -78,6 +82,9 @@ export default class ProductVariantService {
             isActive: input.isActive ?? true,
             imageId: input.imageId ?? null,
             gtin: input.gtin ?? null,
+            // Stock (plan L98) : absent = inconnu (`null`).
+            stockQuantity: input.stockQuantity ?? null,
+            stockStatus: input.stockStatus ?? null,
           },
           { client: trx }
         )
