@@ -65,6 +65,8 @@ export default class ProductSearchService {
         // Labels de conformité (écart 4, ÉTAPE 6) : ET exact.
         certificationIds: options.certificationIds,
         originZones: options.originZones,
+        // Statut de stock (plan L98) : OU entre les statuts cochés.
+        stockStatuses: options.stockStatuses,
         releasedAfter: threshold ? Math.trunc(threshold.toSeconds()) : null,
         // Éco-responsable (écart 4).
         isEco: options.ecoOnly,
@@ -144,6 +146,9 @@ export default class ProductSearchService {
     // Provenance (écart 9) : OU entre zones cochées ; revérifié sur la base.
     const zones = filters?.originZones ?? []
     if (zones.length > 0) query.whereIn('originZone', zones)
+    // Statut de stock (plan L98) : OU entre statuts cochés ; revérifié sur la base.
+    const statuses = filters?.stockStatuses ?? []
+    if (statuses.length > 0) query.whereIn('stockStatus', statuses)
     // Nouveautés (écart 5) : sorti depuis le seuil.
     const threshold = newProductThreshold(filters?.newOnly ?? false)
     if (threshold) query.where('releasedAt', '>=', threshold.toSQLDate()!)

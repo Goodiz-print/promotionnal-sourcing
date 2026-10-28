@@ -14,7 +14,13 @@ import CategoryTransformer from '#transformers/category_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
 import { NoCurrentOrganizationException } from '#exceptions/organization_errors'
 import type { Locale } from '#shared/types/i18n'
-import { ORIGIN_ZONES, type OriginZone, type ProductDirectoryFilters } from '#shared/types/product'
+import {
+  ORIGIN_ZONES,
+  PRODUCT_STOCK_STATUSES,
+  type OriginZone,
+  type ProductStockStatus,
+  type ProductDirectoryFilters,
+} from '#shared/types/product'
 import type { ProductRfqContextType } from '#shared/types/rfq'
 
 const PER_PAGE = 12
@@ -48,6 +54,8 @@ export default class ProductsController {
       certificationIds: this.parseIds(qs.certificationIds),
       // Provenance à 3 états (écart 9) et filtre « Nouveautés » (écart 5).
       originZones: this.parseOriginZones(qs.originZones),
+      // Statut de stock (plan L98) : facette transverse aux catégories.
+      stockStatuses: this.parseStockStatuses(qs.stockStatuses),
       newOnly: qs.newOnly === 'true',
       // Filtre dérivé « Éco-responsable » (écart 4).
       ecoOnly: qs.ecoOnly === 'true',
@@ -176,5 +184,17 @@ export default class ProductsController {
     return list
       .map((value) => String(value))
       .filter((value): value is OriginZone => valid.has(value))
+  }
+
+  /**
+   * Normalise le paramètre `stockStatuses` (répété ou unique) en statuts valides
+   * (plan L98) ; ignore toute valeur hors de l'enum.
+   */
+  private parseStockStatuses(raw: unknown): ProductStockStatus[] {
+    const list = Array.isArray(raw) ? raw : raw !== undefined ? [raw] : []
+    const valid = new Set<string>(PRODUCT_STOCK_STATUSES)
+    return list
+      .map((value) => String(value))
+      .filter((value): value is ProductStockStatus => valid.has(value))
   }
 }

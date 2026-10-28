@@ -24,6 +24,12 @@
       "other": "Hors Europe"
     },
     "ecoOnly": "Éco-responsable",
+    "stock": {
+      "title": "Stock",
+      "in_stock": "Disponible",
+      "out_of_stock": "Épuisé",
+      "on_order": "Sur commande"
+    },
     "certifications": {
       "title": "Labels de conformité",
       "domains": {
@@ -132,7 +138,15 @@
       "sku": "SKU",
       "image": "Image de la variante",
       "isActive": "Variante proposée",
-      "gtin": "Code EAN/GTIN"
+      "gtin": "Code EAN/GTIN",
+      "stockQuantity": "Quantité en stock",
+      "stockStatus": "Statut de stock",
+      "stockUnknown": "Non renseigné",
+      "stockStatuses": {
+        "in_stock": "Disponible",
+        "out_of_stock": "Épuisé",
+        "on_order": "Sur commande"
+      }
     },
     "priceTiers": {
       "title": "Paliers de prix",

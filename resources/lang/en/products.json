@@ -24,6 +24,12 @@
       "other": "Outside Europe"
     },
     "ecoOnly": "Eco-friendly",
+    "stock": {
+      "title": "Stock",
+      "in_stock": "In stock",
+      "out_of_stock": "Out of stock",
+      "on_order": "On order"
+    },
     "certifications": {
       "title": "Compliance labels",
       "domains": {
@@ -132,7 +138,15 @@
       "sku": "SKU",
       "image": "Variant image",
       "isActive": "Variant offered",
-      "gtin": "EAN/GTIN code"
+      "gtin": "EAN/GTIN code",
+      "stockQuantity": "Stock quantity",
+      "stockStatus": "Stock status",
+      "stockUnknown": "Not specified",
+      "stockStatuses": {
+        "in_stock": "In stock",
+        "out_of_stock": "Out of stock",
+        "on_order": "On order"
+      }
     },
     "priceTiers": {
       "title": "Price tiers",

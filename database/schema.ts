@@ -1397,6 +1397,8 @@ export class ProductVariantSchema extends BaseModel {
     'isActive',
     'productId',
     'sku',
+    'stockQuantity',
+    'stockStatus',
     'updatedAt',
   ] as const
   $columns = ProductVariantSchema.$columns
@@ -1414,6 +1416,10 @@ export class ProductVariantSchema extends BaseModel {
   declare productId: number
   @column()
   declare sku: string
+  @column()
+  declare stockQuantity: number | null
+  @column()
+  declare stockStatus: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }
@@ -1447,6 +1453,7 @@ export class ProductSchema extends BaseModel {
     'rushService',
     'slug',
     'sourceLocale',
+    'stockStatus',
     'supplierCategoryRaw',
     'supplierId',
     'updatedAt',
@@ -1507,6 +1514,8 @@ export class ProductSchema extends BaseModel {
   declare slug: string
   @column()
   declare sourceLocale: string
+  @column()
+  declare stockStatus: string | null
   @column()
   declare supplierCategoryRaw: string | null
   @column()

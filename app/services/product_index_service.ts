@@ -5,6 +5,7 @@ import Product from '#models/product'
 import SearchEngine from '#services/search/search_engine'
 import ProductOriginService from '#services/product_origin_service'
 import ProductEcoService from '#services/product_eco_service'
+import ProductStockService from '#services/product_stock_service'
 import { resolveTranslation } from '#shared/helpers/translations'
 import { MATERIAL_ATTRIBUTE_SLUG } from '#shared/types/certification'
 import type { ContentLocale, Locale } from '#shared/types/i18n'
@@ -30,7 +31,8 @@ export default class ProductIndexService {
   constructor(
     private engine: SearchEngine,
     private origin: ProductOriginService,
-    private eco: ProductEcoService
+    private eco: ProductEcoService,
+    private stock: ProductStockService
   ) {}
 
   get enabled(): boolean {
@@ -120,6 +122,10 @@ export default class ProductIndexService {
           )
       )
       .preload('certifications')
+      // Stock agrégé (plan L98) : seules les colonnes utiles à la dérivation.
+      .preload('variants', (variants) =>
+        variants.select('id', 'productId', 'isActive', 'stockStatus')
+      )
     if (products.length === 0) return []
 
     // Backfill : les colonnes dérivées (zone de provenance — écart 9 — et
@@ -134,8 +140,9 @@ export default class ProductIndexService {
   }
 
   /**
-   * Recale les colonnes dérivées (`origin_zone`, écart 9 ; `is_eco`, écart 4) sur
-   * leur dérivation courante. Idempotent : n'écrit que les lignes qui changent.
+   * Recale les colonnes dérivées (`origin_zone`, écart 9 ; `is_eco`, écart 4 ;
+   * `stock_status`, plan L98) sur leur dérivation courante. Idempotent : n'écrit
+   * que les lignes qui changent.
    */
   private async backfillDerivedColumns(products: Product[]): Promise<void> {
     for (const product of products) {
@@ -150,9 +157,16 @@ export default class ProductIndexService {
         ),
         hasEcoCertification: product.certifications.some((certification) => certification.isEco),
       })
-      if (zone !== product.originZone || isEco !== product.isEco) {
+      // Stock agrégé (plan L98) : priorité au disponible, variantes actives seules.
+      const stockStatus = this.stock.deriveStatus(product.variants)
+      if (
+        zone !== product.originZone ||
+        isEco !== product.isEco ||
+        stockStatus !== product.stockStatus
+      ) {
         product.originZone = zone
         product.isEco = isEco
+        product.stockStatus = stockStatus
         await product.save()
       }
     }
@@ -188,6 +202,8 @@ export default class ProductIndexService {
       // Provenance dérivée (écart 9) et date de sortie en timestamp Unix pour
       // le filtre « Nouveautés » (écart 5).
       originZone: product.originZone,
+      // Statut de stock agrégé (plan L98) — recalé au backfill ci-dessus.
+      stockStatus: product.stockStatus,
       releasedAt: product.releasedAt ? Math.trunc(product.releasedAt.toSeconds()) : null,
       // Filtre dérivé « Éco-responsable » (écart 4) — recalé au backfill ci-dessus.
       isEco: product.isEco,

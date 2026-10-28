@@ -5,9 +5,17 @@ import Product from '#models/product'
 import ProductImage from '#models/product_image'
 import ProductPriceTier from '#models/product_price_tier'
 import ProductVariantAttribute from '#models/product_variant_attribute'
+import type { ProductStockStatus } from '#shared/types/product'
 
 export default class ProductVariant extends ProductVariantSchema {
   static table = 'product_variants'
+
+  /**
+   * Statut de stock de la variante (plan L98) : `in_stock`/`out_of_stock`/
+   * `on_order`, `null` = inconnu. Agrégé au niveau produit par
+   * `ProductStockService`.
+   */
+  declare stockStatus: ProductStockStatus | null
 
   @belongsTo(() => Product)
   declare product: BelongsTo<typeof Product>

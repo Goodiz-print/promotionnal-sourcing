@@ -96,6 +96,8 @@ export default class CatalogueCertificationFacetService {
       madeInEurope: filters.madeInEurope,
       attributeValueIds: filters.attributeValueIds,
       originZones: filters.originZones,
+      // Statut de stock (plan L98) : cadre aussi la distribution des labels.
+      stockStatuses: filters.stockStatuses,
       releasedAfter: threshold ? Math.trunc(threshold.toSeconds()) : null,
       isEco: filters.ecoOnly,
     }

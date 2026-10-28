@@ -5,9 +5,10 @@ import searchConfig from '#config/search'
 import SearchEngine from '#services/search/search_engine'
 import FilterableFacetsService from '#services/filterable_facets_service'
 import { SearchTaskFailedException } from '#exceptions/search_errors'
-import { ORIGIN_ZONES } from '#shared/types/product'
+import { ORIGIN_ZONES, PRODUCT_STOCK_STATUSES } from '#shared/types/product'
 import {
   CERTIFICATION_FACET_FIELD,
+  STOCK_FACET_FIELD,
   facetField,
   SEARCH_EMBEDDER,
   type FacetDistribution,
@@ -95,6 +96,8 @@ export function productIndexSettings(facetSlugs: readonly string[] = []): Settin
       // Labels de conformité (écart 4, ÉTAPE 6) : facette transverse aux
       // catégories, filtrable et facettable (distribution par label).
       CERTIFICATION_FACET_FIELD,
+      // Statut de stock agrégé (plan L98) : facette transverse, filtrable.
+      STOCK_FACET_FIELD,
       ...facetSlugs.map(facetField),
     ],
     embedders: buildEmbedders(searchConfig.embedder),
@@ -130,6 +133,15 @@ export function buildProductFilter(filter: ProductSearchFilter): string | undefi
   const zones = (filter.originZones ?? []).filter((zone) => ORIGIN_ZONES.includes(zone))
   if (zones.length > 0) {
     clauses.push(`(${zones.map((zone) => `originZone = '${zone}'`).join(' OR ')})`)
+  }
+  // Stock (plan L98) : les statuts cochés se combinent en OU (disponible OU sur
+  // commande), groupés pour rester en ET avec les autres critères. Littéraux de
+  // l'enum construits ici, jamais du texte utilisateur.
+  const statuses = (filter.stockStatuses ?? []).filter((status) =>
+    PRODUCT_STOCK_STATUSES.includes(status)
+  )
+  if (statuses.length > 0) {
+    clauses.push(`(${statuses.map((status) => `${STOCK_FACET_FIELD} = '${status}'`).join(' OR ')})`)
   }
   // Nouveautés (écart 5) : sorti depuis le seuil (timestamp Unix en secondes).
   if (typeof filter.releasedAfter === 'number') {

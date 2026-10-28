@@ -95,6 +95,7 @@ export default class SearchEvaluationService {
       attributeValueIds: await this.attributeValueIds(query.attributes ?? []),
       certificationIds: [],
       originZones: [],
+      stockStatuses: [],
       newOnly: false,
       ecoOnly: false,
       page: 1,

@@ -20,6 +20,7 @@ const NO_FILTERS: ProductDirectoryFilters = {
   attributeValueIds: [],
   certificationIds: [],
   originZones: [],
+  stockStatuses: [],
   newOnly: false,
   ecoOnly: false,
 }

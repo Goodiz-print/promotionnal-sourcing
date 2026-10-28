@@ -78,6 +78,8 @@ const form = useForm<ProductFormState>({
     isActive: variant.isActive,
     imageId: variant.imageId,
     gtin: variant.gtin ?? '',
+    stockQuantity: variant.stockQuantity,
+    stockStatus: variant.stockStatus,
     attributeValueIds: [...variant.attributeValueIds],
   })),
   priceTiers: (props.product?.priceTiers ?? []).map((tier) => ({

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { router } from '@inertiajs/vue3'
 import type { CategoryFacetBarType } from '#shared/types/category'
 import type { CertificationFacetBarType } from '#shared/types/certification'
 
@@ -22,6 +23,10 @@ const translations = {
   'products.index.rangeUnder': '< {max}',
   'products.index.rangeOver': '≥ {min}',
   'products.index.rangeBetween': '{min}–{max}',
+  'products.index.stock.title': 'Stock',
+  'products.index.stock.in_stock': 'Disponible',
+  'products.index.stock.out_of_stock': 'Épuisé',
+  'products.index.stock.on_order': 'Sur commande',
   'products.index.certifications.title': 'Labels de conformité',
   'products.index.certifications.domains.environment': 'Environnement',
   'products.index.certifications.domains.textile': 'Textile',
@@ -164,6 +169,7 @@ const emptyFilters = {
   attributeValueIds: [],
   certificationIds: [],
   originZones: [],
+  stockStatuses: [],
   newOnly: false,
   ecoOnly: false,
 }
@@ -241,6 +247,7 @@ describe('products/index.vue', () => {
           attributeValueIds: [],
           certificationIds: [],
           originZones: [],
+          stockStatuses: [],
           newOnly: false,
           ecoOnly: false,
         },
@@ -250,6 +257,32 @@ describe('products/index.vue', () => {
       },
     })
     expect(wrapper.text()).toContain('Sélectionnez une catégorie pour afficher ses filtres.')
+  })
+
+  it('affiche la facette Stock et pousse le statut coché en query', async () => {
+    vi.mocked(router.get).mockClear()
+    const wrapper = mount(Index, {
+      props: {
+        searchUnavailable: false,
+        products: { data: [], meta: { ...meta, total: 0 } },
+        filters: emptyFilters,
+        categories: [category(1, 'Crayon', 'crayon')],
+        facetBar: emptyFacetBar,
+        certificationFacet: emptyCertificationFacet,
+      },
+    })
+
+    // La facette « Stock » (transverse) est toujours affichée, avec ses 3 statuts.
+    expect(wrapper.text()).toContain('Stock')
+    expect(wrapper.find('#stock-in_stock').exists()).toBe(true)
+    expect(wrapper.find('#stock-out_of_stock').exists()).toBe(true)
+    expect(wrapper.find('#stock-on_order').exists()).toBe(true)
+
+    await wrapper.find('#stock-in_stock').setValue(true)
+
+    expect(router.get).toHaveBeenCalledTimes(1)
+    const params = vi.mocked(router.get).mock.calls[0][1] as { stockStatuses?: string[] }
+    expect(params.stockStatuses).toEqual(['in_stock'])
   })
 })
 

@@ -1,7 +1,7 @@
 import type { InjectionKey } from 'vue'
 import type { InertiaForm } from '@inertiajs/vue3'
 import type { ContentLocale } from '#shared/types/i18n'
-import type { ProductLifecycleStatus } from '#shared/types/product'
+import type { ProductLifecycleStatus, ProductStockStatus } from '#shared/types/product'
 
 /**
  * Ligne de variante du formulaire (`imageId` : image déjà en galerie).
@@ -11,6 +11,10 @@ export interface ProductVariantFormRow {
   isActive: boolean
   imageId: number | null
   gtin: string
+  // Stock par variante (plan L98) : quantité (`null` = non renseignée) et statut
+  // (`null` = non renseigné).
+  stockQuantity: number | null
+  stockStatus: ProductStockStatus | null
   attributeValueIds: number[]
 }
 

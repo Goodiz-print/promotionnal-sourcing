@@ -32,6 +32,7 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
       attributeValueIds: filters.attributeValueIds.length ? filters.attributeValueIds : undefined,
       certificationIds: filters.certificationIds.length ? filters.certificationIds : undefined,
       originZones: filters.originZones.length ? filters.originZones : undefined,
+      stockStatuses: filters.stockStatuses.length ? filters.stockStatuses : undefined,
       newOnly: filters.newOnly ? 'true' : undefined,
       ecoOnly: filters.ecoOnly ? 'true' : undefined,
       page,
