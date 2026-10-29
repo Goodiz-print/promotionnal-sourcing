@@ -655,7 +655,7 @@ node ace admin:revoke alice@example.com
 
 Sortie 1 si l'email ne correspond à aucun compte.
 
-- **Seed de démo** : `DevUserSeeder` crée `admin@promotionnal-sourcing.test` (mot de passe `password`, admin plateforme, sans organisation) ; le compte de démo `malolebrin@gmail.com` reste un utilisateur ordinaire.
+- **Seed de démo** : `DevUserSeeder` crée `admin@promotionnal-sourcing.test` (mot de passe `password`, admin plateforme, sans organisation) ; les comptes de démo fournisseur et agence restent des utilisateurs ordinaires.
 - **Menu** : `UserTransformer` expose `isPlatformAdmin` ; l'entrée « Administration » du header n'apparaît que pour eux (simple confort d'affichage : l'accès est garanti côté serveur).
 
 ### Back-office minimal (`/:locale/admin`)

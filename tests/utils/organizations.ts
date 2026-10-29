@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon'
 import { OrganizationFactory } from '#database/factories/organization_factory'
 import { UserFactory } from '#database/factories/user_factory'
-import { DEV_USER_EMAIL } from '#database/seeders/dev_user_seeder'
 import Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
 import Role from '#models/role'
@@ -73,13 +72,18 @@ export async function createOrganizationWithOwner(
 }
 
 /**
- * Utilisateur de démo semé par `DevUserSeeder` (seed `full`), basculé sur
- * l'organisation demandée — il est `owner` des deux organisations semées :
- * `promotionnal-sourcing` (acheteuse) et `eurogoods-org` (fournisseuse).
+ * Propriétaire de démo d'une organisation semée par `DevUserSeeder` (seed
+ * `full`), basculé sur cette organisation : `eurogoods-org` (fournisseuse) ou
+ * `promotionnal-sourcing` (acheteuse, agence).
  */
 export async function seededDevUser(organizationSlug: string): Promise<User> {
   const organization = await Organization.findByOrFail('slug', organizationSlug)
-  const user = await User.findByOrFail('email', DEV_USER_EMAIL)
+  const ownerRole = await Role.findByOrFail('slug', 'owner')
+  const membership = await OrganizationUser.query()
+    .where('organization_id', organization.id)
+    .where('role_id', ownerRole.id)
+    .firstOrFail()
+  const user = await User.findOrFail(membership.userId)
   await user.merge({ currentOrganizationId: organization.id }).save()
   return user
 }

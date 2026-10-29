@@ -1,41 +1,35 @@
 import Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
 import Role from '#models/role'
+import AgencyProfile from '#models/agency_profile'
 import SupplierProfile from '#models/supplier_profile'
 import User from '#models/user'
 import { DateTime } from 'luxon'
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 
 /**
- * Compte de démo, également utilisé par les tests semés en `full`
- * (cf. `tests/utils/organizations.ts`).
- */
-export const DEV_USER_EMAIL = 'malolebrin@gmail.com'
-
-/**
  * Compte de démo **admin plateforme** (back-office `/admin`), sans organisation :
- * le compte de démo ci-dessus reste volontairement un utilisateur ordinaire.
+ * les comptes de démo fournisseur et agence restent des utilisateurs ordinaires.
  */
 export const DEV_ADMIN_EMAIL = 'admin@promotionnal-sourcing.test'
+
+/**
+ * Compte de démo **fournisseur** : `owner` de l'organisation `eurogoods-org`
+ * (celle qui porte la fiche catalogue `eurogoods` et ses produits).
+ */
+export const DEV_SUPPLIER_EMAIL = 'fournisseur@promotionnal-sourcing.test'
+
+/**
+ * Compte de démo **agence** (acheteur qui cherche des produits) : `owner` de
+ * l'organisation acheteuse `promotionnal-sourcing`, dotée d'un profil d'agence.
+ */
+export const DEV_AGENCY_EMAIL = 'agence@promotionnal-sourcing.test'
 
 export default class DevUserSeeder extends BaseSeeder {
   async run() {
     const ownerRole = await Role.findByOrFail('slug', 'owner')
 
-    // Mot de passe en clair : le modèle User (withAuthFinder) le hache déjà
-    // via son hook @beforeSave — le hacher ici double-hacherait la valeur
-    // stockée et rendrait la connexion impossible avec le mot de passe attendu.
-    const user = await User.updateOrCreate(
-      { email: DEV_USER_EMAIL },
-      {
-        firstName: 'Malo',
-        lastName: 'Lebrin',
-        password: 'password',
-        emailVerifiedAt: DateTime.now(),
-      }
-    )
-
-    // Organisation acheteur (org courante du dev user)
+    // Organisation acheteur (agence de démo)
     const buyerOrg = await Organization.updateOrCreate(
       { slug: 'promotionnal-sourcing' },
       {
@@ -44,11 +38,6 @@ export default class DevUserSeeder extends BaseSeeder {
         country: 'FR',
         organizationType: 'buyer',
       }
-    )
-
-    await OrganizationUser.updateOrCreate(
-      { userId: user.id, organizationId: buyerOrg.id },
-      { roleId: ownerRole.id }
     )
 
     // Organisation fournisseur : porte la fiche catalogue `eurogoods`
@@ -63,11 +52,6 @@ export default class DevUserSeeder extends BaseSeeder {
       }
     )
 
-    await OrganizationUser.updateOrCreate(
-      { userId: user.id, organizationId: supplierOrg.id },
-      { roleId: ownerRole.id }
-    )
-
     await SupplierProfile.updateOrCreate(
       { organizationId: supplierOrg.id },
       {
@@ -80,7 +64,54 @@ export default class DevUserSeeder extends BaseSeeder {
       }
     )
 
-    await user.merge({ currentOrganizationId: buyerOrg.id }).save()
+    // Mot de passe en clair : le modèle User (withAuthFinder) le hache déjà
+    // via son hook @beforeSave — le hacher ici double-hacherait la valeur
+    // stockée et rendrait la connexion impossible avec le mot de passe attendu.
+    const supplierUser = await User.updateOrCreate(
+      { email: DEV_SUPPLIER_EMAIL },
+      {
+        firstName: 'Sophie',
+        lastName: 'Fournisseur',
+        password: 'password',
+        emailVerifiedAt: DateTime.now(),
+      }
+    )
+
+    await OrganizationUser.updateOrCreate(
+      { userId: supplierUser.id, organizationId: supplierOrg.id },
+      { roleId: ownerRole.id }
+    )
+
+    await supplierUser.merge({ currentOrganizationId: supplierOrg.id }).save()
+
+    const agencyUser = await User.updateOrCreate(
+      { email: DEV_AGENCY_EMAIL },
+      {
+        firstName: 'Alex',
+        lastName: 'Agence',
+        password: 'password',
+        emailVerifiedAt: DateTime.now(),
+      }
+    )
+
+    const agencyOrg = buyerOrg
+
+    await AgencyProfile.updateOrCreate(
+      { organizationId: agencyOrg.id },
+      {
+        activity: 'object_communication_agency',
+        teamSize: 'from_2_to_10',
+        purchaseVolume: 'from_100k_to_500k',
+        clientSectors: ['smes', 'key_accounts'],
+      }
+    )
+
+    await OrganizationUser.updateOrCreate(
+      { userId: agencyUser.id, organizationId: agencyOrg.id },
+      { roleId: ownerRole.id }
+    )
+
+    await agencyUser.merge({ currentOrganizationId: agencyOrg.id }).save()
 
     await User.updateOrCreate(
       { email: DEV_ADMIN_EMAIL },

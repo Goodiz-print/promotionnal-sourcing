@@ -157,13 +157,13 @@ await RfqSupplierFactory.apply('sent') // états : (défaut `pending`), sent
 
 `tests/utils/organizations.ts` couvre les gestes qui touchent plusieurs tables :
 
-| helper                                                     | rôle                                                           |
-| ---------------------------------------------------------- | -------------------------------------------------------------- |
-| `joinOrganization(user, org, role?, { asCurrent })`        | adhésion (`joined_at` toujours renseigné)                      |
-| `createMember(org, role?, overrides?, options?)`           | utilisateur **+** adhésion                                     |
-| `createOrganizationWithOwner(overrides?, ownerOverrides?)` | organisation **+** son owner                                   |
-| `createMemberOf(orgSlug, role?)`                           | membre d'une organisation déjà semée                           |
-| `seededDevUser(orgSlug)`                                   | utilisateur de démo (seed `full`) basculé sur une organisation |
+| helper                                                     | rôle                                                            |
+| ---------------------------------------------------------- | --------------------------------------------------------------- |
+| `joinOrganization(user, org, role?, { asCurrent })`        | adhésion (`joined_at` toujours renseigné)                       |
+| `createMember(org, role?, overrides?, options?)`           | utilisateur **+** adhésion                                      |
+| `createOrganizationWithOwner(overrides?, ownerOverrides?)` | organisation **+** son owner                                    |
+| `createMemberOf(orgSlug, role?)`                           | membre d'une organisation déjà semée                            |
+| `seededDevUser(orgSlug)`                                   | propriétaire de démo (seed `full`) basculé sur son organisation |
 
 N'écrire une factory que pour une entité **créée directement par les specs**. Le catalogue
 (produits, catégories, fournisseurs) passe par `MainSeeder` : il a besoin d'un jeu cohérent,
