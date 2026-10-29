@@ -10,7 +10,7 @@ import { useSidebarCollapsed } from '~/composables/use_sidebar_collapsed'
 /**
  * Shell applicatif : sidebar fixe (panneau coulissant sur mobile) + topbar +
  * contenu sur fond « sunken ». Les pages posent leurs cartes blanches dessus.
- * Dès md, la sidebar se réduit à un rail d'icônes (choix mémorisé).
+ * Le contenu occupe toute la largeur disponible. Dès md, la sidebar se réduit à un rail d'icônes (choix mémorisé).
  */
 const page = usePage<Data.SharedProps>()
 
@@ -60,7 +60,7 @@ watch(
 
     <div class="flex min-h-screen min-w-0 flex-col">
       <AppTopbar :menu-open="mobileMenuOpen" @toggle-menu="mobileMenuOpen = !mobileMenuOpen" />
-      <main class="mx-auto flex w-full max-w-[1180px] flex-1 flex-col px-4 py-6 md:px-8 md:py-8">
+      <main class="flex w-full flex-1 flex-col px-4 py-6 md:px-8 md:py-8">
         <slot />
       </main>
     </div>
