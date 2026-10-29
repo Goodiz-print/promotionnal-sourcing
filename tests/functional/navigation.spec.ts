@@ -7,11 +7,11 @@ import { useDatabase } from '#tests/utils/setup'
 test.group('Menu applicatif — prop partagée `navigation`', (group) => {
   useDatabase(group, { seed: 'roles' })
 
-  test('un visiteur reçoit le catalogue et les fournisseurs', async ({ client, assert }) => {
+  test('un visiteur reçoit uniquement le catalogue', async ({ client, assert }) => {
     const response = await client.get('/fr/products').withInertia()
 
     const routes = response.inertiaProps.navigation.map((item: { route: string }) => item.route)
-    assert.deepEqual(routes, ['products.index', 'suppliers.index'])
+    assert.deepEqual(routes, ['products.index'])
   })
 
   test("un propriétaire d'organisation fournisseuse reçoit les écrans fournisseur et la gestion", async ({

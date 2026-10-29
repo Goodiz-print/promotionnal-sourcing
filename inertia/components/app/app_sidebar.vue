@@ -4,11 +4,10 @@ import { ArrowUpRight, PanelLeftClose, PanelLeftOpen } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import BaseIconButton from '~/components/base/base_icon_button.vue'
 import AppNav from '~/components/app_nav.vue'
-import OrganizationSwitcher from '~/components/organization/organization_switcher.vue'
 
 /**
- * Colonne de navigation de l'application : logo, menu groupé, puis le sélecteur
- * d'organisation. Sur mobile, le layout l'affiche en panneau coulissant (toujours
+ * Colonne de navigation de l'application : logo, menu groupé, puis le lien de retour
+ * au site. Sur mobile, le layout l'affiche en panneau coulissant (toujours
  * déplié). Dès md, un bouton réduit la colonne à un rail d'icônes.
  */
 defineProps<{ collapsed: boolean }>()
@@ -56,7 +55,6 @@ const LOGO_SRC = '/logo.png'
     <AppNav class="flex-1" :collapsed="collapsed" />
 
     <div class="flex flex-col gap-3 border-t border-hairline pt-4">
-      <OrganizationSwitcher :class="collapsed ? 'md:hidden' : ''" />
       <Link
         route="home"
         :params="{ locale }"

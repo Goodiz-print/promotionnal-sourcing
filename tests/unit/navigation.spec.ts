@@ -11,10 +11,10 @@ function routesFor(organizationType: OrganizationKind, roleSlug: RoleSlug): stri
 }
 
 test.group('NavigationService', () => {
-  test('un visiteur ne voit que le catalogue et les fournisseurs', ({ assert }) => {
+  test('un visiteur ne voit que le catalogue', ({ assert }) => {
     const routes = service.itemsFor(null).map((item) => item.route)
 
-    assert.deepEqual(routes, ['products.index', 'suppliers.index'])
+    assert.deepEqual(routes, ['products.index'])
   })
 
   test('un acheteur membre voit ses demandes mais pas les écrans fournisseur ni la gestion', ({

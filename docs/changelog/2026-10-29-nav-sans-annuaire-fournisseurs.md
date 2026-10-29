@@ -8,3 +8,6 @@ le moment réservé aux admins, et le fournisseur sert surtout de filtre dans la
 
 Les routes `suppliers.index` et `suppliers.show` ne changent pas (la fiche produit renvoie
 toujours vers la fiche fournisseur). Tests de navigation (unitaire et fonctionnel) mis à jour.
+
+Le sélecteur d'organisation (`OrganizationSwitcher`) est aussi retiré de `AppSidebar`. Le composant
+et la route `organization.switch` restent en place mais ne sont plus affichés.

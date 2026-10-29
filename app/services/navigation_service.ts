@@ -30,7 +30,6 @@ export default class NavigationService {
 
     if (!context) {
       add('catalogue', 'products.index')
-      add('suppliers', 'suppliers.index')
       if (isPlatformAdmin) add('admin', 'admin.dashboard')
       return items
     }
@@ -41,7 +40,6 @@ export default class NavigationService {
 
     add('dashboard', 'dashboard.show')
     add('catalogue', 'products.index')
-    add('suppliers', 'suppliers.index')
 
     if (isBuyer) {
       add('rfqs', 'rfqs.index')
