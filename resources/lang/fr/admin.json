@@ -25,7 +25,7 @@
     "title": "Organisations",
     "subtitle": "Toutes les organisations de la plateforme.",
     "empty": "Aucune organisation ne correspond à ces filtres.",
-    "back": "← Retour aux organisations",
+    "back": "Retour aux organisations",
     "filters": {
       "type": "Type",
       "allTypes": "Tous les types",
@@ -53,7 +53,8 @@
       "website": "Site web",
       "siret": "SIRET",
       "vatNumber": "N° de TVA",
-      "country": "Pays"
+      "country": "Pays",
+      "createdAt": "Créée le"
     },
     "roles": {
       "owner": "Propriétaire",
@@ -66,8 +67,14 @@
       "rfqs": "Demandes de devis",
       "contact": "Coordonnées",
       "members": "{count, plural, one {# membre} other {# membres}}",
-      "role": "Rôle"
-    }
+      "role": "Rôle",
+      "notProvided": "Non renseigné",
+      "membersEmpty": "Aucun membre dans cette organisation.",
+      "membersCaption": "Membres de l’organisation",
+      "joinedAt": "Membre depuis"
+    },
+    "emptyDescription": "Modifiez le type ou le statut pour élargir la liste.",
+    "resultsCount": "{count, plural, =0 {Aucune organisation} one {# organisation} other {# organisations}}"
   },
   "users": {
     "title": "Utilisateurs",
@@ -79,9 +86,14 @@
       "name": "Nom",
       "email": "Email",
       "organizations": "Organisations",
-      "status": "Statut"
+      "status": "Statut",
+      "createdAt": "Inscrit le"
     },
     "platformAdmin": "Admin plateforme",
-    "unverified": "Email non vérifié"
+    "unverified": "Email non vérifié",
+    "resultsCount": "{count, plural, =0 {Aucun compte} one {# compte} other {# comptes}}",
+    "emptyDescription": "Essayez une autre adresse ou effacez la recherche.",
+    "noName": "Nom non renseigné",
+    "verified": "Email vérifié"
   }
 }

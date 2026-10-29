@@ -25,7 +25,7 @@
     "title": "Organizations",
     "subtitle": "Every organization on the platform.",
     "empty": "No organization matches these filters.",
-    "back": "← Back to organizations",
+    "back": "Back to organizations",
     "filters": {
       "type": "Type",
       "allTypes": "All types",
@@ -53,7 +53,8 @@
       "website": "Website",
       "siret": "SIRET",
       "vatNumber": "VAT number",
-      "country": "Country"
+      "country": "Country",
+      "createdAt": "Created on"
     },
     "roles": {
       "owner": "Owner",
@@ -66,8 +67,14 @@
       "rfqs": "Requests for quotation",
       "contact": "Contact details",
       "members": "{count, plural, one {# member} other {# members}}",
-      "role": "Role"
-    }
+      "role": "Role",
+      "notProvided": "Not provided",
+      "membersEmpty": "No members in this organization.",
+      "membersCaption": "Organization members",
+      "joinedAt": "Member since"
+    },
+    "emptyDescription": "Change the type or status to widen the list.",
+    "resultsCount": "{count, plural, =0 {No organizations} one {# organization} other {# organizations}}"
   },
   "users": {
     "title": "Users",
@@ -79,9 +86,14 @@
       "name": "Name",
       "email": "Email",
       "organizations": "Organizations",
-      "status": "Status"
+      "status": "Status",
+      "createdAt": "Signed up on"
     },
     "platformAdmin": "Platform admin",
-    "unverified": "Email not verified"
+    "unverified": "Email not verified",
+    "resultsCount": "{count, plural, =0 {No accounts} one {# account} other {# accounts}}",
+    "emptyDescription": "Try another address or clear the search.",
+    "noName": "No name provided",
+    "verified": "Email verified"
   }
 }

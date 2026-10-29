@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
+import { Search, Users } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import { useAdminTabs } from '~/composables/use_admin_tabs'
-import BaseTabs from '~/components/base/base_tabs.vue'
 import BaseBadge from '~/components/base/base_badge.vue'
+import BaseCard from '~/components/base/base_card.vue'
+import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import BaseInput from '~/components/base/base_input.vue'
+import BasePageHeader from '~/components/base/base_page_header.vue'
 import BasePagination from '~/components/base/base_pagination.vue'
+import BaseTable from '~/components/base/base_table.vue'
+import BaseTabs from '~/components/base/base_tabs.vue'
 import type { AdminUserFilters, AdminUserListItem } from '#shared/types/admin'
 import type { Paginated } from '#shared/types/pagination'
 
@@ -34,65 +39,88 @@ function onSearch() {
   clearTimeout(debounce)
   debounce = setTimeout(() => visit(1), 300)
 }
+
+function formatDate(value: string): string {
+  return new Date(value).toLocaleDateString(locale.value)
+}
 </script>
 
 <template>
   <Head :title="t('admin.users.title')" />
 
-  <div class="mx-auto flex w-full max-w-[960px] flex-col gap-6 px-6 py-12">
+  <div class="flex flex-col gap-8">
+    <BasePageHeader :title="t('admin.users.title')" :description="t('admin.users.subtitle')" />
+
     <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
-    <div>
-      <h1 class="mb-1.25 text-[28px] tracking-[-0.5px]">{{ t('admin.users.title') }}</h1>
-      <p class="text-sm text-[var(--gray-6)]">{{ t('admin.users.subtitle') }}</p>
-    </div>
+    <BaseCard padding="md">
+      <div class="grid gap-4 sm:grid-cols-[minmax(0,1fr)_200px]">
+        <BaseInput
+          id="search"
+          v-model="search"
+          type="search"
+          :label="t('admin.users.searchLabel')"
+          :placeholder="t('admin.users.searchPlaceholder')"
+          @update:model-value="onSearch"
+        >
+          <template #prefix><Search :size="16" aria-hidden="true" /></template>
+        </BaseInput>
+      </div>
+    </BaseCard>
 
-    <div class="sm:w-80">
-      <BaseInput
-        id="search"
-        v-model="search"
-        type="text"
-        :label="t('admin.users.searchLabel')"
-        :placeholder="t('admin.users.searchPlaceholder')"
-        @update:model-value="onSearch"
+    <div class="flex flex-col gap-4">
+      <p class="text-tabular text-body-sm text-text-secondary">
+        {{ t('admin.users.resultsCount', { count: users.meta.total }) }}
+      </p>
+
+      <BaseEmptyState
+        v-if="users.data.length === 0"
+        :title="t('admin.users.empty')"
+        :description="t('admin.users.emptyDescription')"
+        :icon="Users"
+      />
+
+      <BaseTable v-else :caption="t('admin.users.title')">
+        <template #head>
+          <tr>
+            <th scope="col">{{ t('admin.users.columns.name') }}</th>
+            <th scope="col">{{ t('admin.users.columns.email') }}</th>
+            <th scope="col" class="text-right">{{ t('admin.users.columns.organizations') }}</th>
+            <th scope="col">{{ t('admin.users.columns.status') }}</th>
+            <th scope="col">{{ t('admin.users.columns.createdAt') }}</th>
+          </tr>
+        </template>
+
+        <tr v-for="user in users.data" :key="user.id">
+          <td>
+            <span v-if="user.fullName" class="font-semibold text-text-primary">
+              {{ user.fullName }}
+            </span>
+            <span v-else class="text-text-muted">{{ t('admin.users.noName') }}</span>
+          </td>
+          <td class="text-text-secondary">{{ user.email }}</td>
+          <td class="text-tabular text-right">{{ user.organizationsCount }}</td>
+          <td>
+            <div class="flex flex-wrap items-center gap-2">
+              <BaseBadge v-if="user.platformRole === 'admin'" dot tone="brand">
+                {{ t('admin.users.platformAdmin') }}
+              </BaseBadge>
+              <BaseBadge v-if="!user.emailVerified" dot tone="warning">
+                {{ t('admin.users.unverified') }}
+              </BaseBadge>
+              <BaseBadge v-else dot tone="success">{{ t('admin.users.verified') }}</BaseBadge>
+            </div>
+          </td>
+          <td class="text-tabular whitespace-nowrap">{{ formatDate(user.createdAt) }}</td>
+        </tr>
+      </BaseTable>
+
+      <BasePagination
+        :meta="users.meta"
+        :previous-label="t('admin.pagination.previous')"
+        :next-label="t('admin.pagination.next')"
+        @change="visit"
       />
     </div>
-
-    <p v-if="users.data.length === 0" class="text-[var(--gray-6)]">
-      {{ t('admin.users.empty') }}
-    </p>
-
-    <table v-else class="w-full border-collapse text-sm">
-      <thead>
-        <tr class="border-b border-[var(--gray-4)] text-left text-[var(--gray-6)]">
-          <th class="py-2 pr-4 font-medium">{{ t('admin.users.columns.name') }}</th>
-          <th class="py-2 pr-4 font-medium">{{ t('admin.users.columns.email') }}</th>
-          <th class="py-2 pr-4 font-medium">{{ t('admin.users.columns.organizations') }}</th>
-          <th class="py-2 pr-4 font-medium">{{ t('admin.users.columns.status') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="user in users.data" :key="user.id" class="border-b border-[var(--gray-3)]">
-          <td class="py-3 pr-4 font-medium">{{ user.fullName ?? '—' }}</td>
-          <td class="py-3 pr-4 text-[var(--gray-6)]">{{ user.email }}</td>
-          <td class="py-3 pr-4 text-[var(--gray-6)]">{{ user.organizationsCount }}</td>
-          <td class="flex gap-2 py-3 pr-4">
-            <BaseBadge v-if="user.platformRole === 'admin'" tone="info">
-              {{ t('admin.users.platformAdmin') }}
-            </BaseBadge>
-            <BaseBadge v-if="!user.emailVerified" tone="warning">
-              {{ t('admin.users.unverified') }}
-            </BaseBadge>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <BasePagination
-      :meta="users.meta"
-      :previous-label="t('admin.pagination.previous')"
-      :next-label="t('admin.pagination.next')"
-      @change="visit"
-    />
   </div>
 </template>

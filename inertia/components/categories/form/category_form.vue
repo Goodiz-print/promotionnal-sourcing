@@ -1,18 +1,15 @@
 <script setup lang="ts">
-import FlagIcon from '~/components/flag_icon.vue'
-import { useForm, router } from '@inertiajs/vue3'
+import { computed } from 'vue'
+import { useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import {
-  CONTENT_LOCALES,
-  DEFAULT_CONTENT_LOCALE,
-  LOCALE_LABELS,
-  type ContentLocale,
-} from '#shared/types/i18n'
+import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE, type ContentLocale } from '#shared/types/i18n'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseInput from '~/components/base/base_input.vue'
-import BaseTextarea from '~/components/base/base_textarea.vue'
+import BaseLinkButton from '~/components/base/base_link_button.vue'
+import BaseSection from '~/components/base/base_section.vue'
 import BaseSelect from '~/components/base/base_select.vue'
+import CategoryTranslationFieldset from '~/components/categories/form/category_translation_fieldset.vue'
 import type { CategoryType, CategoryEditType } from '#shared/types/category'
 
 const props = defineProps<{
@@ -47,6 +44,8 @@ const form = useForm<CategoryFormState>({
   synonyms: props.category?.synonyms.join(', ') ?? '',
   translations: initialTranslations(),
 })
+
+const indexUrl = computed(() => urlFor('admin.categories.index', { locale: locale.value }))
 
 function errorFor(key: string): string | undefined {
   return (form.errors as Record<string, string | undefined>)[key]
@@ -86,77 +85,77 @@ function submit() {
   } else {
     form.patch(
       urlFor('admin.categories.update', { locale: locale.value, id: props.category!.id }),
-      {
-        preserveScroll: true,
-      }
+      { preserveScroll: true }
     )
   }
-}
-
-function cancel() {
-  router.get(urlFor('admin.categories.index', { locale: locale.value }))
 }
 </script>
 
 <template>
-  <form class="flex max-w-[640px] flex-col gap-8" @submit.prevent="submit">
-    <div class="flex flex-col gap-4">
-      <BaseInput
-        v-if="mode === 'create'"
-        id="slug"
-        v-model="form.slug"
-        type="text"
-        :label="t('categories.fields.slug')"
-        :placeholder="t('categories.fields.slugHint')"
-        :error="form.errors.slug"
-      />
+  <form class="flex flex-col gap-6" @submit.prevent="submit">
+    <BaseSection
+      as="fieldset"
+      :title="t('categories.form.identity')"
+      :description="t('categories.form.identityDescription')"
+    >
+      <div class="grid gap-5 sm:grid-cols-2">
+        <BaseInput
+          v-if="mode === 'create'"
+          id="slug"
+          v-model="form.slug"
+          type="text"
+          :label="t('categories.fields.slug')"
+          :placeholder="t('categories.fields.slugPlaceholder')"
+          :hint="t('categories.fields.slugHint')"
+          :error="form.errors.slug"
+          required
+        />
+        <BaseSelect
+          id="parentId"
+          :model-value="form.parentId === null ? '' : String(form.parentId)"
+          :label="t('categories.fields.parent')"
+          :error="errorFor('parentId')"
+          @update:model-value="onParent"
+        >
+          <option value="">{{ t('categories.noParent') }}</option>
+          <option v-for="parent in parents" :key="parent.id" :value="String(parent.id)">
+            {{ parent.name ?? parent.slug }}
+          </option>
+        </BaseSelect>
+      </div>
+    </BaseSection>
 
-      <BaseSelect
-        id="parentId"
-        :model-value="form.parentId === null ? '' : String(form.parentId)"
-        :label="t('categories.fields.parent')"
-        :error="errorFor('parentId')"
-        @update:model-value="onParent"
-      >
-        <option value="">{{ t('categories.noParent') }}</option>
-        <option v-for="parent in parents" :key="parent.id" :value="String(parent.id)">
-          {{ parent.name ?? parent.slug }}
-        </option>
-      </BaseSelect>
-    </div>
-
-    <div v-for="current in CONTENT_LOCALES" :key="current" class="flex flex-col gap-3">
-      <h3 class="flex items-center gap-2 text-sm font-semibold text-[var(--gray-6)]">
-        <FlagIcon :code="current" />
-        {{ LOCALE_LABELS[current] }}
-      </h3>
-      <BaseInput
-        :id="`name-${current}`"
-        v-model="form.translations[current].name"
-        type="text"
-        :label="t('categories.fields.name')"
-        :error="errorFor(`translations.${current}.name`)"
-      />
-      <BaseTextarea
-        :id="`description-${current}`"
-        v-model="form.translations[current].description"
-        :label="t('categories.fields.description')"
-        :error="errorFor(`translations.${current}.description`)"
-      />
-    </div>
-
-    <BaseInput
-      id="synonyms"
-      v-model="form.synonyms"
-      type="text"
-      :label="t('categories.fields.synonyms')"
-      :placeholder="t('categories.fields.synonymsHint')"
-      :error="errorFor('synonyms')"
+    <CategoryTranslationFieldset
+      v-for="current in CONTENT_LOCALES"
+      :key="current"
+      v-model:name="form.translations[current].name"
+      v-model:description="form.translations[current].description"
+      :locale="current"
+      :name-error="errorFor(`translations.${current}.name`)"
+      :description-error="errorFor(`translations.${current}.description`)"
     />
 
-    <div class="flex gap-3">
-      <BaseButton type="submit" :disabled="form.processing">{{ t('categories.save') }}</BaseButton>
-      <BaseButton variant="secondary" @click="cancel">{{ t('categories.cancel') }}</BaseButton>
+    <BaseSection
+      as="fieldset"
+      :title="t('categories.form.search')"
+      :description="t('categories.form.searchDescription')"
+    >
+      <BaseInput
+        id="synonyms"
+        v-model="form.synonyms"
+        type="text"
+        :label="t('categories.fields.synonyms')"
+        :placeholder="t('categories.fields.synonymsPlaceholder')"
+        :hint="t('categories.fields.synonymsHint')"
+        :error="errorFor('synonyms')"
+      />
+    </BaseSection>
+
+    <div class="flex justify-end gap-3">
+      <BaseLinkButton :href="indexUrl" variant="secondary">
+        {{ t('categories.cancel') }}
+      </BaseLinkButton>
+      <BaseButton type="submit" :loading="form.processing">{{ t('categories.save') }}</BaseButton>
     </div>
   </form>
 </template>

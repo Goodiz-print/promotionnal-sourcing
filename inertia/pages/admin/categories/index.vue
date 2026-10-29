@@ -1,17 +1,25 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
+import { FolderTree, Plus, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import { useAdminTabs } from '~/composables/use_admin_tabs'
+import BaseEmptyState from '~/components/base/base_empty_state.vue'
+import BaseIconButton from '~/components/base/base_icon_button.vue'
+import BaseLinkButton from '~/components/base/base_link_button.vue'
+import BasePageHeader from '~/components/base/base_page_header.vue'
+import BaseTable from '~/components/base/base_table.vue'
 import BaseTabs from '~/components/base/base_tabs.vue'
-import BaseButton from '~/components/base/base_button.vue'
 import type { CategoryAdminType } from '#shared/types/category'
 
 defineProps<{ categories: CategoryAdminType[] }>()
 
 const { t, locale } = useI18n()
 const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
+
+const createUrl = computed(() => urlFor('admin.categories.create', { locale: locale.value }))
 
 function destroy(category: CategoryAdminType) {
   if (!window.confirm(t('categories.confirmDelete'))) return
@@ -24,61 +32,80 @@ function destroy(category: CategoryAdminType) {
 <template>
   <Head :title="t('categories.index.title')" />
 
-  <div class="mx-auto flex w-full max-w-[960px] flex-col gap-6 px-6 py-12">
+  <div class="flex flex-col gap-8">
+    <BasePageHeader
+      :title="t('categories.index.title')"
+      :description="t('categories.index.subtitle')"
+    >
+      <!-- Une seule action primaire par écran : l'état vide porte la sienne. -->
+      <template v-if="categories.length > 0" #actions>
+        <BaseLinkButton :href="createUrl">
+          <Plus :size="18" aria-hidden="true" />
+          {{ t('categories.newCategory') }}
+        </BaseLinkButton>
+      </template>
+    </BasePageHeader>
+
     <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-[28px] tracking-[-0.5px]">{{ t('categories.index.title') }}</h1>
-        <p class="text-sm text-[var(--gray-6)]">{{ t('categories.index.subtitle') }}</p>
-      </div>
-      <Link
-        route="admin.categories.create"
-        :params="{ locale }"
-        class="shrink-0 rounded bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]"
-      >
-        {{ t('categories.newCategory') }}
-      </Link>
-    </div>
+    <BaseEmptyState
+      v-if="categories.length === 0"
+      :title="t('categories.index.empty')"
+      :description="t('categories.index.emptyDescription')"
+      :icon="FolderTree"
+    >
+      <template #actions>
+        <BaseLinkButton :href="createUrl">
+          <Plus :size="18" aria-hidden="true" />
+          {{ t('categories.newCategory') }}
+        </BaseLinkButton>
+      </template>
+    </BaseEmptyState>
 
-    <p v-if="categories.length === 0" class="text-[var(--gray-6)]">
-      {{ t('categories.index.empty') }}
-    </p>
-
-    <table v-else class="w-full border-collapse text-sm">
-      <thead>
-        <tr class="border-b border-[var(--gray-4)] text-left text-[var(--gray-6)]">
-          <th class="py-2 pr-4 font-medium">{{ t('categories.index.columns.name') }}</th>
-          <th class="py-2 pr-4 font-medium">{{ t('categories.index.columns.slug') }}</th>
-          <th class="py-2 pr-4 font-medium">{{ t('categories.index.columns.parent') }}</th>
-          <th class="py-2 pr-4 font-medium">{{ t('categories.index.columns.products') }}</th>
-          <th class="py-2"></th>
+    <BaseTable v-else :caption="t('categories.index.title')">
+      <template #head>
+        <tr>
+          <th scope="col">{{ t('categories.index.columns.name') }}</th>
+          <th scope="col">{{ t('categories.index.columns.slug') }}</th>
+          <th scope="col">{{ t('categories.index.columns.parent') }}</th>
+          <th scope="col" class="text-right">{{ t('categories.index.columns.products') }}</th>
+          <th scope="col" class="text-right">
+            <span class="sr-only">{{ t('categories.index.columns.actions') }}</span>
+          </th>
         </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="category in categories"
-          :key="category.id"
-          class="border-b border-[var(--gray-3)]"
-        >
-          <td class="py-3 pr-4 font-medium">{{ category.name ?? category.slug }}</td>
-          <td class="py-3 pr-4 text-[var(--gray-6)]">{{ category.slug }}</td>
-          <td class="py-3 pr-4 text-[var(--gray-6)]">{{ category.parentName ?? '—' }}</td>
-          <td class="py-3 pr-4 text-[var(--gray-6)]">{{ category.productsCount }}</td>
-          <td class="flex items-center justify-end gap-3 py-3">
-            <Link
-              route="admin.categories.edit"
-              :params="{ locale, id: category.id }"
-              class="text-[var(--color-primary)] hover:underline"
+      </template>
+
+      <tr v-for="category in categories" :key="category.id">
+        <td>
+          <Link
+            route="admin.categories.edit"
+            :params="{ locale, id: category.id }"
+            class="font-semibold text-text-primary hover:text-indigo-600"
+          >
+            {{ category.name ?? category.slug }}
+          </Link>
+        </td>
+        <td class="text-text-secondary">{{ category.slug }}</td>
+        <td>
+          <template v-if="category.parentName">{{ category.parentName }}</template>
+          <span v-else class="text-text-muted">{{ t('categories.index.root') }}</span>
+        </td>
+        <td class="text-tabular text-right">{{ category.productsCount }}</td>
+        <td>
+          <div class="flex items-center justify-end gap-2">
+            <BaseLinkButton
+              :href="urlFor('admin.categories.edit', { locale, id: category.id })"
+              size="sm"
+              variant="secondary"
             >
               {{ t('categories.edit') }}
-            </Link>
-            <BaseButton variant="secondary" @click="destroy(category)">
-              {{ t('categories.delete') }}
-            </BaseButton>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            </BaseLinkButton>
+            <BaseIconButton :label="t('categories.delete')" @click="destroy(category)">
+              <Trash2 :size="18" aria-hidden="true" />
+            </BaseIconButton>
+          </div>
+        </td>
+      </tr>
+    </BaseTable>
   </div>
 </template>
