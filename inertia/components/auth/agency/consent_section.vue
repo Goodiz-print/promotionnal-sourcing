@@ -11,7 +11,7 @@ const { t } = useI18n()
 
 <template>
   <fieldset class="flex flex-col gap-3">
-    <legend class="mb-1 text-lg font-medium">{{ t('agency_signup.sections.consents') }}</legend>
+    <legend class="mb-1 text-heading-md">{{ t('agency_signup.sections.consents') }}</legend>
     <div>
       <BaseCheckbox
         id="certifiesProfessional"

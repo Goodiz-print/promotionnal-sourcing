@@ -39,7 +39,7 @@ function pickLocale(value: string) {
 
 <template>
   <fieldset class="flex flex-col gap-6">
-    <legend class="mb-1 text-lg font-medium">{{ t('agency_signup.sections.company') }}</legend>
+    <legend class="mb-1 text-heading-md">{{ t('agency_signup.sections.company') }}</legend>
     <BaseInput
       id="companyName"
       v-model="form.companyName"

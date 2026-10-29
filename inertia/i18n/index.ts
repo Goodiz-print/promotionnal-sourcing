@@ -33,7 +33,7 @@ export function translate(
     return key
   }
 
-  // Pas de placeholder ICU → on évite le coût du parsing.
+  // Pas de placeholder ICU : on évite le coût du parsing.
   if (!message.includes('{')) {
     return message
   }

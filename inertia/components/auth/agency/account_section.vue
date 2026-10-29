@@ -13,7 +13,7 @@ const { t } = useI18n()
 
 <template>
   <fieldset class="flex flex-col gap-6">
-    <legend class="mb-1 text-lg font-medium">{{ t('agency_signup.sections.account') }}</legend>
+    <legend class="mb-1 text-heading-md">{{ t('agency_signup.sections.account') }}</legend>
     <BaseSelect
       id="civility"
       v-model="form.civility"

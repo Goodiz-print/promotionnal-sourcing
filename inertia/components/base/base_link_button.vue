@@ -11,7 +11,7 @@ import {
 
 /**
  * Lien stylé en bouton : mêmes variantes et tailles que `BaseButton`, plus
- * `on-dark` (bouton blanc sur fond indigo / dégradé, landing). Chemin interne →
+ * `on-dark` (bouton blanc sur fond indigo / dégradé, landing). Chemin interne :
  * navigation Inertia ; ancres, mailto: et liens externes restent des `<a>`.
  */
 const props = withDefaults(

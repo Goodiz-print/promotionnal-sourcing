@@ -31,7 +31,7 @@
 | États                                                   | `text-success`/`bg-success-bg`, `warning`, `danger`, `info`        | `--state-*`                                       |
 | Dégradé de marque (bannière CTA, un mot du hero)        | `text-gradient-brand`, `style="background: var(--gradient-brand)"` | `--gradient-brand`                                |
 
-Les alias historiques `--gray-*`, `--primary-*`, `--color-primary*` restent définis pour les pages non migrées : **ne plus les utiliser dans du code neuf**.
+Il n'existe plus d'alias historique (`--gray-*`, `--primary-*`, `--color-primary*`) : toute couleur passe par les rampes `indigo-*`/`ink-*` ou les tokens sémantiques ci-dessus.
 
 ### Typographie (`tokens/typography.css`)
 
@@ -89,6 +89,8 @@ Obligatoires dès qu'ils s'appliquent — ne pas recopier leur markup.
 | `BaseSection`                                     | `title`, `description`, `flush`, `as` section·div·fieldset                                          | défaut, `actions`, `footer`                    | Carte à en-tête : pages détail, groupes de champs                                              |
 | `BasePageHeader`                                  | `title`, `description`, `eyebrow`, `backHref`/`backLabel`                                           | `meta`, `actions`                              | En-tête de page (H1 `text-display-md`)                                                         |
 | `BaseTable`                                       | `caption`                                                                                           | `head`, défaut, `foot`                         | Tableau `table-base` dans un conteneur arrondi ; cellules numériques `text-tabular text-right` |
+| `BaseDangerZone`                                  | `title`, `description`                                                                              | défaut                                         | Carte rouge des actions irréversibles (compte, organisation)                                   |
+| `BaseDescriptionList` / `BaseDescriptionItem`     | `items[{label,value}]`, `columns` 1·2·3 ; item : `label`, `full`                                    | défaut                                         | Liste clé / valeur des fiches (produit, fournisseur, commande)                                 |
 | `BaseEmptyState`                                  | `title`, `description`, `icon`, `compact`                                                           | `actions`                                      | État vide                                                                                      |
 | `BaseTabs`                                        | `items[{href,label,active,count?}]`, `label`                                                        | `actions`                                      | Onglets de navigation soulignés                                                                |
 | `BaseDropdown`                                    | `align`, `width` ; émet `open`/`close`                                                              | `trigger{open,toggle}`, défaut `{close}`       | Menu refermé au clic extérieur / Échap / navigation (`useDismissable`)                         |
@@ -133,6 +135,10 @@ Correspondances statut → tonalité : `inertia/components/{rfqs,quotes,orders}/
 - Un `<h1>` ou un `<table>` à la main : `BasePageHeader`, `BaseTable`.
 - `<details>` pour un menu : `BaseDropdown`.
 - Transposer dans l'app les animations de la landing (`anim-*`, `data-reveal`, `FxCanvas`), les ombres colorées des CTA, les fonds d'icônes saturés ou plusieurs couleurs dans un titre.
+
+## Garde-fou
+
+`tests/inertia/design_system_guard.spec.ts` parcourt `inertia/**/*.{vue,ts}` (hors `inertia/css` et `components/marketing`, `pages/marketing`) et échoue dès qu'un fichier contient une trace de l'ancien design : `var(--gray-*)`, `var(--primary-*)`, `var(--color-primary*)`, `var(--state-*)`, `text-[NNpx]`, `tracking-[…]`, `rounded` nu, couleur hex dans une classe, `<details>`, `shadow-lg`, glyphes texte, ou une taille Tailwind générique (`text-xs|sm|base|lg|xl|2xl|3xl`). Il tourne avec `pnpm test:inertia`, donc en CI.
 
 ## Étendre
 
