@@ -11,6 +11,10 @@ const translations = {
   'suppliers.index.empty': 'Aucun fournisseur.',
   'suppliers.index.previous': 'Précédent',
   'suppliers.index.next': 'Suivant',
+  'suppliers.index.resultsCount':
+    '{count, plural, =0 {Aucun fournisseur} one {# fournisseur} other {# fournisseurs}}',
+  'suppliers.index.emptyHint': 'Élargissez votre recherche.',
+  'products.card.madeInEurope': 'Fabriqué en Europe',
   'suppliers.show.website': 'Visiter le site',
   'suppliers.show.profile': 'Profil fournisseur',
   'suppliers.show.products': 'Catalogue',
@@ -112,6 +116,7 @@ describe('suppliers/index.vue', () => {
 
     expect(wrapper.text()).toContain('EuroGoods')
     expect(wrapper.text()).toContain('Nordic')
+    expect(wrapper.text()).toContain('2 fournisseurs')
     expect(wrapper.find('#search').exists()).toBe(true)
     expect(wrapper.find('#country').findAll('option')).toHaveLength(3)
   })
@@ -205,5 +210,12 @@ describe('product_card.vue', () => {
   it('formate une fourchette de prix', () => {
     const wrapper = mount(ProductCard, { props: { product: product() } })
     expect(wrapper.text()).toContain('1.50 – 2.00 EUR')
+  })
+
+  it('affiche le badge made-in-Europe et un pictogramme sans image', () => {
+    const wrapper = mount(ProductCard, { props: { product: product() } })
+    expect(wrapper.text()).toContain('Fabriqué en Europe')
+    expect(wrapper.find('img').exists()).toBe(false)
+    expect(wrapper.find('svg').exists()).toBe(true)
   })
 })

@@ -48,7 +48,11 @@
         "forestry": "Forêt / bois",
         "quality": "Qualité"
       }
-    }
+    },
+    "filtersTitle": "Filtres",
+    "reset": "Réinitialiser",
+    "quickFilters": "Filtres rapides",
+    "emptyHint": "Élargissez vos critères ou réinitialisez les filtres."
   },
   "show": {
     "backToCatalogue": "Retour au catalogue",
@@ -203,5 +207,11 @@
       "contentHint": "Nom et description dans la langue source ; les autres langues peuvent être générées automatiquement."
     },
     "backToList": "Retour à mes produits"
+  },
+  "card": {
+    "minQuantity": "{count, plural, one {Min. # pièce} other {Min. # pièces}}",
+    "madeInEurope": "Fabriqué en Europe",
+    "eco": "Éco-responsable",
+    "new": "Nouveauté"
   }
 }

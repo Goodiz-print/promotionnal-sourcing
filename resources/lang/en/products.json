@@ -48,7 +48,11 @@
         "forestry": "Forestry",
         "quality": "Quality"
       }
-    }
+    },
+    "filtersTitle": "Filters",
+    "reset": "Reset",
+    "quickFilters": "Quick filters",
+    "emptyHint": "Broaden your criteria or reset the filters."
   },
   "show": {
     "backToCatalogue": "Back to catalogue",
@@ -203,5 +207,11 @@
       "contentHint": "Name and description in the source language; other languages can be generated automatically."
     },
     "backToList": "Back to my products"
+  },
+  "card": {
+    "minQuantity": "{count, plural, one {Min. # piece} other {Min. # pieces}}",
+    "madeInEurope": "Made in Europe",
+    "eco": "Eco-friendly",
+    "new": "New"
   }
 }

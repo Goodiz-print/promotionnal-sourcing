@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import BaseCheckbox from '~/components/base/base_checkbox.vue'
+import FacetSection from '~/components/catalogue/facet_section.vue'
+import FacetOption from '~/components/catalogue/facet_option.vue'
 import { useRangeLabel } from '~/composables/use_range_label'
 import type { CategoryFacetType, CategoryFacetValueType } from '#shared/types/category'
 import type { AttributeRangeSelectionType } from '#shared/types/product'
@@ -48,12 +50,10 @@ function isRangeSelected(minValue: number | null, maxValue: number | null): bool
 </script>
 
 <template>
-  <fieldset
+  <FacetSection
     v-if="visibleValues.length > 0 || attribute.ranges.length > 0"
-    class="flex flex-col gap-2"
+    :title="attribute.name ?? attribute.slug"
   >
-    <legend class="mb-1 text-sm font-medium">{{ attribute.name ?? attribute.slug }}</legend>
-
     <!-- Valeurs énumérées (couleur, matière, propres à la catégorie) : filtre ET. -->
     <BaseCheckbox
       v-for="value in visibleValues"
@@ -62,17 +62,11 @@ function isRangeSelected(minValue: number | null, maxValue: number | null): bool
       :model-value="selectedIds.includes(value.id)"
       @update:model-value="(checked) => emit('toggle', value.id, checked)"
     >
-      <span class="flex flex-1 items-center gap-2">
-        <span
-          v-if="value.hex"
-          class="inline-block h-3.5 w-3.5 shrink-0 rounded-full border border-[var(--gray-4)]"
-          :style="{ backgroundColor: value.hex }"
-        />
-        <span class="flex-1">{{ value.label ?? value.value }}</span>
-        <span v-if="hasCounts && value.count !== null" class="text-xs text-[var(--gray-6)]">
-          {{ value.count }}
-        </span>
-      </span>
+      <FacetOption
+        :label="value.label ?? value.value"
+        :hex="value.hex"
+        :count="hasCounts ? value.count : null"
+      />
     </BaseCheckbox>
 
     <!-- Tranches numériques (plan L125) : cliquables, mêmes OU/compteurs que les valeurs. -->
@@ -85,12 +79,10 @@ function isRangeSelected(minValue: number | null, maxValue: number | null): bool
         (checked) => emit('toggleRange', attribute.slug, range.minValue, range.maxValue, checked)
       "
     >
-      <span class="flex flex-1 items-center gap-2">
-        <span class="flex-1">{{ rangeLabel(range.minValue, range.maxValue, unitSuffix) }}</span>
-        <span v-if="hasCounts && range.count !== null" class="text-xs text-[var(--gray-6)]">
-          {{ range.count }}
-        </span>
-      </span>
+      <FacetOption
+        :label="rangeLabel(range.minValue, range.maxValue, unitSuffix)"
+        :count="hasCounts ? range.count : null"
+      />
     </BaseCheckbox>
-  </fieldset>
+  </FacetSection>
 </template>

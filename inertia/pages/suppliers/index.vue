@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
+import { Building2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import BasePageHeader from '~/components/base/base_page_header.vue'
+import BaseCard from '~/components/base/base_card.vue'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseSelect from '~/components/base/base_select.vue'
-import BaseButton from '~/components/base/base_button.vue'
+import BaseEmptyState from '~/components/base/base_empty_state.vue'
+import BasePagination from '~/components/base/base_pagination.vue'
 import SupplierCard from '~/components/supplier_card.vue'
 import type { Paginated } from '#shared/types/pagination'
 import type { SupplierType, SupplierDirectoryFilters } from '#shared/types/supplier'
@@ -39,24 +43,22 @@ function onSearch() {
 <template>
   <Head :title="t('suppliers.index.title')" />
 
-  <div class="mx-auto flex max-w-[960px] flex-col gap-8 px-6 py-12">
-    <div>
-      <h1 class="mb-1.25 text-[32px] tracking-[-0.5px]">{{ t('suppliers.index.title') }}</h1>
-      <p class="text-lg text-[var(--gray-6)]">{{ t('suppliers.index.subtitle') }}</p>
-    </div>
+  <div class="flex flex-col gap-8">
+    <BasePageHeader
+      :title="t('suppliers.index.title')"
+      :description="t('suppliers.index.subtitle')"
+    />
 
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
-      <div class="flex-1">
+    <BaseCard padding="md">
+      <div class="grid gap-4 sm:grid-cols-[minmax(0,1fr)_224px] sm:items-end">
         <BaseInput
           id="search"
           v-model="search"
-          type="text"
+          type="search"
           :label="t('suppliers.index.searchLabel')"
           :placeholder="t('suppliers.index.searchPlaceholder')"
           @update:model-value="onSearch"
         />
-      </div>
-      <div class="sm:w-56">
         <BaseSelect
           id="country"
           v-model="country"
@@ -67,34 +69,32 @@ function onSearch() {
           <option v-for="code in countries" :key="code" :value="code">{{ code }}</option>
         </BaseSelect>
       </div>
-    </div>
+    </BaseCard>
 
-    <p v-if="suppliers.data.length === 0" class="text-[var(--gray-6)]">
-      {{ t('suppliers.index.empty') }}
-    </p>
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center justify-between gap-3">
+        <p class="text-tabular text-body-sm text-text-secondary">
+          {{ t('suppliers.index.resultsCount', { count: suppliers.meta.total }) }}
+        </p>
+      </div>
 
-    <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <SupplierCard v-for="supplier in suppliers.data" :key="supplier.id" :supplier="supplier" />
-    </div>
+      <BaseEmptyState
+        v-if="suppliers.data.length === 0"
+        :title="t('suppliers.index.empty')"
+        :description="t('suppliers.index.emptyHint')"
+        :icon="Building2"
+      />
 
-    <div v-if="suppliers.meta.lastPage > 1" class="flex items-center justify-center gap-4">
-      <BaseButton
-        variant="secondary"
-        :disabled="suppliers.meta.currentPage <= 1"
-        @click="visit(suppliers.meta.currentPage - 1)"
-      >
-        {{ t('suppliers.index.previous') }}
-      </BaseButton>
-      <span class="text-sm text-[var(--gray-6)]">
-        {{ suppliers.meta.currentPage }} / {{ suppliers.meta.lastPage }}
-      </span>
-      <BaseButton
-        variant="secondary"
-        :disabled="suppliers.meta.currentPage >= suppliers.meta.lastPage"
-        @click="visit(suppliers.meta.currentPage + 1)"
-      >
-        {{ t('suppliers.index.next') }}
-      </BaseButton>
+      <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <SupplierCard v-for="supplier in suppliers.data" :key="supplier.id" :supplier="supplier" />
+      </div>
+
+      <BasePagination
+        :meta="suppliers.meta"
+        :previous-label="t('suppliers.index.previous')"
+        :next-label="t('suppliers.index.next')"
+        @change="visit"
+      />
     </div>
   </div>
 </template>
