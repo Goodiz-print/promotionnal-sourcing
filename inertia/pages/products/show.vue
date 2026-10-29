@@ -67,14 +67,19 @@ const isNew = computed(() => props.product.lifecycleStatus === 'new')
       <PriceTierTable :tiers="tiers" />
     </BaseSection>
 
+    <!-- Deux colonnes indépendantes : chaque carte se colle à celle du dessus (effet masonry). -->
     <div class="grid items-start gap-8 lg:grid-cols-2">
-      <ProductSpecifications :product="product" />
-      <ProductCompliance :product="product" />
-      <ProductPackaging :packaging="product.packaging" />
-      <ProductMarking
-        :positions="product.markingPositions"
-        :price-tiers="product.markingPriceTiers"
-      />
+      <div class="flex min-w-0 flex-col gap-8">
+        <ProductSpecifications :product="product" />
+        <ProductPackaging :packaging="product.packaging" />
+      </div>
+      <div class="flex min-w-0 flex-col gap-8">
+        <ProductCompliance :product="product" />
+        <ProductMarking
+          :positions="product.markingPositions"
+          :price-tiers="product.markingPriceTiers"
+        />
+      </div>
     </div>
 
     <BaseSection v-if="product.documents.length > 0" :title="t('documents.datasheet.title')">
