@@ -18,6 +18,7 @@ import {
   type OriginZone,
   type ProductStockStatus,
   type CatalogueNumericFacetsType,
+  type CatalogueEnumFacetsType,
   type ProductDirectoryFilters,
 } from '#shared/types/product'
 
@@ -27,6 +28,8 @@ const props = defineProps<{
   facetBar: CategoryFacetBarType
   certificationFacet: CertificationFacetBarType
   numericFacets: CatalogueNumericFacetsType
+  // Compteurs provenance / stock ; absents = toutes les options affichées.
+  enumFacets?: CatalogueEnumFacetsType
 }>()
 
 const emit = defineEmits<{
@@ -103,6 +106,7 @@ const {
       :title="t('products.index.origin.title')"
       :options="ORIGIN_ZONES"
       :selected="state.originZones"
+      :counts="enumFacets?.origin"
       :label-for="originLabel"
       id-prefix="origin"
       @toggle="toggleOriginZone"
@@ -111,6 +115,7 @@ const {
       :title="t('products.index.stock.title')"
       :options="PRODUCT_STOCK_STATUSES"
       :selected="state.stockStatuses"
+      :counts="enumFacets?.stock"
       :label-for="stockLabel"
       id-prefix="stock"
       @toggle="toggleStockStatus"

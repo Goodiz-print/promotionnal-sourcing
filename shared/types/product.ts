@@ -154,6 +154,23 @@ export type CatalogueNumericFacetsType = {
 }
 
 /**
+ * Compteurs d'une facette d'énumération fermée (provenance, stock), indexés par
+ * valeur de l'enum. `hasCounts` est `false` quand le moteur de recherche est
+ * indisponible (l'UI affiche alors toutes les options). Déclaré en `type`
+ * (contrainte props Inertia).
+ */
+export type EnumFacetCountsType = {
+  counts: Record<string, number>
+  hasCounts: boolean
+}
+
+/** Facettes d'énumération transverses du catalogue : provenance et stock. */
+export type CatalogueEnumFacetsType = {
+  origin: EnumFacetCountsType
+  stock: EnumFacetCountsType
+}
+
+/**
  * Traduction d'un produit (une ligne par locale). `keywords` et
  * `marketingPoints` sont des listes par locale (écart 5).
  */

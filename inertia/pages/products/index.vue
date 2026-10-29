@@ -20,6 +20,7 @@ import type {
   ProductType,
   ProductDirectoryFilters,
   CatalogueNumericFacetsType,
+  CatalogueEnumFacetsType,
 } from '#shared/types/product'
 
 defineProps<{
@@ -30,6 +31,7 @@ defineProps<{
   facetBar: CategoryFacetBarType
   certificationFacet: CertificationFacetBarType
   numericFacets: CatalogueNumericFacetsType
+  enumFacets?: CatalogueEnumFacetsType
 }>()
 
 const { t, locale } = useI18n()
@@ -72,6 +74,7 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
         'facetBar',
         'certificationFacet',
         'numericFacets',
+        'enumFacets',
       ],
     }
   )
@@ -96,6 +99,7 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
             :facet-bar="facetBar"
             :certification-facet="certificationFacet"
             :numeric-facets="numericFacets"
+            :enum-facets="enumFacets"
             @apply="visit($event)"
           />
         </BaseCard>

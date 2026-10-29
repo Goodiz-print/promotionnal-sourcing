@@ -4,6 +4,7 @@ import ProductCatalogueService from '#services/product_catalogue_service'
 import ProductSearchService from '#services/product_search_service'
 import CatalogueFacetBarService from '#services/catalogue_facet_bar_service'
 import CatalogueCertificationFacetService from '#services/catalogue_certification_facet_service'
+import CatalogueEnumFacetService from '#services/catalogue_enum_facet_service'
 import CatalogueNumericFacetService from '#services/catalogue_numeric_facet_service'
 import DocumentService from '#services/document_service'
 import OrganizationContextService from '#services/organization_context_service'
@@ -38,6 +39,7 @@ export default class ProductsController {
     private facetBar: CatalogueFacetBarService,
     private certificationFacets: CatalogueCertificationFacetService,
     private numericFacets: CatalogueNumericFacetService,
+    private enumFacets: CatalogueEnumFacetService,
     private documents: DocumentService,
     private organizations: OrganizationContextService,
     private rfqs: RfqService
@@ -98,15 +100,19 @@ export default class ProductsController {
     //   (écart 4, ÉTAPE 6), donc globale — disponible même sans catégorie.
     // - `numericFacets` : facettes transverses prix / MOQ à buckets (plan L125),
     //   globales (comme certifications), avec compteurs par tranche.
-    const [categories, facetBar, certificationFacet, numericFacets] = await Promise.all([
-      this.service.availableCategories(),
-      this.facetBar.forCategory(filters.categoryId, locale, {
-        search: filters.search,
-        madeInEurope: filters.madeInEurope,
-      }),
-      this.certificationFacets.forCatalogue(filters, locale),
-      this.numericFacets.forCatalogue(filters),
-    ])
+    // - `enumFacets` : compteurs provenance / stock, pour masquer les options vides.
+    const [categories, facetBar, certificationFacet, numericFacets, enumFacets] = await Promise.all(
+      [
+        this.service.availableCategories(),
+        this.facetBar.forCategory(filters.categoryId, locale, {
+          search: filters.search,
+          madeInEurope: filters.madeInEurope,
+        }),
+        this.certificationFacets.forCatalogue(filters, locale),
+        this.numericFacets.forCatalogue(filters),
+        this.enumFacets.forCatalogue(filters),
+      ]
+    )
 
     return inertia.render('products/index', {
       products: {
@@ -128,6 +134,7 @@ export default class ProductsController {
       facetBar,
       certificationFacet,
       numericFacets,
+      enumFacets,
     })
   }
 
