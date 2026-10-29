@@ -20,7 +20,7 @@ const indexUrl = computed(() => urlFor('admin.categories.index', { locale: local
 <template>
   <Head :title="t('categories.update.title')" />
 
-  <div class="mx-auto flex w-full max-w-[720px] flex-col gap-8">
+  <div class="flex w-full flex-col gap-8">
     <BasePageHeader
       :title="t('categories.update.title')"
       :description="t('categories.update.subtitle', { slug: category.slug })"

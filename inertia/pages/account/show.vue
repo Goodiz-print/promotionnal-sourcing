@@ -21,7 +21,7 @@ const { t } = useI18n()
 <template>
   <Head :title="t('account.title')" />
 
-  <div class="mx-auto flex w-full max-w-[860px] flex-col gap-8">
+  <div class="flex w-full flex-col gap-8">
     <BasePageHeader :title="t('account.title')" :description="t('account.subtitle')" />
 
     <ProfileForm :account="account" />

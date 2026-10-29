@@ -39,7 +39,7 @@ const status = computed(() => props.quote?.status ?? 'draft')
 <template>
   <Head :title="t('quote.supplier.edit.title', { rfqTitle: rfq.title })" />
 
-  <div class="mx-auto flex w-full max-w-[860px] flex-col gap-8">
+  <div class="flex w-full flex-col gap-8">
     <BasePageHeader
       :title="t('quote.supplier.edit.title', { rfqTitle: rfq.title })"
       :back-href="rfqUrl"

@@ -24,7 +24,7 @@ const indexUrl = computed(() => urlFor('rfqs.index', { locale: locale.value }))
 <template>
   <Head :title="t('rfq.create.title')" />
 
-  <div class="mx-auto flex w-full max-w-[860px] flex-col gap-8">
+  <div class="flex w-full flex-col gap-8">
     <BasePageHeader
       :title="t('rfq.create.title')"
       :description="t('rfq.create.subtitle')"

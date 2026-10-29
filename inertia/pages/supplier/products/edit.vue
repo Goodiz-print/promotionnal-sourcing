@@ -24,11 +24,11 @@ const { t, locale } = useI18n()
 </script>
 
 <template>
-  <Head :title="t('products.manage.edit.title')" />
+  <Head :title="t('products.manage.editTitle')" />
 
-  <div class="mx-auto flex w-full max-w-[860px] flex-col gap-8">
+  <div class="flex w-full flex-col gap-8">
     <BasePageHeader
-      :title="t('products.manage.edit.title')"
+      :title="t('products.manage.editTitle')"
       :back-href="urlFor('supplier.products.index', { locale })"
       :back-label="t('products.manage.backToList')"
     />

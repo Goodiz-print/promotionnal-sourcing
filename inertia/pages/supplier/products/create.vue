@@ -22,7 +22,7 @@ const { t, locale } = useI18n()
 <template>
   <Head :title="t('products.manage.create.title')" />
 
-  <div class="mx-auto flex w-full max-w-[860px] flex-col gap-8">
+  <div class="flex w-full flex-col gap-8">
     <BasePageHeader
       :title="t('products.manage.create.title')"
       :back-href="urlFor('supplier.products.index', { locale })"

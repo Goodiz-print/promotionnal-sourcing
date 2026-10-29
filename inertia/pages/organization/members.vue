@@ -26,7 +26,7 @@ const { items: tabs, label: tabsLabel, createHref, createLabel } = useOrganizati
 <template>
   <Head :title="t('organization.members.title')" />
 
-  <div class="mx-auto flex w-full max-w-[860px] flex-col gap-8">
+  <div class="flex w-full flex-col gap-8">
     <BasePageHeader
       :title="t('organization.members.title')"
       :description="t('organization.members.subtitle')"

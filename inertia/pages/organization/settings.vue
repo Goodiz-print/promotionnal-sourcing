@@ -86,7 +86,7 @@ function submit() {
 <template>
   <Head :title="t('organization.settings.title')" />
 
-  <div class="mx-auto flex w-full max-w-[860px] flex-col gap-8">
+  <div class="flex w-full flex-col gap-8">
     <BasePageHeader
       :title="t('organization.settings.title')"
       :description="t('organization.settings.subtitle')"
