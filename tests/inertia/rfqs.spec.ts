@@ -114,7 +114,7 @@ describe('rfqs/index.vue', () => {
       },
     })
 
-    expect(wrapper.findAll('li')).toHaveLength(2)
+    expect(wrapper.findAll('tbody tr')).toHaveLength(2)
     expect(wrapper.text()).toContain('Tote bags coton bio')
     expect(wrapper.text()).toContain('Brouillon')
     expect(wrapper.text()).toContain('Publiée')
@@ -124,7 +124,7 @@ describe('rfqs/index.vue', () => {
     const wrapper = mount(RfqsIndex, { props: { rfqs: [], canManageRfq: true } })
 
     expect(wrapper.text()).toContain('Aucune demande pour le moment.')
-    expect(wrapper.findAll('li')).toHaveLength(0)
+    expect(wrapper.findAll('tbody tr')).toHaveLength(0)
   })
 })
 

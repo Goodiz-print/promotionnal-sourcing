@@ -43,7 +43,7 @@ function lineFor(quote: QuoteType, rfqItemId: number) {
     <BaseEmptyState compact :title="t('quote.comparison.empty')" :icon="FileText" />
   </div>
 
-  <BaseTable v-else :caption="t('quote.comparison.title')">
+  <BaseTable v-else bare :caption="t('quote.comparison.title')">
     <template #head>
       <tr>
         <th scope="col">{{ t('quote.table.item') }}</th>

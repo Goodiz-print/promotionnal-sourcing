@@ -3,10 +3,20 @@
     "title": "Requests for quotation",
     "subtitle": "Describe a need, consult several suppliers, compare their answers.",
     "empty": "No request yet.",
+    "emptyDescription": "Describe your need, pick suppliers and compare their quotes in one place.",
     "new": "New request",
     "itemCount": "{count, plural, one {# line} other {# lines}}",
     "supplierCount": "{count, plural, =0 {no recipient} one {# recipient} other {# recipients}}",
-    "responded": "{responded} / {total} answers"
+    "responded": "{responded} / {total} answers",
+    "responses": "{responded} / {total}",
+    "columns": {
+      "title": "Request",
+      "items": "Lines",
+      "suppliers": "Recipients",
+      "responses": "Answers",
+      "status": "Status",
+      "deadline": "Deadline"
+    }
   },
   "create": {
     "title": "New request for quotation",
@@ -140,6 +150,8 @@
     "add": "Add"
   },
   "deadline": {
+    "title": "Consultation deadline",
+    "description": "Give suppliers more time: only the date changes, not the need.",
     "label": "New deadline",
     "extend": "Extend the deadline",
     "expiredNotice": "This request has expired: suppliers can no longer reply. Extend the deadline to reopen it."

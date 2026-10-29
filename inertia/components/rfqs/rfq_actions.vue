@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3'
+import { Lock, Megaphone, Send, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
+import { ICON_SIZE } from '~/types/ui'
 import type { RfqDetailType } from '#shared/types/rfq'
 
 /**
- * Transitions pilotables depuis l'écran de détail. Chaque bouton n'apparaît
- * que lorsque la transition est possible — le service reste seul juge et
- * répond par un message flash si l'état a changé entre-temps.
+ * Transitions pilotables depuis l'en-tête de l'écran de détail. Chaque bouton
+ * n'apparaît que lorsque la transition est possible — le service reste seul
+ * juge et répond par un message flash si l'état a changé entre-temps.
+ * Publier et envoyer font avancer la demande : ce sont les actions primaires ;
+ * clôturer et supprimer sont irréversibles, donc en `danger`.
  */
 const props = defineProps<{ rfq: RfqDetailType }>()
 
@@ -44,17 +48,21 @@ function close() {
 
 <template>
   <div class="flex flex-wrap items-center gap-3">
-    <BaseButton v-if="canPublish()" variant="secondary" @click="post('rfqs.publish')">
-      {{ t('rfq.actions.publish') }}
-    </BaseButton>
-    <BaseButton v-if="canSend()" variant="secondary" @click="post('rfqs.send')">
-      {{ t('rfq.actions.send') }}
+    <BaseButton v-if="canDelete()" variant="danger" @click="destroy()">
+      <template #icon><Trash2 :size="ICON_SIZE" aria-hidden="true" /></template>
+      {{ t('rfq.actions.delete') }}
     </BaseButton>
     <BaseButton v-if="canClose()" variant="danger" @click="close()">
+      <template #icon><Lock :size="ICON_SIZE" aria-hidden="true" /></template>
       {{ t('rfq.actions.close') }}
     </BaseButton>
-    <BaseButton v-if="canDelete()" variant="danger" @click="destroy()">
-      {{ t('rfq.actions.delete') }}
+    <BaseButton v-if="canPublish()" @click="post('rfqs.publish')">
+      <template #icon><Megaphone :size="ICON_SIZE" aria-hidden="true" /></template>
+      {{ t('rfq.actions.publish') }}
+    </BaseButton>
+    <BaseButton v-if="canSend()" @click="post('rfqs.send')">
+      <template #icon><Send :size="ICON_SIZE" aria-hidden="true" /></template>
+      {{ t('rfq.actions.send') }}
     </BaseButton>
   </div>
 </template>

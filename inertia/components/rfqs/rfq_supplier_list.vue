@@ -1,12 +1,20 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3'
+import { Users } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import BaseAvatar from '~/components/base/base_avatar.vue'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseButton from '~/components/base/base_button.vue'
+import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import { RFQ_SUPPLIER_STATUS_TONES } from '~/components/rfqs/types'
 import type { RfqSupplierType } from '#shared/types/rfq'
 
+/**
+ * Destinataires d'une demande, dans le corps d'une `BaseSection` : une ligne
+ * par fournisseur (logo ou initiales, date d'envoi, statut), séparées par une
+ * hairline.
+ */
 const props = defineProps<{
   rfqId: number
   suppliers: RfqSupplierType[]
@@ -33,32 +41,45 @@ function remove(supplier: RfqSupplierType) {
 function formatDate(value: string): string {
   return new Date(value).toLocaleDateString(locale.value)
 }
+
+/** Deux premières initiales du nom, pour l'avatar des fournisseurs sans logo. */
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word.charAt(0))
+    .join('')
+}
 </script>
 
 <template>
-  <p v-if="suppliers.length === 0" class="text-sm text-[var(--gray-6)]">
-    {{ t('rfq.show.noSuppliers') }}
-  </p>
+  <BaseEmptyState
+    v-if="suppliers.length === 0"
+    compact
+    :title="t('rfq.show.noSuppliers')"
+    :icon="Users"
+  />
 
-  <ul v-else class="flex flex-col gap-2">
+  <ul v-else class="flex flex-col">
     <li
       v-for="supplier in suppliers"
       :key="supplier.id"
-      class="flex items-center gap-3 rounded border border-[var(--gray-3)] p-3"
+      class="flex items-center gap-3 border-b border-hairline py-3 first:pt-0 last:border-0 last:pb-0"
     >
       <img
         v-if="supplier.logoUrl"
         :src="supplier.logoUrl"
         alt=""
-        class="h-8 w-8 rounded object-cover"
+        class="size-8 shrink-0 rounded-md object-cover"
       />
-      <div class="flex-1">
-        <p class="font-medium">{{ supplier.name }}</p>
-        <p v-if="supplier.sentAt" class="text-sm text-[var(--gray-6)]">
+      <BaseAvatar v-else :initials="initials(supplier.name)" size="sm" />
+      <div class="flex min-w-0 flex-1 flex-col">
+        <p class="truncate text-body-sm font-semibold text-text-primary">{{ supplier.name }}</p>
+        <p v-if="supplier.sentAt" class="text-caption text-text-muted">
           {{ t('rfq.show.sentAt', { date: formatDate(supplier.sentAt) }) }}
         </p>
       </div>
-      <BaseBadge :tone="RFQ_SUPPLIER_STATUS_TONES[supplier.status]">
+      <BaseBadge dot :tone="RFQ_SUPPLIER_STATUS_TONES[supplier.status]">
         {{ t(`rfq.supplierStatus.${supplier.status}`) }}
       </BaseBadge>
       <BaseButton

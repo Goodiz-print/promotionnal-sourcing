@@ -3,8 +3,10 @@ import { computed, ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import BaseAlert from '~/components/base/base_alert.vue'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseInput from '~/components/base/base_input.vue'
+import BaseSection from '~/components/base/base_section.vue'
 import type { RfqDetailType } from '#shared/types/rfq'
 
 /**
@@ -46,21 +48,33 @@ function extend() {
 </script>
 
 <template>
-  <section class="flex flex-col gap-3 rounded border border-[var(--gray-3)] p-4">
-    <p v-if="rfq.status === 'expired'" class="text-sm text-[var(--gray-8)]" role="status">
-      {{ t('rfq.deadline.expiredNotice') }}
-    </p>
-    <div class="flex flex-wrap items-end gap-3">
-      <BaseInput
-        id="rfq-extend-deadline"
-        v-model="deadline"
-        type="date"
-        :min="minDate"
-        :label="t('rfq.deadline.label')"
-      />
-      <BaseButton variant="secondary" :disabled="!deadline || saving" @click="extend()">
-        {{ t('rfq.deadline.extend') }}
-      </BaseButton>
+  <BaseSection :title="t('rfq.deadline.title')" :description="t('rfq.deadline.description')">
+    <div class="flex flex-col gap-4">
+      <BaseAlert v-if="rfq.status === 'expired'" tone="warning">
+        {{ t('rfq.deadline.expiredNotice') }}
+      </BaseAlert>
+      <div class="flex flex-wrap items-end gap-3">
+        <div class="w-full sm:w-64">
+          <BaseInput
+            id="rfq-extend-deadline"
+            v-model="deadline"
+            type="date"
+            :min="minDate"
+            :label="t('rfq.deadline.label')"
+          />
+        </div>
+        <!-- `mb-1` centre le bouton (h-9) sur la hauteur du champ (h-11). -->
+        <BaseButton
+          variant="secondary"
+          size="sm"
+          class="mb-1"
+          :disabled="!deadline || saving"
+          :loading="saving"
+          @click="extend()"
+        >
+          {{ t('rfq.deadline.extend') }}
+        </BaseButton>
+      </div>
     </div>
-  </section>
+  </BaseSection>
 </template>

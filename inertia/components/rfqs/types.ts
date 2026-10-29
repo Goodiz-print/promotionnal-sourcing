@@ -1,5 +1,6 @@
 import { DEFAULT_RFQ_ITEM_QUANTITY } from '#shared/types/rfq'
 import type { RfqProductOptionType, RfqSupplierStatus, RfqStatus } from '#shared/types/rfq'
+import type { BadgeTone } from '~/types/ui'
 
 /**
  * Ligne du formulaire de demande. `quantity` est `number | null` : le champ
@@ -42,16 +43,14 @@ export function itemFromProduct(product: RfqProductOptionType): RfqItemFormState
   }
 }
 
-type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'danger'
-
 /**
  * Tonalité de la pastille par statut. Le brouillon reste neutre, la demande
  * publiée attire l'œil (une action reste à faire), la clôture s'efface.
  */
-export const RFQ_STATUS_TONES: Record<RfqStatus, Tone> = {
+export const RFQ_STATUS_TONES: Record<RfqStatus, BadgeTone> = {
   draft: 'neutral',
   published: 'info',
-  closed: 'success',
+  closed: 'neutral',
   expired: 'warning',
 }
 
@@ -59,7 +58,7 @@ export const RFQ_STATUS_TONES: Record<RfqStatus, Tone> = {
  * Côté destinataire, seul « a répondu » est un succès ; « à envoyer » signale
  * une action en attente de l'acheteur, « a décliné » une impasse.
  */
-export const RFQ_SUPPLIER_STATUS_TONES: Record<RfqSupplierStatus, Tone> = {
+export const RFQ_SUPPLIER_STATUS_TONES: Record<RfqSupplierStatus, BadgeTone> = {
   pending: 'warning',
   sent: 'info',
   viewed: 'info',

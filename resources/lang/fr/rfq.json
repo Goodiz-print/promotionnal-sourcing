@@ -3,10 +3,20 @@
     "title": "Demandes de devis",
     "subtitle": "Décrivez un besoin, consultez plusieurs fournisseurs, comparez leurs réponses.",
     "empty": "Aucune demande pour le moment.",
+    "emptyDescription": "Décrivez votre besoin, choisissez des fournisseurs et comparez leurs devis au même endroit.",
     "new": "Nouvelle demande",
     "itemCount": "{count, plural, one {# ligne} other {# lignes}}",
     "supplierCount": "{count, plural, =0 {aucun destinataire} one {# destinataire} other {# destinataires}}",
-    "responded": "{responded} / {total} réponses"
+    "responded": "{responded} / {total} réponses",
+    "responses": "{responded} / {total}",
+    "columns": {
+      "title": "Demande",
+      "items": "Lignes",
+      "suppliers": "Destinataires",
+      "responses": "Réponses",
+      "status": "Statut",
+      "deadline": "Échéance"
+    }
   },
   "create": {
     "title": "Nouvelle demande de devis",
@@ -140,6 +150,8 @@
     "add": "Ajouter"
   },
   "deadline": {
+    "title": "Échéance de la consultation",
+    "description": "Donnez plus de temps aux fournisseurs : seule la date change, pas le besoin.",
     "label": "Nouvelle échéance",
     "extend": "Prolonger l'échéance",
     "expiredNotice": "Cette demande est échue : les fournisseurs ne peuvent plus y répondre. Prolongez l'échéance pour la rouvrir."

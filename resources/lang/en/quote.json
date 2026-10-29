@@ -57,7 +57,8 @@
     "cheapest": "Cheapest",
     "fastest": "Fastest",
     "leadTime": "Overall lead time",
-    "validUntil": "Valid until"
+    "validUntil": "Valid until",
+    "noValidity": "Not specified"
   },
   "show": {
     "title": "Quote from {supplierName}",
