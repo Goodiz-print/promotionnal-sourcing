@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /// <reference path="../manifest.d.ts" />
 
-import type { ExtractBody, ExtractErrorResponse, ExtractQuery, ExtractQueryForGet, ExtractResponse } from '@tuyau/core/types'
+import type { ExtractBody, ExtractErrorResponse, ExtractQuery, ExtractQueryForGet, ExtractRawResponse, ExtractResponse } from '@tuyau/core/types'
 import type { InferInput, SimpleError } from '@vinejs/vine/types'
 
 export type ParamValue = string | number | bigint | boolean
@@ -17,6 +17,7 @@ export interface Registry {
       query: {}
       response: unknown
       errorResponse: unknown
+      rawResponse: ExtractRawResponse<unknown>
     }
   }
   'subscribe': {
@@ -29,6 +30,7 @@ export interface Registry {
       query: {}
       response: unknown
       errorResponse: unknown
+      rawResponse: ExtractRawResponse<unknown>
     }
   }
   'unsubscribe': {
@@ -41,6 +43,7 @@ export interface Registry {
       query: {}
       response: unknown
       errorResponse: unknown
+      rawResponse: ExtractRawResponse<unknown>
     }
   }
   'marketing.sitemap': {
@@ -53,6 +56,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['sitemap']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['sitemap']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['sitemap']>>>
     }
   }
   'locale.update': {
@@ -65,6 +69,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/locale').updateLocaleValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/locale_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/locale_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/locale_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'health.show': {
@@ -77,6 +82,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/health_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/health_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/health_controller').default['show']>>>
     }
   }
   'home': {
@@ -89,6 +95,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['home']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['home']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['home']>>>
     }
   }
   'marketing.contact': {
@@ -101,6 +108,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['contact']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['contact']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['contact']>>>
     }
   }
   'marketing.legal': {
@@ -113,6 +121,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['legal']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['legal']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['legal']>>>
     }
   }
   'marketing.privacy': {
@@ -125,6 +134,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['privacy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['privacy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['privacy']>>>
     }
   }
   'marketing.thanks': {
@@ -137,6 +147,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['thanks']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['thanks']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['thanks']>>>
     }
   }
   'suppliers.index': {
@@ -149,6 +160,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/suppliers_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/suppliers_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/suppliers_controller').default['index']>>>
     }
   }
   'suppliers.show': {
@@ -161,6 +173,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/suppliers_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/suppliers_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/suppliers_controller').default['show']>>>
     }
   }
   'products.index': {
@@ -173,6 +186,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/products_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/products_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/products_controller').default['index']>>>
     }
   }
   'products.show': {
@@ -185,6 +199,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/products_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/products_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/products_controller').default['show']>>>
     }
   }
   'organization.invitations.show': {
@@ -197,6 +212,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/invitation_acceptance_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/invitation_acceptance_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/organization/invitation_acceptance_controller').default['show']>>>
     }
   }
   'email.verify': {
@@ -209,6 +225,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['verify']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['verify']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['verify']>>>
     }
   }
   'new_account.create': {
@@ -221,6 +238,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/new_account_controller').default['create']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/new_account_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/new_account_controller').default['create']>>>
     }
   }
   'new_account.store': {
@@ -233,6 +251,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/user').signupValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/new_account_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/new_account_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/new_account_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'agency_signup.create': {
@@ -245,6 +264,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/agency_signup_controller').default['create']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/agency_signup_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/agency_signup_controller').default['create']>>>
     }
   }
   'agency_signup.store': {
@@ -257,6 +277,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/agency_signup').agencySignupValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/agency_signup_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/agency_signup_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/agency_signup_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'session.create': {
@@ -269,6 +290,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/session_controller').default['create']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/session_controller').default['create']>>>
     }
   }
   'session.store': {
@@ -281,6 +303,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/session_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['store']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/session_controller').default['store']>>>
     }
   }
   'passkey.login.options': {
@@ -293,6 +316,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/passkey_session_controller').default['options']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/passkey_session_controller').default['options']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/passkey_session_controller').default['options']>>>
     }
   }
   'passkey.login': {
@@ -305,6 +329,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/passkey').authenticatePasskeyValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/passkey_session_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/passkey_session_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/passkey_session_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'password.forgot': {
@@ -317,6 +342,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['create']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['create']>>>
     }
   }
   'password.email': {
@@ -329,6 +355,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/password').forgotPasswordValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'password.reset': {
@@ -341,6 +368,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['edit']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['edit']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['edit']>>>
     }
   }
   'password.update': {
@@ -353,6 +381,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/password').resetPasswordValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'session.destroy': {
@@ -365,6 +394,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
     }
   }
   'email.notice': {
@@ -377,6 +407,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['notice']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['notice']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['notice']>>>
     }
   }
   'email.verification.resend': {
@@ -389,6 +420,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['resend']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['resend']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['resend']>>>
     }
   }
   'account.show': {
@@ -401,6 +433,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/account_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/account_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/account_controller').default['show']>>>
     }
   }
   'account.update': {
@@ -413,6 +446,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/account').updateAccountValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/account_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/account_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/account_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'account.password.update': {
@@ -425,6 +459,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/account').updatePasswordValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/account_controller').default['updatePassword']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/account_controller').default['updatePassword']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/account_controller').default['updatePassword']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'account.destroy': {
@@ -437,6 +472,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/account').destroyAccountValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/account_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/account_controller').default['destroy']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/account_controller').default['destroy']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'account.passkeys.options': {
@@ -449,6 +485,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['options']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['options']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['options']>>>
     }
   }
   'account.passkeys.store': {
@@ -461,6 +498,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/passkey').registerPasskeyValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'account.passkeys.update': {
@@ -473,6 +511,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/passkey').renamePasskeyValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'account.passkeys.destroy': {
@@ -485,6 +524,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['destroy']>>>
     }
   }
   'onboarding.show': {
@@ -497,6 +537,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/onboarding_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/onboarding_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/onboarding_controller').default['show']>>>
     }
   }
   'onboarding.store': {
@@ -509,6 +550,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/onboarding').onboardingValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/onboarding_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/onboarding_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/onboarding_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'organization.invitations.accept': {
@@ -521,6 +563,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/invitation_acceptance_controller').default['accept']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/invitation_acceptance_controller').default['accept']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/organization/invitation_acceptance_controller').default['accept']>>>
     }
   }
   'dashboard.show': {
@@ -533,6 +576,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/dashboard_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/dashboard_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/dashboard_controller').default['show']>>>
     }
   }
   'organization.settings': {
@@ -545,6 +589,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/settings_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/settings_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/organization/settings_controller').default['show']>>>
     }
   }
   'organization.settings.update': {
@@ -557,6 +602,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/organization').updateOrganizationValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/settings_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/settings_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/organization/settings_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'organization.switch': {
@@ -569,6 +615,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['switch']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['switch']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['switch']>>>
     }
   }
   'organization.create': {
@@ -581,6 +628,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['create']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['create']>>>
     }
   }
   'organization.store': {
@@ -593,6 +641,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/onboarding').onboardingValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'organization.leave': {
@@ -605,6 +654,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['leave']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['leave']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['leave']>>>
     }
   }
   'organization.archive': {
@@ -617,6 +667,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['archive']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['archive']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/organization/lifecycle_controller').default['archive']>>>
     }
   }
   'organization.members': {
@@ -629,6 +680,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/members_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/members_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/organization/members_controller').default['index']>>>
     }
   }
   'organization.members.update': {
@@ -641,6 +693,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/organization_member').updateMemberRoleValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/members_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/members_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/organization/members_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'organization.members.destroy': {
@@ -653,6 +706,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/members_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/members_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/organization/members_controller').default['destroy']>>>
     }
   }
   'organization.invitations.store': {
@@ -665,6 +719,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/organization_invitation').inviteMemberValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/invitations_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/invitations_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/organization/invitations_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'organization.invitations.resend': {
@@ -677,6 +732,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/invitations_controller').default['resend']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/invitations_controller').default['resend']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/organization/invitations_controller').default['resend']>>>
     }
   }
   'organization.invitations.destroy': {
@@ -689,6 +745,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/organization/invitations_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/organization/invitations_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/organization/invitations_controller').default['destroy']>>>
     }
   }
   'supplier.profile': {
@@ -701,6 +758,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['show']>>>
     }
   }
   'supplier.profile.update': {
@@ -713,6 +771,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/supplier_profile').updateSupplierProfileValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'supplier.products.index': {
@@ -725,6 +784,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['index']>>>
     }
   }
   'supplier.products.create': {
@@ -737,6 +797,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['create']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['create']>>>
     }
   }
   'supplier.products.store': {
@@ -749,6 +810,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/supplier_product').createSupplierProductValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'supplier.products.edit': {
@@ -761,6 +823,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['edit']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['edit']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['edit']>>>
     }
   }
   'supplier.products.update': {
@@ -773,6 +836,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/supplier_product').updateSupplierProductValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'supplier.products.destroy': {
@@ -785,6 +849,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/product_controller').default['destroy']>>>
     }
   }
   'supplier.documents.store': {
@@ -797,6 +862,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/document').organizationDocumentValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/document_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/document_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/document_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'supplier.documents.destroy': {
@@ -809,6 +875,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/document_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/document_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/document_controller').default['destroy']>>>
     }
   }
   'supplier.products.documents.store': {
@@ -821,6 +888,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/document').productDocumentValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/product_document_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_document_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/product_document_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'supplier.products.documents.destroy': {
@@ -833,6 +901,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/product_document_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/product_document_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/product_document_controller').default['destroy']>>>
     }
   }
   'rfqs.index': {
@@ -845,6 +914,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['index']>>>
     }
   }
   'rfqs.create': {
@@ -857,6 +927,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['create']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['create']>>>
     }
   }
   'rfqs.store': {
@@ -869,6 +940,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/rfq').rfqValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'rfqs.show': {
@@ -881,6 +953,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['show']>>>
     }
   }
   'rfqs.update': {
@@ -893,6 +966,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/rfq').rfqValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'rfqs.destroy': {
@@ -905,6 +979,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['destroy']>>>
     }
   }
   'rfqs.items.from_product': {
@@ -917,6 +992,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/rfq').rfqProductValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['addProduct']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['addProduct']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['addProduct']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'rfqs.suppliers.store': {
@@ -929,6 +1005,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/rfq').rfqSuppliersValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['addSuppliers']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['addSuppliers']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['addSuppliers']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'rfqs.suppliers.destroy': {
@@ -941,6 +1018,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['removeSupplier']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['removeSupplier']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['removeSupplier']>>>
     }
   }
   'rfqs.publish': {
@@ -953,6 +1031,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['publish']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['publish']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['publish']>>>
     }
   }
   'rfqs.send': {
@@ -965,6 +1044,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['send']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['send']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['send']>>>
     }
   }
   'rfqs.close': {
@@ -977,6 +1057,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['close']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['close']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['close']>>>
     }
   }
   'rfqs.deadline.update': {
@@ -989,6 +1070,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/rfq').rfqDeadlineValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['extendDeadline']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['extendDeadline']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['extendDeadline']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'supplier.rfqs.index': {
@@ -1001,6 +1083,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['index']>>>
     }
   }
   'supplier.rfqs.show': {
@@ -1013,6 +1096,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['show']>>>
     }
   }
   'supplier.rfqs.decline': {
@@ -1025,6 +1109,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['decline']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['decline']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['decline']>>>
     }
   }
   'quotes.show': {
@@ -1037,6 +1122,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['show']>>>
     }
   }
   'quotes.accept': {
@@ -1049,6 +1135,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['accept']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['accept']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['accept']>>>
     }
   }
   'quotes.reject': {
@@ -1061,6 +1148,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['reject']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['reject']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['reject']>>>
     }
   }
   'supplier.quotes.index': {
@@ -1073,6 +1161,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['index']>>>
     }
   }
   'supplier.quotes.create': {
@@ -1085,6 +1174,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['create']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['create']>>>
     }
   }
   'supplier.quotes.store': {
@@ -1097,6 +1187,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/quote').quoteValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'supplier.quotes.show': {
@@ -1109,6 +1200,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['show']>>>
     }
   }
   'supplier.quotes.update': {
@@ -1121,6 +1213,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/quote').quoteValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'supplier.quotes.submit': {
@@ -1133,6 +1226,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['submit']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['submit']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['submit']>>>
     }
   }
   'supplier.quotes.destroy': {
@@ -1145,6 +1239,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['destroy']>>>
     }
   }
   'orders.index': {
@@ -1157,6 +1252,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/orders_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/orders_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/orders_controller').default['index']>>>
     }
   }
   'orders.show': {
@@ -1169,6 +1265,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/orders_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/orders_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/orders_controller').default['show']>>>
     }
   }
   'orders.deliver': {
@@ -1181,6 +1278,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/orders_controller').default['deliver']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/orders_controller').default['deliver']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/orders_controller').default['deliver']>>>
     }
   }
   'orders.cancel': {
@@ -1193,6 +1291,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/orders_controller').default['cancel']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/orders_controller').default['cancel']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/orders_controller').default['cancel']>>>
     }
   }
   'supplier.orders.index': {
@@ -1205,6 +1304,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['index']>>>
     }
   }
   'supplier.orders.show': {
@@ -1217,6 +1317,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['show']>>>
     }
   }
   'supplier.orders.confirm': {
@@ -1229,6 +1330,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['confirm']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['confirm']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['confirm']>>>
     }
   }
   'supplier.orders.produce': {
@@ -1241,6 +1343,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['produce']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['produce']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['produce']>>>
     }
   }
   'supplier.orders.ship': {
@@ -1253,6 +1356,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['ship']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['ship']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['ship']>>>
     }
   }
   'supplier.orders.cancel': {
@@ -1265,6 +1369,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['cancel']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['cancel']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/orders_controller').default['cancel']>>>
     }
   }
   'notifications.index': {
@@ -1277,6 +1382,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['index']>>>
     }
   }
   'notifications.read': {
@@ -1289,6 +1395,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['read']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['read']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['read']>>>
     }
   }
   'notifications.readAll': {
@@ -1301,6 +1408,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['readAll']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['readAll']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['readAll']>>>
     }
   }
   'admin.dashboard': {
@@ -1313,6 +1421,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>>
     }
   }
   'admin.organizations.index': {
@@ -1325,6 +1434,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['index']>>>
     }
   }
   'admin.organizations.show': {
@@ -1337,6 +1447,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['show']>>>
     }
   }
   'admin.users.index': {
@@ -1349,6 +1460,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/user_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/user_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/user_controller').default['index']>>>
     }
   }
   'admin.categories.index': {
@@ -1361,6 +1473,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['index']>>>
     }
   }
   'admin.categories.create': {
@@ -1373,6 +1486,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['create']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['create']>>>
     }
   }
   'admin.categories.store': {
@@ -1385,6 +1499,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/category').createCategoryValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'admin.categories.edit': {
@@ -1397,6 +1512,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['edit']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['edit']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['edit']>>>
     }
   }
   'admin.categories.update': {
@@ -1409,6 +1525,7 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/category').updateCategoryValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'admin.categories.destroy': {
@@ -1421,6 +1538,7 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['destroy']>>>
     }
   }
 }
