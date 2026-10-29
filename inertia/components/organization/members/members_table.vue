@@ -2,8 +2,12 @@
 import { router } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import BaseAvatar from '~/components/base/base_avatar.vue'
+import BaseBadge from '~/components/base/base_badge.vue'
 import BaseButton from '~/components/base/base_button.vue'
+import BaseSection from '~/components/base/base_section.vue'
 import BaseSelect from '~/components/base/base_select.vue'
+import BaseTable from '~/components/base/base_table.vue'
 import type { OrganizationMemberType } from '#shared/types/organization'
 import type { RoleType } from '#shared/types/role'
 
@@ -14,6 +18,16 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
+
+/** Initiales de l'avatar : deux premières du nom, sinon le début de l'e-mail. */
+function initials(member: OrganizationMemberType): string {
+  if (!member.fullName) return member.email.slice(0, 2)
+  return member.fullName
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word.charAt(0))
+    .join('')
+}
 
 function changeRole(member: OrganizationMemberType, roleId: string) {
   router.patch(
@@ -32,21 +46,35 @@ function removeMember(member: OrganizationMemberType) {
 </script>
 
 <template>
-  <table class="w-full border-collapse text-sm">
-    <thead>
-      <tr class="border-b border-[var(--gray-4)] text-left text-[var(--gray-6)]">
-        <th class="py-2 pr-4 font-medium">{{ t('organization.members.columns.name') }}</th>
-        <th class="py-2 pr-4 font-medium">{{ t('organization.members.columns.role') }}</th>
-        <th class="py-2"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="member in props.members" :key="member.id" class="border-b border-[var(--gray-3)]">
-        <td class="py-3 pr-4">
-          <div class="font-medium">{{ member.fullName ?? member.email }}</div>
-          <div class="text-[var(--gray-6)]">{{ member.email }}</div>
+  <BaseSection flush :title="t('organization.members.listTitle')">
+    <template #actions>
+      <BaseBadge tone="neutral">{{ props.members.length }}</BaseBadge>
+    </template>
+
+    <BaseTable bare>
+      <template #head>
+        <tr>
+          <th scope="col">{{ t('organization.members.columns.name') }}</th>
+          <th scope="col">{{ t('organization.members.columns.role') }}</th>
+          <th v-if="canManage" scope="col">
+            <span class="sr-only">{{ t('organization.members.columns.actions') }}</span>
+          </th>
+        </tr>
+      </template>
+
+      <tr v-for="member in props.members" :key="member.id">
+        <td>
+          <div class="flex items-center gap-3">
+            <BaseAvatar :initials="initials(member)" size="sm" />
+            <div class="flex min-w-0 flex-col">
+              <span class="truncate font-semibold text-text-primary">
+                {{ member.fullName ?? member.email }}
+              </span>
+              <span class="truncate text-caption text-text-secondary">{{ member.email }}</span>
+            </div>
+          </div>
         </td>
-        <td class="w-48 py-3 pr-4">
+        <td class="w-52">
           <BaseSelect
             v-if="canManage"
             :id="`role-${member.id}`"
@@ -57,14 +85,14 @@ function removeMember(member: OrganizationMemberType) {
               {{ role.name }}
             </option>
           </BaseSelect>
-          <span v-else>{{ member.role.name }}</span>
+          <BaseBadge v-else tone="neutral">{{ member.role.name }}</BaseBadge>
         </td>
-        <td class="py-3 text-right">
-          <BaseButton v-if="canManage" variant="secondary" @click="removeMember(member)">
+        <td v-if="canManage" class="text-right">
+          <BaseButton variant="danger" size="sm" @click="removeMember(member)">
             {{ t('organization.members.remove') }}
           </BaseButton>
         </td>
       </tr>
-    </tbody>
-  </table>
+    </BaseTable>
+  </BaseSection>
 </template>

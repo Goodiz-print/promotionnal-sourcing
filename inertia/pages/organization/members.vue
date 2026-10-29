@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
+import { Plus } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
-import SectionNav from '~/components/organization/section_nav.vue'
+import { useOrganizationTabs } from '~/composables/use_organization_tabs'
+import BaseLinkButton from '~/components/base/base_link_button.vue'
+import BasePageHeader from '~/components/base/base_page_header.vue'
+import BaseTabs from '~/components/base/base_tabs.vue'
 import MembersTable from '~/components/organization/members/members_table.vue'
 import InviteForm from '~/components/organization/members/invite_form.vue'
 import PendingInvitations from '~/components/organization/members/pending_invitations.vue'
 import type { OrganizationMemberType, OrganizationInvitationType } from '#shared/types/organization'
 import type { RoleType } from '#shared/types/role'
 
-const props = defineProps<{
+defineProps<{
   members: OrganizationMemberType[]
   invitations: OrganizationInvitationType[]
   roles: RoleType[]
@@ -16,30 +20,31 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+const { items: tabs, label: tabsLabel, createHref, createLabel } = useOrganizationTabs()
 </script>
 
 <template>
   <Head :title="t('organization.members.title')" />
 
-  <div class="mx-auto flex max-w-[720px] flex-col justify-center gap-8 px-6 py-12">
-    <SectionNav current="members" />
-
-    <div>
-      <h1 class="mb-1.25 text-[32px] tracking-[-0.5px]">{{ t('organization.members.title') }}</h1>
-      <p class="text-lg text-[var(--gray-6)]">{{ t('organization.members.subtitle') }}</p>
-    </div>
-
-    <MembersTable
-      :members="props.members"
-      :roles="props.roles"
-      :can-manage="props.canManageMembers"
+  <div class="mx-auto flex w-full max-w-[860px] flex-col gap-8">
+    <BasePageHeader
+      :title="t('organization.members.title')"
+      :description="t('organization.members.subtitle')"
     />
 
-    <div>
-      <h2 class="mb-3 font-medium">{{ t('organization.invitations.inviteTitle') }}</h2>
-      <InviteForm :roles="props.roles" />
-    </div>
+    <BaseTabs :items="tabs" :label="tabsLabel">
+      <template #actions>
+        <BaseLinkButton :href="createHref" variant="ghost" size="sm">
+          <Plus :size="16" aria-hidden="true" />
+          {{ createLabel }}
+        </BaseLinkButton>
+      </template>
+    </BaseTabs>
 
-    <PendingInvitations :invitations="props.invitations" />
+    <MembersTable :members="members" :roles="roles" :can-manage="canManageMembers" />
+
+    <InviteForm :roles="roles" />
+
+    <PendingInvitations :invitations="invitations" />
   </div>
 </template>

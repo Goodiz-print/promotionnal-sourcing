@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { provide } from 'vue'
 import { Head, useForm } from '@inertiajs/vue3'
+import { Plus } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import { useOrganizationTabs } from '~/composables/use_organization_tabs'
 import BaseButton from '~/components/base/base_button.vue'
-import SectionNav from '~/components/organization/section_nav.vue'
+import BaseLinkButton from '~/components/base/base_link_button.vue'
+import BasePageHeader from '~/components/base/base_page_header.vue'
+import BaseSection from '~/components/base/base_section.vue'
+import BaseTabs from '~/components/base/base_tabs.vue'
 import GeneralFields from '~/components/organization/settings/general_fields.vue'
 import AddressFields from '~/components/organization/settings/address_fields.vue'
 import LogoField from '~/components/organization/settings/logo_field.vue'
@@ -18,6 +23,7 @@ import type { OrganizationType } from '#shared/types/organization'
 const props = defineProps<{ organization: OrganizationType; canLeave: boolean }>()
 
 const { t, locale } = useI18n()
+const { items: tabs, label: tabsLabel, createHref, createLabel } = useOrganizationTabs()
 
 const form = useForm<OrganizationSettingsFormState>({
   name: props.organization.name,
@@ -80,22 +86,39 @@ function submit() {
 <template>
   <Head :title="t('organization.settings.title')" />
 
-  <div class="mx-auto flex max-w-[720px] flex-col justify-center px-6 py-12">
-    <SectionNav current="settings" />
+  <div class="mx-auto flex w-full max-w-[860px] flex-col gap-8">
+    <BasePageHeader
+      :title="t('organization.settings.title')"
+      :description="t('organization.settings.subtitle')"
+    />
 
-    <div>
-      <h1 class="mb-1.25 text-[32px] tracking-[-0.5px]">{{ t('organization.settings.title') }}</h1>
-      <p class="mb-8 text-lg text-[var(--gray-6)]">{{ t('organization.settings.subtitle') }}</p>
-    </div>
+    <BaseTabs :items="tabs" :label="tabsLabel">
+      <template #actions>
+        <BaseLinkButton :href="createHref" variant="ghost" size="sm">
+          <Plus :size="16" aria-hidden="true" />
+          {{ createLabel }}
+        </BaseLinkButton>
+      </template>
+    </BaseTabs>
 
-    <form class="flex flex-col gap-8" @submit.prevent="submit">
-      <LogoField :current-logo-url="organization.logoUrl" />
-      <GeneralFields />
-      <AddressFields />
+    <form class="flex flex-col gap-6" @submit.prevent="submit">
+      <BaseSection as="fieldset" :title="t('organization.fields.logo')">
+        <LogoField :current-logo-url="organization.logoUrl" />
+      </BaseSection>
 
-      <BaseButton type="submit" :disabled="form.processing">
-        {{ t('organization.settings.submit') }}
-      </BaseButton>
+      <BaseSection as="fieldset" :title="t('organization.settings.sections.general')">
+        <GeneralFields />
+      </BaseSection>
+
+      <BaseSection as="fieldset" :title="t('organization.settings.sections.address')">
+        <AddressFields />
+      </BaseSection>
+
+      <div class="flex justify-end">
+        <BaseButton type="submit" :loading="form.processing">
+          {{ t('organization.settings.submit') }}
+        </BaseButton>
+      </div>
     </form>
 
     <DangerZone :organization-name="organization.name" :can-leave="canLeave" />

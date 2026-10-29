@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3'
+import { Archive, LogOut } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
+import BaseDangerZone from '~/components/base/base_danger_zone.vue'
 
 const props = defineProps<{ organizationName: string; canLeave: boolean }>()
 
@@ -31,32 +33,34 @@ function archive() {
 </script>
 
 <template>
-  <section class="mt-12 rounded border border-[var(--state-danger)] p-6">
-    <h2 class="mb-1.25 text-lg font-medium text-[var(--state-danger)]">
-      {{ t('organization.danger.title') }}
-    </h2>
-    <p class="mb-6 text-sm text-[var(--gray-6)]">{{ t('organization.danger.subtitle') }}</p>
-
-    <div class="flex flex-col gap-6">
-      <div v-if="canLeave" class="flex items-start justify-between gap-6">
-        <div>
-          <p class="text-sm font-medium">{{ t('organization.leave.title') }}</p>
-          <p class="text-sm text-[var(--gray-6)]">{{ t('organization.leave.description') }}</p>
-        </div>
-        <BaseButton variant="danger" @click="leave">{{
-          t('organization.leave.submit')
-        }}</BaseButton>
+  <BaseDangerZone
+    :title="t('organization.danger.title')"
+    :description="t('organization.danger.subtitle')"
+  >
+    <div v-if="canLeave" class="flex items-start justify-between gap-6">
+      <div class="flex flex-col gap-0.5">
+        <p class="text-body-sm font-semibold text-text-primary">
+          {{ t('organization.leave.title') }}
+        </p>
+        <p class="text-body-sm text-text-secondary">{{ t('organization.leave.description') }}</p>
       </div>
-
-      <div class="flex items-start justify-between gap-6">
-        <div>
-          <p class="text-sm font-medium">{{ t('organization.archive.title') }}</p>
-          <p class="text-sm text-[var(--gray-6)]">{{ t('organization.archive.description') }}</p>
-        </div>
-        <BaseButton variant="danger" @click="archive">
-          {{ t('organization.archive.submit') }}
-        </BaseButton>
-      </div>
+      <BaseButton variant="danger" size="sm" @click="leave">
+        <template #icon><LogOut :size="16" aria-hidden="true" /></template>
+        {{ t('organization.leave.submit') }}
+      </BaseButton>
     </div>
-  </section>
+
+    <div class="flex items-start justify-between gap-6">
+      <div class="flex flex-col gap-0.5">
+        <p class="text-body-sm font-semibold text-text-primary">
+          {{ t('organization.archive.title') }}
+        </p>
+        <p class="text-body-sm text-text-secondary">{{ t('organization.archive.description') }}</p>
+      </div>
+      <BaseButton variant="danger" size="sm" @click="archive">
+        <template #icon><Archive :size="16" aria-hidden="true" /></template>
+        {{ t('organization.archive.submit') }}
+      </BaseButton>
+    </div>
+  </BaseDangerZone>
 </template>
