@@ -3,7 +3,11 @@
     "title": "Ustawienia organizacji",
     "subtitle": "Zarządzaj ogólnymi informacjami o organizacji.",
     "submit": "Zapisz",
-    "success": "Ustawienia organizacji zostały zaktualizowane."
+    "success": "Ustawienia organizacji zostały zaktualizowane.",
+    "sections": {
+      "general": "Informacje ogólne",
+      "address": "Adres"
+    }
   },
   "fields": {
     "name": "Nazwa",
@@ -39,20 +43,23 @@
   "nav": {
     "settings": "Ustawienia",
     "members": "Członkowie",
-    "create": "Nowa organizacja"
+    "create": "Nowa organizacja",
+    "label": "Sekcje organizacji"
   },
   "members": {
     "title": "Członkowie organizacji",
     "subtitle": "Zarządzaj rolami i dostępem członków organizacji.",
     "columns": {
       "name": "Członek",
-      "role": "Rola"
+      "role": "Rola",
+      "actions": "Akcje"
     },
     "remove": "Usuń",
     "confirmRemove": "Usunąć tego członka z organizacji?",
     "roleUpdated": "Rola członka została zaktualizowana.",
     "removed": "Członek został usunięty z organizacji.",
-    "lastOwnerError": "Nie można usunąć ostatniego właściciela organizacji ani obniżyć jego roli."
+    "lastOwnerError": "Nie można usunąć ostatniego właściciela organizacji ani obniżyć jego roli.",
+    "listTitle": "Członkowie"
   },
   "invitations": {
     "inviteTitle": "Zaproś członka",

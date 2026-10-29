@@ -1,0 +1,46 @@
+{
+  "heading": "Aviso legal",
+  "eyebrow": "Informações legais",
+  "intro": "Identidade do editor do site promotional-sourcing.eu, do respetivo alojamento e regras de utilização do seu conteúdo.",
+  "updatedAt": "26 de agosto de 2026",
+  "seoTitle": "Aviso legal — Promotional Sourcing.eu",
+  "seoDescription": "Aviso legal do site promotional-sourcing.eu: editor, alojamento, propriedade intelectual.",
+  "sections": {
+    "editeur": {
+      "title": "Editor do site",
+      "body": "<p>PROMOTIONAL SOURCING, société par actions simplifiée (sociedade por ações simplificada de direito francês) com um capital social de 1 000 €</p> <p>Site: promotional-sourcing.eu</p> <p>Diretor da publicação: Virgile Accomando</p>"
+    },
+    "siege": {
+      "title": "Morada da sede social",
+      "body": "<address>PROMOTIONAL SOURCING<br />72 quai de Bacalan<br />33300 Bordeaux — França</address>"
+    },
+    "immatriculation": {
+      "title": "Registo comercial",
+      "body": "<p>SIREN 108 093 790 — RCS Bordeaux (Registo Comercial de Bordéus)<br />SIRET (sede): 108 093 790 00013<br />Código NAF/APE: 6312Z — Portais de internet</p>"
+    },
+    "tva": {
+      "title": "Número de IVA",
+      "body": "<p>Número de identificação de IVA intracomunitário: FR03 108 093 790</p>"
+    },
+    "activite": {
+      "title": "Atividade",
+      "body": "<p>Edição e exploração de uma plataforma web de sourcing de produtos promocionais, que coloca em contacto compradores profissionais e fornecedores.</p>"
+    },
+    "hebergeur": {
+      "title": "Alojamento do site",
+      "body": "<address>Netlify, Inc.<br />512 2nd Street, Suite 200<br />San Francisco, CA 94107 — Estados Unidos<br /><a href=\"https://www.netlify.com\" rel=\"noopener noreferrer\" target=\"_blank\">netlify.com</a></address>"
+    },
+    "contact": {
+      "title": "Contacte-nos",
+      "body": "<p>Telefone: <a href=\"tel:+33638012975\">+33 6 38 01 29 75</a></p> <p>E-mail: <a href=\"mailto:contact@promotional-sourcing.eu\">contact@promotional-sourcing.eu</a></p>"
+    },
+    "propriete-intellectuelle": {
+      "title": "Propriedade intelectual",
+      "body": "<p>Todos os elementos que compõem o site promotional-sourcing.eu (textos, grafismos, logótipos, imagens, estrutura) são propriedade exclusiva da PROMOTIONAL SOURCING ou são utilizados mediante autorização. Qualquer reprodução, representação ou difusão, total ou parcial, sem autorização escrita prévia é proibida e constitui contrafação, nos termos dos artigos L.335-2 e seguintes do Código da Propriedade Intelectual francês.</p>"
+    },
+    "donnees-personnelles": {
+      "title": "Dados pessoais",
+      "body": "<p>A PROMOTIONAL SOURCING atribui grande importância à proteção e à segurança dos seus dados pessoais. Para saber mais sobre a recolha e o tratamento dos seus dados, consulte a nossa <a href=\"/pt/privacy\">Política de privacidade</a>.</p>"
+    }
+  }
+}

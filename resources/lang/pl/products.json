@@ -12,7 +12,48 @@
     "searchUnavailable": "Wyszukiwanie jest chwilowo niedostępne. Spróbuj ponownie za chwilę lub przeglądaj kategorie.",
     "loading": "Ładowanie produktów…",
     "previous": "Poprzednia",
-    "next": "Następna"
+    "next": "Następna",
+    "selectCategoryForFilters": "Wybierz kategorię, aby wyświetlić jej filtry.",
+    "rangeUnder": "< {max}",
+    "rangeOver": "≥ {min}",
+    "rangeBetween": "{min}–{max}",
+    "newOnly": "Nowości",
+    "origin": {
+      "title": "Pochodzenie",
+      "france": "Francja",
+      "europe": "Europa",
+      "other": "Spoza Europy"
+    },
+    "ecoOnly": "Ekologiczne",
+    "stock": {
+      "title": "Zapasy",
+      "in_stock": "Dostępne",
+      "out_of_stock": "Wyprzedane",
+      "on_order": "Na zamówienie"
+    },
+    "price": {
+      "title": "Cena",
+      "currency": "€"
+    },
+    "moq": {
+      "title": "Minimalna ilość"
+    },
+    "certifications": {
+      "title": "Znaki zgodności",
+      "domains": {
+        "environment": "Środowisko",
+        "textile": "Tekstylia",
+        "social": "Społeczne",
+        "safety": "Bezpieczeństwo",
+        "food_contact": "Kontakt z żywnością",
+        "forestry": "Leśnictwo / drewno",
+        "quality": "Jakość"
+      }
+    },
+    "filtersTitle": "Filtry",
+    "reset": "Resetuj",
+    "quickFilters": "Szybkie filtry",
+    "emptyHint": "Poszerz kryteria lub zresetuj filtry."
   },
   "show": {
     "backToCatalogue": "Powrót do katalogu",
@@ -28,12 +69,30 @@
     "tierFrom": "Od {quantity} szt.",
     "addToDraft": "Dodaj do szkicu zapytania",
     "chooseDraft": "Wybierz szkic…",
-    "signInToRequest": "Zaloguj się, aby poprosić o wycenę"
+    "signInToRequest": "Zaloguj się, aby poprosić o wycenę",
+    "compliance": "Zgodność",
+    "eco": "Ekologiczne",
+    "recycledContent": "{percent} % materiału z recyklingu",
+    "packaging": "Pakowanie / logistyka",
+    "cartonDimensions": "Wymiary kartonu zbiorczego (dł. × szer. × wys., mm)",
+    "marking": "Znakowanie",
+    "markingPrices": "Ceny znakowania",
+    "markingTechnique": "Technika znakowania",
+    "specifications": "Specyfikacja"
   },
   "manage": {
     "index": {
       "title": "Moje produkty",
-      "empty": "Nie mają Państwo jeszcze żadnego produktu. Proszę utworzyć pierwszy."
+      "empty": "Nie mają Państwo jeszcze żadnego produktu. Proszę utworzyć pierwszy.",
+      "columns": {
+        "product": "Produkt",
+        "price": "Cena",
+        "status": "Status",
+        "actions": "Akcje"
+      },
+      "emptyDescription": "Dodaj swoje produkty, aby pojawiły się w katalogu i mogły być uwzględniane w zapytaniach ofertowych.",
+      "noPrice": "Cena na zapytanie",
+      "priceRange": "{min} – {max}"
     },
     "create": {
       "title": "Nowy produkt"
@@ -70,7 +129,29 @@
       "originCountry": "Kraj pochodzenia",
       "madeInEurope": "Wyprodukowano w Europie",
       "isActive": "Opublikowany",
-      "images": "Dodaj obrazy"
+      "images": "Dodaj obrazy",
+      "brand": "Marka",
+      "hsCode": "Kod celny (HS)",
+      "lifecycleStatus": "Status produktu",
+      "releasedAt": "Data premiery",
+      "supplierCategoryRaw": "Kategoria dostawcy (oryginalna)",
+      "videoUrl": "Wideo (URL)",
+      "leadTimeDays": "Orientacyjny czas realizacji (dni)",
+      "rushLeadTimeDays": "Ekspresowy czas realizacji (dni)",
+      "rushService": "Usługa ekspresowa",
+      "isConfigurable": "Produkt konfigurowalny",
+      "recycledContentPercent": "Udział materiału z recyklingu (%)",
+      "cautionComment": "Środki ostrożności / ostrzeżenia",
+      "certifications": "Znaki zgodności",
+      "packageType": "Rodzaj opakowania",
+      "unitGrossWeightG": "Jednostkowa waga brutto (g)",
+      "innerCartonQty": "Ilość w kartonie wewnętrznym",
+      "outerCartonQty": "Ilość w kartonie zbiorczym",
+      "outerCartonLengthMm": "Długość kartonu zbiorczego (mm)",
+      "outerCartonWidthMm": "Szerokość kartonu zbiorczego (mm)",
+      "outerCartonHeightMm": "Wysokość kartonu zbiorczego (mm)",
+      "outerCartonGrossWeightG": "Waga brutto kartonu zbiorczego (g)",
+      "outerCartonVolumeM3": "Objętość kartonu zbiorczego (m³)"
     },
     "variants": {
       "title": "Warianty",
@@ -79,7 +160,16 @@
       "remove": "Usuń",
       "sku": "SKU",
       "image": "Obraz wariantu",
-      "isActive": "Wariant dostępny"
+      "isActive": "Wariant dostępny",
+      "gtin": "Kod EAN/GTIN",
+      "stockQuantity": "Ilość w magazynie",
+      "stockStatus": "Status zapasów",
+      "stockUnknown": "Nie podano",
+      "stockStatuses": {
+        "in_stock": "Dostępne",
+        "out_of_stock": "Wyprzedane",
+        "on_order": "Na zamówienie"
+      }
     },
     "priceTiers": {
       "title": "Progi cenowe",
@@ -90,6 +180,52 @@
       "allVariants": "Wszystkie warianty",
       "minQuantity": "Od (szt.)",
       "unitPrice": "Cena jednostkowa"
-    }
+    },
+    "lifecycle": {
+      "active": "Aktywny",
+      "new": "Nowość",
+      "end_of_series": "Koniec serii",
+      "retired": "Wycofany"
+    },
+    "commercial": "Tożsamość, dane handlowe i media",
+    "compliance": "Zgodność",
+    "packaging": "Pakowanie / logistyka",
+    "packageTypeHint": "Torebka foliowa, pudełko prezentowe, etui, tuba, luzem, blister…",
+    "noCertifications": "Brak dostępnych znaków.",
+    "marking": {
+      "title": "Znakowanie",
+      "hint": "Strefy znakowania produktu, możliwe techniki dla każdej strefy oraz cennik znakowania według techniki i ilości.",
+      "empty": "Brak stref znakowania.",
+      "printable": "Produkt personalizowany (możliwe znakowanie)",
+      "addPosition": "Dodaj strefę",
+      "removePosition": "Usuń",
+      "positionName": "Nazwa strefy",
+      "maxWidthMm": "Maks. szerokość (mm)",
+      "maxHeightMm": "Maks. wysokość (mm)",
+      "template": "Szablon znakowania",
+      "noTemplate": "Brak szablonu",
+      "techniques": "Możliwe techniki",
+      "technique": "Technika",
+      "addTechnique": "Dodaj technikę",
+      "removeTechnique": "Usuń",
+      "maxColors": "Maks. liczba kolorów",
+      "setupCharge": "Koszty przygotowawcze",
+      "priceTiers": "Cennik znakowania",
+      "priceTiersHint": "Jednostkowa cena znakowania w zależności od techniki i zamawianej ilości.",
+      "chooseTechnique": "Wybierz technikę"
+    },
+    "sections": {
+      "content": "Nazwa i opis",
+      "details": "Klasyfikacja",
+      "contentHint": "Nazwa i opis w języku źródłowym; pozostałe języki mogą być generowane automatycznie."
+    },
+    "backToList": "Powrót do moich produktów",
+    "editTitle": "Edytuj produkt"
+  },
+  "card": {
+    "minQuantity": "{count, plural, one {Min. # sztuka} few {Min. # sztuki} many {Min. # sztuk} other {Min. # sztuki}}",
+    "madeInEurope": "Wyprodukowano w Europie",
+    "eco": "Ekologiczne",
+    "new": "Nowość"
   }
 }

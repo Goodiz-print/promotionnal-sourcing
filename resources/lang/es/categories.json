@@ -7,13 +7,22 @@
       "name": "Nombre",
       "slug": "Identificador",
       "parent": "Superior",
-      "products": "Productos"
-    }
+      "products": "Productos",
+      "actions": "Acciones"
+    },
+    "emptyDescription": "Las categorías estructuran el catálogo y sus filtros.",
+    "root": "Raíz"
   },
-  "create": { "title": "Nueva categoría" },
-  "edit": { "title": "Editar la categoría" },
-  "newCategory": "Nueva categoría",
+  "create": {
+    "title": "Nueva categoría",
+    "subtitle": "Añada una categoría al árbol del catálogo."
+  },
+  "update": {
+    "title": "Editar la categoría",
+    "subtitle": "Edite el contenido, el elemento padre y los sinónimos de «{slug}»."
+  },
   "edit": "Editar",
+  "newCategory": "Nueva categoría",
   "delete": "Eliminar",
   "save": "Guardar",
   "cancel": "Cancelar",
@@ -26,7 +35,9 @@
     "name": "Nombre",
     "description": "Descripción",
     "synonyms": "Sinónimos",
-    "synonymsHint": "Separados por comas (mejora la búsqueda)."
+    "synonymsHint": "Separados por comas (mejora la búsqueda).",
+    "slugPlaceholder": "p. ej. bolígrafos-personalizados",
+    "synonymsPlaceholder": "p. ej. bolígrafo, lápiz, rotulador"
   },
   "flash": {
     "created": "Categoría creada.",
@@ -35,5 +46,13 @@
     "cycle": "Una categoría no puede ser su propia categoría superior ni la de ninguno de sus descendientes.",
     "hasChildren": "No se puede eliminar: esta categoría tiene subcategorías.",
     "hasProducts": "No se puede eliminar: hay productos asociados a esta categoría."
+  },
+  "back": "Volver a las categorías",
+  "form": {
+    "identity": "Identificación",
+    "identityDescription": "Identificador técnico y posición en el árbol.",
+    "content": "Contenido en {language}",
+    "search": "Búsqueda",
+    "searchDescription": "Términos asociados para encontrar la categoría en el motor de búsqueda."
   }
 }

@@ -76,7 +76,9 @@
     "packaging": "Packaging / logistics",
     "cartonDimensions": "Outer carton dimensions (L × W × H, mm)",
     "marking": "Marking",
-    "markingPrices": "Marking prices"
+    "markingPrices": "Marking prices",
+    "markingTechnique": "Marking technique",
+    "specifications": "Specifications"
   },
   "manage": {
     "index": {
@@ -217,7 +219,8 @@
       "details": "Classification",
       "contentHint": "Name and description in the source language; other languages can be generated automatically."
     },
-    "backToList": "Back to my products"
+    "backToList": "Back to my products",
+    "editTitle": "Edit product"
   },
   "card": {
     "minQuantity": "{count, plural, one {Min. # piece} other {Min. # pieces}}",

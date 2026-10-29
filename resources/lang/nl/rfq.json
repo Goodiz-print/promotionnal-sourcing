@@ -3,14 +3,25 @@
     "title": "Offerteaanvragen",
     "subtitle": "Beschrijf een behoefte, raadpleeg meerdere leveranciers en vergelijk hun antwoorden.",
     "empty": "Nog geen aanvragen.",
+    "emptyDescription": "Beschrijf uw behoefte, kies leveranciers en vergelijk hun offertes op één plek.",
     "new": "Nieuwe aanvraag",
     "itemCount": "{count, plural, one {# regel} other {# regels}}",
     "supplierCount": "{count, plural, =0 {geen ontvangers} one {# ontvanger} other {# ontvangers}}",
-    "responded": "{responded} / {total} reacties"
+    "responded": "{responded} / {total} reacties",
+    "responses": "{responded} / {total}",
+    "columns": {
+      "title": "Aanvraag",
+      "items": "Regels",
+      "suppliers": "Ontvangers",
+      "responses": "Reacties",
+      "status": "Status",
+      "deadline": "Deadline"
+    }
   },
   "create": {
     "title": "Nieuwe offerteaanvraag",
-    "submit": "Concept aanmaken"
+    "submit": "Concept aanmaken",
+    "subtitle": "Beschrijf wat u nodig hebt: leveranciers antwoorden met een offerte."
   },
   "show": {
     "backToList": "Terug naar de aanvragen",
@@ -69,7 +80,8 @@
     "title": "Regels van de behoefte",
     "add": "Regel toevoegen",
     "remove": "Deze regel verwijderen",
-    "empty": "Voeg minstens één regel toe om te beschrijven wat u zoekt."
+    "empty": "Voeg minstens één regel toe om te beschrijven wat u zoekt.",
+    "line": "Regel {index}"
   },
   "suppliers": {
     "empty": "Er is nog geen leverancier als organisatie geregistreerd.",
@@ -104,7 +116,16 @@
       "subtitle": "De offerteaanvragen die inkopers aan u hebben gericht.",
       "empty": "Nog geen aanvragen ontvangen.",
       "from": "Van {name}",
-      "receivedAt": "Ontvangen op {date}"
+      "receivedAt": "Ontvangen op {date}",
+      "columns": {
+        "title": "Aanvraag",
+        "buyer": "Koper",
+        "items": "Regels",
+        "receivedAt": "Ontvangen op",
+        "deadline": "Deadline",
+        "status": "Status"
+      },
+      "emptyDescription": "Kopers die u raadplegen verschijnen hier, met de details van hun behoefte."
     },
     "show": {
       "backToList": "Terug naar de ontvangen aanvragen",
@@ -113,7 +134,10 @@
       "noDeadline": "Geen uiterste datum",
       "declinedNotice": "U hebt deze aanvraag afgewezen. De inkoper is hiervan op de hoogte gebracht.",
       "closedNotice": "De inkoper heeft deze aanvraag gesloten: er wordt geen antwoord meer verwacht.",
-      "expiredNotice": "Deze aanvraag is verlopen: de koper verwacht geen antwoord meer."
+      "expiredNotice": "Deze aanvraag is verlopen: de koper verwacht geen antwoord meer.",
+      "responseTitle": "Uw reactie",
+      "responseOpen": "Maak een prijsopgave voor deze behoefte door een offerte in te dienen, of wijs de aanvraag af als u er geen gevolg aan kunt geven.",
+      "responseQuote": "U hebt een offerte voor deze aanvraag opgesteld."
     },
     "actions": {
       "decline": "Aanvraag afwijzen",
@@ -140,8 +164,13 @@
     "add": "Toevoegen"
   },
   "deadline": {
+    "title": "Deadline van de raadpleging",
+    "description": "Geef leveranciers meer tijd: alleen de datum verandert, niet de behoefte.",
     "label": "Nieuwe deadline",
     "extend": "Deadline verlengen",
     "expiredNotice": "Deze aanvraag is verlopen: leveranciers kunnen niet meer antwoorden. Verleng de deadline om haar te heropenen."
+  },
+  "form": {
+    "general": "Algemene informatie"
   }
 }

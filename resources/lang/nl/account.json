@@ -49,6 +49,7 @@
     "renamed": "Passkey hernoemd.",
     "removed": "Passkey verwijderd.",
     "failed": "De passkey kon niet worden geregistreerd. Probeer het opnieuw.",
-    "alreadyRegistered": "Dit apparaat is al geregistreerd."
+    "alreadyRegistered": "Dit apparaat is al geregistreerd.",
+    "cancel": "Annuleren"
   }
 }

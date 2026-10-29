@@ -3,7 +3,11 @@
     "title": "Definições da organização",
     "subtitle": "Gira as informações gerais da sua organização.",
     "submit": "Guardar",
-    "success": "Definições da organização atualizadas."
+    "success": "Definições da organização atualizadas.",
+    "sections": {
+      "general": "Informações gerais",
+      "address": "Morada"
+    }
   },
   "fields": {
     "name": "Nome",
@@ -39,20 +43,23 @@
   "nav": {
     "settings": "Definições",
     "members": "Membros",
-    "create": "Nova organização"
+    "create": "Nova organização",
+    "label": "Secções da organização"
   },
   "members": {
     "title": "Membros da organização",
     "subtitle": "Gira as funções e o acesso dos membros da sua organização.",
     "columns": {
       "name": "Membro",
-      "role": "Função"
+      "role": "Função",
+      "actions": "Ações"
     },
     "remove": "Remover",
     "confirmRemove": "Remover este membro da organização?",
     "roleUpdated": "Função do membro atualizada.",
     "removed": "Membro removido da organização.",
-    "lastOwnerError": "Não é possível remover nem despromover o último proprietário da organização."
+    "lastOwnerError": "Não é possível remover nem despromover o último proprietário da organização.",
+    "listTitle": "Membros"
   },
   "invitations": {
     "inviteTitle": "Convidar um membro",

@@ -16,6 +16,13 @@
     "website": "Visit website",
     "profile": "Supplier profile",
     "products": "Catalogue",
-    "noProducts": "No products published yet."
+    "noProducts": "No products published yet.",
+    "country": "Country",
+    "email": "Email",
+    "phone": "Phone",
+    "backToDirectory": "Back to directory",
+    "foundingPartner": "Founding partner",
+    "contact": "Contact",
+    "websiteLabel": "Website"
   }
 }

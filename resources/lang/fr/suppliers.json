@@ -16,6 +16,13 @@
     "website": "Visiter le site",
     "profile": "Profil fournisseur",
     "products": "Catalogue",
-    "noProducts": "Aucun produit publié pour le moment."
+    "noProducts": "Aucun produit publié pour le moment.",
+    "country": "Pays",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "backToDirectory": "Retour à l'annuaire",
+    "foundingPartner": "Partenaire fondateur",
+    "contact": "Contact",
+    "websiteLabel": "Site web"
   }
 }

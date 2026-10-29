@@ -7,13 +7,22 @@
       "name": "Naam",
       "slug": "Identificatie",
       "parent": "Bovenliggende categorie",
-      "products": "Producten"
-    }
+      "products": "Producten",
+      "actions": "Acties"
+    },
+    "emptyDescription": "Categorieën structureren de catalogus en de filters ervan.",
+    "root": "Hoofdniveau"
   },
-  "create": { "title": "Nieuwe categorie" },
-  "edit": { "title": "Categorie bewerken" },
-  "newCategory": "Nieuwe categorie",
+  "create": {
+    "title": "Nieuwe categorie",
+    "subtitle": "Voeg een categorie toe aan de boomstructuur van de catalogus."
+  },
+  "update": {
+    "title": "Categorie bewerken",
+    "subtitle": "Bewerk de inhoud, de bovenliggende categorie en de synoniemen van “{slug}”."
+  },
   "edit": "Bewerken",
+  "newCategory": "Nieuwe categorie",
   "delete": "Verwijderen",
   "save": "Opslaan",
   "cancel": "Annuleren",
@@ -26,7 +35,9 @@
     "name": "Naam",
     "description": "Beschrijving",
     "synonyms": "Synoniemen",
-    "synonymsHint": "Gescheiden door komma's (verbetert de zoekresultaten)."
+    "synonymsHint": "Gescheiden door komma's (verbetert de zoekresultaten).",
+    "slugPlaceholder": "bijv. gepersonaliseerde-pennen",
+    "synonymsPlaceholder": "bijv. balpen, potlood, viltstift"
   },
   "flash": {
     "created": "Categorie aangemaakt.",
@@ -35,5 +46,13 @@
     "cycle": "Een categorie kan niet haar eigen bovenliggende categorie zijn, noch die van een van haar onderliggende categorieën.",
     "hasChildren": "Verwijderen is niet mogelijk: deze categorie heeft subcategorieën.",
     "hasProducts": "Verwijderen is niet mogelijk: er zijn producten aan deze categorie gekoppeld."
+  },
+  "back": "Terug naar categorieën",
+  "form": {
+    "identity": "Identificatie",
+    "identityDescription": "Technische identificatie en positie in de boomstructuur.",
+    "content": "Inhoud in het {language}",
+    "search": "Zoeken",
+    "searchDescription": "Gerelateerde termen om de categorie terug te vinden in de zoekmachine."
   }
 }

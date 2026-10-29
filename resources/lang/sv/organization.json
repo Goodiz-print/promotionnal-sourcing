@@ -3,7 +3,11 @@
     "title": "Organisationsinställningar",
     "subtitle": "Hantera organisationens allmänna uppgifter.",
     "submit": "Spara",
-    "success": "Organisationens inställningar har uppdaterats."
+    "success": "Organisationens inställningar har uppdaterats.",
+    "sections": {
+      "general": "Allmän information",
+      "address": "Adress"
+    }
   },
   "fields": {
     "name": "Namn",
@@ -39,20 +43,23 @@
   "nav": {
     "settings": "Inställningar",
     "members": "Medlemmar",
-    "create": "Ny organisation"
+    "create": "Ny organisation",
+    "label": "Organisationens avsnitt"
   },
   "members": {
     "title": "Organisationens medlemmar",
     "subtitle": "Hantera roller och åtkomst för organisationens medlemmar.",
     "columns": {
       "name": "Medlem",
-      "role": "Roll"
+      "role": "Roll",
+      "actions": "Åtgärder"
     },
     "remove": "Ta bort",
     "confirmRemove": "Ta bort den här medlemmen från organisationen?",
     "roleUpdated": "Medlemmens roll har uppdaterats.",
     "removed": "Medlemmen har tagits bort från organisationen.",
-    "lastOwnerError": "Det går inte att ta bort eller degradera organisationens sista ägare."
+    "lastOwnerError": "Det går inte att ta bort eller degradera organisationens sista ägare.",
+    "listTitle": "Medlemmar"
   },
   "invitations": {
     "inviteTitle": "Bjud in en medlem",

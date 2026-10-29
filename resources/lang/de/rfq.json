@@ -3,14 +3,25 @@
     "title": "Angebotsanfragen",
     "subtitle": "Beschreiben Sie einen Bedarf, fragen Sie mehrere Lieferanten an und vergleichen Sie deren Antworten.",
     "empty": "Noch keine Anfrage vorhanden.",
+    "emptyDescription": "Beschreiben Sie Ihren Bedarf, wählen Sie Lieferanten aus und vergleichen Sie deren Angebote an einem Ort.",
     "new": "Neue Anfrage",
     "itemCount": "{count, plural, one {# Position} other {# Positionen}}",
     "supplierCount": "{count, plural, =0 {kein Empfänger} one {# Empfänger} other {# Empfänger}}",
-    "responded": "{responded} / {total} Antworten"
+    "responded": "{responded} / {total} Antworten",
+    "responses": "{responded} / {total}",
+    "columns": {
+      "title": "Anfrage",
+      "items": "Positionen",
+      "suppliers": "Empfänger",
+      "responses": "Antworten",
+      "status": "Status",
+      "deadline": "Frist"
+    }
   },
   "create": {
     "title": "Neue Angebotsanfrage",
-    "submit": "Entwurf erstellen"
+    "submit": "Entwurf erstellen",
+    "subtitle": "Beschreiben Sie Ihren Bedarf: Lieferanten antworten mit einem Angebot."
   },
   "show": {
     "backToList": "Zurück zu den Anfragen",
@@ -69,7 +80,8 @@
     "title": "Bedarfspositionen",
     "add": "Position hinzufügen",
     "remove": "Diese Position entfernen",
-    "empty": "Fügen Sie mindestens eine Position hinzu, um zu beschreiben, was Sie suchen."
+    "empty": "Fügen Sie mindestens eine Position hinzu, um zu beschreiben, was Sie suchen.",
+    "line": "Position {index}"
   },
   "suppliers": {
     "empty": "Noch keine Lieferantenorganisation registriert.",
@@ -104,7 +116,16 @@
       "subtitle": "Die Angebotsanfragen, die Einkäufer an Sie gerichtet haben.",
       "empty": "Noch keine Anfrage eingegangen.",
       "from": "Von {name}",
-      "receivedAt": "Eingegangen am {date}"
+      "receivedAt": "Eingegangen am {date}",
+      "columns": {
+        "title": "Anfrage",
+        "buyer": "Käufer",
+        "items": "Positionen",
+        "receivedAt": "Eingegangen am",
+        "deadline": "Frist",
+        "status": "Status"
+      },
+      "emptyDescription": "Käufer, die Sie anfragen, erscheinen hier mit den Details ihres Bedarfs."
     },
     "show": {
       "backToList": "Zurück zu den eingegangenen Anfragen",
@@ -113,7 +134,10 @@
       "noDeadline": "Ohne Frist",
       "declinedNotice": "Sie haben diese Anfrage abgelehnt. Der Einkäufer wurde informiert.",
       "closedNotice": "Der Einkäufer hat diese Anfrage abgeschlossen: Es wird keine Antwort mehr erwartet.",
-      "expiredNotice": "Diese Anfrage ist abgelaufen: Der Käufer erwartet keine Antwort mehr."
+      "expiredNotice": "Diese Anfrage ist abgelaufen: Der Käufer erwartet keine Antwort mehr.",
+      "responseTitle": "Ihre Antwort",
+      "responseOpen": "Kalkulieren Sie diesen Bedarf, indem Sie ein Angebot abgeben, oder lehnen Sie die Anfrage ab, wenn Sie ihr nicht nachkommen können.",
+      "responseQuote": "Sie haben ein Angebot für diese Anfrage erstellt."
     },
     "actions": {
       "decline": "Anfrage ablehnen",
@@ -140,8 +164,13 @@
     "add": "Hinzufügen"
   },
   "deadline": {
+    "title": "Frist der Ausschreibung",
+    "description": "Geben Sie den Lieferanten mehr Zeit: Nur das Datum ändert sich, nicht der Bedarf.",
     "label": "Neue Frist",
     "extend": "Frist verlängern",
     "expiredNotice": "Diese Anfrage ist abgelaufen: Lieferanten können nicht mehr antworten. Verlängern Sie die Frist, um sie wieder zu öffnen."
+  },
+  "form": {
+    "general": "Allgemeine Informationen"
   }
 }

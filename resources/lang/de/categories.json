@@ -7,13 +7,22 @@
       "name": "Name",
       "slug": "Kennung",
       "parent": "Übergeordnet",
-      "products": "Produkte"
-    }
+      "products": "Produkte",
+      "actions": "Aktionen"
+    },
+    "emptyDescription": "Kategorien strukturieren den Katalog und seine Filter.",
+    "root": "Wurzel"
   },
-  "create": { "title": "Neue Kategorie" },
-  "edit": { "title": "Kategorie bearbeiten" },
-  "newCategory": "Neue Kategorie",
+  "create": {
+    "title": "Neue Kategorie",
+    "subtitle": "Fügen Sie der Katalogstruktur eine Kategorie hinzu."
+  },
+  "update": {
+    "title": "Kategorie bearbeiten",
+    "subtitle": "Bearbeiten Sie Inhalt, übergeordnete Kategorie und Synonyme von „{slug}“."
+  },
   "edit": "Bearbeiten",
+  "newCategory": "Neue Kategorie",
   "delete": "Löschen",
   "save": "Speichern",
   "cancel": "Abbrechen",
@@ -26,7 +35,9 @@
     "name": "Name",
     "description": "Beschreibung",
     "synonyms": "Synonyme",
-    "synonymsHint": "Durch Kommas getrennt (verbessert die Suche)."
+    "synonymsHint": "Durch Kommas getrennt (verbessert die Suche).",
+    "slugPlaceholder": "z. B. personalisierte-kugelschreiber",
+    "synonymsPlaceholder": "z. B. Kugelschreiber, Bleistift, Filzstift"
   },
   "flash": {
     "created": "Kategorie erstellt.",
@@ -35,5 +46,13 @@
     "cycle": "Eine Kategorie kann nicht ihre eigene übergeordnete Kategorie oder die ihrer Unterkategorien sein.",
     "hasChildren": "Löschen nicht möglich: Diese Kategorie enthält Unterkategorien.",
     "hasProducts": "Löschen nicht möglich: Dieser Kategorie sind Produkte zugeordnet."
+  },
+  "back": "Zurück zu den Kategorien",
+  "form": {
+    "identity": "Identifikation",
+    "identityDescription": "Technische Kennung und Position in der Struktur.",
+    "content": "Inhalt auf {language}",
+    "search": "Suche",
+    "searchDescription": "Verwandte Begriffe, um die Kategorie in der Suchmaschine zu finden."
   }
 }

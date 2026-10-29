@@ -8,7 +8,8 @@
   "confirmRemove": "¿Quitar «{name}»?",
   "fields": {
     "kind": "Tipo de documento",
-    "file": "Archivo PDF (máx. 20 MB)"
+    "file": "Archivo PDF (máx. 20 MB)",
+    "type": "Tipo de documento"
   },
   "kinds": {
     "catalogue": "Catálogo",
@@ -18,5 +19,12 @@
   "datasheet": {
     "title": "Ficha técnica",
     "empty": "Aún no hay ficha técnica."
+  },
+  "types": {
+    "spec_sheet": "Ficha técnica",
+    "safety": "Ficha de seguridad",
+    "certificate": "Certificado",
+    "marking_template": "Plantilla de marcaje",
+    "other": "Otro"
   }
 }

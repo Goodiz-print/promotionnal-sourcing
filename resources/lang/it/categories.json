@@ -7,13 +7,22 @@
       "name": "Nome",
       "slug": "Identificativo",
       "parent": "Categoria padre",
-      "products": "Prodotti"
-    }
+      "products": "Prodotti",
+      "actions": "Azioni"
+    },
+    "emptyDescription": "Le categorie strutturano il catalogo e i relativi filtri.",
+    "root": "Radice"
   },
-  "create": { "title": "Nuova categoria" },
-  "edit": { "title": "Modifica la categoria" },
-  "newCategory": "Nuova categoria",
+  "create": {
+    "title": "Nuova categoria",
+    "subtitle": "Aggiunga una categoria all’albero del catalogo."
+  },
+  "update": {
+    "title": "Modifica categoria",
+    "subtitle": "Modifichi il contenuto, la categoria padre e i sinonimi di «{slug}»."
+  },
   "edit": "Modifica",
+  "newCategory": "Nuova categoria",
   "delete": "Elimina",
   "save": "Salva",
   "cancel": "Annulla",
@@ -26,7 +35,9 @@
     "name": "Nome",
     "description": "Descrizione",
     "synonyms": "Sinonimi",
-    "synonymsHint": "Separati da virgole (migliora la ricerca)."
+    "synonymsHint": "Separati da virgole (migliora la ricerca).",
+    "slugPlaceholder": "es. penne-personalizzate",
+    "synonymsPlaceholder": "es. penna a sfera, matita, pennarello"
   },
   "flash": {
     "created": "Categoria creata.",
@@ -35,5 +46,13 @@
     "cycle": "Una categoria non può essere padre di se stessa o di uno dei suoi discendenti.",
     "hasChildren": "Impossibile eliminare: questa categoria ha delle sottocategorie.",
     "hasProducts": "Impossibile eliminare: a questa categoria sono associati dei prodotti."
+  },
+  "back": "Torna alle categorie",
+  "form": {
+    "identity": "Identificazione",
+    "identityDescription": "Identificativo tecnico e posizione nell’albero.",
+    "content": "Contenuto in {language}",
+    "search": "Ricerca",
+    "searchDescription": "Termini associati per ritrovare la categoria nel motore di ricerca."
   }
 }

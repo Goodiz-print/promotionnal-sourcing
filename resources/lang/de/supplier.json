@@ -3,7 +3,13 @@
     "title": "Lieferantenprofil",
     "subtitle": "Geben Sie Lieferzeiten, Zertifizierungen und Liefergebiet an, um das Vertrauen der Einkäufer zu gewinnen.",
     "submit": "Profil speichern",
-    "success": "Lieferantenprofil aktualisiert."
+    "success": "Lieferantenprofil aktualisiert.",
+    "sections": {
+      "terms": "Geschäftsbedingungen",
+      "termsHint": "Mindestbestellwert, Lieferzeiten und Liefergebiet, die den Käufern angezeigt werden.",
+      "certificationsHint": "Normen und Siegel, die Sie besitzen (ISO, FSC, OEKO-TEX …).",
+      "presentation": "Unternehmensvorstellung"
+    }
   },
   "fields": {
     "minOrderQuantity": "Mindestbestellmenge",
@@ -14,12 +20,21 @@
     "certificationPlaceholder": "z. B. ISO 9001",
     "certificationAdd": "Zertifizierung hinzufügen",
     "certificationRemove": "Entfernen",
-    "bio": "Vorstellung"
+    "bio": "Vorstellung",
+    "defaultOriginScope": "Standardherkunft",
+    "certificationsEmpty": "Keine Zertifizierung angegeben."
   },
   "deliveryScope": {
     "none": "Nicht angegeben",
     "national": "National",
     "europe": "Europa",
     "worldwide": "International"
+  },
+  "originScope": {
+    "none": "Nicht angegeben",
+    "france": "Frankreich",
+    "europe": "Europa",
+    "outside_europe": "Außerhalb Europas",
+    "per_product": "Je nach Produkt"
   }
 }

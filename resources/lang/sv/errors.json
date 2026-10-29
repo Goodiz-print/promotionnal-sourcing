@@ -1,8 +1,11 @@
 {
   "notFound": {
-    "title": "Sidan hittades inte"
+    "title": "Sidan hittades inte",
+    "description": "Sidan du söker finns inte eller har flyttats."
   },
   "serverError": {
-    "title": "Något gick fel."
-  }
+    "title": "Något gick fel.",
+    "description": "Vårt team har blivit underrättat. Försök igen om en stund."
+  },
+  "backHome": "Tillbaka till startsidan"
 }

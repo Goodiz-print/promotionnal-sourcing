@@ -3,14 +3,25 @@
     "title": "Solicitudes de presupuesto",
     "subtitle": "Describa una necesidad, consulte a varios proveedores y compare sus respuestas.",
     "empty": "Todavía no hay ninguna solicitud.",
+    "emptyDescription": "Describa su necesidad, elija proveedores y compare sus presupuestos en un mismo lugar.",
     "new": "Nueva solicitud",
     "itemCount": "{count, plural, one {# línea} other {# líneas}}",
     "supplierCount": "{count, plural, =0 {ningún destinatario} one {# destinatario} other {# destinatarios}}",
-    "responded": "{responded} / {total} respuestas"
+    "responded": "{responded} / {total} respuestas",
+    "responses": "{responded} / {total}",
+    "columns": {
+      "title": "Solicitud",
+      "items": "Líneas",
+      "suppliers": "Destinatarios",
+      "responses": "Respuestas",
+      "status": "Estado",
+      "deadline": "Fecha límite"
+    }
   },
   "create": {
     "title": "Nueva solicitud de presupuesto",
-    "submit": "Crear el borrador"
+    "submit": "Crear el borrador",
+    "subtitle": "Describa lo que necesita: los proveedores le responderán con un presupuesto."
   },
   "show": {
     "backToList": "Volver a las solicitudes",
@@ -69,7 +80,8 @@
     "title": "Líneas de la necesidad",
     "add": "Añadir una línea",
     "remove": "Quitar esta línea",
-    "empty": "Añada al menos una línea para describir lo que busca."
+    "empty": "Añada al menos una línea para describir lo que busca.",
+    "line": "Línea {index}"
   },
   "suppliers": {
     "empty": "Todavía no hay ninguna organización proveedora registrada.",
@@ -104,7 +116,16 @@
       "subtitle": "Las solicitudes de presupuesto que los compradores le han dirigido.",
       "empty": "Todavía no se ha recibido ninguna solicitud.",
       "from": "De {name}",
-      "receivedAt": "Recibida el {date}"
+      "receivedAt": "Recibida el {date}",
+      "columns": {
+        "title": "Solicitud",
+        "buyer": "Comprador",
+        "items": "Líneas",
+        "receivedAt": "Recibida el",
+        "deadline": "Fecha límite",
+        "status": "Estado"
+      },
+      "emptyDescription": "Los compradores que le consulten aparecerán aquí con el detalle de su necesidad."
     },
     "show": {
       "backToList": "Volver a las solicitudes recibidas",
@@ -113,7 +134,10 @@
       "noDeadline": "Sin fecha límite",
       "declinedNotice": "Ha declinado esta solicitud. Se ha informado al comprador.",
       "closedNotice": "El comprador ha cerrado esta solicitud: ya no espera respuesta.",
-      "expiredNotice": "Esta solicitud ha vencido: el comprador ya no espera respuesta."
+      "expiredNotice": "Esta solicitud ha vencido: el comprador ya no espera respuesta.",
+      "responseTitle": "Su respuesta",
+      "responseOpen": "Valore esta necesidad enviando un presupuesto, o decline la solicitud si no puede darle curso.",
+      "responseQuote": "Ha redactado un presupuesto para esta solicitud."
     },
     "actions": {
       "decline": "Declinar la solicitud",
@@ -140,8 +164,13 @@
     "add": "Añadir"
   },
   "deadline": {
+    "title": "Fecha límite de la consulta",
+    "description": "Dé más tiempo a los proveedores: solo cambia la fecha, no la necesidad.",
     "label": "Nueva fecha límite",
     "extend": "Prorrogar la fecha límite",
     "expiredNotice": "Esta solicitud ha vencido: los proveedores ya no pueden responder. Prorrogue la fecha límite para reabrirla."
+  },
+  "form": {
+    "general": "Información general"
   }
 }

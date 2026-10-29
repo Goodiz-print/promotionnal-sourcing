@@ -73,7 +73,8 @@
     "confirm": {
       "accept": "Acceptera den här offerten? Övriga offerter avvisas och förfrågan stängs.",
       "reject": "Avvisa den här offerten?"
-    }
+    },
+    "lines": "Offertrader"
   },
   "supplier": {
     "index": {

@@ -73,7 +73,8 @@
     "confirm": {
       "accept": "Accept this quote? The other quotes will be rejected and the request closed.",
       "reject": "Reject this quote?"
-    }
+    },
+    "lines": "Quote lines"
   },
   "supplier": {
     "index": {

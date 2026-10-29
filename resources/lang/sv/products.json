@@ -12,7 +12,48 @@
     "searchUnavailable": "Sökningen är tillfälligt otillgänglig. Försök igen om en stund eller bläddra bland kategorierna.",
     "loading": "Laddar produkter …",
     "previous": "Föregående",
-    "next": "Nästa"
+    "next": "Nästa",
+    "selectCategoryForFilters": "Välj en kategori för att visa dess filter.",
+    "rangeUnder": "< {max}",
+    "rangeOver": "≥ {min}",
+    "rangeBetween": "{min}–{max}",
+    "newOnly": "Nyheter",
+    "origin": {
+      "title": "Ursprung",
+      "france": "Frankrike",
+      "europe": "Europa",
+      "other": "Utanför Europa"
+    },
+    "ecoOnly": "Miljövänlig",
+    "stock": {
+      "title": "Lager",
+      "in_stock": "I lager",
+      "out_of_stock": "Slutsåld",
+      "on_order": "På beställning"
+    },
+    "price": {
+      "title": "Pris",
+      "currency": "€"
+    },
+    "moq": {
+      "title": "Minsta antal"
+    },
+    "certifications": {
+      "title": "Efterlevnadsmärkningar",
+      "domains": {
+        "environment": "Miljö",
+        "textile": "Textil",
+        "social": "Socialt",
+        "safety": "Säkerhet",
+        "food_contact": "Livsmedelskontakt",
+        "forestry": "Skog / trä",
+        "quality": "Kvalitet"
+      }
+    },
+    "filtersTitle": "Filter",
+    "reset": "Återställ",
+    "quickFilters": "Snabbfilter",
+    "emptyHint": "Utvidga dina kriterier eller återställ filtren."
   },
   "show": {
     "backToCatalogue": "Tillbaka till katalogen",
@@ -28,12 +69,30 @@
     "tierFrom": "Från {quantity} st",
     "addToDraft": "Lägg till i ett förfrågningsutkast",
     "chooseDraft": "Välj ett utkast …",
-    "signInToRequest": "Logga in för att begära en offert"
+    "signInToRequest": "Logga in för att begära en offert",
+    "compliance": "Efterlevnad",
+    "eco": "Miljövänlig",
+    "recycledContent": "{percent} % återvunnet material",
+    "packaging": "Förpackning / logistik",
+    "cartonDimensions": "Mått yttre kartong (L × B × H, mm)",
+    "marking": "Märkning",
+    "markingPrices": "Märkningspriser",
+    "markingTechnique": "Märkningsteknik",
+    "specifications": "Specifikationer"
   },
   "manage": {
     "index": {
       "title": "Mina produkter",
-      "empty": "Du har ännu inga produkter. Skapa en."
+      "empty": "Du har ännu inga produkter. Skapa en.",
+      "columns": {
+        "product": "Produkt",
+        "price": "Pris",
+        "status": "Status",
+        "actions": "Åtgärder"
+      },
+      "emptyDescription": "Lägg till dina produkter så att de visas i katalogen och kan anges i offertförfrågningar.",
+      "noPrice": "Pris på begäran",
+      "priceRange": "{min} – {max}"
     },
     "create": {
       "title": "Ny produkt"
@@ -70,7 +129,29 @@
       "originCountry": "Ursprungsland",
       "madeInEurope": "Tillverkad i Europa",
       "isActive": "Publicerad",
-      "images": "Lägg till bilder"
+      "images": "Lägg till bilder",
+      "brand": "Varumärke",
+      "hsCode": "Tullkod (HS)",
+      "lifecycleStatus": "Produktstatus",
+      "releasedAt": "Lanseringsdatum",
+      "supplierCategoryRaw": "Leverantörens kategori (rå)",
+      "videoUrl": "Video (URL)",
+      "leadTimeDays": "Ledtid (dagar)",
+      "rushLeadTimeDays": "Expressledtid (dagar)",
+      "rushService": "Expresstjänst",
+      "isConfigurable": "Konfigurerbar produkt",
+      "recycledContentPercent": "Andel återvunnet material (%)",
+      "cautionComment": "Försiktighetsåtgärder / varningar",
+      "certifications": "Efterlevnadsmärkningar",
+      "packageType": "Förpackningstyp",
+      "unitGrossWeightG": "Bruttovikt per enhet (g)",
+      "innerCartonQty": "Antal per innerkartong",
+      "outerCartonQty": "Antal per yttre kartong",
+      "outerCartonLengthMm": "Yttre kartongens längd (mm)",
+      "outerCartonWidthMm": "Yttre kartongens bredd (mm)",
+      "outerCartonHeightMm": "Yttre kartongens höjd (mm)",
+      "outerCartonGrossWeightG": "Yttre kartongens bruttovikt (g)",
+      "outerCartonVolumeM3": "Yttre kartongens volym (m³)"
     },
     "variants": {
       "title": "Varianter",
@@ -79,7 +160,16 @@
       "remove": "Ta bort",
       "sku": "SKU",
       "image": "Variantens bild",
-      "isActive": "Variant erbjuds"
+      "isActive": "Variant erbjuds",
+      "gtin": "EAN/GTIN-kod",
+      "stockQuantity": "Lagersaldo",
+      "stockStatus": "Lagerstatus",
+      "stockUnknown": "Ej angivet",
+      "stockStatuses": {
+        "in_stock": "I lager",
+        "out_of_stock": "Slutsåld",
+        "on_order": "På beställning"
+      }
     },
     "priceTiers": {
       "title": "Prisnivåer",
@@ -90,6 +180,52 @@
       "allVariants": "Alla varianter",
       "minQuantity": "Från (st)",
       "unitPrice": "Styckpris"
-    }
+    },
+    "lifecycle": {
+      "active": "Aktiv",
+      "new": "Nyhet",
+      "end_of_series": "Utgående serie",
+      "retired": "Utgången"
+    },
+    "commercial": "Identitet, kommersiellt och media",
+    "compliance": "Efterlevnad",
+    "packaging": "Förpackning / logistik",
+    "packageTypeHint": "Plastpåse, Presentask, Fodral, Tub, Lös vikt, Blisterförpackning…",
+    "noCertifications": "Ingen märkning tillgänglig.",
+    "marking": {
+      "title": "Märkning",
+      "hint": "Produktens märkningszoner, möjliga tekniker per zon och prisgrid för märkning per teknik och kvantitet.",
+      "empty": "Ingen märkningszon.",
+      "printable": "Anpassningsbar produkt (märkning möjlig)",
+      "addPosition": "Lägg till en zon",
+      "removePosition": "Ta bort",
+      "positionName": "Zonens namn",
+      "maxWidthMm": "Max bredd (mm)",
+      "maxHeightMm": "Max höjd (mm)",
+      "template": "Märkningsmall",
+      "noTemplate": "Ingen mall",
+      "techniques": "Möjliga tekniker",
+      "technique": "Teknik",
+      "addTechnique": "Lägg till en teknik",
+      "removeTechnique": "Ta bort",
+      "maxColors": "Max antal färger",
+      "setupCharge": "Uppstartsavgift",
+      "priceTiers": "Prisgrid för märkning",
+      "priceTiersHint": "Märkningspris per enhet beroende på teknik och beställd kvantitet.",
+      "chooseTechnique": "Välj en teknik"
+    },
+    "sections": {
+      "content": "Namn och beskrivning",
+      "details": "Klassificering",
+      "contentHint": "Namn och beskrivning på källspråket; övriga språk kan genereras automatiskt."
+    },
+    "backToList": "Tillbaka till mina produkter",
+    "editTitle": "Redigera produkt"
+  },
+  "card": {
+    "minQuantity": "{count, plural, one {Min. # st} other {Min. # st}}",
+    "madeInEurope": "Tillverkad i Europa",
+    "eco": "Miljövänlig",
+    "new": "Nyhet"
   }
 }

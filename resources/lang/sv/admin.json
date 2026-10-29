@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "dashboard": "Översikt",
+    "organizations": "Organisationer",
+    "users": "Användare",
+    "categories": "Kategorier",
+    "label": "Administrationsavsnitt"
+  },
+  "pagination": {
+    "previous": "Föregående",
+    "next": "Nästa"
+  },
+  "dashboard": {
+    "title": "Administration",
+    "subtitle": "Överblick över plattformen.",
+    "counters": {
+      "organizations": "Organisationer",
+      "users": "Användare",
+      "products": "Produkter",
+      "rfqs": "Offertförfrågningar"
+    },
+    "archived": "{count, plural, =0 {Inga arkiverade} one {# arkiverad} other {# arkiverade}}"
+  },
+  "organizations": {
+    "title": "Organisationer",
+    "subtitle": "Alla organisationer på plattformen.",
+    "empty": "Ingen organisation matchar dessa filter.",
+    "back": "Tillbaka till organisationer",
+    "filters": {
+      "type": "Typ",
+      "allTypes": "Alla typer",
+      "status": "Status"
+    },
+    "types": {
+      "buyer": "Köpare",
+      "supplier": "Leverantör",
+      "both": "Köpare och leverantör"
+    },
+    "status": {
+      "active": "Aktiv",
+      "archived": "Arkiverad",
+      "all": "Alla"
+    },
+    "columns": {
+      "name": "Namn",
+      "type": "Typ",
+      "members": "Medlemmar",
+      "status": "Status"
+    },
+    "fields": {
+      "email": "E-post",
+      "phone": "Telefon",
+      "website": "Webbplats",
+      "siret": "SIRET",
+      "vatNumber": "Momsnummer",
+      "country": "Land",
+      "createdAt": "Skapad den"
+    },
+    "roles": {
+      "owner": "Ägare",
+      "admin": "Administratör",
+      "manager": "Ansvarig",
+      "member": "Medlem"
+    },
+    "detail": {
+      "products": "Produkter",
+      "rfqs": "Offertförfrågningar",
+      "contact": "Kontaktuppgifter",
+      "members": "{count, plural, one {# medlem} other {# medlemmar}}",
+      "role": "Roll",
+      "notProvided": "Ej angivet",
+      "membersEmpty": "Inga medlemmar i den här organisationen.",
+      "membersCaption": "Organisationens medlemmar",
+      "joinedAt": "Medlem sedan"
+    },
+    "emptyDescription": "Ändra typ eller status för att utöka listan.",
+    "resultsCount": "{count, plural, =0 {Inga organisationer} one {# organisation} other {# organisationer}}"
+  },
+  "users": {
+    "title": "Användare",
+    "subtitle": "Alla konton på plattformen.",
+    "searchLabel": "Sök på e-post",
+    "searchPlaceholder": "namn@exempel.com",
+    "empty": "Ingen användare matchar den här sökningen.",
+    "columns": {
+      "name": "Namn",
+      "email": "E-post",
+      "organizations": "Organisationer",
+      "status": "Status",
+      "createdAt": "Registrerad den"
+    },
+    "platformAdmin": "Plattformsadmin",
+    "unverified": "E-post ej verifierad",
+    "resultsCount": "{count, plural, =0 {Inga konton} one {# konto} other {# konton}}",
+    "emptyDescription": "Prova en annan adress eller rensa sökningen.",
+    "noName": "Inget namn angivet",
+    "verified": "E-post verifierad"
+  }
+}

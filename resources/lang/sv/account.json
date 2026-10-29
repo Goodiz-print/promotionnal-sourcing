@@ -49,6 +49,7 @@
     "renamed": "Passkey omdöpt.",
     "removed": "Passkey borttagen.",
     "failed": "Passkeyn kunde inte registreras. Försök igen.",
-    "alreadyRegistered": "Den här enheten är redan registrerad."
+    "alreadyRegistered": "Den här enheten är redan registrerad.",
+    "cancel": "Avbryt"
   }
 }

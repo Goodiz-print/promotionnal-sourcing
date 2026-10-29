@@ -1,0 +1,33 @@
+{
+  "title": "Notifiche",
+  "empty": "Nessuna notifica per il momento.",
+  "seeAll": "Vedi tutte",
+  "markAllRead": "Segna tutte come lette",
+  "unread": "Non letta",
+  "unreadCount": "{count, plural, one {# notifica non letta} other {# notifiche non lette}}",
+  "toast": "Ha una nuova notifica.",
+  "types": {
+    "rfq": {
+      "received": "{buyerName} Le ha inviato una richiesta di preventivo: {rfqTitle}.",
+      "responded": "Un fornitore ha risposto alla richiesta {rfqTitle}.",
+      "declined": "{supplierName} ha declinato la richiesta {rfqTitle}."
+    },
+    "quote": {
+      "received": "{supplierName} ha presentato un preventivo per {rfqTitle}.",
+      "accepted": "{buyerName} ha accettato il Suo preventivo per {rfqTitle}.",
+      "rejected": "{buyerName} ha rifiutato il Suo preventivo per {rfqTitle}."
+    },
+    "organization": {
+      "invited": "È stato invitato a unirsi a un'organizzazione.",
+      "member_joined": "{memberName} si è unito a {organizationName}."
+    },
+    "order": {
+      "created": "È stato creato un ordine a seguito dell'accettazione del Suo preventivo per {rfqTitle}. Lo confermi.",
+      "confirmed": "{supplierName} ha confermato il Suo ordine per {rfqTitle}.",
+      "in_production": "Il Suo ordine per {rfqTitle} è in produzione presso {supplierName}.",
+      "shipped": "{supplierName} ha spedito il Suo ordine per {rfqTitle}.",
+      "delivered": "{buyerName} ha confermato la ricezione dell'ordine per {rfqTitle}.",
+      "cancelled": "L'ordine per {rfqTitle} è stato annullato."
+    }
+  }
+}

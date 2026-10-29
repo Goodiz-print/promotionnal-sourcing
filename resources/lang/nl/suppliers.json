@@ -8,12 +8,21 @@
     "allCountries": "Alle landen",
     "empty": "Geen enkele leverancier komt overeen met uw zoekopdracht.",
     "previous": "Vorige",
-    "next": "Volgende"
+    "next": "Volgende",
+    "resultsCount": "{count, plural, =0 {Geen leveranciers} one {# leverancier} other {# leveranciers}}",
+    "emptyHint": "Verbreed uw zoekopdracht of kies een ander land."
   },
   "show": {
     "website": "Website bezoeken",
     "profile": "Leveranciersprofiel",
     "products": "Catalogus",
-    "noProducts": "Nog geen gepubliceerde producten."
+    "noProducts": "Nog geen gepubliceerde producten.",
+    "country": "Land",
+    "email": "E-mail",
+    "phone": "Telefoon",
+    "backToDirectory": "Terug naar de gids",
+    "foundingPartner": "Oprichtingspartner",
+    "contact": "Contact",
+    "websiteLabel": "Website"
   }
 }

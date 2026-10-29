@@ -22,6 +22,11 @@
     "unread": "Richieste non lette",
     "products": "Prodotti attivi",
     "completeness": "Profilo completato",
-    "completeProfile": "Completa il mio profilo"
+    "completeProfile": "Completa il mio profilo",
+    "todo": {
+      "title": "Da fare",
+      "empty": "Nulla da fare per il momento.",
+      "unread": "{count, plural, one {# richiesta ricevuta da aprire} other {# richieste ricevute da aprire}}"
+    }
   }
 }

@@ -1,0 +1,46 @@
+{
+  "heading": "Juridisk information",
+  "eyebrow": "Juridisk information",
+  "intro": "Uppgifter om utgivaren av webbplatsen promotional-sourcing.eu, dess värdleverantör och reglerna för användning av innehållet.",
+  "updatedAt": "26 augusti 2026",
+  "seoTitle": "Juridisk information — Promotional Sourcing.eu",
+  "seoDescription": "Juridisk information för promotional-sourcing.eu: utgivare, värdleverantör, immateriella rättigheter.",
+  "sections": {
+    "editeur": {
+      "title": "Webbplatsens utgivare",
+      "body": "<p>PROMOTIONAL SOURCING, société par actions simplifiée (fransk förenklad aktiebolagsform) med ett aktiekapital på 1 000 €</p> <p>Webbplats: promotional-sourcing.eu</p> <p>Ansvarig utgivare: Virgile Accomando</p>"
+    },
+    "siege": {
+      "title": "Adress till huvudkontoret",
+      "body": "<address>PROMOTIONAL SOURCING<br />72 quai de Bacalan<br />33300 Bordeaux — Frankrike</address>"
+    },
+    "immatriculation": {
+      "title": "Registrering",
+      "body": "<p>SIREN 108 093 790 — Bolagsregistret i Bordeaux (RCS)<br />SIRET (huvudkontor): 108 093 790 00013<br />NAF/APE-kod: 6312Z — Webbportaler</p>"
+    },
+    "tva": {
+      "title": "Momsnummer",
+      "body": "<p>Momsregistreringsnummer inom EU: FR03 108 093 790</p>"
+    },
+    "activite": {
+      "title": "Verksamhet",
+      "body": "<p>Utgivning och drift av en webbplattform för sourcing av reklamprodukter som sammanför professionella köpare och leverantörer.</p>"
+    },
+    "hebergeur": {
+      "title": "Webbplatsens värdleverantör",
+      "body": "<address>Netlify, Inc.<br />512 2nd Street, Suite 200<br />San Francisco, CA 94107 — USA<br /><a href=\"https://www.netlify.com\" rel=\"noopener noreferrer\" target=\"_blank\">netlify.com</a></address>"
+    },
+    "contact": {
+      "title": "Kontakta oss",
+      "body": "<p>Telefon: <a href=\"tel:+33638012975\">+33 6 38 01 29 75</a></p> <p>E-post: <a href=\"mailto:contact@promotional-sourcing.eu\">contact@promotional-sourcing.eu</a></p>"
+    },
+    "propriete-intellectuelle": {
+      "title": "Immateriella rättigheter",
+      "body": "<p>Alla delar som ingår i webbplatsen promotional-sourcing.eu (texter, grafik, logotyper, bilder, struktur) tillhör uteslutande PROMOTIONAL SOURCING eller används med tillstånd. All reproduktion, återgivning eller spridning, helt eller delvis, utan föregående skriftligt tillstånd är förbjuden och utgör intrång enligt artikel L.335-2 och följande i den franska immaterialrättsliga lagen (Code de la propriété intellectuelle).</p>"
+    },
+    "donnees-personnelles": {
+      "title": "Personuppgifter",
+      "body": "<p>PROMOTIONAL SOURCING fäster stor vikt vid skyddet och säkerheten för dina personuppgifter. Om du vill veta mer om hur dina uppgifter samlas in och behandlas, läs vår <a href=\"/sv/privacy\">Integritetspolicy</a>.</p>"
+    }
+  }
+}

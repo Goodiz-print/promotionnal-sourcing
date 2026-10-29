@@ -1,0 +1,50 @@
+{
+  "heading": "Política de privacidad",
+  "eyebrow": "Protección de datos",
+  "intro": "Cómo PROMOTIONAL SOURCING recoge, utiliza y protege los datos personales de los visitantes de promotional-sourcing.eu, de conformidad con el RGPD y con la ley francesa «Informatique et Libertés».",
+  "updatedAt": "7 de agosto de 2026",
+  "seoTitle": "Política de privacidad — Promotional Sourcing.eu",
+  "seoDescription": "Cómo PROMOTIONAL SOURCING recoge, utiliza y protege sus datos personales, de conformidad con el RGPD.",
+  "sections": {
+    "responsable": {
+      "title": "Responsable del tratamiento",
+      "body": "<address>PROMOTIONAL SOURCING, société par actions simplifiée<br />72 quai de Bacalan, 33300 Bordeaux — Francia<br />SIREN 108 093 790 — Registro Mercantil de Burdeos (RCS Bordeaux)<br />Correo electrónico: <a href=\"mailto:contact@promotional-sourcing.eu\">contact@promotional-sourcing.eu</a></address> <p>Dado su tamaño y la naturaleza de sus tratamientos, PROMOTIONAL SOURCING no está obligada a designar un delegado de protección de datos. Cualquier pregunta relativa a sus datos puede dirigirse a la dirección indicada más arriba.</p>"
+    },
+    "donnees-collectees": {
+      "title": "Datos recogidos",
+      "body": "<p>Solo recogemos los datos que usted nos facilita voluntariamente:</p> <ul> <li><strong>A través del formulario de contacto</strong>: nombre y apellidos, empresa, calidad en la que actúa (agencia, proveedor u otra), dirección de correo electrónico profesional, número de teléfono (opcional) y el contenido de su mensaje.</li> <li><strong>Datos técnicos</strong>: los registros de conexión generados automáticamente por nuestro proveedor de alojamiento (dirección IP, fecha y hora de la solicitud, páginas consultadas, tipo de navegador), con fines de seguridad y de buen funcionamiento del sitio.</li> </ul> <p>Ningún campo es obligatorio más allá de lo estrictamente necesario para tramitar su solicitud. No recogemos ningún dato sensible en el sentido del artículo 9 del RGPD.</p>"
+    },
+    "finalites": {
+      "title": "Finalidades y bases jurídicas",
+      "body": "<ul> <li><strong>Responder a su solicitud de contacto y gestionar la relación comercial</strong> — base jurídica: el interés legítimo de PROMOTIONAL SOURCING (artículo 6.1.f del RGPD) en responder a una solicitud profesional que usted mismo ha iniciado.</li> <li><strong>Garantizar la seguridad y la disponibilidad del sitio</strong> — base jurídica: interés legítimo (artículo 6.1.f del RGPD).</li> </ul> <p>Sus datos no se venden, no se alquilan ni se ceden a terceros con fines de prospección comercial.</p>"
+    },
+    "destinataires": {
+      "title": "Destinatarios y encargados del tratamiento",
+      "body": "<p>Sus datos son tratados por las personas autorizadas dentro de PROMOTIONAL SOURCING. Recurrimos a los siguientes encargados del tratamiento:</p> <ul> <li><strong>Netlify, Inc.</strong> (512 2nd Street, Suite 200, San Francisco, CA 94107, Estados Unidos) — alojamiento del sitio y recogida de los envíos del formulario de contacto. Este tratamiento implica una transferencia de datos fuera de la Unión Europea, amparada por las cláusulas contractuales tipo de la Comisión Europea y por la certificación de Netlify en el marco del <span>EU–U.S. Data Privacy Framework</span>.</li> </ul> <p>Sus datos también podrán comunicarse a las autoridades administrativas o judiciales cuando la ley lo exija.</p>"
+    },
+    "conservation": {
+      "title": "Plazo de conservación",
+      "body": "<ul> <li><strong>Solicitudes de contacto</strong>: 3 años a partir del último intercambio con usted, de conformidad con la recomendación de la CNIL en materia de prospección comercial B2B.</li> <li><strong>Registros de conexión</strong>: 12 meses como máximo.</li> </ul> <p>Transcurridos estos plazos, sus datos se suprimen o se anonimizan.</p>"
+    },
+    "cookies": {
+      "title": "Cookies y medición de audiencia",
+      "body": "<p><strong>El sitio promotional-sourcing.eu no instala ninguna cookie</strong> y no utiliza ninguna herramienta de medición de audiencia, de publicidad ni de rastreo de terceros. Por tanto, no se requiere ningún consentimiento previo para la simple consulta del sitio y no es necesario ningún banner de cookies.</p>"
+    },
+    "securite": {
+      "title": "Seguridad",
+      "body": "<p>El sitio se sirve íntegramente mediante HTTPS. El acceso a las solicitudes recibidas a través del formulario está restringido a las personas autorizadas de PROMOTIONAL SOURCING y protegido mediante autenticación.</p>"
+    },
+    "vos-droits": {
+      "title": "Sus derechos",
+      "body": "<p>De conformidad con los artículos 15 a 22 del RGPD, usted dispone de los siguientes derechos sobre sus datos:</p> <ul> <li>derecho de acceso y de obtención de una copia de sus datos;</li> <li>derecho de rectificación de los datos inexactos o incompletos;</li> <li>derecho de supresión («derecho al olvido»);</li> <li>derecho a la limitación del tratamiento;</li> <li>derecho de oposición al tratamiento basado en el interés legítimo;</li> <li>derecho a la portabilidad de sus datos;</li> <li>derecho a establecer directrices sobre el destino de sus datos después de su fallecimiento.</li> </ul> <p>Para ejercer estos derechos, escríbanos a <a href=\"mailto:contact@promotional-sourcing.eu\">contact@promotional-sourcing.eu</a> o a la dirección postal indicada en el punto 1. Se le responderá en el plazo de un mes. Podrá solicitársele un documento acreditativo de su identidad en caso de duda razonable sobre ella.</p>"
+    },
+    "reclamation": {
+      "title": "Reclamación",
+      "body": "<p>Si, tras haberse puesto en contacto con nosotros, considera que no se respetan sus derechos, puede presentar una reclamación ante la Commission Nationale de l'Informatique et des Libertés (CNIL) — 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07 — <a href=\"https://www.cnil.fr\" rel=\"noopener noreferrer\" target=\"_blank\">cnil.fr</a>.</p>"
+    },
+    "modification": {
+      "title": "Modificación de la política",
+      "body": "<p>Esta política puede evolucionar, en particular con el lanzamiento de la plataforma. La fecha de la última actualización figura en la parte superior de esta página. Consulte también nuestro <a href=\"/es/legal\">aviso legal</a>.</p>"
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "organizations": "Organizzazioni",
+    "users": "Utenti",
+    "categories": "Categorie",
+    "label": "Sezioni di amministrazione"
+  },
+  "pagination": {
+    "previous": "Precedente",
+    "next": "Successivo"
+  },
+  "dashboard": {
+    "title": "Amministrazione",
+    "subtitle": "Panoramica della piattaforma.",
+    "counters": {
+      "organizations": "Organizzazioni",
+      "users": "Utenti",
+      "products": "Prodotti",
+      "rfqs": "Richieste di preventivo"
+    },
+    "archived": "{count, plural, =0 {Nessuna archiviata} one {# archiviata} other {# archiviate}}"
+  },
+  "organizations": {
+    "title": "Organizzazioni",
+    "subtitle": "Tutte le organizzazioni della piattaforma.",
+    "empty": "Nessuna organizzazione corrisponde a questi filtri.",
+    "back": "Torna alle organizzazioni",
+    "filters": {
+      "type": "Tipo",
+      "allTypes": "Tutti i tipi",
+      "status": "Stato"
+    },
+    "types": {
+      "buyer": "Acquirente",
+      "supplier": "Fornitore",
+      "both": "Acquirente e fornitore"
+    },
+    "status": {
+      "active": "Attiva",
+      "archived": "Archiviata",
+      "all": "Tutte"
+    },
+    "columns": {
+      "name": "Nome",
+      "type": "Tipo",
+      "members": "Membri",
+      "status": "Stato"
+    },
+    "fields": {
+      "email": "E-mail",
+      "phone": "Telefono",
+      "website": "Sito web",
+      "siret": "SIRET",
+      "vatNumber": "N. di partita IVA",
+      "country": "Paese",
+      "createdAt": "Creata il"
+    },
+    "roles": {
+      "owner": "Proprietario",
+      "admin": "Amministratore",
+      "manager": "Responsabile",
+      "member": "Membro"
+    },
+    "detail": {
+      "products": "Prodotti",
+      "rfqs": "Richieste di preventivo",
+      "contact": "Recapiti",
+      "members": "{count, plural, one {# membro} other {# membri}}",
+      "role": "Ruolo",
+      "notProvided": "Non indicato",
+      "membersEmpty": "Nessun membro in questa organizzazione.",
+      "membersCaption": "Membri dell’organizzazione",
+      "joinedAt": "Membro dal"
+    },
+    "emptyDescription": "Modifichi il tipo o lo stato per ampliare l'elenco.",
+    "resultsCount": "{count, plural, =0 {Nessuna organizzazione} one {# organizzazione} other {# organizzazioni}}"
+  },
+  "users": {
+    "title": "Utenti",
+    "subtitle": "Tutti gli account della piattaforma.",
+    "searchLabel": "Cerca per e-mail",
+    "searchPlaceholder": "nome@esempio.com",
+    "empty": "Nessun utente corrisponde a questa ricerca.",
+    "columns": {
+      "name": "Nome",
+      "email": "E-mail",
+      "organizations": "Organizzazioni",
+      "status": "Stato",
+      "createdAt": "Iscritto il"
+    },
+    "platformAdmin": "Admin piattaforma",
+    "unverified": "E-mail non verificata",
+    "resultsCount": "{count, plural, =0 {Nessun account} one {# account} other {# account}}",
+    "emptyDescription": "Provi con un altro indirizzo o cancelli la ricerca.",
+    "noName": "Nome non indicato",
+    "verified": "E-mail verificata"
+  }
+}

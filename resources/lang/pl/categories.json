@@ -7,13 +7,22 @@
       "name": "Nazwa",
       "slug": "Identyfikator",
       "parent": "Nadrzędna",
-      "products": "Produkty"
-    }
+      "products": "Produkty",
+      "actions": "Akcje"
+    },
+    "emptyDescription": "Kategorie porządkują katalog i jego filtry.",
+    "root": "Korzeń"
   },
-  "create": { "title": "Nowa kategoria" },
-  "edit": { "title": "Edytuj kategorię" },
-  "newCategory": "Nowa kategoria",
+  "create": {
+    "title": "Nowa kategoria",
+    "subtitle": "Dodaj kategorię do drzewa katalogu."
+  },
+  "update": {
+    "title": "Edytuj kategorię",
+    "subtitle": "Zmień treść, kategorię nadrzędną i synonimy dla „{slug}”."
+  },
   "edit": "Edytuj",
+  "newCategory": "Nowa kategoria",
   "delete": "Usuń",
   "save": "Zapisz",
   "cancel": "Anuluj",
@@ -26,7 +35,9 @@
     "name": "Nazwa",
     "description": "Opis",
     "synonyms": "Synonimy",
-    "synonymsHint": "Oddzielone przecinkami (ułatwia wyszukiwanie)."
+    "synonymsHint": "Oddzielone przecinkami (ułatwia wyszukiwanie).",
+    "slugPlaceholder": "np. spersonalizowane-dlugopisy",
+    "synonymsPlaceholder": "np. długopis, ołówek, marker"
   },
   "flash": {
     "created": "Kategoria utworzona.",
@@ -35,5 +46,13 @@
     "cycle": "Kategoria nie może być własną kategorią nadrzędną ani nadrzędną dla żadnej ze swoich podkategorii.",
     "hasChildren": "Nie można usunąć: ta kategoria zawiera podkategorie.",
     "hasProducts": "Nie można usunąć: do tej kategorii przypisane są produkty."
+  },
+  "back": "Powrót do kategorii",
+  "form": {
+    "identity": "Identyfikacja",
+    "identityDescription": "Identyfikator techniczny i miejsce w drzewie kategorii.",
+    "content": "Treść w języku: {language}",
+    "search": "Wyszukiwanie",
+    "searchDescription": "Powiązane terminy ułatwiające znalezienie kategorii w wyszukiwarce."
   }
 }

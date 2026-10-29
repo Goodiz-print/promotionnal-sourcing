@@ -20,7 +20,8 @@
   },
   "create": {
     "title": "Nouvelle demande de devis",
-    "submit": "Créer le brouillon"
+    "submit": "Créer le brouillon",
+    "subtitle": "Décrivez votre besoin : les fournisseurs vous répondront par un devis."
   },
   "show": {
     "backToList": "Retour aux demandes",
@@ -79,7 +80,8 @@
     "title": "Lignes du besoin",
     "add": "Ajouter une ligne",
     "remove": "Retirer cette ligne",
-    "empty": "Ajoutez au moins une ligne pour décrire ce que vous cherchez."
+    "empty": "Ajoutez au moins une ligne pour décrire ce que vous cherchez.",
+    "line": "Ligne {index}"
   },
   "suppliers": {
     "empty": "Aucune organisation fournisseuse n'est encore enregistrée.",
@@ -167,5 +169,8 @@
     "label": "Nouvelle échéance",
     "extend": "Prolonger l'échéance",
     "expiredNotice": "Cette demande est échue : les fournisseurs ne peuvent plus y répondre. Prolongez l'échéance pour la rouvrir."
+  },
+  "form": {
+    "general": "Informations générales"
   }
 }

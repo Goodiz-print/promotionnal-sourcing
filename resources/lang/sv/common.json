@@ -22,7 +22,19 @@
     "collapseSidebar": "Fäll ihop menyn",
     "expandSidebar": "Fäll ut menyn",
     "menu": "Meny",
-    "userMenu": "Användarmeny"
+    "userMenu": "Användarmeny",
+    "groups": {
+      "explore": "Utforska",
+      "buying": "Inköp",
+      "supplier": "Leverantörsområde",
+      "organization": "Organisation",
+      "admin": "Plattform"
+    },
+    "openMenu": "Öppna menyn",
+    "closeMenu": "Stäng menyn",
+    "backToSite": "Tillbaka till webbplatsen",
+    "noOrganization": "Ingen organisation",
+    "logoAlt": "Promotional Sourcing.eu"
   },
   "language": {
     "label": "Språk",

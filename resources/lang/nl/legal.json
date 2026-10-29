@@ -1,0 +1,46 @@
+{
+  "heading": "Juridische kennisgeving",
+  "eyebrow": "Juridische informatie",
+  "intro": "Identiteit van de uitgever van de website promotional-sourcing.eu en van de hostingpartij, en de regels voor het gebruik van de inhoud.",
+  "updatedAt": "26 augustus 2026",
+  "seoTitle": "Juridische kennisgeving — Promotional Sourcing.eu",
+  "seoDescription": "Juridische kennisgeving van de website promotional-sourcing.eu: uitgever, hostingpartij, intellectuele eigendom.",
+  "sections": {
+    "editeur": {
+      "title": "Uitgever van de website",
+      "body": "<p>PROMOTIONAL SOURCING, société par actions simplifiée (Franse vereenvoudigde naamloze vennootschap) met een kapitaal van € 1.000</p> <p>Website: promotional-sourcing.eu</p> <p>Verantwoordelijke uitgever: Virgile Accomando</p>"
+    },
+    "siege": {
+      "title": "Adres van de statutaire zetel",
+      "body": "<address>PROMOTIONAL SOURCING<br />72 quai de Bacalan<br />33300 Bordeaux — Frankrijk</address>"
+    },
+    "immatriculation": {
+      "title": "Inschrijving",
+      "body": "<p>SIREN 108 093 790 — Handelsregister (RCS) Bordeaux<br />SIRET (zetel): 108 093 790 00013<br />NAF/APE-code: 6312Z — Webportalen</p>"
+    },
+    "tva": {
+      "title": "Btw-nummer",
+      "body": "<p>Intracommunautair btw-identificatienummer: FR03 108 093 790</p>"
+    },
+    "activite": {
+      "title": "Activiteit",
+      "body": "<p>Uitgave en exploitatie van een webplatform voor het sourcen van promotionele producten, waarbij professionele kopers en leveranciers met elkaar in contact worden gebracht.</p>"
+    },
+    "hebergeur": {
+      "title": "Hostingpartij van de website",
+      "body": "<address>Netlify, Inc.<br />512 2nd Street, Suite 200<br />San Francisco, CA 94107 — Verenigde Staten<br /><a href=\"https://www.netlify.com\" rel=\"noopener noreferrer\" target=\"_blank\">netlify.com</a></address>"
+    },
+    "contact": {
+      "title": "Contact opnemen",
+      "body": "<p>Telefoon: <a href=\"tel:+33638012975\">+33 6 38 01 29 75</a></p> <p>E-mail: <a href=\"mailto:contact@promotional-sourcing.eu\">contact@promotional-sourcing.eu</a></p>"
+    },
+    "propriete-intellectuelle": {
+      "title": "Intellectuele eigendom",
+      "body": "<p>Alle elementen waaruit de website promotional-sourcing.eu bestaat (teksten, grafisch materiaal, logo's, afbeeldingen, structuur) zijn het exclusieve eigendom van PROMOTIONAL SOURCING of worden gebruikt met toestemming. Elke gehele of gedeeltelijke reproductie, weergave of verspreiding zonder voorafgaande schriftelijke toestemming is verboden en vormt een inbreuk in de zin van de artikelen L.335-2 e.v. van de Franse Code de la propriété intellectuelle.</p>"
+    },
+    "donnees-personnelles": {
+      "title": "Persoonsgegevens",
+      "body": "<p>PROMOTIONAL SOURCING hecht veel belang aan de bescherming en de beveiliging van uw persoonsgegevens. Raadpleeg ons <a href=\"/nl/privacy\">Privacybeleid</a> voor meer informatie over het verzamelen en verwerken van uw gegevens.</p>"
+    }
+  }
+}

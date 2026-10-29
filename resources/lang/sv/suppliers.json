@@ -8,12 +8,21 @@
     "allCountries": "Alla länder",
     "empty": "Ingen leverantör matchar din sökning.",
     "previous": "Föregående",
-    "next": "Nästa"
+    "next": "Nästa",
+    "resultsCount": "{count, plural, =0 {Inga leverantörer} one {# leverantör} other {# leverantörer}}",
+    "emptyHint": "Utvidga din sökning eller välj ett annat land."
   },
   "show": {
     "website": "Besök webbplatsen",
     "profile": "Leverantörsprofil",
     "products": "Katalog",
-    "noProducts": "Inga publicerade produkter ännu."
+    "noProducts": "Inga publicerade produkter ännu.",
+    "country": "Land",
+    "email": "E-post",
+    "phone": "Telefon",
+    "backToDirectory": "Tillbaka till katalogen",
+    "foundingPartner": "Grundande partner",
+    "contact": "Kontakt",
+    "websiteLabel": "Webbplats"
   }
 }

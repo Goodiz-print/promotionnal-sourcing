@@ -1,0 +1,88 @@
+{
+  "status": {
+    "pending": "Bestätigung ausstehend",
+    "confirmed": "Bestätigt",
+    "in_production": "In Produktion",
+    "shipped": "Versandt",
+    "delivered": "Geliefert",
+    "cancelled": "Storniert"
+  },
+  "actions": {
+    "confirm": "Bestellung bestätigen",
+    "startProduction": "Produktion starten",
+    "ship": "Als versandt markieren",
+    "deliver": "Erhalt bestätigen",
+    "cancel": "Bestellung stornieren"
+  },
+  "confirm": {
+    "confirm": "Diese Bestellung bestätigen? Sie verpflichten sich, sie zu erfüllen.",
+    "startProduction": "Die Produktion dieser Bestellung starten?",
+    "ship": "Diese Bestellung als versandt markieren?",
+    "deliver": "Bestätigen, dass Sie diese Bestellung erhalten haben?",
+    "cancel": "Diese Bestellung stornieren? Diese Aktion ist endgültig."
+  },
+  "flash": {
+    "confirm": "Bestellung bestätigt.",
+    "startProduction": "Bestellung in Produktion.",
+    "ship": "Bestellung versandt.",
+    "deliver": "Erhalt bestätigt. Die Bestellung ist geliefert.",
+    "cancel": "Bestellung storniert."
+  },
+  "errors": {
+    "transition": "Diese Aktion ist nicht mehr möglich: Der Status der Bestellung hat sich geändert."
+  },
+  "index": {
+    "title": "Meine Bestellungen",
+    "subtitle": "Die Bestellungen aus Ihren angenommenen Angeboten.",
+    "empty": "Noch keine Bestellung. Eine Bestellung wird erstellt, sobald Sie ein Angebot annehmen.",
+    "columns": {
+      "order": "Bestellung",
+      "total": "Gesamt",
+      "status": "Status",
+      "actions": "Aktionen"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "Eingegangene Bestellungen",
+      "subtitle": "Bestätigen Sie Bestellungen und führen Sie sie bis zum Versand weiter.",
+      "empty": "Noch keine Bestellung. Eine Bestellung geht ein, sobald ein Käufer eines Ihrer Angebote annimmt."
+    }
+  },
+  "show": {
+    "title": "Bestellung Nr. {id}",
+    "backToList": "Zurück zu den Bestellungen",
+    "forRfq": "Für die Anfrage „{rfqTitle}“",
+    "buyer": "Käufer",
+    "supplier": "Lieferant",
+    "shippingAddress": "Lieferadresse",
+    "billingAddress": "Rechnungsadresse",
+    "noAddress": "Nicht angegeben",
+    "viewQuote": "Angebot ansehen",
+    "timeline": "Bestellverfolgung",
+    "items": "Bestellte Artikel"
+  },
+  "timeline": {
+    "created": "Bestellung erstellt",
+    "confirmed": "Vom Lieferanten bestätigt",
+    "inProduction": "In Produktion gegeben",
+    "shipped": "Versandt",
+    "delivered": "Geliefert",
+    "cancelled": "Storniert",
+    "pending": "Ausstehend"
+  },
+  "table": {
+    "item": "Artikel",
+    "unitPrice": "Stückpreis",
+    "quantity": "Menge",
+    "total": "Gesamt"
+  },
+  "total": "Gesamt: {total}",
+  "viewOrder": "Bestellung ansehen",
+  "address": {
+    "name": "Name",
+    "street": "Straße",
+    "city": "Stadt",
+    "country": "Land"
+  }
+}

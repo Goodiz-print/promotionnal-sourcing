@@ -1,0 +1,50 @@
+{
+  "heading": "Integritetspolicy",
+  "eyebrow": "Dataskydd",
+  "intro": "Hur PROMOTIONAL SOURCING samlar in, använder och skyddar personuppgifter om besökare på promotional-sourcing.eu, i enlighet med GDPR och den franska dataskyddslagen (”Informatique et Libertés”).",
+  "updatedAt": "7 augusti 2026",
+  "seoTitle": "Integritetspolicy — Promotional Sourcing.eu",
+  "seoDescription": "Hur PROMOTIONAL SOURCING samlar in, använder och skyddar dina personuppgifter, i enlighet med GDPR.",
+  "sections": {
+    "responsable": {
+      "title": "Personuppgiftsansvarig",
+      "body": "<address>PROMOTIONAL SOURCING, société par actions simplifiée<br />72 quai de Bacalan, 33300 Bordeaux — Frankrike<br />SIREN 108 093 790 — Bolagsregistret i Bordeaux (RCS)<br />E-post: <a href=\"mailto:contact@promotional-sourcing.eu\">contact@promotional-sourcing.eu</a></address> <p>Med hänsyn till sin storlek och behandlingarnas art är PROMOTIONAL SOURCING inte skyldigt att utse ett dataskyddsombud. Alla frågor om dina uppgifter kan skickas till adressen ovan.</p>"
+    },
+    "donnees-collectees": {
+      "title": "Insamlade uppgifter",
+      "body": "<p>Vi samlar endast in de uppgifter som du frivilligt lämnar till oss:</p> <ul> <li><strong>Via kontaktformuläret</strong>: för- och efternamn, företag, roll (byrå, leverantör eller annat), professionell e-postadress, telefonnummer (valfritt) och innehållet i ditt meddelande.</li> <li><strong>Tekniska uppgifter</strong>: anslutningsloggar som genereras automatiskt av vår värdleverantör (IP-adress, datum och tid för begäran, besökta sidor, webbläsartyp), i säkerhetssyfte och för att webbplatsen ska fungera väl.</li> </ul> <p>Inget fält är obligatoriskt utöver vad som är strikt nödvändigt för att hantera din förfrågan. Vi samlar inte in några känsliga uppgifter i den mening som avses i artikel 9 i GDPR.</p>"
+    },
+    "finalites": {
+      "title": "Ändamål och rättslig grund",
+      "body": "<ul> <li><strong>Besvara din kontaktförfrågan och hantera affärsrelationen</strong> — rättslig grund: PROMOTIONAL SOURCINGs berättigade intresse (artikel 6.1.f i GDPR) av att besvara en professionell förfrågan som du själv har initierat.</li> <li><strong>Säkerställa webbplatsens säkerhet och tillgänglighet</strong> — rättslig grund: berättigat intresse (artikel 6.1.f i GDPR).</li> </ul> <p>Dina uppgifter säljs, hyrs ut eller överlåts aldrig till tredje part för marknadsföringsändamål.</p>"
+    },
+    "destinataires": {
+      "title": "Mottagare och underbiträden",
+      "body": "<p>Dina uppgifter behandlas av behöriga personer inom PROMOTIONAL SOURCING. Vi anlitar följande underbiträden:</p> <ul> <li><strong>Netlify, Inc.</strong> (512 2nd Street, Suite 200, San Francisco, CA 94107, USA) — webbhotell och insamling av kontaktformulärets inlämningar. Behandlingen innebär en överföring av uppgifter utanför Europeiska unionen, som omfattas av Europeiska kommissionens standardavtalsklausuler och av Netlifys certifiering enligt <span>EU–U.S. Data Privacy Framework</span>.</li> </ul> <p>Dina uppgifter kan också lämnas ut till administrativa eller rättsliga myndigheter när lagen kräver det.</p>"
+    },
+    "conservation": {
+      "title": "Lagringstid",
+      "body": "<ul> <li><strong>Kontaktförfrågningar</strong>: 3 år från vår senaste kontakt med dig, i enlighet med CNIL:s rekommendation om B2B-marknadsföring.</li> <li><strong>Anslutningsloggar</strong>: högst 12 månader.</li> </ul> <p>När dessa perioder har löpt ut raderas eller anonymiseras dina uppgifter.</p>"
+    },
+    "cookies": {
+      "title": "Cookies och besöksstatistik",
+      "body": "<p><strong>Webbplatsen promotional-sourcing.eu placerar inga cookies</strong> och använder inga verktyg för besöksstatistik, reklam eller spårning från tredje part. Inget föregående samtycke krävs därför för att enbart besöka webbplatsen, och ingen cookiebanner behövs.</p>"
+    },
+    "securite": {
+      "title": "Säkerhet",
+      "body": "<p>Webbplatsen levereras helt över HTTPS. Åtkomsten till förfrågningar som tas emot via formuläret är begränsad till behöriga personer hos PROMOTIONAL SOURCING och skyddas av autentisering.</p>"
+    },
+    "vos-droits": {
+      "title": "Dina rättigheter",
+      "body": "<p>Enligt artiklarna 15 till 22 i GDPR har du följande rättigheter avseende dina uppgifter:</p> <ul> <li>rätt till tillgång och rätt att få en kopia av dina uppgifter;</li> <li>rätt till rättelse av felaktiga eller ofullständiga uppgifter;</li> <li>rätt till radering (”rätten att bli bortglömd”);</li> <li>rätt till begränsning av behandlingen;</li> <li>rätt att invända mot behandling som grundas på berättigat intresse;</li> <li>rätt till dataportabilitet;</li> <li>rätt att ge instruktioner om vad som ska hända med dina uppgifter efter din död.</li> </ul> <p>För att utöva dessa rättigheter, skriv till oss på <a href=\"mailto:contact@promotional-sourcing.eu\">contact@promotional-sourcing.eu</a> eller till postadressen som anges i punkt 1. Du får svar inom en månad. Vi kan komma att begära en identitetshandling om det finns rimliga tvivel om din identitet.</p>"
+    },
+    "reclamation": {
+      "title": "Klagomål",
+      "body": "<p>Om du, efter att ha kontaktat oss, anser att dina rättigheter inte respekteras kan du lämna in ett klagomål till den franska dataskyddsmyndigheten Commission Nationale de l'Informatique et des Libertés (CNIL) — 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07 — <a href=\"https://www.cnil.fr\" rel=\"noopener noreferrer\" target=\"_blank\">cnil.fr</a>.</p>"
+    },
+    "modification": {
+      "title": "Ändringar av policyn",
+      "body": "<p>Den här policyn kan komma att ändras, särskilt när plattformen lanseras. Datumet för senaste uppdatering anges högst upp på sidan. Se även vår <a href=\"/sv/legal\">juridiska information</a>.</p>"
+    }
+  }
+}

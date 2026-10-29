@@ -1,0 +1,88 @@
+{
+  "status": {
+    "pending": "Aguarda confirmação",
+    "confirmed": "Confirmada",
+    "in_production": "Em produção",
+    "shipped": "Expedida",
+    "delivered": "Entregue",
+    "cancelled": "Cancelada"
+  },
+  "actions": {
+    "confirm": "Confirmar a encomenda",
+    "startProduction": "Iniciar a produção",
+    "ship": "Marcar como expedida",
+    "deliver": "Confirmar a receção",
+    "cancel": "Cancelar a encomenda"
+  },
+  "confirm": {
+    "confirm": "Confirmar esta encomenda? Compromete-se a cumpri-la.",
+    "startProduction": "Iniciar a produção desta encomenda?",
+    "ship": "Marcar esta encomenda como expedida?",
+    "deliver": "Confirma que recebeu esta encomenda?",
+    "cancel": "Cancelar esta encomenda? Esta ação é definitiva."
+  },
+  "flash": {
+    "confirm": "Encomenda confirmada.",
+    "startProduction": "Encomenda em produção.",
+    "ship": "Encomenda expedida.",
+    "deliver": "Receção confirmada. A encomenda foi entregue.",
+    "cancel": "Encomenda cancelada."
+  },
+  "errors": {
+    "transition": "Esta ação já não é possível: a encomenda mudou de estado."
+  },
+  "index": {
+    "title": "As minhas encomendas",
+    "subtitle": "As encomendas resultantes dos orçamentos que aceitou.",
+    "empty": "Ainda não há encomendas. Uma encomenda é criada assim que aceitar um orçamento.",
+    "columns": {
+      "order": "Encomenda",
+      "total": "Total",
+      "status": "Estado",
+      "actions": "Ações"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "Encomendas recebidas",
+      "subtitle": "Confirme as encomendas e faça-as avançar até à expedição.",
+      "empty": "Ainda não há encomendas. Uma encomenda chega assim que um comprador aceitar um dos seus orçamentos."
+    }
+  },
+  "show": {
+    "title": "Encomenda n.º {id}",
+    "backToList": "Voltar às encomendas",
+    "forRfq": "Para o pedido «{rfqTitle}»",
+    "buyer": "Comprador",
+    "supplier": "Fornecedor",
+    "shippingAddress": "Morada de entrega",
+    "billingAddress": "Morada de faturação",
+    "noAddress": "Não indicada",
+    "viewQuote": "Ver o orçamento",
+    "timeline": "Acompanhamento da encomenda",
+    "items": "Artigos encomendados"
+  },
+  "timeline": {
+    "created": "Encomenda criada",
+    "confirmed": "Confirmada pelo fornecedor",
+    "inProduction": "Produção iniciada",
+    "shipped": "Expedida",
+    "delivered": "Entregue",
+    "cancelled": "Cancelada",
+    "pending": "Pendente"
+  },
+  "table": {
+    "item": "Artigo",
+    "unitPrice": "Preço unitário",
+    "quantity": "Quantidade",
+    "total": "Total"
+  },
+  "total": "Total: {total}",
+  "viewOrder": "Ver a encomenda",
+  "address": {
+    "name": "Nome",
+    "street": "Rua",
+    "city": "Cidade",
+    "country": "País"
+  }
+}

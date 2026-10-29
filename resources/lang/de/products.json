@@ -12,7 +12,48 @@
     "searchUnavailable": "Die Suche ist vorübergehend nicht verfügbar. Versuchen Sie es gleich erneut oder durchsuchen Sie die Kategorien.",
     "loading": "Produkte werden geladen …",
     "previous": "Zurück",
-    "next": "Weiter"
+    "next": "Weiter",
+    "selectCategoryForFilters": "Wählen Sie eine Kategorie, um deren Filter anzuzeigen.",
+    "rangeUnder": "< {max}",
+    "rangeOver": "≥ {min}",
+    "rangeBetween": "{min}–{max}",
+    "newOnly": "Neuheiten",
+    "origin": {
+      "title": "Herkunft",
+      "france": "Frankreich",
+      "europe": "Europa",
+      "other": "Außerhalb Europas"
+    },
+    "ecoOnly": "Umweltfreundlich",
+    "stock": {
+      "title": "Lagerbestand",
+      "in_stock": "Verfügbar",
+      "out_of_stock": "Ausverkauft",
+      "on_order": "Auf Bestellung"
+    },
+    "price": {
+      "title": "Preis",
+      "currency": "€"
+    },
+    "moq": {
+      "title": "Mindestmenge"
+    },
+    "certifications": {
+      "title": "Konformitätssiegel",
+      "domains": {
+        "environment": "Umwelt",
+        "textile": "Textil",
+        "social": "Soziales",
+        "safety": "Sicherheit",
+        "food_contact": "Lebensmittelkontakt",
+        "forestry": "Wald / Holz",
+        "quality": "Qualität"
+      }
+    },
+    "filtersTitle": "Filter",
+    "reset": "Zurücksetzen",
+    "quickFilters": "Schnellfilter",
+    "emptyHint": "Erweitern Sie Ihre Kriterien oder setzen Sie die Filter zurück."
   },
   "show": {
     "backToCatalogue": "Zurück zum Katalog",
@@ -28,12 +69,30 @@
     "tierFrom": "Ab {quantity} Stück",
     "addToDraft": "Zu einem Anfrage-Entwurf hinzufügen",
     "chooseDraft": "Entwurf wählen …",
-    "signInToRequest": "Anmelden, um ein Angebot anzufragen"
+    "signInToRequest": "Anmelden, um ein Angebot anzufragen",
+    "compliance": "Konformität",
+    "eco": "Umweltfreundlich",
+    "recycledContent": "{percent} % recyceltes Material",
+    "packaging": "Verpackung / Logistik",
+    "cartonDimensions": "Maße Umkarton (L × B × H, mm)",
+    "marking": "Markierung",
+    "markingPrices": "Markierungspreise",
+    "markingTechnique": "Veredelungstechnik",
+    "specifications": "Spezifikationen"
   },
   "manage": {
     "index": {
       "title": "Meine Produkte",
-      "empty": "Sie haben noch kein Produkt. Erstellen Sie eines."
+      "empty": "Sie haben noch kein Produkt. Erstellen Sie eines.",
+      "columns": {
+        "product": "Produkt",
+        "price": "Preis",
+        "status": "Status",
+        "actions": "Aktionen"
+      },
+      "emptyDescription": "Fügen Sie Ihre Produkte hinzu, damit sie im Katalog erscheinen und in Angebotsanfragen genannt werden können.",
+      "noPrice": "Preis auf Anfrage",
+      "priceRange": "{min} – {max}"
     },
     "create": {
       "title": "Neues Produkt"
@@ -70,7 +129,29 @@
       "originCountry": "Herkunftsland",
       "madeInEurope": "In Europa hergestellt",
       "isActive": "Veröffentlicht",
-      "images": "Bilder hinzufügen"
+      "images": "Bilder hinzufügen",
+      "brand": "Marke",
+      "hsCode": "Zolltarifnummer (HS)",
+      "lifecycleStatus": "Produktstatus",
+      "releasedAt": "Erscheinungsdatum",
+      "supplierCategoryRaw": "Lieferantenkategorie (Rohwert)",
+      "videoUrl": "Video (URL)",
+      "leadTimeDays": "Voraussichtliche Lieferzeit (Tage)",
+      "rushLeadTimeDays": "Expresslieferzeit (Tage)",
+      "rushService": "Expressservice",
+      "isConfigurable": "Konfigurierbares Produkt",
+      "recycledContentPercent": "Anteil recyceltes Material (%)",
+      "cautionComment": "Vorsichtsmaßnahmen / Warnhinweise",
+      "certifications": "Konformitätssiegel",
+      "packageType": "Verpackungsart",
+      "unitGrossWeightG": "Bruttogewicht pro Stück (g)",
+      "innerCartonQty": "Menge pro Innenkarton",
+      "outerCartonQty": "Menge pro Umkarton",
+      "outerCartonLengthMm": "Länge Umkarton (mm)",
+      "outerCartonWidthMm": "Breite Umkarton (mm)",
+      "outerCartonHeightMm": "Höhe Umkarton (mm)",
+      "outerCartonGrossWeightG": "Bruttogewicht Umkarton (g)",
+      "outerCartonVolumeM3": "Volumen Umkarton (m³)"
     },
     "variants": {
       "title": "Varianten",
@@ -79,7 +160,16 @@
       "remove": "Entfernen",
       "sku": "SKU",
       "image": "Variantenbild",
-      "isActive": "Variante angeboten"
+      "isActive": "Variante angeboten",
+      "gtin": "EAN/GTIN-Code",
+      "stockQuantity": "Lagermenge",
+      "stockStatus": "Lagerstatus",
+      "stockUnknown": "Nicht angegeben",
+      "stockStatuses": {
+        "in_stock": "Verfügbar",
+        "out_of_stock": "Ausverkauft",
+        "on_order": "Auf Bestellung"
+      }
     },
     "priceTiers": {
       "title": "Staffelpreise",
@@ -90,6 +180,52 @@
       "allVariants": "Alle Varianten",
       "minQuantity": "Ab (Stück)",
       "unitPrice": "Stückpreis"
-    }
+    },
+    "lifecycle": {
+      "active": "Aktiv",
+      "new": "Neuheit",
+      "end_of_series": "Auslaufmodell",
+      "retired": "Ausgemustert"
+    },
+    "commercial": "Identität, Vertrieb und Medien",
+    "compliance": "Konformität",
+    "packaging": "Verpackung / Logistik",
+    "packageTypeHint": "Polybeutel, Geschenkbox, Etui, Röhre, Schüttgut, Blister …",
+    "noCertifications": "Keine Siegel verfügbar.",
+    "marking": {
+      "title": "Markierung",
+      "hint": "Markierungszonen des Produkts, mögliche Techniken pro Zone und Markierungspreisstaffel nach Technik und Menge.",
+      "empty": "Keine Markierungszone.",
+      "printable": "Individualisierbares Produkt (Markierung möglich)",
+      "addPosition": "Zone hinzufügen",
+      "removePosition": "Entfernen",
+      "positionName": "Name der Zone",
+      "maxWidthMm": "Max. Breite (mm)",
+      "maxHeightMm": "Max. Höhe (mm)",
+      "template": "Markierungsvorlage",
+      "noTemplate": "Keine Vorlage",
+      "techniques": "Mögliche Techniken",
+      "technique": "Technik",
+      "addTechnique": "Technik hinzufügen",
+      "removeTechnique": "Entfernen",
+      "maxColors": "Max. Farben",
+      "setupCharge": "Einrichtungskosten",
+      "priceTiers": "Markierungspreisstaffel",
+      "priceTiersHint": "Markierungspreis pro Stück je nach Technik und bestellter Menge.",
+      "chooseTechnique": "Technik wählen"
+    },
+    "sections": {
+      "content": "Name und Beschreibung",
+      "details": "Klassifizierung",
+      "contentHint": "Name und Beschreibung in der Ausgangssprache; die anderen Sprachen können automatisch erzeugt werden."
+    },
+    "backToList": "Zurück zu meinen Produkten",
+    "editTitle": "Produkt bearbeiten"
+  },
+  "card": {
+    "minQuantity": "{count, plural, one {Min. # Stück} other {Min. # Stück}}",
+    "madeInEurope": "Hergestellt in Europa",
+    "eco": "Umweltfreundlich",
+    "new": "Neuheit"
   }
 }

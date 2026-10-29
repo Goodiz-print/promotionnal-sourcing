@@ -1,0 +1,88 @@
+{
+  "status": {
+    "pending": "Wacht op bevestiging",
+    "confirmed": "Bevestigd",
+    "in_production": "In productie",
+    "shipped": "Verzonden",
+    "delivered": "Geleverd",
+    "cancelled": "Geannuleerd"
+  },
+  "actions": {
+    "confirm": "Bestelling bevestigen",
+    "startProduction": "Productie starten",
+    "ship": "Markeren als verzonden",
+    "deliver": "Ontvangst bevestigen",
+    "cancel": "Bestelling annuleren"
+  },
+  "confirm": {
+    "confirm": "Deze bestelling bevestigen? U verbindt zich ertoe deze uit te voeren.",
+    "startProduction": "De productie van deze bestelling starten?",
+    "ship": "Deze bestelling markeren als verzonden?",
+    "deliver": "Bevestigen dat u deze bestelling hebt ontvangen?",
+    "cancel": "Deze bestelling annuleren? Deze actie kan niet ongedaan worden gemaakt."
+  },
+  "flash": {
+    "confirm": "Bestelling bevestigd.",
+    "startProduction": "Bestelling in productie.",
+    "ship": "Bestelling verzonden.",
+    "deliver": "Ontvangst bevestigd. De bestelling is geleverd.",
+    "cancel": "Bestelling geannuleerd."
+  },
+  "errors": {
+    "transition": "Deze actie is niet meer mogelijk: de status van de bestelling is gewijzigd."
+  },
+  "index": {
+    "title": "Mijn bestellingen",
+    "subtitle": "De bestellingen die voortkomen uit uw geaccepteerde offertes.",
+    "empty": "Nog geen bestellingen. Een bestelling wordt aangemaakt zodra u een offerte accepteert.",
+    "columns": {
+      "order": "Bestelling",
+      "total": "Totaal",
+      "status": "Status",
+      "actions": "Acties"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "Ontvangen bestellingen",
+      "subtitle": "Bevestig bestellingen en breng ze stap voor stap tot de verzending.",
+      "empty": "Nog geen bestellingen. Een bestelling komt binnen zodra een koper een van uw offertes accepteert."
+    }
+  },
+  "show": {
+    "title": "Bestelling nr. {id}",
+    "backToList": "Terug naar bestellingen",
+    "forRfq": "Voor de aanvraag “{rfqTitle}”",
+    "buyer": "Koper",
+    "supplier": "Leverancier",
+    "shippingAddress": "Afleveradres",
+    "billingAddress": "Factuuradres",
+    "noAddress": "Niet opgegeven",
+    "viewQuote": "Offerte bekijken",
+    "timeline": "Status van de bestelling",
+    "items": "Bestelde artikelen"
+  },
+  "timeline": {
+    "created": "Bestelling aangemaakt",
+    "confirmed": "Bevestigd door de leverancier",
+    "inProduction": "In productie genomen",
+    "shipped": "Verzonden",
+    "delivered": "Geleverd",
+    "cancelled": "Geannuleerd",
+    "pending": "In afwachting"
+  },
+  "table": {
+    "item": "Artikel",
+    "unitPrice": "Stuksprijs",
+    "quantity": "Aantal",
+    "total": "Totaal"
+  },
+  "total": "Totaal: {total}",
+  "viewOrder": "Bestelling bekijken",
+  "address": {
+    "name": "Naam",
+    "street": "Straat",
+    "city": "Plaats",
+    "country": "Land"
+  }
+}

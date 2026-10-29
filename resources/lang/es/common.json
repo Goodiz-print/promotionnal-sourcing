@@ -22,7 +22,19 @@
     "collapseSidebar": "Contraer el menú",
     "expandSidebar": "Expandir el menú",
     "menu": "Menú",
-    "userMenu": "Menú de usuario"
+    "userMenu": "Menú de usuario",
+    "groups": {
+      "explore": "Explorar",
+      "buying": "Compras",
+      "supplier": "Área de proveedor",
+      "organization": "Organización",
+      "admin": "Plataforma"
+    },
+    "openMenu": "Abrir el menú",
+    "closeMenu": "Cerrar el menú",
+    "backToSite": "Volver al sitio",
+    "noOrganization": "Ninguna organización",
+    "logoAlt": "Promotional Sourcing.eu"
   },
   "language": {
     "label": "Idioma",

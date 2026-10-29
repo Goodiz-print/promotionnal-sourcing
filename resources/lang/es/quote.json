@@ -73,7 +73,8 @@
     "confirm": {
       "accept": "¿Aceptar este presupuesto? Los demás se rechazarán y la solicitud se cerrará.",
       "reject": "¿Rechazar este presupuesto?"
-    }
+    },
+    "lines": "Líneas del presupuesto"
   },
   "supplier": {
     "index": {

@@ -8,7 +8,8 @@
   "confirmRemove": "Usunąć „{name}”?",
   "fields": {
     "kind": "Rodzaj dokumentu",
-    "file": "Plik PDF (maks. 20 MB)"
+    "file": "Plik PDF (maks. 20 MB)",
+    "type": "Rodzaj dokumentu"
   },
   "kinds": {
     "catalogue": "Katalog",
@@ -18,5 +19,12 @@
   "datasheet": {
     "title": "Karta techniczna",
     "empty": "Brak karty technicznej."
+  },
+  "types": {
+    "spec_sheet": "Karta techniczna",
+    "safety": "Karta bezpieczeństwa",
+    "certificate": "Certyfikat",
+    "marking_template": "Szablon znakowania",
+    "other": "Inny"
   }
 }

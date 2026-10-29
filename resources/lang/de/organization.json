@@ -3,7 +3,11 @@
     "title": "Organisationseinstellungen",
     "subtitle": "Verwalten Sie die allgemeinen Angaben Ihrer Organisation.",
     "submit": "Speichern",
-    "success": "Organisationseinstellungen aktualisiert."
+    "success": "Organisationseinstellungen aktualisiert.",
+    "sections": {
+      "general": "Allgemeine Angaben",
+      "address": "Adresse"
+    }
   },
   "fields": {
     "name": "Name",
@@ -39,20 +43,23 @@
   "nav": {
     "settings": "Einstellungen",
     "members": "Mitglieder",
-    "create": "Neue Organisation"
+    "create": "Neue Organisation",
+    "label": "Bereiche der Organisation"
   },
   "members": {
     "title": "Mitglieder der Organisation",
     "subtitle": "Verwalten Sie die Rollen und den Zugriff der Mitglieder Ihrer Organisation.",
     "columns": {
       "name": "Mitglied",
-      "role": "Rolle"
+      "role": "Rolle",
+      "actions": "Aktionen"
     },
     "remove": "Entfernen",
     "confirmRemove": "Dieses Mitglied aus der Organisation entfernen?",
     "roleUpdated": "Rolle des Mitglieds aktualisiert.",
     "removed": "Mitglied aus der Organisation entfernt.",
-    "lastOwnerError": "Der letzte Inhaber der Organisation kann weder entfernt noch herabgestuft werden."
+    "lastOwnerError": "Der letzte Inhaber der Organisation kann weder entfernt noch herabgestuft werden.",
+    "listTitle": "Mitglieder"
   },
   "invitations": {
     "inviteTitle": "Mitglied einladen",

@@ -3,14 +3,25 @@
     "title": "Offertförfrågningar",
     "subtitle": "Beskriv ett behov, kontakta flera leverantörer och jämför deras svar.",
     "empty": "Inga förfrågningar ännu.",
+    "emptyDescription": "Beskriv ditt behov, välj leverantörer och jämför deras offerter på ett och samma ställe.",
     "new": "Ny förfrågan",
     "itemCount": "{count, plural, one {# rad} other {# rader}}",
     "supplierCount": "{count, plural, =0 {inga mottagare} one {# mottagare} other {# mottagare}}",
-    "responded": "{responded} / {total} svar"
+    "responded": "{responded} / {total} svar",
+    "responses": "{responded} / {total}",
+    "columns": {
+      "title": "Förfrågan",
+      "items": "Rader",
+      "suppliers": "Mottagare",
+      "responses": "Svar",
+      "status": "Status",
+      "deadline": "Svarsdatum"
+    }
   },
   "create": {
     "title": "Ny offertförfrågan",
-    "submit": "Skapa utkastet"
+    "submit": "Skapa utkastet",
+    "subtitle": "Beskriv ditt behov: leverantörerna svarar med en offert."
   },
   "show": {
     "backToList": "Tillbaka till förfrågningarna",
@@ -69,7 +80,8 @@
     "title": "Behovets rader",
     "add": "Lägg till en rad",
     "remove": "Ta bort raden",
-    "empty": "Lägg till minst en rad för att beskriva vad du söker."
+    "empty": "Lägg till minst en rad för att beskriva vad du söker.",
+    "line": "Rad {index}"
   },
   "suppliers": {
     "empty": "Ingen leverantörsorganisation är registrerad ännu.",
@@ -104,7 +116,16 @@
       "subtitle": "De offertförfrågningar som köpare har skickat till dig.",
       "empty": "Inga mottagna förfrågningar ännu.",
       "from": "Från {name}",
-      "receivedAt": "Mottagen {date}"
+      "receivedAt": "Mottagen {date}",
+      "columns": {
+        "title": "Förfrågan",
+        "buyer": "Köpare",
+        "items": "Rader",
+        "receivedAt": "Mottagen den",
+        "deadline": "Svarsdatum",
+        "status": "Status"
+      },
+      "emptyDescription": "Köpare som kontaktar dig visas här med information om deras behov."
     },
     "show": {
       "backToList": "Tillbaka till mottagna förfrågningar",
@@ -113,7 +134,10 @@
       "noDeadline": "Ingen sista svarsdag",
       "declinedNotice": "Du har avböjt den här förfrågan. Köparen har underrättats.",
       "closedNotice": "Köparen har stängt den här förfrågan: den väntar inte längre på något svar.",
-      "expiredNotice": "Den här förfrågan har gått ut: köparen väntar inte längre på något svar."
+      "expiredNotice": "Den här förfrågan har gått ut: köparen väntar inte längre på något svar.",
+      "responseTitle": "Ditt svar",
+      "responseOpen": "Prissätt behovet genom att lämna en offert, eller avböj förfrågan om du inte kan gå vidare med den.",
+      "responseQuote": "Du har skrivit en offert för den här förfrågan."
     },
     "actions": {
       "decline": "Avböj förfrågan",
@@ -140,8 +164,13 @@
     "add": "Lägg till"
   },
   "deadline": {
+    "title": "Svarsdatum för förfrågan",
+    "description": "Ge leverantörerna mer tid: bara datumet ändras, inte behovet.",
     "label": "Ny tidsfrist",
     "extend": "Förläng tidsfristen",
     "expiredNotice": "Den här förfrågan har gått ut: leverantörer kan inte längre svara. Förläng tidsfristen för att öppna den igen."
+  },
+  "form": {
+    "general": "Allmän information"
   }
 }

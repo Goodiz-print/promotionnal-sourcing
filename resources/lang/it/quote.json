@@ -73,7 +73,8 @@
     "confirm": {
       "accept": "Accettare questo preventivo? Gli altri verranno rifiutati e la richiesta chiusa.",
       "reject": "Rifiutare questo preventivo?"
-    }
+    },
+    "lines": "Righe del preventivo"
   },
   "supplier": {
     "index": {

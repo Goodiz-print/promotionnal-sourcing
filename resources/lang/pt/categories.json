@@ -7,13 +7,22 @@
       "name": "Nome",
       "slug": "Identificador",
       "parent": "Categoria superior",
-      "products": "Produtos"
-    }
+      "products": "Produtos",
+      "actions": "Ações"
+    },
+    "emptyDescription": "As categorias estruturam o catálogo e os respetivos filtros.",
+    "root": "Raiz"
   },
-  "create": { "title": "Nova categoria" },
-  "edit": { "title": "Editar a categoria" },
-  "newCategory": "Nova categoria",
+  "create": {
+    "title": "Nova categoria",
+    "subtitle": "Adicione uma categoria à árvore do catálogo."
+  },
+  "update": {
+    "title": "Editar categoria",
+    "subtitle": "Edite o conteúdo, a categoria-mãe e os sinónimos de «{slug}»."
+  },
   "edit": "Editar",
+  "newCategory": "Nova categoria",
   "delete": "Eliminar",
   "save": "Guardar",
   "cancel": "Cancelar",
@@ -26,7 +35,9 @@
     "name": "Nome",
     "description": "Descrição",
     "synonyms": "Sinónimos",
-    "synonymsHint": "Separados por vírgulas (melhora a pesquisa)."
+    "synonymsHint": "Separados por vírgulas (melhora a pesquisa).",
+    "slugPlaceholder": "ex. canetas-personalizadas",
+    "synonymsPlaceholder": "ex. caneta esferográfica, lápis, marcador"
   },
   "flash": {
     "created": "Categoria criada.",
@@ -35,5 +46,13 @@
     "cycle": "Uma categoria não pode ser a sua própria categoria superior nem a de um dos seus descendentes.",
     "hasChildren": "Não é possível eliminar: esta categoria tem subcategorias.",
     "hasProducts": "Não é possível eliminar: existem produtos associados a esta categoria."
+  },
+  "back": "Voltar às categorias",
+  "form": {
+    "identity": "Identificação",
+    "identityDescription": "Identificador técnico e posição na árvore.",
+    "content": "Conteúdo em {language}",
+    "search": "Pesquisa",
+    "searchDescription": "Termos associados para encontrar a categoria no motor de pesquisa."
   }
 }

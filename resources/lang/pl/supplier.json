@@ -3,7 +3,13 @@
     "title": "Profil dostawcy",
     "subtitle": "Proszę podać terminy, certyfikaty i zasięg dostaw, aby zwiększyć zaufanie kupujących.",
     "submit": "Zapisz profil",
-    "success": "Profil dostawcy został zaktualizowany."
+    "success": "Profil dostawcy został zaktualizowany.",
+    "sections": {
+      "terms": "Warunki handlowe",
+      "termsHint": "Minimalna wartość zamówienia, terminy i zakres dostaw wyświetlane kupującym.",
+      "certificationsHint": "Normy i znaki, które Państwo posiadają (ISO, FSC, OEKO-TEX…).",
+      "presentation": "Prezentacja firmy"
+    }
   },
   "fields": {
     "minOrderQuantity": "Minimalna ilość zamówienia",
@@ -14,12 +20,21 @@
     "certificationPlaceholder": "np. ISO 9001",
     "certificationAdd": "Dodaj certyfikat",
     "certificationRemove": "Usuń",
-    "bio": "Prezentacja"
+    "bio": "Prezentacja",
+    "defaultOriginScope": "Domyślne pochodzenie",
+    "certificationsEmpty": "Nie podano żadnych certyfikatów."
   },
   "deliveryScope": {
     "none": "Nie określono",
     "national": "Krajowy",
     "europe": "Europa",
     "worldwide": "Międzynarodowy"
+  },
+  "originScope": {
+    "none": "Nie określono",
+    "france": "Francja",
+    "europe": "Europa",
+    "outside_europe": "Spoza Europy",
+    "per_product": "Zależnie od produktu"
   }
 }

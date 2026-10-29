@@ -22,6 +22,11 @@
     "unread": "Ungelesene Anfragen",
     "products": "Aktive Produkte",
     "completeness": "Profil vervollständigt",
-    "completeProfile": "Mein Profil vervollständigen"
+    "completeProfile": "Mein Profil vervollständigen",
+    "todo": {
+      "title": "Zu erledigen",
+      "empty": "Im Moment gibt es nichts zu erledigen.",
+      "unread": "{count, plural, one {# erhaltene Anfrage zu öffnen} other {# erhaltene Anfragen zu öffnen}}"
+    }
   }
 }

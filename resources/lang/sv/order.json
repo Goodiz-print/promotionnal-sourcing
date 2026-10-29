@@ -1,0 +1,88 @@
+{
+  "status": {
+    "pending": "Väntar på bekräftelse",
+    "confirmed": "Bekräftad",
+    "in_production": "I produktion",
+    "shipped": "Skickad",
+    "delivered": "Levererad",
+    "cancelled": "Annullerad"
+  },
+  "actions": {
+    "confirm": "Bekräfta beställningen",
+    "startProduction": "Starta produktionen",
+    "ship": "Markera som skickad",
+    "deliver": "Bekräfta mottagande",
+    "cancel": "Annullera beställningen"
+  },
+  "confirm": {
+    "confirm": "Bekräfta den här beställningen? Du förbinder dig att uppfylla den.",
+    "startProduction": "Starta produktionen av den här beställningen?",
+    "ship": "Markera den här beställningen som skickad?",
+    "deliver": "Bekräfta att du har tagit emot den här beställningen?",
+    "cancel": "Annullera den här beställningen? Åtgärden kan inte ångras."
+  },
+  "flash": {
+    "confirm": "Beställningen är bekräftad.",
+    "startProduction": "Beställningen är i produktion.",
+    "ship": "Beställningen är skickad.",
+    "deliver": "Mottagandet är bekräftat. Beställningen är levererad.",
+    "cancel": "Beställningen är annullerad."
+  },
+  "errors": {
+    "transition": "Åtgärden är inte längre möjlig: beställningens status har ändrats."
+  },
+  "index": {
+    "title": "Mina beställningar",
+    "subtitle": "Beställningar som skapats från dina godkända offerter.",
+    "empty": "Inga beställningar ännu. En beställning skapas så snart du godkänner en offert.",
+    "columns": {
+      "order": "Beställning",
+      "total": "Totalt",
+      "status": "Status",
+      "actions": "Åtgärder"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "Mottagna beställningar",
+      "subtitle": "Bekräfta beställningar och för dem framåt till leverans.",
+      "empty": "Inga beställningar ännu. En beställning kommer in så snart en köpare godkänner en av dina offerter."
+    }
+  },
+  "show": {
+    "title": "Beställning nr {id}",
+    "backToList": "Tillbaka till beställningar",
+    "forRfq": "För förfrågan ”{rfqTitle}”",
+    "buyer": "Köpare",
+    "supplier": "Leverantör",
+    "shippingAddress": "Leveransadress",
+    "billingAddress": "Faktureringsadress",
+    "noAddress": "Ej angiven",
+    "viewQuote": "Visa offerten",
+    "timeline": "Orderuppföljning",
+    "items": "Beställda artiklar"
+  },
+  "timeline": {
+    "created": "Beställning skapad",
+    "confirmed": "Bekräftad av leverantören",
+    "inProduction": "Produktionen startad",
+    "shipped": "Skickad",
+    "delivered": "Levererad",
+    "cancelled": "Annullerad",
+    "pending": "Väntar"
+  },
+  "table": {
+    "item": "Artikel",
+    "unitPrice": "Styckpris",
+    "quantity": "Antal",
+    "total": "Totalt"
+  },
+  "total": "Totalt: {total}",
+  "viewOrder": "Visa beställningen",
+  "address": {
+    "name": "Namn",
+    "street": "Gata",
+    "city": "Ort",
+    "country": "Land"
+  }
+}

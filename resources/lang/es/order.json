@@ -1,0 +1,88 @@
+{
+  "status": {
+    "pending": "Pendiente de confirmación",
+    "confirmed": "Confirmado",
+    "in_production": "En producción",
+    "shipped": "Enviado",
+    "delivered": "Entregado",
+    "cancelled": "Cancelado"
+  },
+  "actions": {
+    "confirm": "Confirmar el pedido",
+    "startProduction": "Iniciar la producción",
+    "ship": "Marcar como enviado",
+    "deliver": "Confirmar la recepción",
+    "cancel": "Cancelar el pedido"
+  },
+  "confirm": {
+    "confirm": "¿Confirmar este pedido? Usted se compromete a cumplirlo.",
+    "startProduction": "¿Iniciar la producción de este pedido?",
+    "ship": "¿Marcar este pedido como enviado?",
+    "deliver": "¿Confirmar que ha recibido este pedido?",
+    "cancel": "¿Cancelar este pedido? Esta acción es definitiva."
+  },
+  "flash": {
+    "confirm": "Pedido confirmado.",
+    "startProduction": "Pedido en producción.",
+    "ship": "Pedido enviado.",
+    "deliver": "Recepción confirmada. El pedido ha sido entregado.",
+    "cancel": "Pedido cancelado."
+  },
+  "errors": {
+    "transition": "Esta acción ya no es posible: el pedido ha cambiado de estado."
+  },
+  "index": {
+    "title": "Mis pedidos",
+    "subtitle": "Los pedidos derivados de sus presupuestos aceptados.",
+    "empty": "Todavía no hay pedidos. Se crea un pedido en cuanto acepta un presupuesto.",
+    "columns": {
+      "order": "Pedido",
+      "total": "Total",
+      "status": "Estado",
+      "actions": "Acciones"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "Pedidos recibidos",
+      "subtitle": "Confirme los pedidos y hágalos avanzar hasta el envío.",
+      "empty": "Todavía no hay pedidos. Llega uno en cuanto un comprador acepta uno de sus presupuestos."
+    }
+  },
+  "show": {
+    "title": "Pedido n.º {id}",
+    "backToList": "Volver a los pedidos",
+    "forRfq": "Para la solicitud «{rfqTitle}»",
+    "buyer": "Comprador",
+    "supplier": "Proveedor",
+    "shippingAddress": "Dirección de entrega",
+    "billingAddress": "Dirección de facturación",
+    "noAddress": "No indicada",
+    "viewQuote": "Ver el presupuesto",
+    "timeline": "Seguimiento del pedido",
+    "items": "Artículos pedidos"
+  },
+  "timeline": {
+    "created": "Pedido creado",
+    "confirmed": "Confirmado por el proveedor",
+    "inProduction": "Puesto en producción",
+    "shipped": "Enviado",
+    "delivered": "Entregado",
+    "cancelled": "Cancelado",
+    "pending": "Pendiente"
+  },
+  "table": {
+    "item": "Artículo",
+    "unitPrice": "Precio unitario",
+    "quantity": "Cantidad",
+    "total": "Total"
+  },
+  "total": "Total: {total}",
+  "viewOrder": "Ver el pedido",
+  "address": {
+    "name": "Nombre",
+    "street": "Calle",
+    "city": "Ciudad",
+    "country": "País"
+  }
+}

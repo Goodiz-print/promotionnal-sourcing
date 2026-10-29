@@ -3,7 +3,11 @@
     "title": "Instellingen van de organisatie",
     "subtitle": "Beheer de algemene gegevens van uw organisatie.",
     "submit": "Opslaan",
-    "success": "Instellingen van de organisatie bijgewerkt."
+    "success": "Instellingen van de organisatie bijgewerkt.",
+    "sections": {
+      "general": "Algemene informatie",
+      "address": "Adres"
+    }
   },
   "fields": {
     "name": "Naam",
@@ -39,20 +43,23 @@
   "nav": {
     "settings": "Instellingen",
     "members": "Leden",
-    "create": "Nieuwe organisatie"
+    "create": "Nieuwe organisatie",
+    "label": "Secties van de organisatie"
   },
   "members": {
     "title": "Leden van de organisatie",
     "subtitle": "Beheer de rollen en de toegang van de leden van uw organisatie.",
     "columns": {
       "name": "Lid",
-      "role": "Rol"
+      "role": "Rol",
+      "actions": "Acties"
     },
     "remove": "Verwijderen",
     "confirmRemove": "Dit lid uit de organisatie verwijderen?",
     "roleUpdated": "Rol van het lid bijgewerkt.",
     "removed": "Lid uit de organisatie verwijderd.",
-    "lastOwnerError": "De laatste eigenaar van de organisatie kan niet worden verwijderd of gedegradeerd."
+    "lastOwnerError": "De laatste eigenaar van de organisatie kan niet worden verwijderd of gedegradeerd.",
+    "listTitle": "Leden"
   },
   "invitations": {
     "inviteTitle": "Een lid uitnodigen",

@@ -8,7 +8,8 @@
   "confirmRemove": "Ta bort ”{name}”?",
   "fields": {
     "kind": "Dokumenttyp",
-    "file": "PDF-fil (max 20 MB)"
+    "file": "PDF-fil (max 20 MB)",
+    "type": "Dokumenttyp"
   },
   "kinds": {
     "catalogue": "Katalog",
@@ -18,5 +19,12 @@
   "datasheet": {
     "title": "Tekniskt datablad",
     "empty": "Inget tekniskt datablad ännu."
+  },
+  "types": {
+    "spec_sheet": "Datablad",
+    "safety": "Säkerhetsdatablad",
+    "certificate": "Certifikat",
+    "marking_template": "Märkningsmall",
+    "other": "Övrigt"
   }
 }

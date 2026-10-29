@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "dashboard": "Panel główny",
+    "organizations": "Organizacje",
+    "users": "Użytkownicy",
+    "categories": "Kategorie",
+    "label": "Sekcje administracji"
+  },
+  "pagination": {
+    "previous": "Poprzednia",
+    "next": "Następna"
+  },
+  "dashboard": {
+    "title": "Administracja",
+    "subtitle": "Przegląd platformy.",
+    "counters": {
+      "organizations": "Organizacje",
+      "users": "Użytkownicy",
+      "products": "Produkty",
+      "rfqs": "Zapytania ofertowe"
+    },
+    "archived": "{count, plural, =0 {Brak zarchiwizowanych} one {# zarchiwizowana} few {# zarchiwizowane} many {# zarchiwizowanych} other {# zarchiwizowanej}}"
+  },
+  "organizations": {
+    "title": "Organizacje",
+    "subtitle": "Wszystkie organizacje na platformie.",
+    "empty": "Żadna organizacja nie spełnia tych filtrów.",
+    "back": "Powrót do organizacji",
+    "filters": {
+      "type": "Typ",
+      "allTypes": "Wszystkie typy",
+      "status": "Status"
+    },
+    "types": {
+      "buyer": "Kupujący",
+      "supplier": "Dostawca",
+      "both": "Kupujący i dostawca"
+    },
+    "status": {
+      "active": "Aktywna",
+      "archived": "Zarchiwizowana",
+      "all": "Wszystkie"
+    },
+    "columns": {
+      "name": "Nazwa",
+      "type": "Typ",
+      "members": "Członkowie",
+      "status": "Status"
+    },
+    "fields": {
+      "email": "E-mail",
+      "phone": "Telefon",
+      "website": "Strona internetowa",
+      "siret": "SIRET",
+      "vatNumber": "Numer VAT",
+      "country": "Kraj",
+      "createdAt": "Utworzona dnia"
+    },
+    "roles": {
+      "owner": "Właściciel",
+      "admin": "Administrator",
+      "manager": "Kierownik",
+      "member": "Członek"
+    },
+    "detail": {
+      "products": "Produkty",
+      "rfqs": "Zapytania ofertowe",
+      "contact": "Dane kontaktowe",
+      "members": "{count, plural, one {# członek} few {# członków} many {# członków} other {# członka}}",
+      "role": "Rola",
+      "notProvided": "Nie podano",
+      "membersEmpty": "Ta organizacja nie ma żadnych członków.",
+      "membersCaption": "Członkowie organizacji",
+      "joinedAt": "Członek od"
+    },
+    "emptyDescription": "Zmień typ lub status, aby poszerzyć listę.",
+    "resultsCount": "{count, plural, =0 {Brak organizacji} one {# organizacja} few {# organizacje} many {# organizacji} other {# organizacji}}"
+  },
+  "users": {
+    "title": "Użytkownicy",
+    "subtitle": "Wszystkie konta na platformie.",
+    "searchLabel": "Szukaj po adresie e-mail",
+    "searchPlaceholder": "imie@przyklad.com",
+    "empty": "Żaden użytkownik nie odpowiada temu wyszukiwaniu.",
+    "columns": {
+      "name": "Nazwa",
+      "email": "E-mail",
+      "organizations": "Organizacje",
+      "status": "Status",
+      "createdAt": "Data rejestracji"
+    },
+    "platformAdmin": "Administrator platformy",
+    "unverified": "Adres e-mail niezweryfikowany",
+    "resultsCount": "{count, plural, =0 {Brak kont} one {# konto} few {# konta} many {# kont} other {# konta}}",
+    "emptyDescription": "Spróbuj użyć innego adresu lub wyczyść wyszukiwanie.",
+    "noName": "Nazwa nie została podana",
+    "verified": "Adres e-mail zweryfikowany"
+  }
+}

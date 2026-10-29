@@ -1,0 +1,33 @@
+{
+  "title": "Aviseringar",
+  "empty": "Inga aviseringar just nu.",
+  "seeAll": "Visa alla",
+  "markAllRead": "Markera alla som lästa",
+  "unread": "Oläst",
+  "unreadCount": "{count, plural, one {# oläst avisering} other {# olästa aviseringar}}",
+  "toast": "Du har en ny avisering.",
+  "types": {
+    "rfq": {
+      "received": "{buyerName} har skickat en offertförfrågan till dig: {rfqTitle}.",
+      "responded": "En leverantör har svarat på förfrågan {rfqTitle}.",
+      "declined": "{supplierName} har avböjt förfrågan {rfqTitle}."
+    },
+    "quote": {
+      "received": "{supplierName} har lämnat en offert för {rfqTitle}.",
+      "accepted": "{buyerName} har godkänt din offert för {rfqTitle}.",
+      "rejected": "{buyerName} har avvisat din offert för {rfqTitle}."
+    },
+    "organization": {
+      "invited": "Du har blivit inbjuden att gå med i en organisation.",
+      "member_joined": "{memberName} har gått med i {organizationName}."
+    },
+    "order": {
+      "created": "En beställning har skapats efter att din offert för {rfqTitle} godkändes. Bekräfta den.",
+      "confirmed": "{supplierName} har bekräftat din beställning för {rfqTitle}.",
+      "in_production": "Din beställning för {rfqTitle} är i produktion hos {supplierName}.",
+      "shipped": "{supplierName} har skickat din beställning för {rfqTitle}.",
+      "delivered": "{buyerName} har bekräftat mottagandet av beställningen för {rfqTitle}.",
+      "cancelled": "Beställningen för {rfqTitle} har annullerats."
+    }
+  }
+}

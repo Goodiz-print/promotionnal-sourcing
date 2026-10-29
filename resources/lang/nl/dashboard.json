@@ -22,6 +22,11 @@
     "unread": "Ongelezen aanvragen",
     "products": "Actieve producten",
     "completeness": "Profiel voltooid",
-    "completeProfile": "Mijn profiel voltooien"
+    "completeProfile": "Mijn profiel voltooien",
+    "todo": {
+      "title": "Te doen",
+      "empty": "Momenteel niets te doen.",
+      "unread": "{count, plural, one {# ontvangen aanvraag om te openen} other {# ontvangen aanvragen om te openen}}"
+    }
   }
 }

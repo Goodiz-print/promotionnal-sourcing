@@ -1,0 +1,46 @@
+{
+  "heading": "Informacje prawne",
+  "eyebrow": "Informacje prawne",
+  "intro": "Dane identyfikacyjne wydawcy serwisu promotional-sourcing.eu i jego dostawcy usług hostingowych oraz zasady korzystania z treści serwisu.",
+  "updatedAt": "26 sierpnia 2026",
+  "seoTitle": "Informacje prawne — Promotional Sourcing.eu",
+  "seoDescription": "Informacje prawne serwisu promotional-sourcing.eu: wydawca, dostawca hostingu, własność intelektualna.",
+  "sections": {
+    "editeur": {
+      "title": "Wydawca serwisu",
+      "body": "<p>PROMOTIONAL SOURCING, uproszczona spółka akcyjna (société par actions simplifiée) o kapitale zakładowym 1 000 €</p> <p>Serwis: promotional-sourcing.eu</p> <p>Redaktor naczelny: Virgile Accomando</p>"
+    },
+    "siege": {
+      "title": "Adres siedziby",
+      "body": "<address>PROMOTIONAL SOURCING<br />72 quai de Bacalan<br />33300 Bordeaux — Francja</address>"
+    },
+    "immatriculation": {
+      "title": "Rejestracja",
+      "body": "<p>SIREN 108 093 790 — RCS Bordeaux<br />SIRET (siedziba): 108 093 790 00013<br />Kod NAF/APE: 6312Z — Portale internetowe</p>"
+    },
+    "tva": {
+      "title": "Numer VAT",
+      "body": "<p>Wspólnotowy numer identyfikacyjny VAT: FR03 108 093 790</p>"
+    },
+    "activite": {
+      "title": "Działalność",
+      "body": "<p>Wydawanie i prowadzenie platformy internetowej do wyszukiwania produktów promocyjnych, łączącej kupujących profesjonalnych z dostawcami.</p>"
+    },
+    "hebergeur": {
+      "title": "Dostawca hostingu",
+      "body": "<address>Netlify, Inc.<br />512 2nd Street, Suite 200<br />San Francisco, CA 94107 — Stany Zjednoczone<br /><a href=\"https://www.netlify.com\" rel=\"noopener noreferrer\" target=\"_blank\">netlify.com</a></address>"
+    },
+    "contact": {
+      "title": "Kontakt",
+      "body": "<p>Telefon: <a href=\"tel:+33638012975\">06 38 01 29 75</a></p> <p>E-mail: <a href=\"mailto:contact@promotional-sourcing.eu\">contact@promotional-sourcing.eu</a></p>"
+    },
+    "propriete-intellectuelle": {
+      "title": "Własność intelektualna",
+      "body": "<p>Wszystkie elementy składające się na serwis promotional-sourcing.eu (teksty, grafiki, logotypy, obrazy, struktura) stanowią wyłączną własność PROMOTIONAL SOURCING lub są wykorzystywane na podstawie udzielonego zezwolenia. Wszelkie całkowite lub częściowe powielanie, przedstawianie lub rozpowszechnianie bez uprzedniej pisemnej zgody jest zabronione i stanowi naruszenie praw autorskich w rozumieniu art. L.335-2 i następnych francuskiego Kodeksu własności intelektualnej.</p>"
+    },
+    "donnees-personnelles": {
+      "title": "Dane osobowe",
+      "body": "<p>PROMOTIONAL SOURCING przykłada dużą wagę do ochrony i bezpieczeństwa Państwa danych osobowych. Aby dowiedzieć się więcej o gromadzeniu i przetwarzaniu Państwa danych, prosimy zapoznać się z naszą <a href=\"/pl/privacy\">Polityką prywatności</a>.</p>"
+    }
+  }
+}

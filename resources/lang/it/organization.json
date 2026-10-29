@@ -3,7 +3,11 @@
     "title": "Impostazioni dell'organizzazione",
     "subtitle": "Gestisca le informazioni generali della Sua organizzazione.",
     "submit": "Salva",
-    "success": "Impostazioni dell'organizzazione aggiornate."
+    "success": "Impostazioni dell'organizzazione aggiornate.",
+    "sections": {
+      "general": "Informazioni generali",
+      "address": "Indirizzo"
+    }
   },
   "fields": {
     "name": "Nome",
@@ -39,20 +43,23 @@
   "nav": {
     "settings": "Impostazioni",
     "members": "Membri",
-    "create": "Nuova organizzazione"
+    "create": "Nuova organizzazione",
+    "label": "Sezioni dell'organizzazione"
   },
   "members": {
     "title": "Membri dell'organizzazione",
     "subtitle": "Gestisca i ruoli e l'accesso dei membri della Sua organizzazione.",
     "columns": {
       "name": "Membro",
-      "role": "Ruolo"
+      "role": "Ruolo",
+      "actions": "Azioni"
     },
     "remove": "Rimuovi",
     "confirmRemove": "Rimuovere questo membro dall'organizzazione?",
     "roleUpdated": "Ruolo del membro aggiornato.",
     "removed": "Membro rimosso dall'organizzazione.",
-    "lastOwnerError": "Impossibile rimuovere o retrocedere l'ultimo proprietario dell'organizzazione."
+    "lastOwnerError": "Impossibile rimuovere o retrocedere l'ultimo proprietario dell'organizzazione.",
+    "listTitle": "Membri"
   },
   "invitations": {
     "inviteTitle": "Invita un membro",

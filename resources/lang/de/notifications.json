@@ -1,0 +1,33 @@
+{
+  "title": "Benachrichtigungen",
+  "empty": "Im Moment keine Benachrichtigungen.",
+  "seeAll": "Alle anzeigen",
+  "markAllRead": "Alle als gelesen markieren",
+  "unread": "Ungelesen",
+  "unreadCount": "{count, plural, one {# ungelesene Benachrichtigung} other {# ungelesene Benachrichtigungen}}",
+  "toast": "Sie haben eine neue Benachrichtigung.",
+  "types": {
+    "rfq": {
+      "received": "{buyerName} hat Ihnen eine Angebotsanfrage gesendet: {rfqTitle}.",
+      "responded": "Ein Lieferant hat auf die Anfrage {rfqTitle} geantwortet.",
+      "declined": "{supplierName} hat die Anfrage {rfqTitle} abgelehnt."
+    },
+    "quote": {
+      "received": "{supplierName} hat ein Angebot für {rfqTitle} abgegeben.",
+      "accepted": "{buyerName} hat Ihr Angebot für {rfqTitle} angenommen.",
+      "rejected": "{buyerName} hat Ihr Angebot für {rfqTitle} abgelehnt."
+    },
+    "organization": {
+      "invited": "Sie wurden eingeladen, einer Organisation beizutreten.",
+      "member_joined": "{memberName} ist {organizationName} beigetreten."
+    },
+    "order": {
+      "created": "Nach der Annahme Ihres Angebots für {rfqTitle} wurde eine Bestellung erstellt. Bitte bestätigen Sie sie.",
+      "confirmed": "{supplierName} hat Ihre Bestellung für {rfqTitle} bestätigt.",
+      "in_production": "Ihre Bestellung für {rfqTitle} befindet sich bei {supplierName} in der Produktion.",
+      "shipped": "{supplierName} hat Ihre Bestellung für {rfqTitle} versandt.",
+      "delivered": "{buyerName} hat den Erhalt der Bestellung für {rfqTitle} bestätigt.",
+      "cancelled": "Die Bestellung für {rfqTitle} wurde storniert."
+    }
+  }
+}

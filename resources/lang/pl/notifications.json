@@ -1,0 +1,33 @@
+{
+  "title": "Powiadomienia",
+  "empty": "Na razie brak powiadomień.",
+  "seeAll": "Zobacz wszystkie",
+  "markAllRead": "Oznacz wszystkie jako przeczytane",
+  "unread": "Nieprzeczytane",
+  "unreadCount": "{count, plural, one {# nieprzeczytane powiadomienie} few {# nieprzeczytane powiadomienia} many {# nieprzeczytanych powiadomień} other {# nieprzeczytanego powiadomienia}}",
+  "toast": "Masz nowe powiadomienie.",
+  "types": {
+    "rfq": {
+      "received": "{buyerName} przesłał(a) Państwu zapytanie ofertowe: {rfqTitle}.",
+      "responded": "Dostawca odpowiedział na zapytanie {rfqTitle}.",
+      "declined": "{supplierName} odrzucił(a) zapytanie {rfqTitle}."
+    },
+    "quote": {
+      "received": "{supplierName} złożył(a) ofertę dla zapytania {rfqTitle}.",
+      "accepted": "{buyerName} zaakceptował(a) Państwa ofertę dla zapytania {rfqTitle}.",
+      "rejected": "{buyerName} odrzucił(a) Państwa ofertę dla zapytania {rfqTitle}."
+    },
+    "organization": {
+      "invited": "Zaproszono Państwa do dołączenia do organizacji.",
+      "member_joined": "{memberName} dołączył(a) do organizacji {organizationName}."
+    },
+    "order": {
+      "created": "W związku z zaakceptowaniem Państwa oferty dla zapytania {rfqTitle} utworzono zamówienie. Prosimy o jego potwierdzenie.",
+      "confirmed": "{supplierName} potwierdził(a) Państwa zamówienie dla zapytania {rfqTitle}.",
+      "in_production": "Państwa zamówienie dla zapytania {rfqTitle} jest w produkcji u dostawcy {supplierName}.",
+      "shipped": "{supplierName} wysłał(a) Państwa zamówienie dla zapytania {rfqTitle}.",
+      "delivered": "{buyerName} potwierdził(a) odbiór zamówienia dla zapytania {rfqTitle}.",
+      "cancelled": "Zamówienie dla zapytania {rfqTitle} zostało anulowane."
+    }
+  }
+}

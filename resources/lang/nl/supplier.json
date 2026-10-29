@@ -3,7 +3,13 @@
     "title": "Leveranciersprofiel",
     "subtitle": "Vul uw levertijden, certificeringen en leveringsgebied in om inkopers gerust te stellen.",
     "submit": "Profiel opslaan",
-    "success": "Leveranciersprofiel bijgewerkt."
+    "success": "Leveranciersprofiel bijgewerkt.",
+    "sections": {
+      "terms": "Commerciële voorwaarden",
+      "termsHint": "Minimumbestelling, levertijden en leveringsgebied zoals getoond aan kopers.",
+      "certificationsHint": "Normen en labels waarover u beschikt (ISO, FSC, OEKO-TEX…).",
+      "presentation": "Bedrijfspresentatie"
+    }
   },
   "fields": {
     "minOrderQuantity": "Minimale bestelhoeveelheid",
@@ -14,12 +20,21 @@
     "certificationPlaceholder": "bijv. ISO 9001",
     "certificationAdd": "Certificering toevoegen",
     "certificationRemove": "Verwijderen",
-    "bio": "Presentatie"
+    "bio": "Presentatie",
+    "defaultOriginScope": "Standaardherkomst",
+    "certificationsEmpty": "Nog geen certificering opgegeven."
   },
   "deliveryScope": {
     "none": "Niet opgegeven",
     "national": "Nationaal",
     "europe": "Europa",
     "worldwide": "Wereldwijd"
+  },
+  "originScope": {
+    "none": "Niet gespecificeerd",
+    "france": "Frankrijk",
+    "europe": "Europa",
+    "outside_europe": "Buiten Europa",
+    "per_product": "Per product"
   }
 }

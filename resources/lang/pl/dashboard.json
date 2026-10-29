@@ -22,6 +22,11 @@
     "unread": "Nieprzeczytane zapytania",
     "products": "Aktywne produkty",
     "completeness": "Uzupełnienie profilu",
-    "completeProfile": "Uzupełnij mój profil"
+    "completeProfile": "Uzupełnij mój profil",
+    "todo": {
+      "title": "Do zrobienia",
+      "empty": "Na razie nie ma nic do zrobienia.",
+      "unread": "{count, plural, one {# otrzymane zapytanie do otwarcia} few {# otrzymane zapytania do otwarcia} many {# otrzymanych zapytań do otwarcia} other {# otrzymanego zapytania do otwarcia}}"
+    }
   }
 }

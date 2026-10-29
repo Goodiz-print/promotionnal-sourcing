@@ -76,7 +76,9 @@
     "packaging": "Conditionnement / logistique",
     "cartonDimensions": "Dimensions carton maître (L × l × H, mm)",
     "marking": "Marquage",
-    "markingPrices": "Prix de marquage"
+    "markingPrices": "Prix de marquage",
+    "markingTechnique": "Technique de marquage",
+    "specifications": "Caractéristiques"
   },
   "manage": {
     "index": {
@@ -217,7 +219,8 @@
       "details": "Classification",
       "contentHint": "Nom et description dans la langue source ; les autres langues peuvent être générées automatiquement."
     },
-    "backToList": "Retour à mes produits"
+    "backToList": "Retour à mes produits",
+    "editTitle": "Modifier le produit"
   },
   "card": {
     "minQuantity": "{count, plural, one {Min. # pièce} other {Min. # pièces}}",

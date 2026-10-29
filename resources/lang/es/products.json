@@ -12,7 +12,48 @@
     "searchUnavailable": "La búsqueda no está disponible por el momento. Inténtelo de nuevo en un momento o explore las categorías.",
     "loading": "Cargando productos…",
     "previous": "Anterior",
-    "next": "Siguiente"
+    "next": "Siguiente",
+    "selectCategoryForFilters": "Seleccione una categoría para mostrar sus filtros.",
+    "rangeUnder": "< {max}",
+    "rangeOver": "≥ {min}",
+    "rangeBetween": "{min}–{max}",
+    "newOnly": "Novedades",
+    "origin": {
+      "title": "Procedencia",
+      "france": "Francia",
+      "europe": "Europa",
+      "other": "Fuera de Europa"
+    },
+    "ecoOnly": "Ecológico",
+    "stock": {
+      "title": "Stock",
+      "in_stock": "Disponible",
+      "out_of_stock": "Agotado",
+      "on_order": "Bajo pedido"
+    },
+    "price": {
+      "title": "Precio",
+      "currency": "€"
+    },
+    "moq": {
+      "title": "Cantidad mínima"
+    },
+    "certifications": {
+      "title": "Sellos de conformidad",
+      "domains": {
+        "environment": "Medio ambiente",
+        "textile": "Textil",
+        "social": "Social",
+        "safety": "Seguridad",
+        "food_contact": "Contacto alimentario",
+        "forestry": "Bosques / madera",
+        "quality": "Calidad"
+      }
+    },
+    "filtersTitle": "Filtros",
+    "reset": "Restablecer",
+    "quickFilters": "Filtros rápidos",
+    "emptyHint": "Amplíe sus criterios o restablezca los filtros."
   },
   "show": {
     "backToCatalogue": "Volver al catálogo",
@@ -28,12 +69,30 @@
     "tierFrom": "Desde {quantity} unidades",
     "addToDraft": "Añadir a una solicitud en borrador",
     "chooseDraft": "Elegir un borrador…",
-    "signInToRequest": "Inicie sesión para solicitar un presupuesto"
+    "signInToRequest": "Inicie sesión para solicitar un presupuesto",
+    "compliance": "Conformidad",
+    "eco": "Ecológico",
+    "recycledContent": "{percent} % de material reciclado",
+    "packaging": "Embalaje / logística",
+    "cartonDimensions": "Dimensiones de la caja exterior (L × An × Al, mm)",
+    "marking": "Marcaje",
+    "markingPrices": "Precios de marcaje",
+    "markingTechnique": "Técnica de marcaje",
+    "specifications": "Especificaciones"
   },
   "manage": {
     "index": {
       "title": "Mis productos",
-      "empty": "Todavía no tiene ningún producto. Cree uno."
+      "empty": "Todavía no tiene ningún producto. Cree uno.",
+      "columns": {
+        "product": "Producto",
+        "price": "Precio",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "emptyDescription": "Añada sus productos para que aparezcan en el catálogo y puedan citarse en las solicitudes de presupuesto.",
+      "noPrice": "Precio bajo petición",
+      "priceRange": "{min} – {max}"
     },
     "create": {
       "title": "Nuevo producto"
@@ -70,7 +129,29 @@
       "originCountry": "País de origen",
       "madeInEurope": "Fabricado en Europa",
       "isActive": "Publicado",
-      "images": "Añadir imágenes"
+      "images": "Añadir imágenes",
+      "brand": "Marca",
+      "hsCode": "Código aduanero (HS)",
+      "lifecycleStatus": "Estado del producto",
+      "releasedAt": "Fecha de lanzamiento",
+      "supplierCategoryRaw": "Categoría del proveedor (sin tratar)",
+      "videoUrl": "Vídeo (URL)",
+      "leadTimeDays": "Plazo indicativo (días)",
+      "rushLeadTimeDays": "Plazo exprés (días)",
+      "rushService": "Servicio exprés",
+      "isConfigurable": "Producto configurable",
+      "recycledContentPercent": "Porcentaje de material reciclado (%)",
+      "cautionComment": "Precauciones / advertencias",
+      "certifications": "Sellos de conformidad",
+      "packageType": "Tipo de embalaje",
+      "unitGrossWeightG": "Peso bruto unitario (g)",
+      "innerCartonQty": "Cantidad por caja interior",
+      "outerCartonQty": "Cantidad por caja exterior",
+      "outerCartonLengthMm": "Longitud de la caja exterior (mm)",
+      "outerCartonWidthMm": "Anchura de la caja exterior (mm)",
+      "outerCartonHeightMm": "Altura de la caja exterior (mm)",
+      "outerCartonGrossWeightG": "Peso bruto de la caja exterior (g)",
+      "outerCartonVolumeM3": "Volumen de la caja exterior (m³)"
     },
     "variants": {
       "title": "Variantes",
@@ -79,7 +160,16 @@
       "remove": "Quitar",
       "sku": "SKU",
       "image": "Imagen de la variante",
-      "isActive": "Variante ofrecida"
+      "isActive": "Variante ofrecida",
+      "gtin": "Código EAN/GTIN",
+      "stockQuantity": "Cantidad en stock",
+      "stockStatus": "Estado del stock",
+      "stockUnknown": "No indicado",
+      "stockStatuses": {
+        "in_stock": "Disponible",
+        "out_of_stock": "Agotado",
+        "on_order": "Bajo pedido"
+      }
     },
     "priceTiers": {
       "title": "Escalas de precio",
@@ -90,6 +180,52 @@
       "allVariants": "Todas las variantes",
       "minQuantity": "Desde (unidades)",
       "unitPrice": "Precio unitario"
-    }
+    },
+    "lifecycle": {
+      "active": "Activo",
+      "new": "Novedad",
+      "end_of_series": "Fin de serie",
+      "retired": "Retirado"
+    },
+    "commercial": "Identidad, comercial y multimedia",
+    "compliance": "Conformidad",
+    "packaging": "Embalaje / logística",
+    "packageTypeHint": "Polybag, Caja de regalo, Estuche, Tubo, Granel, Blíster…",
+    "noCertifications": "Ningún sello disponible.",
+    "marking": {
+      "title": "Marcaje",
+      "hint": "Zonas de marcaje del producto, técnicas posibles por zona y tarifa de marcaje por técnica y cantidad.",
+      "empty": "Ninguna zona de marcaje.",
+      "printable": "Producto personalizable (marcaje posible)",
+      "addPosition": "Añadir una zona",
+      "removePosition": "Quitar",
+      "positionName": "Nombre de la zona",
+      "maxWidthMm": "Anchura máx. (mm)",
+      "maxHeightMm": "Altura máx. (mm)",
+      "template": "Plantilla de marcaje",
+      "noTemplate": "Sin plantilla",
+      "techniques": "Técnicas posibles",
+      "technique": "Técnica",
+      "addTechnique": "Añadir una técnica",
+      "removeTechnique": "Quitar",
+      "maxColors": "Colores máx.",
+      "setupCharge": "Costes técnicos",
+      "priceTiers": "Tarifa de marcaje",
+      "priceTiersHint": "Precio de marcaje unitario según la técnica y la cantidad pedida.",
+      "chooseTechnique": "Elegir una técnica"
+    },
+    "sections": {
+      "content": "Nombre y descripción",
+      "details": "Clasificación",
+      "contentHint": "Nombre y descripción en el idioma de origen; los demás idiomas pueden generarse automáticamente."
+    },
+    "backToList": "Volver a mis productos",
+    "editTitle": "Editar producto"
+  },
+  "card": {
+    "minQuantity": "{count, plural, one {Mín. # unidad} other {Mín. # unidades}}",
+    "madeInEurope": "Fabricado en Europa",
+    "eco": "Ecológico",
+    "new": "Novedad"
   }
 }

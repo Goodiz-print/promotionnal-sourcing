@@ -1,8 +1,11 @@
 {
   "notFound": {
-    "title": "Seite nicht gefunden"
+    "title": "Seite nicht gefunden",
+    "description": "Die angeforderte Seite existiert nicht oder wurde verschoben."
   },
   "serverError": {
-    "title": "Ein Fehler ist aufgetreten."
-  }
+    "title": "Ein Fehler ist aufgetreten.",
+    "description": "Unser Team wurde benachrichtigt. Bitte versuchen Sie es in wenigen Augenblicken erneut."
+  },
+  "backHome": "Zurück zur Startseite"
 }

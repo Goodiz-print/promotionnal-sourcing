@@ -8,12 +8,21 @@
     "allCountries": "Tutti i paesi",
     "empty": "Nessun fornitore corrisponde alla Sua ricerca.",
     "previous": "Precedente",
-    "next": "Successivo"
+    "next": "Successivo",
+    "resultsCount": "{count, plural, =0 {Nessun fornitore} one {# fornitore} other {# fornitori}}",
+    "emptyHint": "Ampli la Sua ricerca o scelga un altro Paese."
   },
   "show": {
     "website": "Visita il sito",
     "profile": "Profilo fornitore",
     "products": "Catalogo",
-    "noProducts": "Nessun prodotto pubblicato per il momento."
+    "noProducts": "Nessun prodotto pubblicato per il momento.",
+    "country": "Paese",
+    "email": "E-mail",
+    "phone": "Telefono",
+    "backToDirectory": "Torna alla rubrica",
+    "foundingPartner": "Partner fondatore",
+    "contact": "Contatto",
+    "websiteLabel": "Sito web"
   }
 }

@@ -1,0 +1,50 @@
+{
+  "heading": "Informativa sulla privacy",
+  "eyebrow": "Protezione dei dati",
+  "intro": "Come PROMOTIONAL SOURCING raccoglie, utilizza e protegge i dati personali dei visitatori di promotional-sourcing.eu, in conformità al GDPR e alla legge francese «Informatique et Libertés».",
+  "updatedAt": "7 agosto 2026",
+  "seoTitle": "Informativa sulla privacy — Promotional Sourcing.eu",
+  "seoDescription": "Come PROMOTIONAL SOURCING raccoglie, utilizza e protegge i Suoi dati personali, in conformità al GDPR.",
+  "sections": {
+    "responsable": {
+      "title": "Titolare del trattamento",
+      "body": "<address>PROMOTIONAL SOURCING, società per azioni semplificata (SAS)<br />72 quai de Bacalan, 33300 Bordeaux — Francia<br />SIREN 108 093 790 — RCS Bordeaux<br />E-mail: <a href=\"mailto:contact@promotional-sourcing.eu\">contact@promotional-sourcing.eu</a></address> <p>Data la sua dimensione e la natura dei suoi trattamenti, PROMOTIONAL SOURCING non è tenuta a designare un responsabile della protezione dei dati. Qualsiasi domanda relativa ai Suoi dati può essere indirizzata all'indirizzo sopra indicato.</p>"
+    },
+    "donnees-collectees": {
+      "title": "Dati raccolti",
+      "body": "<p>Raccogliamo unicamente i dati che Lei ci trasmette volontariamente:</p> <ul> <li><strong>Tramite il modulo di contatto</strong>: cognome e nome, società, qualifica (agenzia, fornitore o altro), indirizzo e-mail professionale, numero di telefono (facoltativo) e contenuto del Suo messaggio.</li> <li><strong>Dati tecnici</strong>: i log di connessione generati automaticamente dal nostro hosting provider (indirizzo IP, data e ora della richiesta, pagine consultate, tipo di browser), a fini di sicurezza e di corretto funzionamento del sito.</li> </ul> <p>Nessun campo è obbligatorio oltre a quanto strettamente necessario per il trattamento della Sua richiesta. Non raccogliamo alcun dato sensibile ai sensi dell'articolo 9 del GDPR.</p>"
+    },
+    "finalites": {
+      "title": "Finalità e basi giuridiche",
+      "body": "<ul> <li><strong>Rispondere alla Sua richiesta di contatto e gestire il rapporto commerciale</strong> — base giuridica: il legittimo interesse di PROMOTIONAL SOURCING (articolo 6.1.f del GDPR) a rispondere a una sollecitazione professionale da Lei stesso avviata.</li> <li><strong>Garantire la sicurezza e la disponibilità del sito</strong> — base giuridica: legittimo interesse (articolo 6.1.f del GDPR).</li> </ul> <p>I Suoi dati non vengono venduti, affittati né ceduti a terzi a fini di prospezione commerciale.</p>"
+    },
+    "destinataires": {
+      "title": "Destinatari e responsabili del trattamento",
+      "body": "<p>I Suoi dati sono trattati dalle persone autorizzate all'interno di PROMOTIONAL SOURCING. Ci avvaliamo dei seguenti responsabili del trattamento:</p> <ul> <li><strong>Netlify, Inc.</strong> (512 2nd Street, Suite 200, San Francisco, CA 94107, Stati Uniti) — hosting del sito e raccolta delle richieste inviate tramite il modulo di contatto. Questo trattamento comporta un trasferimento di dati al di fuori dell'Unione europea, disciplinato dalle clausole contrattuali tipo della Commissione europea e dalla certificazione di Netlify ai sensi dell'<span>EU–U.S. Data Privacy Framework</span>.</li> </ul> <p>I Suoi dati possono inoltre essere comunicati alle autorità amministrative o giudiziarie quando la legge lo richieda.</p>"
+    },
+    "conservation": {
+      "title": "Durata di conservazione",
+      "body": "<ul> <li><strong>Richieste di contatto</strong>: 3 anni a decorrere dall'ultimo scambio con Lei, in conformità alla raccomandazione della CNIL in materia di prospezione commerciale B2B.</li> <li><strong>Log di connessione</strong>: 12 mesi al massimo.</li> </ul> <p>Al termine di tali periodi, i Suoi dati vengono cancellati o resi anonimi.</p>"
+    },
+    "cookies": {
+      "title": "Cookie e misurazione dell'audience",
+      "body": "<p><strong>Il sito promotional-sourcing.eu non installa alcun cookie</strong> e non utilizza alcuno strumento di misurazione dell'audience, di pubblicità o di tracciamento di terzi. Non è pertanto richiesto alcun consenso preventivo per la semplice consultazione del sito e non è necessario alcun banner dei cookie.</p>"
+    },
+    "securite": {
+      "title": "Sicurezza",
+      "body": "<p>Il sito è erogato integralmente in HTTPS. L'accesso alle richieste ricevute tramite il modulo è limitato alle persone autorizzate di PROMOTIONAL SOURCING ed è protetto da autenticazione.</p>"
+    },
+    "vos-droits": {
+      "title": "I Suoi diritti",
+      "body": "<p>Ai sensi degli articoli da 15 a 22 del GDPR, Lei dispone dei seguenti diritti sui Suoi dati:</p> <ul> <li>diritto di accesso e di ottenere una copia dei Suoi dati;</li> <li>diritto di rettifica dei dati inesatti o incompleti;</li> <li>diritto alla cancellazione («diritto all'oblio»);</li> <li>diritto alla limitazione del trattamento;</li> <li>diritto di opposizione al trattamento fondato sul legittimo interesse;</li> <li>diritto alla portabilità dei Suoi dati;</li> <li>diritto di definire direttive relative alla sorte dei Suoi dati dopo il decesso.</li> </ul> <p>Per esercitare tali diritti, ci scriva all'indirizzo <a href=\"mailto:contact@promotional-sourcing.eu\">contact@promotional-sourcing.eu</a> o all'indirizzo postale indicato al punto 1. Le sarà fornita una risposta entro un mese. Potrà esserLe richiesto un documento d'identità in caso di ragionevole dubbio sulla Sua identità.</p>"
+    },
+    "reclamation": {
+      "title": "Reclamo",
+      "body": "<p>Se ritiene, dopo averci contattato, che i Suoi diritti non siano rispettati, può presentare un reclamo alla Commission Nationale de l'Informatique et des Libertés (CNIL) — 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07 — <a href=\"https://www.cnil.fr\" rel=\"noopener noreferrer\" target=\"_blank\">cnil.fr</a>.</p>"
+    },
+    "modification": {
+      "title": "Modifica dell'informativa",
+      "body": "<p>La presente informativa può essere soggetta a modifiche, in particolare in occasione del lancio della piattaforma. La data dell'ultimo aggiornamento è indicata in alto in questa pagina. Si vedano anche le nostre <a href=\"/it/legal\">note legali</a>.</p>"
+    }
+  }
+}

@@ -12,7 +12,48 @@
     "searchUnavailable": "Zoeken is tijdelijk niet beschikbaar. Probeer het zo opnieuw of blader door de categorieën.",
     "loading": "Producten laden…",
     "previous": "Vorige",
-    "next": "Volgende"
+    "next": "Volgende",
+    "selectCategoryForFilters": "Selecteer een categorie om de bijbehorende filters weer te geven.",
+    "rangeUnder": "< {max}",
+    "rangeOver": "≥ {min}",
+    "rangeBetween": "{min}–{max}",
+    "newOnly": "Nieuw",
+    "origin": {
+      "title": "Herkomst",
+      "france": "Frankrijk",
+      "europe": "Europa",
+      "other": "Buiten Europa"
+    },
+    "ecoOnly": "Milieubewust",
+    "stock": {
+      "title": "Voorraad",
+      "in_stock": "Op voorraad",
+      "out_of_stock": "Uitverkocht",
+      "on_order": "Op bestelling"
+    },
+    "price": {
+      "title": "Prijs",
+      "currency": "€"
+    },
+    "moq": {
+      "title": "Minimumhoeveelheid"
+    },
+    "certifications": {
+      "title": "Conformiteitslabels",
+      "domains": {
+        "environment": "Milieu",
+        "textile": "Textiel",
+        "social": "Sociaal",
+        "safety": "Veiligheid",
+        "food_contact": "Voedselcontact",
+        "forestry": "Bos / hout",
+        "quality": "Kwaliteit"
+      }
+    },
+    "filtersTitle": "Filters",
+    "reset": "Resetten",
+    "quickFilters": "Snelfilters",
+    "emptyHint": "Verbreed uw criteria of reset de filters."
   },
   "show": {
     "backToCatalogue": "Terug naar de catalogus",
@@ -28,12 +69,30 @@
     "tierFrom": "Vanaf {quantity} stuks",
     "addToDraft": "Toevoegen aan een conceptaanvraag",
     "chooseDraft": "Kies een concept…",
-    "signInToRequest": "Log in om een offerte aan te vragen"
+    "signInToRequest": "Log in om een offerte aan te vragen",
+    "compliance": "Conformiteit",
+    "eco": "Milieubewust",
+    "recycledContent": "{percent} % gerecycled materiaal",
+    "packaging": "Verpakking / logistiek",
+    "cartonDimensions": "Afmetingen master carton (L × B × H, mm)",
+    "marking": "Bedrukking",
+    "markingPrices": "Bedrukkingsprijzen",
+    "markingTechnique": "Bedrukkingstechniek",
+    "specifications": "Specificaties"
   },
   "manage": {
     "index": {
       "title": "Mijn producten",
-      "empty": "U hebt nog geen producten. Maak er een aan."
+      "empty": "U hebt nog geen producten. Maak er een aan.",
+      "columns": {
+        "product": "Product",
+        "price": "Prijs",
+        "status": "Status",
+        "actions": "Acties"
+      },
+      "emptyDescription": "Voeg uw producten toe zodat ze in de catalogus verschijnen en in offerteaanvragen kunnen worden genoemd.",
+      "noPrice": "Prijs op aanvraag",
+      "priceRange": "{min} – {max}"
     },
     "create": {
       "title": "Nieuw product"
@@ -70,7 +129,29 @@
       "originCountry": "Land van herkomst",
       "madeInEurope": "Gemaakt in Europa",
       "isActive": "Gepubliceerd",
-      "images": "Afbeeldingen toevoegen"
+      "images": "Afbeeldingen toevoegen",
+      "brand": "Merk",
+      "hsCode": "Douanecode (HS)",
+      "lifecycleStatus": "Productstatus",
+      "releasedAt": "Releasedatum",
+      "supplierCategoryRaw": "Leverancierscategorie (ruw)",
+      "videoUrl": "Video (URL)",
+      "leadTimeDays": "Indicatieve levertijd (dagen)",
+      "rushLeadTimeDays": "Spoedlevertijd (dagen)",
+      "rushService": "Spoedservice",
+      "isConfigurable": "Configureerbaar product",
+      "recycledContentPercent": "Aandeel gerecycled materiaal (%)",
+      "cautionComment": "Voorzorgsmaatregelen / waarschuwingen",
+      "certifications": "Conformiteitslabels",
+      "packageType": "Verpakkingstype",
+      "unitGrossWeightG": "Brutogewicht per stuk (g)",
+      "innerCartonQty": "Aantal per binnendoos",
+      "outerCartonQty": "Aantal per master carton",
+      "outerCartonLengthMm": "Lengte master carton (mm)",
+      "outerCartonWidthMm": "Breedte master carton (mm)",
+      "outerCartonHeightMm": "Hoogte master carton (mm)",
+      "outerCartonGrossWeightG": "Brutogewicht master carton (g)",
+      "outerCartonVolumeM3": "Volume master carton (m³)"
     },
     "variants": {
       "title": "Varianten",
@@ -79,7 +160,16 @@
       "remove": "Verwijderen",
       "sku": "SKU",
       "image": "Afbeelding van de variant",
-      "isActive": "Variant aangeboden"
+      "isActive": "Variant aangeboden",
+      "gtin": "EAN/GTIN-code",
+      "stockQuantity": "Voorraadaantal",
+      "stockStatus": "Voorraadstatus",
+      "stockUnknown": "Niet opgegeven",
+      "stockStatuses": {
+        "in_stock": "Op voorraad",
+        "out_of_stock": "Uitverkocht",
+        "on_order": "Op bestelling"
+      }
     },
     "priceTiers": {
       "title": "Prijstrappen",
@@ -90,6 +180,52 @@
       "allVariants": "Alle varianten",
       "minQuantity": "Vanaf (stuks)",
       "unitPrice": "Stukprijs"
-    }
+    },
+    "lifecycle": {
+      "active": "Actief",
+      "new": "Nieuw",
+      "end_of_series": "Uitlopend",
+      "retired": "Uit het assortiment"
+    },
+    "commercial": "Identiteit, commercieel en media",
+    "compliance": "Conformiteit",
+    "packaging": "Verpakking / logistiek",
+    "packageTypeHint": "Polybag, Geschenkdoos, Hoes, Koker, Los, Blister…",
+    "noCertifications": "Geen label beschikbaar.",
+    "marking": {
+      "title": "Bedrukking",
+      "hint": "Bedrukkingszones van het product, mogelijke technieken per zone en prijsraster voor bedrukking per techniek en hoeveelheid.",
+      "empty": "Geen bedrukkingszone.",
+      "printable": "Personaliseerbaar product (bedrukking mogelijk)",
+      "addPosition": "Zone toevoegen",
+      "removePosition": "Verwijderen",
+      "positionName": "Naam van de zone",
+      "maxWidthMm": "Max. breedte (mm)",
+      "maxHeightMm": "Max. hoogte (mm)",
+      "template": "Bedrukkingssjabloon",
+      "noTemplate": "Geen sjabloon",
+      "techniques": "Mogelijke technieken",
+      "technique": "Techniek",
+      "addTechnique": "Techniek toevoegen",
+      "removeTechnique": "Verwijderen",
+      "maxColors": "Max. kleuren",
+      "setupCharge": "Instelkosten",
+      "priceTiers": "Prijsraster voor bedrukking",
+      "priceTiersHint": "Bedrukkingsprijs per stuk naargelang de techniek en de bestelde hoeveelheid.",
+      "chooseTechnique": "Kies een techniek"
+    },
+    "sections": {
+      "content": "Naam en beschrijving",
+      "details": "Classificatie",
+      "contentHint": "Naam en beschrijving in de brontaal; de andere talen kunnen automatisch worden gegenereerd."
+    },
+    "backToList": "Terug naar mijn producten",
+    "editTitle": "Product bewerken"
+  },
+  "card": {
+    "minQuantity": "{count, plural, one {Min. # stuk} other {Min. # stuks}}",
+    "madeInEurope": "Gemaakt in Europa",
+    "eco": "Milieubewust",
+    "new": "Nieuw"
   }
 }

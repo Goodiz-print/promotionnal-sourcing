@@ -73,7 +73,8 @@
     "confirm": {
       "accept": "Deze offerte accepteren? De overige offertes worden afgewezen en de aanvraag gesloten.",
       "reject": "Deze offerte afwijzen?"
-    }
+    },
+    "lines": "Offerteregels"
   },
   "supplier": {
     "index": {

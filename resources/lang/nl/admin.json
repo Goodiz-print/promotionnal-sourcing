@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "organizations": "Organisaties",
+    "users": "Gebruikers",
+    "categories": "Categorieën",
+    "label": "Beheersecties"
+  },
+  "pagination": {
+    "previous": "Vorige",
+    "next": "Volgende"
+  },
+  "dashboard": {
+    "title": "Beheer",
+    "subtitle": "Overzicht van het platform.",
+    "counters": {
+      "organizations": "Organisaties",
+      "users": "Gebruikers",
+      "products": "Producten",
+      "rfqs": "Offerteaanvragen"
+    },
+    "archived": "{count, plural, =0 {Geen gearchiveerd} one {# gearchiveerd} other {# gearchiveerd}}"
+  },
+  "organizations": {
+    "title": "Organisaties",
+    "subtitle": "Alle organisaties op het platform.",
+    "empty": "Geen enkele organisatie komt overeen met deze filters.",
+    "back": "Terug naar organisaties",
+    "filters": {
+      "type": "Type",
+      "allTypes": "Alle types",
+      "status": "Status"
+    },
+    "types": {
+      "buyer": "Koper",
+      "supplier": "Leverancier",
+      "both": "Koper en leverancier"
+    },
+    "status": {
+      "active": "Actief",
+      "archived": "Gearchiveerd",
+      "all": "Alle"
+    },
+    "columns": {
+      "name": "Naam",
+      "type": "Type",
+      "members": "Leden",
+      "status": "Status"
+    },
+    "fields": {
+      "email": "E-mail",
+      "phone": "Telefoon",
+      "website": "Website",
+      "siret": "SIRET",
+      "vatNumber": "Btw-nummer",
+      "country": "Land",
+      "createdAt": "Aangemaakt op"
+    },
+    "roles": {
+      "owner": "Eigenaar",
+      "admin": "Beheerder",
+      "manager": "Manager",
+      "member": "Lid"
+    },
+    "detail": {
+      "products": "Producten",
+      "rfqs": "Offerteaanvragen",
+      "contact": "Contactgegevens",
+      "members": "{count, plural, one {# lid} other {# leden}}",
+      "role": "Rol",
+      "notProvided": "Niet opgegeven",
+      "membersEmpty": "Deze organisatie heeft geen leden.",
+      "membersCaption": "Leden van de organisatie",
+      "joinedAt": "Lid sinds"
+    },
+    "emptyDescription": "Wijzig het type of de status om de lijst uit te breiden.",
+    "resultsCount": "{count, plural, =0 {Geen organisaties} one {# organisatie} other {# organisaties}}"
+  },
+  "users": {
+    "title": "Gebruikers",
+    "subtitle": "Alle accounts op het platform.",
+    "searchLabel": "Zoeken op e-mailadres",
+    "searchPlaceholder": "naam@voorbeeld.com",
+    "empty": "Geen enkele gebruiker komt overeen met deze zoekopdracht.",
+    "columns": {
+      "name": "Naam",
+      "email": "E-mail",
+      "organizations": "Organisaties",
+      "status": "Status",
+      "createdAt": "Geregistreerd op"
+    },
+    "platformAdmin": "Platformbeheerder",
+    "unverified": "E-mailadres niet geverifieerd",
+    "resultsCount": "{count, plural, =0 {Geen accounts} one {# account} other {# accounts}}",
+    "emptyDescription": "Probeer een ander adres of wis de zoekopdracht.",
+    "noName": "Naam niet opgegeven",
+    "verified": "E-mailadres geverifieerd"
+  }
+}

@@ -1,8 +1,11 @@
 {
   "notFound": {
-    "title": "Página não encontrada"
+    "title": "Página não encontrada",
+    "description": "A página solicitada não existe ou foi movida."
   },
   "serverError": {
-    "title": "Ocorreu um erro."
-  }
+    "title": "Ocorreu um erro.",
+    "description": "As nossas equipas foram avisadas. Tente novamente dentro de instantes."
+  },
+  "backHome": "Voltar à página inicial"
 }

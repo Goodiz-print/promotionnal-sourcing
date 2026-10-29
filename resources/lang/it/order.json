@@ -1,0 +1,88 @@
+{
+  "status": {
+    "pending": "In attesa di conferma",
+    "confirmed": "Confermato",
+    "in_production": "In produzione",
+    "shipped": "Spedito",
+    "delivered": "Consegnato",
+    "cancelled": "Annullato"
+  },
+  "actions": {
+    "confirm": "Conferma l'ordine",
+    "startProduction": "Avvia la produzione",
+    "ship": "Segna come spedito",
+    "deliver": "Conferma la ricezione",
+    "cancel": "Annulla l'ordine"
+  },
+  "confirm": {
+    "confirm": "Confermare questo ordine? Si impegna a evaderlo.",
+    "startProduction": "Avviare la produzione di questo ordine?",
+    "ship": "Segnare questo ordine come spedito?",
+    "deliver": "Confermare di aver ricevuto questo ordine?",
+    "cancel": "Annullare questo ordine? Questa azione è definitiva."
+  },
+  "flash": {
+    "confirm": "Ordine confermato.",
+    "startProduction": "Ordine in produzione.",
+    "ship": "Ordine spedito.",
+    "deliver": "Ricezione confermata. L'ordine è consegnato.",
+    "cancel": "Ordine annullato."
+  },
+  "errors": {
+    "transition": "Questa azione non è più possibile: lo stato dell'ordine è cambiato."
+  },
+  "index": {
+    "title": "I miei ordini",
+    "subtitle": "Gli ordini derivanti dai Suoi preventivi accettati.",
+    "empty": "Nessun ordine per il momento. Un ordine viene creato non appena accetta un preventivo.",
+    "columns": {
+      "order": "Ordine",
+      "total": "Totale",
+      "status": "Stato",
+      "actions": "Azioni"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "Ordini ricevuti",
+      "subtitle": "Confermi gli ordini e li faccia avanzare fino alla spedizione.",
+      "empty": "Nessun ordine per il momento. Un ordine arriva non appena un acquirente accetta uno dei Suoi preventivi."
+    }
+  },
+  "show": {
+    "title": "Ordine n. {id}",
+    "backToList": "Torna agli ordini",
+    "forRfq": "Per la richiesta «{rfqTitle}»",
+    "buyer": "Acquirente",
+    "supplier": "Fornitore",
+    "shippingAddress": "Indirizzo di consegna",
+    "billingAddress": "Indirizzo di fatturazione",
+    "noAddress": "Non indicato",
+    "viewQuote": "Vedi il preventivo",
+    "timeline": "Tracciamento dell'ordine",
+    "items": "Articoli ordinati"
+  },
+  "timeline": {
+    "created": "Ordine creato",
+    "confirmed": "Confermato dal fornitore",
+    "inProduction": "Messo in produzione",
+    "shipped": "Spedito",
+    "delivered": "Consegnato",
+    "cancelled": "Annullato",
+    "pending": "In attesa"
+  },
+  "table": {
+    "item": "Articolo",
+    "unitPrice": "Prezzo unitario",
+    "quantity": "Quantità",
+    "total": "Totale"
+  },
+  "total": "Totale: {total}",
+  "viewOrder": "Vedi l'ordine",
+  "address": {
+    "name": "Nome",
+    "street": "Via",
+    "city": "Città",
+    "country": "Paese"
+  }
+}

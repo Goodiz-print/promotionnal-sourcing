@@ -1,0 +1,88 @@
+{
+  "status": {
+    "pending": "Oczekuje na potwierdzenie",
+    "confirmed": "Potwierdzone",
+    "in_production": "W produkcji",
+    "shipped": "Wysłane",
+    "delivered": "Dostarczone",
+    "cancelled": "Anulowane"
+  },
+  "actions": {
+    "confirm": "Potwierdź zamówienie",
+    "startProduction": "Rozpocznij produkcję",
+    "ship": "Oznacz jako wysłane",
+    "deliver": "Potwierdź odbiór",
+    "cancel": "Anuluj zamówienie"
+  },
+  "confirm": {
+    "confirm": "Potwierdzić to zamówienie? Zobowiązują się Państwo do jego realizacji.",
+    "startProduction": "Rozpocząć produkcję tego zamówienia?",
+    "ship": "Oznaczyć to zamówienie jako wysłane?",
+    "deliver": "Potwierdzić, że zamówienie zostało odebrane?",
+    "cancel": "Anulować to zamówienie? Ta czynność jest nieodwracalna."
+  },
+  "flash": {
+    "confirm": "Zamówienie potwierdzone.",
+    "startProduction": "Zamówienie w produkcji.",
+    "ship": "Zamówienie wysłane.",
+    "deliver": "Odbiór potwierdzony. Zamówienie zostało dostarczone.",
+    "cancel": "Zamówienie anulowane."
+  },
+  "errors": {
+    "transition": "Ta czynność nie jest już możliwa: status zamówienia uległ zmianie."
+  },
+  "index": {
+    "title": "Moje zamówienia",
+    "subtitle": "Zamówienia wynikające z zaakceptowanych przez Państwa ofert.",
+    "empty": "Na razie brak zamówień. Zamówienie jest tworzone, gdy tylko zaakceptują Państwo ofertę.",
+    "columns": {
+      "order": "Zamówienie",
+      "total": "Suma",
+      "status": "Status",
+      "actions": "Akcje"
+    }
+  },
+  "supplier": {
+    "index": {
+      "title": "Otrzymane zamówienia",
+      "subtitle": "Potwierdzaj zamówienia i prowadź je aż do wysyłki.",
+      "empty": "Na razie brak zamówień. Zamówienie pojawia się, gdy tylko kupujący zaakceptuje jedną z Państwa ofert."
+    }
+  },
+  "show": {
+    "title": "Zamówienie nr {id}",
+    "backToList": "Powrót do zamówień",
+    "forRfq": "Dotyczy zapytania „{rfqTitle}”",
+    "buyer": "Kupujący",
+    "supplier": "Dostawca",
+    "shippingAddress": "Adres dostawy",
+    "billingAddress": "Adres do faktury",
+    "noAddress": "Nie podano",
+    "viewQuote": "Zobacz ofertę",
+    "timeline": "Śledzenie zamówienia",
+    "items": "Zamówione artykuły"
+  },
+  "timeline": {
+    "created": "Zamówienie utworzone",
+    "confirmed": "Potwierdzone przez dostawcę",
+    "inProduction": "Skierowane do produkcji",
+    "shipped": "Wysłane",
+    "delivered": "Dostarczone",
+    "cancelled": "Anulowane",
+    "pending": "Oczekuje"
+  },
+  "table": {
+    "item": "Artykuł",
+    "unitPrice": "Cena jednostkowa",
+    "quantity": "Ilość",
+    "total": "Suma"
+  },
+  "total": "Suma: {total}",
+  "viewOrder": "Zobacz zamówienie",
+  "address": {
+    "name": "Nazwa",
+    "street": "Ulica",
+    "city": "Miasto",
+    "country": "Kraj"
+  }
+}

@@ -8,7 +8,8 @@
   "confirmRemove": "“{name}” verwijderen?",
   "fields": {
     "kind": "Documenttype",
-    "file": "PDF-bestand (max. 20 MB)"
+    "file": "PDF-bestand (max. 20 MB)",
+    "type": "Soort document"
   },
   "kinds": {
     "catalogue": "Catalogus",
@@ -18,5 +19,12 @@
   "datasheet": {
     "title": "Technische fiche",
     "empty": "Nog geen technische fiche."
+  },
+  "types": {
+    "spec_sheet": "Technische fiche",
+    "safety": "Veiligheidsinformatieblad",
+    "certificate": "Certificaat",
+    "marking_template": "Bedrukkingssjabloon",
+    "other": "Overig"
   }
 }

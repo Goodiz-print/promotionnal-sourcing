@@ -3,14 +3,25 @@
     "title": "Zapytania ofertowe",
     "subtitle": "Opisz potrzebę, skonsultuj się z kilkoma dostawcami i porównaj ich odpowiedzi.",
     "empty": "Brak zapytań.",
+    "emptyDescription": "Opisz swoje potrzeby, wybierz dostawców i porównaj ich oferty w jednym miejscu.",
     "new": "Nowe zapytanie",
     "itemCount": "{count, plural, one {# pozycja} few {# pozycje} many {# pozycji} other {# pozycji}}",
     "supplierCount": "{count, plural, =0 {brak odbiorców} one {# odbiorca} few {# odbiorców} many {# odbiorców} other {# odbiorcy}}",
-    "responded": "{responded} / {total} odpowiedzi"
+    "responded": "{responded} / {total} odpowiedzi",
+    "responses": "{responded} / {total}",
+    "columns": {
+      "title": "Zapytanie",
+      "items": "Pozycje",
+      "suppliers": "Odbiorcy",
+      "responses": "Odpowiedzi",
+      "status": "Status",
+      "deadline": "Termin"
+    }
   },
   "create": {
     "title": "Nowe zapytanie ofertowe",
-    "submit": "Utwórz wersję roboczą"
+    "submit": "Utwórz wersję roboczą",
+    "subtitle": "Opisz swoje potrzeby: dostawcy odpowiedzą ofertą."
   },
   "show": {
     "backToList": "Powrót do zapytań",
@@ -69,7 +80,8 @@
     "title": "Pozycje zapytania",
     "add": "Dodaj pozycję",
     "remove": "Usuń tę pozycję",
-    "empty": "Proszę dodać co najmniej jedną pozycję opisującą poszukiwany produkt."
+    "empty": "Proszę dodać co najmniej jedną pozycję opisującą poszukiwany produkt.",
+    "line": "Pozycja {index}"
   },
   "suppliers": {
     "empty": "Nie zarejestrowano jeszcze żadnej organizacji dostawcy.",
@@ -104,7 +116,16 @@
       "subtitle": "Zapytania ofertowe skierowane do Państwa przez kupujących.",
       "empty": "Brak otrzymanych zapytań.",
       "from": "Od {name}",
-      "receivedAt": "Otrzymano {date}"
+      "receivedAt": "Otrzymano {date}",
+      "columns": {
+        "title": "Zapytanie",
+        "buyer": "Kupujący",
+        "items": "Pozycje",
+        "receivedAt": "Otrzymano dnia",
+        "deadline": "Termin",
+        "status": "Status"
+      },
+      "emptyDescription": "Kupujący, którzy się z Państwem skontaktują, pojawią się tutaj wraz ze szczegółami swoich potrzeb."
     },
     "show": {
       "backToList": "Powrót do otrzymanych zapytań",
@@ -113,7 +134,10 @@
       "noDeadline": "Bez terminu",
       "declinedNotice": "Odrzucili Państwo to zapytanie. Kupujący został o tym poinformowany.",
       "closedNotice": "Kupujący zamknął to zapytanie: nie oczekuje już odpowiedzi.",
-      "expiredNotice": "To zapytanie wygasło: kupujący nie oczekuje już odpowiedzi."
+      "expiredNotice": "To zapytanie wygasło: kupujący nie oczekuje już odpowiedzi.",
+      "responseTitle": "Państwa odpowiedź",
+      "responseOpen": "Wycenią Państwo te potrzeby, składając ofertę, lub odrzucą zapytanie, jeśli nie mogą Państwo go zrealizować.",
+      "responseQuote": "Sporządzili Państwo ofertę dla tego zapytania."
     },
     "actions": {
       "decline": "Odrzuć zapytanie",
@@ -140,8 +164,13 @@
     "add": "Dodaj"
   },
   "deadline": {
+    "title": "Termin zapytania ofertowego",
+    "description": "Daj dostawcom więcej czasu: zmienia się tylko data, a nie same potrzeby.",
     "label": "Nowy termin",
     "extend": "Przedłuż termin",
     "expiredNotice": "To zapytanie wygasło: dostawcy nie mogą już odpowiadać. Przedłuż termin, aby je ponownie otworzyć."
+  },
+  "form": {
+    "general": "Informacje ogólne"
   }
 }

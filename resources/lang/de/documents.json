@@ -8,7 +8,8 @@
   "confirmRemove": "„{name}“ entfernen?",
   "fields": {
     "kind": "Dokumenttyp",
-    "file": "PDF-Datei (max. 20 MB)"
+    "file": "PDF-Datei (max. 20 MB)",
+    "type": "Dokumentart"
   },
   "kinds": {
     "catalogue": "Katalog",
@@ -18,5 +19,12 @@
   "datasheet": {
     "title": "Technisches Datenblatt",
     "empty": "Noch kein technisches Datenblatt."
+  },
+  "types": {
+    "spec_sheet": "Datenblatt",
+    "safety": "Sicherheitsdatenblatt",
+    "certificate": "Zertifikat",
+    "marking_template": "Markierungsvorlage",
+    "other": "Sonstiges"
   }
 }

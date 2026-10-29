@@ -73,7 +73,8 @@
     "confirm": {
       "accept": "Accepter ce devis ? Les autres devis seront rejetés et la demande clôturée.",
       "reject": "Rejeter ce devis ?"
-    }
+    },
+    "lines": "Lignes du devis"
   },
   "supplier": {
     "index": {

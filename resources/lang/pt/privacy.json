@@ -1,0 +1,50 @@
+{
+  "heading": "Política de privacidade",
+  "eyebrow": "Proteção de dados",
+  "intro": "Como a PROMOTIONAL SOURCING recolhe, utiliza e protege os dados pessoais dos visitantes de promotional-sourcing.eu, em conformidade com o RGPD e com a lei francesa «Informatique et Libertés».",
+  "updatedAt": "7 de agosto de 2026",
+  "seoTitle": "Política de privacidade — Promotional Sourcing.eu",
+  "seoDescription": "Como a PROMOTIONAL SOURCING recolhe, utiliza e protege os seus dados pessoais, em conformidade com o RGPD.",
+  "sections": {
+    "responsable": {
+      "title": "Responsável pelo tratamento",
+      "body": "<address>PROMOTIONAL SOURCING, société par actions simplifiée<br />72 quai de Bacalan, 33300 Bordeaux — França<br />SIREN 108 093 790 — RCS Bordeaux<br />E-mail: <a href=\"mailto:contact@promotional-sourcing.eu\">contact@promotional-sourcing.eu</a></address> <p>Tendo em conta a sua dimensão e a natureza dos seus tratamentos, a PROMOTIONAL SOURCING não está obrigada a designar um encarregado da proteção de dados. Qualquer questão relativa aos seus dados pode ser enviada para o endereço acima.</p>"
+    },
+    "donnees-collectees": {
+      "title": "Dados recolhidos",
+      "body": "<p>Recolhemos apenas os dados que nos transmite voluntariamente:</p> <ul> <li><strong>Através do formulário de contacto</strong>: nome e apelido, empresa, qualidade (agência, fornecedor ou outra), endereço de e-mail profissional, número de telefone (facultativo) e o conteúdo da sua mensagem.</li> <li><strong>Dados técnicos</strong>: os registos de ligação gerados automaticamente pelo nosso serviço de alojamento (endereço IP, data e hora do pedido, páginas consultadas, tipo de navegador), para fins de segurança e de bom funcionamento do site.</li> </ul> <p>Nenhum campo é obrigatório para além do que é estritamente necessário para tratar o seu pedido. Não recolhemos quaisquer dados sensíveis na aceção do artigo 9.º do RGPD.</p>"
+    },
+    "finalites": {
+      "title": "Finalidades e fundamentos jurídicos",
+      "body": "<ul> <li><strong>Responder ao seu pedido de contacto e gerir a relação comercial</strong> — fundamento jurídico: o interesse legítimo da PROMOTIONAL SOURCING (artigo 6.º, n.º 1, alínea f), do RGPD) em responder a uma solicitação profissional por si iniciada.</li> <li><strong>Garantir a segurança e a disponibilidade do site</strong> — fundamento jurídico: interesse legítimo (artigo 6.º, n.º 1, alínea f), do RGPD).</li> </ul> <p>Os seus dados não são vendidos, alugados nem cedidos a terceiros para fins de prospeção.</p>"
+    },
+    "destinataires": {
+      "title": "Destinatários e subcontratantes",
+      "body": "<p>Os seus dados são tratados pelas pessoas autorizadas da PROMOTIONAL SOURCING. Recorremos aos seguintes subcontratantes:</p> <ul> <li><strong>Netlify, Inc.</strong> (512 2nd Street, Suite 200, San Francisco, CA 94107, Estados Unidos) — alojamento do site e recolha das submissões do formulário de contacto. Este tratamento implica uma transferência de dados para fora da União Europeia, enquadrada pelas cláusulas contratuais-tipo da Comissão Europeia e pela certificação da Netlify ao abrigo do <span>EU–U.S. Data Privacy Framework</span>.</li> </ul> <p>Os seus dados podem também ser comunicados às autoridades administrativas ou judiciais sempre que a lei o exija.</p>"
+    },
+    "conservation": {
+      "title": "Prazo de conservação",
+      "body": "<ul> <li><strong>Pedidos de contacto</strong>: 3 anos a contar da última troca de comunicações consigo, em conformidade com a recomendação da CNIL em matéria de prospeção comercial B2B.</li> <li><strong>Registos de ligação</strong>: 12 meses no máximo.</li> </ul> <p>No termo destes prazos, os seus dados são eliminados ou anonimizados.</p>"
+    },
+    "cookies": {
+      "title": "Cookies e medição de audiências",
+      "body": "<p><strong>O site promotional-sourcing.eu não instala quaisquer cookies</strong> e não utiliza nenhuma ferramenta de medição de audiências, de publicidade ou de rastreamento de terceiros. Não é, por isso, necessário qualquer consentimento prévio para a simples consulta do site, nem é necessário um banner de cookies.</p>"
+    },
+    "securite": {
+      "title": "Segurança",
+      "body": "<p>O site é integralmente servido em HTTPS. O acesso aos pedidos recebidos através do formulário está restrito às pessoas autorizadas da PROMOTIONAL SOURCING e protegido por autenticação.</p>"
+    },
+    "vos-droits": {
+      "title": "Os seus direitos",
+      "body": "<p>Nos termos dos artigos 15.º a 22.º do RGPD, dispõe dos seguintes direitos sobre os seus dados:</p> <ul> <li>direito de acesso e de obtenção de uma cópia dos seus dados;</li> <li>direito de retificação dos dados inexatos ou incompletos;</li> <li>direito ao apagamento («direito a ser esquecido»);</li> <li>direito à limitação do tratamento;</li> <li>direito de oposição ao tratamento baseado no interesse legítimo;</li> <li>direito à portabilidade dos seus dados;</li> <li>direito de definir diretivas relativas ao destino dos seus dados após o seu falecimento.</li> </ul> <p>Para exercer estes direitos, escreva-nos para <a href=\"mailto:contact@promotional-sourcing.eu\">contact@promotional-sourcing.eu</a> ou para a morada postal indicada no ponto 1. Será dada uma resposta no prazo de um mês. Poderá ser solicitado um documento de identificação em caso de dúvida razoável quanto à sua identidade.</p>"
+    },
+    "reclamation": {
+      "title": "Reclamação",
+      "body": "<p>Se considerar, após nos ter contactado, que os seus direitos não estão a ser respeitados, pode apresentar uma reclamação junto da Commission Nationale de l'Informatique et des Libertés (CNIL) — 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07 — <a href=\"https://www.cnil.fr\" rel=\"noopener noreferrer\" target=\"_blank\">cnil.fr</a>.</p>"
+    },
+    "modification": {
+      "title": "Alteração da política",
+      "body": "<p>Esta política pode vir a ser alterada, nomeadamente aquando do lançamento da plataforma. A data da última atualização figura no topo desta página. Consulte também o nosso <a href=\"/pt/legal\">aviso legal</a>.</p>"
+    }
+  }
+}

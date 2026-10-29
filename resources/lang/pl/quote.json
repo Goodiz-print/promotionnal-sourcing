@@ -73,7 +73,8 @@
     "confirm": {
       "accept": "Zaakceptować tę ofertę? Pozostałe zostaną odrzucone, a zapytanie zamknięte.",
       "reject": "Odrzucić tę ofertę?"
-    }
+    },
+    "lines": "Pozycje oferty"
   },
   "supplier": {
     "index": {

@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "organizations": "Organisationen",
+    "users": "Benutzer",
+    "categories": "Kategorien",
+    "label": "Administrationsbereiche"
+  },
+  "pagination": {
+    "previous": "Zurück",
+    "next": "Weiter"
+  },
+  "dashboard": {
+    "title": "Administration",
+    "subtitle": "Überblick über die Plattform.",
+    "counters": {
+      "organizations": "Organisationen",
+      "users": "Benutzer",
+      "products": "Produkte",
+      "rfqs": "Angebotsanfragen"
+    },
+    "archived": "{count, plural, =0 {Keine archiviert} one {# archiviert} other {# archiviert}}"
+  },
+  "organizations": {
+    "title": "Organisationen",
+    "subtitle": "Alle Organisationen der Plattform.",
+    "empty": "Keine Organisation entspricht diesen Filtern.",
+    "back": "Zurück zu den Organisationen",
+    "filters": {
+      "type": "Typ",
+      "allTypes": "Alle Typen",
+      "status": "Status"
+    },
+    "types": {
+      "buyer": "Käufer",
+      "supplier": "Lieferant",
+      "both": "Käufer und Lieferant"
+    },
+    "status": {
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "all": "Alle"
+    },
+    "columns": {
+      "name": "Name",
+      "type": "Typ",
+      "members": "Mitglieder",
+      "status": "Status"
+    },
+    "fields": {
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "website": "Website",
+      "siret": "SIRET",
+      "vatNumber": "USt-IdNr.",
+      "country": "Land",
+      "createdAt": "Erstellt am"
+    },
+    "roles": {
+      "owner": "Inhaber",
+      "admin": "Administrator",
+      "manager": "Manager",
+      "member": "Mitglied"
+    },
+    "detail": {
+      "products": "Produkte",
+      "rfqs": "Angebotsanfragen",
+      "contact": "Kontaktdaten",
+      "members": "{count, plural, one {# Mitglied} other {# Mitglieder}}",
+      "role": "Rolle",
+      "notProvided": "Nicht angegeben",
+      "membersEmpty": "Diese Organisation hat keine Mitglieder.",
+      "membersCaption": "Mitglieder der Organisation",
+      "joinedAt": "Mitglied seit"
+    },
+    "emptyDescription": "Ändern Sie Typ oder Status, um die Liste zu erweitern.",
+    "resultsCount": "{count, plural, =0 {Keine Organisation} one {# Organisation} other {# Organisationen}}"
+  },
+  "users": {
+    "title": "Benutzer",
+    "subtitle": "Alle Konten der Plattform.",
+    "searchLabel": "Nach E-Mail suchen",
+    "searchPlaceholder": "name@beispiel.de",
+    "empty": "Kein Benutzer entspricht dieser Suche.",
+    "columns": {
+      "name": "Name",
+      "email": "E-Mail",
+      "organizations": "Organisationen",
+      "status": "Status",
+      "createdAt": "Registriert am"
+    },
+    "platformAdmin": "Plattform-Admin",
+    "unverified": "E-Mail nicht bestätigt",
+    "resultsCount": "{count, plural, =0 {Kein Konto} one {# Konto} other {# Konten}}",
+    "emptyDescription": "Versuchen Sie eine andere Adresse oder löschen Sie die Suche.",
+    "noName": "Name nicht angegeben",
+    "verified": "E-Mail bestätigt"
+  }
+}

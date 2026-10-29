@@ -20,7 +20,8 @@
   },
   "create": {
     "title": "New request for quotation",
-    "submit": "Create draft"
+    "submit": "Create draft",
+    "subtitle": "Describe what you need: suppliers will reply with a quote."
   },
   "show": {
     "backToList": "Back to requests",
@@ -79,7 +80,8 @@
     "title": "Requested items",
     "add": "Add a line",
     "remove": "Remove this line",
-    "empty": "Add at least one line to describe what you are looking for."
+    "empty": "Add at least one line to describe what you are looking for.",
+    "line": "Line {index}"
   },
   "suppliers": {
     "empty": "No supplier organization registered yet.",
@@ -167,5 +169,8 @@
     "label": "New deadline",
     "extend": "Extend the deadline",
     "expiredNotice": "This request has expired: suppliers can no longer reply. Extend the deadline to reopen it."
+  },
+  "form": {
+    "general": "General information"
   }
 }

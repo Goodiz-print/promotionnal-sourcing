@@ -3,14 +3,25 @@
     "title": "Richieste di offerta",
     "subtitle": "Descriva un'esigenza, consulti più fornitori, confronti le loro risposte.",
     "empty": "Nessuna richiesta per il momento.",
+    "emptyDescription": "Descriva la Sua esigenza, scelga i fornitori e confronti i loro preventivi in un unico posto.",
     "new": "Nuova richiesta",
     "itemCount": "{count, plural, one {# riga} other {# righe}}",
     "supplierCount": "{count, plural, =0 {nessun destinatario} one {# destinatario} other {# destinatari}}",
-    "responded": "{responded} / {total} risposte"
+    "responded": "{responded} / {total} risposte",
+    "responses": "{responded} / {total}",
+    "columns": {
+      "title": "Richiesta",
+      "items": "Righe",
+      "suppliers": "Destinatari",
+      "responses": "Risposte",
+      "status": "Stato",
+      "deadline": "Scadenza"
+    }
   },
   "create": {
     "title": "Nuova richiesta di offerta",
-    "submit": "Crea la bozza"
+    "submit": "Crea la bozza",
+    "subtitle": "Descriva la sua esigenza: i fornitori risponderanno con un preventivo."
   },
   "show": {
     "backToList": "Torna alle richieste",
@@ -69,7 +80,8 @@
     "title": "Righe dell'esigenza",
     "add": "Aggiungi una riga",
     "remove": "Rimuovi questa riga",
-    "empty": "Aggiunga almeno una riga per descrivere ciò che cerca."
+    "empty": "Aggiunga almeno una riga per descrivere ciò che cerca.",
+    "line": "Riga {index}"
   },
   "suppliers": {
     "empty": "Nessuna organizzazione fornitrice è ancora registrata.",
@@ -104,7 +116,16 @@
       "subtitle": "Le richieste di offerta che gli acquirenti Le hanno inviato.",
       "empty": "Nessuna richiesta ricevuta per il momento.",
       "from": "Da {name}",
-      "receivedAt": "Ricevuta il {date}"
+      "receivedAt": "Ricevuta il {date}",
+      "columns": {
+        "title": "Richiesta",
+        "buyer": "Acquirente",
+        "items": "Righe",
+        "receivedAt": "Ricevuta il",
+        "deadline": "Scadenza",
+        "status": "Stato"
+      },
+      "emptyDescription": "Gli acquirenti che Vi consultano appariranno qui con il dettaglio della loro esigenza."
     },
     "show": {
       "backToList": "Torna alle richieste ricevute",
@@ -113,7 +134,10 @@
       "noDeadline": "Senza scadenza",
       "declinedNotice": "Ha rifiutato questa richiesta. L'acquirente è stato informato.",
       "closedNotice": "L'acquirente ha chiuso questa richiesta: non attende più risposta.",
-      "expiredNotice": "Questa richiesta è scaduta: l'acquirente non attende più una risposta."
+      "expiredNotice": "Questa richiesta è scaduta: l'acquirente non attende più una risposta.",
+      "responseTitle": "La Sua risposta",
+      "responseOpen": "Quantifichi questa esigenza presentando un preventivo, oppure declini la richiesta se non può darvi seguito.",
+      "responseQuote": "Ha redatto un preventivo per questa richiesta."
     },
     "actions": {
       "decline": "Rifiuta la richiesta",
@@ -140,8 +164,13 @@
     "add": "Aggiungi"
   },
   "deadline": {
+    "title": "Scadenza della consultazione",
+    "description": "Conceda più tempo ai fornitori: cambia solo la data, non l'esigenza.",
     "label": "Nuova scadenza",
     "extend": "Prolunga la scadenza",
     "expiredNotice": "Questa richiesta è scaduta: i fornitori non possono più rispondere. Prolunga la scadenza per riaprirla."
+  },
+  "form": {
+    "general": "Informazioni generali"
   }
 }

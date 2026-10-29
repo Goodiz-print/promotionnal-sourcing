@@ -22,7 +22,19 @@
     "collapseSidebar": "Menu invouwen",
     "expandSidebar": "Menu uitvouwen",
     "menu": "Menu",
-    "userMenu": "Gebruikersmenu"
+    "userMenu": "Gebruikersmenu",
+    "groups": {
+      "explore": "Verkennen",
+      "buying": "Inkoop",
+      "supplier": "Leveranciersomgeving",
+      "organization": "Organisatie",
+      "admin": "Platform"
+    },
+    "openMenu": "Menu openen",
+    "closeMenu": "Menu sluiten",
+    "backToSite": "Terug naar de website",
+    "noOrganization": "Geen organisatie",
+    "logoAlt": "Promotional Sourcing.eu"
   },
   "language": {
     "label": "Taal",

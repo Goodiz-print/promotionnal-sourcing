@@ -34,7 +34,13 @@
   "index": {
     "title": "My orders",
     "subtitle": "Orders created from the quotes you accepted.",
-    "empty": "No orders yet. An order is created as soon as you accept a quote."
+    "empty": "No orders yet. An order is created as soon as you accept a quote.",
+    "columns": {
+      "order": "Order",
+      "total": "Total",
+      "status": "Status",
+      "actions": "Actions"
+    }
   },
   "supplier": {
     "index": {
@@ -53,7 +59,8 @@
     "billingAddress": "Billing address",
     "noAddress": "Not provided",
     "viewQuote": "View the quote",
-    "timeline": "Order tracking"
+    "timeline": "Order tracking",
+    "items": "Ordered items"
   },
   "timeline": {
     "created": "Order created",
@@ -71,5 +78,11 @@
     "total": "Total"
   },
   "total": "Total: {total}",
-  "viewOrder": "View the order"
+  "viewOrder": "View the order",
+  "address": {
+    "name": "Name",
+    "street": "Street",
+    "city": "City",
+    "country": "Country"
+  }
 }

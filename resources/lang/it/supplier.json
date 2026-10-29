@@ -3,7 +3,13 @@
     "title": "Profilo fornitore",
     "subtitle": "Indichi i Suoi tempi, le certificazioni e l'area di consegna per rassicurare gli acquirenti.",
     "submit": "Salva il profilo",
-    "success": "Profilo fornitore aggiornato."
+    "success": "Profilo fornitore aggiornato.",
+    "sections": {
+      "terms": "Condizioni commerciali",
+      "termsHint": "Ordine minimo, tempi e area di consegna mostrati agli acquirenti.",
+      "certificationsHint": "Norme e marchi che detiene (ISO, FSC, OEKO-TEX…).",
+      "presentation": "Presentazione dell'azienda"
+    }
   },
   "fields": {
     "minOrderQuantity": "Quantità minima d'ordine",
@@ -14,12 +20,21 @@
     "certificationPlaceholder": "es. ISO 9001",
     "certificationAdd": "Aggiungi una certificazione",
     "certificationRemove": "Rimuovi",
-    "bio": "Presentazione"
+    "bio": "Presentazione",
+    "defaultOriginScope": "Provenienza predefinita",
+    "certificationsEmpty": "Nessuna certificazione indicata."
   },
   "deliveryScope": {
     "none": "Non specificata",
     "national": "Nazionale",
     "europe": "Europa",
     "worldwide": "Internazionale"
+  },
+  "originScope": {
+    "none": "Non specificata",
+    "france": "Francia",
+    "europe": "Europa",
+    "outside_europe": "Extra Europa",
+    "per_product": "Caso per caso"
   }
 }

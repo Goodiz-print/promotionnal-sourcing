@@ -3,7 +3,13 @@
     "title": "Leverantörsprofil",
     "subtitle": "Ange dina ledtider, certifieringar och leveransområde för att skapa trygghet hos köparna.",
     "submit": "Spara profilen",
-    "success": "Leverantörsprofilen har uppdaterats."
+    "success": "Leverantörsprofilen har uppdaterats.",
+    "sections": {
+      "terms": "Kommersiella villkor",
+      "termsHint": "Minsta order, ledtider och leveransområde som visas för köpare.",
+      "certificationsHint": "Standarder och märkningar som du innehar (ISO, FSC, OEKO-TEX…).",
+      "presentation": "Presentation av företaget"
+    }
   },
   "fields": {
     "minOrderQuantity": "Minsta orderkvantitet",
@@ -14,12 +20,21 @@
     "certificationPlaceholder": "t.ex. ISO 9001",
     "certificationAdd": "Lägg till en certifiering",
     "certificationRemove": "Ta bort",
-    "bio": "Presentation"
+    "bio": "Presentation",
+    "defaultOriginScope": "Standardursprung",
+    "certificationsEmpty": "Ingen certifiering angiven."
   },
   "deliveryScope": {
     "none": "Ej angivet",
     "national": "Nationellt",
     "europe": "Europa",
     "worldwide": "Internationellt"
+  },
+  "originScope": {
+    "none": "Ej angivet",
+    "france": "Frankrike",
+    "europe": "Europa",
+    "outside_europe": "Utanför Europa",
+    "per_product": "Per produkt"
   }
 }

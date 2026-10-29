@@ -7,13 +7,22 @@
       "name": "Namn",
       "slug": "Identifierare",
       "parent": "Överordnad",
-      "products": "Produkter"
-    }
+      "products": "Produkter",
+      "actions": "Åtgärder"
+    },
+    "emptyDescription": "Kategorierna strukturerar katalogen och dess filter.",
+    "root": "Rot"
   },
-  "create": { "title": "Ny kategori" },
-  "edit": { "title": "Redigera kategori" },
-  "newCategory": "Ny kategori",
+  "create": {
+    "title": "Ny kategori",
+    "subtitle": "Lägg till en kategori i katalogens trädstruktur."
+  },
+  "update": {
+    "title": "Redigera kategori",
+    "subtitle": "Redigera innehåll, överordnad kategori och synonymer för ”{slug}”."
+  },
   "edit": "Redigera",
+  "newCategory": "Ny kategori",
   "delete": "Ta bort",
   "save": "Spara",
   "cancel": "Avbryt",
@@ -26,7 +35,9 @@
     "name": "Namn",
     "description": "Beskrivning",
     "synonyms": "Synonymer",
-    "synonymsHint": "Separerade med kommatecken (förbättrar sökningen)."
+    "synonymsHint": "Separerade med kommatecken (förbättrar sökningen).",
+    "slugPlaceholder": "t.ex. personliga-pennor",
+    "synonymsPlaceholder": "t.ex. kulspetspenna, blyertspenna, tuschpenna"
   },
   "flash": {
     "created": "Kategori skapad.",
@@ -35,5 +46,13 @@
     "cycle": "En kategori kan inte vara sin egen överordnade eller överordnad till någon av sina underkategorier.",
     "hasChildren": "Det går inte att ta bort: kategorin har underkategorier.",
     "hasProducts": "Det går inte att ta bort: produkter är kopplade till kategorin."
+  },
+  "back": "Tillbaka till kategorier",
+  "form": {
+    "identity": "Identifiering",
+    "identityDescription": "Teknisk identifierare och placering i trädstrukturen.",
+    "content": "Innehåll på {language}",
+    "search": "Sök",
+    "searchDescription": "Relaterade termer som används för att hitta kategorin i sökmotorn."
   }
 }

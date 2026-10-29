@@ -1,8 +1,11 @@
 {
   "notFound": {
-    "title": "Nie znaleziono strony"
+    "title": "Nie znaleziono strony",
+    "description": "Żądana strona nie istnieje lub została przeniesiona."
   },
   "serverError": {
-    "title": "Wystąpił błąd."
-  }
+    "title": "Wystąpił błąd.",
+    "description": "Nasz zespół został powiadomiony. Spróbuj ponownie za chwilę."
+  },
+  "backHome": "Powrót na stronę główną"
 }

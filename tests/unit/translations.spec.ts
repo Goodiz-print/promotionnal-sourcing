@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { test } from '@japa/runner'
 import app from '@adonisjs/core/services/app'
 import { SUPPORTED_LOCALES } from '#shared/types/i18n'
@@ -41,14 +41,17 @@ test.group('i18n — fichiers de langue des devis', () => {
         )
       : [prefix]
 
-  test('quote.json a les mêmes clés dans les 9 langues', ({ assert }) => {
-    const load = (locale: string) =>
-      JSON.parse(readFileSync(app.languageFilesPath(`${locale}/quote.json`), 'utf8'))
-    const reference = flatten(load('fr')).sort()
+  test('chaque fichier de langue a les mêmes clés dans les 9 langues', ({ assert }) => {
+    const load = (locale: string, file: string) =>
+      JSON.parse(readFileSync(app.languageFilesPath(`${locale}/${file}`), 'utf8'))
+    const files = readdirSync(app.languageFilesPath('fr')).filter((file) => file.endsWith('.json'))
 
-    assert.isAbove(reference.length, 50)
-    for (const locale of SUPPORTED_LOCALES) {
-      assert.deepEqual(flatten(load(locale)).sort(), reference, locale)
+    assert.isAbove(files.length, 20)
+    for (const file of files) {
+      const reference = flatten(load('fr', file)).sort()
+      for (const locale of SUPPORTED_LOCALES) {
+        assert.deepEqual(flatten(load(locale, file)).sort(), reference, `${locale}/${file}`)
+      }
     }
   })
 })

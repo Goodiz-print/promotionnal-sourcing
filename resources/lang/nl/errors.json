@@ -1,8 +1,11 @@
 {
   "notFound": {
-    "title": "Pagina niet gevonden"
+    "title": "Pagina niet gevonden",
+    "description": "De gevraagde pagina bestaat niet of is verplaatst."
   },
   "serverError": {
-    "title": "Er is een fout opgetreden."
-  }
+    "title": "Er is een fout opgetreden.",
+    "description": "Ons team is op de hoogte gebracht. Probeer het over enkele ogenblikken opnieuw."
+  },
+  "backHome": "Terug naar de startpagina"
 }

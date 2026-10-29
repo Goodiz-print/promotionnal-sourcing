@@ -34,7 +34,13 @@
   "index": {
     "title": "Mes commandes",
     "subtitle": "Les commandes issues de vos devis acceptés.",
-    "empty": "Aucune commande pour le moment. Une commande est créée dès que vous acceptez un devis."
+    "empty": "Aucune commande pour le moment. Une commande est créée dès que vous acceptez un devis.",
+    "columns": {
+      "order": "Commande",
+      "total": "Total",
+      "status": "Statut",
+      "actions": "Actions"
+    }
   },
   "supplier": {
     "index": {
@@ -53,7 +59,8 @@
     "billingAddress": "Adresse de facturation",
     "noAddress": "Non renseignée",
     "viewQuote": "Voir le devis",
-    "timeline": "Suivi de la commande"
+    "timeline": "Suivi de la commande",
+    "items": "Articles commandés"
   },
   "timeline": {
     "created": "Commande créée",
@@ -71,5 +78,11 @@
     "total": "Total"
   },
   "total": "Total : {total}",
-  "viewOrder": "Voir la commande"
+  "viewOrder": "Voir la commande",
+  "address": {
+    "name": "Nom",
+    "street": "Rue",
+    "city": "Ville",
+    "country": "Pays"
+  }
 }

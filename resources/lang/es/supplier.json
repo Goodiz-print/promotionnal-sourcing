@@ -3,7 +3,13 @@
     "title": "Perfil de proveedor",
     "subtitle": "Indique sus plazos, certificaciones y ámbito de entrega para dar confianza a los compradores.",
     "submit": "Guardar el perfil",
-    "success": "Perfil de proveedor actualizado."
+    "success": "Perfil de proveedor actualizado.",
+    "sections": {
+      "terms": "Condiciones comerciales",
+      "termsHint": "Pedido mínimo, plazos y ámbito de entrega mostrados a los compradores.",
+      "certificationsHint": "Normas y sellos que posee (ISO, FSC, OEKO-TEX…).",
+      "presentation": "Presentación de la empresa"
+    }
   },
   "fields": {
     "minOrderQuantity": "Cantidad mínima de pedido",
@@ -14,12 +20,21 @@
     "certificationPlaceholder": "p. ej. ISO 9001",
     "certificationAdd": "Añadir una certificación",
     "certificationRemove": "Quitar",
-    "bio": "Presentación"
+    "bio": "Presentación",
+    "defaultOriginScope": "Procedencia por defecto",
+    "certificationsEmpty": "Ninguna certificación indicada."
   },
   "deliveryScope": {
     "none": "Sin especificar",
     "national": "Nacional",
     "europe": "Europa",
     "worldwide": "Internacional"
+  },
+  "originScope": {
+    "none": "Sin especificar",
+    "france": "Francia",
+    "europe": "Europa",
+    "outside_europe": "Fuera de Europa",
+    "per_product": "Según el producto"
   }
 }

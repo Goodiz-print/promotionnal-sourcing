@@ -3,7 +3,11 @@
     "title": "Ajustes de la organización",
     "subtitle": "Gestione la información general de su organización.",
     "submit": "Guardar",
-    "success": "Ajustes de la organización actualizados."
+    "success": "Ajustes de la organización actualizados.",
+    "sections": {
+      "general": "Información general",
+      "address": "Dirección"
+    }
   },
   "fields": {
     "name": "Nombre",
@@ -39,20 +43,23 @@
   "nav": {
     "settings": "Ajustes",
     "members": "Miembros",
-    "create": "Nueva organización"
+    "create": "Nueva organización",
+    "label": "Secciones de la organización"
   },
   "members": {
     "title": "Miembros de la organización",
     "subtitle": "Gestione los roles y el acceso de los miembros de su organización.",
     "columns": {
       "name": "Miembro",
-      "role": "Rol"
+      "role": "Rol",
+      "actions": "Acciones"
     },
     "remove": "Quitar",
     "confirmRemove": "¿Quitar a este miembro de la organización?",
     "roleUpdated": "Rol del miembro actualizado.",
     "removed": "Miembro quitado de la organización.",
-    "lastOwnerError": "No es posible quitar ni degradar al último propietario de la organización."
+    "lastOwnerError": "No es posible quitar ni degradar al último propietario de la organización.",
+    "listTitle": "Miembros"
   },
   "invitations": {
     "inviteTitle": "Invitar a un miembro",

@@ -22,6 +22,11 @@
     "unread": "Olästa förfrågningar",
     "products": "Aktiva produkter",
     "completeness": "Profil ifylld",
-    "completeProfile": "Fyll i min profil"
+    "completeProfile": "Fyll i min profil",
+    "todo": {
+      "title": "Att göra",
+      "empty": "Inget att göra just nu.",
+      "unread": "{count, plural, one {# mottagen förfrågan att öppna} other {# mottagna förfrågningar att öppna}}"
+    }
   }
 }
