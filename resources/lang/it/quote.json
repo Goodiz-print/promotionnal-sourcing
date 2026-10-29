@@ -40,7 +40,12 @@
     "submit": "Invia il preventivo",
     "delete": "Elimina la bozza",
     "confirmSubmit": "Inviare questo preventivo all'acquirente? Non sarà più modificabile.",
-    "confirmDelete": "Eliminare questa bozza?"
+    "confirmDelete": "Eliminare questa bozza?",
+    "sections": {
+      "lines": "Righe del preventivo",
+      "linesHint": "Una riga senza prezzo unitario non è quotata: non verrà inviata.",
+      "terms": "Condizioni"
+    }
   },
   "table": {
     "item": "Articolo",
@@ -57,7 +62,8 @@
     "cheapest": "Più economico",
     "fastest": "Più rapido",
     "leadTime": "Tempi complessivi",
-    "validUntil": "Valido fino al"
+    "validUntil": "Valido fino al",
+    "noValidity": "Non specificata"
   },
   "show": {
     "title": "Preventivo di {supplierName}",
@@ -73,7 +79,16 @@
     "index": {
       "title": "I miei preventivi",
       "subtitle": "I preventivi che hai redatto in risposta alle richieste.",
-      "empty": "Nessun preventivo per il momento."
+      "empty": "Nessun preventivo per il momento.",
+      "browseRfqs": "Vedi le richieste ricevute",
+      "columns": {
+        "leadTime": "Tempi di consegna",
+        "rfq": "Richiesta",
+        "status": "Stato",
+        "total": "Totale",
+        "validUntil": "Valido fino al"
+      },
+      "emptyDescription": "I suoi preventivi compariranno qui non appena risponderà a una richiesta ricevuta."
     },
     "edit": {
       "title": "Preventivo: {rfqTitle}",
@@ -84,7 +99,8 @@
         "accepted": "L'acquirente ha accettato questo preventivo.",
         "rejected": "L'acquirente non ha scelto questo preventivo.",
         "expired": "Questo preventivo è scaduto."
-      }
+      },
+      "linesTitle": "Righe del preventivo"
     },
     "rfq": {
       "respond": "Rispondi con un preventivo",

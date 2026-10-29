@@ -164,6 +164,7 @@ tests/
 - **Définir des classes d'erreur inline dans un controller ou service** (→ `app/exceptions/<domaine>_errors.ts`)
 - **Écrire du texte visible en dur dans un template Vue** (→ utiliser `t('clé')`)
 - **Contourner le design system** : `<h1>`/`<table>`/`<details>` à la main, `text-[32px]`, `var(--gray-*)`, emoji en guise d'icône (→ composants `Base*`, utilitaires DS, lucide ; voir `docs/design-system.md`)
+- **Ajouter une clé à `resources/lang/fr/quote.json` sans l'ajouter aux 8 autres langues** (→ `tests/unit/translations.spec.ts` impose les mêmes clés dans les 9 langues ; lancer `node ace test unit --files=tests/unit/translations.spec.ts` avant de pousser)
 - **Utiliser des ternaires `locale === 'fr' ? ... : ...`** (→ utiliser `t()` avec clé dans les deux JSON)
 - **`fetch` / `axios` + JSON + CSRF manuel dans `inertia/**`** pour des mutations déjà couvertes par une page Inertia (→ `router.patch`/`useForm`/`<Form>`+`response.redirect().back()` côté contrôleur)
 - **`response.json({ ok: true })` sur des routes appelées depuis l’UI Inertia** (→ redirection ; réserver le JSON aux vraies routes API)

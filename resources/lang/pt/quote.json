@@ -40,7 +40,12 @@
     "submit": "Enviar o orçamento",
     "delete": "Eliminar o rascunho",
     "confirmSubmit": "Enviar este orçamento ao comprador? Deixará de ser editável.",
-    "confirmDelete": "Eliminar este rascunho?"
+    "confirmDelete": "Eliminar este rascunho?",
+    "sections": {
+      "lines": "Linhas do orçamento",
+      "linesHint": "Uma linha sem preço unitário não está orçamentada: não será enviada.",
+      "terms": "Condições"
+    }
   },
   "table": {
     "item": "Artigo",
@@ -57,7 +62,8 @@
     "cheapest": "Mais barato",
     "fastest": "Mais rápido",
     "leadTime": "Prazo global",
-    "validUntil": "Válido até"
+    "validUntil": "Válido até",
+    "noValidity": "Não especificada"
   },
   "show": {
     "title": "Orçamento de {supplierName}",
@@ -73,7 +79,16 @@
     "index": {
       "title": "Os meus orçamentos",
       "subtitle": "Os orçamentos que redigiu em resposta a pedidos.",
-      "empty": "Ainda não há orçamentos."
+      "empty": "Ainda não há orçamentos.",
+      "browseRfqs": "Ver os pedidos recebidos",
+      "columns": {
+        "leadTime": "Prazo",
+        "rfq": "Pedido",
+        "status": "Estado",
+        "total": "Total",
+        "validUntil": "Válido até"
+      },
+      "emptyDescription": "Os seus orçamentos aparecerão aqui assim que responder a um pedido recebido."
     },
     "edit": {
       "title": "Orçamento: {rfqTitle}",
@@ -84,7 +99,8 @@
         "accepted": "O comprador aceitou este orçamento.",
         "rejected": "O comprador não escolheu este orçamento.",
         "expired": "Este orçamento expirou."
-      }
+      },
+      "linesTitle": "Linhas do orçamento"
     },
     "rfq": {
       "respond": "Responder com um orçamento",

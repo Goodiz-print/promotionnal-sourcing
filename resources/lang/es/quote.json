@@ -40,7 +40,12 @@
     "submit": "Enviar el presupuesto",
     "delete": "Eliminar el borrador",
     "confirmSubmit": "¿Enviar este presupuesto al comprador? Ya no se podrá modificar.",
-    "confirmDelete": "¿Eliminar este borrador?"
+    "confirmDelete": "¿Eliminar este borrador?",
+    "sections": {
+      "lines": "Líneas del presupuesto",
+      "linesHint": "Una línea sin precio unitario no está cotizada: no se enviará.",
+      "terms": "Condiciones"
+    }
   },
   "table": {
     "item": "Artículo",
@@ -57,7 +62,8 @@
     "cheapest": "Más barato",
     "fastest": "Más rápido",
     "leadTime": "Plazo global",
-    "validUntil": "Válido hasta"
+    "validUntil": "Válido hasta",
+    "noValidity": "No especificada"
   },
   "show": {
     "title": "Presupuesto de {supplierName}",
@@ -73,7 +79,16 @@
     "index": {
       "title": "Mis presupuestos",
       "subtitle": "Los presupuestos que ha redactado en respuesta a solicitudes.",
-      "empty": "Aún no hay presupuestos."
+      "empty": "Aún no hay presupuestos.",
+      "browseRfqs": "Ver las solicitudes recibidas",
+      "columns": {
+        "leadTime": "Plazo",
+        "rfq": "Solicitud",
+        "status": "Estado",
+        "total": "Total",
+        "validUntil": "Válido hasta"
+      },
+      "emptyDescription": "Sus presupuestos aparecerán aquí en cuanto responda a una solicitud recibida."
     },
     "edit": {
       "title": "Presupuesto: {rfqTitle}",
@@ -84,7 +99,8 @@
         "accepted": "El comprador ha aceptado este presupuesto.",
         "rejected": "El comprador no ha elegido este presupuesto.",
         "expired": "Este presupuesto ha caducado."
-      }
+      },
+      "linesTitle": "Líneas del presupuesto"
     },
     "rfq": {
       "respond": "Responder con un presupuesto",
