@@ -3,7 +3,8 @@
     "dashboard": "Tableau de bord",
     "organizations": "Organisations",
     "users": "Utilisateurs",
-    "categories": "Catégories"
+    "categories": "Catégories",
+    "label": "Sections d'administration"
   },
   "pagination": {
     "previous": "Précédent",

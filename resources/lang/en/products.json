@@ -196,6 +196,12 @@
       "setupCharge": "Setup charge",
       "priceTiers": "Marking price grid",
       "priceTiersHint": "Unit marking price by technique and ordered quantity."
-    }
+    },
+    "sections": {
+      "content": "Name and description",
+      "details": "Classification",
+      "contentHint": "Name and description in the source language; other languages can be generated automatically."
+    },
+    "backToList": "Back to my products"
   }
 }

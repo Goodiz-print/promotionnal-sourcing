@@ -57,7 +57,8 @@
     "cheapest": "Moins cher",
     "fastest": "Plus rapide",
     "leadTime": "Délai global",
-    "validUntil": "Valable jusqu'au"
+    "validUntil": "Valable jusqu'au",
+    "noValidity": "Non précisée"
   },
   "show": {
     "title": "Devis de {supplierName}",

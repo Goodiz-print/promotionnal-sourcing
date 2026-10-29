@@ -7,13 +7,6 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" href="/favicon.png" />
 
-    {{-- Design system — police Inter (substitut de Sohne) --}}
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
-    />
     {{-- Titre de repli : uniquement si la page n'en définit pas via <Head> (sinon le SSR
          émettrait deux <title> et les moteurs liraient le générique en premier). --}}
     @if(!(page.ssrHead || []).join('').includes('<title'))

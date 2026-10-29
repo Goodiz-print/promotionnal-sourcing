@@ -38,6 +38,27 @@
   --green-100: #d9f0e6;
   --green-500: #1d8a5c;
 
+  /* ---- Accents chauds de la landing (pointes, jamais en aplat dans l'app) ---- */
+  --orange-500: #f6a623;
+  --amber-600: #e08900;
+  --yellow-400: #ffcc00;
+
+  /* ---- Dégradé de marque : violet dominant, l'orange n'apparaît qu'en pointe adoucie ---- */
+  --gradient-brand: linear-gradient(
+    110deg,
+    var(--indigo-500) 0%,
+    #6d3ccf 48%,
+    #a058bb 76%,
+    #d99a55 100%
+  );
+  /* Texte : extrémités assombries pour rester lisible sur fond clair */
+  --gradient-brand-text: linear-gradient(
+    100deg,
+    var(--indigo-600) 0%,
+    #7a3fd4 55%,
+    var(--amber-600) 100%
+  );
+
   /* ---- Neutres — rampe « ink » (teintée navy, jamais noir pur) ---- */
   --ink-0: #ffffff;
   --ink-50: #f3f3f8;
@@ -112,6 +133,7 @@
   --gray-2: var(--ink-50);
   --gray-3: var(--ink-100);
   --gray-4: var(--ink-200);
+  --gray-5: var(--ink-300);
   --gray-6: var(--ink-500);
   --gray-7: var(--ink-600);
   --gray-8: var(--ink-700);

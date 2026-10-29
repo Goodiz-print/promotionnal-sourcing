@@ -6,6 +6,7 @@ import { urlFor } from '~/client'
 import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE } from '#shared/types/i18n'
 import { DEFAULT_PRODUCT_LIFECYCLE_STATUS } from '#shared/types/product'
 import BaseButton from '~/components/base/base_button.vue'
+import BaseSection from '~/components/base/base_section.vue'
 import ProductTranslationsFields from '~/components/products/form/product_translations_fields.vue'
 import ProductDetailsFields from '~/components/products/form/product_details_fields.vue'
 import ProductCommercialFields from '~/components/products/form/product_commercial_fields.vue'
@@ -147,58 +148,65 @@ function cancel() {
 </script>
 
 <template>
-  <form class="flex max-w-[720px] flex-col gap-8" @submit.prevent="submit">
-    <ProductTranslationsFields />
-    <ProductDetailsFields :categories="categories" />
+  <form class="flex flex-col gap-6" @submit.prevent="submit">
+    <BaseSection
+      as="fieldset"
+      :title="t('products.manage.sections.content')"
+      :description="t('products.manage.sections.contentHint')"
+    >
+      <ProductTranslationsFields />
+    </BaseSection>
 
-    <div>
-      <h2 class="mb-2 font-medium">{{ t('products.manage.commercial') }}</h2>
+    <BaseSection as="fieldset" :title="t('products.manage.sections.details')">
+      <ProductDetailsFields :categories="categories" />
+    </BaseSection>
+
+    <BaseSection as="fieldset" :title="t('products.manage.commercial')">
       <ProductCommercialFields />
-    </div>
+    </BaseSection>
 
-    <div>
-      <h2 class="mb-2 font-medium">{{ t('products.manage.facets') }}</h2>
+    <BaseSection as="fieldset" :title="t('products.manage.facets')">
       <ProductFacetsFields :attributes="attributes" />
-    </div>
+    </BaseSection>
 
-    <div>
-      <h2 class="mb-2 font-medium">{{ t('products.manage.compliance') }}</h2>
+    <BaseSection as="fieldset" :title="t('products.manage.compliance')">
       <ProductComplianceFields :certifications="certifications" />
-    </div>
+    </BaseSection>
 
-    <div>
-      <h2 class="mb-2 font-medium">{{ t('products.manage.packaging') }}</h2>
+    <BaseSection as="fieldset" :title="t('products.manage.packaging')">
       <ProductPackagingFields />
-    </div>
+    </BaseSection>
 
-    <div>
-      <h2 class="mb-2 font-medium">{{ t('products.manage.marking.title') }}</h2>
+    <BaseSection as="fieldset" :title="t('products.manage.marking.title')">
       <ProductMarkingFields
         :marking-techniques="markingTechniques"
         :documents="product?.documents ?? []"
       />
-    </div>
+    </BaseSection>
 
-    <div>
-      <h2 class="mb-2 font-medium">{{ t('products.manage.images') }}</h2>
+    <BaseSection as="fieldset" :title="t('products.manage.images')">
       <ProductImagesFields :existing-images="product?.images ?? []" />
-    </div>
+    </BaseSection>
 
-    <div>
-      <h2 class="mb-2 font-medium">{{ t('products.manage.variants.title') }}</h2>
+    <BaseSection as="fieldset" :title="t('products.manage.variants.title')">
       <ProductVariantsFields :attributes="attributes" :existing-images="product?.images ?? []" />
-    </div>
+    </BaseSection>
 
-    <div>
-      <h2 class="mb-2 font-medium">{{ t('products.manage.priceTiers.title') }}</h2>
+    <BaseSection
+      as="fieldset"
+      :title="t('products.manage.priceTiers.title')"
+      :description="t('products.manage.priceTiers.hint')"
+    >
       <ProductPriceTiersFields />
-    </div>
+    </BaseSection>
 
-    <div class="flex gap-3">
-      <BaseButton type="submit" :disabled="form.processing">{{
-        t('products.manage.save')
-      }}</BaseButton>
+    <div
+      class="sticky bottom-4 z-20 flex items-center justify-end gap-3 rounded-xl border border-hairline bg-white/90 px-4 py-3 shadow-elevation-2 backdrop-blur-md"
+    >
       <BaseButton variant="secondary" @click="cancel">{{ t('products.manage.cancel') }}</BaseButton>
+      <BaseButton type="submit" :loading="form.processing">
+        {{ t('products.manage.save') }}
+      </BaseButton>
     </div>
   </form>
 </template>

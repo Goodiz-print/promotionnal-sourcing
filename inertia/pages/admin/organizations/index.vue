@@ -4,7 +4,8 @@ import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import AdminNav from '~/components/admin/admin_nav.vue'
+import { useAdminTabs } from '~/composables/use_admin_tabs'
+import BaseTabs from '~/components/base/base_tabs.vue'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BasePagination from '~/components/base/base_pagination.vue'
 import BaseSelect from '~/components/base/base_select.vue'
@@ -22,6 +23,7 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
+const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 
 const type = ref<OrganizationKind | ''>(props.filters.type ?? '')
 const status = ref<AdminOrganizationStatus>(props.filters.status)
@@ -39,7 +41,7 @@ function visit(page: number) {
   <Head :title="t('admin.organizations.title')" />
 
   <div class="mx-auto flex w-full max-w-[960px] flex-col gap-6 px-6 py-12">
-    <AdminNav current="organizations" />
+    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
     <div>
       <h1 class="mb-1.25 text-[28px] tracking-[-0.5px]">{{ t('admin.organizations.title') }}</h1>

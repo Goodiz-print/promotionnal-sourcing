@@ -63,6 +63,7 @@ const { t } = useMarketing()
           style="animation-delay: 0.18s"
         >
           <BaseLinkButton
+            size="lg"
             href="#agences"
             class="hover:-translate-y-0.5"
             style="
@@ -73,6 +74,7 @@ const { t } = useMarketing()
             {{ t('landing.hero.ctaPrimary') }}<span aria-hidden="true">→</span>
           </BaseLinkButton>
           <BaseLinkButton
+            size="lg"
             href="#contact"
             variant="secondary"
             style="border: 2px solid var(--indigo-500); color: var(--indigo-500); background: #fff"

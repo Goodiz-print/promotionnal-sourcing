@@ -3,10 +3,12 @@ import { computed, ref } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
 import { toast } from 'vue-sonner'
 import { Link } from '@adonisjs/inertia/vue'
+import { Bell } from 'lucide-vue-next'
 import type { Data } from '@generated/data'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
 import { useNotificationStream } from '~/composables/use_notification_stream'
+import BaseDropdown from '~/components/base/base_dropdown.vue'
 import NotificationItem from '~/components/notifications/notification_item.vue'
 
 /**
@@ -30,9 +32,9 @@ function refresh() {
   })
 }
 
-function onToggle(event: Event) {
-  open.value = (event.target as HTMLDetailsElement).open
-  if (open.value) refresh()
+function onOpen() {
+  open.value = true
+  refresh()
 }
 
 function markAllRead() {
@@ -50,25 +52,42 @@ useNotificationStream(() => {
 </script>
 
 <template>
-  <details class="relative" @toggle="onToggle">
-    <summary
-      :title="t('notifications.title')"
-      :aria-label="t('notifications.title')"
-      class="relative flex size-9 cursor-pointer list-none items-center justify-center rounded-full hover:bg-[var(--gray-2)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
-    >
-      <span aria-hidden="true">🔔</span>
-      <span
-        v-if="count > 0"
-        class="absolute -top-0.5 -right-0.5 flex min-w-4.5 items-center justify-center rounded-full bg-[var(--state-danger)] px-1 text-[11px] leading-4.5 font-medium text-white"
-        :aria-label="t('notifications.unreadCount', { count })"
+  <BaseDropdown width="w-80 max-w-[90vw]" @open="onOpen" @close="open = false">
+    <template #trigger="{ open: isOpen, toggle }">
+      <button
+        type="button"
+        :title="t('notifications.title')"
+        :aria-label="t('notifications.title')"
+        :aria-expanded="isOpen"
+        aria-haspopup="true"
+        class="relative inline-flex size-9 cursor-pointer items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-ink-100 hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+        :class="isOpen ? 'bg-brand-subtle text-indigo-600' : ''"
+        @click="toggle"
       >
-        {{ count > 99 ? '99+' : count }}
-      </span>
-    </summary>
-    <div
-      class="absolute right-0 z-20 mt-2 flex w-80 max-w-[90vw] flex-col gap-1 rounded border border-[var(--gray-4)] bg-white p-2 shadow-lg"
-    >
-      <p v-if="recent.length === 0" class="px-3 py-2 text-sm text-[var(--gray-6)]">
+        <Bell :size="20" aria-hidden="true" />
+        <span
+          v-if="count > 0"
+          data-testid="unread-badge"
+          class="text-tabular absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-pill bg-danger px-1 text-[11px] leading-none font-semibold text-white"
+          :aria-label="t('notifications.unreadCount', { count })"
+        >
+          {{ count > 99 ? '99+' : count }}
+        </span>
+      </button>
+    </template>
+    <div class="flex items-center justify-between border-b border-hairline px-3 py-2.5">
+      <p class="text-heading-sm">{{ t('notifications.title') }}</p>
+      <button
+        v-if="count > 0"
+        type="button"
+        class="cursor-pointer text-caption font-semibold text-indigo-600 hover:underline"
+        @click="markAllRead"
+      >
+        {{ t('notifications.markAllRead') }}
+      </button>
+    </div>
+    <div class="flex max-h-[360px] flex-col gap-0.5 overflow-y-auto py-1">
+      <p v-if="recent.length === 0" class="px-3 py-6 text-center text-body-sm text-text-muted">
         {{ t('notifications.empty') }}
       </p>
       <NotificationItem
@@ -76,23 +95,15 @@ useNotificationStream(() => {
         :key="notification.id"
         :notification="notification"
       />
-      <div class="flex items-center justify-between border-t border-[var(--gray-3)] px-3 pt-2">
-        <Link
-          route="notifications.index"
-          :params="{ locale }"
-          class="text-sm font-medium text-[var(--primary-11)]"
-        >
-          {{ t('notifications.seeAll') }}
-        </Link>
-        <button
-          v-if="count > 0"
-          type="button"
-          class="cursor-pointer text-sm text-[var(--gray-8)] hover:text-[var(--gray-12)]"
-          @click="markAllRead"
-        >
-          {{ t('notifications.markAllRead') }}
-        </button>
-      </div>
     </div>
-  </details>
+    <div class="border-t border-hairline px-3 py-2">
+      <Link
+        route="notifications.index"
+        :params="{ locale }"
+        class="text-body-sm font-semibold text-indigo-600 hover:underline"
+      >
+        {{ t('notifications.seeAll') }}
+      </Link>
+    </div>
+  </BaseDropdown>
 </template>

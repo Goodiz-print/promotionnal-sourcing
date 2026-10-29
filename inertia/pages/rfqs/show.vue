@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
-import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseButton from '~/components/base/base_button.vue'
+import BasePageHeader from '~/components/base/base_page_header.vue'
+import BaseSection from '~/components/base/base_section.vue'
 import RfqActions from '~/components/rfqs/rfq_actions.vue'
 import RfqDeadlineExtension from '~/components/rfqs/rfq_deadline_extension.vue'
 import RfqForm from '~/components/rfqs/rfq_form.vue'
 import RfqItemList from '~/components/rfqs/rfq_item_list.vue'
+import RfqMetaPills from '~/components/rfqs/rfq_meta_pills.vue'
 import RfqSupplierList from '~/components/rfqs/rfq_supplier_list.vue'
 import RfqSupplierPicker from '~/components/rfqs/rfq_supplier_picker.vue'
 import QuoteComparisonTable from '~/components/quotes/quote_comparison_table.vue'
@@ -29,6 +31,8 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
+
+const indexUrl = computed(() => urlFor('rfqs.index', { locale: locale.value }))
 
 /** Ni close ni échue : on peut encore élargir la consultation. */
 const isOpen = computed(() => props.rfq.status !== 'closed' && props.rfq.status !== 'expired')
@@ -68,53 +72,27 @@ function queueSupplier(product: RfqProductOptionType) {
     supplierIdsToAdd.value = [...supplierIdsToAdd.value, id]
   }
 }
-
-function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(locale.value)
-}
 </script>
 
 <template>
   <Head :title="rfq.title" />
 
-  <div class="mx-auto flex max-w-[860px] flex-col gap-8 px-6 py-12">
-    <div>
-      <Link
-        route="rfqs.index"
-        :params="{ locale }"
-        class="text-sm text-[var(--color-primary)] hover:underline"
-      >
-        {{ t('rfq.show.backToList') }}
-      </Link>
-
-      <div class="mt-3 flex items-start justify-between gap-4">
-        <h1 class="text-[32px] tracking-[-0.5px]">{{ rfq.title }}</h1>
-        <BaseBadge :tone="RFQ_STATUS_TONES[rfq.status]">
+  <div class="flex flex-col gap-8">
+    <BasePageHeader :title="rfq.title" :back-href="indexUrl" :back-label="t('rfq.show.backToList')">
+      <template #meta>
+        <BaseBadge dot :tone="RFQ_STATUS_TONES[rfq.status]">
           {{ t(`rfq.status.${rfq.status}`) }}
         </BaseBadge>
-      </div>
-
-      <p class="mt-1 text-sm text-[var(--gray-6)]">
-        <span v-if="rfq.createdByName">
-          {{ t('rfq.show.createdBy', { name: rfq.createdByName }) }} ·
-        </span>
-        <span>
-          {{
-            rfq.deadline
-              ? t('rfq.show.deadline', { date: formatDate(rfq.deadline) })
-              : t('rfq.show.noDeadline')
-          }}
-        </span>
-        <span v-if="rfq.budgetMax"> · {{ t('rfq.show.budget', { amount: rfq.budgetMax }) }}</span>
-      </p>
-    </div>
-
-    <RfqActions v-if="canManageRfq" :rfq="rfq" />
+        <RfqMetaPills :rfq="rfq" />
+      </template>
+      <template v-if="canManageRfq" #actions>
+        <RfqActions :rfq="rfq" />
+      </template>
+    </BasePageHeader>
 
     <RfqDeadlineExtension v-if="canManageRfq && canExtendDeadline" :rfq="rfq" />
 
-    <section v-if="isDraft && canManageRfq">
-      <h2 class="mb-4 font-medium">{{ t('rfq.show.needTitle') }}</h2>
+    <BaseSection v-if="isDraft && canManageRfq" :title="t('rfq.show.needTitle')">
       <RfqForm
         mode="edit"
         :rfq="rfq"
@@ -124,40 +102,39 @@ function formatDate(value: string): string {
         :product-search-unavailable="productSearchUnavailable"
         @product-picked="queueSupplier"
       />
-    </section>
+    </BaseSection>
 
-    <section v-else class="flex flex-col gap-3">
-      <h2 class="font-medium">{{ t('rfq.show.needTitle') }}</h2>
-      <p v-if="rfq.description" class="whitespace-pre-line text-[var(--gray-8)]">
-        {{ rfq.description }}
-      </p>
-      <RfqItemList :items="rfq.items" />
-    </section>
+    <BaseSection v-else :title="t('rfq.show.needTitle')">
+      <div class="flex flex-col gap-4">
+        <p v-if="rfq.description" class="whitespace-pre-line text-body-md text-text-secondary">
+          {{ rfq.description }}
+        </p>
+        <RfqItemList :items="rfq.items" />
+      </div>
+    </BaseSection>
 
-    <section v-if="rfq.status !== 'draft'" class="flex flex-col gap-3">
-      <h2 class="font-medium">{{ t('quote.comparison.title') }}</h2>
+    <BaseSection v-if="rfq.status !== 'draft'" :title="t('quote.comparison.title')" flush>
       <QuoteComparisonTable :quotes="quotes" :items="rfq.items" />
-    </section>
+    </BaseSection>
 
-    <section class="flex flex-col gap-3">
-      <h2 class="font-medium">{{ t('rfq.show.suppliersTitle') }}</h2>
+    <BaseSection :title="t('rfq.show.suppliersTitle')">
       <RfqSupplierList :rfq-id="rfq.id" :suppliers="rfq.suppliers" :can-manage="canManageRfq" />
 
-      <div
-        v-if="canManageRfq && isOpen && addableSuppliers.length > 0"
-        class="mt-4 flex flex-col gap-3 rounded border border-[var(--gray-3)] p-4"
-      >
-        <RfqSupplierPicker v-model="supplierIdsToAdd" :options="addableSuppliers" />
-        <div>
-          <BaseButton
-            variant="secondary"
-            :disabled="supplierIdsToAdd.length === 0"
-            @click="addSuppliers()"
-          >
-            {{ t('rfq.show.addSuppliers') }}
-          </BaseButton>
+      <template v-if="canManageRfq && isOpen && addableSuppliers.length > 0" #footer>
+        <div class="flex flex-col gap-4">
+          <RfqSupplierPicker v-model="supplierIdsToAdd" :options="addableSuppliers" />
+          <div>
+            <BaseButton
+              variant="secondary"
+              size="sm"
+              :disabled="supplierIdsToAdd.length === 0"
+              @click="addSuppliers()"
+            >
+              {{ t('rfq.show.addSuppliers') }}
+            </BaseButton>
+          </div>
         </div>
-      </div>
-    </section>
+      </template>
+    </BaseSection>
   </div>
 </template>

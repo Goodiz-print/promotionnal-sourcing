@@ -1,197 +1,141 @@
 # Design System — promotionalsourcing.eu
 
-> Référence visuelle : sobriété façon [stripe.com](https://stripe.com/en-fr) — fond dominant blanc, neutres teintés navy pour le texte/les bordures, indigo de marque en accent réservé aux actions.
-> Ce document complète [`charte-graphique.md`](charte-graphique.md) (logo, favicon, règles de marque) avec les tokens et patterns de composants réutilisables. En cas de divergence, les fichiers sous `inertia/css/tokens/` font foi — ce sont eux qui sont réellement chargés par l'app.
+> Un seul langage visuel pour la landing et l'application, **dérivé de la landing** : Manrope pour les titres, Instrument Sans pour le texte, boutons pill indigo, cartes blanches `rounded-xl` à bordure hairline sur fond « sunken », eyebrows, chips indigo clair, chiffres tabulaires.
+> Ce document complète [`charte-graphique.md`](charte-graphique.md) (logo, favicon, règles de marque). En cas de divergence, les fichiers sous `inertia/css/` font foi.
 
-> **Source des tokens** : `inertia/css/tokens/{colors,typography,spacing}.css`, importés par `inertia/css/app.css` qui les expose à Tailwind v4 via `@theme` (utilitaires `bg-indigo-*`, `text-ink-*`, `shadow-1/2/3`, `font-sans`…) et définit les utilitaires typographiques `type-*`. Intégration de l'artéfact **« Promotional Sourcing Design System »** (claude.ai/design) — voir `docs/changelog/2026-07-13-integration-du-design-system.md`.
+**Sources** : tokens `inertia/css/tokens/{colors,typography,spacing}.css` → exposés à Tailwind v4 par `@theme` dans `inertia/css/app.css` (utilitaires `bg-card`, `text-text-secondary`, `border-hairline`, `rounded-pill`, `font-heading`, `shadow-elevation-*`, `text-display-*`…). `inertia/css/marketing.css` ne contient plus que les animations et styles propres à la landing.
 
 ## Principes
 
-1. **Le blanc/gris domine, l'indigo est rare.** Une seule action indigo par écran dans l'idéal (le CTA principal).
-2. **Ombres subtiles, jamais lourdes.** Les tokens `--shadow-1/2/3` (teintés navy, jamais noir pur) existent pour les éléments qui se détachent du flux (menus, modales, cartes surélevées) ; pour les séparations simples, préférer les bordures fines (`--border-hairline`/`--border-strong`, alias legacy `--gray-3`/`--gray-4`).
-3. **Rayons discrets.** `--radius-xs`/`--radius-sm` (4-6px) pour inputs/boutons/cartes — jamais `--radius-pill`/`--radius-xl` sauf avatars/pastilles.
-4. **Accessibilité clavier obligatoire.** Tout élément interactif a un anneau de focus visible (`focus-visible:outline-2 outline-offset-2 outline-[var(--primary-6)]`, ou `--shadow-focus-ring`).
-5. **Tokens via variables CSS**, pas de couleurs codées en dur — utiliser `var(--ink-*)`, `var(--indigo-*)`, `var(--text-*)`/`var(--surface-*)`/`var(--state-*)`, ou leurs alias historiques `var(--gray-*)`/`var(--primary-*)`/`var(--color-primary*)` déjà répandus dans le code existant.
+1. **Fond sunken, cartes blanches.** Une page applicative est posée sur `bg-sunken` (`--ink-50`) ; le contenu vit dans des cartes `bg-card` à bordure `hairline` et ombre `elevation-1`. Jamais de bordure `--gray-*` seule sur fond blanc.
+2. **L'indigo est un accent.** Une seule action primaire par écran. Le reste en secondaire (bordure), ghost (indigo clair) ou lien.
+3. **Pill pour l'action, arrondi pour le contenu.** Boutons, chips et badges en `rounded-pill` ; champs, menus et vignettes en `rounded-md`/`rounded-lg` ; cartes en `rounded-xl`.
+4. **Manrope titre, Instrument Sans texte.** Tout titre (`h1`-`h6`, utilitaires `text-display-*`/`text-heading-*`/`text-eyebrow`) est en Manrope 600 ; le texte courant en Instrument Sans. Chiffres et prix en `text-tabular`.
+5. **Icônes lucide** (`lucide-vue-next`), trait 1.5-2 px, 18 px dans les boutons et menus, 20 px dans la topbar, 16 px en inline. Jamais d'emoji ni de glyphe texte (`→`, `☰`) dans l'app.
+6. **Accessibilité clavier** : anneau de focus global (`app.css`, `@layer base`) — ne pas le neutraliser (`outline-none`) sans alternative visible.
+7. **Rien hors layer.** Les styles d'éléments vivent dans `@layer base` : une règle non layerée écrase les utilitaires Tailwind (c'était le bug de l'ancien reset `* { margin: 0; padding: 0 }`).
 
 ## Tokens
 
-### Couleurs
+### Couleurs (`tokens/colors.css`)
 
-Définis dans `inertia/css/tokens/colors.css`. Rampe **indigo** (marque, `#4032c8`, échantillonnée sur le logo) + rampe neutre **ink** teintée navy (jamais gris pur) + tokens sémantiques (surfaces, texte, bordures, états, boutons). Détail marque/logo dans [`charte-graphique.md`](charte-graphique.md#couleurs).
+| Rôle                                                    | Utilitaire Tailwind                                                | Variable                                          |
+| ------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------- |
+| Fond de page                                            | `bg-sunken`                                                        | `--surface-sunken` (`--ink-50`)                   |
+| Carte, menu, champ                                      | `bg-card` / `bg-canvas`                                            | `--surface-card` / `--surface-canvas` (blanc)     |
+| Bordure de carte, séparateur                            | `border-hairline`                                                  | `--border-hairline` (`--ink-100`)                 |
+| Bordure de champ, bouton secondaire                     | `border-input`, hover `border-strong`                              | `--border-input` (`--ink-200`), `--border-strong` |
+| Texte principal / secondaire / discret                  | `text-text-primary` / `text-text-secondary` / `text-text-muted`    | `--ink-950` / `--ink-600` / `--ink-400`           |
+| Marque                                                  | `bg-indigo-500`, `text-indigo-600`, `text-text-brand`              | `--indigo-*`                                      |
+| Fond indigo clair (chips, item actif, pastille d'icône) | `bg-brand-subtle`                                                  | `--surface-brand-subtle` (`--indigo-50`)          |
+| États                                                   | `text-success`/`bg-success-bg`, `warning`, `danger`, `info`        | `--state-*`                                       |
+| Dégradé de marque (bannière CTA, un mot du hero)        | `text-gradient-brand`, `style="background: var(--gradient-brand)"` | `--gradient-brand`                                |
 
-| Rôle                      | Token sémantique                                    | Alias historique (composants existants)  |
-| ------------------------- | --------------------------------------------------- | ---------------------------------------- |
-| Fond de page              | `--surface-canvas`/`--surface-sunken`               | `--gray-1` / `--gray-2`                  |
-| Bordures, séparateurs     | `--border-hairline`/`--border-strong`               | `--gray-3` / `--gray-4`                  |
-| Texte secondaire          | `--text-secondary`/`--text-muted`                   | `--gray-6` / `--gray-7`                  |
-| Texte principal           | (entre `--text-secondary` et `--text-primary`)      | `--gray-8` / `--gray-10`                 |
-| Titres, texte fort        | `--text-primary`                                    | `--gray-12`                              |
-| Marque / CTA              | `--surface-brand` (`--indigo-500`)                  | `--color-primary` (`--primary-9`)        |
-| Marque hover/active       | `--btn-primary-bg-hover` (`--indigo-600`)           | `--color-primary-hover` (`--primary-10`) |
-| Texte violet renforcé     | `--indigo-700`                                      | `--primary-11`                           |
-| Anneau de focus           | `--border-input-focus` (`--indigo-500`)             | `--primary-6` (`--indigo-400`)           |
-| Fond badge/callout indigo | `--surface-brand-subtle`/`--indigo-100`             | `--primary-3`                            |
-| Fond très subtil (survol) | `--surface-brand-subtle` (`--indigo-50`)            | `--primary-1`                            |
-| Texte sur fond indigo     | `--text-on-brand` (blanc)                           | `--color-primary-contrast`               |
-| Erreur / destructif       | `--state-danger`/`--color-danger` (`--ruby-500`)    | ancien : `#fb2c36` en dur                |
-| Succès                    | `--state-success`/`--color-success` (`--green-500`) | ancien : `#00a63e` en dur                |
-| Avertissement             | `--state-warning`/`--color-warning` (`--amber-500`) | _(nouveau, pas d'équivalent avant)_      |
+Les alias historiques `--gray-*`, `--primary-*`, `--color-primary*` restent définis pour les pages non migrées : **ne plus les utiliser dans du code neuf**.
 
-Les tokens sémantiques `--state-*`/`--color-danger`/`--color-success` sont **désormais disponibles** (colonne « alias historique » = ce que le code existant utilise encore en attendant une migration progressive — ne pas réinventer une valeur en dur, préférer le token sémantique pour tout nouveau composant).
+### Typographie (`tokens/typography.css`)
 
-### Typographie
+| Utilitaire         | Police / taille / graisse             | Usage                                                                |
+| ------------------ | ------------------------------------- | -------------------------------------------------------------------- |
+| `text-display-xl`  | Manrope 68 / 600 / -0.03em            | Hero landing                                                         |
+| `text-display-lg`  | Manrope 40 / 600 / -0.02em            | Titre de section landing, H1 des pages marketing                     |
+| `text-display-md`  | Manrope 32 / 600 / -0.015em           | **H1 des pages applicatives** (`BasePageHeader`), titres auth        |
+| `text-heading-lg`  | Manrope 19 / 600                      | Titre de grande carte                                                |
+| `text-heading-md`  | Manrope 16 / 600                      | Titre de section/carte (`BaseSection`)                               |
+| `text-heading-sm`  | Manrope 15 / 600                      | Titre de bloc secondaire, en-tête de menu                            |
+| `text-body-lg`     | 19 / 400                              | Intro sous un titre display                                          |
+| `text-body-md`     | 15 / 400                              | Corps de texte, boutons md, champs                                   |
+| `text-body-sm`     | 14 / 400                              | Navigation, tableaux, descriptions, boutons sm                       |
+| `text-caption`     | 13 / 400                              | Métadonnées, labels de stats, badges                                 |
+| `text-eyebrow`     | Manrope 13 / 700 / 0.06em, majuscules | Sur-titre (`text-text-brand`) ou titre de groupe (`text-text-muted`) |
+| `text-tabular`     | `tnum`                                | Prix, quantités, compteurs, dates                                    |
+| `text-stat-figure` | Manrope 40 / 600                      | Chiffres clés de la landing                                          |
 
-- Police : **Inter** (400-700) + **IBM Plex Mono** (chiffres/prix/réf.), chargées via Google Fonts dans `resources/views/inertia_layout.edge` (`--font-sans`/`--font-mono`, `inertia/css/tokens/typography.css`). Substitut de Sohne (propriétaire).
-- `<html>`/`<body>` : `font-size: 16px`, `line-height: 1.5`, `font-feature-settings: 'ss01'`, couleur `--text-primary`.
-- Titres en `--text-primary`, `font-weight: 600`.
+Pas de `text-[NNpx]` arbitraire dans du code neuf : choisir le token le plus proche.
 
-**Échelle de tokens** (`inertia/css/tokens/typography.css`), exposée via les utilitaires `type-*` de `app.css` (`type-display-xl`, `type-heading-md`, `type-body-sm`, `type-eyebrow`, `type-tabular`, `type-caption`…) — à utiliser pour tout **nouveau** composant :
+### Espacements, rayons, ombres, motion (`tokens/spacing.css`)
 
-| Utilitaire        | Taille / poids / tracking                   | Usage                                   |
-| ----------------- | ------------------------------------------- | --------------------------------------- |
-| `type-display-xl` | 56px / 600 / `-0.02em`                      | Hero, titre de page d'accueil           |
-| `type-display-lg` | 40px / 600 / `-0.015em`                     | Titre de section majeure                |
-| `type-display-md` | 30px / 600 / `-0.01em`                      | Titre de formulaire (login/signup)      |
-| `type-heading-lg` | 22px / 600 / `-0.005em`                     | Sous-titre hero                         |
-| `type-heading-md` | 18px / 600                                  | Titre de carte                          |
-| `type-heading-sm` | 15px / 600                                  | Titre de bloc secondaire                |
-| `type-body-lg`    | 17px / 400                                  | Sous-titre de formulaire                |
-| `type-body-md`    | 15px / 400                                  | Corps de texte standard                 |
-| `type-body-sm`    | 13px / 400                                  | Texte secondaire, aide                  |
-| `type-tabular`    | 14px / 500, `font-feature-settings: 'tnum'` | Prix, quantités, SKU (chiffres alignés) |
-| `type-button`     | 15px / 500                                  | Libellé de bouton                       |
-| `type-caption`    | 13px / 400, couleur `--text-muted`          | Légende, texte d'aide                   |
-| `type-eyebrow`    | 12px / 600 / `0.06em`, uppercase            | Sur-titre, badge de section             |
+- Grille 8 px via les utilitaires Tailwind (`gap-4`, `p-6`…).
+- Rayons : `rounded-xs` 4 · `rounded-sm` 6 · `rounded-md` 8 · `rounded-lg` 12 · `rounded-xl` 16 · `rounded-pill`.
+- Ombres : `shadow-elevation-1` (cartes au repos) · `-2` (menus, cartes survolées) · `-3` (panneau mobile, mockup).
+- Transitions : 150-200 ms, `ease-out` ; aucune animation décorative dans l'app (`anim-*`, `data-reveal`, canvas restent à la landing).
 
-> **État de migration** : les pages/composants existants (`inertia/pages/**`, `inertia/components/**`) utilisent encore des tailles arbitraires Tailwind (`text-[52px]`, `text-[32px]`…) plutôt que les utilitaires `type-*` — c'est le pattern d'origine, pas encore migré vers les tokens ci-dessus. **Pour du code neuf, préférer `type-*`** ; ne pas réinventer une valeur arbitraire proche d'un token existant. Correspondance observée dans le code actuel :
+## Recettes
 
-| Usage                              | Classe actuelle (à migrer vers `type-*` à l'occasion)                                    |
-| ---------------------------------- | ---------------------------------------------------------------------------------------- |
-| Titre hero (page d'accueil)        | `text-[52px] leading-[1.05] font-semibold tracking-[-1px]` → proche de `type-display-xl` |
-| Titre de formulaire (login/signup) | `text-[32px] tracking-[-0.5px]` → proche de `type-display-md`                            |
-| Sous-titre hero                    | `text-[22px] text-[var(--gray-7)]` → proche de `type-heading-lg`                         |
-| Sous-titre formulaire              | `text-lg text-[var(--gray-6)]`                                                           |
-| Titre de carte                     | `text-xl font-semibold tracking-[-0.4px]` → proche de `type-heading-md`                  |
-| Label de champ                     | `text-sm font-medium`                                                                    |
-| Message d'erreur de champ          | `text-sm font-medium text-[#fb2c36]` → migrer vers `text-[var(--color-danger)]`          |
+| Élément                                    | Classes                                                                                                                                                      |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Conteneur de page                          | layout `default.vue` : `mx-auto w-full max-w-[1180px] px-4 py-6 md:px-8 md:py-8` ; la page enchaîne ses blocs avec `flex flex-col gap-8`                     |
+| Carte                                      | `rounded-xl border border-hairline bg-card shadow-elevation-1` (+ `hover:shadow-elevation-2` si cliquable) → `BaseCard`                                      |
+| Ligne de liste                             | `flex items-center gap-3.5 rounded-xl border border-hairline bg-card p-3` + vignette `rounded-md bg-sunken`                                                  |
+| Pastille d'icône                           | `flex size-10 items-center justify-center rounded-[10px] bg-brand-subtle text-indigo-600`                                                                    |
+| Chip de marque                             | `rounded-pill bg-brand-subtle px-2.5 py-0.5 text-caption font-semibold text-indigo-600` → `BaseBadge tone="brand"`                                           |
+| Champ                                      | `field-control h-11` (bordure input, focus indigo-300 + halo `brand-subtle`, erreur via `data-invalid`)                                                      |
+| Titre de groupe (sidebar, filtres, aside)  | `text-eyebrow text-text-muted`                                                                                                                               |
+| Lien d'action                              | `text-body-sm font-semibold text-indigo-600 hover:underline`                                                                                                 |
+| Prix                                       | `text-tabular font-semibold text-indigo-600`                                                                                                                 |
+| Bannière CTA                               | `rounded-xl p-8 text-white` + `style="background: var(--gradient-brand)"` + disque `absolute -top-24 -right-24 size-64 rounded-full bg-white opacity-[0.12]` |
+| Barre d’actions collante (long formulaire) | `sticky bottom-4 z-20 flex items-center justify-end gap-3 rounded-xl border border-hairline bg-white/90 px-4 py-3 shadow-elevation-2 backdrop-blur-md`       |
 
-Les gros titres portent systématiquement un `letter-spacing` légèrement négatif.
+## Composants (`inertia/components/base/`)
 
-### Espacements, rayons, ombres
+Obligatoires dès qu'ils s'appliquent — ne pas recopier leur markup.
 
-`inertia/css/tokens/spacing.css` — grille de base **8px**, exposée en variables CSS (pas encore en utilitaires Tailwind dédiés ; utiliser `var(--space-*)` en style inline/arbitrary value `mb-[var(--space-lg)]`, ou continuer les valeurs Tailwind arbitraires existantes tant qu'un composant n'est pas migré) :
+| Composant                                         | Props principales                                                                                   | Slots                                          | Rôle                                                                                           |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `BaseButton`                                      | `variant` primary·secondary·ghost·danger·link, `size` sm·md, `block`, `loading`, `disabled`, `type` | défaut, `icon`                                 | Bouton pill                                                                                    |
+| `BaseLinkButton`                                  | `href`, `variant` (+ `on-dark`), `size` sm·md·lg, `block`                                           | défaut                                         | Lien stylé en bouton (Inertia si chemin interne)                                               |
+| `BaseIconButton`                                  | `label` (aria), `active`                                                                            | défaut (icône)                                 | Bouton carré d'icône (topbar, actions de ligne)                                                |
+| `BaseCard`                                        | `as`, `variant` default·sunken·brand·dark, `padding` none·sm·md·lg, `hover`                         | défaut                                         | Carte                                                                                          |
+| `BaseSection`                                     | `title`, `description`, `flush`, `as` section·div·fieldset                                          | défaut, `actions`, `footer`                    | Carte à en-tête : pages détail, groupes de champs                                              |
+| `BasePageHeader`                                  | `title`, `description`, `eyebrow`, `backHref`/`backLabel`                                           | `meta`, `actions`                              | En-tête de page (H1 `text-display-md`)                                                         |
+| `BaseTable`                                       | `caption`                                                                                           | `head`, défaut, `foot`                         | Tableau `table-base` dans un conteneur arrondi ; cellules numériques `text-tabular text-right` |
+| `BaseEmptyState`                                  | `title`, `description`, `icon`, `compact`                                                           | `actions`                                      | État vide                                                                                      |
+| `BaseTabs`                                        | `items[{href,label,active,count?}]`, `label`                                                        | `actions`                                      | Onglets de navigation soulignés                                                                |
+| `BaseDropdown`                                    | `align`, `width` ; émet `open`/`close`                                                              | `trigger{open,toggle}`, défaut `{close}`       | Menu refermé au clic extérieur / Échap / navigation (`useDismissable`)                         |
+| `BaseBadge`                                       | `tone` neutral·info·brand·success·warning·danger, `dot`                                             | défaut                                         | Pastille de statut (tonalités dans `inertia/types/ui.ts`)                                      |
+| `BaseAlert`                                       | `tone`, `title`                                                                                     | défaut                                         | Encart d'information                                                                           |
+| `BaseAvatar`                                      | `initials`, `size` sm·md·lg                                                                         | —                                              | Avatar initiales                                                                               |
+| `BaseStat`                                        | `label`, `value`, `hint`, `icon`, `href`                                                            | —                                              | Compteur de tableau de bord                                                                    |
+| `BaseField`                                       | `label`, `htmlFor`, `error`, `hint`, `required`                                                     | défaut `{errorId,hintId}`                      | Enveloppe label / aide / erreur (`role="alert"`, `aria-describedby`)                           |
+| `BaseInput` / `BaseSelect` / `BaseTextarea`       | `id`, `v-model`, `label`, `error`, `hint`, `required`, `disabled`…                                  | `prefix`/`suffix` (input), `<option>` (select) | Champs `field-control`                                                                         |
+| `BaseCheckbox`, `BaseRadioGroup`, `BaseFileInput` | idem                                                                                                | —                                              | Cases, cartes radio, zone de dépôt                                                             |
+| `BasePagination`                                  | `meta`, `previousLabel`, `nextLabel` ; émet `change`                                                | —                                              | Pager                                                                                          |
 
-| Token         | Valeur | Token radius    | Valeur | Token ombre           | Usage                                     |
-| ------------- | ------ | --------------- | ------ | --------------------- | ----------------------------------------- |
-| `--space-2xs` | 2px    | `--radius-xs`   | 4px    | `--shadow-1`          | Cartes au repos, inputs focus             |
-| `--space-xs`  | 4px    | `--radius-sm`   | 6px    | `--shadow-2`          | Dropdowns, popovers                       |
-| `--space-sm`  | 8px    | `--radius-md`   | 8px    | `--shadow-3`          | Modales                                   |
-| `--space-md`  | 12px   | `--radius-lg`   | 12px   | `--shadow-focus-ring` | Anneau de focus (alternative à `outline`) |
-| `--space-lg`  | 16px   | `--radius-xl`   | 16px   |                       |                                           |
-| `--space-xl`  | 24px   | `--radius-pill` | 9999px |                       | Avatars, pastilles uniquement             |
-| `--space-2xl` | 32px   |                 |        |                       |                                           |
-| `--space-3xl` | 48px   |                 |        |                       |                                           |
-| `--space-4xl` | 64px   |                 |        |                       |                                           |
-| `--space-5xl` | 96px   |                 |        |                       |                                           |
+Correspondances statut → tonalité : `inertia/components/{rfqs,quotes,orders}/types.ts` (type `BadgeTone` de `inertia/types/ui.ts`).
 
-Motion : `--duration-fast/base/slow` (120/180/280ms) + `--ease-standard`/`--ease-out` pour toute transition/animation.
+## Shell applicatif
 
-**État de migration** (même remarque que la typographie) : le code existant utilise encore les valeurs arbitraires Tailwind par défaut (`px-12.5 py-25`, `gap-6`, `mb-3.75`…) plutôt que `var(--space-*)`. Ne pas créer de nouvelle valeur arbitraire si un token `--space-*`/`--radius-*` correspond déjà.
+- `inertia/layouts/default.vue` : grille `md:grid-cols-[264px_1fr]` sur `bg-sunken`. Sidebar (`components/app/app_sidebar.vue` : logo, `app_nav.vue` groupé avec icônes, sélecteur d'organisation), topbar (`components/app/app_topbar.vue` : burger mobile, langue, cloche, menu utilisateur). Sur mobile la sidebar coulisse (`-translate-x-full`) sous un voile.
+- `inertia/layouts/auth.vue` : carte centrée `max-w-[460px]` sur fond sunken + `GradientMesh` statique — connexion, inscription, onboarding, création d'organisation, invitations (`defineOptions({ layout: AuthLayout })`).
+- `inertia/layouts/marketing.vue` : landing (inchangé).
 
-- Formulaires : `gap-6` entre champs, `mb-1` entre label et input.
-- Sections de page : `px-12.5 py-25` (hero), `px-10 py-7.5` (cartes de la grille d'accueil).
-- Conteneurs de formulaire centrés : `max-w-[400px] mx-auto`.
-- Bordure standard : `border border-[var(--gray-4)]` (inputs/selects) ou `border-[var(--gray-3)]` (séparateurs de layout) — équivalents `--border-input`/`--border-hairline`.
+## Anatomie d'une page applicative
 
-## Composants
+```vue
+<Head :title="t('rfq.index.title')" />
+<div class="flex flex-col gap-8">
+  <BasePageHeader :title="…" :description="…">
+    <template #actions><BaseLinkButton :href="…">Nouvelle demande</BaseLinkButton></template>
+  </BasePageHeader>
 
-Patterns actuels du code (`inertia/pages/**`) — utilisent encore les alias historiques (`--gray-*`, `--color-primary*`), qui résolvent désormais vers la rampe indigo/ink. Base à respecter pour tout nouveau composant, en migrant vers les tokens sémantiques quand c'est naturel (ex. `text-[var(--color-danger)]` plutôt que `#fb2c36`).
-
-### Bouton primaire
-
-```html
-<button
-  type="submit"
-  class="w-full cursor-pointer rounded bg-[var(--color-primary)] p-2.5 font-medium text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
->
-  Label
-</button>
-```
-
-- `disabled` géré via l'état `processing` de `useForm`/`<Form>` — ne pas dupliquer la logique de désactivation.
-- Variante non pleine largeur : retirer `w-full`.
-
-### Champ de formulaire (input + label + erreur)
-
-```html
-<div>
-  <label for="email" class="mb-1 block text-sm font-medium">{{ t('auth.fields.email') }}</label>
-  <input
-    id="email"
-    type="email"
-    name="email"
-    :data-invalid="errors.email ? 'true' : undefined"
-    class="h-10 w-full rounded border border-[var(--gray-4)] px-4 data-[invalid=true]:border-[var(--color-danger)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
-  />
-  <div v-if="errors.email" class="mt-0.5 text-sm font-medium text-[var(--color-danger)]">
-    {{ errors.email }}
-  </div>
+  <BaseEmptyState v-if="items.length === 0" :title="…" :description="…" />
+  <BaseTable v-else>…</BaseTable>   <!-- ou une grille de BaseCard / BaseSection -->
 </div>
 ```
 
-- Toujours `h-10`, `px-4`, `rounded`, bordure `--gray-4`.
-- L'état d'erreur passe par `data-invalid` (pas de classe conditionnelle en JS) + variant Tailwind `data-[invalid=true]:`.
-- Un formulaire multi-champs = `<Form>` (`@adonisjs/inertia/vue`) avec `class="flex flex-col gap-6"`, jamais de gestion manuelle de soumission/CSRF (cf. règle globale `CLAUDE.md`).
+- Page détail : `BasePageHeader` (avec `backHref`, `meta` = badges) puis des `BaseSection` ; infos clés en `grid gap-x-6 gap-y-3 sm:grid-cols-2` de `<dt class="text-caption font-semibold text-text-muted">` / `<dd class="text-body-sm">`.
+- Formulaire : `<form class="flex flex-col gap-6">`, un `BaseSection as="fieldset"` par groupe, champs en `grid gap-5 sm:grid-cols-2`, barre d'actions à droite (`flex justify-end gap-3`) ou collante pour les formulaires longs.
+- Liste de cartes : `grid gap-4 sm:grid-cols-2 lg:grid-cols-3`.
 
-### Select
+## À ne pas faire
 
-```html
-<select
-  class="cursor-pointer rounded border border-[var(--gray-4)] bg-white px-2 py-1 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
->
-  ...
-</select>
-```
+- `text-[32px]`, `tracking-[-0.5px]`, `rounded` nu, `border-[var(--gray-3)]`, `text-[var(--gray-6)]`, `#fb2c36` : utiliser les tokens et composants ci-dessus.
+- Un `<h1>` ou un `<table>` à la main : `BasePageHeader`, `BaseTable`.
+- `<details>` pour un menu : `BaseDropdown`.
+- Transposer dans l'app les animations de la landing (`anim-*`, `data-reveal`, `FxCanvas`), les ombres colorées des CTA, les fonds d'icônes saturés ou plusieurs couleurs dans un titre.
 
-### Carte de navigation (grille de liens)
+## Étendre
 
-```html
-<a class="border-r border-l border-[var(--gray-3)] px-10 py-7.5 hover:bg-[var(--gray-1)]">
-  <h3 class="mb-2.5 text-xl font-semibold tracking-[-0.4px]">Titre &nbsp;›</h3>
-  <p class="text-[var(--gray-6)]">Description</p>
-</a>
-```
-
-- Fond blanc par défaut, `hover:bg-[var(--gray-1)]` (jamais d'indigo en fond de carte).
-- Bordures fines entre cartes plutôt que gap + ombre ; réserver `shadow-1`/`shadow-2` aux cartes réellement surélevées (ex. survol d'une carte produit détachée du flux).
-
-### Focus visible (règle transverse)
-
-Tout élément interactif (bouton, lien fort, input, select) porte :
-
-```
-focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]
-```
-
-### Label accessible masqué
-
-```html
-<label class="sr-only" for="locale-switcher">…</label>
-```
-
-## Layout & responsive
-
-- Pas de breakpoints custom déclarés — utiliser les breakpoints Tailwind v4 par défaut (`sm`, `md`, `lg`, `xl`, `2xl`) au besoin ; aucune page actuelle n'en définit encore, donc pas de convention à copier tel quel — décider au cas par cas en restant cohérent avec l'échelle d'espacement ci-dessus.
-- Conteneurs de formulaire : centrés, largeur max `400px`.
-- Conteneurs de contenu éditorial (hero, etc.) : largeur max `880px` (proche de `--container-max: 1280px` pour les layouts pleine largeur).
-
-## Ce qui n'existe pas encore (ne pas inventer par avance)
-
-- Pas de composants Vue réutilisables de type `Button.vue`/`Input.vue`/`Card.vue`/`Badge.vue`/`Modal.vue` — chaque page réimplémente les classes ci-dessus. Si un composant partagé devient nécessaire (répétition ≥ 3 usages), l'extraire dans `inertia/components/` en respectant strictement ces tokens plutôt que d'introduire de nouvelles valeurs.
-- Pas de mode sombre (aucune media query `prefers-color-scheme` dans `inertia/css/tokens/`).
-- Pas encore de migration des composants existants vers les utilitaires `type-*`/`var(--space-*)` — ils utilisent les alias historiques et des valeurs arbitraires Tailwind ; c'est acceptable en l'état, mais tout nouveau composant doit préférer les tokens sémantiques du design system.
-
-## Où intervenir pour étendre ce document
-
-- Nouveau composant réutilisable → l'ajouter ici avec son extrait de code une fois qu'il existe réellement dans `inertia/components/`.
-- Nouveau token (couleur, espacement, typo) → d'abord dans `inertia/css/tokens/{colors,typography,spacing}.css`, exposé via `@theme`/`@utility` dans `app.css` si besoin d'un utilitaire Tailwind, puis répercuté dans [`charte-graphique.md`](charte-graphique.md) et ce fichier.
+- Nouveau token → `inertia/css/tokens/*.css`, exposé dans `@theme` (`app.css`) si un utilitaire est nécessaire, puis ce document.
+- Nouveau composant générique → `inertia/components/base/base_*.vue` + test dans `tests/inertia/` + ligne dans le tableau ci-dessus.
+- Nouvelle page → anatomie ci-dessus ; une page existante se migre en remplaçant son en-tête, ses cartes et tableaux par les composants base.

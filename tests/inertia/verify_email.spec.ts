@@ -9,6 +9,7 @@ const translations = {
 }
 
 vi.mock('@inertiajs/vue3', () => ({
+  Head: { template: '<div />' },
   usePage: () => ({ props: { locale: 'fr', supportedLocales: ['fr', 'en'], translations } }),
 }))
 vi.mock('@adonisjs/inertia/vue', () => ({

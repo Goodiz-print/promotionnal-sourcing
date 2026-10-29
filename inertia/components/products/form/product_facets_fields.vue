@@ -20,11 +20,13 @@ function toggle(valueId: number, checked: boolean) {
 
 <template>
   <div class="flex flex-col gap-4">
-    <p v-if="attributes.length === 0" class="text-sm text-[var(--gray-6)]">
+    <p v-if="attributes.length === 0" class="text-body-sm text-text-secondary">
       {{ t('products.manage.noFacets') }}
     </p>
     <fieldset v-for="attribute in attributes" :key="attribute.id" class="flex flex-col gap-2">
-      <legend class="mb-1 text-sm font-medium">{{ attribute.name ?? attribute.slug }}</legend>
+      <legend class="text-body-sm font-semibold text-text-primary">
+        {{ attribute.name ?? attribute.slug }}
+      </legend>
       <BaseCheckbox
         v-for="value in attribute.values"
         :id="`facet-${value.id}`"

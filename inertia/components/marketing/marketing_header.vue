@@ -89,7 +89,7 @@ const appHref = computed(() => urlFor('dashboard.show', { locale: locale.value }
           {{ isLoggedIn ? t('landing.nav.openApp') : t('landing.nav.login') }}
         </Link>
         <div class="hidden md:block">
-          <BaseLinkButton :href="path('contact')" class="!px-5 !py-2.5 text-body-sm">
+          <BaseLinkButton :href="path('contact')" size="sm">
             {{ t('landing.nav.cta') }}
           </BaseLinkButton>
         </div>
@@ -134,7 +134,7 @@ const appHref = computed(() => urlFor('dashboard.show', { locale: locale.value }
       >
         {{ item.label }}
       </a>
-      <BaseLinkButton :href="path('contact')" class="mt-3 w-full text-center">
+      <BaseLinkButton :href="path('contact')" size="lg" block class="mt-3">
         {{ t('landing.nav.cta') }}
       </BaseLinkButton>
       <div class="mt-1 flex flex-wrap justify-center gap-2">

@@ -22,6 +22,11 @@
     "unread": "Unread requests",
     "products": "Active products",
     "completeness": "Profile completed",
-    "completeProfile": "Complete my profile"
+    "completeProfile": "Complete my profile",
+    "todo": {
+      "title": "To do",
+      "empty": "Nothing to do for now.",
+      "unread": "{count, plural, one {# received request to open} other {# received requests to open}}"
+    }
   }
 }

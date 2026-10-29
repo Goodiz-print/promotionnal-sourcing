@@ -3,7 +3,8 @@
     "dashboard": "Dashboard",
     "organizations": "Organizations",
     "users": "Users",
-    "categories": "Categories"
+    "categories": "Categories",
+    "label": "Admin sections"
   },
   "pagination": {
     "previous": "Previous",

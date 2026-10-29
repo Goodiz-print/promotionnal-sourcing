@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3'
+import { Head, useForm } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
+import AuthLayout from '~/layouts/auth.vue'
 import { urlFor } from '~/client'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseButton from '~/components/base/base_button.vue'
 
 const props = defineProps<{ redirect?: string | null; email?: string | null }>()
+
+defineOptions({ layout: AuthLayout })
 
 const { t, locale } = useI18n()
 
@@ -25,10 +28,12 @@ function submit() {
 </script>
 
 <template>
-  <div class="mx-auto flex max-w-[400px] flex-col justify-center">
-    <div>
-      <h1 class="mb-1.25 text-[32px] tracking-[-0.5px]">{{ t('auth.signup.title') }}</h1>
-      <p class="mb-12 text-lg text-[var(--gray-6)]">
+  <Head :title="t('auth.signup.title')" />
+
+  <div class="flex flex-col gap-8">
+    <div class="flex flex-col gap-2">
+      <h1 class="text-display-md">{{ t('auth.signup.title') }}</h1>
+      <p class="text-body-md text-text-secondary">
         {{ t('auth.signup.subtitle') }}
       </p>
     </div>
@@ -74,13 +79,17 @@ function submit() {
         :label="t('auth.fields.passwordConfirmation')"
         :error="form.errors.passwordConfirmation"
       />
-      <BaseButton type="submit" :disabled="form.processing">
+      <BaseButton type="submit" block :loading="form.processing">
         {{ t('auth.signup.submit') }}
       </BaseButton>
     </form>
 
-    <p class="mt-6 text-sm text-[var(--gray-6)]">
-      <Link route="agency_signup.create" :params="{ locale }" class="underline">
+    <p class="text-body-sm text-text-secondary">
+      <Link
+        route="agency_signup.create"
+        :params="{ locale }"
+        class="font-semibold text-indigo-600 hover:underline"
+      >
         {{ t('auth.signup.agencyLink') }}
       </Link>
     </p>

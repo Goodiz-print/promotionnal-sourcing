@@ -31,10 +31,10 @@ async function login() {
 
 <template>
   <div v-if="supported" class="flex flex-col gap-2">
-    <BaseButton variant="secondary" :disabled="form.processing" @click="login">
+    <BaseButton variant="secondary" block :loading="form.processing" @click="login">
       {{ t('auth.passkey.login') }}
     </BaseButton>
-    <p v-if="form.errors.credential || clientError" class="text-sm text-[var(--state-danger)]">
+    <p v-if="form.errors.credential || clientError" class="text-caption font-medium text-danger">
       {{ form.errors.credential ?? t('auth.passkey.failed') }}
     </p>
   </div>

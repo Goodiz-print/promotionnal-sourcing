@@ -19,6 +19,7 @@ const post = vi.fn()
 vi.mock('@inertiajs/vue3', async () => {
   const m = await import('./support/inertia_mocks')
   return {
+    Head: { template: '<div />' },
     usePage: () => m.inertiaPage(translations),
     useForm: m.makeUseForm({ post }),
   }

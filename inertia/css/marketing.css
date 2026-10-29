@@ -1,165 +1,10 @@
 /* ============================================================
    Landing pages (layout marketing) — portées depuis le site Astro.
    Importé par `app.css` (le layout marketing en pose la classe `.marketing`).
-   Les tokens couleurs/rayons/ombres viennent de ./tokens ; seuls
-   les compléments propres à la landing sont déclarés ici.
+   Les tokens, l'échelle typographique, `wrapper`, `field-control` et les
+   ombres vivent dans app.css / tokens : seuls les compléments propres à la
+   landing (animations, nav, bento, prose légale) sont déclarés ici.
    ============================================================ */
-@import '@fontsource/instrument-sans/400.css';
-@import '@fontsource/instrument-sans/500.css';
-@import '@fontsource/instrument-sans/600.css';
-@import '@fontsource/manrope/400.css';
-@import '@fontsource/manrope/600.css';
-@import '@fontsource/manrope/700.css';
-@import '@fontsource/manrope/800.css';
-
-:root {
-  --orange-500: #f6a623;
-  --amber-600: #e08900;
-  --yellow-400: #ffcc00;
-  /* Surfaces : violet dominant, l'orange n'apparaît qu'en pointe adoucie */
-  --gradient-brand: linear-gradient(
-    110deg,
-    var(--indigo-500) 0%,
-    #6d3ccf 48%,
-    #a058bb 76%,
-    #d99a55 100%
-  );
-  /* Texte : extrémités assombries pour rester lisible sur fond clair */
-  --gradient-brand-text: linear-gradient(
-    100deg,
-    var(--indigo-600) 0%,
-    #7a3fd4 55%,
-    var(--amber-600) 100%
-  );
-  --font-heading-family: 'Manrope', sans-serif;
-  --font-landing-family: 'Instrument Sans', system-ui, sans-serif;
-  --surface-brand-subtle: var(--indigo-50);
-  --border-hairline: var(--ink-100);
-  --border-input: var(--ink-200);
-  --surface-card: var(--ink-0);
-}
-
-@theme {
-  --color-orange-500: var(--orange-500);
-  --color-amber-600: var(--amber-600);
-  --color-yellow-400: var(--yellow-400);
-  --color-card: var(--surface-card);
-  --color-brand-subtle: var(--surface-brand-subtle);
-  --color-text-brand: var(--indigo-500);
-  --color-hairline: var(--border-hairline);
-  --color-input: var(--border-input);
-  --font-heading: var(--font-heading-family);
-  --radius-pill: 9999px;
-}
-
-/* Nommé "wrapper" et non "container" : Tailwind v4 a un utility "container" natif
-   (width:100% + max-width par breakpoint, sans centrage ni padding) qui entre en
-   conflit avec toute redéfinition du même nom. */
-@utility wrapper {
-  @apply mx-auto max-w-[1180px] px-6 md:px-10;
-}
-
-/* Échelle typographique — weight 600 display/heading, tracking négatif, densité éditoriale */
-@utility text-display-xl {
-  font-size: 68px;
-  font-weight: 600;
-  line-height: 1.02;
-  letter-spacing: -0.03em;
-}
-@utility text-display-lg {
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-}
-@utility text-display-md {
-  font-size: 34px;
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.015em;
-}
-@utility text-heading-lg {
-  font-size: 19px;
-  font-weight: 600;
-  line-height: 1.3;
-}
-@utility text-heading-md {
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.3;
-}
-@utility text-body-lg {
-  font-size: 19px;
-  font-weight: 400;
-  line-height: 1.5;
-}
-@utility text-body-md {
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 1.5;
-}
-@utility text-body-sm {
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.5;
-}
-@utility text-tabular {
-  font-feature-settings: 'tnum';
-}
-@utility text-caption {
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.4;
-}
-@utility text-eyebrow {
-  font-family: var(--font-heading);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-@utility text-gradient-brand {
-  background: var(--gradient-brand-text);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-}
-@utility text-stat-figure {
-  font-size: 40px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  font-feature-settings: 'tnum';
-}
-
-/* Champ de formulaire — l'anneau de focus reprend celui de la barre de recherche
-   décorative de FeaturesGrid, pour que le vrai champ et la démo se ressemblent. */
-@utility field-control {
-  width: 100%;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-input);
-  background: var(--surface-canvas);
-  padding: 0.75rem 1rem;
-  font-family: var(--font-sans);
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--text-primary);
-  transition:
-    border-color 150ms,
-    box-shadow 150ms;
-
-  &:focus {
-    outline: none;
-    border-color: var(--indigo-300);
-    box-shadow: 0 0 0 3px var(--surface-brand-subtle);
-  }
-  /* Ne colorer en rouge qu'après une tentative d'envoi, pas pendant la saisie. */
-  &:user-invalid {
-    border-color: #c0392b;
-  }
-  &::placeholder {
-    color: var(--text-muted);
-  }
-}
 
 /* Colonne de lecture des pages légales — évite de répéter les classes sur chaque
    balise d'un texte juridique long. */
@@ -236,56 +81,15 @@
   }
 }
 
-@utility shadow-elevation-1 {
-  box-shadow: var(--shadow-1);
-}
-@utility shadow-elevation-2 {
-  box-shadow: var(--shadow-2);
-}
-@utility shadow-elevation-3 {
-  box-shadow: var(--shadow-3);
-}
-
-/* Rayons du design system (--radius-* de tokens/spacing.css) : Tailwind a ses propres valeurs
-   pour rounded-sm/md/lg/xl ; on les rétablit ici seulement, sans toucher au reste de l'app. */
-.marketing .rounded-sm {
-  border-radius: var(--radius-sm);
-}
-.marketing .rounded-md {
-  border-radius: var(--radius-md);
-}
-.marketing .rounded-lg {
-  border-radius: var(--radius-lg);
-}
-.marketing .rounded-xl {
-  border-radius: var(--radius-xl);
-}
-
-/* Base scopée au layout marketing : l'app garde Inter et ses propres styles. Le texte
-   principal de la landing est ink-800 (ink-950 dans l'app) ; les utilitaires lisent
-   --color-text-primary, résolu sur :root, d'où la double déclaration. */
+/* Base scopée au layout marketing. Le texte principal de la landing est ink-800
+   (ink-950 dans l'app) ; les utilitaires lisent --color-text-primary, résolu sur
+   :root, d'où la double déclaration. */
 .marketing {
   --text-primary: var(--ink-800);
   --color-text-primary: var(--ink-800);
-  font-family: var(--font-landing-family);
-  font-feature-settings: 'ss01';
   background: var(--surface-canvas);
   color: var(--text-primary);
   min-height: 100vh;
-}
-
-/* Dans @layer base (comme sur le site Astro) pour que les utilitaires puissent les surcharger. */
-@layer base {
-  .marketing h1,
-  .marketing h2,
-  .marketing h3,
-  .marketing h4,
-  .marketing h5,
-  .marketing h6 {
-    color: var(--text-primary);
-    font-family: var(--font-heading);
-    font-weight: 600;
-  }
 }
 
 html:has(.marketing),

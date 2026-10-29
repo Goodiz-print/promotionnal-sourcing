@@ -2,13 +2,15 @@
 import { Head } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
-import AdminNav from '~/components/admin/admin_nav.vue'
+import { useAdminTabs } from '~/composables/use_admin_tabs'
+import BaseTabs from '~/components/base/base_tabs.vue'
 import BaseBadge from '~/components/base/base_badge.vue'
 import type { AdminOrganizationDetail } from '#shared/types/admin'
 
 defineProps<{ organization: AdminOrganizationDetail }>()
 
 const { t, locale } = useI18n()
+const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 
 const FIELDS = ['email', 'phone', 'website', 'siret', 'vatNumber', 'country'] as const
 </script>
@@ -17,7 +19,7 @@ const FIELDS = ['email', 'phone', 'website', 'siret', 'vatNumber', 'country'] as
   <Head :title="organization.name" />
 
   <div class="mx-auto flex w-full max-w-[960px] flex-col gap-6 px-6 py-12">
-    <AdminNav current="organizations" />
+    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
     <Link
       route="admin.organizations.index"

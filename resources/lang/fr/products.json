@@ -196,6 +196,12 @@
       "setupCharge": "Frais techniques",
       "priceTiers": "Grille de prix de marquage",
       "priceTiersHint": "Prix de marquage unitaire selon la technique et la quantité commandée."
-    }
+    },
+    "sections": {
+      "content": "Nom et description",
+      "details": "Classification",
+      "contentHint": "Nom et description dans la langue source ; les autres langues peuvent être générées automatiquement."
+    },
+    "backToList": "Retour à mes produits"
   }
 }

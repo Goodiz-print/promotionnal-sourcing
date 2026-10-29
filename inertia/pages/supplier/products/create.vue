@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
+import { urlFor } from '~/client'
+import BasePageHeader from '~/components/base/base_page_header.vue'
 import ProductForm from '~/components/products/form/product_form.vue'
 import type { CategoryType } from '#shared/types/category'
 import type { AttributeWithValuesType } from '#shared/types/attribute'
@@ -14,14 +16,18 @@ defineProps<{
   markingTechniques: MarkingTechniqueType[]
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 </script>
 
 <template>
   <Head :title="t('products.manage.create.title')" />
 
-  <div class="mx-auto max-w-[960px] px-6 py-12">
-    <h1 class="mb-8 text-[28px] tracking-[-0.5px]">{{ t('products.manage.create.title') }}</h1>
+  <div class="mx-auto flex w-full max-w-[860px] flex-col gap-8">
+    <BasePageHeader
+      :title="t('products.manage.create.title')"
+      :back-href="urlFor('supplier.products.index', { locale })"
+      :back-label="t('products.manage.backToList')"
+    />
     <ProductForm
       mode="create"
       :categories="categories"

@@ -1,6 +1,7 @@
 <script setup lang="ts" generic="T extends string">
 import BaseField from '~/components/base/base_field.vue'
 
+/** Groupe de cartes radio (une option par carte, sélection indigo claire). */
 withDefaults(
   defineProps<{
     id: string
@@ -8,8 +9,10 @@ withDefaults(
     options: { value: T; label: string; description?: string }[]
     label?: string
     error?: string
+    hint?: string
+    required?: boolean
   }>(),
-  { label: '', error: '', modelValue: null }
+  { label: '', error: '', hint: '', required: false, modelValue: null }
 )
 
 const emit = defineEmits<{
@@ -18,13 +21,13 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <BaseField :label="label" :error="error">
-    <div class="flex flex-col gap-3">
+  <BaseField :label="label" :error="error" :hint="hint" :required="required">
+    <div class="flex flex-col gap-3" role="radiogroup">
       <label
         v-for="option in options"
         :key="option.value"
         :data-selected="modelValue === option.value ? 'true' : undefined"
-        class="flex cursor-pointer items-start gap-3 rounded border border-[var(--gray-4)] p-4 data-[selected=true]:border-[var(--color-primary)] data-[selected=true]:bg-[var(--gray-2)] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--primary-6)]"
+        class="flex cursor-pointer items-start gap-3 rounded-lg border border-input bg-canvas p-4 transition-colors duration-150 hover:border-strong focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-500 data-[selected=true]:border-indigo-300 data-[selected=true]:bg-brand-subtle"
       >
         <input
           :id="`${id}-${option.value}`"
@@ -32,12 +35,12 @@ const emit = defineEmits<{
           :name="id"
           :value="option.value"
           :checked="modelValue === option.value"
-          class="mt-1 cursor-pointer accent-[var(--color-primary)]"
+          class="mt-1 cursor-pointer accent-indigo-500"
           @change="emit('update:modelValue', option.value)"
         />
-        <span class="flex flex-col">
-          <span class="font-medium">{{ option.label }}</span>
-          <span v-if="option.description" class="text-sm text-[var(--gray-6)]">
+        <span class="flex flex-col gap-0.5">
+          <span class="text-body-sm font-semibold text-text-primary">{{ option.label }}</span>
+          <span v-if="option.description" class="text-caption text-text-secondary">
             {{ option.description }}
           </span>
         </span>

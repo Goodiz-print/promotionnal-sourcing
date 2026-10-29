@@ -34,7 +34,9 @@ function onTechnique(index: number, raw: string | null) {
 
 <template>
   <div class="flex flex-col gap-4">
-    <p class="text-sm text-[var(--gray-6)]">{{ t('products.manage.marking.priceTiersHint') }}</p>
+    <p class="text-body-sm text-text-secondary">
+      {{ t('products.manage.marking.priceTiersHint') }}
+    </p>
     <div
       v-for="(tier, index) in form.markingPriceTiers"
       :key="index"

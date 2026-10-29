@@ -1,68 +1,96 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
+import { FileText, Plus } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { urlFor } from '~/client'
 import BaseBadge from '~/components/base/base_badge.vue'
+import BaseEmptyState from '~/components/base/base_empty_state.vue'
+import BaseLinkButton from '~/components/base/base_link_button.vue'
+import BasePageHeader from '~/components/base/base_page_header.vue'
+import BaseTable from '~/components/base/base_table.vue'
 import { RFQ_STATUS_TONES } from '~/components/rfqs/types'
 import type { RfqType } from '#shared/types/rfq'
 
 defineProps<{ rfqs: RfqType[]; canManageRfq: boolean }>()
 
 const { t, locale } = useI18n()
+
+const createUrl = computed(() => urlFor('rfqs.create', { locale: locale.value }))
+
+function formatDate(value: string): string {
+  return new Date(value).toLocaleDateString(locale.value)
+}
 </script>
 
 <template>
   <Head :title="t('rfq.index.title')" />
 
-  <div class="mx-auto flex max-w-[960px] flex-col gap-6 px-6 py-12">
-    <div class="flex items-start justify-between gap-4">
-      <div>
-        <h1 class="mb-1.25 text-[32px] tracking-[-0.5px]">{{ t('rfq.index.title') }}</h1>
-        <p class="text-lg text-[var(--gray-6)]">{{ t('rfq.index.subtitle') }}</p>
-      </div>
-      <Link
-        route="rfqs.create"
-        :params="{ locale }"
-        class="shrink-0 rounded bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]"
-      >
-        {{ t('rfq.index.new') }}
-      </Link>
-    </div>
+  <div class="flex flex-col gap-8">
+    <BasePageHeader :title="t('rfq.index.title')" :description="t('rfq.index.subtitle')">
+      <!-- Une seule action primaire par écran : l'état vide porte la sienne. -->
+      <template v-if="rfqs.length > 0" #actions>
+        <BaseLinkButton :href="createUrl">
+          <Plus :size="18" aria-hidden="true" />
+          {{ t('rfq.index.new') }}
+        </BaseLinkButton>
+      </template>
+    </BasePageHeader>
 
-    <p v-if="rfqs.length === 0" class="text-[var(--gray-6)]">{{ t('rfq.index.empty') }}</p>
+    <BaseEmptyState
+      v-if="rfqs.length === 0"
+      :title="t('rfq.index.empty')"
+      :description="t('rfq.index.emptyDescription')"
+      :icon="FileText"
+    >
+      <template #actions>
+        <BaseLinkButton :href="createUrl">
+          <Plus :size="18" aria-hidden="true" />
+          {{ t('rfq.index.new') }}
+        </BaseLinkButton>
+      </template>
+    </BaseEmptyState>
 
-    <ul v-else class="flex flex-col gap-2">
-      <li
-        v-for="rfq in rfqs"
-        :key="rfq.id"
-        class="flex items-center gap-4 rounded border border-[var(--gray-3)] p-4"
-      >
-        <div class="flex-1">
+    <BaseTable v-else :caption="t('rfq.index.title')">
+      <template #head>
+        <tr>
+          <th scope="col">{{ t('rfq.index.columns.title') }}</th>
+          <th scope="col" class="text-right">{{ t('rfq.index.columns.items') }}</th>
+          <th scope="col" class="text-right">{{ t('rfq.index.columns.suppliers') }}</th>
+          <th scope="col" class="text-right">{{ t('rfq.index.columns.responses') }}</th>
+          <th scope="col">{{ t('rfq.index.columns.status') }}</th>
+          <th scope="col">{{ t('rfq.index.columns.deadline') }}</th>
+        </tr>
+      </template>
+
+      <tr v-for="rfq in rfqs" :key="rfq.id">
+        <td>
           <Link
             route="rfqs.show"
             :params="{ locale, id: rfq.id }"
-            class="font-medium hover:underline"
+            class="font-semibold text-text-primary hover:text-indigo-600"
           >
             {{ rfq.title }}
           </Link>
-          <p class="mt-0.5 text-sm text-[var(--gray-6)]">
-            {{ t('rfq.index.itemCount', { count: rfq.itemCount }) }} ·
-            {{ t('rfq.index.supplierCount', { count: rfq.supplierCount }) }}
-            <template v-if="rfq.supplierCount > 0">
-              ·
-              {{
-                t('rfq.index.responded', {
-                  responded: rfq.respondedCount,
-                  total: rfq.supplierCount,
-                })
-              }}
-            </template>
-          </p>
-        </div>
-        <BaseBadge :tone="RFQ_STATUS_TONES[rfq.status]">
-          {{ t(`rfq.status.${rfq.status}`) }}
-        </BaseBadge>
-      </li>
-    </ul>
+        </td>
+        <td class="text-tabular text-right">{{ rfq.itemCount }}</td>
+        <td class="text-tabular text-right">{{ rfq.supplierCount }}</td>
+        <td class="text-tabular text-right">
+          {{
+            t('rfq.index.responses', { responded: rfq.respondedCount, total: rfq.supplierCount })
+          }}
+        </td>
+        <td>
+          <BaseBadge dot :tone="RFQ_STATUS_TONES[rfq.status]">
+            {{ t(`rfq.status.${rfq.status}`) }}
+          </BaseBadge>
+        </td>
+        <td class="text-tabular whitespace-nowrap">
+          <template v-if="rfq.deadline">{{ formatDate(rfq.deadline) }}</template>
+          <span v-else class="text-text-muted">{{ t('rfq.show.noDeadline') }}</span>
+        </td>
+      </tr>
+    </BaseTable>
   </div>
 </template>

@@ -3,13 +3,15 @@ import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import AdminNav from '~/components/admin/admin_nav.vue'
+import { useAdminTabs } from '~/composables/use_admin_tabs'
+import BaseTabs from '~/components/base/base_tabs.vue'
 import BaseButton from '~/components/base/base_button.vue'
 import type { CategoryAdminType } from '#shared/types/category'
 
 defineProps<{ categories: CategoryAdminType[] }>()
 
 const { t, locale } = useI18n()
+const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 
 function destroy(category: CategoryAdminType) {
   if (!window.confirm(t('categories.confirmDelete'))) return
@@ -23,7 +25,7 @@ function destroy(category: CategoryAdminType) {
   <Head :title="t('categories.index.title')" />
 
   <div class="mx-auto flex w-full max-w-[960px] flex-col gap-6 px-6 py-12">
-    <AdminNav current="categories" />
+    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
     <div class="flex items-center justify-between">
       <div>

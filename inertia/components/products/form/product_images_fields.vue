@@ -41,13 +41,13 @@ function previewUrl(file: File): string {
       class="grid grid-cols-3 gap-3 sm:grid-cols-4"
     >
       <div v-for="image in visibleExisting" :key="`e-${image.id}`" class="flex flex-col gap-1">
-        <img :src="image.url" alt="" class="aspect-square w-full rounded object-cover" />
+        <img :src="image.url" alt="" class="aspect-square w-full rounded-md object-cover" />
         <BaseButton variant="secondary" @click="removeExisting(image.id)">
           {{ t('products.manage.removeImage') }}
         </BaseButton>
       </div>
       <div v-for="(file, index) in form.images" :key="`n-${index}`" class="flex flex-col gap-1">
-        <img :src="previewUrl(file)" alt="" class="aspect-square w-full rounded object-cover" />
+        <img :src="previewUrl(file)" alt="" class="aspect-square w-full rounded-md object-cover" />
         <BaseButton variant="secondary" @click="removeNew(index)">
           {{ t('products.manage.removeImage') }}
         </BaseButton>

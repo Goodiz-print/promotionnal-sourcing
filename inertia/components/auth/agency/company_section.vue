@@ -67,7 +67,7 @@ function pickLocale(value: string) {
         :label="t('agency_signup.fields.taxId')"
         :error="form.errors.taxId"
       />
-      <p class="mt-1 text-sm text-[var(--gray-6)]">{{ t('agency_signup.taxIdHelp') }}</p>
+      <p class="text-caption text-text-muted">{{ t('agency_signup.taxIdHelp') }}</p>
     </div>
     <div>
       <BaseInput
@@ -79,7 +79,7 @@ function pickLocale(value: string) {
         :label="t('agency_signup.fields.website')"
         :error="form.errors.website"
       />
-      <p class="mt-1 text-sm text-[var(--gray-6)]">{{ t('agency_signup.websiteHelp') }}</p>
+      <p class="text-caption text-text-muted">{{ t('agency_signup.websiteHelp') }}</p>
     </div>
     <BaseInput
       id="phone"

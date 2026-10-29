@@ -27,7 +27,6 @@ function remove(index: number) {
 
 <template>
   <div class="flex flex-col gap-4">
-    <p class="text-sm text-[var(--gray-6)]">{{ t('products.manage.priceTiers.hint') }}</p>
     <div
       v-for="(tier, index) in form.priceTiers"
       :key="index"

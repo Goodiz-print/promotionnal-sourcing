@@ -1,23 +1,48 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Link } from '@adonisjs/inertia/vue'
+import {
+  BUTTON_BASE_CLASSES,
+  BUTTON_SIZE_CLASSES,
+  BUTTON_VARIANT_CLASSES,
+  type ButtonSize,
+  type ButtonVariant,
+} from '~/types/ui'
 
+/**
+ * Lien stylé en bouton : mêmes variantes et tailles que `BaseButton`, plus
+ * `on-dark` (bouton blanc sur fond indigo / dégradé, landing). Chemin interne →
+ * navigation Inertia ; ancres, mailto: et liens externes restent des `<a>`.
+ */
 const props = withDefaults(
   defineProps<{
     href: string
-    variant?: 'primary' | 'secondary' | 'on-dark'
+    variant?: ButtonVariant | 'on-dark'
+    size?: ButtonSize | 'lg'
+    block?: boolean
   }>(),
-  { variant: 'primary' }
+  { variant: 'primary', size: 'md', block: false }
 )
 
-const VARIANT_CLASSES: Record<NonNullable<typeof props.variant>, string> = {
-  'primary': 'bg-indigo-500 text-white hover:bg-indigo-600 active:scale-[0.94]',
-  'secondary':
-    'border border-input bg-canvas text-text-primary hover:bg-ink-50 active:scale-[0.94]',
-  'on-dark': 'bg-white text-indigo-600 hover:-translate-y-0.5 active:scale-[0.94]',
+const EXTRA_VARIANT_CLASSES: Record<'on-dark', string> = {
+  'on-dark': 'bg-white text-indigo-600 hover:-translate-y-0.5 active:scale-[0.97]',
 }
 
-/** Chemin interne (navigation Inertia) ; ancres, mailto: et liens externes restent des <a>. */
+const EXTRA_SIZE_CLASSES: Record<'lg', string> = {
+  lg: 'px-7 py-3.5 text-body-md',
+}
+
+const variantClass = computed(() =>
+  props.variant === 'on-dark'
+    ? EXTRA_VARIANT_CLASSES['on-dark']
+    : BUTTON_VARIANT_CLASSES[props.variant]
+)
+
+const sizeClass = computed(() => {
+  if (props.variant === 'link') return ''
+  return props.size === 'lg' ? EXTRA_SIZE_CLASSES.lg : BUTTON_SIZE_CLASSES[props.size]
+})
+
 const isInternal = computed(() => props.href.startsWith('/') && !props.href.includes('#'))
 </script>
 
@@ -25,8 +50,7 @@ const isInternal = computed(() => props.href.startsWith('/') && !props.href.incl
   <component
     :is="isInternal ? Link : 'a'"
     :href="href"
-    class="font-heading inline-block rounded-pill px-7 py-3.5 text-body-md font-semibold transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-    :class="VARIANT_CLASSES[variant]"
+    :class="[BUTTON_BASE_CLASSES, variantClass, sizeClass, block ? 'w-full' : '']"
   >
     <slot />
   </component>

@@ -52,7 +52,7 @@ const field = (name: string) => `variants.${props.index}.${name}`
 </script>
 
 <template>
-  <fieldset class="flex flex-col gap-3 rounded border border-[var(--gray-3)] p-4">
+  <fieldset class="flex flex-col gap-3 rounded-lg border border-hairline bg-sunken p-4">
     <div class="flex items-end gap-3">
       <BaseInput
         :id="`variant-${index}-sku`"

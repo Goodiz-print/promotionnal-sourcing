@@ -43,9 +43,9 @@ function removePosition(index: number) {
       :label="t('products.manage.marking.printable')"
     />
 
-    <p class="text-sm text-[var(--gray-6)]">{{ t('products.manage.marking.hint') }}</p>
+    <p class="text-body-sm text-text-secondary">{{ t('products.manage.marking.hint') }}</p>
 
-    <p v-if="form.markingPositions.length === 0" class="text-sm text-[var(--gray-6)]">
+    <p v-if="form.markingPositions.length === 0" class="text-body-sm text-text-secondary">
       {{ t('products.manage.marking.empty') }}
     </p>
     <ProductMarkingPositionRow
@@ -63,7 +63,7 @@ function removePosition(index: number) {
     </div>
 
     <div>
-      <h3 class="mb-2 text-sm font-medium">{{ t('products.manage.marking.priceTiers') }}</h3>
+      <h3 class="text-heading-sm">{{ t('products.manage.marking.priceTiers') }}</h3>
       <ProductMarkingPriceTiersFields :marking-techniques="markingTechniques" />
     </div>
   </div>

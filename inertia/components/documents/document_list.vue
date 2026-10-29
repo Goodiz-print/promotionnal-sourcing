@@ -14,23 +14,23 @@ defineProps<{
     <li
       v-for="document in documents"
       :key="document.id"
-      class="flex items-center justify-between gap-3 rounded border border-[var(--gray-3)] px-3 py-2"
+      class="flex items-center justify-between gap-3 rounded-lg border border-hairline bg-card px-3 py-2"
     >
       <div class="flex min-w-0 flex-col">
-        <span v-if="labelFor?.(document)" class="text-xs text-[var(--gray-6)]">
+        <span v-if="labelFor?.(document)" class="text-caption text-text-muted">
           {{ labelFor(document) }}
         </span>
         <a
           :href="document.url"
           target="_blank"
           rel="noopener"
-          class="truncate text-sm font-medium text-[var(--color-primary)] hover:underline"
+          class="truncate text-body-sm font-semibold text-indigo-600 hover:underline"
         >
           {{ document.originalName }}
         </a>
       </div>
       <div class="flex shrink-0 items-center gap-3">
-        <span class="text-xs text-[var(--gray-6)]">{{ formatFileSize(document.sizeBytes) }}</span>
+        <span class="text-caption text-text-muted">{{ formatFileSize(document.sizeBytes) }}</span>
         <slot name="actions" :document="document" />
       </div>
     </li>
