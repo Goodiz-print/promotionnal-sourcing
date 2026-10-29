@@ -8,7 +8,9 @@
     "allCountries": "Tous les pays",
     "empty": "Aucun fournisseur ne correspond à votre recherche.",
     "previous": "Précédent",
-    "next": "Suivant"
+    "next": "Suivant",
+    "resultsCount": "{count, plural, =0 {Aucun fournisseur} one {# fournisseur} other {# fournisseurs}}",
+    "emptyHint": "Élargissez votre recherche ou choisissez un autre pays."
   },
   "show": {
     "website": "Visiter le site",

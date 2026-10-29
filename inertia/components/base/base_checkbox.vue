@@ -6,8 +6,10 @@ const props = withDefaults(
     id: string
     modelValue: boolean
     label?: string
+    description?: string
+    disabled?: boolean
   }>(),
-  { label: '' }
+  { label: '', description: '', disabled: false }
 )
 
 const emit = defineEmits<{
@@ -21,14 +23,22 @@ const model = computed({
 </script>
 
 <template>
-  <label :for="id" class="flex cursor-pointer items-center gap-2 text-sm">
+  <label
+    :for="id"
+    class="flex cursor-pointer items-start gap-2.5 text-body-sm text-text-primary"
+    :class="disabled ? 'cursor-not-allowed opacity-50' : ''"
+  >
     <input
       :id="id"
       v-model="model"
       type="checkbox"
-      class="h-4 w-4 rounded border-[var(--gray-4)] accent-[var(--color-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
+      :disabled="disabled"
+      class="mt-0.5 size-4 shrink-0 cursor-pointer rounded-xs border-input accent-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
     />
-    <span v-if="label">{{ label }}</span>
-    <slot />
+    <span class="flex flex-col">
+      <span v-if="label">{{ label }}</span>
+      <slot />
+      <span v-if="description" class="text-caption text-text-muted">{{ description }}</span>
+    </span>
   </label>
 </template>

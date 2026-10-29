@@ -2,6 +2,8 @@
 import { provide } from 'vue'
 import { Head, useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
+import AuthHeader from '~/components/auth/auth_header.vue'
+import AuthLayout from '~/layouts/auth.vue'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
 import OrganizationFormFields from '~/components/organization/form/organization_form_fields.vue'
@@ -9,6 +11,8 @@ import {
   OrganizationFormKey,
   type OrganizationFormState,
 } from '~/components/organization/form/types'
+
+defineOptions({ layout: AuthLayout })
 
 const { t, locale } = useI18n()
 
@@ -27,15 +31,12 @@ function submit() {
 <template>
   <Head :title="t('onboarding.title')" />
 
-  <div class="mx-auto flex max-w-[520px] flex-col justify-center">
-    <div>
-      <h1 class="mb-1.25 text-[32px] tracking-[-0.5px]">{{ t('onboarding.title') }}</h1>
-      <p class="mb-12 text-lg text-[var(--gray-6)]">{{ t('onboarding.subtitle') }}</p>
-    </div>
+  <div class="flex flex-col gap-8">
+    <AuthHeader :title="t('onboarding.title')" :description="t('onboarding.subtitle')" />
 
     <form class="flex flex-col gap-6" @submit.prevent="submit">
       <OrganizationFormFields />
-      <BaseButton type="submit" :disabled="form.processing">
+      <BaseButton type="submit" block :loading="form.processing">
         {{ t('onboarding.submit') }}
       </BaseButton>
     </form>

@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { router, useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import BaseButton from '~/components/base/base_button.vue'
+import BaseSection from '~/components/base/base_section.vue'
 import BaseFileInput from '~/components/base/base_file_input.vue'
 import BaseSelect from '~/components/base/base_select.vue'
 import DocumentList from '~/components/documents/document_list.vue'
@@ -68,19 +69,17 @@ function remove(document: D) {
 </script>
 
 <template>
-  <section class="flex flex-col gap-4">
-    <h2 class="font-medium">{{ title }}</h2>
-
+  <BaseSection :title="title">
     <DocumentList v-if="documents.length > 0" :documents="documents" :label-for="labelFor">
       <template #actions="{ document }">
-        <BaseButton variant="secondary" @click="remove(document)">
+        <BaseButton variant="secondary" size="sm" @click="remove(document)">
           {{ t('documents.remove') }}
         </BaseButton>
       </template>
     </DocumentList>
-    <p v-else class="text-sm text-[var(--gray-6)]">{{ emptyLabel }}</p>
+    <p v-else class="text-body-sm text-text-secondary">{{ emptyLabel }}</p>
 
-    <form class="flex flex-col gap-3" @submit.prevent="submit">
+    <form class="mt-5 flex flex-col gap-4 border-t border-hairline pt-5" @submit.prevent="submit">
       <BaseSelect
         v-if="kinds"
         id="document-kind"
@@ -99,8 +98,12 @@ function remove(document: D) {
         :error="form.errors.file"
         @change="onFiles"
       />
-      <p v-if="form.file" class="text-sm text-[var(--gray-6)]">{{ form.file.name }}</p>
-      <BaseButton type="submit" :disabled="!canSubmit">{{ t('documents.add') }}</BaseButton>
+      <p v-if="form.file" class="text-body-sm text-text-secondary">{{ form.file.name }}</p>
+      <div>
+        <BaseButton type="submit" size="sm" :disabled="!canSubmit">{{
+          t('documents.add')
+        }}</BaseButton>
+      </div>
     </form>
-  </section>
+  </BaseSection>
 </template>

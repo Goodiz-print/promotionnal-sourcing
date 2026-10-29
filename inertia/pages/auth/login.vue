@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3'
+import { Head, useForm } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
+import AuthHeader from '~/components/auth/auth_header.vue'
+import AuthLayout from '~/layouts/auth.vue'
 import { urlFor } from '~/client'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseButton from '~/components/base/base_button.vue'
 import PasskeyLogin from '~/components/auth/passkey_login.vue'
 
 const props = defineProps<{ redirect?: string | null }>()
+
+defineOptions({ layout: AuthLayout })
 
 const { t, locale } = useI18n()
 
@@ -23,13 +27,10 @@ function submit() {
 </script>
 
 <template>
-  <div class="mx-auto flex max-w-[400px] flex-col justify-center">
-    <div>
-      <h1 class="mb-1.25 text-[32px] tracking-[-0.5px]">{{ t('auth.login.title') }}</h1>
-      <p class="mb-12 text-lg text-[var(--gray-6)]">
-        {{ t('auth.login.subtitle') }}
-      </p>
-    </div>
+  <Head :title="t('auth.login.title')" />
+
+  <div class="flex flex-col gap-8">
+    <AuthHeader :title="t('auth.login.title')" :description="t('auth.login.subtitle')" />
 
     <form class="flex flex-col gap-6" @submit.prevent="submit">
       <BaseInput
@@ -48,16 +49,20 @@ function submit() {
         :label="t('auth.fields.password')"
         :error="form.errors.password"
       />
-      <BaseButton type="submit" :disabled="form.processing">
+      <BaseButton type="submit" block :loading="form.processing">
         {{ t('auth.login.submit') }}
       </BaseButton>
     </form>
 
-    <div class="mt-4">
+    <div>
       <PasskeyLogin :redirect="props.redirect" />
     </div>
 
-    <Link class="mt-6 text-sm underline" route="password.forgot" :params="{ locale }">
+    <Link
+      class="text-body-sm font-semibold text-indigo-600 hover:underline"
+      route="password.forgot"
+      :params="{ locale }"
+    >
       {{ t('auth.login.forgot') }}
     </Link>
   </div>

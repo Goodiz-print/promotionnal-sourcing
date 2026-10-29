@@ -40,7 +40,12 @@
     "submit": "Złóż ofertę",
     "delete": "Usuń szkic",
     "confirmSubmit": "Przekazać tę ofertę kupującemu? Nie będzie można jej już edytować.",
-    "confirmDelete": "Usunąć ten szkic?"
+    "confirmDelete": "Usunąć ten szkic?",
+    "sections": {
+      "lines": "Pozycje oferty",
+      "linesHint": "Pozycja bez ceny jednostkowej nie jest wyceniona i nie zostanie wysłana.",
+      "terms": "Warunki"
+    }
   },
   "table": {
     "item": "Pozycja",
@@ -57,7 +62,8 @@
     "cheapest": "Najtańsza",
     "fastest": "Najszybsza",
     "leadTime": "Łączny czas realizacji",
-    "validUntil": "Ważna do"
+    "validUntil": "Ważna do",
+    "noValidity": "Nie podano"
   },
   "show": {
     "title": "Oferta od {supplierName}",
@@ -73,7 +79,16 @@
     "index": {
       "title": "Moje oferty",
       "subtitle": "Oferty, które przygotowałeś w odpowiedzi na zapytania.",
-      "empty": "Brak ofert."
+      "empty": "Brak ofert.",
+      "browseRfqs": "Zobacz otrzymane zapytania",
+      "columns": {
+        "leadTime": "Czas realizacji",
+        "rfq": "Zapytanie",
+        "status": "Status",
+        "total": "Razem",
+        "validUntil": "Ważna do"
+      },
+      "emptyDescription": "Twoje oferty pojawią się tutaj, gdy odpowiesz na otrzymane zapytanie."
     },
     "edit": {
       "title": "Oferta: {rfqTitle}",
@@ -84,7 +99,8 @@
         "accepted": "Kupujący zaakceptował tę ofertę.",
         "rejected": "Kupujący nie wybrał tej oferty.",
         "expired": "Ta oferta wygasła."
-      }
+      },
+      "linesTitle": "Pozycje oferty"
     },
     "rfq": {
       "respond": "Odpowiedz ofertą",

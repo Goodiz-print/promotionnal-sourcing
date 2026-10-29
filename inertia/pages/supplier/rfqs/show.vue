@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
-import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import BaseAlert from '~/components/base/base_alert.vue'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseButton from '~/components/base/base_button.vue'
+import BaseLinkButton from '~/components/base/base_link_button.vue'
+import BasePageHeader from '~/components/base/base_page_header.vue'
+import BaseSection from '~/components/base/base_section.vue'
 import RfqItemList from '~/components/rfqs/rfq_item_list.vue'
+import SupplierRfqMetaPills from '~/components/rfqs/supplier_rfq_meta_pills.vue'
 import { RFQ_SUPPLIER_STATUS_TONES } from '~/components/rfqs/types'
 import { QUOTE_STATUS_TONES } from '~/components/quotes/types'
 import type { RfqQuoteSummaryType } from '#shared/types/quote'
@@ -19,6 +23,14 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
+
+const indexUrl = computed(() => urlFor('supplier.rfqs.index', { locale: locale.value }))
+
+const quoteUrl = computed(() =>
+  props.quote
+    ? urlFor('supplier.quotes.show', { locale: locale.value, id: props.quote.id })
+    : urlFor('supplier.quotes.create', { locale: locale.value, rfqId: props.rfq.id })
+)
 
 /**
  * Décliner n'a de sens que sur une demande encore ouverte et sans décision
@@ -38,83 +50,72 @@ function decline() {
     { preserveScroll: true }
   )
 }
-
-function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(locale.value)
-}
 </script>
 
 <template>
   <Head :title="rfq.title" />
 
-  <div class="mx-auto flex max-w-[860px] flex-col gap-8 px-6 py-12">
-    <div>
-      <Link
-        route="supplier.rfqs.index"
-        :params="{ locale }"
-        class="text-sm text-[var(--color-primary)] hover:underline"
-      >
-        {{ t('rfq.supplier.show.backToList') }}
-      </Link>
-
-      <div class="mt-3 flex items-start justify-between gap-4">
-        <h1 class="text-[32px] tracking-[-0.5px]">{{ rfq.title }}</h1>
-        <BaseBadge :tone="RFQ_SUPPLIER_STATUS_TONES[rfq.myStatus]">
+  <div class="flex flex-col gap-8">
+    <BasePageHeader
+      :title="rfq.title"
+      :back-href="indexUrl"
+      :back-label="t('rfq.supplier.show.backToList')"
+    >
+      <template #meta>
+        <BaseBadge dot :tone="RFQ_SUPPLIER_STATUS_TONES[rfq.myStatus]">
           {{ t(`rfq.supplier.status.${rfq.myStatus}`) }}
         </BaseBadge>
-      </div>
+        <SupplierRfqMetaPills :rfq="rfq" />
+      </template>
+      <!-- Une seule action primaire : répondre ; un devis existant se consulte en secondaire. -->
+      <template v-if="quote || canQuote" #actions>
+        <BaseLinkButton v-if="quote" :href="quoteUrl" variant="secondary">
+          {{ t('quote.supplier.rfq.viewQuote') }}
+        </BaseLinkButton>
+        <BaseLinkButton v-else :href="quoteUrl">
+          {{ t('quote.supplier.rfq.respond') }}
+        </BaseLinkButton>
+      </template>
+    </BasePageHeader>
 
-      <p class="mt-1 text-sm text-[var(--gray-6)]">
-        {{ t('rfq.supplier.show.buyer') }} : {{ rfq.buyerName }} ·
-        {{
-          rfq.deadline
-            ? t('rfq.show.deadline', { date: formatDate(rfq.deadline) })
-            : t('rfq.supplier.show.noDeadline')
-        }}
-      </p>
-    </div>
-
-    <p v-if="rfq.myStatus === 'declined'" class="text-sm text-[var(--state-danger)]">
+    <BaseAlert v-if="rfq.myStatus === 'declined'" tone="danger">
       {{ t('rfq.supplier.show.declinedNotice') }}
-    </p>
-    <p v-else-if="rfq.status === 'closed'" class="text-sm text-[var(--gray-6)]">
+    </BaseAlert>
+    <BaseAlert v-else-if="rfq.status === 'closed'" tone="neutral">
       {{ t('rfq.supplier.show.closedNotice') }}
-    </p>
-    <p v-else-if="rfq.status === 'expired'" class="text-sm text-[var(--gray-6)]">
+    </BaseAlert>
+    <BaseAlert v-else-if="rfq.status === 'expired'" tone="warning">
       {{ t('rfq.supplier.show.expiredNotice') }}
-    </p>
+    </BaseAlert>
 
-    <section class="flex flex-col gap-3">
-      <h2 class="font-medium">{{ t('rfq.supplier.show.needTitle') }}</h2>
-      <p v-if="rfq.description" class="whitespace-pre-line text-[var(--gray-8)]">
-        {{ rfq.description }}
+    <BaseSection :title="t('rfq.supplier.show.needTitle')">
+      <div class="flex flex-col gap-4">
+        <p v-if="rfq.description" class="whitespace-pre-line text-body-md text-text-secondary">
+          {{ rfq.description }}
+        </p>
+        <RfqItemList :items="rfq.items" />
+      </div>
+    </BaseSection>
+
+    <BaseSection
+      v-if="quote || canQuote || canDecline"
+      :title="t('rfq.supplier.show.responseTitle')"
+    >
+      <div v-if="quote" class="flex flex-wrap items-center gap-3">
+        <p class="text-body-sm text-text-secondary">{{ t('rfq.supplier.show.responseQuote') }}</p>
+        <BaseBadge dot :tone="QUOTE_STATUS_TONES[quote.status]">
+          {{ t(`quote.status.${quote.status}`) }}
+        </BaseBadge>
+      </div>
+      <p v-else class="text-body-sm text-text-secondary">
+        {{ t('rfq.supplier.show.responseOpen') }}
       </p>
-      <RfqItemList :items="rfq.items" />
-    </section>
 
-    <div v-if="quote || canQuote || canDecline" class="flex flex-wrap items-center gap-4">
-      <Link
-        v-if="quote"
-        route="supplier.quotes.show"
-        :params="{ locale, id: quote.id }"
-        class="rounded border border-[var(--gray-4)] px-3 py-2 text-sm font-medium hover:bg-[var(--gray-2)]"
-      >
-        {{ t('quote.supplier.rfq.viewQuote') }}
-      </Link>
-      <Link
-        v-else-if="canQuote"
-        route="supplier.quotes.create"
-        :params="{ locale, rfqId: rfq.id }"
-        class="rounded border border-[var(--gray-4)] px-3 py-2 text-sm font-medium hover:bg-[var(--gray-2)]"
-      >
-        {{ t('quote.supplier.rfq.respond') }}
-      </Link>
-      <BaseBadge v-if="quote" :tone="QUOTE_STATUS_TONES[quote.status]">
-        {{ t(`quote.status.${quote.status}`) }}
-      </BaseBadge>
-      <BaseButton v-if="canDecline && !quote" variant="danger" @click="decline()">
-        {{ t('rfq.supplier.actions.decline') }}
-      </BaseButton>
-    </div>
+      <template v-if="canDecline && !quote" #footer>
+        <BaseButton variant="danger" size="sm" @click="decline()">
+          {{ t('rfq.supplier.actions.decline') }}
+        </BaseButton>
+      </template>
+    </BaseSection>
   </div>
 </template>

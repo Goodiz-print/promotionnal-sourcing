@@ -3,10 +3,20 @@
     "title": "Requests for quotation",
     "subtitle": "Describe a need, consult several suppliers, compare their answers.",
     "empty": "No request yet.",
+    "emptyDescription": "Describe your need, pick suppliers and compare their quotes in one place.",
     "new": "New request",
     "itemCount": "{count, plural, one {# line} other {# lines}}",
     "supplierCount": "{count, plural, =0 {no recipient} one {# recipient} other {# recipients}}",
-    "responded": "{responded} / {total} answers"
+    "responded": "{responded} / {total} answers",
+    "responses": "{responded} / {total}",
+    "columns": {
+      "title": "Request",
+      "items": "Lines",
+      "suppliers": "Recipients",
+      "responses": "Answers",
+      "status": "Status",
+      "deadline": "Deadline"
+    }
   },
   "create": {
     "title": "New request for quotation",
@@ -104,7 +114,16 @@
       "subtitle": "Requests for quotation buyers have sent you.",
       "empty": "No request received yet.",
       "from": "From {name}",
-      "receivedAt": "Received on {date}"
+      "receivedAt": "Received on {date}",
+      "columns": {
+        "title": "Request",
+        "buyer": "Buyer",
+        "items": "Items",
+        "receivedAt": "Received",
+        "deadline": "Deadline",
+        "status": "Status"
+      },
+      "emptyDescription": "Buyers who consult you will show up here with the details of their needs."
     },
     "show": {
       "backToList": "Back to received requests",
@@ -113,7 +132,10 @@
       "noDeadline": "No deadline",
       "declinedNotice": "You declined this request. The buyer has been notified.",
       "closedNotice": "The buyer closed this request: it no longer expects an answer.",
-      "expiredNotice": "This request has expired: the buyer no longer expects a reply."
+      "expiredNotice": "This request has expired: the buyer no longer expects a reply.",
+      "responseTitle": "Your response",
+      "responseOpen": "Price this need by submitting a quote, or decline the request if you cannot follow up on it.",
+      "responseQuote": "You have written a quote for this request."
     },
     "actions": {
       "decline": "Decline the request",
@@ -140,6 +162,8 @@
     "add": "Add"
   },
   "deadline": {
+    "title": "Consultation deadline",
+    "description": "Give suppliers more time: only the date changes, not the need.",
     "label": "New deadline",
     "extend": "Extend the deadline",
     "expiredNotice": "This request has expired: suppliers can no longer reply. Extend the deadline to reopen it."

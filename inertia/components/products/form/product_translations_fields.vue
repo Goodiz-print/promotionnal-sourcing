@@ -39,10 +39,10 @@ function isAuto(locale: string): boolean {
         {{ LOCALE_LABELS[locale] }}
       </option>
     </BaseSelect>
-    <p class="-mt-4 text-xs text-[var(--gray-6)]">{{ t('products.manage.sourceLocaleHint') }}</p>
+    <p class="-mt-4 text-caption text-text-muted">{{ t('products.manage.sourceLocaleHint') }}</p>
 
     <div v-for="locale in CONTENT_LOCALES" :key="locale" class="flex flex-col gap-3">
-      <h3 class="flex items-center gap-2 text-sm font-semibold text-[var(--gray-6)]">
+      <h3 class="flex items-center gap-2 text-heading-sm text-text-secondary">
         <FlagIcon :code="locale" />
         {{ LOCALE_LABELS[locale] }}
         <BaseBadge v-if="locale === form.sourceLocale" tone="info">
@@ -65,7 +65,7 @@ function isAuto(locale: string): boolean {
         :label="t('products.manage.fields.description')"
         :error="errorFor(`translations.${locale}.description`)"
       />
-      <p v-if="locale !== form.sourceLocale" class="text-xs text-[var(--gray-6)]">
+      <p v-if="locale !== form.sourceLocale" class="text-caption text-text-muted">
         {{ t('products.manage.autoHint') }}
       </p>
     </div>

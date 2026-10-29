@@ -40,7 +40,7 @@ describe('base_button', () => {
     const wrapper = mount(BaseButton, { slots: { default: 'Envoyer' } })
 
     expect(wrapper.get('button').attributes('type')).toBe('button')
-    expect(wrapper.get('button').classes()).toContain('bg-[var(--color-primary)]')
+    expect(wrapper.get('button').classes()).toContain('bg-indigo-500')
     expect(wrapper.text()).toBe('Envoyer')
   })
 
@@ -55,7 +55,7 @@ describe('base_button', () => {
   it('applique le variant link', () => {
     const wrapper = mount(BaseButton, { props: { variant: 'link' } })
 
-    expect(wrapper.get('button').classes()).toContain('text-[var(--color-primary)]')
+    expect(wrapper.get('button').classes()).toContain('text-indigo-600')
   })
 })
 

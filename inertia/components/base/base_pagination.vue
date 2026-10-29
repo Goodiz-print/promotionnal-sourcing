@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import BaseButton from '~/components/base/base_button.vue'
 import type { PaginationMeta } from '#shared/types/pagination'
 
@@ -18,21 +19,27 @@ defineEmits<{
 </script>
 
 <template>
-  <div v-if="meta.lastPage > 1" class="flex items-center justify-center gap-4">
+  <nav v-if="meta.lastPage > 1" class="flex items-center justify-center gap-4">
     <BaseButton
       variant="secondary"
+      size="sm"
       :disabled="meta.currentPage <= 1"
       @click="$emit('change', meta.currentPage - 1)"
     >
+      <template #icon><ChevronLeft :size="16" aria-hidden="true" /></template>
       {{ previousLabel }}
     </BaseButton>
-    <span class="text-sm text-[var(--gray-6)]">{{ meta.currentPage }} / {{ meta.lastPage }}</span>
+    <span class="text-tabular text-caption text-text-muted">
+      {{ meta.currentPage }} / {{ meta.lastPage }}
+    </span>
     <BaseButton
       variant="secondary"
+      size="sm"
       :disabled="meta.currentPage >= meta.lastPage"
       @click="$emit('change', meta.currentPage + 1)"
     >
       {{ nextLabel }}
+      <ChevronRight :size="16" aria-hidden="true" />
     </BaseButton>
-  </div>
+  </nav>
 </template>

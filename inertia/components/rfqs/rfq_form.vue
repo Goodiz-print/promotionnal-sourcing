@@ -4,6 +4,7 @@ import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseInput from '~/components/base/base_input.vue'
+import BaseSection from '~/components/base/base_section.vue'
 import BaseTextarea from '~/components/base/base_textarea.vue'
 import RfqItemsFields from '~/components/rfqs/rfq_items_fields.vue'
 import RfqProductPicker from '~/components/rfqs/rfq_product_picker.vue'
@@ -99,58 +100,70 @@ function submit() {
 
 <template>
   <form class="flex flex-col gap-6" @submit.prevent="submit">
-    <BaseInput
-      id="rfq-title"
-      v-model="form.title"
-      :label="t('rfq.fields.title')"
-      :error="form.errors.title"
-    />
+    <BaseSection as="fieldset" :title="t('rfq.form.general')">
+      <div class="flex flex-col gap-5">
+        <BaseInput
+          id="rfq-title"
+          v-model="form.title"
+          :label="t('rfq.fields.title')"
+          :error="form.errors.title"
+          required
+        />
 
-    <BaseTextarea
-      id="rfq-description"
-      v-model="form.description"
-      :label="t('rfq.fields.description')"
-      :error="form.errors.description"
-    />
+        <BaseTextarea
+          id="rfq-description"
+          v-model="form.description"
+          :label="t('rfq.fields.description')"
+          :error="form.errors.description"
+        />
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-      <BaseInput
-        id="rfq-deadline"
-        v-model="form.deadline"
-        type="date"
-        :label="t('rfq.fields.deadline')"
-        :error="form.errors.deadline"
-      />
-      <BaseInput
-        id="rfq-budget"
-        v-model="form.budgetMax"
-        type="number"
-        :min="1"
-        :label="t('rfq.fields.budgetMax')"
-        :error="form.errors.budgetMax"
-      />
-    </div>
+        <div class="grid gap-5 sm:grid-cols-2">
+          <BaseInput
+            id="rfq-deadline"
+            v-model="form.deadline"
+            type="date"
+            :label="t('rfq.fields.deadline')"
+            :error="form.errors.deadline"
+          />
+          <BaseInput
+            id="rfq-budget"
+            v-model="form.budgetMax"
+            type="number"
+            :min="1"
+            :label="t('rfq.fields.budgetMax')"
+            :error="form.errors.budgetMax"
+          />
+        </div>
+      </div>
+    </BaseSection>
 
-    <RfqProductPicker
-      :results="productResults"
-      :unavailable="productSearchUnavailable"
-      @pick="pickProduct"
-    />
+    <BaseSection as="fieldset" :title="t('rfq.items.title')">
+      <div class="flex flex-col gap-5">
+        <RfqProductPicker
+          :results="productResults"
+          :unavailable="productSearchUnavailable"
+          @pick="pickProduct"
+        />
 
-    <RfqItemsFields
-      v-model="form.items"
-      :categories="categories"
-      :errors="form.errors as Record<string, string>"
-    />
+        <RfqItemsFields
+          v-model="form.items"
+          :categories="categories"
+          :errors="form.errors as Record<string, string>"
+        />
+      </div>
+    </BaseSection>
 
-    <RfqSupplierPicker
+    <BaseSection
       v-if="mode === 'create'"
-      v-model="form.supplierOrganizationIds"
-      :options="supplierOptions"
-    />
+      as="fieldset"
+      :title="t('rfq.fields.suppliers')"
+      :description="t('rfq.suppliers.selected', { count: form.supplierOrganizationIds.length })"
+    >
+      <RfqSupplierPicker v-model="form.supplierOrganizationIds" :options="supplierOptions" />
+    </BaseSection>
 
-    <div>
-      <BaseButton type="submit" :disabled="form.processing">
+    <div class="flex justify-end gap-3">
+      <BaseButton type="submit" :loading="form.processing">
         {{ mode === 'create' ? t('rfq.create.submit') : t('rfq.actions.save') }}
       </BaseButton>
     </div>

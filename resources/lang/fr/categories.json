@@ -7,13 +7,22 @@
       "name": "Nom",
       "slug": "Identifiant",
       "parent": "Parent",
-      "products": "Produits"
-    }
+      "products": "Produits",
+      "actions": "Actions"
+    },
+    "emptyDescription": "Les catégories structurent le catalogue et ses filtres.",
+    "root": "Racine"
   },
-  "create": { "title": "Nouvelle catégorie" },
-  "edit": { "title": "Modifier la catégorie" },
-  "newCategory": "Nouvelle catégorie",
+  "create": {
+    "title": "Nouvelle catégorie",
+    "subtitle": "Ajoutez une catégorie à l’arborescence du catalogue."
+  },
+  "update": {
+    "title": "Modifier la catégorie",
+    "subtitle": "Modifiez le contenu, le parent et les synonymes de « {slug} »."
+  },
   "edit": "Modifier",
+  "newCategory": "Nouvelle catégorie",
   "delete": "Supprimer",
   "save": "Enregistrer",
   "cancel": "Annuler",
@@ -26,7 +35,9 @@
     "name": "Nom",
     "description": "Description",
     "synonyms": "Synonymes",
-    "synonymsHint": "Séparés par des virgules (améliore la recherche)."
+    "synonymsHint": "Séparés par des virgules (améliore la recherche).",
+    "slugPlaceholder": "ex. stylos-personnalises",
+    "synonymsPlaceholder": "ex. stylo bille, crayon, feutre"
   },
   "flash": {
     "created": "Catégorie créée.",
@@ -35,5 +46,13 @@
     "cycle": "Une catégorie ne peut pas être son propre parent ou celui d'un de ses descendants.",
     "hasChildren": "Impossible de supprimer : cette catégorie a des sous-catégories.",
     "hasProducts": "Impossible de supprimer : des produits sont rattachés à cette catégorie."
+  },
+  "back": "Retour aux catégories",
+  "form": {
+    "identity": "Identification",
+    "identityDescription": "Identifiant technique et place dans l’arborescence.",
+    "content": "Contenu en {language}",
+    "search": "Recherche",
+    "searchDescription": "Termes associés pour retrouver la catégorie dans le moteur de recherche."
   }
 }

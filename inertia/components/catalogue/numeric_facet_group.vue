@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import BaseCheckbox from '~/components/base/base_checkbox.vue'
+import FacetSection from '~/components/catalogue/facet_section.vue'
+import FacetOption from '~/components/catalogue/facet_option.vue'
 import { useRangeLabel } from '~/composables/use_range_label'
 import type { NumericFacetBarType, NumericFacetBucketType } from '#shared/types/product'
 
@@ -37,9 +39,7 @@ const visibleBuckets = computed<NumericFacetBucketType[]>(() =>
 </script>
 
 <template>
-  <fieldset v-if="visibleBuckets.length > 0" class="flex flex-col gap-2">
-    <legend class="mb-1 text-sm font-medium">{{ title }}</legend>
-
+  <FacetSection v-if="visibleBuckets.length > 0" :title="title">
     <BaseCheckbox
       v-for="bucket in visibleBuckets"
       :id="`numeric-${idPrefix}-${bucket.index}`"
@@ -47,12 +47,10 @@ const visibleBuckets = computed<NumericFacetBucketType[]>(() =>
       :model-value="selectedIndices.includes(bucket.index)"
       @update:model-value="(checked) => emit('toggle', bucket.index, checked)"
     >
-      <span class="flex flex-1 items-center gap-2">
-        <span class="flex-1">{{ rangeLabel(bucket.minValue, bucket.maxValue, suffix) }}</span>
-        <span v-if="facet.hasCounts && bucket.count !== null" class="text-xs text-[var(--gray-6)]">
-          {{ bucket.count }}
-        </span>
-      </span>
+      <FacetOption
+        :label="rangeLabel(bucket.minValue, bucket.maxValue, suffix)"
+        :count="facet.hasCounts ? bucket.count : null"
+      />
     </BaseCheckbox>
-  </fieldset>
+  </FacetSection>
 </template>

@@ -2,8 +2,10 @@
 import { useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import BaseInput from '~/components/base/base_input.vue'
+import BaseAlert from '~/components/base/base_alert.vue'
 import BaseButton from '~/components/base/base_button.vue'
+import BaseDangerZone from '~/components/base/base_danger_zone.vue'
+import BaseInput from '~/components/base/base_input.vue'
 
 defineProps<{ blockingOrganizations: string[] }>()
 
@@ -23,30 +25,33 @@ function destroy() {
 </script>
 
 <template>
-  <section class="rounded border border-[var(--state-danger)] p-6">
-    <h2 class="mb-1.25 text-lg font-medium text-[var(--state-danger)]">
-      {{ t('account.danger.title') }}
-    </h2>
-    <p class="mb-6 text-sm text-[var(--gray-6)]">{{ t('account.danger.subtitle') }}</p>
+  <BaseDangerZone :title="t('account.danger.title')" :description="t('account.danger.subtitle')">
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-0.5">
+        <p class="text-body-sm font-semibold text-text-primary">
+          {{ t('account.danger.deleteTitle') }}
+        </p>
+        <p class="text-body-sm text-text-secondary">{{ t('account.danger.description') }}</p>
+      </div>
 
-    <p class="text-sm font-medium">{{ t('account.danger.deleteTitle') }}</p>
-    <p class="mb-4 text-sm text-[var(--gray-6)]">{{ t('account.danger.description') }}</p>
-
-    <p v-if="blockingOrganizations.length > 0" class="text-sm text-[var(--state-danger)]">
-      {{ t('account.danger.blockedIntro', { names: blockingOrganizations.join(', ') }) }}
-    </p>
-    <form v-else class="flex flex-col gap-4" @submit.prevent="destroy">
-      <BaseInput
-        id="deleteCurrentPassword"
-        v-model="form.currentPassword"
-        type="password"
-        autocomplete="current-password"
-        :label="t('account.danger.confirmPassword')"
-        :error="form.errors.currentPassword"
-      />
-      <BaseButton type="submit" variant="danger" :disabled="form.processing">
-        {{ t('account.danger.submit') }}
-      </BaseButton>
-    </form>
-  </section>
+      <BaseAlert v-if="blockingOrganizations.length > 0" tone="danger">
+        {{ t('account.danger.blockedIntro', { names: blockingOrganizations.join(', ') }) }}
+      </BaseAlert>
+      <form v-else class="flex flex-col gap-4 sm:flex-row sm:items-end" @submit.prevent="destroy">
+        <div class="w-full sm:max-w-[360px]">
+          <BaseInput
+            id="deleteCurrentPassword"
+            v-model="form.currentPassword"
+            type="password"
+            autocomplete="current-password"
+            :label="t('account.danger.confirmPassword')"
+            :error="form.errors.currentPassword"
+          />
+        </div>
+        <BaseButton type="submit" variant="danger" :loading="form.processing">
+          {{ t('account.danger.submit') }}
+        </BaseButton>
+      </form>
+    </div>
+  </BaseDangerZone>
 </template>

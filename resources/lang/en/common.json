@@ -20,7 +20,19 @@
     "account": "My account",
     "main": "Main navigation",
     "menu": "Menu",
-    "userMenu": "User menu"
+    "userMenu": "User menu",
+    "groups": {
+      "explore": "Explore",
+      "buying": "Purchasing",
+      "supplier": "Supplier area",
+      "organization": "Organization",
+      "admin": "Platform"
+    },
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "backToSite": "Back to website",
+    "noOrganization": "No organization",
+    "logoAlt": "Promotional Sourcing.eu"
   },
   "language": {
     "label": "Language",

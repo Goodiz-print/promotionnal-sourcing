@@ -27,7 +27,7 @@ const onDark = computed(() => props.variant === 'on-dark')
 
 <template>
   <div v-if="onDark" class="flex flex-col items-center gap-5">
-    <BaseLinkButton :href="mailtoHref" variant="on-dark">
+    <BaseLinkButton size="lg" :href="mailtoHref" variant="on-dark">
       {{ t('landing.contact.mailCta') }}<span aria-hidden="true">→</span>
     </BaseLinkButton>
     <p class="text-caption text-indigo-100">
@@ -45,7 +45,7 @@ const onDark = computed(() => props.variant === 'on-dark')
         {{ t(`landing.contact.mailPoints.${i}`) }}
       </li>
     </ul>
-    <BaseLinkButton :href="mailtoHref">
+    <BaseLinkButton size="lg" :href="mailtoHref">
       {{ t('landing.contact.mailCta') }}<span aria-hidden="true">→</span>
     </BaseLinkButton>
     <p class="mt-4 text-caption text-text-muted">{{ t('landing.contact.mailHint') }}</p>

@@ -9,6 +9,9 @@ const translations: Record<string, string> = {
   'common.nav.suppliers': 'Fournisseurs',
   'common.nav.rfqs': 'Mes demandes de devis',
   'common.nav.members': 'Membres',
+  'common.nav.groups.explore': 'Explorer',
+  'common.nav.groups.buying': 'Achats',
+  'common.nav.groups.organization': 'Organisation',
 }
 
 const pageState: { url: string; navigation: NavigationItemType[] } = { url: '/fr', navigation: [] }
@@ -83,5 +86,30 @@ describe('AppNav', () => {
     const wrapper = mount(AppNav, { props: { orientation: 'vertical' } })
 
     expect(wrapper.find('nav').classes()).toContain('flex-col')
+  })
+})
+
+describe('AppNav — groupes', () => {
+  it('regroupe les entrées par domaine avec un titre de groupe quand il y en a plusieurs', () => {
+    pageState.navigation = [
+      item('dashboard', 'dashboard.show'),
+      item('rfqs', 'rfqs.index'),
+      item('members', 'organization.members'),
+    ]
+
+    const wrapper = mount(AppNav)
+    const groupLabels = wrapper.findAll('p').map((p) => p.text())
+
+    expect(groupLabels).toEqual(['Explorer', 'Achats', 'Organisation'])
+    expect(wrapper.findAll('a svg')).toHaveLength(3)
+  })
+
+  it("n'affiche pas de titre de groupe quand toutes les entrées sont dans le même groupe", () => {
+    pageState.navigation = [
+      item('catalogue', 'products.index'),
+      item('suppliers', 'suppliers.index'),
+    ]
+
+    expect(mount(AppNav).findAll('p')).toHaveLength(0)
   })
 })

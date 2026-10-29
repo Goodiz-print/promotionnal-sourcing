@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { Link } from '@adonisjs/inertia/vue'
+import { ChevronDown } from 'lucide-vue-next'
 import FlagIcon from '~/components/flag_icon.vue'
+import { useDismissable } from '~/composables/use_dismissable'
 import { LOCALE_LABELS, type Locale } from '#shared/types/i18n'
 
 const props = defineProps<{
@@ -18,32 +20,15 @@ const props = defineProps<{
 const emit = defineEmits<{ select: [locale: Locale] }>()
 
 const itemClass =
-  'flex w-full cursor-pointer items-center gap-2.5 px-3.5 py-2 text-left text-sm text-[var(--gray-10)] hover:bg-[var(--gray-2)]'
+  'flex w-full cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-left text-body-sm text-text-primary transition-colors hover:bg-sunken'
 
-const open = ref(false)
 const root = ref<HTMLElement | null>(null)
+const { open, toggle, close } = useDismissable(root)
 
 function pick(locale: Locale) {
-  open.value = false
+  close()
   if (locale !== props.current) emit('select', locale)
 }
-
-function closeOnOutsideClick(event: MouseEvent) {
-  if (root.value && !root.value.contains(event.target as Node)) open.value = false
-}
-
-function closeOnEscape(event: KeyboardEvent) {
-  if (event.key === 'Escape') open.value = false
-}
-
-onMounted(() => {
-  document.addEventListener('click', closeOnOutsideClick)
-  document.addEventListener('keydown', closeOnEscape)
-})
-onBeforeUnmount(() => {
-  document.removeEventListener('click', closeOnOutsideClick)
-  document.removeEventListener('keydown', closeOnEscape)
-})
 </script>
 
 <template>
@@ -53,27 +38,19 @@ onBeforeUnmount(() => {
       :aria-label="label"
       aria-haspopup="listbox"
       :aria-expanded="open"
-      class="inline-flex cursor-pointer items-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
+      class="inline-flex cursor-pointer items-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
       :class="buttonClass"
-      @click="open = !open"
+      @click="toggle"
     >
       <FlagIcon :code="current" />
       {{ LOCALE_LABELS[current] }}
-      <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <path
-          d="m4 6 4 4 4-4"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
+      <ChevronDown :size="12" aria-hidden="true" />
     </button>
     <ul
       v-show="open"
       role="listbox"
       :aria-label="label"
-      class="absolute right-0 z-50 mt-2 min-w-44 overflow-hidden rounded-lg border border-[var(--gray-3)] bg-white py-1 shadow-lg"
+      class="absolute right-0 z-50 mt-2 min-w-44 overflow-hidden rounded-lg border border-hairline bg-card p-1 shadow-elevation-2"
     >
       <li v-for="code in locales" :key="code" role="option" :aria-selected="code === current">
         <Link

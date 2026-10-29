@@ -7,13 +7,22 @@
       "name": "Name",
       "slug": "Slug",
       "parent": "Parent",
-      "products": "Products"
-    }
+      "products": "Products",
+      "actions": "Actions"
+    },
+    "emptyDescription": "Categories structure the catalogue and its filters.",
+    "root": "Root"
   },
-  "create": { "title": "New category" },
-  "edit": { "title": "Edit category" },
-  "newCategory": "New category",
+  "create": {
+    "title": "New category",
+    "subtitle": "Add a category to the catalogue tree."
+  },
+  "update": {
+    "title": "Edit category",
+    "subtitle": "Edit the content, parent and synonyms of “{slug}”."
+  },
   "edit": "Edit",
+  "newCategory": "New category",
   "delete": "Delete",
   "save": "Save",
   "cancel": "Cancel",
@@ -26,7 +35,9 @@
     "name": "Name",
     "description": "Description",
     "synonyms": "Synonyms",
-    "synonymsHint": "Comma-separated (improves search)."
+    "synonymsHint": "Comma-separated (improves search).",
+    "slugPlaceholder": "e.g. custom-pens",
+    "synonymsPlaceholder": "e.g. ballpoint pen, pencil, marker"
   },
   "flash": {
     "created": "Category created.",
@@ -35,5 +46,13 @@
     "cycle": "A category cannot be its own parent or a descendant's parent.",
     "hasChildren": "Cannot delete: this category has sub-categories.",
     "hasProducts": "Cannot delete: products are attached to this category."
+  },
+  "back": "Back to categories",
+  "form": {
+    "identity": "Identification",
+    "identityDescription": "Technical identifier and position in the tree.",
+    "content": "Content in {language}",
+    "search": "Search",
+    "searchDescription": "Related terms used to find the category in the search engine."
   }
 }

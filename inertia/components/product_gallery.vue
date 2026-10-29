@@ -52,8 +52,12 @@ watch(
 </script>
 
 <template>
-  <div v-if="items.length > 0" class="flex flex-col gap-3 md:w-80">
-    <img :src="items[selected].main" :alt="alt" class="aspect-square w-full rounded object-cover" />
+  <div v-if="items.length > 0" class="flex flex-col gap-3">
+    <img
+      :src="items[selected].main"
+      :alt="alt"
+      class="aspect-square w-full rounded-lg border border-hairline bg-sunken object-cover"
+    />
 
     <div v-if="items.length > 1" class="grid grid-cols-4 gap-2">
       <button
@@ -62,8 +66,12 @@ watch(
         type="button"
         :aria-label="t('products.show.viewImage')"
         :aria-current="index === selected"
-        class="aspect-square overflow-hidden rounded border data-[active=true]:border-[var(--color-primary)] border-[var(--gray-3)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
-        :data-active="index === selected"
+        class="aspect-square cursor-pointer overflow-hidden rounded-md border bg-sunken transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+        :class="
+          index === selected
+            ? 'border-indigo-500 ring-2 ring-brand-subtle'
+            : 'border-hairline hover:border-strong'
+        "
         @click="selected = index"
       >
         <img :src="item.thumb" :alt="alt" class="h-full w-full object-cover" />

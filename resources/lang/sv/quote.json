@@ -40,7 +40,12 @@
     "submit": "Skicka in offerten",
     "delete": "Radera utkastet",
     "confirmSubmit": "Skicka den här offerten till köparen? Den går inte att ändra efteråt.",
-    "confirmDelete": "Radera det här utkastet?"
+    "confirmDelete": "Radera det här utkastet?",
+    "sections": {
+      "lines": "Offertrader",
+      "linesHint": "En rad utan styckpris är inte offererad och skickas inte.",
+      "terms": "Villkor"
+    }
   },
   "table": {
     "item": "Artikel",
@@ -57,7 +62,8 @@
     "cheapest": "Billigast",
     "fastest": "Snabbast",
     "leadTime": "Total leveranstid",
-    "validUntil": "Giltig till"
+    "validUntil": "Giltig till",
+    "noValidity": "Ej angiven"
   },
   "show": {
     "title": "Offert från {supplierName}",
@@ -73,7 +79,16 @@
     "index": {
       "title": "Mina offerter",
       "subtitle": "De offerter du har skrivit som svar på förfrågningar.",
-      "empty": "Inga offerter ännu."
+      "empty": "Inga offerter ännu.",
+      "browseRfqs": "Visa mottagna förfrågningar",
+      "columns": {
+        "leadTime": "Leveranstid",
+        "rfq": "Förfrågan",
+        "status": "Status",
+        "total": "Totalt",
+        "validUntil": "Giltig till"
+      },
+      "emptyDescription": "Dina offerter visas här så snart du svarar på en mottagen förfrågan."
     },
     "edit": {
       "title": "Offert: {rfqTitle}",
@@ -84,7 +99,8 @@
         "accepted": "Köparen har accepterat den här offerten.",
         "rejected": "Köparen valde inte den här offerten.",
         "expired": "Den här offerten har gått ut."
-      }
+      },
+      "linesTitle": "Offertrader"
     },
     "rfq": {
       "respond": "Svara med en offert",

@@ -3,10 +3,20 @@
     "title": "Demandes de devis",
     "subtitle": "Décrivez un besoin, consultez plusieurs fournisseurs, comparez leurs réponses.",
     "empty": "Aucune demande pour le moment.",
+    "emptyDescription": "Décrivez votre besoin, choisissez des fournisseurs et comparez leurs devis au même endroit.",
     "new": "Nouvelle demande",
     "itemCount": "{count, plural, one {# ligne} other {# lignes}}",
     "supplierCount": "{count, plural, =0 {aucun destinataire} one {# destinataire} other {# destinataires}}",
-    "responded": "{responded} / {total} réponses"
+    "responded": "{responded} / {total} réponses",
+    "responses": "{responded} / {total}",
+    "columns": {
+      "title": "Demande",
+      "items": "Lignes",
+      "suppliers": "Destinataires",
+      "responses": "Réponses",
+      "status": "Statut",
+      "deadline": "Échéance"
+    }
   },
   "create": {
     "title": "Nouvelle demande de devis",
@@ -104,7 +114,16 @@
       "subtitle": "Les demandes de devis que des acheteurs vous ont adressées.",
       "empty": "Aucune demande reçue pour le moment.",
       "from": "De {name}",
-      "receivedAt": "Reçue le {date}"
+      "receivedAt": "Reçue le {date}",
+      "columns": {
+        "title": "Demande",
+        "buyer": "Acheteur",
+        "items": "Lignes",
+        "receivedAt": "Reçue le",
+        "deadline": "Échéance",
+        "status": "Statut"
+      },
+      "emptyDescription": "Les acheteurs qui vous consultent apparaîtront ici avec le détail de leur besoin."
     },
     "show": {
       "backToList": "Retour aux demandes reçues",
@@ -113,7 +132,10 @@
       "noDeadline": "Sans échéance",
       "declinedNotice": "Vous avez décliné cette demande. L'acheteur en a été informé.",
       "closedNotice": "L'acheteur a clôturé cette demande : elle n'attend plus de réponse.",
-      "expiredNotice": "Cette demande est échue : l'acheteur n'attend plus de réponse."
+      "expiredNotice": "Cette demande est échue : l'acheteur n'attend plus de réponse.",
+      "responseTitle": "Votre réponse",
+      "responseOpen": "Chiffrez ce besoin en remettant un devis, ou déclinez la demande si vous ne pouvez pas y donner suite.",
+      "responseQuote": "Vous avez rédigé un devis pour cette demande."
     },
     "actions": {
       "decline": "Décliner la demande",
@@ -140,6 +162,8 @@
     "add": "Ajouter"
   },
   "deadline": {
+    "title": "Échéance de la consultation",
+    "description": "Donnez plus de temps aux fournisseurs : seule la date change, pas le besoin.",
     "label": "Nouvelle échéance",
     "extend": "Prolonger l'échéance",
     "expiredNotice": "Cette demande est échue : les fournisseurs ne peuvent plus y répondre. Prolongez l'échéance pour la rouvrir."

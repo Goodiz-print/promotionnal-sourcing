@@ -40,7 +40,12 @@
     "submit": "Submit quote",
     "delete": "Delete draft",
     "confirmSubmit": "Submit this quote to the buyer? It will no longer be editable.",
-    "confirmDelete": "Delete this draft?"
+    "confirmDelete": "Delete this draft?",
+    "sections": {
+      "lines": "Quote lines",
+      "linesHint": "A line without a unit price is not quoted: it will not be sent.",
+      "terms": "Terms"
+    }
   },
   "table": {
     "item": "Item",
@@ -57,7 +62,8 @@
     "cheapest": "Cheapest",
     "fastest": "Fastest",
     "leadTime": "Overall lead time",
-    "validUntil": "Valid until"
+    "validUntil": "Valid until",
+    "noValidity": "Not specified"
   },
   "show": {
     "title": "Quote from {supplierName}",
@@ -73,7 +79,16 @@
     "index": {
       "title": "My quotes",
       "subtitle": "The quotes you wrote in response to requests.",
-      "empty": "No quotes yet."
+      "empty": "No quotes yet.",
+      "columns": {
+        "rfq": "Request",
+        "total": "Total",
+        "leadTime": "Lead time",
+        "validUntil": "Valid until",
+        "status": "Status"
+      },
+      "emptyDescription": "Your quotes will show up here as soon as you respond to a received request.",
+      "browseRfqs": "View received requests"
     },
     "edit": {
       "title": "Quote: {rfqTitle}",
@@ -84,7 +99,8 @@
         "accepted": "The buyer accepted this quote.",
         "rejected": "The buyer did not select this quote.",
         "expired": "This quote has expired."
-      }
+      },
+      "linesTitle": "Quote lines"
     },
     "rfq": {
       "respond": "Respond with a quote",

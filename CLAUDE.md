@@ -85,6 +85,7 @@ Les documents PDF des fournisseurs (catalogue, certificat, fiche technique) sont
 - Code partagé backend/frontend dans `shared/` (types, helpers, constants)
 - **Taille max des composants Vue : 250 lignes** (enforced par ESLint `max-lines`) — au-delà, extraire en sous-composants
 - Pages complexes à onglets : chaque onglet = un composant dans `components/<domaine>/show/tabs/`
+- **Design system obligatoire** (`docs/design-system.md`) : toute page applicative utilise `BasePageHeader` (jamais de `<h1>` à la main), `BaseSection`/`BaseCard` pour ses blocs, `BaseTable` pour un tableau, `BaseEmptyState` pour un état vide, `BaseDropdown` pour un menu, `BaseButton`/`BaseLinkButton` pour les actions, les champs `Base*` pour les formulaires, et les icônes **lucide-vue-next** (jamais d'emoji ni de glyphe texte). Couleurs et typographie par les utilitaires du DS (`bg-card`, `border-hairline`, `text-text-secondary`, `text-body-sm`, `text-heading-md`…) — **interdits dans du code neuf** : `text-[NNpx]`, `tracking-[…]`, `rounded` nu, `var(--gray-*)`, `var(--primary-*)`, couleurs hex en dur. Les styles d'éléments vont dans `@layer base` de `inertia/css/app.css` (jamais de règle non layerée : elle écraserait les utilitaires Tailwind).
 - **Extraire les composants génériques** : dès qu'un groupe de balises de template se répète (même structure label/champ/erreur, bouton, carte, badge…) ou pourrait être réutilisé ailleurs, l'extraire en **composant générique** dans `inertia/components/base/` (préfixe `base_*` : `base_input`, `base_select`, `base_button`…) plutôt que de dupliquer le markup et les classes Tailwind. Le composant est paramétré par `props` + `slots` ; le rendre **générique** (`<script setup lang="ts" generic="T …">`) quand le `v-model` doit conserver le type du champ lié (ex. `number | null`, union). Ne jamais copier-coller deux fois le même bloc de champ/contrôle : c'est le signal d'un composant à créer.
 
 #### Mutations Inertia (obligatoire sur pages/composants Inertia)
@@ -162,6 +163,8 @@ tests/
 - **Définir des types de controllers/services ailleurs que dans `shared/types/`** (→ un fichier par domaine dans `shared/types/`, réutilisé côté front)
 - **Définir des classes d'erreur inline dans un controller ou service** (→ `app/exceptions/<domaine>_errors.ts`)
 - **Écrire du texte visible en dur dans un template Vue** (→ utiliser `t('clé')`)
+- **Contourner le design system** : `<h1>`/`<table>`/`<details>` à la main, `text-[32px]`, `var(--gray-*)`, emoji en guise d'icône (→ composants `Base*`, utilitaires DS, lucide ; voir `docs/design-system.md`)
+- **Ajouter une clé à `resources/lang/fr/quote.json` sans l'ajouter aux 8 autres langues** (→ `tests/unit/translations.spec.ts` impose les mêmes clés dans les 9 langues ; lancer `node ace test unit --files=tests/unit/translations.spec.ts` avant de pousser)
 - **Utiliser des ternaires `locale === 'fr' ? ... : ...`** (→ utiliser `t()` avec clé dans les deux JSON)
 - **`fetch` / `axios` + JSON + CSRF manuel dans `inertia/**`** pour des mutations déjà couvertes par une page Inertia (→ `router.patch`/`useForm`/`<Form>`+`response.redirect().back()` côté contrôleur)
 - **`response.json({ ok: true })` sur des routes appelées depuis l’UI Inertia** (→ redirection ; réserver le JSON aux vraies routes API)

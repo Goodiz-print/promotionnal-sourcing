@@ -40,7 +40,12 @@
     "submit": "Angebot einreichen",
     "delete": "Entwurf löschen",
     "confirmSubmit": "Dieses Angebot an den Käufer übermitteln? Es kann danach nicht mehr bearbeitet werden.",
-    "confirmDelete": "Diesen Entwurf löschen?"
+    "confirmDelete": "Diesen Entwurf löschen?",
+    "sections": {
+      "lines": "Angebotspositionen",
+      "linesHint": "Eine Position ohne Stückpreis wird nicht angeboten und nicht gesendet.",
+      "terms": "Bedingungen"
+    }
   },
   "table": {
     "item": "Artikel",
@@ -57,7 +62,8 @@
     "cheapest": "Günstigstes",
     "fastest": "Schnellstes",
     "leadTime": "Gesamtlieferzeit",
-    "validUntil": "Gültig bis"
+    "validUntil": "Gültig bis",
+    "noValidity": "Nicht angegeben"
   },
   "show": {
     "title": "Angebot von {supplierName}",
@@ -73,7 +79,16 @@
     "index": {
       "title": "Meine Angebote",
       "subtitle": "Die Angebote, die Sie auf Anfragen hin erstellt haben.",
-      "empty": "Noch keine Angebote."
+      "empty": "Noch keine Angebote.",
+      "browseRfqs": "Eingegangene Anfragen ansehen",
+      "columns": {
+        "leadTime": "Lieferzeit",
+        "rfq": "Anfrage",
+        "status": "Status",
+        "total": "Gesamt",
+        "validUntil": "Gültig bis"
+      },
+      "emptyDescription": "Ihre Angebote erscheinen hier, sobald Sie auf eine eingegangene Anfrage antworten."
     },
     "edit": {
       "title": "Angebot: {rfqTitle}",
@@ -84,7 +99,8 @@
         "accepted": "Der Käufer hat dieses Angebot angenommen.",
         "rejected": "Der Käufer hat dieses Angebot nicht berücksichtigt.",
         "expired": "Dieses Angebot ist abgelaufen."
-      }
+      },
+      "linesTitle": "Angebotspositionen"
     },
     "rfq": {
       "respond": "Mit einem Angebot antworten",

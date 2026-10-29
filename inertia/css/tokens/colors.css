@@ -6,11 +6,6 @@
    Primaire indigo échantillonné sur le wordmark du logo (#4032c8).
    Les neutres forment une rampe « ink » teintée navy (jamais gris
    pur) pour rester chaude face à l'indigo.
-
-   NB : les alias « legacy » en bas du fichier (--gray-*, --primary-*,
-   --color-primary*) sont conservés et repointés sur la rampe ci-dessus
-   afin que les composants Vue existants adoptent le design system sans
-   modification.
    ============================================================ */
 
 :root {
@@ -37,6 +32,27 @@
   /* ---- Succès ---- */
   --green-100: #d9f0e6;
   --green-500: #1d8a5c;
+
+  /* ---- Accents chauds de la landing (pointes, jamais en aplat dans l'app) ---- */
+  --orange-500: #f6a623;
+  --amber-600: #e08900;
+  --yellow-400: #ffcc00;
+
+  /* ---- Dégradé de marque : violet dominant, l'orange n'apparaît qu'en pointe adoucie ---- */
+  --gradient-brand: linear-gradient(
+    110deg,
+    var(--indigo-500) 0%,
+    #6d3ccf 48%,
+    #a058bb 76%,
+    #d99a55 100%
+  );
+  /* Texte : extrémités assombries pour rester lisible sur fond clair */
+  --gradient-brand-text: linear-gradient(
+    100deg,
+    var(--indigo-600) 0%,
+    #7a3fd4 55%,
+    var(--amber-600) 100%
+  );
 
   /* ---- Neutres — rampe « ink » (teintée navy, jamais noir pur) ---- */
   --ink-0: #ffffff;
@@ -85,50 +101,4 @@
   --state-danger-bg: var(--ruby-100);
   --state-info: var(--indigo-500);
   --state-info-bg: var(--indigo-50);
-
-  /* ---- Boutons ---- */
-  --btn-primary-bg: var(--indigo-500);
-  --btn-primary-bg-hover: var(--indigo-600);
-  --btn-primary-bg-press: var(--indigo-700);
-  --btn-primary-text: var(--ink-0);
-
-  --btn-secondary-bg: var(--ink-0);
-  --btn-secondary-border: var(--ink-200);
-  --btn-secondary-text: var(--ink-950);
-  --btn-secondary-bg-hover: var(--ink-50);
-
-  --btn-ghost-text: var(--indigo-500);
-  --btn-ghost-bg-hover: var(--indigo-50);
-
-  /* ============================================================
-     ALIAS LEGACY — conservés pour rétro-compatibilité.
-     Les composants existants référencent ces variables ; on les
-     repointe sur la rampe du design system (valeurs quasi identiques,
-     désormais teintées navy pour les neutres).
-     ============================================================ */
-
-  /* Rampe neutre historique → ink (mappée par luminosité) */
-  --gray-1: var(--ink-0);
-  --gray-2: var(--ink-50);
-  --gray-3: var(--ink-100);
-  --gray-4: var(--ink-200);
-  --gray-6: var(--ink-500);
-  --gray-7: var(--ink-600);
-  --gray-8: var(--ink-700);
-  --gray-10: var(--ink-800);
-  --gray-12: var(--ink-950);
-
-  /* Rampe primaire historique → indigo */
-  --primary-1: var(--indigo-50);
-  --primary-3: var(--indigo-100);
-  --primary-6: var(--indigo-400);
-  --primary-9: var(--indigo-500);
-  --primary-10: var(--indigo-600);
-  --primary-11: var(--indigo-700);
-  --primary-contrast: var(--ink-0);
-
-  /* Tokens primaires sémantiques historiques */
-  --color-primary: var(--indigo-500);
-  --color-primary-hover: var(--indigo-600);
-  --color-primary-contrast: var(--ink-0);
 }

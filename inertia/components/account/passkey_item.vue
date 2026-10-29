@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useForm } from '@inertiajs/vue3'
+import { KeyRound, Pencil, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import BaseInput from '~/components/base/base_input.vue'
 import BaseButton from '~/components/base/base_button.vue'
+import BaseInput from '~/components/base/base_input.vue'
 import type { PasskeyType } from '#shared/types/passkey'
 
 const props = defineProps<{ passkey: PasskeyType }>()
@@ -25,6 +26,11 @@ function rename() {
   })
 }
 
+function cancelEdit() {
+  form.reset()
+  editing.value = false
+}
+
 function remove() {
   if (!window.confirm(t('account.passkeys.confirmRemove', { name: props.passkey.name }))) return
 
@@ -35,8 +41,14 @@ function remove() {
 </script>
 
 <template>
-  <li class="flex flex-col gap-3 rounded border border-[var(--gray-4)] p-4">
-    <form v-if="editing" class="flex items-end gap-3" @submit.prevent="rename">
+  <li
+    class="flex items-center justify-between gap-4 border-b border-hairline py-3 first:pt-0 last:border-0 last:pb-0"
+  >
+    <form
+      v-if="editing"
+      class="flex grow flex-col gap-3 sm:flex-row sm:items-end"
+      @submit.prevent="rename"
+    >
       <div class="grow">
         <BaseInput
           :id="`passkey-name-${passkey.id}`"
@@ -45,32 +57,47 @@ function remove() {
           :error="form.errors.name"
         />
       </div>
-      <BaseButton type="submit" variant="secondary" :disabled="form.processing">
-        {{ t('account.passkeys.save') }}
-      </BaseButton>
+      <div class="flex shrink-0 gap-2">
+        <BaseButton variant="secondary" size="sm" @click="cancelEdit">
+          {{ t('account.passkeys.cancel') }}
+        </BaseButton>
+        <BaseButton type="submit" size="sm" :loading="form.processing">
+          {{ t('account.passkeys.save') }}
+        </BaseButton>
+      </div>
     </form>
 
-    <div v-else class="flex items-center justify-between gap-3">
-      <div>
-        <p class="font-medium">{{ passkey.name }}</p>
-        <p class="text-sm text-[var(--gray-6)]">
-          {{ t('account.passkeys.createdAt', { date: formatDate(passkey.createdAt) }) }}
-          ·
-          {{
-            passkey.lastUsedAt
-              ? t('account.passkeys.lastUsedAt', { date: formatDate(passkey.lastUsedAt) })
-              : t('account.passkeys.neverUsed')
-          }}
-        </p>
+    <template v-else>
+      <div class="flex min-w-0 items-center gap-3">
+        <span
+          class="flex size-10 shrink-0 items-center justify-center rounded-[10px] bg-brand-subtle text-indigo-600"
+          aria-hidden="true"
+        >
+          <KeyRound :size="18" />
+        </span>
+        <div class="flex min-w-0 flex-col">
+          <p class="truncate text-body-sm font-semibold text-text-primary">{{ passkey.name }}</p>
+          <p class="text-caption text-text-secondary">
+            {{ t('account.passkeys.createdAt', { date: formatDate(passkey.createdAt) }) }}
+            ·
+            {{
+              passkey.lastUsedAt
+                ? t('account.passkeys.lastUsedAt', { date: formatDate(passkey.lastUsedAt) })
+                : t('account.passkeys.neverUsed')
+            }}
+          </p>
+        </div>
       </div>
-      <div class="flex gap-2">
-        <BaseButton variant="secondary" @click="editing = true">
+      <div class="flex shrink-0 gap-2">
+        <BaseButton variant="secondary" size="sm" @click="editing = true">
+          <template #icon><Pencil :size="16" aria-hidden="true" /></template>
           {{ t('account.passkeys.rename') }}
         </BaseButton>
-        <BaseButton variant="danger" :disabled="form.processing" @click="remove">
+        <BaseButton variant="danger" size="sm" :disabled="form.processing" @click="remove">
+          <template #icon><Trash2 :size="16" aria-hidden="true" /></template>
           {{ t('account.passkeys.remove') }}
         </BaseButton>
       </div>
-    </div>
+    </template>
   </li>
 </template>

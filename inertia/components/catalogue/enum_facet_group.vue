@@ -1,5 +1,6 @@
 <script setup lang="ts" generic="T extends string">
 import BaseCheckbox from '~/components/base/base_checkbox.vue'
+import FacetSection from '~/components/catalogue/facet_section.vue'
 
 /**
  * Groupe de cases pour une facette d'énumération fermée combinée en **OU**
@@ -21,8 +22,7 @@ defineEmits<{
 </script>
 
 <template>
-  <fieldset class="flex flex-col gap-2">
-    <legend class="mb-1 text-sm font-medium">{{ title }}</legend>
+  <FacetSection :title="title">
     <BaseCheckbox
       v-for="option in options"
       :id="`${idPrefix}-${option}`"
@@ -31,5 +31,5 @@ defineEmits<{
       :label="labelFor(option)"
       @update:model-value="(checked: boolean) => $emit('toggle', option, checked)"
     />
-  </fieldset>
+  </FacetSection>
 </template>

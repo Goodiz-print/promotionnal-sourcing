@@ -41,6 +41,6 @@ const { t, path, email } = useMarketing()
       }}</a
       >.
     </p>
-    <BaseLinkButton :href="path()">{{ t('landing.thanks.backHome') }}</BaseLinkButton>
+    <BaseLinkButton size="lg" :href="path()">{{ t('landing.thanks.backHome') }}</BaseLinkButton>
   </section>
 </template>

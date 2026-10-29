@@ -1,7 +1,13 @@
+<script setup lang="ts">
+/** Halo de fond indigo / ambre. `animated` ajoute la dérive lente de la landing. */
+withDefaults(defineProps<{ animated?: boolean }>(), { animated: false })
+</script>
+
 <template>
   <div
     aria-hidden="true"
-    class="anim-mesh pointer-events-none absolute inset-[-10%] z-0"
+    class="pointer-events-none absolute inset-[-10%] z-0"
+    :class="animated ? 'anim-mesh' : ''"
     style="
       background:
         radial-gradient(480px 320px at 18% 20%, rgba(64, 50, 200, 0.16), transparent 60%),

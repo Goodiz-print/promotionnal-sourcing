@@ -48,7 +48,11 @@
         "forestry": "Forêt / bois",
         "quality": "Qualité"
       }
-    }
+    },
+    "filtersTitle": "Filtres",
+    "reset": "Réinitialiser",
+    "quickFilters": "Filtres rapides",
+    "emptyHint": "Élargissez vos critères ou réinitialisez les filtres."
   },
   "show": {
     "backToCatalogue": "Retour au catalogue",
@@ -76,7 +80,16 @@
   "manage": {
     "index": {
       "title": "Mes produits",
-      "empty": "Vous n'avez pas encore de produit. Créez-en un."
+      "empty": "Vous n'avez pas encore de produit. Créez-en un.",
+      "columns": {
+        "product": "Produit",
+        "price": "Prix",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "emptyDescription": "Ajoutez vos produits pour qu'ils apparaissent dans le catalogue et puissent être cités dans les demandes de devis.",
+      "noPrice": "Prix sur demande",
+      "priceRange": "{min} – {max}"
     },
     "create": {
       "title": "Nouveau produit"
@@ -195,7 +208,20 @@
       "maxColors": "Couleurs max",
       "setupCharge": "Frais techniques",
       "priceTiers": "Grille de prix de marquage",
-      "priceTiersHint": "Prix de marquage unitaire selon la technique et la quantité commandée."
-    }
+      "priceTiersHint": "Prix de marquage unitaire selon la technique et la quantité commandée.",
+      "chooseTechnique": "Choisir une technique"
+    },
+    "sections": {
+      "content": "Nom et description",
+      "details": "Classification",
+      "contentHint": "Nom et description dans la langue source ; les autres langues peuvent être générées automatiquement."
+    },
+    "backToList": "Retour à mes produits"
+  },
+  "card": {
+    "minQuantity": "{count, plural, one {Min. # pièce} other {Min. # pièces}}",
+    "madeInEurope": "Fabriqué en Europe",
+    "eco": "Éco-responsable",
+    "new": "Nouveauté"
   }
 }

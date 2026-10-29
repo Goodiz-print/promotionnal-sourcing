@@ -33,31 +33,39 @@ const steps = computed<Step[]>(() => {
     { key: 'delivered', at: timeline.deliveredAt },
   ]
 })
+
+/** Dernière étape atteinte : la seule soulignée d'un halo. */
+const currentKey = computed(() => steps.value.filter((step) => step.at).at(-1)?.key)
+
+function dotClass(step: Step): string {
+  if (!step.at) return 'bg-ink-200'
+  if (step.key === 'cancelled') return 'bg-danger ring-4 ring-danger-bg'
+  return step.key === currentKey.value ? 'bg-indigo-500 ring-4 ring-brand-subtle' : 'bg-indigo-500'
+}
 </script>
 
 <template>
-  <ol class="flex flex-col gap-3">
-    <li v-for="step in steps" :key="step.key" class="flex items-start gap-3">
+  <ol class="flex flex-col">
+    <li
+      v-for="step in steps"
+      :key="step.key"
+      class="relative border-l-2 border-hairline pb-6 pl-6 last:pb-0"
+    >
       <span
-        class="mt-1.5 size-2.5 shrink-0 rounded-full"
-        :class="
-          step.at
-            ? step.key === 'cancelled'
-              ? 'bg-[var(--state-danger)]'
-              : 'bg-[var(--primary-9)]'
-            : 'bg-[var(--gray-4)]'
-        "
+        class="absolute top-1 -left-[7px] size-3 rounded-full"
+        :class="dotClass(step)"
         aria-hidden="true"
       />
-      <div>
-        <p :class="step.at ? 'font-medium' : 'text-[var(--gray-6)]'">
-          {{ t(`order.timeline.${step.key}`) }}
-        </p>
-        <p v-if="step.at" class="text-sm text-[var(--gray-6)]">
-          {{ formatDateTime(step.at, locale) }}
-        </p>
-        <p v-else class="text-sm text-[var(--gray-6)]">{{ t('order.timeline.pending') }}</p>
-      </div>
+      <p
+        class="text-body-sm font-semibold"
+        :class="step.at ? 'text-text-primary' : 'text-text-muted'"
+      >
+        {{ t(`order.timeline.${step.key}`) }}
+      </p>
+      <p v-if="step.at" class="text-tabular text-caption text-text-muted">
+        {{ formatDateTime(step.at, locale) }}
+      </p>
+      <p v-else class="text-caption text-text-muted">{{ t('order.timeline.pending') }}</p>
     </li>
   </ol>
 </template>

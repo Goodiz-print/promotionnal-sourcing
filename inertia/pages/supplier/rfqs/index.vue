@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
+import { Inbox } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import BaseAvatar from '~/components/base/base_avatar.vue'
 import BaseBadge from '~/components/base/base_badge.vue'
+import BaseEmptyState from '~/components/base/base_empty_state.vue'
+import BasePageHeader from '~/components/base/base_page_header.vue'
+import BaseTable from '~/components/base/base_table.vue'
 import { RFQ_SUPPLIER_STATUS_TONES } from '~/components/rfqs/types'
 import type { SupplierRfqType } from '#shared/types/rfq'
 
@@ -13,60 +18,81 @@ const { t, locale } = useI18n()
 function formatDate(value: string): string {
   return new Date(value).toLocaleDateString(locale.value)
 }
+
+/** Deux premières initiales de l'acheteur, pour les organisations sans logo. */
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word.charAt(0))
+    .join('')
+}
 </script>
 
 <template>
   <Head :title="t('rfq.supplier.index.title')" />
 
-  <div class="mx-auto flex max-w-[960px] flex-col gap-6 px-6 py-12">
-    <div>
-      <h1 class="mb-1.25 text-[32px] tracking-[-0.5px]">{{ t('rfq.supplier.index.title') }}</h1>
-      <p class="text-lg text-[var(--gray-6)]">{{ t('rfq.supplier.index.subtitle') }}</p>
-    </div>
+  <div class="flex flex-col gap-8">
+    <BasePageHeader
+      :title="t('rfq.supplier.index.title')"
+      :description="t('rfq.supplier.index.subtitle')"
+    />
 
-    <p v-if="rfqs.length === 0" class="text-[var(--gray-6)]">
-      {{ t('rfq.supplier.index.empty') }}
-    </p>
+    <BaseEmptyState
+      v-if="rfqs.length === 0"
+      :title="t('rfq.supplier.index.empty')"
+      :description="t('rfq.supplier.index.emptyDescription')"
+      :icon="Inbox"
+    />
 
-    <ul v-else class="flex flex-col gap-2">
-      <li
-        v-for="rfq in rfqs"
-        :key="rfq.id"
-        class="flex items-center gap-4 rounded border border-[var(--gray-3)] p-4"
-      >
-        <img
-          v-if="rfq.buyerLogoUrl"
-          :src="rfq.buyerLogoUrl"
-          alt=""
-          class="h-10 w-10 shrink-0 rounded object-cover"
-        />
-        <div class="flex-1">
+    <BaseTable v-else :caption="t('rfq.supplier.index.title')">
+      <template #head>
+        <tr>
+          <th scope="col">{{ t('rfq.supplier.index.columns.title') }}</th>
+          <th scope="col">{{ t('rfq.supplier.index.columns.buyer') }}</th>
+          <th scope="col" class="text-right">{{ t('rfq.supplier.index.columns.items') }}</th>
+          <th scope="col">{{ t('rfq.supplier.index.columns.receivedAt') }}</th>
+          <th scope="col">{{ t('rfq.supplier.index.columns.deadline') }}</th>
+          <th scope="col">{{ t('rfq.supplier.index.columns.status') }}</th>
+        </tr>
+      </template>
+
+      <tr v-for="rfq in rfqs" :key="rfq.id">
+        <td>
           <Link
             route="supplier.rfqs.show"
             :params="{ locale, id: rfq.id }"
-            class="font-medium hover:underline"
+            class="font-semibold text-text-primary hover:text-indigo-600"
           >
             {{ rfq.title }}
           </Link>
-          <p class="mt-0.5 text-sm text-[var(--gray-6)]">
-            {{ t('rfq.supplier.index.from', { name: rfq.buyerName }) }} ·
-            {{ t('rfq.index.itemCount', { count: rfq.itemCount }) }}
-            <template v-if="rfq.sentAt">
-              · {{ t('rfq.supplier.index.receivedAt', { date: formatDate(rfq.sentAt) }) }}
-            </template>
-          </p>
-          <p class="text-sm text-[var(--gray-6)]">
-            {{
-              rfq.deadline
-                ? t('rfq.show.deadline', { date: formatDate(rfq.deadline) })
-                : t('rfq.supplier.show.noDeadline')
-            }}
-          </p>
-        </div>
-        <BaseBadge :tone="RFQ_SUPPLIER_STATUS_TONES[rfq.myStatus]">
-          {{ t(`rfq.supplier.status.${rfq.myStatus}`) }}
-        </BaseBadge>
-      </li>
-    </ul>
+        </td>
+        <td>
+          <div class="flex items-center gap-2.5">
+            <img
+              v-if="rfq.buyerLogoUrl"
+              :src="rfq.buyerLogoUrl"
+              alt=""
+              class="size-8 shrink-0 rounded-md bg-sunken object-cover"
+            />
+            <BaseAvatar v-else :initials="initials(rfq.buyerName)" size="sm" />
+            <span class="truncate">{{ rfq.buyerName }}</span>
+          </div>
+        </td>
+        <td class="text-tabular text-right">{{ rfq.itemCount }}</td>
+        <td class="text-tabular whitespace-nowrap">
+          <template v-if="rfq.sentAt">{{ formatDate(rfq.sentAt) }}</template>
+        </td>
+        <td class="text-tabular whitespace-nowrap">
+          <template v-if="rfq.deadline">{{ formatDate(rfq.deadline) }}</template>
+          <span v-else class="text-text-muted">{{ t('rfq.supplier.show.noDeadline') }}</span>
+        </td>
+        <td>
+          <BaseBadge dot :tone="RFQ_SUPPLIER_STATUS_TONES[rfq.myStatus]">
+            {{ t(`rfq.supplier.status.${rfq.myStatus}`) }}
+          </BaseBadge>
+        </td>
+      </tr>
+    </BaseTable>
   </div>
 </template>

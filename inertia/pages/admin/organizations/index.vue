@@ -2,12 +2,18 @@
 import { ref } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
+import { Building2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import AdminNav from '~/components/admin/admin_nav.vue'
+import { useAdminTabs } from '~/composables/use_admin_tabs'
 import BaseBadge from '~/components/base/base_badge.vue'
+import BaseCard from '~/components/base/base_card.vue'
+import BaseEmptyState from '~/components/base/base_empty_state.vue'
+import BasePageHeader from '~/components/base/base_page_header.vue'
 import BasePagination from '~/components/base/base_pagination.vue'
 import BaseSelect from '~/components/base/base_select.vue'
+import BaseTable from '~/components/base/base_table.vue'
+import BaseTabs from '~/components/base/base_tabs.vue'
 import type {
   AdminOrganizationFilters,
   AdminOrganizationListItem,
@@ -22,6 +28,7 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
+const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 
 const type = ref<OrganizationKind | ''>(props.filters.type ?? '')
 const status = ref<AdminOrganizationStatus>(props.filters.status)
@@ -38,16 +45,16 @@ function visit(page: number) {
 <template>
   <Head :title="t('admin.organizations.title')" />
 
-  <div class="mx-auto flex w-full max-w-[960px] flex-col gap-6 px-6 py-12">
-    <AdminNav current="organizations" />
+  <div class="flex flex-col gap-8">
+    <BasePageHeader
+      :title="t('admin.organizations.title')"
+      :description="t('admin.organizations.subtitle')"
+    />
 
-    <div>
-      <h1 class="mb-1.25 text-[28px] tracking-[-0.5px]">{{ t('admin.organizations.title') }}</h1>
-      <p class="text-sm text-[var(--gray-6)]">{{ t('admin.organizations.subtitle') }}</p>
-    </div>
+    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
-    <div class="flex flex-col gap-4 sm:flex-row">
-      <div class="sm:w-56">
+    <BaseCard padding="md">
+      <div class="grid gap-4 sm:grid-cols-[200px_200px]">
         <BaseSelect
           id="type"
           v-model="type"
@@ -59,8 +66,6 @@ function visit(page: number) {
           <option value="supplier">{{ t('admin.organizations.types.supplier') }}</option>
           <option value="both">{{ t('admin.organizations.types.both') }}</option>
         </BaseSelect>
-      </div>
-      <div class="sm:w-56">
         <BaseSelect
           id="status"
           v-model="status"
@@ -72,42 +77,46 @@ function visit(page: number) {
           <option value="all">{{ t('admin.organizations.status.all') }}</option>
         </BaseSelect>
       </div>
-    </div>
+    </BaseCard>
 
-    <p v-if="organizationList.data.length === 0" class="text-[var(--gray-6)]">
-      {{ t('admin.organizations.empty') }}
-    </p>
+    <div class="flex flex-col gap-4">
+      <p class="text-tabular text-body-sm text-text-secondary">
+        {{ t('admin.organizations.resultsCount', { count: organizationList.meta.total }) }}
+      </p>
 
-    <table v-else class="w-full border-collapse text-sm">
-      <thead>
-        <tr class="border-b border-[var(--gray-4)] text-left text-[var(--gray-6)]">
-          <th class="py-2 pr-4 font-medium">{{ t('admin.organizations.columns.name') }}</th>
-          <th class="py-2 pr-4 font-medium">{{ t('admin.organizations.columns.type') }}</th>
-          <th class="py-2 pr-4 font-medium">{{ t('admin.organizations.columns.members') }}</th>
-          <th class="py-2 pr-4 font-medium">{{ t('admin.organizations.columns.status') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="organization in organizationList.data"
-          :key="organization.id"
-          class="border-b border-[var(--gray-3)]"
-        >
-          <td class="py-3 pr-4 font-medium">
+      <BaseEmptyState
+        v-if="organizationList.data.length === 0"
+        :title="t('admin.organizations.empty')"
+        :description="t('admin.organizations.emptyDescription')"
+        :icon="Building2"
+      />
+
+      <BaseTable v-else :caption="t('admin.organizations.title')">
+        <template #head>
+          <tr>
+            <th scope="col">{{ t('admin.organizations.columns.name') }}</th>
+            <th scope="col">{{ t('admin.organizations.columns.type') }}</th>
+            <th scope="col" class="text-right">{{ t('admin.organizations.columns.members') }}</th>
+            <th scope="col">{{ t('admin.organizations.columns.status') }}</th>
+          </tr>
+        </template>
+
+        <tr v-for="organization in organizationList.data" :key="organization.id">
+          <td>
             <Link
               route="admin.organizations.show"
               :params="{ locale, id: organization.id }"
-              class="hover:underline"
+              class="font-semibold text-text-primary hover:text-indigo-600"
             >
               {{ organization.name }}
             </Link>
           </td>
-          <td class="py-3 pr-4 text-[var(--gray-6)]">
+          <td class="text-text-secondary">
             {{ t(`admin.organizations.types.${organization.organizationType}`) }}
           </td>
-          <td class="py-3 pr-4 text-[var(--gray-6)]">{{ organization.membersCount }}</td>
-          <td class="py-3 pr-4">
-            <BaseBadge :tone="organization.archivedAt ? 'warning' : 'success'">
+          <td class="text-tabular text-right">{{ organization.membersCount }}</td>
+          <td>
+            <BaseBadge dot :tone="organization.archivedAt ? 'warning' : 'success'">
               {{
                 t(
                   organization.archivedAt
@@ -118,14 +127,14 @@ function visit(page: number) {
             </BaseBadge>
           </td>
         </tr>
-      </tbody>
-    </table>
+      </BaseTable>
 
-    <BasePagination
-      :meta="organizationList.meta"
-      :previous-label="t('admin.pagination.previous')"
-      :next-label="t('admin.pagination.next')"
-      @change="visit"
-    />
+      <BasePagination
+        :meta="organizationList.meta"
+        :previous-label="t('admin.pagination.previous')"
+        :next-label="t('admin.pagination.next')"
+        @change="visit"
+      />
+    </div>
   </div>
 </template>

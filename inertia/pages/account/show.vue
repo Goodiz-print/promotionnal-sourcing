@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
+import BasePageHeader from '~/components/base/base_page_header.vue'
 import ProfileForm from '~/components/account/profile_form.vue'
 import PasswordForm from '~/components/account/password_form.vue'
 import PasskeysSection from '~/components/account/passkeys_section.vue'
@@ -20,11 +21,8 @@ const { t } = useI18n()
 <template>
   <Head :title="t('account.title')" />
 
-  <div class="mx-auto flex max-w-[720px] flex-col gap-12 px-6 py-12">
-    <div>
-      <h1 class="mb-1.25 text-[32px] tracking-[-0.5px]">{{ t('account.title') }}</h1>
-      <p class="text-lg text-[var(--gray-6)]">{{ t('account.subtitle') }}</p>
-    </div>
+  <div class="mx-auto flex w-full max-w-[860px] flex-col gap-8">
+    <BasePageHeader :title="t('account.title')" :description="t('account.subtitle')" />
 
     <ProfileForm :account="account" />
     <PasswordForm />

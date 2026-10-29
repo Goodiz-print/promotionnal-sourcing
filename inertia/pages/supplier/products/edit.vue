@@ -2,6 +2,7 @@
 import { Head } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import BasePageHeader from '~/components/base/base_page_header.vue'
 import ProductForm from '~/components/products/form/product_form.vue'
 import DocumentManager from '~/components/documents/document_manager.vue'
 import type { CategoryType } from '#shared/types/category'
@@ -25,8 +26,12 @@ const { t, locale } = useI18n()
 <template>
   <Head :title="t('products.manage.edit.title')" />
 
-  <div class="mx-auto max-w-[960px] px-6 py-12">
-    <h1 class="mb-8 text-[28px] tracking-[-0.5px]">{{ t('products.manage.edit.title') }}</h1>
+  <div class="mx-auto flex w-full max-w-[860px] flex-col gap-8">
+    <BasePageHeader
+      :title="t('products.manage.edit.title')"
+      :back-href="urlFor('supplier.products.index', { locale })"
+      :back-label="t('products.manage.backToList')"
+    />
     <ProductForm
       mode="edit"
       :product="product"
@@ -37,7 +42,7 @@ const { t, locale } = useI18n()
     />
 
     <DocumentManager
-      class="mt-12 max-w-[720px]"
+      class="mt-4"
       :documents="product.documents"
       :store-url="urlFor('supplier.products.documents.store', { locale, id: props.product.id })"
       :destroy-url="

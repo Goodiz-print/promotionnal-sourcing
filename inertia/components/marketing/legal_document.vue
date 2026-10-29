@@ -59,7 +59,7 @@ onBeforeUnmount(() => observer?.disconnect())
 
 <template>
   <section class="relative overflow-hidden border-b border-hairline bg-sunken">
-    <GradientMesh />
+    <GradientMesh animated />
     <div class="wrapper relative z-10 py-14 md:py-20">
       <nav
         :aria-label="t('landing.legal.breadcrumbAria')"
@@ -214,7 +214,7 @@ onBeforeUnmount(() => observer?.disconnect())
             {{ t('landing.legal.helpBody') }}
           </p>
           <div class="flex flex-wrap items-center gap-x-7 gap-y-4">
-            <BaseLinkButton :href="path('contact')" variant="on-dark">
+            <BaseLinkButton size="lg" :href="path('contact')" variant="on-dark">
               {{ t('landing.legal.helpCta') }}
             </BaseLinkButton>
             <Link

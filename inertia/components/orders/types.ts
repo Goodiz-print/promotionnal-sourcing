@@ -1,12 +1,11 @@
 import type { OrderAction, OrderSide, OrderStatus } from '#shared/types/order'
-
-type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'danger'
+import type { BadgeTone } from '~/types/ui'
 
 /**
  * Tonalité de la pastille par statut : l'attente reste neutre, l'avancement est
  * informatif, la livraison est le seul succès, l'annulation une impasse.
  */
-export const ORDER_STATUS_TONES: Record<OrderStatus, Tone> = {
+export const ORDER_STATUS_TONES: Record<OrderStatus, BadgeTone> = {
   pending: 'warning',
   confirmed: 'info',
   in_production: 'info',

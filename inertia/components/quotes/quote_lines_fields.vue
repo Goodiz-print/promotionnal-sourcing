@@ -29,16 +29,16 @@ function itemOf(line: QuoteLineState): RfqItemType | undefined {
     <li
       v-for="(line, index) in lines"
       :key="line.rfqItemId"
-      class="flex flex-col gap-3 rounded border border-[var(--gray-3)] p-4"
+      class="flex flex-col gap-4 rounded-lg border border-hairline bg-sunken p-4"
     >
       <div class="flex items-baseline justify-between gap-4">
-        <p class="font-medium">{{ itemOf(line)?.name }}</p>
-        <span class="text-sm whitespace-nowrap text-[var(--gray-6)]">
+        <p class="text-body-md font-semibold text-text-primary">{{ itemOf(line)?.name }}</p>
+        <span class="text-tabular text-caption whitespace-nowrap text-text-secondary">
           {{ t('quote.form.requested', { quantity: itemOf(line)?.quantity ?? 0 }) }}
         </span>
       </div>
 
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div class="grid gap-4 sm:grid-cols-3">
         <BaseInput
           :id="`quote-price-${line.rfqItemId}`"
           v-model="line.unitPrice"
@@ -72,7 +72,10 @@ function itemOf(line: QuoteLineState): RfqItemType | undefined {
         :placeholder="t('quote.form.customizationHint')"
       />
 
-      <p v-if="lineTotal(line) !== null" class="text-sm text-[var(--gray-8)]">
+      <p
+        v-if="lineTotal(line) !== null"
+        class="text-tabular text-body-sm font-semibold text-text-primary"
+      >
         {{ t('quote.form.lineTotal', { total: formatMoney(lineTotal(line)!, currency, locale) }) }}
       </p>
     </li>

@@ -3,7 +3,13 @@
     "title": "Supplier profile",
     "subtitle": "Fill in your lead times, certifications and delivery scope to reassure buyers.",
     "submit": "Save profile",
-    "success": "Supplier profile updated."
+    "success": "Supplier profile updated.",
+    "sections": {
+      "terms": "Commercial terms",
+      "termsHint": "Minimum order, lead times and delivery scope shown to buyers.",
+      "certificationsHint": "Standards and labels you hold (ISO, FSC, OEKO-TEX…).",
+      "presentation": "Company presentation"
+    }
   },
   "fields": {
     "minOrderQuantity": "Minimum order quantity",
@@ -15,7 +21,8 @@
     "certificationAdd": "Add a certification",
     "certificationRemove": "Remove",
     "bio": "About",
-    "defaultOriginScope": "Default origin"
+    "defaultOriginScope": "Default origin",
+    "certificationsEmpty": "No certification yet."
   },
   "deliveryScope": {
     "none": "Not specified",

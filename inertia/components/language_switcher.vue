@@ -21,7 +21,7 @@ function switchLocale(next: Locale) {
     :current="locale"
     :locales="locales"
     :label="t('common.language.label')"
-    button-class="rounded border border-[var(--gray-4)] bg-white px-2 py-1 text-sm font-medium"
+    button-class="h-9 rounded-md border border-input bg-canvas px-2.5 text-caption font-semibold text-text-secondary transition-colors hover:border-strong hover:text-text-primary"
     @select="switchLocale"
   />
 </template>

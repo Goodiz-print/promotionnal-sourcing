@@ -28,6 +28,7 @@ createInertiaApp({
       .mount(el)
   },
   progress: {
-    color: '#4B5563',
+    // Indigo de marque (--indigo-500) : la barre de progression Inertia ne lit pas les tokens CSS.
+    color: '#4032c8',
   },
 })

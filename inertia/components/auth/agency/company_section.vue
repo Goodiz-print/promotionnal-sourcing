@@ -39,7 +39,7 @@ function pickLocale(value: string) {
 
 <template>
   <fieldset class="flex flex-col gap-6">
-    <legend class="mb-1 text-lg font-medium">{{ t('agency_signup.sections.company') }}</legend>
+    <legend class="mb-1 text-heading-md">{{ t('agency_signup.sections.company') }}</legend>
     <BaseInput
       id="companyName"
       v-model="form.companyName"
@@ -67,7 +67,7 @@ function pickLocale(value: string) {
         :label="t('agency_signup.fields.taxId')"
         :error="form.errors.taxId"
       />
-      <p class="mt-1 text-sm text-[var(--gray-6)]">{{ t('agency_signup.taxIdHelp') }}</p>
+      <p class="text-caption text-text-muted">{{ t('agency_signup.taxIdHelp') }}</p>
     </div>
     <div>
       <BaseInput
@@ -79,7 +79,7 @@ function pickLocale(value: string) {
         :label="t('agency_signup.fields.website')"
         :error="form.errors.website"
       />
-      <p class="mt-1 text-sm text-[var(--gray-6)]">{{ t('agency_signup.websiteHelp') }}</p>
+      <p class="text-caption text-text-muted">{{ t('agency_signup.websiteHelp') }}</p>
     </div>
     <BaseInput
       id="phone"

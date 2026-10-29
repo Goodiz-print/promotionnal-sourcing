@@ -1,39 +1,61 @@
 <script setup lang="ts">
+import type { Component } from 'vue'
 import { Head } from '@inertiajs/vue3'
+import { Building2, FileText, Package, Users } from 'lucide-vue-next'
+import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
-import AdminNav from '~/components/admin/admin_nav.vue'
+import { useAdminTabs } from '~/composables/use_admin_tabs'
+import BasePageHeader from '~/components/base/base_page_header.vue'
+import BaseStat from '~/components/base/base_stat.vue'
+import BaseTabs from '~/components/base/base_tabs.vue'
 import type { AdminDashboardStats } from '#shared/types/admin'
 
 defineProps<{ stats: AdminDashboardStats }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 
-const COUNTERS = ['organizations', 'users', 'products', 'rfqs'] as const
+type Counter = 'organizations' | 'users' | 'products' | 'rfqs'
+
+/** Compteurs du back-office : icône, et liste cible quand une page admin existe. */
+const COUNTERS: {
+  key: Counter
+  icon: Component
+  route?: 'admin.organizations.index' | 'admin.users.index'
+}[] = [
+  { key: 'organizations', icon: Building2, route: 'admin.organizations.index' },
+  { key: 'users', icon: Users, route: 'admin.users.index' },
+  { key: 'products', icon: Package },
+  { key: 'rfqs', icon: FileText },
+]
 </script>
 
 <template>
   <Head :title="t('admin.dashboard.title')" />
 
-  <div class="mx-auto flex w-full max-w-[960px] flex-col px-6 py-12">
-    <AdminNav current="dashboard" />
+  <div class="flex flex-col gap-8">
+    <BasePageHeader
+      :title="t('admin.dashboard.title')"
+      :description="t('admin.dashboard.subtitle')"
+    />
 
-    <h1 class="mb-1.25 text-[28px] tracking-[-0.5px]">{{ t('admin.dashboard.title') }}</h1>
-    <p class="mb-8 text-sm text-[var(--gray-6)]">{{ t('admin.dashboard.subtitle') }}</p>
+    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
-    <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <BaseStat
         v-for="counter in COUNTERS"
-        :key="counter"
-        class="rounded border border-[var(--gray-4)] p-5"
-      >
-        <dt class="text-sm text-[var(--gray-6)]">{{ t(`admin.dashboard.counters.${counter}`) }}</dt>
-        <dd class="mt-1 text-3xl font-medium" :data-testid="`counter-${counter}`">
-          {{ stats[counter] }}
-        </dd>
-        <p v-if="counter === 'organizations'" class="mt-1 text-xs text-[var(--gray-6)]">
-          {{ t('admin.dashboard.archived', { count: stats.archivedOrganizations }) }}
-        </p>
-      </div>
-    </dl>
+        :key="counter.key"
+        :data-testid="`counter-${counter.key}`"
+        :label="t(`admin.dashboard.counters.${counter.key}`)"
+        :value="stats[counter.key]"
+        :icon="counter.icon"
+        :href="counter.route ? urlFor(counter.route, { locale }) : undefined"
+        :hint="
+          counter.key === 'organizations'
+            ? t('admin.dashboard.archived', { count: stats.archivedOrganizations })
+            : undefined
+        "
+      />
+    </div>
   </div>
 </template>

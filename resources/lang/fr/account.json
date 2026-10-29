@@ -49,6 +49,7 @@
     "renamed": "Passkey renommée.",
     "removed": "Passkey supprimée.",
     "failed": "La passkey n'a pas pu être enregistrée. Réessayez.",
-    "alreadyRegistered": "Cet appareil est déjà enregistré."
+    "alreadyRegistered": "Cet appareil est déjà enregistré.",
+    "cancel": "Annuler"
   }
 }

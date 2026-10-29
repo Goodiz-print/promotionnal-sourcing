@@ -3,6 +3,8 @@ import { provide } from 'vue'
 import { Head, useForm } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
+import AuthHeader from '~/components/auth/auth_header.vue'
+import AuthLayout from '~/layouts/auth.vue'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
 import AccountSection from '~/components/auth/agency/account_section.vue'
@@ -13,6 +15,8 @@ import { defaultLocaleForCountry } from '#shared/types/country'
 import type { Locale } from '#shared/types/i18n'
 
 const props = defineProps<{ redirect?: string | null }>()
+
+defineOptions({ layout: AuthLayout })
 
 const { t, locale } = useI18n()
 
@@ -57,23 +61,24 @@ function submit() {
 <template>
   <Head :title="t('agency_signup.title')" />
 
-  <div class="mx-auto flex max-w-[520px] flex-col justify-center">
-    <div>
-      <h1 class="mb-1.25 text-[32px] tracking-[-0.5px]">{{ t('agency_signup.title') }}</h1>
-      <p class="mb-12 text-lg text-[var(--gray-6)]">{{ t('agency_signup.subtitle') }}</p>
-    </div>
+  <div class="flex flex-col gap-8">
+    <AuthHeader :title="t('agency_signup.title')" :description="t('agency_signup.subtitle')" />
 
     <form class="flex flex-col gap-10" @submit.prevent="submit">
       <AccountSection />
       <CompanySection />
       <ConsentSection />
-      <BaseButton type="submit" :disabled="form.processing">
+      <BaseButton type="submit" block :loading="form.processing">
         {{ t('agency_signup.submit') }}
       </BaseButton>
     </form>
 
-    <p class="mt-6 text-sm text-[var(--gray-6)]">
-      <Link route="session.create" :params="{ locale }" class="underline">
+    <p class="text-body-sm text-text-secondary">
+      <Link
+        route="session.create"
+        :params="{ locale }"
+        class="font-semibold text-indigo-600 hover:underline"
+      >
         {{ t('agency_signup.haveAccount') }}
       </Link>
     </p>

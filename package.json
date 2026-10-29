@@ -107,6 +107,7 @@
     "edge.js": "^6.5.1",
     "intl-messageformat": "^11.2.15",
     "kysely": "^0.29.7",
+    "lucide-vue-next": "^1.0.0",
     "luxon": "^3.7.2",
     "meilisearch": "0.62.0",
     "pg": "^8.23.1",

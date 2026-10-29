@@ -1,96 +1,138 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Head } from '@inertiajs/vue3'
-import { Link } from '@adonisjs/inertia/vue'
+import { FileText, Package, Users } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
-import AdminNav from '~/components/admin/admin_nav.vue'
+import { urlFor } from '~/client'
+import { useAdminTabs } from '~/composables/use_admin_tabs'
 import BaseBadge from '~/components/base/base_badge.vue'
+import BaseDescriptionItem from '~/components/base/base_description_item.vue'
+import BaseDescriptionList from '~/components/base/base_description_list.vue'
+import BaseEmptyState from '~/components/base/base_empty_state.vue'
+import BasePageHeader from '~/components/base/base_page_header.vue'
+import BaseSection from '~/components/base/base_section.vue'
+import BaseStat from '~/components/base/base_stat.vue'
+import BaseTable from '~/components/base/base_table.vue'
+import BaseTabs from '~/components/base/base_tabs.vue'
+import { ORGANIZATION_ROLE_TONES } from '~/components/admin/types'
 import type { AdminOrganizationDetail } from '#shared/types/admin'
 
 defineProps<{ organization: AdminOrganizationDetail }>()
 
 const { t, locale } = useI18n()
+const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
+
+const indexUrl = computed(() => urlFor('admin.organizations.index', { locale: locale.value }))
 
 const FIELDS = ['email', 'phone', 'website', 'siret', 'vatNumber', 'country'] as const
+
+function formatDate(value: string): string {
+  return new Date(value).toLocaleDateString(locale.value)
+}
 </script>
 
 <template>
   <Head :title="organization.name" />
 
-  <div class="mx-auto flex w-full max-w-[960px] flex-col gap-6 px-6 py-12">
-    <AdminNav current="organizations" />
-
-    <Link
-      route="admin.organizations.index"
-      :params="{ locale }"
-      class="text-sm text-[var(--color-primary)] hover:underline"
+  <div class="flex flex-col gap-8">
+    <BasePageHeader
+      :title="organization.name"
+      :description="organization.slug"
+      :back-href="indexUrl"
+      :back-label="t('admin.organizations.back')"
     >
-      {{ t('admin.organizations.back') }}
-    </Link>
+      <template #meta>
+        <BaseBadge dot :tone="organization.archivedAt ? 'warning' : 'success'">
+          {{
+            t(
+              organization.archivedAt
+                ? 'admin.organizations.status.archived'
+                : 'admin.organizations.status.active'
+            )
+          }}
+        </BaseBadge>
+        <BaseBadge tone="brand">
+          {{ t(`admin.organizations.types.${organization.organizationType}`) }}
+        </BaseBadge>
+      </template>
+    </BasePageHeader>
 
-    <div class="flex items-center gap-3">
-      <h1 class="text-[28px] tracking-[-0.5px]">{{ organization.name }}</h1>
-      <BaseBadge :tone="organization.archivedAt ? 'warning' : 'success'">
-        {{
-          t(
-            organization.archivedAt
-              ? 'admin.organizations.status.archived'
-              : 'admin.organizations.status.active'
-          )
-        }}
-      </BaseBadge>
+    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
+
+    <div class="grid gap-4 sm:grid-cols-3">
+      <BaseStat
+        :label="t('admin.organizations.columns.members')"
+        :value="organization.membersCount"
+        :icon="Users"
+      />
+      <BaseStat
+        :label="t('admin.organizations.detail.products')"
+        :value="organization.productsCount"
+        :icon="Package"
+      />
+      <BaseStat
+        :label="t('admin.organizations.detail.rfqs')"
+        :value="organization.rfqsCount"
+        :icon="FileText"
+      />
     </div>
 
-    <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <div class="rounded border border-[var(--gray-4)] p-4">
-        <dt class="text-sm text-[var(--gray-6)]">{{ t('admin.organizations.columns.type') }}</dt>
-        <dd class="font-medium">
-          {{ t(`admin.organizations.types.${organization.organizationType}`) }}
-        </dd>
-      </div>
-      <div class="rounded border border-[var(--gray-4)] p-4">
-        <dt class="text-sm text-[var(--gray-6)]">{{ t('admin.organizations.detail.products') }}</dt>
-        <dd class="font-medium">{{ organization.productsCount }}</dd>
-      </div>
-      <div class="rounded border border-[var(--gray-4)] p-4">
-        <dt class="text-sm text-[var(--gray-6)]">{{ t('admin.organizations.detail.rfqs') }}</dt>
-        <dd class="font-medium">{{ organization.rfqsCount }}</dd>
-      </div>
-    </dl>
+    <BaseSection :title="t('admin.organizations.detail.contact')">
+      <BaseDescriptionList :columns="2">
+        <BaseDescriptionItem
+          v-for="field in FIELDS"
+          :key="field"
+          :label="t(`admin.organizations.fields.${field}`)"
+        >
+          <template v-if="organization[field]">{{ organization[field] }}</template>
+          <span v-else class="text-text-muted">
+            {{ t('admin.organizations.detail.notProvided') }}
+          </span>
+        </BaseDescriptionItem>
+        <BaseDescriptionItem :label="t('admin.organizations.fields.createdAt')">
+          <span class="text-tabular">{{ formatDate(organization.createdAt) }}</span>
+        </BaseDescriptionItem>
+      </BaseDescriptionList>
+    </BaseSection>
 
-    <section>
-      <h2 class="mb-3 text-lg font-medium">{{ t('admin.organizations.detail.contact') }}</h2>
-      <dl class="grid grid-cols-1 gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
-        <div v-for="field in FIELDS" :key="field" class="flex gap-2">
-          <dt class="text-[var(--gray-6)]">{{ t(`admin.organizations.fields.${field}`) }}</dt>
-          <dd>{{ organization[field] ?? '—' }}</dd>
-        </div>
-      </dl>
-    </section>
+    <BaseSection
+      :title="t('admin.organizations.detail.members', { count: organization.members.length })"
+      flush
+    >
+      <div v-if="organization.members.length === 0" class="p-6">
+        <BaseEmptyState
+          :title="t('admin.organizations.detail.membersEmpty')"
+          :icon="Users"
+          compact
+        />
+      </div>
 
-    <section>
-      <h2 class="mb-3 text-lg font-medium">
-        {{ t('admin.organizations.detail.members', { count: organization.members.length }) }}
-      </h2>
-      <table class="w-full border-collapse text-sm">
-        <thead>
-          <tr class="border-b border-[var(--gray-4)] text-left text-[var(--gray-6)]">
-            <th class="py-2 pr-4 font-medium">{{ t('admin.users.columns.name') }}</th>
-            <th class="py-2 pr-4 font-medium">{{ t('admin.users.columns.email') }}</th>
-            <th class="py-2 pr-4 font-medium">{{ t('admin.organizations.detail.role') }}</th>
+      <BaseTable v-else bare :caption="t('admin.organizations.detail.membersCaption')">
+        <template #head>
+          <tr>
+            <th scope="col">{{ t('admin.users.columns.name') }}</th>
+            <th scope="col">{{ t('admin.users.columns.email') }}</th>
+            <th scope="col">{{ t('admin.organizations.detail.role') }}</th>
+            <th scope="col">{{ t('admin.organizations.detail.joinedAt') }}</th>
           </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="member in organization.members"
-            :key="member.id"
-            class="border-b border-[var(--gray-3)]"
-          >
-            <td class="py-3 pr-4 font-medium">{{ member.fullName ?? '—' }}</td>
-            <td class="py-3 pr-4 text-[var(--gray-6)]">{{ member.email }}</td>
-            <td class="py-3 pr-4">{{ t(`admin.organizations.roles.${member.roleSlug}`) }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+        </template>
+
+        <tr v-for="member in organization.members" :key="member.id">
+          <td>
+            <template v-if="member.fullName">
+              <span class="font-semibold text-text-primary">{{ member.fullName }}</span>
+            </template>
+            <span v-else class="text-text-muted">{{ t('admin.users.noName') }}</span>
+          </td>
+          <td class="text-text-secondary">{{ member.email }}</td>
+          <td>
+            <BaseBadge dot :tone="ORGANIZATION_ROLE_TONES[member.roleSlug]">
+              {{ t(`admin.organizations.roles.${member.roleSlug}`) }}
+            </BaseBadge>
+          </td>
+          <td class="text-tabular whitespace-nowrap">{{ formatDate(member.joinedAt) }}</td>
+        </tr>
+      </BaseTable>
+    </BaseSection>
   </div>
 </template>

@@ -3,7 +3,11 @@
     "title": "Organization settings",
     "subtitle": "Manage your organization's general information.",
     "submit": "Save",
-    "success": "Organization settings updated."
+    "success": "Organization settings updated.",
+    "sections": {
+      "general": "General information",
+      "address": "Address"
+    }
   },
   "fields": {
     "name": "Name",
@@ -39,20 +43,23 @@
   "nav": {
     "settings": "Settings",
     "members": "Members",
-    "create": "New organization"
+    "create": "New organization",
+    "label": "Organization sections"
   },
   "members": {
     "title": "Organization members",
     "subtitle": "Manage the roles and access of your organization's members.",
     "columns": {
       "name": "Member",
-      "role": "Role"
+      "role": "Role",
+      "actions": "Actions"
     },
     "remove": "Remove",
     "confirmRemove": "Remove this member from the organization?",
     "roleUpdated": "Member role updated.",
     "removed": "Member removed from the organization.",
-    "lastOwnerError": "Cannot remove or demote the organization's last owner."
+    "lastOwnerError": "Cannot remove or demote the organization's last owner.",
+    "listTitle": "Members"
   },
   "invitations": {
     "inviteTitle": "Invite a member",

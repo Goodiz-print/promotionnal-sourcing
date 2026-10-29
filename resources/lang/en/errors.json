@@ -1,8 +1,11 @@
 {
   "notFound": {
-    "title": "Page not found"
+    "title": "Page not found",
+    "description": "The page you requested does not exist or has moved."
   },
   "serverError": {
-    "title": "Something went wrong."
-  }
+    "title": "Something went wrong.",
+    "description": "Our team has been notified. Please try again in a moment."
+  },
+  "backHome": "Back to home"
 }

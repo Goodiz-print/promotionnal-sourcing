@@ -10,7 +10,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+  <div class="grid gap-5 sm:grid-cols-2">
     <BaseInput
       id="addressLine1"
       v-model="form.addressLine1"

@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 import { useI18n } from '~/i18n'
 import BaseCheckbox from '~/components/base/base_checkbox.vue'
+import FacetSection from '~/components/catalogue/facet_section.vue'
+import FacetOption from '~/components/catalogue/facet_option.vue'
 import { CERTIFICATION_DOMAINS } from '#shared/types/certification'
 import type { CertificationFacetBarType, CertificationFacetType } from '#shared/types/certification'
 
@@ -40,11 +42,13 @@ const groups = computed(() =>
 </script>
 
 <template>
-  <section v-if="groups.length > 0" class="flex flex-col gap-4">
-    <h2 class="text-sm font-medium">{{ t('products.index.certifications.title') }}</h2>
-
+  <FacetSection
+    v-if="groups.length > 0"
+    as="section"
+    :title="t('products.index.certifications.title')"
+  >
     <fieldset v-for="group in groups" :key="group.domain" class="flex flex-col gap-2">
-      <legend class="mb-1 text-xs font-medium text-[var(--gray-6)] uppercase tracking-wide">
+      <legend class="pb-1.5 text-caption font-semibold text-text-secondary">
         {{ t(`products.index.certifications.domains.${group.domain}`) }}
       </legend>
 
@@ -55,16 +59,11 @@ const groups = computed(() =>
         :model-value="selectedIds.includes(certification.id)"
         @update:model-value="(checked) => emit('toggle', certification.id, checked)"
       >
-        <span class="flex flex-1 items-center gap-2">
-          <span class="flex-1">{{ certification.name ?? certification.slug }}</span>
-          <span
-            v-if="facet.hasCounts && certification.count !== null"
-            class="text-xs text-[var(--gray-6)]"
-          >
-            {{ certification.count }}
-          </span>
-        </span>
+        <FacetOption
+          :label="certification.name ?? certification.slug"
+          :count="facet.hasCounts ? certification.count : null"
+        />
       </BaseCheckbox>
     </fieldset>
-  </section>
+  </FacetSection>
 </template>

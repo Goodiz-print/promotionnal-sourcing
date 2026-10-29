@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3'
+import { Head, useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
+import AuthHeader from '~/components/auth/auth_header.vue'
+import AuthLayout from '~/layouts/auth.vue'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseButton from '~/components/base/base_button.vue'
 
 const props = defineProps<{ actionUrl: string }>()
+
+defineOptions({ layout: AuthLayout })
 
 const { t } = useI18n()
 
@@ -17,13 +21,10 @@ function submit() {
 </script>
 
 <template>
-  <div class="mx-auto flex max-w-[400px] flex-col justify-center">
-    <div>
-      <h1 class="mb-1.25 text-[32px] tracking-[-0.5px]">{{ t('auth.reset.title') }}</h1>
-      <p class="mb-12 text-lg text-[var(--gray-6)]">
-        {{ t('auth.reset.subtitle') }}
-      </p>
-    </div>
+  <Head :title="t('auth.reset.title')" />
+
+  <div class="flex flex-col gap-8">
+    <AuthHeader :title="t('auth.reset.title')" :description="t('auth.reset.subtitle')" />
 
     <form class="flex flex-col gap-6" @submit.prevent="submit">
       <BaseInput
@@ -42,7 +43,7 @@ function submit() {
         :label="t('auth.fields.passwordConfirmation')"
         :error="form.errors.passwordConfirmation"
       />
-      <BaseButton type="submit" :disabled="form.processing">
+      <BaseButton type="submit" block :loading="form.processing">
         {{ t('auth.reset.submit') }}
       </BaseButton>
     </form>

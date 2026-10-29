@@ -1,13 +1,12 @@
 import type { QuoteStatus } from '#shared/types/quote'
-
-type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'danger'
+import type { BadgeTone } from '~/types/ui'
 
 /**
  * Tonalité de la pastille par statut : le brouillon reste neutre, le devis
  * remis attend une décision (info), l'accepté est le seul succès, le rejeté une
  * impasse, l'expiré s'efface.
  */
-export const QUOTE_STATUS_TONES: Record<QuoteStatus, Tone> = {
+export const QUOTE_STATUS_TONES: Record<QuoteStatus, BadgeTone> = {
   draft: 'neutral',
   submitted: 'info',
   accepted: 'success',

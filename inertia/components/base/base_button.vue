@@ -1,30 +1,49 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Loader2 } from 'lucide-vue-next'
+import {
+  BUTTON_BASE_CLASSES,
+  BUTTON_SIZE_CLASSES,
+  BUTTON_VARIANT_CLASSES,
+  ICON_SIZE,
+  type ButtonSize,
+  type ButtonVariant,
+} from '~/types/ui'
 
+/**
+ * Bouton du design system (pill, Manrope). `block` l'étire sur toute la largeur
+ * (formulaires d'authentification), `loading` affiche un spinner et désactive le
+ * bouton. Le slot `icon` reçoit une icône lucide placée avant le libellé.
+ */
 const props = withDefaults(
   defineProps<{
     type?: 'button' | 'submit'
-    variant?: 'primary' | 'secondary' | 'link' | 'danger'
+    variant?: ButtonVariant
+    size?: ButtonSize
+    block?: boolean
+    loading?: boolean
     disabled?: boolean
   }>(),
-  { type: 'button', variant: 'primary', disabled: false }
+  { type: 'button', variant: 'primary', size: 'md', block: false, loading: false, disabled: false }
 )
 
-const VARIANT_CLASSES: Record<NonNullable<typeof props.variant>, string> = {
-  primary:
-    'w-full cursor-pointer rounded bg-[var(--color-primary)] p-2.5 font-medium text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]',
-  secondary:
-    'shrink-0 cursor-pointer rounded border border-[var(--gray-4)] px-3 text-sm font-medium hover:bg-[var(--gray-2)]',
-  link: 'cursor-pointer text-sm font-medium text-[var(--color-primary)] hover:underline',
-  danger:
-    'shrink-0 cursor-pointer rounded border border-[var(--state-danger)] px-3 py-2 text-sm font-medium text-[var(--state-danger)] hover:bg-[var(--state-danger-bg)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--state-danger)]',
-}
-
-const variantClass = computed(() => VARIANT_CLASSES[props.variant])
+const classes = computed(() => [
+  BUTTON_BASE_CLASSES,
+  BUTTON_VARIANT_CLASSES[props.variant],
+  props.variant === 'link' ? '' : BUTTON_SIZE_CLASSES[props.size],
+  props.block ? 'w-full' : '',
+])
 </script>
 
 <template>
-  <button :type="type" :disabled="disabled" :class="variantClass">
+  <button
+    :type="type"
+    :disabled="disabled || loading"
+    :aria-busy="loading || undefined"
+    :class="classes"
+  >
+    <Loader2 v-if="loading" :size="ICON_SIZE" class="animate-spin" aria-hidden="true" />
+    <slot v-else name="icon" />
     <slot />
   </button>
 </template>

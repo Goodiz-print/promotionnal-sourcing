@@ -71,7 +71,7 @@ describe('notification_bell.vue', () => {
     expect(mount(NotificationBell).text()).toContain('3')
 
     pageProps.unreadNotificationsCount = 0
-    expect(mount(NotificationBell).find('summary span:nth-child(2)').exists()).toBe(false)
+    expect(mount(NotificationBell).find('[data-testid="unread-badge"]').exists()).toBe(false)
   })
 
   it('plafonne la pastille à 99+', () => {
@@ -94,7 +94,10 @@ describe('notification_bell.vue', () => {
     pageProps.recentNotifications = [notification({ id: 42 })]
     const wrapper = mount(NotificationBell)
 
-    await wrapper.find('details button').trigger('click')
+    await wrapper
+      .findAll('button')
+      .find((b) => b.text().includes('Acme'))!
+      .trigger('click')
 
     expect(router.patch).toHaveBeenCalledWith('/fr/notifications.read/42')
   })

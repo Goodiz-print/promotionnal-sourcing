@@ -12,12 +12,12 @@ de comptes en masse, spam de boîtes mail).
   production (compteurs partagés entre instances), `memory` pour les tests
   (`.env.test`, CI). Documentée dans `.env.example`.
 - **Limiteurs nommés** (`start/limiter.ts`), appliqués route par route :
-  | Limiteur | Clé | Limite |
-  | --- | --- | --- |
-  | `login` | IP + email (insensible à la casse) | 5 / 15 min |
-  | `signup` | IP | 10 / heure |
-  | `password-reset` | email | 5 / heure |
-  | `email-verification-resend` | compte (IP à défaut) | 5 / heure |
+  | Limiteur                    | Clé                                | Limite     |
+  | --------------------------- | ---------------------------------- | ---------- |
+  | `login`                     | IP + email (insensible à la casse) | 5 / 15 min |
+  | `signup`                    | IP                                 | 10 / heure |
+  | `password-reset`            | email                              | 5 / heure  |
+  | `email-verification-resend` | compte (IP à défaut)               | 5 / heure  |
 - **Seuls les échecs de login comptent** — une connexion réussie remet le
   compteur à zéro (`clearLoginThrottle`). La 6ᵉ tentative est bloquée, même avec
   le bon mot de passe.

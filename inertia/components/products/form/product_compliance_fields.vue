@@ -41,10 +41,10 @@ function toggle(certificationId: number, checked: boolean) {
     />
 
     <fieldset class="flex flex-col gap-2">
-      <legend class="mb-1 text-sm font-medium">
+      <legend class="text-body-sm font-semibold text-text-primary">
         {{ t('products.manage.fields.certifications') }}
       </legend>
-      <p v-if="certifications.length === 0" class="text-sm text-[var(--gray-6)]">
+      <p v-if="certifications.length === 0" class="text-body-sm text-text-secondary">
         {{ t('products.manage.noCertifications') }}
       </p>
       <BaseCheckbox

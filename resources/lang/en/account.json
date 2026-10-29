@@ -49,6 +49,7 @@
     "renamed": "Passkey renamed.",
     "removed": "Passkey deleted.",
     "failed": "The passkey could not be registered. Try again.",
-    "alreadyRegistered": "This device is already registered."
+    "alreadyRegistered": "This device is already registered.",
+    "cancel": "Cancel"
   }
 }

@@ -3,7 +3,11 @@
     "title": "Paramètres de l'organisation",
     "subtitle": "Gérez les informations générales de votre organisation.",
     "submit": "Enregistrer",
-    "success": "Paramètres de l'organisation mis à jour."
+    "success": "Paramètres de l'organisation mis à jour.",
+    "sections": {
+      "general": "Informations générales",
+      "address": "Adresse"
+    }
   },
   "fields": {
     "name": "Nom",
@@ -39,20 +43,23 @@
   "nav": {
     "settings": "Paramètres",
     "members": "Membres",
-    "create": "Nouvelle organisation"
+    "create": "Nouvelle organisation",
+    "label": "Sections de l'organisation"
   },
   "members": {
     "title": "Membres de l'organisation",
     "subtitle": "Gérez les rôles et l'accès des membres de votre organisation.",
     "columns": {
       "name": "Membre",
-      "role": "Rôle"
+      "role": "Rôle",
+      "actions": "Actions"
     },
     "remove": "Retirer",
     "confirmRemove": "Retirer ce membre de l'organisation ?",
     "roleUpdated": "Rôle du membre mis à jour.",
     "removed": "Membre retiré de l'organisation.",
-    "lastOwnerError": "Impossible de retirer ou rétrograder le dernier propriétaire de l'organisation."
+    "lastOwnerError": "Impossible de retirer ou rétrograder le dernier propriétaire de l'organisation.",
+    "listTitle": "Membres"
   },
   "invitations": {
     "inviteTitle": "Inviter un membre",

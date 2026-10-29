@@ -8,9 +8,21 @@ const props = withDefaults(
     modelValue: string
     label?: string
     error?: string
+    hint?: string
+    required?: boolean
+    disabled?: boolean
+    placeholder?: string
     rows?: number
   }>(),
-  { rows: 4, label: '', error: '' }
+  {
+    rows: 4,
+    label: '',
+    error: '',
+    hint: '',
+    required: false,
+    disabled: false,
+    placeholder: '',
+  }
 )
 
 const emit = defineEmits<{
@@ -24,13 +36,20 @@ const model = computed({
 </script>
 
 <template>
-  <BaseField :label="label" :html-for="id" :error="error">
-    <textarea
-      :id="id"
-      v-model="model"
-      :rows="rows"
-      :data-invalid="error ? 'true' : undefined"
-      class="w-full rounded border border-[var(--gray-4)] px-4 py-2 data-[invalid=true]:border-[#fb2c36] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
-    />
+  <BaseField :label="label" :html-for="id" :error="error" :hint="hint" :required="required">
+    <template #default="{ errorId, hintId }">
+      <textarea
+        :id="id"
+        v-model="model"
+        :rows="rows"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        :required="required"
+        :aria-invalid="error ? 'true' : undefined"
+        :aria-describedby="error ? errorId : hint ? hintId : undefined"
+        :data-invalid="error ? 'true' : undefined"
+        class="field-control resize-y"
+      />
+    </template>
   </BaseField>
 </template>

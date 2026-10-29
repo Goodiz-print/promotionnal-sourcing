@@ -40,7 +40,12 @@
     "submit": "Offerte indienen",
     "delete": "Concept verwijderen",
     "confirmSubmit": "Deze offerte naar de koper sturen? Ze kan daarna niet meer worden gewijzigd.",
-    "confirmDelete": "Dit concept verwijderen?"
+    "confirmDelete": "Dit concept verwijderen?",
+    "sections": {
+      "lines": "Offerteregels",
+      "linesHint": "Een regel zonder stukprijs is niet geoffreerd en wordt niet verzonden.",
+      "terms": "Voorwaarden"
+    }
   },
   "table": {
     "item": "Artikel",
@@ -57,7 +62,8 @@
     "cheapest": "Goedkoopst",
     "fastest": "Snelst",
     "leadTime": "Totale levertijd",
-    "validUntil": "Geldig tot"
+    "validUntil": "Geldig tot",
+    "noValidity": "Niet opgegeven"
   },
   "show": {
     "title": "Offerte van {supplierName}",
@@ -73,7 +79,16 @@
     "index": {
       "title": "Mijn offertes",
       "subtitle": "De offertes die u hebt opgesteld naar aanleiding van aanvragen.",
-      "empty": "Nog geen offertes."
+      "empty": "Nog geen offertes.",
+      "browseRfqs": "Ontvangen aanvragen bekijken",
+      "columns": {
+        "leadTime": "Levertijd",
+        "rfq": "Aanvraag",
+        "status": "Status",
+        "total": "Totaal",
+        "validUntil": "Geldig tot"
+      },
+      "emptyDescription": "Uw offertes verschijnen hier zodra u op een ontvangen aanvraag reageert."
     },
     "edit": {
       "title": "Offerte: {rfqTitle}",
@@ -84,7 +99,8 @@
         "accepted": "De koper heeft deze offerte geaccepteerd.",
         "rejected": "De koper heeft deze offerte niet gekozen.",
         "expired": "Deze offerte is verlopen."
-      }
+      },
+      "linesTitle": "Offerteregels"
     },
     "rfq": {
       "respond": "Reageren met een offerte",

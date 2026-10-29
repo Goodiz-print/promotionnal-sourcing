@@ -40,10 +40,14 @@ function submit() {
       </form>
 
       <div class="flex flex-wrap justify-center gap-4">
-        <BaseLinkButton :href="urlFor('new_account.create', { locale })">
+        <BaseLinkButton size="lg" :href="urlFor('new_account.create', { locale })">
           {{ t('landing.discover.buyerCta') }}
         </BaseLinkButton>
-        <BaseLinkButton :href="urlFor('new_account.create', { locale })" variant="secondary">
+        <BaseLinkButton
+          size="lg"
+          :href="urlFor('new_account.create', { locale })"
+          variant="secondary"
+        >
           {{ t('landing.discover.supplierCta') }}
         </BaseLinkButton>
       </div>

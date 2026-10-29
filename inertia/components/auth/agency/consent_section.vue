@@ -11,14 +11,18 @@ const { t } = useI18n()
 
 <template>
   <fieldset class="flex flex-col gap-3">
-    <legend class="mb-1 text-lg font-medium">{{ t('agency_signup.sections.consents') }}</legend>
+    <legend class="mb-1 text-heading-md">{{ t('agency_signup.sections.consents') }}</legend>
     <div>
       <BaseCheckbox
         id="certifiesProfessional"
         v-model="form.certifiesProfessional"
         :label="t('agency_signup.consents.professional')"
       />
-      <p v-if="form.errors.certifiesProfessional" class="mt-0.5 text-sm font-medium text-[#fb2c36]">
+      <p
+        v-if="form.errors.certifiesProfessional"
+        class="text-caption font-medium text-danger"
+        role="alert"
+      >
         {{ form.errors.certifiesProfessional }}
       </p>
     </div>
@@ -28,7 +32,7 @@ const { t } = useI18n()
         v-model="form.acceptsTerms"
         :label="t('agency_signup.consents.terms')"
       />
-      <p v-if="form.errors.acceptsTerms" class="mt-0.5 text-sm font-medium text-[#fb2c36]">
+      <p v-if="form.errors.acceptsTerms" class="text-caption font-medium text-danger" role="alert">
         {{ form.errors.acceptsTerms }}
       </p>
     </div>

@@ -21,6 +21,14 @@ const translations = {
   'products.index.next': 'Suivant',
   'products.index.selectCategoryForFilters':
     'Sélectionnez une catégorie pour afficher ses filtres.',
+  'products.index.filtersTitle': 'Filtres',
+  'products.index.reset': 'Réinitialiser',
+  'products.index.quickFilters': 'Filtres rapides',
+  'products.index.emptyHint': 'Élargissez vos critères.',
+  'products.card.minQuantity': '{count, plural, one {Min. # pièce} other {Min. # pièces}}',
+  'products.card.madeInEurope': 'Fabriqué en Europe',
+  'products.card.eco': 'Éco-responsable',
+  'products.card.new': 'Nouveauté',
   'products.index.rangeUnder': '< {max}',
   'products.index.rangeOver': '≥ {min}',
   'products.index.rangeBetween': '{min}–{max}',
@@ -230,6 +238,9 @@ describe('products/index.vue', () => {
 
     expect(wrapper.text()).toContain('Crayon Bleu')
     expect(wrapper.text()).toContain('Stylo Noir')
+    // Carte produit : MOQ et badge made-in-Europe rendus depuis le type.
+    expect(wrapper.text()).toContain('Min. 100 pièces')
+    expect(wrapper.text()).toContain('Fabriqué en Europe')
     expect(wrapper.find('#search').exists()).toBe(true)
     expect(wrapper.find('#category').findAll('option')).toHaveLength(2)
     expect(wrapper.find('#madeInEurope').exists()).toBe(true)
@@ -358,6 +369,51 @@ describe('products/index.vue', () => {
     expect(router.get).toHaveBeenCalledTimes(1)
     const params = vi.mocked(router.get).mock.calls[0][1] as { priceBuckets?: number[] }
     expect(params.priceBuckets).toEqual([2])
+  })
+
+  it('propose « Réinitialiser » dès qu’un filtre est actif et vide tout', async () => {
+    vi.mocked(router.get).mockClear()
+    const wrapper = mount(Index, {
+      props: {
+        searchUnavailable: false,
+        products: { data: [], meta: { ...meta, total: 0 } },
+        filters: { ...emptyFilters, madeInEurope: true, stockStatuses: ['in_stock'] },
+        categories: [category(1, 'Crayon', 'crayon')],
+        facetBar: emptyFacetBar,
+        certificationFacet: emptyCertificationFacet,
+        numericFacets,
+      },
+    })
+
+    const reset = wrapper.findAll('button').find((button) => button.text() === 'Réinitialiser')
+    expect(reset).toBeDefined()
+    await reset!.trigger('click')
+
+    expect(router.get).toHaveBeenCalledTimes(1)
+    const params = vi.mocked(router.get).mock.calls[0][1] as Record<string, unknown>
+    expect(params.categoryId).toBeUndefined()
+    expect(params.madeInEurope).toBeUndefined()
+    expect(params.stockStatuses).toBeUndefined()
+    expect(params.page).toBe(1)
+    // Plus aucun filtre actif → le bouton disparaît.
+    expect(wrapper.findAll('button').some((button) => button.text() === 'Réinitialiser')).toBe(
+      false
+    )
+  })
+
+  it('masque « Réinitialiser » sans filtre actif', () => {
+    const wrapper = mount(Index, {
+      props: {
+        searchUnavailable: false,
+        products: { data: [], meta: { ...meta, total: 0 } },
+        filters: { ...emptyFilters, categoryId: null },
+        categories: [],
+        facetBar: emptyFacetBar,
+        certificationFacet: emptyCertificationFacet,
+        numericFacets,
+      },
+    })
+    expect(wrapper.text()).not.toContain('Réinitialiser')
   })
 
   it('rend une tranche d’attribut EAV cliquable et pousse slug:min:max', async () => {

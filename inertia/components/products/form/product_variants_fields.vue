@@ -35,7 +35,7 @@ function remove(index: number) {
 
 <template>
   <div class="flex flex-col gap-4">
-    <p v-if="form.variants.length === 0" class="text-sm text-[var(--gray-6)]">
+    <p v-if="form.variants.length === 0" class="text-body-sm text-text-secondary">
       {{ t('products.manage.variants.empty') }}
     </p>
     <ProductVariantRow

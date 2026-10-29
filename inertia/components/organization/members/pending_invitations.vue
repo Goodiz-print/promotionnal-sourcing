@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3'
+import { Mail } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import BaseBadge from '~/components/base/base_badge.vue'
 import BaseButton from '~/components/base/base_button.vue'
+import BaseSection from '~/components/base/base_section.vue'
+import BaseTable from '~/components/base/base_table.vue'
 import type { OrganizationInvitationType } from '#shared/types/organization'
 
 const props = defineProps<{ invitations: OrganizationInvitationType[] }>()
@@ -27,36 +31,52 @@ function revoke(invitation: OrganizationInvitationType) {
 </script>
 
 <template>
-  <div v-if="props.invitations.length > 0">
-    <h2 class="mb-3 font-medium">{{ t('organization.invitations.pendingTitle') }}</h2>
-    <table class="w-full border-collapse text-sm">
-      <thead>
-        <tr class="border-b border-[var(--gray-4)] text-left text-[var(--gray-6)]">
-          <th class="py-2 pr-4 font-medium">{{ t('organization.members.columns.name') }}</th>
-          <th class="py-2 pr-4 font-medium">{{ t('organization.members.columns.role') }}</th>
-          <th class="py-2"></th>
+  <BaseSection
+    v-if="props.invitations.length > 0"
+    flush
+    :title="t('organization.invitations.pendingTitle')"
+  >
+    <template #actions>
+      <BaseBadge tone="warning">{{ props.invitations.length }}</BaseBadge>
+    </template>
+
+    <BaseTable bare>
+      <template #head>
+        <tr>
+          <th scope="col">{{ t('organization.members.columns.name') }}</th>
+          <th scope="col">{{ t('organization.members.columns.role') }}</th>
+          <th scope="col">
+            <span class="sr-only">{{ t('organization.members.columns.actions') }}</span>
+          </th>
         </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="invitation in props.invitations"
-          :key="invitation.id"
-          class="border-b border-[var(--gray-3)]"
-        >
-          <td class="py-3 pr-4">{{ invitation.email }}</td>
-          <td class="py-3 pr-4">{{ invitation.role.name }}</td>
-          <td class="py-3 text-right">
-            <div class="flex justify-end gap-2">
-              <BaseButton variant="secondary" @click="resend(invitation)">
-                {{ t('organization.invitations.resend') }}
-              </BaseButton>
-              <BaseButton variant="secondary" @click="revoke(invitation)">
-                {{ t('organization.invitations.revoke') }}
-              </BaseButton>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+      </template>
+
+      <tr v-for="invitation in props.invitations" :key="invitation.id">
+        <td>
+          <div class="flex items-center gap-3">
+            <span
+              class="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-brand-subtle text-indigo-600"
+              aria-hidden="true"
+            >
+              <Mail :size="16" />
+            </span>
+            <span class="truncate font-semibold text-text-primary">{{ invitation.email }}</span>
+          </div>
+        </td>
+        <td>
+          <BaseBadge tone="neutral">{{ invitation.role.name }}</BaseBadge>
+        </td>
+        <td class="text-right">
+          <div class="flex justify-end gap-2">
+            <BaseButton variant="secondary" size="sm" @click="resend(invitation)">
+              {{ t('organization.invitations.resend') }}
+            </BaseButton>
+            <BaseButton variant="danger" size="sm" @click="revoke(invitation)">
+              {{ t('organization.invitations.revoke') }}
+            </BaseButton>
+          </div>
+        </td>
+      </tr>
+    </BaseTable>
+  </BaseSection>
 </template>

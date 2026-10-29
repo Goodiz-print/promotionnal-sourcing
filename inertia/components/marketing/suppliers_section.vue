@@ -81,6 +81,7 @@ const POINTS = [
 
     <div data-reveal class="text-center">
       <BaseLinkButton
+        size="lg"
         href="#contact"
         style="background: var(--gradient-brand); box-shadow: 0 8px 24px rgba(64, 50, 200, 0.35)"
       >

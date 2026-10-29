@@ -1,15 +1,22 @@
 <script setup lang="ts">
+import { Upload } from 'lucide-vue-next'
 import BaseField from '~/components/base/base_field.vue'
 
+/**
+ * Zone de dépôt de fichiers : le `<input type="file">` natif est recouvert d'un
+ * cadre en pointillés cliquable ; le glisser-déposer est pris en charge nativement.
+ */
 withDefaults(
   defineProps<{
     id: string
     label?: string
     error?: string
+    hint?: string
     accept?: string
     multiple?: boolean
+    prompt?: string
   }>(),
-  { label: '', error: '', accept: 'image/*', multiple: false }
+  { label: '', error: '', hint: '', accept: 'image/*', multiple: false, prompt: '' }
 )
 
 const emit = defineEmits<{ change: [files: File[]] }>()
@@ -23,14 +30,26 @@ function onChange(event: Event) {
 </script>
 
 <template>
-  <BaseField :label="label" :html-for="id" :error="error">
-    <input
-      :id="id"
-      type="file"
-      :accept="accept"
-      :multiple="multiple"
-      class="w-full rounded border border-[var(--gray-4)] p-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-[var(--gray-2)] file:px-3 file:py-1 file:text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
-      @change="onChange"
-    />
+  <BaseField :label="label" :html-for="id" :error="error" :hint="hint">
+    <label
+      :for="id"
+      class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-input bg-sunken px-4 py-6 text-center transition-colors duration-150 hover:border-indigo-300 hover:bg-brand-subtle focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-500"
+    >
+      <span
+        class="flex size-10 items-center justify-center rounded-[10px] bg-brand-subtle text-indigo-600"
+        aria-hidden="true"
+      >
+        <Upload :size="18" />
+      </span>
+      <span v-if="prompt" class="text-body-sm font-semibold text-text-primary">{{ prompt }}</span>
+      <input
+        :id="id"
+        type="file"
+        :accept="accept"
+        :multiple="multiple"
+        class="sr-only"
+        @change="onChange"
+      />
+    </label>
   </BaseField>
 </template>

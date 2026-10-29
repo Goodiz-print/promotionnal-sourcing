@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { inject, computed } from 'vue'
+import { ImageOff, X } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
-import BaseFileInput from '~/components/base/base_file_input.vue'
+import BaseButton from '~/components/base/base_button.vue'
 import BaseCheckbox from '~/components/base/base_checkbox.vue'
+import BaseFileInput from '~/components/base/base_file_input.vue'
 import { OrganizationSettingsFormKey } from './types'
 
 const props = defineProps<{ currentLogoUrl: string | null }>()
@@ -26,12 +28,32 @@ function cancelNewLogo() {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
-    <label class="text-sm font-medium">{{ t('organization.fields.logo') }}</label>
+  <div class="flex flex-col gap-5 sm:flex-row sm:items-start">
+    <div class="flex shrink-0 flex-col items-center gap-2">
+      <img
+        v-if="previewUrl"
+        :src="previewUrl"
+        alt=""
+        class="size-16 rounded-xl border border-hairline bg-card object-contain"
+      />
+      <template v-else>
+        <span
+          class="flex size-16 items-center justify-center rounded-xl border border-dashed border-input bg-sunken text-text-muted"
+          aria-hidden="true"
+        >
+          <ImageOff :size="20" />
+        </span>
+        <span class="text-caption text-text-muted">{{ t('organization.logo.none') }}</span>
+      </template>
+    </div>
 
-    <div class="flex items-center gap-4">
-      <img v-if="previewUrl" :src="previewUrl" alt="" class="h-16 w-16 rounded object-cover" />
-      <span v-else class="text-sm text-[var(--gray-6)]">{{ t('organization.logo.none') }}</span>
+    <div class="flex min-w-0 grow flex-col gap-3">
+      <BaseFileInput
+        id="logo"
+        :prompt="t('organization.logo.replace')"
+        :error="form.errors.logo"
+        @change="onFile"
+      />
 
       <BaseCheckbox
         v-if="currentLogoUrl && !form.logo"
@@ -39,18 +61,14 @@ function cancelNewLogo() {
         v-model="form.removeLogo"
         :label="t('organization.logo.remove')"
       />
-    </div>
 
-    <div class="flex items-center gap-3">
-      <BaseFileInput id="logo" :label="t('organization.logo.replace')" @change="onFile" />
-      <button
-        v-if="form.logo"
-        type="button"
-        class="text-sm text-[var(--gray-6)] underline"
-        @click="cancelNewLogo"
-      >
-        {{ t('organization.logo.cancel') }}
-      </button>
+      <div v-if="form.logo" class="flex items-center justify-between gap-3">
+        <span class="truncate text-body-sm text-text-secondary">{{ form.logo.name }}</span>
+        <BaseButton variant="secondary" size="sm" @click="cancelNewLogo">
+          <template #icon><X :size="16" aria-hidden="true" /></template>
+          {{ t('organization.logo.cancel') }}
+        </BaseButton>
+      </div>
     </div>
   </div>
 </template>

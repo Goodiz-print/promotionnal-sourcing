@@ -2,20 +2,32 @@
 
 /* ============================================================
    DESIGN SYSTEM — Promotional Sourcing.eu
-   Tokens synchronisés depuis l'artéfact claude.ai/design
-   « Promotional Sourcing Design System ».
+   Un seul langage visuel pour la landing et l'application, dérivé
+   de la landing : Manrope (titres) + Instrument Sans (texte), boutons
+   pill indigo, cartes blanches arrondies sur fond « sunken », eyebrows.
+   Référence : docs/design-system.md.
    ============================================================ */
+@import '@fontsource/instrument-sans/400.css';
+@import '@fontsource/instrument-sans/500.css';
+@import '@fontsource/instrument-sans/600.css';
+@import '@fontsource/manrope/400.css';
+@import '@fontsource/manrope/600.css';
+@import '@fontsource/manrope/700.css';
+@import '@fontsource/manrope/800.css';
+
 @import './tokens/colors.css';
 @import './tokens/typography.css';
 @import './tokens/spacing.css';
 
-/* Landing pages : utilitaires, animations et styles scopés sous `.marketing`. */
+/* Landing pages : animations et styles scopés sous `.marketing`. */
 @import './marketing.css';
 
 /* ------------------------------------------------------------
    Exposition des tokens à Tailwind v4 (@theme) → génère les
-   utilitaires bg-indigo-500, text-ink-600, border-ink-200,
-   text-primary, shadow-1, font-sans…
+   utilitaires bg-indigo-500, text-ink-600, border-hairline, bg-card,
+   bg-sunken, text-text-secondary, rounded-pill, font-heading…
+   Les rayons `--radius-*` de tokens/spacing.css s'appliquent déjà aux
+   utilitaires rounded-sm/md/lg/xl (variables :root non layerées).
    ------------------------------------------------------------ */
 @theme {
   /* Marque — indigo (rampe complète : remplace l'indigo Tailwind) */
@@ -44,25 +56,27 @@
   --color-ink-900: var(--ink-900);
   --color-ink-950: var(--ink-950);
 
-  /* Sémantique — primaire */
-  --color-primary: var(--indigo-500);
-  --color-primary-hover: var(--indigo-600);
-  --color-primary-contrast: var(--ink-0);
+  /* Accents chauds (pointes uniquement) */
+  --color-orange-500: var(--orange-500);
+  --color-amber-600: var(--amber-600);
+  --color-yellow-400: var(--yellow-400);
 
-  /* Alias primaires historiques (rétro-compat utilitaires) */
-  --color-primary-1: var(--indigo-50);
-  --color-primary-3: var(--indigo-100);
-  --color-primary-6: var(--indigo-400);
-  --color-primary-9: var(--indigo-500);
-  --color-primary-10: var(--indigo-600);
-  --color-primary-11: var(--indigo-700);
-
-  /* Sémantique — surfaces & texte */
+  /* Sémantique — surfaces */
   --color-canvas: var(--surface-canvas);
   --color-sunken: var(--surface-sunken);
+  --color-card: var(--surface-card);
+  --color-brand-subtle: var(--surface-brand-subtle);
+
+  /* Sémantique — texte */
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
+  --color-text-brand: var(--text-brand);
+
+  /* Sémantique — bordures */
+  --color-hairline: var(--border-hairline);
+  --color-input: var(--border-input);
+  --color-strong: var(--border-strong);
 
   /* Sémantique — états */
   --color-success: var(--state-success);
@@ -74,9 +88,8 @@
   --color-info: var(--state-info);
   --color-info-bg: var(--state-info-bg);
 
-  /* Fontes */
-  --font-sans: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'SF Mono', ui-monospace, monospace;
+  /* Rayon pill (les autres rayons viennent de tokens/spacing.css) */
+  --radius-pill: 9999px;
 
   /* Ombres du design system → utilitaires shadow-1/2/3 */
   --shadow-1: 0 1px 2px rgba(10, 10, 30, 0.06), 0 1px 1px rgba(10, 10, 30, 0.04);
@@ -84,115 +97,231 @@
   --shadow-3: 0 12px 32px rgba(10, 10, 30, 0.12), 0 4px 8px rgba(10, 10, 30, 0.06);
 }
 
+/* Fontes : `inline reference` pour que font-sans/font-heading/font-mono lisent les
+   tokens :root sans réémettre une variable qui se référencerait elle-même. */
+@theme inline reference {
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-heading);
+  --font-mono: var(--font-mono);
+}
+
 /* ------------------------------------------------------------
-   Utilitaires typographiques (échelle du design system).
-   Préfixe `type-*` pour éviter toute collision avec `text-*`.
+   Base — styles d'éléments. Dans @layer base pour que les utilitaires
+   Tailwind (@layer utilities) gardent la priorité : une règle non
+   layerée les écraserait (c'était le cas de l'ancien reset
+   `* { margin: 0; padding: 0 }`, qui annulait tous les utilitaires de padding et de marge de l’app).
    ------------------------------------------------------------ */
-@utility type-display-xl {
+@layer base {
+  html,
+  body {
+    height: 100%;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'ss01';
+    background: var(--surface-sunken);
+    color: var(--text-primary);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--text-primary);
+    font-family: var(--font-heading);
+    font-weight: 600;
+  }
+
+  /* Tout élément interactif a un anneau de focus visible (accessibilité clavier). */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--indigo-500);
+    outline-offset: 2px;
+  }
+}
+
+/* ------------------------------------------------------------
+   Échelle typographique (tokens/typography.css). Préfixe `text-*`,
+   partagé landing + app.
+   ------------------------------------------------------------ */
+@utility text-display-xl {
+  font-family: var(--font-heading);
   font-size: var(--text-display-xl-size);
   font-weight: var(--text-display-xl-weight);
   line-height: var(--text-display-xl-leading);
   letter-spacing: var(--text-display-xl-tracking);
 }
-@utility type-display-lg {
+@utility text-display-lg {
+  font-family: var(--font-heading);
   font-size: var(--text-display-lg-size);
   font-weight: var(--text-display-lg-weight);
   line-height: var(--text-display-lg-leading);
   letter-spacing: var(--text-display-lg-tracking);
 }
-@utility type-display-md {
+@utility text-display-md {
+  font-family: var(--font-heading);
   font-size: var(--text-display-md-size);
   font-weight: var(--text-display-md-weight);
   line-height: var(--text-display-md-leading);
   letter-spacing: var(--text-display-md-tracking);
 }
-@utility type-heading-lg {
+@utility text-heading-lg {
+  font-family: var(--font-heading);
   font-size: var(--text-heading-lg-size);
   font-weight: var(--text-heading-lg-weight);
   line-height: var(--text-heading-lg-leading);
-  letter-spacing: var(--text-heading-lg-tracking);
 }
-@utility type-heading-md {
+@utility text-heading-md {
+  font-family: var(--font-heading);
   font-size: var(--text-heading-md-size);
   font-weight: var(--text-heading-md-weight);
   line-height: var(--text-heading-md-leading);
 }
-@utility type-heading-sm {
+@utility text-heading-sm {
+  font-family: var(--font-heading);
   font-size: var(--text-heading-sm-size);
   font-weight: var(--text-heading-sm-weight);
   line-height: var(--text-heading-sm-leading);
 }
-@utility type-body-lg {
+@utility text-body-lg {
   font-size: var(--text-body-lg-size);
   font-weight: var(--text-body-lg-weight);
   line-height: var(--text-body-lg-leading);
 }
-@utility type-body-md {
+@utility text-body-md {
   font-size: var(--text-body-md-size);
   font-weight: var(--text-body-md-weight);
   line-height: var(--text-body-md-leading);
 }
-@utility type-body-sm {
+@utility text-body-sm {
   font-size: var(--text-body-sm-size);
   font-weight: var(--text-body-sm-weight);
   line-height: var(--text-body-sm-leading);
 }
-@utility type-eyebrow {
+@utility text-caption {
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  line-height: var(--text-caption-leading);
+}
+@utility text-eyebrow {
+  font-family: var(--font-heading);
   font-size: var(--text-eyebrow-size);
   font-weight: var(--text-eyebrow-weight);
   letter-spacing: var(--text-eyebrow-tracking);
   text-transform: uppercase;
 }
-@utility type-tabular {
-  font-size: var(--text-tabular-size);
-  font-weight: var(--text-tabular-weight);
-  font-feature-settings: var(--text-tabular-feature);
+@utility text-tabular {
+  font-feature-settings: 'tnum';
+  font-variant-numeric: tabular-nums;
 }
-@utility type-caption {
-  font-size: var(--text-caption-size);
-  font-weight: var(--text-caption-weight);
-  color: var(--text-muted);
+@utility text-stat-figure {
+  font-family: var(--font-heading);
+  font-size: var(--text-stat-figure-size);
+  font-weight: var(--text-stat-figure-weight);
+  letter-spacing: var(--text-stat-figure-tracking);
+  font-feature-settings: 'tnum';
+}
+@utility text-gradient-brand {
+  background: var(--gradient-brand-text);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
 }
 
 /* ------------------------------------------------------------
-   Base — resets & styles d'éléments
+   Utilitaires de mise en page et de surface
    ------------------------------------------------------------ */
-* {
-  box-sizing: border-box;
+/* Nommé "wrapper" et non "container" : Tailwind v4 a un utility "container" natif
+   (width:100% + max-width par breakpoint, sans centrage ni padding) qui entre en
+   conflit avec toute redéfinition du même nom. */
+@utility wrapper {
+  @apply mx-auto max-w-[1180px] px-6 md:px-10;
 }
 
-/* Ce reset n'est pas dans un @layer : il l'emporterait sur les utilitaires Tailwind
-   (p-*, m-*…). Les pages de la landing (`.marketing`) s'appuient sur ces utilitaires et
-   sur le reset de Tailwind (preflight) : on les exclut donc d'ici. */
-*:not(.marketing, .marketing *) {
-  margin: 0;
-  padding: 0;
+@utility shadow-elevation-1 {
+  box-shadow: var(--shadow-1);
+}
+@utility shadow-elevation-2 {
+  box-shadow: var(--shadow-2);
+}
+@utility shadow-elevation-3 {
+  box-shadow: var(--shadow-3);
 }
 
-html,
-body {
-  height: 100%;
+/* Champ de formulaire — anneau de focus indigo doux (même recette que la bulle de
+   recherche de la landing). Les composants base_input/select/textarea l'utilisent. */
+@utility field-control {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-input);
+  background: var(--surface-canvas);
+  padding: 0.625rem 1rem;
   font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  font-feature-settings: 'ss01';
-  background: var(--surface-sunken);
-  color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--text-body-md-size);
   line-height: 1.5;
-}
-
-/* Mêmes raisons que ci-dessus : ces règles non layerées écraseraient `text-white`,
-   `text-indigo-600`… dans la landing, qui définit ses propres couleurs. */
-a:not(.marketing a) {
-  color: inherit;
-  text-decoration: none;
-}
-
-h1:not(.marketing h1),
-h2:not(.marketing h2),
-h3:not(.marketing h3),
-h4:not(.marketing h4),
-h5:not(.marketing h5),
-h6:not(.marketing h6) {
   color: var(--text-primary);
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+
+  &:focus {
+    outline: none;
+    border-color: var(--indigo-300);
+    box-shadow: 0 0 0 3px var(--surface-brand-subtle);
+  }
+  &::placeholder {
+    color: var(--text-muted);
+  }
+  &:disabled {
+    background: var(--surface-sunken);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+  }
+  /* État d'erreur piloté par data-invalid (composants) ou :user-invalid (landing). */
+  &[data-invalid='true'],
+  &:user-invalid {
+    border-color: var(--state-danger);
+  }
+  &[data-invalid='true']:focus {
+    box-shadow: 0 0 0 3px var(--state-danger-bg);
+  }
+}
+
+/* Tableau de données (base_table.vue) : en-tête sur fond sunken, lignes séparées par
+   une hairline, survol discret. Les cellules numériques ajoutent `text-tabular text-right`. */
+@utility table-base {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: var(--text-body-sm-size);
+  line-height: 1.4;
+
+  & thead th {
+    padding: 10px 16px;
+    font-size: var(--text-caption-size);
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--surface-sunken);
+    border-bottom: 1px solid var(--border-hairline);
+    white-space: nowrap;
+  }
+  & tbody td {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-hairline);
+    vertical-align: middle;
+    color: var(--text-primary);
+  }
+  & tbody tr:first-child td {
+    border-top: 0;
+  }
+  & tbody tr:hover {
+    background: color-mix(in srgb, var(--surface-sunken) 60%, transparent);
+  }
+  & tfoot td {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-strong);
+    font-weight: 600;
+  }
 }
