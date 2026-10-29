@@ -3,7 +3,13 @@
     "title": "Profil fournisseur",
     "subtitle": "Renseignez vos délais, certifications et périmètre de livraison pour rassurer les acheteurs.",
     "submit": "Enregistrer le profil",
-    "success": "Profil fournisseur mis à jour."
+    "success": "Profil fournisseur mis à jour.",
+    "sections": {
+      "terms": "Conditions commerciales",
+      "termsHint": "Minimum de commande, délais et périmètre de livraison affichés aux acheteurs.",
+      "certificationsHint": "Normes et labels que vous détenez (ISO, FSC, OEKO-TEX…).",
+      "presentation": "Présentation de l'entreprise"
+    }
   },
   "fields": {
     "minOrderQuantity": "Quantité minimum de commande",
@@ -15,7 +21,8 @@
     "certificationAdd": "Ajouter une certification",
     "certificationRemove": "Retirer",
     "bio": "Présentation",
-    "defaultOriginScope": "Provenance par défaut"
+    "defaultOriginScope": "Provenance par défaut",
+    "certificationsEmpty": "Aucune certification renseignée."
   },
   "deliveryScope": {
     "none": "Non précisé",

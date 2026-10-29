@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
+import { FileText, LogIn, Plus } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
@@ -52,24 +53,41 @@ function addToDraft() {
 
 <template>
   <div v-if="rfqContext.canCreateRfq" class="flex flex-col gap-4">
-    <div class="sm:w-56">
-      <BaseButton @click="requestQuote()">{{ t('products.show.requestQuote') }}</BaseButton>
+    <div>
+      <BaseButton @click="requestQuote()">
+        <template #icon><FileText :size="18" aria-hidden="true" /></template>
+        {{ t('products.show.requestQuote') }}
+      </BaseButton>
     </div>
 
-    <div v-if="rfqContext.drafts.length > 0" class="flex items-end gap-2">
-      <BaseSelect id="rfq-draft" v-model="draftId" :label="t('products.show.addToDraft')">
-        <option :value="null">{{ t('products.show.chooseDraft') }}</option>
-        <option v-for="draft in rfqContext.drafts" :key="draft.id" :value="draft.id">
-          {{ draft.title }}
-        </option>
-      </BaseSelect>
-      <BaseButton variant="secondary" :disabled="draftId === null || adding" @click="addToDraft()">
+    <div
+      v-if="rfqContext.drafts.length > 0"
+      class="flex flex-col gap-3 rounded-lg border border-hairline bg-sunken p-4 sm:flex-row sm:items-end"
+    >
+      <div class="flex-1">
+        <BaseSelect id="rfq-draft" v-model="draftId" :label="t('products.show.addToDraft')">
+          <option :value="null">{{ t('products.show.chooseDraft') }}</option>
+          <option v-for="draft in rfqContext.drafts" :key="draft.id" :value="draft.id">
+            {{ draft.title }}
+          </option>
+        </BaseSelect>
+      </div>
+      <BaseButton
+        variant="secondary"
+        :disabled="draftId === null || adding"
+        :loading="adding"
+        @click="addToDraft()"
+      >
+        <template #icon><Plus :size="18" aria-hidden="true" /></template>
         {{ t('rfq.product.add') }}
       </BaseButton>
     </div>
   </div>
 
-  <div v-else-if="!page.props.user" class="sm:w-72">
-    <BaseButton @click="signIn()">{{ t('products.show.signInToRequest') }}</BaseButton>
+  <div v-else-if="!page.props.user">
+    <BaseButton @click="signIn()">
+      <template #icon><LogIn :size="18" aria-hidden="true" /></template>
+      {{ t('products.show.signInToRequest') }}
+    </BaseButton>
   </div>
 </template>

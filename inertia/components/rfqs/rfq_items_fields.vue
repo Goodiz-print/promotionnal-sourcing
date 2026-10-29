@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { Plus, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import BaseButton from '~/components/base/base_button.vue'
+import BaseIconButton from '~/components/base/base_icon_button.vue'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseSelect from '~/components/base/base_select.vue'
 import BaseTextarea from '~/components/base/base_textarea.vue'
-import BaseButton from '~/components/base/base_button.vue'
 import type { CategoryType } from '#shared/types/category'
 import { emptyRfqItem, type RfqItemFormState } from '~/components/rfqs/types'
 
@@ -31,24 +33,30 @@ function remove(index: number) {
 </script>
 
 <template>
-  <section class="flex flex-col gap-4">
-    <h2 class="font-medium">{{ t('rfq.items.title') }}</h2>
-
-    <p v-if="items.length === 0" class="text-sm text-[var(--gray-6)]">
+  <div class="flex flex-col gap-4">
+    <p v-if="items.length === 0" class="text-body-sm text-text-muted">
       {{ t('rfq.items.empty') }}
     </p>
 
     <div
       v-for="(item, index) in items"
       :key="index"
-      class="flex flex-col gap-3 rounded border border-[var(--gray-3)] p-4"
+      class="flex flex-col gap-4 rounded-lg border border-hairline bg-sunken p-4"
     >
-      <div class="grid grid-cols-1 gap-3 md:grid-cols-[2fr_1fr_1fr]">
+      <div class="flex items-center justify-between gap-3">
+        <p class="text-eyebrow text-text-muted">{{ t('rfq.items.line', { index: index + 1 }) }}</p>
+        <BaseIconButton :label="t('rfq.items.remove')" @click="remove(index)">
+          <Trash2 :size="18" aria-hidden="true" />
+        </BaseIconButton>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-[2fr_1fr_1fr]">
         <BaseInput
           :id="`item-name-${index}`"
           v-model="item.name"
           :label="t('rfq.fields.itemName')"
           :error="errors[`items.${index}.name`]"
+          required
         />
         <BaseInput
           :id="`item-quantity-${index}`"
@@ -57,6 +65,7 @@ function remove(index: number) {
           :min="1"
           :label="t('rfq.fields.quantity')"
           :error="errors[`items.${index}.quantity`]"
+          required
         />
         <BaseInput
           :id="`item-unit-${index}`"
@@ -85,14 +94,13 @@ function remove(index: number) {
         :label="t('rfq.fields.itemDescription')"
         :error="errors[`items.${index}.description`]"
       />
-
-      <div>
-        <BaseButton variant="link" @click="remove(index)">{{ t('rfq.items.remove') }}</BaseButton>
-      </div>
     </div>
 
     <div>
-      <BaseButton variant="secondary" @click="add()">{{ t('rfq.items.add') }}</BaseButton>
+      <BaseButton variant="secondary" size="sm" @click="add()">
+        <template #icon><Plus :size="18" aria-hidden="true" /></template>
+        {{ t('rfq.items.add') }}
+      </BaseButton>
     </div>
-  </section>
+  </div>
 </template>

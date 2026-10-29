@@ -1,14 +1,23 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
+import { BellOff, CheckCheck } from 'lucide-vue-next'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
 import BaseButton from '~/components/base/base_button.vue'
+import BaseEmptyState from '~/components/base/base_empty_state.vue'
+import BasePageHeader from '~/components/base/base_page_header.vue'
+import BaseSection from '~/components/base/base_section.vue'
 import NotificationItem from '~/components/notifications/notification_item.vue'
 import type { NotificationItemType } from '#shared/types/notification'
 
-defineProps<{ notifications: NotificationItemType[] }>()
+const props = defineProps<{ notifications: NotificationItemType[] }>()
 
 const { t, locale } = useI18n()
+
+const hasUnread = computed(() =>
+  props.notifications.some((notification) => notification.readAt === null)
+)
 
 function markAllRead() {
   router.post(
@@ -22,25 +31,27 @@ function markAllRead() {
 <template>
   <Head :title="t('notifications.title')" />
 
-  <div class="mx-auto flex w-full max-w-3xl flex-col gap-6 px-7.5 py-10">
-    <div class="flex items-center justify-between gap-4">
-      <h1 class="text-[32px] tracking-[-0.5px]">{{ t('notifications.title') }}</h1>
-      <BaseButton
-        v-if="notifications.some((notification) => notification.readAt === null)"
-        variant="secondary"
-        @click="markAllRead"
-      >
-        {{ t('notifications.markAllRead') }}
-      </BaseButton>
-    </div>
+  <div class="flex flex-col gap-8">
+    <BasePageHeader :title="t('notifications.title')">
+      <template v-if="hasUnread" #actions>
+        <BaseButton variant="secondary" @click="markAllRead">
+          <template #icon><CheckCheck :size="18" aria-hidden="true" /></template>
+          {{ t('notifications.markAllRead') }}
+        </BaseButton>
+      </template>
+    </BasePageHeader>
 
-    <p v-if="notifications.length === 0" class="text-[var(--gray-6)]">
-      {{ t('notifications.empty') }}
-    </p>
-    <ul v-else class="flex flex-col gap-1 rounded border border-[var(--gray-3)] p-2">
-      <li v-for="notification in notifications" :key="notification.id">
-        <NotificationItem :notification="notification" />
-      </li>
-    </ul>
+    <BaseEmptyState
+      v-if="notifications.length === 0"
+      :title="t('notifications.empty')"
+      :icon="BellOff"
+    />
+    <BaseSection v-else flush>
+      <ul class="divide-y divide-hairline">
+        <li v-for="notification in notifications" :key="notification.id" class="px-2 py-1">
+          <NotificationItem :notification="notification" />
+        </li>
+      </ul>
+    </BaseSection>
   </div>
 </template>

@@ -11,13 +11,18 @@ Suite de `2026-10-29-design-system-applicatif.md` : plus aucune trace de l'ancie
 - **Acheteur** : fiche produit découpée en sous-composants (`inertia/components/products/show/`), galerie, sélecteur de variantes, paliers de prix, fiche fournisseur, fiche devis, commandes (liste, détail, lignes, chronologie, adresse), création de demande de devis (formulaire, lignes, sélecteurs produit / fournisseur), notifications.
 - **Compte et organisation** : compte (profil, mot de passe, passkeys), membres (tableau, invitations), paramètres (général, adresse, logo via `BaseFileInput`), zones de danger sur `BaseDangerZone` ; `components/organization/section_nav.vue` remplacé par `BaseTabs` + `composables/use_organization_tabs.ts`.
 
-## Nouveaux composants base
+## Nouveaux composants
 
-`BaseDangerZone` (actions irréversibles), `BaseDescriptionList` + `BaseDescriptionItem` (listes clé / valeur des fiches).
+`BaseDangerZone` (actions irréversibles), `BaseDescriptionList` + `BaseDescriptionItem` (listes clé / valeur des fiches), `AuthHeader` (en-tête des écrans d'authentification, remplace dix `<h1>` copiés).
+
+## Corrections au passage
+
+- `resources/lang/{fr,en}/categories.json` : la clé `edit` était déclarée deux fois (objet puis chaîne), si bien que le titre de la page d'édition n'a jamais résolu ; le titre vit désormais sous `categories.update.*`.
+- Flèche texte retirée de `admin.organizations.back` (l'icône est dans `BasePageHeader`).
 
 ## Suppression des alias legacy
 
-- `inertia/css/tokens/colors.css` : plus de `--gray-*`, `--primary-*`, `--primary-contrast`, `--color-primary*` ; `inertia/css/app.css` : plus d'utilitaires `bg-primary`, `text-primary-*`… Toute couleur passe par `indigo-*`, `ink-*` ou les tokens sémantiques.
+- `inertia/css/tokens/colors.css` : plus de `--gray-*`, `--primary-*`, `--primary-contrast`, `--color-primary*` ni de tokens `--btn-*` inutilisés ; `inertia/css/app.css` : plus d'utilitaires `bg-primary`, `text-primary-*`… Toute couleur passe par `indigo-*`, `ink-*` ou les tokens sémantiques.
 - `inertia/app.ts` : barre de progression Inertia en indigo de marque.
 
 ## Garde-fou

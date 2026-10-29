@@ -80,7 +80,16 @@
   "manage": {
     "index": {
       "title": "My products",
-      "empty": "You have no product yet. Create one."
+      "empty": "You have no product yet. Create one.",
+      "columns": {
+        "product": "Product",
+        "price": "Price",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "emptyDescription": "Add your products so they show up in the catalogue and can be referenced in quote requests.",
+      "noPrice": "Price on request",
+      "priceRange": "{min} – {max}"
     },
     "create": {
       "title": "New product"
@@ -199,7 +208,8 @@
       "maxColors": "Max colors",
       "setupCharge": "Setup charge",
       "priceTiers": "Marking price grid",
-      "priceTiersHint": "Unit marking price by technique and ordered quantity."
+      "priceTiersHint": "Unit marking price by technique and ordered quantity.",
+      "chooseTechnique": "Choose a technique"
     },
     "sections": {
       "content": "Name and description",

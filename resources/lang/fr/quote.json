@@ -40,7 +40,12 @@
     "submit": "Remettre le devis",
     "delete": "Supprimer le brouillon",
     "confirmSubmit": "Remettre ce devis à l'acheteur ? Il ne sera plus modifiable.",
-    "confirmDelete": "Supprimer ce brouillon ?"
+    "confirmDelete": "Supprimer ce brouillon ?",
+    "sections": {
+      "lines": "Lignes du devis",
+      "linesHint": "Une ligne sans prix unitaire n'est pas chiffrée : elle ne sera pas envoyée.",
+      "terms": "Conditions"
+    }
   },
   "table": {
     "item": "Article",
@@ -74,7 +79,16 @@
     "index": {
       "title": "Mes devis",
       "subtitle": "Les devis que vous avez rédigés en réponse à des demandes.",
-      "empty": "Aucun devis pour le moment."
+      "empty": "Aucun devis pour le moment.",
+      "columns": {
+        "rfq": "Demande",
+        "total": "Total",
+        "leadTime": "Délai",
+        "validUntil": "Valable jusqu'au",
+        "status": "Statut"
+      },
+      "emptyDescription": "Vos devis apparaîtront ici dès que vous répondrez à une demande reçue.",
+      "browseRfqs": "Voir les demandes reçues"
     },
     "edit": {
       "title": "Devis : {rfqTitle}",
@@ -85,7 +99,8 @@
         "accepted": "L'acheteur a accepté ce devis.",
         "rejected": "L'acheteur n'a pas retenu ce devis.",
         "expired": "Ce devis a expiré."
-      }
+      },
+      "linesTitle": "Lignes du devis"
     },
     "rfq": {
       "respond": "Répondre par un devis",

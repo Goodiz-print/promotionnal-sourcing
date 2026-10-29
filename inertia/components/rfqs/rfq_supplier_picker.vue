@@ -27,20 +27,22 @@ function toggle(id: number, checked: boolean) {
 </script>
 
 <template>
-  <section class="flex flex-col gap-3">
-    <div class="flex items-baseline justify-between">
-      <h2 class="font-medium">{{ t('rfq.fields.suppliers') }}</h2>
-      <span class="text-sm text-[var(--gray-6)]">
-        {{ t('rfq.suppliers.selected', { count: selected.length }) }}
-      </span>
-    </div>
-
-    <p v-if="options.length === 0" class="text-sm text-[var(--gray-6)]">
+  <div class="flex flex-col gap-3">
+    <p v-if="options.length === 0" class="text-body-sm text-text-muted">
       {{ t('rfq.suppliers.empty') }}
     </p>
 
-    <ul v-else class="flex flex-col gap-2">
-      <li v-for="option in options" :key="option.id">
+    <ul v-else class="grid gap-2 sm:grid-cols-2">
+      <li
+        v-for="option in options"
+        :key="option.id"
+        class="rounded-lg border px-3.5 py-2.5 transition-colors duration-150"
+        :class="
+          selected.includes(option.id)
+            ? 'border-indigo-500 bg-brand-subtle'
+            : 'border-hairline bg-card hover:border-strong'
+        "
+      >
         <BaseCheckbox
           :id="`supplier-${option.id}`"
           :model-value="selected.includes(option.id)"
@@ -49,5 +51,9 @@ function toggle(id: number, checked: boolean) {
         />
       </li>
     </ul>
-  </section>
+
+    <p class="text-caption text-text-muted">
+      {{ t('rfq.suppliers.selected', { count: selected.length }) }}
+    </p>
+  </div>
 </template>

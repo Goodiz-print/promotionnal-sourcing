@@ -17,15 +17,21 @@ function label(variant: ProductDetailVariantType): string {
 
 <template>
   <fieldset class="flex flex-col gap-2">
-    <legend class="mb-1 text-sm font-medium">{{ t('products.show.variants') }}</legend>
+    <legend class="mb-2 text-caption font-semibold text-text-muted">
+      {{ t('products.show.variants') }}
+    </legend>
     <div class="flex flex-wrap gap-2">
       <button
         v-for="variant in variants"
         :key="variant.id"
         type="button"
         :aria-pressed="variant.id === selectedId"
-        :data-active="variant.id === selectedId"
-        class="cursor-pointer rounded border border-[var(--gray-4)] px-3 py-1.5 text-sm data-[active=true]:border-[var(--color-primary)] data-[active=true]:bg-[var(--gray-2)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-6)]"
+        class="cursor-pointer rounded-pill border px-3.5 py-1.5 text-body-sm font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+        :class="
+          variant.id === selectedId
+            ? 'border-indigo-500 bg-brand-subtle text-indigo-700'
+            : 'border-input bg-canvas text-text-primary hover:border-strong hover:bg-ink-50'
+        "
         @click="$emit('select', variant.id)"
       >
         {{ label(variant) }}

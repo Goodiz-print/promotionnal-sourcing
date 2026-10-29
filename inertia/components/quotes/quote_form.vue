@@ -5,6 +5,7 @@ import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseInput from '~/components/base/base_input.vue'
+import BaseSection from '~/components/base/base_section.vue'
 import BaseTextarea from '~/components/base/base_textarea.vue'
 import QuoteLinesFields from '~/components/quotes/quote_lines_fields.vue'
 import {
@@ -107,42 +108,55 @@ function destroyQuote() {
 
 <template>
   <form class="flex flex-col gap-6" @submit.prevent="save">
-    <QuoteLinesFields
-      v-model="form.lines"
-      :items="rfq.items"
-      :currency="currency"
-      :errors="lineErrors"
-    />
-    <p v-if="lineErrors.items" class="text-sm text-[var(--state-danger)]">
-      {{ lineErrors.items }}
-    </p>
-
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-      <BaseInput
-        id="quote-valid-until"
-        v-model="form.validUntil"
-        type="date"
-        :label="t('quote.form.validUntil')"
-        :error="form.errors.validUntil"
-      />
-      <p class="self-end text-lg font-medium">
-        {{ t('quote.form.total', { total: formatMoney(total, currency, locale) }) }}
-      </p>
-    </div>
-
-    <BaseTextarea
-      id="quote-notes"
-      v-model="form.notes"
-      :label="t('quote.form.notes')"
-      :error="form.errors.notes"
-    />
-
-    <div class="flex flex-wrap items-center gap-3">
-      <div>
-        <BaseButton type="submit" :disabled="form.processing || pricedIndexes.length === 0">
-          {{ t('quote.form.save') }}
-        </BaseButton>
+    <BaseSection
+      as="fieldset"
+      :title="t('quote.form.sections.lines')"
+      :description="t('quote.form.sections.linesHint')"
+    >
+      <div class="flex flex-col gap-4">
+        <QuoteLinesFields
+          v-model="form.lines"
+          :items="rfq.items"
+          :currency="currency"
+          :errors="lineErrors"
+        />
+        <p v-if="lineErrors.items" role="alert" class="text-caption font-medium text-danger">
+          {{ lineErrors.items }}
+        </p>
       </div>
+    </BaseSection>
+
+    <BaseSection as="fieldset" :title="t('quote.form.sections.terms')">
+      <div class="grid gap-5 sm:grid-cols-2">
+        <BaseInput
+          id="quote-valid-until"
+          v-model="form.validUntil"
+          type="date"
+          :label="t('quote.form.validUntil')"
+          :error="form.errors.validUntil"
+        />
+        <BaseTextarea
+          id="quote-notes"
+          v-model="form.notes"
+          :label="t('quote.form.notes')"
+          :error="form.errors.notes"
+          class="sm:col-span-2"
+        />
+      </div>
+
+      <template #footer>
+        <p class="text-tabular text-heading-sm text-text-primary">
+          {{ t('quote.form.total', { total: formatMoney(total, currency, locale) }) }}
+        </p>
+      </template>
+    </BaseSection>
+
+    <div
+      class="sticky bottom-4 z-20 flex items-center justify-end gap-3 rounded-xl border border-hairline bg-white/90 px-4 py-3 shadow-elevation-2 backdrop-blur-md"
+    >
+      <BaseButton v-if="quote" variant="danger" @click="destroyQuote()">
+        {{ t('quote.form.delete') }}
+      </BaseButton>
       <BaseButton
         v-if="quote"
         variant="secondary"
@@ -152,8 +166,8 @@ function destroyQuote() {
       >
         {{ t('quote.form.submit') }}
       </BaseButton>
-      <BaseButton v-if="quote" variant="danger" @click="destroyQuote()">
-        {{ t('quote.form.delete') }}
+      <BaseButton type="submit" :loading="form.processing" :disabled="pricedIndexes.length === 0">
+        {{ t('quote.form.save') }}
       </BaseButton>
     </div>
   </form>

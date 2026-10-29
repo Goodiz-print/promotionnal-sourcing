@@ -61,19 +61,6 @@
   --color-amber-600: var(--amber-600);
   --color-yellow-400: var(--yellow-400);
 
-  /* Sémantique — primaire */
-  --color-primary: var(--indigo-500);
-  --color-primary-hover: var(--indigo-600);
-  --color-primary-contrast: var(--ink-0);
-
-  /* Alias primaires historiques (rétro-compat utilitaires) */
-  --color-primary-1: var(--indigo-50);
-  --color-primary-3: var(--indigo-100);
-  --color-primary-6: var(--indigo-400);
-  --color-primary-9: var(--indigo-500);
-  --color-primary-10: var(--indigo-600);
-  --color-primary-11: var(--indigo-700);
-
   /* Sémantique — surfaces */
   --color-canvas: var(--surface-canvas);
   --color-sunken: var(--surface-sunken);

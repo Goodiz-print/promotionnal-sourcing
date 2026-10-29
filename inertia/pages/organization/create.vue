@@ -2,6 +2,7 @@
 import { provide } from 'vue'
 import { Head, useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
+import AuthHeader from '~/components/auth/auth_header.vue'
 import AuthLayout from '~/layouts/auth.vue'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
@@ -31,12 +32,10 @@ function submit() {
   <Head :title="t('organization.create.title')" />
 
   <div class="flex flex-col gap-8">
-    <div class="flex flex-col gap-2">
-      <h1 class="text-display-md">{{ t('organization.create.title') }}</h1>
-      <p class="text-body-md text-text-secondary">
-        {{ t('organization.create.subtitle') }}
-      </p>
-    </div>
+    <AuthHeader
+      :title="t('organization.create.title')"
+      :description="t('organization.create.subtitle')"
+    />
 
     <form class="flex flex-col gap-6" @submit.prevent="submit">
       <OrganizationFormFields />

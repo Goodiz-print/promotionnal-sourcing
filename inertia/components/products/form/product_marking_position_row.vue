@@ -48,7 +48,7 @@ function onTemplate(raw: string | null) {
 </script>
 
 <template>
-  <fieldset class="flex flex-col gap-3 rounded-lg border border-hairline bg-sunken p-4">
+  <fieldset class="flex flex-col gap-4 rounded-lg border border-hairline bg-sunken p-4">
     <div class="flex items-end gap-3">
       <BaseInput
         :id="`marking-${index}-name`"
@@ -57,12 +57,12 @@ function onTemplate(raw: string | null) {
         :error="errors[field('name')]"
         class="flex-1"
       />
-      <BaseButton variant="danger" @click="$emit('remove')">{{
-        t('products.manage.marking.removePosition')
-      }}</BaseButton>
+      <BaseButton variant="danger" size="sm" class="mb-1" @click="$emit('remove')">
+        {{ t('products.manage.marking.removePosition') }}
+      </BaseButton>
     </div>
 
-    <div class="grid gap-3 sm:grid-cols-2">
+    <div class="grid gap-4 sm:grid-cols-2">
       <BaseInput
         :id="`marking-${index}-width`"
         v-model="form.markingPositions[index].maxWidthMm"
@@ -95,8 +95,8 @@ function onTemplate(raw: string | null) {
       </option>
     </BaseSelect>
 
-    <div class="flex flex-col gap-3">
-      <p class="text-sm font-medium">{{ t('products.manage.marking.techniques') }}</p>
+    <div class="flex flex-col gap-3 border-t border-hairline pt-4">
+      <p class="text-eyebrow text-text-muted">{{ t('products.manage.marking.techniques') }}</p>
       <div
         v-for="(technique, techniqueIndex) in position.techniques"
         :key="techniqueIndex"
@@ -112,7 +112,7 @@ function onTemplate(raw: string | null) {
           class="flex-1"
           @update:model-value="(raw) => onTechnique(techniqueIndex, raw)"
         >
-          <option value="">—</option>
+          <option value="">{{ t('products.manage.marking.chooseTechnique') }}</option>
           <option v-for="item in markingTechniques" :key="item.id" :value="String(item.id)">
             {{ item.name ?? item.slug }}
           </option>
@@ -136,14 +136,19 @@ function onTemplate(raw: string | null) {
           :error="errors[field(`techniques.${techniqueIndex}.defaultSetupCharge`)]"
           class="flex-1"
         />
-        <BaseButton variant="danger" @click="removeTechnique(techniqueIndex)">{{
-          t('products.manage.marking.removeTechnique')
-        }}</BaseButton>
+        <BaseButton
+          variant="danger"
+          size="sm"
+          class="sm:mb-1"
+          @click="removeTechnique(techniqueIndex)"
+        >
+          {{ t('products.manage.marking.removeTechnique') }}
+        </BaseButton>
       </div>
       <div>
-        <BaseButton variant="secondary" @click="addTechnique">{{
-          t('products.manage.marking.addTechnique')
-        }}</BaseButton>
+        <BaseButton variant="secondary" size="sm" @click="addTechnique">
+          {{ t('products.manage.marking.addTechnique') }}
+        </BaseButton>
       </div>
     </div>
   </fieldset>

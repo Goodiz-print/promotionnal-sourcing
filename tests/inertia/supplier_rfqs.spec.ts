@@ -95,8 +95,9 @@ describe('supplier/rfqs/index.vue', () => {
       },
     })
 
-    expect(wrapper.findAll('li')).toHaveLength(2)
-    expect(wrapper.text()).toContain('De Acme')
+    // Une ligne de tableau par demande ; l'acheteur a sa propre colonne.
+    expect(wrapper.findAll('tbody tr')).toHaveLength(2)
+    expect(wrapper.text()).toContain('Acme')
     expect(wrapper.text()).toContain('À traiter')
     expect(wrapper.text()).toContain('Déclinée')
   })
@@ -105,7 +106,7 @@ describe('supplier/rfqs/index.vue', () => {
     const wrapper = mount(SupplierRfqsIndex, { props: { rfqs: [] } })
 
     expect(wrapper.text()).toContain('Aucune demande reçue pour le moment.')
-    expect(wrapper.findAll('li')).toHaveLength(0)
+    expect(wrapper.find('table').exists()).toBe(false)
   })
 })
 

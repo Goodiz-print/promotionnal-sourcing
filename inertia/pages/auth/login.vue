@@ -2,6 +2,7 @@
 import { Head, useForm } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
+import AuthHeader from '~/components/auth/auth_header.vue'
 import AuthLayout from '~/layouts/auth.vue'
 import { urlFor } from '~/client'
 import BaseInput from '~/components/base/base_input.vue'
@@ -29,12 +30,7 @@ function submit() {
   <Head :title="t('auth.login.title')" />
 
   <div class="flex flex-col gap-8">
-    <div class="flex flex-col gap-2">
-      <h1 class="text-display-md">{{ t('auth.login.title') }}</h1>
-      <p class="text-body-md text-text-secondary">
-        {{ t('auth.login.subtitle') }}
-      </p>
-    </div>
+    <AuthHeader :title="t('auth.login.title')" :description="t('auth.login.subtitle')" />
 
     <form class="flex flex-col gap-6" @submit.prevent="submit">
       <BaseInput

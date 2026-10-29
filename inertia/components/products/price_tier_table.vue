@@ -1,30 +1,29 @@
 <script setup lang="ts">
 import { useI18n } from '~/i18n'
+import BaseTable from '~/components/base/base_table.vue'
 import type { ProductPriceTierType } from '#shared/types/product'
 
+/** Grille de prix dégressive d'un produit (ou d'une variante). Conçue pour une `BaseSection flush`. */
 defineProps<{ tiers: ProductPriceTierType[] }>()
 
 const { t } = useI18n()
 </script>
 
 <template>
-  <table class="w-full text-sm">
-    <caption class="mb-1 text-left font-medium">
-      {{
-        t('products.show.priceTiers')
-      }}
-    </caption>
-    <thead class="text-left text-[var(--gray-6)]">
+  <BaseTable bare :caption="t('products.show.priceTiers')">
+    <template #head>
       <tr>
-        <th scope="col" class="py-1 font-normal">{{ t('products.show.tierQuantity') }}</th>
-        <th scope="col" class="py-1 text-right font-normal">{{ t('products.show.tierPrice') }}</th>
+        <th scope="col">{{ t('products.show.tierQuantity') }}</th>
+        <th scope="col" class="text-right">{{ t('products.show.tierPrice') }}</th>
       </tr>
-    </thead>
-    <tbody>
-      <tr v-for="tier in tiers" :key="tier.id" class="border-t border-[var(--gray-3)]">
-        <td class="py-1">{{ t('products.show.tierFrom', { quantity: tier.minQuantity }) }}</td>
-        <td class="py-1 text-right">{{ Number(tier.unitPrice) }} {{ tier.currency }}</td>
-      </tr>
-    </tbody>
-  </table>
+    </template>
+    <tr v-for="tier in tiers" :key="tier.id">
+      <td class="text-tabular">
+        {{ t('products.show.tierFrom', { quantity: tier.minQuantity }) }}
+      </td>
+      <td class="text-tabular text-right font-semibold text-indigo-600">
+        {{ Number(tier.unitPrice) }} {{ tier.currency }}
+      </td>
+    </tr>
+  </BaseTable>
 </template>

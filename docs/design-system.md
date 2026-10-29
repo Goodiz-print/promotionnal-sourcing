@@ -138,7 +138,7 @@ Correspondances statut → tonalité : `inertia/components/{rfqs,quotes,orders}/
 
 ## Garde-fou
 
-`tests/inertia/design_system_guard.spec.ts` parcourt `inertia/**/*.{vue,ts}` (hors `inertia/css` et `components/marketing`, `pages/marketing`) et échoue dès qu'un fichier contient une trace de l'ancien design : `var(--gray-*)`, `var(--primary-*)`, `var(--color-primary*)`, `var(--state-*)`, `text-[NNpx]`, `tracking-[…]`, `rounded` nu, couleur hex dans une classe, `<details>`, `shadow-lg`, glyphes texte, ou une taille Tailwind générique (`text-xs|sm|base|lg|xl|2xl|3xl`). Il tourne avec `pnpm test:inertia`, donc en CI.
+`tests/inertia/design_system_guard.spec.ts` parcourt `inertia/**/*.{vue,ts}` (hors `inertia/css` et `components/marketing`, `pages/marketing`) et échoue dès qu'un fichier contient une trace de l'ancien design : `var(--gray-*)`, `var(--primary-*)`, `var(--color-primary*)`, `var(--state-*)`, `text-[NNpx]`, `tracking-[…]`, `rounded` nu, couleur hex dans une classe, `<details>`, `<h1>`/`<table>` à la main (hors `BasePageHeader`, `AuthHeader`, `BaseTable`), `shadow-lg`, glyphes texte, ou une taille Tailwind générique (`text-xs|sm|base|lg|xl|2xl|3xl`). Il vérifie aussi que les feuilles de style ne définissent plus aucun alias legacy. Il tourne avec `pnpm test:inertia`, donc en CI.
 
 ## Étendre
 

@@ -2,6 +2,7 @@
 import { Head, useForm } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
+import AuthHeader from '~/components/auth/auth_header.vue'
 import AuthLayout from '~/layouts/auth.vue'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseLinkButton from '~/components/base/base_link_button.vue'
@@ -36,19 +37,15 @@ function accept() {
   <Head :title="t('organization.invitations.accept.title')" />
 
   <div class="flex flex-col gap-8">
-    <div class="flex flex-col gap-2">
-      <h1 class="text-display-md">
-        {{ t('organization.invitations.accept.title') }}
-      </h1>
-      <p class="text-body-md text-text-secondary">
-        {{
-          t('organization.invitations.accept.description', {
-            organization: invitation.organizationName,
-            role: invitation.roleName,
-          })
-        }}
-      </p>
-    </div>
+    <AuthHeader
+      :title="t('organization.invitations.accept.title')"
+      :description="
+        t('organization.invitations.accept.description', {
+          organization: invitation.organizationName,
+          role: invitation.roleName,
+        })
+      "
+    />
 
     <BaseButton v-if="emailMatches" type="button" block :loading="form.processing" @click="accept">
       {{ t('organization.invitations.accept.submit') }}

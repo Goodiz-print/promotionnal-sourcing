@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
+import AuthHeader from '~/components/auth/auth_header.vue'
 import AuthLayout from '~/layouts/auth.vue'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseButton from '~/components/base/base_button.vue'
@@ -23,12 +24,7 @@ function submit() {
   <Head :title="t('auth.reset.title')" />
 
   <div class="flex flex-col gap-8">
-    <div class="flex flex-col gap-2">
-      <h1 class="text-display-md">{{ t('auth.reset.title') }}</h1>
-      <p class="text-body-md text-text-secondary">
-        {{ t('auth.reset.subtitle') }}
-      </p>
-    </div>
+    <AuthHeader :title="t('auth.reset.title')" :description="t('auth.reset.subtitle')" />
 
     <form class="flex flex-col gap-6" @submit.prevent="submit">
       <BaseInput

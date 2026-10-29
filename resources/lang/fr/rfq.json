@@ -114,7 +114,16 @@
       "subtitle": "Les demandes de devis que des acheteurs vous ont adressées.",
       "empty": "Aucune demande reçue pour le moment.",
       "from": "De {name}",
-      "receivedAt": "Reçue le {date}"
+      "receivedAt": "Reçue le {date}",
+      "columns": {
+        "title": "Demande",
+        "buyer": "Acheteur",
+        "items": "Lignes",
+        "receivedAt": "Reçue le",
+        "deadline": "Échéance",
+        "status": "Statut"
+      },
+      "emptyDescription": "Les acheteurs qui vous consultent apparaîtront ici avec le détail de leur besoin."
     },
     "show": {
       "backToList": "Retour aux demandes reçues",
@@ -123,7 +132,10 @@
       "noDeadline": "Sans échéance",
       "declinedNotice": "Vous avez décliné cette demande. L'acheteur en a été informé.",
       "closedNotice": "L'acheteur a clôturé cette demande : elle n'attend plus de réponse.",
-      "expiredNotice": "Cette demande est échue : l'acheteur n'attend plus de réponse."
+      "expiredNotice": "Cette demande est échue : l'acheteur n'attend plus de réponse.",
+      "responseTitle": "Votre réponse",
+      "responseOpen": "Chiffrez ce besoin en remettant un devis, ou déclinez la demande si vous ne pouvez pas y donner suite.",
+      "responseQuote": "Vous avez rédigé un devis pour cette demande."
     },
     "actions": {
       "decline": "Décliner la demande",

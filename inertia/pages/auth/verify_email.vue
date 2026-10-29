@@ -2,6 +2,7 @@
 import { Head } from '@inertiajs/vue3'
 import { Form } from '@adonisjs/inertia/vue'
 import { useI18n } from '~/i18n'
+import AuthHeader from '~/components/auth/auth_header.vue'
 import AuthLayout from '~/layouts/auth.vue'
 import BaseButton from '~/components/base/base_button.vue'
 
@@ -16,13 +17,12 @@ const { t, locale } = useI18n()
   <Head :title="t('auth.verify.title')" />
 
   <div class="flex flex-col gap-8">
-    <div class="flex flex-col gap-2">
-      <h1 class="text-display-md">{{ t('auth.verify.title') }}</h1>
-      <p class="text-body-md text-text-secondary">
-        {{ t('auth.verify.description', { email }) }}
-      </p>
+    <AuthHeader
+      :title="t('auth.verify.title')"
+      :description="t('auth.verify.description', { email })"
+    >
       <p class="text-caption text-text-muted">{{ t('auth.verify.hint') }}</p>
-    </div>
+    </AuthHeader>
 
     <Form v-slot="{ processing }" route="email.verification.resend" :params="{ locale }">
       <BaseButton type="submit" block :loading="processing">
