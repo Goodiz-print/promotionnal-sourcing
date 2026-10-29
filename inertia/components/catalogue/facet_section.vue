@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, useId } from 'vue'
+import { useId } from 'vue'
 import { ChevronDown } from 'lucide-vue-next'
+import { useFacetOpen } from '~/composables/use_facet_open'
 
 /**
  * Groupe rétractable de la barre de filtres : séparateur hairline + en-tête
@@ -13,13 +14,13 @@ const props = withDefaults(
   defineProps<{
     title: string
     as?: 'fieldset' | 'section'
-    // Ouvert au premier rendu ; l'état est ensuite local au groupe.
+    // Ouvert à la première visite ; ensuite l'état mémorisé (par titre) prend le relais.
     defaultOpen?: boolean
   }>(),
   { as: 'fieldset', defaultOpen: true }
 )
 
-const open = ref(props.defaultOpen)
+const { open, toggle } = useFacetOpen(props.title, props.defaultOpen)
 const bodyId = useId()
 </script>
 
@@ -30,7 +31,7 @@ const bodyId = useId()
       class="mb-2 flex w-full items-center justify-between gap-2 text-left text-eyebrow text-text-muted"
       :aria-expanded="open"
       :aria-controls="bodyId"
-      @click="open = !open"
+      @click="toggle"
     >
       <span>{{ title }}</span>
       <ChevronDown
