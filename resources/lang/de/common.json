@@ -19,6 +19,8 @@
     "settings": "Einstellungen",
     "account": "Mein Konto",
     "main": "Hauptnavigation",
+    "collapseSidebar": "Seitenleiste einklappen",
+    "expandSidebar": "Seitenleiste ausklappen",
     "menu": "Menü",
     "userMenu": "Benutzermenü"
   },

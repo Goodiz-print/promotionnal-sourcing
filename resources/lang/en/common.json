@@ -19,6 +19,8 @@
     "settings": "Settings",
     "account": "My account",
     "main": "Main navigation",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
     "menu": "Menu",
     "userMenu": "User menu",
     "groups": {

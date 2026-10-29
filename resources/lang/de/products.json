@@ -10,6 +10,7 @@
     "resultsCount": "{count, plural, =0 {Keine Produkte} one {# Produkt} other {# Produkte}}",
     "empty": "Kein Produkt entspricht Ihrer Suche.",
     "searchUnavailable": "Die Suche ist vorübergehend nicht verfügbar. Versuchen Sie es gleich erneut oder durchsuchen Sie die Kategorien.",
+    "loading": "Produkte werden geladen …",
     "previous": "Zurück",
     "next": "Weiter"
   },

@@ -19,6 +19,7 @@ const translations = {
   'products.index.searchUnavailable': 'La recherche est momentanément indisponible.',
   'products.index.previous': 'Précédent',
   'products.index.next': 'Suivant',
+  'products.index.loading': 'Chargement des produits…',
   'products.index.selectCategoryForFilters':
     'Sélectionnez une catégorie pour afficher ses filtres.',
   'products.index.filtersTitle': 'Filtres',
@@ -58,7 +59,7 @@ vi.mock('@inertiajs/vue3', async () => {
   const m = await import('./support/inertia_mocks')
   return {
     usePage: () => m.inertiaPage(translations),
-    router: { get: vi.fn() },
+    router: { get: vi.fn(), on: vi.fn(() => vi.fn()) },
     Head: m.HeadStub,
   }
 })
@@ -220,6 +221,45 @@ const emptyFilters = {
 }
 
 describe('products/index.vue', () => {
+  it('remplace la grille par des squelettes pendant le rechargement de la page', async () => {
+    vi.useFakeTimers()
+    try {
+      const wrapper = mount(Index, {
+        props: {
+          searchUnavailable: false,
+          products: { data: [product(1, 'Crayon Bleu', 'crayon-bleu')], meta },
+          filters: emptyFilters,
+          categories: [],
+          facetBar,
+          certificationFacet,
+          numericFacets,
+        },
+      })
+      const handlers = Object.fromEntries(
+        vi.mocked(router.on).mock.calls.map(([event, handler]) => [event, handler])
+      ) as Record<string, (event?: unknown) => void>
+
+      handlers.start({
+        detail: { visit: { method: 'get', url: new URL(window.location.href) } },
+      })
+      // Sous le délai anti-clignotement : la grille reste affichée.
+      expect(wrapper.text()).toContain('Crayon Bleu')
+
+      await vi.advanceTimersByTimeAsync(200)
+      expect(wrapper.get('[role="status"]').attributes('aria-label')).toBe(
+        'Chargement des produits…'
+      )
+      expect(wrapper.text()).not.toContain('Crayon Bleu')
+
+      handlers.finish()
+      await wrapper.vm.$nextTick()
+      expect(wrapper.find('[role="status"]').exists()).toBe(false)
+      expect(wrapper.text()).toContain('Crayon Bleu')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('affiche une carte par produit + la barre de filtres par catégorie', () => {
     const wrapper = mount(Index, {
       props: {

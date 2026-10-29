@@ -19,6 +19,8 @@
     "settings": "Instellingen",
     "account": "Mijn account",
     "main": "Hoofdnavigatie",
+    "collapseSidebar": "Menu invouwen",
+    "expandSidebar": "Menu uitvouwen",
     "menu": "Menu",
     "userMenu": "Gebruikersmenu"
   },

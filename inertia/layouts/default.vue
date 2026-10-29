@@ -5,14 +5,17 @@ import { toast, Toaster } from 'vue-sonner'
 import type { Data } from '@generated/data'
 import AppSidebar from '~/components/app/app_sidebar.vue'
 import AppTopbar from '~/components/app/app_topbar.vue'
+import { useSidebarCollapsed } from '~/composables/use_sidebar_collapsed'
 
 /**
  * Shell applicatif : sidebar fixe (panneau coulissant sur mobile) + topbar +
  * contenu sur fond « sunken ». Les pages posent leurs cartes blanches dessus.
+ * Dès md, la sidebar se réduit à un rail d'icônes (choix mémorisé).
  */
 const page = usePage<Data.SharedProps>()
 
 const mobileMenuOpen = ref(false)
+const { collapsed, toggle: toggleCollapsed } = useSidebarCollapsed()
 
 watch(
   () => page.url,
@@ -37,7 +40,10 @@ watch(
 </script>
 
 <template>
-  <div class="min-h-screen bg-sunken md:grid md:grid-cols-[264px_minmax(0,1fr)]">
+  <div
+    class="min-h-screen bg-sunken md:grid md:transition-[grid-template-columns] md:duration-200 md:ease-out"
+    :class="collapsed ? 'md:grid-cols-[72px_minmax(0,1fr)]' : 'md:grid-cols-[264px_minmax(0,1fr)]'"
+  >
     <div
       v-if="mobileMenuOpen"
       class="fixed inset-0 z-40 bg-ink-950/40 md:hidden"
@@ -49,7 +55,7 @@ watch(
       class="fixed inset-y-0 left-0 z-50 w-[272px] border-r border-hairline bg-card shadow-elevation-3 transition-transform duration-200 ease-out md:sticky md:top-0 md:h-screen md:w-auto md:translate-x-0 md:shadow-none"
       :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
     >
-      <AppSidebar />
+      <AppSidebar :collapsed="collapsed" @toggle-collapse="toggleCollapsed" />
     </aside>
 
     <div class="flex min-h-screen min-w-0 flex-col">

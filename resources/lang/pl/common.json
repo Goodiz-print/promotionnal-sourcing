@@ -19,6 +19,8 @@
     "settings": "Ustawienia",
     "account": "Moje konto",
     "main": "Nawigacja główna",
+    "collapseSidebar": "Zwiń menu",
+    "expandSidebar": "Rozwiń menu",
     "menu": "Menu",
     "userMenu": "Menu użytkownika"
   },

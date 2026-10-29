@@ -10,6 +10,7 @@
     "resultsCount": "{count, plural, =0 {Nessun prodotto} one {# prodotto} other {# prodotti}}",
     "empty": "Nessun prodotto corrisponde alla Sua ricerca.",
     "searchUnavailable": "La ricerca non è al momento disponibile. Riprova tra poco o sfoglia le categorie.",
+    "loading": "Caricamento dei prodotti…",
     "previous": "Precedente",
     "next": "Successivo"
   },

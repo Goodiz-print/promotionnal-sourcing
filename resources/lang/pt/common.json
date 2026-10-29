@@ -19,6 +19,8 @@
     "settings": "Definições",
     "account": "A minha conta",
     "main": "Navegação principal",
+    "collapseSidebar": "Recolher o menu",
+    "expandSidebar": "Expandir o menu",
     "menu": "Menu",
     "userMenu": "Menu do utilizador"
   },

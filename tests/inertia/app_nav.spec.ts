@@ -113,3 +113,16 @@ describe('AppNav — groupes', () => {
     expect(mount(AppNav).findAll('p')).toHaveLength(0)
   })
 })
+
+describe('AppNav — réduit', () => {
+  it('garde libellés et titres pour les lecteurs d’écran quand le menu est réduit', () => {
+    pageState.url = '/fr'
+    pageState.navigation = [item('dashboard', 'dashboard.show'), item('rfqs', 'rfqs.index')]
+
+    const links = mount(AppNav, { props: { collapsed: true } }).findAll('a')
+
+    expect(links[0].attributes('title')).toBe('Tableau de bord')
+    expect(links[0].get('span').classes()).toContain('md:sr-only')
+    expect(links[0].classes()).toContain('md:justify-center')
+  })
+})

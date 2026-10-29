@@ -10,6 +10,7 @@
     "resultsCount": "{count, plural, =0 {No products} one {# product} other {# products}}",
     "empty": "No product matches your search.",
     "searchUnavailable": "Search is temporarily unavailable. Try again in a moment or browse the categories.",
+    "loading": "Loading products…",
     "previous": "Previous",
     "next": "Next",
     "selectCategoryForFilters": "Select a category to show its filters.",

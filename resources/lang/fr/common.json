@@ -19,6 +19,8 @@
     "settings": "Paramètres",
     "account": "Mon compte",
     "main": "Navigation principale",
+    "collapseSidebar": "Réduire le menu",
+    "expandSidebar": "Déplier le menu",
     "menu": "Menu",
     "userMenu": "Menu utilisateur",
     "groups": {

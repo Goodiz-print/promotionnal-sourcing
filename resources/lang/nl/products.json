@@ -10,6 +10,7 @@
     "resultsCount": "{count, plural, =0 {Geen producten} one {# product} other {# producten}}",
     "empty": "Geen enkel product komt overeen met uw zoekopdracht.",
     "searchUnavailable": "Zoeken is tijdelijk niet beschikbaar. Probeer het zo opnieuw of blader door de categorieën.",
+    "loading": "Producten laden…",
     "previous": "Vorige",
     "next": "Volgende"
   },

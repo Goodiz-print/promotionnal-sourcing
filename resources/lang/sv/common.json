@@ -19,6 +19,8 @@
     "settings": "Inställningar",
     "account": "Mitt konto",
     "main": "Huvudnavigering",
+    "collapseSidebar": "Fäll ihop menyn",
+    "expandSidebar": "Fäll ut menyn",
     "menu": "Meny",
     "userMenu": "Användarmeny"
   },

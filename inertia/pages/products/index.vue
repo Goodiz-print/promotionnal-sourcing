@@ -10,6 +10,8 @@ import BaseAlert from '~/components/base/base_alert.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import BasePagination from '~/components/base/base_pagination.vue'
 import ProductCard from '~/components/product_card.vue'
+import ProductCardSkeleton from '~/components/product_card_skeleton.vue'
+import { useVisitLoading } from '~/composables/use_visit_loading'
 import CatalogueFilters from '~/components/catalogue_filters.vue'
 import type { Paginated } from '#shared/types/pagination'
 import type { CategoryType, CategoryFacetBarType } from '#shared/types/category'
@@ -31,6 +33,7 @@ defineProps<{
 }>()
 
 const { t, locale } = useI18n()
+const { loading } = useVisitLoading()
 
 function visit(filters: ProductDirectoryFilters, page = 1) {
   router.get(
@@ -109,8 +112,17 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
           </p>
         </div>
 
+        <div
+          v-if="loading"
+          role="status"
+          class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+          :aria-label="t('products.index.loading')"
+        >
+          <ProductCardSkeleton v-for="n in 6" :key="n" />
+        </div>
+
         <BaseEmptyState
-          v-if="!searchUnavailable && products.data.length === 0"
+          v-else-if="!searchUnavailable && products.data.length === 0"
           :title="t('products.index.empty')"
           :description="t('products.index.emptyHint')"
           :icon="PackageSearch"
