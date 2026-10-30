@@ -1,6 +1,8 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import Product from '#models/product'
+import { UserFactory } from '#database/factories/user_factory'
+import ModerationService from '#services/moderation_service'
 import TranslationBackfillService from '#services/translation_backfill_service'
 import type TranslationQueueService from '#services/translation_queue_service'
 import { useDatabase } from '#tests/utils/setup'
@@ -72,15 +74,18 @@ test.group('Rattrapage des traductions (#97)', (group) => {
     )
   })
 
-  test("écarte les produits inactifs et ceux d'une organisation archivée", async ({ assert }) => {
+  test('écarte les produits inactifs et ceux rejetés par la modération', async ({ assert }) => {
     // `limit` est ignoré par un UPDATE PostgreSQL : on cible des ids précis.
     const [first, second] = await db.from('products').orderBy('id').limit(2)
     await db.from('products').where('id', first.id).update({ is_active: false })
-    const supplier = await db.from('suppliers').where('id', second.supplier_id).firstOrFail()
-    await db
-      .from('organizations')
-      .where('id', supplier.organization_id)
-      .update({ archived_at: new Date() })
+    const reviewer = await UserFactory.apply('platformAdmin').create()
+    await new ModerationService().decide({
+      targetType: 'product',
+      targetId: second.id,
+      status: 'rejected',
+      decidedBy: reviewer,
+      reason: 'Photos non conformes',
+    })
     const { calls, queue } = fakeQueue()
 
     await new TranslationBackfillService(queue).backfill({ entities: ['product'] })
@@ -88,6 +93,7 @@ test.group('Rattrapage des traductions (#97)', (group) => {
     const queued = calls.map((c) => c.entityId)
     assert.notInclude(queued, first.id)
     assert.notInclude(queued, second.id)
+    assert.isAbove(queued.length, 0)
     assert.deepEqual(queued, await visibleProductIds())
   })
 
