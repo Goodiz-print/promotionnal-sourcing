@@ -2,12 +2,12 @@ import { belongsTo } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import { CategoryTranslationSchema } from '#database/schema'
 import Category from '#models/category'
-import type { Locale } from '#shared/types/i18n'
+import type { ContentLocale } from '#shared/types/i18n'
 
 export default class CategoryTranslation extends CategoryTranslationSchema {
   static table = 'category_translations'
 
-  declare locale: Locale
+  declare locale: ContentLocale
 
   @belongsTo(() => Category)
   declare category: BelongsTo<typeof Category>

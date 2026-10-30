@@ -104,6 +104,7 @@
     "cancel": "Annulla",
     "sourceLocale": "Lingua di origine",
     "sourceLocaleHint": "Le altre lingue vengono generate automaticamente se lasciate vuote.",
+    "otherLocale": "Altra lingua da visualizzare",
     "sourceBadge": "Origine",
     "autoBadge": "Auto",
     "autoHint": "Se lasciato vuoto, questo testo viene generato automaticamente. Modificarlo lo fissa.",

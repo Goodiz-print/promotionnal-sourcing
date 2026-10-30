@@ -69,7 +69,9 @@ export default class SupplierProductService {
       isActive: true,
       organizationId: org.id,
     })
-    for (const locale of CONTENT_LOCALES) {
+    // Le nom d'une organisation n'est pas traduit : fr et en suffisent, les autres
+    // langues retombent sur l'anglais (`resolveTranslation`).
+    for (const locale of ['fr', 'en'] as const) {
       await SupplierTranslation.updateOrCreate(
         { supplierId: supplier.id, locale },
         { name: org.name, description: null }

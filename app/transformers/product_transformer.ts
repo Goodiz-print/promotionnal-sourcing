@@ -15,7 +15,11 @@ export default class ProductTransformer extends BaseTransformer<Product> {
   toObject(): ProductType {
     // Contenu localisé : résolu depuis `translations` préchargé (repli locale
     // par défaut). `embedding` n'est jamais exposé.
-    const translation = resolveTranslation(this.resource.translations, this.locale)
+    const translation = resolveTranslation(
+      this.resource.translations,
+      this.locale,
+      this.resource.sourceLocale
+    )
 
     return {
       ...this.pick(this.resource, [

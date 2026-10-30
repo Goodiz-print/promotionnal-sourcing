@@ -18,6 +18,9 @@ const aiConfig = {
     enabled: env.get('AI_TRANSLATION_ENABLED', false),
     model: env.get('MISTRAL_TRANSLATION_MODEL', 'mistral-small-latest'),
     promptVersion: 1,
+    // Plafond de sortie d'un appel : les 31 langues cibles d'une fiche tiennent dans
+    // un seul appel (#97). Une réponse tronquée (`finish_reason = length`) est rejetée.
+    maxTokens: 30_000,
   },
 }
 

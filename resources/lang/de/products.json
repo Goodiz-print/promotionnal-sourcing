@@ -104,6 +104,7 @@
     "cancel": "Abbrechen",
     "sourceLocale": "Ausgangssprache",
     "sourceLocaleHint": "Andere Sprachen werden automatisch erzeugt, wenn sie leer bleiben.",
+    "otherLocale": "Weitere anzuzeigende Sprache",
     "sourceBadge": "Quelle",
     "autoBadge": "Auto",
     "autoHint": "Bleibt es leer, wird dieser Text automatisch erzeugt. Eine Änderung fixiert ihn.",

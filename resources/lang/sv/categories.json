@@ -52,6 +52,7 @@
     "identity": "Identifiering",
     "identityDescription": "Teknisk identifierare och placering i trädstrukturen.",
     "content": "Innehåll på {language}",
+    "otherLocale": "Annat språk att visa",
     "search": "Sök",
     "searchDescription": "Relaterade termer som används för att hitta kategorin i sökmotorn."
   }

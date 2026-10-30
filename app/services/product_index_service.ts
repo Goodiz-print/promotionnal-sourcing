@@ -8,7 +8,7 @@ import ProductEcoService from '#services/product_eco_service'
 import ProductStockService from '#services/product_stock_service'
 import { resolveTranslation } from '#shared/helpers/translations'
 import { MATERIAL_ATTRIBUTE_SLUG } from '#shared/types/certification'
-import type { ContentLocale, Locale } from '#shared/types/i18n'
+import type { ContentLocale } from '#shared/types/i18n'
 import type { ProductSearchDocument, ProductSyncResult } from '#shared/types/search'
 
 /**
@@ -286,7 +286,7 @@ export default class ProductIndexService {
    * retombent sur la langue par défaut, puis sur la première traduction.
    */
   static embeddingText(product: Product): string {
-    const locale = (product.sourceLocale || 'fr') as Locale
+    const locale = product.sourceLocale || 'fr'
     const name = resolveTranslation(product.translations, locale)
 
     const facets = product.productAttributes.flatMap((row) => {

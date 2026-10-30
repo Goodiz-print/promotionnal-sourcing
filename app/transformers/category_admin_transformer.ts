@@ -17,9 +17,15 @@ export default class CategoryAdminTransformer extends BaseTransformer<Category> 
   }
 
   toObject(): CategoryAdminType {
-    const translation = resolveTranslation(this.resource.translations, this.locale)
+    const translation = resolveTranslation(
+      this.resource.translations,
+      this.locale,
+      this.resource.sourceLocale
+    )
     const parent = this.resource.parent
-    const parentTranslation = parent ? resolveTranslation(parent.translations, this.locale) : null
+    const parentTranslation = parent
+      ? resolveTranslation(parent.translations, this.locale, parent.sourceLocale)
+      : null
 
     return {
       id: this.resource.id,

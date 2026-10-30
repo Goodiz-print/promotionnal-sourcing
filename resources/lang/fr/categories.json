@@ -52,6 +52,7 @@
     "identity": "Identification",
     "identityDescription": "Identifiant technique et place dans l’arborescence.",
     "content": "Contenu en {language}",
+    "otherLocale": "Autre langue à afficher",
     "search": "Recherche",
     "searchDescription": "Termes associés pour retrouver la catégorie dans le moteur de recherche."
   }

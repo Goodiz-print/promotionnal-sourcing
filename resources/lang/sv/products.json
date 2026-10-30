@@ -104,6 +104,7 @@
     "cancel": "Avbryt",
     "sourceLocale": "Källspråk",
     "sourceLocaleHint": "Övriga språk genereras automatiskt om de lämnas tomma.",
+    "otherLocale": "Annat språk att visa",
     "sourceBadge": "Källa",
     "autoBadge": "Auto",
     "autoHint": "Om det lämnas tomt genereras texten automatiskt. Redigering låser den.",

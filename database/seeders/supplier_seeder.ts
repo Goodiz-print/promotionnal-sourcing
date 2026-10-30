@@ -4,13 +4,16 @@ import Supplier from '#models/supplier'
 import SupplierTranslation from '#models/supplier_translation'
 import type { ContentLocale } from '#shared/types/i18n'
 
+/** Les données de démonstration sont rédigées en français et en anglais. */
+type SeedLocale = Extract<ContentLocale, 'fr' | 'en'>
+
 type Text = { name: string; description: string }
 
 type SupplierSeed = {
   slug: string
   country: string
   website: string
-  translations: Record<ContentLocale, Text>
+  translations: Record<SeedLocale, Text>
 }
 
 const SUPPLIERS: SupplierSeed[] = [
@@ -60,7 +63,7 @@ export default class SupplierSeeder extends BaseSeeder {
         }
       )
 
-      for (const locale of Object.keys(seed.translations) as ContentLocale[]) {
+      for (const locale of Object.keys(seed.translations) as SeedLocale[]) {
         await SupplierTranslation.updateOrCreate(
           { supplierId: supplier.id, locale },
           seed.translations[locale]

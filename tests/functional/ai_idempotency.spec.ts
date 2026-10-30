@@ -5,6 +5,7 @@ import TranslationService from '#services/translation_service'
 import MistralTranslationProvider from '#services/translation/mistral_translation_provider'
 import aiConfig from '#config/ai'
 import { useDatabase } from '#tests/utils/setup'
+import { TRANSLATION_LOCALES } from '#shared/types/i18n'
 import type TranslationProvider from '#services/translation/translation_provider'
 import type { MistralChatClientLike } from '#shared/types/ai'
 import {
@@ -301,6 +302,45 @@ test.group('MistralTranslationProvider', () => {
       /missing field "name" for "en"/
     )
   })
+
+  test('les 31 langues cibles partent dans un seul appel, avec un plafond de sortie', async ({
+    assert,
+  }) => {
+    const targets = TRANSLATION_LOCALES.filter((locale) => locale !== 'fr')
+    const answer = JSON.stringify(
+      Object.fromEntries(targets.map((locale) => [locale, { name: `[${locale}]` }]))
+    )
+    let calls = 0
+    let maxTokens = 0
+    const provider = new MistralTranslationProvider({
+      chat: {
+        async complete(request) {
+          calls++
+          maxTokens = request.maxTokens
+          return { choices: [{ message: { content: answer } }] }
+        },
+      },
+    })
+
+    const result = await provider.translate({ name: 'Crayon' }, 'fr', [...targets])
+
+    assert.equal(targets.length, 31)
+    assert.equal(calls, 1)
+    assert.equal(maxTokens, aiConfig.translation.maxTokens)
+    assert.deepEqual(Object.keys(result).sort(), [...targets].sort())
+  })
+
+  test('rejette une réponse tronquée par le plafond de sortie', async ({ assert }) => {
+    const provider = new MistralTranslationProvider({
+      chat: {
+        async complete() {
+          return { choices: [{ message: { content: '{"en":{"na' }, finishReason: 'length' }] }
+        },
+      },
+    })
+
+    await assert.rejects(() => provider.translate({ name: 'a' }, 'fr', ['en']), /truncated/)
+  })
 })
 
 test.group('Validateur produit — langue source', () => {
@@ -312,6 +352,16 @@ test.group('Validateur produit — langue source', () => {
   test('accepte une langue source et un contenu partiel', async ({ assert }) => {
     const data = await createSupplierProductValidator.validate({ ...base, sourceLocale: 'fr' })
     assert.equal(data.sourceLocale, 'fr')
+  })
+
+  test('accepte une langue source parmi les 32 langues de contenu', async ({ assert }) => {
+    const data = await createSupplierProductValidator.validate({
+      categoryId: 1,
+      sourceLocale: 'bg',
+      translations: { bg: { name: 'Молив' } },
+    })
+    assert.equal(data.sourceLocale, 'bg')
+    assert.equal(data.translations.bg?.name, 'Молив')
   })
 
   test('refuse une langue source hors liste (ru est exclue)', async ({ assert }) => {

@@ -2,6 +2,9 @@ import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import Category from '#models/category'
 import CategoryTranslation from '#models/category_translation'
 import type { ContentLocale } from '#shared/types/i18n'
+
+/** Les données de démonstration sont rédigées en français et en anglais. */
+type SeedLocale = Extract<ContentLocale, 'fr' | 'en'>
 import { CATEGORY_TREE } from '#database/data/catalogue/categories'
 
 type Text = { name: string; description: string }
@@ -9,7 +12,7 @@ type Text = { name: string; description: string }
 type CategorySeed = {
   slug: string
   synonyms: string[]
-  translations: Record<ContentLocale, Text>
+  translations: Record<SeedLocale, Text>
 }
 
 /**
@@ -51,7 +54,7 @@ export default class CategorySeeder extends BaseSeeder {
         { slug: seed.slug },
         { synonyms: seed.synonyms }
       )
-      for (const locale of Object.keys(seed.translations) as ContentLocale[]) {
+      for (const locale of Object.keys(seed.translations) as SeedLocale[]) {
         await CategoryTranslation.updateOrCreate(
           { categoryId: category.id, locale },
           seed.translations[locale]

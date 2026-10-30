@@ -1,4 +1,4 @@
-import { contentLocaleFor, DEFAULT_LOCALE, type Locale } from '../types/i18n.js'
+import { DEFAULT_LOCALE } from '../types/i18n.js'
 
 /**
  * Une ligne de traduction porte au minimum une `locale`.
@@ -9,15 +9,17 @@ export interface LocalizedRow {
 
 /**
  * Sélectionne, dans une collection de traductions préchargée, la ligne
- * correspondant à la locale demandée. Repli sur la langue de contenu de cette
- * locale (l'anglais pour les langues d'interface sans contenu dédié), puis sur la locale par défaut, puis
- * sur la première ligne disponible. Renvoie `undefined` si la collection est
- * vide/absente.
+ * correspondant à la locale demandée. Repli, dans l'ordre : la langue source de
+ * l'entité (`sourceLocale`, toujours renseignée par le fournisseur), l'anglais,
+ * la locale par défaut, puis la première ligne par ordre alphabétique de locale
+ * (déterministe, indépendant de l'ordre de chargement). Renvoie `undefined` si
+ * la collection est vide/absente.
  */
 export function resolveTranslation<T extends LocalizedRow>(
   translations: readonly T[] | undefined,
-  locale: Locale,
-  fallback: Locale = DEFAULT_LOCALE
+  locale: string,
+  sourceLocale?: string | null,
+  fallback: string = DEFAULT_LOCALE
 ): T | undefined {
   if (!translations || translations.length === 0) {
     return undefined
@@ -25,8 +27,9 @@ export function resolveTranslation<T extends LocalizedRow>(
 
   return (
     translations.find((t) => t.locale === locale) ??
-    translations.find((t) => t.locale === contentLocaleFor(locale)) ??
+    (sourceLocale ? translations.find((t) => t.locale === sourceLocale) : undefined) ??
+    translations.find((t) => t.locale === 'en') ??
     translations.find((t) => t.locale === fallback) ??
-    translations[0]
+    [...translations].sort((a, b) => a.locale.localeCompare(b.locale))[0]
   )
 }

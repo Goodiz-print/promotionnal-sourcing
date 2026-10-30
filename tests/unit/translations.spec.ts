@@ -15,16 +15,43 @@ test.group('i18n — resolveTranslation', () => {
     assert.equal(resolveTranslation(rows, 'fr')?.name, 'Bleu')
   })
 
-  test('repli sur la locale par défaut (fr) quand la locale demandée manque', ({ assert }) => {
-    const onlyFr = [{ locale: 'fr', name: 'Bleu' }]
-    assert.equal(resolveTranslation(onlyFr, 'en')?.name, 'Bleu')
+  test("repli sur l'anglais quand la locale demandée et la source manquent", ({ assert }) => {
+    assert.equal(resolveTranslation(rows, 'de')?.name, 'Blue')
   })
 
-  test('repli sur la première ligne si ni la locale ni le défaut ne sont présents', ({
+  test('repli sur la locale par défaut (fr) quand ni la locale ni la source ni en ne sont là', ({
     assert,
   }) => {
-    const onlyEn = [{ locale: 'en', name: 'Blue' }]
-    assert.equal(resolveTranslation(onlyEn, 'en', 'fr')?.name, 'Blue')
+    const frAndBg = [
+      { locale: 'bg', name: 'Син' },
+      { locale: 'fr', name: 'Bleu' },
+    ]
+    assert.equal(resolveTranslation(frAndBg, 'de')?.name, 'Bleu')
+  })
+
+  test("repli sur la langue source avant l'anglais", ({ assert }) => {
+    const withSource = [
+      { locale: 'en', name: 'Blue' },
+      { locale: 'bg', name: 'Син' },
+    ]
+    assert.equal(resolveTranslation(withSource, 'de', 'bg')?.name, 'Син')
+  })
+
+  test('une langue de contenu hors fr/en est servie telle quelle', ({ assert }) => {
+    const withBg = [
+      { locale: 'en', name: 'Blue' },
+      { locale: 'bg', name: 'Син' },
+    ]
+    assert.equal(resolveTranslation(withBg, 'bg')?.name, 'Син')
+  })
+
+  test('repli final déterministe : première locale par ordre alphabétique', ({ assert }) => {
+    const onlyOthers = [
+      { locale: 'sv', name: 'Blå' },
+      { locale: 'de', name: 'Blau' },
+    ]
+    assert.equal(resolveTranslation(onlyOthers, 'it')?.name, 'Blau')
+    assert.equal(resolveTranslation([...onlyOthers].reverse(), 'it')?.name, 'Blau')
   })
 
   test('undefined quand la collection est vide ou absente', ({ assert }) => {

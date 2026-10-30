@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { Locale } from '#shared/types/i18n'
+import type { ContentLocale } from '#shared/types/i18n'
 
 /**
  * Drapeau de la langue en SVG inline (les emojis drapeaux ne s'affichent pas sous
  * Windows). Décoratif : le nom de la langue est toujours affiché à côté.
  */
-defineProps<{ code: Locale }>()
+defineProps<{ code: ContentLocale }>()
 </script>
 
 <template>
@@ -63,5 +63,7 @@ defineProps<{ code: Locale }>()
       <rect x="7" width="3.6" height="16" fill="#FECC02" />
       <rect y="6.2" width="24" height="3.6" fill="#FECC02" />
     </template>
+    <!-- Langues sans drapeau dédié : pastille neutre (le nom reste affiché à côté). -->
+    <rect v-else width="24" height="16" fill="#9CA3AF" />
   </svg>
 </template>

@@ -2,12 +2,12 @@ import { belongsTo } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import { ProductTranslationSchema } from '#database/schema'
 import Product from '#models/product'
-import type { TranslationLocale } from '#shared/types/i18n'
+import type { ContentLocale } from '#shared/types/i18n'
 
 export default class ProductTranslation extends ProductTranslationSchema {
   static table = 'product_translations'
 
-  declare locale: TranslationLocale
+  declare locale: ContentLocale
 
   /** Mots-clés et arguments marketing par locale (écart 5). */
   declare keywords: string[] | null

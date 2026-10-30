@@ -99,10 +99,12 @@ retiré :
   — Meilisearch calcule et garde les vecteurs (ADR 0002) ;
 - `products.embedding_key` ;
 - `product_translations.search_vector` (`tsvector`) et ses index GIN par locale,
-  ainsi que `ProductTranslationSearchService` et `LOCALE_TSCONFIG`.
+  ainsi que `ProductTranslationSearchService` (et la table de configurations
+  `LOCALE_TSCONFIG`, supprimée du code).
 
 Ajouter une langue de contenu ne demande donc plus ni index ni migration : il suffit
-de l'ajouter à `CONTENT_LOCALES` (`shared/types/i18n.ts`) ; l'index Meilisearch porte
+de l'ajouter à `TRANSLATION_LOCALES` (`shared/types/i18n.ts`, dont `CONTENT_LOCALES` est
+le miroir) ; l'index Meilisearch porte
 les noms et descriptions de toutes les langues sous des sous-clés. `down()` recrée
 les colonnes vides (vecteurs : `search:reindex` ; tsvector : réécrire la traduction).
 
@@ -295,8 +297,9 @@ traduction dédiées** — jamais dans les tables de base :
 - **Modèles** : `*_translation.ts` (`belongsTo` du parent) + relation
   `@hasMany(() => XxxTranslation) translations` sur les 5 modèles de base.
 - **Résolution localisée** : `shared/helpers/translations.ts` —
-  `resolveTranslation(translations, locale, fallback = 'fr')` cherche la
-  locale demandée, retombe sur `fr`, puis sur la première ligne disponible.
+  `resolveTranslation(translations, locale, sourceLocale?, fallback = 'fr')` cherche la
+  locale demandée, retombe sur la **langue source** de l'entité, puis sur `en`, puis
+  `fr`, puis sur la première locale par ordre alphabétique (déterministe).
 - **Transformers** locale-aware : constructeur `(resource, locale)`,
   `Xxx.transform(resource, ctx.i18n.locale)` sort `name`/`description`/
   `label` déjà résolus.
@@ -322,8 +325,17 @@ traduction dédiées** — jamais dans les tables de base :
 - Attributs et valeurs d'attributs : colonnes et prise en charge par
   `TranslationService` en place ; le déclenchement sera branché avec leur futur
   écran d'écriture (aujourd'hui : seeders).
-- Les 32 langues de #75 ne sont pas activées : `CONTENT_LOCALES` reste `fr`/`en`
-  tant que l'index plein texte n'est pas étendu (#84).
+- **32 langues actives (#97)** : `CONTENT_LOCALES` couvre les 32 langues de
+  `TRANSLATION_LOCALES`. La saisie (validateurs, formulaires produit et catégorie)
+  accepte n'importe laquelle comme langue source ; le formulaire affiche la langue
+  source plus une autre langue au choix. La recherche reste multilingue sur toutes
+  les sous-clés `names.*` / `descriptions.*` (ADR 0002), sans locale dans la requête.
+- **Rattrapage** : `node ace translation:backfill [--limit=N] [--entity=product]`
+  met en file la traduction des contenus existants (produits actifs, catégories,
+  attributs, valeurs). Idempotent : une langue déjà à jour ne rappelle pas Mistral.
+  `--limit` sert à mesurer le coût réel sur un échantillon avant un passage en masse.
+  Un appel Mistral par entité couvre les 31 langues cibles (`maxTokens` plafonné,
+  réponse tronquée rejetée puis rejouée par le job).
 
 ## Administration de la taxonomie (catégories globales)
 

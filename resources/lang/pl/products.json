@@ -104,6 +104,7 @@
     "cancel": "Anuluj",
     "sourceLocale": "Język źródłowy",
     "sourceLocaleHint": "Pozostałe języki są generowane automatycznie, jeśli zostaną puste.",
+    "otherLocale": "Inny język do wyświetlenia",
     "sourceBadge": "Źródło",
     "autoBadge": "Auto",
     "autoHint": "Jeśli pole zostanie puste, tekst zostanie wygenerowany automatycznie. Edycja go utrwala.",

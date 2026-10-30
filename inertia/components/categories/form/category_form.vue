@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { CONTENT_LOCALES, DEFAULT_CONTENT_LOCALE, type ContentLocale } from '#shared/types/i18n'
+import {
+  CONTENT_LOCALES,
+  CONTENT_LOCALE_LABELS,
+  DEFAULT_CONTENT_LOCALE,
+  type ContentLocale,
+} from '#shared/types/i18n'
+import { useVisibleContentLocales } from '~/composables/use_visible_content_locales'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseLinkButton from '~/components/base/base_link_button.vue'
@@ -45,6 +51,13 @@ const form = useForm<CategoryFormState>({
   translations: initialTranslations(),
 })
 
+const sourceLocale = ref<ContentLocale>(props.category?.sourceLocale ?? DEFAULT_CONTENT_LOCALE)
+const { otherLocale, otherLocales, visibleLocales } = useVisibleContentLocales(sourceLocale)
+
+function onOtherLocale(value: string | null) {
+  if (value) otherLocale.value = value as ContentLocale
+}
+
 const indexUrl = computed(() => urlFor('admin.categories.index', { locale: locale.value }))
 
 function errorFor(key: string): string | undefined {
@@ -63,17 +76,16 @@ function submit() {
       .filter(Boolean)
     // Langue source toujours envoyée ; les autres seulement si renseignées (sinon
     // générées automatiquement par le serveur).
-    const sourceLocale = props.category?.sourceLocale ?? DEFAULT_CONTENT_LOCALE
     const translations: Partial<Record<ContentLocale, { name: string; description: string }>> = {}
     for (const current of CONTENT_LOCALES) {
-      if (current === sourceLocale || data.translations[current].name) {
+      if (current === sourceLocale.value || data.translations[current].name) {
         translations[current] = data.translations[current]
       }
     }
     const payload: Record<string, unknown> = {
       parentId: data.parentId,
       synonyms,
-      sourceLocale,
+      sourceLocale: sourceLocale.value,
       translations,
     }
     if (props.mode === 'create') payload.slug = data.slug
@@ -125,8 +137,19 @@ function submit() {
       </div>
     </BaseSection>
 
+    <BaseSelect
+      id="other-locale"
+      :model-value="otherLocale"
+      :label="t('categories.form.otherLocale')"
+      @update:model-value="onOtherLocale"
+    >
+      <option v-for="current in otherLocales" :key="current" :value="current">
+        {{ CONTENT_LOCALE_LABELS[current] }}
+      </option>
+    </BaseSelect>
+
     <CategoryTranslationFieldset
-      v-for="current in CONTENT_LOCALES"
+      v-for="current in visibleLocales"
       :key="current"
       v-model:name="form.translations[current].name"
       v-model:description="form.translations[current].description"
