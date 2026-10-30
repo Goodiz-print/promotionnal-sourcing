@@ -40,8 +40,14 @@ export class ProductDetailVariantTransformer extends BaseTransformer<ProductVari
       ...new ProductVariantTransformer(this.resource).toObject(),
       attributes: this.resource.attributes.map((pivot) => ({
         attributeSlug: pivot.attribute?.slug ?? '',
-        attributeName: resolveTranslation(pivot.attribute?.translations, this.locale)?.name ?? null,
-        label: resolveTranslation(pivot.attributeValue?.translations, this.locale)?.label ?? null,
+        attributeName:
+          resolveTranslation(pivot.attribute?.translations, this.locale, {
+            sourceLocale: pivot.attribute?.sourceLocale,
+          })?.name ?? null,
+        label:
+          resolveTranslation(pivot.attributeValue?.translations, this.locale, {
+            sourceLocale: pivot.attributeValue?.sourceLocale,
+          })?.label ?? null,
       })),
     }
   }

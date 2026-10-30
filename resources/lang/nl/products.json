@@ -104,6 +104,7 @@
     "cancel": "Annuleren",
     "sourceLocale": "Brontaal",
     "sourceLocaleHint": "Andere talen worden automatisch gegenereerd als u ze leeg laat.",
+    "otherLocale": "Andere taal om weer te geven",
     "sourceBadge": "Bron",
     "autoBadge": "Auto",
     "autoHint": "Indien leeg wordt deze tekst automatisch gegenereerd. Bewerken legt hem vast.",

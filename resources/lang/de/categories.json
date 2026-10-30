@@ -52,6 +52,7 @@
     "identity": "Identifikation",
     "identityDescription": "Technische Kennung und Position in der Struktur.",
     "content": "Inhalt auf {language}",
+    "otherLocale": "Weitere anzuzeigende Sprache",
     "search": "Suche",
     "searchDescription": "Verwandte Begriffe, um die Kategorie in der Suchmaschine zu finden."
   }

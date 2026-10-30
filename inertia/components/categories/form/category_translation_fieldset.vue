@@ -4,7 +4,7 @@ import FlagIcon from '~/components/flag_icon.vue'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import BaseTextarea from '~/components/base/base_textarea.vue'
-import { LOCALE_LABELS, type ContentLocale } from '#shared/types/i18n'
+import { CONTENT_LOCALE_LABELS, type ContentLocale } from '#shared/types/i18n'
 
 /**
  * Groupe de champs d'une langue du formulaire de catégorie : nom et description.
@@ -25,7 +25,7 @@ const { t } = useI18n()
 <template>
   <BaseSection
     as="fieldset"
-    :title="t('categories.form.content', { language: LOCALE_LABELS[locale] })"
+    :title="t('categories.form.content', { language: CONTENT_LOCALE_LABELS[locale] })"
   >
     <template #actions>
       <FlagIcon :code="locale" />

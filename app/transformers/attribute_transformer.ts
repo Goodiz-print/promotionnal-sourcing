@@ -13,7 +13,9 @@ export default class AttributeTransformer extends BaseTransformer<Attribute> {
   }
 
   toObject(): AttributeType {
-    const translation = resolveTranslation(this.resource.translations, this.locale)
+    const translation = resolveTranslation(this.resource.translations, this.locale, {
+      sourceLocale: this.resource.sourceLocale,
+    })
 
     return {
       ...this.pick(this.resource, ['id', 'slug', 'type', 'unit', 'isFilterable']),

@@ -1,5 +1,6 @@
 import vine from '@vinejs/vine'
 import { CONTENT_LOCALES } from '#shared/types/i18n'
+import { perContentLocale } from '#validators/localized_content'
 
 const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
@@ -35,10 +36,7 @@ export const createCategoryValidator = vine.create({
   parentId: vine.number().positive().optional().nullable(),
   synonyms: vine.array(vine.string().maxLength(100)).optional(),
   sourceLocale: vine.enum(CONTENT_LOCALES),
-  translations: vine.object({
-    fr: localizedContent().optional(),
-    en: localizedContent().optional(),
-  }),
+  translations: vine.object(perContentLocale(localizedContent)),
 })
 
 /**
@@ -50,10 +48,5 @@ export const updateCategoryValidator = vine.create({
   parentId: vine.number().positive().optional().nullable(),
   synonyms: vine.array(vine.string().maxLength(100)).optional(),
   sourceLocale: vine.enum(CONTENT_LOCALES).optional(),
-  translations: vine
-    .object({
-      fr: partialLocalizedContent().optional(),
-      en: partialLocalizedContent().optional(),
-    })
-    .optional(),
+  translations: vine.object(perContentLocale(partialLocalizedContent)).optional(),
 })

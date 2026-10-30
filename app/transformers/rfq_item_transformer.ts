@@ -20,10 +20,14 @@ export default class RfqItemTransformer extends BaseTransformer<RfqItem> {
 
   toObject(): RfqItemType {
     const category = this.resource.category
-      ? resolveTranslation(this.resource.category.translations, this.locale)
+      ? resolveTranslation(this.resource.category.translations, this.locale, {
+          sourceLocale: this.resource.category.sourceLocale,
+        })
       : null
     const product = this.resource.product
-      ? resolveTranslation(this.resource.product.translations, this.locale)
+      ? resolveTranslation(this.resource.product.translations, this.locale, {
+          sourceLocale: this.resource.product.sourceLocale,
+        })
       : null
 
     return {

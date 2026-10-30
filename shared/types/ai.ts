@@ -22,6 +22,24 @@ export interface TranslationTarget {
   targetLocales: string[]
 }
 
+/** Options du rattrapage des traductions (`translation:backfill`). */
+export interface TranslationBackfillOptions {
+  /** Types d'entité à traiter ; tous par défaut. */
+  entities?: readonly TranslatableEntity[]
+  /** Nombre maximum d'entités mises en file **par type** (échantillon de mesure). */
+  limit?: number
+}
+
+/**
+ * Résultat du rattrapage : entités réellement mises en file, par type, et
+ * `failed` si la file a refusé un job (le rattrapage s'arrête alors, il est
+ * relançable sans surcoût).
+ */
+export interface TranslationBackfillReport {
+  queued: Record<TranslatableEntity, number>
+  failed: boolean
+}
+
 /** `called` si Mistral a été appelé, `skipped` si toutes les locales étaient à jour. */
 export type TranslationOutcome = 'called' | 'skipped'
 
@@ -33,6 +51,9 @@ export interface MistralChatClientLike {
       messages: Array<{ role: 'system' | 'user'; content: string }>
       responseFormat: { type: 'json_object' }
       temperature: number
-    }): Promise<{ choices: Array<{ message: { content?: unknown } }> }>
+      maxTokens: number
+    }): Promise<{
+      choices: Array<{ message: { content?: unknown }; finishReason?: unknown }>
+    }>
   }
 }

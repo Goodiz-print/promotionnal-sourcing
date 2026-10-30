@@ -1,7 +1,7 @@
 import { test } from '@japa/runner'
 import { UserFactory } from '#database/factories/user_factory'
 import { useDatabase } from '#tests/utils/setup'
-import { contentLocaleFor, SUPPORTED_LOCALES } from '#shared/types/i18n'
+import { SUPPORTED_LOCALES } from '#shared/types/i18n'
 
 const NEW_LOCALES = ['de', 'es', 'it', 'nl', 'pt', 'pl', 'sv'] as const
 
@@ -85,17 +85,5 @@ test.group('Langues européennes — interface', (group) => {
     response.assertStatus(302)
     await user.refresh()
     assert.equal(user.locale, 'sv')
-  })
-})
-
-test.group('Langues européennes — contenu du catalogue', () => {
-  test("seules le français et l'anglais ont du contenu, les autres lisent l'anglais", ({
-    assert,
-  }) => {
-    assert.equal(contentLocaleFor('fr'), 'fr')
-    assert.equal(contentLocaleFor('en'), 'en')
-    for (const locale of NEW_LOCALES) {
-      assert.equal(contentLocaleFor(locale), 'en')
-    }
   })
 })

@@ -104,6 +104,7 @@
     "cancel": "Annuler",
     "sourceLocale": "Langue saisie",
     "sourceLocaleHint": "Les autres langues sont générées automatiquement si vous les laissez vides.",
+    "otherLocale": "Autre langue à afficher",
     "sourceBadge": "Langue source",
     "autoBadge": "Auto",
     "autoHint": "Laissé vide, ce texte est généré automatiquement. Le modifier le fige.",

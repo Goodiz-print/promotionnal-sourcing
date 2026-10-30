@@ -52,6 +52,7 @@
     "identity": "Identificazione",
     "identityDescription": "Identificativo tecnico e posizione nell’albero.",
     "content": "Contenuto in {language}",
+    "otherLocale": "Altra lingua da visualizzare",
     "search": "Ricerca",
     "searchDescription": "Termini associati per ritrovare la categoria nel motore di ricerca."
   }

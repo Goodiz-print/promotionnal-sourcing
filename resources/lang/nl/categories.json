@@ -52,6 +52,7 @@
     "identity": "Identificatie",
     "identityDescription": "Technische identificatie en positie in de boomstructuur.",
     "content": "Inhoud in het {language}",
+    "otherLocale": "Andere taal om weer te geven",
     "search": "Zoeken",
     "searchDescription": "Gerelateerde termen om de categorie terug te vinden in de zoekmachine."
   }

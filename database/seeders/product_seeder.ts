@@ -16,7 +16,7 @@ import ProductMarkingPriceTier from '#models/product_marking_price_tier'
 import ProductOriginService from '#services/product_origin_service'
 import ProductEcoService from '#services/product_eco_service'
 import { MATERIAL_ATTRIBUTE_SLUG } from '#shared/types/certification'
-import type { ContentLocale } from '#shared/types/i18n'
+import type { SeedLocale } from '#database/seed_locale'
 import type { ProductLifecycleStatus } from '#shared/types/product'
 
 /**
@@ -41,7 +41,7 @@ type ProductSeed = {
   originCountry: string
   madeInEurope: boolean
   facets: Facets
-  translations: Record<ContentLocale, Text>
+  translations: Record<SeedLocale, Text>
   // Identité/classification (écart 5), commercial (écart 7), médias (écart 8).
   brand?: string
   hsCode?: string
@@ -375,7 +375,7 @@ export default class ProductSeeder extends BaseSeeder {
         }
       )
 
-      for (const locale of Object.keys(seed.translations) as ContentLocale[]) {
+      for (const locale of Object.keys(seed.translations) as SeedLocale[]) {
         const text = seed.translations[locale]
         await ProductTranslation.updateOrCreate(
           { productId: product.id, locale },

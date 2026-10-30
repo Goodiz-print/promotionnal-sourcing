@@ -1,6 +1,6 @@
 import { Mistral } from '@mistralai/mistralai'
 import aiConfig from '#config/ai'
-import { TranslationProviderError } from '#exceptions/ai_errors'
+import { TranslationProviderError, TranslationTruncatedError } from '#exceptions/ai_errors'
 import TranslationProvider from '#services/translation/translation_provider'
 import type { MistralChatClientLike } from '#shared/types/ai'
 
@@ -31,6 +31,7 @@ export default class MistralTranslationProvider extends TranslationProvider {
     const response = await this.client.chat.complete({
       model: this.model,
       temperature: 0,
+      maxTokens: aiConfig.translation.maxTokens,
       responseFormat: { type: 'json_object' },
       messages: [
         {
@@ -47,7 +48,10 @@ export default class MistralTranslationProvider extends TranslationProvider {
       ],
     })
 
-    const content = response.choices[0]?.message.content
+    const choice = response.choices[0]
+    if (choice?.finishReason === 'length') throw new TranslationTruncatedError()
+
+    const content = choice?.message.content
     if (typeof content !== 'string') throw new TranslationProviderError('empty response')
 
     let parsed: unknown

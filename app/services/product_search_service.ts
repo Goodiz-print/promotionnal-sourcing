@@ -29,8 +29,8 @@ export interface CatalogueSearchOptions extends ProductDirectoryFilters {
  * garanti deux fois, par le filtre du moteur puis par la base).
  *
  * Les méthodes renvoient `null` quand la recherche n'est pas disponible — moteur
- * inerte (pas de `MEILISEARCH_HOST`) ou injoignable : l'appelant retombe sur la
- * recherche PostgreSQL, qui disparaît avec la PR 3 de #112.
+ * inerte (pas de `MEILISEARCH_HOST`) ou injoignable : l'appelant affiche alors
+ * l'état « recherche indisponible » (la recherche PostgreSQL a été retirée, #112).
  */
 @inject()
 export default class ProductSearchService {
@@ -114,7 +114,7 @@ export default class ProductSearchService {
         logger.warn({ err: error }, 'semantic search failed, retrying with keywords only')
         return this.query({ ...request, semanticRatio: 0 })
       }
-      logger.warn({ err: error }, 'search engine unavailable, falling back to postgres')
+      logger.warn({ err: error }, 'search engine unavailable')
       return null
     }
   }

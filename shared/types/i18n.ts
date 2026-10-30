@@ -9,35 +9,23 @@ export type Locale = (typeof SUPPORTED_LOCALES)[number]
 export const DEFAULT_LOCALE: Locale = 'fr'
 
 /**
- * Langues dans lesquelles le **contenu du catalogue** (produits, catégories,
- * fournisseurs) est saisi. Plus restreint que `SUPPORTED_LOCALES` : l'interface
- * est traduite en 9 langues, mais les fournisseurs ne renseignent leurs fiches
- * qu'en français et en anglais ; les autres langues retombent sur l'anglais.
- * Ajouter une langue de contenu = l'ajouter ici : Meilisearch indexe les noms et
- * descriptions de toutes les langues sous des sous-clés (ADR 0002), sans index ni
- * migration par langue.
- */
-export const CONTENT_LOCALES = ['fr', 'en'] as const
-
-export type ContentLocale = (typeof CONTENT_LOCALES)[number]
-
-/**
  * Langues cibles de la traduction automatique du contenu (#75, liste figée) :
  * 24 de l'UE et 8 hors UE. Ru et be sont exclues (décision du 15 octobre 2026).
  * Une traduction est générée par produit, catégorie, attribut et valeur, pour
- * chaque langue de cette liste sauf la langue source.
+ * chaque langue de cette liste sauf la langue source. `fr` et `en` viennent en
+ * tête : ce sont les langues de saisie les plus courantes dans les sélecteurs.
  */
 export const TRANSLATION_LOCALES = [
+  'fr',
+  'en',
   'bg',
   'cs',
   'da',
   'de',
   'el',
-  'en',
   'es',
   'et',
   'fi',
-  'fr',
   'ga',
   'hr',
   'hu',
@@ -64,16 +52,26 @@ export const TRANSLATION_LOCALES = [
 
 export type TranslationLocale = (typeof TRANSLATION_LOCALES)[number]
 
-/** Langue de contenu obligatoire à la saisie (sert notamment à dériver le slug). */
-export const DEFAULT_CONTENT_LOCALE: ContentLocale = 'fr'
+/**
+ * Langues dans lesquelles le **contenu du catalogue** (produits, catégories,
+ * fournisseurs) est saisi ou traduit : les 32 langues de la traduction
+ * automatique (#97). Ajouter une langue de contenu = l'ajouter à
+ * `TRANSLATION_LOCALES` : Meilisearch indexe les noms et descriptions de toutes
+ * les langues sous des sous-clés (ADR 0002), sans index ni migration par langue.
+ */
+export const CONTENT_LOCALES = TRANSLATION_LOCALES
+
+export type ContentLocale = TranslationLocale
 
 /**
- * Langue de contenu à servir pour une langue d'interface : la langue elle-même
- * si le catalogue y est traduit, sinon l'anglais (lingua franca du sourcing).
+ * Langues dont une ligne est toujours écrite pour les contenus qui n'ont pas de
+ * traduction automatique (nom d'un fournisseur, certifications, techniques de
+ * marquage) : toute autre langue retombe sur l'anglais (`resolveTranslation`).
  */
-export function contentLocaleFor(locale: Locale): ContentLocale {
-  return (CONTENT_LOCALES as readonly string[]).includes(locale) ? (locale as ContentLocale) : 'en'
-}
+export const BASELINE_CONTENT_LOCALES = ['fr', 'en'] as const satisfies readonly ContentLocale[]
+
+/** Langue de contenu obligatoire à la saisie (sert notamment à dériver le slug). */
+export const DEFAULT_CONTENT_LOCALE: ContentLocale = 'fr'
 
 /**
  * Nom du cookie utilisé pour persister la préférence de langue
@@ -94,6 +92,45 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   pt: 'Português',
   pl: 'Polski',
   sv: 'Svenska',
+}
+
+/**
+ * Libellés (endonymes) des langues de contenu, affichés dans les sélecteurs de
+ * langue de saisie. Superset de `LOCALE_LABELS`.
+ */
+export const CONTENT_LOCALE_LABELS: Record<ContentLocale, string> = {
+  fr: 'Français',
+  en: 'English',
+  bg: 'Български',
+  cs: 'Čeština',
+  da: 'Dansk',
+  de: 'Deutsch',
+  el: 'Ελληνικά',
+  es: 'Español',
+  et: 'Eesti',
+  fi: 'Suomi',
+  ga: 'Gaeilge',
+  hr: 'Hrvatski',
+  hu: 'Magyar',
+  it: 'Italiano',
+  lt: 'Lietuvių',
+  lv: 'Latviešu',
+  mt: 'Malti',
+  nl: 'Nederlands',
+  pl: 'Polski',
+  pt: 'Português',
+  ro: 'Română',
+  sk: 'Slovenčina',
+  sl: 'Slovenščina',
+  sv: 'Svenska',
+  no: 'Norsk',
+  is: 'Íslenska',
+  uk: 'Українська',
+  sr: 'Српски',
+  bs: 'Bosanski',
+  mk: 'Македонски',
+  sq: 'Shqip',
+  tr: 'Türkçe',
 }
 
 const LOCALE_ALTERNATION = SUPPORTED_LOCALES.join('|')

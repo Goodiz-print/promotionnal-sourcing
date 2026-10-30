@@ -13,7 +13,9 @@ export default class CategoryTransformer extends BaseTransformer<Category> {
   }
 
   toObject(): CategoryType {
-    const translation = resolveTranslation(this.resource.translations, this.locale)
+    const translation = resolveTranslation(this.resource.translations, this.locale, {
+      sourceLocale: this.resource.sourceLocale,
+    })
 
     return {
       ...this.pick(this.resource, ['id', 'slug', 'parentId', 'synonyms']),

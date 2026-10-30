@@ -8,7 +8,7 @@ import ProductEcoService from '#services/product_eco_service'
 import ProductStockService from '#services/product_stock_service'
 import { resolveTranslation } from '#shared/helpers/translations'
 import { MATERIAL_ATTRIBUTE_SLUG } from '#shared/types/certification'
-import type { ContentLocale, Locale } from '#shared/types/i18n'
+import type { ContentLocale } from '#shared/types/i18n'
 import type { ProductSearchDocument, ProductSyncResult } from '#shared/types/search'
 
 /**
@@ -286,13 +286,17 @@ export default class ProductIndexService {
    * retombent sur la langue par défaut, puis sur la première traduction.
    */
   static embeddingText(product: Product): string {
-    const locale = (product.sourceLocale || 'fr') as Locale
+    const locale = product.sourceLocale || 'fr'
     const name = resolveTranslation(product.translations, locale)
 
     const facets = product.productAttributes.flatMap((row) => {
-      const attribute = resolveTranslation(row.attribute.translations, locale)?.name
+      const attribute = resolveTranslation(row.attribute.translations, locale, {
+        sourceLocale: row.attribute.sourceLocale,
+      })?.name
       const value = row.attributeValue
-        ? resolveTranslation(row.attributeValue.translations, locale)?.label
+        ? resolveTranslation(row.attributeValue.translations, locale, {
+            sourceLocale: row.attributeValue.sourceLocale,
+          })?.label
         : (row.valueString ??
           (row.valueNumber ? `${row.valueNumber} ${row.attribute.unit ?? ''}` : null))
       return attribute && value ? [`${attribute} : ${value}`.trim()] : []
@@ -300,7 +304,9 @@ export default class ProductIndexService {
 
     const description = name?.description?.trim().slice(0, DESCRIPTION_LENGTH)
     const category = product.category
-      ? resolveTranslation(product.category.translations, locale)?.name
+      ? resolveTranslation(product.category.translations, locale, {
+          sourceLocale: product.category.sourceLocale,
+        })?.name
       : null
 
     return [name?.name, category, ...facets, description]

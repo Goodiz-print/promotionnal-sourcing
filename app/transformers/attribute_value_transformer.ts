@@ -13,7 +13,9 @@ export default class AttributeValueTransformer extends BaseTransformer<Attribute
   }
 
   toObject(): AttributeValueType {
-    const translation = resolveTranslation(this.resource.translations, this.locale)
+    const translation = resolveTranslation(this.resource.translations, this.locale, {
+      sourceLocale: this.resource.sourceLocale,
+    })
 
     return {
       ...this.pick(this.resource, ['id', 'attributeId', 'value', 'slug', 'synonyms']),

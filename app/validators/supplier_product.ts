@@ -1,5 +1,6 @@
 import vine from '@vinejs/vine'
 import { CONTENT_LOCALES } from '#shared/types/i18n'
+import { perContentLocale } from '#validators/localized_content'
 import { PRODUCT_LIFECYCLE_STATUSES, PRODUCT_STOCK_STATUSES } from '#shared/types/product'
 
 /** Listes par locale (écart 5) : mots-clés et arguments marketing. */
@@ -207,10 +208,7 @@ const commonFields = () => ({
 export const createSupplierProductValidator = vine.create({
   categoryId: vine.number().positive(),
   sourceLocale: sourceLocale(),
-  translations: vine.object({
-    fr: localizedContent().optional(),
-    en: localizedContent().optional(),
-  }),
+  translations: vine.object(perContentLocale(localizedContent)),
   ...commonFields(),
 })
 
@@ -222,12 +220,7 @@ export const createSupplierProductValidator = vine.create({
 export const updateSupplierProductValidator = vine.create({
   categoryId: vine.number().positive().optional(),
   sourceLocale: sourceLocale().optional(),
-  translations: vine
-    .object({
-      fr: partialLocalizedContent().optional(),
-      en: partialLocalizedContent().optional(),
-    })
-    .optional(),
+  translations: vine.object(perContentLocale(partialLocalizedContent)).optional(),
   ...commonFields(),
   removedImageIds: vine.array(vine.number().positive()).optional(),
 })

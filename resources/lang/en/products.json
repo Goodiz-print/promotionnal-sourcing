@@ -104,6 +104,7 @@
     "cancel": "Cancel",
     "sourceLocale": "Source language",
     "sourceLocaleHint": "Other languages are generated automatically if left empty.",
+    "otherLocale": "Other language to display",
     "sourceBadge": "Source",
     "autoBadge": "Auto",
     "autoHint": "If left empty, this text is generated automatically. Editing it locks it.",
