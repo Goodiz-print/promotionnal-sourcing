@@ -22,7 +22,7 @@
     "languageLabel": "Langue"
   },
   "hero": {
-    "eyebrow": "Lancement : janvier 2027",
+    "eyebrow": "Lancement : 2027",
     "titleLine1": "Le sourcing d'objets promotionnels.",
     "titleWord1": "Simplifié.",
     "titleWord2": "Intelligent.",
@@ -104,7 +104,7 @@
     "cta": "Référencer mon catalogue"
   },
   "finalCta": {
-    "badge": "Lancement prévu : janvier 2027",
+    "badge": "Lancement prévu : 2027",
     "heading": "Nous construisons la nouvelle référence du sourcing de goodies en Europe.",
     "descriptionBefore": "Fournisseurs : rejoignez les premiers partenaires et bénéficiez d’une ",
     "descriptionHighlight": "visibilité prioritaire",
@@ -134,18 +134,22 @@
     "asideResponseTitle": "Délai de réponse",
     "asideResponse": "Sous 48 h ouvrées.",
     "formHeading": "Votre demande",
-    "mailIntro": "Écrivez-nous directement : le bouton ci-dessous ouvre votre messagerie avec un message déjà structuré. Pour un retour rapide, précisez :",
-    "mailPoints": {
-      "0": "Votre société et votre rôle (agence, acheteur, fournisseur…)",
-      "1": "Le type de produit recherché",
-      "2": "Les quantités et le budget cible",
-      "3": "Votre délai de livraison souhaité"
-    },
-    "mailCta": "Écrire à notre équipe",
-    "mailHint": "Ouvre votre logiciel de messagerie.",
-    "mailFallback": "Pas de messagerie configurée ? Écrivez-nous à",
-    "mailSubject": "Demande de sourcing — Promotional Sourcing.eu",
-    "mailBody": "Bonjour,\n\nSociété :\nVous êtes (agence / acheteur / fournisseur) :\nTéléphone :\n\nProduit recherché :\nQuantité :\nBudget cible :\nDélai souhaité :\n\nPrécisions :\n\n\nMerci,\n"
+    "fieldName": "Nom et prénom",
+    "fieldCompany": "Société",
+    "fieldEmail": "E-mail professionnel",
+    "fieldPhone": "Téléphone",
+    "fieldPhoneOptional": "facultatif",
+    "fieldType": "Type de demande",
+    "fieldTypeContact": "Demande de contact (acheteur, agence, autre)",
+    "fieldTypePartnership": "Partenariat fournisseur / fabricant",
+    "fieldMessage": "Votre besoin",
+    "fieldMessagePlaceholder": "Type de produit, quantité, délai, marché visé…",
+    "honeypot": "Ne remplissez pas ce champ",
+    "submit": "Envoyer ma demande",
+    "requiredHint": "Les champs marqués d’un astérisque (*) sont obligatoires.",
+    "privacyBefore": "Vos données servent uniquement à traiter votre demande. Voir notre ",
+    "privacyLink": "politique de confidentialité",
+    "privacyAfter": "."
   },
   "thanks": {
     "seoTitle": "Message bien reçu — Promotional Sourcing.eu",
@@ -167,8 +171,8 @@
   },
   "productMockup": {
     "tags": {
-      "0": "Matière recyclée",
-      "1": "Certifié GRS",
+      "0": "Coton biologique",
+      "1": "Certifié GOTS",
       "2": "Stock Europe"
     },
     "products": {
@@ -192,6 +196,6 @@
     "priceSuffix": "€ HT",
     "footerCompare": "Comparaison instantanée entre fournisseurs",
     "footerFlag": "Aperçu de l'interface",
-    "ariaLabel": "Aperçu d'une recherche sur promotional-sourcing.eu : un sac tote en coton bio, un sac isotherme en polyester recyclé et une serviette de plage recyclée, filtrés par matière recyclée, certification GRS et stock Europe, avec fournisseur vérifié, pays et prix."
+    "ariaLabel": "Aperçu d'une recherche sur promotional-sourcing.eu : un sac tote en coton bio, un sac isotherme en polyester recyclé et une serviette de plage recyclée, filtrés par coton biologique, certification GOTS et stock Europe, avec fournisseur vérifié, pays et prix."
   }
 }

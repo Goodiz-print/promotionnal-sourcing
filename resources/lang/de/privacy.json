@@ -2,7 +2,7 @@
   "heading": "Datenschutzerklärung",
   "eyebrow": "Datenschutz",
   "intro": "Wie PROMOTIONAL SOURCING die personenbezogenen Daten der Besucher von promotional-sourcing.eu gemäß DSGVO und dem französischen Gesetz „Informatique et Libertés“ erhebt, verwendet und schützt.",
-  "updatedAt": "7. August 2026",
+  "updatedAt": "30. Oktober 2026",
   "seoTitle": "Datenschutzerklärung — Promotional Sourcing.eu",
   "seoDescription": "Wie PROMOTIONAL SOURCING Ihre personenbezogenen Daten gemäß DSGVO erhebt, verwendet und schützt.",
   "sections": {
@@ -12,7 +12,7 @@
     },
     "donnees-collectees": {
       "title": "Erhobene Daten",
-      "body": "<p>Wir erheben ausschließlich die Daten, die Sie uns freiwillig übermitteln:</p> <ul> <li><strong>Über das Kontaktformular</strong>: Vor- und Nachname, Unternehmen, Eigenschaft (Agentur, Lieferant oder sonstige), geschäftliche E-Mail-Adresse, Telefonnummer (optional) und der Inhalt Ihrer Nachricht.</li> <li><strong>Technische Daten</strong>: die von unserem Hosting-Anbieter automatisch erzeugten Verbindungsprotokolle (IP-Adresse, Datum und Uhrzeit der Anfrage, aufgerufene Seiten, Browsertyp) zu Zwecken der Sicherheit und des ordnungsgemäßen Betriebs der Website.</li> </ul> <p>Über das für die Bearbeitung Ihrer Anfrage unbedingt Erforderliche hinaus ist kein Feld verpflichtend. Wir erheben keine sensiblen Daten im Sinne von Artikel 9 DSGVO.</p>"
+      "body": "<p>Wir erheben ausschließlich die Daten, die Sie uns freiwillig übermitteln:</p> <ul> <li><strong>Über das Kontaktformular</strong>: Vor- und Nachname, Unternehmen, Art der Anfrage (Kontakt oder Partnerschaft), geschäftliche E-Mail-Adresse, Telefonnummer (optional) und der Inhalt Ihrer Nachricht.</li> <li><strong>Technische Daten</strong>: die von unserem Hosting-Anbieter automatisch erzeugten Verbindungsprotokolle (IP-Adresse, Datum und Uhrzeit der Anfrage, aufgerufene Seiten, Browsertyp) zu Zwecken der Sicherheit und des ordnungsgemäßen Betriebs der Website.</li> </ul> <p>Über das für die Bearbeitung Ihrer Anfrage unbedingt Erforderliche hinaus ist kein Feld verpflichtend. Wir erheben keine sensiblen Daten im Sinne von Artikel 9 DSGVO.</p>"
     },
     "finalites": {
       "title": "Zwecke und Rechtsgrundlagen",
@@ -20,7 +20,7 @@
     },
     "destinataires": {
       "title": "Empfänger und Auftragsverarbeiter",
-      "body": "<p>Ihre Daten werden von den dazu befugten Personen bei PROMOTIONAL SOURCING verarbeitet. Wir setzen folgende Auftragsverarbeiter ein:</p> <ul> <li><strong>Netlify, Inc.</strong> (512 2nd Street, Suite 200, San Francisco, CA 94107, USA) — Hosting der Website und Erfassung der Einsendungen des Kontaktformulars. Diese Verarbeitung beinhaltet eine Übermittlung von Daten außerhalb der Europäischen Union, die durch die Standardvertragsklauseln der Europäischen Kommission und durch die Zertifizierung von Netlify im Rahmen des <span>EU–U.S. Data Privacy Framework</span> abgesichert ist.</li> </ul> <p>Ihre Daten können außerdem an Verwaltungs- oder Justizbehörden weitergegeben werden, wenn das Gesetz dies verlangt.</p>"
+      "body": "<p>Ihre Daten werden von den dazu befugten Personen bei PROMOTIONAL SOURCING verarbeitet. Wir setzen folgenden Auftragsverarbeiter ein:</p> <ul> <li><strong>Clever Cloud SAS</strong> (Nantes, Frankreich) — Hosting der Website und der Anwendung, einschließlich der Zustellung der über das Kontaktformular gesendeten Anfragen per E-Mail. Die Daten werden innerhalb der Europäischen Union gehostet: Diese Verarbeitung beinhaltet keine Übermittlung außerhalb der Union.</li> </ul> <p>Ihre Daten können außerdem an Verwaltungs- oder Justizbehörden weitergegeben werden, wenn das Gesetz dies verlangt.</p>"
     },
     "conservation": {
       "title": "Speicherdauer",

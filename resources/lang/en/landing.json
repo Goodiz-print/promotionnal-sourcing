@@ -22,7 +22,7 @@
     "languageLabel": "Language"
   },
   "hero": {
-    "eyebrow": "Launching: January 2027",
+    "eyebrow": "Launching: 2027",
     "titleLine1": "Sourcing promotional products.",
     "titleWord1": "Simplified.",
     "titleWord2": "Intelligent.",
@@ -104,7 +104,7 @@
     "cta": "List my catalogue"
   },
   "finalCta": {
-    "badge": "Launching: January 2027",
+    "badge": "Launching: 2027",
     "heading": "We are building the new reference for promotional sourcing in Europe.",
     "descriptionBefore": "Suppliers: join the first partners and get ",
     "descriptionHighlight": "priority visibility",
@@ -134,18 +134,22 @@
     "asideResponseTitle": "Response time",
     "asideResponse": "Within 48 business hours.",
     "formHeading": "Your enquiry",
-    "mailIntro": "Email us directly: the button below opens your mail app with a ready-made message. To get a quick answer, tell us:",
-    "mailPoints": {
-      "0": "Your company and your role (agency, buyer, supplier…)",
-      "1": "The type of product you are looking for",
-      "2": "Quantities and target budget",
-      "3": "Your required delivery date"
-    },
-    "mailCta": "Email our team",
-    "mailHint": "Opens your mail app.",
-    "mailFallback": "No mail app set up? Write to us at",
-    "mailSubject": "Sourcing enquiry — Promotional Sourcing.eu",
-    "mailBody": "Hello,\n\nCompany:\nYou are (agency / buyer / supplier):\nPhone:\n\nProduct required:\nQuantity:\nTarget budget:\nRequired delivery date:\n\nDetails:\n\n\nThanks,\n"
+    "fieldName": "Full name",
+    "fieldCompany": "Company",
+    "fieldEmail": "Work email",
+    "fieldPhone": "Phone",
+    "fieldPhoneOptional": "optional",
+    "fieldType": "Type of enquiry",
+    "fieldTypeContact": "General enquiry (buyer, agency, other)",
+    "fieldTypePartnership": "Supplier / manufacturer partnership",
+    "fieldMessage": "Your needs",
+    "fieldMessagePlaceholder": "Product type, quantity, deadline, target market…",
+    "honeypot": "Do not fill in this field",
+    "submit": "Send my enquiry",
+    "requiredHint": "Fields marked with an asterisk (*) are required.",
+    "privacyBefore": "Your data is only used to handle your enquiry. See our ",
+    "privacyLink": "privacy policy",
+    "privacyAfter": "."
   },
   "thanks": {
     "seoTitle": "Message received — Promotional Sourcing.eu",
@@ -167,8 +171,8 @@
   },
   "productMockup": {
     "tags": {
-      "0": "Recycled material",
-      "1": "GRS certified",
+      "0": "Organic cotton",
+      "1": "GOTS certified",
       "2": "Europe stock"
     },
     "products": {
@@ -192,6 +196,6 @@
     "priceSuffix": "€ excl. VAT",
     "footerCompare": "Instant comparison across suppliers",
     "footerFlag": "Interface preview",
-    "ariaLabel": "Preview of a search on promotional-sourcing.eu: an organic cotton tote bag, a recycled polyester cooler bag and a recycled beach towel, filtered by recycled material, GRS certification and Europe stock, with verified supplier, country and price."
+    "ariaLabel": "Preview of a search on promotional-sourcing.eu: an organic cotton tote bag, a recycled polyester cooler bag and a recycled beach towel, filtered by organic cotton, GOTS certification and Europe stock, with verified supplier, country and price."
   }
 }

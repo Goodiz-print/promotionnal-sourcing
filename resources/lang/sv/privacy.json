@@ -2,7 +2,7 @@
   "heading": "Integritetspolicy",
   "eyebrow": "Dataskydd",
   "intro": "Hur PROMOTIONAL SOURCING samlar in, använder och skyddar personuppgifter om besökare på promotional-sourcing.eu, i enlighet med GDPR och den franska dataskyddslagen (”Informatique et Libertés”).",
-  "updatedAt": "7 augusti 2026",
+  "updatedAt": "30 oktober 2026",
   "seoTitle": "Integritetspolicy — Promotional Sourcing.eu",
   "seoDescription": "Hur PROMOTIONAL SOURCING samlar in, använder och skyddar dina personuppgifter, i enlighet med GDPR.",
   "sections": {
@@ -12,7 +12,7 @@
     },
     "donnees-collectees": {
       "title": "Insamlade uppgifter",
-      "body": "<p>Vi samlar endast in de uppgifter som du frivilligt lämnar till oss:</p> <ul> <li><strong>Via kontaktformuläret</strong>: för- och efternamn, företag, roll (byrå, leverantör eller annat), professionell e-postadress, telefonnummer (valfritt) och innehållet i ditt meddelande.</li> <li><strong>Tekniska uppgifter</strong>: anslutningsloggar som genereras automatiskt av vår värdleverantör (IP-adress, datum och tid för begäran, besökta sidor, webbläsartyp), i säkerhetssyfte och för att webbplatsen ska fungera väl.</li> </ul> <p>Inget fält är obligatoriskt utöver vad som är strikt nödvändigt för att hantera din förfrågan. Vi samlar inte in några känsliga uppgifter i den mening som avses i artikel 9 i GDPR.</p>"
+      "body": "<p>Vi samlar endast in de uppgifter som du frivilligt lämnar till oss:</p> <ul> <li><strong>Via kontaktformuläret</strong>: för- och efternamn, företag, typ av förfrågan (allmän eller partnerskap), professionell e-postadress, telefonnummer (valfritt) och innehållet i ditt meddelande.</li> <li><strong>Tekniska uppgifter</strong>: anslutningsloggar som genereras automatiskt av vår värdleverantör (IP-adress, datum och tid för begäran, besökta sidor, webbläsartyp), i säkerhetssyfte och för att webbplatsen ska fungera väl.</li> </ul> <p>Inget fält är obligatoriskt utöver vad som är strikt nödvändigt för att hantera din förfrågan. Vi samlar inte in några känsliga uppgifter i den mening som avses i artikel 9 i GDPR.</p>"
     },
     "finalites": {
       "title": "Ändamål och rättslig grund",
@@ -20,7 +20,7 @@
     },
     "destinataires": {
       "title": "Mottagare och underbiträden",
-      "body": "<p>Dina uppgifter behandlas av behöriga personer inom PROMOTIONAL SOURCING. Vi anlitar följande underbiträden:</p> <ul> <li><strong>Netlify, Inc.</strong> (512 2nd Street, Suite 200, San Francisco, CA 94107, USA) — webbhotell och insamling av kontaktformulärets inlämningar. Behandlingen innebär en överföring av uppgifter utanför Europeiska unionen, som omfattas av Europeiska kommissionens standardavtalsklausuler och av Netlifys certifiering enligt <span>EU–U.S. Data Privacy Framework</span>.</li> </ul> <p>Dina uppgifter kan också lämnas ut till administrativa eller rättsliga myndigheter när lagen kräver det.</p>"
+      "body": "<p>Dina uppgifter behandlas av behöriga personer inom PROMOTIONAL SOURCING. Vi anlitar följande underbiträde:</p> <ul> <li><strong>Clever Cloud SAS</strong> (Nantes, Frankrike) — webbhotell för webbplatsen och applikationen, inklusive vidarebefordran via e-post av förfrågningar som skickas via kontaktformuläret. Uppgifterna lagras inom Europeiska unionen: behandlingen innebär ingen överföring utanför unionen.</li> </ul> <p>Dina uppgifter kan också lämnas ut till administrativa eller rättsliga myndigheter när lagen kräver det.</p>"
     },
     "conservation": {
       "title": "Lagringstid",

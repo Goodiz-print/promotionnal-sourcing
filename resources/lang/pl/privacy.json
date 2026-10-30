@@ -2,7 +2,7 @@
   "heading": "Polityka prywatności",
   "eyebrow": "Ochrona danych",
   "intro": "W jaki sposób PROMOTIONAL SOURCING gromadzi, wykorzystuje i chroni dane osobowe użytkowników serwisu promotional-sourcing.eu, zgodnie z RODO i francuską ustawą „Informatique et Libertés”.",
-  "updatedAt": "7 sierpnia 2026",
+  "updatedAt": "30 października 2026",
   "seoTitle": "Polityka prywatności — Promotional Sourcing.eu",
   "seoDescription": "W jaki sposób PROMOTIONAL SOURCING gromadzi, wykorzystuje i chroni Państwa dane osobowe, zgodnie z RODO.",
   "sections": {
@@ -12,7 +12,7 @@
     },
     "donnees-collectees": {
       "title": "Gromadzone dane",
-      "body": "<p>Gromadzimy wyłącznie dane, które Państwo dobrowolnie nam przekazują:</p> <ul> <li><strong>Za pośrednictwem formularza kontaktowego</strong>: imię i nazwisko, firma, rodzaj działalności (agencja, dostawca lub inny), służbowy adres e-mail, numer telefonu (opcjonalnie) oraz treść wiadomości.</li> <li><strong>Dane techniczne</strong>: dzienniki połączeń generowane automatycznie przez naszego dostawcę hostingu (adres IP, data i godzina żądania, odwiedzane strony, typ przeglądarki), w celu zapewnienia bezpieczeństwa i prawidłowego działania serwisu.</li> </ul> <p>Żadne pole nie jest obowiązkowe poza tym, co jest ściśle niezbędne do rozpatrzenia Państwa zapytania. Nie gromadzimy żadnych danych wrażliwych w rozumieniu art. 9 RODO.</p>"
+      "body": "<p>Gromadzimy wyłącznie dane, które Państwo dobrowolnie nam przekazują:</p> <ul> <li><strong>Za pośrednictwem formularza kontaktowego</strong>: imię i nazwisko, firma, rodzaj zapytania (ogólne lub współpraca), służbowy adres e-mail, numer telefonu (opcjonalnie) oraz treść wiadomości.</li> <li><strong>Dane techniczne</strong>: dzienniki połączeń generowane automatycznie przez naszego dostawcę hostingu (adres IP, data i godzina żądania, odwiedzane strony, typ przeglądarki), w celu zapewnienia bezpieczeństwa i prawidłowego działania serwisu.</li> </ul> <p>Żadne pole nie jest obowiązkowe poza tym, co jest ściśle niezbędne do rozpatrzenia Państwa zapytania. Nie gromadzimy żadnych danych wrażliwych w rozumieniu art. 9 RODO.</p>"
     },
     "finalites": {
       "title": "Cele i podstawy prawne",
@@ -20,7 +20,7 @@
     },
     "destinataires": {
       "title": "Odbiorcy i podmioty przetwarzające",
-      "body": "<p>Państwa dane są przetwarzane przez upoważnione osoby w PROMOTIONAL SOURCING. Korzystamy z usług następujących podmiotów przetwarzających:</p> <ul> <li><strong>Netlify, Inc.</strong> (512 2nd Street, Suite 200, San Francisco, CA 94107, Stany Zjednoczone) — hosting serwisu i odbiór zgłoszeń z formularza kontaktowego. Przetwarzanie to wiąże się z transferem danych poza Unię Europejską, objętym standardowymi klauzulami umownymi Komisji Europejskiej oraz certyfikacją Netlify w ramach <span>EU–U.S. Data Privacy Framework</span>.</li> </ul> <p>Państwa dane mogą być również przekazane organom administracyjnym lub sądowym, gdy wymaga tego prawo.</p>"
+      "body": "<p>Państwa dane są przetwarzane przez upoważnione osoby w PROMOTIONAL SOURCING. Korzystamy z usług następującego podmiotu przetwarzającego:</p> <ul> <li><strong>Clever Cloud SAS</strong> (Nantes, Francja) — hosting serwisu i aplikacji, w tym przekazywanie e-mailem zapytań wysłanych przez formularz kontaktowy. Dane są hostowane w Unii Europejskiej: przetwarzanie to nie wiąże się z transferem danych poza Unię.</li> </ul> <p>Państwa dane mogą być również przekazane organom administracyjnym lub sądowym, gdy wymaga tego prawo.</p>"
     },
     "conservation": {
       "title": "Okres przechowywania",

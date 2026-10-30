@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import ContactCta from '~/components/marketing/contact_cta.vue'
+import BaseLinkButton from '~/components/base/base_link_button.vue'
 import { useMarketing } from '~/composables/use_marketing'
 
-const { t } = useMarketing()
+const { t, path } = useMarketing()
 </script>
 
 <template>
@@ -30,7 +30,9 @@ const { t } = useMarketing()
         }}<b class="text-yellow-300">{{ t('landing.finalCta.descriptionHighlight') }}</b
         >{{ t('landing.finalCta.descriptionAfter') }}
       </p>
-      <ContactCta variant="on-dark" />
+      <BaseLinkButton size="lg" variant="on-dark" :href="`${path('contact')}?type=partnership`">
+        {{ t('landing.finalCta.cta') }}
+      </BaseLinkButton>
     </div>
   </section>
 </template>

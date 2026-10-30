@@ -1,5 +1,6 @@
 import router from '@adonisjs/core/services/router'
 import { controllers } from '#generated/controllers'
+import { contactRequestThrottle } from '#start/limiter'
 
 /**
  * Pages publiques de la landing. Appelé depuis `start/routes.ts`, **à
@@ -7,6 +8,10 @@ import { controllers } from '#generated/controllers'
  */
 export function registerMarketingRoutes(): void {
   router.get('contact', [controllers.Marketing, 'contact']).as('marketing.contact')
+  router
+    .post('contact', [controllers.Marketing, 'sendContact'])
+    .as('marketing.contact.store')
+    .use(contactRequestThrottle)
   router.get('legal', [controllers.Marketing, 'legal']).as('marketing.legal')
   router.get('privacy', [controllers.Marketing, 'privacy']).as('marketing.privacy')
   router.get('thanks', [controllers.Marketing, 'thanks']).as('marketing.thanks')

@@ -5,9 +5,9 @@ const { t } = useMarketing()
 
 const TAG_INDEXES = [0, 1, 2]
 const PRODUCTS = [
-  { index: 0, verified: true, price: '2,10', image: '/img/mo2197-09.jpg' },
-  { index: 1, verified: true, price: '1,85', image: '/img/tote-bag-coton-moutarde.jpg' },
-  { index: 2, verified: false, price: '2,40', image: '/img/tote-bag-coton-soufflet.jpg' },
+  { index: 0, verified: true, price: '2,10', image: '/img/mo2197-09.webp' },
+  { index: 1, verified: true, price: '1,85', image: '/img/tote-bag-coton-moutarde.webp' },
+  { index: 2, verified: false, price: '2,40', image: '/img/tote-bag-coton-soufflet.webp' },
 ]
 </script>
 

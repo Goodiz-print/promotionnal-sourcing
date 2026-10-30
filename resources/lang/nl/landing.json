@@ -22,7 +22,7 @@
     "languageLabel": "Taal"
   },
   "hero": {
-    "eyebrow": "Lancering: januari 2027",
+    "eyebrow": "Lancering: 2027",
     "titleLine1": "Het sourcen van promotieartikelen.",
     "titleWord1": "Eenvoudig.",
     "titleWord2": "Slim.",
@@ -104,7 +104,7 @@
     "cta": "Mijn catalogus laten opnemen"
   },
   "finalCta": {
-    "badge": "Lancering gepland: januari 2027",
+    "badge": "Lancering gepland: 2027",
     "heading": "Wij bouwen de nieuwe standaard voor het sourcen van relatiegeschenken in Europa.",
     "descriptionBefore": "Leveranciers: sluit u aan bij de eerste partners en profiteer vanaf de lancering van ",
     "descriptionHighlight": "prioritaire zichtbaarheid",
@@ -134,18 +134,22 @@
     "asideResponseTitle": "Reactietijd",
     "asideResponse": "Binnen 48 werkuren.",
     "formHeading": "Uw aanvraag",
-    "mailIntro": "Mail ons rechtstreeks: de knop hieronder opent uw e-mailprogramma met een kant-en-klaar gestructureerd bericht. Voor een snelle reactie vermeldt u graag:",
-    "mailPoints": {
-      "0": "Uw bedrijf en uw functie (bureau, inkoper, leverancier…)",
-      "1": "Het type product dat u zoekt",
-      "2": "De hoeveelheden en het streefbudget",
-      "3": "Uw gewenste levertijd"
-    },
-    "mailCta": "Mail ons team",
-    "mailHint": "Opent uw e-mailprogramma.",
-    "mailFallback": "Geen e-mailprogramma ingesteld? Mail ons dan op",
-    "mailSubject": "Sourcingaanvraag — Promotional Sourcing.eu",
-    "mailBody": "Goedendag,\n\nBedrijf:\nU bent (bureau / inkoper / leverancier):\nTelefoon:\n\nGezocht product:\nHoeveelheid:\nStreefbudget:\nGewenste levertijd:\n\nToelichting:\n\n\nMet vriendelijke groet,\n"
+    "fieldName": "Voor- en achternaam",
+    "fieldCompany": "Bedrijf",
+    "fieldEmail": "Zakelijk e-mailadres",
+    "fieldPhone": "Telefoon",
+    "fieldPhoneOptional": "optioneel",
+    "fieldType": "Type aanvraag",
+    "fieldTypeContact": "Algemene aanvraag (inkoper, bureau, overig)",
+    "fieldTypePartnership": "Partnerschap leverancier / fabrikant",
+    "fieldMessage": "Uw behoefte",
+    "fieldMessagePlaceholder": "Producttype, aantal, termijn, doelmarkt…",
+    "honeypot": "Dit veld niet invullen",
+    "submit": "Aanvraag verzenden",
+    "requiredHint": "Velden met een sterretje (*) zijn verplicht.",
+    "privacyBefore": "Uw gegevens worden alleen gebruikt om uw aanvraag te behandelen. Zie ons ",
+    "privacyLink": "privacybeleid",
+    "privacyAfter": "."
   },
   "thanks": {
     "seoTitle": "Bericht ontvangen — Promotional Sourcing.eu",
@@ -167,8 +171,8 @@
   },
   "productMockup": {
     "tags": {
-      "0": "Gerecycled materiaal",
-      "1": "GRS-gecertificeerd",
+      "0": "Biologisch katoen",
+      "1": "GOTS-gecertificeerd",
       "2": "Voorraad in Europa"
     },
     "products": {
@@ -192,6 +196,6 @@
     "priceSuffix": "€ excl. btw",
     "footerCompare": "Direct vergelijken tussen leveranciers",
     "footerFlag": "Voorbeeld van de interface",
-    "ariaLabel": "Voorbeeld van een zoekopdracht op promotional-sourcing.eu: een tote bag van biologisch katoen, een koeltas van gerecycled polyester en een strandlaken van gerecycled materiaal, gefilterd op gerecycled materiaal, GRS-certificering en voorraad in Europa, met geverifieerde leverancier, land en prijs."
+    "ariaLabel": "Voorbeeld van een zoekopdracht op promotional-sourcing.eu: een tote bag van biologisch katoen, een koeltas van gerecycled polyester en een strandlaken van gerecycled materiaal, gefilterd op biologisch katoen, GOTS-certificering en voorraad in Europa, met geverifieerde leverancier, land en prijs."
   }
 }

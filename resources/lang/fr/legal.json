@@ -2,7 +2,7 @@
   "heading": "Mentions légales",
   "eyebrow": "Informations légales",
   "intro": "Identité de l'éditeur du site promotional-sourcing.eu, de son hébergeur, et règles d'usage de son contenu.",
-  "updatedAt": "26 août 2026",
+  "updatedAt": "30 octobre 2026",
   "seoTitle": "Mentions légales — Promotional Sourcing.eu",
   "seoDescription": "Mentions légales du site promotional-sourcing.eu : éditeur, hébergeur, propriété intellectuelle.",
   "sections": {
@@ -28,7 +28,7 @@
     },
     "hebergeur": {
       "title": "Hébergeur du site",
-      "body": "<address>Netlify, Inc.<br />512 2nd Street, Suite 200<br />San Francisco, CA 94107 — États-Unis<br /><a href=\"https://www.netlify.com\" rel=\"noopener noreferrer\" target=\"_blank\">netlify.com</a></address>"
+      "body": "<address>Clever Cloud SAS<br />Nantes — France<br /><a href=\"https://www.clever-cloud.com\" rel=\"noopener noreferrer\" target=\"_blank\">clever-cloud.com</a></address>"
     },
     "contact": {
       "title": "Nous contacter",

@@ -7,7 +7,9 @@ export interface ApiDefinition {
   unsubscribe: typeof routes['unsubscribe']
   marketing: {
     sitemap: typeof routes['marketing.sitemap']
-    contact: typeof routes['marketing.contact']
+    contact: typeof routes['marketing.contact'] & {
+      store: typeof routes['marketing.contact.store']
+    }
     legal: typeof routes['marketing.legal']
     privacy: typeof routes['marketing.privacy']
     thanks: typeof routes['marketing.thanks']

@@ -1,4 +1,9 @@
 import { test } from '@japa/runner'
+import mail from '@adonisjs/mail/services/main'
+import type { ApiClient } from '@japa/api-client'
+import ContactRequestNotification from '#mails/contact_request_notification'
+import { CONTACT_REQUEST_LIMIT } from '#start/limiter'
+import { CONTACT_EMAIL, PARTNERS_EMAIL } from '#shared/types/marketing'
 import { UserFactory } from '#database/factories/user_factory'
 import { useDatabase } from '#tests/utils/setup'
 
@@ -151,5 +156,104 @@ test.group('Landing — sitemap', () => {
     assert.include(response.text(), '/en/privacy</loc>')
     assert.include(response.text(), 'hreflang="en"')
     assert.notInclude(response.text(), '/thanks')
+  })
+})
+
+test.group('Landing — formulaire de contact', (group) => {
+  useDatabase(group, { seed: 'none' })
+
+  let fakeMailer: ReturnType<typeof mail.fake>
+  group.each.setup(() => {
+    fakeMailer = mail.fake()
+    return () => mail.restore()
+  })
+
+  const VALID = {
+    type: 'contact',
+    name: 'Camille Durand',
+    company: 'Agence Bleue',
+    email: 'Camille@Agence-Bleue.fr',
+    phone: '06 12 34 56 78',
+    message: 'Nous cherchons 500 tote bags en coton bio.',
+  }
+
+  const post = (client: ApiClient, body: object) =>
+    client.post('/fr/contact').redirects(0).withCsrfToken().json(body)
+
+  test('une demande de contact part vers contact@ avec le visiteur en reply-to', async ({
+    client,
+    assert,
+  }) => {
+    const response = await post(client, VALID)
+
+    response.assertStatus(302)
+    assert.equal(response.header('location'), '/fr/thanks')
+    fakeMailer.mails.assertSentCount(ContactRequestNotification, 1)
+    fakeMailer.mails.assertSent(ContactRequestNotification, ({ message }) => {
+      assert.isTrue(message.hasTo(CONTACT_EMAIL))
+      assert.isTrue(message.hasReplyTo('camille@agence-bleue.fr', 'Camille Durand'))
+      assert.isTrue(message.hasSubject('[Site] Demande de contact — Agence Bleue'))
+      return true
+    })
+  })
+
+  test('une demande de partenariat est routée vers partners@', async ({ client, assert }) => {
+    await post(client, { ...VALID, type: 'partnership' })
+
+    fakeMailer.mails.assertSent(ContactRequestNotification, ({ message }) => {
+      assert.isTrue(message.hasTo(PARTNERS_EMAIL))
+      assert.isTrue(message.hasSubject('[Site] Demande de partenariat — Agence Bleue'))
+      return true
+    })
+  })
+
+  test('un champ piège rempli reçoit la même réponse sans rien envoyer', async ({
+    client,
+    assert,
+  }) => {
+    const response = await post(client, { ...VALID, botField: 'http://spam.example' })
+
+    response.assertStatus(302)
+    assert.equal(response.header('location'), '/fr/thanks')
+    fakeMailer.mails.assertNoneSent()
+  })
+
+  test('une demande invalide revient sur le formulaire sans envoi', async ({ client, assert }) => {
+    const response = await post(client, { ...VALID, email: 'pas-un-email', message: '' })
+
+    response.assertStatus(302)
+    assert.notEqual(response.header('location'), '/fr/thanks')
+    fakeMailer.mails.assertNoneSent()
+  })
+
+  test('un type de demande inconnu est refusé', async ({ client }) => {
+    await post(client, { ...VALID, type: 'autre' })
+
+    fakeMailer.mails.assertNoneSent()
+  })
+
+  test('?type=partnership présélectionne le partenariat, partenariat reste accepté', async ({
+    client,
+    assert,
+  }) => {
+    const plain = await client.get('/fr/contact').withInertia()
+    const partner = await client.get('/fr/contact?type=partnership').withInertia()
+    const legacy = await client.get('/fr/contact?type=partenariat').withInertia()
+
+    assert.equal(plain.inertiaProps.initialType, 'contact')
+    assert.equal(partner.inertiaProps.initialType, 'partnership')
+    assert.equal(legacy.inertiaProps.initialType, 'partnership')
+  })
+
+  test("l'envoi est limité par IP", async ({ client, assert }) => {
+    for (let attempt = 0; attempt < CONTACT_REQUEST_LIMIT.requests; attempt++) {
+      await post(client, VALID)
+    }
+
+    const blocked = await post(client, VALID)
+
+    blocked.assertStatus(302)
+    assert.match(String(blocked.flashMessages().error), /^Trop de tentatives/)
+    fakeMailer.mails.assertSentCount(ContactRequestNotification, CONTACT_REQUEST_LIMIT.requests)
   })
 })

@@ -22,7 +22,7 @@
     "languageLabel": "Język"
   },
   "hero": {
-    "eyebrow": "Start: styczeń 2027",
+    "eyebrow": "Start: 2027",
     "titleLine1": "Sourcing gadżetów promocyjnych.",
     "titleWord1": "Proste.",
     "titleWord2": "Inteligentne.",
@@ -104,7 +104,7 @@
     "cta": "Dodaj mój katalog"
   },
   "finalCta": {
-    "badge": "Planowany start: styczeń 2027",
+    "badge": "Planowany start: 2027",
     "heading": "Budujemy nowy punkt odniesienia dla sourcingu gadżetów w Europie.",
     "descriptionBefore": "Dostawcy: zapraszamy do grona pierwszych partnerów i skorzystania z ",
     "descriptionHighlight": "priorytetowej widoczności",
@@ -134,18 +134,22 @@
     "asideResponseTitle": "Czas odpowiedzi",
     "asideResponse": "W ciągu 48 godzin roboczych.",
     "formHeading": "Państwa zapytanie",
-    "mailIntro": "Proszę napisać do nas bezpośrednio: poniższy przycisk otworzy program pocztowy z gotową strukturą wiadomości. Aby szybciej otrzymać odpowiedź, proszę podać:",
-    "mailPoints": {
-      "0": "Firmę i Państwa rolę (agencja, kupujący, dostawca…)",
-      "1": "Rodzaj poszukiwanego produktu",
-      "2": "Ilości i docelowy budżet",
-      "3": "Oczekiwany termin dostawy"
-    },
-    "mailCta": "Napisz do naszego zespołu",
-    "mailHint": "Otwiera Państwa program pocztowy.",
-    "mailFallback": "Brak skonfigurowanej poczty? Proszę napisać na adres",
-    "mailSubject": "Zapytanie o sourcing — Promotional Sourcing.eu",
-    "mailBody": "Dzień dobry,\n\nFirma:\nJestem (agencja / kupujący / dostawca):\nTelefon:\n\nPoszukiwany produkt:\nIlość:\nDocelowy budżet:\nOczekiwany termin:\n\nSzczegóły:\n\n\nZ poważaniem,\n"
+    "fieldName": "Imię i nazwisko",
+    "fieldCompany": "Firma",
+    "fieldEmail": "Służbowy adres e-mail",
+    "fieldPhone": "Telefon",
+    "fieldPhoneOptional": "opcjonalnie",
+    "fieldType": "Rodzaj zapytania",
+    "fieldTypeContact": "Zapytanie ogólne (kupiec, agencja, inne)",
+    "fieldTypePartnership": "Współpraca dostawcy / producenta",
+    "fieldMessage": "Państwa potrzeba",
+    "fieldMessagePlaceholder": "Rodzaj produktu, ilość, termin, rynek docelowy…",
+    "honeypot": "Nie wypełniaj tego pola",
+    "submit": "Wyślij zapytanie",
+    "requiredHint": "Pola oznaczone gwiazdką (*) są obowiązkowe.",
+    "privacyBefore": "Państwa dane służą wyłącznie do obsługi zapytania. Zobacz naszą ",
+    "privacyLink": "politykę prywatności",
+    "privacyAfter": "."
   },
   "thanks": {
     "seoTitle": "Wiadomość otrzymana — Promotional Sourcing.eu",
@@ -167,8 +171,8 @@
   },
   "productMockup": {
     "tags": {
-      "0": "Materiał z recyklingu",
-      "1": "Certyfikat GRS",
+      "0": "Bawełna organiczna",
+      "1": "Certyfikat GOTS",
       "2": "Magazyn w Europie"
     },
     "products": {
@@ -192,6 +196,6 @@
     "priceSuffix": "€ netto",
     "footerCompare": "Natychmiastowe porównanie dostawców",
     "footerFlag": "Podgląd interfejsu",
-    "ariaLabel": "Podgląd wyszukiwania na promotional-sourcing.eu: torba tote z bawełny bio, torba termoizolacyjna z poliestru z recyklingu i ręcznik plażowy z recyklingu, przefiltrowane według materiału z recyklingu, certyfikatu GRS i magazynu w Europie, z informacją o zweryfikowanym dostawcy, kraju i cenie."
+    "ariaLabel": "Podgląd wyszukiwania na promotional-sourcing.eu: torba tote z bawełny bio, torba termoizolacyjna z poliestru z recyklingu i ręcznik plażowy z recyklingu, przefiltrowane według bawełny organicznej, certyfikatu GOTS i magazynu w Europie, z informacją o zweryfikowanym dostawcy, kraju i cenie."
   }
 }

@@ -6,7 +6,7 @@ import { useMarketing } from '~/composables/use_marketing'
 const { t } = useMarketing()
 
 const RESULTS = [
-  { index: 0, price: '1,24 €', image: '/img/CGB2601_PHOTO_0.jpg' },
+  { index: 0, price: '1,24 €', image: '/img/CGB2601_PHOTO_0.webp' },
   { index: 1, price: '0,98 €', image: '/img/impr_1458560-PDP_25.webp' },
 ]
 </script>

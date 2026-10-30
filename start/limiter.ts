@@ -21,6 +21,7 @@ export const LOGIN_LIMIT = { requests: 5, duration: '15 mins' } as const
 export const SIGNUP_LIMIT = { requests: 10, duration: '1 hour' } as const
 export const PASSWORD_RESET_LIMIT = { requests: 5, duration: '1 hour' } as const
 export const EMAIL_VERIFICATION_RESEND_LIMIT = { requests: 5, duration: '1 hour' } as const
+export const CONTACT_REQUEST_LIMIT = { requests: 5, duration: '1 hour' } as const
 export const PASSKEY_LOGIN_LIMIT = { requests: 20, duration: '15 mins' } as const
 
 const normalizeEmail = (value: unknown) =>
@@ -83,5 +84,13 @@ export const passkeyLoginThrottle = limiter.define('passkey-login', ({ request }
   limiter
     .allowRequests(PASSKEY_LOGIN_LIMIT.requests)
     .every(PASSKEY_LOGIN_LIMIT.duration)
+    .usingKey(`ip_${request.ip()}`)
+)
+
+/** Formulaire de contact public : par IP, pour ne pas inonder la boîte de l'équipe. */
+export const contactRequestThrottle = limiter.define('contact-request', ({ request }) =>
+  limiter
+    .allowRequests(CONTACT_REQUEST_LIMIT.requests)
+    .every(CONTACT_REQUEST_LIMIT.duration)
     .usingKey(`ip_${request.ip()}`)
 )

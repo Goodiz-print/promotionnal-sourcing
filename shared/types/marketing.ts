@@ -14,8 +14,28 @@ export type MarketingPage = (typeof MARKETING_PAGES)[number]
  */
 export const SITEMAP_PAGES: readonly ('' | MarketingPage)[] = ['', 'contact', 'legal', 'privacy']
 
-/** Adresse de contact affichée sur la landing et utilisée par les `mailto:`. */
+/** Adresse de contact affichée sur la landing et destinataire des demandes de contact. */
 export const CONTACT_EMAIL = 'contact@promotional-sourcing.eu'
+
+/** Destinataire des demandes de partenariat fournisseur / fabricant. */
+export const PARTNERS_EMAIL = 'partners@promotional-sourcing.eu'
+
+/** Types de demande du formulaire de contact : `partnership` est routé vers `PARTNERS_EMAIL`. */
+export const CONTACT_REQUEST_TYPES = ['contact', 'partnership'] as const
+
+export type ContactRequestType = (typeof CONTACT_REQUEST_TYPES)[number]
+
+/** Longueurs maximales des champs du formulaire (partagées validator / champs HTML). */
+export const CONTACT_FIELD_LIMITS = {
+  name: 200,
+  company: 200,
+  email: 254,
+  phone: 50,
+  message: 5000,
+} as const
+
+/** Champ piège anti-robots : masqué, jamais rempli par un humain. */
+export const CONTACT_HONEYPOT_FIELD = 'botField'
 
 /** Valeur `og:locale` (langue_PAYS) de chaque langue de l'interface. */
 export const OG_LOCALES: Record<Locale, string> = {

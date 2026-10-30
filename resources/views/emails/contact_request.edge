@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nouvelle demande envoyée depuis le formulaire du site</title>
+  </head>
+  <body style="font-family: sans-serif; color: #374151">
+    <h1 style="font-size: 20px">Nouvelle demande envoyée depuis le formulaire du site</h1>
+    <table cellpadding="4">
+      <tr>
+        <td><strong>Type de demande</strong></td>
+        <td>{{ typeLabel }}</td>
+      </tr>
+      <tr>
+        <td><strong>Nom</strong></td>
+        <td>{{ request.name }}</td>
+      </tr>
+      <tr>
+        <td><strong>Société</strong></td>
+        <td>{{ request.company }}</td>
+      </tr>
+      <tr>
+        <td><strong>E-mail</strong></td>
+        <td>{{ request.email }}</td>
+      </tr>
+      <tr>
+        <td><strong>Téléphone</strong></td>
+        <td>{{ request.phone || '—' }}</td>
+      </tr>
+      <tr>
+        <td><strong>Langue</strong></td>
+        <td>{{ request.requesterLocale }}</td>
+      </tr>
+    </table>
+    <h2 style="font-size: 16px">Message</h2>
+    <p style="white-space: pre-wrap">{{ request.message }}</p>
+  </body>
+</html>

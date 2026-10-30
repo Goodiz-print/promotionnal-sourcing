@@ -22,7 +22,7 @@
     "languageLabel": "Idioma"
   },
   "hero": {
-    "eyebrow": "Lanzamiento: enero de 2027",
+    "eyebrow": "Lanzamiento: 2027",
     "titleLine1": "El sourcing de objetos promocionales.",
     "titleWord1": "Simple.",
     "titleWord2": "Inteligente.",
@@ -104,7 +104,7 @@
     "cta": "Dar de alta mi catálogo"
   },
   "finalCta": {
-    "badge": "Lanzamiento previsto: enero de 2027",
+    "badge": "Lanzamiento previsto: 2027",
     "heading": "Estamos construyendo la nueva referencia del sourcing de merchandising en Europa.",
     "descriptionBefore": "Proveedores: únase a los primeros socios y disfrute de una ",
     "descriptionHighlight": "visibilidad prioritaria",
@@ -134,18 +134,22 @@
     "asideResponseTitle": "Plazo de respuesta",
     "asideResponse": "En 48 h laborables.",
     "formHeading": "Su solicitud",
-    "mailIntro": "Escríbanos directamente: el botón de abajo abre su cliente de correo con un mensaje ya estructurado. Para obtener una respuesta rápida, indíquenos:",
-    "mailPoints": {
-      "0": "Su empresa y su cargo (agencia, comprador, proveedor…)",
-      "1": "El tipo de producto que busca",
-      "2": "Las cantidades y el presupuesto objetivo",
-      "3": "El plazo de entrega deseado"
-    },
-    "mailCta": "Escribir a nuestro equipo",
-    "mailHint": "Abre su cliente de correo.",
-    "mailFallback": "¿No tiene un cliente de correo configurado? Escríbanos a",
-    "mailSubject": "Solicitud de sourcing — Promotional Sourcing.eu",
-    "mailBody": "Buenos días:\n\nEmpresa:\nUsted es (agencia / comprador / proveedor):\nTeléfono:\n\nProducto buscado:\nCantidad:\nPresupuesto objetivo:\nPlazo deseado:\n\nDetalles:\n\n\nGracias,\n"
+    "fieldName": "Nombre y apellidos",
+    "fieldCompany": "Empresa",
+    "fieldEmail": "Correo profesional",
+    "fieldPhone": "Teléfono",
+    "fieldPhoneOptional": "opcional",
+    "fieldType": "Tipo de solicitud",
+    "fieldTypeContact": "Consulta general (comprador, agencia, otro)",
+    "fieldTypePartnership": "Colaboración de proveedor / fabricante",
+    "fieldMessage": "Su necesidad",
+    "fieldMessagePlaceholder": "Tipo de producto, cantidad, plazo, mercado objetivo…",
+    "honeypot": "No rellene este campo",
+    "submit": "Enviar mi solicitud",
+    "requiredHint": "Los campos marcados con un asterisco (*) son obligatorios.",
+    "privacyBefore": "Sus datos solo se utilizan para tramitar su solicitud. Consulte nuestra ",
+    "privacyLink": "política de privacidad",
+    "privacyAfter": "."
   },
   "thanks": {
     "seoTitle": "Mensaje recibido — Promotional Sourcing.eu",
@@ -167,8 +171,8 @@
   },
   "productMockup": {
     "tags": {
-      "0": "Material reciclado",
-      "1": "Certificado GRS",
+      "0": "Algodón orgánico",
+      "1": "Certificado GOTS",
       "2": "Stock en Europa"
     },
     "products": {
@@ -192,6 +196,6 @@
     "priceSuffix": "€ sin IVA",
     "footerCompare": "Comparativa instantánea entre proveedores",
     "footerFlag": "Vista previa de la interfaz",
-    "ariaLabel": "Vista previa de una búsqueda en promotional-sourcing.eu: una bolsa tote de algodón orgánico, una bolsa isotérmica de poliéster reciclado y una toalla de playa reciclada, filtradas por material reciclado, certificación GRS y stock en Europa, con proveedor verificado, país y precio."
+    "ariaLabel": "Vista previa de una búsqueda en promotional-sourcing.eu: una bolsa tote de algodón orgánico, una bolsa isotérmica de poliéster reciclado y una toalla de playa reciclada, filtradas por algodón orgánico, certificación GOTS y stock en Europa, con proveedor verificado, país y precio."
   }
 }

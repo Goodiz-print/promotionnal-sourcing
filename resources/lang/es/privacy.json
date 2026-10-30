@@ -2,7 +2,7 @@
   "heading": "Política de privacidad",
   "eyebrow": "Protección de datos",
   "intro": "Cómo PROMOTIONAL SOURCING recoge, utiliza y protege los datos personales de los visitantes de promotional-sourcing.eu, de conformidad con el RGPD y con la ley francesa «Informatique et Libertés».",
-  "updatedAt": "7 de agosto de 2026",
+  "updatedAt": "30 de octubre de 2026",
   "seoTitle": "Política de privacidad — Promotional Sourcing.eu",
   "seoDescription": "Cómo PROMOTIONAL SOURCING recoge, utiliza y protege sus datos personales, de conformidad con el RGPD.",
   "sections": {
@@ -12,7 +12,7 @@
     },
     "donnees-collectees": {
       "title": "Datos recogidos",
-      "body": "<p>Solo recogemos los datos que usted nos facilita voluntariamente:</p> <ul> <li><strong>A través del formulario de contacto</strong>: nombre y apellidos, empresa, calidad en la que actúa (agencia, proveedor u otra), dirección de correo electrónico profesional, número de teléfono (opcional) y el contenido de su mensaje.</li> <li><strong>Datos técnicos</strong>: los registros de conexión generados automáticamente por nuestro proveedor de alojamiento (dirección IP, fecha y hora de la solicitud, páginas consultadas, tipo de navegador), con fines de seguridad y de buen funcionamiento del sitio.</li> </ul> <p>Ningún campo es obligatorio más allá de lo estrictamente necesario para tramitar su solicitud. No recogemos ningún dato sensible en el sentido del artículo 9 del RGPD.</p>"
+      "body": "<p>Solo recogemos los datos que usted nos facilita voluntariamente:</p> <ul> <li><strong>A través del formulario de contacto</strong>: nombre y apellidos, empresa, tipo de solicitud (contacto o colaboración), dirección de correo electrónico profesional, número de teléfono (opcional) y el contenido de su mensaje.</li> <li><strong>Datos técnicos</strong>: los registros de conexión generados automáticamente por nuestro proveedor de alojamiento (dirección IP, fecha y hora de la solicitud, páginas consultadas, tipo de navegador), con fines de seguridad y de buen funcionamiento del sitio.</li> </ul> <p>Ningún campo es obligatorio más allá de lo estrictamente necesario para tramitar su solicitud. No recogemos ningún dato sensible en el sentido del artículo 9 del RGPD.</p>"
     },
     "finalites": {
       "title": "Finalidades y bases jurídicas",
@@ -20,7 +20,7 @@
     },
     "destinataires": {
       "title": "Destinatarios y encargados del tratamiento",
-      "body": "<p>Sus datos son tratados por las personas autorizadas dentro de PROMOTIONAL SOURCING. Recurrimos a los siguientes encargados del tratamiento:</p> <ul> <li><strong>Netlify, Inc.</strong> (512 2nd Street, Suite 200, San Francisco, CA 94107, Estados Unidos) — alojamiento del sitio y recogida de los envíos del formulario de contacto. Este tratamiento implica una transferencia de datos fuera de la Unión Europea, amparada por las cláusulas contractuales tipo de la Comisión Europea y por la certificación de Netlify en el marco del <span>EU–U.S. Data Privacy Framework</span>.</li> </ul> <p>Sus datos también podrán comunicarse a las autoridades administrativas o judiciales cuando la ley lo exija.</p>"
+      "body": "<p>Sus datos son tratados por las personas autorizadas dentro de PROMOTIONAL SOURCING. Recurrimos al siguiente encargado del tratamiento:</p> <ul> <li><strong>Clever Cloud SAS</strong> (Nantes, Francia) — alojamiento del sitio y de la aplicación, incluido el envío por correo electrónico de las solicitudes enviadas a través del formulario de contacto. Los datos se alojan en la Unión Europea: este tratamiento no implica ninguna transferencia fuera de la Unión.</li> </ul> <p>Sus datos también podrán comunicarse a las autoridades administrativas o judiciales cuando la ley lo exija.</p>"
     },
     "conservation": {
       "title": "Plazo de conservación",
