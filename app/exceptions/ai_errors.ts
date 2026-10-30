@@ -13,6 +13,16 @@ export class TranslationProviderError extends Exception {
 }
 
 /**
+ * Réponse tronquée par le plafond de sortie (`finish_reason = length`) : rejouer
+ * le même appel échouerait de la même façon, le service réduit donc le lot.
+ */
+export class TranslationTruncatedError extends TranslationProviderError {
+  constructor() {
+    super('response truncated')
+  }
+}
+
+/**
  * Aucune traduction source pour l'entité dans la locale source demandée.
  */
 export class MissingTranslationSourceError extends Exception {

@@ -117,7 +117,10 @@ export default class CatalogueFacetsService {
 
   private toFacet(row: CategoryAttribute, locale: Locale): CategoryAttributeType {
     const attribute = row.attribute
-    const name = resolveTranslation(attribute.translations, locale)?.name ?? null
+    const name =
+      resolveTranslation(attribute.translations, locale, {
+        sourceLocale: attribute.sourceLocale,
+      })?.name ?? null
 
     return {
       attributeId: attribute.id,

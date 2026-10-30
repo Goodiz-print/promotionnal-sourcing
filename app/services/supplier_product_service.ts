@@ -26,7 +26,7 @@ import GenerateImageVariantsJob from '#jobs/generate_image_variants_job'
 import logger from '@adonisjs/core/services/logger'
 import emitter from '@adonisjs/core/services/emitter'
 import ProductChanged from '#events/product_changed'
-import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
+import { BASELINE_CONTENT_LOCALES, CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
 import { MATERIAL_ATTRIBUTE_SLUG } from '#shared/types/certification'
 import type Organization from '#models/organization'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
@@ -69,9 +69,9 @@ export default class SupplierProductService {
       isActive: true,
       organizationId: org.id,
     })
-    // Le nom d'une organisation n'est pas traduit : fr et en suffisent, les autres
-    // langues retombent sur l'anglais (`resolveTranslation`).
-    for (const locale of ['fr', 'en'] as const) {
+    // Le nom d'une organisation n'est pas traduit : les langues de base suffisent,
+    // les autres retombent sur l'anglais (`resolveTranslation`).
+    for (const locale of BASELINE_CONTENT_LOCALES) {
       await SupplierTranslation.updateOrCreate(
         { supplierId: supplier.id, locale },
         { name: org.name, description: null }

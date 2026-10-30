@@ -34,7 +34,7 @@ test.group('i18n — resolveTranslation', () => {
       { locale: 'en', name: 'Blue' },
       { locale: 'bg', name: 'Син' },
     ]
-    assert.equal(resolveTranslation(withSource, 'de', 'bg')?.name, 'Син')
+    assert.equal(resolveTranslation(withSource, 'de', { sourceLocale: 'bg' })?.name, 'Син')
   })
 
   test('une langue de contenu hors fr/en est servie telle quelle', ({ assert }) => {

@@ -297,7 +297,7 @@ traduction dédiées** — jamais dans les tables de base :
 - **Modèles** : `*_translation.ts` (`belongsTo` du parent) + relation
   `@hasMany(() => XxxTranslation) translations` sur les 5 modèles de base.
 - **Résolution localisée** : `shared/helpers/translations.ts` —
-  `resolveTranslation(translations, locale, sourceLocale?, fallback = 'fr')` cherche la
+  `resolveTranslation(translations, locale, { sourceLocale?, fallback = 'fr' })` cherche la
   locale demandée, retombe sur la **langue source** de l'entité, puis sur `en`, puis
   `fr`, puis sur la première locale par ordre alphabétique (déterministe).
 - **Transformers** locale-aware : constructeur `(resource, locale)`,

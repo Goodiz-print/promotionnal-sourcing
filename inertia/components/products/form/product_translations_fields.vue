@@ -20,7 +20,8 @@ const form = inject(ProductFormKey)!
 const { t } = useI18n()
 
 const { otherLocale, otherLocales, visibleLocales } = useVisibleContentLocales(
-  computed(() => form.sourceLocale)
+  computed(() => form.sourceLocale),
+  () => form.errors as Record<string, string | undefined>
 )
 
 function onOtherLocale(value: string | null) {

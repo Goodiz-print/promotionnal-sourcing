@@ -45,14 +45,22 @@ export default class ProductDetailTransformer extends BaseTransformer<Product> {
       category: category
         ? {
             slug: category.slug,
-            name: resolveTranslation(category.translations, this.locale)?.name ?? null,
+            name:
+              resolveTranslation(category.translations, this.locale, {
+                sourceLocale: category.sourceLocale,
+              })?.name ?? null,
           }
         : null,
       attributes: this.resource.productAttributes.map((pa) => ({
         attributeSlug: pa.attribute?.slug ?? '',
-        attributeName: resolveTranslation(pa.attribute?.translations, this.locale)?.name ?? null,
+        attributeName:
+          resolveTranslation(pa.attribute?.translations, this.locale, {
+            sourceLocale: pa.attribute?.sourceLocale,
+          })?.name ?? null,
         label: pa.attributeValue
-          ? (resolveTranslation(pa.attributeValue.translations, this.locale)?.label ?? null)
+          ? (resolveTranslation(pa.attributeValue.translations, this.locale, {
+              sourceLocale: pa.attributeValue.sourceLocale,
+            })?.label ?? null)
           : (pa.valueString ?? pa.valueNumber ?? null),
       })),
       // Labels de conformité résolus dans la locale active (écart 4).

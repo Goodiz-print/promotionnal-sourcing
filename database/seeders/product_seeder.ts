@@ -16,10 +16,7 @@ import ProductMarkingPriceTier from '#models/product_marking_price_tier'
 import ProductOriginService from '#services/product_origin_service'
 import ProductEcoService from '#services/product_eco_service'
 import { MATERIAL_ATTRIBUTE_SLUG } from '#shared/types/certification'
-import type { ContentLocale } from '#shared/types/i18n'
-
-/** Les données de démonstration sont rédigées en français et en anglais. */
-type SeedLocale = Extract<ContentLocale, 'fr' | 'en'>
+import type { SeedLocale } from '#database/seed_locale'
 import type { ProductLifecycleStatus } from '#shared/types/product'
 
 /**

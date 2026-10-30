@@ -5,6 +5,7 @@ import TranslationService from '#services/translation_service'
 import MistralTranslationProvider from '#services/translation/mistral_translation_provider'
 import aiConfig from '#config/ai'
 import { useDatabase } from '#tests/utils/setup'
+import { TranslationTruncatedError } from '#exceptions/ai_errors'
 import { TRANSLATION_LOCALES } from '#shared/types/i18n'
 import type TranslationProvider from '#services/translation/translation_provider'
 import type { MistralChatClientLike } from '#shared/types/ai'
@@ -126,6 +127,86 @@ test.group('Idempotence — traductions', (group) => {
       .where('locale', 'de')
     assert.lengthOf(de, 1)
     assert.equal(de[0].name, '[de] Crayon modifié')
+  })
+
+  test('une réponse tronquée coupe le lot en deux, sans perdre les langues traduites', async ({
+    assert,
+  }) => {
+    const { provider } = countingTranslator()
+    const batchSizes: number[] = []
+    const truncating: TranslationProvider = {
+      model: provider.model,
+      async translate(fields, source, targetLocales) {
+        batchSizes.push(targetLocales.length)
+        if (targetLocales.length > 8) throw new TranslationTruncatedError()
+        return provider.translate(fields, source, targetLocales)
+      },
+    }
+    const product = await loadProduct('crayon-hb-bleu')
+    const targets = TRANSLATION_LOCALES.filter((locale) => locale !== 'fr')
+    const manual = await db
+      .from('product_translations')
+      .where('product_id', product.id)
+      .where('is_auto', false)
+      .whereIn('locale', targets)
+
+    const outcome = await new TranslationService(truncating).translate({
+      entity: 'product',
+      entityId: product.id,
+      sourceLocale: 'fr',
+      targetLocales: [...targets],
+    })
+
+    const rows = await db
+      .from('product_translations')
+      .where('product_id', product.id)
+      .whereIn('locale', targets)
+    const auto = rows.filter((row) => row.is_auto)
+    assert.equal(outcome, 'called')
+    assert.equal(batchSizes[0], targets.length - manual.length)
+    assert.isAbove(batchSizes.length, 1)
+    assert.lengthOf(rows, targets.length)
+    assert.lengthOf(auto, targets.length - manual.length)
+  })
+
+  test('une saisie manuelle faite pendant l’appel IA n’est pas écrasée', async ({ assert }) => {
+    const { provider } = countingTranslator()
+    const product = await loadProduct('crayon-hb-bleu')
+    const racing: TranslationProvider = {
+      model: provider.model,
+      async translate(fields, source, targetLocales) {
+        const now = new Date()
+        await db.table('product_translations').insert({
+          product_id: product.id,
+          locale: 'de',
+          name: 'Crayon manuel',
+          created_at: now,
+          updated_at: now,
+        })
+        return provider.translate(fields, source, targetLocales)
+      },
+    }
+
+    await new TranslationService(racing).translate({
+      entity: 'product',
+      entityId: product.id,
+      sourceLocale: 'fr',
+      targetLocales: ['de', 'es'],
+    })
+
+    const de = await db
+      .from('product_translations')
+      .where('product_id', product.id)
+      .where('locale', 'de')
+      .firstOrFail()
+    const es = await db
+      .from('product_translations')
+      .where('product_id', product.id)
+      .where('locale', 'es')
+      .firstOrFail()
+    assert.equal(de.name, 'Crayon manuel')
+    assert.isFalse(de.is_auto)
+    assert.isTrue(es.is_auto)
   })
 
   test('une traduction saisie à la main n’est jamais écrasée', async ({ assert }) => {
@@ -339,7 +420,10 @@ test.group('MistralTranslationProvider', () => {
       },
     })
 
-    await assert.rejects(() => provider.translate({ name: 'a' }, 'fr', ['en']), /truncated/)
+    await assert.rejects(
+      () => provider.translate({ name: 'a' }, 'fr', ['en']),
+      TranslationTruncatedError
+    )
   })
 })
 

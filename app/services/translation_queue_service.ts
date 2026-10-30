@@ -10,6 +10,10 @@ import type { TranslatableEntity } from '#shared/types/ai'
  * sauvegarde (le job est un no-op tant que l'IA est désactivée, et rejouable).
  * Les lignes saisies à la main (`is_auto = false`) sont protégées par
  * `TranslationService`, pas ici.
+ *
+ * `queue()` renvoie `true` si le job a été mis en file, `false` sinon (aucune
+ * langue cible, ou échec de la file) : le rattrapage s'en sert pour ne compter que
+ * les mises en file réelles.
  */
 @inject()
 export default class TranslationQueueService {
@@ -17,13 +21,15 @@ export default class TranslationQueueService {
     entity: TranslatableEntity,
     entityId: number,
     sourceLocale: TranslationLocale
-  ): Promise<void> {
+  ): Promise<boolean> {
     const targetLocales = TRANSLATION_LOCALES.filter((locale) => locale !== sourceLocale)
-    if (targetLocales.length === 0) return
+    if (targetLocales.length === 0) return false
     try {
       await TranslateEntityJob.dispatch({ entity, entityId, sourceLocale, targetLocales })
+      return true
     } catch (error) {
       logger.warn({ err: error, entity, entityId }, 'failed to queue entity translation')
+      return false
     }
   }
 }

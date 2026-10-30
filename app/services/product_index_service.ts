@@ -290,9 +290,13 @@ export default class ProductIndexService {
     const name = resolveTranslation(product.translations, locale)
 
     const facets = product.productAttributes.flatMap((row) => {
-      const attribute = resolveTranslation(row.attribute.translations, locale)?.name
+      const attribute = resolveTranslation(row.attribute.translations, locale, {
+        sourceLocale: row.attribute.sourceLocale,
+      })?.name
       const value = row.attributeValue
-        ? resolveTranslation(row.attributeValue.translations, locale)?.label
+        ? resolveTranslation(row.attributeValue.translations, locale, {
+            sourceLocale: row.attributeValue.sourceLocale,
+          })?.label
         : (row.valueString ??
           (row.valueNumber ? `${row.valueNumber} ${row.attribute.unit ?? ''}` : null))
       return attribute && value ? [`${attribute} : ${value}`.trim()] : []
@@ -300,7 +304,9 @@ export default class ProductIndexService {
 
     const description = name?.description?.trim().slice(0, DESCRIPTION_LENGTH)
     const category = product.category
-      ? resolveTranslation(product.category.translations, locale)?.name
+      ? resolveTranslation(product.category.translations, locale, {
+          sourceLocale: product.category.sourceLocale,
+        })?.name
       : null
 
     return [name?.name, category, ...facets, description]

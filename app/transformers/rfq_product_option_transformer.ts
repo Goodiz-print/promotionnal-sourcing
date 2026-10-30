@@ -21,11 +21,9 @@ export default class RfqProductOptionTransformer extends BaseTransformer<Product
   }
 
   toObject(): RfqProductOptionType {
-    const translation = resolveTranslation(
-      this.resource.translations,
-      this.locale,
-      this.resource.sourceLocale
-    )
+    const translation = resolveTranslation(this.resource.translations, this.locale, {
+      sourceLocale: this.resource.sourceLocale,
+    })
     const organization = this.resource.supplier?.organization
 
     return {

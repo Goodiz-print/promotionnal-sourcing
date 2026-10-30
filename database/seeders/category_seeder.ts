@@ -1,10 +1,7 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import Category from '#models/category'
 import CategoryTranslation from '#models/category_translation'
-import type { ContentLocale } from '#shared/types/i18n'
-
-/** Les données de démonstration sont rédigées en français et en anglais. */
-type SeedLocale = Extract<ContentLocale, 'fr' | 'en'>
+import type { SeedLocale } from '#database/seed_locale'
 import { CATEGORY_TREE } from '#database/data/catalogue/categories'
 
 type Text = { name: string; description: string }

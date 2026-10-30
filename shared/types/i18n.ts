@@ -63,6 +63,13 @@ export const CONTENT_LOCALES = TRANSLATION_LOCALES
 
 export type ContentLocale = TranslationLocale
 
+/**
+ * Langues dont une ligne est toujours écrite pour les contenus qui n'ont pas de
+ * traduction automatique (nom d'un fournisseur, certifications, techniques de
+ * marquage) : toute autre langue retombe sur l'anglais (`resolveTranslation`).
+ */
+export const BASELINE_CONTENT_LOCALES = ['fr', 'en'] as const satisfies readonly ContentLocale[]
+
 /** Langue de contenu obligatoire à la saisie (sert notamment à dériver le slug). */
 export const DEFAULT_CONTENT_LOCALE: ContentLocale = 'fr'
 

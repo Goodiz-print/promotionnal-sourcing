@@ -30,8 +30,15 @@ export interface TranslationBackfillOptions {
   limit?: number
 }
 
-/** Nombre d'entités mises en file, par type. */
-export type TranslationBackfillReport = Record<TranslatableEntity, number>
+/**
+ * Résultat du rattrapage : entités réellement mises en file, par type, et
+ * `failed` si la file a refusé un job (le rattrapage s'arrête alors, il est
+ * relançable sans surcoût).
+ */
+export interface TranslationBackfillReport {
+  queued: Record<TranslatableEntity, number>
+  failed: boolean
+}
 
 /** `called` si Mistral a été appelé, `skipped` si toutes les locales étaient à jour. */
 export type TranslationOutcome = 'called' | 'skipped'

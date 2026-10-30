@@ -52,7 +52,10 @@ const form = useForm<CategoryFormState>({
 })
 
 const sourceLocale = ref<ContentLocale>(props.category?.sourceLocale ?? DEFAULT_CONTENT_LOCALE)
-const { otherLocale, otherLocales, visibleLocales } = useVisibleContentLocales(sourceLocale)
+const { otherLocale, otherLocales, visibleLocales } = useVisibleContentLocales(
+  sourceLocale,
+  () => form.errors as Record<string, string | undefined>
+)
 
 function onOtherLocale(value: string | null) {
   if (value) otherLocale.value = value as ContentLocale

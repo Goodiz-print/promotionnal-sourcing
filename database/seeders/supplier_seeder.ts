@@ -2,10 +2,7 @@ import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import Organization from '#models/organization'
 import Supplier from '#models/supplier'
 import SupplierTranslation from '#models/supplier_translation'
-import type { ContentLocale } from '#shared/types/i18n'
-
-/** Les données de démonstration sont rédigées en français et en anglais. */
-type SeedLocale = Extract<ContentLocale, 'fr' | 'en'>
+import type { SeedLocale } from '#database/seed_locale'
 
 type Text = { name: string; description: string }
 

@@ -4,7 +4,7 @@ import logger from '@adonisjs/core/services/logger'
 import emitter from '@adonisjs/core/services/emitter'
 import ProductChanged from '#events/product_changed'
 import aiConfig from '#config/ai'
-import { MissingTranslationSourceError } from '#exceptions/ai_errors'
+import { MissingTranslationSourceError, TranslationTruncatedError } from '#exceptions/ai_errors'
 import { idempotencyKey, textHash } from '#shared/helpers/idempotency'
 import TranslationProvider from '#services/translation/translation_provider'
 import type { TranslatableEntity, TranslationOutcome, TranslationTarget } from '#shared/types/ai'
@@ -100,11 +100,54 @@ export default class TranslationService {
       return 'skipped'
     }
 
-    const translated = await this.provider.translate(sourceFields, sourceLocale, pending)
+    let written = false
+    try {
+      // Un seul appel pour toutes les langues en cas normal ; une réponse tronquée
+      // par le plafond de sortie coupe le lot en deux. Chaque lot réussi est écrit
+      // tout de suite : un échec plus tard ne perd pas le travail déjà facturé.
+      const batches: string[][] = [pending]
+      while (batches.length > 0) {
+        const batch = batches.shift()!
+        let translated: Record<string, Record<string, string>>
+        try {
+          translated = await this.provider.translate(sourceFields, sourceLocale, batch)
+        } catch (error) {
+          if (error instanceof TranslationTruncatedError && batch.length > 1) {
+            const middle = Math.ceil(batch.length / 2)
+            batches.unshift(batch.slice(0, middle), batch.slice(middle))
+            continue
+          }
+          throw error
+        }
+        await this.writeBatch(target, batch, translated, keys, Object.keys(sourceFields))
+        written = true
+      }
+    } finally {
+      if (written && entity === 'product') {
+        await emitter.emit(ProductChanged, new ProductChanged(entityId))
+      }
+    }
 
+    logger.info({ ...logContext, outcome: 'called', targetLocales: pending }, 'ai translation')
+    return 'called'
+  }
+
+  /**
+   * Upsert d'un lot sur `(entité, locale)`, en une requête. La garde `is_auto` est
+   * évaluée **au moment du conflit** : une traduction saisie à la main pendant
+   * l'appel IA (`is_auto = false`) n'est jamais écrasée.
+   */
+  private async writeBatch(
+    target: TranslationTarget,
+    locales: string[],
+    translated: Record<string, Record<string, string>>,
+    keys: Map<string, string>,
+    fields: string[]
+  ): Promise<void> {
+    const { table, foreignKey } = ENTITY_TABLES[target.entity]
     const now = new Date()
-    const rows = pending.map((locale) => ({
-      [foreignKey]: entityId,
+    const rows = locales.map((locale) => ({
+      [foreignKey]: target.entityId,
       locale,
       ...translated[locale],
       translation_key: keys.get(locale),
@@ -112,18 +155,15 @@ export default class TranslationService {
       created_at: now,
       updated_at: now,
     }))
+    // Client Knex sous-jacent : le builder d'insertion de Lucid n'expose pas le
+    // `WHERE` d'un `ON CONFLICT DO UPDATE`.
     await db
-      .table(table)
+      .connection()
+      .getWriteClient()(table)
       .insert(rows)
       .onConflict([foreignKey, 'locale'])
-      .merge([...Object.keys(sourceFields), 'translation_key', 'is_auto', 'updated_at'])
-
-    if (entity === 'product') {
-      await emitter.emit(ProductChanged, new ProductChanged(entityId))
-    }
-
-    logger.info({ ...logContext, outcome: 'called', targetLocales: pending }, 'ai translation')
-    return 'called'
+      .merge([...fields, 'translation_key', 'is_auto', 'updated_at'])
+      .where(`${table}.is_auto`, true)
   }
 
   private keyFor(

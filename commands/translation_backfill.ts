@@ -50,7 +50,14 @@ export default class TranslationBackfill extends BaseCommand {
       limit: this.limit,
     })
     for (const entity of TRANSLATABLE_ENTITIES) {
-      this.logger.info(`${entity} : ${report[entity]} mis en file`)
+      this.logger.info(`${entity} : ${report.queued[entity]} mis en file`)
+    }
+    if (report.failed) {
+      this.logger.error(
+        'La file a refusé un job : rattrapage interrompu. Vérifiez la file, puis relancez.'
+      )
+      this.exitCode = 1
+      return
     }
     this.logger.success('Terminé : les traductions sont générées par le worker de queue.')
   }

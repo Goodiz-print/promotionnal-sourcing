@@ -7,6 +7,14 @@ export interface LocalizedRow {
   locale: string
 }
 
+/** Options de repli de `resolveTranslation`. */
+export interface ResolveTranslationOptions {
+  /** Langue source de l'entité (`source_locale`) : première langue de repli. */
+  sourceLocale?: string | null
+  /** Locale par défaut, avant la première ligne disponible. */
+  fallback?: string
+}
+
 /**
  * Sélectionne, dans une collection de traductions préchargée, la ligne
  * correspondant à la locale demandée. Repli, dans l'ordre : la langue source de
@@ -18,8 +26,7 @@ export interface LocalizedRow {
 export function resolveTranslation<T extends LocalizedRow>(
   translations: readonly T[] | undefined,
   locale: string,
-  sourceLocale?: string | null,
-  fallback: string = DEFAULT_LOCALE
+  { sourceLocale, fallback = DEFAULT_LOCALE }: ResolveTranslationOptions = {}
 ): T | undefined {
   if (!translations || translations.length === 0) {
     return undefined
