@@ -33,11 +33,14 @@ test.group('Rattrapage des traductions (#97)', (group) => {
   useDatabase(group, { seed: 'full' })
 
   test('met en file les produits actifs, catégories, attributs et valeurs', async ({ assert }) => {
-    await db.from('products').orderBy('id').limit(1).update({ is_active: false })
+    // `limit` est ignoré par un UPDATE PostgreSQL : on cible l'id du premier produit.
+    const first = await db.from('products').orderBy('id').firstOrFail()
+    await db.from('products').where('id', first.id).update({ is_active: false })
     const { calls, queue } = fakeQueue()
 
     const report = await new TranslationBackfillService(queue).backfill()
 
+    assert.equal(report.product, (await count('products')) - 1)
     assert.equal(report.product, await count('products', true))
     assert.equal(report.category, await count('categories'))
     assert.equal(report.attribute, await count('attributes'))
