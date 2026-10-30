@@ -5,6 +5,7 @@ import OrganizationInvitationNotification from '#mails/organization_invitation_n
 import EmailVerificationNotification from '#mails/email_verification_notification'
 import PasswordResetNotification from '#mails/password_reset_notification'
 import RfqReceivedNotification from '#mails/rfq_received_notification'
+import ContactRequestNotification from '#mails/contact_request_notification'
 import db from '@adonisjs/lucid/services/db'
 import emitter from '@adonisjs/core/services/emitter'
 import MailDeliveryFailed from '#events/mail_delivery_failed'
@@ -162,6 +163,32 @@ test.group('SendMailJob', (group) => {
         fields.verifyUrl === payload.data.verifyUrl &&
         fields.expiresInHours === 24
       )
+    })
+  })
+
+  test('reconstruit la demande de contact de la landing depuis la charge', async ({ assert }) => {
+    const payload = {
+      idempotencyKey: 'test:contactRequest',
+      kind: MAIL_KINDS.contactRequest,
+      to: 'partners@promotional-sourcing.eu',
+      locale: 'fr',
+      data: {
+        type: 'partnership',
+        name: 'Léa Martin',
+        company: 'Textiles SA',
+        email: 'lea@textiles.example',
+        phone: null,
+        message: 'Bonjour',
+        requesterLocale: 'de',
+      },
+    } satisfies SendMailPayload
+
+    await jobFor(payload).execute()
+
+    fakeMailer.mails.assertSent(ContactRequestNotification, ({ message }) => {
+      assert.isTrue(message.hasTo('partners@promotional-sourcing.eu'))
+      assert.isTrue(message.hasSubject('[Site] Demande de partenariat — Textiles SA'))
+      return true
     })
   })
 

@@ -6,7 +6,7 @@ import { useMarketing } from '~/composables/use_marketing'
 const { t } = useMarketing()
 
 /* Fichiers de `public/` : liés par une chaîne dynamique pour que Vite ne tente pas de les résoudre comme import. */
-const UPLOADED_IMAGE_SRC = '/img/mock-tote-bag.jpg'
+const UPLOADED_IMAGE_SRC = '/img/mock-tote-bag.webp'
 </script>
 
 <template>

@@ -27,17 +27,18 @@ test.group('Langues européennes — interface', (group) => {
       contact.assertStatus(200)
     })
 
-    test(`/${locale}/privacy retombe sur les textes juridiques anglais`, async ({
+    test(`/${locale}/privacy expose les textes juridiques dans la langue`, async ({
       client,
       assert,
     }) => {
       const response = await client.get(`/${locale}/privacy`).withInertia()
 
       response.assertStatus(200)
-      assert.equal(
+      assert.exists(response.inertiaProps.translations['privacy.heading'])
+      assert.notEqual(
         response.inertiaProps.translations['privacy.heading'],
         'Privacy policy',
-        'les domaines juridiques non traduits reprennent l’anglais'
+        'les textes juridiques sont traduits, pas repris de l’anglais'
       )
       assert.exists(response.inertiaProps.translations['legal.sections.editeur.title'])
     })

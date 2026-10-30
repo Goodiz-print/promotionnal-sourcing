@@ -113,6 +113,7 @@ SELECT idempotency_key, kind, "to", attempts, error FROM mail_deliveries WHERE s
 | `quote-received`          | `QuoteReceivedNotification`          | `emails/quote_received`          | Un fournisseur remet un devis : prévient les responsables de l'acheteur (`OnQuoteSubmitted`) |
 | `password-reset`          | `PasswordResetNotification`          | `emails/password_reset`          | Demande « mot de passe oublié » (`PasswordResetService`)                                     |
 | `email-verification`      | `EmailVerificationNotification`      | `emails/email_verification`      | Inscription, renvoi (`EmailVerificationService`)                                             |
+| `contact-request`         | `ContactRequestNotification`         | `emails/contact_request`         | Formulaire de contact de la landing (`ContactRequestService`) — mail interne, en français    |
 
 `rfq-received` porte un chemin **relatif** (`rfqPath`) et non une URL absolue :
 la charge est persistée et peut être rejouée bien plus tard, éventuellement sous

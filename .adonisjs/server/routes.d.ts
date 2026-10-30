@@ -12,6 +12,7 @@ export type ScannedRoutes = {
     'health.show': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.contact': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'marketing.contact.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.legal': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.privacy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.thanks': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -237,6 +238,7 @@ export type ScannedRoutes = {
     'subscribe': { paramsTuple?: []; params?: {} }
     'unsubscribe': { paramsTuple?: []; params?: {} }
     'locale.update': { paramsTuple?: []; params?: {} }
+    'marketing.contact.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'new_account.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'agency_signup.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }

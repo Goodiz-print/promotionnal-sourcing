@@ -87,9 +87,17 @@
 .marketing {
   --text-primary: var(--ink-800);
   --color-text-primary: var(--ink-800);
+  /* Titre de section de la landing : 34 px (32 px dans l'en-tête de page applicatif). */
+  --text-display-md-size: 34px;
+  --text-display-md-leading: 1.25;
   background: var(--surface-canvas);
   color: var(--text-primary);
   min-height: 100vh;
+}
+
+/* Champs du formulaire de contact : un peu plus aérés que ceux de l'app. */
+.marketing .field-control {
+  padding-block: 0.75rem;
 }
 
 html:has(.marketing),

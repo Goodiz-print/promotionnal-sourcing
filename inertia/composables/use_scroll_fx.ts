@@ -1,9 +1,10 @@
 import { onBeforeUnmount, onMounted } from 'vue'
+import { useI18n } from '~/i18n'
 
-function animateCount(el: Element, instant = false) {
+function animateCount(el: Element, locale: string, instant = false) {
   const target = Number.parseInt(el.getAttribute('data-count-to') || '0', 10)
   const suffix = el.getAttribute('data-count-suffix') || ''
-  const format = (n: number) => n.toLocaleString('fr-FR') + suffix
+  const format = (n: number) => n.toLocaleString(locale) + suffix
 
   if (instant) {
     el.textContent = format(target)
@@ -30,6 +31,7 @@ function animateCount(el: Element, instant = false) {
  * navigation, car le layout marketing reste monté d'une page à l'autre.
  */
 export function useScrollFx() {
+  const { locale } = useI18n()
   const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
   let revealIo: IntersectionObserver | null = null
   let popIo: IntersectionObserver | null = null
@@ -37,7 +39,9 @@ export function useScrollFx() {
 
   function reveal(el: Element, instant: boolean) {
     el.classList.add('is-visible')
-    el.querySelectorAll('[data-count-to]').forEach((count) => animateCount(count, instant))
+    el.querySelectorAll('[data-count-to]').forEach((count) =>
+      animateCount(count, locale.value, instant)
+    )
   }
 
   function scan() {

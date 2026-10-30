@@ -22,7 +22,7 @@
     "languageLabel": "Sprache"
   },
   "hero": {
-    "eyebrow": "Start: Januar 2027",
+    "eyebrow": "Start: 2027",
     "titleLine1": "Sourcing von Werbeartikeln.",
     "titleWord1": "Einfach.",
     "titleWord2": "Intelligent.",
@@ -104,7 +104,7 @@
     "cta": "Meinen Katalog listen"
   },
   "finalCta": {
-    "badge": "Start geplant: Januar 2027",
+    "badge": "Start geplant: 2027",
     "heading": "Wir bauen die neue Referenz für das Sourcing von Werbeartikeln in Europa.",
     "descriptionBefore": "Lieferanten: Werden Sie einer der ersten Partner und profitieren Sie ab dem Start von ",
     "descriptionHighlight": "bevorzugter Sichtbarkeit",
@@ -134,18 +134,22 @@
     "asideResponseTitle": "Antwortzeit",
     "asideResponse": "Innerhalb von 48 Werktagsstunden.",
     "formHeading": "Ihre Anfrage",
-    "mailIntro": "Schreiben Sie uns direkt: Die Schaltfläche unten öffnet Ihr E-Mail-Programm mit einer bereits strukturierten Nachricht. Für eine schnelle Rückmeldung geben Sie bitte an:",
-    "mailPoints": {
-      "0": "Ihr Unternehmen und Ihre Rolle (Agentur, Einkäufer, Lieferant …)",
-      "1": "Die Art des gesuchten Produkts",
-      "2": "Mengen und Zielbudget",
-      "3": "Ihre gewünschte Lieferzeit"
-    },
-    "mailCta": "Unserem Team schreiben",
-    "mailHint": "Öffnet Ihr E-Mail-Programm.",
-    "mailFallback": "Kein E-Mail-Programm eingerichtet? Schreiben Sie uns an",
-    "mailSubject": "Sourcing-Anfrage — Promotional Sourcing.eu",
-    "mailBody": "Guten Tag,\n\nUnternehmen:\nSie sind (Agentur / Einkäufer / Lieferant):\nTelefon:\n\nGesuchtes Produkt:\nMenge:\nZielbudget:\nGewünschte Lieferzeit:\n\nWeitere Angaben:\n\n\nVielen Dank,\n"
+    "fieldName": "Vor- und Nachname",
+    "fieldCompany": "Unternehmen",
+    "fieldEmail": "Geschäftliche E-Mail",
+    "fieldPhone": "Telefon",
+    "fieldPhoneOptional": "optional",
+    "fieldType": "Art der Anfrage",
+    "fieldTypeContact": "Allgemeine Anfrage (Einkäufer, Agentur, sonstige)",
+    "fieldTypePartnership": "Partnerschaft für Lieferanten / Hersteller",
+    "fieldMessage": "Ihr Bedarf",
+    "fieldMessagePlaceholder": "Produktart, Menge, Frist, Zielmarkt …",
+    "honeypot": "Dieses Feld nicht ausfüllen",
+    "submit": "Anfrage senden",
+    "requiredHint": "Mit einem Sternchen (*) markierte Felder sind Pflichtfelder.",
+    "privacyBefore": "Ihre Daten dienen ausschließlich der Bearbeitung Ihrer Anfrage. Siehe unsere ",
+    "privacyLink": "Datenschutzerklärung",
+    "privacyAfter": "."
   },
   "thanks": {
     "seoTitle": "Nachricht erhalten — Promotional Sourcing.eu",
@@ -167,8 +171,8 @@
   },
   "productMockup": {
     "tags": {
-      "0": "Recyceltes Material",
-      "1": "GRS-zertifiziert",
+      "0": "Bio-Baumwolle",
+      "1": "GOTS-zertifiziert",
       "2": "Lager Europa"
     },
     "products": {
@@ -192,6 +196,6 @@
     "priceSuffix": "€ netto",
     "footerCompare": "Sofortiger Vergleich zwischen Lieferanten",
     "footerFlag": "Vorschau der Oberfläche",
-    "ariaLabel": "Vorschau einer Suche auf promotional-sourcing.eu: eine Tragetasche aus Bio-Baumwolle, eine Kühltasche aus recyceltem Polyester und ein recyceltes Strandtuch, gefiltert nach recyceltem Material, GRS-Zertifizierung und Lager Europa, mit geprüftem Lieferanten, Land und Preis."
+    "ariaLabel": "Vorschau einer Suche auf promotional-sourcing.eu: eine Tragetasche aus Bio-Baumwolle, eine Kühltasche aus recyceltem Polyester und ein recyceltes Strandtuch, gefiltert nach Bio-Baumwolle, GOTS-Zertifizierung und Lager Europa, mit geprüftem Lieferanten, Land und Preis."
   }
 }

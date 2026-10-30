@@ -111,6 +111,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['contact']>>>
     }
   }
+  'marketing.contact.store': {
+    methods: ["POST"]
+    pattern: '/:locale/contact'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/contact').contactRequestValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/contact').contactRequestValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['sendContact']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['sendContact']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/marketing_controller').default['sendContact']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'marketing.legal': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/legal'

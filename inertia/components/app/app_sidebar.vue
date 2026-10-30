@@ -58,12 +58,17 @@ const LOGO_SRC = '/logo.png'
       <Link
         route="home"
         :params="{ locale }"
-        :title="collapsed ? t('common.nav.backToSite') : undefined"
         class="flex items-center gap-2 px-3 text-caption font-semibold text-text-muted transition-colors hover:text-text-primary"
         :class="collapsed ? 'md:justify-center md:px-0' : ''"
       >
-        <ArrowUpRight :size="14" aria-hidden="true" />
-        <span :class="collapsed ? 'md:sr-only' : ''">{{ t('common.nav.backToSite') }}</span>
+        <!-- `title` sur un <span> : <Link> (props typées) n'accepte pas l'attribut. -->
+        <span
+          class="flex items-center gap-2"
+          :title="collapsed ? t('common.nav.backToSite') : undefined"
+        >
+          <ArrowUpRight :size="14" aria-hidden="true" />
+          <span :class="collapsed ? 'md:sr-only' : ''">{{ t('common.nav.backToSite') }}</span>
+        </span>
       </Link>
     </div>
   </div>

@@ -1,21 +1,26 @@
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import env from '#start/env'
+import ContactRequestService from '#services/contact_request_service'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import CategoryTransformer from '#transformers/category_transformer'
 import { SUPPORTED_LOCALES, type Locale } from '#shared/types/i18n'
-import { SITEMAP_PAGES } from '#shared/types/marketing'
+import { contactRequestValidator } from '#validators/contact'
+import { CONTACT_HONEYPOT_FIELD, SITEMAP_PAGES } from '#shared/types/marketing'
 
 const FEATURED_CATEGORIES_LIMIT = 6
 
 /**
  * Pages publiques de la landing (accueil, contact, mentions légales,
  * confidentialité, remerciement). Contenu statique : les textes viennent des
- * fichiers de traduction, aucune logique métier.
+ * fichiers de traduction ; seul le formulaire de contact délègue à un service.
  */
 @inject()
 export default class MarketingController {
-  constructor(private catalogue: ProductCatalogueService) {}
+  constructor(
+    private catalogue: ProductCatalogueService,
+    private contactRequests: ContactRequestService
+  ) {}
 
   /** Accueil : le contenu est statique, hormis les catégories mises en avant. */
   async home({ inertia, i18n }: HttpContext) {
@@ -28,8 +33,31 @@ export default class MarketingController {
     })
   }
 
-  contact({ inertia }: HttpContext) {
-    return inertia.render('marketing/contact', { siteUrl: this.siteUrl() })
+  /**
+   * `?type=partnership` présélectionne la demande de partenariat (CTA de la
+   * landing) ; `partenariat` reste accepté pour les liens de l'ancien site.
+   */
+  contact({ inertia, request }: HttpContext) {
+    const requested = request.input('type')
+    return inertia.render('marketing/contact', {
+      siteUrl: this.siteUrl(),
+      initialType:
+        requested === 'partnership' || requested === 'partenariat' ? 'partnership' : 'contact',
+    })
+  }
+
+  /**
+   * Envoi du formulaire de contact. Un champ piège rempli (robot) reçoit la même
+   * réponse qu'un envoi réussi, sans rien transmettre. Une erreur de validation
+   * revient sur le formulaire avec ses messages (Inertia).
+   */
+  async sendContact({ request, response, i18n }: HttpContext) {
+    const { [CONTACT_HONEYPOT_FIELD]: trap, ...input } =
+      await request.validateUsing(contactRequestValidator)
+
+    if (!trap) await this.contactRequests.submit(input, i18n.locale as Locale)
+
+    return response.redirect().toRoute('marketing.thanks', { locale: i18n.locale })
   }
 
   legal({ inertia }: HttpContext) {

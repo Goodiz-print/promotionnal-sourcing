@@ -54,6 +54,12 @@ const routes = {
     tokens: [[1,"locale"],[0,"contact"]],
     types: placeholder as Registry['marketing.contact']['types'],
   },
+  'marketing.contact.store': {
+    methods: ["POST"],
+    pattern: '/:locale/contact',
+    tokens: [[1,"locale"],[0,"contact"]],
+    types: placeholder as Registry['marketing.contact.store']['types'],
+  },
   'marketing.legal': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/legal',

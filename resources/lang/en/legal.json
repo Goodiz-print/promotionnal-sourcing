@@ -2,7 +2,7 @@
   "heading": "Legal notice",
   "eyebrow": "Legal information",
   "intro": "Who publishes and hosts promotional-sourcing.eu, and the rules that apply to its content.",
-  "updatedAt": "26 August 2026",
+  "updatedAt": "30 October 2026",
   "seoTitle": "Legal notice — Promotional Sourcing.eu",
   "seoDescription": "Legal notice for promotional-sourcing.eu: publisher, host, intellectual property.",
   "sections": {
@@ -28,7 +28,7 @@
     },
     "hebergeur": {
       "title": "Website host",
-      "body": "<address>Netlify, Inc.<br />512 2nd Street, Suite 200<br />San Francisco, CA 94107 — United States<br /><a href=\"https://www.netlify.com\" rel=\"noopener noreferrer\" target=\"_blank\">netlify.com</a></address>"
+      "body": "<address>Clever Cloud SAS<br />Nantes — France<br /><a href=\"https://www.clever-cloud.com\" rel=\"noopener noreferrer\" target=\"_blank\">clever-cloud.com</a></address>"
     },
     "contact": {
       "title": "Contact us",

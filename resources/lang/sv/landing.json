@@ -22,7 +22,7 @@
     "languageLabel": "Språk"
   },
   "hero": {
-    "eyebrow": "Lansering: januari 2027",
+    "eyebrow": "Lansering: 2027",
     "titleLine1": "Inköp av reklamprodukter.",
     "titleWord1": "Enkelt.",
     "titleWord2": "Smart.",
@@ -104,7 +104,7 @@
     "cta": "Lista min katalog"
   },
   "finalCta": {
-    "badge": "Planerad lansering: januari 2027",
+    "badge": "Planerad lansering: 2027",
     "heading": "Vi bygger den nya referensen för inköp av reklamprodukter i Europa.",
     "descriptionBefore": "Leverantörer: bli en av de första partnerna och få ",
     "descriptionHighlight": "prioriterad synlighet",
@@ -134,18 +134,22 @@
     "asideResponseTitle": "Svarstid",
     "asideResponse": "Inom 48 arbetstimmar.",
     "formHeading": "Din förfrågan",
-    "mailIntro": "Skriv direkt till oss: knappen nedan öppnar ditt e-postprogram med ett färdigstrukturerat meddelande. För ett snabbt svar, ange gärna:",
-    "mailPoints": {
-      "0": "Ditt företag och din roll (byrå, köpare, leverantör…)",
-      "1": "Vilken typ av produkt du söker",
-      "2": "Kvantiteter och målbudget",
-      "3": "Önskad leveranstid"
-    },
-    "mailCta": "Skriv till vårt team",
-    "mailHint": "Öppnar ditt e-postprogram.",
-    "mailFallback": "Inget e-postprogram konfigurerat? Skriv till oss på",
-    "mailSubject": "Inköpsförfrågan — Promotional Sourcing.eu",
-    "mailBody": "Hej,\n\nFöretag:\nDu är (byrå / köpare / leverantör):\nTelefon:\n\nProdukt som söks:\nKvantitet:\nMålbudget:\nÖnskad leveranstid:\n\nÖvrig information:\n\n\nTack,\n"
+    "fieldName": "För- och efternamn",
+    "fieldCompany": "Företag",
+    "fieldEmail": "Jobbmejl",
+    "fieldPhone": "Telefon",
+    "fieldPhoneOptional": "valfritt",
+    "fieldType": "Typ av förfrågan",
+    "fieldTypeContact": "Allmän förfrågan (inköpare, byrå, annat)",
+    "fieldTypePartnership": "Partnerskap för leverantörer / tillverkare",
+    "fieldMessage": "Ert behov",
+    "fieldMessagePlaceholder": "Produkttyp, antal, tidsfrist, målmarknad…",
+    "honeypot": "Fyll inte i det här fältet",
+    "submit": "Skicka min förfrågan",
+    "requiredHint": "Fält markerade med asterisk (*) är obligatoriska.",
+    "privacyBefore": "Dina uppgifter används bara för att hantera din förfrågan. Se vår ",
+    "privacyLink": "integritetspolicy",
+    "privacyAfter": "."
   },
   "thanks": {
     "seoTitle": "Meddelande mottaget — Promotional Sourcing.eu",
@@ -167,8 +171,8 @@
   },
   "productMockup": {
     "tags": {
-      "0": "Återvunnet material",
-      "1": "GRS-certifierad",
+      "0": "Ekologisk bomull",
+      "1": "GOTS-certifierad",
       "2": "Lager i Europa"
     },
     "products": {
@@ -192,6 +196,6 @@
     "priceSuffix": "€ exkl. moms",
     "footerCompare": "Direkt jämförelse mellan leverantörer",
     "footerFlag": "Förhandsvisning av gränssnittet",
-    "ariaLabel": "Förhandsvisning av en sökning på promotional-sourcing.eu: en tygkasse i ekologisk bomull, en kylväska i återvunnen polyester och en strandhandduk i återvunnet material, filtrerade på återvunnet material, GRS-certifiering och lager i Europa, med verifierad leverantör, land och pris."
+    "ariaLabel": "Förhandsvisning av en sökning på promotional-sourcing.eu: en tygkasse i ekologisk bomull, en kylväska i återvunnen polyester och en strandhandduk i återvunnet material, filtrerade på ekologisk bomull, GOTS-certifiering och lager i Europa, med verifierad leverantör, land och pris."
   }
 }

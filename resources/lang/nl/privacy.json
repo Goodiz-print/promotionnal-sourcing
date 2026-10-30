@@ -2,7 +2,7 @@
   "heading": "Privacybeleid",
   "eyebrow": "Gegevensbescherming",
   "intro": "Hoe PROMOTIONAL SOURCING de persoonsgegevens van bezoekers van promotional-sourcing.eu verzamelt, gebruikt en beschermt, in overeenstemming met de AVG en de Franse wet “Informatique et Libertés”.",
-  "updatedAt": "7 augustus 2026",
+  "updatedAt": "30 oktober 2026",
   "seoTitle": "Privacybeleid — Promotional Sourcing.eu",
   "seoDescription": "Hoe PROMOTIONAL SOURCING uw persoonsgegevens verzamelt, gebruikt en beschermt, in overeenstemming met de AVG.",
   "sections": {
@@ -12,7 +12,7 @@
     },
     "donnees-collectees": {
       "title": "Verzamelde gegevens",
-      "body": "<p>Wij verzamelen uitsluitend de gegevens die u ons vrijwillig verstrekt:</p> <ul> <li><strong>Via het contactformulier</strong>: voor- en achternaam, bedrijf, hoedanigheid (bureau, leverancier of overig), zakelijk e-mailadres, telefoonnummer (facultatief) en de inhoud van uw bericht.</li> <li><strong>Technische gegevens</strong>: de verbindingslogs die automatisch door onze hostingpartij worden gegenereerd (IP-adres, datum en tijdstip van het verzoek, bekeken pagina's, browsertype), met het oog op de beveiliging en de goede werking van de website.</li> </ul> <p>Geen enkel veld is verplicht, behalve wat strikt noodzakelijk is voor de behandeling van uw verzoek. Wij verzamelen geen gevoelige gegevens in de zin van artikel 9 van de AVG.</p>"
+      "body": "<p>Wij verzamelen uitsluitend de gegevens die u ons vrijwillig verstrekt:</p> <ul> <li><strong>Via het contactformulier</strong>: voor- en achternaam, bedrijf, type aanvraag (algemeen of partnerschap), zakelijk e-mailadres, telefoonnummer (facultatief) en de inhoud van uw bericht.</li> <li><strong>Technische gegevens</strong>: de verbindingslogs die automatisch door onze hostingpartij worden gegenereerd (IP-adres, datum en tijdstip van het verzoek, bekeken pagina's, browsertype), met het oog op de beveiliging en de goede werking van de website.</li> </ul> <p>Geen enkel veld is verplicht, behalve wat strikt noodzakelijk is voor de behandeling van uw verzoek. Wij verzamelen geen gevoelige gegevens in de zin van artikel 9 van de AVG.</p>"
     },
     "finalites": {
       "title": "Doeleinden en rechtsgronden",
@@ -20,7 +20,7 @@
     },
     "destinataires": {
       "title": "Ontvangers en verwerkers",
-      "body": "<p>Uw gegevens worden verwerkt door de bevoegde personen binnen PROMOTIONAL SOURCING. Wij doen een beroep op de volgende verwerkers:</p> <ul> <li><strong>Netlify, Inc.</strong> (512 2nd Street, Suite 200, San Francisco, CA 94107, Verenigde Staten) — hosting van de website en ontvangst van de inzendingen van het contactformulier. Deze verwerking houdt een doorgifte van gegevens buiten de Europese Unie in, die is gewaarborgd door de modelcontractbepalingen van de Europese Commissie en door de certificering van Netlify onder het <span>EU–U.S. Data Privacy Framework</span>.</li> </ul> <p>Uw gegevens kunnen ook worden verstrekt aan administratieve of gerechtelijke autoriteiten wanneer de wet dat vereist.</p>"
+      "body": "<p>Uw gegevens worden verwerkt door de bevoegde personen binnen PROMOTIONAL SOURCING. Wij doen een beroep op de volgende verwerker:</p> <ul> <li><strong>Clever Cloud SAS</strong> (Nantes, Frankrijk) — hosting van de website en de applicatie, waaronder het per e-mail doorsturen van aanvragen die via het contactformulier zijn verzonden. De gegevens worden gehost binnen de Europese Unie: deze verwerking houdt geen doorgifte buiten de Unie in.</li> </ul> <p>Uw gegevens kunnen ook worden verstrekt aan administratieve of gerechtelijke autoriteiten wanneer de wet dat vereist.</p>"
     },
     "conservation": {
       "title": "Bewaartermijn",

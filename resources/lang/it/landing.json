@@ -22,7 +22,7 @@
     "languageLabel": "Lingua"
   },
   "hero": {
-    "eyebrow": "Lancio: gennaio 2027",
+    "eyebrow": "Lancio: 2027",
     "titleLine1": "Il sourcing di oggetti promozionali.",
     "titleWord1": "Semplice.",
     "titleWord2": "Intelligente.",
@@ -104,7 +104,7 @@
     "cta": "Inserisci il mio catalogo"
   },
   "finalCta": {
-    "badge": "Lancio previsto: gennaio 2027",
+    "badge": "Lancio previsto: 2027",
     "heading": "Stiamo costruendo il nuovo punto di riferimento del sourcing di gadget in Europa.",
     "descriptionBefore": "Fornitori: si unisca ai primi partner e benefici di una ",
     "descriptionHighlight": "visibilità prioritaria",
@@ -134,18 +134,22 @@
     "asideResponseTitle": "Tempi di risposta",
     "asideResponse": "Entro 48 ore lavorative.",
     "formHeading": "La Sua richiesta",
-    "mailIntro": "Ci scriva direttamente: il pulsante qui sotto apre la Sua posta con un messaggio già strutturato. Per una risposta rapida, indichi:",
-    "mailPoints": {
-      "0": "La Sua azienda e il Suo ruolo (agenzia, acquirente, fornitore…)",
-      "1": "Il tipo di prodotto ricercato",
-      "2": "Le quantità e il budget previsto",
-      "3": "I tempi di consegna desiderati"
-    },
-    "mailCta": "Scrivi al nostro team",
-    "mailHint": "Apre il Suo programma di posta.",
-    "mailFallback": "Nessun programma di posta configurato? Ci scriva a",
-    "mailSubject": "Richiesta di sourcing — Promotional Sourcing.eu",
-    "mailBody": "Buongiorno,\n\nAzienda:\nLei è (agenzia / acquirente / fornitore):\nTelefono:\n\nProdotto ricercato:\nQuantità:\nBudget previsto:\nTempi desiderati:\n\nDettagli:\n\n\nGrazie,\n"
+    "fieldName": "Nome e cognome",
+    "fieldCompany": "Azienda",
+    "fieldEmail": "E-mail aziendale",
+    "fieldPhone": "Telefono",
+    "fieldPhoneOptional": "facoltativo",
+    "fieldType": "Tipo di richiesta",
+    "fieldTypeContact": "Richiesta generale (acquirente, agenzia, altro)",
+    "fieldTypePartnership": "Partnership fornitore / produttore",
+    "fieldMessage": "La sua esigenza",
+    "fieldMessagePlaceholder": "Tipo di prodotto, quantità, termine, mercato di riferimento…",
+    "honeypot": "Non compilare questo campo",
+    "submit": "Invia la richiesta",
+    "requiredHint": "I campi contrassegnati da un asterisco (*) sono obbligatori.",
+    "privacyBefore": "I suoi dati servono solo a gestire la sua richiesta. Consulti la nostra ",
+    "privacyLink": "informativa sulla privacy",
+    "privacyAfter": "."
   },
   "thanks": {
     "seoTitle": "Messaggio ricevuto — Promotional Sourcing.eu",
@@ -167,8 +171,8 @@
   },
   "productMockup": {
     "tags": {
-      "0": "Materiale riciclato",
-      "1": "Certificato GRS",
+      "0": "Cotone biologico",
+      "1": "Certificato GOTS",
       "2": "Stock Europa"
     },
     "products": {
@@ -192,6 +196,6 @@
     "priceSuffix": "€ + IVA",
     "footerCompare": "Confronto istantaneo tra fornitori",
     "footerFlag": "Anteprima dell'interfaccia",
-    "ariaLabel": "Anteprima di una ricerca su promotional-sourcing.eu: una borsa tote in cotone bio, una borsa termica in poliestere riciclato e un telo mare riciclato, filtrati per materiale riciclato, certificazione GRS e stock Europa, con fornitore verificato, paese e prezzo."
+    "ariaLabel": "Anteprima di una ricerca su promotional-sourcing.eu: una borsa tote in cotone bio, una borsa termica in poliestere riciclato e un telo mare riciclato, filtrati per cotone biologico, certificazione GOTS e stock Europa, con fornitore verificato, paese e prezzo."
   }
 }

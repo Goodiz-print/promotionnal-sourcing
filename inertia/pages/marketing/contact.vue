@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import ContactCta from '~/components/marketing/contact_cta.vue'
+import ContactForm from '~/components/marketing/contact_form.vue'
 import MarketingHead from '~/components/marketing/marketing_head.vue'
 import { useMarketing } from '~/composables/use_marketing'
 import MarketingLayout from '~/layouts/marketing.vue'
+import type { ContactRequestType } from '#shared/types/marketing'
 
 defineOptions({ layout: MarketingLayout })
-defineProps<{ siteUrl: string }>()
+defineProps<{ siteUrl: string; initialType: ContactRequestType }>()
 
 const { t, email } = useMarketing()
 
@@ -29,7 +30,7 @@ const ADDRESS_LINES = ['PROMOTIONAL SOURCING', '72 quai de Bacalan', '33300 Bord
     <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-16">
       <div data-reveal>
         <h2 class="mb-6 text-heading-lg">{{ t('landing.contact.formHeading') }}</h2>
-        <ContactCta />
+        <ContactForm :initial-type="initialType" />
       </div>
 
       <aside

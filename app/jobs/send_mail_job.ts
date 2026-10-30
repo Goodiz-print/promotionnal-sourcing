@@ -8,6 +8,7 @@ import emitter from '@adonisjs/core/services/emitter'
 import MailDeliveryService from '#services/mail_delivery_service'
 import MailDeliveryFailed from '#events/mail_delivery_failed'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
+import ContactRequestNotification from '#mails/contact_request_notification'
 import EmailVerificationNotification from '#mails/email_verification_notification'
 import PasswordResetNotification from '#mails/password_reset_notification'
 import QuoteReceivedNotification from '#mails/quote_received_notification'
@@ -174,6 +175,8 @@ export default class SendMailJob extends Job<SendMailPayload> {
         return new PasswordResetNotification(to, data.resetUrl, data.expiresInMinutes, locale)
       case MAIL_KINDS.emailVerification:
         return new EmailVerificationNotification(to, data.verifyUrl, data.expiresInHours, locale)
+      case MAIL_KINDS.contactRequest:
+        return new ContactRequestNotification(to, data)
       default:
         throw new UnknownMailKindException(kind)
     }

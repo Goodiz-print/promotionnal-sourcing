@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { Head, usePage } from '@inertiajs/vue3'
 import { useMarketing } from '~/composables/use_marketing'
-import { LOCALE_PREFIX_PATTERN } from '#shared/types/i18n'
+import { LOCALE_PREFIX_PATTERN, SUPPORTED_LOCALES } from '#shared/types/i18n'
 import { OG_IMAGE_LOCALES, OG_LOCALES } from '#shared/types/marketing'
 
 const props = withDefaults(
@@ -80,8 +80,14 @@ const structuredData = computed(() =>
     <meta head-key="description" name="description" :content="description" />
     <meta head-key="robots" name="robots" :content="robots" />
     <link head-key="canonical" rel="canonical" :href="canonical" />
-    <link head-key="alt-fr" rel="alternate" hreflang="fr" :href="urlFor('fr')" />
-    <link head-key="alt-en" rel="alternate" hreflang="en" :href="urlFor('en')" />
+    <link
+      v-for="code in SUPPORTED_LOCALES"
+      :key="code"
+      :head-key="`alt-${code}`"
+      rel="alternate"
+      :hreflang="code"
+      :href="urlFor(code)"
+    />
     <link head-key="alt-x" rel="alternate" hreflang="x-default" :href="urlFor('fr')" />
     <meta head-key="og:type" property="og:type" content="website" />
     <meta head-key="og:site_name" property="og:site_name" :content="BRAND" />

@@ -1,4 +1,5 @@
 import type { Locale } from './i18n.js'
+import type { ContactRequestType } from './marketing.js'
 
 /**
  * Charges des mails transactionnels envoyés via la queue (`SendMailJob`).
@@ -17,6 +18,7 @@ export const MAIL_KINDS = {
   quoteReceived: 'quote-received',
   passwordReset: 'password-reset',
   emailVerification: 'email-verification',
+  contactRequest: 'contact-request',
 } as const
 
 export type MailKind = (typeof MAIL_KINDS)[keyof typeof MAIL_KINDS]
@@ -94,6 +96,23 @@ export interface EmailVerificationMailData {
 }
 
 /**
+ * Données de la demande reçue par le formulaire de contact de la landing
+ * (`ContactRequestNotification`). Mail **interne** : `to` est l'adresse de
+ * l'équipe (contact@ ou partners@), `replyTo` celle du visiteur. `locale` (hissée
+ * hors de `data`) reste la langue du destinataire — l'équipe, donc le français —
+ * tandis que `requesterLocale` est la langue de la page d'où la demande est partie.
+ */
+export interface ContactRequestMailData {
+  type: ContactRequestType
+  name: string
+  company: string
+  email: string
+  phone: string | null
+  message: string
+  requesterLocale: Locale
+}
+
+/**
  * `to` est hissé hors de `data` : il est commun à tous les mails, ce qui permet
  * de loguer le destinataire dans `failed()` sans connaître le `kind`.
  *
@@ -135,6 +154,12 @@ export type SendMailContent =
       to: string
       locale: Locale
       data: PasswordResetMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.contactRequest
+      to: string
+      locale: Locale
+      data: ContactRequestMailData
     }
   | {
       kind: typeof MAIL_KINDS.emailVerification
