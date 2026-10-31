@@ -4,6 +4,7 @@
     "organizations": "Organizaciones",
     "users": "Usuarios",
     "categories": "Categorías",
+    "audit": "Registro de auditoría",
     "label": "Secciones de administración"
   },
   "pagination": {
@@ -87,13 +88,59 @@
       "email": "Correo electrónico",
       "organizations": "Organizaciones",
       "status": "Estado",
-      "createdAt": "Registrado el"
+      "createdAt": "Registrado el",
+      "role": "Rol de plataforma"
     },
-    "platformAdmin": "Administrador de la plataforma",
     "unverified": "Correo electrónico no verificado",
     "resultsCount": "{count, plural, =0 {Ninguna cuenta} one {# cuenta} other {# cuentas}}",
     "emptyDescription": "Pruebe con otra dirección o borre la búsqueda.",
     "noName": "Nombre no indicado",
-    "verified": "Correo electrónico verificado"
+    "verified": "Correo electrónico verificado",
+    "roles": {
+      "label": "Rol de plataforma de la cuenta",
+      "none": "Ninguno",
+      "admin": "Administrador",
+      "moderator": "Moderador",
+      "support": "Soporte",
+      "analyst": "Analista",
+      "updated": "Rol de plataforma actualizado.",
+      "ownRole": "No puede modificar su propio rol de plataforma."
+    }
+  },
+  "audit": {
+    "title": "Registro de auditoría",
+    "subtitle": "Historial de las acciones de escritura realizadas en el back-office.",
+    "resultsCount": "{count, plural, =0 {Ninguna entrada} one {# entrada} other {# entradas}}",
+    "empty": "Ninguna entrada coincide con estos filtros.",
+    "emptyDescription": "Modifique o borre los filtros para ampliar la lista.",
+    "columns": {
+      "date": "Fecha",
+      "actor": "Actor",
+      "action": "Acción",
+      "target": "Objetivo",
+      "changes": "Cambios"
+    },
+    "system": "Sistema",
+    "viaCli": "Por línea de comandos",
+    "becomes": "pasa a",
+    "filters": {
+      "action": "Acción",
+      "target": "Objetivo",
+      "actor": "Actor (correo)",
+      "actorPlaceholder": "nombre@ejemplo.com",
+      "from": "Desde",
+      "to": "Hasta",
+      "all": "Todas"
+    },
+    "actions": {
+      "platform_role.changed": "Rol de plataforma modificado",
+      "category.created": "Categoría creada",
+      "category.updated": "Categoría modificada",
+      "category.deleted": "Categoría eliminada"
+    },
+    "targets": {
+      "user": "Usuario",
+      "category": "Categoría"
+    }
   }
 }

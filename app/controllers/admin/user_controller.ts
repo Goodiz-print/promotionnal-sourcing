@@ -8,13 +8,16 @@ const PER_PAGE = 25
 
 /**
  * Consultation des comptes utilisateurs par l'équipe plateforme (liste
- * paginée, recherche par email).
+ * paginée, recherche par email). Droit `users.view` ; la gestion des rôles
+ * plateforme vit dans `PlatformRoleController`.
  */
 @inject()
 export default class UserController {
   constructor(private service: AdminUserService) {}
 
-  async index({ inertia, request }: HttpContext) {
+  async index({ auth, bouncer, inertia, request }: HttpContext) {
+    await bouncer.authorize('hasPlatformPermission', 'users.view')
+
     const qs = request.qs()
     const filters: AdminUserFilters = {
       search: typeof qs.search === 'string' && qs.search.trim() ? qs.search.trim() : null,
@@ -34,6 +37,8 @@ export default class UserController {
         },
       },
       filters,
+      canManageRoles: await bouncer.allows('hasPlatformPermission', 'roles.manage'),
+      currentUserId: auth.getUserOrFail().id,
     })
   }
 }

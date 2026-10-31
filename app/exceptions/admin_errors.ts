@@ -18,3 +18,21 @@ export class AdminOrganizationNotFoundException extends Exception {
   static code = 'E_ADMIN_ORGANIZATION_NOT_FOUND'
   static message = 'Organization not found'
 }
+
+/**
+ * Un admin tente de modifier son propre rôle plateforme (écran Utilisateurs).
+ */
+export class CannotChangeOwnPlatformRoleException extends Exception {
+  static status = 403
+  static code = 'E_CANNOT_CHANGE_OWN_PLATFORM_ROLE'
+  static message = 'You cannot change your own platform role'
+}
+
+/**
+ * Compte introuvable dans le back-office (`/admin/users/:id/...`).
+ */
+export class AdminUserNotFoundException extends Exception {
+  static status = 404
+  static code = 'E_ADMIN_USER_NOT_FOUND'
+  static message = 'User not found'
+}

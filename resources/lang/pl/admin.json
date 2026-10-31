@@ -4,6 +4,7 @@
     "organizations": "Organizacje",
     "users": "Użytkownicy",
     "categories": "Kategorie",
+    "audit": "Dziennik audytu",
     "label": "Sekcje administracji"
   },
   "pagination": {
@@ -87,13 +88,59 @@
       "email": "E-mail",
       "organizations": "Organizacje",
       "status": "Status",
-      "createdAt": "Data rejestracji"
+      "createdAt": "Data rejestracji",
+      "role": "Rola platformowa"
     },
-    "platformAdmin": "Administrator platformy",
     "unverified": "Adres e-mail niezweryfikowany",
     "resultsCount": "{count, plural, =0 {Brak kont} one {# konto} few {# konta} many {# kont} other {# konta}}",
     "emptyDescription": "Spróbuj użyć innego adresu lub wyczyść wyszukiwanie.",
     "noName": "Nazwa nie została podana",
-    "verified": "Adres e-mail zweryfikowany"
+    "verified": "Adres e-mail zweryfikowany",
+    "roles": {
+      "label": "Rola platformowa konta",
+      "none": "Brak",
+      "admin": "Administrator",
+      "moderator": "Moderator",
+      "support": "Wsparcie",
+      "analyst": "Analityk",
+      "updated": "Rola platformowa została zaktualizowana.",
+      "ownRole": "Nie możesz zmienić własnej roli platformowej."
+    }
+  },
+  "audit": {
+    "title": "Dziennik audytu",
+    "subtitle": "Historia operacji zapisu wykonanych w panelu administracyjnym.",
+    "resultsCount": "{count, plural, =0 {Brak wpisów} one {# wpis} few {# wpisy} many {# wpisów} other {# wpisu}}",
+    "empty": "Żaden wpis nie pasuje do tych filtrów.",
+    "emptyDescription": "Zmień lub wyczyść filtry, aby poszerzyć listę.",
+    "columns": {
+      "date": "Data",
+      "actor": "Wykonawca",
+      "action": "Akcja",
+      "target": "Cel",
+      "changes": "Zmiany"
+    },
+    "system": "System",
+    "viaCli": "Z wiersza poleceń",
+    "becomes": "zmienia się w",
+    "filters": {
+      "action": "Akcja",
+      "target": "Cel",
+      "actor": "Wykonawca (e-mail)",
+      "actorPlaceholder": "imie@przyklad.pl",
+      "from": "Od",
+      "to": "Do",
+      "all": "Wszystkie"
+    },
+    "actions": {
+      "platform_role.changed": "Zmieniono rolę platformową",
+      "category.created": "Utworzono kategorię",
+      "category.updated": "Zmieniono kategorię",
+      "category.deleted": "Usunięto kategorię"
+    },
+    "targets": {
+      "user": "Użytkownik",
+      "category": "Kategoria"
+    }
   }
 }

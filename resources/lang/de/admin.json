@@ -4,6 +4,7 @@
     "organizations": "Organisationen",
     "users": "Benutzer",
     "categories": "Kategorien",
+    "audit": "Audit-Protokoll",
     "label": "Administrationsbereiche"
   },
   "pagination": {
@@ -87,13 +88,59 @@
       "email": "E-Mail",
       "organizations": "Organisationen",
       "status": "Status",
-      "createdAt": "Registriert am"
+      "createdAt": "Registriert am",
+      "role": "Plattformrolle"
     },
-    "platformAdmin": "Plattform-Admin",
     "unverified": "E-Mail nicht bestätigt",
     "resultsCount": "{count, plural, =0 {Kein Konto} one {# Konto} other {# Konten}}",
     "emptyDescription": "Versuchen Sie eine andere Adresse oder löschen Sie die Suche.",
     "noName": "Name nicht angegeben",
-    "verified": "E-Mail bestätigt"
+    "verified": "E-Mail bestätigt",
+    "roles": {
+      "label": "Plattformrolle des Kontos",
+      "none": "Keine",
+      "admin": "Administrator",
+      "moderator": "Moderator",
+      "support": "Support",
+      "analyst": "Analyst",
+      "updated": "Plattformrolle aktualisiert.",
+      "ownRole": "Sie können Ihre eigene Plattformrolle nicht ändern."
+    }
+  },
+  "audit": {
+    "title": "Audit-Protokoll",
+    "subtitle": "Verlauf der im Backoffice ausgeführten Schreibaktionen.",
+    "resultsCount": "{count, plural, =0 {Keine Einträge} one {# Eintrag} other {# Einträge}}",
+    "empty": "Kein Eintrag entspricht diesen Filtern.",
+    "emptyDescription": "Ändern oder löschen Sie die Filter, um die Liste zu erweitern.",
+    "columns": {
+      "date": "Datum",
+      "actor": "Akteur",
+      "action": "Aktion",
+      "target": "Ziel",
+      "changes": "Änderungen"
+    },
+    "system": "System",
+    "viaCli": "Über die Befehlszeile",
+    "becomes": "wird zu",
+    "filters": {
+      "action": "Aktion",
+      "target": "Ziel",
+      "actor": "Akteur (E-Mail)",
+      "actorPlaceholder": "name@beispiel.de",
+      "from": "Von",
+      "to": "Bis",
+      "all": "Alle"
+    },
+    "actions": {
+      "platform_role.changed": "Plattformrolle geändert",
+      "category.created": "Kategorie erstellt",
+      "category.updated": "Kategorie geändert",
+      "category.deleted": "Kategorie gelöscht"
+    },
+    "targets": {
+      "user": "Benutzer",
+      "category": "Kategorie"
+    }
   }
 }

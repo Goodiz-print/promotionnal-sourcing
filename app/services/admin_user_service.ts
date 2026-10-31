@@ -11,6 +11,10 @@ interface ListOptions extends AdminUserFilters {
  * Consultation des comptes utilisateurs par l'équipe plateforme.
  */
 export default class AdminUserService {
+  find(id: number): Promise<User | null> {
+    return User.find(id)
+  }
+
   /**
    * Liste paginée, recherche partielle sur l'email, avec le nombre
    * d'organisations de chaque compte (`$extras.organizations_count`).

@@ -18,6 +18,8 @@ import type Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
 import { RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
 import type { RoleSlug } from '#shared/types/role'
+import { platformRoleHasPermission } from '#shared/helpers/platform_permissions'
+import type { PlatformPermission } from '#shared/types/user'
 
 /**
  * Ability to check if user is authenticated
@@ -104,22 +106,35 @@ export const canManageProducts = Bouncer.ability(async (user: User, org: Organiz
 })
 
 /**
- * Ability to check if a user belongs to the platform team (`users.platform_role
+ * Ability to check if a user is a **full** platform admin (`users.platform_role
  * = 'admin'`). Orthogonal to organization roles: an `owner` of an ordinary
  * organization is not a platform admin, and a platform admin needs no
- * membership at all.
+ * membership at all. For the finer platform roles (moderator, support, analyst)
+ * use `hasPlatformPermission`.
  */
 export const isPlatformAdmin = Bouncer.ability((user: User) => {
   return user.isPlatformAdmin
 })
 
 /**
+ * Ability to check if the user's platform role grants a back-office permission
+ * (matrix: `PLATFORM_ROLE_PERMISSIONS` in `shared/types/user.ts`). Every
+ * back-office route authorizes a permission, never a role.
+ */
+export const hasPlatformPermission = Bouncer.ability(
+  (user: User, permission: PlatformPermission) => {
+    return platformRoleHasPermission(user.platformRole, permission)
+  }
+)
+
+/**
  * Ability to check if a user can manage the catalogue taxonomy (categories).
- * Categories are a global, platform-level resource: only a platform admin may
- * create, edit or delete them — never the owner/admin of an organization.
+ * Categories are a global, platform-level resource: only the platform role
+ * granting `catalogue.manage` may create, edit or delete them — never the
+ * owner/admin of an organization.
  */
 export const canManageCategories = Bouncer.ability((user: User) => {
-  return user.isPlatformAdmin
+  return platformRoleHasPermission(user.platformRole, 'catalogue.manage')
 })
 
 /**

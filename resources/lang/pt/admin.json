@@ -4,6 +4,7 @@
     "organizations": "Organizações",
     "users": "Utilizadores",
     "categories": "Categorias",
+    "audit": "Registo de auditoria",
     "label": "Secções de administração"
   },
   "pagination": {
@@ -87,13 +88,59 @@
       "email": "E-mail",
       "organizations": "Organizações",
       "status": "Estado",
-      "createdAt": "Registado em"
+      "createdAt": "Registado em",
+      "role": "Função de plataforma"
     },
-    "platformAdmin": "Administrador da plataforma",
     "unverified": "E-mail não verificado",
     "resultsCount": "{count, plural, =0 {Nenhuma conta} one {# conta} other {# contas}}",
     "emptyDescription": "Experimente outro endereço ou limpe a pesquisa.",
     "noName": "Nome não indicado",
-    "verified": "E-mail verificado"
+    "verified": "E-mail verificado",
+    "roles": {
+      "label": "Função de plataforma da conta",
+      "none": "Nenhuma",
+      "admin": "Administrador",
+      "moderator": "Moderador",
+      "support": "Suporte",
+      "analyst": "Analista",
+      "updated": "Função de plataforma atualizada.",
+      "ownRole": "Não pode alterar a sua própria função de plataforma."
+    }
+  },
+  "audit": {
+    "title": "Registo de auditoria",
+    "subtitle": "Histórico das ações de escrita efetuadas no back-office.",
+    "resultsCount": "{count, plural, =0 {Nenhuma entrada} one {# entrada} other {# entradas}}",
+    "empty": "Nenhuma entrada corresponde a estes filtros.",
+    "emptyDescription": "Altere ou limpe os filtros para alargar a lista.",
+    "columns": {
+      "date": "Data",
+      "actor": "Autor",
+      "action": "Ação",
+      "target": "Alvo",
+      "changes": "Alterações"
+    },
+    "system": "Sistema",
+    "viaCli": "Pela linha de comandos",
+    "becomes": "passa a",
+    "filters": {
+      "action": "Ação",
+      "target": "Alvo",
+      "actor": "Autor (e-mail)",
+      "actorPlaceholder": "nome@exemplo.pt",
+      "from": "De",
+      "to": "Até",
+      "all": "Todas"
+    },
+    "actions": {
+      "platform_role.changed": "Função de plataforma alterada",
+      "category.created": "Categoria criada",
+      "category.updated": "Categoria alterada",
+      "category.deleted": "Categoria eliminada"
+    },
+    "targets": {
+      "user": "Utilizador",
+      "category": "Categoria"
+    }
   }
 }

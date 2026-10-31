@@ -40,6 +40,14 @@ export default class User extends compose(UserSchema, withAuthFinder(hash)) {
     return this.platformRole === 'admin'
   }
 
+  /**
+   * Porte un rôle plateforme (admin, modérateur, support ou analyste) : accès à
+   * la porte d'entrée du back-office, pas forcément à toutes ses sections.
+   */
+  get hasBackOffice(): boolean {
+    return this.platformRole !== 'none'
+  }
+
   get initials() {
     if (this.firstName && this.lastName) {
       return `${this.firstName.charAt(0)}${this.lastName.charAt(0)}`.toUpperCase()

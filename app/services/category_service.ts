@@ -1,11 +1,15 @@
 import { inject } from '@adonisjs/core'
+import db from '@adonisjs/lucid/services/db'
 import Category from '#models/category'
 import CategoryTranslation from '#models/category_translation'
+import AdminAuditService from '#services/admin_audit_service'
 import TranslationQueueService from '#services/translation_queue_service'
 import { missingSourceTranslation } from '#exceptions/translation_errors'
 import { CONTENT_LOCALES } from '#shared/types/i18n'
 import type { CreateCategoryInput, UpdateCategoryInput } from '#shared/types/category'
 import type { ContentLocale } from '#shared/types/i18n'
+import type { AdminActionContext } from '#shared/types/admin_audit'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 
 /**
  * Gestion de la taxonomie (catégories) du catalogue. Toute la logique ORM vit
@@ -14,7 +18,10 @@ import type { ContentLocale } from '#shared/types/i18n'
  */
 @inject()
 export default class CategoryService {
-  constructor(private translationQueue: TranslationQueueService) {}
+  constructor(
+    private translationQueue: TranslationQueueService,
+    private audit: AdminAuditService
+  ) {}
 
   /**
    * Liste d'administration : catégories + parent (traduit) + nombre de produits
@@ -52,26 +59,49 @@ export default class CategoryService {
   /**
    * Crée une catégorie (slug fourni par l'admin) + ses traductions saisies. Les
    * langues non saisies sont générées automatiquement à partir de la langue source.
+   * Création et entrée d'audit partagent une transaction ; la traduction
+   * automatique est mise en file une fois celle-ci validée.
    */
-  async create(data: CreateCategoryInput): Promise<Category> {
+  async create(data: CreateCategoryInput, context: AdminActionContext): Promise<Category> {
     if (!data.translations[data.sourceLocale]) throw missingSourceTranslation(data.sourceLocale)
 
-    const category = await Category.create({
-      slug: data.slug,
-      parentId: data.parentId ?? null,
-      synonyms: data.synonyms ?? [],
-      sourceLocale: data.sourceLocale,
+    const category = await db.transaction(async (trx) => {
+      const created = await Category.create(
+        {
+          slug: data.slug,
+          parentId: data.parentId ?? null,
+          synonyms: data.synonyms ?? [],
+          sourceLocale: data.sourceLocale,
+        },
+        { client: trx }
+      )
+      await this.writeTranslations(created, data.translations, trx)
+      await this.audit.record(
+        {
+          action: 'category.created',
+          targetType: 'category',
+          targetId: created.id,
+          changes: { after: { slug: created.slug, parentId: created.parentId } },
+        },
+        { ...context, client: trx }
+      )
+      return created
     })
-    await this.writeTranslations(category, data.translations)
+
     await this.translationQueue.queue('category', category.id, data.sourceLocale)
     return category
   }
 
   /**
    * Met à jour une catégorie (parent, synonymes, traductions). Partielle : seuls
-   * les champs fournis sont modifiés. Le slug reste inchangé.
+   * les champs fournis sont modifiés. Le slug reste inchangé. Écritures et entrée
+   * d'audit partagent une transaction.
    */
-  async update(category: Category, data: UpdateCategoryInput): Promise<Category> {
+  async update(
+    category: Category,
+    data: UpdateCategoryInput,
+    context: AdminActionContext
+  ): Promise<Category> {
     const sourceLocale = (data.sourceLocale ?? category.sourceLocale) as ContentLocale
     const provided = data.translations?.[sourceLocale]
     if (!provided?.name) {
@@ -82,20 +112,50 @@ export default class CategoryService {
       if (!existing) throw missingSourceTranslation(sourceLocale)
     }
 
-    category.sourceLocale = sourceLocale
-    if (data.parentId !== undefined) category.parentId = data.parentId
-    if (data.synonyms !== undefined) category.synonyms = data.synonyms
-    await category.save()
-    await this.writeTranslations(category, data.translations)
+    const before = { parentId: category.parentId, sourceLocale: category.sourceLocale }
+
+    await db.transaction(async (trx) => {
+      category.useTransaction(trx)
+      category.sourceLocale = sourceLocale
+      if (data.parentId !== undefined) category.parentId = data.parentId
+      if (data.synonyms !== undefined) category.synonyms = data.synonyms
+      await category.save()
+      await this.writeTranslations(category, data.translations, trx)
+      await this.audit.record(
+        {
+          action: 'category.updated',
+          targetType: 'category',
+          targetId: category.id,
+          changes: {
+            before,
+            after: { parentId: category.parentId, sourceLocale: category.sourceLocale },
+          },
+        },
+        { ...context, client: trx }
+      )
+    })
+
     await this.translationQueue.queue('category', category.id, sourceLocale)
     return category
   }
 
   /**
-   * Supprime une catégorie (les traductions partent en cascade DB).
+   * Supprime une catégorie (les traductions partent en cascade DB), avec son
+   * entrée d'audit dans la même transaction.
    */
-  async delete(category: Category): Promise<void> {
-    await category.delete()
+  async delete(category: Category, context: AdminActionContext): Promise<void> {
+    await db.transaction(async (trx) => {
+      await category.useTransaction(trx).delete()
+      await this.audit.record(
+        {
+          action: 'category.deleted',
+          targetType: 'category',
+          targetId: category.id,
+          changes: { before: { slug: category.slug, parentId: category.parentId } },
+        },
+        { ...context, client: trx }
+      )
+    })
   }
 
   /**
@@ -159,27 +219,31 @@ export default class CategoryService {
    */
   private async writeTranslations(
     category: Category,
-    translations: UpdateCategoryInput['translations']
+    translations: UpdateCategoryInput['translations'],
+    trx: TransactionClientContract
   ): Promise<void> {
     if (!translations) return
     for (const locale of CONTENT_LOCALES) {
       const translation = translations[locale]
       if (!translation) continue
 
-      const existing = await CategoryTranslation.query()
+      const existing = await CategoryTranslation.query({ client: trx })
         .where('categoryId', category.id)
         .where('locale', locale)
         .first()
 
       if (!existing) {
         if (!translation.name) continue
-        await CategoryTranslation.create({
-          categoryId: category.id,
-          locale,
-          name: translation.name,
-          description: translation.description ?? null,
-          isAuto: false,
-        })
+        await CategoryTranslation.create(
+          {
+            categoryId: category.id,
+            locale,
+            name: translation.name,
+            description: translation.description ?? null,
+            isAuto: false,
+          },
+          { client: trx }
+        )
         continue
       }
 
@@ -187,7 +251,7 @@ export default class CategoryService {
       const description =
         translation.description === undefined ? existing.description : translation.description
       if (name === existing.name && description === existing.description) continue
-      await existing.merge({ name, description, isAuto: false }).save()
+      await existing.useTransaction(trx).merge({ name, description, isAuto: false }).save()
     }
   }
 }

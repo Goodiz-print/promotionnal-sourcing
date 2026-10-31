@@ -1476,6 +1476,32 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/user_controller').default['index']>>>
     }
   }
+  'admin.users.platform_role.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/users/:id/platform-role'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_user').updatePlatformRoleValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_user').updatePlatformRoleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/platform_role_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/platform_role_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/platform_role_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.audit.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/audit'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_audit').auditFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/audit_log_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/audit_log_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/audit_log_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'admin.categories.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/categories'

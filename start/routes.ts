@@ -266,8 +266,9 @@ router
               })
               .use(middleware.onboarded())
 
-            // Back-office plateforme : réservé à l'équipe (`platform_role = admin`),
-            // sans lien avec une organisation — donc hors `onboarded`.
+            // Back-office plateforme : réservé à l'équipe (un `platform_role` autre que
+            // `none`), sans lien avec une organisation — donc hors `onboarded`. Chaque
+            // contrôleur autorise le droit précis de sa section.
             router
               .group(() => {
                 router.get('admin', [controllers.admin.Dashboard, 'index']).as('admin.dashboard')
@@ -280,6 +281,17 @@ router
                   .as('admin.organizations.show')
 
                 router.get('admin/users', [controllers.admin.User, 'index']).as('admin.users.index')
+                router
+                  .patch('admin/users/:id/platform-role', [
+                    controllers.admin.PlatformRole,
+                    'update',
+                  ])
+                  .as('admin.users.platform_role.update')
+
+                // Journal d'audit des actions d'écriture du back-office.
+                router
+                  .get('admin/audit', [controllers.admin.AuditLog, 'index'])
+                  .as('admin.audit.index')
 
                 // Administration de la taxonomie du catalogue (catégories globales).
                 router

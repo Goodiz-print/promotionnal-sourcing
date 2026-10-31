@@ -4,6 +4,7 @@
     "organizations": "Organisaties",
     "users": "Gebruikers",
     "categories": "Categorieën",
+    "audit": "Auditlogboek",
     "label": "Beheersecties"
   },
   "pagination": {
@@ -87,13 +88,59 @@
       "email": "E-mail",
       "organizations": "Organisaties",
       "status": "Status",
-      "createdAt": "Geregistreerd op"
+      "createdAt": "Geregistreerd op",
+      "role": "Platformrol"
     },
-    "platformAdmin": "Platformbeheerder",
     "unverified": "E-mailadres niet geverifieerd",
     "resultsCount": "{count, plural, =0 {Geen accounts} one {# account} other {# accounts}}",
     "emptyDescription": "Probeer een ander adres of wis de zoekopdracht.",
     "noName": "Naam niet opgegeven",
-    "verified": "E-mailadres geverifieerd"
+    "verified": "E-mailadres geverifieerd",
+    "roles": {
+      "label": "Platformrol van het account",
+      "none": "Geen",
+      "admin": "Beheerder",
+      "moderator": "Moderator",
+      "support": "Support",
+      "analyst": "Analist",
+      "updated": "Platformrol bijgewerkt.",
+      "ownRole": "U kunt uw eigen platformrol niet wijzigen."
+    }
+  },
+  "audit": {
+    "title": "Auditlogboek",
+    "subtitle": "Geschiedenis van de schrijfacties in de back-office.",
+    "resultsCount": "{count, plural, =0 {Geen vermeldingen} one {# vermelding} other {# vermeldingen}}",
+    "empty": "Geen enkele vermelding komt overeen met deze filters.",
+    "emptyDescription": "Wijzig of wis de filters om de lijst uit te breiden.",
+    "columns": {
+      "date": "Datum",
+      "actor": "Actor",
+      "action": "Actie",
+      "target": "Doel",
+      "changes": "Wijzigingen"
+    },
+    "system": "Systeem",
+    "viaCli": "Via de opdrachtregel",
+    "becomes": "wordt",
+    "filters": {
+      "action": "Actie",
+      "target": "Doel",
+      "actor": "Actor (e-mail)",
+      "actorPlaceholder": "naam@voorbeeld.nl",
+      "from": "Van",
+      "to": "Tot",
+      "all": "Alle"
+    },
+    "actions": {
+      "platform_role.changed": "Platformrol gewijzigd",
+      "category.created": "Categorie aangemaakt",
+      "category.updated": "Categorie gewijzigd",
+      "category.deleted": "Categorie verwijderd"
+    },
+    "targets": {
+      "user": "Gebruiker",
+      "category": "Categorie"
+    }
   }
 }

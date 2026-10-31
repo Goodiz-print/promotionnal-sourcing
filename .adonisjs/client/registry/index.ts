@@ -684,6 +684,18 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"users"]],
     types: placeholder as Registry['admin.users.index']['types'],
   },
+  'admin.users.platform_role.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/admin/users/:id/platform-role',
+    tokens: [[1,"locale"],[0,"admin"],[0,"users"],[1,"id"],[0,"platform-role"]],
+    types: placeholder as Registry['admin.users.platform_role.update']['types'],
+  },
+  'admin.audit.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/audit',
+    tokens: [[1,"locale"],[0,"admin"],[0,"audit"]],
+    types: placeholder as Registry['admin.audit.index']['types'],
+  },
   'admin.categories.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/categories',

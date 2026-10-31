@@ -3,29 +3,34 @@ import { usePage } from '@inertiajs/vue3'
 import type { Data } from '@generated/data'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
+import { usePlatformPermissions } from '~/composables/use_platform_permissions'
 import { isActivePath } from '#shared/helpers/navigation'
+import type { PlatformPermission } from '#shared/types/user'
 
 /**
  * Onglets du back-office (`BaseTabs`) : tableau de bord, organisations,
- * utilisateurs, catégories. L'onglet courant est déduit de l'URL de la page
- * (`isActivePath`) ; `/admin` étant le parent de toutes les autres sections,
- * il n'est actif que si aucun onglet plus précis ne l'est.
+ * utilisateurs, catégories, journal d'audit. Seules les sections dont le rôle
+ * plateforme porte le droit sont affichées. L'onglet courant est déduit de
+ * l'URL de la page (`isActivePath`) ; `/admin` étant le parent de toutes les
+ * autres sections, il n'est actif que si aucun onglet plus précis ne l'est.
  */
-const SECTIONS = [
-  { key: 'dashboard', route: 'admin.dashboard' },
-  { key: 'organizations', route: 'admin.organizations.index' },
-  { key: 'users', route: 'admin.users.index' },
-  { key: 'categories', route: 'admin.categories.index' },
-] as const
+const SECTIONS: { key: string; route: string; permission: PlatformPermission }[] = [
+  { key: 'dashboard', route: 'admin.dashboard', permission: 'backoffice.access' },
+  { key: 'organizations', route: 'admin.organizations.index', permission: 'organizations.view' },
+  { key: 'users', route: 'admin.users.index', permission: 'users.view' },
+  { key: 'categories', route: 'admin.categories.index', permission: 'catalogue.manage' },
+  { key: 'audit', route: 'admin.audit.index', permission: 'audit.view' },
+]
 
 export function useAdminTabs() {
   const page = usePage<Data.SharedProps>()
   const { t, locale } = useI18n()
+  const { can } = usePlatformPermissions()
 
   const items = computed(() => {
     const currentUrl = page.url ?? ''
-    const tabs = SECTIONS.map((section) => {
-      const href = urlFor(section.route, { locale: locale.value })
+    const tabs = SECTIONS.filter((section) => can(section.permission)).map((section) => {
+      const href = urlFor(section.route as 'admin.dashboard', { locale: locale.value })
       return {
         key: section.key,
         href,

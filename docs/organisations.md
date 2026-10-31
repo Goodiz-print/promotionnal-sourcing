@@ -635,18 +635,18 @@ nommant Beta, les deux adhésions conservées).
 
 Deux niveaux de rôle **indépendants** :
 
-| Niveau       | Où                           | Valeurs                               | Sert à                                                         |
-| ------------ | ---------------------------- | ------------------------------------- | -------------------------------------------------------------- |
-| Organisation | `organization_users.role_id` | `owner`, `admin`, `manager`, `member` | Gérer _une_ organisation (membres, produits, RFQ…)             |
-| Plateforme   | `users.platform_role`        | `none` (défaut), `admin`              | Back-office `/admin/**` et ressources **globales** (taxonomie) |
+| Niveau       | Où                           | Valeurs                                                     | Sert à                                                         |
+| ------------ | ---------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------- |
+| Organisation | `organization_users.role_id` | `owner`, `admin`, `manager`, `member`                       | Gérer _une_ organisation (membres, produits, RFQ…)             |
+| Plateforme   | `users.platform_role`        | `none` (défaut), `admin`, `moderator`, `support`, `analyst` | Back-office `/admin/**` et ressources **globales** (taxonomie) |
 
 Le rôle d'organisation n'ouvre **jamais** une ressource globale : un `owner` d'organisation ordinaire reçoit un 403 sur `/admin/**`. Inversement un admin plateforme n'a besoin d'aucune adhésion (il n'est pas redirigé vers l'onboarding).
 
-- **Colonne** : `users.platform_role` enum(`none`, `admin`), défaut `none` (migration `alter_users_add_platform_role`). Constantes et type `PlatformRole` dans `shared/types/user.ts`.
+- **Colonne** : `users.platform_role`, défaut `none` (migrations `alter_users_add_platform_role`, puis `alter_users_platform_role_add_fine_roles` pour les rôles fins, #158). Constantes et type `PlatformRole` dans `shared/types/user.ts`. Matrice rôle → droits et ability `hasPlatformPermission` : voir [`docs/admin.md`](admin.md).
 - **Modèle** : `User.platformRole` et le getter `User.isPlatformAdmin`.
 - **Ability** `isPlatformAdmin` (`app/abilities/main.ts`) ; `canManageCategories` en dépend désormais et **ne prend plus d'organisation**.
-- **Middleware** nommé `platformAdmin` (`app/middleware/platform_admin_middleware.ts`) : posé sur le groupe `/:locale/admin/**`, après `auth` et `emailVerified`, hors `onboarded`. Anonyme → connexion ; connecté sans rôle plateforme → 403.
-- **Attribution** : aucun écran, uniquement les commandes ace (via `PlatformAdminService`, idempotent, email insensible à la casse) :
+- **Middleware** nommé `platformAdmin` (`app/middleware/platform_admin_middleware.ts`) : posé sur le groupe `/:locale/admin/**`, après `auth` et `emailVerified`, hors `onboarded`. Anonyme → connexion ; connecté sans aucun rôle plateforme → 403. C'est la porte d'entrée (droit `backoffice.access`) : chaque contrôleur autorise ensuite le droit précis de sa section.
+- **Attribution** : depuis l'écran Utilisateurs pour un admin (droit `roles.manage`, rôle fin inclus), ou par les commandes ace `admin:grant` / `admin:revoke` (rôles `admin` / `none` ; via `PlatformAdminService`, idempotent, email insensible à la casse). Tout changement est inscrit au journal d'audit :
 
 ```bash
 node ace admin:grant  alice@example.com
@@ -668,7 +668,7 @@ Sortie 1 si l'email ne correspond à aucun compte.
 | `GET /admin/users`             | `admin.users.index`         | liste paginée (25), recherche `search` partielle et insensible à la casse sur l'email (jokers `%`/`_` échappés)     |
 | `/admin/categories/**`         | `admin.categories.*`        | taxonomie, cf. `docs/catalogue.md`                                                                                  |
 
-Architecture : controllers fins dans `app/controllers/admin/`, services `AdminDashboardService` / `AdminOrganizationService` / `AdminUserService`, transformers `Admin*Transformer`, types dans `shared/types/admin.ts`, pages `inertia/pages/admin/**` et navigation dédiée `inertia/components/admin/admin_nav.vue`. Les paramètres de filtre inconnus sont ignorés (repli sur les défauts). La page liste des organisations expose sa pagination dans la prop `organizationList` (et non `organizations`, déjà prise par le sélecteur d'organisation partagé).
+Architecture : controllers fins dans `app/controllers/admin/`, services `AdminDashboardService` / `AdminOrganizationService` / `AdminUserService`, transformers `Admin*Transformer`, types dans `shared/types/admin.ts`, pages `inertia/pages/admin/**` et onglets du back-office via le composable `useAdminTabs` (filtrés par droit). Les paramètres de filtre inconnus sont ignorés (repli sur les défauts). La page liste des organisations expose sa pagination dans la prop `organizationList` (et non `organizations`, déjà prise par le sélecteur d'organisation partagé).
 
 Tests : `tests/functional/admin_platform_role.spec.ts` (accès, commandes, comptes de démo), `admin_dashboard.spec.ts`, `admin_organizations.spec.ts`, `admin_users.spec.ts`, `admin_categories.spec.ts` (non-régression owner → 403) ; `tests/inertia/admin_users.spec.ts`. Factory : `UserFactory.apply('platformAdmin')`.
 

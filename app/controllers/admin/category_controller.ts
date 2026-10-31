@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
+import { adminActionContext } from '#services/admin_audit_service'
 import CategoryService from '#services/category_service'
 import CategoryAdminTransformer from '#transformers/category_admin_transformer'
 import CategoryEditTransformer from '#transformers/category_edit_transformer'
@@ -10,7 +11,8 @@ import type { Locale } from '#shared/types/i18n'
 
 /**
  * Administration de la taxonomie du catalogue (catégories globales). CRUD
- * complet réservé aux owner/admin (ability `canManageCategories`). Controller
+ * complet réservé au rôle plateforme qui porte `catalogue.manage` (ability
+ * `canManageCategories`) ; chaque écriture est inscrite au journal d'audit. Controller
  * fin : org + autorisation + validation → service.
  */
 @inject()
@@ -47,11 +49,12 @@ export default class CategoryController {
   /**
    * Crée la catégorie puis redirige vers la liste.
    */
-  async store({ bouncer, request, response, i18n, session }: HttpContext) {
+  async store(ctx: HttpContext) {
+    const { bouncer, request, response, i18n, session } = ctx
     await bouncer.authorize('canManageCategories')
 
     const payload = await request.validateUsing(createCategoryValidator)
-    await this.service.create(payload)
+    await this.service.create(payload, adminActionContext(ctx))
 
     session.flash('success', i18n.t('categories.flash.created'))
     return response.redirect().toRoute('admin.categories.index', { locale: i18n.locale })
@@ -77,7 +80,8 @@ export default class CategoryController {
    * Met à jour la catégorie. Garde-fou anti-cycle (défense en profondeur : le
    * formulaire exclut déjà les descendants).
    */
-  async update({ bouncer, request, response, params, i18n, session }: HttpContext) {
+  async update(ctx: HttpContext) {
+    const { bouncer, request, response, params, i18n, session } = ctx
     await bouncer.authorize('canManageCategories')
 
     const category = await this.service.findById(Number(params.id))
@@ -90,7 +94,7 @@ export default class CategoryController {
       return response.redirect().back()
     }
 
-    await this.service.update(category, payload)
+    await this.service.update(category, payload, adminActionContext(ctx))
 
     session.flash('success', i18n.t('categories.flash.updated'))
     return response.redirect().toRoute('admin.categories.index', { locale: i18n.locale })
@@ -100,7 +104,8 @@ export default class CategoryController {
    * Supprime la catégorie. Bloquée si elle porte des sous-catégories ou des
    * produits (flash d'erreur + retour arrière).
    */
-  async destroy({ bouncer, response, params, i18n, session }: HttpContext) {
+  async destroy(ctx: HttpContext) {
+    const { bouncer, response, params, i18n, session } = ctx
     await bouncer.authorize('canManageCategories')
 
     const category = await this.service.findById(Number(params.id))
@@ -115,7 +120,7 @@ export default class CategoryController {
       return response.redirect().back()
     }
 
-    await this.service.delete(category)
+    await this.service.delete(category, adminActionContext(ctx))
 
     session.flash('success', i18n.t('categories.flash.deleted'))
     return response.redirect().toRoute('admin.categories.index', { locale: i18n.locale })

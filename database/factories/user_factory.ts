@@ -27,4 +27,13 @@ export const UserFactory = factory
   .state('platformAdmin', (user) => {
     user.platformRole = 'admin'
   })
+  .state('platformModerator', (user) => {
+    user.platformRole = 'moderator'
+  })
+  .state('platformSupport', (user) => {
+    user.platformRole = 'support'
+  })
+  .state('platformAnalyst', (user) => {
+    user.platformRole = 'analyst'
+  })
   .build()
