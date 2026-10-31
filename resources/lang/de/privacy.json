@@ -2,7 +2,7 @@
   "heading": "Datenschutzerklärung",
   "eyebrow": "Datenschutz",
   "intro": "Wie PROMOTIONAL SOURCING die personenbezogenen Daten der Besucher von promotional-sourcing.eu gemäß DSGVO und dem französischen Gesetz „Informatique et Libertés“ erhebt, verwendet und schützt.",
-  "updatedAt": "30. Oktober 2026",
+  "updatedAt": "31. Oktober 2026",
   "seoTitle": "Datenschutzerklärung — Promotional Sourcing.eu",
   "seoDescription": "Wie PROMOTIONAL SOURCING Ihre personenbezogenen Daten gemäß DSGVO erhebt, verwendet und schützt.",
   "sections": {
@@ -12,11 +12,11 @@
     },
     "donnees-collectees": {
       "title": "Erhobene Daten",
-      "body": "<p>Wir erheben ausschließlich die Daten, die Sie uns freiwillig übermitteln:</p> <ul> <li><strong>Über das Kontaktformular</strong>: Vor- und Nachname, Unternehmen, Art der Anfrage (Kontakt oder Partnerschaft), geschäftliche E-Mail-Adresse, Telefonnummer (optional) und der Inhalt Ihrer Nachricht.</li> <li><strong>Technische Daten</strong>: die von unserem Hosting-Anbieter automatisch erzeugten Verbindungsprotokolle (IP-Adresse, Datum und Uhrzeit der Anfrage, aufgerufene Seiten, Browsertyp) zu Zwecken der Sicherheit und des ordnungsgemäßen Betriebs der Website.</li> </ul> <p>Über das für die Bearbeitung Ihrer Anfrage unbedingt Erforderliche hinaus ist kein Feld verpflichtend. Wir erheben keine sensiblen Daten im Sinne von Artikel 9 DSGVO.</p>"
+      "body": "<p>Wir erheben ausschließlich die Daten, die Sie uns freiwillig übermitteln:</p> <ul> <li><strong>Über das Kontaktformular</strong>: Vor- und Nachname, Unternehmen, Art der Anfrage (Kontakt oder Partnerschaft), geschäftliche E-Mail-Adresse, Telefonnummer (optional) und der Inhalt Ihrer Nachricht.</li> <li><strong>Technische Daten</strong>: die von unserem Hosting-Anbieter automatisch erzeugten Verbindungsprotokolle (IP-Adresse, Datum und Uhrzeit der Anfrage, aufgerufene Seiten, Browsertyp) zu Zwecken der Sicherheit und des ordnungsgemäßen Betriebs der Website.</li> <li><strong>Auf der Plattform durchgeführte Suchen</strong>: eingegebene Begriffe, gewählte Filter und Kategorie, Anzahl der Ergebnisse, Sprache, Datum und – sofern Sie angemeldet sind – Ihr Konto und Ihre Organisation.</li> </ul> <p>Über das für die Bearbeitung Ihrer Anfrage unbedingt Erforderliche hinaus ist kein Feld verpflichtend. Wir erheben keine sensiblen Daten im Sinne von Artikel 9 DSGVO.</p>"
     },
     "finalites": {
       "title": "Zwecke und Rechtsgrundlagen",
-      "body": "<ul> <li><strong>Beantwortung Ihrer Kontaktanfrage und Pflege der Geschäftsbeziehung</strong> — Rechtsgrundlage: das berechtigte Interesse von PROMOTIONAL SOURCING (Artikel 6 Abs. 1 Buchst. f DSGVO) an der Beantwortung einer geschäftlichen Anfrage, die Sie selbst veranlasst haben.</li> <li><strong>Gewährleistung der Sicherheit und Verfügbarkeit der Website</strong> — Rechtsgrundlage: berechtigtes Interesse (Artikel 6 Abs. 1 Buchst. f DSGVO).</li> </ul> <p>Ihre Daten werden weder verkauft noch vermietet noch zu Werbezwecken an Dritte weitergegeben.</p>"
+      "body": "<ul> <li><strong>Beantwortung Ihrer Kontaktanfrage und Pflege der Geschäftsbeziehung</strong> — Rechtsgrundlage: das berechtigte Interesse von PROMOTIONAL SOURCING (Artikel 6 Abs. 1 Buchst. f DSGVO) an der Beantwortung einer geschäftlichen Anfrage, die Sie selbst veranlasst haben.</li> <li><strong>Gewährleistung der Sicherheit und Verfügbarkeit der Website</strong> — Rechtsgrundlage: berechtigtes Interesse (Artikel 6 Abs. 1 Buchst. f DSGVO).</li> <li><strong>Verbesserung von Katalog und Suche</strong> (Suchen ohne Ergebnis, Synonyme, fehlende Produkte) – Rechtsgrundlage: berechtigtes Interesse (Art. 6 Abs. 1 lit. f DSGVO).</li> </ul> <p>Ihre Daten werden weder verkauft noch vermietet noch zu Werbezwecken an Dritte weitergegeben.</p>"
     },
     "destinataires": {
       "title": "Empfänger und Auftragsverarbeiter",
@@ -24,7 +24,7 @@
     },
     "conservation": {
       "title": "Speicherdauer",
-      "body": "<ul> <li><strong>Kontaktanfragen</strong>: 3 Jahre ab dem letzten Austausch mit Ihnen, gemäß der Empfehlung der CNIL für die B2B-Geschäftsanbahnung.</li> <li><strong>Verbindungsprotokolle</strong>: höchstens 12 Monate.</li> </ul> <p>Nach Ablauf dieser Fristen werden Ihre Daten gelöscht oder anonymisiert.</p>"
+      "body": "<ul> <li><strong>Kontaktanfragen</strong>: 3 Jahre ab dem letzten Austausch mit Ihnen, gemäß der Empfehlung der CNIL für die B2B-Geschäftsanbahnung.</li> <li><strong>Verbindungsprotokolle</strong>: höchstens 12 Monate.</li> <li><strong>Suchprotokoll</strong>: 90 Tage lang mit Ihrem Konto verknüpft, danach anonymisiert; nach 24 Monaten gelöscht.</li> </ul> <p>Nach Ablauf dieser Fristen werden Ihre Daten gelöscht oder anonymisiert.</p>"
     },
     "cookies": {
       "title": "Cookies und Reichweitenmessung",

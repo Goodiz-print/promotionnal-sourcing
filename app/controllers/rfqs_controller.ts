@@ -4,6 +4,7 @@ import { errors as vineErrors } from '@vinejs/vine'
 import CategoryService from '#services/category_service'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import ProductSearchService from '#services/product_search_service'
+import SearchEventService from '#services/search_event_service'
 import OrganizationContextService from '#services/organization_context_service'
 import QuoteService from '#services/quote_service'
 import emitter from '@adonisjs/core/services/emitter'
@@ -33,6 +34,7 @@ import {
 } from '#exceptions/rfq_errors'
 import type Organization from '#models/organization'
 import type Rfq from '#models/rfq'
+import type User from '#models/user'
 import type { Locale } from '#shared/types/i18n'
 import type { RfqProductLookupType } from '#shared/types/rfq'
 
@@ -74,7 +76,8 @@ export default class RfqsController {
     private categories: CategoryService,
     private catalogue: ProductCatalogueService,
     private productSearch: ProductSearchService,
-    private organizations: OrganizationContextService
+    private organizations: OrganizationContextService,
+    private searchEvents: SearchEventService
   ) {}
 
   /**
@@ -109,7 +112,7 @@ export default class RfqsController {
 
     return inertia.render('rfqs/create', {
       ...(await this.formData(locale)),
-      ...this.productLookup(inertia, productSearch, locale),
+      ...this.productLookup(inertia, productSearch, locale, auth.getUserOrFail()),
       prefillProduct: productId ? await this.findProduct(productId, locale) : undefined,
     })
   }
@@ -162,7 +165,7 @@ export default class RfqsController {
       quotes: quotes.map((quote) => new QuoteTransformer(quote).toObject()),
       canManageRfq: await bouncer.allows('canManageRfq', org),
       ...(await this.formData(locale)),
-      ...this.productLookup(inertia, productSearch, locale),
+      ...this.productLookup(inertia, productSearch, locale, auth.getUserOrFail()),
     })
   }
 
@@ -375,7 +378,8 @@ export default class RfqsController {
   private productLookup(
     inertia: HttpContext['inertia'],
     search: string | undefined,
-    locale: Locale
+    locale: Locale,
+    user: User
   ) {
     let lookup: Promise<RfqProductLookupType> | undefined
 
@@ -387,6 +391,13 @@ export default class RfqsController {
         // Mots-clés seuls via Meilisearch (ADR 0002) ; `null` : moteur indisponible,
         // que le sélecteur annonce au lieu d'afficher « aucun produit ».
         const products = await this.productSearch.lookup(search, PRODUCT_SEARCH_LIMIT)
+        // Journal des recherches (#171) : mis en file, n'échoue jamais.
+        await this.searchEvents.trackProductLookup({
+          search,
+          results: products?.length ?? null,
+          user,
+          locale,
+        })
         if (products === null) return { results: [], unavailable: true }
         return {
           results: products.map((product) =>

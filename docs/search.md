@@ -332,6 +332,26 @@ En CI, le job `test-search` démarre un vrai Meilisearch et rejoue les requêtes
 - Le `tsvector` par langue, le HNSW et les colonnes d'embeddings ont été retirés (migration `…drop_postgres_search_columns`, PR 3).
 - Réindexation à la montée de version de Meilisearch, snapshots et supervision : voir `docs/deploiement.md`.
 
+## Journal des recherches (#171)
+
+Chaque recherche significative d'un client est enregistrée dans `search_events`, **de façon asynchrone** : `SearchEventService` met un `RecordSearchEventJob` en file (aucun impact sur la latence), et un échec de la file n'affecte jamais la recherche (warning loggé). Ce que les clients cherchent — et ne trouvent pas — ne se rattrape pas après coup ; l'exploitation (écran admin) est suivie dans #173.
+
+| Colonne                         | Contenu                                                                                                |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `source`                        | `catalogue` (`/products`), `suppliers` (`/suppliers`), `rfq_lookup` (sélecteur de produit d'une RFQ)   |
+| `query`                         | terme normalisé (minuscules, espaces compactés, 200 caractères max) ; `NULL` en navigation par filtres |
+| `filters`, `category_id`        | filtres actifs (`jsonb`, seulement ceux posés) et catégorie choisie                                    |
+| `mode`                          | `semantic`, `keyword` (choix **ou repli** quand l'API d'embeddings échoue), `unavailable`, `browse`    |
+| `results_count`, `zero_results` | total de la recherche, et drapeau indexé des recherches sans résultat                                  |
+| `user_id`, `organization_id`    | `NULL` pour un visiteur anonyme ; `SET NULL` à la suppression du compte                                |
+| `locale`, `created_at`          | langue de l'interface et horodatage                                                                    |
+
+**Ce qui compte comme une recherche** : la première page uniquement (pagination et tri ne créent rien), et seulement si le visiteur a saisi un terme ou posé un filtre / une catégorie — l'ouverture nue du catalogue ou de l'annuaire n'écrit rien. Le mode réel est relevé par `ProductSearchService` via un `SearchTrace` optionnel. Le sélecteur de produit d'une RFQ n'écrit que sur le partial reload qui lance vraiment la recherche.
+
+**Dédoublonnage** : un utilisateur connecté qui rejoue la même recherche (même source, terme, filtres et catégorie) dans les 30 secondes n'écrit qu'une ligne. Un visiteur anonyme n'est pas dédoublonné (rien ne permet de savoir si c'est la même personne).
+
+**RGPD** : `PurgeSearchEventsJob` (planifié chaque nuit, `start/scheduler.ts`) détache les événements de plus de **90 jours** de leur utilisateur (`user_id` → `NULL`) et supprime ceux de plus de **24 mois**. Les durées sont dans `shared/types/search_event.ts`. La politique de confidentialité (9 langues) mentionne cette collecte, sa base légale (intérêt légitime) et ses durées. Un terme saisi peut contenir une donnée personnelle : c'est la raison de la rétention bornée.
+
 ## Tests
 
 - `tests/functional/search_indexing.spec.ts` : documents (noms par langue, facettes `attributeValueIds`, **facettes aplaties par slug** avec couleur famille déduite de la nuance, texte vectorisé), retrait des produits invisibles ou supprimés, idempotence, archivage et modération, réindexation par lots, déclencheurs — avec un moteur factice.
@@ -345,6 +365,7 @@ En CI, le job `test-search` démarre un vrai Meilisearch et rejoue les requêtes
 - `tests/functional/catalogue_numeric_facet.spec.ts` : barre de facettes prix/MOQ (`CatalogueNumericFacetService`) — compteurs par bucket (`facetDistribution` agrégée par tranche), un seul appel sans sélection puis deux appels avec cadrage excluant le champ compté, repli sans compteur (moteur inerte ou injoignable).
 - `tests/unit/product_origin_service.spec.ts` : dérivation `origin_zone` (France, Europe UE/EEE ou `madeInEurope`, autre, inconnue → `null`).
 - `tests/functional/product_identity_commercial.spec.ts` : persistance des champs d'identité/commercial/médias, dérivation et recalcul d'`origin_zone`, filtres provenance (OU) et « Nouveautés » du catalogue.
+- `tests/functional/search_events.spec.ts` : journal des recherches (#171) — catalogue (terme normalisé, modes sémantique / mots-clés / repli / indisponible, zéro résultat, filtres seuls, pagination et ouverture nue ignorées), annuaire, sélecteur RFQ, file indisponible sans effet sur la recherche, dédoublonnage, pseudonymisation et purge.
 - `tests/unit/search_evaluation.spec.ts` : verdict, rappel, percentiles.
 - `tests/functional/search_reference.spec.ts` : le jeu de référence contre un vrai Meilisearch (job CI `test-search`).
 

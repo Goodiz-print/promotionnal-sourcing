@@ -20,6 +20,7 @@ import PurgeExpiredInvitationsJob from '#jobs/purge_expired_invitations_job'
 import RecoverStorageUploadsJob from '#jobs/recover_storage_uploads_job'
 import ExpireRfqsJob from '#jobs/expire_rfqs_job'
 import RemindRfqSuppliersJob from '#jobs/remind_rfq_suppliers_job'
+import PurgeSearchEventsJob from '#jobs/purge_search_events_job'
 
 /**
  * Purge quotidienne des invitations d'organisation (bascule `pending` échues en
@@ -60,5 +61,15 @@ await ExpireRfqsJob.schedule({}).id('expire-rfqs').cron('10 0 * * *').timezone('
 await RemindRfqSuppliersJob.schedule({})
   .id('remind-rfq-suppliers')
   .cron('0 9 * * *')
+  .timezone('Europe/Paris')
+  .run()
+
+/**
+ * Pseudonymisation (90 jours) et purge (24 mois) du journal des recherches, de
+ * nuit — cf. `SearchEventService#purge`.
+ */
+await PurgeSearchEventsJob.schedule({})
+  .id('purge-search-events')
+  .cron('45 3 * * *')
   .timezone('Europe/Paris')
   .run()
