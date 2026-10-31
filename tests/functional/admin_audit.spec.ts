@@ -4,6 +4,8 @@ import CategorySeeder from '#database/seeders/category_seeder'
 import { AdminAuditLogFactory } from '#database/factories/admin_audit_log_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import AdminAuditLog from '#models/admin_audit_log'
+import Attribute from '#models/attribute'
+import AttributeValue from '#models/attribute_value'
 import Category from '#models/category'
 import { useDatabase } from '#tests/utils/setup'
 
@@ -203,6 +205,111 @@ test.group('Journal d’audit — actions sur les catégories', (group) => {
 
     await client
       .delete(`/fr/admin/categories/${parent.id}`)
+      .redirects(0)
+      .withCsrfToken()
+      .loginAs(admin)
+
+    assert.lengthOf(await AdminAuditLog.all(), 0)
+  })
+})
+
+test.group('Journal d’audit — actions sur les attributs', (group) => {
+  useDatabase(group, { seed: 'full' })
+
+  test('attribut et valeur : création, modification et suppression sont tracées', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+
+    await client
+      .post('/fr/admin/attributes')
+      .redirects(0)
+      .withCsrfToken()
+      .loginAs(admin)
+      .json({
+        slug: 'grammage-audit',
+        type: 'number',
+        unit: 'g/m²',
+        isFilterable: true,
+        sourceLocale: 'fr',
+        translations: { fr: { name: 'Grammage' } },
+      })
+    const attribute = await Attribute.findByOrFail('slug', 'grammage-audit')
+
+    await client
+      .patch(`/fr/admin/attributes/${attribute.id}`)
+      .redirects(0)
+      .withCsrfToken()
+      .loginAs(admin)
+      .json({ unit: 'kg/m²', isFilterable: false, translations: { fr: { name: 'Grammage' } } })
+
+    await client
+      .post(`/fr/admin/attributes/${attribute.id}/values`)
+      .redirects(0)
+      .withCsrfToken()
+      .loginAs(admin)
+      .json({ slug: 'lourd', sourceLocale: 'fr', translations: { fr: { label: 'Lourd' } } })
+    const value = await AttributeValue.query()
+      .where('attributeId', attribute.id)
+      .where('slug', 'lourd')
+      .firstOrFail()
+
+    await client
+      .patch(`/fr/admin/attributes/${attribute.id}/values/${value.id}`)
+      .redirects(0)
+      .withCsrfToken()
+      .loginAs(admin)
+      .json({ sourceLocale: 'fr', translations: { fr: { label: 'Très lourd' } } })
+
+    await client
+      .delete(`/fr/admin/attributes/${attribute.id}/values/${value.id}`)
+      .redirects(0)
+      .withCsrfToken()
+      .loginAs(admin)
+    await client
+      .delete(`/fr/admin/attributes/${attribute.id}`)
+      .redirects(0)
+      .withCsrfToken()
+      .loginAs(admin)
+
+    const entries = await AdminAuditLog.query()
+      .whereIn('action', [
+        'attribute.created',
+        'attribute.updated',
+        'attribute.deleted',
+        'attribute_value.created',
+        'attribute_value.updated',
+        'attribute_value.deleted',
+      ])
+      .orderBy('id')
+    assert.deepEqual(
+      entries.map((entry) => [entry.action, entry.targetType]),
+      [
+        ['attribute.created', 'attribute'],
+        ['attribute.updated', 'attribute'],
+        ['attribute_value.created', 'attribute_value'],
+        ['attribute_value.updated', 'attribute_value'],
+        ['attribute_value.deleted', 'attribute_value'],
+        ['attribute.deleted', 'attribute'],
+      ]
+    )
+    for (const entry of entries) assert.equal(entry.actorUserId, admin.id)
+    assert.deepEqual(entries[1].changes, {
+      before: { unit: 'g/m²', isFilterable: true, sourceLocale: 'fr' },
+      after: { unit: 'kg/m²', isFilterable: false, sourceLocale: 'fr' },
+    })
+  })
+
+  test('une suppression refusée (attribut utilisé) n’écrit aucune entrée', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const color = await Attribute.findByOrFail('slug', 'color')
+
+    await client
+      .delete(`/fr/admin/attributes/${color.id}`)
       .redirects(0)
       .withCsrfToken()
       .loginAs(admin)

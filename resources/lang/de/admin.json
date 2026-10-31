@@ -137,11 +137,19 @@
       "platform_role.changed": "Plattformrolle geändert",
       "category.created": "Kategorie erstellt",
       "category.updated": "Kategorie geändert",
-      "category.deleted": "Kategorie gelöscht"
+      "category.deleted": "Kategorie gelöscht",
+      "attribute.created": "Attribut erstellt",
+      "attribute.updated": "Attribut geändert",
+      "attribute.deleted": "Attribut gelöscht",
+      "attribute_value.created": "Attributwert erstellt",
+      "attribute_value.updated": "Attributwert geändert",
+      "attribute_value.deleted": "Attributwert gelöscht"
     },
     "targets": {
       "user": "Benutzer",
-      "category": "Kategorie"
+      "category": "Kategorie",
+      "attribute": "Attribut",
+      "attribute_value": "Attributwert"
     }
   }
 }

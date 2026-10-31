@@ -5,6 +5,7 @@ import Attribute from '#models/attribute'
 import AttributeTranslation from '#models/attribute_translation'
 import AttributeValue from '#models/attribute_value'
 import AttributeValueTranslation from '#models/attribute_value_translation'
+import AdminAuditService from '#services/admin_audit_service'
 import TranslationQueueService from '#services/translation_queue_service'
 import {
   AttributeInUseException,
@@ -13,6 +14,7 @@ import {
 } from '#exceptions/catalogue_errors'
 import { missingSourceTranslation } from '#exceptions/translation_errors'
 import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
+import type { AdminActionContext } from '#shared/types/admin_audit'
 import type {
   CreateAttributeData,
   CreateAttributeValueData,
@@ -32,7 +34,10 @@ import type {
  */
 @inject()
 export default class AttributeService {
-  constructor(private translationQueue: TranslationQueueService) {}
+  constructor(
+    private translationQueue: TranslationQueueService,
+    private audit: AdminAuditService
+  ) {}
 
   /**
    * Liste d'administration : facettes triées par slug, avec le nombre de valeurs
@@ -101,7 +106,7 @@ export default class AttributeService {
       .first()
   }
 
-  async create(data: CreateAttributeData): Promise<Attribute> {
+  async create(data: CreateAttributeData, context: AdminActionContext): Promise<Attribute> {
     if (!data.translations[data.sourceLocale]) throw missingSourceTranslation(data.sourceLocale)
 
     const attribute = await db.transaction(async (trx) => {
@@ -116,6 +121,15 @@ export default class AttributeService {
         { client: trx }
       )
       await this.writeAttributeTranslations(created, data.translations, trx)
+      await this.audit.record(
+        {
+          action: 'attribute.created',
+          targetType: 'attribute',
+          targetId: created.id,
+          changes: { after: { slug: created.slug, type: created.type } },
+        },
+        { ...context, client: trx }
+      )
       return created
     })
     await this.translationQueue.queue('attribute', attribute.id, data.sourceLocale)
@@ -126,7 +140,11 @@ export default class AttributeService {
    * Mise à jour partielle (unité, filtrabilité, traductions). Seul ce qui est
    * fourni est modifié.
    */
-  async update(attribute: Attribute, data: UpdateAttributeData): Promise<Attribute> {
+  async update(
+    attribute: Attribute,
+    data: UpdateAttributeData,
+    context: AdminActionContext
+  ): Promise<Attribute> {
     const sourceLocale = (data.sourceLocale ?? attribute.sourceLocale) as ContentLocale
     if (!data.translations?.[sourceLocale]?.name) {
       const existing = await AttributeTranslation.query()
@@ -136,6 +154,13 @@ export default class AttributeService {
       if (!existing) throw missingSourceTranslation(sourceLocale)
     }
 
+    const snapshot = (source: Attribute) => ({
+      unit: source.unit,
+      isFilterable: source.isFilterable,
+      sourceLocale: source.sourceLocale,
+    })
+    const before = snapshot(attribute)
+
     await db.transaction(async (trx) => {
       attribute.useTransaction(trx)
       attribute.sourceLocale = sourceLocale
@@ -143,6 +168,15 @@ export default class AttributeService {
       if (data.isFilterable !== undefined) attribute.isFilterable = data.isFilterable
       await attribute.save()
       await this.writeAttributeTranslations(attribute, data.translations, trx)
+      await this.audit.record(
+        {
+          action: 'attribute.updated',
+          targetType: 'attribute',
+          targetId: attribute.id,
+          changes: { before, after: snapshot(attribute) },
+        },
+        { ...context, client: trx }
+      )
     })
     await this.translationQueue.queue('attribute', attribute.id, sourceLocale)
     return attribute
@@ -152,17 +186,32 @@ export default class AttributeService {
    * Supprime la facette (traductions et valeurs partent en cascade DB). Refusé
    * si des produits la renseignent ou si une catégorie l'a retenue.
    */
-  async delete(attribute: Attribute): Promise<void> {
+  async delete(attribute: Attribute, context: AdminActionContext): Promise<void> {
     if (await this.exists('product_attributes', 'attribute_id', attribute.id)) {
       throw new AttributeInUseException('products')
     }
     if (await this.exists('category_attributes', 'attribute_id', attribute.id)) {
       throw new AttributeInUseException('categories')
     }
-    await attribute.delete()
+    await db.transaction(async (trx) => {
+      await attribute.useTransaction(trx).delete()
+      await this.audit.record(
+        {
+          action: 'attribute.deleted',
+          targetType: 'attribute',
+          targetId: attribute.id,
+          changes: { before: { slug: attribute.slug, type: attribute.type } },
+        },
+        { ...context, client: trx }
+      )
+    })
   }
 
-  async createValue(attribute: Attribute, data: CreateAttributeValueData): Promise<AttributeValue> {
+  async createValue(
+    attribute: Attribute,
+    data: CreateAttributeValueData,
+    context: AdminActionContext
+  ): Promise<AttributeValue> {
     if (!data.translations[data.sourceLocale]) throw missingSourceTranslation(data.sourceLocale)
 
     const taken = await AttributeValue.query()
@@ -183,6 +232,15 @@ export default class AttributeService {
         { client: trx }
       )
       await this.writeValueTranslations(created, data.translations, trx)
+      await this.audit.record(
+        {
+          action: 'attribute_value.created',
+          targetType: 'attribute_value',
+          targetId: created.id,
+          changes: { after: { attributeId: attribute.id, slug: created.slug } },
+        },
+        { ...context, client: trx }
+      )
       return created
     })
     await this.translationQueue.queue('attribute_value', value.id, data.sourceLocale)
@@ -191,7 +249,8 @@ export default class AttributeService {
 
   async updateValue(
     value: AttributeValue,
-    data: UpdateAttributeValueData
+    data: UpdateAttributeValueData,
+    context: AdminActionContext
   ): Promise<AttributeValue> {
     const sourceLocale = (data.sourceLocale ?? value.sourceLocale) as ContentLocale
     if (!data.translations?.[sourceLocale]?.label) {
@@ -202,12 +261,23 @@ export default class AttributeService {
       if (!existing) throw missingSourceTranslation(sourceLocale)
     }
 
+    const before = { sourceLocale: value.sourceLocale }
+
     await db.transaction(async (trx) => {
       value.useTransaction(trx)
       value.sourceLocale = sourceLocale
       if (data.synonyms !== undefined) value.synonyms = data.synonyms
       await value.save()
       await this.writeValueTranslations(value, data.translations, trx)
+      await this.audit.record(
+        {
+          action: 'attribute_value.updated',
+          targetType: 'attribute_value',
+          targetId: value.id,
+          changes: { before, after: { sourceLocale: value.sourceLocale } },
+        },
+        { ...context, client: trx }
+      )
     })
     await this.translationQueue.queue('attribute_value', value.id, sourceLocale)
     return value
@@ -217,14 +287,25 @@ export default class AttributeService {
    * Supprime une valeur. Refusé si des produits la portent ou si des nuances de
    * couleur lui sont rattachées (`parent_value_id`).
    */
-  async deleteValue(value: AttributeValue): Promise<void> {
+  async deleteValue(value: AttributeValue, context: AdminActionContext): Promise<void> {
     if (await this.exists('product_attributes', 'attribute_value_id', value.id)) {
       throw new AttributeValueInUseException('products')
     }
     if (await this.exists('attribute_values', 'parent_value_id', value.id)) {
       throw new AttributeValueInUseException('children')
     }
-    await value.delete()
+    await db.transaction(async (trx) => {
+      await value.useTransaction(trx).delete()
+      await this.audit.record(
+        {
+          action: 'attribute_value.deleted',
+          targetType: 'attribute_value',
+          targetId: value.id,
+          changes: { before: { attributeId: value.attributeId, slug: value.slug } },
+        },
+        { ...context, client: trx }
+      )
+    })
   }
 
   private async exists(table: string, column: string, id: number): Promise<boolean> {

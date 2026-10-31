@@ -137,11 +137,19 @@
       "platform_role.changed": "Platformrol gewijzigd",
       "category.created": "Categorie aangemaakt",
       "category.updated": "Categorie gewijzigd",
-      "category.deleted": "Categorie verwijderd"
+      "category.deleted": "Categorie verwijderd",
+      "attribute.created": "Attribuut aangemaakt",
+      "attribute.updated": "Attribuut gewijzigd",
+      "attribute.deleted": "Attribuut verwijderd",
+      "attribute_value.created": "Attribuutwaarde aangemaakt",
+      "attribute_value.updated": "Attribuutwaarde gewijzigd",
+      "attribute_value.deleted": "Attribuutwaarde verwijderd"
     },
     "targets": {
       "user": "Gebruiker",
-      "category": "Categorie"
+      "category": "Categorie",
+      "attribute": "Attribuut",
+      "attribute_value": "Attribuutwaarde"
     }
   }
 }

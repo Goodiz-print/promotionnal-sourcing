@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
+import { adminActionContext } from '#services/admin_audit_service'
 import AttributeService from '#services/attribute_service'
 import {
   AttributeNotFoundException,
@@ -17,25 +18,27 @@ import { createAttributeValueValidator, updateAttributeValueValidator } from '#v
 export default class AttributeValueController {
   constructor(private service: AttributeService) {}
 
-  async store({ bouncer, request, response, params, i18n, session }: HttpContext) {
+  async store(ctx: HttpContext) {
+    const { bouncer, request, response, params, i18n, session } = ctx
     await bouncer.authorize('canManageAttributes')
 
     const attribute = await this.service.findById(Number(params.id))
     if (!attribute) throw new AttributeNotFoundException()
 
     const payload = await request.validateUsing(createAttributeValueValidator)
-    await this.service.createValue(attribute, payload)
+    await this.service.createValue(attribute, payload, adminActionContext(ctx))
 
     session.flash('success', i18n.t('attributes.flash.valueCreated'))
     return response.redirect().back()
   }
 
-  async update({ bouncer, request, response, params, i18n, session }: HttpContext) {
+  async update(ctx: HttpContext) {
+    const { bouncer, request, response, params, i18n, session } = ctx
     await bouncer.authorize('canManageAttributes')
 
     const value = await this.findValue(params.id, params.valueId)
     const payload = await request.validateUsing(updateAttributeValueValidator)
-    await this.service.updateValue(value, payload)
+    await this.service.updateValue(value, payload, adminActionContext(ctx))
 
     session.flash('success', i18n.t('attributes.flash.valueUpdated'))
     return response.redirect().back()
@@ -45,13 +48,14 @@ export default class AttributeValueController {
    * Supprime la valeur. Refusée si des produits la portent ou si des nuances lui
    * sont rattachées (flash d'erreur + retour arrière).
    */
-  async destroy({ bouncer, response, params, i18n, session }: HttpContext) {
+  async destroy(ctx: HttpContext) {
+    const { bouncer, response, params, i18n, session } = ctx
     await bouncer.authorize('canManageAttributes')
 
     const value = await this.findValue(params.id, params.valueId)
 
     try {
-      await this.service.deleteValue(value)
+      await this.service.deleteValue(value, adminActionContext(ctx))
     } catch (error) {
       if (!(error instanceof AttributeValueInUseException)) throw error
       session.flash('error', i18n.t(`attributes.flash.valueInUse.${error.reason}`))

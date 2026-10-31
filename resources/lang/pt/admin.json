@@ -137,11 +137,19 @@
       "platform_role.changed": "Função de plataforma alterada",
       "category.created": "Categoria criada",
       "category.updated": "Categoria alterada",
-      "category.deleted": "Categoria eliminada"
+      "category.deleted": "Categoria eliminada",
+      "attribute.created": "Atributo criado",
+      "attribute.updated": "Atributo alterado",
+      "attribute.deleted": "Atributo eliminado",
+      "attribute_value.created": "Valor de atributo criado",
+      "attribute_value.updated": "Valor de atributo alterado",
+      "attribute_value.deleted": "Valor de atributo eliminado"
     },
     "targets": {
       "user": "Utilizador",
-      "category": "Categoria"
+      "category": "Categoria",
+      "attribute": "Atributo",
+      "attribute_value": "Valor de atributo"
     }
   }
 }

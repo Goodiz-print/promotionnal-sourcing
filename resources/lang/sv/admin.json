@@ -137,11 +137,19 @@
       "platform_role.changed": "Plattformsroll ändrad",
       "category.created": "Kategori skapad",
       "category.updated": "Kategori ändrad",
-      "category.deleted": "Kategori borttagen"
+      "category.deleted": "Kategori borttagen",
+      "attribute.created": "Attribut skapad",
+      "attribute.updated": "Attribut ändrad",
+      "attribute.deleted": "Attribut borttagen",
+      "attribute_value.created": "Attributvärde skapat",
+      "attribute_value.updated": "Attributvärde ändrat",
+      "attribute_value.deleted": "Attributvärde borttaget"
     },
     "targets": {
       "user": "Användare",
-      "category": "Kategori"
+      "category": "Kategori",
+      "attribute": "Attribut",
+      "attribute_value": "Attributvärde"
     }
   }
 }

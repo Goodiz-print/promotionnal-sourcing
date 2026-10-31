@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
+import { adminActionContext } from '#services/admin_audit_service'
 import AttributeService from '#services/attribute_service'
 import AttributeAdminTransformer from '#transformers/attribute_admin_transformer'
 import AttributeEditTransformer from '#transformers/attribute_edit_transformer'
@@ -39,11 +40,12 @@ export default class AttributeController {
   /**
    * Crée la facette puis ouvre son écran d'édition, pour ajouter ses valeurs.
    */
-  async store({ bouncer, request, response, i18n, session }: HttpContext) {
+  async store(ctx: HttpContext) {
+    const { bouncer, request, response, i18n, session } = ctx
     await bouncer.authorize('canManageAttributes')
 
     const payload = await request.validateUsing(createAttributeValidator)
-    const attribute = await this.service.create(payload)
+    const attribute = await this.service.create(payload, adminActionContext(ctx))
 
     session.flash('success', i18n.t('attributes.flash.created'))
     return response
@@ -62,14 +64,15 @@ export default class AttributeController {
     })
   }
 
-  async update({ bouncer, request, response, params, i18n, session }: HttpContext) {
+  async update(ctx: HttpContext) {
+    const { bouncer, request, response, params, i18n, session } = ctx
     await bouncer.authorize('canManageAttributes')
 
     const attribute = await this.service.findById(Number(params.id))
     if (!attribute) throw new AttributeNotFoundException()
 
     const payload = await request.validateUsing(updateAttributeValidator)
-    await this.service.update(attribute, payload)
+    await this.service.update(attribute, payload, adminActionContext(ctx))
 
     session.flash('success', i18n.t('attributes.flash.updated'))
     return response.redirect().toRoute('admin.attributes.index', { locale: i18n.locale })
@@ -79,14 +82,15 @@ export default class AttributeController {
    * Supprime la facette. Refusée si des produits ou des catégories l'utilisent
    * (flash d'erreur + retour arrière).
    */
-  async destroy({ bouncer, response, params, i18n, session }: HttpContext) {
+  async destroy(ctx: HttpContext) {
+    const { bouncer, response, params, i18n, session } = ctx
     await bouncer.authorize('canManageAttributes')
 
     const attribute = await this.service.findById(Number(params.id))
     if (!attribute) throw new AttributeNotFoundException()
 
     try {
-      await this.service.delete(attribute)
+      await this.service.delete(attribute, adminActionContext(ctx))
     } catch (error) {
       if (!(error instanceof AttributeInUseException)) throw error
       session.flash('error', i18n.t(`attributes.flash.inUse.${error.reason}`))

@@ -7,11 +7,22 @@ export const ADMIN_AUDIT_ACTIONS = [
   'category.created',
   'category.updated',
   'category.deleted',
+  'attribute.created',
+  'attribute.updated',
+  'attribute.deleted',
+  'attribute_value.created',
+  'attribute_value.updated',
+  'attribute_value.deleted',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]
 
-export const ADMIN_AUDIT_TARGET_TYPES = ['user', 'category'] as const
+export const ADMIN_AUDIT_TARGET_TYPES = [
+  'user',
+  'category',
+  'attribute',
+  'attribute_value',
+] as const
 
 export type AdminAuditTargetType = (typeof ADMIN_AUDIT_TARGET_TYPES)[number]
 

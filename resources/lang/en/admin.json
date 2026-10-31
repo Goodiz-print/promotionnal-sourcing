@@ -137,11 +137,19 @@
       "platform_role.changed": "Platform role changed",
       "category.created": "Category created",
       "category.updated": "Category updated",
-      "category.deleted": "Category deleted"
+      "category.deleted": "Category deleted",
+      "attribute.created": "Attribute created",
+      "attribute.updated": "Attribute updated",
+      "attribute.deleted": "Attribute deleted",
+      "attribute_value.created": "Attribute value created",
+      "attribute_value.updated": "Attribute value updated",
+      "attribute_value.deleted": "Attribute value deleted"
     },
     "targets": {
       "user": "User",
-      "category": "Category"
+      "category": "Category",
+      "attribute": "Attribute",
+      "attribute_value": "Attribute value"
     }
   }
 }

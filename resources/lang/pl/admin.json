@@ -137,11 +137,19 @@
       "platform_role.changed": "Zmieniono rolę platformową",
       "category.created": "Utworzono kategorię",
       "category.updated": "Zmieniono kategorię",
-      "category.deleted": "Usunięto kategorię"
+      "category.deleted": "Usunięto kategorię",
+      "attribute.created": "Utworzono atrybut",
+      "attribute.updated": "Zmieniono atrybut",
+      "attribute.deleted": "Usunięto atrybut",
+      "attribute_value.created": "Utworzono wartość atrybutu",
+      "attribute_value.updated": "Zmieniono wartość atrybutu",
+      "attribute_value.deleted": "Usunięto wartość atrybutu"
     },
     "targets": {
       "user": "Użytkownik",
-      "category": "Kategoria"
+      "category": "Kategoria",
+      "attribute": "Atrybut",
+      "attribute_value": "Wartość atrybutu"
     }
   }
 }
