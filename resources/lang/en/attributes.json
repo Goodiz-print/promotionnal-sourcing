@@ -1,0 +1,90 @@
+{
+  "index": {
+    "title": "Attributes",
+    "subtitle": "Manage the catalogue facets (colour, material, weight…) and their values.",
+    "empty": "No attributes yet. Create one.",
+    "emptyDescription": "Attributes power the catalogue filters and the product pages.",
+    "columns": {
+      "name": "Name",
+      "slug": "Identifier",
+      "type": "Type",
+      "filterable": "Filterable",
+      "values": "Values",
+      "products": "Products",
+      "actions": "Actions"
+    },
+    "yes": "Yes",
+    "no": "No"
+  },
+  "create": {
+    "title": "New attribute",
+    "subtitle": "Add a facet to the catalogue."
+  },
+  "update": {
+    "title": "Edit attribute",
+    "subtitle": "Edit the name, unit and values of “{slug}”."
+  },
+  "edit": "Edit",
+  "newAttribute": "New attribute",
+  "delete": "Delete",
+  "save": "Save",
+  "cancel": "Cancel",
+  "confirmDelete": "Delete this attribute?",
+  "back": "Back to attributes",
+  "fields": {
+    "slug": "Identifier (slug)",
+    "slugHint": "Lowercase letters, digits and hyphens. Cannot be changed later.",
+    "slugPlaceholder": "e.g. weight",
+    "type": "Type",
+    "typeHint": "Cannot be changed after creation.",
+    "unit": "Unit",
+    "unitHint": "For a numeric attribute (e.g. g/m²).",
+    "unitPlaceholder": "e.g. g/m²",
+    "isFilterable": "Filterable",
+    "isFilterableHint": "Shows the attribute in the catalogue filters.",
+    "name": "Name"
+  },
+  "types": {
+    "string": "Text",
+    "number": "Number",
+    "boolean": "Yes / no",
+    "enum": "List of values"
+  },
+  "form": {
+    "identity": "Identification",
+    "identityDescription": "Technical identifier, type and unit of the facet.",
+    "content": "Content in {language}",
+    "otherLocale": "Other language to show"
+  },
+  "values": {
+    "title": "Values",
+    "description": "Each value is a choice offered to suppliers and buyers. Other languages are generated automatically.",
+    "empty": "No values yet.",
+    "new": "Add a value",
+    "slug": "Identifier (slug)",
+    "slugPlaceholder": "e.g. red",
+    "label": "Label",
+    "synonyms": "Synonyms",
+    "synonymsPlaceholder": "e.g. bright red, rouge",
+    "add": "Add",
+    "delete": "Delete value",
+    "confirmDelete": "Delete this value?",
+    "productsCount": "{count, plural, one {# product} other {# products}}"
+  },
+  "flash": {
+    "created": "Attribute created.",
+    "updated": "Attribute updated.",
+    "deleted": "Attribute deleted.",
+    "inUse": {
+      "products": "Cannot delete: products use this attribute.",
+      "categories": "Cannot delete: categories use this attribute."
+    },
+    "valueCreated": "Value added.",
+    "valueUpdated": "Value updated.",
+    "valueDeleted": "Value deleted.",
+    "valueInUse": {
+      "products": "Cannot delete: products carry this value.",
+      "children": "Cannot delete: shades are attached to this value."
+    }
+  }
+}

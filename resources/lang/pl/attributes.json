@@ -1,0 +1,90 @@
+{
+  "index": {
+    "title": "Atrybuty",
+    "subtitle": "Zarządzaj fasetami katalogu (kolor, materiał, gramatura…) i ich wartościami.",
+    "empty": "Brak atrybutów. Utwórz pierwszy.",
+    "emptyDescription": "Atrybuty zasilają filtry katalogu i karty produktów.",
+    "columns": {
+      "name": "Nazwa",
+      "slug": "Identyfikator",
+      "type": "Typ",
+      "filterable": "Filtrowalny",
+      "values": "Wartości",
+      "products": "Produkty",
+      "actions": "Akcje"
+    },
+    "yes": "Tak",
+    "no": "Nie"
+  },
+  "create": {
+    "title": "Nowy atrybut",
+    "subtitle": "Dodaj fasetę do katalogu."
+  },
+  "update": {
+    "title": "Edytuj atrybut",
+    "subtitle": "Edytuj nazwę, jednostkę i wartości „{slug}”."
+  },
+  "edit": "Edytuj",
+  "newAttribute": "Nowy atrybut",
+  "delete": "Usuń",
+  "save": "Zapisz",
+  "cancel": "Anuluj",
+  "confirmDelete": "Usunąć ten atrybut?",
+  "back": "Wróć do atrybutów",
+  "fields": {
+    "slug": "Identyfikator (slug)",
+    "slugHint": "Małe litery, cyfry i myślniki. Nie można zmienić później.",
+    "slugPlaceholder": "np. gramatura",
+    "type": "Typ",
+    "typeHint": "Nie można zmienić po utworzeniu.",
+    "unit": "Jednostka",
+    "unitHint": "Dla atrybutu liczbowego (np. g/m²).",
+    "unitPlaceholder": "np. g/m²",
+    "isFilterable": "Filtrowalny",
+    "isFilterableHint": "Pokazuje atrybut w filtrach katalogu.",
+    "name": "Nazwa"
+  },
+  "types": {
+    "string": "Tekst",
+    "number": "Liczba",
+    "boolean": "Tak / nie",
+    "enum": "Lista wartości"
+  },
+  "form": {
+    "identity": "Identyfikacja",
+    "identityDescription": "Identyfikator techniczny, typ i jednostka fasety.",
+    "content": "Treść w języku: {language}",
+    "otherLocale": "Inny język do wyświetlenia"
+  },
+  "values": {
+    "title": "Wartości",
+    "description": "Każda wartość to opcja dla dostawców i kupujących. Pozostałe języki są generowane automatycznie.",
+    "empty": "Brak wartości.",
+    "new": "Dodaj wartość",
+    "slug": "Identyfikator (slug)",
+    "slugPlaceholder": "np. czerwony",
+    "label": "Etykieta",
+    "synonyms": "Synonimy",
+    "synonymsPlaceholder": "np. jaskrawoczerwony, red",
+    "add": "Dodaj",
+    "delete": "Usuń wartość",
+    "confirmDelete": "Usunąć tę wartość?",
+    "productsCount": "{count, plural, one {# produkt} few {# produkty} many {# produktów} other {# produktu}}"
+  },
+  "flash": {
+    "created": "Atrybut utworzony.",
+    "updated": "Atrybut zaktualizowany.",
+    "deleted": "Atrybut usunięty.",
+    "inUse": {
+      "products": "Nie można usunąć: produkty używają tego atrybutu.",
+      "categories": "Nie można usunąć: kategorie używają tego atrybutu."
+    },
+    "valueCreated": "Wartość dodana.",
+    "valueUpdated": "Wartość zaktualizowana.",
+    "valueDeleted": "Wartość usunięta.",
+    "valueInUse": {
+      "products": "Nie można usunąć: produkty mają tę wartość.",
+      "children": "Nie można usunąć: do tej wartości przypisane są odcienie."
+    }
+  }
+}

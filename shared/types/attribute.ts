@@ -5,7 +5,8 @@ import type { ContentLocale, Locale } from './i18n.js'
  * `enum` : valeurs enumerees (couleur, matiere) ; `number` : mesure libre
  * (grammage) ; `string`/`boolean` : cas simples.
  */
-export type AttributeDataType = 'string' | 'number' | 'boolean' | 'enum'
+export const ATTRIBUTE_DATA_TYPES = ['string', 'number', 'boolean', 'enum'] as const
+export type AttributeDataType = (typeof ATTRIBUTE_DATA_TYPES)[number]
 
 export interface AttributeTranslationType {
   locale: Locale
@@ -55,24 +56,83 @@ export type AttributeWithValuesType = AttributeType & {
   values: AttributeValueType[]
 }
 
+/**
+ * Création d'une facette (administration, #48). Le `type` et le `slug` sont
+ * figés ensuite : les produits, les filtres et les URLs s'appuient dessus.
+ * Seule la traduction de `sourceLocale` est requise, les autres langues sont
+ * générées (#75).
+ */
 export interface CreateAttributeData {
   slug: string
-  type?: AttributeDataType
+  type: AttributeDataType
   unit?: string | null
   isFilterable?: boolean
+  sourceLocale: ContentLocale
   translations: Partial<Record<ContentLocale, { name: string }>>
 }
 
-export interface UpdateAttributeData extends Partial<CreateAttributeData> {}
+export interface UpdateAttributeData {
+  unit?: string | null
+  isFilterable?: boolean
+  sourceLocale?: ContentLocale
+  translations?: Partial<Record<ContentLocale, { name?: string }>>
+}
 
+/**
+ * Création d'une valeur de facette. La valeur canonique (`value`, utilisée par
+ * le filtrage) reprend le `slug`, figé ensuite.
+ */
 export interface CreateAttributeValueData {
-  attributeId: number
-  value: string
   slug: string
+  sourceLocale: ContentLocale
   synonyms?: string[]
   translations: Partial<Record<ContentLocale, { label: string }>>
 }
 
-export interface UpdateAttributeValueData extends Partial<
-  Omit<CreateAttributeValueData, 'attributeId'>
-> {}
+export interface UpdateAttributeValueData {
+  sourceLocale?: ContentLocale
+  synonyms?: string[]
+  translations?: Partial<Record<ContentLocale, { label?: string }>>
+}
+
+/**
+ * Ligne de la liste d'administration des facettes. Déclaré en `type` (props
+ * Inertia).
+ */
+export type AttributeAdminType = {
+  id: number
+  slug: string
+  name: string | null
+  type: AttributeDataType
+  unit: string | null
+  isFilterable: boolean
+  valuesCount: number
+  /** Nombre de produits qui renseignent cette facette. */
+  productsCount: number
+}
+
+/**
+ * Valeur éditée en ligne : seul le libellé de sa langue source est modifiable
+ * dans l'écran, les autres langues sont générées.
+ */
+export type AttributeValueEditType = {
+  id: number
+  slug: string
+  sourceLocale: ContentLocale
+  /** Libellé dans `sourceLocale` (chaîne vide si absent). */
+  label: string
+  synonyms: string[]
+  /** Valeur utilisée par des produits : suppression refusée. */
+  productsCount: number
+}
+
+export type AttributeEditType = {
+  id: number
+  slug: string
+  type: AttributeDataType
+  unit: string | null
+  isFilterable: boolean
+  sourceLocale: ContentLocale
+  translations: Record<ContentLocale, { name: string; isAuto: boolean }>
+  values: AttributeValueEditType[]
+}

@@ -1,0 +1,90 @@
+{
+  "index": {
+    "title": "Attributen",
+    "subtitle": "Beheer de catalogusfacetten (kleur, materiaal, gramsgewicht…) en hun waarden.",
+    "empty": "Nog geen attributen. Maak er een aan.",
+    "emptyDescription": "Attributen voeden de catalogusfilters en de productpagina’s.",
+    "columns": {
+      "name": "Naam",
+      "slug": "Identificatie",
+      "type": "Type",
+      "filterable": "Filterbaar",
+      "values": "Waarden",
+      "products": "Producten",
+      "actions": "Acties"
+    },
+    "yes": "Ja",
+    "no": "Nee"
+  },
+  "create": {
+    "title": "Nieuw attribuut",
+    "subtitle": "Voeg een facet toe aan de catalogus."
+  },
+  "update": {
+    "title": "Attribuut bewerken",
+    "subtitle": "Bewerk de naam, eenheid en waarden van “{slug}”."
+  },
+  "edit": "Bewerken",
+  "newAttribute": "Nieuw attribuut",
+  "delete": "Verwijderen",
+  "save": "Opslaan",
+  "cancel": "Annuleren",
+  "confirmDelete": "Dit attribuut verwijderen?",
+  "back": "Terug naar attributen",
+  "fields": {
+    "slug": "Identificatie (slug)",
+    "slugHint": "Kleine letters, cijfers en koppeltekens. Later niet te wijzigen.",
+    "slugPlaceholder": "bijv. gramsgewicht",
+    "type": "Type",
+    "typeHint": "Niet te wijzigen na aanmaak.",
+    "unit": "Eenheid",
+    "unitHint": "Voor een numeriek attribuut (bijv. g/m²).",
+    "unitPlaceholder": "bijv. g/m²",
+    "isFilterable": "Filterbaar",
+    "isFilterableHint": "Toont het attribuut in de catalogusfilters.",
+    "name": "Naam"
+  },
+  "types": {
+    "string": "Tekst",
+    "number": "Getal",
+    "boolean": "Ja / nee",
+    "enum": "Lijst met waarden"
+  },
+  "form": {
+    "identity": "Identificatie",
+    "identityDescription": "Technische identificatie, type en eenheid van het facet.",
+    "content": "Inhoud in {language}",
+    "otherLocale": "Andere taal om te tonen"
+  },
+  "values": {
+    "title": "Waarden",
+    "description": "Elke waarde is een keuze voor leveranciers en kopers. De andere talen worden automatisch gegenereerd.",
+    "empty": "Nog geen waarden.",
+    "new": "Waarde toevoegen",
+    "slug": "Identificatie (slug)",
+    "slugPlaceholder": "bijv. rood",
+    "label": "Label",
+    "synonyms": "Synoniemen",
+    "synonymsPlaceholder": "bijv. felrood, red",
+    "add": "Toevoegen",
+    "delete": "Waarde verwijderen",
+    "confirmDelete": "Deze waarde verwijderen?",
+    "productsCount": "{count, plural, one {# product} other {# producten}}"
+  },
+  "flash": {
+    "created": "Attribuut aangemaakt.",
+    "updated": "Attribuut bijgewerkt.",
+    "deleted": "Attribuut verwijderd.",
+    "inUse": {
+      "products": "Verwijderen niet mogelijk: producten gebruiken dit attribuut.",
+      "categories": "Verwijderen niet mogelijk: categorieën gebruiken dit attribuut."
+    },
+    "valueCreated": "Waarde toegevoegd.",
+    "valueUpdated": "Waarde bijgewerkt.",
+    "valueDeleted": "Waarde verwijderd.",
+    "valueInUse": {
+      "products": "Verwijderen niet mogelijk: producten hebben deze waarde.",
+      "children": "Verwijderen niet mogelijk: tinten zijn aan deze waarde gekoppeld."
+    }
+  }
+}

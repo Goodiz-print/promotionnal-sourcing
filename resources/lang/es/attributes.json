@@ -1,0 +1,90 @@
+{
+  "index": {
+    "title": "Atributos",
+    "subtitle": "Administre las facetas del catálogo (color, material, gramaje…) y sus valores.",
+    "empty": "Aún no hay atributos. Cree uno.",
+    "emptyDescription": "Los atributos alimentan los filtros del catálogo y las fichas de producto.",
+    "columns": {
+      "name": "Nombre",
+      "slug": "Identificador",
+      "type": "Tipo",
+      "filterable": "Filtrable",
+      "values": "Valores",
+      "products": "Productos",
+      "actions": "Acciones"
+    },
+    "yes": "Sí",
+    "no": "No"
+  },
+  "create": {
+    "title": "Nuevo atributo",
+    "subtitle": "Añada una faceta al catálogo."
+  },
+  "update": {
+    "title": "Editar el atributo",
+    "subtitle": "Edite el nombre, la unidad y los valores de «{slug}»."
+  },
+  "edit": "Editar",
+  "newAttribute": "Nuevo atributo",
+  "delete": "Eliminar",
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "confirmDelete": "¿Eliminar este atributo?",
+  "back": "Volver a los atributos",
+  "fields": {
+    "slug": "Identificador (slug)",
+    "slugHint": "Minúsculas, cifras y guiones. No se puede modificar después.",
+    "slugPlaceholder": "p. ej. gramaje",
+    "type": "Tipo",
+    "typeHint": "No se puede modificar tras la creación.",
+    "unit": "Unidad",
+    "unitHint": "Para un atributo numérico (p. ej. g/m²).",
+    "unitPlaceholder": "p. ej. g/m²",
+    "isFilterable": "Filtrable",
+    "isFilterableHint": "Muestra el atributo en los filtros del catálogo.",
+    "name": "Nombre"
+  },
+  "types": {
+    "string": "Texto",
+    "number": "Número",
+    "boolean": "Sí / no",
+    "enum": "Lista de valores"
+  },
+  "form": {
+    "identity": "Identificación",
+    "identityDescription": "Identificador técnico, tipo y unidad de la faceta.",
+    "content": "Contenido en {language}",
+    "otherLocale": "Otro idioma que mostrar"
+  },
+  "values": {
+    "title": "Valores",
+    "description": "Cada valor es una opción para proveedores y compradores. Los demás idiomas se generan automáticamente.",
+    "empty": "Aún no hay valores.",
+    "new": "Añadir un valor",
+    "slug": "Identificador (slug)",
+    "slugPlaceholder": "p. ej. rojo",
+    "label": "Etiqueta",
+    "synonyms": "Sinónimos",
+    "synonymsPlaceholder": "p. ej. rojo vivo, red",
+    "add": "Añadir",
+    "delete": "Eliminar el valor",
+    "confirmDelete": "¿Eliminar este valor?",
+    "productsCount": "{count, plural, one {# producto} other {# productos}}"
+  },
+  "flash": {
+    "created": "Atributo creado.",
+    "updated": "Atributo actualizado.",
+    "deleted": "Atributo eliminado.",
+    "inUse": {
+      "products": "No se puede eliminar: hay productos que usan este atributo.",
+      "categories": "No se puede eliminar: hay categorías que usan este atributo."
+    },
+    "valueCreated": "Valor añadido.",
+    "valueUpdated": "Valor actualizado.",
+    "valueDeleted": "Valor eliminado.",
+    "valueInUse": {
+      "products": "No se puede eliminar: hay productos con este valor.",
+      "children": "No se puede eliminar: hay matices asociados a este valor."
+    }
+  }
+}
