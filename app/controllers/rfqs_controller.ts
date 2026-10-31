@@ -4,6 +4,8 @@ import { errors as vineErrors } from '@vinejs/vine'
 import CategoryService from '#services/category_service'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import ProductSearchService from '#services/product_search_service'
+import ActivityEventService from '#services/activity_event_service'
+import SearchEventService from '#services/search_event_service'
 import OrganizationContextService from '#services/organization_context_service'
 import QuoteService from '#services/quote_service'
 import emitter from '@adonisjs/core/services/emitter'
@@ -74,6 +76,8 @@ export default class RfqsController {
     private categories: CategoryService,
     private catalogue: ProductCatalogueService,
     private productSearch: ProductSearchService,
+    private searchEvents: SearchEventService,
+    private activityEvents: ActivityEventService,
     private organizations: OrganizationContextService
   ) {}
 
@@ -109,7 +113,10 @@ export default class RfqsController {
 
     return inertia.render('rfqs/create', {
       ...(await this.formData(locale)),
-      ...this.productLookup(inertia, productSearch, locale),
+      ...this.productLookup(inertia, productSearch, locale, {
+        userId: auth.getUserOrFail().id,
+        organizationId: org.id,
+      }),
       prefillProduct: productId ? await this.findProduct(productId, locale) : undefined,
     })
   }
@@ -162,7 +169,10 @@ export default class RfqsController {
       quotes: quotes.map((quote) => new QuoteTransformer(quote).toObject()),
       canManageRfq: await bouncer.allows('canManageRfq', org),
       ...(await this.formData(locale)),
-      ...this.productLookup(inertia, productSearch, locale),
+      ...this.productLookup(inertia, productSearch, locale, {
+        userId: auth.getUserOrFail().id,
+        organizationId: org.id,
+      }),
     })
   }
 
@@ -186,13 +196,21 @@ export default class RfqsController {
    * l'acheteur ajuste la quantité avant de publier.
    */
   async addProduct(ctx: HttpContext) {
-    const { rfq } = await this.loadManageable(ctx)
+    const { rfq, org } = await this.loadManageable(ctx)
     const { productId } = await ctx.request.validateUsing(rfqProductValidator)
     const product = await this.findProduct(productId, ctx.i18n.locale as Locale)
     if (!product) throw new ProductNotFoundException()
 
     return this.runTransition(ctx, rfq, async () => {
       await this.service.addProductItem(rfq, product)
+      await this.activityEvents.record({
+        type: 'rfq_product_added',
+        targetType: 'product',
+        targetId: productId,
+        userId: ctx.auth.getUserOrFail().id,
+        organizationId: org.id,
+        isStaff: false,
+      })
       ctx.session.flash('success', ctx.i18n.t('rfq.flash.productAdded', { name: product.name }))
     })
   }
@@ -268,6 +286,14 @@ export default class RfqsController {
       const sent = await this.service.send(rfq)
       // Mail et notification in-app : deux listeners de `RfqSent`.
       await emitter.emit(RfqSent, new RfqSent(rfq, org, sent))
+      await this.activityEvents.record({
+        type: 'rfq_sent',
+        targetType: 'rfq',
+        targetId: rfq.id,
+        userId: ctx.auth.getUserOrFail().id,
+        organizationId: org.id,
+        isStaff: false,
+      })
       ctx.session.flash('success', ctx.i18n.t('rfq.flash.sent', { count: sent.length }))
     })
   }
@@ -375,7 +401,8 @@ export default class RfqsController {
   private productLookup(
     inertia: HttpContext['inertia'],
     search: string | undefined,
-    locale: Locale
+    locale: Locale,
+    searcher: { userId: number; organizationId: number }
   ) {
     let lookup: Promise<RfqProductLookupType> | undefined
 
@@ -387,6 +414,17 @@ export default class RfqsController {
         // Mots-clés seuls via Meilisearch (ADR 0002) ; `null` : moteur indisponible,
         // que le sélecteur annonce au lieu d'afficher « aucun produit ».
         const products = await this.productSearch.lookup(search, PRODUCT_SEARCH_LIMIT)
+        // Journal des recherches (#171) : une entrée par recherche réellement exécutée.
+        await this.searchEvents.record({
+          source: 'rfq_lookup',
+          term: search,
+          filters: {},
+          categoryId: null,
+          mode: products === null ? 'unavailable' : 'keywords',
+          resultsCount: products?.length ?? 0,
+          ...searcher,
+          locale,
+        })
         if (products === null) return { results: [], unavailable: true }
         return {
           results: products.map((product) =>

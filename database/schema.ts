@@ -7,6 +7,33 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class ActivityEventSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'id',
+    'organizationId',
+    'targetId',
+    'targetType',
+    'type',
+    'userId',
+  ] as const
+  $columns = ActivityEventSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare organizationId: number | null
+  @column()
+  declare targetId: number
+  @column()
+  declare targetType: string
+  @column()
+  declare type: string
+  @column()
+  declare userId: number | null
+}
+
 export class AdminAuditLogSchema extends BaseModel {
   static $columns = [
     'action',
@@ -1873,6 +1900,45 @@ export class RoleSchema extends BaseModel {
   declare slug: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
+}
+
+export class SearchEventSchema extends BaseModel {
+  static $columns = [
+    'categoryId',
+    'createdAt',
+    'filters',
+    'id',
+    'locale',
+    'mode',
+    'organizationId',
+    'resultsCount',
+    'source',
+    'term',
+    'userId',
+  ] as const
+  $columns = SearchEventSchema.$columns
+  @column()
+  declare categoryId: number | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare filters: any
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare locale: string
+  @column()
+  declare mode: string
+  @column()
+  declare organizationId: number | null
+  @column()
+  declare resultsCount: number
+  @column()
+  declare source: string
+  @column()
+  declare term: string | null
+  @column()
+  declare userId: number | null
 }
 
 export class StorageObjectSchema extends BaseModel {

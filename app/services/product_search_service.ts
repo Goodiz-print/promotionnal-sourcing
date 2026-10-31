@@ -40,6 +40,11 @@ export default class ProductSearchService {
     return this.engine.enabled
   }
 
+  /** Les recherches du catalogue mêlent-elles mots-clés et vecteurs ? */
+  get semantic(): boolean {
+    return searchConfig.embedder.enabled && searchConfig.semanticRatio > 0
+  }
+
   /**
    * Résultats paginés du catalogue public pour une requête. `null` : recherche
    * indisponible, utiliser le repli.
@@ -51,7 +56,7 @@ export default class ProductSearchService {
     const threshold = newProductThreshold(options.newOnly)
     const hits = await this.query({
       query,
-      semanticRatio: searchConfig.embedder.enabled ? searchConfig.semanticRatio : 0,
+      semanticRatio: this.semantic ? searchConfig.semanticRatio : 0,
       filter: {
         categoryId: options.categoryId,
         madeInEurope: options.madeInEurope,

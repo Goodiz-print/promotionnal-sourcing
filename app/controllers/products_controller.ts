@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
+import ActivityEventService from '#services/activity_event_service'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import ProductSearchService from '#services/product_search_service'
 import CatalogueFacetBarService from '#services/catalogue_facet_bar_service'
@@ -9,12 +10,14 @@ import CatalogueNumericFacetService from '#services/catalogue_numeric_facet_serv
 import DocumentService from '#services/document_service'
 import OrganizationContextService from '#services/organization_context_service'
 import RfqService from '#services/rfq_service'
+import SearchEventService from '#services/search_event_service'
 import ProductTransformer from '#transformers/product_transformer'
 import RfqDraftOptionTransformer from '#transformers/rfq_draft_option_transformer'
 import ProductDetailTransformer from '#transformers/product_detail_transformer'
 import CategoryTransformer from '#transformers/category_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
 import { NoCurrentOrganizationException } from '#exceptions/organization_errors'
+import { compactSearchFilters } from '#shared/helpers/search_event'
 import type { Locale } from '#shared/types/i18n'
 import {
   ORIGIN_ZONES,
@@ -42,14 +45,16 @@ export default class ProductsController {
     private enumFacets: CatalogueEnumFacetService,
     private documents: DocumentService,
     private organizations: OrganizationContextService,
-    private rfqs: RfqService
+    private rfqs: RfqService,
+    private searchEvents: SearchEventService,
+    private activityEvents: ActivityEventService
   ) {}
 
   /**
    * Catalogue public paginé + filtrable : recherche par terme (Meilisearch),
    * filtre catégorie / made-in-Europe, facettes attributs en ET fiable.
    */
-  async index({ inertia, request, i18n }: HttpContext) {
+  async index({ inertia, request, i18n, auth }: HttpContext) {
     const locale = i18n.locale as Locale
     const qs = request.qs()
 
@@ -114,6 +119,39 @@ export default class ProductsController {
       ]
     )
 
+    // Journal des recherches (#171) : la première page seulement (la pagination ne
+    // relance pas la recherche), sans attendre l'écriture.
+    if (page === 1) {
+      await this.searchEvents.record({
+        source: 'catalogue',
+        term: filters.search,
+        filters: compactSearchFilters({
+          madeInEurope: filters.madeInEurope,
+          attributeValueIds: filters.attributeValueIds,
+          certificationIds: filters.certificationIds,
+          originZones: filters.originZones,
+          stockStatuses: filters.stockStatuses,
+          priceBuckets: filters.priceBuckets,
+          moqBuckets: filters.moqBuckets,
+          attributeRanges: filters.attributeRanges.length,
+          newOnly: filters.newOnly,
+          ecoOnly: filters.ecoOnly,
+        }),
+        categoryId: filters.categoryId,
+        mode: !filters.search
+          ? 'directory'
+          : searchUnavailable
+            ? 'unavailable'
+            : this.productSearch.semantic
+              ? 'semantic'
+              : 'keywords',
+        resultsCount: paginator?.total ?? 0,
+        userId: auth.user?.id ?? null,
+        organizationId: auth.user?.currentOrganizationId ?? null,
+        locale,
+      })
+    }
+
     return inertia.render('products/index', {
       products: {
         data: (paginator?.all() ?? []).map((product) =>
@@ -148,6 +186,15 @@ export default class ProductsController {
     if (!product) {
       throw new ProductNotFoundException()
     }
+
+    await this.activityEvents.record({
+      type: 'product_viewed',
+      targetType: 'product',
+      targetId: product.id,
+      userId: auth.user?.id ?? null,
+      organizationId: auth.user?.currentOrganizationId ?? null,
+      isStaff: auth.user?.hasBackOffice ?? false,
+    })
 
     return inertia.render('products/show', {
       product: new ProductDetailTransformer(product, locale, this.documents.urlFor).toObject(),
