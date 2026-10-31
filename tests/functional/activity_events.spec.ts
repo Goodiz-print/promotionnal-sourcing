@@ -8,9 +8,9 @@ import Product from '#models/product'
 import Supplier from '#models/supplier'
 import ActivityEventService from '#services/activity_event_service'
 import {
-  SEARCH_EVENT_PSEUDONYMIZE_AFTER_DAYS,
-  SEARCH_EVENT_RETENTION_DAYS,
-} from '#shared/types/search_event'
+  ACTIVITY_EVENT_PSEUDONYMIZE_AFTER_DAYS,
+  ACTIVITY_EVENT_RETENTION_DAYS,
+} from '#shared/types/activity_event'
 import { useDatabase } from '#tests/utils/setup'
 
 test.group('Consultations — enregistrement', (group) => {
@@ -99,16 +99,14 @@ test.group('Consultations — enregistrement', (group) => {
 test.group('Consultations — rétention', (group) => {
   useDatabase(group, { seed: 'roles' })
 
-  test('pseudonymise puis supprime selon la même politique que les recherches', async ({
-    assert,
-  }) => {
+  test('pseudonymise puis supprime selon 90 jours puis 24 mois', async ({ assert }) => {
     const user = await UserFactory.create()
     const old = await ActivityEventFactory.merge({
       userId: user.id,
-      createdAt: DateTime.now().minus({ days: SEARCH_EVENT_PSEUDONYMIZE_AFTER_DAYS + 1 }),
+      createdAt: DateTime.now().minus({ days: ACTIVITY_EVENT_PSEUDONYMIZE_AFTER_DAYS + 1 }),
     }).create()
     await ActivityEventFactory.merge({
-      createdAt: DateTime.now().minus({ days: SEARCH_EVENT_RETENTION_DAYS + 1 }),
+      createdAt: DateTime.now().minus({ days: ACTIVITY_EVENT_RETENTION_DAYS + 1 }),
     }).create()
 
     const service = await app.container.make(ActivityEventService)

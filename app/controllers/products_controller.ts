@@ -10,14 +10,12 @@ import CatalogueNumericFacetService from '#services/catalogue_numeric_facet_serv
 import DocumentService from '#services/document_service'
 import OrganizationContextService from '#services/organization_context_service'
 import RfqService from '#services/rfq_service'
-import SearchEventService from '#services/search_event_service'
 import ProductTransformer from '#transformers/product_transformer'
 import RfqDraftOptionTransformer from '#transformers/rfq_draft_option_transformer'
 import ProductDetailTransformer from '#transformers/product_detail_transformer'
 import CategoryTransformer from '#transformers/category_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
 import { NoCurrentOrganizationException } from '#exceptions/organization_errors'
-import { compactSearchFilters } from '#shared/helpers/search_event'
 import type { Locale } from '#shared/types/i18n'
 import {
   ORIGIN_ZONES,
@@ -46,7 +44,6 @@ export default class ProductsController {
     private documents: DocumentService,
     private organizations: OrganizationContextService,
     private rfqs: RfqService,
-    private searchEvents: SearchEventService,
     private activityEvents: ActivityEventService
   ) {}
 
@@ -54,7 +51,7 @@ export default class ProductsController {
    * Catalogue public paginé + filtrable : recherche par terme (Meilisearch),
    * filtre catégorie / made-in-Europe, facettes attributs en ET fiable.
    */
-  async index({ inertia, request, i18n, auth }: HttpContext) {
+  async index({ inertia, request, i18n }: HttpContext) {
     const locale = i18n.locale as Locale
     const qs = request.qs()
 
@@ -118,39 +115,6 @@ export default class ProductsController {
         this.enumFacets.forCatalogue(filters),
       ]
     )
-
-    // Journal des recherches (#171) : la première page seulement (la pagination ne
-    // relance pas la recherche), sans attendre l'écriture.
-    if (page === 1) {
-      await this.searchEvents.record({
-        source: 'catalogue',
-        term: filters.search,
-        filters: compactSearchFilters({
-          madeInEurope: filters.madeInEurope,
-          attributeValueIds: filters.attributeValueIds,
-          certificationIds: filters.certificationIds,
-          originZones: filters.originZones,
-          stockStatuses: filters.stockStatuses,
-          priceBuckets: filters.priceBuckets,
-          moqBuckets: filters.moqBuckets,
-          attributeRanges: filters.attributeRanges.length,
-          newOnly: filters.newOnly,
-          ecoOnly: filters.ecoOnly,
-        }),
-        categoryId: filters.categoryId,
-        mode: !filters.search
-          ? 'directory'
-          : searchUnavailable
-            ? 'unavailable'
-            : this.productSearch.semantic
-              ? 'semantic'
-              : 'keywords',
-        resultsCount: paginator?.total ?? 0,
-        userId: auth.user?.id ?? null,
-        organizationId: auth.user?.currentOrganizationId ?? null,
-        locale,
-      })
-    }
 
     return inertia.render('products/index', {
       products: {

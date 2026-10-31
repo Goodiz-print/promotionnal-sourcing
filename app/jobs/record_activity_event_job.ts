@@ -10,7 +10,7 @@ import type { ActivityEventPayload } from '#shared/types/activity_event'
  * ⚠️ Exception à la règle « imports en haut du fichier » : `ActivityEventService`
  * importe un **modèle Lucid**, que la queue ne doit pas évaluer au boot
  * (`loadJobs`). Le service est importé et résolu dans `execute()`, comme
- * `RecordSearchEventJob`. Voir la règle DI de `CLAUDE.md`.
+ * `IndexProductJob`. Voir la règle DI de `CLAUDE.md`.
  */
 export default class RecordActivityEventJob extends Job<ActivityEventPayload> {
   static options: JobOptions = {

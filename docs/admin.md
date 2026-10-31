@@ -39,21 +39,17 @@ Actions tracées aujourd'hui : `platform_role.changed` (écran Utilisateurs et c
 
 **Consultation** : `GET /admin/audit` (`admin.audit.index`, droit `audit.view`), 50 entrées par page, la plus récente d'abord. Filtres de query string : `action`, `targetType`, `actor` (email partiel, sans casse), `from` / `to` (`AAAA-MM-JJ`, bornes incluses). Une valeur de filtre invalide est refusée par la validation (`app/validators/admin_audit.ts`).
 
-## Collecte de la demande client
+## Suivi des consultations
 
-Deux tables en ajout seul alimentent le monitoring de ce que cherchent et regardent les clients (issues #171 et #172, epic #157). L'exploitation (écran « Ce que cherchent les clients », KPI) est faite par les issues #173 et #174.
+Table `activity_events`, en ajout seul (issue #172, epic #157), qui complète le journal des recherches `search_events` (#171, voir `docs/search.md`). L'exploitation (écran « Ce que cherchent les clients », KPI) relève de #173 et #174.
 
-**`search_events`** (`SearchEventService`) : une ligne par recherche sur `catalogue` (`/products`), `suppliers` (`/suppliers`) ou `rfq_lookup` (sélecteur de produit d'une demande de devis). Colonnes : `term` (normalisé : minuscules, espaces écrasés, 255 caractères), `filters` (jsonb, filtres actifs seulement), `category_id`, `mode` (`semantic`, `keywords`, `unavailable`, `directory`), `results_count` (« zéro résultat » = 0), `user_id`, `organization_id`, `locale`, `created_at`. Règles : première page seulement (la pagination ne relance pas la recherche) ; une page sans terme, catégorie ni filtre n'est pas enregistrée ; une recherche moteur indisponible est enregistrée en mode `unavailable`.
+Types (`ActivityEventService`) : `product_viewed`, `supplier_viewed` (fiches publiques), `rfq_product_added` (ajout d'un produit à un brouillon), `rfq_sent` (envoi de la demande). Cible polymorphe `target_type` / `target_id`. Exclus : les visiteurs avec un rôle plateforme, un fournisseur qui consulte ses propres fiches, et les vues répétées du même utilisateur connecté sur 30 minutes (les visiteurs anonymes ne sont pas dédoublonnables).
 
-**`activity_events`** (`ActivityEventService`) : `product_viewed`, `supplier_viewed` (fiches publiques), `rfq_product_added` (ajout d'un produit à un brouillon), `rfq_sent` (envoi de la demande). Cible polymorphe `target_type` / `target_id`. Exclus : les visiteurs avec un rôle plateforme, un fournisseur qui consulte ses propres fiches, et les vues répétées du même utilisateur connecté sur 30 minutes (les visiteurs anonymes ne sont pas dédoublonnables).
+**Écriture asynchrone** : `record` met `RecordActivityEventJob` en queue ; l'écran n'attend jamais l'écriture, et toute erreur est loggée sans être propagée.
 
-**Écriture asynchrone** : `record` met un job en queue (`RecordSearchEventJob`, `RecordActivityEventJob`) ; la requête n'attend jamais l'écriture, et toute erreur est loggée sans être propagée.
+**Rétention et RGPD** : `PurgeActivityEventsJob` (quotidien, 03:45 Paris) détache `user_id` et `organization_id` après 90 jours et supprime les lignes après 24 mois (constantes dans `shared/types/activity_event.ts`). La politique de confidentialité doit mentionner cette collecte.
 
-**Rétention et RGPD** : `PurgeDemandEventsJob` (quotidien, 03:45 Paris) détache `user_id` et `organization_id` après 90 jours et supprime les lignes après 365 jours (constantes dans `shared/types/search_event.ts`). La politique de confidentialité doit mentionner cette collecte.
-
-**Funnel** : recherche → vue → ajout à la demande → envoi se reconstitue par utilisateur (`user_id`) et par date tant que le rattachement n'est pas pseudonymisé. Le clic depuis un résultat de recherche n'est pas encore tracé (pas de lien explicite entre un `search_events` et la vue qui suit).
-
-**Ajouter une nouvelle recherche ou un nouvel événement** : injecter le service, l'appeler dans le contrôleur (jamais de `new`), ajouter le type dans `shared/types/`.
+**Funnel** : recherche → vue → ajout à la demande → envoi se reconstitue par utilisateur (`user_id`) et par date tant que le rattachement n'est pas pseudonymisé. Le clic depuis un résultat de recherche n'est pas encore tracé.
 
 ## Tests
 
@@ -62,4 +58,4 @@ Deux tables en ajout seul alimentent le monitoring de ce que cherchent et regard
 - `tests/functional/admin_audit.spec.ts` : consultation, filtres, accès, audit des catégories.
 - `tests/inertia/admin_users.spec.ts`, `tests/inertia/admin_audit.spec.ts` : écrans.
 - Factories : `UserFactory.apply('platformAdmin' | 'platformModerator' | 'platformSupport' | 'platformAnalyst')`, `AdminAuditLogFactory`.
-- `tests/unit/search_event.spec.ts`, `tests/functional/search_events.spec.ts`, `tests/functional/activity_events.spec.ts` : collecte et rétention. Factories : `SearchEventFactory`, `ActivityEventFactory`.
+- `tests/functional/activity_events.spec.ts` : consultations et rétention. Factory : `ActivityEventFactory`.

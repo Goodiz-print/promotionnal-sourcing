@@ -4,8 +4,8 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
  * Consultations et funnel acheteur (#172) : vue produit, vue fournisseur, ajout
  * d'un produit à une demande de devis, envoi de la demande. La cible est
  * polymorphe (`target_type` / `target_id`) sans clé étrangère : l'historique
- * survit à la suppression de la cible. Même politique de rétention et de
- * pseudonymisation que `search_events`.
+ * survit à la suppression de la cible. Pseudonymisation de l'utilisateur après
+ * 90 jours, suppression après 24 mois (RGPD).
  */
 export default class extends BaseSchema {
   protected tableName = 'activity_events'

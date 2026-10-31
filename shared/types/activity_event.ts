@@ -31,3 +31,15 @@ export interface ActivityEventInput {
 export interface ActivityEventPayload extends Omit<ActivityEventInput, 'isStaff'> {
   occurredAt: string
 }
+
+/** Au-delà, le rattachement à l'utilisateur et à l'organisation est supprimé (RGPD). */
+export const ACTIVITY_EVENT_PSEUDONYMIZE_AFTER_DAYS = 90
+
+/** Au-delà, l'événement est supprimé (24 mois, comme le journal des recherches). */
+export const ACTIVITY_EVENT_RETENTION_DAYS = 730
+
+/** Lignes pseudonymisées / supprimées par une purge. */
+export interface ActivityEventPurgeResult {
+  pseudonymized: number
+  deleted: number
+}

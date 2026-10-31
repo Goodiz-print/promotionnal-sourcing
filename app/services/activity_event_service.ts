@@ -6,17 +6,15 @@ import RecordActivityEventJob from '#jobs/record_activity_event_job'
 import ActivityEvent from '#models/activity_event'
 import {
   ACTIVITY_EVENT_DEDUP_MINUTES,
+  ACTIVITY_EVENT_PSEUDONYMIZE_AFTER_DAYS,
+  ACTIVITY_EVENT_RETENTION_DAYS,
+  type ActivityEventPurgeResult,
   type ActivityEventInput,
   type ActivityEventPayload,
 } from '#shared/types/activity_event'
-import {
-  SEARCH_EVENT_PSEUDONYMIZE_AFTER_DAYS,
-  SEARCH_EVENT_RETENTION_DAYS,
-  type SearchEventPurgeResult,
-} from '#shared/types/search_event'
 
 /**
- * Consultations et funnel acheteur (#172), en regard du journal des recherches.
+ * Consultations et funnel acheteur (#172).
  *
  * `record` ne bloque jamais l'écran : mise en queue asynchrone, erreurs loggées
  * sans être propagées. Les consultations du back-office (rôle plateforme) ne
@@ -58,10 +56,10 @@ export default class ActivityEventService {
     })
   }
 
-  /** Même politique que `SearchEventService#purge`. */
-  async purge(now: DateTime = DateTime.now()): Promise<SearchEventPurgeResult> {
-    const pseudonymizeBefore = now.minus({ days: SEARCH_EVENT_PSEUDONYMIZE_AFTER_DAYS }).toSQL()!
-    const deleteBefore = now.minus({ days: SEARCH_EVENT_RETENTION_DAYS }).toSQL()!
+  /** Détache l'utilisateur et l'organisation après 90 jours, supprime après 24 mois. Idempotent. */
+  async purge(now: DateTime = DateTime.now()): Promise<ActivityEventPurgeResult> {
+    const pseudonymizeBefore = now.minus({ days: ACTIVITY_EVENT_PSEUDONYMIZE_AFTER_DAYS }).toSQL()!
+    const deleteBefore = now.minus({ days: ACTIVITY_EVENT_RETENTION_DAYS }).toSQL()!
 
     return db.transaction(async (trx) => {
       const deleted = await ActivityEvent.query({ client: trx })

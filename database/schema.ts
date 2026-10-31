@@ -1902,45 +1902,6 @@ export class RoleSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
-export class SearchEventSchema extends BaseModel {
-  static $columns = [
-    'categoryId',
-    'createdAt',
-    'filters',
-    'id',
-    'locale',
-    'mode',
-    'organizationId',
-    'resultsCount',
-    'source',
-    'term',
-    'userId',
-  ] as const
-  $columns = SearchEventSchema.$columns
-  @column()
-  declare categoryId: number | null
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
-  @column()
-  declare filters: any
-  @column({ isPrimary: true })
-  declare id: number
-  @column()
-  declare locale: string
-  @column()
-  declare mode: string
-  @column()
-  declare organizationId: number | null
-  @column()
-  declare resultsCount: number
-  @column()
-  declare source: string
-  @column()
-  declare term: string | null
-  @column()
-  declare userId: number | null
-}
-
 export class StorageObjectSchema extends BaseModel {
   static $columns = [
     'checksum',
