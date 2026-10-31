@@ -123,6 +123,14 @@ export const canManageCategories = Bouncer.ability((user: User) => {
 })
 
 /**
+ * Ability to check if a user can administer the catalogue facets (attributes
+ * and attribute values). Global data, platform admins only (#48).
+ */
+export const canManageAttributes = Bouncer.ability((user: User) => {
+  return user.isPlatformAdmin
+})
+
+/**
  * Ability to check if a user can create a request for quotation (RFQ).
  * The organization must be a buyer (or both). Aligned on the `sourcing:create`
  * permission, granted to every role down to `member`.

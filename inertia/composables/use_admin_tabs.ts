@@ -7,7 +7,7 @@ import { isActivePath } from '#shared/helpers/navigation'
 
 /**
  * Onglets du back-office (`BaseTabs`) : tableau de bord, organisations,
- * utilisateurs, catégories. L'onglet courant est déduit de l'URL de la page
+ * utilisateurs, catégories, attributs. L'onglet courant est déduit de l'URL de la page
  * (`isActivePath`) ; `/admin` étant le parent de toutes les autres sections,
  * il n'est actif que si aucun onglet plus précis ne l'est.
  */
@@ -16,6 +16,7 @@ const SECTIONS = [
   { key: 'organizations', route: 'admin.organizations.index' },
   { key: 'users', route: 'admin.users.index' },
   { key: 'categories', route: 'admin.categories.index' },
+  { key: 'attributes', route: 'admin.attributes.index' },
 ] as const
 
 export function useAdminTabs() {

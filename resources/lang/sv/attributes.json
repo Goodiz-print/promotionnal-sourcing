@@ -1,0 +1,90 @@
+{
+  "index": {
+    "title": "Attribut",
+    "subtitle": "Hantera katalogens facetter (färg, material, gramvikt …) och deras värden.",
+    "empty": "Inga attribut ännu. Skapa ett.",
+    "emptyDescription": "Attributen driver katalogens filter och produktsidorna.",
+    "columns": {
+      "name": "Namn",
+      "slug": "Identifierare",
+      "type": "Typ",
+      "filterable": "Filtrerbar",
+      "values": "Värden",
+      "products": "Produkter",
+      "actions": "Åtgärder"
+    },
+    "yes": "Ja",
+    "no": "Nej"
+  },
+  "create": {
+    "title": "Nytt attribut",
+    "subtitle": "Lägg till en facett i katalogen."
+  },
+  "update": {
+    "title": "Redigera attributet",
+    "subtitle": "Redigera namn, enhet och värden för ”{slug}”."
+  },
+  "edit": "Redigera",
+  "newAttribute": "Nytt attribut",
+  "delete": "Ta bort",
+  "save": "Spara",
+  "cancel": "Avbryt",
+  "confirmDelete": "Ta bort detta attribut?",
+  "back": "Tillbaka till attribut",
+  "fields": {
+    "slug": "Identifierare (slug)",
+    "slugHint": "Gemener, siffror och bindestreck. Kan inte ändras senare.",
+    "slugPlaceholder": "t.ex. gramvikt",
+    "type": "Typ",
+    "typeHint": "Kan inte ändras efter skapandet.",
+    "unit": "Enhet",
+    "unitHint": "För ett numeriskt attribut (t.ex. g/m²).",
+    "unitPlaceholder": "t.ex. g/m²",
+    "isFilterable": "Filtrerbar",
+    "isFilterableHint": "Visar attributet i katalogens filter.",
+    "name": "Namn"
+  },
+  "types": {
+    "string": "Text",
+    "number": "Tal",
+    "boolean": "Ja / nej",
+    "enum": "Värdelista"
+  },
+  "form": {
+    "identity": "Identifiering",
+    "identityDescription": "Teknisk identifierare, typ och enhet för facetten.",
+    "content": "Innehåll på {language}",
+    "otherLocale": "Annat språk att visa"
+  },
+  "values": {
+    "title": "Värden",
+    "description": "Varje värde är ett val för leverantörer och köpare. Övriga språk skapas automatiskt.",
+    "empty": "Inga värden ännu.",
+    "new": "Lägg till ett värde",
+    "slug": "Identifierare (slug)",
+    "slugPlaceholder": "t.ex. röd",
+    "label": "Etikett",
+    "synonyms": "Synonymer",
+    "synonymsPlaceholder": "t.ex. klarröd, red",
+    "add": "Lägg till",
+    "delete": "Ta bort värdet",
+    "confirmDelete": "Ta bort detta värde?",
+    "productsCount": "{count, plural, one {# produkt} other {# produkter}}"
+  },
+  "flash": {
+    "created": "Attribut skapat.",
+    "updated": "Attribut uppdaterat.",
+    "deleted": "Attribut borttaget.",
+    "inUse": {
+      "products": "Kan inte tas bort: produkter använder detta attribut.",
+      "categories": "Kan inte tas bort: kategorier använder detta attribut."
+    },
+    "valueCreated": "Värde tillagt.",
+    "valueUpdated": "Värde uppdaterat.",
+    "valueDeleted": "Värde borttaget.",
+    "valueInUse": {
+      "products": "Kan inte tas bort: produkter har detta värde.",
+      "children": "Kan inte tas bort: nyanser är kopplade till detta värde."
+    }
+  }
+}

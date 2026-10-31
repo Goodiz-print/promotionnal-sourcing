@@ -1,0 +1,90 @@
+{
+  "index": {
+    "title": "Attribute",
+    "subtitle": "Verwalten Sie die Katalogfacetten (Farbe, Material, Grammatur …) und ihre Werte.",
+    "empty": "Noch keine Attribute. Legen Sie eines an.",
+    "emptyDescription": "Attribute speisen die Katalogfilter und die Produktseiten.",
+    "columns": {
+      "name": "Name",
+      "slug": "Kennung",
+      "type": "Typ",
+      "filterable": "Filterbar",
+      "values": "Werte",
+      "products": "Produkte",
+      "actions": "Aktionen"
+    },
+    "yes": "Ja",
+    "no": "Nein"
+  },
+  "create": {
+    "title": "Neues Attribut",
+    "subtitle": "Fügen Sie dem Katalog eine Facette hinzu."
+  },
+  "update": {
+    "title": "Attribut bearbeiten",
+    "subtitle": "Bearbeiten Sie Name, Einheit und Werte von „{slug}“."
+  },
+  "edit": "Bearbeiten",
+  "newAttribute": "Neues Attribut",
+  "delete": "Löschen",
+  "save": "Speichern",
+  "cancel": "Abbrechen",
+  "confirmDelete": "Dieses Attribut löschen?",
+  "back": "Zurück zu den Attributen",
+  "fields": {
+    "slug": "Kennung (Slug)",
+    "slugHint": "Kleinbuchstaben, Ziffern und Bindestriche. Später nicht änderbar.",
+    "slugPlaceholder": "z. B. grammatur",
+    "type": "Typ",
+    "typeHint": "Nach der Erstellung nicht änderbar.",
+    "unit": "Einheit",
+    "unitHint": "Für ein numerisches Attribut (z. B. g/m²).",
+    "unitPlaceholder": "z. B. g/m²",
+    "isFilterable": "Filterbar",
+    "isFilterableHint": "Zeigt das Attribut in den Katalogfiltern an.",
+    "name": "Name"
+  },
+  "types": {
+    "string": "Text",
+    "number": "Zahl",
+    "boolean": "Ja / Nein",
+    "enum": "Werteliste"
+  },
+  "form": {
+    "identity": "Identifikation",
+    "identityDescription": "Technische Kennung, Typ und Einheit der Facette.",
+    "content": "Inhalt auf {language}",
+    "otherLocale": "Weitere anzuzeigende Sprache"
+  },
+  "values": {
+    "title": "Werte",
+    "description": "Jeder Wert ist eine Auswahl für Lieferanten und Käufer. Die anderen Sprachen werden automatisch erzeugt.",
+    "empty": "Noch keine Werte.",
+    "new": "Wert hinzufügen",
+    "slug": "Kennung (Slug)",
+    "slugPlaceholder": "z. B. rot",
+    "label": "Bezeichnung",
+    "synonyms": "Synonyme",
+    "synonymsPlaceholder": "z. B. knallrot, red",
+    "add": "Hinzufügen",
+    "delete": "Wert löschen",
+    "confirmDelete": "Diesen Wert löschen?",
+    "productsCount": "{count, plural, one {# Produkt} other {# Produkte}}"
+  },
+  "flash": {
+    "created": "Attribut erstellt.",
+    "updated": "Attribut aktualisiert.",
+    "deleted": "Attribut gelöscht.",
+    "inUse": {
+      "products": "Löschen nicht möglich: Produkte verwenden dieses Attribut.",
+      "categories": "Löschen nicht möglich: Kategorien verwenden dieses Attribut."
+    },
+    "valueCreated": "Wert hinzugefügt.",
+    "valueUpdated": "Wert aktualisiert.",
+    "valueDeleted": "Wert gelöscht.",
+    "valueInUse": {
+      "products": "Löschen nicht möglich: Produkte tragen diesen Wert.",
+      "children": "Löschen nicht möglich: Farbtöne sind diesem Wert zugeordnet."
+    }
+  }
+}
