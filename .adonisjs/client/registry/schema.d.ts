@@ -1580,4 +1580,121 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['destroy']>>>
     }
   }
+  'admin.attributes.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/attributes'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['index']>>>
+    }
+  }
+  'admin.attributes.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/attributes/new'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['create']>>>
+    }
+  }
+  'admin.attributes.store': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/attributes'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/attribute').createAttributeValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/attribute').createAttributeValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.attributes.edit': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/attributes/:id/edit'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['edit']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['edit']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['edit']>>>
+    }
+  }
+  'admin.attributes.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/attributes/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/attribute').updateAttributeValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/attribute').updateAttributeValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.attributes.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/admin/attributes/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['destroy']>>>
+    }
+  }
+  'admin.attribute_values.store': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/attributes/:id/values'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/attribute').createAttributeValueValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/attribute').createAttributeValueValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.attribute_values.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/attributes/:id/values/:valueId'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/attribute').updateAttributeValueValidator)>>
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; valueId: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/attribute').updateAttributeValueValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.attribute_values.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/admin/attributes/:id/values/:valueId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; valueId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['destroy']>>>
+    }
+  }
 }

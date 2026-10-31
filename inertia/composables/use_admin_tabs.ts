@@ -9,7 +9,7 @@ import type { PlatformPermission } from '#shared/types/user'
 
 /**
  * Onglets du back-office (`BaseTabs`) : tableau de bord, organisations,
- * utilisateurs, catégories, journal d'audit. Seules les sections dont le rôle
+ * utilisateurs, catégories, attributs, journal d'audit. Seules les sections dont le rôle
  * plateforme porte le droit sont affichées. L'onglet courant est déduit de
  * l'URL de la page (`isActivePath`) ; `/admin` étant le parent de toutes les
  * autres sections, il n'est actif que si aucun onglet plus précis ne l'est.
@@ -19,6 +19,7 @@ const SECTIONS: { key: string; route: string; permission: PlatformPermission }[]
   { key: 'organizations', route: 'admin.organizations.index', permission: 'organizations.view' },
   { key: 'users', route: 'admin.users.index', permission: 'users.view' },
   { key: 'categories', route: 'admin.categories.index', permission: 'catalogue.manage' },
+  { key: 'attributes', route: 'admin.attributes.index', permission: 'catalogue.manage' },
   { key: 'audit', route: 'admin.audit.index', permission: 'audit.view' },
 ]
 

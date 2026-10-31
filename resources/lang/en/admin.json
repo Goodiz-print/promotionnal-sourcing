@@ -5,6 +5,7 @@
     "users": "Users",
     "categories": "Categories",
     "audit": "Audit log",
+    "attributes": "Attributes",
     "label": "Admin sections"
   },
   "pagination": {

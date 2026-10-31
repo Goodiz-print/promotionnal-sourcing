@@ -312,6 +312,41 @@ router
                 router
                   .delete('admin/categories/:id', [controllers.admin.Category, 'destroy'])
                   .as('admin.categories.destroy')
+
+                // Administration des facettes du catalogue (attributs et valeurs, #48).
+                router
+                  .get('admin/attributes', [controllers.admin.Attribute, 'index'])
+                  .as('admin.attributes.index')
+                router
+                  .get('admin/attributes/new', [controllers.admin.Attribute, 'create'])
+                  .as('admin.attributes.create')
+                router
+                  .post('admin/attributes', [controllers.admin.Attribute, 'store'])
+                  .as('admin.attributes.store')
+                router
+                  .get('admin/attributes/:id/edit', [controllers.admin.Attribute, 'edit'])
+                  .as('admin.attributes.edit')
+                router
+                  .patch('admin/attributes/:id', [controllers.admin.Attribute, 'update'])
+                  .as('admin.attributes.update')
+                router
+                  .delete('admin/attributes/:id', [controllers.admin.Attribute, 'destroy'])
+                  .as('admin.attributes.destroy')
+                router
+                  .post('admin/attributes/:id/values', [controllers.admin.AttributeValue, 'store'])
+                  .as('admin.attribute_values.store')
+                router
+                  .patch('admin/attributes/:id/values/:valueId', [
+                    controllers.admin.AttributeValue,
+                    'update',
+                  ])
+                  .as('admin.attribute_values.update')
+                router
+                  .delete('admin/attributes/:id/values/:valueId', [
+                    controllers.admin.AttributeValue,
+                    'destroy',
+                  ])
+                  .as('admin.attribute_values.destroy')
               })
               .use(middleware.platformAdmin())
           })

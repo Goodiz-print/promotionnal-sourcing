@@ -32,6 +32,7 @@ const ACCESS: Record<string, Record<FineRole | 'admin', number>> = {
   '/fr/admin/organizations': { admin: 200, moderator: 200, support: 200, analyst: 403 },
   '/fr/admin/users': { admin: 200, moderator: 403, support: 200, analyst: 403 },
   '/fr/admin/categories': { admin: 200, moderator: 403, support: 403, analyst: 403 },
+  '/fr/admin/attributes': { admin: 200, moderator: 403, support: 403, analyst: 403 },
   '/fr/admin/audit': { admin: 200, moderator: 403, support: 403, analyst: 403 },
 }
 

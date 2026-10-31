@@ -22,6 +22,65 @@ export class CategoryNotFoundException extends Exception {
 }
 
 /**
+ * Facette introuvable (administration des attributs, #48).
+ */
+export class AttributeNotFoundException extends Exception {
+  static status = 404
+  static code = 'E_ATTRIBUTE_NOT_FOUND'
+  static message = 'Attribute not found'
+}
+
+/**
+ * Valeur de facette introuvable pour l'attribut visé (#48).
+ */
+export class AttributeValueNotFoundException extends Exception {
+  static status = 404
+  static code = 'E_ATTRIBUTE_VALUE_NOT_FOUND'
+  static message = 'Attribute value not found'
+}
+
+/**
+ * Suppression d'une facette refusée : des produits la renseignent
+ * (`product_attributes`) ou des catégories l'ont retenue (`category_attributes`).
+ * `reason` choisit le message affiché.
+ */
+export class AttributeInUseException extends Exception {
+  static status = 409
+  static code = 'E_ATTRIBUTE_IN_USE'
+
+  constructor(readonly reason: 'products' | 'categories') {
+    super(`Attribute is in use (${reason})`)
+  }
+}
+
+/**
+ * Suppression d'une valeur refusée : des produits la portent, ou c'est une
+ * famille de couleur qui a encore des nuances rattachées.
+ */
+export class AttributeValueInUseException extends Exception {
+  static status = 409
+  static code = 'E_ATTRIBUTE_VALUE_IN_USE'
+
+  constructor(readonly reason: 'products' | 'children') {
+    super(`Attribute value is in use (${reason})`)
+  }
+}
+
+/**
+ * Le slug d'une valeur est déjà pris par une autre valeur du même attribut
+ * (unicité `(attribute_id, slug)`) : erreur de validation sur le champ `slug`.
+ */
+export function duplicateAttributeValueSlug() {
+  return new errors.E_VALIDATION_ERROR([
+    {
+      field: 'slug',
+      message: 'The slug has already been taken',
+      rule: 'unique',
+    },
+  ])
+}
+
+/**
  * Publication bloquée : la fiche ne renseigne pas tous les attributs marqués
  * `is_required_for_publication` par sa catégorie (ou un de ses ancêtres).
  * `missingSlugs` liste les attributs manquants, pour l'affichage fournisseur

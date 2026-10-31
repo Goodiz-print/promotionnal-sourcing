@@ -322,9 +322,9 @@ traduction dédiées** — jamais dans les tables de base :
   `create` exige `sourceLocale` et la seule traduction de cette langue ; `update`
   est partiel (un champ absent n'est pas modifié, facettes conservées si
   `attributeValueIds` est absent, une seule langue peut être corrigée).
-- Attributs et valeurs d'attributs : colonnes et prise en charge par
-  `TranslationService` en place ; le déclenchement sera branché avec leur futur
-  écran d'écriture (aujourd'hui : seeders).
+- Attributs et valeurs d'attributs : `AttributeService` (#48) met la traduction en
+  file à chaque création ou modification (`TranslationQueueService`) ; les noms et
+  libellés saisis à la main passent en `is_auto = false` et ne sont jamais écrasés.
 - **32 langues actives (#97)** : `CONTENT_LOCALES` couvre les 32 langues de
   `TRANSLATION_LOCALES`. La saisie (validateurs, formulaires produit et catégorie)
   accepte n'importe laquelle comme langue source ; le formulaire affiche la langue
@@ -340,6 +340,26 @@ traduction dédiées** — jamais dans les tables de base :
 ## Administration de la taxonomie (catégories globales)
 
 CRUD des catégories sous `/:locale/admin/categories` (`admin.categories.*`). Les catégories sont une ressource **globale** de la plateforme : l'accès est réservé aux **admins plateforme** (`users.platform_role = 'admin'`, middleware `platformAdmin` + ability `canManageCategories`), quel que soit — ou même en l'absence de — rôle d'organisation. Avant #47, le `owner`/`admin` de n'importe quelle organisation pouvait modifier la taxonomie ; c'est corrigé. Voir `docs/organisations.md` (§ Rôles : organisation vs plateforme) pour l'attribution du rôle et le reste du back-office.
+
+## Administration des attributs et valeurs (facettes, #48)
+
+Les facettes (couleur, matière, grammage…) s'administrent sous `/:locale/admin/attributes`, sans passer par un seeder ni un déploiement. Comme les catégories, elles sont **globales** : accès réservé aux admins plateforme (middleware `platformAdmin` + ability `canManageAttributes`). Onglet « Attributs » du back-office.
+
+| Route                                                                              | Action                                                                |
+| ---------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `GET admin/attributes` (`admin.attributes.index`)                                  | liste : nom, type, unité, filtrable, nombre de valeurs et de produits |
+| `GET admin/attributes/new`, `POST admin/attributes` (`.create`, `.store`)          | création, puis redirection vers l'édition                             |
+| `GET admin/attributes/:id/edit`, `PATCH admin/attributes/:id` (`.edit`, `.update`) | édition (nom par langue, unité, filtrable) et valeurs en ligne        |
+| `DELETE admin/attributes/:id` (`.destroy`)                                         | suppression                                                           |
+| `POST admin/attributes/:id/values` (`admin.attribute_values.store`)                | ajout d'une valeur                                                    |
+| `PATCH` / `DELETE admin/attributes/:id/values/:valueId` (`.update`, `.destroy`)    | libellé, synonymes, suppression                                       |
+
+- **Service** : `AttributeService` (`app/services/attribute_service.ts`). Création et mise à jour dans une transaction ; langue source obligatoire (comme les catégories) ; les autres langues sont générées (#75).
+- **Champs figés** : `slug` et `type` d'un attribut, `slug` d'une valeur (la valeur canonique `value` reprend le slug à la création). Les produits, les filtres et les URLs s'appuient dessus.
+- **Suppression refusée** (`AttributeInUseException`, `AttributeValueInUseException` dans `catalogue_errors.ts`) : attribut renseigné par des produits (`product_attributes`) ou retenu par une catégorie (`category_attributes`) ; valeur portée par des produits ou famille de couleur qui a encore des nuances (`parent_value_id`). Message flash, aucune donnée supprimée.
+- **Valeurs** : éditées en ligne dans `edit.vue` pour les attributs de type `enum` ; l'écran n'édite que le libellé de la langue source et les synonymes (la pastille `hex` et le rattachement `parent_value_id` des couleurs restent gérés par le seeder).
+- **Validateurs** (`app/validators/attribute.ts`) : payload `translations` par langue de contenu, comme les catégories. Plus de champ `name` / `label` à plat.
+- **Index de recherche** : renommer une facette ou une valeur ne réindexe pas les produits automatiquement ; `node ace search:reindex` rafraîchit l'embedding et les documents.
 
 ## Fiche technique PDF (#60)
 

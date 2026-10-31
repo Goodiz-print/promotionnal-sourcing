@@ -205,5 +205,18 @@ export interface ApiDefinition {
       update: typeof routes['admin.categories.update']
       destroy: typeof routes['admin.categories.destroy']
     }
+    attributes: {
+      index: typeof routes['admin.attributes.index']
+      create: typeof routes['admin.attributes.create']
+      store: typeof routes['admin.attributes.store']
+      edit: typeof routes['admin.attributes.edit']
+      update: typeof routes['admin.attributes.update']
+      destroy: typeof routes['admin.attributes.destroy']
+    }
+    attributeValues: {
+      store: typeof routes['admin.attribute_values.store']
+      update: typeof routes['admin.attribute_values.update']
+      destroy: typeof routes['admin.attribute_values.destroy']
+    }
   }
 }

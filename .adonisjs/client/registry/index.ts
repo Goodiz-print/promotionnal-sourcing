@@ -732,6 +732,60 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"categories"],[1,"id"]],
     types: placeholder as Registry['admin.categories.destroy']['types'],
   },
+  'admin.attributes.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/attributes',
+    tokens: [[1,"locale"],[0,"admin"],[0,"attributes"]],
+    types: placeholder as Registry['admin.attributes.index']['types'],
+  },
+  'admin.attributes.create': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/attributes/new',
+    tokens: [[1,"locale"],[0,"admin"],[0,"attributes"],[0,"new"]],
+    types: placeholder as Registry['admin.attributes.create']['types'],
+  },
+  'admin.attributes.store': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/attributes',
+    tokens: [[1,"locale"],[0,"admin"],[0,"attributes"]],
+    types: placeholder as Registry['admin.attributes.store']['types'],
+  },
+  'admin.attributes.edit': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/attributes/:id/edit',
+    tokens: [[1,"locale"],[0,"admin"],[0,"attributes"],[1,"id"],[0,"edit"]],
+    types: placeholder as Registry['admin.attributes.edit']['types'],
+  },
+  'admin.attributes.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/admin/attributes/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"attributes"],[1,"id"]],
+    types: placeholder as Registry['admin.attributes.update']['types'],
+  },
+  'admin.attributes.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/admin/attributes/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"attributes"],[1,"id"]],
+    types: placeholder as Registry['admin.attributes.destroy']['types'],
+  },
+  'admin.attribute_values.store': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/attributes/:id/values',
+    tokens: [[1,"locale"],[0,"admin"],[0,"attributes"],[1,"id"],[0,"values"]],
+    types: placeholder as Registry['admin.attribute_values.store']['types'],
+  },
+  'admin.attribute_values.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/admin/attributes/:id/values/:valueId',
+    tokens: [[1,"locale"],[0,"admin"],[0,"attributes"],[1,"id"],[0,"values"],[1,"valueId"]],
+    types: placeholder as Registry['admin.attribute_values.update']['types'],
+  },
+  'admin.attribute_values.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/admin/attributes/:id/values/:valueId',
+    tokens: [[1,"locale"],[0,"admin"],[0,"attributes"],[1,"id"],[0,"values"],[1,"valueId"]],
+    types: placeholder as Registry['admin.attribute_values.destroy']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }
