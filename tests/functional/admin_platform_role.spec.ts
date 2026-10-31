@@ -1,6 +1,7 @@
 import { test } from '@japa/runner'
 import type { Assert } from '@japa/assert'
 import ace from '@adonisjs/core/services/ace'
+import app from '@adonisjs/core/services/app'
 import { OrganizationFactory } from '#database/factories/organization_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import AdminGrant from '../../commands/admin_grant.js'
@@ -110,14 +111,15 @@ test.group('Rôle plateforme — commandes admin:grant / admin:revoke', (group) 
   test('l’email est comparé sans tenir compte de la casse', async ({ assert }) => {
     const user = await UserFactory.merge({ email: 'MixedCase@Example.com' }).create()
 
-    await new PlatformAdminService().grant('  mixedcase@example.com ')
+    const service = await app.container.make(PlatformAdminService)
+    await service.grant('  mixedcase@example.com ')
 
     await assertPlatformRole(assert, user.id, 'admin')
   })
 
   test('accorder deux fois est sans effet', async ({ assert }) => {
     const user = await UserFactory.create()
-    const service = new PlatformAdminService()
+    const service = await app.container.make(PlatformAdminService)
 
     await service.grant(user.email)
     await service.grant(user.email)
@@ -126,10 +128,10 @@ test.group('Rôle plateforme — commandes admin:grant / admin:revoke', (group) 
   })
 
   test('le service lève une exception métier sur un email inconnu', async ({ assert }) => {
-    await assert.rejects(
-      () => new PlatformAdminService().revoke('personne@example.com'),
-      PlatformUserNotFoundException.message
-    )
+    await assert.rejects(async () => {
+      const service = await app.container.make(PlatformAdminService)
+      await service.revoke('personne@example.com')
+    }, PlatformUserNotFoundException.message)
   })
 })
 

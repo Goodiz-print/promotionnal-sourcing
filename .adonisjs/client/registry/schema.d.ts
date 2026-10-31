@@ -1476,6 +1476,32 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/user_controller').default['index']>>>
     }
   }
+  'admin.users.platform_role.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/users/:id/platform-role'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_user').updatePlatformRoleValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_user').updatePlatformRoleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/platform_role_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/platform_role_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/platform_role_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.audit.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/audit'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_audit').auditFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/audit_log_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/audit_log_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/audit_log_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'admin.categories.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/categories'
@@ -1584,13 +1610,13 @@ export interface Registry {
     methods: ["POST"]
     pattern: '/:locale/admin/attributes'
     types: {
-      body: {}
+      body: ExtractBody<InferInput<(typeof import('#validators/attribute').createAttributeValidator)>>
       paramsTuple: [ParamValue]
       params: { locale: ParamValue }
-      query: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/attribute').createAttributeValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['store']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['store']>>>
-      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'admin.attributes.edit': {
@@ -1610,13 +1636,13 @@ export interface Registry {
     methods: ["PATCH"]
     pattern: '/:locale/admin/attributes/:id'
     types: {
-      body: {}
+      body: ExtractBody<InferInput<(typeof import('#validators/attribute').updateAttributeValidator)>>
       paramsTuple: [ParamValue, ParamValue]
       params: { locale: ParamValue; id: ParamValue }
-      query: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/attribute').updateAttributeValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['update']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['update']>>>
-      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'admin.attributes.destroy': {
@@ -1636,26 +1662,26 @@ export interface Registry {
     methods: ["POST"]
     pattern: '/:locale/admin/attributes/:id/values'
     types: {
-      body: {}
+      body: ExtractBody<InferInput<(typeof import('#validators/attribute').createAttributeValueValidator)>>
       paramsTuple: [ParamValue, ParamValue]
       params: { locale: ParamValue; id: ParamValue }
-      query: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/attribute').createAttributeValueValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['store']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['store']>>>
-      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'admin.attribute_values.update': {
     methods: ["PATCH"]
     pattern: '/:locale/admin/attributes/:id/values/:valueId'
     types: {
-      body: {}
+      body: ExtractBody<InferInput<(typeof import('#validators/attribute').updateAttributeValueValidator)>>
       paramsTuple: [ParamValue, ParamValue, ParamValue]
       params: { locale: ParamValue; id: ParamValue; valueId: ParamValue }
-      query: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/attribute').updateAttributeValueValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['update']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['update']>>>
-      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'admin.attribute_values.destroy': {

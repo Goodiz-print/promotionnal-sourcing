@@ -190,6 +190,12 @@ export interface ApiDefinition {
     }
     users: {
       index: typeof routes['admin.users.index']
+      platformRole: {
+        update: typeof routes['admin.users.platform_role.update']
+      }
+    }
+    audit: {
+      index: typeof routes['admin.audit.index']
     }
     categories: {
       index: typeof routes['admin.categories.index']
@@ -207,7 +213,7 @@ export interface ApiDefinition {
       update: typeof routes['admin.attributes.update']
       destroy: typeof routes['admin.attributes.destroy']
     }
-    attribute_values: {
+    attributeValues: {
       store: typeof routes['admin.attribute_values.store']
       update: typeof routes['admin.attribute_values.update']
       destroy: typeof routes['admin.attribute_values.destroy']

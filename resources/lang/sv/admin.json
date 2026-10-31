@@ -4,6 +4,7 @@
     "organizations": "Organisationer",
     "users": "Användare",
     "categories": "Kategorier",
+    "audit": "Granskningslogg",
     "attributes": "Attribut",
     "label": "Administrationsavsnitt"
   },
@@ -88,13 +89,67 @@
       "email": "E-post",
       "organizations": "Organisationer",
       "status": "Status",
-      "createdAt": "Registrerad den"
+      "createdAt": "Registrerad den",
+      "role": "Plattformsroll"
     },
-    "platformAdmin": "Plattformsadmin",
     "unverified": "E-post ej verifierad",
     "resultsCount": "{count, plural, =0 {Inga konton} one {# konto} other {# konton}}",
     "emptyDescription": "Prova en annan adress eller rensa sökningen.",
     "noName": "Inget namn angivet",
-    "verified": "E-post verifierad"
+    "verified": "E-post verifierad",
+    "roles": {
+      "label": "Kontots plattformsroll",
+      "none": "Ingen",
+      "admin": "Administratör",
+      "moderator": "Moderator",
+      "support": "Support",
+      "analyst": "Analytiker",
+      "updated": "Plattformsrollen har uppdaterats.",
+      "ownRole": "Du kan inte ändra din egen plattformsroll."
+    }
+  },
+  "audit": {
+    "title": "Granskningslogg",
+    "subtitle": "Historik över skrivåtgärder som utförts i back-office.",
+    "resultsCount": "{count, plural, =0 {Inga poster} one {# post} other {# poster}}",
+    "empty": "Inga poster matchar dessa filter.",
+    "emptyDescription": "Ändra eller rensa filtren för att utvidga listan.",
+    "columns": {
+      "date": "Datum",
+      "actor": "Utförare",
+      "action": "Åtgärd",
+      "target": "Mål",
+      "changes": "Ändringar"
+    },
+    "system": "System",
+    "viaCli": "Via kommandoraden",
+    "becomes": "blir",
+    "filters": {
+      "action": "Åtgärd",
+      "target": "Mål",
+      "actor": "Utförare (e-post)",
+      "actorPlaceholder": "namn@exempel.se",
+      "from": "Från",
+      "to": "Till",
+      "all": "Alla"
+    },
+    "actions": {
+      "platform_role.changed": "Plattformsroll ändrad",
+      "category.created": "Kategori skapad",
+      "category.updated": "Kategori ändrad",
+      "category.deleted": "Kategori borttagen",
+      "attribute.created": "Attribut skapad",
+      "attribute.updated": "Attribut ändrad",
+      "attribute.deleted": "Attribut borttagen",
+      "attribute_value.created": "Attributvärde skapat",
+      "attribute_value.updated": "Attributvärde ändrat",
+      "attribute_value.deleted": "Attributvärde borttaget"
+    },
+    "targets": {
+      "user": "Användare",
+      "category": "Kategori",
+      "attribute": "Attribut",
+      "attribute_value": "Attributvärde"
+    }
   }
 }

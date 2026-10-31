@@ -4,6 +4,7 @@
     "organizations": "Organizations",
     "users": "Users",
     "categories": "Categories",
+    "audit": "Audit log",
     "attributes": "Attributes",
     "label": "Admin sections"
   },
@@ -88,13 +89,67 @@
       "email": "Email",
       "organizations": "Organizations",
       "status": "Status",
-      "createdAt": "Signed up on"
+      "createdAt": "Signed up on",
+      "role": "Platform role"
     },
-    "platformAdmin": "Platform admin",
     "unverified": "Email not verified",
     "resultsCount": "{count, plural, =0 {No accounts} one {# account} other {# accounts}}",
     "emptyDescription": "Try another address or clear the search.",
     "noName": "No name provided",
-    "verified": "Email verified"
+    "verified": "Email verified",
+    "roles": {
+      "label": "Account platform role",
+      "none": "None",
+      "admin": "Administrator",
+      "moderator": "Moderator",
+      "support": "Support",
+      "analyst": "Analyst",
+      "updated": "Platform role updated.",
+      "ownRole": "You cannot change your own platform role."
+    }
+  },
+  "audit": {
+    "title": "Audit log",
+    "subtitle": "History of the write actions performed in the back-office.",
+    "resultsCount": "{count, plural, =0 {No entries} one {# entry} other {# entries}}",
+    "empty": "No entry matches these filters.",
+    "emptyDescription": "Change or clear the filters to widen the list.",
+    "columns": {
+      "date": "Date",
+      "actor": "Actor",
+      "action": "Action",
+      "target": "Target",
+      "changes": "Changes"
+    },
+    "system": "System",
+    "viaCli": "Via the command line",
+    "becomes": "becomes",
+    "filters": {
+      "action": "Action",
+      "target": "Target",
+      "actor": "Actor (email)",
+      "actorPlaceholder": "name@example.com",
+      "from": "From",
+      "to": "To",
+      "all": "All"
+    },
+    "actions": {
+      "platform_role.changed": "Platform role changed",
+      "category.created": "Category created",
+      "category.updated": "Category updated",
+      "category.deleted": "Category deleted",
+      "attribute.created": "Attribute created",
+      "attribute.updated": "Attribute updated",
+      "attribute.deleted": "Attribute deleted",
+      "attribute_value.created": "Attribute value created",
+      "attribute_value.updated": "Attribute value updated",
+      "attribute_value.deleted": "Attribute value deleted"
+    },
+    "targets": {
+      "user": "User",
+      "category": "Category",
+      "attribute": "Attribute",
+      "attribute_value": "Attribute value"
+    }
   }
 }

@@ -117,6 +117,8 @@ export type ScannedRoutes = {
     'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.users.platform_role.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.audit.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -184,6 +186,7 @@ export type ScannedRoutes = {
     'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.audit.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -242,6 +245,7 @@ export type ScannedRoutes = {
     'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.audit.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -307,6 +311,7 @@ export type ScannedRoutes = {
     'supplier.orders.ship': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.orders.cancel': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'notifications.read': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.users.platform_role.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.categories.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.attributes.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.attribute_values.update': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'valueId': ParamValue} }

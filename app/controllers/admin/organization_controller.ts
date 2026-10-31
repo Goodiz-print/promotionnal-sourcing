@@ -14,13 +14,15 @@ const PER_PAGE = 25
 
 /**
  * Consultation des organisations par l'équipe plateforme (liste filtrable par
- * type et statut d'archivage, fiche détaillée).
+ * type et statut d'archivage, fiche détaillée). Droit `organizations.view`.
  */
 @inject()
 export default class OrganizationController {
   constructor(private service: AdminOrganizationService) {}
 
-  async index({ inertia, request }: HttpContext) {
+  async index({ bouncer, inertia, request }: HttpContext) {
+    await bouncer.authorize('hasPlatformPermission', 'organizations.view')
+
     const qs = request.qs()
     const filters: AdminOrganizationFilters = {
       type: ORGANIZATION_TYPES.includes(qs.type) ? (qs.type as OrganizationKind) : null,
@@ -48,7 +50,9 @@ export default class OrganizationController {
     })
   }
 
-  async show({ inertia, params }: HttpContext) {
+  async show({ bouncer, inertia, params }: HttpContext) {
+    await bouncer.authorize('hasPlatformPermission', 'organizations.view')
+
     const details = await this.service.details(Number(params.id))
 
     return inertia.render('admin/organizations/show', {

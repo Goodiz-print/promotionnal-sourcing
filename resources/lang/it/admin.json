@@ -4,6 +4,7 @@
     "organizations": "Organizzazioni",
     "users": "Utenti",
     "categories": "Categorie",
+    "audit": "Registro di audit",
     "attributes": "Attributi",
     "label": "Sezioni di amministrazione"
   },
@@ -88,13 +89,67 @@
       "email": "E-mail",
       "organizations": "Organizzazioni",
       "status": "Stato",
-      "createdAt": "Iscritto il"
+      "createdAt": "Iscritto il",
+      "role": "Ruolo di piattaforma"
     },
-    "platformAdmin": "Admin piattaforma",
     "unverified": "E-mail non verificata",
     "resultsCount": "{count, plural, =0 {Nessun account} one {# account} other {# account}}",
     "emptyDescription": "Provi con un altro indirizzo o cancelli la ricerca.",
     "noName": "Nome non indicato",
-    "verified": "E-mail verificata"
+    "verified": "E-mail verificata",
+    "roles": {
+      "label": "Ruolo di piattaforma dell'account",
+      "none": "Nessuno",
+      "admin": "Amministratore",
+      "moderator": "Moderatore",
+      "support": "Supporto",
+      "analyst": "Analista",
+      "updated": "Ruolo di piattaforma aggiornato.",
+      "ownRole": "Non puoi modificare il tuo ruolo di piattaforma."
+    }
+  },
+  "audit": {
+    "title": "Registro di audit",
+    "subtitle": "Cronologia delle azioni di scrittura eseguite nel back-office.",
+    "resultsCount": "{count, plural, =0 {Nessuna voce} one {# voce} other {# voci}}",
+    "empty": "Nessuna voce corrisponde a questi filtri.",
+    "emptyDescription": "Modifica o cancella i filtri per ampliare l'elenco.",
+    "columns": {
+      "date": "Data",
+      "actor": "Autore",
+      "action": "Azione",
+      "target": "Destinazione",
+      "changes": "Modifiche"
+    },
+    "system": "Sistema",
+    "viaCli": "Da riga di comando",
+    "becomes": "diventa",
+    "filters": {
+      "action": "Azione",
+      "target": "Destinazione",
+      "actor": "Autore (email)",
+      "actorPlaceholder": "nome@esempio.it",
+      "from": "Dal",
+      "to": "Al",
+      "all": "Tutte"
+    },
+    "actions": {
+      "platform_role.changed": "Ruolo di piattaforma modificato",
+      "category.created": "Categoria creata",
+      "category.updated": "Categoria modificata",
+      "category.deleted": "Categoria eliminata",
+      "attribute.created": "Attributo creato",
+      "attribute.updated": "Attributo modificato",
+      "attribute.deleted": "Attributo eliminato",
+      "attribute_value.created": "Valore di attributo creato",
+      "attribute_value.updated": "Valore di attributo modificato",
+      "attribute_value.deleted": "Valore di attributo eliminato"
+    },
+    "targets": {
+      "user": "Utente",
+      "category": "Categoria",
+      "attribute": "Attributo",
+      "attribute_value": "Valore di attributo"
+    }
   }
 }

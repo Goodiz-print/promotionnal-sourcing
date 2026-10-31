@@ -11,10 +11,12 @@ const props = withDefaults(
     label?: string
     error?: string
     hint?: string
+    /** Nom accessible quand aucun `label` visible n'est affiché (select en cellule de tableau). */
+    ariaLabel?: string
     required?: boolean
     disabled?: boolean
   }>(),
-  { label: '', error: '', hint: '', required: false, disabled: false }
+  { label: '', error: '', hint: '', ariaLabel: undefined, required: false, disabled: false }
 )
 
 const emit = defineEmits<{
@@ -36,6 +38,7 @@ const model = computed({
           v-model="model"
           :disabled="disabled"
           :required="required"
+          :aria-label="ariaLabel"
           :aria-invalid="error ? 'true' : undefined"
           :aria-describedby="error ? errorId : hint ? hintId : undefined"
           :data-invalid="error ? 'true' : undefined"

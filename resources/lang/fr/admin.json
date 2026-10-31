@@ -4,6 +4,7 @@
     "organizations": "Organisations",
     "users": "Utilisateurs",
     "categories": "Catégories",
+    "audit": "Journal d'audit",
     "attributes": "Attributs",
     "label": "Sections d'administration"
   },
@@ -88,13 +89,67 @@
       "email": "Email",
       "organizations": "Organisations",
       "status": "Statut",
-      "createdAt": "Inscrit le"
+      "createdAt": "Inscrit le",
+      "role": "Rôle plateforme"
     },
-    "platformAdmin": "Admin plateforme",
     "unverified": "Email non vérifié",
     "resultsCount": "{count, plural, =0 {Aucun compte} one {# compte} other {# comptes}}",
     "emptyDescription": "Essayez une autre adresse ou effacez la recherche.",
     "noName": "Nom non renseigné",
-    "verified": "Email vérifié"
+    "verified": "Email vérifié",
+    "roles": {
+      "label": "Rôle plateforme du compte",
+      "none": "Aucun",
+      "admin": "Administrateur",
+      "moderator": "Modérateur",
+      "support": "Support",
+      "analyst": "Analyste",
+      "updated": "Rôle plateforme mis à jour.",
+      "ownRole": "Vous ne pouvez pas modifier votre propre rôle plateforme."
+    }
+  },
+  "audit": {
+    "title": "Journal d'audit",
+    "subtitle": "Historique des actions d'écriture effectuées dans le back-office.",
+    "resultsCount": "{count, plural, =0 {Aucune entrée} one {# entrée} other {# entrées}}",
+    "empty": "Aucune entrée ne correspond à ces filtres.",
+    "emptyDescription": "Modifiez ou effacez les filtres pour élargir la liste.",
+    "columns": {
+      "date": "Date",
+      "actor": "Acteur",
+      "action": "Action",
+      "target": "Cible",
+      "changes": "Modifications"
+    },
+    "system": "Système",
+    "viaCli": "Via la ligne de commande",
+    "becomes": "devient",
+    "filters": {
+      "action": "Action",
+      "target": "Cible",
+      "actor": "Acteur (email)",
+      "actorPlaceholder": "nom@exemple.com",
+      "from": "Du",
+      "to": "Au",
+      "all": "Toutes"
+    },
+    "actions": {
+      "platform_role.changed": "Rôle plateforme modifié",
+      "category.created": "Catégorie créée",
+      "category.updated": "Catégorie modifiée",
+      "category.deleted": "Catégorie supprimée",
+      "attribute.created": "Attribut créé",
+      "attribute.updated": "Attribut modifié",
+      "attribute.deleted": "Attribut supprimé",
+      "attribute_value.created": "Valeur d'attribut créée",
+      "attribute_value.updated": "Valeur d'attribut modifiée",
+      "attribute_value.deleted": "Valeur d'attribut supprimée"
+    },
+    "targets": {
+      "user": "Utilisateur",
+      "category": "Catégorie",
+      "attribute": "Attribut",
+      "attribute_value": "Valeur d'attribut"
+    }
   }
 }

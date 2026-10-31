@@ -20,17 +20,19 @@ const MANAGEMENT_ROLES: readonly RoleSlug[] = ['owner', 'admin']
  */
 export default class NavigationService {
   /**
-   * `isPlatformAdmin` ajoute l'entrée « Administration » : elle dépend du rôle
-   * plateforme, pas de l'organisation, donc elle vaut aussi sans contexte.
+   * `hasBackOffice` (un rôle plateforme, quel qu'il soit) ajoute l'entrée
+   * « Administration » : elle dépend du rôle plateforme, pas de l'organisation,
+   * donc elle vaut aussi sans contexte. Les sections accessibles sont ensuite
+   * filtrées par droit dans les onglets du back-office.
    */
-  itemsFor(context: NavigationContext | null, isPlatformAdmin = false): NavigationItemType[] {
+  itemsFor(context: NavigationContext | null, hasBackOffice = false): NavigationItemType[] {
     const items: NavigationItemType[] = []
     const add = (key: string, route: NavigationRoute) =>
       items.push({ key, route, labelKey: `common.nav.${key}` })
 
     if (!context) {
       add('catalogue', 'products.index')
-      if (isPlatformAdmin) add('admin', 'admin.dashboard')
+      if (hasBackOffice) add('admin', 'admin.dashboard')
       return items
     }
 
@@ -56,7 +58,7 @@ export default class NavigationService {
       add('members', 'organization.members')
       add('settings', 'organization.settings')
     }
-    if (isPlatformAdmin) add('admin', 'admin.dashboard')
+    if (hasBackOffice) add('admin', 'admin.dashboard')
 
     return items
   }

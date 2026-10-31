@@ -72,3 +72,14 @@ export type AdminUserListItem = {
   organizationsCount: number
   createdAt: string
 }
+
+/**
+ * Données de l'écran Utilisateurs nécessaires à la gestion des rôles
+ * plateforme. `canManageRoles` ne pilote que l'affichage : le serveur
+ * re-vérifie le droit `roles.manage`.
+ */
+export type AdminUsersRolesProps = {
+  canManageRoles: boolean
+  /** Compte de l'utilisateur connecté : il ne peut pas changer son propre rôle. */
+  currentUserId: number
+}
