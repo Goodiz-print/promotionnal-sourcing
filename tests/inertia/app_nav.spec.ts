@@ -14,11 +14,16 @@ const translations: Record<string, string> = {
   'common.nav.groups.organization': 'Organisation',
 }
 
-const pageState: { url: string; navigation: NavigationItemType[] } = { url: '/fr', navigation: [] }
+const pageState: { url: string; component: string; navigation: NavigationItemType[] } = {
+  url: '/fr',
+  component: 'dashboard/show',
+  navigation: [],
+}
 
 vi.mock('@inertiajs/vue3', () => ({
   usePage: () => ({
     url: pageState.url,
+    component: pageState.component,
     props: {
       locale: 'fr',
       supportedLocales: ['fr', 'en'],
@@ -47,7 +52,28 @@ function item(key: string, route: NavigationItemType['route']): NavigationItemTy
 describe('AppNav', () => {
   beforeEach(() => {
     pageState.url = '/fr'
+    pageState.component = 'dashboard/show'
     pageState.navigation = []
+  })
+
+  it("n'affiche que l'entrée d'administration dans le back-office", () => {
+    pageState.component = 'admin/dashboard'
+    pageState.navigation = [
+      item('dashboard', 'dashboard.show'),
+      item('rfqs', 'rfqs.index'),
+      item('supplierProducts', 'supplier.products.index'),
+      item('admin', 'admin.dashboard'),
+    ]
+
+    const links = mount(AppNav).findAll('a')
+
+    expect(links).toHaveLength(1)
+  })
+
+  it('garde toutes les entrées hors du back-office', () => {
+    pageState.navigation = [item('rfqs', 'rfqs.index'), item('admin', 'admin.dashboard')]
+
+    expect(mount(AppNav).findAll('a')).toHaveLength(2)
   })
 
   it('affiche les entrées fournies par le serveur, traduites', () => {
