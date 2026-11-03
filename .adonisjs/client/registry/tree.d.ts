@@ -197,6 +197,10 @@ export interface ApiDefinition {
     audit: {
       index: typeof routes['admin.audit.index']
     }
+    search: {
+      index: typeof routes['admin.search.index']
+      export: typeof routes['admin.search.export']
+    }
     categories: {
       index: typeof routes['admin.categories.index']
       create: typeof routes['admin.categories.create']

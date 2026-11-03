@@ -1502,6 +1502,32 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/audit_log_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'admin.search.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/search'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_search_insights').searchInsightsFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/search_insights_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/search_insights_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/search_insights_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.search.export': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/search/export'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_search_insights').searchInsightsFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/search_insights_controller').default['export']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/search_insights_controller').default['export']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/search_insights_controller').default['export']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'admin.categories.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/categories'

@@ -293,6 +293,14 @@ router
                   .get('admin/audit', [controllers.admin.AuditLog, 'index'])
                   .as('admin.audit.index')
 
+                // Ce que cherchent les clients (#173).
+                router
+                  .get('admin/search', [controllers.admin.SearchInsights, 'index'])
+                  .as('admin.search.index')
+                router
+                  .get('admin/search/export', [controllers.admin.SearchInsights, 'export'])
+                  .as('admin.search.export')
+
                 // Administration de la taxonomie du catalogue (catégories globales).
                 router
                   .get('admin/categories', [controllers.admin.Category, 'index'])

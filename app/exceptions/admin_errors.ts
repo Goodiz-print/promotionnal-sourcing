@@ -1,4 +1,5 @@
 import { Exception } from '@adonisjs/core/exceptions'
+import { errors as vineErrors } from '@vinejs/vine'
 
 /**
  * Aucun compte ne correspond à l'email donné (commandes `admin:grant` /
@@ -35,4 +36,21 @@ export class AdminUserNotFoundException extends Exception {
   static status = 404
   static code = 'E_ADMIN_USER_NOT_FOUND'
   static message = 'User not found'
+}
+
+/**
+ * Période d'analyse refusée (écran « Ce que cherchent les clients », #173) :
+ * erreur de validation sur le champ concerné, rendue comme les autres (422).
+ */
+export function invalidSearchInsightsPeriod(field: 'from' | 'to', rule: 'order' | 'maxDays') {
+  return new vineErrors.E_VALIDATION_ERROR([
+    {
+      field,
+      message:
+        rule === 'order'
+          ? 'The start date must not be after the end date'
+          : 'The period is too long',
+      rule,
+    },
+  ])
 }

@@ -16,7 +16,7 @@ export const SEARCH_INSIGHTS_MAX_DAYS = 366
 export const SEARCH_INSIGHTS_TOP_LIMIT = 20
 
 /** Filtres de l'écran (query string). `from` / `to` : jours ISO `AAAA-MM-JJ`, inclus. */
-export interface SearchInsightsFilters {
+export type SearchInsightsFilters = {
   from: string
   to: string
   source: SearchEventSource | null
@@ -26,7 +26,7 @@ export interface SearchInsightsFilters {
   organizationType: OrganizationKind | null
 }
 
-export interface SearchInsightsSummary {
+export type SearchInsightsSummary = {
   total: number
   zeroResults: number
   /** `zeroResults / total` entre 0 et 1 ; 0 quand `total` vaut 0. */
@@ -37,7 +37,7 @@ export interface SearchInsightsSummary {
   previousTotal: number
 }
 
-export interface SearchInsightsQueryRow {
+export type SearchInsightsQueryRow = {
   query: string
   count: number
   zeroCount: number
@@ -45,28 +45,28 @@ export interface SearchInsightsQueryRow {
   avgResults: number
 }
 
-export interface SearchInsightsDayPoint {
+export type SearchInsightsDayPoint = {
   /** `AAAA-MM-JJ` */
   date: string
   total: number
   zeroResults: number
 }
 
-export interface SearchInsightsCategoryRow {
+export type SearchInsightsCategoryRow = {
   categoryId: number
   /** Nom traduit dans la langue de l'admin (repli géré par `resolveTranslation`). */
   name: string
   count: number
 }
 
-export interface SearchInsightsFilterRow {
+export type SearchInsightsFilterRow = {
   /** Clé de filtre (ex. `minPrice`, `attr_color`, `certification`). */
   key: string
   count: number
 }
 
 /** Cible consultée ou ajoutée à une demande de devis. */
-export interface SearchInsightsTargetRow {
+export type SearchInsightsTargetRow = {
   targetId: number
   name: string
   views: number
@@ -74,7 +74,7 @@ export interface SearchInsightsTargetRow {
   rfqAdds: number
 }
 
-export interface SearchInsightsReport {
+export type SearchInsightsReport = {
   filters: SearchInsightsFilters
   summary: SearchInsightsSummary
   topQueries: SearchInsightsQueryRow[]
