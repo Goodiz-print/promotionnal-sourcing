@@ -22,7 +22,66 @@
       "products": "Produkter",
       "rfqs": "Offertförfrågningar"
     },
-    "archived": "{count, plural, =0 {Inga arkiverade} one {# arkiverad} other {# arkiverade}}"
+    "archived": "{count, plural, =0 {Inga arkiverade} one {# arkiverad} other {# arkiverade}}",
+    "kpi": {
+      "none": "—",
+      "previous": "Föregående period: {value}",
+      "filters": {
+        "from": "Från",
+        "to": "Till",
+        "hint": "Varje nyckeltal jämförs med föregående period av samma längd (högst 366 dagar)."
+      },
+      "groups": {
+        "accounts": "Konton",
+        "rfqs": "Offertförfrågningar",
+        "quotes": "Offerter",
+        "orders": "Beställningar",
+        "catalogue": "Katalog",
+        "toHandle": "Att hantera",
+        "daily": "Daglig aktivitet"
+      },
+      "metrics": {
+        "newOrganizations": "Nya organisationer",
+        "newUsers": "Nya användare",
+        "activeUsers": "Aktiva användare",
+        "rfqsCreated": "Skapade förfrågningar",
+        "rfqsPublished": "Publicerade förfrågningar",
+        "publicationDelay": "Tid till publicering",
+        "responseRate": "Leverantörernas svarsfrekvens",
+        "declineRate": "Leverantörernas avslagsfrekvens",
+        "quotesSubmitted": "Inskickade offerter",
+        "quotesAccepted": "Accepterade offerter",
+        "quotesRejected": "Avvisade offerter",
+        "decisionDelay": "Tid till beslut",
+        "ordersCreated": "Skapade beställningar",
+        "quoteToOrder": "Konvertering offert → beställning",
+        "deliveryDelay": "Leveranstid",
+        "gmv": "Försäljningsvolym ({currency})",
+        "agencyReviews": "Byråer att granska"
+      },
+      "agencyReviewsHint": "Icke-arkiverade byråer med en granskningsorsak.",
+      "organizationTypes": "Nya organisationer per typ",
+      "rfqStatuses": "Skapade förfrågningar per status",
+      "lifecycle": "Produkter per status",
+      "coverage": "Översättningstäckning",
+      "coverageHint": "Andel produkter som är översatta till varje språk.",
+      "columns": {
+        "type": "Typ",
+        "status": "Status",
+        "count": "Antal",
+        "locale": "Språk",
+        "coverage": "Täckning"
+      },
+      "dailyHint": "Nya organisationer och användare, publicerade förfrågningar, inskickade offerter och beställningar, dag för dag.",
+      "daily": {
+        "activity": "Aktivitet",
+        "organizations": "Organisationer",
+        "users": "Användare",
+        "rfqs": "Förfrågningar",
+        "quotes": "Offerter",
+        "orders": "Beställningar"
+      }
+    }
   },
   "organizations": {
     "title": "Organisationer",

@@ -72,3 +72,7 @@ Types (`ActivityEventService`) : `product_viewed`, `supplier_viewed` (fiches pub
 - Factories : `UserFactory.apply('platformAdmin' | 'platformModerator' | 'platformSupport' | 'platformAnalyst')`, `AdminAuditLogFactory`.
 - `tests/functional/activity_events.spec.ts` : consultations et rétention. Factory : `ActivityEventFactory`.
 - `tests/functional/admin_demand.spec.ts` : droits par rôle, agrégations, filtres, export CSV.
+
+## Tableau de bord KPI (#174)
+
+`GET /admin` (`admin.dashboard`) : compteurs pour tous les rôles du back-office ; indicateurs de période (comptes, demandes de devis, devis, commandes, catalogue, agences à revoir, activité quotidienne) pour `monitoring.view`. Filtres `from` / `to` (30 jours par défaut, 366 jours maximum). Chaque indicateur est comparé à la période précédente de même durée ; un ratio ou une durée sans événement vaut `null` (affiché « — »). Agrégations dans `AdminKpiService`, jours groupés dans le fuseau de l'application. Détail : `docs/changelog/2026-11-03-tableau-de-bord-kpi.md`.

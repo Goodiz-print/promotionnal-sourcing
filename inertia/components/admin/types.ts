@@ -1,5 +1,8 @@
 import type { RoleSlug } from '#shared/types/role'
+import type { Component } from 'vue'
+import type { KpiFormat } from '~/composables/use_kpi_format'
 import type { BadgeTone } from '~/types/ui'
+import type { KpiMetric } from '#shared/types/admin_kpi'
 
 /**
  * Tonalité de la pastille par rôle d'organisation (back-office). Le propriétaire
@@ -16,6 +19,15 @@ export const ORGANIZATION_ROLE_TONES: Record<RoleSlug, BadgeTone | 'brand'> = {
 export interface RankingRow {
   key: string | number
   label: string
-  value: number
+  value: number | string
   extra?: string | number
+}
+
+/** Indicateur d'un groupe du tableau de bord KPI (`KpiGroup`) : valeur comparée à la période précédente. */
+export interface KpiItem {
+  key: string
+  label: string
+  metric: KpiMetric
+  format: KpiFormat
+  icon: Component
 }
