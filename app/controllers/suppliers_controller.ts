@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import { Exception } from '@adonisjs/core/exceptions'
+import ActivityEventService from '#services/activity_event_service'
 import SupplierDirectoryService from '#services/supplier_directory_service'
 import DocumentService from '#services/document_service'
 import SearchEventService from '#services/search_event_service'
@@ -15,7 +16,8 @@ export default class SuppliersController {
   constructor(
     private service: SupplierDirectoryService,
     private documents: DocumentService,
-    private searchEvents: SearchEventService
+    private searchEvents: SearchEventService,
+    private activityEvents: ActivityEventService
   ) {}
 
   /**
@@ -63,13 +65,22 @@ export default class SuppliersController {
   /**
    * Fiche fournisseur publique : profil + catalogue produits.
    */
-  async show({ inertia, params, i18n }: HttpContext) {
+  async show({ inertia, params, i18n, auth }: HttpContext) {
     const locale = i18n.locale as Locale
     const supplier = await this.service.findBySlug(params.slug)
 
     if (!supplier) {
       throw new Exception('Supplier not found', { status: 404, code: 'E_SUPPLIER_NOT_FOUND' })
     }
+
+    await this.activityEvents.record({
+      type: 'supplier_viewed',
+      targetType: 'supplier',
+      targetId: supplier.id,
+      userId: auth.user?.id ?? null,
+      organizationId: auth.user?.currentOrganizationId ?? null,
+      isStaff: auth.user?.hasBackOffice ?? false,
+    })
 
     return inertia.render('suppliers/show', {
       supplier: new SupplierDetailTransformer(supplier, locale, this.documents.urlFor).toObject(),

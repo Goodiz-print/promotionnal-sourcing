@@ -21,6 +21,7 @@ import RecoverStorageUploadsJob from '#jobs/recover_storage_uploads_job'
 import ExpireRfqsJob from '#jobs/expire_rfqs_job'
 import RemindRfqSuppliersJob from '#jobs/remind_rfq_suppliers_job'
 import PurgeSearchEventsJob from '#jobs/purge_search_events_job'
+import PurgeActivityEventsJob from '#jobs/purge_activity_events_job'
 
 /**
  * Purge quotidienne des invitations d'organisation (bascule `pending` échues en
@@ -70,6 +71,17 @@ await RemindRfqSuppliersJob.schedule({})
  */
 await PurgeSearchEventsJob.schedule({})
   .id('purge-search-events')
+  .cron('50 3 * * *')
+  .timezone('Europe/Paris')
+  .run()
+
+/**
+ * Rétention quotidienne des consultations (#172) : pseudonymisation de
+ * l'utilisateur après 90 jours, suppression après 24 mois. De nuit, heure de
+ * Paris : aucune contrainte de fraîcheur.
+ */
+await PurgeActivityEventsJob.schedule({})
+  .id('purge-activity-events')
   .cron('45 3 * * *')
   .timezone('Europe/Paris')
   .run()
