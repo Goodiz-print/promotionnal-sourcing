@@ -6,6 +6,7 @@
     "categories": "Catégories",
     "audit": "Journal d'audit",
     "attributes": "Attributs",
+    "search": "Recherches",
     "label": "Sections d'administration"
   },
   "pagination": {
@@ -150,6 +151,91 @@
       "category": "Catégorie",
       "attribute": "Attribut",
       "attribute_value": "Valeur d'attribut"
+    }
+  },
+  "search": {
+    "title": "Ce que cherchent les clients",
+    "subtitle": "Recherches effectuées sur la plateforme : demandes, requêtes sans réponse et produits consultés.",
+    "export": "Exporter en CSV",
+    "empty": "Aucune recherche sur cette période.",
+    "emptyDescription": "Élargissez la période ou effacez des filtres pour voir des résultats.",
+    "noRows": "Aucune donnée pour ces filtres.",
+    "filters": {
+      "from": "Du",
+      "to": "Au",
+      "source": "Source",
+      "locale": "Langue",
+      "organizationType": "Type d’organisation",
+      "all": "Toutes"
+    },
+    "sources": {
+      "catalogue": "Catalogue",
+      "suppliers": "Fournisseurs",
+      "rfq_lookup": "Recherche de demande de devis"
+    },
+    "modes": {
+      "semantic": "Sémantique",
+      "keyword": "Mots-clés",
+      "unavailable": "Indisponible",
+      "browse": "Navigation"
+    },
+    "organizationTypes": {
+      "buyer": "Acheteur",
+      "supplier": "Fournisseur",
+      "both": "Acheteur et fournisseur"
+    },
+    "summary": {
+      "total": "Recherches",
+      "zeroResults": "Sans résultat",
+      "zeroRate": "{rate} des recherches",
+      "modes": "Modes de recherche",
+      "variation": "{percent} % vs période précédente",
+      "noPrevious": "Pas de période précédente à comparer"
+    },
+    "chart": {
+      "title": "Recherches par jour",
+      "description": "Total quotidien, dont la part sans résultat.",
+      "label": "Recherches par jour du {from} au {to}",
+      "point": "{date} : {total, plural, one {# recherche} other {# recherches}}, dont {zero} sans résultat",
+      "total": "Total",
+      "zero": "Sans résultat"
+    },
+    "topQueries": {
+      "title": "Requêtes les plus fréquentes",
+      "description": "Ce que les clients tapent le plus."
+    },
+    "zeroQueries": {
+      "title": "Requêtes sans résultat",
+      "description": "Opportunités : produits à ajouter au catalogue ou synonymes à déclarer."
+    },
+    "categories": {
+      "title": "Catégories les plus recherchées",
+      "description": "Catégories explorées lors des recherches."
+    },
+    "filtersUsed": {
+      "title": "Filtres les plus utilisés",
+      "description": "Critères que les clients affinent le plus."
+    },
+    "products": {
+      "title": "Produits les plus consultés",
+      "description": "Fiches vues depuis la recherche, avec les ajouts à une demande de devis."
+    },
+    "suppliers": {
+      "title": "Fournisseurs les plus consultés",
+      "description": "Profils fournisseurs consultés depuis la recherche."
+    },
+    "columns": {
+      "date": "Date",
+      "query": "Requête",
+      "searches": "Recherches",
+      "zeroCount": "Sans résultat",
+      "avgResults": "Résultats (moy.)",
+      "category": "Catégorie",
+      "filter": "Filtre",
+      "product": "Produit",
+      "supplier": "Fournisseur",
+      "views": "Consultations",
+      "rfqAdds": "Ajouts RFQ"
     }
   }
 }

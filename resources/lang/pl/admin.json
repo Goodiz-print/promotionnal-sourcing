@@ -6,6 +6,7 @@
     "categories": "Kategorie",
     "audit": "Dziennik audytu",
     "attributes": "Atrybuty",
+    "search": "Wyszukiwania",
     "label": "Sekcje administracji"
   },
   "pagination": {
@@ -150,6 +151,91 @@
       "category": "Kategoria",
       "attribute": "Atrybut",
       "attribute_value": "Wartość atrybutu"
+    }
+  },
+  "search": {
+    "title": "Czego szukają klienci",
+    "subtitle": "Wyszukiwania na platformie: zapytania, wyszukiwania bez wyników i najczęściej oglądane produkty.",
+    "export": "Eksportuj do CSV",
+    "empty": "Brak wyszukiwań w tym okresie.",
+    "emptyDescription": "Wydłuż okres lub wyczyść filtry, aby zobaczyć wyniki.",
+    "noRows": "Brak danych dla tych filtrów.",
+    "filters": {
+      "from": "Od",
+      "to": "Do",
+      "source": "Źródło",
+      "locale": "Język",
+      "organizationType": "Typ organizacji",
+      "all": "Wszystkie"
+    },
+    "sources": {
+      "catalogue": "Katalog",
+      "suppliers": "Dostawcy",
+      "rfq_lookup": "Wyszukiwanie zapytań ofertowych"
+    },
+    "modes": {
+      "semantic": "Semantyczne",
+      "keyword": "Słowa kluczowe",
+      "unavailable": "Niedostępne",
+      "browse": "Przeglądanie"
+    },
+    "organizationTypes": {
+      "buyer": "Kupujący",
+      "supplier": "Dostawca",
+      "both": "Kupujący i dostawca"
+    },
+    "summary": {
+      "total": "Wyszukiwania",
+      "zeroResults": "Bez wyników",
+      "zeroRate": "{rate} wyszukiwań",
+      "modes": "Tryby wyszukiwania",
+      "variation": "{percent}% względem poprzedniego okresu",
+      "noPrevious": "Brak poprzedniego okresu do porównania"
+    },
+    "chart": {
+      "title": "Wyszukiwania dziennie",
+      "description": "Suma dzienna, w tym bez wyników.",
+      "label": "Wyszukiwania dziennie od {from} do {to}",
+      "point": "{date}: {total, plural, one {# wyszukiwanie} few {# wyszukiwania} many {# wyszukiwań} other {# wyszukiwania}}, w tym {zero} bez wyników",
+      "total": "Razem",
+      "zero": "Bez wyników"
+    },
+    "topQueries": {
+      "title": "Najczęstsze zapytania",
+      "description": "Co klienci wpisują najczęściej."
+    },
+    "zeroQueries": {
+      "title": "Zapytania bez wyników",
+      "description": "Szanse: produkty do dodania do katalogu lub synonimy do zdefiniowania."
+    },
+    "categories": {
+      "title": "Najczęściej wyszukiwane kategorie",
+      "description": "Kategorie przeglądane podczas wyszukiwania."
+    },
+    "filtersUsed": {
+      "title": "Najczęściej używane filtry",
+      "description": "Kryteria, którymi klienci najczęściej zawężają wyniki."
+    },
+    "products": {
+      "title": "Najczęściej oglądane produkty",
+      "description": "Karty produktów otwarte z wyszukiwarki, z dodaniami do zapytania ofertowego."
+    },
+    "suppliers": {
+      "title": "Najczęściej oglądani dostawcy",
+      "description": "Profile dostawców otwarte z wyszukiwarki."
+    },
+    "columns": {
+      "date": "Data",
+      "query": "Zapytanie",
+      "searches": "Wyszukiwania",
+      "zeroCount": "Bez wyników",
+      "avgResults": "Wyniki (śr.)",
+      "category": "Kategoria",
+      "filter": "Filtr",
+      "product": "Produkt",
+      "supplier": "Dostawca",
+      "views": "Wyświetlenia",
+      "rfqAdds": "Dodania do RFQ"
     }
   }
 }

@@ -6,6 +6,7 @@
     "categories": "Kategorien",
     "audit": "Audit-Protokoll",
     "attributes": "Attribute",
+    "search": "Suchanfragen",
     "label": "Administrationsbereiche"
   },
   "pagination": {
@@ -150,6 +151,91 @@
       "category": "Kategorie",
       "attribute": "Attribut",
       "attribute_value": "Attributwert"
+    }
+  },
+  "search": {
+    "title": "Wonach Kunden suchen",
+    "subtitle": "Suchanfragen auf der Plattform: Begriffe, erfolglose Suchen und meistgesehene Produkte.",
+    "export": "Als CSV exportieren",
+    "empty": "Keine Suchanfragen in diesem Zeitraum.",
+    "emptyDescription": "Erweitern Sie den Zeitraum oder entfernen Sie Filter, um Ergebnisse zu sehen.",
+    "noRows": "Keine Daten für diese Filter.",
+    "filters": {
+      "from": "Von",
+      "to": "Bis",
+      "source": "Quelle",
+      "locale": "Sprache",
+      "organizationType": "Organisationstyp",
+      "all": "Alle"
+    },
+    "sources": {
+      "catalogue": "Katalog",
+      "suppliers": "Lieferanten",
+      "rfq_lookup": "Suche nach Angebotsanfragen"
+    },
+    "modes": {
+      "semantic": "Semantisch",
+      "keyword": "Stichwort",
+      "unavailable": "Nicht verfügbar",
+      "browse": "Stöbern"
+    },
+    "organizationTypes": {
+      "buyer": "Käufer",
+      "supplier": "Lieferant",
+      "both": "Käufer und Lieferant"
+    },
+    "summary": {
+      "total": "Suchanfragen",
+      "zeroResults": "Ohne Ergebnis",
+      "zeroRate": "{rate} der Suchanfragen",
+      "modes": "Suchmodi",
+      "variation": "{percent} % ggü. Vorperiode",
+      "noPrevious": "Keine Vorperiode zum Vergleichen"
+    },
+    "chart": {
+      "title": "Suchanfragen pro Tag",
+      "description": "Tagessumme, davon ohne Ergebnis.",
+      "label": "Suchanfragen pro Tag vom {from} bis {to}",
+      "point": "{date}: {total, plural, one {# Suchanfrage} other {# Suchanfragen}}, davon {zero} ohne Ergebnis",
+      "total": "Gesamt",
+      "zero": "Ohne Ergebnis"
+    },
+    "topQueries": {
+      "title": "Häufigste Suchbegriffe",
+      "description": "Was Kunden am häufigsten eingeben."
+    },
+    "zeroQueries": {
+      "title": "Suchbegriffe ohne Ergebnis",
+      "description": "Chancen: Produkte für den Katalog oder zu hinterlegende Synonyme."
+    },
+    "categories": {
+      "title": "Meistgesuchte Kategorien",
+      "description": "Bei Suchen erkundete Kategorien."
+    },
+    "filtersUsed": {
+      "title": "Meistgenutzte Filter",
+      "description": "Kriterien, mit denen Kunden am häufigsten eingrenzen."
+    },
+    "products": {
+      "title": "Meistgesehene Produkte",
+      "description": "Aus der Suche aufgerufene Produktseiten, mit Hinzufügungen zu einer Angebotsanfrage."
+    },
+    "suppliers": {
+      "title": "Meistgesehene Lieferanten",
+      "description": "Aus der Suche aufgerufene Lieferantenprofile."
+    },
+    "columns": {
+      "date": "Datum",
+      "query": "Suchbegriff",
+      "searches": "Suchanfragen",
+      "zeroCount": "Ohne Ergebnis",
+      "avgResults": "Ergebnisse (Ø)",
+      "category": "Kategorie",
+      "filter": "Filter",
+      "product": "Produkt",
+      "supplier": "Lieferant",
+      "views": "Aufrufe",
+      "rfqAdds": "RFQ-Hinzufügungen"
     }
   }
 }

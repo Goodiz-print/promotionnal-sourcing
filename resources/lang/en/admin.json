@@ -6,6 +6,7 @@
     "categories": "Categories",
     "audit": "Audit log",
     "attributes": "Attributes",
+    "search": "Searches",
     "label": "Admin sections"
   },
   "pagination": {
@@ -150,6 +151,91 @@
       "category": "Category",
       "attribute": "Attribute",
       "attribute_value": "Attribute value"
+    }
+  },
+  "search": {
+    "title": "What customers are looking for",
+    "subtitle": "Searches made on the platform: queries, searches with no answer and most viewed products.",
+    "export": "Export as CSV",
+    "empty": "No searches in this period.",
+    "emptyDescription": "Widen the period or clear some filters to see results.",
+    "noRows": "No data for these filters.",
+    "filters": {
+      "from": "From",
+      "to": "To",
+      "source": "Source",
+      "locale": "Language",
+      "organizationType": "Organization type",
+      "all": "All"
+    },
+    "sources": {
+      "catalogue": "Catalogue",
+      "suppliers": "Suppliers",
+      "rfq_lookup": "Quote request lookup"
+    },
+    "modes": {
+      "semantic": "Semantic",
+      "keyword": "Keyword",
+      "unavailable": "Unavailable",
+      "browse": "Browsing"
+    },
+    "organizationTypes": {
+      "buyer": "Buyer",
+      "supplier": "Supplier",
+      "both": "Buyer and supplier"
+    },
+    "summary": {
+      "total": "Searches",
+      "zeroResults": "No results",
+      "zeroRate": "{rate} of searches",
+      "modes": "Search modes",
+      "variation": "{percent}% vs previous period",
+      "noPrevious": "No previous period to compare"
+    },
+    "chart": {
+      "title": "Searches per day",
+      "description": "Daily total, including those with no results.",
+      "label": "Searches per day from {from} to {to}",
+      "point": "{date}: {total, plural, one {# search} other {# searches}}, {zero} with no results",
+      "total": "Total",
+      "zero": "No results"
+    },
+    "topQueries": {
+      "title": "Most frequent queries",
+      "description": "What customers type the most."
+    },
+    "zeroQueries": {
+      "title": "Queries with no results",
+      "description": "Opportunities: products to add to the catalogue or synonyms to declare."
+    },
+    "categories": {
+      "title": "Most searched categories",
+      "description": "Categories explored during searches."
+    },
+    "filtersUsed": {
+      "title": "Most used filters",
+      "description": "Criteria customers refine the most."
+    },
+    "products": {
+      "title": "Most viewed products",
+      "description": "Product pages viewed from search, with additions to a quote request."
+    },
+    "suppliers": {
+      "title": "Most viewed suppliers",
+      "description": "Supplier profiles viewed from search."
+    },
+    "columns": {
+      "date": "Date",
+      "query": "Query",
+      "searches": "Searches",
+      "zeroCount": "No results",
+      "avgResults": "Results (avg.)",
+      "category": "Category",
+      "filter": "Filter",
+      "product": "Product",
+      "supplier": "Supplier",
+      "views": "Views",
+      "rfqAdds": "RFQ additions"
     }
   }
 }

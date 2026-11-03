@@ -11,3 +11,11 @@ export const ORGANIZATION_ROLE_TONES: Record<RoleSlug, BadgeTone | 'brand'> = {
   manager: 'neutral',
   member: 'neutral',
 }
+
+/** Ligne d'un classement générique de l'écran « Ce que cherchent les clients ». */
+export interface RankingRow {
+  id: string | number
+  label: string
+  count: number
+  extra?: number
+}

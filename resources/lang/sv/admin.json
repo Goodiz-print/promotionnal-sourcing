@@ -6,6 +6,7 @@
     "categories": "Kategorier",
     "audit": "Granskningslogg",
     "attributes": "Attribut",
+    "search": "Sökningar",
     "label": "Administrationsavsnitt"
   },
   "pagination": {
@@ -150,6 +151,91 @@
       "category": "Kategori",
       "attribute": "Attribut",
       "attribute_value": "Attributvärde"
+    }
+  },
+  "search": {
+    "title": "Vad kunderna söker efter",
+    "subtitle": "Sökningar på plattformen: sökord, sökningar utan svar och mest visade produkter.",
+    "export": "Exportera som CSV",
+    "empty": "Inga sökningar under denna period.",
+    "emptyDescription": "Utöka perioden eller rensa filter för att se resultat.",
+    "noRows": "Inga data för dessa filter.",
+    "filters": {
+      "from": "Från",
+      "to": "Till",
+      "source": "Källa",
+      "locale": "Språk",
+      "organizationType": "Organisationstyp",
+      "all": "Alla"
+    },
+    "sources": {
+      "catalogue": "Katalog",
+      "suppliers": "Leverantörer",
+      "rfq_lookup": "Sökning av offertförfrågningar"
+    },
+    "modes": {
+      "semantic": "Semantisk",
+      "keyword": "Nyckelord",
+      "unavailable": "Otillgänglig",
+      "browse": "Bläddring"
+    },
+    "organizationTypes": {
+      "buyer": "Köpare",
+      "supplier": "Leverantör",
+      "both": "Köpare och leverantör"
+    },
+    "summary": {
+      "total": "Sökningar",
+      "zeroResults": "Utan resultat",
+      "zeroRate": "{rate} av sökningarna",
+      "modes": "Söklägen",
+      "variation": "{percent} % jämfört med föregående period",
+      "noPrevious": "Ingen föregående period att jämföra med"
+    },
+    "chart": {
+      "title": "Sökningar per dag",
+      "description": "Dagligt totalt, varav utan resultat.",
+      "label": "Sökningar per dag från {from} till {to}",
+      "point": "{date}: {total, plural, one {# sökning} other {# sökningar}}, varav {zero} utan resultat",
+      "total": "Totalt",
+      "zero": "Utan resultat"
+    },
+    "topQueries": {
+      "title": "Vanligaste sökorden",
+      "description": "Vad kunderna skriver oftast."
+    },
+    "zeroQueries": {
+      "title": "Sökord utan resultat",
+      "description": "Möjligheter: produkter att lägga till i katalogen eller synonymer att definiera."
+    },
+    "categories": {
+      "title": "Mest sökta kategorier",
+      "description": "Kategorier som utforskats vid sökning."
+    },
+    "filtersUsed": {
+      "title": "Mest använda filter",
+      "description": "Kriterier som kunderna oftast avgränsar med."
+    },
+    "products": {
+      "title": "Mest visade produkter",
+      "description": "Produktsidor som visats från sökningen, med tillägg till en offertförfrågan."
+    },
+    "suppliers": {
+      "title": "Mest visade leverantörer",
+      "description": "Leverantörsprofiler som visats från sökningen."
+    },
+    "columns": {
+      "date": "Datum",
+      "query": "Sökord",
+      "searches": "Sökningar",
+      "zeroCount": "Utan resultat",
+      "avgResults": "Resultat (snitt)",
+      "category": "Kategori",
+      "filter": "Filter",
+      "product": "Produkt",
+      "supplier": "Leverantör",
+      "views": "Visningar",
+      "rfqAdds": "Tillägg till RFQ"
     }
   }
 }
