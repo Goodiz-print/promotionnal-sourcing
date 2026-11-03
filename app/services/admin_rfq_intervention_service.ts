@@ -18,10 +18,7 @@ import type { AdminRfqInterventionOptions } from '#shared/types/admin_trade'
 /**
  * Interventions de la plateforme sur une demande de devis (#166) : clôturer,
  * faire expirer, relancer les fournisseurs. Chacune réutilise les transitions de
- * `RfqService` et écrit sa trace d'audit **dans la même transaction**. Les mails
- * de relance partent avant l'écriture : leur clé d'idempotence (demande,
- * organisation, adresse) interdit tout doublon, même si deux relances se croisent
- * ou si l'écriture échoue et que l'admin recommence.
+ * `RfqService` et écrit sa trace d'audit **dans la même transaction**.
  */
 @inject()
 export default class AdminRfqInterventionService {
@@ -74,26 +71,28 @@ export default class AdminRfqInterventionService {
 
   /**
    * Relance **une fois** chaque destinataire qui n'a ni répondu ni décliné et n'a
-   * pas déjà été relancé (la clé d'idempotence des mails interdit un second envoi).
+   * pas déjà été relancé. Les destinataires sont lus **verrouillés** (`FOR UPDATE`) :
+   * deux relances simultanées sont sérialisées et la seconde, qui ne trouve plus
+   * personne, reçoit 409. Les mails sont mis en queue dans la transaction ; leur clé
+   * d'idempotence évite tout doublon si le commit échoue et que l'admin recommence.
    * Renvoie le nombre de destinataires relancés.
    */
   async remind({ rfqId, context }: AdminRfqInterventionOptions): Promise<number> {
-    const rfq = await Rfq.find(rfqId)
-    if (!rfq) throw new AdminTradeNotFoundException()
-    if (!this.rfqs.acceptsResponses(rfq)) throw new AdminRfqNotRemindableException()
+    return db.transaction(async (trx) => {
+      const rfq = await this.find(rfqId, trx)
+      if (!this.rfqs.acceptsResponses(rfq)) throw new AdminRfqNotRemindableException()
 
-    const recipients = await RfqSupplier.query()
-      .where('rfqId', rfq.id)
-      .whereIn('status', ['sent', 'viewed'])
-      .whereNull('remindedAt')
-      .preload('rfq', (query) => query.preload('buyerOrganization'))
-      .preload('supplierOrganization')
-      .orderBy('id')
-    if (recipients.length === 0) throw new AdminRfqNotRemindableException()
+      const recipients = await RfqSupplier.query({ client: trx })
+        .where('rfqId', rfq.id)
+        .whereIn('status', ['sent', 'viewed'])
+        .whereNull('remindedAt')
+        .forUpdate()
+        .preload('rfq', (query) => query.preload('buyerOrganization'))
+        .preload('supplierOrganization')
+        .orderBy('id')
+      if (recipients.length === 0) throw new AdminRfqNotRemindableException()
 
-    const reminded = await this.notifications.remind(recipients)
-
-    await db.transaction(async (trx) => {
+      const reminded = await this.notifications.remind(recipients)
       await this.rfqs.markReminded(reminded, DateTime.now(), trx)
       await this.audit.record(
         {
@@ -104,8 +103,8 @@ export default class AdminRfqInterventionService {
         },
         { ...context, client: trx }
       )
+      return reminded.length
     })
-    return reminded.length
   }
 
   /**

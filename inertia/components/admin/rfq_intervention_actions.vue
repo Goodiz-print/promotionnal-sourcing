@@ -18,8 +18,8 @@ const props = defineProps<{ detail: AdminRfqDetail }>()
 
 const { t, locale } = useI18n()
 
-function run(action: 'close' | 'expire' | 'remind', confirmKey: string) {
-  if (!window.confirm(t(confirmKey, { count: props.detail.remindableCount }))) return
+function run(action: 'close' | 'expire' | 'remind', confirmKey: string, count?: number) {
+  if (!window.confirm(count === undefined ? t(confirmKey) : t(confirmKey, { count }))) return
   router.post(
     urlFor(`admin.rfqs.${action}`, { locale: locale.value, id: props.detail.item.id }),
     {},
@@ -33,7 +33,7 @@ function run(action: 'close' | 'expire' | 'remind', confirmKey: string) {
     <BaseButton
       v-if="detail.remindableCount > 0"
       variant="secondary"
-      @click="run('remind', 'admin.rfqs.actions.confirmRemind')"
+      @click="run('remind', 'admin.rfqs.actions.confirmRemind', detail.remindableCount)"
     >
       <template #icon><BellRing :size="ICON_SIZE" aria-hidden="true" /></template>
       {{ t('admin.rfqs.actions.remind', { count: detail.remindableCount }) }}

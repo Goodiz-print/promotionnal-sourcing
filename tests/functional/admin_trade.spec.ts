@@ -518,3 +518,56 @@ test.group('Supervision — devis et commandes', (group) => {
     assert.equal(found.orderId, order.id)
   })
 })
+
+test.group('Supervision — validation et fuseau', (group) => {
+  useDatabase(group)
+
+  test('une page décimale ou démesurée est refusée en 422, pas en 500', async ({ client }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+
+    for (const page of ['1.5', '0', '99999999999']) {
+      const response = await client
+        .get(`/fr/admin/rfqs?page=${page}`)
+        .header('Accept', 'application/json')
+        .loginAs(admin)
+      response.assertStatus(422)
+    }
+  })
+
+  test('la période se lit en jours de Paris', async ({ client, assert }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const buyer = await buyerId()
+    // 00h30 à Paris le 1er novembre = 23h30 UTC le 31 octobre.
+    const lateNight = await RfqFactory.merge({
+      buyerOrganizationId: buyer,
+      createdAt: DateTime.fromISO('2026-11-01T00:30:00', { zone: 'Europe/Paris' }),
+    }).create()
+
+    const inside = await rfqRows(client, admin, '?from=2026-11-01&to=2026-11-01')
+    const before = await rfqRows(client, admin, '?from=2026-10-31&to=2026-10-31')
+
+    assert.deepEqual(
+      inside.map((row) => row.id),
+      [lateNight.id]
+    )
+    assert.lengthOf(before, 0)
+  })
+
+  test('deux interventions simultanées ne s’écrasent pas : la seconde reçoit 422', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const rfq = await publishedRfq(await buyerId())
+
+    const [first, second] = await Promise.all([
+      intervene(client, admin, rfq.id, 'close'),
+      intervene(client, admin, rfq.id, 'expire'),
+    ])
+
+    assert.sameMembers([first.status(), second.status()], [302, 422])
+    await rfq.refresh()
+    assert.include(['closed', 'expired'], rfq.status)
+    assert.lengthOf(await AdminAuditLog.all(), 1)
+  })
+})

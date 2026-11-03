@@ -13,7 +13,7 @@ export const moderationFiltersValidator = vine.create({
     .number()
     .in([...MODERATION_AGE_FILTERS])
     .optional(),
-  page: vine.number().positive().optional(),
+  page: vine.number().withoutDecimals().min(1).max(100000).optional(),
 })
 
 /**

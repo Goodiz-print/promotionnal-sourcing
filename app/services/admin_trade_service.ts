@@ -1,5 +1,7 @@
 import { DateTime } from 'luxon'
+import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
+import RfqService from '#services/rfq_service'
 import { AdminTradeNotFoundException } from '#exceptions/admin_trade_errors'
 import {
   RFQ_DEADLINE_TIMEZONE,
@@ -56,7 +58,10 @@ const contains = (term: string) => `%${term.replace(/[\\%_]/g, '\\$&')}%`
  * l'équipe plateforme (#166), tous acheteurs et fournisseurs confondus. Lecture
  * seule : les interventions sont dans `AdminRfqInterventionService`.
  */
+@inject()
 export default class AdminTradeService {
+  constructor(private rfqs: RfqService) {}
+
   async listRfqs(options: AdminTradeListOptions<AdminRfqFilters>): Promise<Paginated<AdminRfqRow>> {
     const { page, perPage, status, attention } = options
     const { today, sentBefore } = this.reference()
@@ -261,11 +266,11 @@ export default class AdminTradeService {
     }
   }
 
-  /** Repères temporels du repérage des demandes bloquées (jour calendaire de Paris, comme l'expiration). */
+  /** Repères du repérage des demandes bloquées : même « aujourd'hui » (Paris) que `RfqService`. */
   private reference() {
     const now = DateTime.now()
     return {
-      today: now.setZone(RFQ_DEADLINE_TIMEZONE).startOf('day').toSQL()!,
+      today: this.rfqs.startOfToday(now).toSQL()!,
       sentBefore: now.minus({ days: RFQ_REMINDER_AFTER_DAYS }).toSQL()!,
     }
   }
@@ -337,9 +342,11 @@ export default class AdminTradeService {
 
   /** Période sur la date de création, bornes incluses (`to` couvre toute sa journée), en jours de Paris. */
   private byPeriod(query: Query, filters: AdminTradePeriodFilters, column: string) {
-    if (filters.from) query.where(column, '>=', DateTime.fromISO(filters.from).toSQL()!)
-    if (filters.to)
-      query.where(column, '<', DateTime.fromISO(filters.to).plus({ days: 1 }).toSQL()!)
+    const zone = { zone: RFQ_DEADLINE_TIMEZONE }
+    if (filters.from) query.where(column, '>=', DateTime.fromISO(filters.from, zone).toSQL()!)
+    if (filters.to) {
+      query.where(column, '<', DateTime.fromISO(filters.to, zone).plus({ days: 1 }).toSQL()!)
+    }
   }
 
   private async page<T>(

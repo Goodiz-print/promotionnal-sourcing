@@ -13,5 +13,5 @@ export const auditFiltersValidator = vine.create({
   actor: vine.string().trim().maxLength(254).optional(),
   from: vine.string().regex(ISO_DATE).optional(),
   to: vine.string().regex(ISO_DATE).optional(),
-  page: vine.number().positive().optional(),
+  page: vine.number().withoutDecimals().min(1).max(100000).optional(),
 })

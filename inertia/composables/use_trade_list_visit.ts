@@ -12,10 +12,7 @@ type TradeListRoute = 'admin.rfqs.index' | 'admin.quotes.index' | 'admin.orders.
  */
 export function useTradeListVisit(route: TradeListRoute, only: string[]) {
   const { locale } = useI18n()
-  let current: Partial<TradeFilterValues> | null = null
-
   function visit(filters: Partial<TradeFilterValues>, page = 1) {
-    current = filters
     const query: Record<string, string | number> = { page }
     for (const [key, value] of Object.entries(filters)) {
       if (value) query[key] = value
@@ -27,8 +24,8 @@ export function useTradeListVisit(route: TradeListRoute, only: string[]) {
     })
   }
 
-  const goToPage = (filters: Partial<TradeFilterValues>, page: number) =>
-    visit(current ?? filters, page)
+  /** Les filtres sont ceux de la page (props serveur) : ils suivent aussi l'historique du navigateur. */
+  const goToPage = (filters: Partial<TradeFilterValues>, page: number) => visit(filters, page)
 
   return { visit, goToPage }
 }

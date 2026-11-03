@@ -676,7 +676,7 @@ export default class RfqService {
    * Minuit, heure de Paris, du jour de `now` : une échéance strictement
    * antérieure est passée (cf. `RFQ_DEADLINE_TIMEZONE`).
    */
-  private startOfToday(now: DateTime): DateTime {
+  startOfToday(now: DateTime = DateTime.now()): DateTime {
     return now.setZone(RFQ_DEADLINE_TIMEZONE).startOf('day')
   }
 
