@@ -1,22 +1,38 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
-import { Head } from '@inertiajs/vue3'
+import { Head, router } from '@inertiajs/vue3'
 import { Building2, FileText, Package, Users } from 'lucide-vue-next'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
 import { useAdminTabs } from '~/composables/use_admin_tabs'
 import { usePlatformPermissions } from '~/composables/use_platform_permissions'
+import KpiOverview from '~/components/admin/kpi_overview.vue'
+import KpiPeriodFilter from '~/components/admin/kpi_period_filter.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseStat from '~/components/base/base_stat.vue'
 import BaseTabs from '~/components/base/base_tabs.vue'
 import type { AdminDashboardStats } from '#shared/types/admin'
+import type { AdminKpiFilters, AdminKpiReport } from '#shared/types/admin_kpi'
 import type { PlatformPermission } from '#shared/types/user'
 
-defineProps<{ stats: AdminDashboardStats }>()
+defineProps<{
+  stats: AdminDashboardStats
+  /** `null` pour les rôles sans droit `monitoring.view` : compteurs seuls. */
+  kpis: AdminKpiReport | null
+  filters: AdminKpiFilters | null
+}>()
 
 const { t, locale } = useI18n()
 const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 const { can } = usePlatformPermissions()
+
+function visit(filters: AdminKpiFilters) {
+  router.get(urlFor('admin.dashboard', { locale: locale.value }), filters, {
+    preserveState: true,
+    preserveScroll: true,
+    only: ['kpis', 'filters'],
+  })
+}
 
 type Counter = 'organizations' | 'users' | 'products' | 'rfqs'
 
@@ -73,5 +89,10 @@ const COUNTERS: {
         "
       />
     </div>
+
+    <template v-if="kpis && filters">
+      <KpiPeriodFilter :filters="filters" @change="visit" />
+      <KpiOverview :report="kpis" />
+    </template>
   </div>
 </template>

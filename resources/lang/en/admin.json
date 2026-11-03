@@ -22,7 +22,66 @@
       "products": "Products",
       "rfqs": "Requests for quotation"
     },
-    "archived": "{count, plural, =0 {None archived} one {# archived} other {# archived}}"
+    "archived": "{count, plural, =0 {None archived} one {# archived} other {# archived}}",
+    "kpi": {
+      "none": "—",
+      "previous": "Previous period: {value}",
+      "filters": {
+        "from": "From",
+        "to": "To",
+        "hint": "Each indicator is compared with the previous period of the same length (maximum 366 days)."
+      },
+      "groups": {
+        "accounts": "Accounts",
+        "rfqs": "Quote requests",
+        "quotes": "Quotes",
+        "orders": "Orders",
+        "catalogue": "Catalogue",
+        "toHandle": "To handle",
+        "daily": "Daily activity"
+      },
+      "metrics": {
+        "newOrganizations": "New organisations",
+        "newUsers": "New users",
+        "activeUsers": "Active users",
+        "rfqsCreated": "Requests created",
+        "rfqsPublished": "Requests published",
+        "publicationDelay": "Time to publish",
+        "responseRate": "Supplier response rate",
+        "declineRate": "Supplier decline rate",
+        "quotesSubmitted": "Quotes submitted",
+        "quotesAccepted": "Quotes accepted",
+        "quotesRejected": "Quotes rejected",
+        "decisionDelay": "Time to decision",
+        "ordersCreated": "Orders created",
+        "quoteToOrder": "Quote → order conversion",
+        "deliveryDelay": "Delivery time",
+        "gmv": "Gross merchandise value ({currency})",
+        "agencyReviews": "Agencies to review"
+      },
+      "agencyReviewsHint": "Non-archived agencies with a review reason.",
+      "organizationTypes": "New organisations by type",
+      "rfqStatuses": "Requests created by status",
+      "lifecycle": "Products by status",
+      "coverage": "Translation coverage",
+      "coverageHint": "Share of products translated into each language.",
+      "columns": {
+        "type": "Type",
+        "status": "Status",
+        "count": "Count",
+        "locale": "Language",
+        "coverage": "Coverage"
+      },
+      "dailyHint": "New organisations and users, requests published, quotes submitted and orders, day by day.",
+      "daily": {
+        "activity": "Activity",
+        "organizations": "Organisations",
+        "users": "Users",
+        "rfqs": "Requests",
+        "quotes": "Quotes",
+        "orders": "Orders"
+      }
+    }
   },
   "organizations": {
     "title": "Organizations",

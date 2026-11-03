@@ -22,7 +22,66 @@
       "products": "Productos",
       "rfqs": "Solicitudes de presupuesto"
     },
-    "archived": "{count, plural, =0 {Ninguna archivada} one {# archivada} other {# archivadas}}"
+    "archived": "{count, plural, =0 {Ninguna archivada} one {# archivada} other {# archivadas}}",
+    "kpi": {
+      "none": "—",
+      "previous": "Periodo anterior: {value}",
+      "filters": {
+        "from": "Desde",
+        "to": "Hasta",
+        "hint": "Cada indicador se compara con el periodo anterior de la misma duración (máximo 366 días)."
+      },
+      "groups": {
+        "accounts": "Cuentas",
+        "rfqs": "Solicitudes de presupuesto",
+        "quotes": "Presupuestos",
+        "orders": "Pedidos",
+        "catalogue": "Catálogo",
+        "toHandle": "Por tratar",
+        "daily": "Actividad diaria"
+      },
+      "metrics": {
+        "newOrganizations": "Nuevas organizaciones",
+        "newUsers": "Nuevos usuarios",
+        "activeUsers": "Usuarios activos",
+        "rfqsCreated": "Solicitudes creadas",
+        "rfqsPublished": "Solicitudes publicadas",
+        "publicationDelay": "Plazo de publicación",
+        "responseRate": "Tasa de respuesta de los proveedores",
+        "declineRate": "Tasa de rechazo de los proveedores",
+        "quotesSubmitted": "Presupuestos enviados",
+        "quotesAccepted": "Presupuestos aceptados",
+        "quotesRejected": "Presupuestos rechazados",
+        "decisionDelay": "Plazo de decisión",
+        "ordersCreated": "Pedidos creados",
+        "quoteToOrder": "Conversión presupuesto → pedido",
+        "deliveryDelay": "Plazo de entrega",
+        "gmv": "Volumen de negocio ({currency})",
+        "agencyReviews": "Agencias por revisar"
+      },
+      "agencyReviewsHint": "Agencias no archivadas con un motivo de revisión.",
+      "organizationTypes": "Nuevas organizaciones por tipo",
+      "rfqStatuses": "Solicitudes creadas por estado",
+      "lifecycle": "Productos por estado",
+      "coverage": "Cobertura de traducción",
+      "coverageHint": "Proporción de productos traducidos en cada idioma.",
+      "columns": {
+        "type": "Tipo",
+        "status": "Estado",
+        "count": "Cantidad",
+        "locale": "Idioma",
+        "coverage": "Cobertura"
+      },
+      "dailyHint": "Nuevas organizaciones y usuarios, solicitudes publicadas, presupuestos enviados y pedidos, día a día.",
+      "daily": {
+        "activity": "Actividad",
+        "organizations": "Organizaciones",
+        "users": "Usuarios",
+        "rfqs": "Solicitudes",
+        "quotes": "Presupuestos",
+        "orders": "Pedidos"
+      }
+    }
   },
   "organizations": {
     "title": "Organizaciones",

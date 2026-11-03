@@ -22,7 +22,66 @@
       "products": "Prodotti",
       "rfqs": "Richieste di preventivo"
     },
-    "archived": "{count, plural, =0 {Nessuna archiviata} one {# archiviata} other {# archiviate}}"
+    "archived": "{count, plural, =0 {Nessuna archiviata} one {# archiviata} other {# archiviate}}",
+    "kpi": {
+      "none": "—",
+      "previous": "Periodo precedente: {value}",
+      "filters": {
+        "from": "Dal",
+        "to": "Al",
+        "hint": "Ogni indicatore è confrontato con il periodo precedente della stessa durata (massimo 366 giorni)."
+      },
+      "groups": {
+        "accounts": "Account",
+        "rfqs": "Richieste di preventivo",
+        "quotes": "Preventivi",
+        "orders": "Ordini",
+        "catalogue": "Catalogo",
+        "toHandle": "Da gestire",
+        "daily": "Attività giornaliera"
+      },
+      "metrics": {
+        "newOrganizations": "Nuove organizzazioni",
+        "newUsers": "Nuovi utenti",
+        "activeUsers": "Utenti attivi",
+        "rfqsCreated": "Richieste create",
+        "rfqsPublished": "Richieste pubblicate",
+        "publicationDelay": "Tempo di pubblicazione",
+        "responseRate": "Tasso di risposta dei fornitori",
+        "declineRate": "Tasso di rifiuto dei fornitori",
+        "quotesSubmitted": "Preventivi inviati",
+        "quotesAccepted": "Preventivi accettati",
+        "quotesRejected": "Preventivi rifiutati",
+        "decisionDelay": "Tempo di decisione",
+        "ordersCreated": "Ordini creati",
+        "quoteToOrder": "Conversione preventivo → ordine",
+        "deliveryDelay": "Tempo di consegna",
+        "gmv": "Volume d'affari ({currency})",
+        "agencyReviews": "Agenzie da rivedere"
+      },
+      "agencyReviewsHint": "Agenzie non archiviate con un motivo di revisione.",
+      "organizationTypes": "Nuove organizzazioni per tipo",
+      "rfqStatuses": "Richieste create per stato",
+      "lifecycle": "Prodotti per stato",
+      "coverage": "Copertura delle traduzioni",
+      "coverageHint": "Quota di prodotti tradotti in ogni lingua.",
+      "columns": {
+        "type": "Tipo",
+        "status": "Stato",
+        "count": "Numero",
+        "locale": "Lingua",
+        "coverage": "Copertura"
+      },
+      "dailyHint": "Nuove organizzazioni e utenti, richieste pubblicate, preventivi inviati e ordini, giorno per giorno.",
+      "daily": {
+        "activity": "Attività",
+        "organizations": "Organizzazioni",
+        "users": "Utenti",
+        "rfqs": "Richieste",
+        "quotes": "Preventivi",
+        "orders": "Ordini"
+      }
+    }
   },
   "organizations": {
     "title": "Organizzazioni",
