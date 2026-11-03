@@ -113,7 +113,7 @@ export default class DevUserSeeder extends BaseSeeder {
 
     await agencyUser.merge({ currentOrganizationId: agencyOrg.id }).save()
 
-    await User.updateOrCreate(
+    const adminUser = await User.updateOrCreate(
       { email: DEV_ADMIN_EMAIL },
       {
         firstName: 'Admin',
@@ -123,5 +123,11 @@ export default class DevUserSeeder extends BaseSeeder {
         platformRole: 'admin',
       }
     )
+
+    // L'admin plateforme administre les autres comptes : il n'appartient à aucune
+    // organisation (ni fournisseur, ni agence). On retire donc les rattachements
+    // laissés par un seed ou une inscription antérieurs sur une base existante.
+    await OrganizationUser.query().where('userId', adminUser.id).delete()
+    await adminUser.merge({ currentOrganizationId: null }).save()
   }
 }
