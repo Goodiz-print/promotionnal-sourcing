@@ -3,6 +3,7 @@ import Product from '#models/product'
 import Rfq from '#models/rfq'
 import User from '#models/user'
 import { inject } from '@adonisjs/core'
+import AdminAgencyReviewService from '#services/admin_agency_review_service'
 import AdminModerationService from '#services/admin_moderation_service'
 import type { AdminDashboardStats } from '#shared/types/admin'
 
@@ -13,16 +14,20 @@ import type { AdminDashboardStats } from '#shared/types/admin'
  */
 @inject()
 export default class AdminDashboardService {
-  constructor(private moderation: AdminModerationService) {}
+  constructor(
+    private moderation: AdminModerationService,
+    private agencyReviews: AdminAgencyReviewService
+  ) {}
 
   async stats(): Promise<AdminDashboardStats> {
-    const [active, archived, users, products, rfqs, pending] = await Promise.all([
+    const [active, archived, users, products, rfqs, pending, agencies] = await Promise.all([
       Organization.query().whereNull('archivedAt').count('* as total').firstOrFail(),
       Organization.query().whereNotNull('archivedAt').count('* as total').firstOrFail(),
       User.query().count('* as total').firstOrFail(),
       Product.query().count('* as total').firstOrFail(),
       Rfq.query().count('* as total').firstOrFail(),
       this.moderation.pending(),
+      this.agencyReviews.openCount(),
     ])
 
     return {
@@ -32,6 +37,7 @@ export default class AdminDashboardService {
       products: Number(products.$extras.total),
       rfqs: Number(rfqs.$extras.total),
       pendingModeration: pending.organization + pending.product,
+      pendingAgencyReviews: agencies,
     }
   }
 }

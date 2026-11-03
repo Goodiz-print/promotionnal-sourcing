@@ -55,5 +55,24 @@
     "total": "Importe total: {total}.",
     "cta": "Consultar el presupuesto",
     "footer": "Recibe este mensaje porque gestiona esta solicitud de presupuesto."
+  },
+  "agencyReview": {
+    "footer": "Recibe este mensaje porque es responsable de esta alta.",
+    "reasonLabel": "Mensaje del equipo:",
+    "approved": {
+      "subject": "Su alta ha sido aprobada",
+      "title": "Su agencia ha sido aprobada",
+      "body": "El equipo ha aprobado el alta de «{organizationName}»: su cuenta está plenamente activa."
+    },
+    "rejected": {
+      "subject": "Su alta no ha sido aceptada",
+      "title": "Alta no aceptada",
+      "body": "El equipo no ha podido aprobar el alta de «{organizationName}». La cuenta ha sido desactivada."
+    },
+    "info_requested": {
+      "subject": "Se necesita más información",
+      "title": "Se necesita más información",
+      "body": "Para aprobar el alta de «{organizationName}», el equipo necesita información adicional. Responda a este email."
+    }
   }
 }

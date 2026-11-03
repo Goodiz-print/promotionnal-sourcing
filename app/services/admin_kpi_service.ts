@@ -1,5 +1,7 @@
 import { DateTime } from 'luxon'
+import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
+import AdminAgencyReviewService from '#services/admin_agency_review_service'
 import {
   ADMIN_KPI_DEFAULT_DAYS,
   ADMIN_KPI_MAX_DAYS,
@@ -49,7 +51,10 @@ type Metrics = Record<Exclude<keyof RangeMetrics, 'gmv'>, number | null>
  * Les valeurs sont calculées à la demande (la période est plafonnée à
  * `ADMIN_KPI_MAX_DAYS` et les colonnes filtrées sont indexées ou bornées).
  */
+@inject()
 export default class AdminKpiService {
+  constructor(private agencyReviews: AdminAgencyReviewService) {}
+
   defaultFilters(now: DateTime = DateTime.now()): AdminKpiFilters {
     return {
       from: now.minus({ days: ADMIN_KPI_DEFAULT_DAYS - 1 }).toISODate()!,
@@ -97,7 +102,7 @@ export default class AdminKpiService {
         this.organizationsByType(current),
         this.rfqsByStatus(current),
         this.catalogue(),
-        this.agencyReviews(),
+        this.agencyReviews.openCount(),
         this.daily(period),
       ])
 
@@ -302,16 +307,6 @@ export default class AdminKpiService {
         rate: products ? (translated.get(locale) ?? 0) / products : 0,
       })),
     }
-  }
-
-  private async agencyReviews(): Promise<number> {
-    const row = await db
-      .from('organizations')
-      .whereNull('archived_at')
-      .whereRaw('cardinality(review_reasons) > 0')
-      .count('* as total')
-      .first()
-    return Number(row?.total ?? 0)
   }
 
   /** Une ligne par jour de la période (les jours sans activité valent 0). */

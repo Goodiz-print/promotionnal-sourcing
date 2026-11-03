@@ -15,6 +15,9 @@ export const ADMIN_AUDIT_ACTIONS = [
   'attribute_value.deleted',
   'moderation.approved',
   'moderation.rejected',
+  'agency_review.approved',
+  'agency_review.rejected',
+  'agency_review.info_requested',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]

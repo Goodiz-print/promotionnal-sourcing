@@ -89,3 +89,13 @@ Types (`ActivityEventService`) : `product_viewed`, `supplier_viewed` (fiches pub
 ## Tableau de bord KPI (#174)
 
 `GET /admin` (`admin.dashboard`) : compteurs pour tous les rôles du back-office ; indicateurs de période (comptes, demandes de devis, devis, commandes, catalogue, agences à revoir, activité quotidienne) pour `monitoring.view`. Filtres `from` / `to` (30 jours par défaut, 366 jours maximum). Chaque indicateur est comparé à la période précédente de même durée ; un ratio ou une durée sans événement vaut `null` (affiché « — »). Agrégations dans `AdminKpiService`, jours groupés dans le fuseau de l'application. Détail : `docs/changelog/2026-11-03-tableau-de-bord-kpi.md`.
+
+## Revue des inscriptions agence (#162)
+
+`GET /admin/agency-reviews` (`admin.agency_reviews.index`), fiche `GET /admin/agency-reviews/:id`, décision `POST /admin/agency-reviews/:id/decision` ; droit `moderation.manage` (rôles `admin` et `moderator`). Source : `organizations.review_reasons`, `vat_verified_at`, `domain_verified_at` renseignés par `AgencySignupService` ; toute la logique est dans `AdminAgencyReviewService`.
+
+**Statut** : dernier enregistrement de `agency_review_decisions` (ajout seul) ou `pending`. Filtre `status` : `open` (défaut : motifs non vides et agence non archivée), `approved`, `rejected`. Une agence validée automatiquement à l'inscription (aucun motif) n'apparaît jamais dans la file.
+
+**Décisions** : `approved` (vide les motifs), `rejected` (archive l'organisation ; motif obligatoire), `info_requested` (l'agence reste à revoir ; motif obligatoire, envoyé comme message). Une décision sur une agence déjà traitée ou archivée renvoie 409. L'organisation est verrouillée le temps de la décision (deux décisions simultanées : la seconde reçoit 409) et le rejet archive dans la même transaction (`OrganizationService.archiveWithin`). Chaque décision écrit une entrée d'audit (`agency_review.*`) dans la même transaction et met en queue un mail par propriétaire (`AgencyReviewDecisionNotification`, langue de l'utilisateur).
+
+Le compteur `pendingAgencyReviews` du tableau de bord reprend les agences « à revoir ». Détail : `docs/changelog/2026-11-03-revue-des-inscriptions-agence.md`.

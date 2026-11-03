@@ -55,5 +55,24 @@
     "total": "Totalbelopp: {total}.",
     "cta": "Visa offerten",
     "footer": "Du får det här meddelandet eftersom du hanterar den här offertförfrågan."
+  },
+  "agencyReview": {
+    "footer": "Du får det här meddelandet eftersom du ansvarar för registreringen.",
+    "reasonLabel": "Meddelande från teamet:",
+    "approved": {
+      "subject": "Din registrering är godkänd",
+      "title": "Din byrå är godkänd",
+      "body": "Teamet har godkänt registreringen av ”{organizationName}”: ditt konto är helt aktivt."
+    },
+    "rejected": {
+      "subject": "Din registrering godkändes inte",
+      "title": "Registreringen godkändes inte",
+      "body": "Teamet kunde inte godkänna registreringen av ”{organizationName}”. Kontot har inaktiverats."
+    },
+    "info_requested": {
+      "subject": "Mer information behövs",
+      "title": "Mer information behövs",
+      "body": "För att godkänna registreringen av ”{organizationName}” behöver teamet mer information. Svara på det här meddelandet."
+    }
   }
 }

@@ -55,5 +55,24 @@
     "total": "Kwota całkowita: {total}.",
     "cta": "Zobacz ofertę",
     "footer": "Otrzymujesz tę wiadomość, ponieważ zarządzasz tym zapytaniem ofertowym."
+  },
+  "agencyReview": {
+    "footer": "Otrzymujesz tę wiadomość, ponieważ odpowiadasz za tę rejestrację.",
+    "reasonLabel": "Wiadomość od zespołu:",
+    "approved": {
+      "subject": "Twoja rejestracja została zatwierdzona",
+      "title": "Twoja agencja została zatwierdzona",
+      "body": "Zespół zatwierdził rejestrację „{organizationName}”: Twoje konto jest w pełni aktywne."
+    },
+    "rejected": {
+      "subject": "Twoja rejestracja nie została przyjęta",
+      "title": "Rejestracja nie została przyjęta",
+      "body": "Zespół nie mógł zatwierdzić rejestracji „{organizationName}”. Konto zostało dezaktywowane."
+    },
+    "info_requested": {
+      "subject": "Potrzebne dodatkowe informacje",
+      "title": "Potrzebne dodatkowe informacje",
+      "body": "Aby zatwierdzić rejestrację „{organizationName}”, zespół potrzebuje dodatkowych informacji. Odpowiedz na tę wiadomość."
+    }
   }
 }

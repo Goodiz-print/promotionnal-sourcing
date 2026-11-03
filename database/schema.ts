@@ -114,6 +114,39 @@ export class AgencyProfileSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class AgencyReviewDecisionSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'decidedAt',
+    'decidedByUserId',
+    'decision',
+    'id',
+    'organizationId',
+    'reason',
+    'reviewReasons',
+    'updatedAt',
+  ] as const
+  $columns = AgencyReviewDecisionSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare decidedAt: DateTime
+  @column()
+  declare decidedByUserId: number | null
+  @column()
+  declare decision: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare organizationId: number
+  @column()
+  declare reason: string | null
+  @column()
+  declare reviewReasons: any
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class AttributeTranslationSchema extends BaseModel {
   static $columns = [
     'attributeId',

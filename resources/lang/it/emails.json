@@ -55,5 +55,24 @@
     "total": "Importo totale: {total}.",
     "cta": "Consulta il preventivo",
     "footer": "Ricevi questo messaggio perché gestisci questa richiesta di preventivo."
+  },
+  "agencyReview": {
+    "footer": "Ricevi questo messaggio perché sei responsabile di questa iscrizione.",
+    "reasonLabel": "Messaggio del team:",
+    "approved": {
+      "subject": "La tua iscrizione è approvata",
+      "title": "La tua agenzia è approvata",
+      "body": "Il team ha approvato l'iscrizione di «{organizationName}»: il tuo account è pienamente attivo."
+    },
+    "rejected": {
+      "subject": "La tua iscrizione non è stata accettata",
+      "title": "Iscrizione non accettata",
+      "body": "Il team non ha potuto approvare l'iscrizione di «{organizationName}». L'account è stato disattivato."
+    },
+    "info_requested": {
+      "subject": "Servono ulteriori informazioni",
+      "title": "Servono ulteriori informazioni",
+      "body": "Per approvare l'iscrizione di «{organizationName}», il team ha bisogno di informazioni aggiuntive. Rispondi a questa email."
+    }
   }
 }

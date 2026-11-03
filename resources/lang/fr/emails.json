@@ -55,5 +55,24 @@
     "total": "Montant total : {total}.",
     "cta": "Consulter le devis",
     "footer": "Vous recevez ce message car vous pilotez cette demande de devis."
+  },
+  "agencyReview": {
+    "footer": "Vous recevez ce message car vous êtes responsable de cette inscription.",
+    "reasonLabel": "Message de l'équipe :",
+    "approved": {
+      "subject": "Votre inscription est validée",
+      "title": "Votre agence est validée",
+      "body": "L'équipe a validé l'inscription de « {organizationName} » : votre compte est pleinement actif."
+    },
+    "rejected": {
+      "subject": "Votre inscription n'a pas été retenue",
+      "title": "Inscription non retenue",
+      "body": "L'équipe n'a pas pu valider l'inscription de « {organizationName} ». Le compte a été désactivé."
+    },
+    "info_requested": {
+      "subject": "Informations complémentaires demandées",
+      "title": "Informations complémentaires",
+      "body": "Pour valider l'inscription de « {organizationName} », l'équipe a besoin d'informations supplémentaires. Répondez-nous par retour de mail."
+    }
   }
 }

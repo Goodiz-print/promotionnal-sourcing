@@ -55,5 +55,24 @@
     "total": "Gesamtbetrag: {total}.",
     "cta": "Angebot ansehen",
     "footer": "Sie erhalten diese Nachricht, weil Sie diese Angebotsanfrage betreuen."
+  },
+  "agencyReview": {
+    "footer": "Sie erhalten diese Nachricht, weil Sie für diese Anmeldung verantwortlich sind.",
+    "reasonLabel": "Nachricht des Teams:",
+    "approved": {
+      "subject": "Ihre Anmeldung ist freigegeben",
+      "title": "Ihre Agentur ist freigegeben",
+      "body": "Das Team hat die Anmeldung von „{organizationName}“ freigegeben: Ihr Konto ist vollständig aktiv."
+    },
+    "rejected": {
+      "subject": "Ihre Anmeldung wurde nicht angenommen",
+      "title": "Anmeldung nicht angenommen",
+      "body": "Das Team konnte die Anmeldung von „{organizationName}“ nicht freigeben. Das Konto wurde deaktiviert."
+    },
+    "info_requested": {
+      "subject": "Weitere Informationen erforderlich",
+      "title": "Weitere Informationen erforderlich",
+      "body": "Um die Anmeldung von „{organizationName}“ freizugeben, benötigt das Team weitere Informationen. Bitte antworten Sie auf diese E-Mail."
+    }
   }
 }

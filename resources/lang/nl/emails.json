@@ -55,5 +55,24 @@
     "total": "Totaalbedrag: {total}.",
     "cta": "Offerte bekijken",
     "footer": "U ontvangt dit bericht omdat u deze offerteaanvraag beheert."
+  },
+  "agencyReview": {
+    "footer": "U ontvangt dit bericht omdat u verantwoordelijk bent voor deze aanmelding.",
+    "reasonLabel": "Bericht van het team:",
+    "approved": {
+      "subject": "Uw aanmelding is goedgekeurd",
+      "title": "Uw bureau is goedgekeurd",
+      "body": "Het team heeft de aanmelding van “{organizationName}” goedgekeurd: uw account is volledig actief."
+    },
+    "rejected": {
+      "subject": "Uw aanmelding is niet geaccepteerd",
+      "title": "Aanmelding niet geaccepteerd",
+      "body": "Het team kon de aanmelding van “{organizationName}” niet goedkeuren. Het account is gedeactiveerd."
+    },
+    "info_requested": {
+      "subject": "Meer informatie nodig",
+      "title": "Meer informatie nodig",
+      "body": "Om de aanmelding van “{organizationName}” goed te keuren, heeft het team meer informatie nodig. Beantwoord deze e-mail."
+    }
   }
 }

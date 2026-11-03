@@ -8,7 +8,8 @@
     "attributes": "Attributen",
     "label": "Beheersecties",
     "demand": "Klantvraag",
-    "moderation": "Moderatie"
+    "moderation": "Moderatie",
+    "agencies": "Bureaus"
   },
   "pagination": {
     "previous": "Vorige",
@@ -22,7 +23,8 @@
       "users": "Gebruikers",
       "products": "Producten",
       "rfqs": "Offerteaanvragen",
-      "pendingModeration": "Te modereren"
+      "pendingModeration": "Te modereren",
+      "pendingAgencyReviews": "Te beoordelen bureaus"
     },
     "archived": "{count, plural, =0 {Geen gearchiveerd} one {# gearchiveerd} other {# gearchiveerd}}",
     "kpi": {
@@ -207,7 +209,10 @@
       "attribute_value.updated": "Attribuutwaarde gewijzigd",
       "attribute_value.deleted": "Attribuutwaarde verwijderd",
       "moderation.approved": "Item goedgekeurd in moderatie",
-      "moderation.rejected": "Item afgewezen in moderatie"
+      "moderation.rejected": "Item afgewezen in moderatie",
+      "agency_review.approved": "Bureauaanmelding goedgekeurd",
+      "agency_review.rejected": "Bureauaanmelding afgewezen",
+      "agency_review.info_requested": "Informatie gevraagd aan een bureau"
     },
     "targets": {
       "user": "Gebruiker",
@@ -347,6 +352,76 @@
     "decided": {
       "approved": "Item goedgekeurd.",
       "rejected": "Item afgewezen."
+    }
+  },
+  "agencyReviews": {
+    "title": "Bureaubeoordeling",
+    "subtitle": "Bureauaanmeldingen waarvan de automatische controles een handmatige validatie vragen.",
+    "resultsCount": "{count, plural, =0 {Geen bureaus} one {# bureau} other {# bureaus}}",
+    "empty": "Geen bureau voor dit filter.",
+    "emptyDescription": "Wijzig het filter of kom later terug.",
+    "filters": {
+      "status": "Weergave",
+      "open": "Te beoordelen",
+      "approved": "Goedgekeurd",
+      "rejected": "Afgewezen"
+    },
+    "columns": {
+      "agency": "Bureau",
+      "reasons": "Beoordelingsredenen",
+      "vat": "Btw (VIES)",
+      "domain": "E-maildomein",
+      "submitted": "Aangemeld op",
+      "status": "Status"
+    },
+    "statuses": {
+      "pending": "Te beoordelen",
+      "info_requested": "Informatie gevraagd",
+      "approved": "Goedgekeurd",
+      "rejected": "Afgewezen"
+    },
+    "reasons": {
+      "vat_unverified": "Btw niet geverifieerd",
+      "free_email_domain": "Gratis e-mailadres",
+      "domain_mismatch": "Domein wijkt af van de website",
+      "no_website": "Geen website",
+      "other_activity": "Activiteit “overig”"
+    },
+    "verified": "Geverifieerd",
+    "notVerified": "Niet geverifieerd",
+    "review": "Beoordelen",
+    "back": "Terug naar de lijst",
+    "submittedOn": "Aanmelding van {date}",
+    "noReasons": "Geen reden meer: het bureau is goedgekeurd.",
+    "closed": "Deze aanmelding hoeft niet meer te worden beoordeeld: geen beslissing mogelijk.",
+    "detail": {
+      "title": "Gegevens van het bureau",
+      "email": "E-mail",
+      "phone": "Telefoon",
+      "website": "Website",
+      "siret": "SIRET",
+      "vatNumber": "Btw-nummer",
+      "activity": "Activiteit",
+      "checks": "Controles",
+      "owners": "Accounteigenaren"
+    },
+    "form": {
+      "title": "Beslissing",
+      "reason": "Reden of bericht aan het bureau",
+      "reasonHint": "Verplicht bij afwijzing of het vragen van informatie; per e-mail naar het bureau gestuurd.",
+      "approve": "Bureau goedkeuren",
+      "requestInfo": "Informatie vragen",
+      "reject": "Aanmelding afwijzen"
+    },
+    "history": {
+      "title": "Geschiedenis",
+      "empty": "Nog geen beslissing.",
+      "by": "door {email}"
+    },
+    "decided": {
+      "approved": "Bureau goedgekeurd. Er is een e-mail verstuurd.",
+      "rejected": "Aanmelding afgewezen: de organisatie is gearchiveerd.",
+      "info_requested": "Informatieverzoek naar het bureau gestuurd."
     }
   }
 }
