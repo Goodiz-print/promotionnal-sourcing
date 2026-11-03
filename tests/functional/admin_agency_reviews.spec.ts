@@ -40,6 +40,17 @@ async function queue(client: any, user: unknown, qs = '') {
   return response.inertiaProps as { queue: { data: Item[]; meta: { total: number } } }
 }
 
+/**
+ * Toute décision met un mail en queue : sans faux mailer, le test tenterait un
+ * vrai envoi SMTP (refusé en CI) et attendrait les relances de la queue.
+ */
+function fakeMails(group: Parameters<typeof useDatabase>[0]) {
+  group.each.setup(() => {
+    mail.fake()
+    return () => mail.restore()
+  })
+}
+
 /** Décision par JSON : un refus (403), une validation (422) ou un conflit (409) gardent leur statut. */
 function decide(client: any, user: unknown, id: number, body: Record<string, unknown>) {
   return client
@@ -85,6 +96,7 @@ test.group('Revue des agences — droits', (group) => {
 
 test.group('Revue des agences — file', (group) => {
   useDatabase(group)
+  fakeMails(group)
 
   test('liste les agences à revoir, pas celles validées à l’inscription ni les acheteurs sans profil agence', async ({
     client,
@@ -419,6 +431,7 @@ test.group('Revue des agences — décisions', (group) => {
 
 test.group('Revue des agences — tableau de bord', (group) => {
   useDatabase(group, { seed: 'full' })
+  fakeMails(group)
 
   test('le compteur reprend les agences à revoir et baisse après une décision', async ({
     client,
