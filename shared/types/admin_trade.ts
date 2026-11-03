@@ -158,3 +158,109 @@ export type AdminRfqInterventionOptions = {
   rfqId: number
   context: AdminActionContext
 }
+
+/**
+ * Lignes brutes lues en base par `AdminTradeService` (colonnes `snake_case`, dates
+ * en `Date` ou chaîne selon le driver). Elles ne quittent pas le service : il les
+ * présente en DTO (`Admin*Row`, `Admin*Detail`).
+ */
+type DbDate = Date | string | null
+
+export type AdminRfqDbRow = {
+  id: number
+  title: string
+  status: RfqStatus
+  deadline: DbDate
+  published_at: DbDate
+  created_at: Date | string
+  buyer_id: number
+  buyer_name: string
+  suppliers_count: string | number
+  responded_count: string | number
+  quotes_count: string | number
+  attention: RfqAttentionFlag | null
+  description?: string | null
+  budget_max?: string | null
+  created_by_email?: string | null
+}
+
+export type AdminQuoteDbRow = {
+  id: number
+  rfq_id: number
+  rfq_title: string
+  status: QuoteStatus
+  total_amount: string
+  currency: string
+  submitted_at: DbDate
+  valid_until: DbDate
+  created_at: Date | string
+  buyer_id: number
+  buyer_name: string
+  supplier_id: number
+  supplier_name: string
+  notes?: string | null
+  decided_at?: DbDate
+}
+
+export type AdminOrderDbRow = {
+  id: number
+  quote_id: number
+  status: OrderStatus
+  total_amount: string
+  currency: string
+  created_at: Date | string
+  buyer_id: number
+  buyer_name: string
+  supplier_id: number
+  supplier_name: string
+  confirmed_at?: DbDate
+  in_production_at?: DbDate
+  shipped_at?: DbDate
+  delivered_at?: DbDate
+  cancelled_at?: DbDate
+}
+
+export type AdminRfqItemDbRow = {
+  id: number
+  name: string
+  quantity: number
+  unit: string | null
+  description: string | null
+}
+
+export type AdminRfqRecipientDbRow = {
+  id: number
+  supplier_id: number
+  supplier_name: string
+  status: RfqSupplierStatus
+  sent_at: DbDate
+  reminded_at: DbDate
+}
+
+export type AdminRfqQuoteDbRow = {
+  id: number
+  supplier_id: number
+  supplier_name: string
+  status: QuoteStatus
+  total_amount: string
+  currency: string
+  submitted_at: DbDate
+  valid_until: DbDate
+}
+
+export type AdminQuoteItemDbRow = {
+  id: number
+  rfq_item_name: string
+  quantity: number
+  unit_price: string
+  total_price: string
+  lead_time_days: number
+}
+
+export type AdminOrderItemDbRow = {
+  id: number
+  name: string
+  quantity: number
+  unit_price: string
+  total_price: string
+}

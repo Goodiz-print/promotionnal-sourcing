@@ -13,19 +13,26 @@ import type { Paginated } from '#shared/types/pagination'
 import type {
   AdminOrderDetail,
   AdminOrderFilters,
+  AdminOrderDbRow,
+  AdminOrderItemDbRow,
   AdminOrderRow,
   AdminQuoteDetail,
   AdminQuoteFilters,
+  AdminQuoteDbRow,
+  AdminQuoteItemDbRow,
   AdminQuoteRow,
   AdminRfqDetail,
   AdminRfqFilters,
+  AdminRfqDbRow,
+  AdminRfqItemDbRow,
+  AdminRfqQuoteDbRow,
+  AdminRfqRecipientDbRow,
   AdminRfqRow,
   AdminTradeListOptions,
   AdminTradePeriodFilters,
   RfqAttentionFlag,
 } from '#shared/types/admin_trade'
 
-type Row = Record<string, any>
 type Query = ReturnType<typeof db.from>
 
 /** Demande publiée dont l'échéance est passée : le job d'expiration ne l'a pas encore basculée. */
@@ -66,7 +73,7 @@ export default class AdminTradeService {
     )
     this.byPeriod(query, options, 'r.created_at')
 
-    const { total, rows } = await this.page(query, page, perPage, (q) =>
+    const { total, rows } = await this.page<AdminRfqDbRow>(query, page, perPage, (q) =>
       this.selectRfq(q, today, sentBefore).orderBy('r.created_at', 'desc').orderBy('r.id', 'desc')
     )
     return this.paginated(
@@ -115,21 +122,21 @@ export default class AdminTradeService {
       description: row.description,
       budgetMax: row.budget_max,
       createdByEmail: row.created_by_email,
-      items: items.map((line: Row) => ({
+      items: items.map((line: AdminRfqItemDbRow) => ({
         id: line.id,
         name: line.name,
         quantity: line.quantity,
         unit: line.unit,
         description: line.description,
       })),
-      recipients: recipients.map((line: Row) => ({
+      recipients: recipients.map((line: AdminRfqRecipientDbRow) => ({
         id: line.id,
         supplier: party(line.supplier_id, line.supplier_name),
         status: line.status as RfqSupplierStatus,
         sentAt: iso(line.sent_at),
         remindedAt: iso(line.reminded_at),
       })),
-      quotes: quotes.map((line: Row) => ({
+      quotes: quotes.map((line: AdminRfqQuoteDbRow) => ({
         id: line.id,
         supplier: party(line.supplier_id, line.supplier_name),
         status: line.status as QuoteStatus,
@@ -144,7 +151,7 @@ export default class AdminTradeService {
         item.attention === 'overdue' || !open
           ? 0
           : recipients.filter(
-              (line: Row) => ['sent', 'viewed'].includes(line.status) && !line.reminded_at
+              (line) => ['sent', 'viewed'].includes(line.status) && !line.reminded_at
             ).length,
     }
   }
@@ -158,7 +165,7 @@ export default class AdminTradeService {
     this.byParties(query, options)
     this.byPeriod(query, options, 'q.created_at')
 
-    const { total, rows } = await this.page(query, page, perPage, (q) =>
+    const { total, rows } = await this.page<AdminQuoteDbRow>(query, page, perPage, (q) =>
       this.selectQuote(q).orderBy('q.created_at', 'desc').orderBy('q.id', 'desc')
     )
     return this.paginated(
@@ -191,7 +198,7 @@ export default class AdminTradeService {
       item: this.presentQuote(row),
       notes: row.notes,
       decidedAt: iso(row.decided_at),
-      items: items.map((line: Row) => ({
+      items: items.map((line: AdminQuoteItemDbRow) => ({
         id: line.id,
         rfqItemName: line.rfq_item_name,
         quantity: line.quantity,
@@ -212,7 +219,7 @@ export default class AdminTradeService {
     this.byParties(query, options)
     this.byPeriod(query, options, 'o.created_at')
 
-    const { total, rows } = await this.page(query, page, perPage, (q) =>
+    const { total, rows } = await this.page<AdminOrderDbRow>(query, page, perPage, (q) =>
       this.selectOrder(q).orderBy('o.created_at', 'desc').orderBy('o.id', 'desc')
     )
     return this.paginated(
@@ -244,7 +251,7 @@ export default class AdminTradeService {
       shippedAt: iso(row.shipped_at),
       deliveredAt: iso(row.delivered_at),
       cancelledAt: iso(row.cancelled_at),
-      items: items.map((line: Row) => ({
+      items: items.map((line: AdminOrderItemDbRow) => ({
         id: line.id,
         name: line.name,
         quantity: line.quantity,
@@ -328,24 +335,26 @@ export default class AdminTradeService {
     }
   }
 
-  /** Période sur la date de création, bornes incluses (`to` couvre toute sa journée). */
+  /** Période sur la date de création, bornes incluses (`to` couvre toute sa journée), en jours de Paris. */
   private byPeriod(query: Query, filters: AdminTradePeriodFilters, column: string) {
     if (filters.from) query.where(column, '>=', DateTime.fromISO(filters.from).toSQL()!)
     if (filters.to)
       query.where(column, '<', DateTime.fromISO(filters.to).plus({ days: 1 }).toSQL()!)
   }
 
-  private async page(
+  private async page<T>(
     query: Query,
     page: number,
     perPage: number,
     select: (query: Query) => Query
-  ): Promise<{ total: number; rows: Row[] }> {
-    const count = await query.clone().count('* as total').first()
-    const rows = await select(query)
-      .limit(perPage)
-      .offset((page - 1) * perPage)
-    return { total: Number(count?.total ?? 0), rows }
+  ): Promise<{ total: number; rows: T[] }> {
+    const [count, rows] = await Promise.all([
+      query.clone().count('* as total').first(),
+      select(query)
+        .limit(perPage)
+        .offset((page - 1) * perPage),
+    ])
+    return { total: Number(count?.total ?? 0), rows: rows as T[] }
   }
 
   private paginated<T>(data: T[], total: number, page: number, perPage: number): Paginated<T> {
@@ -360,7 +369,7 @@ export default class AdminTradeService {
     }
   }
 
-  private presentRfq(row: Row): AdminRfqRow {
+  private presentRfq(row: AdminRfqDbRow): AdminRfqRow {
     return {
       id: row.id,
       title: row.title,
@@ -376,7 +385,7 @@ export default class AdminTradeService {
     }
   }
 
-  private presentQuote(row: Row): AdminQuoteRow {
+  private presentQuote(row: AdminQuoteDbRow): AdminQuoteRow {
     return {
       id: row.id,
       rfqId: row.rfq_id,
@@ -392,7 +401,7 @@ export default class AdminTradeService {
     }
   }
 
-  private presentOrder(row: Row): AdminOrderRow {
+  private presentOrder(row: AdminOrderDbRow): AdminOrderRow {
     return {
       id: row.id,
       quoteId: row.quote_id,

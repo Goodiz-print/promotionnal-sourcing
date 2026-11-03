@@ -13,7 +13,7 @@ const parties = {
   supplier: vine.string().trim().maxLength(100).optional(),
   from: vine.date(DATE_OPTIONS).optional(),
   to: vine.date(DATE_OPTIONS).optional(),
-  page: vine.number().positive().optional(),
+  page: vine.number().withoutDecimals().min(1).max(100000).optional(),
 }
 
 /** Filtres de la liste des demandes de devis (query string), tous optionnels. */

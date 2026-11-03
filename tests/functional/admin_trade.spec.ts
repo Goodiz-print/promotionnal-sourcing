@@ -49,9 +49,13 @@ async function supplierId(name?: string) {
 }
 
 async function publishedRfq(buyer: number, overrides: Partial<Rfq> = {}) {
-  return RfqFactory.apply('published')
-    .merge({ buyerOrganizationId: buyer, ...overrides })
-    .create()
+  // Sans l'état `published` de la fabrique : il écraserait `publishedAt`.
+  return RfqFactory.merge({
+    buyerOrganizationId: buyer,
+    status: 'published',
+    publishedAt: DateTime.now(),
+    ...overrides,
+  }).create()
 }
 
 async function recipient(rfqId: number, supplier: number, status: 'sent' | 'viewed' = 'sent') {

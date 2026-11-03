@@ -18,8 +18,10 @@ import type { AdminRfqInterventionOptions } from '#shared/types/admin_trade'
 /**
  * Interventions de la plateforme sur une demande de devis (#166) : clôturer,
  * faire expirer, relancer les fournisseurs. Chacune réutilise les transitions de
- * `RfqService` et écrit sa trace d'audit **dans la même transaction**. Les effets
- * de bord (devis ouverts à expirer, mails) ne partent qu'après.
+ * `RfqService` et écrit sa trace d'audit **dans la même transaction**. Les mails
+ * de relance partent avant l'écriture : leur clé d'idempotence (demande,
+ * organisation, adresse) interdit tout doublon, même si deux relances se croisent
+ * ou si l'écriture échoue et que l'admin recommence.
  */
 @inject()
 export default class AdminRfqInterventionService {
@@ -49,13 +51,14 @@ export default class AdminRfqInterventionService {
     })
   }
 
-  /** Les devis encore ouverts de la demande expirent avec elle, comme pour l'expiration planifiée. */
+  /** Les devis encore ouverts de la demande expirent avec elle, dans la même transaction. */
   async expire({ rfqId, context }: AdminRfqInterventionOptions): Promise<Rfq> {
-    const rfq = await db.transaction(async (trx) => {
+    return db.transaction(async (trx) => {
       const locked = await this.find(rfqId, trx)
       if (locked.status !== 'published') throw new RfqNotExpirableException()
 
       await this.rfqs.expire(locked, DateTime.now(), trx)
+      await this.quotes.expireForRfqs([locked.id], trx)
       await this.audit.record(
         {
           action: 'rfq.expired',
@@ -67,9 +70,6 @@ export default class AdminRfqInterventionService {
       )
       return locked
     })
-
-    await this.quotes.expireForRfqs([rfq.id])
-    return rfq
   }
 
   /**
@@ -108,9 +108,13 @@ export default class AdminRfqInterventionService {
     return reminded.length
   }
 
-  /** Charge la demande sur la transaction : l'écriture et l'audit partagent la même connexion. */
+  /**
+   * Charge la demande **verrouillée** sur la transaction : deux transitions
+   * simultanées (autre admin, job d'expiration, prolongation) sont sérialisées et
+   * le statut relu est celui qui sera effectivement remplacé.
+   */
   private async find(id: number, trx: TransactionClientContract) {
-    const rfq = await Rfq.query({ client: trx }).where('id', id).first()
+    const rfq = await Rfq.query({ client: trx }).where('id', id).forUpdate().first()
     if (!rfq) throw new AdminTradeNotFoundException()
     return rfq
   }

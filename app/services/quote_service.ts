@@ -342,9 +342,9 @@ export default class QuoteService {
    * d'expirer (`RfqService#expireDue`). Un devis déjà accepté ou rejeté garde
    * son statut. Renvoie le nombre de devis basculés.
    */
-  async expireForRfqs(rfqIds: number[]): Promise<number> {
+  async expireForRfqs(rfqIds: number[], client?: TransactionClientContract): Promise<number> {
     if (rfqIds.length === 0) return 0
-    return this.expire(Quote.query().whereIn('rfqId', rfqIds))
+    return this.expire(Quote.query({ client }).whereIn('rfqId', rfqIds))
   }
 
   /**
