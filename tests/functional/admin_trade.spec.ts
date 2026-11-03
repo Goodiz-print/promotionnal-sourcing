@@ -183,11 +183,11 @@ test.group('Supervision — liste des demandes', (group) => {
     const buyer = await buyerOrg()
     const old = await RfqFactory.merge({
       buyerOrganizationId: buyer.id,
-      createdAt: DateTime.fromISO('2026-01-10T23:30:00'),
+      createdAt: DateTime.fromISO('2026-01-10T23:30:00', { zone: 'Europe/Paris' }),
     }).create()
     await RfqFactory.merge({
       buyerOrganizationId: buyer.id,
-      createdAt: DateTime.fromISO('2026-03-01T10:00:00'),
+      createdAt: DateTime.fromISO('2026-03-01T10:00:00', { zone: 'Europe/Paris' }),
     }).create()
 
     const result = await rfqList(client, admin, '?from=2026-01-10&to=2026-01-10')
