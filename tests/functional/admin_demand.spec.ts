@@ -244,6 +244,36 @@ test.group('Ce que cherchent les clients — agrégations', (group) => {
 
     response.assertStatus(302)
   })
+
+  test('refuse une date inexistante et une fin antérieure au début', async ({ client }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+
+    for (const qs of ['from=2026-13-45', 'from=2026-05-01&to=2026-01-01']) {
+      const response = await client.get(`/fr/admin/demand?${qs}`).redirects(0).loginAs(admin)
+      response.assertStatus(302)
+    }
+  })
+
+  test('plafonne la période à un an en gardant la fin', async ({ client, assert }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+
+    const response = await client
+      .get('/fr/admin/demand?from=2020-01-01&to=2026-06-30')
+      .withInertia()
+      .loginAs(admin)
+
+    response.assertStatus(200)
+    assert.equal(response.inertiaProps.filters.to, '2026-06-30')
+    assert.equal(response.inertiaProps.filters.from, '2025-06-30')
+  })
+
+  test('déduit le début de la fin quand seul `to` est fourni', async ({ client, assert }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+
+    const response = await client.get('/fr/admin/demand?to=2026-01-31').withInertia().loginAs(admin)
+
+    assert.equal(response.inertiaProps.filters.from, '2026-01-02')
+  })
 })
 
 test.group('Ce que cherchent les clients — export CSV', (group) => {
@@ -267,9 +297,11 @@ test.group('Ce que cherchent les clients — export CSV', (group) => {
   test('neutralise les termes qui ressemblent à une formule', async ({ client, assert }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
     await search({ query: '=1+1' })
+    await search({ query: '\t=2+2' })
 
     const response = await client.get('/fr/admin/demand/export').loginAs(admin)
 
     assert.include(response.text(), `"'=1+1"`)
+    assert.include(response.text(), `"'\t=2+2"`)
   })
 })

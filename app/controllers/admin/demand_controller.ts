@@ -47,13 +47,6 @@ export default class DemandController {
     const query = await request.validateUsing(adminDemandFiltersValidator, {
       data: request.qs(),
     })
-    const defaults = this.service.defaultFilters()
-    return {
-      from: query.from ?? defaults.from,
-      to: query.to ?? defaults.to,
-      source: query.source ?? null,
-      locale: query.locale ?? null,
-      organizationType: query.organizationType ?? null,
-    }
+    return this.service.resolveFilters(query)
   }
 }

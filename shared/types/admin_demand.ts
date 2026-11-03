@@ -16,6 +16,12 @@ import type { SearchEventMode, SearchEventSource } from '#shared/types/search_ev
 export const ADMIN_DEMAND_DEFAULT_DAYS = 30
 
 /** Nombre de lignes de chaque classement. */
+/** Durée maximale d'une période, en jours (borne le coût des agrégations et de l'export). */
+export const ADMIN_DEMAND_MAX_DAYS = 366
+
+/** Nombre maximal de requêtes distinctes dans l'export CSV. */
+export const ADMIN_DEMAND_EXPORT_LIMIT = 50_000
+
 export const ADMIN_DEMAND_TOP_LIMIT = 20
 
 /** Filtres de l'écran. Dates au format `AAAA-MM-JJ`, bornes incluses. */

@@ -2,6 +2,8 @@ import { DateTime } from 'luxon'
 import db from '@adonisjs/lucid/services/db'
 import {
   ADMIN_DEMAND_DEFAULT_DAYS,
+  ADMIN_DEMAND_EXPORT_LIMIT,
+  ADMIN_DEMAND_MAX_DAYS,
   ADMIN_DEMAND_TOP_LIMIT,
   type AdminDemandFilters,
   type AdminDemandReport,
@@ -34,6 +36,38 @@ export default class AdminDemandService {
       source: null,
       locale: null,
       organizationType: null,
+    }
+  }
+
+  /**
+   * Complète les filtres reçus (dates déjà validées) : période par défaut, `from`
+   * déduit de `to` quand il manque, `to` ramené à `from` si `from` est dans le
+   * futur, et durée plafonnée à `ADMIN_DEMAND_MAX_DAYS` (on garde la fin).
+   */
+  resolveFilters(query: {
+    from?: DateTime
+    to?: DateTime
+    source?: AdminDemandFilters['source']
+    locale?: string
+    organizationType?: AdminDemandFilters['organizationType']
+  }): AdminDemandFilters {
+    const defaults = this.defaultFilters()
+    const given = (date?: DateTime) => date?.startOf('day') ?? null
+    const fromGiven = given(query.from)
+    const toGiven = given(query.to)
+
+    const to = toGiven ?? (fromGiven && fromGiven > DateTime.now() ? fromGiven : null)
+    const end = to ?? DateTime.fromISO(defaults.to)
+    let from = fromGiven ?? end.minus({ days: ADMIN_DEMAND_DEFAULT_DAYS - 1 })
+    const earliest = end.minus({ days: ADMIN_DEMAND_MAX_DAYS - 1 })
+    if (from < earliest) from = earliest
+
+    return {
+      from: from.toISODate()!,
+      to: end.toISODate()!,
+      source: query.source ?? null,
+      locale: query.locale ?? null,
+      organizationType: query.organizationType ?? null,
     }
   }
 
@@ -76,20 +110,20 @@ export default class AdminDemandService {
     }
   }
 
-  /** Lignes du CSV des requêtes (toutes, sans la limite des classements). */
+  /** Lignes du CSV des requêtes (plafonnées à `ADMIN_DEMAND_EXPORT_LIMIT`, hors limite des classements). */
   async queriesForExport(filters: AdminDemandFilters): Promise<DemandQueryRow[]> {
-    return this.queries(filters, false, null)
+    return this.queries(filters, false, ADMIN_DEMAND_EXPORT_LIMIT)
   }
 
   /**
    * CSV (séparateur `;`, ouvrable dans Excel FR) des requêtes de la période. Une
-   * cellule qui commence par `=`, `+`, `-` ou `@` est préfixée d'une apostrophe :
-   * un terme saisi par un client ne doit pas s'exécuter comme formule.
+   * cellule qui commence par `=`, `+`, `-` ou `@` est préfixée d'une apostrophe
+   * (idem pour une tabulation ou un retour chariot en tête) : un terme saisi par un client ne doit pas s'exécuter comme formule.
    */
   async queriesCsv(filters: AdminDemandFilters, header: string[]): Promise<string> {
     const rows = await this.queriesForExport(filters)
     const cell = (value: string | number): string => {
-      const text = /^[=+\-@]/.test(String(value)) ? `'${value}` : String(value)
+      const text = /^[=+\-@\t\r]/.test(String(value)) ? `'${value}` : String(value)
       return `"${text.replace(/"/g, '""')}"`
     }
     const lines = [
@@ -128,6 +162,10 @@ export default class AdminDemandService {
     )
   }
 
+  private zone(): string {
+    return DateTime.local().zoneName ?? 'UTC'
+  }
+
   private start(filters: AdminDemandFilters): string {
     return DateTime.fromISO(filters.from).startOf('day').toSQL()!
   }
@@ -160,7 +198,7 @@ export default class AdminDemandService {
   private async queries(
     filters: AdminDemandFilters,
     zeroOnly: boolean,
-    limit: number | null = ADMIN_DEMAND_TOP_LIMIT
+    limit: number = ADMIN_DEMAND_TOP_LIMIT
   ): Promise<DemandQueryRow[]> {
     const query = this.searches(filters)
       .whereNotNull('se.query')
@@ -174,7 +212,7 @@ export default class AdminDemandService {
       .orderBy('searches', 'desc')
       .orderBy('se.query', 'asc')
     if (zeroOnly) query.having(db.raw('count(*) filter (where se.zero_results) > 0'))
-    if (limit) query.limit(limit)
+    query.limit(limit)
 
     const rows = await query
     return rows.map((row) => ({
@@ -186,9 +224,10 @@ export default class AdminDemandService {
   }
 
   private async trend(filters: AdminDemandFilters): Promise<DemandTrendRow[]> {
+    // Le jour est calculé dans le fuseau de l'application, comme les bornes de période.
     const rows = await this.searches(filters)
       .select(
-        db.raw("to_char(se.created_at, 'YYYY-MM-DD') as day"),
+        db.raw("to_char(se.created_at at time zone ?, 'YYYY-MM-DD') as day", [this.zone()]),
         db.raw('count(*)::int as searches'),
         db.raw('count(*) filter (where se.zero_results)::int as zero')
       )
@@ -217,6 +256,7 @@ export default class AdminDemandService {
   /** Filtres posés par les clients : une ligne par nom de filtre (clé du JSON `filters`). */
   private async usedFilters(filters: AdminDemandFilters): Promise<DemandFilterRow[]> {
     const rows = await this.searches(filters)
+      .whereRaw("jsonb_typeof(se.filters) = 'object'")
       .joinRaw('cross join lateral jsonb_object_keys(se.filters) as filter')
       .select('filter', db.raw('count(*)::int as searches'))
       .groupBy('filter')
