@@ -10,6 +10,7 @@ import { newProductThreshold } from '#services/new_product_window'
 import { MOQ_BUCKETS, PRICE_BUCKETS, type ProductDirectoryFilters } from '#shared/types/product'
 import { attributeSelectionsToFilters, bucketsToRanges } from '#shared/helpers/numeric_ranges'
 import type { ProductSearchHits, ProductSearchRequest } from '#shared/types/search'
+import type { SearchTrace } from '#shared/types/search_event'
 
 /** Paramètres d'une recherche du catalogue public. */
 export interface CatalogueSearchOptions extends ProductDirectoryFilters {
@@ -42,37 +43,47 @@ export default class ProductSearchService {
 
   /**
    * Résultats paginés du catalogue public pour une requête. `null` : recherche
-   * indisponible, utiliser le repli.
+   * indisponible, utiliser le repli. `trace`, si fourni, reçoit le mode réellement
+   * utilisé (journal des recherches, #171).
    */
-  async search(options: CatalogueSearchOptions): Promise<ModelPaginatorContract<Product> | null> {
+  async search(
+    options: CatalogueSearchOptions,
+    trace?: SearchTrace
+  ): Promise<ModelPaginatorContract<Product> | null> {
     const query = options.search?.trim()
-    if (!this.enabled || !query) return null
+    if (!this.enabled || !query) {
+      if (trace && query) trace.mode = 'unavailable'
+      return null
+    }
 
     const threshold = newProductThreshold(options.newOnly)
-    const hits = await this.query({
-      query,
-      semanticRatio: searchConfig.embedder.enabled ? searchConfig.semanticRatio : 0,
-      filter: {
-        categoryId: options.categoryId,
-        madeInEurope: options.madeInEurope,
-        attributeValueIds: options.attributeValueIds,
-        // Labels de conformité (écart 4, ÉTAPE 6) : ET exact.
-        certificationIds: options.certificationIds,
-        originZones: options.originZones,
-        // Statut de stock (plan L98) : OU entre les statuts cochés.
-        stockStatuses: options.stockStatuses,
-        // Tranches numériques (plan L125) : prix, MOQ (buckets → intervalles) et
-        // attributs EAV. OU entre tranches d'un même champ, ET entre champs.
-        priceRanges: bucketsToRanges(options.priceBuckets, PRICE_BUCKETS),
-        moqRanges: bucketsToRanges(options.moqBuckets, MOQ_BUCKETS),
-        attributeRanges: attributeSelectionsToFilters(options.attributeRanges),
-        releasedAfter: threshold ? Math.trunc(threshold.toSeconds()) : null,
-        // Éco-responsable (écart 4).
-        isEco: options.ecoOnly,
+    const hits = await this.query(
+      {
+        query,
+        semanticRatio: searchConfig.embedder.enabled ? searchConfig.semanticRatio : 0,
+        filter: {
+          categoryId: options.categoryId,
+          madeInEurope: options.madeInEurope,
+          attributeValueIds: options.attributeValueIds,
+          // Labels de conformité (écart 4, ÉTAPE 6) : ET exact.
+          certificationIds: options.certificationIds,
+          originZones: options.originZones,
+          // Statut de stock (plan L98) : OU entre les statuts cochés.
+          stockStatuses: options.stockStatuses,
+          // Tranches numériques (plan L125) : prix, MOQ (buckets → intervalles) et
+          // attributs EAV. OU entre tranches d'un même champ, ET entre champs.
+          priceRanges: bucketsToRanges(options.priceBuckets, PRICE_BUCKETS),
+          moqRanges: bucketsToRanges(options.moqBuckets, MOQ_BUCKETS),
+          attributeRanges: attributeSelectionsToFilters(options.attributeRanges),
+          releasedAfter: threshold ? Math.trunc(threshold.toSeconds()) : null,
+          // Éco-responsable (écart 4).
+          isEco: options.ecoOnly,
+        },
+        page: options.page,
+        perPage: options.perPage,
       },
-      page: options.page,
-      perPage: options.perPage,
-    })
+      trace
+    )
     if (!hits) return null
 
     const products = await this.reload(hits.ids, options)
@@ -106,15 +117,21 @@ export default class ProductSearchService {
    * requête — est **rejouée par mots-clés seuls** : la recherche ne tombe jamais
    * à cause de l'IA. Moteur injoignable, même en mots-clés : `null` (repli).
    */
-  private async query(request: ProductSearchRequest): Promise<ProductSearchHits | null> {
+  private async query(
+    request: ProductSearchRequest,
+    trace?: SearchTrace
+  ): Promise<ProductSearchHits | null> {
     try {
-      return await this.engine.search(request)
+      const hits = await this.engine.search(request)
+      if (trace) trace.mode = request.semanticRatio > 0 ? 'semantic' : 'keyword'
+      return hits
     } catch (error) {
       if (request.semanticRatio > 0) {
         logger.warn({ err: error }, 'semantic search failed, retrying with keywords only')
-        return this.query({ ...request, semanticRatio: 0 })
+        return this.query({ ...request, semanticRatio: 0 }, trace)
       }
       logger.warn({ err: error }, 'search engine unavailable')
+      if (trace) trace.mode = 'unavailable'
       return null
     }
   }

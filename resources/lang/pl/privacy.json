@@ -2,7 +2,7 @@
   "heading": "Polityka prywatności",
   "eyebrow": "Ochrona danych",
   "intro": "W jaki sposób PROMOTIONAL SOURCING gromadzi, wykorzystuje i chroni dane osobowe użytkowników serwisu promotional-sourcing.eu, zgodnie z RODO i francuską ustawą „Informatique et Libertés”.",
-  "updatedAt": "30 października 2026",
+  "updatedAt": "31 października 2026",
   "seoTitle": "Polityka prywatności — Promotional Sourcing.eu",
   "seoDescription": "W jaki sposób PROMOTIONAL SOURCING gromadzi, wykorzystuje i chroni Państwa dane osobowe, zgodnie z RODO.",
   "sections": {
@@ -12,11 +12,11 @@
     },
     "donnees-collectees": {
       "title": "Gromadzone dane",
-      "body": "<p>Gromadzimy wyłącznie dane, które Państwo dobrowolnie nam przekazują:</p> <ul> <li><strong>Za pośrednictwem formularza kontaktowego</strong>: imię i nazwisko, firma, rodzaj zapytania (ogólne lub współpraca), służbowy adres e-mail, numer telefonu (opcjonalnie) oraz treść wiadomości.</li> <li><strong>Dane techniczne</strong>: dzienniki połączeń generowane automatycznie przez naszego dostawcę hostingu (adres IP, data i godzina żądania, odwiedzane strony, typ przeglądarki), w celu zapewnienia bezpieczeństwa i prawidłowego działania serwisu.</li> </ul> <p>Żadne pole nie jest obowiązkowe poza tym, co jest ściśle niezbędne do rozpatrzenia Państwa zapytania. Nie gromadzimy żadnych danych wrażliwych w rozumieniu art. 9 RODO.</p>"
+      "body": "<p>Gromadzimy wyłącznie dane, które Państwo dobrowolnie nam przekazują:</p> <ul> <li><strong>Za pośrednictwem formularza kontaktowego</strong>: imię i nazwisko, firma, rodzaj zapytania (ogólne lub współpraca), służbowy adres e-mail, numer telefonu (opcjonalnie) oraz treść wiadomości.</li> <li><strong>Dane techniczne</strong>: dzienniki połączeń generowane automatycznie przez naszego dostawcę hostingu (adres IP, data i godzina żądania, odwiedzane strony, typ przeglądarki), w celu zapewnienia bezpieczeństwa i prawidłowego działania serwisu.</li> <li><strong>Wyszukiwania na platformie</strong>: wpisane hasła, wybrane filtry i kategoria, liczba wyników, język, data oraz — jeśli są Państwo zalogowani — konto i organizacja.</li> </ul> <p>Żadne pole nie jest obowiązkowe poza tym, co jest ściśle niezbędne do rozpatrzenia Państwa zapytania. Nie gromadzimy żadnych danych wrażliwych w rozumieniu art. 9 RODO.</p>"
     },
     "finalites": {
       "title": "Cele i podstawy prawne",
-      "body": "<ul> <li><strong>Odpowiedź na Państwa zapytanie kontaktowe i zarządzanie relacją handlową</strong> — podstawa prawna: prawnie uzasadniony interes PROMOTIONAL SOURCING (art. 6 ust. 1 lit. f RODO) polegający na udzieleniu odpowiedzi na zapytanie służbowe zainicjowane przez Państwa.</li> <li><strong>Zapewnienie bezpieczeństwa i dostępności serwisu</strong> — podstawa prawna: prawnie uzasadniony interes (art. 6 ust. 1 lit. f RODO).</li> </ul> <p>Państwa dane nie są sprzedawane, wynajmowane ani przekazywane osobom trzecim w celach marketingowych.</p>"
+      "body": "<ul> <li><strong>Odpowiedź na Państwa zapytanie kontaktowe i zarządzanie relacją handlową</strong> — podstawa prawna: prawnie uzasadniony interes PROMOTIONAL SOURCING (art. 6 ust. 1 lit. f RODO) polegający na udzieleniu odpowiedzi na zapytanie służbowe zainicjowane przez Państwa.</li> <li><strong>Zapewnienie bezpieczeństwa i dostępności serwisu</strong> — podstawa prawna: prawnie uzasadniony interes (art. 6 ust. 1 lit. f RODO).</li> <li><strong>Ulepszanie katalogu i wyszukiwarki</strong> (zapytania bez wyników, synonimy, brakujące produkty) — podstawa prawna: prawnie uzasadniony interes (art. 6 ust. 1 lit. f RODO).</li> </ul> <p>Państwa dane nie są sprzedawane, wynajmowane ani przekazywane osobom trzecim w celach marketingowych.</p>"
     },
     "destinataires": {
       "title": "Odbiorcy i podmioty przetwarzające",
@@ -24,7 +24,7 @@
     },
     "conservation": {
       "title": "Okres przechowywania",
-      "body": "<ul> <li><strong>Zapytania kontaktowe</strong>: 3 lata od ostatniego kontaktu z Państwem, zgodnie z zaleceniem CNIL dotyczącym prospekcji handlowej B2B.</li> <li><strong>Dzienniki połączeń</strong>: maksymalnie 12 miesięcy.</li> </ul> <p>Po upływie tych okresów Państwa dane są usuwane lub anonimizowane.</p>"
+      "body": "<ul> <li><strong>Zapytania kontaktowe</strong>: 3 lata od ostatniego kontaktu z Państwem, zgodnie z zaleceniem CNIL dotyczącym prospekcji handlowej B2B.</li> <li><strong>Dzienniki połączeń</strong>: maksymalnie 12 miesięcy.</li> <li><strong>Dziennik wyszukiwań</strong>: powiązany z Państwa kontem przez 90 dni, następnie anonimizowany; usuwany po 24 miesiącach.</li> </ul> <p>Po upływie tych okresów Państwa dane są usuwane lub anonimizowane.</p>"
     },
     "cookies": {
       "title": "Pliki cookie i pomiar oglądalności",

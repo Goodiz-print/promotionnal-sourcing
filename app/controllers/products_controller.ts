@@ -10,6 +10,7 @@ import CatalogueNumericFacetService from '#services/catalogue_numeric_facet_serv
 import DocumentService from '#services/document_service'
 import OrganizationContextService from '#services/organization_context_service'
 import RfqService from '#services/rfq_service'
+import SearchEventService from '#services/search_event_service'
 import ProductTransformer from '#transformers/product_transformer'
 import RfqDraftOptionTransformer from '#transformers/rfq_draft_option_transformer'
 import ProductDetailTransformer from '#transformers/product_detail_transformer'
@@ -17,6 +18,7 @@ import CategoryTransformer from '#transformers/category_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
 import { NoCurrentOrganizationException } from '#exceptions/organization_errors'
 import type { Locale } from '#shared/types/i18n'
+import type { SearchTrace } from '#shared/types/search_event'
 import {
   ORIGIN_ZONES,
   PRODUCT_STOCK_STATUSES,
@@ -44,6 +46,7 @@ export default class ProductsController {
     private documents: DocumentService,
     private organizations: OrganizationContextService,
     private rfqs: RfqService,
+    private searchEvents: SearchEventService,
     private activityEvents: ActivityEventService
   ) {}
 
@@ -51,7 +54,7 @@ export default class ProductsController {
    * Catalogue public paginé + filtrable : recherche par terme (Meilisearch),
    * filtre catégorie / made-in-Europe, facettes attributs en ET fiable.
    */
-  async index({ inertia, request, i18n }: HttpContext) {
+  async index({ inertia, request, i18n, auth }: HttpContext) {
     const locale = i18n.locale as Locale
     const qs = request.qs()
 
@@ -80,8 +83,9 @@ export default class ProductsController {
     // Avec un terme : Meilisearch (ADR 0002). Sans terme, simple navigation par
     // catégories et filtres, servie par PostgreSQL. Moteur indisponible : la
     // recherche l'est aussi, la page le dit au lieu de répondre « aucun résultat ».
+    const trace: SearchTrace = {}
     const searched = filters.search
-      ? await this.productSearch.search({ ...filters, page, perPage: PER_PAGE })
+      ? await this.productSearch.search({ ...filters, page, perPage: PER_PAGE }, trace)
       : undefined
     const searchUnavailable = searched === null
     const paginator = filters.search
@@ -92,6 +96,16 @@ export default class ProductsController {
           perPage: PER_PAGE,
           sort: qs.sort === 'price_asc' ? 'price_asc' : null,
         })
+    // Journal des recherches (#171) : mis en file, n'échoue jamais.
+    await this.searchEvents.trackCatalogue({
+      filters,
+      page,
+      mode: trace.mode ?? 'unavailable',
+      total: paginator?.total ?? 0,
+      user: auth.user ?? null,
+      locale,
+    })
+
     // Lectures indépendantes, exécutées en parallèle (un round-trip Meilisearch
     // chacune pour les deux barres) :
     // - `categories` : catégories disponibles ;

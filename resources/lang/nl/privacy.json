@@ -2,7 +2,7 @@
   "heading": "Privacybeleid",
   "eyebrow": "Gegevensbescherming",
   "intro": "Hoe PROMOTIONAL SOURCING de persoonsgegevens van bezoekers van promotional-sourcing.eu verzamelt, gebruikt en beschermt, in overeenstemming met de AVG en de Franse wet “Informatique et Libertés”.",
-  "updatedAt": "30 oktober 2026",
+  "updatedAt": "31 oktober 2026",
   "seoTitle": "Privacybeleid — Promotional Sourcing.eu",
   "seoDescription": "Hoe PROMOTIONAL SOURCING uw persoonsgegevens verzamelt, gebruikt en beschermt, in overeenstemming met de AVG.",
   "sections": {
@@ -12,11 +12,11 @@
     },
     "donnees-collectees": {
       "title": "Verzamelde gegevens",
-      "body": "<p>Wij verzamelen uitsluitend de gegevens die u ons vrijwillig verstrekt:</p> <ul> <li><strong>Via het contactformulier</strong>: voor- en achternaam, bedrijf, type aanvraag (algemeen of partnerschap), zakelijk e-mailadres, telefoonnummer (facultatief) en de inhoud van uw bericht.</li> <li><strong>Technische gegevens</strong>: de verbindingslogs die automatisch door onze hostingpartij worden gegenereerd (IP-adres, datum en tijdstip van het verzoek, bekeken pagina's, browsertype), met het oog op de beveiliging en de goede werking van de website.</li> </ul> <p>Geen enkel veld is verplicht, behalve wat strikt noodzakelijk is voor de behandeling van uw verzoek. Wij verzamelen geen gevoelige gegevens in de zin van artikel 9 van de AVG.</p>"
+      "body": "<p>Wij verzamelen uitsluitend de gegevens die u ons vrijwillig verstrekt:</p> <ul> <li><strong>Via het contactformulier</strong>: voor- en achternaam, bedrijf, type aanvraag (algemeen of partnerschap), zakelijk e-mailadres, telefoonnummer (facultatief) en de inhoud van uw bericht.</li> <li><strong>Technische gegevens</strong>: de verbindingslogs die automatisch door onze hostingpartij worden gegenereerd (IP-adres, datum en tijdstip van het verzoek, bekeken pagina's, browsertype), met het oog op de beveiliging en de goede werking van de website.</li> <li><strong>Zoekopdrachten op het platform</strong>: ingevoerde zoektermen, gekozen filters en categorie, aantal resultaten, taal, datum en — als u bent ingelogd — uw account en organisatie.</li> </ul> <p>Geen enkel veld is verplicht, behalve wat strikt noodzakelijk is voor de behandeling van uw verzoek. Wij verzamelen geen gevoelige gegevens in de zin van artikel 9 van de AVG.</p>"
     },
     "finalites": {
       "title": "Doeleinden en rechtsgronden",
-      "body": "<ul> <li><strong>Reageren op uw contactverzoek en de commerciële relatie beheren</strong> — rechtsgrond: het gerechtvaardigd belang van PROMOTIONAL SOURCING (artikel 6, lid 1, onder f, van de AVG) om te reageren op een professioneel verzoek dat u zelf hebt gedaan.</li> <li><strong>De beveiliging en beschikbaarheid van de website waarborgen</strong> — rechtsgrond: gerechtvaardigd belang (artikel 6, lid 1, onder f, van de AVG).</li> </ul> <p>Uw gegevens worden niet verkocht, verhuurd of aan derden overgedragen voor acquisitiedoeleinden.</p>"
+      "body": "<ul> <li><strong>Reageren op uw contactverzoek en de commerciële relatie beheren</strong> — rechtsgrond: het gerechtvaardigd belang van PROMOTIONAL SOURCING (artikel 6, lid 1, onder f, van de AVG) om te reageren op een professioneel verzoek dat u zelf hebt gedaan.</li> <li><strong>De beveiliging en beschikbaarheid van de website waarborgen</strong> — rechtsgrond: gerechtvaardigd belang (artikel 6, lid 1, onder f, van de AVG).</li> <li><strong>Verbeteren van de catalogus en de zoekfunctie</strong> (zoekopdrachten zonder resultaat, synoniemen, ontbrekende producten) — rechtsgrond: gerechtvaardigd belang (artikel 6, lid 1, onder f, AVG).</li> </ul> <p>Uw gegevens worden niet verkocht, verhuurd of aan derden overgedragen voor acquisitiedoeleinden.</p>"
     },
     "destinataires": {
       "title": "Ontvangers en verwerkers",
@@ -24,7 +24,7 @@
     },
     "conservation": {
       "title": "Bewaartermijn",
-      "body": "<ul> <li><strong>Contactverzoeken</strong>: 3 jaar na het laatste contact met u, overeenkomstig de aanbeveling van de CNIL inzake zakelijke B2B-acquisitie.</li> <li><strong>Verbindingslogs</strong>: maximaal 12 maanden.</li> </ul> <p>Na afloop van deze termijnen worden uw gegevens verwijderd of geanonimiseerd.</p>"
+      "body": "<ul> <li><strong>Contactverzoeken</strong>: 3 jaar na het laatste contact met u, overeenkomstig de aanbeveling van de CNIL inzake zakelijke B2B-acquisitie.</li> <li><strong>Verbindingslogs</strong>: maximaal 12 maanden.</li> <li><strong>Zoeklogboek</strong>: 90 dagen gekoppeld aan uw account, daarna geanonimiseerd; na 24 maanden verwijderd.</li> </ul> <p>Na afloop van deze termijnen worden uw gegevens verwijderd of geanonimiseerd.</p>"
     },
     "cookies": {
       "title": "Cookies en bezoekersmeting",

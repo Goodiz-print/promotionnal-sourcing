@@ -2,7 +2,7 @@
   "heading": "Informativa sulla privacy",
   "eyebrow": "Protezione dei dati",
   "intro": "Come PROMOTIONAL SOURCING raccoglie, utilizza e protegge i dati personali dei visitatori di promotional-sourcing.eu, in conformità al GDPR e alla legge francese «Informatique et Libertés».",
-  "updatedAt": "30 ottobre 2026",
+  "updatedAt": "31 ottobre 2026",
   "seoTitle": "Informativa sulla privacy — Promotional Sourcing.eu",
   "seoDescription": "Come PROMOTIONAL SOURCING raccoglie, utilizza e protegge i Suoi dati personali, in conformità al GDPR.",
   "sections": {
@@ -12,11 +12,11 @@
     },
     "donnees-collectees": {
       "title": "Dati raccolti",
-      "body": "<p>Raccogliamo unicamente i dati che Lei ci trasmette volontariamente:</p> <ul> <li><strong>Tramite il modulo di contatto</strong>: cognome e nome, società, tipo di richiesta (contatto o partnership), indirizzo e-mail professionale, numero di telefono (facoltativo) e contenuto del Suo messaggio.</li> <li><strong>Dati tecnici</strong>: i log di connessione generati automaticamente dal nostro hosting provider (indirizzo IP, data e ora della richiesta, pagine consultate, tipo di browser), a fini di sicurezza e di corretto funzionamento del sito.</li> </ul> <p>Nessun campo è obbligatorio oltre a quanto strettamente necessario per il trattamento della Sua richiesta. Non raccogliamo alcun dato sensibile ai sensi dell'articolo 9 del GDPR.</p>"
+      "body": "<p>Raccogliamo unicamente i dati che Lei ci trasmette volontariamente:</p> <ul> <li><strong>Tramite il modulo di contatto</strong>: cognome e nome, società, tipo di richiesta (contatto o partnership), indirizzo e-mail professionale, numero di telefono (facoltativo) e contenuto del Suo messaggio.</li> <li><strong>Dati tecnici</strong>: i log di connessione generati automaticamente dal nostro hosting provider (indirizzo IP, data e ora della richiesta, pagine consultate, tipo di browser), a fini di sicurezza e di corretto funzionamento del sito.</li> <li><strong>Ricerche effettuate sulla piattaforma</strong>: termini inseriti, filtri e categoria scelti, numero di risultati, lingua, data e — se ha effettuato l'accesso — il Suo account e la Sua organizzazione.</li> </ul> <p>Nessun campo è obbligatorio oltre a quanto strettamente necessario per il trattamento della Sua richiesta. Non raccogliamo alcun dato sensibile ai sensi dell'articolo 9 del GDPR.</p>"
     },
     "finalites": {
       "title": "Finalità e basi giuridiche",
-      "body": "<ul> <li><strong>Rispondere alla Sua richiesta di contatto e gestire il rapporto commerciale</strong> — base giuridica: il legittimo interesse di PROMOTIONAL SOURCING (articolo 6.1.f del GDPR) a rispondere a una sollecitazione professionale da Lei stesso avviata.</li> <li><strong>Garantire la sicurezza e la disponibilità del sito</strong> — base giuridica: legittimo interesse (articolo 6.1.f del GDPR).</li> </ul> <p>I Suoi dati non vengono venduti, affittati né ceduti a terzi a fini di prospezione commerciale.</p>"
+      "body": "<ul> <li><strong>Rispondere alla Sua richiesta di contatto e gestire il rapporto commerciale</strong> — base giuridica: il legittimo interesse di PROMOTIONAL SOURCING (articolo 6.1.f del GDPR) a rispondere a una sollecitazione professionale da Lei stesso avviata.</li> <li><strong>Garantire la sicurezza e la disponibilità del sito</strong> — base giuridica: legittimo interesse (articolo 6.1.f del GDPR).</li> <li><strong>Migliorare il catalogo e la ricerca</strong> (ricerche senza risultati, sinonimi, prodotti mancanti) — base giuridica: legittimo interesse (articolo 6.1.f del GDPR).</li> </ul> <p>I Suoi dati non vengono venduti, affittati né ceduti a terzi a fini di prospezione commerciale.</p>"
     },
     "destinataires": {
       "title": "Destinatari e responsabili del trattamento",
@@ -24,7 +24,7 @@
     },
     "conservation": {
       "title": "Durata di conservazione",
-      "body": "<ul> <li><strong>Richieste di contatto</strong>: 3 anni a decorrere dall'ultimo scambio con Lei, in conformità alla raccomandazione della CNIL in materia di prospezione commerciale B2B.</li> <li><strong>Log di connessione</strong>: 12 mesi al massimo.</li> </ul> <p>Al termine di tali periodi, i Suoi dati vengono cancellati o resi anonimi.</p>"
+      "body": "<ul> <li><strong>Richieste di contatto</strong>: 3 anni a decorrere dall'ultimo scambio con Lei, in conformità alla raccomandazione della CNIL in materia di prospezione commerciale B2B.</li> <li><strong>Log di connessione</strong>: 12 mesi al massimo.</li> <li><strong>Registro delle ricerche</strong>: collegato al Suo account per 90 giorni, poi anonimizzato; cancellato dopo 24 mesi.</li> </ul> <p>Al termine di tali periodi, i Suoi dati vengono cancellati o resi anonimi.</p>"
     },
     "cookies": {
       "title": "Cookie e misurazione dell'audience",

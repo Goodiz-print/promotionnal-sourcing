@@ -2,7 +2,7 @@
   "heading": "Privacy policy",
   "eyebrow": "Data protection",
   "intro": "How PROMOTIONAL SOURCING collects, uses and protects the personal data of visitors to promotional-sourcing.eu, in accordance with the GDPR and French data protection law.",
-  "updatedAt": "30 October 2026",
+  "updatedAt": "31 October 2026",
   "seoTitle": "Privacy policy — Promotional Sourcing.eu",
   "seoDescription": "How PROMOTIONAL SOURCING collects, uses and protects your personal data, in accordance with the GDPR.",
   "sections": {
@@ -12,11 +12,11 @@
     },
     "donnees-collectees": {
       "title": "Data we collect",
-      "body": "<p>We only collect data that you provide to us voluntarily:</p> <ul> <li><strong>Through the contact form</strong>: full name, company, type of enquiry (general or partnership), work email address, phone number (optional) and the content of your message.</li> <li><strong>Technical data</strong>: connection logs generated automatically by our host (IP address, date and time of request, pages viewed, browser type), for security and site-reliability purposes.</li> </ul> <p>No field goes beyond what is strictly necessary to handle your enquiry. We do not collect any special category data within the meaning of Article 9 of the GDPR.</p>"
+      "body": "<p>We only collect data that you provide to us voluntarily:</p> <ul> <li><strong>Through the contact form</strong>: full name, company, type of enquiry (general or partnership), work email address, phone number (optional) and the content of your message.</li> <li><strong>Technical data</strong>: connection logs generated automatically by our host (IP address, date and time of request, pages viewed, browser type), for security and site-reliability purposes.</li> <li><strong>Searches made on the platform</strong>: terms entered, filters and category chosen, number of results, language, date and — if you are signed in — your account and organisation.</li> </ul> <p>No field goes beyond what is strictly necessary to handle your enquiry. We do not collect any special category data within the meaning of Article 9 of the GDPR.</p>"
     },
     "finalites": {
       "title": "Purposes and legal bases",
-      "body": "<ul> <li><strong>Responding to your enquiry and managing the business relationship</strong> — legal basis: the legitimate interest of PROMOTIONAL SOURCING (Article 6(1)(f) GDPR) in responding to a professional enquiry that you initiated yourself.</li> <li><strong>Ensuring the security and availability of the website</strong> — legal basis: legitimate interest (Article 6(1)(f) GDPR).</li> </ul> <p>Your data is never sold, rented or shared with third parties for marketing purposes.</p>"
+      "body": "<ul> <li><strong>Responding to your enquiry and managing the business relationship</strong> — legal basis: the legitimate interest of PROMOTIONAL SOURCING (Article 6(1)(f) GDPR) in responding to a professional enquiry that you initiated yourself.</li> <li><strong>Ensuring the security and availability of the website</strong> — legal basis: legitimate interest (Article 6(1)(f) GDPR).</li> <li><strong>Improving the catalogue and search</strong> (queries with no results, synonyms, missing products) — legal basis: legitimate interest (Article 6.1.f GDPR).</li> </ul> <p>Your data is never sold, rented or shared with third parties for marketing purposes.</p>"
     },
     "destinataires": {
       "title": "Recipients and processors",
@@ -24,7 +24,7 @@
     },
     "conservation": {
       "title": "Retention periods",
-      "body": "<ul> <li><strong>Contact enquiries</strong>: 3 years from our last exchange with you, in line with the French data protection authority's (CNIL) recommendation for B2B prospecting.</li> <li><strong>Connection logs</strong>: 12 months maximum.</li> </ul> <p>After these periods, your data is deleted or anonymised.</p>"
+      "body": "<ul> <li><strong>Contact enquiries</strong>: 3 years from our last exchange with you, in line with the French data protection authority's (CNIL) recommendation for B2B prospecting.</li> <li><strong>Connection logs</strong>: 12 months maximum.</li> <li><strong>Search log</strong>: linked to your account for 90 days, then anonymised; deleted after 24 months.</li> </ul> <p>After these periods, your data is deleted or anonymised.</p>"
     },
     "cookies": {
       "title": "Cookies and analytics",
