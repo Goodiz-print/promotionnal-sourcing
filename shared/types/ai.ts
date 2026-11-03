@@ -43,12 +43,16 @@ export interface TranslationBackfillReport {
 /** `called` si Mistral a été appelé, `skipped` si toutes les locales étaient à jour. */
 export type TranslationOutcome = 'called' | 'skipped'
 
-/** Sous-ensemble du SDK Mistral dont dépend le traducteur (injectable en test). */
+/** Morceau de message multimodal (texte ou image en URL / data URL). */
+export type MistralContentChunk =
+  { type: 'text'; text: string } | { type: 'image_url'; imageUrl: string }
+
+/** Sous-ensemble du SDK Mistral dont dépendent le traducteur et la vision (injectable en test). */
 export interface MistralChatClientLike {
   chat: {
     complete(request: {
       model: string
-      messages: Array<{ role: 'system' | 'user'; content: string }>
+      messages: Array<{ role: 'system' | 'user'; content: string | MistralContentChunk[] }>
       responseFormat: { type: 'json_object' }
       temperature: number
       maxTokens: number

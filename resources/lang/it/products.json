@@ -228,5 +228,14 @@
     "madeInEurope": "Fabbricato in Europa",
     "eco": "Eco-sostenibile",
     "new": "Novità"
+  },
+  "imageSearch": {
+    "button": "Cerca per immagine",
+    "analysing": "Analisi della foto…",
+    "hint": "JPG, PNG o WebP, max 5 MB.",
+    "banner": "Risultati per la tua foto: «{query}». Puoi modificare la ricerca.",
+    "disabled": "La ricerca per immagine non è disponibile al momento.",
+    "invalid": "Questo file non è un'immagine utilizzabile.",
+    "failed": "Non siamo riusciti ad analizzare questa foto. Riprova o digita la tua ricerca."
   }
 }

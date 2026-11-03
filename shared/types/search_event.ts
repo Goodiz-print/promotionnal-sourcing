@@ -4,8 +4,13 @@
  * cherchent (et ne trouvent pas) ne se rattrape pas après coup.
  */
 
-/** Écran d'où part la recherche. */
-export const SEARCH_EVENT_SOURCES = ['catalogue', 'suppliers', 'rfq_lookup'] as const
+/** Écran d'où part la recherche (`catalogue_image` : catalogue, terme généré depuis une photo). */
+export const SEARCH_EVENT_SOURCES = [
+  'catalogue',
+  'catalogue_image',
+  'suppliers',
+  'rfq_lookup',
+] as const
 
 export type SearchEventSource = (typeof SEARCH_EVENT_SOURCES)[number]
 

@@ -9,6 +9,7 @@ import CatalogueEnumFacetService from '#services/catalogue_enum_facet_service'
 import CatalogueNumericFacetService from '#services/catalogue_numeric_facet_service'
 import DocumentService from '#services/document_service'
 import OrganizationContextService from '#services/organization_context_service'
+import ImageSearchService from '#services/image_search_service'
 import RfqService from '#services/rfq_service'
 import SearchEventService from '#services/search_event_service'
 import ProductTransformer from '#transformers/product_transformer'
@@ -18,6 +19,7 @@ import CategoryTransformer from '#transformers/category_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
 import { NoCurrentOrganizationException } from '#exceptions/organization_errors'
 import type { Locale } from '#shared/types/i18n'
+import { IMAGE_SEARCH_QUERY_PARAM } from '#shared/types/image_search'
 import type { SearchTrace } from '#shared/types/search_event'
 import {
   ORIGIN_ZONES,
@@ -47,7 +49,8 @@ export default class ProductsController {
     private organizations: OrganizationContextService,
     private rfqs: RfqService,
     private searchEvents: SearchEventService,
-    private activityEvents: ActivityEventService
+    private activityEvents: ActivityEventService,
+    private imageSearch: ImageSearchService
   ) {}
 
   /**
@@ -79,6 +82,8 @@ export default class ProductsController {
       ecoOnly: qs.ecoOnly === 'true',
     }
     const page = Number.parseInt(qs.page, 10) || 1
+    // Terme issu d'une photo (recherche par image) : sert au journal et au bandeau.
+    const imageSearch = qs[IMAGE_SEARCH_QUERY_PARAM] === '1' && filters.search !== null
 
     // Avec un terme : Meilisearch (ADR 0002). Sans terme, simple navigation par
     // catégories et filtres, servie par PostgreSQL. Moteur indisponible : la
@@ -104,6 +109,7 @@ export default class ProductsController {
       total: paginator?.total ?? 0,
       user: auth.user ?? null,
       locale,
+      fromImage: imageSearch,
     })
 
     // Lectures indépendantes, exécutées en parallèle (un round-trip Meilisearch
@@ -144,6 +150,9 @@ export default class ProductsController {
       },
       searchUnavailable,
       filters,
+      imageSearch,
+      // Bouton d'envoi de photo : fonction active et acheteur connecté.
+      imageSearchEnabled: Boolean(auth.user) && this.imageSearch.isAvailable(),
       categories: categories.map((category) =>
         new CategoryTransformer(category, locale).toObject()
       ),
