@@ -237,14 +237,12 @@ test.group('Ce que cherchent les clients — agrégations', (group) => {
     )
   })
 
-  test('rejette une période invalide', async ({ client }) => {
+  test('refuse une période invalide au lieu de l’ignorer', async ({ client }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
-    const response = await client
-      .get('/fr/admin/demand')
-      .qs({ from: 'hier' })
-      .withInertia()
-      .loginAs(admin)
-    response.assertStatus(422)
+
+    const response = await client.get('/fr/admin/demand?from=hier').redirects(0).loginAs(admin)
+
+    response.assertStatus(302)
   })
 })
 
