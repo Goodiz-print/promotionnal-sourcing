@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
+import ActivityEventService from '#services/activity_event_service'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import ProductSearchService from '#services/product_search_service'
 import CatalogueFacetBarService from '#services/catalogue_facet_bar_service'
@@ -42,7 +43,8 @@ export default class ProductsController {
     private enumFacets: CatalogueEnumFacetService,
     private documents: DocumentService,
     private organizations: OrganizationContextService,
-    private rfqs: RfqService
+    private rfqs: RfqService,
+    private activityEvents: ActivityEventService
   ) {}
 
   /**
@@ -148,6 +150,15 @@ export default class ProductsController {
     if (!product) {
       throw new ProductNotFoundException()
     }
+
+    await this.activityEvents.record({
+      type: 'product_viewed',
+      targetType: 'product',
+      targetId: product.id,
+      userId: auth.user?.id ?? null,
+      organizationId: auth.user?.currentOrganizationId ?? null,
+      isStaff: auth.user?.hasBackOffice ?? false,
+    })
 
     return inertia.render('products/show', {
       product: new ProductDetailTransformer(product, locale, this.documents.urlFor).toObject(),
