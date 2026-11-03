@@ -190,7 +190,8 @@
       "zeroRate": "{rate} das pesquisas",
       "modes": "Modos de pesquisa",
       "variation": "{percent}% face ao período anterior",
-      "noPrevious": "Sem período anterior para comparar"
+      "noPrevious": "Sem período anterior para comparar",
+      "previousTotal": "Período anterior"
     },
     "chart": {
       "title": "Pesquisas por dia",

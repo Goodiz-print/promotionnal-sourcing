@@ -190,7 +190,8 @@
       "zeroRate": "{rate} av sökningarna",
       "modes": "Söklägen",
       "variation": "{percent} % jämfört med föregående period",
-      "noPrevious": "Ingen föregående period att jämföra med"
+      "noPrevious": "Ingen föregående period att jämföra med",
+      "previousTotal": "Föregående period"
     },
     "chart": {
       "title": "Sökningar per dag",

@@ -57,7 +57,7 @@ Types (`ActivityEventService`) : `product_viewed`, `supplier_viewed` (fiches pub
 
 - **Filtres** (query string) : `from` / `to` (`AAAA-MM-JJ`, bornes incluses, 30 derniers jours par défaut, 366 jours au plus), `source` (catalogue, fournisseurs, lookup RFQ), `locale`, `organizationType` (acheteur, fournisseur, les deux). Une valeur invalide est refusée par la validation.
 - **Contenu** : synthèse (total, sans résultat, taux, modes sémantique / mots-clés / indisponible / navigation, comparaison à la période précédente de même durée), courbe quotidienne, top requêtes, requêtes **sans résultat** (opportunités de catalogue ou de synonymes), catégories et filtres les plus utilisés, produits et fournisseurs les plus consultés avec ajouts à une RFQ.
-- **Export CSV** : mêmes filtres, UTF-8 avec BOM, cellules commençant par `=`, `+`, `-` ou `@` neutralisées contre l'injection de formules.
+- **Export CSV** : mêmes filtres, UTF-8 avec BOM, libellés dans la langue de l'admin (mêmes textes que l'écran), cellules commençant par `=`, `+`, `-`, `@`, tabulation ou retour chariot neutralisées contre l'injection de formules. Les classements produits et fournisseurs (événements d'activité) ne tiennent compte que de la période et du type d'organisation, pas de la source ni de la langue de recherche.
 - **Limites** : les recherches dont l'auteur est pseudonymisé (au-delà de 90 jours) restent comptées mais sortent du filtre `organizationType`.
 
 ## Tests

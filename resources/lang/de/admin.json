@@ -190,7 +190,8 @@
       "zeroRate": "{rate} der Suchanfragen",
       "modes": "Suchmodi",
       "variation": "{percent} % ggü. Vorperiode",
-      "noPrevious": "Keine Vorperiode zum Vergleichen"
+      "noPrevious": "Keine Vorperiode zum Vergleichen",
+      "previousTotal": "Vorherige Periode"
     },
     "chart": {
       "title": "Suchanfragen pro Tag",

@@ -190,7 +190,8 @@
       "zeroRate": "{rate} van de zoekopdrachten",
       "modes": "Zoekmodi",
       "variation": "{percent}% t.o.v. vorige periode",
-      "noPrevious": "Geen vorige periode om mee te vergelijken"
+      "noPrevious": "Geen vorige periode om mee te vergelijken",
+      "previousTotal": "Vorige periode"
     },
     "chart": {
       "title": "Zoekopdrachten per dag",

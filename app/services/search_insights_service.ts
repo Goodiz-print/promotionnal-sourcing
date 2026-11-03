@@ -1,9 +1,11 @@
 import { DateTime } from 'luxon'
 import db from '@adonisjs/lucid/services/db'
+import i18nManager from '@adonisjs/i18n/services/main'
 import { resolveTranslation } from '#shared/helpers/translations'
 import {
   SEARCH_INSIGHTS_TOP_LIMIT,
   type SearchInsightsFilters,
+  type SearchInsightsRange,
   type SearchInsightsReport,
   type SearchInsightsSummary,
   type SearchInsightsQueryRow,
@@ -16,12 +18,6 @@ import { SEARCH_EVENT_MODES, type SearchEventMode } from '#shared/types/search_e
 
 /** Fuseau des bornes de jour. */
 const TIMEZONE = 'Europe/Paris'
-
-/** Bornes (UTC) d'une période, incluses. */
-interface Range {
-  from: DateTime
-  to: DateTime
-}
 
 /**
  * Agrégation des journaux `search_events` et `activity_events` pour l'écran
@@ -46,29 +42,30 @@ export default class SearchInsightsService {
     const prevFromDate = fromDate.minus({ days })
     const prevToDate = fromDate.minus({ milliseconds: 1 })
 
-    const range: Range = { from: fromDate, to: toDate }
-    const prevRange: Range = { from: prevFromDate, to: prevToDate }
+    const range: SearchInsightsRange = { from: fromDate, to: toDate }
+    const prevRange: SearchInsightsRange = { from: prevFromDate, to: prevToDate }
 
-    const summaryRow = await this.scoped(range, filters)
-      .select(
-        db.raw('COUNT(*)::int AS total'),
-        db.raw('COALESCE(SUM(CASE WHEN zero_results THEN 1 ELSE 0 END), 0)::int AS zero_results')
-      )
-      .first()
-    const total = Number(summaryRow?.total ?? 0)
-    const zeroResults = Number(summaryRow?.zero_results ?? 0)
-
-    const modeRows = await this.scoped(range, filters)
-      .select('mode')
-      .count('* as count')
-      .groupBy('mode')
+    const [modeRows, previous] = await Promise.all([
+      this.scoped(range, filters)
+        .select('mode')
+        .select(
+          db.raw('COUNT(*)::int AS total'),
+          db.raw('COALESCE(SUM(CASE WHEN zero_results THEN 1 ELSE 0 END), 0)::int AS zero_results')
+        )
+        .groupBy('mode'),
+      this.scoped(prevRange, filters).count('* as count').first(),
+    ])
     const byMode = Object.fromEntries(SEARCH_EVENT_MODES.map((mode) => [mode, 0])) as Record<
       SearchEventMode,
       number
     >
-    for (const row of modeRows) byMode[row.mode as SearchEventMode] = Number(row.count)
-
-    const previous = await this.scoped(prevRange, filters).count('* as count').first()
+    let total = 0
+    let zeroResults = 0
+    for (const row of modeRows) {
+      byMode[row.mode as SearchEventMode] = Number(row.total)
+      total += Number(row.total)
+      zeroResults += Number(row.zero_results)
+    }
 
     const summary: SearchInsightsSummary = {
       total,
@@ -110,104 +107,78 @@ export default class SearchInsightsService {
   }
 
   /**
-   * Exporte les données en CSV.
+   * Exporte le rapport en CSV (UTF-8 avec BOM, CRLF). Les libellés reprennent
+   * les textes de l'écran, dans la langue de l'admin.
    */
   async exportCsv(filters: SearchInsightsFilters, adminLocale: string): Promise<string> {
     const report = await this.report(filters, adminLocale)
+    const i18n = i18nManager.locale(adminLocale)
+    const t = (key: string, data?: Record<string, unknown>) => i18n.t(`admin.search.${key}`, data)
+    const { summary } = report
 
     const lines: string[] = []
-
-    // BOM UTF-8
-    const BOM = '﻿'
-
-    // Summary section
-    lines.push('Section,Metric,Value')
-    lines.push(`Summary,Total Searches,${report.summary.total}`)
-    lines.push(`Summary,Zero Results,${report.summary.zeroResults}`)
-    lines.push(`Summary,Zero Rate,${(report.summary.zeroRate * 100).toFixed(2)}%`)
-    lines.push(`Summary,Previous Period Total,${report.summary.previousTotal}`)
-    for (const mode of SEARCH_EVENT_MODES) {
-      lines.push(`Summary,Mode ${mode},${report.summary.byMode[mode]}`)
-    }
-    lines.push('')
-
-    // Top queries
-    lines.push('Top Queries')
-    lines.push('Query,Count,Zero Count,Avg Results')
-    for (const row of report.topQueries) {
-      lines.push(`${this.escapeCsvCell(row.query)},${row.count},${row.zeroCount},${row.avgResults}`)
-    }
-    lines.push('')
-
-    // Zero result queries
-    lines.push('Zero Result Queries')
-    lines.push('Query,Count,Zero Count,Avg Results')
-    for (const row of report.zeroResultQueries) {
-      lines.push(`${this.escapeCsvCell(row.query)},${row.count},${row.zeroCount},${row.avgResults}`)
-    }
-    lines.push('')
-
-    // Daily
-    lines.push('Daily')
-    lines.push('Date,Total,Zero Results')
-    for (const row of report.daily) {
-      lines.push(`${row.date},${row.total},${row.zeroResults}`)
-    }
-    lines.push('')
-
-    // Top categories
-    lines.push('Top Categories')
-    lines.push('Category ID,Name,Count')
-    for (const row of report.topCategories) {
-      lines.push(`${row.categoryId},${this.escapeCsvCell(row.name)},${row.count}`)
-    }
-    lines.push('')
-
-    // Top filters
-    lines.push('Top Filters')
-    lines.push('Key,Count')
-    for (const row of report.topFilters) {
-      lines.push(`${this.escapeCsvCell(row.key)},${row.count}`)
-    }
-    lines.push('')
-
-    // Top products
-    lines.push('Top Products')
-    lines.push('Product ID,Name,Views,RFQ Adds')
-    for (const row of report.topProducts) {
-      lines.push(`${row.targetId},${this.escapeCsvCell(row.name)},${row.views},${row.rfqAdds}`)
-    }
-    lines.push('')
-
-    // Top suppliers
-    lines.push('Top Suppliers')
-    lines.push('Supplier ID,Name,Views,RFQ Adds')
-    for (const row of report.topSuppliers) {
-      lines.push(`${row.targetId},${this.escapeCsvCell(row.name)},${row.views},${row.rfqAdds}`)
+    const row = (...cells: (string | number)[]) =>
+      lines.push(cells.map((cell) => this.escapeCsvCell(String(cell))).join(','))
+    const section = (title: string, ...headers: string[]) => {
+      if (lines.length > 0) lines.push('')
+      row(title)
+      if (headers.length > 0) row(...headers)
     }
 
-    return BOM + lines.join('\r\n')
+    section(t('title'))
+    row(t('filters.from'), filters.from)
+    row(t('filters.to'), filters.to)
+    row(t('summary.total'), summary.total)
+    row(t('summary.zeroResults'), summary.zeroResults)
+    row(t('summary.zeroRate', { rate: `${(summary.zeroRate * 100).toFixed(2)} %` }))
+    row(t('summary.previousTotal'), summary.previousTotal)
+
+    section(t('summary.modes'))
+    for (const mode of SEARCH_EVENT_MODES) row(t(`modes.${mode}`), summary.byMode[mode])
+
+    const queryHeaders = [
+      t('columns.query'),
+      t('columns.searches'),
+      t('columns.zeroCount'),
+      t('columns.avgResults'),
+    ]
+    section(t('topQueries.title'), ...queryHeaders)
+    for (const r of report.topQueries) row(r.query, r.count, r.zeroCount, r.avgResults)
+
+    section(t('zeroQueries.title'), ...queryHeaders)
+    for (const r of report.zeroResultQueries) row(r.query, r.count, r.zeroCount, r.avgResults)
+
+    section(t('chart.title'), t('columns.date'), t('columns.searches'), t('columns.zeroCount'))
+    for (const r of report.daily) row(r.date, r.total, r.zeroResults)
+
+    section(t('categories.title'), t('columns.category'), t('columns.searches'))
+    for (const r of report.topCategories) row(r.name, r.count)
+
+    section(t('filtersUsed.title'), t('columns.filter'), t('columns.searches'))
+    for (const r of report.topFilters) row(r.key, r.count)
+
+    section(t('products.title'), t('columns.product'), t('columns.views'), t('columns.rfqAdds'))
+    for (const r of report.topProducts) row(r.name, r.views, r.rfqAdds)
+
+    section(t('suppliers.title'), t('columns.supplier'), t('columns.views'))
+    for (const r of report.topSuppliers) row(r.name, r.views)
+
+    return '\uFEFF' + lines.join('\r\n')
   }
 
   /**
-   * Escape CSV cell with double quotes and formula injection protection.
-   * Prefixes cells starting with =, +, -, @ with an apostrophe.
+   * Échappe une cellule CSV : neutralise les formules (`= + - @`, tabulation et
+   * retour chariot en tête) par une apostrophe, puis met entre guillemets les
+   * cellules contenant `"`, `,` ou un saut de ligne.
    */
   private escapeCsvCell(value: string): string {
-    let escaped = value
-    // Protect against formula injection
-    if (/^[=+\-@]/.test(escaped)) {
-      escaped = "'" + escaped
-    }
-    // Escape double quotes and wrap in quotes if needed
-    if (escaped.includes('"') || escaped.includes(',') || escaped.includes('\n')) {
-      escaped = '"' + escaped.replace(/"/g, '""') + '"'
-    }
+    let escaped = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value
+    if (/[",\r\n]/.test(escaped)) escaped = `"${escaped.replace(/"/g, '""')}"`
     return escaped
   }
 
   /** `search_events` de la période, avec les filtres source / langue / type d'organisation. */
-  private scoped(range: Range, filters: SearchInsightsFilters) {
+  private scoped(range: SearchInsightsRange, filters: SearchInsightsFilters) {
     return db
       .from('search_events')
       .where('created_at', '>=', range.from.toJSDate())
@@ -225,7 +196,7 @@ export default class SearchInsightsService {
 
   /** Classement des termes (tous, ou seulement les recherches sans résultat). */
   private async fetchQueryRows(
-    range: Range,
+    range: SearchInsightsRange,
     filters: SearchInsightsFilters,
     zeroResultsOnly: boolean
   ): Promise<SearchInsightsQueryRow[]> {
@@ -253,7 +224,7 @@ export default class SearchInsightsService {
 
   /** Série complète jour par jour (Europe/Paris), jours sans recherche compris. */
   private async fetchDailySeries(
-    range: Range,
+    range: SearchInsightsRange,
     filters: SearchInsightsFilters
   ): Promise<SearchInsightsDayPoint[]> {
     const dayExpr = `to_char(created_at AT TIME ZONE 'Europe/Paris', 'YYYY-MM-DD')`
@@ -292,7 +263,7 @@ export default class SearchInsightsService {
 
   /** Catégories les plus recherchées, avec leur nom dans la langue de l'admin. */
   private async fetchTopCategories(
-    range: Range,
+    range: SearchInsightsRange,
     filters: SearchInsightsFilters,
     adminLocale: string
   ): Promise<SearchInsightsCategoryRow[]> {
@@ -321,7 +292,7 @@ export default class SearchInsightsService {
 
   /** Clés de filtre les plus utilisées (colonne jsonb `filters`). */
   private async fetchTopFilters(
-    range: Range,
+    range: SearchInsightsRange,
     filters: SearchInsightsFilters
   ): Promise<SearchInsightsFilterRow[]> {
     const keys = this.scoped(range, filters)
@@ -343,7 +314,7 @@ export default class SearchInsightsService {
 
   /** Produits ou fournisseurs les plus consultés (`activity_events`), avec ajouts RFQ. */
   private async fetchTopTargets(
-    range: Range,
+    range: SearchInsightsRange,
     filters: SearchInsightsFilters,
     targetType: 'product' | 'supplier',
     adminLocale: string

@@ -42,14 +42,19 @@ export class AdminUserNotFoundException extends Exception {
  * Période d'analyse refusée (écran « Ce que cherchent les clients », #173) :
  * erreur de validation sur le champ concerné, rendue comme les autres (422).
  */
-export function invalidSearchInsightsPeriod(field: 'from' | 'to', rule: 'order' | 'maxDays') {
+export function invalidSearchInsightsPeriod(
+  field: 'from' | 'to',
+  rule: 'order' | 'maxDays' | 'invalidDate'
+) {
   return new vineErrors.E_VALIDATION_ERROR([
     {
       field,
       message:
         rule === 'order'
           ? 'The start date must not be after the end date'
-          : 'The period is too long',
+          : rule === 'maxDays'
+            ? 'The period is too long'
+            : 'The date does not exist',
       rule,
     },
   ])

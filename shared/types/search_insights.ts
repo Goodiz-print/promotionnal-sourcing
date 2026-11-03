@@ -1,3 +1,4 @@
+import type { DateTime } from 'luxon'
 import type { OrganizationKind } from './organization.js'
 import type { SearchEventMode, SearchEventSource } from './search_event.js'
 
@@ -24,6 +25,12 @@ export type SearchInsightsFilters = {
   locale: string | null
   /** Type de l'organisation de l'auteur (les recherches anonymisées en sont exclues si filtré). */
   organizationType: OrganizationKind | null
+}
+
+/** Bornes (UTC) d'une période, incluses. */
+export type SearchInsightsRange = {
+  from: DateTime
+  to: DateTime
 }
 
 export type SearchInsightsSummary = {

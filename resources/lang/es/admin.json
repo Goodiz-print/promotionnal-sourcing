@@ -190,7 +190,8 @@
       "zeroRate": "{rate} de las búsquedas",
       "modes": "Modos de búsqueda",
       "variation": "{percent} % frente al período anterior",
-      "noPrevious": "Sin período anterior con el que comparar"
+      "noPrevious": "Sin período anterior con el que comparar",
+      "previousTotal": "Período anterior"
     },
     "chart": {
       "title": "Búsquedas por día",

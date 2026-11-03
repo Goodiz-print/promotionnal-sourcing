@@ -268,6 +268,17 @@ test.group('Admin Search Insights - Validation', (group) => {
     response.assertStatus(422)
   })
 
+  test('impossible calendar date is rejected', async ({ client }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+
+    const response = await client
+      .get('/fr/admin/search?from=2026-02-31')
+      .header('Accept', 'application/json')
+      .loginAs(admin)
+
+    response.assertStatus(422)
+  })
+
   test('invalid source is rejected', async ({ client }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
 
@@ -308,11 +319,11 @@ test.group('Admin Search Insights - CSV Export', (group) => {
     const response = await client.get('/fr/admin/search/export').loginAs(admin)
 
     const body = response.text()
-    assert.include(body, 'Section,Metric,Value')
-    assert.include(body, 'Top Queries')
-    assert.include(body, 'Query,Count,Zero Count,Avg Results')
-    assert.include(body, 'Daily')
-    assert.include(body, 'Date,Total,Zero Results')
+    // Libellés de l'écran, en français
+    assert.include(body, 'Requêtes les plus fréquentes')
+    assert.include(body, 'Requête,Recherches,Sans résultat,Résultats (moy.)')
+    assert.include(body, 'Recherches par jour')
+    assert.include(body, 'Date,Recherches,Sans résultat')
   })
 
   test('CSV export escapes dangerous cells', async ({ client, assert }) => {
@@ -330,6 +341,17 @@ test.group('Admin Search Insights - CSV Export', (group) => {
     const body = response.text()
     // Should be prefixed with apostrophe for formula protection
     assert.include(body, "'=cmd|calc")
+  })
+
+  test('CSV export neutralises tab and carriage-return prefixes', async ({ client, assert }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+
+    const today = DateTime.now().setZone('Europe/Paris').startOf('day')
+    await SearchEventFactory.merge({ query: '\t=SUM(1)', createdAt: today }).create()
+
+    const response = await client.get('/fr/admin/search/export').loginAs(admin)
+
+    assert.include(response.text(), "'\t=SUM(1)")
   })
 
   test('CSV export escapes double quotes', async ({ client, assert }) => {

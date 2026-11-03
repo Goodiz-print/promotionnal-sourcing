@@ -8,5 +8,5 @@ Issue #173 (epic #157). Exploite le journal des recherches (#171) et le suivi de
 - **Filtres** : période (30 jours par défaut, 366 au plus), source, langue, type d'organisation.
 - **Indicateurs** : total, recherches sans résultat et taux, modes de recherche, comparaison à la période précédente, courbe quotidienne.
 - **Classements** : top requêtes, requêtes sans résultat, catégories, filtres les plus utilisés, produits et fournisseurs les plus consultés (avec ajouts à une RFQ).
-- **Export CSV** : UTF-8 avec BOM, protection contre l'injection de formules.
+- **Export CSV** : UTF-8 avec BOM, libellés traduits dans la langue de l'admin, protection contre l'injection de formules (dont tabulation et retour chariot).
 - Service : `SearchInsightsService` ; types : `shared/types/search_insights.ts`. Textes traduits dans les 9 langues. Détails : `docs/admin.md`.

@@ -58,8 +58,8 @@ export function normalizeSearchInsightsFilters(parsed: ParsedFilters): SearchIns
     : today.minus({ days: SEARCH_INSIGHTS_DEFAULT_DAYS - 1 })
   const to = parsed.to ? DateTime.fromISO(parsed.to, { zone: 'Europe/Paris' }) : today
 
-  if (!from.isValid) throw invalidSearchInsightsPeriod('from', 'order')
-  if (!to.isValid) throw invalidSearchInsightsPeriod('to', 'order')
+  if (!from.isValid) throw invalidSearchInsightsPeriod('from', 'invalidDate')
+  if (!to.isValid) throw invalidSearchInsightsPeriod('to', 'invalidDate')
   if (from > to) throw invalidSearchInsightsPeriod('from', 'order')
   if (Math.round(to.diff(from, 'days').days) + 1 > SEARCH_INSIGHTS_MAX_DAYS) {
     throw invalidSearchInsightsPeriod('to', 'maxDays')

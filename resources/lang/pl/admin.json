@@ -190,7 +190,8 @@
       "zeroRate": "{rate} wyszukiwań",
       "modes": "Tryby wyszukiwania",
       "variation": "{percent}% względem poprzedniego okresu",
-      "noPrevious": "Brak poprzedniego okresu do porównania"
+      "noPrevious": "Brak poprzedniego okresu do porównania",
+      "previousTotal": "Poprzedni okres"
     },
     "chart": {
       "title": "Wyszukiwania dziennie",

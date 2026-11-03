@@ -88,8 +88,10 @@ const supplierRows = computed<RankingRow[]>(() =>
     <template v-else>
       <SearchSummary :summary="report.summary" />
       <SearchDailyChart :daily="report.daily" />
+    </template>
 
-      <div class="grid gap-8 xl:grid-cols-2">
+    <div class="grid gap-8 xl:grid-cols-2">
+      <template v-if="report.summary.total > 0">
         <SearchQueriesTable
           :title="t('admin.search.topQueries.title')"
           :description="t('admin.search.topQueries.description')"
@@ -115,22 +117,22 @@ const supplierRows = computed<RankingRow[]>(() =>
           :count-header="t('admin.search.columns.searches')"
           :rows="filterRows"
         />
-        <SearchRankingTable
-          :title="t('admin.search.products.title')"
-          :description="t('admin.search.products.description')"
-          :label-header="t('admin.search.columns.product')"
-          :count-header="t('admin.search.columns.views')"
-          :extra-header="t('admin.search.columns.rfqAdds')"
-          :rows="productRows"
-        />
-        <SearchRankingTable
-          :title="t('admin.search.suppliers.title')"
-          :description="t('admin.search.suppliers.description')"
-          :label-header="t('admin.search.columns.supplier')"
-          :count-header="t('admin.search.columns.views')"
-          :rows="supplierRows"
-        />
-      </div>
-    </template>
+      </template>
+      <SearchRankingTable
+        :title="t('admin.search.products.title')"
+        :description="t('admin.search.products.description')"
+        :label-header="t('admin.search.columns.product')"
+        :count-header="t('admin.search.columns.views')"
+        :extra-header="t('admin.search.columns.rfqAdds')"
+        :rows="productRows"
+      />
+      <SearchRankingTable
+        :title="t('admin.search.suppliers.title')"
+        :description="t('admin.search.suppliers.description')"
+        :label-header="t('admin.search.columns.supplier')"
+        :count-header="t('admin.search.columns.views')"
+        :rows="supplierRows"
+      />
+    </div>
   </div>
 </template>
