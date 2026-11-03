@@ -68,8 +68,8 @@ export function normalizeSearchInsightsFilters(parsed: ParsedFilters): SearchIns
   return {
     from: from.toFormat('yyyy-MM-dd'),
     to: to.toFormat('yyyy-MM-dd'),
-    source: parsed.source,
-    locale: parsed.locale,
-    organizationType: parsed.organizationType,
+    source: parsed.source ?? null,
+    locale: parsed.locale ?? null,
+    organizationType: parsed.organizationType ?? null,
   }
 }

@@ -53,7 +53,7 @@ test.group('Admin Search Insights - Access', (group) => {
   })
 
   test('anonymous visitor is redirected to login', async ({ client }) => {
-    const response = await client.get('/fr/admin/search').withInertia()
+    const response = await client.get('/fr/admin/search').redirects(0)
 
     // AdonisJS auth redirects to login
     response.assertStatus(302)
@@ -147,7 +147,7 @@ test.group('Admin Search Insights - Data', (group) => {
 
     const response = await client
       .get('/fr/admin/search?source=catalogue')
-      .header('Accept', 'application/json')
+      .withInertia()
       .loginAs(admin)
 
     const report = response.inertiaProps.report
