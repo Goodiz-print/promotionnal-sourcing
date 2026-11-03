@@ -5,6 +5,7 @@ import { OrganizationFactory } from '#database/factories/organization_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import Product from '#models/product'
 import SearchEvent from '#models/search_event'
+import Supplier from '#models/supplier'
 import { useDatabase } from '#tests/utils/setup'
 import type { SearchEventMode, SearchEventSource } from '#shared/types/search_event'
 
@@ -196,7 +197,9 @@ test.group('Ce que cherchent les clients — agrégations', (group) => {
   }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
     const [first, second] = await Product.query().orderBy('id').limit(2)
-    const supplier = await OrganizationFactory.apply('supplier').create()
+    // La cible de `supplier_viewed` est l'id de la fiche `suppliers`, pas celui d'une organisation.
+    const supplier = await Supplier.query().preload('translations').orderBy('id').firstOrFail()
+    const supplierName = supplier.translations.find((row) => row.locale === 'fr')!.name
     const view = (id: number) => ActivityEventFactory.merge({ targetId: id })
     await view(first.id).createMany(3)
     await view(second.id).create()
@@ -226,7 +229,7 @@ test.group('Ce que cherchent les clients — agrégations', (group) => {
     assert.isNotEmpty(report.viewedProducts[0].name)
     assert.deepEqual(
       report.viewedSuppliers.map((row: { name: string; count: number }) => [row.name, row.count]),
-      [[supplier.name, 1]]
+      [[supplierName, 1]]
     )
     assert.deepEqual(
       report.rfqProducts.map((row: { targetId: number; count: number }) => [

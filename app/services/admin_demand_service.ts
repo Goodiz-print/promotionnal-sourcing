@@ -92,7 +92,7 @@ export default class AdminDemandService {
       this.usedFilters(filters),
       this.categories(filters, uiLocale),
       this.products(filters, 'product_viewed', uiLocale),
-      this.suppliers(filters),
+      this.suppliers(filters, uiLocale),
       this.products(filters, 'rfq_product_added', uiLocale),
     ])
 
@@ -322,13 +322,30 @@ export default class AdminDemandService {
     return this.targets(rows)
   }
 
-  /** Fournisseurs les plus consultés : la cible est l'organisation fournisseur. */
-  private async suppliers(filters: AdminDemandFilters): Promise<DemandTargetRow[]> {
+  /**
+   * Fournisseurs les plus consultés. La cible de `supplier_viewed` est l'id de la
+   * fiche (`suppliers.id`), pas celui de l'organisation : le nom vient donc des
+   * traductions de la fiche, avec le même repli que les produits.
+   */
+  private async suppliers(
+    filters: AdminDemandFilters,
+    uiLocale: string
+  ): Promise<DemandTargetRow[]> {
     const rows = await this.events(filters)
       .where('ae.type', 'supplier_viewed')
-      .join('organizations as o', 'o.id', 'ae.target_id')
-      .select('ae.target_id', 'o.name', db.raw('count(*)::int as total'))
-      .groupBy('ae.target_id', 'o.name')
+      .where('ae.target_type', 'supplier')
+      .leftJoin('supplier_translations as st', (join) =>
+        join.on('st.supplier_id', 'ae.target_id').andOnVal('st.locale', uiLocale)
+      )
+      .leftJoin('supplier_translations as sf', (join) =>
+        join.on('sf.supplier_id', 'ae.target_id').andOnVal('sf.locale', FALLBACK_LOCALE)
+      )
+      .select(
+        'ae.target_id',
+        db.raw("coalesce(st.name, sf.name, '#' || ae.target_id) as name"),
+        db.raw('count(*)::int as total')
+      )
+      .groupBy('ae.target_id', 'st.name', 'sf.name')
       .orderBy('total', 'desc')
       .limit(ADMIN_DEMAND_TOP_LIMIT)
 
