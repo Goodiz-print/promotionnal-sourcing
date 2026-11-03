@@ -41,7 +41,7 @@ Actions tracées aujourd'hui : `platform_role.changed` (écran Utilisateurs et c
 
 ## Suivi des consultations
 
-Table `activity_events`, en ajout seul (issue #172, epic #157), qui complète le journal des recherches `search_events` (#171, voir `docs/search.md`). L'exploitation (écran « Ce que cherchent les clients », KPI) relève de #173 et #174.
+Table `activity_events`, en ajout seul (issue #172, epic #157), qui complète le journal des recherches `search_events` (#171, voir `docs/search.md`). L'exploitation par l'écran « Ce que cherchent les clients » est décrite plus bas (#173) ; les KPI relèvent de #174.
 
 Types (`ActivityEventService`) : `product_viewed`, `supplier_viewed` (fiches publiques), `rfq_product_added` (ajout d'un produit à un brouillon), `rfq_sent` (envoi de la demande). Cible polymorphe `target_type` / `target_id`. Exclus : les visiteurs avec un rôle plateforme, un fournisseur qui consulte ses propres fiches, et les vues répétées du même utilisateur connecté sur 30 minutes (les visiteurs anonymes ne sont pas dédoublonnables).
 
@@ -51,6 +51,15 @@ Types (`ActivityEventService`) : `product_viewed`, `supplier_viewed` (fiches pub
 
 **Funnel** : recherche → vue → ajout à la demande → envoi se reconstitue par utilisateur (`user_id`) et par date tant que le rattachement n'est pas pseudonymisé. Le clic depuis un résultat de recherche n'est pas encore tracé.
 
+## Ce que cherchent les clients
+
+Écran `GET /admin/search` (`admin.search.index`, droit `monitoring.view` : `admin` et `analyst`) et export `GET /admin/search/export` (`admin.search.export`), issue #173. Il agrège `search_events` et `activity_events` dans `SearchInsightsService` (aucune logique dans le contrôleur).
+
+- **Filtres** (query string) : `from` / `to` (`AAAA-MM-JJ`, bornes incluses, 30 derniers jours par défaut, 366 jours au plus), `source` (catalogue, fournisseurs, lookup RFQ), `locale`, `organizationType` (acheteur, fournisseur, les deux). Une valeur invalide est refusée par la validation.
+- **Contenu** : synthèse (total, sans résultat, taux, modes sémantique / mots-clés / indisponible / navigation, comparaison à la période précédente de même durée), courbe quotidienne, top requêtes, requêtes **sans résultat** (opportunités de catalogue ou de synonymes), catégories et filtres les plus utilisés, produits et fournisseurs les plus consultés avec ajouts à une RFQ.
+- **Export CSV** : mêmes filtres, UTF-8 avec BOM, cellules commençant par `=`, `+`, `-` ou `@` neutralisées contre l'injection de formules.
+- **Limites** : les recherches dont l'auteur est pseudonymisé (au-delà de 90 jours) restent comptées mais sortent du filtre `organizationType`.
+
 ## Tests
 
 - `tests/unit/platform_permissions.spec.ts` : matrice rôle → droits.
@@ -59,3 +68,4 @@ Types (`ActivityEventService`) : `product_viewed`, `supplier_viewed` (fiches pub
 - `tests/inertia/admin_users.spec.ts`, `tests/inertia/admin_audit.spec.ts` : écrans.
 - Factories : `UserFactory.apply('platformAdmin' | 'platformModerator' | 'platformSupport' | 'platformAnalyst')`, `AdminAuditLogFactory`.
 - `tests/functional/activity_events.spec.ts` : consultations et rétention. Factory : `ActivityEventFactory`.
+- `tests/functional/admin_search_insights.spec.ts`, `tests/inertia/admin_search_*.spec.ts` : écran « Ce que cherchent les clients ».

@@ -20,8 +20,10 @@ const props = withDefaults(
     variant?: ButtonVariant | 'on-dark'
     size?: ButtonSize | 'lg'
     block?: boolean
+    /** Téléchargement direct (export) : `<a download>`, jamais une visite Inertia. */
+    download?: boolean
   }>(),
-  { variant: 'primary', size: 'md', block: false }
+  { variant: 'primary', size: 'md', block: false, download: false }
 )
 
 const EXTRA_VARIANT_CLASSES: Record<'on-dark', string> = {
@@ -43,13 +45,16 @@ const sizeClass = computed(() => {
   return props.size === 'lg' ? EXTRA_SIZE_CLASSES.lg : BUTTON_SIZE_CLASSES[props.size]
 })
 
-const isInternal = computed(() => props.href.startsWith('/') && !props.href.includes('#'))
+const isInternal = computed(
+  () => !props.download && props.href.startsWith('/') && !props.href.includes('#')
+)
 </script>
 
 <template>
   <component
     :is="isInternal ? Link : 'a'"
     :href="href"
+    :download="download ? '' : undefined"
     :class="[BUTTON_BASE_CLASSES, variantClass, sizeClass, block ? 'w-full' : '']"
   >
     <slot />
