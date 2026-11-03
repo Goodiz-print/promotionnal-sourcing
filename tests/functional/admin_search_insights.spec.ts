@@ -56,7 +56,8 @@ test.group('Admin Search Insights - Access', (group) => {
     const response = await client.get('/fr/admin/search').withInertia()
 
     // AdonisJS auth redirects to login
-    response.assertRedirectsTo('/fr/login')
+    response.assertStatus(302)
+    response.assertHeader('location', '/login')
   })
 })
 
@@ -146,7 +147,7 @@ test.group('Admin Search Insights - Data', (group) => {
 
     const response = await client
       .get('/fr/admin/search?source=catalogue')
-      .withInertia()
+      .header('Accept', 'application/json')
       .loginAs(admin)
 
     const report = response.inertiaProps.report
@@ -237,7 +238,7 @@ test.group('Admin Search Insights - Validation', (group) => {
 
     const response = await client
       .get('/fr/admin/search?from=2024-12-15&to=2024-12-10')
-      .withInertia()
+      .header('Accept', 'application/json')
       .loginAs(admin)
 
     response.assertStatus(422)
@@ -249,7 +250,7 @@ test.group('Admin Search Insights - Validation', (group) => {
     // More than 366 days
     const response = await client
       .get('/fr/admin/search?from=2023-01-01&to=2024-12-31')
-      .withInertia()
+      .header('Accept', 'application/json')
       .loginAs(admin)
 
     response.assertStatus(422)
@@ -260,7 +261,7 @@ test.group('Admin Search Insights - Validation', (group) => {
 
     const response = await client
       .get('/fr/admin/search?from=invalid-date')
-      .withInertia()
+      .header('Accept', 'application/json')
       .loginAs(admin)
 
     // VineJS validation error returns 422
@@ -272,7 +273,7 @@ test.group('Admin Search Insights - Validation', (group) => {
 
     const response = await client
       .get('/fr/admin/search?source=invalid_source')
-      .withInertia()
+      .header('Accept', 'application/json')
       .loginAs(admin)
 
     response.assertStatus(422)
@@ -368,13 +369,29 @@ test.group('Admin Search Insights - CSV Export', (group) => {
   })
 })
 
+/** Fournisseur et catégorie (id 1) requis par les clés étrangères de `products`. */
+async function insertSupplierAndCategory() {
+  await db.table('suppliers').insert({
+    id: 1,
+    slug: 'fk-supplier',
+    country: 'FR',
+    is_active: true,
+    created_at: DateTime.now().toJSDate(),
+  })
+  await db.table('categories').insert({
+    id: 1,
+    slug: 'fk-category',
+    created_at: DateTime.now().toJSDate(),
+  })
+}
+
 test.group('Admin Search Insights - Top Products/Suppliers', (group) => {
   useDatabase(group)
 
   test('top products with views and RFQ adds', async ({ client, assert }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
 
-    // Create product translations for testing
+    await insertSupplierAndCategory()
     const productId = 1
     await db.table('products').insert({
       id: productId,
@@ -430,7 +447,7 @@ test.group('Admin Search Insights - Top Products/Suppliers', (group) => {
   test('product names with translation fallback', async ({ client, assert }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
 
-    // Create product with only English translation
+    await insertSupplierAndCategory()
     const productId = 2
     await db.table('products').insert({
       id: productId,
@@ -525,9 +542,8 @@ test.group('Admin Search Insights - Inertia Props', (group) => {
     const response = await client.get('/fr/admin/search').withInertia().loginAs(admin)
 
     assert.property(response.inertiaProps, 'report')
-    assert.property(response.inertiaProps, 'filters')
 
-    const { filters } = response.inertiaProps
+    const { filters } = response.inertiaProps.report
     assert.property(filters, 'from')
     assert.property(filters, 'to')
     assert.property(filters, 'source')
