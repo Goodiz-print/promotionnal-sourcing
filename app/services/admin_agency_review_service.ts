@@ -1,13 +1,13 @@
 import { DateTime } from 'luxon'
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import AdminAuditService from '#services/admin_audit_service'
 import AgencyReviewNotificationService from '#services/agency_review_notification_service'
 import OrganizationService from '#services/organization_service'
 import AgencyReviewDecisionRecord from '#models/agency_review_decision'
 import Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
-import User from '#models/user'
 import {
   AgencyReviewClosedException,
   AgencyReviewNotFoundException,
@@ -17,11 +17,11 @@ import type {
   AdminAgencyReviewFilters,
   AdminAgencyReviewHistoryItem,
   AdminAgencyReviewItem,
-  AgencyReviewDecision,
+  AgencyReviewDecideOptions,
+  AgencyReviewListOptions,
+  AgencyReviewQueueRow,
   AgencyReviewStatus,
 } from '#shared/types/agency_review'
-import type { AgencyReviewReason } from '#shared/types/agency_signup'
-import type { AdminActionContext } from '#shared/types/admin_audit'
 import type { PaginationMeta } from '#shared/types/pagination'
 
 /** Dernière décision de l'agence (`o` = alias de `organizations`) ; NULL si aucune. */
@@ -30,32 +30,6 @@ const LATEST_DECISION = `(
   WHERE d.organization_id = o.id
   ORDER BY d.decided_at DESC, d.id DESC LIMIT 1
 )`
-
-interface ListOptions extends AdminAgencyReviewFilters {
-  page: number
-  perPage: number
-}
-
-interface DecideOptions {
-  organizationId: number
-  decision: AgencyReviewDecision
-  reason: string | null
-  decidedBy: User
-  context: AdminActionContext
-}
-
-interface QueueRow {
-  id: number
-  name: string
-  country: string
-  email: string | null
-  website: string | null
-  review_reasons: AgencyReviewReason[]
-  vat_verified_at: Date | null
-  domain_verified_at: Date | null
-  created_at: Date
-  decision: AgencyReviewDecision | null
-}
 
 /**
  * File de revue des inscriptions agence (#162). Une agence est « à revoir » tant
@@ -75,7 +49,7 @@ export default class AdminAgencyReviewService {
     private notifications: AgencyReviewNotificationService
   ) {}
 
-  async list(options: ListOptions) {
+  async list(options: AgencyReviewListOptions) {
     const { page, perPage, status } = options
     const query = this.queue(status)
 
@@ -97,7 +71,7 @@ export default class AdminAgencyReviewService {
       .orderBy('o.created_at', 'asc')
       .orderBy('o.id', 'asc')
       .limit(perPage)
-      .offset((page - 1) * perPage)) as QueueRow[]
+      .offset((page - 1) * perPage)) as AgencyReviewQueueRow[]
 
     const meta: PaginationMeta = {
       total: count,
@@ -136,7 +110,7 @@ export default class AdminAgencyReviewService {
         db.raw(`${LATEST_DECISION} AS decision`)
       )
       .first()) as
-      | (QueueRow & {
+      | (AgencyReviewQueueRow & {
           phone: string | null
           siret: string | null
           vat_number: string | null
@@ -181,29 +155,32 @@ export default class AdminAgencyReviewService {
   }
 
   /**
-   * Enregistre la décision, ses effets sur l'organisation et sa trace d'audit dans
-   * une même transaction ; l'archivage (rejet) et le mail à l'agence suivent une
-   * fois la transaction validée.
+   * Enregistre la décision, ses effets sur l'organisation (motifs levés, ou
+   * archivage pour un rejet) et sa trace d'audit dans une seule transaction.
+   * L'organisation est verrouillée (`FOR UPDATE`) puis son état relu : deux
+   * décisions simultanées sont sérialisées, la seconde voit l'agence déjà traitée
+   * (409). Le mail à l'agence et la réindexation partent après le commit.
    */
-  async decide(options: DecideOptions): Promise<AgencyReviewDecisionRecord> {
+  async decide(options: AgencyReviewDecideOptions): Promise<AgencyReviewDecisionRecord> {
     const { organizationId, decision, reason, decidedBy, context } = options
 
-    const organization = await Organization.query()
-      .where('id', organizationId)
-      .whereHas('agencyProfile', (profile) => profile.whereNotNull('id'))
-      .first()
-    if (!organization) throw new AgencyReviewNotFoundException()
-    if (organization.archivedAt || organization.reviewReasons.length === 0) {
-      throw new AgencyReviewClosedException()
-    }
+    const { record, organization } = await db.transaction(async (trx) => {
+      const locked = await Organization.query({ client: trx })
+        .where('id', organizationId)
+        .whereHas('agencyProfile', (profile) => profile.whereNotNull('id'))
+        .forUpdate()
+        .first()
+      if (!locked) throw new AgencyReviewNotFoundException()
+      if (locked.archivedAt || locked.reviewReasons.length === 0) {
+        throw new AgencyReviewClosedException()
+      }
 
-    const reasons = [...organization.reviewReasons]
-    const previous = await this.currentStatus(organization.id)
+      const reasons = [...locked.reviewReasons]
+      const previous = await this.currentStatus(locked.id, trx)
 
-    const record = await db.transaction(async (trx) => {
       const created = await AgencyReviewDecisionRecord.create(
         {
-          organizationId: organization.id,
+          organizationId: locked.id,
           decision,
           reason,
           reviewReasons: reasons,
@@ -214,16 +191,17 @@ export default class AdminAgencyReviewService {
       )
 
       if (decision === 'approved') {
-        organization.useTransaction(trx)
-        organization.reviewReasons = []
-        await organization.save()
+        locked.reviewReasons = []
+        await locked.save()
+      } else if (decision === 'rejected') {
+        await this.organizations.archiveWithin(locked, trx)
       }
 
       await this.audit.record(
         {
           action: `agency_review.${decision}`,
           targetType: 'organization',
-          targetId: organization.id,
+          targetId: locked.id,
           changes: {
             before: { status: previous, review_reasons: reasons.join(',') },
             after: { status: decision, reason },
@@ -231,18 +209,19 @@ export default class AdminAgencyReviewService {
         },
         { ...context, client: trx }
       )
-      return created
+      return { record: created, organization: locked }
     })
 
-    if (decision === 'rejected') {
-      await this.organizations.archive(await Organization.findOrFail(organization.id))
-    }
+    if (decision === 'rejected') await this.organizations.notifyArchived(organization)
     await this.notifications.notifyDecision(organization, record)
     return record
   }
 
-  private async currentStatus(organizationId: number): Promise<AgencyReviewStatus> {
-    const latest = await AgencyReviewDecisionRecord.query()
+  private async currentStatus(
+    organizationId: number,
+    trx: TransactionClientContract
+  ): Promise<AgencyReviewStatus> {
+    const latest = await AgencyReviewDecisionRecord.query({ client: trx })
       .where('organizationId', organizationId)
       .orderBy('decidedAt', 'desc')
       .orderBy('id', 'desc')
@@ -267,7 +246,7 @@ export default class AdminAgencyReviewService {
     return query
   }
 
-  private present(row: QueueRow): AdminAgencyReviewItem {
+  private present(row: AgencyReviewQueueRow): AdminAgencyReviewItem {
     return {
       id: row.id,
       name: row.name,

@@ -50,6 +50,8 @@ const COUNTERS: {
     | 'admin.moderation.index'
     | 'admin.agency_reviews.index'
   permission?: PlatformPermission
+  /** Compteur « à traiter » : montré seulement aux rôles qui ont `permission`. */
+  gated?: boolean
 }[] = [
   {
     key: 'organizations',
@@ -65,18 +67,20 @@ const COUNTERS: {
     icon: ShieldCheck,
     route: 'admin.moderation.index',
     permission: 'moderation.manage',
+    gated: true,
   },
   {
     key: 'pendingAgencyReviews',
     icon: UserCheck,
     route: 'admin.agency_reviews.index',
     permission: 'moderation.manage',
+    gated: true,
   },
 ]
 
 /** Les compteurs « à traiter » (modération, revue des agences) ne sont montrés qu'aux rôles qui peuvent la traiter. */
 const counters = computed(() =>
-  COUNTERS.filter((counter) => !counter.key.startsWith('pending') || can('moderation.manage'))
+  COUNTERS.filter((counter) => !counter.gated || (counter.permission && can(counter.permission)))
 )
 </script>
 

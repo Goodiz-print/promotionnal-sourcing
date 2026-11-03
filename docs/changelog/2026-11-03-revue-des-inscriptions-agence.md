@@ -14,5 +14,5 @@ Issue #162 (epic #157). Nouvel onglet « Agences » du back-office (`GET /admin/
 - **Mail** : un mail par propriétaire, dans sa langue, par la queue (`SendMailJob`, kind `agency-review-decision`, clé d'idempotence par décision et destinataire).
 - **Tableau de bord** : compteur « Agences à revoir » (`pendingAgencyReviews`), avec lien vers la file.
 - **Code** : `AdminAgencyReviewService`, `AgencyReviewNotificationService`, `Admin/AgencyReviewController`, `AgencyReviewDecisionNotification`, types dans `shared/types/agency_review.ts`, traductions `admin.agencyReviews.*` et `emails.agencyReview.*` dans les 9 langues.
-- **Limite** : un rejet archive l'organisation mais l'archivage est fait après la validation de la transaction de décision (il réutilise `OrganizationService.archive`, qui ouvre la sienne).
+- **Atomicité** : l'organisation est verrouillée (`FOR UPDATE`) pendant la décision ; décision, effet (motifs levés ou archivage via `OrganizationService.archiveWithin`) et audit sont validés ensemble ou pas du tout. Deux décisions simultanées sont sérialisées (la seconde reçoit 409). Mail et réindexation partent après le commit.
 - Tests : `tests/functional/admin_agency_reviews.spec.ts`, `tests/unit/mail_templates.spec.ts`.

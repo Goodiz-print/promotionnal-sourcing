@@ -197,7 +197,7 @@ test.group('Back-office — indicateurs KPI', (group) => {
     assert.deepEqual(kpis.orders.deliveryDelayHours, { current: 72, previous: null })
     assert.deepEqual(kpis.orders.gmv, [{ currency: 'EUR', current: 1000, previous: 0 }])
 
-    assert.equal(kpis.toHandle.agencyReviews, await agencyReviews())
+    assert.equal(kpis.toHandle.agencyReviews, response.inertiaProps.stats.pendingAgencyReviews)
     assert.lengthOf(kpis.daily, 10)
     const total = (key: 'organizations' | 'rfqs' | 'quotes' | 'orders') =>
       kpis.daily.reduce((sum: number, row: Record<string, number>) => sum + row[key], 0)
@@ -300,13 +300,3 @@ test.group('Back-office — indicateurs KPI', (group) => {
     assert.isNotNull(response.inertiaProps.kpis)
   })
 })
-
-async function agencyReviews(): Promise<number> {
-  const row = await db
-    .from('organizations')
-    .whereNull('archived_at')
-    .whereRaw('cardinality(review_reasons) > 0')
-    .count('* as total')
-    .first()
-  return Number(row?.total ?? 0)
-}

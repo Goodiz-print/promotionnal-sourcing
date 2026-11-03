@@ -1,3 +1,4 @@
+import type { AdminActionContext, AdminActor } from '#shared/types/admin_audit'
 import type { AgencyReviewReason } from '#shared/types/agency_signup'
 
 /**
@@ -73,4 +74,33 @@ export type AdminAgencyReviewDetail = {
   history: AdminAgencyReviewHistoryItem[]
   /** Faux une fois la revue terminée (approuvée, rejetée) : plus de décision possible. */
   canDecide: boolean
+}
+
+/** Options de la liste paginée de la file. */
+export type AgencyReviewListOptions = AdminAgencyReviewFilters & {
+  page: number
+  perPage: number
+}
+
+/** Décision à enregistrer : l'agence, la décision, son motif et son auteur. */
+export type AgencyReviewDecideOptions = {
+  organizationId: number
+  decision: AgencyReviewDecision
+  reason: string | null
+  decidedBy: AdminActor
+  context: AdminActionContext
+}
+
+/** Ligne SQL de la file (colonnes de `organizations` + dernière décision). */
+export type AgencyReviewQueueRow = {
+  id: number
+  name: string
+  country: string
+  email: string | null
+  website: string | null
+  review_reasons: AgencyReviewReason[]
+  vat_verified_at: Date | null
+  domain_verified_at: Date | null
+  created_at: Date
+  decision: AgencyReviewDecision | null
 }

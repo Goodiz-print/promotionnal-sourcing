@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import app from '@adonisjs/core/services/app'
 import mail from '@adonisjs/mail/services/main'
 import AgencyReviewDecisionNotification from '#mails/agency_review_decision_notification'
 import { OrganizationFactory } from '#database/factories/organization_factory'
@@ -7,6 +8,9 @@ import AdminAuditLog from '#models/admin_audit_log'
 import AgencyProfile from '#models/agency_profile'
 import AgencyReviewDecisionRecord from '#models/agency_review_decision'
 import Organization from '#models/organization'
+import AdminAgencyReviewService from '#services/admin_agency_review_service'
+import OrganizationService from '#services/organization_service'
+import { AgencyReviewClosedException } from '#exceptions/agency_review_errors'
 import { createMember } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
 import type { AgencyReviewReason } from '#shared/types/agency_signup'
@@ -170,6 +174,17 @@ test.group('Revue des agences — file', (group) => {
     assert.lengthOf(detail.history, 0)
   })
 
+  test('un identifiant non numérique renvoie 404, pas une erreur serveur', async ({ client }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+
+    const page = await client.get('/fr/admin/agency-reviews/abc').withInertia().loginAs(admin)
+    page.assertStatus(404)
+    const response = await decide(client, admin, 'abc' as unknown as number, {
+      decision: 'approved',
+    })
+    response.assertStatus(404)
+  })
+
   test('une organisation sans profil agence est introuvable', async ({ client }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
     const buyer = await OrganizationFactory.merge({ reviewReasons: ['vat_unverified'] }).create()
@@ -320,6 +335,75 @@ test.group('Revue des agences — décisions', (group) => {
     again.assertStatus(409)
     assert.lengthOf(await AgencyReviewDecisionRecord.all(), 1)
     assert.lengthOf(await AdminAuditLog.all(), 1)
+  })
+
+  test('deux décisions simultanées sont sérialisées : une seule est enregistrée', async ({
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const { organization } = await agency()
+    const service = await app.container.make(AdminAgencyReviewService)
+    const context = { actor: { id: admin.id, email: admin.email }, ip: '127.0.0.1' }
+
+    const results = await Promise.allSettled([
+      service.decide({
+        organizationId: organization.id,
+        decision: 'approved',
+        reason: null,
+        decidedBy: admin,
+        context,
+      }),
+      service.decide({
+        organizationId: organization.id,
+        decision: 'rejected',
+        reason: 'Doublon',
+        decidedBy: admin,
+        context,
+      }),
+    ])
+
+    assert.lengthOf(
+      results.filter((result) => result.status === 'fulfilled'),
+      1
+    )
+    const refused = results.find((result) => result.status === 'rejected') as PromiseRejectedResult
+    assert.instanceOf(refused.reason, AgencyReviewClosedException)
+    assert.lengthOf(await AgencyReviewDecisionRecord.all(), 1)
+    assert.lengthOf(await AdminAuditLog.all(), 1)
+    fakeMailer.mails.assertSentCount(1)
+  })
+
+  test('un archivage qui échoue annule tout le rejet : décision, audit et mail', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const { organization } = await agency()
+    app.container.swap(OrganizationService, () => {
+      return {
+        archiveWithin: async () => {
+          throw new Error('archive indisponible')
+        },
+        notifyArchived: async () => {},
+      } as unknown as OrganizationService
+    })
+
+    try {
+      const response = await decide(client, admin, organization.id, {
+        decision: 'rejected',
+        reason: 'Pas une agence',
+      })
+      response.assertStatus(500)
+    } finally {
+      app.container.restore(OrganizationService)
+    }
+
+    await organization.refresh()
+    assert.isNull(organization.archivedAt)
+    assert.deepEqual(organization.reviewReasons, ['vat_unverified', 'no_website'])
+    assert.lengthOf(await AgencyReviewDecisionRecord.all(), 0)
+    assert.lengthOf(await AdminAuditLog.all(), 0)
+    fakeMailer.mails.assertNoneSent()
   })
 
   test('une décision inconnue ou une organisation inconnue est refusée', async ({ client }) => {

@@ -313,12 +313,14 @@ router
                   .as('admin.agency_reviews.index')
                 router
                   .get('admin/agency-reviews/:id', [controllers.admin.AgencyReview, 'show'])
+                  .where('id', router.matchers.number())
                   .as('admin.agency_reviews.show')
                 router
                   .post('admin/agency-reviews/:id/decision', [
                     controllers.admin.AgencyReview,
                     'decide',
                   ])
+                  .where('id', router.matchers.number())
                   .as('admin.agency_reviews.decide')
 
                 // Demande des clients : recherches, consultations, export CSV.

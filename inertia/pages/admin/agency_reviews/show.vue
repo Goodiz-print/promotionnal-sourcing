@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
@@ -17,14 +18,17 @@ const { t, locale } = useI18n()
 const formatDate = (value: string) => new Date(value).toLocaleString(locale.value)
 
 /** Champs d'identité affichés ; une valeur absente s'affiche « — ». */
-const fields = [
-  ['email', props.detail.item.email],
-  ['phone', props.detail.phone],
-  ['website', props.detail.item.website],
-  ['siret', props.detail.siret],
-  ['vatNumber', props.detail.vatNumber],
-  ['activity', props.detail.activity],
-] as const
+const fields = computed(
+  () =>
+    [
+      ['email', props.detail.item.email],
+      ['phone', props.detail.phone],
+      ['website', props.detail.item.website],
+      ['siret', props.detail.siret],
+      ['vatNumber', props.detail.vatNumber],
+      ['activity', props.detail.activity],
+    ] as const
+)
 </script>
 
 <template>

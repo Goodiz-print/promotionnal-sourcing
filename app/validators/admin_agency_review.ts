@@ -1,5 +1,9 @@
 import vine from '@vinejs/vine'
-import { AGENCY_REVIEW_DECISIONS, AGENCY_REVIEW_FILTERS } from '#shared/types/agency_review'
+import {
+  AGENCY_REVIEW_DECISIONS,
+  AGENCY_REVIEW_FILTERS,
+  AGENCY_REVIEW_REASON_REQUIRED,
+} from '#shared/types/agency_review'
 
 /** Filtres de la file de revue des agences (query string), tous optionnels. */
 export const agencyReviewFiltersValidator = vine.create({
@@ -18,5 +22,5 @@ export const agencyReviewDecisionValidator = vine.create({
     .trim()
     .maxLength(1000)
     .optional()
-    .requiredWhen('decision', 'in', ['rejected', 'info_requested']),
+    .requiredWhen('decision', 'in', [...AGENCY_REVIEW_REASON_REQUIRED]),
 })

@@ -131,20 +131,30 @@ export default class OrganizationService {
    * pas permettre de rejoindre une organisation hors service.
    */
   async archive(organization: Organization): Promise<void> {
+    await db.transaction((trx) => this.archiveWithin(organization, trx))
+    await this.notifyArchived(organization)
+  }
+
+  /**
+   * Partie base de données de `archive`, dans la transaction de l'appelant (une
+   * décision de back-office qui archive doit réussir ou échouer avec sa trace).
+   * L'appelant doit appeler `notifyArchived` une fois la transaction validée.
+   */
+  async archiveWithin(organization: Organization, trx: TransactionClientContract): Promise<void> {
     if (organization.archivedAt) throw new OrganizationArchivedException()
 
-    await db.transaction(async (trx) => {
-      organization.useTransaction(trx)
-      organization.archivedAt = DateTime.now()
-      await organization.save()
+    organization.useTransaction(trx)
+    organization.archivedAt = DateTime.now()
+    await organization.save()
 
-      await OrganizationInvitation.query({ client: trx })
-        .where('organizationId', organization.id)
-        .where('status', 'pending')
-        .update({ status: 'revoked', updated_at: DateTime.now().toJSDate() })
-    })
+    await OrganizationInvitation.query({ client: trx })
+      .where('organizationId', organization.id)
+      .where('status', 'pending')
+      .update({ status: 'revoked', updated_at: DateTime.now().toJSDate() })
+  }
 
-    // Son catalogue sort de la recherche publique.
+  /** Son catalogue sort de la recherche publique (à appeler après le commit). */
+  async notifyArchived(organization: Organization): Promise<void> {
     await emitter.emit(
       OrganizationCatalogueChanged,
       new OrganizationCatalogueChanged(organization.id)
