@@ -7,10 +7,12 @@ import { UserFactory } from '#database/factories/user_factory'
 import AdminGrant from '../../commands/admin_grant.js'
 import AdminRevoke from '../../commands/admin_revoke.js'
 import User from '#models/user'
+import OrganizationUser from '#models/organization_user'
+import db from '@adonisjs/lucid/services/db'
 import PlatformAdminService from '#services/platform_admin_service'
 import { PlatformUserNotFoundException } from '#exceptions/admin_errors'
-import { DEV_ADMIN_EMAIL } from '#database/seeders/dev_user_seeder'
-import { createMember, seededDevUser } from '#tests/utils/organizations'
+import DevUserSeeder, { DEV_ADMIN_EMAIL } from '#database/seeders/dev_user_seeder'
+import { createMember, joinOrganization, seededDevUser } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
 import type { PlatformRole } from '#shared/types/user'
 
@@ -149,5 +151,22 @@ test.group('Rôle plateforme — comptes de démo', (group) => {
 
     refused.assertStatus(403)
     allowed.assertStatus(200)
+  })
+
+  test("l'admin de démo n'a aucune organisation, même après un nouveau seed", async ({
+    assert,
+  }) => {
+    const admin = await User.findByOrFail('email', DEV_ADMIN_EMAIL)
+    const org = await OrganizationFactory.create()
+    await joinOrganization(admin, org, 'member')
+    await admin.merge({ currentOrganizationId: org.id }).save()
+
+    await new DevUserSeeder(db.connection()).run()
+
+    await admin.refresh()
+    const memberships = await OrganizationUser.query().where('userId', admin.id)
+    assert.lengthOf(memberships, 0)
+    assert.isNull(admin.currentOrganizationId)
+    assert.equal(admin.platformRole, 'admin')
   })
 })
