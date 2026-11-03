@@ -9,7 +9,10 @@ import { MODERATION_DECISIONS, MODERATION_TARGET_TYPES } from '#shared/types/mod
 export const moderationFiltersValidator = vine.create({
   type: vine.enum(MODERATION_TARGET_TYPES).optional(),
   status: vine.enum(['pending', ...MODERATION_DECISIONS] as const).optional(),
-  minAgeDays: vine.enum(MODERATION_AGE_FILTERS).optional(),
+  minAgeDays: vine
+    .number()
+    .in([...MODERATION_AGE_FILTERS])
+    .optional(),
   page: vine.number().positive().optional(),
 })
 

@@ -28,6 +28,20 @@ async function queue(client: any, user: unknown, qs = '') {
   }
 }
 
+/**
+ * Décision par JSON : un refus (403), une erreur de validation (422) ou une
+ * cible inconnue (404) gardent leur statut, et le succès reste une redirection.
+ */
+function decide(client: any, user: unknown, path: string, body: Record<string, unknown>) {
+  return client
+    .post(`/fr/admin/moderation/${path}/decision`)
+    .redirects(0)
+    .withCsrfToken()
+    .header('Accept', 'application/json')
+    .loginAs(user)
+    .json(body)
+}
+
 test.group('Modération — file et droits', (group) => {
   useDatabase(group, { seed: 'full' })
 
@@ -41,10 +55,7 @@ test.group('Modération — file et droits', (group) => {
 
     const denied = await client.get('/fr/admin/moderation').withInertia().loginAs(support)
     denied.assertStatus(403)
-    const decision = await client
-      .post('/fr/admin/moderation/product/1/decision')
-      .form({ status: 'approved' })
-      .loginAs(support)
+    const decision = await decide(client, support, 'product/1', { status: 'approved' })
     decision.assertStatus(403)
   })
 
@@ -120,6 +131,8 @@ test.group('Modération — file et droits', (group) => {
 
 test.group('Modération — décisions', (group) => {
   useDatabase(group, { seed: 'full' })
+  // Un échec d'assertion ne doit pas laisser l'émetteur factice aux autres suites.
+  group.each.teardown(() => emitter.restore())
 
   test('approuver écrit la décision, l’audit et réindexe le catalogue', async ({
     client,
@@ -129,12 +142,12 @@ test.group('Modération — décisions', (group) => {
     const supplier = await OrganizationFactory.apply('supplier').create()
     const fake = emitter.fake([OrganizationCatalogueChanged])
 
-    const response = await client
-      .post(`/fr/admin/moderation/organization/${supplier.id}/decision`)
-      .form({ status: 'approved' })
-      .loginAs(admin)
+    const response = await decide(client, admin, `organization/${supplier.id}`, {
+      status: 'approved',
+    })
 
-    response.assertStatus(200)
+    assert.isAtLeast(response.status(), 302)
+    assert.isBelow(response.status(), 400)
     const records = await ModerationDecisionRecord.query().where('targetId', supplier.id)
     assert.lengthOf(records, 1)
     assert.equal(records[0].status, 'approved')
@@ -148,7 +161,6 @@ test.group('Modération — décisions', (group) => {
       OrganizationCatalogueChanged,
       ({ data }) => data.organizationId === supplier.id
     )
-    emitter.restore()
   })
 
   test('rejeter exige un motif, conservé dans l’historique et l’audit', async ({
@@ -159,20 +171,16 @@ test.group('Modération — décisions', (group) => {
     const product = await Product.query().where('isActive', true).firstOrFail()
     const fake = emitter.fake([ProductChanged])
 
-    const missing = await client
-      .post(`/fr/admin/moderation/product/${product.id}/decision`)
-      .header('Accept', 'application/json')
-      .json({ status: 'rejected' })
-      .loginAs(admin)
+    const missing = await decide(client, admin, `product/${product.id}`, { status: 'rejected' })
     missing.assertStatus(422)
     assert.lengthOf(await ModerationDecisionRecord.all(), 0)
     fake.assertNotEmitted(ProductChanged)
 
-    const done = await client
-      .post(`/fr/admin/moderation/product/${product.id}/decision`)
-      .form({ status: 'rejected', reason: 'Photos manquantes' })
-      .loginAs(admin)
-    done.assertStatus(200)
+    const done = await decide(client, admin, `product/${product.id}`, {
+      status: 'rejected',
+      reason: 'Photos manquantes',
+    })
+    assert.isBelow(done.status(), 400)
 
     const [record] = await ModerationDecisionRecord.query().where('targetId', product.id)
     assert.equal(record.status, 'rejected')
@@ -180,7 +188,6 @@ test.group('Modération — décisions', (group) => {
     const audit = await AdminAuditLog.query().where('action', 'moderation.rejected').firstOrFail()
     assert.deepEqual(audit.changes?.after, { status: 'rejected', reason: 'Photos manquantes' })
     fake.assertEmitted(ProductChanged, ({ data }) => data.productId === product.id)
-    emitter.restore()
 
     const history = await client
       .get(`/fr/admin/moderation/product/${product.id}`)
@@ -199,12 +206,8 @@ test.group('Modération — décisions', (group) => {
     const admin = await UserFactory.apply('platformAdmin').create()
     const buyer = await OrganizationFactory.create()
 
-    for (const url of [
-      '/fr/admin/moderation/organization/999999999/decision',
-      `/fr/admin/moderation/organization/${buyer.id}/decision`,
-      '/fr/admin/moderation/rfq/1/decision',
-    ]) {
-      const response = await client.post(url).form({ status: 'approved' }).loginAs(admin)
+    for (const url of ['organization/999999999', `organization/${buyer.id}`, 'rfq/1']) {
+      const response = await decide(client, admin, url, { status: 'approved' })
       response.assertStatus(404)
     }
     const show = await client.get('/fr/admin/moderation/organization/999999999').loginAs(admin)
@@ -219,13 +222,13 @@ test.group('Modération — décisions', (group) => {
   }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
     const supplier = await OrganizationFactory.apply('supplier').create()
-    const url = `/fr/admin/moderation/organization/${supplier.id}/decision`
+    const url = `organization/${supplier.id}`
 
-    await client.post(url).form({ status: 'rejected', reason: 'Dossier incomplet' }).loginAs(admin)
+    await decide(client, admin, url, { status: 'rejected', reason: 'Dossier incomplet' })
     const pending = await queue(client, admin, '?type=organization')
     assert.isFalse(pending.queue.data.some((i) => i.targetId === supplier.id))
 
-    await client.post(url).form({ status: 'approved' }).loginAs(admin)
+    await decide(client, admin, url, { status: 'approved' })
     const approved = await queue(client, admin, '?type=organization&status=approved')
     assert.deepEqual(
       approved.queue.data.map((i) => i.targetId),

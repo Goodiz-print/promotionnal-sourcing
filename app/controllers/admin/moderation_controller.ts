@@ -8,7 +8,7 @@ import {
   moderationFiltersValidator,
 } from '#validators/admin_moderation'
 import { MODERATION_TARGET_TYPES, type ModerationTargetType } from '#shared/types/moderation'
-import type { AdminModerationFilters } from '#shared/types/admin_moderation'
+import type { AdminModerationFilters, ModerationAgeFilter } from '#shared/types/admin_moderation'
 import type { TranslationLocale } from '#shared/types/i18n'
 
 const PER_PAGE = 25
@@ -31,7 +31,7 @@ export default class ModerationController {
     const filters: AdminModerationFilters = {
       type: query.type ?? null,
       status: query.status ?? 'pending',
-      minAgeDays: query.minAgeDays ?? 0,
+      minAgeDays: (query.minAgeDays ?? 0) as ModerationAgeFilter,
     }
 
     return inertia.render('admin/moderation/index', {

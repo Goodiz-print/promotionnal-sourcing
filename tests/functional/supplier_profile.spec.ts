@@ -32,10 +32,12 @@ test.group('Profil fournisseur — CRUD', (group) => {
     const before = await client.get('/fr/supplier/profile').withInertia().loginAs(user)
     assert.deepEqual(before.inertiaProps.moderation, { status: 'pending', reason: null })
 
-    await ModerationDecisionFactory.apply('organization')
-      .apply('rejected')
-      .merge({ targetId: org.id, reason: 'Dossier incomplet' })
-      .create()
+    await ModerationDecisionFactory.merge({
+      targetType: 'organization',
+      targetId: org.id,
+      status: 'rejected',
+      reason: 'Dossier incomplet',
+    }).create()
     const after = await client.get('/fr/supplier/profile').withInertia().loginAs(user)
     assert.deepEqual(after.inertiaProps.moderation, {
       status: 'rejected',
