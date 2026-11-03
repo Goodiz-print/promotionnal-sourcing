@@ -9,7 +9,7 @@ import CatalogueEnumFacetService from '#services/catalogue_enum_facet_service'
 import CatalogueNumericFacetService from '#services/catalogue_numeric_facet_service'
 import DocumentService from '#services/document_service'
 import OrganizationContextService from '#services/organization_context_service'
-import ImageSearchService from '#services/image_search_service'
+import { isImageSearchAvailable } from '#services/vision/image_search_availability'
 import RfqService from '#services/rfq_service'
 import SearchEventService from '#services/search_event_service'
 import ProductTransformer from '#transformers/product_transformer'
@@ -19,7 +19,7 @@ import CategoryTransformer from '#transformers/category_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
 import { NoCurrentOrganizationException } from '#exceptions/organization_errors'
 import type { Locale } from '#shared/types/i18n'
-import { IMAGE_SEARCH_QUERY_PARAM } from '#shared/types/image_search'
+import { IMAGE_SEARCH_FLASH_KEY } from '#shared/types/image_search'
 import type { SearchTrace } from '#shared/types/search_event'
 import {
   ORIGIN_ZONES,
@@ -49,15 +49,14 @@ export default class ProductsController {
     private organizations: OrganizationContextService,
     private rfqs: RfqService,
     private searchEvents: SearchEventService,
-    private activityEvents: ActivityEventService,
-    private imageSearch: ImageSearchService
+    private activityEvents: ActivityEventService
   ) {}
 
   /**
    * Catalogue public paginé + filtrable : recherche par terme (Meilisearch),
    * filtre catégorie / made-in-Europe, facettes attributs en ET fiable.
    */
-  async index({ inertia, request, i18n, auth }: HttpContext) {
+  async index({ inertia, request, session, i18n, auth }: HttpContext) {
     const locale = i18n.locale as Locale
     const qs = request.qs()
 
@@ -82,8 +81,11 @@ export default class ProductsController {
       ecoOnly: qs.ecoOnly === 'true',
     }
     const page = Number.parseInt(qs.page, 10) || 1
-    // Terme issu d'une photo (recherche par image) : sert au journal et au bandeau.
-    const imageSearch = qs[IMAGE_SEARCH_QUERY_PARAM] === '1' && filters.search !== null
+    // Terme issu d'une photo (recherche par image) : le contrôleur d'envoi le pose en
+    // flash le temps de la redirection. Ce n'est pas un paramètre d'URL, donc non falsifiable.
+    const imageSearch =
+      filters.search !== null &&
+      session.flashMessages.get(IMAGE_SEARCH_FLASH_KEY) === filters.search
 
     // Avec un terme : Meilisearch (ADR 0002). Sans terme, simple navigation par
     // catégories et filtres, servie par PostgreSQL. Moteur indisponible : la
@@ -151,8 +153,9 @@ export default class ProductsController {
       searchUnavailable,
       filters,
       imageSearch,
-      // Bouton d'envoi de photo : fonction active et acheteur connecté.
-      imageSearchEnabled: Boolean(auth.user) && this.imageSearch.isAvailable(),
+      // Bouton d'envoi de photo : fonction active, acheteur connecté et e-mail vérifié
+      // (la route l'exige, sinon le clic mènerait à l'écran de vérification).
+      imageSearchEnabled: Boolean(auth.user?.emailVerifiedAt) && isImageSearchAvailable(),
       categories: categories.map((category) =>
         new CategoryTransformer(category, locale).toObject()
       ),

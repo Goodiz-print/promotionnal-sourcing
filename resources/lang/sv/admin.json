@@ -169,6 +169,7 @@
     },
     "sources": {
       "catalogue": "Katalog",
+      "catalogue_image": "Katalog (bildsökning)",
       "suppliers": "Leverantörsregister",
       "rfq_lookup": "Väljare för offertförfrågan"
     },

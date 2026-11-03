@@ -5,6 +5,7 @@ const translations = {
   'products.imageSearch.button': 'Rechercher par image',
   'products.imageSearch.analysing': 'Analyse de la photo…',
   'products.imageSearch.hint': 'JPG, PNG ou WebP, 5 Mo max.',
+  'products.imageSearch.privacy': 'Analysée par Mistral AI.',
 }
 
 const post = vi.fn()
@@ -41,6 +42,6 @@ describe('ImageSearchButton', () => {
 
     expect(post).toHaveBeenCalledTimes(1)
     expect(post.mock.calls[0][0]).toContain('/products/image-search')
-    expect(post.mock.calls[0][1]).toMatchObject({ forceFormData: true })
+    expect(post.mock.calls[0][1]).toMatchObject({ forceFormData: true, preserveState: false })
   })
 })

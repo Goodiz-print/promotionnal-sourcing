@@ -354,7 +354,7 @@ Chaque recherche significative d'un client est enregistrée dans `search_events`
 
 ## Recherche par image
 
-Un acheteur connecté envoie une photo (`POST /:locale/products/image-search`). `ImageSearchService` la normalise (JPEG, 1024 px max, sans métadonnées), `ImageDescriptionProvider` (Mistral Pixtral, lié dans `providers/ai_provider.ts`) la décrit en mots-clés, puis l'acheteur est redirigé vers `products.index?search=…&imageSearch=1`. La recherche hybride ci-dessus fait le reste : aucun vecteur d'image, aucune réindexation. L'image n'est jamais stockée. Activation : `AI_VISION_ENABLED` + `MISTRAL_API_KEY`. Le journal des recherches note ces requêtes avec la source `catalogue_image`. Évolution possible si la précision visuelle ne suffit pas : embeddings d'image (type CLIP) et second embedder Meilisearch.
+Un acheteur connecté envoie une photo (`POST /:locale/products/image-search`). `ImageSearchService` la normalise (JPEG, 1024 px max, sans métadonnées), `ImageDescriptionProvider` (Mistral Pixtral, lié dans `providers/ai_provider.ts`) la décrit en mots-clés, puis l'acheteur est redirigé vers `products.index?search=…` (un flash de session signale que le terme vient d'une photo). La recherche hybride ci-dessus fait le reste : aucun vecteur d'image, aucune réindexation. L'image n'est jamais stockée. Activation : `AI_VISION_ENABLED` + `MISTRAL_API_KEY`. Le journal des recherches note ces requêtes avec la source `catalogue_image`. Évolution possible si la précision visuelle ne suffit pas : embeddings d'image (type CLIP) et second embedder Meilisearch.
 
 ## Tests
 

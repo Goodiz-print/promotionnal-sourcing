@@ -4,20 +4,25 @@
  * L'image n'est jamais stockée.
  */
 
-/** Extensions acceptées à l'envoi. */
-export const IMAGE_SEARCH_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'] as const
-
-/** Taille maximale de l'image envoyée. */
-export const IMAGE_SEARCH_MAX_SIZE = '5mb'
-
 /** Côté maximal (px) de l'image transmise au modèle : borne le coût de l'appel. */
 export const IMAGE_SEARCH_MAX_DIMENSION = 1024
+
+/**
+ * Nombre maximal de pixels décodés (≈ 40 Mpx). Un PNG ou WebP très compressible
+ * peut tenir sous 5 Mo tout en déclarant des centaines de mégapixels : sharp
+ * refuse alors l'image avant de la décoder.
+ */
+export const IMAGE_SEARCH_MAX_INPUT_PIXELS = 40_000_000
 
 /** Longueur maximale de la requête générée. */
 export const IMAGE_SEARCH_QUERY_MAX_LENGTH = 200
 
-/** Paramètre de la page catalogue qui signale une recherche issue d'une image. */
-export const IMAGE_SEARCH_QUERY_PARAM = 'imageSearch'
+/**
+ * Clé de flash qui porte le terme généré jusqu'à la page catalogue. Elle ne
+ * vit que le temps de la redirection : contrairement à un paramètre d'URL, un
+ * visiteur ne peut ni la poser lui-même ni la partager dans un lien.
+ */
+export const IMAGE_SEARCH_FLASH_KEY = 'imageSearchQuery'
 
 /** Résultat de la description d'une image. */
 export interface ImageDescription {

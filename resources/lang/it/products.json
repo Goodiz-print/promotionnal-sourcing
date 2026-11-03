@@ -236,6 +236,7 @@
     "banner": "Risultati per la tua foto: «{query}». Puoi modificare la ricerca.",
     "disabled": "La ricerca per immagine non è disponibile al momento.",
     "invalid": "Questo file non è un'immagine utilizzabile.",
-    "failed": "Non siamo riusciti ad analizzare questa foto. Riprova o digita la tua ricerca."
+    "failed": "Non siamo riusciti ad analizzare questa foto. Riprova o digita la tua ricerca.",
+    "privacy": "Il server non conserva la foto; viene analizzata da Mistral AI."
   }
 }

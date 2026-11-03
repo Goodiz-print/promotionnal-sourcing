@@ -2,6 +2,7 @@ import { test } from '@japa/runner'
 import sharp from 'sharp'
 import aiConfig from '#config/ai'
 import { OrganizationFactory } from '#database/factories/organization_factory'
+import { UserFactory } from '#database/factories/user_factory'
 import SearchEvent from '#models/search_event'
 import { ImageDescriptionFailedError } from '#exceptions/image_search_errors'
 import { createMember } from '#tests/utils/organizations'
@@ -9,6 +10,7 @@ import { installFakeEngine, type FakeEngineHandle } from '#tests/utils/fake_sear
 import { useFakeImageDescription } from '#tests/utils/fake_image_description_provider'
 import { uploadedFile } from '#tests/utils/storage'
 import { useDatabase } from '#tests/utils/setup'
+import { IMAGE_SEARCH_FLASH_KEY } from '#shared/types/image_search'
 
 async function png(): Promise<Buffer> {
   return sharp({
@@ -52,7 +54,9 @@ test.group('Recherche par image', (group) => {
     const location = new URL(String(response.header('location')), 'http://localhost')
     assert.equal(location.pathname, '/fr/products')
     assert.equal(location.searchParams.get('search'), 'gourde inox')
-    assert.equal(location.searchParams.get('imageSearch'), '1')
+    // Le terme voyage en flash, pas dans l'URL : le lien ne peut pas être falsifié.
+    assert.isFalse(location.searchParams.has('imageSearch'))
+    response.assertFlashMessage(IMAGE_SEARCH_FLASH_KEY, 'gourde inox')
 
     // L'image est normalisée en JPEG avant d'être transmise au modèle.
     assert.lengthOf(fake.provider.calls, 1)
@@ -113,6 +117,32 @@ test.group('Recherche par image', (group) => {
     assert.lengthOf(fake.provider.calls, 0)
   })
 
+  test('une image qui déclare trop de pixels est refusée avant décodage', async ({
+    client,
+    assert,
+  }) => {
+    const user = await buyer()
+    // ≈ 42 Mpx de couleur unie : léger une fois compressé, mais au-delà de la limite.
+    const huge = await sharp({
+      create: { width: 6500, height: 6500, channels: 3, background: { r: 10, g: 10, b: 10 } },
+    })
+      .png()
+      .toBuffer()
+    const file = await uploadedFile(huge, 'png')
+
+    const response = await client
+      .post('/fr/products/image-search')
+      .redirects(0)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(user)
+      .file('image', file.tmpPath!, { contentType: 'image/png' })
+
+    response.assertStatus(302)
+    assert.notInclude(String(response.header('location')), 'search=')
+    assert.lengthOf(fake.provider.calls, 0)
+  })
+
   test('un échec du modèle renvoie à la page sans lancer de recherche', async ({
     client,
     assert,
@@ -163,6 +193,14 @@ test.group('Recherche par image', (group) => {
     anonymous.assertInertiaPropsContains({ imageSearchEnabled: false })
   })
 
+  test('le bouton est masqué tant que l’e-mail n’est pas vérifié', async ({ client }) => {
+    const unverified = await UserFactory.apply('unverified').create()
+
+    const response = await client.get('/fr/products').withInertia().loginAs(unverified)
+
+    response.assertInertiaPropsContains({ imageSearchEnabled: false })
+  })
+
   test('une recherche issue d’une photo est journalisée avec la source catalogue_image', async ({
     client,
     assert,
@@ -171,7 +209,8 @@ test.group('Recherche par image', (group) => {
 
     const response = await client
       .get('/fr/products')
-      .qs({ search: 'gourde inox', imageSearch: 1 })
+      .qs({ search: 'gourde inox' })
+      .withFlashMessages({ [IMAGE_SEARCH_FLASH_KEY]: 'gourde inox' })
       .withInertia()
       .loginAs(user)
 
@@ -181,8 +220,35 @@ test.group('Recherche par image', (group) => {
     assert.equal(event.query, 'gourde inox')
   })
 
-  test('le paramètre imageSearch est ignoré sans terme de recherche', async ({ client }) => {
-    const response = await client.get('/fr/products').qs({ imageSearch: 1 }).withInertia()
+  test('le paramètre imageSearch de l’URL n’a aucun effet : pas de flash, pas de source image', async ({
+    client,
+    assert,
+  }) => {
+    const user = await buyer()
+
+    const response = await client
+      .get('/fr/products')
+      .qs({ search: 'stylo', imageSearch: 1 })
+      .withInertia()
+      .loginAs(user)
+
+    response.assertInertiaPropsContains({ imageSearch: false })
+    const event = await SearchEvent.firstOrFail()
+    assert.equal(event.source, 'catalogue')
+  })
+
+  test('un terme différent du flash n’est pas présenté comme issu d’une photo', async ({
+    client,
+  }) => {
+    const user = await buyer()
+
+    const response = await client
+      .get('/fr/products')
+      .qs({ search: 'stylo' })
+      .withFlashMessages({ [IMAGE_SEARCH_FLASH_KEY]: 'gourde inox' })
+      .withInertia()
+      .loginAs(user)
+
     response.assertInertiaPropsContains({ imageSearch: false })
   })
 })

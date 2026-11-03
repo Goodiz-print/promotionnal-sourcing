@@ -7,7 +7,7 @@ import {
   InvalidImageError,
 } from '#exceptions/image_search_errors'
 import { imageSearchValidator } from '#validators/image_search'
-import { IMAGE_SEARCH_QUERY_PARAM } from '#shared/types/image_search'
+import { IMAGE_SEARCH_FLASH_KEY } from '#shared/types/image_search'
 
 /**
  * Recherche par image : reçoit la photo, la fait décrire, puis redirige vers le
@@ -23,13 +23,11 @@ export default class ProductImageSearchController {
 
     try {
       const { query } = await this.imageSearch.describe(image, i18n.locale)
+      // Le terme voyage en flash : la page catalogue sait ainsi qu'il vient d'une photo.
+      session.flash(IMAGE_SEARCH_FLASH_KEY, query)
       return response
         .redirect()
-        .toRoute(
-          'products.index',
-          { locale: i18n.locale },
-          { qs: { search: query, [IMAGE_SEARCH_QUERY_PARAM]: 1 } }
-        )
+        .toRoute('products.index', { locale: i18n.locale }, { qs: { search: query } })
     } catch (error) {
       if (error instanceof ImageSearchDisabledError) {
         session.flash('error', i18n.t('products.imageSearch.disabled'))

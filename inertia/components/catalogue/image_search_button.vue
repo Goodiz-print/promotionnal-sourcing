@@ -5,7 +5,7 @@ import { Camera } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
-import { IMAGE_SEARCH_EXTENSIONS } from '#shared/types/image_search'
+import { IMAGE_UPLOAD_EXTENSIONS } from '#shared/types/image_upload'
 
 /**
  * Recherche par image : l'acheteur choisit une photo, elle est envoyée au
@@ -16,7 +16,7 @@ const { t, locale } = useI18n()
 
 const input = ref<HTMLInputElement | null>(null)
 const form = useForm<{ image: File | null }>({ image: null })
-const accept = IMAGE_SEARCH_EXTENSIONS.map((extension) => `.${extension}`).join(',')
+const accept = IMAGE_UPLOAD_EXTENSIONS.map((extension) => `.${extension}`).join(',')
 
 function onChange(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
@@ -26,6 +26,8 @@ function onChange(event: Event) {
   form.post(urlFor('products.image_search', { locale: locale.value }), {
     forceFormData: true,
     preserveScroll: true,
+    // Repart d'un état neuf : la barre de filtres doit afficher le terme généré.
+    preserveState: false,
     onFinish: () => {
       // Autorise le choix de la même photo juste après un échec.
       if (input.value) input.value.value = ''
@@ -52,6 +54,8 @@ function onChange(event: Event) {
     <p v-if="form.errors.image" role="alert" class="text-body-sm text-danger">
       {{ form.errors.image }}
     </p>
-    <p v-else class="text-body-sm text-text-muted">{{ t('products.imageSearch.hint') }}</p>
+    <p v-else class="text-body-sm text-text-muted">
+      {{ t('products.imageSearch.hint') }} {{ t('products.imageSearch.privacy') }}
+    </p>
   </div>
 </template>
