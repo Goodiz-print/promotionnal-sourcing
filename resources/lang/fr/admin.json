@@ -7,7 +7,8 @@
     "audit": "Journal d'audit",
     "attributes": "Attributs",
     "label": "Sections d'administration",
-    "demand": "Demande clients"
+    "demand": "Demande clients",
+    "moderation": "Modération"
   },
   "pagination": {
     "previous": "Précédent",
@@ -20,7 +21,8 @@
       "organizations": "Organisations",
       "users": "Utilisateurs",
       "products": "Produits",
-      "rfqs": "Demandes de devis"
+      "rfqs": "Demandes de devis",
+      "pendingModeration": "À modérer"
     },
     "archived": "{count, plural, =0 {Aucune archivée} one {# archivée} other {# archivées}}",
     "kpi": {
@@ -203,13 +205,17 @@
       "attribute.deleted": "Attribut supprimé",
       "attribute_value.created": "Valeur d'attribut créée",
       "attribute_value.updated": "Valeur d'attribut modifiée",
-      "attribute_value.deleted": "Valeur d'attribut supprimée"
+      "attribute_value.deleted": "Valeur d'attribut supprimée",
+      "moderation.approved": "Élément approuvé en modération",
+      "moderation.rejected": "Élément rejeté en modération"
     },
     "targets": {
       "user": "Utilisateur",
       "category": "Catégorie",
       "attribute": "Attribut",
-      "attribute_value": "Valeur d'attribut"
+      "attribute_value": "Valeur d'attribut",
+      "organization": "Organisation",
+      "product": "Produit"
     }
   },
   "demand": {
@@ -288,6 +294,58 @@
       "supplier": "Fournisseur",
       "views": "Vues",
       "rfqAdds": "Ajouts"
+    }
+  },
+  "moderation": {
+    "title": "Modération",
+    "subtitle": "Fournisseurs et produits à valider avant leur diffusion dans le catalogue.",
+    "resultsCount": "{count, plural, =0 {Aucun élément} one {# élément} other {# éléments}}",
+    "empty": "Rien à modérer avec ces filtres.",
+    "emptyDescription": "Modifiez les filtres ou revenez plus tard.",
+    "columns": {
+      "item": "Élément",
+      "type": "Type",
+      "context": "Contexte",
+      "submitted": "Soumis le",
+      "status": "Statut"
+    },
+    "types": {
+      "organization": "Fournisseur",
+      "product": "Produit"
+    },
+    "statuses": {
+      "pending": "En attente",
+      "approved": "Approuvé",
+      "rejected": "Rejeté"
+    },
+    "filters": {
+      "type": "Type",
+      "status": "Statut",
+      "age": "Ancienneté",
+      "all": "Tous"
+    },
+    "ages": {
+      "0": "Toutes",
+      "7": "Plus de 7 jours",
+      "30": "Plus de 30 jours"
+    },
+    "review": "Examiner",
+    "back": "Retour à la file",
+    "form": {
+      "title": "Décision",
+      "reason": "Motif",
+      "reasonHint": "Obligatoire pour un rejet ; conservé dans l'historique.",
+      "approve": "Approuver",
+      "reject": "Rejeter"
+    },
+    "history": {
+      "title": "Historique",
+      "empty": "Aucune décision pour le moment.",
+      "by": "par {email}"
+    },
+    "decided": {
+      "approved": "Élément approuvé.",
+      "rejected": "Élément rejeté."
     }
   }
 }

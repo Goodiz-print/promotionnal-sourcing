@@ -9,6 +9,15 @@
       "termsHint": "Minimum order, lead times and delivery scope shown to buyers.",
       "certificationsHint": "Standards and labels you hold (ISO, FSC, OEKO-TEX…).",
       "presentation": "Company presentation"
+    },
+    "moderation": {
+      "pending": "Profile under review",
+      "pendingHint": "Our team is reviewing your organization: your products are not yet guaranteed to be visible.",
+      "approved": "Profile approved",
+      "approvedHint": "Your organization is approved and your catalogue is visible to buyers.",
+      "rejected": "Profile rejected",
+      "rejectedHint": "Your organization was rejected: your catalogue is no longer visible to buyers.",
+      "reason": "Reason: {reason}"
     }
   },
   "fields": {

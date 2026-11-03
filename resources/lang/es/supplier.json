@@ -9,6 +9,15 @@
       "termsHint": "Pedido mínimo, plazos y ámbito de entrega mostrados a los compradores.",
       "certificationsHint": "Normas y sellos que posee (ISO, FSC, OEKO-TEX…).",
       "presentation": "Presentación de la empresa"
+    },
+    "moderation": {
+      "pending": "Ficha en revisión",
+      "pendingHint": "Nuestro equipo está revisando su organización: la visibilidad de sus productos aún no está garantizada.",
+      "approved": "Ficha aprobada",
+      "approvedHint": "Su organización está aprobada y su catálogo es visible para los compradores.",
+      "rejected": "Ficha rechazada",
+      "rejectedHint": "Su organización fue rechazada: su catálogo ya no es visible para los compradores.",
+      "reason": "Motivo: {reason}"
     }
   },
   "fields": {

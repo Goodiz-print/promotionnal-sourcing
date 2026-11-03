@@ -113,6 +113,8 @@ et `OnQuoteSubmitted` envoient aussi le mail : deux canaux indépendants.
 - Une **organisation rejetée** masque ses produits et sa fiche fournisseur, dans le
   catalogue et l'annuaire (`Product.fromLiveOrganization`, `Supplier.fromLiveOrganization`).
   Elle ne peut donc plus afficher ses produits au public.
+- Écrans back-office (#163) : file, historique et décision dans `/admin/moderation`
+  (voir `docs/admin.md`).
 
 ## Temps réel : transport entre instances web
 

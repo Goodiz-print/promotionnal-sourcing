@@ -9,6 +9,15 @@
       "termsHint": "Ordine minimo, tempi e area di consegna mostrati agli acquirenti.",
       "certificationsHint": "Norme e marchi che detiene (ISO, FSC, OEKO-TEX…).",
       "presentation": "Presentazione dell'azienda"
+    },
+    "moderation": {
+      "pending": "Scheda in fase di verifica",
+      "pendingHint": "Il nostro team sta esaminando la tua organizzazione: la visibilità dei prodotti non è ancora garantita.",
+      "approved": "Scheda approvata",
+      "approvedHint": "La tua organizzazione è approvata e il tuo catalogo è visibile agli acquirenti.",
+      "rejected": "Scheda rifiutata",
+      "rejectedHint": "La tua organizzazione è stata rifiutata: il tuo catalogo non è più visibile agli acquirenti.",
+      "reason": "Motivo: {reason}"
     }
   },
   "fields": {

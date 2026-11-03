@@ -22,3 +22,16 @@ export function latestDecisionIsRejectedSql(
       )
   )`
 }
+
+/**
+ * Sous-requête SQL scalaire : statut courant de la cible (`approved`, `rejected`,
+ * ou `pending` sans décision). Mêmes précautions que `latestDecisionIsRejectedSql`
+ * sur `idColumn`.
+ */
+export function currentStatusSql(targetType: ModerationTargetType, idColumn: string): string {
+  return `COALESCE((
+    SELECT m.status FROM moderation_decisions m
+    WHERE m.target_type = '${targetType}' AND m.target_id = ${idColumn}
+    ORDER BY m.decided_at DESC, m.id DESC LIMIT 1
+  ), 'pending')`
+}

@@ -7,7 +7,8 @@
     "audit": "Granskningslogg",
     "attributes": "Attribut",
     "label": "Administrationsavsnitt",
-    "demand": "Kundefterfrågan"
+    "demand": "Kundefterfrågan",
+    "moderation": "Moderering"
   },
   "pagination": {
     "previous": "Föregående",
@@ -20,7 +21,8 @@
       "organizations": "Organisationer",
       "users": "Användare",
       "products": "Produkter",
-      "rfqs": "Offertförfrågningar"
+      "rfqs": "Offertförfrågningar",
+      "pendingModeration": "Att moderera"
     },
     "archived": "{count, plural, =0 {Inga arkiverade} one {# arkiverad} other {# arkiverade}}",
     "kpi": {
@@ -203,13 +205,17 @@
       "attribute.deleted": "Attribut borttagen",
       "attribute_value.created": "Attributvärde skapat",
       "attribute_value.updated": "Attributvärde ändrat",
-      "attribute_value.deleted": "Attributvärde borttaget"
+      "attribute_value.deleted": "Attributvärde borttaget",
+      "moderation.approved": "Godkänd i modereringen",
+      "moderation.rejected": "Avvisad i modereringen"
     },
     "targets": {
       "user": "Användare",
       "category": "Kategori",
       "attribute": "Attribut",
-      "attribute_value": "Attributvärde"
+      "attribute_value": "Attributvärde",
+      "organization": "Organisation",
+      "product": "Produkt"
     }
   },
   "demand": {
@@ -288,6 +294,58 @@
       "supplier": "Leverantör",
       "views": "Visningar",
       "rfqAdds": "Tillägg"
+    }
+  },
+  "moderation": {
+    "title": "Moderering",
+    "subtitle": "Leverantörer och produkter att godkänna innan de visas i katalogen.",
+    "resultsCount": "{count, plural, =0 {Inga objekt} one {# objekt} other {# objekt}}",
+    "empty": "Inget att moderera med dessa filter.",
+    "emptyDescription": "Ändra filtren eller kom tillbaka senare.",
+    "columns": {
+      "item": "Objekt",
+      "type": "Typ",
+      "context": "Sammanhang",
+      "submitted": "Inskickad",
+      "status": "Status"
+    },
+    "types": {
+      "organization": "Leverantör",
+      "product": "Produkt"
+    },
+    "statuses": {
+      "pending": "Väntar",
+      "approved": "Godkänd",
+      "rejected": "Avvisad"
+    },
+    "filters": {
+      "type": "Typ",
+      "status": "Status",
+      "age": "Ålder",
+      "all": "Alla"
+    },
+    "ages": {
+      "0": "Alla",
+      "7": "Över 7 dagar",
+      "30": "Över 30 dagar"
+    },
+    "review": "Granska",
+    "back": "Tillbaka till kön",
+    "form": {
+      "title": "Beslut",
+      "reason": "Anledning",
+      "reasonHint": "Krävs vid avslag; sparas i historiken.",
+      "approve": "Godkänn",
+      "reject": "Avvisa"
+    },
+    "history": {
+      "title": "Historik",
+      "empty": "Inget beslut ännu.",
+      "by": "av {email}"
+    },
+    "decided": {
+      "approved": "Objektet godkändes.",
+      "rejected": "Objektet avvisades."
     }
   }
 }

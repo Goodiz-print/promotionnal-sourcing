@@ -696,6 +696,24 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"audit"]],
     types: placeholder as Registry['admin.audit.index']['types'],
   },
+  'admin.moderation.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/moderation',
+    tokens: [[1,"locale"],[0,"admin"],[0,"moderation"]],
+    types: placeholder as Registry['admin.moderation.index']['types'],
+  },
+  'admin.moderation.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/moderation/:type/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"moderation"],[1,"type"],[1,"id"]],
+    types: placeholder as Registry['admin.moderation.show']['types'],
+  },
+  'admin.moderation.decide': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/moderation/:type/:id/decision',
+    tokens: [[1,"locale"],[0,"admin"],[0,"moderation"],[1,"type"],[1,"id"],[0,"decision"]],
+    types: placeholder as Registry['admin.moderation.decide']['types'],
+  },
   'admin.demand.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/demand',

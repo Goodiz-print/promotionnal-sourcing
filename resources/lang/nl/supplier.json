@@ -9,6 +9,15 @@
       "termsHint": "Minimumbestelling, levertijden en leveringsgebied zoals getoond aan kopers.",
       "certificationsHint": "Normen en labels waarover u beschikt (ISO, FSC, OEKO-TEX…).",
       "presentation": "Bedrijfspresentatie"
+    },
+    "moderation": {
+      "pending": "Profiel wordt beoordeeld",
+      "pendingHint": "Ons team beoordeelt uw organisatie: de zichtbaarheid van uw producten is nog niet gegarandeerd.",
+      "approved": "Profiel goedgekeurd",
+      "approvedHint": "Uw organisatie is goedgekeurd en uw catalogus is zichtbaar voor kopers.",
+      "rejected": "Profiel afgewezen",
+      "rejectedHint": "Uw organisatie is afgewezen: uw catalogus is niet langer zichtbaar voor kopers.",
+      "reason": "Reden: {reason}"
     }
   },
   "fields": {

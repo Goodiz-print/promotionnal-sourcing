@@ -51,6 +51,10 @@ test.group('Droits des rôles plateforme', () => {
       'users.view',
       'organizations.view',
     ])
-    assert.sameMembers(permissionsOf('moderator'), ['backoffice.access', 'organizations.view'])
+    assert.sameMembers(permissionsOf('moderator'), [
+      'backoffice.access',
+      'organizations.view',
+      'moderation.manage',
+    ])
   })
 })
