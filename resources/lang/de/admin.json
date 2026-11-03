@@ -234,6 +234,7 @@
     },
     "sources": {
       "catalogue": "Katalog",
+      "catalogue_image": "Katalog (Bildsuche)",
       "suppliers": "Lieferantenverzeichnis",
       "rfq_lookup": "Auswahl für Angebotsanfragen"
     },

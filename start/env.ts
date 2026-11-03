@@ -103,6 +103,9 @@ export default await Env.create(new URL('../', import.meta.url), {
   MISTRAL_EMBED_MODEL: Env.schema.string.optional(),
   AI_TRANSLATION_ENABLED: Env.schema.boolean.optional(),
   MISTRAL_TRANSLATION_MODEL: Env.schema.string.optional(),
+  // Recherche par image (modèle vision Mistral)
+  AI_VISION_ENABLED: Env.schema.boolean.optional(),
+  MISTRAL_VISION_MODEL: Env.schema.string.optional(),
   // Driver OpenAI-compatible (générique)
   AI_BASE_URL: Env.schema.string.optional(),
   AI_API_KEY: Env.schema.string.optional(),

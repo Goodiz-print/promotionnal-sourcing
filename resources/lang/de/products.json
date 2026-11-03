@@ -228,5 +228,15 @@
     "madeInEurope": "Hergestellt in Europa",
     "eco": "Umweltfreundlich",
     "new": "Neuheit"
+  },
+  "imageSearch": {
+    "button": "Nach Bild suchen",
+    "analysing": "Foto wird analysiert…",
+    "hint": "JPG, PNG oder WebP, max. 5 MB.",
+    "banner": "Ergebnisse für Ihr Foto: „{query}“. Sie können die Suche anpassen.",
+    "disabled": "Die Bildsuche ist derzeit nicht verfügbar.",
+    "invalid": "Diese Datei ist kein verwendbares Bild.",
+    "failed": "Wir konnten dieses Foto nicht analysieren. Versuchen Sie es erneut oder geben Sie Ihre Suche ein.",
+    "privacy": "Der Server speichert das Foto nicht; es wird von Mistral AI analysiert."
   }
 }

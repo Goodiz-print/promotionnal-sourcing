@@ -234,6 +234,7 @@
     },
     "sources": {
       "catalogue": "Catalogus",
+      "catalogue_image": "Catalogus (zoeken op afbeelding)",
       "suppliers": "Leveranciersgids",
       "rfq_lookup": "Keuzelijst voor offerteaanvragen"
     },

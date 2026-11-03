@@ -24,6 +24,8 @@ export const EMAIL_VERIFICATION_RESEND_LIMIT = { requests: 5, duration: '1 hour'
 export const CONTACT_REQUEST_LIMIT = { requests: 5, duration: '1 hour' } as const
 export const PASSKEY_LOGIN_LIMIT = { requests: 20, duration: '15 mins' } as const
 
+export const IMAGE_SEARCH_LIMIT = { requests: 20, duration: '1 hour' } as const
+
 const normalizeEmail = (value: unknown) =>
   typeof value === 'string' ? value.trim().toLowerCase() : ''
 
@@ -93,4 +95,12 @@ export const contactRequestThrottle = limiter.define('contact-request', ({ reque
     .allowRequests(CONTACT_REQUEST_LIMIT.requests)
     .every(CONTACT_REQUEST_LIMIT.duration)
     .usingKey(`ip_${request.ip()}`)
+)
+
+/** Recherche par image : chaque appel coûte un appel IA, donc par compte (repli sur l'IP). */
+export const imageSearchThrottle = limiter.define('image-search', ({ auth, request }) =>
+  limiter
+    .allowRequests(IMAGE_SEARCH_LIMIT.requests)
+    .every(IMAGE_SEARCH_LIMIT.duration)
+    .usingKey(auth.user ? `user_${auth.user.id}` : `ip_${request.ip()}`)
 )

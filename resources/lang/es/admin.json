@@ -234,6 +234,7 @@
     },
     "sources": {
       "catalogue": "Catálogo",
+      "catalogue_image": "Catálogo (búsqueda por imagen)",
       "suppliers": "Directorio de proveedores",
       "rfq_lookup": "Selector de solicitud de presupuesto"
     },

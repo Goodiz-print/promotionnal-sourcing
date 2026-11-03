@@ -234,6 +234,7 @@
     },
     "sources": {
       "catalogue": "Catalogue",
+      "catalogue_image": "Catalogue (image search)",
       "suppliers": "Supplier directory",
       "rfq_lookup": "Quote request picker"
     },

@@ -2,7 +2,7 @@
   "heading": "Política de privacidade",
   "eyebrow": "Proteção de dados",
   "intro": "Como a PROMOTIONAL SOURCING recolhe, utiliza e protege os dados pessoais dos visitantes de promotional-sourcing.eu, em conformidade com o RGPD e com a lei francesa «Informatique et Libertés».",
-  "updatedAt": "31 de outubro de 2026",
+  "updatedAt": "3 de novembro de 2026",
   "seoTitle": "Política de privacidade — Promotional Sourcing.eu",
   "seoDescription": "Como a PROMOTIONAL SOURCING recolhe, utiliza e protege os seus dados pessoais, em conformidade com o RGPD.",
   "sections": {
@@ -12,7 +12,7 @@
     },
     "donnees-collectees": {
       "title": "Dados recolhidos",
-      "body": "<p>Recolhemos apenas os dados que nos transmite voluntariamente:</p> <ul> <li><strong>Através do formulário de contacto</strong>: nome e apelido, empresa, tipo de pedido (geral ou parceria), endereço de e-mail profissional, número de telefone (facultativo) e o conteúdo da sua mensagem.</li> <li><strong>Dados técnicos</strong>: os registos de ligação gerados automaticamente pelo nosso serviço de alojamento (endereço IP, data e hora do pedido, páginas consultadas, tipo de navegador), para fins de segurança e de bom funcionamento do site.</li> <li><strong>Pesquisas efetuadas na plataforma</strong>: termos introduzidos, filtros e categoria escolhidos, número de resultados, idioma, data e — se tiver sessão iniciada — a sua conta e a sua organização.</li> </ul> <p>Nenhum campo é obrigatório para além do que é estritamente necessário para tratar o seu pedido. Não recolhemos quaisquer dados sensíveis na aceção do artigo 9.º do RGPD.</p>"
+      "body": "<p>Recolhemos apenas os dados que nos transmite voluntariamente:</p> <ul> <li><strong>Através do formulário de contacto</strong>: nome e apelido, empresa, tipo de pedido (geral ou parceria), endereço de e-mail profissional, número de telefone (facultativo) e o conteúdo da sua mensagem.</li> <li><strong>Dados técnicos</strong>: os registos de ligação gerados automaticamente pelo nosso serviço de alojamento (endereço IP, data e hora do pedido, páginas consultadas, tipo de navegador), para fins de segurança e de bom funcionamento do site.</li> <li><strong>Pesquisas efetuadas na plataforma</strong>: termos introduzidos, filtros e categoria escolhidos, número de resultados, idioma, data e — se tiver sessão iniciada — a sua conta e a sua organização.</li> <li><strong>Fotos da pesquisa por imagem</strong>: a foto que escolhe é tratada no momento para extrair palavras-chave de pesquisa. A PROMOTIONAL SOURCING não a conserva; apenas o termo gerado é registado com as suas pesquisas.</li> </ul> <p>Nenhum campo é obrigatório para além do que é estritamente necessário para tratar o seu pedido. Não recolhemos quaisquer dados sensíveis na aceção do artigo 9.º do RGPD.</p>"
     },
     "finalites": {
       "title": "Finalidades e fundamentos jurídicos",
@@ -20,7 +20,7 @@
     },
     "destinataires": {
       "title": "Destinatários e subcontratantes",
-      "body": "<p>Os seus dados são tratados pelas pessoas autorizadas da PROMOTIONAL SOURCING. Recorremos ao seguinte subcontratante:</p> <ul> <li><strong>Clever Cloud SAS</strong> (Nantes, França) — alojamento do site e da aplicação, incluindo o envio por e-mail dos pedidos enviados através do formulário de contacto. Os dados são alojados na União Europeia: este tratamento não implica qualquer transferência para fora da União.</li> </ul> <p>Os seus dados podem também ser comunicados às autoridades administrativas ou judiciais sempre que a lei o exija.</p>"
+      "body": "<p>Os seus dados são tratados pelas pessoas autorizadas da PROMOTIONAL SOURCING. Recorremos ao seguinte subcontratante:</p> <ul> <li><strong>Clever Cloud SAS</strong> (Nantes, França) — alojamento do site e da aplicação, incluindo o envio por e-mail dos pedidos enviados através do formulário de contacto. Os dados são alojados na União Europeia: este tratamento não implica qualquer transferência para fora da União.</li> <li><strong>Mistral AI SAS</strong> (Paris, França) — análise das fotos enviadas através da pesquisa por imagem, para as descrever com palavras-chave. A foto só é transmitida quando utiliza esta funcionalidade.</li> </ul> <p>Os seus dados podem também ser comunicados às autoridades administrativas ou judiciais sempre que a lei o exija.</p>"
     },
     "conservation": {
       "title": "Prazo de conservação",

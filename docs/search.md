@@ -352,6 +352,10 @@ Chaque recherche significative d'un client est enregistrée dans `search_events`
 
 **RGPD** : `PurgeSearchEventsJob` (planifié chaque nuit, `start/scheduler.ts`) détache les événements de plus de **90 jours** de leur utilisateur (`user_id` → `NULL`) et supprime ceux de plus de **24 mois**. Les durées sont dans `shared/types/search_event.ts`. La politique de confidentialité (9 langues) mentionne cette collecte, sa base légale (intérêt légitime) et ses durées. Un terme saisi peut contenir une donnée personnelle : c'est la raison de la rétention bornée.
 
+## Recherche par image
+
+Un acheteur connecté envoie une photo (`POST /:locale/products/image-search`). `ImageSearchService` la normalise (JPEG, 1024 px max, sans métadonnées), `ImageDescriptionProvider` (Mistral Pixtral, lié dans `providers/ai_provider.ts`) la décrit en mots-clés, puis l'acheteur est redirigé vers `products.index?search=…` (un flash de session signale que le terme vient d'une photo). La recherche hybride ci-dessus fait le reste : aucun vecteur d'image, aucune réindexation. L'image n'est jamais stockée. Activation : `AI_VISION_ENABLED` + `MISTRAL_API_KEY`. Le journal des recherches note ces requêtes avec la source `catalogue_image`. Évolution possible si la précision visuelle ne suffit pas : embeddings d'image (type CLIP) et second embedder Meilisearch.
+
 ## Tests
 
 - `tests/functional/search_indexing.spec.ts` : documents (noms par langue, facettes `attributeValueIds`, **facettes aplaties par slug** avec couleur famille déduite de la nuance, texte vectorisé), retrait des produits invisibles ou supprimés, idempotence, archivage et modération, réindexation par lots, déclencheurs — avec un moteur factice.

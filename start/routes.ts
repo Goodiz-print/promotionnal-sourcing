@@ -10,6 +10,7 @@
 import { middleware } from '#start/kernel'
 import {
   emailVerificationResendThrottle,
+  imageSearchThrottle,
   loginThrottle,
   passkeyLoginThrottle,
   passwordResetThrottle,
@@ -151,6 +152,12 @@ router
         // Tout le reste exige une adresse vérifiée, avant même l'onboarding.
         router
           .group(() => {
+            // Recherche par image (IA) : acheteurs connectés, pas d'organisation requise.
+            router
+              .post('products/image-search', [controllers.ProductImageSearch, 'store'])
+              .as('products.image_search')
+              .use(imageSearchThrottle)
+
             router.get('onboarding', [controllers.Onboarding, 'show']).as('onboarding.show')
             router.post('onboarding', [controllers.Onboarding, 'store']).as('onboarding.store')
 

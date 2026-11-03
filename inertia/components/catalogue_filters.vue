@@ -4,6 +4,7 @@ import BaseInput from '~/components/base/base_input.vue'
 import BaseSelect from '~/components/base/base_select.vue'
 import BaseCheckbox from '~/components/base/base_checkbox.vue'
 import BaseButton from '~/components/base/base_button.vue'
+import ImageSearchButton from '~/components/catalogue/image_search_button.vue'
 import FacetSection from '~/components/catalogue/facet_section.vue'
 import FacetGroup from '~/components/catalogue/facet_group.vue'
 import CertificationFacet from '~/components/catalogue/certification_facet.vue'
@@ -30,6 +31,8 @@ const props = defineProps<{
   numericFacets: CatalogueNumericFacetsType
   // Compteurs provenance / stock ; absents = toutes les options affichées.
   enumFacets?: CatalogueEnumFacetsType
+  // Recherche par image (IA) : bouton affiché aux acheteurs connectés si la fonction est active.
+  imageSearchEnabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -76,6 +79,8 @@ const {
       :placeholder="t('products.index.searchPlaceholder')"
       @update:model-value="onSearch"
     />
+
+    <ImageSearchButton v-if="imageSearchEnabled" />
 
     <BaseSelect
       id="category"

@@ -27,6 +27,9 @@ defineProps<{
   products: Paginated<ProductType>
   searchUnavailable: boolean
   filters: ProductDirectoryFilters
+  // Le terme vient d'une photo (recherche par image) ; bouton actif pour l'acheteur connecté.
+  imageSearch?: boolean
+  imageSearchEnabled?: boolean
   categories: CategoryType[]
   facetBar: CategoryFacetBarType
   certificationFacet: CertificationFacetBarType
@@ -71,6 +74,7 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
         'products',
         'filters',
         'searchUnavailable',
+        'imageSearch',
         'facetBar',
         'certificationFacet',
         'numericFacets',
@@ -100,6 +104,7 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
             :certification-facet="certificationFacet"
             :numeric-facets="numericFacets"
             :enum-facets="enumFacets"
+            :image-search-enabled="imageSearchEnabled"
             @apply="visit($event)"
           />
         </BaseCard>
@@ -110,7 +115,11 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
           {{ t('products.index.searchUnavailable') }}
         </BaseAlert>
 
-        <div v-else class="flex items-center justify-between gap-3">
+        <BaseAlert v-else-if="imageSearch && filters.search" tone="info">
+          {{ t('products.imageSearch.banner', { query: filters.search }) }}
+        </BaseAlert>
+
+        <div v-if="!searchUnavailable" class="flex items-center justify-between gap-3">
           <p class="text-tabular text-body-sm text-text-secondary">
             {{ t('products.index.resultsCount', { count: products.meta.total }) }}
           </p>

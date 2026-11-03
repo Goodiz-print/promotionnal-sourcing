@@ -2,7 +2,7 @@
   "heading": "Datenschutzerklärung",
   "eyebrow": "Datenschutz",
   "intro": "Wie PROMOTIONAL SOURCING die personenbezogenen Daten der Besucher von promotional-sourcing.eu gemäß DSGVO und dem französischen Gesetz „Informatique et Libertés“ erhebt, verwendet und schützt.",
-  "updatedAt": "31. Oktober 2026",
+  "updatedAt": "3. November 2026",
   "seoTitle": "Datenschutzerklärung — Promotional Sourcing.eu",
   "seoDescription": "Wie PROMOTIONAL SOURCING Ihre personenbezogenen Daten gemäß DSGVO erhebt, verwendet und schützt.",
   "sections": {
@@ -12,7 +12,7 @@
     },
     "donnees-collectees": {
       "title": "Erhobene Daten",
-      "body": "<p>Wir erheben ausschließlich die Daten, die Sie uns freiwillig übermitteln:</p> <ul> <li><strong>Über das Kontaktformular</strong>: Vor- und Nachname, Unternehmen, Art der Anfrage (Kontakt oder Partnerschaft), geschäftliche E-Mail-Adresse, Telefonnummer (optional) und der Inhalt Ihrer Nachricht.</li> <li><strong>Technische Daten</strong>: die von unserem Hosting-Anbieter automatisch erzeugten Verbindungsprotokolle (IP-Adresse, Datum und Uhrzeit der Anfrage, aufgerufene Seiten, Browsertyp) zu Zwecken der Sicherheit und des ordnungsgemäßen Betriebs der Website.</li> <li><strong>Auf der Plattform durchgeführte Suchen</strong>: eingegebene Begriffe, gewählte Filter und Kategorie, Anzahl der Ergebnisse, Sprache, Datum und – sofern Sie angemeldet sind – Ihr Konto und Ihre Organisation.</li> </ul> <p>Über das für die Bearbeitung Ihrer Anfrage unbedingt Erforderliche hinaus ist kein Feld verpflichtend. Wir erheben keine sensiblen Daten im Sinne von Artikel 9 DSGVO.</p>"
+      "body": "<p>Wir erheben ausschließlich die Daten, die Sie uns freiwillig übermitteln:</p> <ul> <li><strong>Über das Kontaktformular</strong>: Vor- und Nachname, Unternehmen, Art der Anfrage (Kontakt oder Partnerschaft), geschäftliche E-Mail-Adresse, Telefonnummer (optional) und der Inhalt Ihrer Nachricht.</li> <li><strong>Technische Daten</strong>: die von unserem Hosting-Anbieter automatisch erzeugten Verbindungsprotokolle (IP-Adresse, Datum und Uhrzeit der Anfrage, aufgerufene Seiten, Browsertyp) zu Zwecken der Sicherheit und des ordnungsgemäßen Betriebs der Website.</li> <li><strong>Auf der Plattform durchgeführte Suchen</strong>: eingegebene Begriffe, gewählte Filter und Kategorie, Anzahl der Ergebnisse, Sprache, Datum und – sofern Sie angemeldet sind – Ihr Konto und Ihre Organisation.</li> <li><strong>Fotos der Bildsuche</strong>: Das von Ihnen gewählte Foto wird unmittelbar verarbeitet, um Suchbegriffe daraus abzuleiten. PROMOTIONAL SOURCING speichert es nicht; nur der erzeugte Begriff wird mit Ihren Suchanfragen erfasst.</li> </ul> <p>Über das für die Bearbeitung Ihrer Anfrage unbedingt Erforderliche hinaus ist kein Feld verpflichtend. Wir erheben keine sensiblen Daten im Sinne von Artikel 9 DSGVO.</p>"
     },
     "finalites": {
       "title": "Zwecke und Rechtsgrundlagen",
@@ -20,7 +20,7 @@
     },
     "destinataires": {
       "title": "Empfänger und Auftragsverarbeiter",
-      "body": "<p>Ihre Daten werden von den dazu befugten Personen bei PROMOTIONAL SOURCING verarbeitet. Wir setzen folgenden Auftragsverarbeiter ein:</p> <ul> <li><strong>Clever Cloud SAS</strong> (Nantes, Frankreich) — Hosting der Website und der Anwendung, einschließlich der Zustellung der über das Kontaktformular gesendeten Anfragen per E-Mail. Die Daten werden innerhalb der Europäischen Union gehostet: Diese Verarbeitung beinhaltet keine Übermittlung außerhalb der Union.</li> </ul> <p>Ihre Daten können außerdem an Verwaltungs- oder Justizbehörden weitergegeben werden, wenn das Gesetz dies verlangt.</p>"
+      "body": "<p>Ihre Daten werden von den dazu befugten Personen bei PROMOTIONAL SOURCING verarbeitet. Wir setzen folgenden Auftragsverarbeiter ein:</p> <ul> <li><strong>Clever Cloud SAS</strong> (Nantes, Frankreich) — Hosting der Website und der Anwendung, einschließlich der Zustellung der über das Kontaktformular gesendeten Anfragen per E-Mail. Die Daten werden innerhalb der Europäischen Union gehostet: Diese Verarbeitung beinhaltet keine Übermittlung außerhalb der Union.</li> <li><strong>Mistral AI SAS</strong> (Paris, Frankreich) — Analyse der über die Bildsuche gesendeten Fotos, um sie als Schlüsselwörter zu beschreiben. Das Foto wird nur übermittelt, wenn Sie diese Funktion nutzen.</li> </ul> <p>Ihre Daten können außerdem an Verwaltungs- oder Justizbehörden weitergegeben werden, wenn das Gesetz dies verlangt.</p>"
     },
     "conservation": {
       "title": "Speicherdauer",

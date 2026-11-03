@@ -252,6 +252,12 @@ const routes = {
     tokens: [[1,"locale"],[0,"account"],[0,"passkeys"],[1,"id"]],
     types: placeholder as Registry['account.passkeys.destroy']['types'],
   },
+  'products.image_search': {
+    methods: ["POST"],
+    pattern: '/:locale/products/image-search',
+    tokens: [[1,"locale"],[0,"products"],[0,"image-search"]],
+    types: placeholder as Registry['products.image_search']['types'],
+  },
   'onboarding.show': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/onboarding',

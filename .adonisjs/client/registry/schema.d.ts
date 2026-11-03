@@ -540,6 +540,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/passkey_controller').default['destroy']>>>
     }
   }
+  'products.image_search': {
+    methods: ["POST"]
+    pattern: '/:locale/products/image-search'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/image_search').imageSearchValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/image_search').imageSearchValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/product_image_search_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/product_image_search_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/product_image_search_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'onboarding.show': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/onboarding'

@@ -37,15 +37,17 @@ export default class SearchEventService {
     total: number
     user: User | null
     locale: string
+    /** Terme généré depuis une photo (recherche par image). */
+    fromImage?: boolean
   }): Promise<void> {
-    const { filters, page, mode, total, user, locale } = options
+    const { filters, page, mode, total, user, locale, fromImage } = options
     const { search, categoryId, ...rest } = filters
     const active = this.activeFilters(rest)
     const query = this.normalizeQuery(search)
     if (page !== 1 || (!query && !categoryId && Object.keys(active).length === 0)) return
 
     await this.track({
-      source: 'catalogue',
+      source: fromImage && query ? 'catalogue_image' : 'catalogue',
       query,
       filters: active,
       categoryId,

@@ -22,6 +22,18 @@ const aiConfig = {
     // un seul appel (#97). Une réponse tronquée (`finish_reason = length`) est rejetée.
     maxTokens: 30_000,
   },
+
+  /**
+   * Recherche par image : un modèle vision Mistral (Pixtral) décrit la photo en
+   * mots-clés, puis la recherche hybride du catalogue prend le relais. Désactivée
+   * par défaut ; sans clé Mistral elle reste indisponible.
+   */
+  vision: {
+    enabled: env.get('AI_VISION_ENABLED', false),
+    model: env.get('MISTRAL_VISION_MODEL', 'pixtral-12b-latest'),
+    // Quelques mots-clés suffisent : réponse courte.
+    maxTokens: 200,
+  },
 }
 
 export default aiConfig
