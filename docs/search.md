@@ -334,7 +334,7 @@ En CI, le job `test-search` démarre un vrai Meilisearch et rejoue les requêtes
 
 ## Journal des recherches (#171)
 
-Chaque recherche significative d'un client est enregistrée dans `search_events`, **de façon asynchrone** : `SearchEventService` met un `RecordSearchEventJob` en file (aucun impact sur la latence), et un échec de la file n'affecte jamais la recherche (warning loggé). Ce que les clients cherchent — et ne trouvent pas — ne se rattrape pas après coup ; l'exploitation (écran admin) est suivie dans #173.
+Chaque recherche significative d'un client est enregistrée dans `search_events`, **de façon asynchrone** : `SearchEventService` met un `RecordSearchEventJob` en file (aucun impact sur la latence), et un échec de la file n'affecte jamais la recherche (warning loggé). L'écriture, le dédoublonnage et la purge sont dans `SearchEventStore`, injecté dans les jobs (le service importe le job : pas de cycle). Ce que les clients cherchent — et ne trouvent pas — ne se rattrape pas après coup ; l'exploitation (écran admin) est suivie dans #173.
 
 | Colonne                         | Contenu                                                                                                |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------ |

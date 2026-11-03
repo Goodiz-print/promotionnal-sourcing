@@ -1,15 +1,10 @@
-import { DateTime } from 'luxon'
-import db from '@adonisjs/lucid/services/db'
 import logger from '@adonisjs/core/services/logger'
 import RecordSearchEventJob from '#jobs/record_search_event_job'
 import type User from '#models/user'
 import type { ProductDirectoryFilters } from '#shared/types/product'
 import type { SupplierDirectoryFilters } from '#shared/types/supplier'
 import {
-  SEARCH_EVENT_DEDUPE_SECONDS,
-  SEARCH_EVENT_PSEUDONYMISE_AFTER_DAYS,
   SEARCH_EVENT_QUERY_MAX_LENGTH,
-  SEARCH_EVENT_RETENTION_DAYS,
   type SearchEventFilters,
   type SearchEventMode,
   type SearchEventPayload,
@@ -20,10 +15,8 @@ import {
  *
  * `track` est appelé depuis les écrans de recherche : il met l'événement en
  * file et **n'échoue jamais** (une file indisponible ne doit pas faire tomber
- * une recherche). `persist` est appelé par le job, hors requête.
- *
- * Pas d'import de modèle Lucid : ce service est injecté dans un job, chargé au
- * boot (voir la règle DI de `CLAUDE.md`) — d'où `db` plutôt que `SearchEvent`.
+ * une recherche). L'écriture en base est dans `SearchEventStore`, appelé par les
+ * jobs : ce service importe le job, il ne peut donc pas être importé par lui.
  */
 export default class SearchEventService {
   /** Normalise un terme saisi : minuscules, espaces compactés, longueur bornée. */
@@ -124,51 +117,6 @@ export default class SearchEventService {
     }
   }
 
-  /**
-   * Écrit l'événement, sauf si le même utilisateur vient d'enregistrer la même
-   * recherche (rechargement, retour arrière). Un visiteur anonyme n'est pas
-   * dédoublonné : rien ne permet de savoir si c'est la même personne.
-   */
-  async persist(event: SearchEventPayload): Promise<boolean> {
-    if (event.userId !== null && (await this.isRepeat(event))) return false
-
-    await db.table('search_events').insert({
-      source: event.source,
-      query: event.query,
-      filters: JSON.stringify(event.filters),
-      category_id: event.categoryId,
-      mode: event.mode,
-      results_count: event.resultsCount,
-      zero_results: event.resultsCount === 0,
-      user_id: event.userId,
-      organization_id: event.organizationId,
-      locale: event.locale,
-    })
-    return true
-  }
-
-  /**
-   * RGPD : détache les événements de plus de 90 jours de leur utilisateur, puis
-   * supprime ceux de plus de 24 mois.
-   */
-  async purge(now: DateTime = DateTime.now()): Promise<{ pseudonymised: number; deleted: number }> {
-    const pseudonymised = await db
-      .from('search_events')
-      .whereNotNull('user_id')
-      .where(
-        'created_at',
-        '<',
-        now.minus({ days: SEARCH_EVENT_PSEUDONYMISE_AFTER_DAYS }).toJSDate()
-      )
-      .update({ user_id: null })
-    const deleted = await db
-      .from('search_events')
-      .where('created_at', '<', now.minus({ days: SEARCH_EVENT_RETENTION_DAYS }).toJSDate())
-      .delete()
-
-    return { pseudonymised: Number(pseudonymised), deleted: Number(deleted) }
-  }
-
   /** Ne garde que les filtres posés : tableaux non vides, booléens vrais, valeurs non nulles. */
   private activeFilters(filters: object): SearchEventFilters {
     const active: SearchEventFilters = {}
@@ -178,21 +126,5 @@ export default class SearchEventService {
       }
     }
     return active
-  }
-
-  private async isRepeat(event: SearchEventPayload): Promise<boolean> {
-    const since = DateTime.now().minus({ seconds: SEARCH_EVENT_DEDUPE_SECONDS }).toJSDate()
-    const query = db
-      .from('search_events')
-      .where('user_id', event.userId!)
-      .where('source', event.source)
-      .where('created_at', '>=', since)
-      .whereRaw('filters = ?::jsonb', [JSON.stringify(event.filters)])
-    if (event.query === null) query.whereNull('query')
-    else query.where('query', event.query)
-    if (event.categoryId === null) query.whereNull('category_id')
-    else query.where('category_id', event.categoryId)
-
-    return (await query.first()) !== null
   }
 }

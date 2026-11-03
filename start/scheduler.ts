@@ -67,7 +67,7 @@ await RemindRfqSuppliersJob.schedule({})
 
 /**
  * Pseudonymisation (90 jours) et purge (24 mois) du journal des recherches, de
- * nuit — cf. `SearchEventService#purge`.
+ * nuit — cf. `SearchEventStore#purge`.
  */
 await PurgeSearchEventsJob.schedule({})
   .id('purge-search-events')

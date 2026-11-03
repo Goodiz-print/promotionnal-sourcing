@@ -9,7 +9,7 @@ import { OrganizationFactory } from '#database/factories/organization_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import Product from '#models/product'
 import SearchEvent from '#models/search_event'
-import SearchEventService from '#services/search_event_service'
+import SearchEventStore from '#services/search_event_store'
 import { createMember } from '#tests/utils/organizations'
 import { installFakeEngine, type FakeEngineHandle } from '#tests/utils/fake_search_engine'
 import { useDatabase } from '#tests/utils/setup'
@@ -251,7 +251,7 @@ test.group('Journal des recherches — déduplication et RGPD', (group) => {
   useDatabase(group)
 
   async function service() {
-    return app.container.make(SearchEventService)
+    return app.container.make(SearchEventStore)
   }
 
   test('la même recherche du même utilisateur dans la fenêtre n’est écrite qu’une fois', async ({

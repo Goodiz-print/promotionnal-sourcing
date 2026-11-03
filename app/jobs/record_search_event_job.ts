@@ -2,7 +2,7 @@ import { inject } from '@adonisjs/core'
 import { Job } from '@adonisjs/queue'
 import type { JobOptions } from '@adonisjs/queue/types'
 import logger from '@adonisjs/core/services/logger'
-import SearchEventService from '#services/search_event_service'
+import SearchEventStore from '#services/search_event_store'
 import type { SearchEventPayload } from '#shared/types/search_event'
 
 /**
@@ -17,7 +17,7 @@ export default class RecordSearchEventJob extends Job<SearchEventPayload> {
     maxRetries: 3,
   }
 
-  constructor(private events: SearchEventService) {
+  constructor(private events: SearchEventStore) {
     super()
   }
 
