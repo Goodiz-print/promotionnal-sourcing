@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
+import { errors } from '@vinejs/vine'
 import AdminDemandService from '#services/admin_demand_service'
 import { adminDemandFiltersValidator } from '#validators/admin_demand'
 import type { AdminDemandFilters } from '#shared/types/admin_demand'
@@ -47,6 +48,11 @@ export default class DemandController {
     const query = await request.validateUsing(adminDemandFiltersValidator, {
       data: request.qs(),
     })
+    if (query.from && query.to && query.to < query.from) {
+      throw new errors.E_VALIDATION_ERROR([
+        { field: 'to', message: 'La date de fin précède la date de début', rule: 'afterOrEqual' },
+      ])
+    }
     return this.service.resolveFilters(query)
   }
 }
