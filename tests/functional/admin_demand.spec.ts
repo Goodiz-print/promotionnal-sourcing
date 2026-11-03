@@ -1,5 +1,6 @@
 import { test } from '@japa/runner'
 import { DateTime } from 'luxon'
+import db from '@adonisjs/lucid/services/db'
 import { ActivityEventFactory } from '#database/factories/activity_event_factory'
 import { OrganizationFactory } from '#database/factories/organization_factory'
 import { UserFactory } from '#database/factories/user_factory'
@@ -196,15 +197,9 @@ test.group('Ce que cherchent les clients — agrégations', (group) => {
   }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
     const [first, second] = await Product.query().orderBy('id').limit(2)
-    const supplier = await OrganizationFactory.apply('supplier').create()
     const view = (id: number) => ActivityEventFactory.merge({ targetId: id })
     await view(first.id).createMany(3)
     await view(second.id).create()
-    await ActivityEventFactory.merge({
-      type: 'supplier_viewed',
-      targetType: 'supplier',
-      targetId: supplier.id,
-    }).create()
     await ActivityEventFactory.merge({
       type: 'rfq_product_added',
       targetId: second.id,
@@ -225,16 +220,77 @@ test.group('Ce que cherchent les clients — agrégations', (group) => {
     )
     assert.isNotEmpty(report.viewedProducts[0].name)
     assert.deepEqual(
-      report.viewedSuppliers.map((row: { name: string; count: number }) => [row.name, row.count]),
-      [[supplier.name, 1]]
-    )
-    assert.deepEqual(
       report.rfqProducts.map((row: { targetId: number; count: number }) => [
         row.targetId,
         row.count,
       ]),
       [[second.id, 2]]
     )
+  })
+
+  test('classe les fournisseurs par id de fiche, avec repli de nom et sans fiche masquée', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    // Ids très supérieurs à ceux des organisations : l'id de fiche ne peut pas
+    // correspondre à une organisation par hasard.
+    const [onlyGerman, french, archivedOrganization, deleted] = [900_001, 900_002, 900_003, 900_004]
+    const archived = await OrganizationFactory.apply('supplier').create()
+    await archived.merge({ archivedAt: DateTime.now() }).save()
+
+    const sheet = (id: number, organizationId: number | null = null) =>
+      db.table('suppliers').insert({
+        id,
+        slug: `demande-fiche-${id}`,
+        country: 'FR',
+        is_active: true,
+        organization_id: organizationId,
+        created_at: DateTime.now().toJSDate(),
+      })
+    const translation = (id: number, locale: string, name: string) =>
+      db.table('supplier_translations').insert({
+        supplier_id: id,
+        locale,
+        name,
+        created_at: DateTime.now().toJSDate(),
+      })
+    await sheet(onlyGerman)
+    await translation(onlyGerman, 'de', 'Nur Deutsch')
+    await sheet(french)
+    await translation(french, 'fr', 'Fiche française')
+    await translation(french, 'sv', 'Svensk sida')
+    await sheet(archivedOrganization, archived.id)
+    await translation(archivedOrganization, 'fr', 'Organisation archivée')
+
+    const view = (id: number, times: number) =>
+      ActivityEventFactory.merge({
+        type: 'supplier_viewed',
+        targetType: 'supplier',
+        targetId: id,
+      }).createMany(times)
+    await view(onlyGerman, 4)
+    await view(french, 3)
+    await view(archivedOrganization, 2)
+    await view(deleted, 1)
+
+    const names = async (locale: string) => {
+      const response = await client.get(`/${locale}/admin/demand`).withInertia().loginAs(admin)
+      return response.inertiaProps.report.viewedSuppliers.map(
+        (row: { name: string; count: number }) => [row.name, row.count]
+      )
+    }
+
+    // Sans traduction dans la langue de l'écran ni en français : la seule langue disponible.
+    assert.deepEqual(await names('fr'), [
+      ['Nur Deutsch', 4],
+      ['Fiche française', 3],
+    ])
+    // Traduction dans la langue de l'écran quand elle existe.
+    assert.deepEqual(await names('sv'), [
+      ['Nur Deutsch', 4],
+      ['Svensk sida', 3],
+    ])
   })
 
   test('refuse une période invalide au lieu de l’ignorer', async ({ client }) => {

@@ -1,5 +1,7 @@
 import { DateTime } from 'luxon'
 import db from '@adonisjs/lucid/services/db'
+import { resolveTranslation } from '#shared/helpers/translations'
+import { latestDecisionIsRejectedSql } from '#shared/helpers/moderation'
 import {
   ADMIN_DEMAND_DEFAULT_DAYS,
   ADMIN_DEMAND_EXPORT_LIMIT,
@@ -92,7 +94,7 @@ export default class AdminDemandService {
       this.usedFilters(filters),
       this.categories(filters, uiLocale),
       this.products(filters, 'product_viewed', uiLocale),
-      this.suppliers(filters),
+      this.suppliers(filters, uiLocale),
       this.products(filters, 'rfq_product_added', uiLocale),
     ])
 
@@ -301,45 +303,76 @@ export default class AdminDemandService {
     type: 'product_viewed' | 'rfq_product_added',
     uiLocale: string
   ): Promise<DemandTargetRow[]> {
-    const rows = await this.events(filters)
-      .where('ae.type', type)
-      .where('ae.target_type', 'product')
-      .leftJoin('product_translations as pt', (join) =>
-        join.on('pt.product_id', 'ae.target_id').andOnVal('pt.locale', uiLocale)
-      )
-      .leftJoin('product_translations as pf', (join) =>
-        join.on('pf.product_id', 'ae.target_id').andOnVal('pf.locale', FALLBACK_LOCALE)
-      )
-      .select(
-        'ae.target_id',
-        db.raw("coalesce(pt.name, pf.name, '#' || ae.target_id) as name"),
-        db.raw('count(*)::int as total')
-      )
-      .groupBy('ae.target_id', 'pt.name', 'pf.name')
-      .orderBy('total', 'desc')
-      .limit(ADMIN_DEMAND_TOP_LIMIT)
-
-    return this.targets(rows)
+    const rows = await this.topTargets(this.events(filters).where('ae.type', type), 'product')
+    return this.named(rows, 'product_translations', 'product_id', uiLocale)
   }
 
-  /** Fournisseurs les plus consultés : la cible est l'organisation fournisseur. */
-  private async suppliers(filters: AdminDemandFilters): Promise<DemandTargetRow[]> {
-    const rows = await this.events(filters)
-      .where('ae.type', 'supplier_viewed')
-      .join('organizations as o', 'o.id', 'ae.target_id')
-      .select('ae.target_id', 'o.name', db.raw('count(*)::int as total'))
-      .groupBy('ae.target_id', 'o.name')
-      .orderBy('total', 'desc')
-      .limit(ADMIN_DEMAND_TOP_LIMIT)
-
-    return this.targets(rows)
+  /**
+   * Fournisseurs les plus consultés. La cible de `supplier_viewed` est l'id de la
+   * fiche (`suppliers.id`), pas celui de l'organisation. Seules les fiches encore
+   * visibles au catalogue comptent (fiche existante, organisation ni archivée ni
+   * rejetée), comme dans l'annuaire public.
+   */
+  private async suppliers(
+    filters: AdminDemandFilters,
+    uiLocale: string
+  ): Promise<DemandTargetRow[]> {
+    const rows = await this.topTargets(
+      this.events(filters)
+        .where('ae.type', 'supplier_viewed')
+        .join('suppliers as s', 's.id', 'ae.target_id')
+        .leftJoin('organizations as o', 'o.id', 's.organization_id')
+        .where((visible) =>
+          visible
+            .whereNull('o.id')
+            .orWhere((live) =>
+              live
+                .whereNull('o.archived_at')
+                .whereRaw(`NOT ${latestDecisionIsRejectedSql('organization', 'o.id')}`)
+            )
+        ),
+      'supplier'
+    )
+    return this.named(rows, 'supplier_translations', 'supplier_id', uiLocale)
   }
 
-  private targets(rows: Record<string, unknown>[]): DemandTargetRow[] {
-    return rows.map((row) => ({
-      targetId: Number(row.target_id),
-      name: String(row.name),
-      count: Number(row.total),
-    }))
+  /** Les `ADMIN_DEMAND_TOP_LIMIT` cibles les plus fréquentes d'un type, avec leur nombre d'événements. */
+  private async topTargets(
+    query: Query,
+    targetType: 'product' | 'supplier'
+  ): Promise<{ targetId: number; count: number }[]> {
+    const rows = await query
+      .where('ae.target_type', targetType)
+      .select('ae.target_id', db.raw('count(*)::int as total'))
+      .groupBy('ae.target_id')
+      .orderBy('total', 'desc')
+      .orderBy('ae.target_id', 'asc')
+      .limit(ADMIN_DEMAND_TOP_LIMIT)
+    return rows.map((row) => ({ targetId: Number(row.target_id), count: Number(row.total) }))
+  }
+
+  /**
+   * Ajoute le nom de chaque cible, résolu avec le repli habituel
+   * (`resolveTranslation`) ; `#<id>` quand la cible n'a aucune traduction.
+   */
+  private async named(
+    rows: { targetId: number; count: number }[],
+    table: 'product_translations' | 'supplier_translations',
+    foreignKey: 'product_id' | 'supplier_id',
+    uiLocale: string
+  ): Promise<DemandTargetRow[]> {
+    if (rows.length === 0) return []
+    const translations = await db
+      .from(table)
+      .whereIn(
+        foreignKey,
+        rows.map((row) => row.targetId)
+      )
+      .select(foreignKey, 'locale', 'name')
+
+    return rows.map((row) => {
+      const own = translations.filter((t) => Number(t[foreignKey]) === row.targetId)
+      return { ...row, name: resolveTranslation(own, uiLocale)?.name ?? `#${row.targetId}` }
+    })
   }
 }
