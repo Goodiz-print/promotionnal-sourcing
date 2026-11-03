@@ -1593,6 +1593,123 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/agency_review_controller').default['decide']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'admin.rfqs.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/rfqs'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_trade').adminRfqFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/rfq_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/rfq_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/rfq_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.rfqs.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/rfqs/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/rfq_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/rfq_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/rfq_controller').default['show']>>>
+    }
+  }
+  'admin.rfqs.close': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/rfqs/:id/close'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/rfq_controller').default['close']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/rfq_controller').default['close']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/rfq_controller').default['close']>>>
+    }
+  }
+  'admin.rfqs.expire': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/rfqs/:id/expire'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/rfq_controller').default['expire']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/rfq_controller').default['expire']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/rfq_controller').default['expire']>>>
+    }
+  }
+  'admin.rfqs.remind': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/rfqs/:id/remind'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/rfq_controller').default['remind']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/rfq_controller').default['remind']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/rfq_controller').default['remind']>>>
+    }
+  }
+  'admin.quotes.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/quotes'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_trade').adminQuoteFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/quote_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/quote_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/quote_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.quotes.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/quotes/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/quote_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/quote_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/quote_controller').default['show']>>>
+    }
+  }
+  'admin.orders.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/orders'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_trade').adminOrderFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/order_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/order_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/order_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.orders.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/orders/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/order_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/order_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/order_controller').default['show']>>>
+    }
+  }
   'admin.demand.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/demand'

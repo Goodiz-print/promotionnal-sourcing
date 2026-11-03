@@ -208,6 +208,21 @@ export interface ApiDefinition {
       show: typeof routes['admin.agency_reviews.show']
       decide: typeof routes['admin.agency_reviews.decide']
     }
+    rfqs: {
+      index: typeof routes['admin.rfqs.index']
+      show: typeof routes['admin.rfqs.show']
+      close: typeof routes['admin.rfqs.close']
+      expire: typeof routes['admin.rfqs.expire']
+      remind: typeof routes['admin.rfqs.remind']
+    }
+    quotes: {
+      index: typeof routes['admin.quotes.index']
+      show: typeof routes['admin.quotes.show']
+    }
+    orders: {
+      index: typeof routes['admin.orders.index']
+      show: typeof routes['admin.orders.show']
+    }
     demand: {
       index: typeof routes['admin.demand.index']
       export: typeof routes['admin.demand.export']

@@ -389,8 +389,12 @@ export default class RfqService {
    * Bascule une demande publiée en `expired`. Les destinataires gardent leur
    * statut : c'est la trace de qui avait lu, répondu ou décliné.
    */
-  async expire(rfq: Rfq, now: DateTime = DateTime.now()): Promise<Rfq> {
-    return this.switchToExpired(rfq, now, false)
+  async expire(
+    rfq: Rfq,
+    now: DateTime = DateTime.now(),
+    client?: TransactionClientContract
+  ): Promise<Rfq> {
+    return this.switchToExpired(rfq, now, false, client)
   }
 
   /**
@@ -428,8 +432,13 @@ export default class RfqService {
    * la garde est en base, pas sur l'instance chargée, donc une transition
    * concurrente n'est jamais écrasée.
    */
-  private async switchToExpired(rfq: Rfq, now: DateTime, onlyIfDue: boolean): Promise<Rfq> {
-    const query = Rfq.query().where('id', rfq.id).where('status', 'published')
+  private async switchToExpired(
+    rfq: Rfq,
+    now: DateTime,
+    onlyIfDue: boolean,
+    client?: TransactionClientContract
+  ): Promise<Rfq> {
+    const query = Rfq.query({ client }).where('id', rfq.id).where('status', 'published')
     if (onlyIfDue) query.where('deadline', '<', this.startOfToday(now).toSQL()!)
 
     const [updated] = await query.update({ status: 'expired', expiredAt: now.toJSDate() })
@@ -507,9 +516,13 @@ export default class RfqService {
    * requête, pour réduire la fenêtre entre « mails en queue » et « relance
    * consignée ».
    */
-  async markReminded(recipients: RfqSupplier[], now: DateTime = DateTime.now()): Promise<void> {
+  async markReminded(
+    recipients: RfqSupplier[],
+    now: DateTime = DateTime.now(),
+    client?: TransactionClientContract
+  ): Promise<void> {
     if (recipients.length === 0) return
-    await RfqSupplier.query()
+    await RfqSupplier.query({ client })
       .whereIn(
         'id',
         recipients.map(({ id }) => id)
