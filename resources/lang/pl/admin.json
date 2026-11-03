@@ -9,7 +9,10 @@
     "label": "Sekcje administracji",
     "demand": "Popyt klientów",
     "moderation": "Moderacja",
-    "agencies": "Agencje"
+    "agencies": "Agencje",
+    "rfqs": "Zapytania ofertowe",
+    "quotes": "Oferty",
+    "orders": "Zamówienia"
   },
   "pagination": {
     "previous": "Poprzednia",
@@ -212,7 +215,10 @@
       "moderation.rejected": "Odrzucono w moderacji",
       "agency_review.approved": "Rejestracja agencji zatwierdzona",
       "agency_review.rejected": "Rejestracja agencji odrzucona",
-      "agency_review.info_requested": "Poproszono agencję o informacje"
+      "agency_review.info_requested": "Poproszono agencję o informacje",
+      "rfq.closed": "Zapytanie ofertowe zamknięte",
+      "rfq.expired": "Zapytanie ofertowe wygasło",
+      "rfq.reminded": "Dostawcy otrzymali przypomnienie o zapytaniu"
     },
     "targets": {
       "user": "Użytkownik",
@@ -220,7 +226,8 @@
       "attribute": "Atrybut",
       "attribute_value": "Wartość atrybutu",
       "organization": "Organizacja",
-      "product": "Produkt"
+      "product": "Produkt",
+      "rfq": "Zapytanie ofertowe"
     }
   },
   "demand": {
@@ -422,6 +429,126 @@
       "approved": "Agencja zatwierdzona. Wysłano do niej e-mail.",
       "rejected": "Rejestracja odrzucona: organizacja jest zarchiwizowana.",
       "info_requested": "Wysłano do agencji prośbę o informacje."
+    }
+  },
+  "trade": {
+    "filters": {
+      "status": "Status",
+      "attention": "Do obserwacji",
+      "buyer": "Kupujący",
+      "supplier": "Dostawca",
+      "from": "Utworzone od",
+      "to": "Do",
+      "all": "Wszystkie",
+      "apply": "Filtruj",
+      "reset": "Wyczyść"
+    },
+    "columns": {
+      "buyer": "Kupujący",
+      "supplier": "Dostawca",
+      "status": "Status",
+      "amount": "Kwota",
+      "item": "Nazwa",
+      "quantity": "Ilość",
+      "unitPrice": "Cena jednostkowa",
+      "total": "Razem"
+    },
+    "summary": "Podsumowanie",
+    "lines": "Pozycje",
+    "view": "Zobacz"
+  },
+  "rfqs": {
+    "title": "Zapytania ofertowe",
+    "subtitle": "Nadzór nad zapytaniami ofertowymi wszystkich organizacji.",
+    "resultsCount": "{count, plural, =0 {Brak zapytań} one {# zapytanie} other {# zapytań}}",
+    "empty": "Brak zapytań dla tych filtrów.",
+    "emptyDescription": "Zmień filtry, aby poszerzyć wyszukiwanie.",
+    "back": "Wróć do zapytań",
+    "columns": {
+      "title": "Zapytanie",
+      "deadline": "Termin",
+      "recipients": "Odbiorcy",
+      "responses": "Odpowiedzi",
+      "quotes": "Oferty",
+      "attention": "Do obserwacji"
+    },
+    "attention": {
+      "overdue": "Termin minął",
+      "no_response": "Brak odpowiedzi"
+    },
+    "detail": {
+      "items": "Pozycje zapytania",
+      "recipients": "Odbiorcy",
+      "quotes": "Otrzymane oferty",
+      "noRecipients": "Brak odbiorców.",
+      "noQuotes": "Brak otrzymanych ofert.",
+      "sentAt": "Wysłano",
+      "remindedAt": "Przypomniano",
+      "createdBy": "Utworzone przez",
+      "publishedAt": "Opublikowano",
+      "budgetMax": "Maksymalny budżet",
+      "description": "Opis",
+      "unit": "Jednostka"
+    },
+    "actions": {
+      "remind": "{count, plural, one {Przypomnij # dostawcy} other {Przypomnij # dostawcom}}",
+      "expire": "Wygaś",
+      "close": "Zamknij",
+      "confirmRemind": "{count, plural, one {Przypomnieć # dostawcy, który nie odpowiedział?} other {Przypomnieć # dostawcom, którzy nie odpowiedzieli?}}",
+      "confirmExpire": "Wygasić to zapytanie? Dostawcy nie będą mogli już odpowiadać.",
+      "confirmClose": "Zamknąć to zapytanie? Tej operacji nie można cofnąć."
+    },
+    "done": {
+      "closed": "Zapytanie zamknięte.",
+      "expired": "Zapytanie wygasło.",
+      "reminded": "{count, plural, one {Przypomniano # dostawcy.} other {Przypomniano # dostawcom.}}"
+    }
+  },
+  "quotes": {
+    "title": "Oferty",
+    "subtitle": "Nadzór nad ofertami złożonymi przez dostawców.",
+    "resultsCount": "{count, plural, =0 {Brak ofert} one {# oferta} other {# ofert}}",
+    "empty": "Brak ofert dla tych filtrów.",
+    "emptyDescription": "Zmień filtry, aby poszerzyć wyszukiwanie.",
+    "back": "Wróć do ofert",
+    "number": "Oferta nr {id}",
+    "columns": {
+      "quote": "Oferta",
+      "rfq": "Zapytanie",
+      "submitted": "Złożono"
+    },
+    "detail": {
+      "validUntil": "Ważna do",
+      "decidedAt": "Decyzja",
+      "notes": "Notatki",
+      "leadTime": "Czas realizacji",
+      "days": "{count, plural, one {# dzień} other {# dni}}",
+      "viewRfq": "Zobacz zapytanie",
+      "viewOrder": "Zobacz zamówienie"
+    }
+  },
+  "orders": {
+    "title": "Zamówienia",
+    "subtitle": "Nadzór nad zamówieniami złożonymi na platformie.",
+    "resultsCount": "{count, plural, =0 {Brak zamówień} one {# zamówienie} other {# zamówień}}",
+    "empty": "Brak zamówień dla tych filtrów.",
+    "emptyDescription": "Zmień filtry, aby poszerzyć wyszukiwanie.",
+    "back": "Wróć do zamówień",
+    "number": "Zamówienie nr {id}",
+    "columns": {
+      "order": "Zamówienie",
+      "created": "Utworzono"
+    },
+    "detail": {
+      "viewQuote": "Zobacz ofertę",
+      "progress": "Postęp",
+      "milestones": {
+        "confirmed": "Potwierdzono",
+        "inProduction": "W produkcji od",
+        "shipped": "Wysłano",
+        "delivered": "Dostarczono",
+        "cancelled": "Anulowano"
+      }
     }
   }
 }

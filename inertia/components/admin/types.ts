@@ -31,3 +31,23 @@ export interface KpiItem {
   format: KpiFormat
   icon: Component
 }
+
+/** Valeurs des filtres des écrans de supervision (demandes, devis, commandes) ; `null` = filtre inactif. */
+export interface TradeFilterValues {
+  status: string | null
+  attention: string | null
+  buyer: string | null
+  supplier: string | null
+  from: string | null
+  to: string | null
+}
+
+/** Ligne chiffrée d'un devis ou d'une commande (`TradeLinesTable`). */
+export interface TradeLine {
+  id: number
+  name: string
+  quantity: number
+  unitPrice: string
+  totalPrice: string
+  leadTimeDays?: number
+}

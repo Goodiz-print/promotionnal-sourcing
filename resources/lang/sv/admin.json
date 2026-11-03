@@ -9,7 +9,10 @@
     "label": "Administrationsavsnitt",
     "demand": "Kundefterfrågan",
     "moderation": "Moderering",
-    "agencies": "Byråer"
+    "agencies": "Byråer",
+    "rfqs": "Offertförfrågningar",
+    "quotes": "Offerter",
+    "orders": "Beställningar"
   },
   "pagination": {
     "previous": "Föregående",
@@ -212,7 +215,10 @@
       "moderation.rejected": "Avvisad i modereringen",
       "agency_review.approved": "Byråregistrering godkänd",
       "agency_review.rejected": "Byråregistrering avvisad",
-      "agency_review.info_requested": "Information begärd från en byrå"
+      "agency_review.info_requested": "Information begärd från en byrå",
+      "rfq.closed": "Offertförfrågan stängd",
+      "rfq.expired": "Offertförfrågan har gått ut",
+      "rfq.reminded": "Leverantörer påminda om en förfrågan"
     },
     "targets": {
       "user": "Användare",
@@ -220,7 +226,8 @@
       "attribute": "Attribut",
       "attribute_value": "Attributvärde",
       "organization": "Organisation",
-      "product": "Produkt"
+      "product": "Produkt",
+      "rfq": "Offertförfrågan"
     }
   },
   "demand": {
@@ -422,6 +429,126 @@
       "approved": "Byrån godkänd. Ett e-postmeddelande har skickats.",
       "rejected": "Registreringen avvisad: organisationen är arkiverad.",
       "info_requested": "Informationsbegäran skickad till byrån."
+    }
+  },
+  "trade": {
+    "filters": {
+      "status": "Status",
+      "attention": "Bör följas upp",
+      "buyer": "Köpare",
+      "supplier": "Leverantör",
+      "from": "Skapad från",
+      "to": "Till",
+      "all": "Alla",
+      "apply": "Filtrera",
+      "reset": "Återställ"
+    },
+    "columns": {
+      "buyer": "Köpare",
+      "supplier": "Leverantör",
+      "status": "Status",
+      "amount": "Belopp",
+      "item": "Benämning",
+      "quantity": "Antal",
+      "unitPrice": "Styckpris",
+      "total": "Totalt"
+    },
+    "summary": "Sammanfattning",
+    "lines": "Rader",
+    "view": "Visa"
+  },
+  "rfqs": {
+    "title": "Offertförfrågningar",
+    "subtitle": "Översikt över alla organisationers offertförfrågningar.",
+    "resultsCount": "{count, plural, =0 {Inga förfrågningar} one {# förfrågan} other {# förfrågningar}}",
+    "empty": "Inga förfrågningar med dessa filter.",
+    "emptyDescription": "Ändra filtren för att bredda sökningen.",
+    "back": "Tillbaka till förfrågningarna",
+    "columns": {
+      "title": "Förfrågan",
+      "deadline": "Sista svarsdatum",
+      "recipients": "Mottagare",
+      "responses": "Svar",
+      "quotes": "Offerter",
+      "attention": "Bör följas upp"
+    },
+    "attention": {
+      "overdue": "Tiden har gått ut",
+      "no_response": "Inget svar"
+    },
+    "detail": {
+      "items": "Förfrågans rader",
+      "recipients": "Mottagare",
+      "quotes": "Mottagna offerter",
+      "noRecipients": "Inga mottagare.",
+      "noQuotes": "Inga offerter mottagna.",
+      "sentAt": "Skickad",
+      "remindedAt": "Påmind",
+      "createdBy": "Skapad av",
+      "publishedAt": "Publicerad",
+      "budgetMax": "Maxbudget",
+      "description": "Beskrivning",
+      "unit": "Enhet"
+    },
+    "actions": {
+      "remind": "{count, plural, one {Påminn # leverantör} other {Påminn # leverantörer}}",
+      "expire": "Låt gå ut",
+      "close": "Stäng",
+      "confirmRemind": "{count, plural, one {Påminna # leverantör som inte har svarat?} other {Påminna # leverantörer som inte har svarat?}}",
+      "confirmExpire": "Låta denna förfrågan gå ut? Leverantörer kan då inte längre svara.",
+      "confirmClose": "Stänga denna förfrågan? Åtgärden kan inte ångras."
+    },
+    "done": {
+      "closed": "Förfrågan stängd.",
+      "expired": "Förfrågan har gått ut.",
+      "reminded": "{count, plural, one {# leverantör påmind.} other {# leverantörer påminda.}}"
+    }
+  },
+  "quotes": {
+    "title": "Offerter",
+    "subtitle": "Översikt över offerter som leverantörer har lämnat.",
+    "resultsCount": "{count, plural, =0 {Inga offerter} one {# offert} other {# offerter}}",
+    "empty": "Inga offerter med dessa filter.",
+    "emptyDescription": "Ändra filtren för att bredda sökningen.",
+    "back": "Tillbaka till offerterna",
+    "number": "Offert nr {id}",
+    "columns": {
+      "quote": "Offert",
+      "rfq": "Förfrågan",
+      "submitted": "Lämnad"
+    },
+    "detail": {
+      "validUntil": "Giltig till",
+      "decidedAt": "Beslut",
+      "notes": "Anteckningar",
+      "leadTime": "Ledtid",
+      "days": "{count, plural, one {# dag} other {# dagar}}",
+      "viewRfq": "Visa förfrågan",
+      "viewOrder": "Visa beställningen"
+    }
+  },
+  "orders": {
+    "title": "Beställningar",
+    "subtitle": "Översikt över beställningar på plattformen.",
+    "resultsCount": "{count, plural, =0 {Inga beställningar} one {# beställning} other {# beställningar}}",
+    "empty": "Inga beställningar med dessa filter.",
+    "emptyDescription": "Ändra filtren för att bredda sökningen.",
+    "back": "Tillbaka till beställningarna",
+    "number": "Beställning nr {id}",
+    "columns": {
+      "order": "Beställning",
+      "created": "Skapad"
+    },
+    "detail": {
+      "viewQuote": "Visa offerten",
+      "progress": "Förlopp",
+      "milestones": {
+        "confirmed": "Bekräftad",
+        "inProduction": "I produktion sedan",
+        "shipped": "Skickad",
+        "delivered": "Levererad",
+        "cancelled": "Avbruten"
+      }
     }
   }
 }

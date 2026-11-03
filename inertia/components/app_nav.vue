@@ -66,6 +66,9 @@ const ADMIN_ICONS: Record<string, Component> = {
   attributes: SlidersHorizontal,
   moderation: Gavel,
   agencies: Store,
+  rfqs: FileText,
+  quotes: FileCheck,
+  orders: ShoppingCart,
   demand: Search,
   audit: ScrollText,
 }

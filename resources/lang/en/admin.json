@@ -9,7 +9,10 @@
     "label": "Admin sections",
     "demand": "Customer demand",
     "moderation": "Moderation",
-    "agencies": "Agencies"
+    "agencies": "Agencies",
+    "rfqs": "Quote requests",
+    "quotes": "Quotes",
+    "orders": "Orders"
   },
   "pagination": {
     "previous": "Previous",
@@ -212,7 +215,10 @@
       "moderation.rejected": "Item rejected in moderation",
       "agency_review.approved": "Agency signup approved",
       "agency_review.rejected": "Agency signup rejected",
-      "agency_review.info_requested": "Information requested from an agency"
+      "agency_review.info_requested": "Information requested from an agency",
+      "rfq.closed": "Quote request closed",
+      "rfq.expired": "Quote request expired",
+      "rfq.reminded": "Suppliers reminded about a request"
     },
     "targets": {
       "user": "User",
@@ -220,7 +226,8 @@
       "attribute": "Attribute",
       "attribute_value": "Attribute value",
       "organization": "Organization",
-      "product": "Product"
+      "product": "Product",
+      "rfq": "Quote request"
     }
   },
   "demand": {
@@ -422,6 +429,126 @@
       "approved": "Agency approved. An email was sent.",
       "rejected": "Signup rejected: the organisation is archived.",
       "info_requested": "Information request sent to the agency."
+    }
+  },
+  "trade": {
+    "filters": {
+      "status": "Status",
+      "attention": "Needs attention",
+      "buyer": "Buyer",
+      "supplier": "Supplier",
+      "from": "Created from",
+      "to": "To",
+      "all": "All",
+      "apply": "Filter",
+      "reset": "Reset"
+    },
+    "columns": {
+      "buyer": "Buyer",
+      "supplier": "Supplier",
+      "status": "Status",
+      "amount": "Amount",
+      "item": "Item",
+      "quantity": "Quantity",
+      "unitPrice": "Unit price",
+      "total": "Total"
+    },
+    "summary": "Summary",
+    "lines": "Lines",
+    "view": "View"
+  },
+  "rfqs": {
+    "title": "Quote requests",
+    "subtitle": "Oversight of the quote requests of all organizations.",
+    "resultsCount": "{count, plural, =0 {No requests} one {# request} other {# requests}}",
+    "empty": "No requests match these filters.",
+    "emptyDescription": "Change the filters to widen the search.",
+    "back": "Back to requests",
+    "columns": {
+      "title": "Request",
+      "deadline": "Deadline",
+      "recipients": "Recipients",
+      "responses": "Responses",
+      "quotes": "Quotes",
+      "attention": "Needs attention"
+    },
+    "attention": {
+      "overdue": "Deadline passed",
+      "no_response": "No response"
+    },
+    "detail": {
+      "items": "Request lines",
+      "recipients": "Recipients",
+      "quotes": "Quotes received",
+      "noRecipients": "No recipients.",
+      "noQuotes": "No quotes received.",
+      "sentAt": "Sent on",
+      "remindedAt": "Reminded on",
+      "createdBy": "Created by",
+      "publishedAt": "Published on",
+      "budgetMax": "Maximum budget",
+      "description": "Description",
+      "unit": "Unit"
+    },
+    "actions": {
+      "remind": "{count, plural, one {Remind # supplier} other {Remind # suppliers}}",
+      "expire": "Expire",
+      "close": "Close",
+      "confirmRemind": "{count, plural, one {Remind # supplier that has not responded?} other {Remind # suppliers that have not responded?}}",
+      "confirmExpire": "Expire this request? Suppliers will no longer be able to respond.",
+      "confirmClose": "Close this request? This cannot be undone."
+    },
+    "done": {
+      "closed": "Request closed.",
+      "expired": "Request expired.",
+      "reminded": "{count, plural, one {# supplier reminded.} other {# suppliers reminded.}}"
+    }
+  },
+  "quotes": {
+    "title": "Quotes",
+    "subtitle": "Oversight of the quotes submitted by suppliers.",
+    "resultsCount": "{count, plural, =0 {No quotes} one {# quote} other {# quotes}}",
+    "empty": "No quotes match these filters.",
+    "emptyDescription": "Change the filters to widen the search.",
+    "back": "Back to quotes",
+    "number": "Quote #{id}",
+    "columns": {
+      "quote": "Quote",
+      "rfq": "Request",
+      "submitted": "Submitted on"
+    },
+    "detail": {
+      "validUntil": "Valid until",
+      "decidedAt": "Decided on",
+      "notes": "Notes",
+      "leadTime": "Lead time",
+      "days": "{count, plural, one {# day} other {# days}}",
+      "viewRfq": "View request",
+      "viewOrder": "View order"
+    }
+  },
+  "orders": {
+    "title": "Orders",
+    "subtitle": "Oversight of the orders placed on the platform.",
+    "resultsCount": "{count, plural, =0 {No orders} one {# order} other {# orders}}",
+    "empty": "No orders match these filters.",
+    "emptyDescription": "Change the filters to widen the search.",
+    "back": "Back to orders",
+    "number": "Order #{id}",
+    "columns": {
+      "order": "Order",
+      "created": "Created on"
+    },
+    "detail": {
+      "viewQuote": "View quote",
+      "progress": "Progress",
+      "milestones": {
+        "confirmed": "Confirmed on",
+        "inProduction": "In production on",
+        "shipped": "Shipped on",
+        "delivered": "Delivered on",
+        "cancelled": "Cancelled on"
+      }
     }
   }
 }

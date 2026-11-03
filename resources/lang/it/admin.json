@@ -9,7 +9,10 @@
     "label": "Sezioni di amministrazione",
     "demand": "Domanda dei clienti",
     "moderation": "Moderazione",
-    "agencies": "Agenzie"
+    "agencies": "Agenzie",
+    "rfqs": "Richieste di preventivo",
+    "quotes": "Preventivi",
+    "orders": "Ordini"
   },
   "pagination": {
     "previous": "Precedente",
@@ -212,7 +215,10 @@
       "moderation.rejected": "Elemento rifiutato in moderazione",
       "agency_review.approved": "Iscrizione agenzia approvata",
       "agency_review.rejected": "Iscrizione agenzia respinta",
-      "agency_review.info_requested": "Informazioni richieste a un'agenzia"
+      "agency_review.info_requested": "Informazioni richieste a un'agenzia",
+      "rfq.closed": "Richiesta di preventivo chiusa",
+      "rfq.expired": "Richiesta di preventivo scaduta",
+      "rfq.reminded": "Fornitori sollecitati su una richiesta"
     },
     "targets": {
       "user": "Utente",
@@ -220,7 +226,8 @@
       "attribute": "Attributo",
       "attribute_value": "Valore di attributo",
       "organization": "Organizzazione",
-      "product": "Prodotto"
+      "product": "Prodotto",
+      "rfq": "Richiesta di preventivo"
     }
   },
   "demand": {
@@ -422,6 +429,126 @@
       "approved": "Agenzia approvata. Le è stata inviata un'email.",
       "rejected": "Iscrizione respinta: l'organizzazione è archiviata.",
       "info_requested": "Richiesta di informazioni inviata all'agenzia."
+    }
+  },
+  "trade": {
+    "filters": {
+      "status": "Stato",
+      "attention": "Da monitorare",
+      "buyer": "Acquirente",
+      "supplier": "Fornitore",
+      "from": "Creata dal",
+      "to": "Al",
+      "all": "Tutti",
+      "apply": "Filtra",
+      "reset": "Reimposta"
+    },
+    "columns": {
+      "buyer": "Acquirente",
+      "supplier": "Fornitore",
+      "status": "Stato",
+      "amount": "Importo",
+      "item": "Descrizione",
+      "quantity": "Quantità",
+      "unitPrice": "Prezzo unitario",
+      "total": "Totale"
+    },
+    "summary": "Riepilogo",
+    "lines": "Righe",
+    "view": "Vedi"
+  },
+  "rfqs": {
+    "title": "Richieste di preventivo",
+    "subtitle": "Supervisione delle richieste di preventivo di tutte le organizzazioni.",
+    "resultsCount": "{count, plural, =0 {Nessuna richiesta} one {# richiesta} other {# richieste}}",
+    "empty": "Nessuna richiesta con questi filtri.",
+    "emptyDescription": "Modifica i filtri per ampliare la ricerca.",
+    "back": "Torna alle richieste",
+    "columns": {
+      "title": "Richiesta",
+      "deadline": "Scadenza",
+      "recipients": "Destinatari",
+      "responses": "Risposte",
+      "quotes": "Preventivi",
+      "attention": "Da monitorare"
+    },
+    "attention": {
+      "overdue": "Scadenza superata",
+      "no_response": "Senza risposta"
+    },
+    "detail": {
+      "items": "Righe della richiesta",
+      "recipients": "Destinatari",
+      "quotes": "Preventivi ricevuti",
+      "noRecipients": "Nessun destinatario.",
+      "noQuotes": "Nessun preventivo ricevuto.",
+      "sentAt": "Inviata il",
+      "remindedAt": "Sollecitata il",
+      "createdBy": "Creata da",
+      "publishedAt": "Pubblicata il",
+      "budgetMax": "Budget massimo",
+      "description": "Descrizione",
+      "unit": "Unità"
+    },
+    "actions": {
+      "remind": "{count, plural, one {Sollecita # fornitore} other {Sollecita # fornitori}}",
+      "expire": "Fai scadere",
+      "close": "Chiudi",
+      "confirmRemind": "{count, plural, one {Sollecitare # fornitore che non ha risposto?} other {Sollecitare # fornitori che non hanno risposto?}}",
+      "confirmExpire": "Far scadere questa richiesta? I fornitori non potranno più rispondere.",
+      "confirmClose": "Chiudere questa richiesta? L'azione è definitiva."
+    },
+    "done": {
+      "closed": "Richiesta chiusa.",
+      "expired": "Richiesta scaduta.",
+      "reminded": "{count, plural, one {# fornitore sollecitato.} other {# fornitori sollecitati.}}"
+    }
+  },
+  "quotes": {
+    "title": "Preventivi",
+    "subtitle": "Supervisione dei preventivi inviati dai fornitori.",
+    "resultsCount": "{count, plural, =0 {Nessun preventivo} one {# preventivo} other {# preventivi}}",
+    "empty": "Nessun preventivo con questi filtri.",
+    "emptyDescription": "Modifica i filtri per ampliare la ricerca.",
+    "back": "Torna ai preventivi",
+    "number": "Preventivo n. {id}",
+    "columns": {
+      "quote": "Preventivo",
+      "rfq": "Richiesta",
+      "submitted": "Inviato il"
+    },
+    "detail": {
+      "validUntil": "Valido fino al",
+      "decidedAt": "Decisione il",
+      "notes": "Note",
+      "leadTime": "Tempi",
+      "days": "{count, plural, one {# giorno} other {# giorni}}",
+      "viewRfq": "Vedi la richiesta",
+      "viewOrder": "Vedi l'ordine"
+    }
+  },
+  "orders": {
+    "title": "Ordini",
+    "subtitle": "Supervisione degli ordini effettuati sulla piattaforma.",
+    "resultsCount": "{count, plural, =0 {Nessun ordine} one {# ordine} other {# ordini}}",
+    "empty": "Nessun ordine con questi filtri.",
+    "emptyDescription": "Modifica i filtri per ampliare la ricerca.",
+    "back": "Torna agli ordini",
+    "number": "Ordine n. {id}",
+    "columns": {
+      "order": "Ordine",
+      "created": "Creato il"
+    },
+    "detail": {
+      "viewQuote": "Vedi il preventivo",
+      "progress": "Avanzamento",
+      "milestones": {
+        "confirmed": "Confermato il",
+        "inProduction": "In produzione dal",
+        "shipped": "Spedito il",
+        "delivered": "Consegnato il",
+        "cancelled": "Annullato il"
+      }
     }
   }
 }

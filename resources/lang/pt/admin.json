@@ -9,7 +9,10 @@
     "label": "Secções de administração",
     "demand": "Procura dos clientes",
     "moderation": "Moderação",
-    "agencies": "Agências"
+    "agencies": "Agências",
+    "rfqs": "Pedidos de cotação",
+    "quotes": "Cotações",
+    "orders": "Encomendas"
   },
   "pagination": {
     "previous": "Anterior",
@@ -212,7 +215,10 @@
       "moderation.rejected": "Item rejeitado na moderação",
       "agency_review.approved": "Registo de agência aprovado",
       "agency_review.rejected": "Registo de agência rejeitado",
-      "agency_review.info_requested": "Informações pedidas a uma agência"
+      "agency_review.info_requested": "Informações pedidas a uma agência",
+      "rfq.closed": "Pedido de cotação encerrado",
+      "rfq.expired": "Pedido de cotação expirado",
+      "rfq.reminded": "Fornecedores lembrados sobre um pedido"
     },
     "targets": {
       "user": "Utilizador",
@@ -220,7 +226,8 @@
       "attribute": "Atributo",
       "attribute_value": "Valor de atributo",
       "organization": "Organização",
-      "product": "Produto"
+      "product": "Produto",
+      "rfq": "Pedido de cotação"
     }
   },
   "demand": {
@@ -422,6 +429,126 @@
       "approved": "Agência aprovada. Foi-lhe enviado um email.",
       "rejected": "Registo rejeitado: a organização está arquivada.",
       "info_requested": "Pedido de informações enviado à agência."
+    }
+  },
+  "trade": {
+    "filters": {
+      "status": "Estado",
+      "attention": "A acompanhar",
+      "buyer": "Comprador",
+      "supplier": "Fornecedor",
+      "from": "Criado desde",
+      "to": "Até",
+      "all": "Todos",
+      "apply": "Filtrar",
+      "reset": "Repor"
+    },
+    "columns": {
+      "buyer": "Comprador",
+      "supplier": "Fornecedor",
+      "status": "Estado",
+      "amount": "Montante",
+      "item": "Designação",
+      "quantity": "Quantidade",
+      "unitPrice": "Preço unitário",
+      "total": "Total"
+    },
+    "summary": "Resumo",
+    "lines": "Linhas",
+    "view": "Ver"
+  },
+  "rfqs": {
+    "title": "Pedidos de cotação",
+    "subtitle": "Supervisão dos pedidos de cotação de todas as organizações.",
+    "resultsCount": "{count, plural, =0 {Nenhum pedido} one {# pedido} other {# pedidos}}",
+    "empty": "Nenhum pedido com estes filtros.",
+    "emptyDescription": "Altere os filtros para alargar a pesquisa.",
+    "back": "Voltar aos pedidos",
+    "columns": {
+      "title": "Pedido",
+      "deadline": "Prazo",
+      "recipients": "Destinatários",
+      "responses": "Respostas",
+      "quotes": "Cotações",
+      "attention": "A acompanhar"
+    },
+    "attention": {
+      "overdue": "Prazo ultrapassado",
+      "no_response": "Sem resposta"
+    },
+    "detail": {
+      "items": "Linhas do pedido",
+      "recipients": "Destinatários",
+      "quotes": "Cotações recebidas",
+      "noRecipients": "Nenhum destinatário.",
+      "noQuotes": "Nenhuma cotação recebida.",
+      "sentAt": "Enviado em",
+      "remindedAt": "Lembrado em",
+      "createdBy": "Criado por",
+      "publishedAt": "Publicado em",
+      "budgetMax": "Orçamento máximo",
+      "description": "Descrição",
+      "unit": "Unidade"
+    },
+    "actions": {
+      "remind": "{count, plural, one {Lembrar # fornecedor} other {Lembrar # fornecedores}}",
+      "expire": "Fazer expirar",
+      "close": "Encerrar",
+      "confirmRemind": "{count, plural, one {Lembrar # fornecedor que não respondeu?} other {Lembrar # fornecedores que não responderam?}}",
+      "confirmExpire": "Fazer expirar este pedido? Os fornecedores deixarão de poder responder.",
+      "confirmClose": "Encerrar este pedido? Esta ação é definitiva."
+    },
+    "done": {
+      "closed": "Pedido encerrado.",
+      "expired": "Pedido expirado.",
+      "reminded": "{count, plural, one {# fornecedor lembrado.} other {# fornecedores lembrados.}}"
+    }
+  },
+  "quotes": {
+    "title": "Cotações",
+    "subtitle": "Supervisão das cotações enviadas pelos fornecedores.",
+    "resultsCount": "{count, plural, =0 {Nenhuma cotação} one {# cotação} other {# cotações}}",
+    "empty": "Nenhuma cotação com estes filtros.",
+    "emptyDescription": "Altere os filtros para alargar a pesquisa.",
+    "back": "Voltar às cotações",
+    "number": "Cotação n.º {id}",
+    "columns": {
+      "quote": "Cotação",
+      "rfq": "Pedido",
+      "submitted": "Enviada em"
+    },
+    "detail": {
+      "validUntil": "Válida até",
+      "decidedAt": "Decisão em",
+      "notes": "Notas",
+      "leadTime": "Prazo",
+      "days": "{count, plural, one {# dia} other {# dias}}",
+      "viewRfq": "Ver o pedido",
+      "viewOrder": "Ver a encomenda"
+    }
+  },
+  "orders": {
+    "title": "Encomendas",
+    "subtitle": "Supervisão das encomendas feitas na plataforma.",
+    "resultsCount": "{count, plural, =0 {Nenhuma encomenda} one {# encomenda} other {# encomendas}}",
+    "empty": "Nenhuma encomenda com estes filtros.",
+    "emptyDescription": "Altere os filtros para alargar a pesquisa.",
+    "back": "Voltar às encomendas",
+    "number": "Encomenda n.º {id}",
+    "columns": {
+      "order": "Encomenda",
+      "created": "Criada em"
+    },
+    "detail": {
+      "viewQuote": "Ver a cotação",
+      "progress": "Progresso",
+      "milestones": {
+        "confirmed": "Confirmada em",
+        "inProduction": "Em produção desde",
+        "shipped": "Expedida em",
+        "delivered": "Entregue em",
+        "cancelled": "Cancelada em"
+      }
     }
   }
 }
