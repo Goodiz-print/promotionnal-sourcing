@@ -202,6 +202,11 @@ export interface ApiDefinition {
       show: typeof routes['admin.moderation.show']
       decide: typeof routes['admin.moderation.decide']
     }
+    agencyReviews: {
+      index: typeof routes['admin.agency_reviews.index']
+      show: typeof routes['admin.agency_reviews.show']
+      decide: typeof routes['admin.agency_reviews.decide']
+    }
     demand: {
       index: typeof routes['admin.demand.index']
       export: typeof routes['admin.demand.export']

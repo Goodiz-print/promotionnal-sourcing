@@ -714,6 +714,24 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"moderation"],[1,"type"],[1,"id"],[0,"decision"]],
     types: placeholder as Registry['admin.moderation.decide']['types'],
   },
+  'admin.agency_reviews.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/agency-reviews',
+    tokens: [[1,"locale"],[0,"admin"],[0,"agency-reviews"]],
+    types: placeholder as Registry['admin.agency_reviews.index']['types'],
+  },
+  'admin.agency_reviews.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/agency-reviews/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"agency-reviews"],[1,"id"]],
+    types: placeholder as Registry['admin.agency_reviews.show']['types'],
+  },
+  'admin.agency_reviews.decide': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/agency-reviews/:id/decision',
+    tokens: [[1,"locale"],[0,"admin"],[0,"agency-reviews"],[1,"id"],[0,"decision"]],
+    types: placeholder as Registry['admin.agency_reviews.decide']['types'],
+  },
   'admin.demand.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/demand',

@@ -1431,10 +1431,10 @@ export interface Registry {
       body: {}
       paramsTuple: [ParamValue]
       params: { locale: ParamValue }
-      query: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_period').adminPeriodValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>>
-      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'admin.organizations.index': {
@@ -1539,6 +1539,45 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/moderation_controller').default['decide']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/moderation_controller').default['decide']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/moderation_controller').default['decide']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.agency_reviews.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/agency-reviews'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_agency_review').agencyReviewFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/agency_review_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/agency_review_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/agency_review_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.agency_reviews.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/agency-reviews/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/agency_review_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/agency_review_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/agency_review_controller').default['show']>>>
+    }
+  }
+  'admin.agency_reviews.decide': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/agency-reviews/:id/decision'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_agency_review').agencyReviewDecisionValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_agency_review').agencyReviewDecisionValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/agency_review_controller').default['decide']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/agency_review_controller').default['decide']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/agency_review_controller').default['decide']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'admin.demand.index': {
