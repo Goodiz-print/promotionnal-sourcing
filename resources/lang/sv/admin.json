@@ -6,7 +6,8 @@
     "categories": "Kategorier",
     "audit": "Granskningslogg",
     "attributes": "Attribut",
-    "label": "Administrationsavsnitt"
+    "label": "Administrationsavsnitt",
+    "demand": "Kundefterfrågan"
   },
   "pagination": {
     "previous": "Föregående",
@@ -150,6 +151,84 @@
       "category": "Kategori",
       "attribute": "Attribut",
       "attribute_value": "Attributvärde"
+    }
+  },
+  "demand": {
+    "title": "Vad kunderna söker",
+    "subtitle": "Kundernas sökningar, sökningar utan resultat och visningar under perioden.",
+    "export": "Exportera sökningar (CSV)",
+    "empty": "Inga data för perioden",
+    "modesTitle": "Söklägen",
+    "filters": {
+      "from": "Från",
+      "to": "Till",
+      "source": "Skärm",
+      "locale": "Språk",
+      "organizationType": "Organisationstyp",
+      "all": "Alla"
+    },
+    "sources": {
+      "catalogue": "Katalog",
+      "suppliers": "Leverantörsregister",
+      "rfq_lookup": "Väljare för offertförfrågan"
+    },
+    "organizationTypes": {
+      "buyer": "Köpare",
+      "supplier": "Leverantör",
+      "both": "Köpare och leverantör"
+    },
+    "modes": {
+      "semantic": "Semantisk",
+      "keyword": "Nyckelord",
+      "unavailable": "Sökmotorn är otillgänglig",
+      "browse": "Bläddring efter kategori eller filter"
+    },
+    "summary": {
+      "searches": "Sökningar",
+      "zeroResults": "Utan resultat",
+      "zeroResultRate": "Andel utan resultat",
+      "semanticRate": "Semantisk andel"
+    },
+    "trend": {
+      "title": "Daglig utveckling",
+      "hint": "Antal sökningar per dag."
+    },
+    "topQueries": {
+      "title": "Vanligaste sökningar"
+    },
+    "zeroResults": {
+      "title": "Sökningar utan resultat",
+      "hint": "Möjligheter: produkter som saknas eller synonymer att lägga till."
+    },
+    "categories": {
+      "title": "Mest bläddrade kategorier"
+    },
+    "filtersUsed": {
+      "title": "Mest använda filter"
+    },
+    "viewedProducts": {
+      "title": "Mest visade produkter"
+    },
+    "viewedSuppliers": {
+      "title": "Mest visade leverantörer"
+    },
+    "rfqProducts": {
+      "title": "Mest efterfrågade produkter i offerter",
+      "hint": "Produkter som lagts till i en offertförfrågan."
+    },
+    "columns": {
+      "day": "Dag",
+      "searches": "Sökningar",
+      "zeroResults": "Utan resultat",
+      "averageResults": "Resultat (genomsnitt)",
+      "query": "Sökning",
+      "category": "Kategori",
+      "filter": "Filter",
+      "mode": "Läge",
+      "product": "Produkt",
+      "supplier": "Leverantör",
+      "views": "Visningar",
+      "rfqAdds": "Tillägg"
     }
   }
 }

@@ -119,6 +119,8 @@ export type ScannedRoutes = {
     'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.users.platform_role.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.audit.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.demand.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.demand.export': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -187,6 +189,8 @@ export type ScannedRoutes = {
     'admin.organizations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.audit.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.demand.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.demand.export': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -246,6 +250,8 @@ export type ScannedRoutes = {
     'admin.organizations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.audit.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.demand.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.demand.export': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
