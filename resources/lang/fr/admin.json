@@ -6,7 +6,8 @@
     "categories": "Catégories",
     "audit": "Journal d'audit",
     "attributes": "Attributs",
-    "label": "Sections d'administration"
+    "label": "Sections d'administration",
+    "demand": "Demande clients"
   },
   "pagination": {
     "previous": "Précédent",
@@ -150,6 +151,84 @@
       "category": "Catégorie",
       "attribute": "Attribut",
       "attribute_value": "Valeur d'attribut"
+    }
+  },
+  "demand": {
+    "title": "Ce que cherchent les clients",
+    "subtitle": "Recherches, requêtes sans résultat et consultations des clients sur la période.",
+    "export": "Exporter les requêtes (CSV)",
+    "empty": "Aucune donnée sur cette période",
+    "modesTitle": "Modes de recherche",
+    "filters": {
+      "from": "Du",
+      "to": "Au",
+      "source": "Écran",
+      "locale": "Langue",
+      "organizationType": "Type d'organisation",
+      "all": "Tous"
+    },
+    "sources": {
+      "catalogue": "Catalogue",
+      "suppliers": "Annuaire des fournisseurs",
+      "rfq_lookup": "Sélecteur de demande de devis"
+    },
+    "organizationTypes": {
+      "buyer": "Acheteur",
+      "supplier": "Fournisseur",
+      "both": "Acheteur et fournisseur"
+    },
+    "modes": {
+      "semantic": "Sémantique",
+      "keyword": "Mots-clés",
+      "unavailable": "Moteur indisponible",
+      "browse": "Navigation par catégorie ou filtres"
+    },
+    "summary": {
+      "searches": "Recherches",
+      "zeroResults": "Sans résultat",
+      "zeroResultRate": "Taux sans résultat",
+      "semanticRate": "Part sémantique"
+    },
+    "trend": {
+      "title": "Évolution quotidienne",
+      "hint": "Nombre de recherches par jour."
+    },
+    "topQueries": {
+      "title": "Requêtes les plus fréquentes"
+    },
+    "zeroResults": {
+      "title": "Requêtes sans résultat",
+      "hint": "Opportunités : produits manquants ou synonymes à ajouter."
+    },
+    "categories": {
+      "title": "Catégories les plus parcourues"
+    },
+    "filtersUsed": {
+      "title": "Filtres les plus utilisés"
+    },
+    "viewedProducts": {
+      "title": "Produits les plus consultés"
+    },
+    "viewedSuppliers": {
+      "title": "Fournisseurs les plus consultés"
+    },
+    "rfqProducts": {
+      "title": "Produits les plus demandés en devis",
+      "hint": "Produits ajoutés à une demande de devis."
+    },
+    "columns": {
+      "day": "Jour",
+      "searches": "Recherches",
+      "zeroResults": "Sans résultat",
+      "averageResults": "Résultats (moyenne)",
+      "query": "Requête",
+      "category": "Catégorie",
+      "filter": "Filtre",
+      "mode": "Mode",
+      "product": "Produit",
+      "supplier": "Fournisseur",
+      "views": "Vues",
+      "rfqAdds": "Ajouts"
     }
   }
 }

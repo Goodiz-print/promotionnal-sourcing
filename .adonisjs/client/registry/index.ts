@@ -696,6 +696,18 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"audit"]],
     types: placeholder as Registry['admin.audit.index']['types'],
   },
+  'admin.demand.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/demand',
+    tokens: [[1,"locale"],[0,"admin"],[0,"demand"]],
+    types: placeholder as Registry['admin.demand.index']['types'],
+  },
+  'admin.demand.export': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/demand/export',
+    tokens: [[1,"locale"],[0,"admin"],[0,"demand"],[0,"export"]],
+    types: placeholder as Registry['admin.demand.export']['types'],
+  },
   'admin.categories.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/categories',

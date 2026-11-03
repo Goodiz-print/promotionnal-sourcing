@@ -51,6 +51,18 @@ Types (`ActivityEventService`) : `product_viewed`, `supplier_viewed` (fiches pub
 
 **Funnel** : recherche → vue → ajout à la demande → envoi se reconstitue par utilisateur (`user_id`) et par date tant que le rattachement n'est pas pseudonymisé. Le clic depuis un résultat de recherche n'est pas encore tracé.
 
+## Ce que cherchent les clients
+
+Écran `GET /admin/demand` (`admin.demand.index`, droit `monitoring.view` : rôles `admin` et `analyst`), issue #173 (epic #157). Il lit `search_events` (#171) et `activity_events` (#172) ; toute l'agrégation est dans `AdminDemandService`, le contrôleur ne fait que valider les filtres.
+
+**Filtres** (query string, tous optionnels) : `from` / `to` (`AAAA-MM-JJ`, bornes incluses ; 30 derniers jours par défaut), `source` (`catalogue`, `suppliers`, `rfq_lookup`), `locale` (langue de l'interface au moment de la recherche), `organizationType` (`buyer`, `supplier`, `both`, d'après l'organisation de l'utilisateur ; les visiteurs anonymes sont exclus dès qu'on filtre). Une valeur invalide est refusée par la validation (`app/validators/admin_demand.ts`).
+
+**Contenu** : synthèse (recherches, sans résultat, taux sans résultat, part sémantique), évolution quotidienne, requêtes les plus fréquentes, requêtes sans résultat (opportunités de catalogue ou de synonymes), catégories parcourues, filtres les plus utilisés, modes de recherche, produits et fournisseurs les plus consultés, produits les plus ajoutés aux demandes de devis. Classements limités à 20 lignes. Le « graphique » d'évolution est un tableau avec barres décoratives (`aria-hidden`) : les chiffres restent accessibles.
+
+**Export** : `GET /admin/demand/export` (`admin.demand.export`) renvoie en CSV (`;`, UTF-8 avec BOM) toutes les requêtes de la période, avec les mêmes filtres. Un terme commençant par `=`, `+`, `-` ou `@` est préfixé d'une apostrophe pour ne pas s'exécuter comme formule dans un tableur.
+
+**Limites** : les libellés de catégories et de produits suivent la langue de l'écran, avec repli sur le français ; les noms de filtres sont les clés techniques. Les index existants (`created_at`, `(source, created_at)`, `(query, created_at)`) couvrent ces lectures ; les durées de rétention (24 mois) bornent le volume.
+
 ## Tests
 
 - `tests/unit/platform_permissions.spec.ts` : matrice rôle → droits.
@@ -59,3 +71,4 @@ Types (`ActivityEventService`) : `product_viewed`, `supplier_viewed` (fiches pub
 - `tests/inertia/admin_users.spec.ts`, `tests/inertia/admin_audit.spec.ts` : écrans.
 - Factories : `UserFactory.apply('platformAdmin' | 'platformModerator' | 'platformSupport' | 'platformAnalyst')`, `AdminAuditLogFactory`.
 - `tests/functional/activity_events.spec.ts` : consultations et rétention. Factory : `ActivityEventFactory`.
+- `tests/functional/admin_demand.spec.ts` : droits par rôle, agrégations, filtres, export CSV.

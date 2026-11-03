@@ -6,7 +6,8 @@
     "categories": "Categorías",
     "audit": "Registro de auditoría",
     "attributes": "Atributos",
-    "label": "Secciones de administración"
+    "label": "Secciones de administración",
+    "demand": "Demanda de clientes"
   },
   "pagination": {
     "previous": "Anterior",
@@ -150,6 +151,84 @@
       "category": "Categoría",
       "attribute": "Atributo",
       "attribute_value": "Valor de atributo"
+    }
+  },
+  "demand": {
+    "title": "Lo que buscan los clientes",
+    "subtitle": "Búsquedas, consultas sin resultado y visitas de los clientes en el período.",
+    "export": "Exportar consultas (CSV)",
+    "empty": "Sin datos en este período",
+    "modesTitle": "Modos de búsqueda",
+    "filters": {
+      "from": "Desde",
+      "to": "Hasta",
+      "source": "Pantalla",
+      "locale": "Idioma",
+      "organizationType": "Tipo de organización",
+      "all": "Todos"
+    },
+    "sources": {
+      "catalogue": "Catálogo",
+      "suppliers": "Directorio de proveedores",
+      "rfq_lookup": "Selector de solicitud de presupuesto"
+    },
+    "organizationTypes": {
+      "buyer": "Comprador",
+      "supplier": "Proveedor",
+      "both": "Comprador y proveedor"
+    },
+    "modes": {
+      "semantic": "Semántica",
+      "keyword": "Palabras clave",
+      "unavailable": "Motor no disponible",
+      "browse": "Navegación por categoría o filtros"
+    },
+    "summary": {
+      "searches": "Búsquedas",
+      "zeroResults": "Sin resultado",
+      "zeroResultRate": "Tasa sin resultado",
+      "semanticRate": "Parte semántica"
+    },
+    "trend": {
+      "title": "Evolución diaria",
+      "hint": "Número de búsquedas por día."
+    },
+    "topQueries": {
+      "title": "Consultas más frecuentes"
+    },
+    "zeroResults": {
+      "title": "Consultas sin resultado",
+      "hint": "Oportunidades: productos que faltan o sinónimos que añadir."
+    },
+    "categories": {
+      "title": "Categorías más exploradas"
+    },
+    "filtersUsed": {
+      "title": "Filtros más usados"
+    },
+    "viewedProducts": {
+      "title": "Productos más vistos"
+    },
+    "viewedSuppliers": {
+      "title": "Proveedores más vistos"
+    },
+    "rfqProducts": {
+      "title": "Productos más pedidos en presupuestos",
+      "hint": "Productos añadidos a una solicitud de presupuesto."
+    },
+    "columns": {
+      "day": "Día",
+      "searches": "Búsquedas",
+      "zeroResults": "Sin resultado",
+      "averageResults": "Resultados (media)",
+      "query": "Consulta",
+      "category": "Categoría",
+      "filter": "Filtro",
+      "mode": "Modo",
+      "product": "Producto",
+      "supplier": "Proveedor",
+      "views": "Vistas",
+      "rfqAdds": "Adiciones"
     }
   }
 }

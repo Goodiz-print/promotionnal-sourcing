@@ -1502,6 +1502,32 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/audit_log_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'admin.demand.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/demand'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/demand_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/demand_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/demand_controller').default['index']>>>
+    }
+  }
+  'admin.demand.export': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/demand/export'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/demand_controller').default['export']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/demand_controller').default['export']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/demand_controller').default['export']>>>
+    }
+  }
   'admin.categories.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/categories'

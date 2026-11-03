@@ -6,7 +6,8 @@
     "categories": "Categorieën",
     "audit": "Auditlogboek",
     "attributes": "Attributen",
-    "label": "Beheersecties"
+    "label": "Beheersecties",
+    "demand": "Klantvraag"
   },
   "pagination": {
     "previous": "Vorige",
@@ -150,6 +151,84 @@
       "category": "Categorie",
       "attribute": "Attribuut",
       "attribute_value": "Attribuutwaarde"
+    }
+  },
+  "demand": {
+    "title": "Wat klanten zoeken",
+    "subtitle": "Zoekopdrachten, zoekopdrachten zonder resultaat en weergaven van klanten in de periode.",
+    "export": "Zoekopdrachten exporteren (CSV)",
+    "empty": "Geen gegevens in deze periode",
+    "modesTitle": "Zoekmodi",
+    "filters": {
+      "from": "Van",
+      "to": "Tot",
+      "source": "Scherm",
+      "locale": "Taal",
+      "organizationType": "Type organisatie",
+      "all": "Alle"
+    },
+    "sources": {
+      "catalogue": "Catalogus",
+      "suppliers": "Leveranciersgids",
+      "rfq_lookup": "Keuzelijst voor offerteaanvragen"
+    },
+    "organizationTypes": {
+      "buyer": "Koper",
+      "supplier": "Leverancier",
+      "both": "Koper en leverancier"
+    },
+    "modes": {
+      "semantic": "Semantisch",
+      "keyword": "Trefwoorden",
+      "unavailable": "Zoekmachine niet beschikbaar",
+      "browse": "Bladeren op categorie of filters"
+    },
+    "summary": {
+      "searches": "Zoekopdrachten",
+      "zeroResults": "Zonder resultaat",
+      "zeroResultRate": "Percentage zonder resultaat",
+      "semanticRate": "Semantisch aandeel"
+    },
+    "trend": {
+      "title": "Dagelijks verloop",
+      "hint": "Aantal zoekopdrachten per dag."
+    },
+    "topQueries": {
+      "title": "Meest voorkomende zoekopdrachten"
+    },
+    "zeroResults": {
+      "title": "Zoekopdrachten zonder resultaat",
+      "hint": "Kansen: ontbrekende producten of toe te voegen synoniemen."
+    },
+    "categories": {
+      "title": "Meest bekeken categorieën"
+    },
+    "filtersUsed": {
+      "title": "Meest gebruikte filters"
+    },
+    "viewedProducts": {
+      "title": "Meest bekeken producten"
+    },
+    "viewedSuppliers": {
+      "title": "Meest bekeken leveranciers"
+    },
+    "rfqProducts": {
+      "title": "Meest aangevraagde producten in offertes",
+      "hint": "Producten toegevoegd aan een offerteaanvraag."
+    },
+    "columns": {
+      "day": "Dag",
+      "searches": "Zoekopdrachten",
+      "zeroResults": "Zonder resultaat",
+      "averageResults": "Resultaten (gemiddeld)",
+      "query": "Zoekopdracht",
+      "category": "Categorie",
+      "filter": "Filter",
+      "mode": "Modus",
+      "product": "Product",
+      "supplier": "Leverancier",
+      "views": "Weergaven",
+      "rfqAdds": "Toevoegingen"
     }
   }
 }

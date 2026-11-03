@@ -6,7 +6,8 @@
     "categories": "Kategorien",
     "audit": "Audit-Protokoll",
     "attributes": "Attribute",
-    "label": "Administrationsbereiche"
+    "label": "Administrationsbereiche",
+    "demand": "Kundennachfrage"
   },
   "pagination": {
     "previous": "Zurück",
@@ -150,6 +151,84 @@
       "category": "Kategorie",
       "attribute": "Attribut",
       "attribute_value": "Attributwert"
+    }
+  },
+  "demand": {
+    "title": "Was Kunden suchen",
+    "subtitle": "Suchanfragen, Anfragen ohne Ergebnis und Aufrufe der Kunden im Zeitraum.",
+    "export": "Anfragen exportieren (CSV)",
+    "empty": "Keine Daten für diesen Zeitraum",
+    "modesTitle": "Suchmodi",
+    "filters": {
+      "from": "Von",
+      "to": "Bis",
+      "source": "Bildschirm",
+      "locale": "Sprache",
+      "organizationType": "Organisationstyp",
+      "all": "Alle"
+    },
+    "sources": {
+      "catalogue": "Katalog",
+      "suppliers": "Lieferantenverzeichnis",
+      "rfq_lookup": "Auswahl für Angebotsanfragen"
+    },
+    "organizationTypes": {
+      "buyer": "Käufer",
+      "supplier": "Lieferant",
+      "both": "Käufer und Lieferant"
+    },
+    "modes": {
+      "semantic": "Semantisch",
+      "keyword": "Stichwörter",
+      "unavailable": "Suchmaschine nicht verfügbar",
+      "browse": "Stöbern nach Kategorie oder Filtern"
+    },
+    "summary": {
+      "searches": "Suchanfragen",
+      "zeroResults": "Ohne Ergebnis",
+      "zeroResultRate": "Quote ohne Ergebnis",
+      "semanticRate": "Semantischer Anteil"
+    },
+    "trend": {
+      "title": "Tagesverlauf",
+      "hint": "Anzahl der Suchanfragen pro Tag."
+    },
+    "topQueries": {
+      "title": "Häufigste Anfragen"
+    },
+    "zeroResults": {
+      "title": "Anfragen ohne Ergebnis",
+      "hint": "Chancen: fehlende Produkte oder Synonyme hinzufügen."
+    },
+    "categories": {
+      "title": "Meistdurchsuchte Kategorien"
+    },
+    "filtersUsed": {
+      "title": "Meistgenutzte Filter"
+    },
+    "viewedProducts": {
+      "title": "Meistaufgerufene Produkte"
+    },
+    "viewedSuppliers": {
+      "title": "Meistaufgerufene Lieferanten"
+    },
+    "rfqProducts": {
+      "title": "In Angeboten meistgefragte Produkte",
+      "hint": "Zu einer Angebotsanfrage hinzugefügte Produkte."
+    },
+    "columns": {
+      "day": "Tag",
+      "searches": "Suchanfragen",
+      "zeroResults": "Ohne Ergebnis",
+      "averageResults": "Ergebnisse (Durchschnitt)",
+      "query": "Anfrage",
+      "category": "Kategorie",
+      "filter": "Filter",
+      "mode": "Modus",
+      "product": "Produkt",
+      "supplier": "Lieferant",
+      "views": "Aufrufe",
+      "rfqAdds": "Hinzufügungen"
     }
   }
 }

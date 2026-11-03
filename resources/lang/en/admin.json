@@ -6,7 +6,8 @@
     "categories": "Categories",
     "audit": "Audit log",
     "attributes": "Attributes",
-    "label": "Admin sections"
+    "label": "Admin sections",
+    "demand": "Customer demand"
   },
   "pagination": {
     "previous": "Previous",
@@ -150,6 +151,84 @@
       "category": "Category",
       "attribute": "Attribute",
       "attribute_value": "Attribute value"
+    }
+  },
+  "demand": {
+    "title": "What customers are looking for",
+    "subtitle": "Customer searches, zero-result queries and views over the period.",
+    "export": "Export queries (CSV)",
+    "empty": "No data for this period",
+    "modesTitle": "Search modes",
+    "filters": {
+      "from": "From",
+      "to": "To",
+      "source": "Screen",
+      "locale": "Language",
+      "organizationType": "Organisation type",
+      "all": "All"
+    },
+    "sources": {
+      "catalogue": "Catalogue",
+      "suppliers": "Supplier directory",
+      "rfq_lookup": "Quote request picker"
+    },
+    "organizationTypes": {
+      "buyer": "Buyer",
+      "supplier": "Supplier",
+      "both": "Buyer and supplier"
+    },
+    "modes": {
+      "semantic": "Semantic",
+      "keyword": "Keywords",
+      "unavailable": "Engine unavailable",
+      "browse": "Browsing by category or filters"
+    },
+    "summary": {
+      "searches": "Searches",
+      "zeroResults": "No results",
+      "zeroResultRate": "Zero-result rate",
+      "semanticRate": "Semantic share"
+    },
+    "trend": {
+      "title": "Daily trend",
+      "hint": "Number of searches per day."
+    },
+    "topQueries": {
+      "title": "Most frequent queries"
+    },
+    "zeroResults": {
+      "title": "Zero-result queries",
+      "hint": "Opportunities: missing products or synonyms to add."
+    },
+    "categories": {
+      "title": "Most browsed categories"
+    },
+    "filtersUsed": {
+      "title": "Most used filters"
+    },
+    "viewedProducts": {
+      "title": "Most viewed products"
+    },
+    "viewedSuppliers": {
+      "title": "Most viewed suppliers"
+    },
+    "rfqProducts": {
+      "title": "Products most requested in quotes",
+      "hint": "Products added to a quote request."
+    },
+    "columns": {
+      "day": "Day",
+      "searches": "Searches",
+      "zeroResults": "No results",
+      "averageResults": "Results (average)",
+      "query": "Query",
+      "category": "Category",
+      "filter": "Filter",
+      "mode": "Mode",
+      "product": "Product",
+      "supplier": "Supplier",
+      "views": "Views",
+      "rfqAdds": "Additions"
     }
   }
 }
