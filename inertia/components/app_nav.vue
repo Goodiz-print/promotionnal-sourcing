@@ -55,8 +55,17 @@ const props = withDefaults(defineProps<{ collapsed?: boolean }>(), { collapsed: 
 const page = usePage<Data.SharedProps>()
 const { t, locale } = useI18n()
 
+/**
+ * Le back-office sert à administrer les acheteurs, fournisseurs et agences : il
+ * n'affiche donc pas leurs entrées de menu, seulement celle de l'administration.
+ */
+const inBackOffice = computed(() => page.component.startsWith('admin/'))
+
 const groups = computed(() => {
-  const items = (page.props.navigation ?? []).map((item) => {
+  const visible = (page.props.navigation ?? []).filter(
+    (item) => !inBackOffice.value || item.key === 'admin'
+  )
+  const items = visible.map((item) => {
     const href = urlFor(item.route, { locale: locale.value })
     const meta = NAV_META[item.key] ?? { icon: Package, group: 'explore' as NavGroup }
     return { ...item, href, active: isActivePath(page.url, href), ...meta }
