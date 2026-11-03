@@ -24,7 +24,66 @@
       "rfqs": "Offerteaanvragen",
       "pendingModeration": "Te modereren"
     },
-    "archived": "{count, plural, =0 {Geen gearchiveerd} one {# gearchiveerd} other {# gearchiveerd}}"
+    "archived": "{count, plural, =0 {Geen gearchiveerd} one {# gearchiveerd} other {# gearchiveerd}}",
+    "kpi": {
+      "none": "—",
+      "previous": "Vorige periode: {value}",
+      "filters": {
+        "from": "Van",
+        "to": "Tot",
+        "hint": "Elke indicator wordt vergeleken met de vorige periode van dezelfde duur (maximaal 366 dagen)."
+      },
+      "groups": {
+        "accounts": "Accounts",
+        "rfqs": "Offerteaanvragen",
+        "quotes": "Offertes",
+        "orders": "Bestellingen",
+        "catalogue": "Catalogus",
+        "toHandle": "Te behandelen",
+        "daily": "Dagelijkse activiteit"
+      },
+      "metrics": {
+        "newOrganizations": "Nieuwe organisaties",
+        "newUsers": "Nieuwe gebruikers",
+        "activeUsers": "Actieve gebruikers",
+        "rfqsCreated": "Aangemaakte aanvragen",
+        "rfqsPublished": "Gepubliceerde aanvragen",
+        "publicationDelay": "Tijd tot publicatie",
+        "responseRate": "Responspercentage leveranciers",
+        "declineRate": "Weigeringspercentage leveranciers",
+        "quotesSubmitted": "Ingediende offertes",
+        "quotesAccepted": "Geaccepteerde offertes",
+        "quotesRejected": "Afgewezen offertes",
+        "decisionDelay": "Tijd tot beslissing",
+        "ordersCreated": "Aangemaakte bestellingen",
+        "quoteToOrder": "Conversie offerte → bestelling",
+        "deliveryDelay": "Levertijd",
+        "gmv": "Omzetvolume ({currency})",
+        "agencyReviews": "Te beoordelen bureaus"
+      },
+      "agencyReviewsHint": "Niet-gearchiveerde bureaus met een beoordelingsreden.",
+      "organizationTypes": "Nieuwe organisaties per type",
+      "rfqStatuses": "Aangemaakte aanvragen per status",
+      "lifecycle": "Producten per status",
+      "coverage": "Vertalingsdekking",
+      "coverageHint": "Aandeel producten dat in elke taal is vertaald.",
+      "columns": {
+        "type": "Type",
+        "status": "Status",
+        "count": "Aantal",
+        "locale": "Taal",
+        "coverage": "Dekking"
+      },
+      "dailyHint": "Nieuwe organisaties en gebruikers, gepubliceerde aanvragen, ingediende offertes en bestellingen, dag per dag.",
+      "daily": {
+        "activity": "Activiteit",
+        "organizations": "Organisaties",
+        "users": "Gebruikers",
+        "rfqs": "Aanvragen",
+        "quotes": "Offertes",
+        "orders": "Bestellingen"
+      }
+    }
   },
   "organizations": {
     "title": "Organisaties",

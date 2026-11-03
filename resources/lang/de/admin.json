@@ -24,7 +24,66 @@
       "rfqs": "Angebotsanfragen",
       "pendingModeration": "Zu moderieren"
     },
-    "archived": "{count, plural, =0 {Keine archiviert} one {# archiviert} other {# archiviert}}"
+    "archived": "{count, plural, =0 {Keine archiviert} one {# archiviert} other {# archiviert}}",
+    "kpi": {
+      "none": "—",
+      "previous": "Vorherige Periode: {value}",
+      "filters": {
+        "from": "Von",
+        "to": "Bis",
+        "hint": "Jede Kennzahl wird mit der vorherigen Periode gleicher Länge verglichen (maximal 366 Tage)."
+      },
+      "groups": {
+        "accounts": "Konten",
+        "rfqs": "Angebotsanfragen",
+        "quotes": "Angebote",
+        "orders": "Bestellungen",
+        "catalogue": "Katalog",
+        "toHandle": "Zu bearbeiten",
+        "daily": "Tägliche Aktivität"
+      },
+      "metrics": {
+        "newOrganizations": "Neue Organisationen",
+        "newUsers": "Neue Nutzer",
+        "activeUsers": "Aktive Nutzer",
+        "rfqsCreated": "Erstellte Anfragen",
+        "rfqsPublished": "Veröffentlichte Anfragen",
+        "publicationDelay": "Zeit bis zur Veröffentlichung",
+        "responseRate": "Antwortquote der Lieferanten",
+        "declineRate": "Ablehnungsquote der Lieferanten",
+        "quotesSubmitted": "Eingereichte Angebote",
+        "quotesAccepted": "Angenommene Angebote",
+        "quotesRejected": "Abgelehnte Angebote",
+        "decisionDelay": "Zeit bis zur Entscheidung",
+        "ordersCreated": "Erstellte Bestellungen",
+        "quoteToOrder": "Konversion Angebot → Bestellung",
+        "deliveryDelay": "Lieferzeit",
+        "gmv": "Bestellvolumen ({currency})",
+        "agencyReviews": "Zu prüfende Agenturen"
+      },
+      "agencyReviewsHint": "Nicht archivierte Agenturen mit einem Prüfgrund.",
+      "organizationTypes": "Neue Organisationen nach Typ",
+      "rfqStatuses": "Erstellte Anfragen nach Status",
+      "lifecycle": "Produkte nach Status",
+      "coverage": "Übersetzungsabdeckung",
+      "coverageHint": "Anteil der Produkte, die in jede Sprache übersetzt sind.",
+      "columns": {
+        "type": "Typ",
+        "status": "Status",
+        "count": "Anzahl",
+        "locale": "Sprache",
+        "coverage": "Abdeckung"
+      },
+      "dailyHint": "Neue Organisationen und Nutzer, veröffentlichte Anfragen, eingereichte Angebote und Bestellungen, Tag für Tag.",
+      "daily": {
+        "activity": "Aktivität",
+        "organizations": "Organisationen",
+        "users": "Nutzer",
+        "rfqs": "Anfragen",
+        "quotes": "Angebote",
+        "orders": "Bestellungen"
+      }
+    }
   },
   "organizations": {
     "title": "Organisationen",

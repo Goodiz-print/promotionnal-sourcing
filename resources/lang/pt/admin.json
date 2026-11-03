@@ -24,7 +24,66 @@
       "rfqs": "Pedidos de orçamento",
       "pendingModeration": "A moderar"
     },
-    "archived": "{count, plural, =0 {Nenhum arquivado} one {# arquivado} other {# arquivados}}"
+    "archived": "{count, plural, =0 {Nenhum arquivado} one {# arquivado} other {# arquivados}}",
+    "kpi": {
+      "none": "—",
+      "previous": "Período anterior: {value}",
+      "filters": {
+        "from": "De",
+        "to": "Até",
+        "hint": "Cada indicador é comparado com o período anterior da mesma duração (máximo de 366 dias)."
+      },
+      "groups": {
+        "accounts": "Contas",
+        "rfqs": "Pedidos de orçamento",
+        "quotes": "Orçamentos",
+        "orders": "Encomendas",
+        "catalogue": "Catálogo",
+        "toHandle": "A tratar",
+        "daily": "Atividade diária"
+      },
+      "metrics": {
+        "newOrganizations": "Novas organizações",
+        "newUsers": "Novos utilizadores",
+        "activeUsers": "Utilizadores ativos",
+        "rfqsCreated": "Pedidos criados",
+        "rfqsPublished": "Pedidos publicados",
+        "publicationDelay": "Prazo de publicação",
+        "responseRate": "Taxa de resposta dos fornecedores",
+        "declineRate": "Taxa de recusa dos fornecedores",
+        "quotesSubmitted": "Orçamentos enviados",
+        "quotesAccepted": "Orçamentos aceites",
+        "quotesRejected": "Orçamentos recusados",
+        "decisionDelay": "Prazo de decisão",
+        "ordersCreated": "Encomendas criadas",
+        "quoteToOrder": "Conversão orçamento → encomenda",
+        "deliveryDelay": "Prazo de entrega",
+        "gmv": "Volume de negócios ({currency})",
+        "agencyReviews": "Agências a rever"
+      },
+      "agencyReviewsHint": "Agências não arquivadas com um motivo de revisão.",
+      "organizationTypes": "Novas organizações por tipo",
+      "rfqStatuses": "Pedidos criados por estado",
+      "lifecycle": "Produtos por estado",
+      "coverage": "Cobertura de tradução",
+      "coverageHint": "Proporção de produtos traduzidos em cada idioma.",
+      "columns": {
+        "type": "Tipo",
+        "status": "Estado",
+        "count": "Quantidade",
+        "locale": "Idioma",
+        "coverage": "Cobertura"
+      },
+      "dailyHint": "Novas organizações e utilizadores, pedidos publicados, orçamentos enviados e encomendas, dia a dia.",
+      "daily": {
+        "activity": "Atividade",
+        "organizations": "Organizações",
+        "users": "Utilizadores",
+        "rfqs": "Pedidos",
+        "quotes": "Orçamentos",
+        "orders": "Encomendas"
+      }
+    }
   },
   "organizations": {
     "title": "Organizações",

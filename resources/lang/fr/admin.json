@@ -24,7 +24,66 @@
       "rfqs": "Demandes de devis",
       "pendingModeration": "À modérer"
     },
-    "archived": "{count, plural, =0 {Aucune archivée} one {# archivée} other {# archivées}}"
+    "archived": "{count, plural, =0 {Aucune archivée} one {# archivée} other {# archivées}}",
+    "kpi": {
+      "none": "—",
+      "previous": "Période précédente : {value}",
+      "filters": {
+        "from": "Du",
+        "to": "Au",
+        "hint": "Chaque indicateur est comparé à la période précédente de même durée (plafond : 366 jours)."
+      },
+      "groups": {
+        "accounts": "Comptes",
+        "rfqs": "Demandes de devis",
+        "quotes": "Devis",
+        "orders": "Commandes",
+        "catalogue": "Catalogue",
+        "toHandle": "À traiter",
+        "daily": "Activité quotidienne"
+      },
+      "metrics": {
+        "newOrganizations": "Nouvelles organisations",
+        "newUsers": "Nouveaux utilisateurs",
+        "activeUsers": "Utilisateurs actifs",
+        "rfqsCreated": "Demandes créées",
+        "rfqsPublished": "Demandes publiées",
+        "publicationDelay": "Délai de publication",
+        "responseRate": "Taux de réponse des fournisseurs",
+        "declineRate": "Taux de refus des fournisseurs",
+        "quotesSubmitted": "Devis remis",
+        "quotesAccepted": "Devis acceptés",
+        "quotesRejected": "Devis refusés",
+        "decisionDelay": "Délai de décision",
+        "ordersCreated": "Commandes créées",
+        "quoteToOrder": "Conversion devis → commande",
+        "deliveryDelay": "Délai de livraison",
+        "gmv": "Volume d'affaires ({currency})",
+        "agencyReviews": "Agences à revoir"
+      },
+      "agencyReviewsHint": "Agences non archivées avec un motif de revue.",
+      "organizationTypes": "Nouvelles organisations par type",
+      "rfqStatuses": "Demandes créées par statut",
+      "lifecycle": "Produits par statut",
+      "coverage": "Couverture de traduction",
+      "coverageHint": "Part des produits traduits dans chaque langue.",
+      "columns": {
+        "type": "Type",
+        "status": "Statut",
+        "count": "Nombre",
+        "locale": "Langue",
+        "coverage": "Couverture"
+      },
+      "dailyHint": "Nouvelles organisations et utilisateurs, demandes publiées, devis remis et commandes, jour par jour.",
+      "daily": {
+        "activity": "Activité",
+        "organizations": "Organisations",
+        "users": "Utilisateurs",
+        "rfqs": "Demandes",
+        "quotes": "Devis",
+        "orders": "Commandes"
+      }
+    }
   },
   "organizations": {
     "title": "Organisations",
