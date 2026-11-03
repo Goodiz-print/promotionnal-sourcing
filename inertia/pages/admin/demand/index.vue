@@ -4,21 +4,18 @@ import { Head, router } from '@inertiajs/vue3'
 import { Download, Search, SearchX, Sparkles, TrendingUp } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { useAdminTabs } from '~/composables/use_admin_tabs'
 import DemandFilters from '~/components/admin/demand_filters.vue'
 import DemandRanking from '~/components/admin/demand_ranking.vue'
 import type { RankingRow } from '~/components/admin/types'
 import DemandTrend from '~/components/admin/demand_trend.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseStat from '~/components/base/base_stat.vue'
-import BaseTabs from '~/components/base/base_tabs.vue'
 import { BUTTON_BASE_CLASSES, BUTTON_SIZE_CLASSES, BUTTON_VARIANT_CLASSES } from '~/types/ui'
 import type { AdminDemandFilters, AdminDemandReport } from '#shared/types/admin_demand'
 
 const props = defineProps<{ report: AdminDemandReport; filters: AdminDemandFilters }>()
 
 const { t, locale } = useI18n()
-const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 
 function params(filters: AdminDemandFilters) {
   return {
@@ -110,8 +107,6 @@ const categoryRows = computed<RankingRow[]>(() =>
         </a>
       </template>
     </BasePageHeader>
-
-    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
     <DemandFilters :filters="filters" @change="visit" />
 

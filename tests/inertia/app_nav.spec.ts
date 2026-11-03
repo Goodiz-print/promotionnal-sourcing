@@ -12,9 +12,18 @@ const translations: Record<string, string> = {
   'common.nav.groups.explore': 'Explorer',
   'common.nav.groups.buying': 'Achats',
   'common.nav.groups.organization': 'Organisation',
+  'admin.nav.dashboard': 'Tableau de bord',
+  'admin.nav.users': 'Utilisateurs',
+  'admin.nav.audit': "Journal d'audit",
 }
 
-const pageState: { url: string; component: string; navigation: NavigationItemType[] } = {
+const pageState: {
+  url: string
+  component: string
+  platformRole: string
+  navigation: NavigationItemType[]
+} = {
+  platformRole: 'admin',
   url: '/fr',
   component: 'dashboard/show',
   navigation: [],
@@ -29,6 +38,7 @@ vi.mock('@inertiajs/vue3', () => ({
       supportedLocales: ['fr', 'en'],
       translations,
       navigation: pageState.navigation,
+      user: { platformRole: pageState.platformRole },
     },
   }),
 }))
@@ -53,10 +63,11 @@ describe('AppNav', () => {
   beforeEach(() => {
     pageState.url = '/fr'
     pageState.component = 'dashboard/show'
+    pageState.platformRole = 'admin'
     pageState.navigation = []
   })
 
-  it("n'affiche que l'entrée d'administration dans le back-office", () => {
+  it("remplace le menu par les sections d'administration dans le back-office", () => {
     pageState.component = 'admin/dashboard'
     pageState.navigation = [
       item('dashboard', 'dashboard.show'),
@@ -67,7 +78,20 @@ describe('AppNav', () => {
 
     const links = mount(AppNav).findAll('a')
 
-    expect(links).toHaveLength(1)
+    expect(links).toHaveLength(9)
+    expect(links.map((link) => link.text())).not.toContain('Mes demandes de devis')
+  })
+
+  it('ne montre que les sections permises par le rôle plateforme', () => {
+    pageState.component = 'admin/dashboard'
+    pageState.platformRole = 'support'
+
+    const labels = mount(AppNav)
+      .findAll('a')
+      .map((link) => link.text())
+
+    expect(labels).not.toContain("Journal d'audit")
+    expect(labels).toContain('Utilisateurs')
   })
 
   it('garde toutes les entrées hors du back-office', () => {

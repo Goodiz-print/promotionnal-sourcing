@@ -5,20 +5,17 @@ import { Link } from '@adonisjs/inertia/vue'
 import { ListFilter, Plus, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { useAdminTabs } from '~/composables/use_admin_tabs'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import BaseIconButton from '~/components/base/base_icon_button.vue'
 import BaseLinkButton from '~/components/base/base_link_button.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseTable from '~/components/base/base_table.vue'
-import BaseTabs from '~/components/base/base_tabs.vue'
 import type { AttributeAdminType } from '#shared/types/attribute'
 
 defineProps<{ attributes: AttributeAdminType[] }>()
 
 const { t, locale } = useI18n()
-const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 
 const createUrl = computed(() => urlFor('admin.attributes.create', { locale: locale.value }))
 
@@ -46,8 +43,6 @@ function destroy(attribute: AttributeAdminType) {
         </BaseLinkButton>
       </template>
     </BasePageHeader>
-
-    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
     <BaseEmptyState
       v-if="attributes.length === 0"

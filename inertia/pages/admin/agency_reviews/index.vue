@@ -3,7 +3,6 @@ import { Head, router } from '@inertiajs/vue3'
 import { ShieldCheck } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { useAdminTabs } from '~/composables/use_admin_tabs'
 import AgencyReviewFilters from '~/components/admin/agency_review_filters.vue'
 import AgencyReviewStatusBadge from '~/components/admin/agency_review_status_badge.vue'
 import BaseBadge from '~/components/base/base_badge.vue'
@@ -12,7 +11,6 @@ import BaseLinkButton from '~/components/base/base_link_button.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BasePagination from '~/components/base/base_pagination.vue'
 import BaseTable from '~/components/base/base_table.vue'
-import BaseTabs from '~/components/base/base_tabs.vue'
 import type { AdminAgencyReviewFilters, AdminAgencyReviewItem } from '#shared/types/agency_review'
 import type { Paginated } from '#shared/types/pagination'
 
@@ -22,7 +20,6 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
-const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 
 let current = { ...props.filters }
 
@@ -49,8 +46,6 @@ const showUrl = (item: AdminAgencyReviewItem) =>
       :title="t('admin.agencyReviews.title')"
       :description="t('admin.agencyReviews.subtitle')"
     />
-
-    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
     <AgencyReviewFilters :filters="filters" @change="visit" />
 

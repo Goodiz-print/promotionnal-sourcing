@@ -4,7 +4,6 @@ import { Head } from '@inertiajs/vue3'
 import { FileText, Package, Users } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { useAdminTabs } from '~/composables/use_admin_tabs'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseDescriptionItem from '~/components/base/base_description_item.vue'
 import BaseDescriptionList from '~/components/base/base_description_list.vue'
@@ -13,14 +12,12 @@ import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import BaseStat from '~/components/base/base_stat.vue'
 import BaseTable from '~/components/base/base_table.vue'
-import BaseTabs from '~/components/base/base_tabs.vue'
 import { ORGANIZATION_ROLE_TONES } from '~/components/admin/types'
 import type { AdminOrganizationDetail } from '#shared/types/admin'
 
 defineProps<{ organization: AdminOrganizationDetail }>()
 
 const { t, locale } = useI18n()
-const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 
 const indexUrl = computed(() => urlFor('admin.organizations.index', { locale: locale.value }))
 
@@ -56,8 +53,6 @@ function formatDate(value: string): string {
         </BaseBadge>
       </template>
     </BasePageHeader>
-
-    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
     <div class="grid gap-4 sm:grid-cols-3">
       <BaseStat

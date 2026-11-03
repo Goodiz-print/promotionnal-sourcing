@@ -4,7 +4,6 @@ import { Head, router } from '@inertiajs/vue3'
 import { Search, Users } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { useAdminTabs } from '~/composables/use_admin_tabs'
 import PlatformRoleSelect from '~/components/admin/platform_role_select.vue'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseCard from '~/components/base/base_card.vue'
@@ -13,7 +12,6 @@ import BaseInput from '~/components/base/base_input.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BasePagination from '~/components/base/base_pagination.vue'
 import BaseTable from '~/components/base/base_table.vue'
-import BaseTabs from '~/components/base/base_tabs.vue'
 import type { AdminUserFilters, AdminUserListItem, AdminUsersRolesProps } from '#shared/types/admin'
 import type { Paginated } from '#shared/types/pagination'
 
@@ -25,7 +23,6 @@ const props = defineProps<
 >()
 
 const { t, locale } = useI18n()
-const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 
 const search = ref(props.filters.search ?? '')
 
@@ -53,8 +50,6 @@ function formatDate(value: string): string {
 
   <div class="flex flex-col gap-8">
     <BasePageHeader :title="t('admin.users.title')" :description="t('admin.users.subtitle')" />
-
-    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
     <BaseCard padding="md">
       <div class="grid gap-4 sm:grid-cols-[minmax(0,1fr)_200px]">
