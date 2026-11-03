@@ -9,6 +9,15 @@
       "termsHint": "Mindestbestellwert, Lieferzeiten und Liefergebiet, die den Käufern angezeigt werden.",
       "certificationsHint": "Normen und Siegel, die Sie besitzen (ISO, FSC, OEKO-TEX …).",
       "presentation": "Unternehmensvorstellung"
+    },
+    "moderation": {
+      "pending": "Profil wird geprüft",
+      "pendingHint": "Unser Team prüft Ihre Organisation: Die Sichtbarkeit Ihrer Produkte ist noch nicht garantiert.",
+      "approved": "Profil genehmigt",
+      "approvedHint": "Ihre Organisation ist genehmigt und Ihr Katalog ist für Käufer sichtbar.",
+      "rejected": "Profil abgelehnt",
+      "rejectedHint": "Ihre Organisation wurde abgelehnt: Ihr Katalog ist für Käufer nicht mehr sichtbar.",
+      "reason": "Begründung: {reason}"
     }
   },
   "fields": {

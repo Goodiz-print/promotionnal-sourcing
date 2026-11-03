@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Component } from 'vue'
+import { computed, type Component } from 'vue'
 import { Head } from '@inertiajs/vue3'
-import { Building2, FileText, Package, Users } from 'lucide-vue-next'
+import { Building2, FileText, Package, ShieldCheck, Users } from 'lucide-vue-next'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
 import { useAdminTabs } from '~/composables/use_admin_tabs'
@@ -18,7 +18,7 @@ const { t, locale } = useI18n()
 const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 const { can } = usePlatformPermissions()
 
-type Counter = 'organizations' | 'users' | 'products' | 'rfqs'
+type Counter = 'organizations' | 'users' | 'products' | 'rfqs' | 'pendingModeration'
 
 /**
  * Compteurs du back-office : icône, et liste cible quand une page admin existe
@@ -27,7 +27,7 @@ type Counter = 'organizations' | 'users' | 'products' | 'rfqs'
 const COUNTERS: {
   key: Counter
   icon: Component
-  route?: 'admin.organizations.index' | 'admin.users.index'
+  route?: 'admin.organizations.index' | 'admin.users.index' | 'admin.moderation.index'
   permission?: PlatformPermission
 }[] = [
   {
@@ -39,7 +39,18 @@ const COUNTERS: {
   { key: 'users', icon: Users, route: 'admin.users.index', permission: 'users.view' },
   { key: 'products', icon: Package },
   { key: 'rfqs', icon: FileText },
+  {
+    key: 'pendingModeration',
+    icon: ShieldCheck,
+    route: 'admin.moderation.index',
+    permission: 'moderation.manage',
+  },
 ]
+
+/** Le compteur de modération n'est montré qu'aux rôles qui peuvent la traiter. */
+const counters = computed(() =>
+  COUNTERS.filter((counter) => counter.key !== 'pendingModeration' || can('moderation.manage'))
+)
 </script>
 
 <template>
@@ -55,7 +66,7 @@ const COUNTERS: {
 
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <BaseStat
-        v-for="counter in COUNTERS"
+        v-for="counter in counters"
         :key="counter.key"
         :data-testid="`counter-${counter.key}`"
         :label="t(`admin.dashboard.counters.${counter.key}`)"

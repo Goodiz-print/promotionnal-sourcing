@@ -7,7 +7,8 @@
     "audit": "Dziennik audytu",
     "attributes": "Atrybuty",
     "label": "Sekcje administracji",
-    "demand": "Popyt klientów"
+    "demand": "Popyt klientów",
+    "moderation": "Moderacja"
   },
   "pagination": {
     "previous": "Poprzednia",
@@ -20,7 +21,8 @@
       "organizations": "Organizacje",
       "users": "Użytkownicy",
       "products": "Produkty",
-      "rfqs": "Zapytania ofertowe"
+      "rfqs": "Zapytania ofertowe",
+      "pendingModeration": "Do moderacji"
     },
     "archived": "{count, plural, =0 {Brak zarchiwizowanych} one {# zarchiwizowana} few {# zarchiwizowane} many {# zarchiwizowanych} other {# zarchiwizowanej}}"
   },
@@ -144,13 +146,17 @@
       "attribute.deleted": "Usunięto atrybut",
       "attribute_value.created": "Utworzono wartość atrybutu",
       "attribute_value.updated": "Zmieniono wartość atrybutu",
-      "attribute_value.deleted": "Usunięto wartość atrybutu"
+      "attribute_value.deleted": "Usunięto wartość atrybutu",
+      "moderation.approved": "Zatwierdzono w moderacji",
+      "moderation.rejected": "Odrzucono w moderacji"
     },
     "targets": {
       "user": "Użytkownik",
       "category": "Kategoria",
       "attribute": "Atrybut",
-      "attribute_value": "Wartość atrybutu"
+      "attribute_value": "Wartość atrybutu",
+      "organization": "Organizacja",
+      "product": "Produkt"
     }
   },
   "demand": {
@@ -229,6 +235,58 @@
       "supplier": "Dostawca",
       "views": "Wyświetlenia",
       "rfqAdds": "Dodania"
+    }
+  },
+  "moderation": {
+    "title": "Moderacja",
+    "subtitle": "Dostawcy i produkty do zatwierdzenia przed publikacją w katalogu.",
+    "resultsCount": "{count, plural, =0 {Brak elementów} one {# element} few {# elementy} many {# elementów} other {# elementu}}",
+    "empty": "Brak elementów do moderacji dla tych filtrów.",
+    "emptyDescription": "Zmień filtry lub wróć później.",
+    "columns": {
+      "item": "Element",
+      "type": "Typ",
+      "context": "Kontekst",
+      "submitted": "Zgłoszono",
+      "status": "Status"
+    },
+    "types": {
+      "organization": "Dostawca",
+      "product": "Produkt"
+    },
+    "statuses": {
+      "pending": "Oczekuje",
+      "approved": "Zatwierdzony",
+      "rejected": "Odrzucony"
+    },
+    "filters": {
+      "type": "Typ",
+      "status": "Status",
+      "age": "Wiek",
+      "all": "Wszystkie"
+    },
+    "ages": {
+      "0": "Dowolny",
+      "7": "Ponad 7 dni",
+      "30": "Ponad 30 dni"
+    },
+    "review": "Sprawdź",
+    "back": "Wróć do kolejki",
+    "form": {
+      "title": "Decyzja",
+      "reason": "Powód",
+      "reasonHint": "Wymagany przy odrzuceniu; zapisywany w historii.",
+      "approve": "Zatwierdź",
+      "reject": "Odrzuć"
+    },
+    "history": {
+      "title": "Historia",
+      "empty": "Brak decyzji.",
+      "by": "przez {email}"
+    },
+    "decided": {
+      "approved": "Element zatwierdzony.",
+      "rejected": "Element odrzucony."
     }
   }
 }

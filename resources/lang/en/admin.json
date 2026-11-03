@@ -7,7 +7,8 @@
     "audit": "Audit log",
     "attributes": "Attributes",
     "label": "Admin sections",
-    "demand": "Customer demand"
+    "demand": "Customer demand",
+    "moderation": "Moderation"
   },
   "pagination": {
     "previous": "Previous",
@@ -20,7 +21,8 @@
       "organizations": "Organizations",
       "users": "Users",
       "products": "Products",
-      "rfqs": "Requests for quotation"
+      "rfqs": "Requests for quotation",
+      "pendingModeration": "To moderate"
     },
     "archived": "{count, plural, =0 {None archived} one {# archived} other {# archived}}"
   },
@@ -144,13 +146,17 @@
       "attribute.deleted": "Attribute deleted",
       "attribute_value.created": "Attribute value created",
       "attribute_value.updated": "Attribute value updated",
-      "attribute_value.deleted": "Attribute value deleted"
+      "attribute_value.deleted": "Attribute value deleted",
+      "moderation.approved": "Item approved in moderation",
+      "moderation.rejected": "Item rejected in moderation"
     },
     "targets": {
       "user": "User",
       "category": "Category",
       "attribute": "Attribute",
-      "attribute_value": "Attribute value"
+      "attribute_value": "Attribute value",
+      "organization": "Organization",
+      "product": "Product"
     }
   },
   "demand": {
@@ -229,6 +235,58 @@
       "supplier": "Supplier",
       "views": "Views",
       "rfqAdds": "Additions"
+    }
+  },
+  "moderation": {
+    "title": "Moderation",
+    "subtitle": "Suppliers and products to validate before they appear in the catalogue.",
+    "resultsCount": "{count, plural, =0 {No items} one {# item} other {# items}}",
+    "empty": "Nothing to moderate with these filters.",
+    "emptyDescription": "Change the filters or come back later.",
+    "columns": {
+      "item": "Item",
+      "type": "Type",
+      "context": "Context",
+      "submitted": "Submitted on",
+      "status": "Status"
+    },
+    "types": {
+      "organization": "Supplier",
+      "product": "Product"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "filters": {
+      "type": "Type",
+      "status": "Status",
+      "age": "Age",
+      "all": "All"
+    },
+    "ages": {
+      "0": "Any",
+      "7": "Over 7 days",
+      "30": "Over 30 days"
+    },
+    "review": "Review",
+    "back": "Back to the queue",
+    "form": {
+      "title": "Decision",
+      "reason": "Reason",
+      "reasonHint": "Required for a rejection; kept in the history.",
+      "approve": "Approve",
+      "reject": "Reject"
+    },
+    "history": {
+      "title": "History",
+      "empty": "No decision yet.",
+      "by": "by {email}"
+    },
+    "decided": {
+      "approved": "Item approved.",
+      "rejected": "Item rejected."
     }
   }
 }

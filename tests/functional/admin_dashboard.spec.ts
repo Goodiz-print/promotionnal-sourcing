@@ -36,6 +36,7 @@ test.group('Back-office — tableau de bord', (group) => {
     assert.equal(stats.products, await total(Product.query()))
     assert.equal(stats.rfqs, await total(Rfq.query()))
     assert.isAbove(stats.products, 0)
+    assert.isAtLeast(stats.pendingModeration, stats.products)
     assert.isAtLeast(stats.rfqs, 1)
   })
 })

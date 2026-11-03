@@ -9,6 +9,15 @@
       "termsHint": "Minimum de commande, délais et périmètre de livraison affichés aux acheteurs.",
       "certificationsHint": "Normes et labels que vous détenez (ISO, FSC, OEKO-TEX…).",
       "presentation": "Présentation de l'entreprise"
+    },
+    "moderation": {
+      "pending": "Fiche en cours de validation",
+      "pendingHint": "Notre équipe examine votre organisation : vos produits ne sont pas encore garantis visibles.",
+      "approved": "Fiche validée",
+      "approvedHint": "Votre organisation est validée et votre catalogue est visible des acheteurs.",
+      "rejected": "Fiche rejetée",
+      "rejectedHint": "Votre organisation a été rejetée : votre catalogue n'est plus visible des acheteurs.",
+      "reason": "Motif : {reason}"
     }
   },
   "fields": {

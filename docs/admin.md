@@ -63,6 +63,18 @@ Types (`ActivityEventService`) : `product_viewed`, `supplier_viewed` (fiches pub
 
 **Limites** : les libellés de catégories et de produits suivent la langue de l'écran, avec repli sur le français ; les noms de filtres sont les clés techniques. Les index existants (`created_at`, `(source, created_at)`, `(query, created_at)`) couvrent ces lectures ; les durées de rétention (24 mois) bornent le volume.
 
+## Modération
+
+Écran `GET /admin/moderation` (`admin.moderation.index`, droit `moderation.manage` : rôles `admin` et `moderator`), issue #163 (epic #157). Il s'appuie sur `ModerationService` (#54) ; la file et la décision sont dans `AdminModerationService`.
+
+**Cibles** : les organisations fournisseurs actives (`supplier`, `both`, non archivées) et les produits actifs. Le statut courant est la dernière décision (`pending` sans décision). Filtres (query string, optionnels) : `type` (`organization`, `product`), `status` (`pending` par défaut, `approved`, `rejected`), `minAgeDays` (`0`, `7`, `30`, d'après la date de création). La file est triée du plus ancien au plus récent ; une valeur invalide est refusée par la validation.
+
+**Décision** : `GET /admin/moderation/:type/:id` (historique et formulaire), `POST /admin/moderation/:type/:id/decision` (`status` `approved` ou `rejected`, `reason` obligatoire pour un rejet). La décision et son entrée d'audit (`moderation.approved` / `moderation.rejected`, avant/après, motif) sont écrites dans une même transaction ; la réindexation (`ProductChanged`, `OrganizationCatalogueChanged`) n'est émise qu'après validation de la transaction. Une cible inconnue ou non modérable répond 404.
+
+**Visibilité** : le compteur « à modérer » (organisations + produits en attente) s'affiche sur le tableau de bord pour les rôles qui ont le droit. Le fournisseur voit le statut de son organisation et le dernier motif de rejet sur son profil (`/supplier/profile`).
+
+**Limite** : sans décision, une cible reste visible du public (la modération retire, elle ne valide pas, cf. `docs/entites-transverses.md`). La file « en attente » reprend donc tout le catalogue existant tant qu'il n'a pas été examiné.
+
 ## Tests
 
 - `tests/unit/platform_permissions.spec.ts` : matrice rôle → droits.
@@ -71,4 +83,5 @@ Types (`ActivityEventService`) : `product_viewed`, `supplier_viewed` (fiches pub
 - `tests/inertia/admin_users.spec.ts`, `tests/inertia/admin_audit.spec.ts` : écrans.
 - Factories : `UserFactory.apply('platformAdmin' | 'platformModerator' | 'platformSupport' | 'platformAnalyst')`, `AdminAuditLogFactory`.
 - `tests/functional/activity_events.spec.ts` : consultations et rétention. Factory : `ActivityEventFactory`.
+- `tests/functional/admin_moderation.spec.ts`, `tests/inertia/admin_moderation.spec.ts` : file, filtres, décisions, audit, réindexation, écrans.
 - `tests/functional/admin_demand.spec.ts` : droits par rôle, agrégations, filtres, export CSV.

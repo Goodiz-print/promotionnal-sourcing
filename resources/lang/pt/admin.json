@@ -7,7 +7,8 @@
     "audit": "Registo de auditoria",
     "attributes": "Atributos",
     "label": "Secções de administração",
-    "demand": "Procura dos clientes"
+    "demand": "Procura dos clientes",
+    "moderation": "Moderação"
   },
   "pagination": {
     "previous": "Anterior",
@@ -20,7 +21,8 @@
       "organizations": "Organizações",
       "users": "Utilizadores",
       "products": "Produtos",
-      "rfqs": "Pedidos de orçamento"
+      "rfqs": "Pedidos de orçamento",
+      "pendingModeration": "A moderar"
     },
     "archived": "{count, plural, =0 {Nenhum arquivado} one {# arquivado} other {# arquivados}}"
   },
@@ -144,13 +146,17 @@
       "attribute.deleted": "Atributo eliminado",
       "attribute_value.created": "Valor de atributo criado",
       "attribute_value.updated": "Valor de atributo alterado",
-      "attribute_value.deleted": "Valor de atributo eliminado"
+      "attribute_value.deleted": "Valor de atributo eliminado",
+      "moderation.approved": "Item aprovado na moderação",
+      "moderation.rejected": "Item rejeitado na moderação"
     },
     "targets": {
       "user": "Utilizador",
       "category": "Categoria",
       "attribute": "Atributo",
-      "attribute_value": "Valor de atributo"
+      "attribute_value": "Valor de atributo",
+      "organization": "Organização",
+      "product": "Produto"
     }
   },
   "demand": {
@@ -229,6 +235,58 @@
       "supplier": "Fornecedor",
       "views": "Visualizações",
       "rfqAdds": "Adições"
+    }
+  },
+  "moderation": {
+    "title": "Moderação",
+    "subtitle": "Fornecedores e produtos a validar antes da publicação no catálogo.",
+    "resultsCount": "{count, plural, =0 {Nenhum item} one {# item} other {# itens}}",
+    "empty": "Nada a moderar com estes filtros.",
+    "emptyDescription": "Altere os filtros ou volte mais tarde.",
+    "columns": {
+      "item": "Item",
+      "type": "Tipo",
+      "context": "Contexto",
+      "submitted": "Enviado em",
+      "status": "Estado"
+    },
+    "types": {
+      "organization": "Fornecedor",
+      "product": "Produto"
+    },
+    "statuses": {
+      "pending": "Pendente",
+      "approved": "Aprovado",
+      "rejected": "Rejeitado"
+    },
+    "filters": {
+      "type": "Tipo",
+      "status": "Estado",
+      "age": "Antiguidade",
+      "all": "Todos"
+    },
+    "ages": {
+      "0": "Qualquer",
+      "7": "Mais de 7 dias",
+      "30": "Mais de 30 dias"
+    },
+    "review": "Analisar",
+    "back": "Voltar à fila",
+    "form": {
+      "title": "Decisão",
+      "reason": "Motivo",
+      "reasonHint": "Obrigatório para uma rejeição; guardado no histórico.",
+      "approve": "Aprovar",
+      "reject": "Rejeitar"
+    },
+    "history": {
+      "title": "Histórico",
+      "empty": "Ainda sem decisões.",
+      "by": "por {email}"
+    },
+    "decided": {
+      "approved": "Item aprovado.",
+      "rejected": "Item rejeitado."
     }
   }
 }

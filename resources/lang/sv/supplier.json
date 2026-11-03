@@ -9,6 +9,15 @@
       "termsHint": "Minsta order, ledtider och leveransområde som visas för köpare.",
       "certificationsHint": "Standarder och märkningar som du innehar (ISO, FSC, OEKO-TEX…).",
       "presentation": "Presentation av företaget"
+    },
+    "moderation": {
+      "pending": "Profilen granskas",
+      "pendingHint": "Vårt team granskar din organisation: synligheten för dina produkter är ännu inte garanterad.",
+      "approved": "Profilen är godkänd",
+      "approvedHint": "Din organisation är godkänd och din katalog är synlig för köpare.",
+      "rejected": "Profilen avvisades",
+      "rejectedHint": "Din organisation avvisades: din katalog är inte längre synlig för köpare.",
+      "reason": "Anledning: {reason}"
     }
   },
   "fields": {

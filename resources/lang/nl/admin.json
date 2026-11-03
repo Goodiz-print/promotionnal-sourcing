@@ -7,7 +7,8 @@
     "audit": "Auditlogboek",
     "attributes": "Attributen",
     "label": "Beheersecties",
-    "demand": "Klantvraag"
+    "demand": "Klantvraag",
+    "moderation": "Moderatie"
   },
   "pagination": {
     "previous": "Vorige",
@@ -20,7 +21,8 @@
       "organizations": "Organisaties",
       "users": "Gebruikers",
       "products": "Producten",
-      "rfqs": "Offerteaanvragen"
+      "rfqs": "Offerteaanvragen",
+      "pendingModeration": "Te modereren"
     },
     "archived": "{count, plural, =0 {Geen gearchiveerd} one {# gearchiveerd} other {# gearchiveerd}}"
   },
@@ -144,13 +146,17 @@
       "attribute.deleted": "Attribuut verwijderd",
       "attribute_value.created": "Attribuutwaarde aangemaakt",
       "attribute_value.updated": "Attribuutwaarde gewijzigd",
-      "attribute_value.deleted": "Attribuutwaarde verwijderd"
+      "attribute_value.deleted": "Attribuutwaarde verwijderd",
+      "moderation.approved": "Item goedgekeurd in moderatie",
+      "moderation.rejected": "Item afgewezen in moderatie"
     },
     "targets": {
       "user": "Gebruiker",
       "category": "Categorie",
       "attribute": "Attribuut",
-      "attribute_value": "Attribuutwaarde"
+      "attribute_value": "Attribuutwaarde",
+      "organization": "Organisatie",
+      "product": "Product"
     }
   },
   "demand": {
@@ -229,6 +235,58 @@
       "supplier": "Leverancier",
       "views": "Weergaven",
       "rfqAdds": "Toevoegingen"
+    }
+  },
+  "moderation": {
+    "title": "Moderatie",
+    "subtitle": "Leveranciers en producten die moeten worden gevalideerd voordat ze in de catalogus verschijnen.",
+    "resultsCount": "{count, plural, =0 {Geen items} one {# item} other {# items}}",
+    "empty": "Niets te modereren met deze filters.",
+    "emptyDescription": "Wijzig de filters of kom later terug.",
+    "columns": {
+      "item": "Item",
+      "type": "Type",
+      "context": "Context",
+      "submitted": "Ingediend op",
+      "status": "Status"
+    },
+    "types": {
+      "organization": "Leverancier",
+      "product": "Product"
+    },
+    "statuses": {
+      "pending": "In afwachting",
+      "approved": "Goedgekeurd",
+      "rejected": "Afgewezen"
+    },
+    "filters": {
+      "type": "Type",
+      "status": "Status",
+      "age": "Ouderdom",
+      "all": "Alle"
+    },
+    "ages": {
+      "0": "Alle",
+      "7": "Meer dan 7 dagen",
+      "30": "Meer dan 30 dagen"
+    },
+    "review": "Beoordelen",
+    "back": "Terug naar de wachtrij",
+    "form": {
+      "title": "Beslissing",
+      "reason": "Reden",
+      "reasonHint": "Verplicht bij een afwijzing; wordt bewaard in de geschiedenis.",
+      "approve": "Goedkeuren",
+      "reject": "Afwijzen"
+    },
+    "history": {
+      "title": "Geschiedenis",
+      "empty": "Nog geen beslissing.",
+      "by": "door {email}"
+    },
+    "decided": {
+      "approved": "Item goedgekeurd.",
+      "rejected": "Item afgewezen."
     }
   }
 }

@@ -9,6 +9,15 @@
       "termsHint": "Minimalna wartość zamówienia, terminy i zakres dostaw wyświetlane kupującym.",
       "certificationsHint": "Normy i znaki, które Państwo posiadają (ISO, FSC, OEKO-TEX…).",
       "presentation": "Prezentacja firmy"
+    },
+    "moderation": {
+      "pending": "Profil w trakcie weryfikacji",
+      "pendingHint": "Nasz zespół weryfikuje Twoją organizację: widoczność produktów nie jest jeszcze gwarantowana.",
+      "approved": "Profil zatwierdzony",
+      "approvedHint": "Twoja organizacja została zatwierdzona, a katalog jest widoczny dla kupujących.",
+      "rejected": "Profil odrzucony",
+      "rejectedHint": "Twoja organizacja została odrzucona: katalog nie jest już widoczny dla kupujących.",
+      "reason": "Powód: {reason}"
     }
   },
   "fields": {

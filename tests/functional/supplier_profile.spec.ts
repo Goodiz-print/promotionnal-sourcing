@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import { ModerationDecisionFactory } from '#database/factories/moderation_decision_factory'
 import Organization from '#models/organization'
 import SupplierProfile from '#models/supplier_profile'
 import SupplierProfileTransformer from '#transformers/supplier_profile_transformer'
@@ -18,6 +19,27 @@ test.group('Profil fournisseur — CRUD', (group) => {
     response.assertInertiaComponent('supplier/profile')
     response.assertInertiaPropsContains({
       profile: { deliveryScope: 'europe', minOrderQuantity: 50 },
+    })
+  })
+
+  test('le statut de modération de l’organisation est visible du fournisseur', async ({
+    client,
+    assert,
+  }) => {
+    const user = await seededDevUser('eurogoods-org')
+    const org = await Organization.findByOrFail('slug', 'eurogoods-org')
+
+    const before = await client.get('/fr/supplier/profile').withInertia().loginAs(user)
+    assert.deepEqual(before.inertiaProps.moderation, { status: 'pending', reason: null })
+
+    await ModerationDecisionFactory.apply('organization')
+      .apply('rejected')
+      .merge({ targetId: org.id, reason: 'Dossier incomplet' })
+      .create()
+    const after = await client.get('/fr/supplier/profile').withInertia().loginAs(user)
+    assert.deepEqual(after.inertiaProps.moderation, {
+      status: 'rejected',
+      reason: 'Dossier incomplet',
     })
   })
 

@@ -293,6 +293,20 @@ router
                   .get('admin/audit', [controllers.admin.AuditLog, 'index'])
                   .as('admin.audit.index')
 
+                // Modération : file des organisations fournisseurs et produits, décisions.
+                router
+                  .get('admin/moderation', [controllers.admin.Moderation, 'index'])
+                  .as('admin.moderation.index')
+                router
+                  .get('admin/moderation/:type/:id', [controllers.admin.Moderation, 'show'])
+                  .as('admin.moderation.show')
+                router
+                  .post('admin/moderation/:type/:id/decision', [
+                    controllers.admin.Moderation,
+                    'decide',
+                  ])
+                  .as('admin.moderation.decide')
+
                 // Demande des clients : recherches, consultations, export CSV.
                 router
                   .get('admin/demand', [controllers.admin.Demand, 'index'])

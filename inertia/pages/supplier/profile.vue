@@ -2,6 +2,7 @@
 import { Head, useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import BaseAlert from '~/components/base/base_alert.vue'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseInput from '~/components/base/base_input.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
@@ -15,14 +16,23 @@ import {
   DELIVERY_SCOPES,
   type SupplierProfileType,
 } from '#shared/types/organization'
+import type { ModerationNotice, ModerationStatus } from '#shared/types/moderation'
+import type { BadgeTone } from '~/types/ui'
 import { ORGANIZATION_DOCUMENT_KINDS, type OrganizationDocumentType } from '#shared/types/document'
 
 const props = defineProps<{
   profile: SupplierProfileType | null
   documents: OrganizationDocumentType[]
+  moderation: ModerationNotice
 }>()
 
 const { t, locale } = useI18n()
+
+const MODERATION_TONES: Record<ModerationStatus, BadgeTone> = {
+  pending: 'info',
+  approved: 'success',
+  rejected: 'danger',
+}
 
 const form = useForm({
   minOrderQuantity: props.profile?.minOrderQuantity ?? null,
@@ -59,6 +69,16 @@ function submit() {
       :title="t('supplier.profile.title')"
       :description="t('supplier.profile.subtitle')"
     />
+
+    <BaseAlert
+      :tone="MODERATION_TONES[moderation.status]"
+      :title="t(`supplier.profile.moderation.${moderation.status}`)"
+    >
+      <template v-if="moderation.status === 'rejected' && moderation.reason">
+        {{ t('supplier.profile.moderation.reason', { reason: moderation.reason }) }}
+      </template>
+      <template v-else>{{ t(`supplier.profile.moderation.${moderation.status}Hint`) }}</template>
+    </BaseAlert>
 
     <form class="flex flex-col gap-6" @submit.prevent="submit">
       <BaseSection

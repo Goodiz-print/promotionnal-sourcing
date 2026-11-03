@@ -7,7 +7,8 @@
     "audit": "Audit-Protokoll",
     "attributes": "Attribute",
     "label": "Administrationsbereiche",
-    "demand": "Kundennachfrage"
+    "demand": "Kundennachfrage",
+    "moderation": "Moderation"
   },
   "pagination": {
     "previous": "Zurück",
@@ -20,7 +21,8 @@
       "organizations": "Organisationen",
       "users": "Benutzer",
       "products": "Produkte",
-      "rfqs": "Angebotsanfragen"
+      "rfqs": "Angebotsanfragen",
+      "pendingModeration": "Zu moderieren"
     },
     "archived": "{count, plural, =0 {Keine archiviert} one {# archiviert} other {# archiviert}}"
   },
@@ -144,13 +146,17 @@
       "attribute.deleted": "Attribut gelöscht",
       "attribute_value.created": "Attributwert erstellt",
       "attribute_value.updated": "Attributwert geändert",
-      "attribute_value.deleted": "Attributwert gelöscht"
+      "attribute_value.deleted": "Attributwert gelöscht",
+      "moderation.approved": "In der Moderation genehmigt",
+      "moderation.rejected": "In der Moderation abgelehnt"
     },
     "targets": {
       "user": "Benutzer",
       "category": "Kategorie",
       "attribute": "Attribut",
-      "attribute_value": "Attributwert"
+      "attribute_value": "Attributwert",
+      "organization": "Organisation",
+      "product": "Produkt"
     }
   },
   "demand": {
@@ -229,6 +235,58 @@
       "supplier": "Lieferant",
       "views": "Aufrufe",
       "rfqAdds": "Hinzufügungen"
+    }
+  },
+  "moderation": {
+    "title": "Moderation",
+    "subtitle": "Lieferanten und Produkte, die vor der Veröffentlichung im Katalog zu prüfen sind.",
+    "resultsCount": "{count, plural, =0 {Keine Elemente} one {# Element} other {# Elemente}}",
+    "empty": "Mit diesen Filtern gibt es nichts zu moderieren.",
+    "emptyDescription": "Ändern Sie die Filter oder kommen Sie später wieder.",
+    "columns": {
+      "item": "Element",
+      "type": "Typ",
+      "context": "Kontext",
+      "submitted": "Eingereicht am",
+      "status": "Status"
+    },
+    "types": {
+      "organization": "Lieferant",
+      "product": "Produkt"
+    },
+    "statuses": {
+      "pending": "Ausstehend",
+      "approved": "Genehmigt",
+      "rejected": "Abgelehnt"
+    },
+    "filters": {
+      "type": "Typ",
+      "status": "Status",
+      "age": "Alter",
+      "all": "Alle"
+    },
+    "ages": {
+      "0": "Beliebig",
+      "7": "Über 7 Tage",
+      "30": "Über 30 Tage"
+    },
+    "review": "Prüfen",
+    "back": "Zurück zur Warteschlange",
+    "form": {
+      "title": "Entscheidung",
+      "reason": "Begründung",
+      "reasonHint": "Bei einer Ablehnung erforderlich; wird im Verlauf gespeichert.",
+      "approve": "Genehmigen",
+      "reject": "Ablehnen"
+    },
+    "history": {
+      "title": "Verlauf",
+      "empty": "Noch keine Entscheidung.",
+      "by": "von {email}"
+    },
+    "decided": {
+      "approved": "Element genehmigt.",
+      "rejected": "Element abgelehnt."
     }
   }
 }
