@@ -7,7 +7,7 @@ Un acheteur connecté peut envoyer la photo d'un objet (vu en salon, chez un con
 ## Fonctionnement
 
 1. Un bouton « Rechercher par image » apparaît sous le champ de recherche du catalogue (`/:locale/products`) pour les utilisateurs connectés, si la fonction est active.
-2. La photo part en `POST /:locale/products/image-search` (route `products.image-search`, multipart, champ `image`, `jpg`/`jpeg`/`png`/`webp`, 5 Mo, e-mail vérifié, pas d'organisation requise).
+2. La photo part en `POST /:locale/products/image-search` (route `products.image_search`, multipart, champ `image`, `jpg`/`jpeg`/`png`/`webp`, 5 Mo, e-mail vérifié, pas d'organisation requise).
 3. `ImageSearchService` normalise l'image (rotation EXIF, 1024 px max, JPEG, métadonnées retirées ; un contenu illisible est refusé) puis `ImageDescriptionProvider` (implémentation `MistralImageDescriptionProvider`, modèle vision Pixtral) la décrit en 3 à 8 mots-clés dans la langue de l'acheteur.
 4. Redirection vers `products.index?search=<mots-clés>&imageSearch=1` : la recherche hybride Meilisearch existante fait le reste (ADR 0002), sans réindexation. Un bandeau rappelle que le terme vient de la photo ; le terme reste modifiable dans le champ de recherche.
 

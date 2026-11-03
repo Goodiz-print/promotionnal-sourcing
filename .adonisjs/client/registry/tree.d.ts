@@ -28,6 +28,7 @@ export interface ApiDefinition {
   products: {
     index: typeof routes['products.index']
     show: typeof routes['products.show']
+    imageSearch: typeof routes['products.image_search']
   }
   organization: {
     invitations: {

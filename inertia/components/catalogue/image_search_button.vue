@@ -23,7 +23,7 @@ function onChange(event: Event) {
   if (!file) return
 
   form.image = file
-  form.post(urlFor('products.image-search', { locale: locale.value }), {
+  form.post(urlFor('products.image_search', { locale: locale.value }), {
     forceFormData: true,
     preserveScroll: true,
     onFinish: () => {

@@ -155,7 +155,7 @@ router
             // Recherche par image (IA) : acheteurs connectés, pas d'organisation requise.
             router
               .post('products/image-search', [controllers.ProductImageSearch, 'store'])
-              .as('products.image-search')
+              .as('products.image_search')
               .use(imageSearchThrottle)
 
             router.get('onboarding', [controllers.Onboarding, 'show']).as('onboarding.show')
