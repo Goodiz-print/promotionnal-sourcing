@@ -55,5 +55,24 @@
     "total": "Montante total: {total}.",
     "cta": "Consultar o orçamento",
     "footer": "Recebe esta mensagem porque gere este pedido de orçamento."
+  },
+  "agencyReview": {
+    "footer": "Recebe esta mensagem por ser responsável por este registo.",
+    "reasonLabel": "Mensagem da equipa:",
+    "approved": {
+      "subject": "O seu registo foi aprovado",
+      "title": "A sua agência foi aprovada",
+      "body": "A equipa aprovou o registo de «{organizationName}»: a sua conta está totalmente ativa."
+    },
+    "rejected": {
+      "subject": "O seu registo não foi aceite",
+      "title": "Registo não aceite",
+      "body": "A equipa não pôde aprovar o registo de «{organizationName}». A conta foi desativada."
+    },
+    "info_requested": {
+      "subject": "São necessárias mais informações",
+      "title": "São necessárias mais informações",
+      "body": "Para aprovar o registo de «{organizationName}», a equipa precisa de informações adicionais. Responda a este email."
+    }
   }
 }

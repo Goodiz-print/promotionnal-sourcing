@@ -8,7 +8,8 @@
     "attributes": "Attribute",
     "label": "Administrationsbereiche",
     "demand": "Kundennachfrage",
-    "moderation": "Moderation"
+    "moderation": "Moderation",
+    "agencies": "Agenturen"
   },
   "pagination": {
     "previous": "Zurück",
@@ -22,7 +23,8 @@
       "users": "Benutzer",
       "products": "Produkte",
       "rfqs": "Angebotsanfragen",
-      "pendingModeration": "Zu moderieren"
+      "pendingModeration": "Zu moderieren",
+      "pendingAgencyReviews": "Zu prüfende Agenturen"
     },
     "archived": "{count, plural, =0 {Keine archiviert} one {# archiviert} other {# archiviert}}",
     "kpi": {
@@ -207,7 +209,10 @@
       "attribute_value.updated": "Attributwert geändert",
       "attribute_value.deleted": "Attributwert gelöscht",
       "moderation.approved": "In der Moderation genehmigt",
-      "moderation.rejected": "In der Moderation abgelehnt"
+      "moderation.rejected": "In der Moderation abgelehnt",
+      "agency_review.approved": "Agentur-Anmeldung freigegeben",
+      "agency_review.rejected": "Agentur-Anmeldung abgelehnt",
+      "agency_review.info_requested": "Informationen bei einer Agentur angefordert"
     },
     "targets": {
       "user": "Benutzer",
@@ -346,6 +351,76 @@
     "decided": {
       "approved": "Element genehmigt.",
       "rejected": "Element abgelehnt."
+    }
+  },
+  "agencyReviews": {
+    "title": "Agentur-Prüfung",
+    "subtitle": "Agentur-Anmeldungen, deren automatische Prüfung eine manuelle Freigabe verlangt.",
+    "resultsCount": "{count, plural, =0 {Keine Agenturen} one {# Agentur} other {# Agenturen}}",
+    "empty": "Keine Agentur für diesen Filter.",
+    "emptyDescription": "Ändern Sie den Filter oder kommen Sie später wieder.",
+    "filters": {
+      "status": "Anzeige",
+      "open": "Zu prüfen",
+      "approved": "Freigegeben",
+      "rejected": "Abgelehnt"
+    },
+    "columns": {
+      "agency": "Agentur",
+      "reasons": "Prüfgründe",
+      "vat": "USt-IdNr. (VIES)",
+      "domain": "E-Mail-Domain",
+      "submitted": "Angemeldet am",
+      "status": "Status"
+    },
+    "statuses": {
+      "pending": "Zu prüfen",
+      "info_requested": "Informationen angefordert",
+      "approved": "Freigegeben",
+      "rejected": "Abgelehnt"
+    },
+    "reasons": {
+      "vat_unverified": "USt-IdNr. nicht geprüft",
+      "free_email_domain": "Freemail-Adresse",
+      "domain_mismatch": "Domain weicht von der Website ab",
+      "no_website": "Keine Website",
+      "other_activity": "Tätigkeit „Sonstige“"
+    },
+    "verified": "Geprüft",
+    "notVerified": "Nicht geprüft",
+    "review": "Prüfen",
+    "back": "Zurück zur Liste",
+    "submittedOn": "Anmeldung vom {date}",
+    "noReasons": "Kein Grund mehr: Die Agentur ist freigegeben.",
+    "closed": "Diese Anmeldung muss nicht mehr geprüft werden: Keine Entscheidung möglich.",
+    "detail": {
+      "title": "Angaben zur Agentur",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "website": "Website",
+      "siret": "SIRET",
+      "vatNumber": "USt-IdNr.",
+      "activity": "Tätigkeit",
+      "checks": "Prüfungen",
+      "owners": "Kontoinhaber"
+    },
+    "form": {
+      "title": "Entscheidung",
+      "reason": "Grund oder Nachricht an die Agentur",
+      "reasonHint": "Pflicht bei Ablehnung oder Informationsanfrage; wird der Agentur per E-Mail gesendet.",
+      "approve": "Agentur freigeben",
+      "requestInfo": "Informationen anfordern",
+      "reject": "Anmeldung ablehnen"
+    },
+    "history": {
+      "title": "Verlauf",
+      "empty": "Noch keine Entscheidung.",
+      "by": "von {email}"
+    },
+    "decided": {
+      "approved": "Agentur freigegeben. Eine E-Mail wurde gesendet.",
+      "rejected": "Anmeldung abgelehnt: Die Organisation ist archiviert.",
+      "info_requested": "Informationsanfrage an die Agentur gesendet."
     }
   }
 }

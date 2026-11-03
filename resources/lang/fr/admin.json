@@ -8,7 +8,8 @@
     "attributes": "Attributs",
     "label": "Sections d'administration",
     "demand": "Demande clients",
-    "moderation": "Modération"
+    "moderation": "Modération",
+    "agencies": "Agences"
   },
   "pagination": {
     "previous": "Précédent",
@@ -22,7 +23,8 @@
       "users": "Utilisateurs",
       "products": "Produits",
       "rfqs": "Demandes de devis",
-      "pendingModeration": "À modérer"
+      "pendingModeration": "À modérer",
+      "pendingAgencyReviews": "Agences à revoir"
     },
     "archived": "{count, plural, =0 {Aucune archivée} one {# archivée} other {# archivées}}",
     "kpi": {
@@ -207,7 +209,10 @@
       "attribute_value.updated": "Valeur d'attribut modifiée",
       "attribute_value.deleted": "Valeur d'attribut supprimée",
       "moderation.approved": "Élément approuvé en modération",
-      "moderation.rejected": "Élément rejeté en modération"
+      "moderation.rejected": "Élément rejeté en modération",
+      "agency_review.approved": "Inscription agence validée",
+      "agency_review.rejected": "Inscription agence rejetée",
+      "agency_review.info_requested": "Informations demandées à une agence"
     },
     "targets": {
       "user": "Utilisateur",
@@ -346,6 +351,76 @@
     "decided": {
       "approved": "Élément approuvé.",
       "rejected": "Élément rejeté."
+    }
+  },
+  "agencyReviews": {
+    "title": "Revue des agences",
+    "subtitle": "Inscriptions agence dont les contrôles automatiques demandent une validation manuelle.",
+    "resultsCount": "{count, plural, =0 {Aucune agence} one {# agence} other {# agences}}",
+    "empty": "Aucune agence avec ce filtre.",
+    "emptyDescription": "Changez de filtre ou revenez plus tard.",
+    "filters": {
+      "status": "Affichage",
+      "open": "À revoir",
+      "approved": "Validées",
+      "rejected": "Rejetées"
+    },
+    "columns": {
+      "agency": "Agence",
+      "reasons": "Motifs de revue",
+      "vat": "TVA (VIES)",
+      "domain": "Domaine de l'email",
+      "submitted": "Inscrite le",
+      "status": "Statut"
+    },
+    "statuses": {
+      "pending": "À revoir",
+      "info_requested": "Informations demandées",
+      "approved": "Validée",
+      "rejected": "Rejetée"
+    },
+    "reasons": {
+      "vat_unverified": "TVA non vérifiée",
+      "free_email_domain": "Email grand public",
+      "domain_mismatch": "Domaine différent du site",
+      "no_website": "Pas de site web",
+      "other_activity": "Activité « autre »"
+    },
+    "verified": "Vérifié",
+    "notVerified": "Non vérifié",
+    "review": "Examiner",
+    "back": "Retour à la file",
+    "submittedOn": "Inscription du {date}",
+    "noReasons": "Aucun motif : l'agence est validée.",
+    "closed": "Cette inscription n'est plus à revoir : aucune décision n'est possible.",
+    "detail": {
+      "title": "Informations de l'agence",
+      "email": "Email",
+      "phone": "Téléphone",
+      "website": "Site web",
+      "siret": "SIRET",
+      "vatNumber": "N° de TVA",
+      "activity": "Activité",
+      "checks": "Contrôles",
+      "owners": "Propriétaires du compte"
+    },
+    "form": {
+      "title": "Décision",
+      "reason": "Motif ou message à l'agence",
+      "reasonHint": "Obligatoire pour rejeter ou demander des informations ; envoyé par mail à l'agence.",
+      "approve": "Valider l'agence",
+      "requestInfo": "Demander des informations",
+      "reject": "Rejeter l'inscription"
+    },
+    "history": {
+      "title": "Historique",
+      "empty": "Aucune décision pour le moment.",
+      "by": "par {email}"
+    },
+    "decided": {
+      "approved": "Agence validée. Un mail lui a été envoyé.",
+      "rejected": "Inscription rejetée : l'organisation est archivée.",
+      "info_requested": "Demande d'informations envoyée à l'agence."
     }
   }
 }

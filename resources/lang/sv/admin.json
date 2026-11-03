@@ -8,7 +8,8 @@
     "attributes": "Attribut",
     "label": "Administrationsavsnitt",
     "demand": "Kundefterfrågan",
-    "moderation": "Moderering"
+    "moderation": "Moderering",
+    "agencies": "Byråer"
   },
   "pagination": {
     "previous": "Föregående",
@@ -22,7 +23,8 @@
       "users": "Användare",
       "products": "Produkter",
       "rfqs": "Offertförfrågningar",
-      "pendingModeration": "Att moderera"
+      "pendingModeration": "Att moderera",
+      "pendingAgencyReviews": "Byråer att granska"
     },
     "archived": "{count, plural, =0 {Inga arkiverade} one {# arkiverad} other {# arkiverade}}",
     "kpi": {
@@ -207,7 +209,10 @@
       "attribute_value.updated": "Attributvärde ändrat",
       "attribute_value.deleted": "Attributvärde borttaget",
       "moderation.approved": "Godkänd i modereringen",
-      "moderation.rejected": "Avvisad i modereringen"
+      "moderation.rejected": "Avvisad i modereringen",
+      "agency_review.approved": "Byråregistrering godkänd",
+      "agency_review.rejected": "Byråregistrering avvisad",
+      "agency_review.info_requested": "Information begärd från en byrå"
     },
     "targets": {
       "user": "Användare",
@@ -346,6 +351,76 @@
     "decided": {
       "approved": "Objektet godkändes.",
       "rejected": "Objektet avvisades."
+    }
+  },
+  "agencyReviews": {
+    "title": "Byrågranskning",
+    "subtitle": "Byråregistreringar vars automatiska kontroller kräver manuell validering.",
+    "resultsCount": "{count, plural, =0 {Inga byråer} one {# byrå} other {# byråer}}",
+    "empty": "Ingen byrå för detta filter.",
+    "emptyDescription": "Ändra filtret eller kom tillbaka senare.",
+    "filters": {
+      "status": "Visa",
+      "open": "Att granska",
+      "approved": "Godkända",
+      "rejected": "Avvisade"
+    },
+    "columns": {
+      "agency": "Byrå",
+      "reasons": "Granskningsorsaker",
+      "vat": "Moms (VIES)",
+      "domain": "E-postdomän",
+      "submitted": "Registrerad",
+      "status": "Status"
+    },
+    "statuses": {
+      "pending": "Att granska",
+      "info_requested": "Information begärd",
+      "approved": "Godkänd",
+      "rejected": "Avvisad"
+    },
+    "reasons": {
+      "vat_unverified": "Moms ej verifierad",
+      "free_email_domain": "Gratis e-postadress",
+      "domain_mismatch": "Domänen skiljer sig från webbplatsen",
+      "no_website": "Ingen webbplats",
+      "other_activity": "Verksamhet ”annan”"
+    },
+    "verified": "Verifierad",
+    "notVerified": "Ej verifierad",
+    "review": "Granska",
+    "back": "Tillbaka till listan",
+    "submittedOn": "Registrering {date}",
+    "noReasons": "Inga orsaker kvar: byrån är godkänd.",
+    "closed": "Den här registreringen behöver inte längre granskas: inget beslut är möjligt.",
+    "detail": {
+      "title": "Byråns uppgifter",
+      "email": "E-post",
+      "phone": "Telefon",
+      "website": "Webbplats",
+      "siret": "SIRET",
+      "vatNumber": "Momsnummer",
+      "activity": "Verksamhet",
+      "checks": "Kontroller",
+      "owners": "Kontoägare"
+    },
+    "form": {
+      "title": "Beslut",
+      "reason": "Orsak eller meddelande till byrån",
+      "reasonHint": "Krävs för att avvisa eller begära information; skickas till byrån via e-post.",
+      "approve": "Godkänn byrån",
+      "requestInfo": "Begär information",
+      "reject": "Avvisa registreringen"
+    },
+    "history": {
+      "title": "Historik",
+      "empty": "Inga beslut ännu.",
+      "by": "av {email}"
+    },
+    "decided": {
+      "approved": "Byrån godkänd. Ett e-postmeddelande har skickats.",
+      "rejected": "Registreringen avvisad: organisationen är arkiverad.",
+      "info_requested": "Informationsbegäran skickad till byrån."
     }
   }
 }

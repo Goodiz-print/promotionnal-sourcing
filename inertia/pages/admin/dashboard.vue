@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, type Component } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
-import { Building2, FileText, Package, ShieldCheck, Users } from 'lucide-vue-next'
+import { Building2, FileText, Package, ShieldCheck, UserCheck, Users } from 'lucide-vue-next'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
 import { useAdminTabs } from '~/composables/use_admin_tabs'
@@ -34,7 +34,8 @@ function visit(filters: AdminKpiFilters) {
   })
 }
 
-type Counter = 'organizations' | 'users' | 'products' | 'rfqs' | 'pendingModeration'
+type Counter =
+  'organizations' | 'users' | 'products' | 'rfqs' | 'pendingModeration' | 'pendingAgencyReviews'
 
 /**
  * Compteurs du back-office : icône, et liste cible quand une page admin existe
@@ -43,7 +44,11 @@ type Counter = 'organizations' | 'users' | 'products' | 'rfqs' | 'pendingModerat
 const COUNTERS: {
   key: Counter
   icon: Component
-  route?: 'admin.organizations.index' | 'admin.users.index' | 'admin.moderation.index'
+  route?:
+    | 'admin.organizations.index'
+    | 'admin.users.index'
+    | 'admin.moderation.index'
+    | 'admin.agency_reviews.index'
   permission?: PlatformPermission
 }[] = [
   {
@@ -61,11 +66,17 @@ const COUNTERS: {
     route: 'admin.moderation.index',
     permission: 'moderation.manage',
   },
+  {
+    key: 'pendingAgencyReviews',
+    icon: UserCheck,
+    route: 'admin.agency_reviews.index',
+    permission: 'moderation.manage',
+  },
 ]
 
-/** Le compteur de modération n'est montré qu'aux rôles qui peuvent la traiter. */
+/** Les compteurs « à traiter » (modération, revue des agences) ne sont montrés qu'aux rôles qui peuvent la traiter. */
 const counters = computed(() =>
-  COUNTERS.filter((counter) => counter.key !== 'pendingModeration' || can('moderation.manage'))
+  COUNTERS.filter((counter) => !counter.key.startsWith('pending') || can('moderation.manage'))
 )
 </script>
 

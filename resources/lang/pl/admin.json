@@ -8,7 +8,8 @@
     "attributes": "Atrybuty",
     "label": "Sekcje administracji",
     "demand": "Popyt klientów",
-    "moderation": "Moderacja"
+    "moderation": "Moderacja",
+    "agencies": "Agencje"
   },
   "pagination": {
     "previous": "Poprzednia",
@@ -22,7 +23,8 @@
       "users": "Użytkownicy",
       "products": "Produkty",
       "rfqs": "Zapytania ofertowe",
-      "pendingModeration": "Do moderacji"
+      "pendingModeration": "Do moderacji",
+      "pendingAgencyReviews": "Agencje do sprawdzenia"
     },
     "archived": "{count, plural, =0 {Brak zarchiwizowanych} one {# zarchiwizowana} few {# zarchiwizowane} many {# zarchiwizowanych} other {# zarchiwizowanej}}",
     "kpi": {
@@ -207,7 +209,10 @@
       "attribute_value.updated": "Zmieniono wartość atrybutu",
       "attribute_value.deleted": "Usunięto wartość atrybutu",
       "moderation.approved": "Zatwierdzono w moderacji",
-      "moderation.rejected": "Odrzucono w moderacji"
+      "moderation.rejected": "Odrzucono w moderacji",
+      "agency_review.approved": "Rejestracja agencji zatwierdzona",
+      "agency_review.rejected": "Rejestracja agencji odrzucona",
+      "agency_review.info_requested": "Poproszono agencję o informacje"
     },
     "targets": {
       "user": "Użytkownik",
@@ -346,6 +351,76 @@
     "decided": {
       "approved": "Element zatwierdzony.",
       "rejected": "Element odrzucony."
+    }
+  },
+  "agencyReviews": {
+    "title": "Weryfikacja agencji",
+    "subtitle": "Rejestracje agencji, których automatyczne kontrole wymagają ręcznej weryfikacji.",
+    "resultsCount": "{count, plural, =0 {Brak agencji} one {# agencja} few {# agencje} many {# agencji} other {# agencji}}",
+    "empty": "Brak agencji dla tego filtra.",
+    "emptyDescription": "Zmień filtr lub wróć później.",
+    "filters": {
+      "status": "Widok",
+      "open": "Do sprawdzenia",
+      "approved": "Zatwierdzone",
+      "rejected": "Odrzucone"
+    },
+    "columns": {
+      "agency": "Agencja",
+      "reasons": "Powody weryfikacji",
+      "vat": "VAT (VIES)",
+      "domain": "Domena e-mail",
+      "submitted": "Zarejestrowana",
+      "status": "Status"
+    },
+    "statuses": {
+      "pending": "Do sprawdzenia",
+      "info_requested": "Poproszono o informacje",
+      "approved": "Zatwierdzona",
+      "rejected": "Odrzucona"
+    },
+    "reasons": {
+      "vat_unverified": "VAT niezweryfikowany",
+      "free_email_domain": "Darmowy adres e-mail",
+      "domain_mismatch": "Domena inna niż strona",
+      "no_website": "Brak strony internetowej",
+      "other_activity": "Działalność „inna”"
+    },
+    "verified": "Zweryfikowano",
+    "notVerified": "Niezweryfikowano",
+    "review": "Sprawdź",
+    "back": "Powrót do listy",
+    "submittedOn": "Rejestracja z dnia {date}",
+    "noReasons": "Brak powodów: agencja jest zatwierdzona.",
+    "closed": "Ta rejestracja nie wymaga już weryfikacji: decyzja nie jest możliwa.",
+    "detail": {
+      "title": "Dane agencji",
+      "email": "E-mail",
+      "phone": "Telefon",
+      "website": "Strona internetowa",
+      "siret": "SIRET",
+      "vatNumber": "Numer VAT",
+      "activity": "Działalność",
+      "checks": "Kontrole",
+      "owners": "Właściciele konta"
+    },
+    "form": {
+      "title": "Decyzja",
+      "reason": "Powód lub wiadomość do agencji",
+      "reasonHint": "Wymagane przy odrzuceniu lub prośbie o informacje; wysyłane do agencji e-mailem.",
+      "approve": "Zatwierdź agencję",
+      "requestInfo": "Poproś o informacje",
+      "reject": "Odrzuć rejestrację"
+    },
+    "history": {
+      "title": "Historia",
+      "empty": "Brak decyzji.",
+      "by": "przez {email}"
+    },
+    "decided": {
+      "approved": "Agencja zatwierdzona. Wysłano do niej e-mail.",
+      "rejected": "Rejestracja odrzucona: organizacja jest zarchiwizowana.",
+      "info_requested": "Wysłano do agencji prośbę o informacje."
     }
   }
 }

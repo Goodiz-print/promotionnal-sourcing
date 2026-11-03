@@ -55,5 +55,24 @@
     "total": "Total amount: {total}.",
     "cta": "View the quote",
     "footer": "You are receiving this message because you manage this request for quotation."
+  },
+  "agencyReview": {
+    "footer": "You are receiving this message because you are responsible for this signup.",
+    "reasonLabel": "Message from the team:",
+    "approved": {
+      "subject": "Your signup is approved",
+      "title": "Your agency is approved",
+      "body": "The team approved the signup of “{organizationName}”: your account is fully active."
+    },
+    "rejected": {
+      "subject": "Your signup was not accepted",
+      "title": "Signup not accepted",
+      "body": "The team could not approve the signup of “{organizationName}”. The account has been deactivated."
+    },
+    "info_requested": {
+      "subject": "More information needed",
+      "title": "More information needed",
+      "body": "To approve the signup of “{organizationName}”, the team needs more information. Please reply to this email."
+    }
   }
 }

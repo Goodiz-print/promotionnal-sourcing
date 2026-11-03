@@ -307,6 +307,20 @@ router
                   ])
                   .as('admin.moderation.decide')
 
+                // Revue des inscriptions agence : file, fiche, décision.
+                router
+                  .get('admin/agency-reviews', [controllers.admin.AgencyReview, 'index'])
+                  .as('admin.agency_reviews.index')
+                router
+                  .get('admin/agency-reviews/:id', [controllers.admin.AgencyReview, 'show'])
+                  .as('admin.agency_reviews.show')
+                router
+                  .post('admin/agency-reviews/:id/decision', [
+                    controllers.admin.AgencyReview,
+                    'decide',
+                  ])
+                  .as('admin.agency_reviews.decide')
+
                 // Demande des clients : recherches, consultations, export CSV.
                 router
                   .get('admin/demand', [controllers.admin.Demand, 'index'])

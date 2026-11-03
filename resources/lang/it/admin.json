@@ -8,7 +8,8 @@
     "attributes": "Attributi",
     "label": "Sezioni di amministrazione",
     "demand": "Domanda dei clienti",
-    "moderation": "Moderazione"
+    "moderation": "Moderazione",
+    "agencies": "Agenzie"
   },
   "pagination": {
     "previous": "Precedente",
@@ -22,7 +23,8 @@
       "users": "Utenti",
       "products": "Prodotti",
       "rfqs": "Richieste di preventivo",
-      "pendingModeration": "Da moderare"
+      "pendingModeration": "Da moderare",
+      "pendingAgencyReviews": "Agenzie da rivedere"
     },
     "archived": "{count, plural, =0 {Nessuna archiviata} one {# archiviata} other {# archiviate}}",
     "kpi": {
@@ -207,7 +209,10 @@
       "attribute_value.updated": "Valore di attributo modificato",
       "attribute_value.deleted": "Valore di attributo eliminato",
       "moderation.approved": "Elemento approvato in moderazione",
-      "moderation.rejected": "Elemento rifiutato in moderazione"
+      "moderation.rejected": "Elemento rifiutato in moderazione",
+      "agency_review.approved": "Iscrizione agenzia approvata",
+      "agency_review.rejected": "Iscrizione agenzia respinta",
+      "agency_review.info_requested": "Informazioni richieste a un'agenzia"
     },
     "targets": {
       "user": "Utente",
@@ -346,6 +351,76 @@
     "decided": {
       "approved": "Elemento approvato.",
       "rejected": "Elemento rifiutato."
+    }
+  },
+  "agencyReviews": {
+    "title": "Revisione delle agenzie",
+    "subtitle": "Iscrizioni di agenzie i cui controlli automatici richiedono una convalida manuale.",
+    "resultsCount": "{count, plural, =0 {Nessuna agenzia} one {# agenzia} other {# agenzie}}",
+    "empty": "Nessuna agenzia con questo filtro.",
+    "emptyDescription": "Cambia filtro o torna più tardi.",
+    "filters": {
+      "status": "Mostra",
+      "open": "Da rivedere",
+      "approved": "Approvate",
+      "rejected": "Respinte"
+    },
+    "columns": {
+      "agency": "Agenzia",
+      "reasons": "Motivi di revisione",
+      "vat": "IVA (VIES)",
+      "domain": "Dominio dell'email",
+      "submitted": "Iscritta il",
+      "status": "Stato"
+    },
+    "statuses": {
+      "pending": "Da rivedere",
+      "info_requested": "Informazioni richieste",
+      "approved": "Approvata",
+      "rejected": "Respinta"
+    },
+    "reasons": {
+      "vat_unverified": "IVA non verificata",
+      "free_email_domain": "Email generica",
+      "domain_mismatch": "Dominio diverso dal sito",
+      "no_website": "Nessun sito web",
+      "other_activity": "Attività «altro»"
+    },
+    "verified": "Verificato",
+    "notVerified": "Non verificato",
+    "review": "Esamina",
+    "back": "Torna all'elenco",
+    "submittedOn": "Iscrizione del {date}",
+    "noReasons": "Nessun motivo: l'agenzia è approvata.",
+    "closed": "Questa iscrizione non è più da rivedere: nessuna decisione è possibile.",
+    "detail": {
+      "title": "Dati dell'agenzia",
+      "email": "Email",
+      "phone": "Telefono",
+      "website": "Sito web",
+      "siret": "SIRET",
+      "vatNumber": "N. di IVA",
+      "activity": "Attività",
+      "checks": "Controlli",
+      "owners": "Proprietari dell'account"
+    },
+    "form": {
+      "title": "Decisione",
+      "reason": "Motivo o messaggio all'agenzia",
+      "reasonHint": "Obbligatorio per respingere o chiedere informazioni; inviato per email all'agenzia.",
+      "approve": "Approva l'agenzia",
+      "requestInfo": "Chiedi informazioni",
+      "reject": "Respingi l'iscrizione"
+    },
+    "history": {
+      "title": "Cronologia",
+      "empty": "Nessuna decisione per ora.",
+      "by": "da {email}"
+    },
+    "decided": {
+      "approved": "Agenzia approvata. Le è stata inviata un'email.",
+      "rejected": "Iscrizione respinta: l'organizzazione è archiviata.",
+      "info_requested": "Richiesta di informazioni inviata all'agenzia."
     }
   }
 }

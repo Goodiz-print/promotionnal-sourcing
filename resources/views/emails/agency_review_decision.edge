@@ -1,0 +1,12 @@
+@let(title = t('emails.agencyReview.' + decision + '.title', { organizationName }))
+@component('emails/layout', {
+  title,
+  locale,
+  i18n,
+  footer: t('emails.agencyReview.footer'),
+})
+  <p>{{ t('emails.agencyReview.' + decision + '.body', { organizationName }) }}</p>
+  @if(reason)
+    <p><strong>{{ t('emails.agencyReview.reasonLabel') }}</strong> {{ reason }}</p>
+  @end
+@end

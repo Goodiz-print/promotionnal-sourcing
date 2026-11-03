@@ -21,6 +21,7 @@ const SECTIONS: { key: string; route: string; permission: PlatformPermission }[]
   { key: 'categories', route: 'admin.categories.index', permission: 'catalogue.manage' },
   { key: 'attributes', route: 'admin.attributes.index', permission: 'catalogue.manage' },
   { key: 'moderation', route: 'admin.moderation.index', permission: 'moderation.manage' },
+  { key: 'agencies', route: 'admin.agency_reviews.index', permission: 'moderation.manage' },
   { key: 'demand', route: 'admin.demand.index', permission: 'monitoring.view' },
   { key: 'audit', route: 'admin.audit.index', permission: 'audit.view' },
 ]

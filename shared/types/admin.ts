@@ -14,6 +14,8 @@ export type AdminDashboardStats = {
   rfqs: number
   /** Éléments en attente de modération (organisations fournisseurs + produits). */
   pendingModeration: number
+  /** Inscriptions agence à revoir (motifs de revue non levés, agence non archivée). */
+  pendingAgencyReviews: number
 }
 
 export const ADMIN_ORGANIZATION_STATUSES = ['active', 'archived', 'all'] as const

@@ -19,6 +19,7 @@ export const MAIL_KINDS = {
   passwordReset: 'password-reset',
   emailVerification: 'email-verification',
   contactRequest: 'contact-request',
+  agencyReviewDecision: 'agency-review-decision',
 } as const
 
 export type MailKind = (typeof MAIL_KINDS)[keyof typeof MAIL_KINDS]
@@ -113,6 +114,17 @@ export interface ContactRequestMailData {
 }
 
 /**
+ * Données du mail de décision sur une inscription agence
+ * (`AgencyReviewDecisionNotification`) : approbation, rejet ou demande
+ * d'informations. `reason` est le motif (ou le message) saisi par l'opérateur.
+ */
+export interface AgencyReviewDecisionMailData {
+  organizationName: string
+  decision: 'approved' | 'rejected' | 'info_requested'
+  reason: string | null
+}
+
+/**
  * `to` est hissé hors de `data` : il est commun à tous les mails, ce qui permet
  * de loguer le destinataire dans `failed()` sans connaître le `kind`.
  *
@@ -166,6 +178,12 @@ export type SendMailContent =
       to: string
       locale: Locale
       data: EmailVerificationMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.agencyReviewDecision
+      to: string
+      locale: Locale
+      data: AgencyReviewDecisionMailData
     }
 
 /**

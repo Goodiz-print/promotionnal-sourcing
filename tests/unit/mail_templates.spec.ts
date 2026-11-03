@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { test } from '@japa/runner'
 import app from '@adonisjs/core/services/app'
+import AgencyReviewDecisionNotification from '#mails/agency_review_decision_notification'
 import EmailVerificationNotification from '#mails/email_verification_notification'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
 import PasswordResetNotification from '#mails/password_reset_notification'
@@ -76,6 +77,30 @@ const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> 
       24,
       locale
     ) as never,
+  agencyReviewApproved: (locale) =>
+    new AgencyReviewDecisionNotification(
+      'owner@example.com',
+      'Acme',
+      'approved',
+      null,
+      locale
+    ) as never,
+  agencyReviewRejected: (locale) =>
+    new AgencyReviewDecisionNotification(
+      'owner@example.com',
+      'Acme',
+      'rejected',
+      'Pas une agence',
+      locale
+    ) as never,
+  agencyReviewInfoRequested: (locale) =>
+    new AgencyReviewDecisionNotification(
+      'owner@example.com',
+      'Acme',
+      'info_requested',
+      'Merci de joindre un Kbis.',
+      locale
+    ) as never,
   welcome: (locale) =>
     new WelcomeNotification({
       email: 'new@example.com',
@@ -118,6 +143,25 @@ test.group('Mails — rendu dans la langue du destinataire', () => {
     assert.include(fr.html, 'Consulter la demande')
     assert.include(en.html, 'View the request')
     assert.include(en.html, '3 lines')
+  })
+
+  test('la décision sur une agence affiche le motif saisi, échappé', async ({ assert }) => {
+    const rejected = await render(mailers.agencyReviewRejected('fr'))
+    assert.include(rejected.html, 'Pas une agence')
+    assert.include(rejected.html, 'Message de l&#x27;équipe')
+
+    const approved = await render(mailers.agencyReviewApproved('fr'))
+    assert.notInclude(approved.html, 'Message de l')
+
+    const mailer = new AgencyReviewDecisionNotification(
+      'owner@example.com',
+      'Acme',
+      'info_requested',
+      '<script>alert(1)</script>',
+      'en'
+    )
+    const { html } = await render(mailer as never)
+    assert.notInclude(html, '<script>alert(1)</script>')
   })
 
   test('le pluriel suit les règles de la langue (polonais : one / few / many)', async ({
