@@ -102,9 +102,11 @@ test.group('Back-office — indicateurs KPI', (group) => {
       [supplierB, 'declined'],
       [supplierC, 'viewed'],
     ] as const) {
-      const recipient = await RfqSupplierFactory.apply('sent')
-        .merge({ rfqId: published.id, supplierOrganizationId: supplier.id, status })
-        .create()
+      const recipient = await RfqSupplierFactory.merge({
+        rfqId: published.id,
+        supplierOrganizationId: supplier.id,
+        status,
+      }).create()
       await setDates('rfq_suppliers', recipient.id, { sent_at: at(end, 2) })
     }
 
