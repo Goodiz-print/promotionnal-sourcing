@@ -14,8 +14,14 @@ import {
 } from '#shared/types/search_insights'
 import { SEARCH_EVENT_MODES, type SearchEventMode } from '#shared/types/search_event'
 
-/** Paris timezone for day boundaries. */
+/** Fuseau des bornes de jour. */
 const TIMEZONE = 'Europe/Paris'
+
+/** Bornes (UTC) d'une période, incluses. */
+interface Range {
+  from: DateTime
+  to: DateTime
+}
 
 /**
  * Agrégation des journaux `search_events` et `activity_events` pour l'écran
@@ -29,7 +35,7 @@ export default class SearchInsightsService {
    * @param adminLocale Langue de l'admin pour les noms traduits (catégories, produits, fournisseurs)
    */
   async report(filters: SearchInsightsFilters, adminLocale: string): Promise<SearchInsightsReport> {
-    const { from, to, source, locale, organizationType } = filters
+    const { from, to } = filters
 
     // Bornes de la période en UTC (jours inclus, en fuseau Europe/Paris)
     const fromDate = DateTime.fromISO(from, { zone: TIMEZONE }).startOf('day').toUTC()
@@ -40,149 +46,55 @@ export default class SearchInsightsService {
     const prevFromDate = fromDate.minus({ days })
     const prevToDate = fromDate.minus({ milliseconds: 1 })
 
-    // 1. Summary
-    const summaryData = await db
-      .from('search_events')
-      .where('created_at', '>=', fromDate.toJSDate())
-      .where('created_at', '<=', toDate.toJSDate())
-      .if(source, (q) => q.where('source', source!))
-      .if(locale, (q) => q.where('locale', locale!))
-      .if(organizationType, (q) =>
-        q.whereIn(
-          'organization_id',
-          db.from('organizations').select('id').where('organization_type', organizationType!)
-        )
-      )
+    const range: Range = { from: fromDate, to: toDate }
+    const prevRange: Range = { from: prevFromDate, to: prevToDate }
+
+    const summaryRow = await this.scoped(range, filters)
       .select(
         db.raw('COUNT(*)::int AS total'),
-        db.raw('SUM(CASE WHEN zero_results THEN 1 ELSE 0 END)::int AS zero_results')
+        db.raw('COALESCE(SUM(CASE WHEN zero_results THEN 1 ELSE 0 END), 0)::int AS zero_results')
       )
       .first()
+    const total = Number(summaryRow?.total ?? 0)
+    const zeroResults = Number(summaryRow?.zero_results ?? 0)
 
-    const total = summaryData?.total ?? 0
-    const zeroResults = summaryData?.zero_results ?? 0
-
-    // Count by mode
-    const modeRows = await db
-      .from('search_events')
-      .where('created_at', '>=', fromDate.toJSDate())
-      .where('created_at', '<=', toDate.toJSDate())
-      .if(source, (q) => q.where('source', source!))
-      .if(locale, (q) => q.where('locale', locale!))
-      .if(organizationType, (q) =>
-        q.whereIn(
-          'organization_id',
-          db.from('organizations').select('id').where('organization_type', organizationType!)
-        )
-      )
+    const modeRows = await this.scoped(range, filters)
       .select('mode')
       .count('* as count')
       .groupBy('mode')
+    const byMode = Object.fromEntries(SEARCH_EVENT_MODES.map((mode) => [mode, 0])) as Record<
+      SearchEventMode,
+      number
+    >
+    for (const row of modeRows) byMode[row.mode as SearchEventMode] = Number(row.count)
 
-    const byMode = SEARCH_EVENT_MODES.reduce(
-      (acc, mode) => {
-        acc[mode] = 0
-        return acc
-      },
-      {} as Record<SearchEventMode, number>
-    )
-    for (const row of modeRows) {
-      byMode[row.mode as SearchEventMode] = Number(row.count)
-    }
-
-    // Previous period total
-    const prevData = await db
-      .from('search_events')
-      .where('created_at', '>=', prevFromDate.toJSDate())
-      .where('created_at', '<=', prevToDate.toJSDate())
-      .if(source, (q) => q.where('source', source!))
-      .if(locale, (q) => q.where('locale', locale!))
-      .if(organizationType, (q) =>
-        q.whereIn(
-          'organization_id',
-          db.from('organizations').select('id').where('organization_type', organizationType!)
-        )
-      )
-      .count('* as count')
-      .first()
-
-    const previousTotal = Number(prevData?.count ?? 0)
+    const previous = await this.scoped(prevRange, filters).count('* as count').first()
 
     const summary: SearchInsightsSummary = {
       total,
       zeroResults,
       zeroRate: total > 0 ? zeroResults / total : 0,
       byMode,
-      previousTotal,
+      previousTotal: Number(previous?.count ?? 0),
     }
 
-    // 2. Top queries (query non null)
-    const topQueries = await this.fetchQueryRows(
-      fromDate,
-      toDate,
-      source,
-      locale,
-      organizationType,
-      false
-    )
-
-    // 3. Zero result queries (zero_results = true, query non null)
-    const zeroResultQueries = await this.fetchQueryRows(
-      fromDate,
-      toDate,
-      source,
-      locale,
-      organizationType,
-      true
-    )
-
-    // 4. Daily series
-    const daily = await this.fetchDailySeries(
-      fromDate,
-      toDate,
-      source,
-      locale,
-      organizationType,
-      from,
-      to
-    )
-
-    // 5. Top categories
-    const topCategories = await this.fetchTopCategories(
-      fromDate,
-      toDate,
-      source,
-      locale,
-      organizationType,
-      adminLocale
-    )
-
-    // 6. Top filters
-    const topFilters = await this.fetchTopFilters(
-      fromDate,
-      toDate,
-      source,
-      locale,
-      organizationType
-    )
-
-    // 7. Top products (views + rfqAdds)
-    const topProducts = await this.fetchTopTargets(
-      fromDate,
-      toDate,
-      organizationType,
-      'product',
-      adminLocale
-    )
-
-    // 8. Top suppliers (views only)
-    const topSuppliers = await this.fetchTopTargets(
-      fromDate,
-      toDate,
-      organizationType,
-      'supplier',
-      adminLocale
-    )
+    const [
+      topQueries,
+      zeroResultQueries,
+      daily,
+      topCategories,
+      topFilters,
+      topProducts,
+      topSuppliers,
+    ] = await Promise.all([
+      this.fetchQueryRows(range, filters, false),
+      this.fetchQueryRows(range, filters, true),
+      this.fetchDailySeries(range, filters),
+      this.fetchTopCategories(range, filters, adminLocale),
+      this.fetchTopFilters(range, filters),
+      this.fetchTopTargets(range, filters, 'product', adminLocale),
+      this.fetchTopTargets(range, filters, 'supplier', adminLocale),
+    ])
 
     return {
       filters,
@@ -294,360 +206,212 @@ export default class SearchInsightsService {
     return escaped
   }
 
-  /**
-   * Fetch top queries or zero-result queries.
-   */
+  /** `search_events` de la période, avec les filtres source / langue / type d'organisation. */
+  private scoped(range: Range, filters: SearchInsightsFilters) {
+    return db
+      .from('search_events')
+      .where('created_at', '>=', range.from.toJSDate())
+      .where('created_at', '<=', range.to.toJSDate())
+      .if(filters.source, (q) => q.where('source', filters.source!))
+      .if(filters.locale, (q) => q.where('locale', filters.locale!))
+      .if(filters.organizationType, (q) =>
+        q.whereIn('organization_id', this.organizationsOfType(filters.organizationType!))
+      )
+  }
+
+  private organizationsOfType(type: string) {
+    return db.from('organizations').select('id').where('organization_type', type)
+  }
+
+  /** Classement des termes (tous, ou seulement les recherches sans résultat). */
   private async fetchQueryRows(
-    fromDate: DateTime,
-    toDate: DateTime,
-    source: string | null,
-    locale: string | null,
-    organizationType: string | null,
+    range: Range,
+    filters: SearchInsightsFilters,
     zeroResultsOnly: boolean
   ): Promise<SearchInsightsQueryRow[]> {
-    const rows = await db
-      .from('search_events')
-      .where('created_at', '>=', fromDate.toJSDate())
-      .where('created_at', '<=', toDate.toJSDate())
+    const rows = await this.scoped(range, filters)
       .whereNotNull('query')
-      .if(source, (q) => q.where('source', source!))
-      .if(locale, (q) => q.where('locale', locale!))
-      .if(organizationType, (q) =>
-        q.whereIn(
-          'organization_id',
-          db.from('organizations').select('id').where('organization_type', organizationType!)
-        )
-      )
       .if(zeroResultsOnly, (q) => q.where('zero_results', true))
-      .select('query')
-      .count('* as count')
-      .sum({ zero_count: db.raw('CASE WHEN zero_results THEN 1 ELSE 0 END') })
-      .avg({ avg_results: 'results_count' })
+      .select(
+        'query',
+        db.raw('COUNT(*)::int AS count'),
+        db.raw('COALESCE(SUM(CASE WHEN zero_results THEN 1 ELSE 0 END), 0)::int AS zero_count'),
+        db.raw('ROUND(AVG(results_count))::int AS avg_results')
+      )
       .groupBy('query')
       .orderBy('count', 'desc')
+      .orderBy('query', 'asc')
       .limit(SEARCH_INSIGHTS_TOP_LIMIT)
 
     return rows.map((row) => ({
       query: row.query as string,
       count: Number(row.count),
-      zeroCount: Number(row.zero_count ?? 0),
-      avgResults: Math.round(Number(row.avg_results ?? 0)),
+      zeroCount: Number(row.zero_count),
+      avgResults: Number(row.avg_results ?? 0),
     }))
   }
 
-  /**
-   * Generate daily series (complete, including days with 0 searches).
-   */
+  /** Série complète jour par jour (Europe/Paris), jours sans recherche compris. */
   private async fetchDailySeries(
-    fromDate: DateTime,
-    toDate: DateTime,
-    source: string | null,
-    locale: string | null,
-    organizationType: string | null,
-    fromISO: string,
-    toISO: string
+    range: Range,
+    filters: SearchInsightsFilters
   ): Promise<SearchInsightsDayPoint[]> {
-    // Fetch actual data
-    const rows = await db
-      .from('search_events')
-      .where('created_at', '>=', fromDate.toJSDate())
-      .where('created_at', '<=', toDate.toJSDate())
-      .if(source, (q) => q.where('source', source!))
-      .if(locale, (q) => q.where('locale', locale!))
-      .if(organizationType, (q) =>
-        q.whereIn(
-          'organization_id',
-          db.from('organizations').select('id').where('organization_type', organizationType!)
-        )
-      )
+    const dayExpr = `to_char(created_at AT TIME ZONE 'Europe/Paris', 'YYYY-MM-DD')`
+    const rows = await this.scoped(range, filters)
       .select(
-        db.raw(`DATE(created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Paris') as date`),
-        db.raw('COUNT(*)::int as total'),
-        db.raw('SUM(CASE WHEN zero_results THEN 1 ELSE 0 END)::int as zero_results')
+        db.raw(`${dayExpr} AS day`),
+        db.raw('COUNT(*)::int AS total'),
+        db.raw('COALESCE(SUM(CASE WHEN zero_results THEN 1 ELSE 0 END), 0)::int AS zero_results')
       )
-      .groupBy('date')
-      .orderBy('date', 'asc')
+      .groupByRaw(dayExpr)
 
-    const dataMap = new Map<string, { total: number; zeroResults: number }>()
+    const byDay = new Map<string, { total: number; zeroResults: number }>()
     for (const row of rows) {
-      const dateStr =
-        row.date instanceof Date
-          ? DateTime.fromJSDate(row.date).toFormat('yyyy-MM-dd')
-          : String(row.date)
-      dataMap.set(dateStr, {
-        total: row.total,
-        zeroResults: row.zero_results,
+      byDay.set(String(row.day), {
+        total: Number(row.total),
+        zeroResults: Number(row.zero_results),
       })
     }
 
-    // Generate complete series
     const result: SearchInsightsDayPoint[] = []
-    let current = DateTime.fromISO(fromISO, { zone: TIMEZONE })
-    const end = DateTime.fromISO(toISO, { zone: TIMEZONE })
-
-    while (current <= end) {
-      const dateStr = current.toFormat('yyyy-MM-dd')
-      const data = dataMap.get(dateStr)
+    const end = DateTime.fromISO(filters.to, { zone: TIMEZONE })
+    for (
+      let day = DateTime.fromISO(filters.from, { zone: TIMEZONE });
+      day <= end;
+      day = day.plus({ days: 1 })
+    ) {
+      const date = day.toFormat('yyyy-MM-dd')
       result.push({
-        date: dateStr,
-        total: data?.total ?? 0,
-        zeroResults: data?.zeroResults ?? 0,
+        date,
+        total: byDay.get(date)?.total ?? 0,
+        zeroResults: byDay.get(date)?.zeroResults ?? 0,
       })
-      current = current.plus({ days: 1 })
     }
-
     return result
   }
 
-  /**
-   * Fetch top categories with translated names.
-   */
+  /** Catégories les plus recherchées, avec leur nom dans la langue de l'admin. */
   private async fetchTopCategories(
-    fromDate: DateTime,
-    toDate: DateTime,
-    source: string | null,
-    locale: string | null,
-    organizationType: string | null,
+    range: Range,
+    filters: SearchInsightsFilters,
     adminLocale: string
   ): Promise<SearchInsightsCategoryRow[]> {
-    const rows = await db
-      .from('search_events')
-      .where('created_at', '>=', fromDate.toJSDate())
-      .where('created_at', '<=', toDate.toJSDate())
+    const rows = await this.scoped(range, filters)
       .whereNotNull('category_id')
-      .if(source, (q) => q.where('source', source!))
-      .if(locale, (q) => q.where('locale', locale!))
-      .if(organizationType, (q) =>
-        q.whereIn(
-          'organization_id',
-          db.from('organizations').select('id').where('organization_type', organizationType!)
-        )
-      )
       .select('category_id')
       .count('* as count')
       .groupBy('category_id')
       .orderBy('count', 'desc')
+      .orderBy('category_id', 'asc')
       .limit(SEARCH_INSIGHTS_TOP_LIMIT)
-
     if (rows.length === 0) return []
 
-    // Fetch category translations in one query
-    const categoryIds = rows.map((r) => r.category_id)
-    const translations = await db
-      .from('category_translations')
-      .whereIn('category_id', categoryIds)
-      .select('category_id', 'locale', 'name')
-
-    // Group translations by category_id
-    const translationsByCategory = new Map<number, { locale: string; name: string }[]>()
-    for (const t of translations) {
-      if (!translationsByCategory.has(t.category_id)) {
-        translationsByCategory.set(t.category_id, [])
-      }
-      translationsByCategory.get(t.category_id)!.push({ locale: t.locale, name: t.name })
-    }
-
-    return rows.map((row) => {
-      const catTranslations = translationsByCategory.get(row.category_id) ?? []
-      const resolved = resolveTranslation(catTranslations, adminLocale)
-      return {
-        categoryId: row.category_id as number,
-        name: resolved?.name ?? `Category ${row.category_id}`,
-        count: Number(row.count),
-      }
-    })
-  }
-
-  /**
-   * Fetch top filter keys from jsonb filters column.
-   */
-  private async fetchTopFilters(
-    fromDate: DateTime,
-    toDate: DateTime,
-    source: string | null,
-    locale: string | null,
-    organizationType: string | null
-  ): Promise<SearchInsightsFilterRow[]> {
-    // Build conditions
-    const conditions: string[] = ['created_at >= $1', 'created_at <= $2', "filters != '{}'::jsonb"]
-    const bindings: (Date | string)[] = [fromDate.toJSDate(), toDate.toJSDate()]
-    let paramIndex = 3
-
-    if (source) {
-      conditions.push(`source = $${paramIndex}`)
-      bindings.push(source)
-      paramIndex++
-    }
-    if (locale) {
-      conditions.push(`locale = $${paramIndex}`)
-      bindings.push(locale)
-      paramIndex++
-    }
-    if (organizationType) {
-      conditions.push(
-        `organization_id IN (SELECT id FROM organizations WHERE organization_type = $${paramIndex})`
-      )
-      bindings.push(organizationType)
-    }
-
-    const whereClause = conditions.join(' AND ')
-
-    // Use rawQuery for the subquery with jsonb_object_keys
-    const result = await db.rawQuery<{ rows: Array<{ key: string; count: string }> }>(
-      `
-      SELECT key, COUNT(*)::text as count
-      FROM (
-        SELECT jsonb_object_keys(filters) as key
-        FROM search_events
-        WHERE ${whereClause}
-      ) as keys
-      GROUP BY key
-      ORDER BY count DESC
-      LIMIT ${SEARCH_INSIGHTS_TOP_LIMIT}
-      `,
-      bindings
+    const names = await this.translatedNames(
+      'category_translations',
+      'category_id',
+      rows.map((row) => row.category_id as number),
+      adminLocale
     )
-
-    return result.rows.map((row) => ({
-      key: row.key,
+    return rows.map((row) => ({
+      categoryId: row.category_id as number,
+      name: names.get(row.category_id as number) ?? `Category ${row.category_id}`,
       count: Number(row.count),
     }))
   }
 
-  /**
-   * Fetch top targets (products or suppliers) from activity_events.
-   */
+  /** Clés de filtre les plus utilisées (colonne jsonb `filters`). */
+  private async fetchTopFilters(
+    range: Range,
+    filters: SearchInsightsFilters
+  ): Promise<SearchInsightsFilterRow[]> {
+    const keys = this.scoped(range, filters)
+      .whereRaw(`filters <> '{}'::jsonb`)
+      .select(db.raw('jsonb_object_keys(filters) AS key'))
+      .as('keys')
+
+    const result = await db
+      .from(keys)
+      .select('key')
+      .count('* as count')
+      .groupBy('key')
+      .orderBy('count', 'desc')
+      .orderBy('key', 'asc')
+      .limit(SEARCH_INSIGHTS_TOP_LIMIT)
+
+    return result.map((row) => ({ key: row.key as string, count: Number(row.count) }))
+  }
+
+  /** Produits ou fournisseurs les plus consultés (`activity_events`), avec ajouts RFQ. */
   private async fetchTopTargets(
-    fromDate: DateTime,
-    toDate: DateTime,
-    organizationType: string | null,
+    range: Range,
+    filters: SearchInsightsFilters,
     targetType: 'product' | 'supplier',
     adminLocale: string
   ): Promise<SearchInsightsTargetRow[]> {
-    const viewType = targetType === 'product' ? 'product_viewed' : 'supplier_viewed'
+    const events = (type: string) =>
+      db
+        .from('activity_events')
+        .where('created_at', '>=', range.from.toJSDate())
+        .where('created_at', '<=', range.to.toJSDate())
+        .where('target_type', targetType)
+        .where('type', type)
+        .if(filters.organizationType, (q) =>
+          q.whereIn('organization_id', this.organizationsOfType(filters.organizationType!))
+        )
 
-    // Get views
-    let viewsQuery = db
-      .from('activity_events')
-      .where('created_at', '>=', fromDate.toJSDate())
-      .where('created_at', '<=', toDate.toJSDate())
-      .where('target_type', targetType)
-      .where('type', viewType)
-
-    if (organizationType) {
-      viewsQuery = viewsQuery.whereIn(
-        'organization_id',
-        db.from('organizations').select('id').where('organization_type', organizationType)
-      )
-    }
-
-    const viewRows = await viewsQuery
+    const viewRows = await events(targetType === 'product' ? 'product_viewed' : 'supplier_viewed')
       .select('target_id')
       .count('* as views')
       .groupBy('target_id')
       .orderBy('views', 'desc')
-      .limit(SEARCH_INSIGHTS_TOP_LIMIT * 2) // Fetch more to account for merging with rfqAdds
-
+      .orderBy('target_id', 'asc')
+      .limit(SEARCH_INSIGHTS_TOP_LIMIT)
     if (viewRows.length === 0) return []
 
-    const targetIds = viewRows.map((r) => r.target_id as number)
+    const ids = viewRows.map((row) => row.target_id as number)
 
-    // Get rfq_product_added for products only
-    let rfqAddMap = new Map<number, number>()
+    const rfqAdds = new Map<number, number>()
     if (targetType === 'product') {
-      let rfqQuery = db
-        .from('activity_events')
-        .where('created_at', '>=', fromDate.toJSDate())
-        .where('created_at', '<=', toDate.toJSDate())
-        .where('target_type', 'product')
-        .where('type', 'rfq_product_added')
-        .whereIn('target_id', targetIds)
-
-      if (organizationType) {
-        rfqQuery = rfqQuery.whereIn(
-          'organization_id',
-          db.from('organizations').select('id').where('organization_type', organizationType)
-        )
-      }
-
-      const rfqRows = await rfqQuery.select('target_id').count('* as adds').groupBy('target_id')
-
-      for (const row of rfqRows) {
-        rfqAddMap.set(row.target_id as number, Number(row.adds))
-      }
+      const addRows = await events('rfq_product_added')
+        .whereIn('target_id', ids)
+        .select('target_id')
+        .count('* as adds')
+        .groupBy('target_id')
+      for (const row of addRows) rfqAdds.set(row.target_id as number, Number(row.adds))
     }
 
-    // Fetch translations
-    let names: Map<number, string>
-    if (targetType === 'product') {
-      names = await this.fetchProductNames(targetIds, adminLocale)
-    } else {
-      names = await this.fetchSupplierNames(targetIds, adminLocale)
-    }
-
-    return viewRows.slice(0, SEARCH_INSIGHTS_TOP_LIMIT).map((row) => ({
+    const names = await this.translatedNames(
+      targetType === 'product' ? 'product_translations' : 'supplier_translations',
+      targetType === 'product' ? 'product_id' : 'supplier_id',
+      ids,
+      adminLocale
+    )
+    return viewRows.map((row) => ({
       targetId: row.target_id as number,
       name: names.get(row.target_id as number) ?? `${targetType} ${row.target_id}`,
       views: Number(row.views),
-      rfqAdds: rfqAddMap.get(row.target_id as number) ?? 0,
+      rfqAdds: rfqAdds.get(row.target_id as number) ?? 0,
     }))
   }
 
-  /**
-   * Fetch product names with fallback.
-   */
-  private async fetchProductNames(
-    productIds: number[],
+  /** Noms traduits (une requête), repli de `resolveTranslation` si la langue manque. */
+  private async translatedNames(
+    table: string,
+    foreignKey: string,
+    ids: number[],
     adminLocale: string
   ): Promise<Map<number, string>> {
-    const translations = await db
-      .from('product_translations')
-      .whereIn('product_id', productIds)
-      .select('product_id', 'locale', 'name')
-
-    const byProduct = new Map<number, { locale: string; name: string }[]>()
-    for (const t of translations) {
-      if (!byProduct.has(t.product_id)) {
-        byProduct.set(t.product_id, [])
-      }
-      byProduct.get(t.product_id)!.push({ locale: t.locale, name: t.name })
+    const rows = await db.from(table).whereIn(foreignKey, ids).select(foreignKey, 'locale', 'name')
+    const grouped = new Map<number, { locale: string; name: string }[]>()
+    for (const row of rows) {
+      const id = row[foreignKey] as number
+      grouped.set(id, [...(grouped.get(id) ?? []), { locale: row.locale, name: row.name }])
     }
-
-    const result = new Map<number, string>()
-    for (const productId of productIds) {
-      const trans = byProduct.get(productId) ?? []
-      const resolved = resolveTranslation(trans, adminLocale)
-      result.set(productId, resolved?.name ?? `Product ${productId}`)
+    const names = new Map<number, string>()
+    for (const [id, translations] of grouped) {
+      const resolved = resolveTranslation(translations, adminLocale)
+      if (resolved) names.set(id, resolved.name)
     }
-    return result
-  }
-
-  /**
-   * Fetch supplier names with fallback.
-   */
-  private async fetchSupplierNames(
-    supplierIds: number[],
-    adminLocale: string
-  ): Promise<Map<number, string>> {
-    const translations = await db
-      .from('supplier_translations')
-      .whereIn('supplier_id', supplierIds)
-      .select('supplier_id', 'locale', 'name')
-
-    const bySupplier = new Map<number, { locale: string; name: string }[]>()
-    for (const t of translations) {
-      if (!bySupplier.has(t.supplier_id)) {
-        bySupplier.set(t.supplier_id, [])
-      }
-      bySupplier.get(t.supplier_id)!.push({ locale: t.locale, name: t.name })
-    }
-
-    const result = new Map<number, string>()
-    for (const supplierId of supplierIds) {
-      const trans = bySupplier.get(supplierId) ?? []
-      const resolved = resolveTranslation(trans, adminLocale)
-      result.set(supplierId, resolved?.name ?? `Supplier ${supplierId}`)
-    }
-    return result
+    return names
   }
 }
