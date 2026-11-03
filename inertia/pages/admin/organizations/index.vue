@@ -5,7 +5,6 @@ import { Link } from '@adonisjs/inertia/vue'
 import { Building2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { useAdminTabs } from '~/composables/use_admin_tabs'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseCard from '~/components/base/base_card.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
@@ -13,7 +12,6 @@ import BasePageHeader from '~/components/base/base_page_header.vue'
 import BasePagination from '~/components/base/base_pagination.vue'
 import BaseSelect from '~/components/base/base_select.vue'
 import BaseTable from '~/components/base/base_table.vue'
-import BaseTabs from '~/components/base/base_tabs.vue'
 import type {
   AdminOrganizationFilters,
   AdminOrganizationListItem,
@@ -28,7 +26,6 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
-const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 
 const type = ref<OrganizationKind | ''>(props.filters.type ?? '')
 const status = ref<AdminOrganizationStatus>(props.filters.status)
@@ -50,8 +47,6 @@ function visit(page: number) {
       :title="t('admin.organizations.title')"
       :description="t('admin.organizations.subtitle')"
     />
-
-    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
     <BaseCard padding="md">
       <div class="grid gap-4 sm:grid-cols-[200px_200px]">

@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const STORAGE_KEY = 'app-sidebar-collapsed'
 
@@ -10,16 +10,16 @@ function read(): boolean {
   }
 }
 
-/* État partagé par le layout et la sidebar. Lu au premier appel côté client seulement
-   (le SSR rend toujours la sidebar dépliée), puis mémorisé entre les visites. */
+/* État partagé par le layout et la sidebar. Le SSR rend toujours la sidebar dépliée : la valeur
+   mémorisée n'est donc lue qu'une fois le composant monté. La lire pendant le `setup` ferait diverger
+   le premier rendu client du HTML serveur, et Vue ne corrige pas les classes d'un DOM hydraté
+   (la grille du layout resterait à la largeur dépliée alors que le menu est réduit). */
 const collapsed = ref(false)
-let hydrated = false
 
 export function useSidebarCollapsed() {
-  if (!hydrated && typeof window !== 'undefined') {
-    hydrated = true
+  onMounted(() => {
     collapsed.value = read()
-  }
+  })
 
   function toggle() {
     collapsed.value = !collapsed.value

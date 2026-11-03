@@ -4,6 +4,12 @@ import { usePage } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import {
   Boxes,
+  Building2,
+  FolderTree,
+  Gavel,
+  ScrollText,
+  Search,
+  SlidersHorizontal,
   FileCheck,
   FileText,
   Factory,
@@ -20,6 +26,7 @@ import {
 import type { Data } from '@generated/data'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
+import { useAdminTabs } from '~/composables/use_admin_tabs'
 import { isActivePath } from '#shared/helpers/navigation'
 import { ICON_SIZE } from '~/types/ui'
 
@@ -50,25 +57,54 @@ const NAV_META: Record<string, { icon: Component; group: NavGroup }> = {
   admin: { icon: ShieldCheck, group: 'admin' },
 }
 
+/** Icône de chaque section du back-office (clés de `useAdminTabs`). */
+const ADMIN_ICONS: Record<string, Component> = {
+  dashboard: LayoutDashboard,
+  organizations: Building2,
+  users: Users,
+  categories: FolderTree,
+  attributes: SlidersHorizontal,
+  moderation: Gavel,
+  agencies: Store,
+  demand: Search,
+  audit: ScrollText,
+}
+
 const props = withDefaults(defineProps<{ collapsed?: boolean }>(), { collapsed: false })
 
 const page = usePage<Data.SharedProps>()
 const { t, locale } = useI18n()
 
 /**
- * Le back-office sert à administrer les acheteurs, fournisseurs et agences : il
- * n'affiche donc pas leurs entrées de menu, seulement celle de l'administration.
+ * Le back-office sert à administrer la plateforme : le menu y est remplacé par ses
+ * sections (celles que le rôle plateforme permet), à la place des entrées acheteur,
+ * fournisseur et agence.
  */
 const inBackOffice = computed(() => page.component.startsWith('admin/'))
+const { items: adminItems } = useAdminTabs()
 
 const groups = computed(() => {
-  const visible = (page.props.navigation ?? []).filter(
-    (item) => !inBackOffice.value || item.key === 'admin'
-  )
-  const items = visible.map((item) => {
+  if (inBackOffice.value) {
+    const items = adminItems.value.map((item) => ({
+      key: item.key,
+      href: item.href,
+      active: item.active,
+      label: item.label,
+      icon: ADMIN_ICONS[item.key] ?? ShieldCheck,
+    }))
+    return [{ key: 'admin' as NavGroup, label: t('common.nav.groups.admin'), items }]
+  }
+  const items = (page.props.navigation ?? []).map((item) => {
     const href = urlFor(item.route, { locale: locale.value })
     const meta = NAV_META[item.key] ?? { icon: Package, group: 'explore' as NavGroup }
-    return { ...item, href, active: isActivePath(page.url, href), ...meta }
+    return {
+      key: item.key,
+      href,
+      active: isActivePath(page.url, href),
+      label: t(item.labelKey),
+      icon: meta.icon,
+      group: meta.group,
+    }
   })
   return GROUP_ORDER.map((group) => ({
     key: group,
@@ -98,7 +134,7 @@ const groups = computed(() => {
         :key="item.key"
         :href="item.href"
         :aria-current="item.active ? 'page' : undefined"
-        :title="props.collapsed ? t(item.labelKey) : undefined"
+        :title="props.collapsed ? item.label : undefined"
         class="flex items-center gap-3 rounded-md px-3 py-2 text-body-sm font-semibold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
         :class="[
           item.active
@@ -114,7 +150,7 @@ const groups = computed(() => {
           :class="item.active ? 'text-indigo-600' : 'text-text-muted'"
           aria-hidden="true"
         />
-        <span :class="props.collapsed ? 'md:sr-only' : ''">{{ t(item.labelKey) }}</span>
+        <span :class="props.collapsed ? 'md:sr-only' : ''">{{ item.label }}</span>
       </Link>
     </div>
   </nav>

@@ -3,14 +3,12 @@ import { Head, router } from '@inertiajs/vue3'
 import { ArrowRight, ScrollText } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { useAdminTabs } from '~/composables/use_admin_tabs'
 import AuditFilters from '~/components/admin/audit_filters.vue'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BasePagination from '~/components/base/base_pagination.vue'
 import BaseTable from '~/components/base/base_table.vue'
-import BaseTabs from '~/components/base/base_tabs.vue'
 import type {
   AdminAuditChanges,
   AdminAuditFilters,
@@ -24,7 +22,6 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
-const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 
 let current = { ...props.filters }
 
@@ -71,8 +68,6 @@ function formatDate(value: string): string {
 
   <div class="flex flex-col gap-8">
     <BasePageHeader :title="t('admin.audit.title')" :description="t('admin.audit.subtitle')" />
-
-    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
     <AuditFilters :filters="filters" @change="visit" />
 

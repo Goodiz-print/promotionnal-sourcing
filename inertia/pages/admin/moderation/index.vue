@@ -3,7 +3,6 @@ import { Head, router } from '@inertiajs/vue3'
 import { ShieldCheck } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { useAdminTabs } from '~/composables/use_admin_tabs'
 import ModerationFilters from '~/components/admin/moderation_filters.vue'
 import ModerationStatusBadge from '~/components/admin/moderation_status_badge.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
@@ -11,7 +10,6 @@ import BaseLinkButton from '~/components/base/base_link_button.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BasePagination from '~/components/base/base_pagination.vue'
 import BaseTable from '~/components/base/base_table.vue'
-import BaseTabs from '~/components/base/base_tabs.vue'
 import type { AdminModerationFilters, AdminModerationItem } from '#shared/types/admin_moderation'
 import type { Paginated } from '#shared/types/pagination'
 
@@ -21,7 +19,6 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
-const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 
 let current = { ...props.filters }
 
@@ -60,8 +57,6 @@ function showUrl(item: AdminModerationItem): string {
       :title="t('admin.moderation.title')"
       :description="t('admin.moderation.subtitle')"
     />
-
-    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
     <ModerationFilters :filters="filters" @change="visit" />
 

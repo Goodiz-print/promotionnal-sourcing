@@ -5,19 +5,16 @@ import { Link } from '@adonisjs/inertia/vue'
 import { FolderTree, Plus, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
-import { useAdminTabs } from '~/composables/use_admin_tabs'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import BaseIconButton from '~/components/base/base_icon_button.vue'
 import BaseLinkButton from '~/components/base/base_link_button.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseTable from '~/components/base/base_table.vue'
-import BaseTabs from '~/components/base/base_tabs.vue'
 import type { CategoryAdminType } from '#shared/types/category'
 
 defineProps<{ categories: CategoryAdminType[] }>()
 
 const { t, locale } = useI18n()
-const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 
 const createUrl = computed(() => urlFor('admin.categories.create', { locale: locale.value }))
 
@@ -45,8 +42,6 @@ function destroy(category: CategoryAdminType) {
         </BaseLinkButton>
       </template>
     </BasePageHeader>
-
-    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
     <BaseEmptyState
       v-if="categories.length === 0"

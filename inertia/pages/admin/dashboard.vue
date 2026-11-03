@@ -4,13 +4,11 @@ import { Head, router } from '@inertiajs/vue3'
 import { Building2, FileText, Package, ShieldCheck, UserCheck, Users } from 'lucide-vue-next'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
-import { useAdminTabs } from '~/composables/use_admin_tabs'
 import { usePlatformPermissions } from '~/composables/use_platform_permissions'
 import KpiOverview from '~/components/admin/kpi_overview.vue'
 import KpiPeriodFilter from '~/components/admin/kpi_period_filter.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseStat from '~/components/base/base_stat.vue'
-import BaseTabs from '~/components/base/base_tabs.vue'
 import type { AdminDashboardStats } from '#shared/types/admin'
 import type { AdminKpiFilters, AdminKpiReport } from '#shared/types/admin_kpi'
 import type { PlatformPermission } from '#shared/types/user'
@@ -23,7 +21,6 @@ defineProps<{
 }>()
 
 const { t, locale } = useI18n()
-const { items: adminTabs, label: adminTabsLabel } = useAdminTabs()
 const { can } = usePlatformPermissions()
 
 function visit(filters: AdminKpiFilters) {
@@ -92,8 +89,6 @@ const counters = computed(() =>
       :title="t('admin.dashboard.title')"
       :description="t('admin.dashboard.subtitle')"
     />
-
-    <BaseTabs :items="adminTabs" :label="adminTabsLabel" />
 
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <BaseStat
