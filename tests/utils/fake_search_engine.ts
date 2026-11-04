@@ -20,13 +20,15 @@ export default class FakeSearchEngine extends SearchEngine {
   removed: number[][] = []
   replaced: ProductSearchDocument[][] = []
   requests: ProductSearchRequest[] = []
-  /** Réponse de `search` ; `Error` pour simuler un moteur injoignable. */
+  /** Reponse de `search` ; `Error` pour simuler un moteur injoignable. */
   hits: ProductSearchHits | Error = { ids: [], total: 0 }
-  /** Simule une API d'embeddings indisponible : seules les requêtes sémantiques échouent. */
+  /** Simule une API d'embeddings indisponible : seules les requetes semantiques echouent. */
   failSemantic = false
-  /** Réponse de `facetDistribution` ; `Error` pour simuler un moteur injoignable. */
+  /** Reponse de `facetDistribution` ; `Error` pour simuler un moteur injoignable. */
   distribution: FacetDistribution | Error = {}
   facetRequests: FacetDistributionRequest[] = []
+  /** Nombre d'appels a `refreshSettings`. */
+  settingsRefreshed = 0
 
   async upsert(documents: ProductSearchDocument[]) {
     if (documents.length > 0) this.upserted.push(documents)
@@ -56,6 +58,10 @@ export default class FakeSearchEngine extends SearchEngine {
       count += batch.length
     }
     return count
+  }
+
+  async refreshSettings(): Promise<void> {
+    this.settingsRefreshed++
   }
 
   get indexedIds(): number[] {

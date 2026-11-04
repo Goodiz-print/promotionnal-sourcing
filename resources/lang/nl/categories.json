@@ -47,6 +47,46 @@
     "hasChildren": "Verwijderen is niet mogelijk: deze categorie heeft subcategorieën.",
     "hasProducts": "Verwijderen is niet mogelijk: er zijn producten aan deze categorie gekoppeld."
   },
+  "attributes": {
+    "title": "Gekoppelde attributen",
+    "description": "Attributen die rechtstreeks aan deze categorie zijn gekoppeld (van bovenliggende categorieën geërfde attributen worden niet getoond).",
+    "empty": "Er zijn geen attributen aan deze categorie gekoppeld.",
+    "add": "Attribuut toevoegen",
+    "columns": {
+      "name": "Attribuut",
+      "type": "Type",
+      "required": "Verplicht",
+      "filter": "Filter",
+      "position": "Positie",
+      "ranges": "Bereiken",
+      "actions": "Acties"
+    },
+    "flash": {
+      "added": "Attribuut aan de categorie toegevoegd.",
+      "updated": "Koppeling bijgewerkt.",
+      "removed": "Attribuut uit de categorie verwijderd.",
+      "rangesUpdated": "Bereiken bijgewerkt.",
+      "alreadyExists": "Dit attribuut is al aan deze categorie gekoppeld."
+    },
+    "selectLabel": "Toe te voegen attribuut",
+    "selectPlaceholder": "Kies een attribuut",
+    "noneAvailable": "Alle attributen zijn al aan deze categorie gekoppeld.",
+    "remove": "Attribuut verwijderen",
+    "confirmRemove": "Dit attribuut uit de categorie verwijderen?",
+    "editRanges": "Bereiken bewerken",
+    "noRanges": "Geen bereiken",
+    "requiredFor": "Verplicht voor {name}",
+    "filterFor": "Filter voor {name}",
+    "positionFor": "Positie van {name}",
+    "ranges": {
+      "min": "Minimum",
+      "max": "Maximum",
+      "add": "Bereik toevoegen",
+      "remove": "Bereik verwijderen",
+      "save": "Bereiken opslaan",
+      "hint": "Laat een grens leeg voor een open bereik (bijvoorbeeld onder 400)."
+    }
+  },
   "back": "Terug naar categorieën",
   "form": {
     "identity": "Identificatie",

@@ -225,3 +225,13 @@ export interface CategoryAttributeRangeInput {
 export interface UpdateCategoryAttributeRangesData {
   ranges: CategoryAttributeRangeInput[]
 }
+
+/**
+ * Attribut proposé à l'ajout sur l'écran d'édition d'une catégorie (attributs
+ * pas encore associés), nom résolu dans la locale active.
+ */
+export type CategoryAttributeOption = {
+  id: number
+  slug: string
+  name: string | null
+}

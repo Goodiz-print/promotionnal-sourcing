@@ -16,7 +16,7 @@ Socle du back-office `/:locale/admin` (epic #157) : rôles plateforme fins (#158
 | `users.view`           |   x   |           |    x    |         | liste et fiche des utilisateurs                                           |
 | `users.support`        |   x   |           |    x    |         | renvoyer vérification, reset mot de passe                                 |
 | `users.manage`         |   x   |           |         |         | suspendre, réactiver, supprimer un compte                                 |
-| `catalogue.manage`     |   x   |           |         |         | taxonomie (catégories, attributs)                                         |
+| `catalogue.manage`     |   x   |           |         |         | taxonomie (categories, attributs, certifications, techniques de marquage) |
 | `roles.manage`         |   x   |           |         |         | attribuer un rôle plateforme                                              |
 | `audit.view`           |   x   |           |         |         | journal d'audit                                                           |
 | `monitoring.view`      |   x   |           |         |    x    | réservé aux écrans de monitoring à venir (lecture)                        |
@@ -40,7 +40,7 @@ Table `admin_audit_logs`, **en ajout seul** (`AdminAuditService` n'expose que `r
 | `changes`                      | `jsonb` : `before` / `after` (jamais de secret) ; `source: 'cli'` pour une commande ace  |
 | `ip_address`, `created_at`     | origine de la requête et horodatage                                                      |
 
-Actions tracées aujourd'hui : `platform_role.changed` (écran Utilisateurs et commandes ace, sans acteur dans ce second cas), `category.created` / `.updated` / `.deleted`, `attribute.created` / `.updated` / `.deleted` et `attribute_value.created` / `.updated` / `.deleted` (cibles `category`, `attribute`, `attribute_value`).
+Actions tracees aujourd'hui : `platform_role.changed` (ecran Utilisateurs et commandes ace, sans acteur dans ce second cas), `category.created` / `.updated` / `.deleted`, `attribute.created` / `.updated` / `.deleted`, `attribute_value.created` / `.updated` / `.deleted`, `certification.created` / `.updated` / `.deleted`, `marking_technique.created` / `.updated` / `.deleted`, `category_attribute.added` / `.updated` / `.removed` (cibles `category`, `attribute`, `attribute_value`, `certification`, `marking_technique`, `category_attribute`).
 
 **Règle pour toute nouvelle action d'écriture admin** : le service qui écrit reçoit un `AdminActionContext` (le contrôleur le construit avec `adminActionContext(ctx)`), ouvre une transaction, et appelle `AdminAuditService.record(entry, { ...context, client: trx })` **dans cette transaction** — l'action et sa trace réussissent ou échouent ensemble. Effets de bord asynchrones (queue, mail) : après le commit. Une action sans changement effectif (même valeur) n'écrit rien. Ajouter la valeur à `ADMIN_AUDIT_ACTIONS`, ses libellés `admin.audit.actions.*` dans les 9 langues.
 

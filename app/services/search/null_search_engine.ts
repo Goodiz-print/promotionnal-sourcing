@@ -31,4 +31,6 @@ export default class NullSearchEngine extends SearchEngine {
     for await (const batch of batches) count += batch.length
     return count
   }
+
+  async refreshSettings(): Promise<void> {}
 }

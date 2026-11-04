@@ -66,4 +66,11 @@ Actions ajoutees au journal d'audit admin :
 ## Effets de bord
 
 - Modification de `is_eco` sur une certification : reindexation des produits concernes (via `SearchSyncService.queueProduct`)
-- Suppression de certification/technique : refusee si utilisee par des produits
+- Suppression de certification/technique : refusee si utilisee par des produits (verification dans la transaction avec verrou)
+- Modification de `is_filter` sur un pivot categorie-attribut : rafraichissement automatique des reglages de l'index Meilisearch (via `SearchSyncService.queueSettings()` et `RefreshSearchSettingsJob`)
+
+## Moteur de recherche
+
+- Ajout de `SearchEngine.refreshSettings()` : reapplique les reglages de l'index (attributs filtrables) sans reconstruire les documents
+- Ajout de `RefreshSearchSettingsJob` : job de queue pour rafraichir les reglages
+- Ajout de `SearchSyncService.queueSettings()` : met en queue le rafraichissement des reglages

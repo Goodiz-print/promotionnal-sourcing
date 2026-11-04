@@ -47,6 +47,46 @@
     "hasChildren": "No se puede eliminar: esta categoría tiene subcategorías.",
     "hasProducts": "No se puede eliminar: hay productos asociados a esta categoría."
   },
+  "attributes": {
+    "title": "Atributos asociados",
+    "description": "Atributos vinculados directamente a esta categoría (no se muestran los atributos heredados de las categorías superiores).",
+    "empty": "Ningún atributo asociado a esta categoría.",
+    "add": "Añadir un atributo",
+    "columns": {
+      "name": "Atributo",
+      "type": "Tipo",
+      "required": "Obligatorio",
+      "filter": "Filtro",
+      "position": "Posición",
+      "ranges": "Rangos",
+      "actions": "Acciones"
+    },
+    "flash": {
+      "added": "Atributo añadido a la categoría.",
+      "updated": "Asociación actualizada.",
+      "removed": "Atributo retirado de la categoría.",
+      "rangesUpdated": "Rangos actualizados.",
+      "alreadyExists": "Este atributo ya está asociado a esta categoría."
+    },
+    "selectLabel": "Atributo que añadir",
+    "selectPlaceholder": "Elegir un atributo",
+    "noneAvailable": "Todos los atributos ya están asociados a esta categoría.",
+    "remove": "Retirar el atributo",
+    "confirmRemove": "¿Retirar este atributo de la categoría?",
+    "editRanges": "Editar los rangos",
+    "noRanges": "Sin rangos",
+    "requiredFor": "Obligatorio para {name}",
+    "filterFor": "Filtro para {name}",
+    "positionFor": "Posición de {name}",
+    "ranges": {
+      "min": "Mínimo",
+      "max": "Máximo",
+      "add": "Añadir un rango",
+      "remove": "Eliminar el rango",
+      "save": "Guardar los rangos",
+      "hint": "Deje un límite vacío para un rango abierto (por ejemplo, menos de 400)."
+    }
+  },
   "back": "Volver a las categorías",
   "form": {
     "identity": "Identificación",

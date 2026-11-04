@@ -67,6 +67,24 @@
       "removed": "Attribut retiré de la catégorie.",
       "rangesUpdated": "Plages mises à jour.",
       "alreadyExists": "Cet attribut est déjà associé à cette catégorie."
+    },
+    "selectLabel": "Attribut à ajouter",
+    "selectPlaceholder": "Choisir un attribut",
+    "noneAvailable": "Tous les attributs sont déjà associés à cette catégorie.",
+    "remove": "Retirer l'attribut",
+    "confirmRemove": "Retirer cet attribut de la catégorie ?",
+    "editRanges": "Modifier les plages",
+    "noRanges": "Aucune plage",
+    "requiredFor": "Obligatoire pour {name}",
+    "filterFor": "Filtre pour {name}",
+    "positionFor": "Position de {name}",
+    "ranges": {
+      "min": "Minimum",
+      "max": "Maximum",
+      "add": "Ajouter une plage",
+      "remove": "Supprimer la plage",
+      "save": "Enregistrer les plages",
+      "hint": "Laissez une borne vide pour une plage ouverte (par exemple, moins de 400)."
     }
   },
   "back": "Retour aux catégories",

@@ -67,6 +67,24 @@
       "removed": "Attribute removed from category.",
       "rangesUpdated": "Ranges updated.",
       "alreadyExists": "This attribute is already associated with this category."
+    },
+    "selectLabel": "Attribute to add",
+    "selectPlaceholder": "Choose an attribute",
+    "noneAvailable": "All attributes are already associated with this category.",
+    "remove": "Remove attribute",
+    "confirmRemove": "Remove this attribute from the category?",
+    "editRanges": "Edit ranges",
+    "noRanges": "No ranges",
+    "requiredFor": "Required for {name}",
+    "filterFor": "Filter for {name}",
+    "positionFor": "Position of {name}",
+    "ranges": {
+      "min": "Minimum",
+      "max": "Maximum",
+      "add": "Add a range",
+      "remove": "Delete range",
+      "save": "Save ranges",
+      "hint": "Leave a bound empty for an open range (for example, under 400)."
     }
   },
   "back": "Back to categories",

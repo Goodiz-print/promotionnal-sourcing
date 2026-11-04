@@ -14,9 +14,9 @@ import db from '@adonisjs/lucid/services/db'
  */
 export default class FilterableFacetsService {
   /**
-   * Slugs d'attributs marqués `is_filter` dans au moins une catégorie, triés —
-   * stable d'un appel à l'autre. Un changement de `is_filter` est pris en compte
-   * au prochain `search:reindex` (les réglages de l'index y sont réappliqués).
+   * Slugs d'attributs marques `is_filter` dans au moins une categorie, tries —
+   * stable d'un appel a l'autre. Un changement de `is_filter` declenche un
+   * rafraichissement des reglages de l'index via `SearchSyncService.queueSettings()`.
    */
   async filterableSlugs(): Promise<string[]> {
     const rows = await db

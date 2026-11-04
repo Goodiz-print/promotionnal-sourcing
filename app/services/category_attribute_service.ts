@@ -1,6 +1,5 @@
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
-import Category from '#models/category'
 import CategoryAttribute from '#models/category_attribute'
 import CategoryAttributeRange from '#models/category_attribute_range'
 import Attribute from '#models/attribute'
@@ -11,6 +10,7 @@ import {
   invalidCategoryAttributeRanges,
 } from '#exceptions/catalogue_errors'
 import type { AdminActionContext } from '#shared/types/admin_audit'
+import type Category from '#models/category'
 import type {
   AddCategoryAttributeData,
   UpdateCategoryAttributeData,
@@ -18,31 +18,28 @@ import type {
 } from '#shared/types/category'
 
 /**
- * Gestion des attributs associés aux catégories (#165) : pivot
+ * Gestion des attributs associes aux categories (#165) : pivot
  * `category_attributes` et plages `category_attribute_ranges`.
  *
- * Un attribut peut être rattaché à n'importe quel niveau de la taxonomie.
- * `CatalogueFacetsService` résout l'ensemble en remontant la chaîne d'ancêtres.
+ * Un attribut peut etre rattache a n'importe quel niveau de la taxonomie.
+ * `CatalogueFacetsService` resout l'ensemble en remontant la chaine d'ancetres.
  *
- * **Effets de bord** : modifier les facettes d'une catégorie (ajout/retrait
- * d'attribut, changement de is_filter) peut nécessiter une réindexation des
- * produits de la catégorie et de ses descendants. L'index Meilisearch contient
- * `attributeValueIds` et `attributes.<slug>` ; un changement de `is_filter`
- * modifie la liste des slugs filtrables (réglages de l'index), mais pas les
- * documents eux-mêmes. La réindexation est donc déclenchée uniquement pour
- * reconstruire les réglages au prochain `search:reindex` (pas de job immédiat).
+ * **Effets de bord** : modifier `is_filter` d'un pivot declenche un
+ * rafraichissement des reglages de l'index Meilisearch (liste des
+ * `attributes.<slug>` filtrables) via `SearchSyncService.queueSettings()`.
+ * Les documents de l'index ne changent pas (ils contiennent deja toutes les
+ * valeurs d'attributs) ; seuls les reglages sont mis a jour.
  */
 @inject()
 export default class CategoryAttributeService {
   constructor(
     private audit: AdminAuditService,
-    // Injection préparée pour la réindexation future si nécessaire
-    _searchSync: SearchSyncService
+    private searchSync: SearchSyncService
   ) {}
 
   /**
-   * Attributs rattachés directement à cette catégorie (pas les hérités),
-   * avec leurs plages, triés par position.
+   * Attributs rattaches directement a cette categorie (pas les herites),
+   * avec leurs plages, tries par position.
    */
   async listForCategory(categoryId: number): Promise<CategoryAttribute[]> {
     return CategoryAttribute.query()
@@ -54,7 +51,7 @@ export default class CategoryAttributeService {
   }
 
   /**
-   * Trouve un pivot par son ID, précharge l'attribut et les plages.
+   * Trouve un pivot par son ID, precharge l'attribut et les plages.
    */
   async findById(id: number): Promise<CategoryAttribute | null> {
     return CategoryAttribute.query()
@@ -65,7 +62,7 @@ export default class CategoryAttributeService {
   }
 
   /**
-   * Trouve un pivot par catégorie et attribut.
+   * Trouve un pivot par categorie et attribut.
    */
   async findByCategoryAndAttribute(
     categoryId: number,
@@ -78,31 +75,34 @@ export default class CategoryAttributeService {
   }
 
   /**
-   * Ajoute un attribut à une catégorie. Refusé si l'attribut est déjà associé.
+   * Ajoute un attribut a une categorie. Refuse si l'attribut est deja associe.
+   * Declenche un rafraichissement des reglages si `isFilter` est `true`.
    */
   async add(
     category: Category,
     data: AddCategoryAttributeData,
     context: AdminActionContext
   ): Promise<CategoryAttribute> {
-    // Vérifier que l'attribut existe
+    // Verifier que l'attribut existe
     const attribute = await Attribute.find(data.attributeId)
     if (!attribute) {
       throw invalidCategoryAttributeRanges('Attribute not found')
     }
 
-    // Vérifier l'unicité
+    // Verifier l'unicite
     const existing = await this.findByCategoryAndAttribute(category.id, data.attributeId)
     if (existing) {
       throw new CategoryAttributeAlreadyExistsException()
     }
 
-    // Calculer la position par défaut (après le dernier)
+    // Calculer la position par defaut (apres le dernier)
     const maxPosition = await CategoryAttribute.query()
       .where('categoryId', category.id)
       .max('position as max')
       .first()
     const position = data.position ?? (maxPosition?.$extras.max ?? 0) + 1
+
+    const isFilter = data.isFilter ?? false
 
     const pivot = await db.transaction(async (trx) => {
       const created = await CategoryAttribute.create(
@@ -110,7 +110,7 @@ export default class CategoryAttributeService {
           categoryId: category.id,
           attributeId: data.attributeId,
           isRequiredForPublication: data.isRequiredForPublication ?? false,
-          isFilter: data.isFilter ?? false,
+          isFilter,
           position,
         },
         { client: trx }
@@ -130,19 +130,21 @@ export default class CategoryAttributeService {
         },
         { ...context, client: trx }
       )
+
+      // Si isFilter est true, rafraichir les reglages apres commit
+      if (isFilter) {
+        trx.after('commit', () => this.searchSync.queueSettings())
+      }
+
       return created
     })
-
-    // NOTE : la réindexation des produits n'est pas déclenchée ici car l'ajout
-    // d'un attribut à une catégorie ne change pas les valeurs d'attributs des
-    // produits existants. Les réglages de l'index (filterable slugs) seront mis
-    // à jour au prochain search:reindex.
 
     return pivot
   }
 
   /**
-   * Met à jour le pivot (is_required, is_filter, position).
+   * Met a jour le pivot (is_required, is_filter, position).
+   * Declenche un rafraichissement des reglages si `is_filter` change.
    */
   async update(
     pivot: CategoryAttribute,
@@ -155,6 +157,7 @@ export default class CategoryAttributeService {
       position: source.position,
     })
     const before = snapshot(pivot)
+    const wasFilter = pivot.isFilter
 
     await db.transaction(async (trx) => {
       pivot.useTransaction(trx)
@@ -174,17 +177,25 @@ export default class CategoryAttributeService {
         },
         { ...context, client: trx }
       )
+
+      // Si is_filter a change, rafraichir les reglages apres commit
+      if (wasFilter !== pivot.isFilter) {
+        trx.after('commit', () => this.searchSync.queueSettings())
+      }
     })
 
     return pivot
   }
 
   /**
-   * Retire un attribut d'une catégorie (supprime le pivot et ses plages).
+   * Retire un attribut d'une categorie (supprime le pivot et ses plages).
+   * Declenche un rafraichissement des reglages si le pivot etait filtrable.
    */
   async remove(pivot: CategoryAttribute, context: AdminActionContext): Promise<void> {
+    const wasFilter = pivot.isFilter
+
     await db.transaction(async (trx) => {
-      // Les plages sont supprimées par cascade (FK)
+      // Les plages sont supprimees par cascade (FK)
       await pivot.useTransaction(trx).delete()
       await this.audit.record(
         {
@@ -195,25 +206,35 @@ export default class CategoryAttributeService {
             before: {
               categoryId: pivot.categoryId,
               attributeId: pivot.attributeId,
+              isFilter: pivot.isFilter,
             },
           },
         },
         { ...context, client: trx }
       )
+
+      // Si le pivot etait filtrable, rafraichir les reglages apres commit
+      if (wasFilter) {
+        trx.after('commit', () => this.searchSync.queueSettings())
+      }
     })
   }
 
   /**
-   * Met à jour les plages d'un attribut numérique sur une catégorie.
-   * Remplace les plages existantes (synchronisation complète).
-   * Validation : l'attribut doit être de type `number`, et min < max.
+   * Met a jour les plages d'un attribut numerique sur une categorie.
+   * Remplace les plages existantes (synchronisation complete).
+   * Validation : l'attribut doit etre de type `number`, et min < max.
+   *
+   * Les plages servent au calcul des facettes a la requete (filtres numeriques
+   * par tranche) ; elles n'alimentent pas les reglages de l'index, donc pas
+   * de rafraichissement necessaire.
    */
   async updateRanges(
     pivot: CategoryAttribute,
     data: UpdateCategoryAttributeRangesData,
     context: AdminActionContext
   ): Promise<CategoryAttribute> {
-    // Charger l'attribut pour vérifier le type
+    // Charger l'attribut pour verifier le type
     await pivot.load('attribute')
     if (pivot.attribute.type !== 'number') {
       throw invalidCategoryAttributeRanges('Ranges can only be set on numeric attributes')
@@ -238,13 +259,13 @@ export default class CategoryAttributeService {
         .where('categoryAttributeId', pivot.id)
         .delete()
 
-      // Créer les nouvelles plages
+      // Creer les nouvelles plages
       for (let i = 0; i < data.ranges.length; i++) {
         const range = data.ranges[i]
         await CategoryAttributeRange.create(
           {
             categoryAttributeId: pivot.id,
-            // Les décimaux sont stockés comme chaînes dans Lucid
+            // Les decimaux sont stockes comme chaines dans Lucid
             minValue:
               range.minValue === null || range.minValue === undefined
                 ? null
@@ -275,45 +296,5 @@ export default class CategoryAttributeService {
     // Recharger les plages
     await pivot.load('ranges', (query) => query.orderBy('position', 'asc'))
     return pivot
-  }
-
-  /**
-   * IDs des produits dans une catégorie et ses descendants.
-   * Utilisé pour déclencher une réindexation si nécessaire.
-   */
-  async productIdsInCategoryTree(categoryId: number): Promise<number[]> {
-    // Récupérer tous les descendants
-    const descendantIds = await this.descendantCategoryIds(categoryId)
-    const categoryIds = [categoryId, ...descendantIds]
-
-    const rows = await db.from('products').whereIn('category_id', categoryIds).select('id')
-    return rows.map((row) => row.id)
-  }
-
-  /**
-   * IDs de tous les descendants d'une catégorie.
-   */
-  private async descendantCategoryIds(rootId: number): Promise<number[]> {
-    const all = await Category.query().select('id', 'parentId')
-    const childrenByParent = new Map<number, number[]>()
-    for (const category of all) {
-      if (category.parentId === null) continue
-      const siblings = childrenByParent.get(category.parentId) ?? []
-      siblings.push(category.id)
-      childrenByParent.set(category.parentId, siblings)
-    }
-
-    const result: number[] = []
-    const stack = [rootId]
-    while (stack.length > 0) {
-      const current = stack.pop()!
-      for (const child of childrenByParent.get(current) ?? []) {
-        if (!result.includes(child)) {
-          result.push(child)
-          stack.push(child)
-        }
-      }
-    }
-    return result
   }
 }

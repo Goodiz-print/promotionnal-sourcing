@@ -172,15 +172,23 @@ export default class MarkingTechniqueService {
   }
 
   /**
-   * Supprime la technique. Refusée si des produits l'utilisent (positions ou
-   * paliers de prix de marquage).
+   * Supprime la technique. Refusee si des produits l'utilisent (positions ou
+   * paliers de prix de marquage). La verification est faite dans la transaction
+   * avec verrou pour eviter les races.
    */
   async delete(technique: MarkingTechnique, context: AdminActionContext): Promise<void> {
-    if (await this.isInUse(technique.id)) {
-      throw new MarkingTechniqueInUseException()
-    }
-
     await db.transaction(async (trx) => {
+      // Verrou sur la technique pour eviter les races
+      await MarkingTechnique.query({ client: trx })
+        .where('id', technique.id)
+        .forUpdate()
+        .firstOrFail()
+
+      // Verifier l'usage dans la transaction
+      if (await this.isInUseWithClient(technique.id, trx)) {
+        throw new MarkingTechniqueInUseException()
+      }
+
       await technique.useTransaction(trx).delete()
       await this.audit.record(
         {
@@ -195,17 +203,20 @@ export default class MarkingTechniqueService {
   }
 
   /**
-   * Vérifie si la technique est utilisée par des produits.
+   * Verifie si la technique est utilisee par des produits (dans la transaction).
    */
-  private async isInUse(techniqueId: number): Promise<boolean> {
-    const positionRow = await db
+  private async isInUseWithClient(
+    techniqueId: number,
+    client: import('@adonisjs/lucid/types/database').TransactionClientContract
+  ): Promise<boolean> {
+    const positionRow = await client
       .from('product_marking_position_techniques')
       .where('marking_technique_id', techniqueId)
       .select('id')
       .first()
     if (positionRow) return true
 
-    const priceRow = await db
+    const priceRow = await client
       .from('product_marking_price_tiers')
       .where('marking_technique_id', techniqueId)
       .select('id')

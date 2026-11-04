@@ -148,16 +148,28 @@ export default class CertificationService {
   }
 
   /**
-   * Supprime la certification. Refusée si des produits la portent.
-   * Après suppression, les produits qui la portaient ont leur is_eco recalculé.
+   * Supprime la certification. Refusee si des produits la portent.
+   * La verification est faite dans la transaction avec verrou pour eviter
+   * les races.
    */
   async delete(certification: Certification, context: AdminActionContext): Promise<void> {
-    const productIds = await this.productIdsWithCertification(certification.id)
-    if (productIds.length > 0) {
-      throw new CertificationInUseException()
-    }
-
     await db.transaction(async (trx) => {
+      // Verrou sur la certification pour eviter les races
+      await Certification.query({ client: trx })
+        .where('id', certification.id)
+        .forUpdate()
+        .firstOrFail()
+
+      // Verifier l'usage dans la transaction
+      const usage = await trx
+        .from('product_certifications')
+        .where('certification_id', certification.id)
+        .select('id')
+        .first()
+      if (usage) {
+        throw new CertificationInUseException()
+      }
+
       await certification.useTransaction(trx).delete()
       await this.audit.record(
         {

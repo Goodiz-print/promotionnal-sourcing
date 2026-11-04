@@ -47,6 +47,46 @@
     "hasChildren": "Det går inte att ta bort: kategorin har underkategorier.",
     "hasProducts": "Det går inte att ta bort: produkter är kopplade till kategorin."
   },
+  "attributes": {
+    "title": "Kopplade attribut",
+    "description": "Attribut som är direkt kopplade till den här kategorin (attribut som ärvs från överordnade kategorier visas inte).",
+    "empty": "Inga attribut är kopplade till den här kategorin.",
+    "add": "Lägg till ett attribut",
+    "columns": {
+      "name": "Attribut",
+      "type": "Typ",
+      "required": "Obligatoriskt",
+      "filter": "Filter",
+      "position": "Position",
+      "ranges": "Intervall",
+      "actions": "Åtgärder"
+    },
+    "flash": {
+      "added": "Attributet har lagts till i kategorin.",
+      "updated": "Kopplingen har uppdaterats.",
+      "removed": "Attributet har tagits bort från kategorin.",
+      "rangesUpdated": "Intervallen har uppdaterats.",
+      "alreadyExists": "Det här attributet är redan kopplat till kategorin."
+    },
+    "selectLabel": "Attribut att lägga till",
+    "selectPlaceholder": "Välj ett attribut",
+    "noneAvailable": "Alla attribut är redan kopplade till den här kategorin.",
+    "remove": "Ta bort attributet",
+    "confirmRemove": "Ta bort det här attributet från kategorin?",
+    "editRanges": "Redigera intervall",
+    "noRanges": "Inga intervall",
+    "requiredFor": "Obligatoriskt för {name}",
+    "filterFor": "Filter för {name}",
+    "positionFor": "Position för {name}",
+    "ranges": {
+      "min": "Minimum",
+      "max": "Maximum",
+      "add": "Lägg till ett intervall",
+      "remove": "Ta bort intervallet",
+      "save": "Spara intervallen",
+      "hint": "Lämna en gräns tom för ett öppet intervall (till exempel under 400)."
+    }
+  },
   "back": "Tillbaka till kategorier",
   "form": {
     "identity": "Identifiering",
