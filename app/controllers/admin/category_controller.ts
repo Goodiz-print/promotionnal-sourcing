@@ -121,6 +121,20 @@ export default class CategoryController {
   }
 
   /**
+   * Complète les traductions manquantes de toutes les catégories (mise en file
+   * de la traduction automatique ; les noms saisis ne sont jamais écrasés).
+   */
+  async translate({ bouncer, response, session, i18n }: HttpContext) {
+    await bouncer.authorize('canManageCategories')
+
+    const { queued, failed } = await this.service.requestMissingTranslations()
+
+    if (failed) session.flash('error', i18n.t('categories.flash.translationsFailed'))
+    else session.flash('success', i18n.t('categories.flash.translationsQueued', { count: queued }))
+    return response.redirect().back()
+  }
+
+  /**
    * Déplace la catégorie d'un cran parmi ses sœurs. Sans effet (ni audit) si
    * elle est déjà en bout de liste.
    */

@@ -8,12 +8,14 @@
       "slug": "Identificatie",
       "parent": "Bovenliggende categorie",
       "products": "Producten",
-      "actions": "Acties"
+      "actions": "Acties",
+      "languages": "Talen"
     },
     "emptyDescription": "Categorieën structureren de catalogus en de filters ervan.",
     "root": "Hoofdniveau",
     "moveUp": "Omhoog",
-    "moveDown": "Omlaag"
+    "moveDown": "Omlaag",
+    "completeTranslations": "Vertalingen aanvullen"
   },
   "create": {
     "title": "Nieuwe categorie",
@@ -48,7 +50,9 @@
     "cycle": "Een categorie kan niet haar eigen bovenliggende categorie zijn, noch die van een van haar onderliggende categorieën.",
     "hasChildren": "Verwijderen is niet mogelijk: deze categorie heeft subcategorieën.",
     "hasProducts": "Verwijderen is niet mogelijk: er zijn producten aan deze categorie gekoppeld.",
-    "moved": "Volgorde van de categorieën bijgewerkt."
+    "moved": "Volgorde van de categorieën bijgewerkt.",
+    "translationsQueued": "Automatische vertaling gestart voor {count} categorieën: ontbrekende talen worden aangevuld.",
+    "translationsFailed": "Vertalingen konden niet worden gestart: de wachtrij is niet beschikbaar. Probeer het later opnieuw."
   },
   "attributes": {
     "title": "Gekoppelde attributen",

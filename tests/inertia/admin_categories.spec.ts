@@ -14,11 +14,18 @@ const translations = {
   'categories.edit': 'Modifier',
   'categories.delete': 'Supprimer',
   'categories.index.moveUp': 'Monter',
+  'categories.index.columns.languages': 'Langues',
+  'categories.index.completeTranslations': 'Compléter les traductions',
   'categories.index.moveDown': 'Descendre',
   'categories.confirmDelete': 'Supprimer cette catégorie ?',
 }
 
-const routerMock = vi.hoisted(() => ({ get: vi.fn(), delete: vi.fn(), patch: vi.fn() }))
+const routerMock = vi.hoisted(() => ({
+  get: vi.fn(),
+  delete: vi.fn(),
+  patch: vi.fn(),
+  post: vi.fn(),
+}))
 
 vi.mock('@inertiajs/vue3', async () => {
   const m = await import('./support/inertia_mocks')
@@ -44,6 +51,8 @@ function category(id: number, name: string, slug: string, extra: Partial<Categor
     parentId: null,
     parentName: null,
     productsCount: 0,
+    translatedLocales: 32,
+    totalLocales: 32,
     depth: 0,
     canMoveUp: false,
     canMoveDown: false,
@@ -106,6 +115,19 @@ describe('admin/categories/index.vue', () => {
     await wrapper.findAll('button[aria-label="Monter"]')[1].trigger('click')
     expect(routerMock.patch).toHaveBeenCalledTimes(1)
     options.onFinish()
+  })
+
+  it('affiche le nombre de langues traduites et le bouton de complétion', async () => {
+    const wrapper = mount(Index, {
+      props: { categories: [category(1, 'Crayon', 'crayon', { translatedLocales: 2 })] },
+    })
+
+    expect(wrapper.text()).toContain('2/32')
+    await wrapper
+      .findAll('button')
+      .find((b) => b.text().includes('Compléter'))!
+      .trigger('click')
+    expect(routerMock.post).toHaveBeenCalled()
   })
 
   it('affiche un état vide', () => {

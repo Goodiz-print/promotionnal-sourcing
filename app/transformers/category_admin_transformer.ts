@@ -1,6 +1,6 @@
 import type Category from '#models/category'
 import { BaseTransformer } from '@adonisjs/core/transformers'
-import { DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
+import { CONTENT_LOCALES, DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
 import { resolveTranslation } from '#shared/helpers/translations'
 import type { CategoryAdminType } from '#shared/types/category'
 
@@ -34,6 +34,10 @@ export default class CategoryAdminTransformer extends BaseTransformer<Category> 
       parentId: this.resource.parentId,
       parentName: parentTranslation?.name ?? null,
       productsCount: Number(this.resource.$extras.products_count ?? 0),
+      translatedLocales: new Set(
+        this.resource.translations.filter((t) => t.name).map((t) => t.locale)
+      ).size,
+      totalLocales: CONTENT_LOCALES.length,
       depth: Number(this.resource.$extras.depth ?? 0),
       canMoveUp: Boolean(this.resource.$extras.can_move_up),
       canMoveDown: Boolean(this.resource.$extras.can_move_down),

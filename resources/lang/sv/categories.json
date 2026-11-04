@@ -8,12 +8,14 @@
       "slug": "Identifierare",
       "parent": "Överordnad",
       "products": "Produkter",
-      "actions": "Åtgärder"
+      "actions": "Åtgärder",
+      "languages": "Språk"
     },
     "emptyDescription": "Kategorierna strukturerar katalogen och dess filter.",
     "root": "Rot",
     "moveUp": "Flytta upp",
-    "moveDown": "Flytta ned"
+    "moveDown": "Flytta ned",
+    "completeTranslations": "Komplettera översättningar"
   },
   "create": {
     "title": "Ny kategori",
@@ -48,7 +50,9 @@
     "cycle": "En kategori kan inte vara sin egen överordnade eller överordnad till någon av sina underkategorier.",
     "hasChildren": "Det går inte att ta bort: kategorin har underkategorier.",
     "hasProducts": "Det går inte att ta bort: produkter är kopplade till kategorin.",
-    "moved": "Kategoriordningen uppdaterad."
+    "moved": "Kategoriordningen uppdaterad.",
+    "translationsQueued": "Automatisk översättning startad för {count} kategorier: saknade språk kommer att fyllas i.",
+    "translationsFailed": "Det gick inte att starta översättningarna: kön är inte tillgänglig. Försök igen senare."
   },
   "attributes": {
     "title": "Kopplade attribut",

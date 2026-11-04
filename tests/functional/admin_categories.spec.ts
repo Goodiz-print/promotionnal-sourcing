@@ -507,6 +507,72 @@ test.group('Administration des catégories — réordonnancement', (group) => {
     assert.equal(existing.position, 0)
   })
 
+  test('la liste expose le nombre de langues traduites par catégorie', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await platformAdmin()
+    const { a } = await threeRoots()
+    await CategoryTranslation.createMany([
+      { categoryId: a.id, locale: 'fr', name: 'Alpha' },
+      { categoryId: a.id, locale: 'en', name: 'Alpha' },
+    ])
+
+    const response = await client.get('/fr/admin/categories').withInertia().loginAs(admin)
+
+    const list = response.inertiaProps.categories as Array<{
+      slug: string
+      translatedLocales: number
+      totalLocales: number
+    }>
+    const first = list.find((c) => c.slug === 'ordre-a')!
+    assert.equal(first.translatedLocales, 2)
+    assert.isAbove(first.totalLocales, 2)
+    assert.equal(list.find((c) => c.slug === 'ordre-b')!.translatedLocales, 0)
+  })
+
+  test('compléter les traductions met les catégories en file, sans toucher aux noms saisis', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await platformAdmin()
+    const { a } = await threeRoots()
+    await CategoryTranslation.create({ categoryId: a.id, locale: 'fr', name: 'Alpha' })
+
+    const response = await client
+      .post('/fr/admin/categories/translate')
+      .json({})
+      .withCsrfToken()
+      .loginAs(admin)
+      .redirects(0)
+
+    response.assertStatus(302)
+    assert.isString(response.flashMessages().success)
+    const translation = await CategoryTranslation.query()
+      .where('categoryId', a.id)
+      .where('locale', 'fr')
+      .firstOrFail()
+    assert.equal(translation.name, 'Alpha')
+    assert.isFalse(translation.isAuto)
+  })
+
+  test('un utilisateur non plateforme ne peut pas lancer les traductions', async ({
+    client,
+    assert,
+  }) => {
+    const user = await freshOrgMember('owner')
+
+    const response = await client
+      .post('/fr/admin/categories/translate')
+      .json({})
+      .withCsrfToken()
+      .loginAs(user)
+      .redirects(0)
+
+    assert.isAtLeast(response.status(), 302)
+    assert.isUndefined(response.flashMessages().success)
+  })
+
   test('un utilisateur non plateforme ne peut pas déplacer (sans effet)', async ({
     client,
     assert,

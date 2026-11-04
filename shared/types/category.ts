@@ -115,6 +115,10 @@ export type CategoryAdminType = {
   productsCount: number
   /** Profondeur dans l'arbre (0 = racine) : sert à l'indentation. */
   depth: number
+  /** Nombre de langues de contenu pour lesquelles la catégorie a un nom. */
+  translatedLocales: number
+  /** Nombre total de langues de contenu attendues. */
+  totalLocales: number
   /** Vrai si la catégorie a une sœur avant elle (déplacement vers le haut possible). */
   canMoveUp: boolean
   /** Vrai si la catégorie a une sœur après elle (déplacement vers le bas possible). */

@@ -972,6 +972,12 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"categories"],[1,"id"]],
     types: placeholder as Registry['admin.categories.update']['types'],
   },
+  'admin.categories.translate': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/categories/translate',
+    tokens: [[1,"locale"],[0,"admin"],[0,"categories"],[0,"translate"]],
+    types: placeholder as Registry['admin.categories.translate']['types'],
+  },
   'admin.categories.move': {
     methods: ["PATCH"],
     pattern: '/:locale/admin/categories/:id/move',

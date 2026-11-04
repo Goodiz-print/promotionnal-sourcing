@@ -2100,6 +2100,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'admin.categories.translate': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/categories/translate'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['translate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['translate']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['translate']>>>
+    }
+  }
   'admin.categories.move': {
     methods: ["PATCH"]
     pattern: '/:locale/admin/categories/:id/move'

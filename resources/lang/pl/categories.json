@@ -8,12 +8,14 @@
       "slug": "Identyfikator",
       "parent": "Nadrzędna",
       "products": "Produkty",
-      "actions": "Akcje"
+      "actions": "Akcje",
+      "languages": "Języki"
     },
     "emptyDescription": "Kategorie porządkują katalog i jego filtry.",
     "root": "Korzeń",
     "moveUp": "W górę",
-    "moveDown": "W dół"
+    "moveDown": "W dół",
+    "completeTranslations": "Uzupełnij tłumaczenia"
   },
   "create": {
     "title": "Nowa kategoria",
@@ -48,7 +50,9 @@
     "cycle": "Kategoria nie może być własną kategorią nadrzędną ani nadrzędną dla żadnej ze swoich podkategorii.",
     "hasChildren": "Nie można usunąć: ta kategoria zawiera podkategorie.",
     "hasProducts": "Nie można usunąć: do tej kategorii przypisane są produkty.",
-    "moved": "Zaktualizowano kolejność kategorii."
+    "moved": "Zaktualizowano kolejność kategorii.",
+    "translationsQueued": "Uruchomiono automatyczne tłumaczenie dla {count} kategorii: brakujące języki zostaną uzupełnione.",
+    "translationsFailed": "Nie udało się uruchomić tłumaczeń: kolejka jest niedostępna. Spróbuj ponownie później."
   },
   "attributes": {
     "title": "Powiązane atrybuty",

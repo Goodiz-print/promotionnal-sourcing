@@ -4,6 +4,7 @@ import Category from '#models/category'
 import CategoryTranslation from '#models/category_translation'
 import AdminAuditService from '#services/admin_audit_service'
 import TranslationQueueService from '#services/translation_queue_service'
+import TranslationBackfillService from '#services/translation_backfill_service'
 import { missingSourceTranslation } from '#exceptions/translation_errors'
 import { compareSiblingCategories, orderCategoriesAsTree } from '#shared/helpers/category_tree'
 import { CONTENT_LOCALES } from '#shared/types/i18n'
@@ -25,7 +26,8 @@ import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 export default class CategoryService {
   constructor(
     private translationQueue: TranslationQueueService,
-    private audit: AdminAuditService
+    private audit: AdminAuditService,
+    private backfill: TranslationBackfillService
   ) {}
 
   /**
@@ -47,6 +49,17 @@ export default class CategoryService {
         return category
       }
     )
+  }
+
+  /**
+   * Met en file la traduction automatique de **toutes** les catégories vers les
+   * langues manquantes. Idempotent : les langues déjà traduites (et les noms
+   * saisis à la main) ne sont jamais retraités. Aucune écriture en base, donc
+   * pas d'audit. `failed` = file indisponible.
+   */
+  async requestMissingTranslations(): Promise<{ queued: number; failed: boolean }> {
+    const report = await this.backfill.backfill({ entities: ['category'] })
+    return { queued: report.queued.category, failed: report.failed }
   }
 
   /**

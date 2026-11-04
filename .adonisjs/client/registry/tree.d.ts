@@ -258,6 +258,7 @@ export interface ApiDefinition {
       store: typeof routes['admin.categories.store']
       edit: typeof routes['admin.categories.edit']
       update: typeof routes['admin.categories.update']
+      translate: typeof routes['admin.categories.translate']
       move: typeof routes['admin.categories.move']
       destroy: typeof routes['admin.categories.destroy']
       attributes: {

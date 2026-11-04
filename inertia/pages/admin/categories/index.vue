@@ -2,9 +2,10 @@
 import { computed, ref } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
-import { ArrowDown, ArrowUp, FolderTree, Plus, Trash2 } from 'lucide-vue-next'
+import { ArrowDown, ArrowUp, FolderTree, Languages, Plus, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import BaseButton from '~/components/base/base_button.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import BaseIconButton from '~/components/base/base_icon_button.vue'
 import BaseLinkButton from '~/components/base/base_link_button.vue'
@@ -20,6 +21,14 @@ const { t, locale } = useI18n()
 const DEPTH_INDENT = ['ps-0', 'ps-6', 'ps-12', 'ps-16']
 
 const createUrl = computed(() => urlFor('admin.categories.create', { locale: locale.value }))
+
+function completeTranslations() {
+  router.post(
+    urlFor('admin.categories.translate', { locale: locale.value }),
+    {},
+    { preserveScroll: true }
+  )
+}
 
 /** Un déplacement à la fois : un double-clic ne doit pas déplacer de deux crans. */
 const moving = ref(false)
@@ -55,6 +64,10 @@ function destroy(category: CategoryAdminType) {
     >
       <!-- Une seule action primaire par écran : l'état vide porte la sienne. -->
       <template v-if="categories.length > 0" #actions>
+        <BaseButton variant="secondary" @click="completeTranslations">
+          <Languages :size="18" aria-hidden="true" />
+          {{ t('categories.index.completeTranslations') }}
+        </BaseButton>
         <BaseLinkButton :href="createUrl">
           <Plus :size="18" aria-hidden="true" />
           {{ t('categories.newCategory') }}
@@ -82,6 +95,7 @@ function destroy(category: CategoryAdminType) {
           <th scope="col">{{ t('categories.index.columns.name') }}</th>
           <th scope="col">{{ t('categories.index.columns.slug') }}</th>
           <th scope="col">{{ t('categories.index.columns.parent') }}</th>
+          <th scope="col" class="text-right">{{ t('categories.index.columns.languages') }}</th>
           <th scope="col" class="text-right">{{ t('categories.index.columns.products') }}</th>
           <th scope="col" class="text-right">
             <span class="sr-only">{{ t('categories.index.columns.actions') }}</span>
@@ -105,6 +119,17 @@ function destroy(category: CategoryAdminType) {
         <td>
           <template v-if="category.parentName">{{ category.parentName }}</template>
           <span v-else class="text-text-muted">{{ t('categories.index.root') }}</span>
+        </td>
+        <td class="text-tabular text-right">
+          <span
+            :class="
+              category.translatedLocales < category.totalLocales
+                ? 'text-warning font-medium'
+                : 'text-text-secondary'
+            "
+          >
+            {{ category.translatedLocales }}/{{ category.totalLocales }}
+          </span>
         </td>
         <td class="text-tabular text-right">{{ category.productsCount }}</td>
         <td>

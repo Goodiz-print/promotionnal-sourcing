@@ -8,12 +8,14 @@
       "slug": "Kennung",
       "parent": "Übergeordnet",
       "products": "Produkte",
-      "actions": "Aktionen"
+      "actions": "Aktionen",
+      "languages": "Sprachen"
     },
     "emptyDescription": "Kategorien strukturieren den Katalog und seine Filter.",
     "root": "Wurzel",
     "moveUp": "Nach oben",
-    "moveDown": "Nach unten"
+    "moveDown": "Nach unten",
+    "completeTranslations": "Übersetzungen vervollständigen"
   },
   "create": {
     "title": "Neue Kategorie",
@@ -48,7 +50,9 @@
     "cycle": "Eine Kategorie kann nicht ihre eigene übergeordnete Kategorie oder die ihrer Unterkategorien sein.",
     "hasChildren": "Löschen nicht möglich: Diese Kategorie enthält Unterkategorien.",
     "hasProducts": "Löschen nicht möglich: Dieser Kategorie sind Produkte zugeordnet.",
-    "moved": "Reihenfolge der Kategorien aktualisiert."
+    "moved": "Reihenfolge der Kategorien aktualisiert.",
+    "translationsQueued": "Automatische Übersetzung für {count} Kategorien gestartet: fehlende Sprachen werden ergänzt.",
+    "translationsFailed": "Übersetzungen konnten nicht gestartet werden: Die Warteschlange ist nicht verfügbar. Bitte später erneut versuchen."
   },
   "attributes": {
     "title": "Zugeordnete Attribute",
