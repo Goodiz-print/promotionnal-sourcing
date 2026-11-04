@@ -98,7 +98,11 @@
     "filters": {
       "type": "Type",
       "allTypes": "Tous les types",
-      "status": "Statut"
+      "status": "Statut",
+      "search": "Rechercher",
+      "searchPlaceholder": "Nom, slug, SIRET ou TVA",
+      "country": "Pays",
+      "allCountries": "Tous les pays"
     },
     "types": {
       "buyer": "Acheteur",
@@ -114,7 +118,9 @@
       "name": "Nom",
       "type": "Type",
       "members": "Membres",
-      "status": "Statut"
+      "status": "Statut",
+      "country": "Pays",
+      "lastActivity": "Dernière activité"
     },
     "fields": {
       "email": "Email",
@@ -140,10 +146,119 @@
       "notProvided": "Non renseigné",
       "membersEmpty": "Aucun membre dans cette organisation.",
       "membersCaption": "Membres de l’organisation",
-      "joinedAt": "Membre depuis"
+      "joinedAt": "Membre depuis",
+      "save": "Enregistrer",
+      "archivedNotice": "Cette organisation est archivée : elle n'apparaît plus dans le catalogue public. Elle reste consultable et modifiable.",
+      "overview": "Synthèse",
+      "slug": "Identifiant (slug)",
+      "plan": "Formule d'abonnement",
+      "locale": "Langue",
+      "info": "Modifier les informations",
+      "typeSection": "Type d'organisation",
+      "lifecycle": {
+        "title": "Archivage",
+        "activeHint": "Archiver retire l'organisation du catalogue public et révoque ses invitations en attente.",
+        "archivedHint": "Restaurer rend de nouveau l’organisation visible dans le catalogue public."
+      },
+      "member": {
+        "actions": "Actions",
+        "roleLabel": "Rôle de {name}",
+        "remove": "Retirer de l’organisation",
+        "removeConfirm": "Retirer {name} de cette organisation ?"
+      },
+      "invitation": {
+        "title": "Invitations en attente",
+        "empty": "Aucune invitation en attente.",
+        "expiresAt": "Expire le",
+        "invitedBy": "Invité par",
+        "resend": "Renvoyer",
+        "resendConfirm": "Renvoyer l’invitation à {email} ?",
+        "revoke": "Révoquer",
+        "revokeConfirm": "Révoquer l’invitation de {email} ?"
+      },
+      "profile": {
+        "yes": "Oui",
+        "no": "Non",
+        "supplier": {
+          "title": "Profil fournisseur",
+          "companyType": "Type d'entreprise",
+          "commercialStatus": "Statut commercial",
+          "minOrderQuantity": "Quantité minimale de commande",
+          "deliveryDays": "Délai de livraison (jours)",
+          "responseTimeDays": "Délai de réponse (jours)",
+          "deliveryScope": "Zone de livraison",
+          "deliveryCountries": "Pays de livraison",
+          "spokenLanguages": "Langues parlées",
+          "certifications": "Certifications",
+          "reportFrequency": "Fréquence des rapports",
+          "catalogueUpdateMode": "Mode de mise à jour du catalogue",
+          "catalogueUpdateFrequency": "Fréquence de mise à jour du catalogue",
+          "defaultOriginScope": "Origine par défaut",
+          "bio": "Présentation",
+          "foundingPartner": "Partenaire fondateur"
+        },
+        "agency": {
+          "title": "Profil agence",
+          "activity": "Activité",
+          "activityOther": "Activité (précision)",
+          "teamSize": "Taille de l’équipe",
+          "purchaseVolume": "Volume d’achats",
+          "clientSectors": "Secteurs clients",
+          "defaultMarginPercent": "Marge par défaut (%)",
+          "reviewReasons": "Motifs de revue",
+          "noReasons": "Aucun motif de revue."
+        },
+        "billing": {
+          "title": "Facturation",
+          "email": "Email de facturation",
+          "addressLine1": "Adresse",
+          "addressLine2": "Complément d'adresse",
+          "city": "Ville",
+          "postalCode": "Code postal",
+          "country": "Pays",
+          "purchaseOrderReference": "Référence de bon de commande"
+        }
+      }
     },
     "emptyDescription": "Modifiez le type ou le statut pour élargir la liste.",
-    "resultsCount": "{count, plural, =0 {Aucune organisation} one {# organisation} other {# organisations}}"
+    "resultsCount": "{count, plural, =0 {Aucune organisation} one {# organisation} other {# organisations}}",
+    "actions": {
+      "archive": {
+        "label": "Archiver",
+        "confirm": "Archiver cette organisation ? Elle sera retirée du catalogue public et ses invitations en attente seront révoquées.",
+        "done": "Organisation archivée.",
+        "alreadyArchived": "Cette organisation est déjà archivée."
+      },
+      "restore": {
+        "label": "Restaurer",
+        "confirm": "Restaurer cette organisation ? Elle sera de nouveau visible dans le catalogue public.",
+        "done": "Organisation restaurée.",
+        "notArchived": "Cette organisation n'est pas archivée."
+      },
+      "update": {
+        "label": "Modifier",
+        "done": "Organisation modifiée.",
+        "noChange": "Aucune modification."
+      },
+      "changeType": {
+        "label": "Changer le type",
+        "done": "Type d'organisation modifié.",
+        "noChange": "Le type est déjà celui demandé.",
+        "hasSupplierData": "Impossible de retirer la capacité fournisseur : l'organisation a des produits ou un profil fournisseur."
+      },
+      "member": {
+        "notFound": "Membre introuvable.",
+        "lastOwner": "Impossible : ce membre est le dernier propriétaire de l'organisation.",
+        "roleChanged": "Rôle du membre modifié.",
+        "removed": "Membre retiré de l'organisation."
+      },
+      "invitation": {
+        "notFound": "Invitation introuvable.",
+        "notPending": "Cette invitation n'est plus en attente.",
+        "revoked": "Invitation révoquée.",
+        "resent": "Invitation renvoyée."
+      }
+    }
   },
   "users": {
     "title": "Utilisateurs",
@@ -308,7 +423,15 @@
       "user.reactivated": "Compte réactivé",
       "user.verification_resent": "Vérification email renvoyée",
       "user.password_reset_requested": "Réinitialisation mot de passe demandée",
-      "user.deleted": "Compte supprimé"
+      "user.deleted": "Compte supprimé",
+      "organization.archived": "Organisation archivée",
+      "organization.restored": "Organisation restaurée",
+      "organization.updated": "Organisation modifiée",
+      "organization.type_changed": "Type d'organisation modifié",
+      "organization.member_role_changed": "Rôle de membre modifié",
+      "organization.member_removed": "Membre retiré",
+      "organization.invitation_revoked": "Invitation révoquée",
+      "organization.invitation_resent": "Invitation renvoyée"
     },
     "targets": {
       "user": "Utilisateur",

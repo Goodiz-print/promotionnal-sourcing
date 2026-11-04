@@ -1457,10 +1457,10 @@ export interface Registry {
       body: {}
       paramsTuple: [ParamValue]
       params: { locale: ParamValue }
-      query: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_organization').adminOrganizationFiltersValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['index']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['index']>>>
-      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'admin.organizations.show': {
@@ -1474,6 +1474,110 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['show']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_controller').default['show']>>>
+    }
+  }
+  'admin.organizations.archive': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/organizations/:id/archive'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['archive']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['archive']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['archive']>>>
+    }
+  }
+  'admin.organizations.restore': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/organizations/:id/restore'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['restore']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['restore']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['restore']>>>
+    }
+  }
+  'admin.organizations.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/organizations/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_organization').adminOrganizationUpdateValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_organization').adminOrganizationUpdateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.organizations.change_type': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/organizations/:id/type'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_organization').adminOrganizationTypeValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_organization').adminOrganizationTypeValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['changeType']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['changeType']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['changeType']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.organizations.member_role': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/organizations/:id/members/:membershipId/role'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_organization').adminOrganizationMemberRoleValidator)>>
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; membershipId: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_organization').adminOrganizationMemberRoleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['changeMemberRole']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['changeMemberRole']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['changeMemberRole']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.organizations.remove_member': {
+    methods: ["DELETE"]
+    pattern: '/:locale/admin/organizations/:id/members/:membershipId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; membershipId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['removeMember']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['removeMember']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['removeMember']>>>
+    }
+  }
+  'admin.organizations.revoke_invitation': {
+    methods: ["DELETE"]
+    pattern: '/:locale/admin/organizations/:id/invitations/:invitationId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; invitationId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['revokeInvitation']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['revokeInvitation']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['revokeInvitation']>>>
+    }
+  }
+  'admin.organizations.resend_invitation': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/organizations/:id/invitations/:invitationId/resend'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; invitationId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['resendInvitation']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['resendInvitation']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['resendInvitation']>>>
     }
   }
   'admin.users.index': {

@@ -1,20 +1,14 @@
 import type { Locale } from '#shared/types/i18n'
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
-import { signedUrlFor } from '@adonisjs/core/services/url_builder'
 import { inviteMemberValidator } from '#validators/organization_invitation'
 import OrganizationInvitationsService from '#services/organization_invitations_service'
-import SendMailJob from '#jobs/send_mail_job'
-import { mailSendKey } from '#shared/helpers/mail'
-import { MAIL_KINDS } from '#shared/types/mail'
 import OrganizationInvitation from '#models/organization_invitation'
 import {
   AlreadyMemberException,
   InvitationNotPendingException,
   OrganizationInvitationNotFoundException,
 } from '#exceptions/organization_errors'
-import type Organization from '#models/organization'
-import type User from '#models/user'
 import OrganizationContextService from '#services/organization_context_service'
 
 /**
@@ -40,7 +34,12 @@ export default class OrganizationInvitationsController {
 
     try {
       const invitation = await this.service.invite(org, auth.getUserOrFail(), payload)
-      await this.sendInvitationMail(invitation, org, auth.getUserOrFail(), i18n.locale)
+      await this.service.sendMail(
+        invitation,
+        org,
+        auth.getUserOrFail().fullName ?? auth.getUserOrFail().email,
+        i18n.locale as Locale
+      )
       session.flash('success', i18n.t('organization.invitations.sent'))
     } catch (error) {
       if (error instanceof AlreadyMemberException) {
@@ -65,7 +64,12 @@ export default class OrganizationInvitationsController {
 
     try {
       await this.service.resend(invitation)
-      await this.sendInvitationMail(invitation, org, invitation.invitedBy, i18n.locale)
+      await this.service.sendMail(
+        invitation,
+        org,
+        invitation.invitedBy.fullName ?? invitation.invitedBy.email,
+        i18n.locale as Locale
+      )
       session.flash('success', i18n.t('organization.invitations.resent'))
     } catch (error) {
       if (error instanceof InvitationNotPendingException) {
@@ -87,8 +91,13 @@ export default class OrganizationInvitationsController {
 
     const invitation = await this.findInOrganization(params.id, org.id)
 
-    await this.service.revoke(invitation)
-    session.flash('success', i18n.t('organization.invitations.revoked'))
+    try {
+      await this.service.revoke(invitation)
+      session.flash('success', i18n.t('organization.invitations.revoked'))
+    } catch (error) {
+      if (!(error instanceof InvitationNotPendingException)) throw error
+      session.flash('error', i18n.t('organization.invitations.notPending'))
+    }
 
     return response.redirect().toRoute('organization.members', { locale: i18n.locale })
   }
@@ -105,41 +114,5 @@ export default class OrganizationInvitationsController {
       .first()
     if (!invitation) throw new OrganizationInvitationNotFoundException()
     return invitation
-  }
-
-  /**
-   * Met le mail d'invitation en **queue** (`SendMailJob`, table `queue_jobs`) et
-   * non dans la file mémoire de `@adonisjs/mail` : un redémarrage du process ne
-   * perd plus l'invitation, et un SMTP indisponible est rejoué. La charge ne
-   * contient que des données déjà résolues (elle transite par la base).
-   */
-  private async sendInvitationMail(
-    invitation: OrganizationInvitation,
-    org: Organization,
-    invitedBy: User,
-    locale: string
-  ) {
-    const acceptUrl = signedUrlFor(
-      'organization.invitations.show',
-      { locale, id: invitation.id },
-      { expiresIn: '7d', purpose: 'organization-invitation' }
-    )
-
-    await SendMailJob.dispatch({
-      kind: MAIL_KINDS.organizationInvitation,
-      // Un renvoi est un nouvel envoi voulu : la clé ne dédoublonne que les rejeux.
-      idempotencyKey: mailSendKey(MAIL_KINDS.organizationInvitation, {
-        invitation: invitation.id,
-      }),
-      to: invitation.email,
-      // Langue de l'inviteur : l'invité n'a pas encore de compte, donc pas de langue connue.
-      locale: locale as Locale,
-      data: {
-        organizationName: org.name,
-        roleName: invitation.role.name,
-        inviterName: invitedBy.fullName ?? invitedBy.email,
-        acceptUrl,
-      },
-    })
   }
 }

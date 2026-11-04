@@ -64,6 +64,13 @@ test.group('Droits des rôles plateforme', () => {
     ])
   })
 
+  test('seul admin gere les organisations (archivage, modification, membres)', ({ assert }) => {
+    assert.isTrue(platformRoleHasPermission('admin', 'organizations.manage'))
+    for (const role of ['moderator', 'support', 'analyst'] as const) {
+      assert.isFalse(platformRoleHasPermission(role, 'organizations.manage'), role)
+    }
+  })
+
   test('seul admin gère les utilisateurs (suspension, suppression)', ({ assert }) => {
     assert.isTrue(platformRoleHasPermission('admin', 'users.manage'))
     assert.isTrue(platformRoleHasPermission('admin', 'users.support'))

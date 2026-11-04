@@ -98,7 +98,11 @@
     "filters": {
       "type": "Type",
       "allTypes": "Alle types",
-      "status": "Status"
+      "status": "Status",
+      "search": "Zoeken",
+      "searchPlaceholder": "Naam, slug, SIRET of btw",
+      "country": "Land",
+      "allCountries": "Alle landen"
     },
     "types": {
       "buyer": "Koper",
@@ -114,7 +118,9 @@
       "name": "Naam",
       "type": "Type",
       "members": "Leden",
-      "status": "Status"
+      "status": "Status",
+      "country": "Land",
+      "lastActivity": "Laatste activiteit"
     },
     "fields": {
       "email": "E-mail",
@@ -140,10 +146,119 @@
       "notProvided": "Niet opgegeven",
       "membersEmpty": "Deze organisatie heeft geen leden.",
       "membersCaption": "Leden van de organisatie",
-      "joinedAt": "Lid sinds"
+      "joinedAt": "Lid sinds",
+      "save": "Opslaan",
+      "archivedNotice": "Deze organisatie is gearchiveerd: ze verschijnt niet meer in de openbare catalogus, maar blijft raadpleegbaar en bewerkbaar.",
+      "overview": "Overzicht",
+      "slug": "Identificatie (slug)",
+      "plan": "Abonnement",
+      "locale": "Taal",
+      "info": "Gegevens bewerken",
+      "typeSection": "Type organisatie",
+      "lifecycle": {
+        "title": "Archivering",
+        "activeHint": "Archiveren haalt de organisatie uit de openbare catalogus en trekt de openstaande uitnodigingen in.",
+        "archivedHint": "Herstellen maakt de organisatie weer zichtbaar in de openbare catalogus."
+      },
+      "member": {
+        "actions": "Acties",
+        "roleLabel": "Rol van {name}",
+        "remove": "Uit de organisatie verwijderen",
+        "removeConfirm": "{name} uit deze organisatie verwijderen?"
+      },
+      "invitation": {
+        "title": "Openstaande uitnodigingen",
+        "empty": "Geen openstaande uitnodigingen.",
+        "expiresAt": "Verloopt op",
+        "invitedBy": "Uitgenodigd door",
+        "resend": "Opnieuw verzenden",
+        "resendConfirm": "Uitnodiging opnieuw naar {email} sturen?",
+        "revoke": "Intrekken",
+        "revokeConfirm": "Uitnodiging voor {email} intrekken?"
+      },
+      "profile": {
+        "yes": "Ja",
+        "no": "Nee",
+        "supplier": {
+          "title": "Leveranciersprofiel",
+          "companyType": "Type bedrijf",
+          "commercialStatus": "Commerciële status",
+          "minOrderQuantity": "Minimale bestelhoeveelheid",
+          "deliveryDays": "Levertijd (dagen)",
+          "responseTimeDays": "Reactietijd (dagen)",
+          "deliveryScope": "Leveringsgebied",
+          "deliveryCountries": "Leveringslanden",
+          "spokenLanguages": "Gesproken talen",
+          "certifications": "Certificeringen",
+          "reportFrequency": "Frequentie van rapporten",
+          "catalogueUpdateMode": "Update-modus catalogus",
+          "catalogueUpdateFrequency": "Updatefrequentie catalogus",
+          "defaultOriginScope": "Standaardherkomst",
+          "bio": "Presentatie",
+          "foundingPartner": "Oprichtingspartner"
+        },
+        "agency": {
+          "title": "Bureauprofiel",
+          "activity": "Activiteit",
+          "activityOther": "Activiteit (toelichting)",
+          "teamSize": "Teamgrootte",
+          "purchaseVolume": "Inkoopvolume",
+          "clientSectors": "Klantsectoren",
+          "defaultMarginPercent": "Standaardmarge (%)",
+          "reviewReasons": "Redenen voor beoordeling",
+          "noReasons": "Geen reden voor beoordeling."
+        },
+        "billing": {
+          "title": "Facturatie",
+          "email": "Facturatie-e-mail",
+          "addressLine1": "Adres",
+          "addressLine2": "Adresaanvulling",
+          "city": "Plaats",
+          "postalCode": "Postcode",
+          "country": "Land",
+          "purchaseOrderReference": "Referentie inkooporder"
+        }
+      }
     },
     "emptyDescription": "Wijzig het type of de status om de lijst uit te breiden.",
-    "resultsCount": "{count, plural, =0 {Geen organisaties} one {# organisatie} other {# organisaties}}"
+    "resultsCount": "{count, plural, =0 {Geen organisaties} one {# organisatie} other {# organisaties}}",
+    "actions": {
+      "archive": {
+        "label": "Archiveren",
+        "confirm": "Deze organisatie archiveren? Ze wordt uit de openbare catalogus verwijderd en lopende uitnodigingen worden ingetrokken.",
+        "done": "Organisatie gearchiveerd.",
+        "alreadyArchived": "Deze organisatie is al gearchiveerd."
+      },
+      "restore": {
+        "label": "Herstellen",
+        "confirm": "Deze organisatie herstellen? Ze wordt opnieuw zichtbaar in de openbare catalogus.",
+        "done": "Organisatie hersteld.",
+        "notArchived": "Deze organisatie is niet gearchiveerd."
+      },
+      "update": {
+        "label": "Bewerken",
+        "done": "Organisatie bijgewerkt.",
+        "noChange": "Geen wijzigingen."
+      },
+      "changeType": {
+        "label": "Type wijzigen",
+        "done": "Organisatietype gewijzigd.",
+        "noChange": "Het type is al het gevraagde.",
+        "hasSupplierData": "Leveranciersfunctie kan niet worden verwijderd: de organisatie heeft producten of een leveranciersprofiel."
+      },
+      "member": {
+        "notFound": "Lid niet gevonden.",
+        "lastOwner": "Niet mogelijk: dit lid is de laatste eigenaar van de organisatie.",
+        "roleChanged": "Rol van het lid gewijzigd.",
+        "removed": "Lid verwijderd uit de organisatie."
+      },
+      "invitation": {
+        "notFound": "Uitnodiging niet gevonden.",
+        "notPending": "Deze uitnodiging is niet meer in behandeling.",
+        "revoked": "Uitnodiging ingetrokken.",
+        "resent": "Uitnodiging opnieuw verzonden."
+      }
+    }
   },
   "users": {
     "title": "Gebruikers",
@@ -308,7 +423,15 @@
       "user.reactivated": "Account reactivated",
       "user.verification_resent": "Email verification resent",
       "user.password_reset_requested": "Password reset requested",
-      "user.deleted": "Account deleted"
+      "user.deleted": "Account verwijderd",
+      "organization.archived": "Organisatie gearchiveerd",
+      "organization.restored": "Organisatie hersteld",
+      "organization.updated": "Organisatie bijgewerkt",
+      "organization.type_changed": "Organisatietype gewijzigd",
+      "organization.member_role_changed": "Rol van lid gewijzigd",
+      "organization.member_removed": "Lid verwijderd",
+      "organization.invitation_revoked": "Uitnodiging ingetrokken",
+      "organization.invitation_resent": "Uitnodiging opnieuw verzonden"
     },
     "targets": {
       "user": "Gebruiker",
