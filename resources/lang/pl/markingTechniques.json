@@ -1,12 +1,12 @@
 {
   "index": {
     "title": "Techniki znakowania",
-    "subtitle": "Zarzadzaj technikami personalizacji w katalogu (druk, grawerowanie, haft…).",
-    "empty": "Jeszcze brak technik. Utworz jedna.",
-    "emptyDescription": "Techniki znakowania opisuja metody personalizacji produktow.",
+    "subtitle": "Zarządzaj technikami personalizacji w katalogu (druk, grawerowanie, haft…).",
+    "empty": "Brak technik. Utwórz pierwszą.",
+    "emptyDescription": "Techniki znakowania opisują metody personalizacji produktów.",
     "columns": {
       "name": "Nazwa",
-      "slug": "Slug",
+      "slug": "Identyfikator",
       "family": "Rodzina",
       "products": "Produkty",
       "actions": "Akcje"
@@ -14,22 +14,22 @@
   },
   "create": {
     "title": "Nowa technika",
-    "subtitle": "Dodaj technike znakowania do katalogu."
+    "subtitle": "Dodaj technikę znakowania do katalogu."
   },
   "update": {
-    "title": "Edytuj technike",
-    "subtitle": "Edytuj nazwe, rodzine i ustawienia \"{slug}\"."
+    "title": "Edytuj technikę",
+    "subtitle": "Edytuj nazwę, rodzinę i ustawienia „{slug}”."
   },
   "edit": "Edytuj",
   "newTechnique": "Nowa technika",
-  "delete": "Usun",
+  "delete": "Usuń",
   "save": "Zapisz",
   "cancel": "Anuluj",
-  "confirmDelete": "Usunac te technike?",
-  "back": "Wrocic do technik",
+  "confirmDelete": "Usunąć tę technikę?",
+  "back": "Wróć do technik",
   "fields": {
-    "slug": "Slug",
-    "slugHint": "Male litery, cyfry i myslniki. Nie mozna zmienic pozniej.",
+    "slug": "Identyfikator (slug)",
+    "slugHint": "Małe litery, cyfry i myślniki. Nie można zmienić później.",
     "slugPlaceholder": "np. sitodruk",
     "family": "Rodzina",
     "familyHint": "Kategoria procesu (druk, transfer, grawerowanie…).",
@@ -43,19 +43,19 @@
     "transfer": "Transfer",
     "engraving": "Grawerowanie",
     "embroidery": "Haft",
-    "relief": "Relief",
+    "relief": "Tłoczenie",
     "special": "Specjalne"
   },
   "form": {
     "identity": "Identyfikacja",
     "identityDescription": "Identyfikator techniczny i kategoria procesu.",
-    "content": "Tresc w jezyku {language}",
-    "otherLocale": "Inny jezyk do wyswietlenia"
+    "content": "Treść w języku {language}",
+    "otherLocale": "Inny język do wyświetlenia"
   },
   "flash": {
     "created": "Technika utworzona.",
     "updated": "Technika zaktualizowana.",
-    "deleted": "Technika usunieta.",
-    "inUse": "Nie mozna usunac: produkty uzywaja tej techniki."
+    "deleted": "Technika usunięta.",
+    "inUse": "Nie można usunąć: istnieją produkty korzystające z tej techniki."
   }
 }

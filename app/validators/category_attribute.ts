@@ -1,13 +1,19 @@
 import vine from '@vinejs/vine'
 
 /**
+ * Borne haute raisonnable pour la position (evite les debordements et valeurs
+ * absurdes tout en permettant un ordonnancement large).
+ */
+const MAX_POSITION = 10_000
+
+/**
  * Ajout d'un attribut à une catégorie.
  */
 export const addCategoryAttributeValidator = vine.create({
-  attributeId: vine.number().positive(),
+  attributeId: vine.number().positive().withoutDecimals(),
   isRequiredForPublication: vine.boolean().optional(),
   isFilter: vine.boolean().optional(),
-  position: vine.number().min(0).optional(),
+  position: vine.number().withoutDecimals().min(0).max(MAX_POSITION).optional(),
 })
 
 /**
@@ -16,7 +22,7 @@ export const addCategoryAttributeValidator = vine.create({
 export const updateCategoryAttributeValidator = vine.create({
   isRequiredForPublication: vine.boolean().optional(),
   isFilter: vine.boolean().optional(),
-  position: vine.number().min(0).optional(),
+  position: vine.number().withoutDecimals().min(0).max(MAX_POSITION).optional(),
 })
 
 /**

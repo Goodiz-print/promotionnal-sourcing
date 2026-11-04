@@ -1,67 +1,67 @@
 {
   "index": {
     "title": "Certifieringar",
-    "subtitle": "Hantera overensstammelsemarkningen i katalogen (eko-markning, standarder, certifieringar).",
-    "empty": "Inga certifieringar annu. Skapa en.",
-    "emptyDescription": "Certifieringar informerar kopare om produktgarantier.",
+    "subtitle": "Hantera katalogens efterlevnadsmärkningar (miljömärkningar, standarder, certifieringar).",
+    "empty": "Inga certifieringar ännu. Skapa en.",
+    "emptyDescription": "Certifieringar informerar köpare om produkternas garantier.",
     "columns": {
       "name": "Namn",
-      "slug": "Slug",
-      "domain": "Doman",
-      "isEco": "Eko-markning",
+      "slug": "Identifierare",
+      "domain": "Område",
+      "isEco": "Miljömärkning",
       "products": "Produkter",
-      "actions": "Atgarder"
+      "actions": "Åtgärder"
     },
     "yes": "Ja",
     "no": "Nej"
   },
   "create": {
     "title": "Ny certifiering",
-    "subtitle": "Lagg till en overensstammelsemarkning i katalogen."
+    "subtitle": "Lägg till en efterlevnadsmärkning i katalogen."
   },
   "update": {
-    "title": "Redigera certifiering",
-    "subtitle": "Redigera namn, doman och installningar for \"{slug}\"."
+    "title": "Redigera certifieringen",
+    "subtitle": "Redigera namn, område och inställningar för ”{slug}”."
   },
   "edit": "Redigera",
   "newCertification": "Ny certifiering",
-  "delete": "Radera",
+  "delete": "Ta bort",
   "save": "Spara",
   "cancel": "Avbryt",
-  "confirmDelete": "Radera denna certifiering?",
+  "confirmDelete": "Ta bort denna certifiering?",
   "back": "Tillbaka till certifieringar",
   "fields": {
-    "slug": "Slug",
-    "slugHint": "Gemener, siffror och bindestreck. Kan inte andras senare.",
+    "slug": "Identifierare (slug)",
+    "slugHint": "Gemener, siffror och bindestreck. Kan inte ändras senare.",
     "slugPlaceholder": "t.ex. oeko-tex-100",
-    "domain": "Doman",
-    "domainHint": "Markningskategori (miljo, textil, sakerhet…).",
-    "isEco": "Eko-markning",
-    "isEcoHint": "Denna markning certifierar en miljovanlig metod.",
+    "domain": "Område",
+    "domainHint": "Märkningens kategori (miljö, textil, säkerhet …).",
+    "isEco": "Miljömärkning",
+    "isEcoHint": "Denna märkning intygar ett miljövänligt arbetssätt.",
     "synonyms": "Synonymer",
-    "synonymsHint": "Kommaseparerade (forbattrar import).",
+    "synonymsHint": "Kommaseparerade (förbättrar importen).",
     "synonymsPlaceholder": "t.ex. Oeko-Tex, OEKOTEX",
     "name": "Namn"
   },
   "domains": {
-    "environment": "Miljo",
+    "environment": "Miljö",
     "textile": "Textil",
-    "social": "Social",
-    "safety": "Sakerhet",
+    "social": "Socialt",
+    "safety": "Säkerhet",
     "food_contact": "Livsmedelskontakt",
-    "forestry": "Skogsbruk",
+    "forestry": "Skog / trä",
     "quality": "Kvalitet"
   },
   "form": {
     "identity": "Identifikation",
-    "identityDescription": "Teknisk identifierare, doman och markningsinstallningar.",
-    "content": "Innehall pa {language}",
-    "otherLocale": "Annat sprak att visa"
+    "identityDescription": "Teknisk identifierare, område och märkningens inställningar.",
+    "content": "Innehåll på {language}",
+    "otherLocale": "Annat språk att visa"
   },
   "flash": {
     "created": "Certifiering skapad.",
     "updated": "Certifiering uppdaterad.",
-    "deleted": "Certifiering raderad.",
-    "inUse": "Kan inte radera: produkter har denna certifiering."
+    "deleted": "Certifiering borttagen.",
+    "inUse": "Kan inte tas bort: det finns produkter med denna certifiering."
   }
 }

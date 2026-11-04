@@ -1,61 +1,61 @@
 {
   "index": {
-    "title": "Tecnicas de marcacao",
-    "subtitle": "Gerir tecnicas de personalizacao no catalogo (impressao, gravacao, bordado…).",
-    "empty": "Ainda nao ha tecnicas. Criar uma.",
-    "emptyDescription": "As tecnicas de marcacao descrevem metodos de personalizacao de produtos.",
+    "title": "Técnicas de marcação",
+    "subtitle": "Gira as técnicas de personalização do catálogo (impressão, gravação, bordado…).",
+    "empty": "Ainda não há técnicas. Crie uma.",
+    "emptyDescription": "As técnicas de marcação descrevem os métodos de personalização dos produtos.",
     "columns": {
       "name": "Nome",
-      "slug": "Slug",
-      "family": "Familia",
+      "slug": "Identificador",
+      "family": "Família",
       "products": "Produtos",
-      "actions": "Acoes"
+      "actions": "Ações"
     }
   },
   "create": {
-    "title": "Nova tecnica",
-    "subtitle": "Adicionar uma tecnica de marcacao ao catalogo."
+    "title": "Nova técnica",
+    "subtitle": "Adicione uma técnica de marcação ao catálogo."
   },
   "update": {
-    "title": "Editar tecnica",
-    "subtitle": "Editar o nome, familia e definicoes de \"{slug}\"."
+    "title": "Editar a técnica",
+    "subtitle": "Edite o nome, a família e as definições de «{slug}»."
   },
   "edit": "Editar",
-  "newTechnique": "Nova tecnica",
+  "newTechnique": "Nova técnica",
   "delete": "Eliminar",
   "save": "Guardar",
   "cancel": "Cancelar",
-  "confirmDelete": "Eliminar esta tecnica?",
-  "back": "Voltar as tecnicas",
+  "confirmDelete": "Eliminar esta técnica?",
+  "back": "Voltar às técnicas",
   "fields": {
-    "slug": "Slug",
-    "slugHint": "Minusculas, digitos e hifenes. Nao pode ser alterado depois.",
-    "slugPlaceholder": "p. ex. serigrafia",
-    "family": "Familia",
-    "familyHint": "Categoria de processo (impressao, transferencia, gravacao…).",
-    "synonyms": "Sinonimos",
-    "synonymsHint": "Separados por virgulas (melhora a importacao).",
-    "synonymsPlaceholder": "p. ex. silk screen, serigrafia",
+    "slug": "Identificador (slug)",
+    "slugHint": "Minúsculas, algarismos e hífenes. Não pode ser alterado depois.",
+    "slugPlaceholder": "ex. serigrafia",
+    "family": "Família",
+    "familyHint": "Categoria de processo (impressão, transferência, gravação…).",
+    "synonyms": "Sinónimos",
+    "synonymsHint": "Separados por vírgulas (melhora a importação).",
+    "synonymsPlaceholder": "ex. silk screen, serigrafia",
     "name": "Nome"
   },
   "families": {
-    "print": "Impressao",
-    "transfer": "Transferencia",
-    "engraving": "Gravacao",
+    "print": "Impressão",
+    "transfer": "Transferência",
+    "engraving": "Gravação",
     "embroidery": "Bordado",
     "relief": "Relevo",
     "special": "Especial"
   },
   "form": {
-    "identity": "Identificacao",
-    "identityDescription": "Identificador tecnico e categoria de processo.",
-    "content": "Conteudo em {language}",
-    "otherLocale": "Outra lingua a apresentar"
+    "identity": "Identificação",
+    "identityDescription": "Identificador técnico e família de processo.",
+    "content": "Conteúdo em {language}",
+    "otherLocale": "Outro idioma a apresentar"
   },
   "flash": {
-    "created": "Tecnica criada.",
-    "updated": "Tecnica atualizada.",
-    "deleted": "Tecnica eliminada.",
-    "inUse": "Nao e possivel eliminar: ha produtos que usam esta tecnica."
+    "created": "Técnica criada.",
+    "updated": "Técnica atualizada.",
+    "deleted": "Técnica eliminada.",
+    "inUse": "Não é possível eliminar: existem produtos que utilizam esta técnica."
   }
 }

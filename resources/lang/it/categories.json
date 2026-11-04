@@ -71,7 +71,7 @@
     "selectLabel": "Attributo da aggiungere",
     "selectPlaceholder": "Scegli un attributo",
     "noneAvailable": "Tutti gli attributi sono già associati a questa categoria.",
-    "remove": "Rimuovi l'attributo",
+    "remove": "Rimuovi l’attributo",
     "confirmRemove": "Rimuovere questo attributo dalla categoria?",
     "editRanges": "Modifica gli intervalli",
     "noRanges": "Nessun intervallo",
@@ -82,7 +82,7 @@
       "min": "Minimo",
       "max": "Massimo",
       "add": "Aggiungi un intervallo",
-      "remove": "Elimina l'intervallo",
+      "remove": "Elimina l’intervallo",
       "save": "Salva gli intervalli",
       "hint": "Lascia vuoto un limite per un intervallo aperto (ad esempio, meno di 400)."
     }

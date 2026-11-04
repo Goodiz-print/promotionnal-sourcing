@@ -1,27 +1,27 @@
 {
   "index": {
     "title": "Certificazioni",
-    "subtitle": "Gestire le etichette di conformita del catalogo (eco-etichette, norme, certificazioni).",
+    "subtitle": "Gestisci i marchi di conformità del catalogo (marchi ecologici, norme, certificazioni).",
     "empty": "Ancora nessuna certificazione. Creane una.",
     "emptyDescription": "Le certificazioni informano gli acquirenti sulle garanzie dei prodotti.",
     "columns": {
       "name": "Nome",
-      "slug": "Slug",
-      "domain": "Dominio",
-      "isEco": "Eco-etichetta",
+      "slug": "Identificativo",
+      "domain": "Ambito",
+      "isEco": "Marchio ecologico",
       "products": "Prodotti",
       "actions": "Azioni"
     },
-    "yes": "Si",
+    "yes": "Sì",
     "no": "No"
   },
   "create": {
     "title": "Nuova certificazione",
-    "subtitle": "Aggiungere un'etichetta di conformita al catalogo."
+    "subtitle": "Aggiungi un marchio di conformità al catalogo."
   },
   "update": {
     "title": "Modifica certificazione",
-    "subtitle": "Modifica il nome, il dominio e le impostazioni di \"{slug}\"."
+    "subtitle": "Modifica nome, ambito e impostazioni di «{slug}»."
   },
   "edit": "Modifica",
   "newCertification": "Nuova certificazione",
@@ -31,15 +31,15 @@
   "confirmDelete": "Eliminare questa certificazione?",
   "back": "Torna alle certificazioni",
   "fields": {
-    "slug": "Slug",
-    "slugHint": "Minuscole, cifre e trattini. Non puo essere modificato successivamente.",
+    "slug": "Identificativo (slug)",
+    "slugHint": "Minuscole, cifre e trattini. Non modificabile in seguito.",
     "slugPlaceholder": "es. oeko-tex-100",
-    "domain": "Dominio",
-    "domainHint": "Categoria dell'etichetta (ambiente, tessile, sicurezza…).",
-    "isEco": "Eco-etichetta",
-    "isEcoHint": "Questa etichetta certifica un approccio ecologico.",
+    "domain": "Ambito",
+    "domainHint": "Categoria del marchio (ambiente, tessile, sicurezza…).",
+    "isEco": "Marchio ecologico",
+    "isEcoHint": "Questo marchio certifica un approccio ecologico.",
     "synonyms": "Sinonimi",
-    "synonymsHint": "Separati da virgole (migliora l'importazione).",
+    "synonymsHint": "Separati da virgole (migliora l’importazione).",
     "synonymsPlaceholder": "es. Oeko-Tex, OEKOTEX",
     "name": "Nome"
   },
@@ -49,19 +49,19 @@
     "social": "Sociale",
     "safety": "Sicurezza",
     "food_contact": "Contatto alimentare",
-    "forestry": "Forestale",
-    "quality": "Qualita"
+    "forestry": "Foreste / legno",
+    "quality": "Qualità"
   },
   "form": {
     "identity": "Identificazione",
-    "identityDescription": "Identificativo tecnico, dominio e impostazioni dell'etichetta.",
+    "identityDescription": "Identificativo tecnico, ambito e impostazioni del marchio.",
     "content": "Contenuto in {language}",
-    "otherLocale": "Altra lingua da visualizzare"
+    "otherLocale": "Altra lingua da mostrare"
   },
   "flash": {
     "created": "Certificazione creata.",
     "updated": "Certificazione aggiornata.",
     "deleted": "Certificazione eliminata.",
-    "inUse": "Impossibile eliminare: ci sono prodotti con questa certificazione."
+    "inUse": "Impossibile eliminare: esistono prodotti con questa certificazione."
   }
 }

@@ -1,12 +1,12 @@
 {
   "index": {
     "title": "Zertifizierungen",
-    "subtitle": "Konformitätslabels im Katalog verwalten (Öko-Siegel, Standards, Zertifizierungen).",
-    "empty": "Noch keine Zertifizierungen. Eine erstellen.",
-    "emptyDescription": "Zertifizierungen informieren Käufer über Produktgarantien.",
+    "subtitle": "Verwalten Sie die Konformitätssiegel des Katalogs (Öko-Siegel, Standards, Zertifizierungen).",
+    "empty": "Noch keine Zertifizierungen. Legen Sie eine an.",
+    "emptyDescription": "Zertifizierungen informieren Käufer über die Produktgarantien.",
     "columns": {
       "name": "Name",
-      "slug": "Slug",
+      "slug": "Kennung",
       "domain": "Bereich",
       "isEco": "Öko-Siegel",
       "products": "Produkte",
@@ -17,11 +17,11 @@
   },
   "create": {
     "title": "Neue Zertifizierung",
-    "subtitle": "Ein Konformitätslabel zum Katalog hinzufügen."
+    "subtitle": "Fügen Sie dem Katalog ein Konformitätssiegel hinzu."
   },
   "update": {
     "title": "Zertifizierung bearbeiten",
-    "subtitle": "Name, Bereich und Einstellungen von \"{slug}\" bearbeiten."
+    "subtitle": "Bearbeiten Sie Name, Bereich und Einstellungen von „{slug}“."
   },
   "edit": "Bearbeiten",
   "newCertification": "Neue Zertifizierung",
@@ -31,15 +31,15 @@
   "confirmDelete": "Diese Zertifizierung löschen?",
   "back": "Zurück zu den Zertifizierungen",
   "fields": {
-    "slug": "Slug",
-    "slugHint": "Kleinbuchstaben, Ziffern und Bindestriche. Kann später nicht geändert werden.",
+    "slug": "Kennung (Slug)",
+    "slugHint": "Kleinbuchstaben, Ziffern und Bindestriche. Später nicht änderbar.",
     "slugPlaceholder": "z. B. oeko-tex-100",
     "domain": "Bereich",
-    "domainHint": "Label-Kategorie (Umwelt, Textil, Sicherheit…).",
+    "domainHint": "Kategorie des Siegels (Umwelt, Textil, Sicherheit …).",
     "isEco": "Öko-Siegel",
-    "isEcoHint": "Dieses Label zertifiziert einen umweltfreundlichen Ansatz.",
+    "isEcoHint": "Dieses Siegel bescheinigt ein umweltfreundliches Vorgehen.",
     "synonyms": "Synonyme",
-    "synonymsHint": "Kommagetrennt (verbessert den Import).",
+    "synonymsHint": "Durch Kommas getrennt (verbessert den Import).",
     "synonymsPlaceholder": "z. B. Oeko-Tex, OEKOTEX",
     "name": "Name"
   },
@@ -49,12 +49,12 @@
     "social": "Soziales",
     "safety": "Sicherheit",
     "food_contact": "Lebensmittelkontakt",
-    "forestry": "Forstwirtschaft",
+    "forestry": "Wald / Holz",
     "quality": "Qualität"
   },
   "form": {
     "identity": "Identifikation",
-    "identityDescription": "Technische Kennung, Bereich und Label-Einstellungen.",
+    "identityDescription": "Technische Kennung, Bereich und Siegel-Einstellungen.",
     "content": "Inhalt auf {language}",
     "otherLocale": "Andere anzuzeigende Sprache"
   },
@@ -62,6 +62,6 @@
     "created": "Zertifizierung erstellt.",
     "updated": "Zertifizierung aktualisiert.",
     "deleted": "Zertifizierung gelöscht.",
-    "inUse": "Kann nicht gelöscht werden: Produkte haben diese Zertifizierung."
+    "inUse": "Löschen nicht möglich: Es gibt Produkte mit dieser Zertifizierung."
   }
 }

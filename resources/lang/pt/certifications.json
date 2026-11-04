@@ -1,67 +1,67 @@
 {
   "index": {
-    "title": "Certificacoes",
-    "subtitle": "Gerir etiquetas de conformidade no catalogo (eco-etiquetas, normas, certificacoes).",
-    "empty": "Ainda nao ha certificacoes. Criar uma.",
-    "emptyDescription": "As certificacoes informam os compradores sobre as garantias do produto.",
+    "title": "Certificações",
+    "subtitle": "Gira os selos de conformidade do catálogo (selos ecológicos, normas, certificações).",
+    "empty": "Ainda não há certificações. Crie uma.",
+    "emptyDescription": "As certificações informam os compradores sobre as garantias dos produtos.",
     "columns": {
       "name": "Nome",
-      "slug": "Slug",
-      "domain": "Dominio",
-      "isEco": "Eco-etiqueta",
+      "slug": "Identificador",
+      "domain": "Âmbito",
+      "isEco": "Selo ecológico",
       "products": "Produtos",
-      "actions": "Acoes"
+      "actions": "Ações"
     },
     "yes": "Sim",
-    "no": "Nao"
+    "no": "Não"
   },
   "create": {
-    "title": "Nova certificacao",
-    "subtitle": "Adicionar uma etiqueta de conformidade ao catalogo."
+    "title": "Nova certificação",
+    "subtitle": "Adicione um selo de conformidade ao catálogo."
   },
   "update": {
-    "title": "Editar certificacao",
-    "subtitle": "Editar o nome, dominio e definicoes de \"{slug}\"."
+    "title": "Editar a certificação",
+    "subtitle": "Edite o nome, o âmbito e as definições de «{slug}»."
   },
   "edit": "Editar",
-  "newCertification": "Nova certificacao",
+  "newCertification": "Nova certificação",
   "delete": "Eliminar",
   "save": "Guardar",
   "cancel": "Cancelar",
-  "confirmDelete": "Eliminar esta certificacao?",
-  "back": "Voltar as certificacoes",
+  "confirmDelete": "Eliminar esta certificação?",
+  "back": "Voltar às certificações",
   "fields": {
-    "slug": "Slug",
-    "slugHint": "Minusculas, digitos e hifenes. Nao pode ser alterado depois.",
-    "slugPlaceholder": "p. ex. oeko-tex-100",
-    "domain": "Dominio",
-    "domainHint": "Categoria da etiqueta (ambiente, textil, seguranca…).",
-    "isEco": "Eco-etiqueta",
-    "isEcoHint": "Esta etiqueta certifica uma abordagem ecologica.",
-    "synonyms": "Sinonimos",
-    "synonymsHint": "Separados por virgulas (melhora a importacao).",
-    "synonymsPlaceholder": "p. ex. Oeko-Tex, OEKOTEX",
+    "slug": "Identificador (slug)",
+    "slugHint": "Minúsculas, algarismos e hífenes. Não pode ser alterado depois.",
+    "slugPlaceholder": "ex. oeko-tex-100",
+    "domain": "Âmbito",
+    "domainHint": "Categoria do selo (ambiente, têxtil, segurança…).",
+    "isEco": "Selo ecológico",
+    "isEcoHint": "Este selo certifica uma abordagem ecológica.",
+    "synonyms": "Sinónimos",
+    "synonymsHint": "Separados por vírgulas (melhora a importação).",
+    "synonymsPlaceholder": "ex. Oeko-Tex, OEKOTEX",
     "name": "Nome"
   },
   "domains": {
     "environment": "Ambiente",
-    "textile": "Textil",
+    "textile": "Têxtil",
     "social": "Social",
-    "safety": "Seguranca",
+    "safety": "Segurança",
     "food_contact": "Contacto alimentar",
-    "forestry": "Florestal",
+    "forestry": "Floresta / madeira",
     "quality": "Qualidade"
   },
   "form": {
-    "identity": "Identificacao",
-    "identityDescription": "Identificador tecnico, dominio e definicoes da etiqueta.",
-    "content": "Conteudo em {language}",
-    "otherLocale": "Outra lingua a apresentar"
+    "identity": "Identificação",
+    "identityDescription": "Identificador técnico, âmbito e definições do selo.",
+    "content": "Conteúdo em {language}",
+    "otherLocale": "Outro idioma a apresentar"
   },
   "flash": {
-    "created": "Certificacao criada.",
-    "updated": "Certificacao atualizada.",
-    "deleted": "Certificacao eliminada.",
-    "inUse": "Nao e possivel eliminar: ha produtos com esta certificacao."
+    "created": "Certificação criada.",
+    "updated": "Certificação atualizada.",
+    "deleted": "Certificação eliminada.",
+    "inUse": "Não é possível eliminar: existem produtos com esta certificação."
   }
 }

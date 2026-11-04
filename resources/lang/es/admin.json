@@ -8,7 +8,7 @@
     "audit": "Registro de auditoría",
     "attributes": "Atributos",
     "certifications": "Certificaciones",
-    "markingTechniques": "Técnicas de marcado",
+    "markingTechniques": "Técnicas de marcaje",
     "label": "Secciones de administración",
     "demand": "Demanda de clientes",
     "moderation": "Moderación",
@@ -445,11 +445,11 @@
       "certification.created": "Certificación creada",
       "certification.updated": "Certificación modificada",
       "certification.deleted": "Certificación eliminada",
-      "marking_technique.created": "Técnica de marcado creada",
-      "marking_technique.updated": "Técnica de marcado modificada",
-      "marking_technique.deleted": "Técnica de marcado eliminada",
+      "marking_technique.created": "Técnica de marcaje creada",
+      "marking_technique.updated": "Técnica de marcaje modificada",
+      "marking_technique.deleted": "Técnica de marcaje eliminada",
       "category_attribute.added": "Atributo añadido a la categoría",
-      "category_attribute.updated": "Atributo de categoría modificado",
+      "category_attribute.updated": "Asociación categoría-atributo modificada",
       "category_attribute.removed": "Atributo eliminado de la categoría"
     },
     "targets": {
@@ -461,7 +461,7 @@
       "product": "Producto",
       "rfq": "Solicitud de presupuesto",
       "certification": "Certificación",
-      "marking_technique": "Técnica de marcado",
+      "marking_technique": "Técnica de marcaje",
       "category_attribute": "Atributo de categoría"
     }
   },

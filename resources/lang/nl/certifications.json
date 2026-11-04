@@ -1,12 +1,12 @@
 {
   "index": {
     "title": "Certificeringen",
-    "subtitle": "Beheer conformiteitslabels in de catalogus (eco-labels, normen, certificeringen).",
+    "subtitle": "Beheer de conformiteitslabels van de catalogus (eco-labels, normen, certificeringen).",
     "empty": "Nog geen certificeringen. Maak er een aan.",
-    "emptyDescription": "Certificeringen informeren kopers over productgaranties.",
+    "emptyDescription": "Certificeringen informeren kopers over de productgaranties.",
     "columns": {
       "name": "Naam",
-      "slug": "Slug",
+      "slug": "Identificatie",
       "domain": "Domein",
       "isEco": "Eco-label",
       "products": "Producten",
@@ -17,11 +17,11 @@
   },
   "create": {
     "title": "Nieuwe certificering",
-    "subtitle": "Een conformiteitslabel aan de catalogus toevoegen."
+    "subtitle": "Voeg een conformiteitslabel toe aan de catalogus."
   },
   "update": {
     "title": "Certificering bewerken",
-    "subtitle": "Naam, domein en instellingen van \"{slug}\" bewerken."
+    "subtitle": "Bewerk de naam, het domein en de instellingen van “{slug}”."
   },
   "edit": "Bewerken",
   "newCertification": "Nieuwe certificering",
@@ -31,15 +31,15 @@
   "confirmDelete": "Deze certificering verwijderen?",
   "back": "Terug naar certificeringen",
   "fields": {
-    "slug": "Slug",
-    "slugHint": "Kleine letters, cijfers en koppeltekens. Kan later niet worden gewijzigd.",
+    "slug": "Identificatie (slug)",
+    "slugHint": "Kleine letters, cijfers en koppeltekens. Later niet te wijzigen.",
     "slugPlaceholder": "bijv. oeko-tex-100",
     "domain": "Domein",
     "domainHint": "Labelcategorie (milieu, textiel, veiligheid…).",
     "isEco": "Eco-label",
     "isEcoHint": "Dit label certificeert een milieuvriendelijke aanpak.",
     "synonyms": "Synoniemen",
-    "synonymsHint": "Kommagescheiden (verbetert import).",
+    "synonymsHint": "Gescheiden door komma’s (verbetert de import).",
     "synonymsPlaceholder": "bijv. Oeko-Tex, OEKOTEX",
     "name": "Naam"
   },
@@ -49,7 +49,7 @@
     "social": "Sociaal",
     "safety": "Veiligheid",
     "food_contact": "Voedselcontact",
-    "forestry": "Bosbouw",
+    "forestry": "Bos / hout",
     "quality": "Kwaliteit"
   },
   "form": {
@@ -62,6 +62,6 @@
     "created": "Certificering aangemaakt.",
     "updated": "Certificering bijgewerkt.",
     "deleted": "Certificering verwijderd.",
-    "inUse": "Kan niet verwijderen: producten hebben deze certificering."
+    "inUse": "Verwijderen niet mogelijk: er zijn producten met deze certificering."
   }
 }

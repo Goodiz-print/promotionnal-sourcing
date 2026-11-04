@@ -443,13 +443,13 @@
       "product.restored": "Produkt återställd",
       "product.reindex_requested": "Omindexering av produkt begärd",
       "certification.created": "Certifiering skapad",
-      "certification.updated": "Certifiering uppdaterad",
-      "certification.deleted": "Certifiering raderad",
+      "certification.updated": "Certifiering ändrad",
+      "certification.deleted": "Certifiering borttagen",
       "marking_technique.created": "Märkningsteknik skapad",
-      "marking_technique.updated": "Märkningsteknik uppdaterad",
-      "marking_technique.deleted": "Märkningsteknik raderad",
+      "marking_technique.updated": "Märkningsteknik ändrad",
+      "marking_technique.deleted": "Märkningsteknik borttagen",
       "category_attribute.added": "Attribut tillagt i kategori",
-      "category_attribute.updated": "Kategoriattribut uppdaterat",
+      "category_attribute.updated": "Koppling mellan kategori och attribut ändrad",
       "category_attribute.removed": "Attribut borttaget från kategori"
     },
     "targets": {

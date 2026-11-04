@@ -213,12 +213,14 @@ export default class CategoryAttributeService {
   /**
    * Met a jour le pivot (is_required, is_filter, position).
    * Declenche un rafraichissement des reglages si `is_filter` change.
+   *
+   * **Regle no-op** (docs/admin.md) : si rien ne change, aucune trace d'audit.
    */
   async update(
     pivot: CategoryAttribute,
     data: UpdateCategoryAttributeData,
     context: AdminActionContext
-  ): Promise<CategoryAttribute> {
+  ): Promise<{ pivot: CategoryAttribute; changed: boolean }> {
     const snapshot = (source: CategoryAttribute) => ({
       isRequiredForPublication: source.isRequiredForPublication,
       isFilter: source.isFilter,
@@ -226,6 +228,24 @@ export default class CategoryAttributeService {
     })
     const before = snapshot(pivot)
     const wasFilter = pivot.isFilter
+
+    // Detecter les changements
+    const newIsRequired =
+      data.isRequiredForPublication !== undefined
+        ? data.isRequiredForPublication
+        : pivot.isRequiredForPublication
+    const newIsFilter = data.isFilter !== undefined ? data.isFilter : pivot.isFilter
+    const newPosition = data.position !== undefined ? data.position : pivot.position
+
+    const wouldChange =
+      before.isRequiredForPublication !== newIsRequired ||
+      before.isFilter !== newIsFilter ||
+      before.position !== newPosition
+
+    // Aucun changement : retour sans ecriture ni audit
+    if (!wouldChange) {
+      return { pivot, changed: false }
+    }
 
     await db.transaction(async (trx) => {
       pivot.useTransaction(trx)
@@ -252,7 +272,7 @@ export default class CategoryAttributeService {
       }
     })
 
-    return pivot
+    return { pivot, changed: true }
   }
 
   /**
@@ -291,24 +311,28 @@ export default class CategoryAttributeService {
   /**
    * Met a jour les plages d'un attribut numerique sur une categorie.
    * Remplace les plages existantes (synchronisation complete).
-   * Validation : l'attribut doit etre de type `number`, et min < max.
+   * Validation : l'attribut doit etre de type `number`, min < max, et les
+   * plages ne doivent pas se chevaucher.
    *
    * Les plages servent au calcul des facettes a la requete (filtres numeriques
    * par tranche) ; elles n'alimentent pas les reglages de l'index, donc pas
    * de rafraichissement necessaire.
+   *
+   * **Regle no-op** (docs/admin.md) : si les plages sont identiques, aucune
+   * trace d'audit.
    */
   async updateRanges(
     pivot: CategoryAttribute,
     data: UpdateCategoryAttributeRangesData,
     context: AdminActionContext
-  ): Promise<CategoryAttribute> {
+  ): Promise<{ pivot: CategoryAttribute; changed: boolean }> {
     // Charger l'attribut pour verifier le type
     await pivot.load('attribute')
     if (pivot.attribute.type !== 'number') {
       throw invalidCategoryAttributeRanges('Ranges can only be set on numeric attributes')
     }
 
-    // Valider les plages
+    // Valider les plages individuellement
     for (const range of data.ranges) {
       if (
         range.minValue !== null &&
@@ -319,6 +343,19 @@ export default class CategoryAttributeService {
       ) {
         throw invalidCategoryAttributeRanges('minValue must be less than maxValue')
       }
+    }
+
+    // Valider l'absence de chevauchement entre plages
+    this.validateNoOverlap(data.ranges)
+
+    // Charger les plages existantes pour detecter le no-op
+    await pivot.load('ranges', (query) => query.orderBy('position', 'asc'))
+    const existingNormalized = this.normalizeRanges(pivot.ranges)
+    const newNormalized = this.normalizeRangesInput(data.ranges)
+
+    // Aucun changement : retour sans ecriture ni audit
+    if (existingNormalized === newNormalized) {
+      return { pivot, changed: false }
     }
 
     await db.transaction(async (trx) => {
@@ -363,6 +400,63 @@ export default class CategoryAttributeService {
 
     // Recharger les plages
     await pivot.load('ranges', (query) => query.orderBy('position', 'asc'))
-    return pivot
+    return { pivot, changed: true }
+  }
+
+  /**
+   * Normalise les plages existantes pour comparaison (bornes ouvertes = null).
+   * Renvoie une chaine JSON triee representant les plages.
+   */
+  private normalizeRanges(ranges: CategoryAttributeRange[]): string {
+    const normalized = ranges
+      .map((r) => ({
+        min: r.minValue !== null ? Number(r.minValue) : null,
+        max: r.maxValue !== null ? Number(r.maxValue) : null,
+      }))
+      .sort((a, b) => (a.min ?? -Infinity) - (b.min ?? -Infinity))
+    return JSON.stringify(normalized)
+  }
+
+  /**
+   * Normalise les plages de l'input pour comparaison.
+   */
+  private normalizeRangesInput(ranges: UpdateCategoryAttributeRangesData['ranges']): string {
+    const normalized = ranges
+      .map((r) => ({
+        min: r.minValue !== null && r.minValue !== undefined ? r.minValue : null,
+        max: r.maxValue !== null && r.maxValue !== undefined ? r.maxValue : null,
+      }))
+      .sort((a, b) => (a.min ?? -Infinity) - (b.min ?? -Infinity))
+    return JSON.stringify(normalized)
+  }
+
+  /**
+   * Valide que les plages ne se chevauchent pas. Une borne ouverte (null) est
+   * traitee comme -Infinity (min) ou +Infinity (max). Deux plages se chevauchent
+   * si leurs intervalles (min, max] et (min', max'] ont une intersection non vide.
+   */
+  private validateNoOverlap(ranges: UpdateCategoryAttributeRangesData['ranges']): void {
+    if (ranges.length < 2) return
+
+    // Normaliser les bornes pour la comparaison
+    const intervals = ranges.map((r) => ({
+      min: r.minValue !== null && r.minValue !== undefined ? r.minValue : -Infinity,
+      max: r.maxValue !== null && r.maxValue !== undefined ? r.maxValue : Infinity,
+    }))
+
+    // Trier par borne inferieure
+    intervals.sort((a, b) => a.min - b.min)
+
+    // Verifier le chevauchement entre plages consecutives
+    for (let i = 0; i < intervals.length - 1; i++) {
+      const current = intervals[i]
+      const next = intervals[i + 1]
+      // Chevauchement si la borne superieure de l'intervalle courant > borne inferieure du suivant
+      if (current.max > next.min) {
+        throw invalidCategoryAttributeRanges(
+          'Ranges must not overlap: check that intervals do not share values'
+        )
+      }
+    }
   }
 }

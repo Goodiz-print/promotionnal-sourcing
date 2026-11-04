@@ -449,7 +449,7 @@
       "marking_technique.updated": "Tecnica di marcatura modificata",
       "marking_technique.deleted": "Tecnica di marcatura eliminata",
       "category_attribute.added": "Attributo aggiunto alla categoria",
-      "category_attribute.updated": "Attributo della categoria modificato",
+      "category_attribute.updated": "Associazione categoria-attributo modificata",
       "category_attribute.removed": "Attributo rimosso dalla categoria"
     },
     "targets": {

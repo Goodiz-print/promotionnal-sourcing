@@ -58,14 +58,14 @@
       "required": "Pflicht",
       "filter": "Filter",
       "position": "Position",
-      "ranges": "Bereiche",
+      "ranges": "Wertebereiche",
       "actions": "Aktionen"
     },
     "flash": {
       "added": "Attribut zur Kategorie hinzugefügt.",
       "updated": "Zuordnung aktualisiert.",
       "removed": "Attribut aus der Kategorie entfernt.",
-      "rangesUpdated": "Bereiche aktualisiert.",
+      "rangesUpdated": "Wertebereiche aktualisiert.",
       "alreadyExists": "Dieses Attribut ist dieser Kategorie bereits zugeordnet."
     },
     "selectLabel": "Hinzuzufügendes Attribut",
@@ -73,18 +73,18 @@
     "noneAvailable": "Alle Attribute sind dieser Kategorie bereits zugeordnet.",
     "remove": "Attribut entfernen",
     "confirmRemove": "Dieses Attribut aus der Kategorie entfernen?",
-    "editRanges": "Bereiche bearbeiten",
-    "noRanges": "Keine Bereiche",
+    "editRanges": "Wertebereiche bearbeiten",
+    "noRanges": "Keine Wertebereiche",
     "requiredFor": "Pflicht für {name}",
     "filterFor": "Filter für {name}",
     "positionFor": "Position von {name}",
     "ranges": {
       "min": "Minimum",
       "max": "Maximum",
-      "add": "Bereich hinzufügen",
-      "remove": "Bereich löschen",
-      "save": "Bereiche speichern",
-      "hint": "Lassen Sie eine Grenze leer, um einen offenen Bereich zu definieren (z. B. unter 400)."
+      "add": "Wertebereich hinzufügen",
+      "remove": "Wertebereich löschen",
+      "save": "Wertebereiche speichern",
+      "hint": "Lassen Sie eine Grenze leer, um einen offenen Wertebereich zu definieren (z. B. unter 400)."
     }
   },
   "back": "Zurück zu den Kategorien",

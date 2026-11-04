@@ -443,13 +443,13 @@
       "product.restored": "Produto restaurado",
       "product.reindex_requested": "Reindexação de produto solicitada",
       "certification.created": "Certificação criada",
-      "certification.updated": "Certificação modificada",
+      "certification.updated": "Certificação alterada",
       "certification.deleted": "Certificação eliminada",
       "marking_technique.created": "Técnica de marcação criada",
-      "marking_technique.updated": "Técnica de marcação modificada",
+      "marking_technique.updated": "Técnica de marcação alterada",
       "marking_technique.deleted": "Técnica de marcação eliminada",
       "category_attribute.added": "Atributo adicionado à categoria",
-      "category_attribute.updated": "Atributo de categoria modificado",
+      "category_attribute.updated": "Associação categoria-atributo alterada",
       "category_attribute.removed": "Atributo removido da categoria"
     },
     "targets": {
