@@ -26,6 +26,8 @@ export const PLATFORM_PERMISSIONS = [
   'users.manage',
   'organizations.view',
   'organizations.manage',
+  'products.view',
+  'products.manage',
   'catalogue.manage',
   'roles.manage',
   'audit.view',
@@ -40,8 +42,15 @@ export type PlatformPermission = (typeof PLATFORM_PERMISSIONS)[number]
 export const PLATFORM_ROLE_PERMISSIONS: Record<PlatformRole, readonly PlatformPermission[]> = {
   none: [],
   admin: PLATFORM_PERMISSIONS,
-  moderator: ['backoffice.access', 'organizations.view', 'moderation.manage'],
-  support: ['backoffice.access', 'users.view', 'users.support', 'organizations.view', 'trade.view'],
+  moderator: ['backoffice.access', 'organizations.view', 'products.view', 'moderation.manage'],
+  support: [
+    'backoffice.access',
+    'users.view',
+    'users.support',
+    'organizations.view',
+    'products.view',
+    'trade.view',
+  ],
   analyst: ['backoffice.access', 'monitoring.view', 'trade.view'],
 }
 

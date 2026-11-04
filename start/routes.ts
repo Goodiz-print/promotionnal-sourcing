@@ -393,6 +393,61 @@ router
                   .get('admin/audit', [controllers.admin.AuditLog, 'index'])
                   .as('admin.audit.index')
 
+                // Administration du catalogue produits (#164) : liste, fiche et actions.
+                router
+                  .get('admin/products', [controllers.admin.Product, 'index'])
+                  .as('admin.products.index')
+                router
+                  .get('admin/products/:id', [controllers.admin.Product, 'show'])
+                  .where('id', router.matchers.number())
+                  .as('admin.products.show')
+                router
+                  .post('admin/products/:id/hide', [controllers.admin.ProductManagement, 'hide'])
+                  .where('id', router.matchers.number())
+                  .as('admin.products.hide')
+                router
+                  .post('admin/products/:id/unhide', [
+                    controllers.admin.ProductManagement,
+                    'unhide',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.products.unhide')
+                router
+                  .post('admin/products/:id/unpublish', [
+                    controllers.admin.ProductManagement,
+                    'unpublish',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.products.unpublish')
+                router
+                  .post('admin/products/:id/publish', [
+                    controllers.admin.ProductManagement,
+                    'publish',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.products.publish')
+                router
+                  .post('admin/products/:id/archive', [
+                    controllers.admin.ProductManagement,
+                    'archive',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.products.archive')
+                router
+                  .post('admin/products/:id/restore', [
+                    controllers.admin.ProductManagement,
+                    'restore',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.products.restore')
+                router
+                  .post('admin/products/:id/reindex', [
+                    controllers.admin.ProductManagement,
+                    'reindex',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.products.reindex')
+
                 // Modération : file des organisations fournisseurs et produits, décisions.
                 router
                   .get('admin/moderation', [controllers.admin.Moderation, 'index'])

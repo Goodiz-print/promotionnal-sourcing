@@ -3,6 +3,7 @@
     "dashboard": "Dashboard",
     "organizations": "Organisationen",
     "users": "Benutzer",
+    "products": "Produkte",
     "categories": "Kategorien",
     "audit": "Audit-Protokoll",
     "attributes": "Attribute",
@@ -431,7 +432,14 @@
       "organization.member_role_changed": "Mitgliedsrolle geändert",
       "organization.member_removed": "Mitglied entfernt",
       "organization.invitation_revoked": "Einladung widerrufen",
-      "organization.invitation_resent": "Einladung erneut gesendet"
+      "organization.invitation_resent": "Einladung erneut gesendet",
+      "product.hidden": "Produkt ausgeblendet",
+      "product.unhidden": "Produkt eingeblendet",
+      "product.unpublished": "Veröffentlichung des Produkts aufgehoben",
+      "product.published": "Produkt veröffentlicht",
+      "product.archived": "Produkt archiviert",
+      "product.restored": "Produkt wiederhergestellt",
+      "product.reindex_requested": "Produkt-Neuindexierung angefordert"
     },
     "targets": {
       "user": "Benutzer",
@@ -761,6 +769,147 @@
         "shipped": "Versendet am",
         "delivered": "Geliefert am",
         "cancelled": "Storniert am"
+      }
+    }
+  },
+  "products": {
+    "title": "Produkte",
+    "subtitle": "Alle Produkte im Katalog.",
+    "empty": "Keine Produkte entsprechen diesen Filtern.",
+    "emptyDescription": "Ändern Sie die Filter, um die Suche zu erweitern.",
+    "back": "Zurück zu den Produkten",
+    "resultsCount": "{count, plural, =0 {Keine Produkte} one {# Produkt} other {# Produkte}}",
+    "filters": {
+      "search": "Suchen",
+      "searchPlaceholder": "Name, Slug, SKU oder Lieferant",
+      "supplier": "Lieferant",
+      "allSuppliers": "Alle Lieferanten",
+      "category": "Kategorie",
+      "allCategories": "Alle Kategorien",
+      "visibility": "Sichtbarkeit",
+      "allVisibility": "Alle",
+      "quality": "Qualität",
+      "allQuality": "Alle"
+    },
+    "visibility": {
+      "published": "Veröffentlicht",
+      "unpublished": "Nicht veröffentlicht",
+      "hidden": "Ausgeblendet",
+      "archived": "Archiviert"
+    },
+    "quality": {
+      "no_image": "Kein Bild",
+      "no_translation": "Unvollständige Übersetzung",
+      "no_variant": "Keine Variante"
+    },
+    "columns": {
+      "name": "Name",
+      "supplier": "Lieferant",
+      "category": "Kategorie",
+      "visibility": "Sichtbarkeit",
+      "variants": "Varianten",
+      "images": "Bilder",
+      "stock": "Lager",
+      "createdAt": "Erstellt am"
+    },
+    "stockStatus": {
+      "in_stock": "Auf Lager",
+      "out_of_stock": "Nicht vorrätig",
+      "on_order": "Auf Bestellung"
+    },
+    "detail": {
+      "overview": "Übersicht",
+      "moderation": "Moderation",
+      "variants": "Varianten",
+      "pricing": "Preise",
+      "images": "Bilder",
+      "translations": "Übersetzungen",
+      "certifications": "Zertifizierungen",
+      "attributes": "Attribute",
+      "noVariants": "Keine Varianten.",
+      "noPricing": "Keine Staffelpreise.",
+      "noImages": "Keine Bilder.",
+      "noTranslations": "Keine Übersetzungen.",
+      "noCertifications": "Keine Zertifizierungen.",
+      "noAttributes": "Keine Attribute.",
+      "moderationStatus": "Moderationsstatus",
+      "moderationHistory": "Moderationsverlauf",
+      "noModerationHistory": "Keine Moderationsentscheidung.",
+      "isActive": "Veröffentlichung",
+      "lifecycleStatus": "Lebenszyklusstatus",
+      "sku": "SKU",
+      "variantActive": "Aktiv",
+      "variantInactive": "Inaktiv",
+      "minQuantity": "Mindestmenge",
+      "unitPrice": "Stückpreis",
+      "appliesTo": "Variante",
+      "allVariants": "Alle",
+      "locale": "Sprache",
+      "description": "Beschreibung",
+      "present": "Vorhanden",
+      "missing": "Fehlt",
+      "decidedBy": "Entschieden von",
+      "reason": "Begründung",
+      "decidedAt": "Datum",
+      "actionsTitle": "Aktionen",
+      "archivedNotice": "Dieses Produkt ist archiviert.",
+      "slug": "Slug",
+      "imageAlt": "Bild {position} von {name}"
+    },
+    "lifecycleStatus": {
+      "active": "Aktiv",
+      "new": "Neu",
+      "end_of_series": "Auslaufmodell",
+      "retired": "Eingestellt"
+    },
+    "moderationStatus": {
+      "pending": "Ausstehend",
+      "approved": "Genehmigt",
+      "rejected": "Abgelehnt"
+    },
+    "actions": {
+      "hide": {
+        "label": "Ausblenden",
+        "confirm": "Dieses Produkt ausblenden? Es wird nicht mehr im öffentlichen Katalog sichtbar sein.",
+        "reasonLabel": "Grund für das Ausblenden",
+        "done": "Produkt ausgeblendet.",
+        "alreadyHidden": "Dieses Produkt ist bereits ausgeblendet."
+      },
+      "unhide": {
+        "label": "Einblenden",
+        "confirm": "Dieses Produkt einblenden? Es wird wieder im öffentlichen Katalog sichtbar sein.",
+        "done": "Produkt eingeblendet.",
+        "notHidden": "Dieses Produkt ist nicht ausgeblendet."
+      },
+      "unpublish": {
+        "label": "Veröffentlichung aufheben",
+        "confirm": "Veröffentlichung dieses Produkts aufheben? Es wird nicht mehr im öffentlichen Katalog sichtbar sein.",
+        "done": "Veröffentlichung des Produkts aufgehoben.",
+        "alreadyUnpublished": "Die Veröffentlichung dieses Produkts ist bereits aufgehoben."
+      },
+      "publish": {
+        "label": "Veröffentlichen",
+        "confirm": "Dieses Produkt veröffentlichen? Es wird im öffentlichen Katalog sichtbar sein.",
+        "done": "Produkt veröffentlicht.",
+        "alreadyPublished": "Dieses Produkt ist bereits veröffentlicht.",
+        "archived": "Dieses Produkt ist archiviert: Stellen Sie es vor der Veröffentlichung wieder her."
+      },
+      "archive": {
+        "label": "Archivieren",
+        "confirm": "Dieses Produkt archivieren? Es wird aus dem Katalog entfernt und als eingestellt markiert.",
+        "done": "Produkt archiviert.",
+        "alreadyArchived": "Dieses Produkt ist bereits archiviert."
+      },
+      "restore": {
+        "label": "Wiederherstellen",
+        "confirm": "Dieses Produkt wiederherstellen? Es wird wieder aktiv sein (bleibt aber unveröffentlicht).",
+        "done": "Produkt wiederhergestellt.",
+        "notArchived": "Dieses Produkt ist nicht archiviert."
+      },
+      "reindex": {
+        "label": "Neu indizieren",
+        "confirm": "Eine Neuindizierung dieses Produkts anfordern?",
+        "done": "Neuindizierung angefordert."
       }
     }
   }

@@ -212,6 +212,17 @@ export interface ApiDefinition {
     audit: {
       index: typeof routes['admin.audit.index']
     }
+    products: {
+      index: typeof routes['admin.products.index']
+      show: typeof routes['admin.products.show']
+      hide: typeof routes['admin.products.hide']
+      unhide: typeof routes['admin.products.unhide']
+      unpublish: typeof routes['admin.products.unpublish']
+      publish: typeof routes['admin.products.publish']
+      archive: typeof routes['admin.products.archive']
+      restore: typeof routes['admin.products.restore']
+      reindex: typeof routes['admin.products.reindex']
+    }
     moderation: {
       index: typeof routes['admin.moderation.index']
       show: typeof routes['admin.moderation.show']

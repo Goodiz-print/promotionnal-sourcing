@@ -3,6 +3,7 @@
     "dashboard": "Panel główny",
     "organizations": "Organizacje",
     "users": "Użytkownicy",
+    "products": "Produkty",
     "categories": "Kategorie",
     "audit": "Dziennik audytu",
     "attributes": "Atrybuty",
@@ -431,7 +432,14 @@
       "organization.member_role_changed": "Rola członka zmieniona",
       "organization.member_removed": "Członek usunięty",
       "organization.invitation_revoked": "Zaproszenie anulowane",
-      "organization.invitation_resent": "Zaproszenie wysłane ponownie"
+      "organization.invitation_resent": "Zaproszenie wysłane ponownie",
+      "product.hidden": "Produkt ukryty",
+      "product.unhidden": "Produkt pokazany",
+      "product.unpublished": "Cofnięto publikację produktu",
+      "product.published": "Produkt opublikowany",
+      "product.archived": "Produkt zarchiwizowany",
+      "product.restored": "Produkt przywrócony",
+      "product.reindex_requested": "Zażądano ponownego indeksowania produktu"
     },
     "targets": {
       "user": "Użytkownik",
@@ -761,6 +769,147 @@
         "shipped": "Wysłano",
         "delivered": "Dostarczono",
         "cancelled": "Anulowano"
+      }
+    }
+  },
+  "products": {
+    "title": "Produkty",
+    "subtitle": "Wszystkie produkty w katalogu.",
+    "empty": "Brak produktów spełniających te kryteria.",
+    "emptyDescription": "Zmień filtry, aby rozszerzyć wyszukiwanie.",
+    "back": "Powrót do produktów",
+    "resultsCount": "{count, plural, =0 {Brak produktów} one {# produkt} few {# produkty} many {# produktów} other {# produktu}}",
+    "filters": {
+      "search": "Szukaj",
+      "searchPlaceholder": "Nazwa, slug, SKU lub dostawca",
+      "supplier": "Dostawca",
+      "allSuppliers": "Wszyscy dostawcy",
+      "category": "Kategoria",
+      "allCategories": "Wszystkie kategorie",
+      "visibility": "Widoczność",
+      "allVisibility": "Wszystkie",
+      "quality": "Jakość",
+      "allQuality": "Wszystkie"
+    },
+    "visibility": {
+      "published": "Opublikowany",
+      "unpublished": "Nieopublikowany",
+      "hidden": "Ukryty",
+      "archived": "Zarchiwizowany"
+    },
+    "quality": {
+      "no_image": "Bez obrazu",
+      "no_translation": "Niekompletne tłumaczenie",
+      "no_variant": "Bez wariantu"
+    },
+    "columns": {
+      "name": "Nazwa",
+      "supplier": "Dostawca",
+      "category": "Kategoria",
+      "visibility": "Widoczność",
+      "variants": "Warianty",
+      "images": "Obrazy",
+      "stock": "Stan magazynowy",
+      "createdAt": "Utworzono"
+    },
+    "stockStatus": {
+      "in_stock": "W magazynie",
+      "out_of_stock": "Brak w magazynie",
+      "on_order": "Na zamówienie"
+    },
+    "detail": {
+      "overview": "Przegląd",
+      "moderation": "Moderacja",
+      "variants": "Warianty",
+      "pricing": "Cennik",
+      "images": "Obrazy",
+      "translations": "Tłumaczenia",
+      "certifications": "Certyfikaty",
+      "attributes": "Atrybuty",
+      "noVariants": "Brak wariantów.",
+      "noPricing": "Brak progów cenowych.",
+      "noImages": "Brak obrazów.",
+      "noTranslations": "Brak tłumaczeń.",
+      "noCertifications": "Brak certyfikatów.",
+      "noAttributes": "Brak atrybutów.",
+      "moderationStatus": "Status moderacji",
+      "moderationHistory": "Historia moderacji",
+      "noModerationHistory": "Brak decyzji moderacyjnej.",
+      "isActive": "Publikacja",
+      "lifecycleStatus": "Status cyklu życia",
+      "sku": "SKU",
+      "variantActive": "Aktywny",
+      "variantInactive": "Nieaktywny",
+      "minQuantity": "Minimalna ilość",
+      "unitPrice": "Cena jednostkowa",
+      "appliesTo": "Wariant",
+      "allVariants": "Wszystkie",
+      "locale": "Język",
+      "description": "Opis",
+      "present": "Jest",
+      "missing": "Brak",
+      "decidedBy": "Decyzja podjęta przez",
+      "reason": "Powód",
+      "decidedAt": "Data",
+      "actionsTitle": "Działania",
+      "archivedNotice": "Ten produkt jest zarchiwizowany.",
+      "slug": "Slug",
+      "imageAlt": "Obraz {position} produktu {name}"
+    },
+    "lifecycleStatus": {
+      "active": "Aktywny",
+      "new": "Nowy",
+      "end_of_series": "Koniec serii",
+      "retired": "Wycofany"
+    },
+    "moderationStatus": {
+      "pending": "Oczekuje",
+      "approved": "Zatwierdzony",
+      "rejected": "Odrzucony"
+    },
+    "actions": {
+      "hide": {
+        "label": "Ukryj",
+        "confirm": "Czy ukryć ten produkt? Nie będzie już widoczny w katalogu publicznym.",
+        "reasonLabel": "Powód ukrycia",
+        "done": "Produkt ukryty.",
+        "alreadyHidden": "Ten produkt jest już ukryty."
+      },
+      "unhide": {
+        "label": "Pokaż",
+        "confirm": "Czy pokazać ten produkt? Będzie znowu widoczny w katalogu publicznym.",
+        "done": "Produkt pokazany.",
+        "notHidden": "Ten produkt nie jest ukryty."
+      },
+      "unpublish": {
+        "label": "Cofnij publikację",
+        "confirm": "Czy cofnąć publikację tego produktu? Nie będzie już widoczny w katalogu publicznym.",
+        "done": "Publikacja produktu cofnięta.",
+        "alreadyUnpublished": "Ten produkt nie jest opublikowany."
+      },
+      "publish": {
+        "label": "Opublikuj",
+        "confirm": "Czy opublikować ten produkt? Będzie widoczny w katalogu publicznym.",
+        "done": "Produkt opublikowany.",
+        "alreadyPublished": "Ten produkt jest już opublikowany.",
+        "archived": "Ten produkt jest zarchiwizowany: przywróć go przed publikacją."
+      },
+      "archive": {
+        "label": "Zarchiwizuj",
+        "confirm": "Czy zarchiwizować ten produkt? Zostanie usunięty z katalogu i oznaczony jako wycofany.",
+        "done": "Produkt zarchiwizowany.",
+        "alreadyArchived": "Ten produkt jest już zarchiwizowany."
+      },
+      "restore": {
+        "label": "Przywróć",
+        "confirm": "Czy przywrócić ten produkt? Będzie znowu aktywny (ale pozostanie nieopublikowany).",
+        "done": "Produkt przywrócony.",
+        "notArchived": "Ten produkt nie jest zarchiwizowany."
+      },
+      "reindex": {
+        "label": "Ponownie indeksuj",
+        "confirm": "Czy zażądać ponownego indeksowania tego produktu?",
+        "done": "Żądanie ponownego indeksowania wysłane."
       }
     }
   }

@@ -134,6 +134,15 @@ export type ScannedRoutes = {
     'admin.users.password_reset': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.audit.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.products.hide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.products.unhide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.products.unpublish': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.products.publish': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.products.archive': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.products.restore': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.products.reindex': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.moderation.show': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
     'admin.moderation.decide': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
@@ -220,6 +229,8 @@ export type ScannedRoutes = {
     'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.users.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.audit.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.moderation.show': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
     'admin.agency_reviews.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -292,6 +303,8 @@ export type ScannedRoutes = {
     'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.users.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.audit.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.moderation.show': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
     'admin.agency_reviews.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -355,6 +368,13 @@ export type ScannedRoutes = {
     'admin.users.reactivate': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.resend_verification': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.password_reset': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.products.hide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.products.unhide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.products.unpublish': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.products.publish': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.products.archive': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.products.restore': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.products.reindex': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.decide': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
     'admin.agency_reviews.decide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.rfqs.close': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
