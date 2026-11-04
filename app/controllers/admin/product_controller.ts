@@ -1,15 +1,12 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
-import db from '@adonisjs/lucid/services/db'
 import AdminProductService from '#services/admin_product_service'
 import AdminProductTransformer from '#transformers/admin_product_transformer'
 import AdminProductDetailTransformer from '#transformers/admin_product_detail_transformer'
 import { adminProductFiltersValidator } from '#validators/admin_product'
-import { latestDecisionIsRejectedSql } from '#shared/helpers/moderation'
 import type {
   AdminProductIndexFilters,
   AdminProductFilterOptions,
-  AdminProductVisibilityStatus,
 } from '#shared/types/admin_product'
 import type { TranslationLocale } from '#shared/types/i18n'
 
@@ -50,7 +47,7 @@ export default class ProductController {
     })
 
     // Calcul des statuts de visibilite pour chaque produit
-    const visibilityStatuses = await this.computeVisibilityStatuses(paginator.all())
+    const visibilityStatuses = await this.service.visibilityStatuses(paginator.all())
 
     // Options de filtres pour le frontend
     const [categories, suppliers] = await Promise.all([
@@ -98,37 +95,5 @@ export default class ProductController {
     return inertia.render('admin/products/show', {
       product: new AdminProductDetailTransformer(details, { canManage, locale }).toObject(),
     })
-  }
-
-  /**
-   * Calcule le statut de visibilite pour un ensemble de produits.
-   */
-  private async computeVisibilityStatuses(
-    products: { id: number; isActive: boolean; lifecycleStatus: string }[]
-  ): Promise<Map<number, AdminProductVisibilityStatus>> {
-    const result = new Map<number, AdminProductVisibilityStatus>()
-    if (products.length === 0) return result
-
-    // Recupere les produits masques (derniere decision = rejected)
-    const ids = products.map((p) => p.id)
-    const hiddenQuery = await db.rawQuery<{ rows: { id: number }[] }>(
-      `SELECT id FROM products WHERE id = ANY(?) AND ${latestDecisionIsRejectedSql('product', 'products.id')}`,
-      [ids]
-    )
-    const hiddenIds = new Set(hiddenQuery.rows.map((r) => r.id))
-
-    for (const product of products) {
-      if (product.lifecycleStatus === 'retired') {
-        result.set(product.id, 'archived')
-      } else if (hiddenIds.has(product.id)) {
-        result.set(product.id, 'hidden')
-      } else if (product.isActive) {
-        result.set(product.id, 'published')
-      } else {
-        result.set(product.id, 'unpublished')
-      }
-    }
-
-    return result
   }
 }

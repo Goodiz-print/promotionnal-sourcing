@@ -319,10 +319,7 @@ export default class AdminProductService {
    * Liste des categories pour le filtre (arbre aplati avec profondeur).
    */
   async categoryOptions(locale: TranslationLocale): Promise<AdminProductCategoryOption[]> {
-    const categories = await Category.query()
-      .preload('translations')
-      .orderBy('parentId', 'asc')
-      .orderBy('position', 'asc')
+    const categories = await Category.query().preload('translations').orderBy('slug', 'asc')
 
     const result: AdminProductCategoryOption[] = []
     const roots = categories.filter((c) => c.parentId === null)
@@ -357,7 +354,7 @@ export default class AdminProductService {
       .whereNotNull('suppliers.organization_id')
       .select('organizations.id', 'organizations.name')
       .orderBy('organizations.name', 'asc')
-      .distinct('organizations.id')
+      .groupBy('organizations.id', 'organizations.name')
 
     return suppliers.map((row: { id: number; name: string }) => ({
       id: row.id,
@@ -384,6 +381,39 @@ export default class AdminProductService {
   }
 
   /**
+   * Calcule le statut de visibilite pour un ensemble de produits.
+   */
+  async visibilityStatuses(
+    products: { id: number; isActive: boolean; lifecycleStatus: string }[]
+  ): Promise<Map<number, AdminProductVisibilityStatus>> {
+    const result = new Map<number, AdminProductVisibilityStatus>()
+    if (products.length === 0) return result
+
+    // Recupere les produits masques (derniere decision = rejected)
+    const ids = products.map((p) => p.id)
+    const hiddenRows = await db
+      .from('products')
+      .whereIn('id', ids)
+      .whereRaw(latestDecisionIsRejectedSql('product', 'products.id'))
+      .select('id')
+    const hiddenIds = new Set<number>(hiddenRows.map((r: { id: number }) => r.id))
+
+    for (const product of products) {
+      if (product.lifecycleStatus === 'retired') {
+        result.set(product.id, 'archived')
+      } else if (hiddenIds.has(product.id)) {
+        result.set(product.id, 'hidden')
+      } else if (product.isActive) {
+        result.set(product.id, 'published')
+      } else {
+        result.set(product.id, 'unpublished')
+      }
+    }
+
+    return result
+  }
+
+  /**
    * Calcule le statut de visibilite d'un produit.
    */
   private async computeVisibilityStatus(product: Product): Promise<AdminProductVisibilityStatus> {
@@ -398,18 +428,19 @@ export default class AdminProductService {
     return product.isActive ? 'published' : 'unpublished'
   }
 
+  // `productId` est un entier issu de la base : les helpers SQL répètent la colonne
+  // dans plusieurs sous-requêtes, un binding unique ne suffirait pas.
   private async isLatestDecisionRejected(productId: number): Promise<boolean> {
     const result = await db.rawQuery(
-      `SELECT ${latestDecisionIsRejectedSql('product', '?')} AS is_rejected`,
-      [productId]
+      `SELECT ${latestDecisionIsRejectedSql('product', String(Math.trunc(productId)))} AS is_rejected`
     )
     return result.rows[0]?.is_rejected === true
   }
 
   private async getModerationStatus(productId: number): Promise<string> {
-    const result = await db.rawQuery(`SELECT ${currentStatusSql('product', '?')} AS status`, [
-      productId,
-    ])
+    const result = await db.rawQuery(
+      `SELECT ${currentStatusSql('product', String(Math.trunc(productId)))} AS status`
+    )
     return result.rows[0]?.status ?? 'pending'
   }
 
