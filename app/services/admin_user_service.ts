@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon'
 import { inject } from '@adonisjs/core'
 import User from '#models/user'
-import LegalConsent from '#models/legal_consent'
 import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
 import type { AdminUserIndexFilters } from '#shared/types/admin_user'
 
@@ -28,26 +27,17 @@ export default class AdminUserService {
    * Charge un utilisateur avec toutes ses relations pour la fiche :
    * organisations (avec rôle), passkeys, consentements légaux.
    */
-  async detail(id: number): Promise<User | null> {
-    const user = await User.query()
+  detail(id: number): Promise<User | null> {
+    return User.query()
       .where('id', id)
       .preload('organizationUsers', (query) =>
         query.preload('organization').preload('role').orderBy('joinedAt', 'asc')
       )
       .preload('passkeys', (query) => query.orderBy('createdAt', 'asc'))
+      .preload('legalConsents', (query) =>
+        query.preload('organization').orderBy('acceptedAt', 'desc')
+      )
       .first()
-
-    if (!user) return null
-
-    // Consentements légaux : chargés séparément car le modèle User n'a pas la
-    // relation (les consentements sont par organisation, pas par utilisateur).
-    const consents = await LegalConsent.query()
-      .where('userId', user.id)
-      .preload('organization')
-      .orderBy('acceptedAt', 'desc')
-
-    user.$extras.consents = consents
-    return user
   }
 
   /**

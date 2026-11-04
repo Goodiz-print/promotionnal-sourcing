@@ -44,7 +44,7 @@ export default class AdminUserDetailTransformer extends BaseTransformer<User> {
       suspendedAt: user.suspendedAt?.toISO() ?? null,
       organizations: this.transformOrganizations(user.organizationUsers ?? []),
       passkeys: this.transformPasskeys(user.passkeys ?? []),
-      consents: this.transformConsents(user.$extras.consents ?? []),
+      consents: this.transformConsents(user.legalConsents ?? []),
       canSupport: this.canSupport,
       canManage: this.canManage,
       isSelf: user.id === this.currentUserId,

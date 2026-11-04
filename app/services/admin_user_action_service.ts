@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import AccountService from '#services/account_service'
 import AdminAuditService from '#services/admin_audit_service'
 import AdminUserService from '#services/admin_user_service'
@@ -56,14 +57,13 @@ export default class AdminUserActionService {
    * Idempotence : suspendre un compte déjà suspendu renvoie 409.
    */
   async suspend(userId: number, options: SuspendOptions): Promise<User> {
-    const user = await this.findOrFail(userId)
-    this.assertNotSelf(user, options.context)
-    this.assertNotPlatformAdmin(user)
+    return db.transaction(async (trx) => {
+      const user = await this.lockOrFail(userId, trx)
+      this.assertNotSelf(user, options.context)
+      this.assertNotPlatformAdmin(user)
 
-    if (user.suspendedAt) throw new UserAlreadySuspendedException()
+      if (user.suspendedAt) throw new UserAlreadySuspendedException()
 
-    await db.transaction(async (trx) => {
-      user.useTransaction(trx)
       user.suspendedAt = DateTime.now()
       await user.save()
 
@@ -81,9 +81,9 @@ export default class AdminUserActionService {
         },
         { ...options.context, client: trx }
       )
-    })
 
-    return user
+      return user
+    })
   }
 
   /**
@@ -91,12 +91,11 @@ export default class AdminUserActionService {
    * Idempotence : réactiver un compte actif renvoie 409.
    */
   async reactivate(userId: number, options: ActionOptions): Promise<User> {
-    const user = await this.findOrFail(userId)
+    return db.transaction(async (trx) => {
+      const user = await this.lockOrFail(userId, trx)
 
-    if (!user.suspendedAt) throw new UserNotSuspendedException()
+      if (!user.suspendedAt) throw new UserNotSuspendedException()
 
-    await db.transaction(async (trx) => {
-      user.useTransaction(trx)
       user.suspendedAt = null
       await user.save()
 
@@ -109,9 +108,9 @@ export default class AdminUserActionService {
         },
         { ...options.context, client: trx }
       )
-    })
 
-    return user
+      return user
+    })
   }
 
   /**
@@ -181,14 +180,14 @@ export default class AdminUserActionService {
    * stocké en clair dans `changes` (PII).
    */
   async destroy(userId: number, options: ActionOptions): Promise<void> {
-    const user = await this.findOrFail(userId)
-    this.assertNotSelf(user, options.context)
-    this.assertNotPlatformAdmin(user)
-
-    const blocking = await this.account.blockingOrganizations(user)
-    if (blocking.length > 0) throw new UserOwnsOrganizationsException(blocking)
-
     await db.transaction(async (trx) => {
+      const user = await this.lockOrFail(userId, trx)
+      this.assertNotSelf(user, options.context)
+      this.assertNotPlatformAdmin(user)
+
+      const blocking = await this.account.blockingOrganizations(user)
+      if (blocking.length > 0) throw new UserOwnsOrganizationsException(blocking)
+
       // Audit dans la même transaction que l'anonymisation. Aucune donnée
       // personnelle n'y figure : la cible suffit à retrouver le compte.
       await this.audit.record(
@@ -204,10 +203,25 @@ export default class AdminUserActionService {
     })
   }
 
+  /**
+   * Charge le compte **en le verrouillant** (`FOR UPDATE`) dans la transaction de
+   * l'action : deux interventions simultanées s'exécutent l'une après l'autre
+   * et la seconde voit l'état laissé par la première.
+   */
+  private async lockOrFail(id: number, trx: TransactionClientContract): Promise<User> {
+    const user = await User.query({ client: trx }).where('id', id).forUpdate().first()
+    if (!user || this.isAnonymized(user)) throw new AdminUserNotFoundException()
+    return user
+  }
+
+  private isAnonymized(user: User): boolean {
+    return user.email.endsWith(`@${ANONYMIZED_EMAIL_DOMAIN}`)
+  }
+
   private async findOrFail(id: number): Promise<User> {
     const user = await this.users.find(id)
     // Un compte déjà anonymisé n'est plus un compte exploitable.
-    if (!user || user.email.endsWith(`@${ANONYMIZED_EMAIL_DOMAIN}`)) {
+    if (!user || this.isAnonymized(user)) {
       throw new AdminUserNotFoundException()
     }
     return user
