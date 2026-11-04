@@ -3,6 +3,8 @@ import stringHelpers from '@adonisjs/core/helpers/string'
 import Product from '#models/product'
 import { SupplierFactory } from '#database/factories/supplier_factory'
 import { CategoryFactory } from '#database/factories/category_factory'
+import type { TranslationLocale } from '#shared/types/i18n'
+import type { ProductLifecycleStatus } from '#shared/types/product'
 
 /**
  * Produit de test. `supplierId` et `categoryId` sont obligatoires (NOT NULL) :
@@ -16,8 +18,8 @@ import { CategoryFactory } from '#database/factories/category_factory'
 export const ProductFactory = factory
   .define(Product, ({ faker }) => ({
     slug: stringHelpers.slug(`product-${faker.string.alphanumeric(8)}`, { lower: true }),
-    sourceLocale: 'fr',
-    lifecycleStatus: 'active',
+    sourceLocale: 'fr' as TranslationLocale,
+    lifecycleStatus: 'active' as ProductLifecycleStatus,
     isActive: true,
     currency: 'EUR',
     madeInEurope: false,

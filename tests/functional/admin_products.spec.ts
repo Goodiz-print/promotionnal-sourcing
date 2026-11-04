@@ -533,9 +533,7 @@ test.group('Administration produits - actions: masquage (#164)', (group) => {
   }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
     const product = await Product.query().where('isActive', true).firstOrFail()
-    // NOTE : hide devrait emettre ProductChanged pour que l'index soit mis a jour
-    // (retrait du produit masque). Le test ci-dessous ECHOUERA tant que le service
-    // n'appelle pas emitProductChanged — cf. bug signale dans le rapport.
+    // `ModerationService.decide` émet `ProductChanged` après le commit : l'index suit.
     const fake = emitter.fake([ProductChanged])
 
     const response = await productAction(client, admin, product.id, 'hide', {
@@ -559,6 +557,9 @@ test.group('Administration produits - actions: masquage (#164)', (group) => {
       .where('targetId', product.id)
     assert.exists(log)
     assert.equal(log.actorUserId, admin.id)
+    // Verifie les champs before/after de l'audit
+    assert.isFalse(log.changes?.before?.hidden as boolean)
+    assert.isTrue(log.changes?.after?.hidden as boolean)
 
     // `ModerationService.decide` émet `ProductChanged` après le commit de la transaction.
     fake.assertEmitted(ProductChanged)
@@ -616,6 +617,9 @@ test.group('Administration produits - actions: masquage (#164)', (group) => {
       .where('action', 'product.unhidden')
       .where('targetId', product.id)
     assert.exists(log)
+    // Verifie les champs before/after de l'audit
+    assert.isTrue(log.changes?.before?.hidden as boolean)
+    assert.isFalse(log.changes?.after?.hidden as boolean)
   })
 
   test('reveler un produit non masque renvoie une erreur', async ({ client, assert }) => {
@@ -695,6 +699,32 @@ test.group('Administration produits - actions: publication (#164)', (group) => {
       .where('action', 'product.published')
       .where('targetId', product.id)
     assert.exists(log)
+  })
+
+  test('publish sur un produit archive est refuse, is_active reste false, pas d audit published', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    emitter.fake([ProductChanged])
+
+    const product = await ProductFactory.with('supplier').with('category').apply('retired').create()
+
+    const response = await productAction(client, admin, product.id, 'publish')
+
+    // Le controleur redirige avec un flash d'erreur (ProductArchivedException => 302)
+    response.assertStatus(302)
+
+    // Le produit reste archive et inactif
+    await product.refresh()
+    assert.isFalse(product.isActive)
+    assert.equal(product.lifecycleStatus, 'retired')
+
+    // Aucune entree d'audit product.published ne doit avoir ete creee
+    const logs = await AdminAuditLog.query()
+      .where('action', 'product.published')
+      .where('targetId', product.id)
+    assert.equal(logs.length, 0)
   })
 })
 

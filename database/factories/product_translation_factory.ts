@@ -1,5 +1,6 @@
 import factory from '@adonisjs/lucid/factories'
 import ProductTranslation from '#models/product_translation'
+import type { ContentLocale } from '#shared/types/i18n'
 
 /**
  * Traduction produit de test. `productId` et `locale` sont à fournir par
@@ -10,7 +11,7 @@ import ProductTranslation from '#models/product_translation'
 export const ProductTranslationFactory = factory
   .define(ProductTranslation, ({ faker }) => ({
     name: faker.commerce.productName(),
-    locale: 'fr',
+    locale: 'fr' as ContentLocale,
     isAuto: false,
   }))
   .build()
