@@ -3,14 +3,20 @@ import type { ApiClient } from '@japa/api-client'
 import emitter from '@adonisjs/core/services/emitter'
 import app from '@adonisjs/core/services/app'
 import { UserFactory } from '#database/factories/user_factory'
+import { OrganizationFactory } from '#database/factories/organization_factory'
+import { SupplierFactory } from '#database/factories/supplier_factory'
+import { CategoryFactory } from '#database/factories/category_factory'
+import { ProductFactory } from '#database/factories/product_factory'
+import { ProductVariantFactory } from '#database/factories/product_variant_factory'
+import { ProductImageFactory } from '#database/factories/product_image_factory'
+import { ProductTranslationFactory } from '#database/factories/product_translation_factory'
 import AdminAuditLog from '#models/admin_audit_log'
 import ModerationDecisionRecord from '#models/moderation_decision'
 import Product from '#models/product'
-import Supplier from '#models/supplier'
-import Category from '#models/category'
 import ProductChanged from '#events/product_changed'
 import SearchSyncService from '#services/search_sync_service'
 import { useDatabase } from '#tests/utils/setup'
+import { TRANSLATION_LOCALES } from '#shared/types/i18n'
 import type User from '#models/user'
 
 interface ProductListItem {
@@ -218,11 +224,17 @@ test.group('Administration produits - filtres actifs (#164)', (group) => {
     assert.include(ids, product.id)
   })
 
-  test('quality=no_image retourne les produits sans image (tous les seedes)', async ({
+  test('quality=no_image inclut les produits sans image et exclut ceux qui en ont une', async ({
     client,
     assert,
   }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
+
+    // Produit sans image : doit apparaitre dans le filtre
+    const productWithoutImage = await ProductFactory.with('supplier').with('category').create()
+    // Produit avec une image : doit etre exclu du filtre
+    const productWithImage = await ProductFactory.with('supplier').with('category').create()
+    await ProductImageFactory.merge({ productId: productWithImage.id }).create()
 
     const response = await client
       .get('/fr/admin/products?quality=no_image')
@@ -230,18 +242,25 @@ test.group('Administration produits - filtres actifs (#164)', (group) => {
       .loginAs(admin)
 
     response.assertStatus(200)
-    // Tous les produits seedes n'ont pas d'image
-    assert.isAbove(response.inertiaProps.productList.data.length, 0)
-    for (const p of response.inertiaProps.productList.data as ProductListItem[]) {
-      assert.equal(p.imagesCount, 0, `produit ${p.id} ne devrait pas avoir d'image`)
-    }
+    const slugs = response.inertiaProps.productList.data.map((p: ProductListItem) => p.slug)
+    assert.include(slugs, productWithoutImage.slug)
+    assert.notInclude(slugs, productWithImage.slug)
   })
 
-  test('quality=no_translation retourne les produits avec moins de 32 traductions', async ({
+  test('quality=no_translation inclut les produits incomplets et exclut ceux avec toutes les traductions', async ({
     client,
     assert,
   }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
+
+    // Produit avec toutes les traductions (32) : doit etre exclu du filtre
+    const fullProduct = await ProductFactory.with('supplier').with('category').create()
+    for (const locale of TRANSLATION_LOCALES) {
+      await ProductTranslationFactory.merge({ productId: fullProduct.id, locale }).create()
+    }
+
+    // Produit sans traduction : doit etre inclus dans le filtre
+    const emptyProduct = await ProductFactory.with('supplier').with('category').create()
 
     const response = await client
       .get('/fr/admin/products?quality=no_translation')
@@ -249,15 +268,23 @@ test.group('Administration produits - filtres actifs (#164)', (group) => {
       .loginAs(admin)
 
     response.assertStatus(200)
-    // Tous les produits seedes n'ont que 2 traductions (fr, en)
-    assert.isAbove(response.inertiaProps.productList.data.length, 0)
+    const slugs = response.inertiaProps.productList.data.map((p: ProductListItem) => p.slug)
+    assert.notInclude(slugs, fullProduct.slug)
+    assert.include(slugs, emptyProduct.slug)
   })
 
-  test('quality=no_variant retourne les produits sans variante (tous les seedes)', async ({
+  test('quality=no_variant inclut les produits sans variante et exclut ceux qui en ont une', async ({
     client,
     assert,
   }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
+
+    // Produit avec une variante : doit etre exclu du filtre
+    const productWithVariant = await ProductFactory.with('supplier').with('category').create()
+    await ProductVariantFactory.merge({ productId: productWithVariant.id }).create()
+
+    // Produit sans variante : doit apparaitre dans le filtre
+    const productWithoutVariant = await ProductFactory.with('supplier').with('category').create()
 
     const response = await client
       .get('/fr/admin/products?quality=no_variant')
@@ -265,60 +292,90 @@ test.group('Administration produits - filtres actifs (#164)', (group) => {
       .loginAs(admin)
 
     response.assertStatus(200)
-    // Tous les produits seedes n'ont pas de variante
-    assert.isAbove(response.inertiaProps.productList.data.length, 0)
-    for (const p of response.inertiaProps.productList.data as ProductListItem[]) {
-      assert.equal(p.variantsCount, 0, `produit ${p.id} ne devrait pas avoir de variante`)
-    }
+    const slugs = response.inertiaProps.productList.data.map((p: ProductListItem) => p.slug)
+    assert.include(slugs, productWithoutVariant.slug)
+    assert.notInclude(slugs, productWithVariant.slug)
   })
 
   test('search par slug retourne le bon produit et pas les autres', async ({ client, assert }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
 
+    const target = await ProductFactory.with('supplier').with('category').create()
+    const other = await ProductFactory.with('supplier').with('category').create()
+
     const response = await client
-      .get('/fr/admin/products?search=crayon-hb-bleu')
+      .get(`/fr/admin/products?search=${encodeURIComponent(target.slug)}`)
       .withInertia()
       .loginAs(admin)
 
     response.assertStatus(200)
     const slugs = response.inertiaProps.productList.data.map((p: ProductListItem) => p.slug)
-    assert.include(slugs, 'crayon-hb-bleu')
-    assert.notInclude(slugs, 'stylo-bille-bleu')
-    assert.notInclude(slugs, 'sac-coton-bleu')
+    assert.include(slugs, target.slug)
+    assert.notInclude(slugs, other.slug)
   })
 
   test('search par nom traduit retourne le bon produit', async ({ client, assert }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
 
+    const target = await ProductFactory.with('supplier').with('category').create()
+    const uniqueName = `ProduitSpec${target.id}`
+    await ProductTranslationFactory.merge({
+      productId: target.id,
+      locale: 'fr',
+      name: uniqueName,
+    }).create()
+
+    const other = await ProductFactory.with('supplier').with('category').create()
+    await ProductTranslationFactory.merge({
+      productId: other.id,
+      locale: 'fr',
+      name: `ProduitAutre${other.id}`,
+    }).create()
+
     const response = await client
-      .get('/fr/admin/products?search=Aquarelle')
+      .get(`/fr/admin/products?search=${encodeURIComponent(uniqueName)}`)
       .withInertia()
       .loginAs(admin)
 
     response.assertStatus(200)
     const slugs = response.inertiaProps.productList.data.map((p: ProductListItem) => p.slug)
-    assert.include(slugs, 'crayon-aquarelle-bleu')
-    assert.notInclude(slugs, 'crayon-hb-bleu')
-    assert.notInclude(slugs, 'stylo-bille-bleu')
+    assert.include(slugs, target.slug)
+    assert.notInclude(slugs, other.slug)
   })
 
   test('search par nom d organisation retourne ses produits', async ({ client, assert }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
-    // EuroGoods est l'organisation liee au fournisseur eurogoods (seeder)
+
+    const org = await OrganizationFactory.apply('supplier').create()
+    const supplier = await SupplierFactory.merge({ organizationId: org.id }).create()
+    const category = await CategoryFactory.create()
+
+    const product1 = await ProductFactory.merge({
+      supplierId: supplier.id,
+      categoryId: category.id,
+    }).create()
+    const product2 = await ProductFactory.merge({
+      supplierId: supplier.id,
+      categoryId: category.id,
+    }).create()
+
+    // Produit d'un autre fournisseur sans organisation : ne doit pas apparaitre
+    const otherSupplier = await SupplierFactory.create()
+    const otherProduct = await ProductFactory.merge({
+      supplierId: otherSupplier.id,
+      categoryId: category.id,
+    }).create()
+
     const response = await client
-      .get('/fr/admin/products?search=EuroGoods')
+      .get(`/fr/admin/products?search=${encodeURIComponent(org.name)}`)
       .withInertia()
       .loginAs(admin)
 
     response.assertStatus(200)
     const slugs = response.inertiaProps.productList.data.map((p: ProductListItem) => p.slug)
-    // Les produits du fournisseur eurogoods (organisation EuroGoods)
-    assert.include(slugs, 'crayon-hb-bleu')
-    assert.include(slugs, 'crayon-hb-rouge')
-    assert.include(slugs, 'casquette-6-panneaux-marine')
-    // Les produits d'autres fournisseurs ne sont pas concernes
-    assert.notInclude(slugs, 'stylo-bille-bleu')
-    assert.notInclude(slugs, 'sac-coton-bleu')
+    assert.include(slugs, product1.slug)
+    assert.include(slugs, product2.slug)
+    assert.notInclude(slugs, otherProduct.slug)
   })
 
   test('filtre supplierId retourne uniquement les produits du fournisseur', async ({
@@ -326,58 +383,92 @@ test.group('Administration produits - filtres actifs (#164)', (group) => {
     assert,
   }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
-    const eurogoods = await Supplier.findByOrFail('slug', 'eurogoods')
-    // Si le seeder n'a pas cree l'organisation (cas improbable), on saute
-    if (!eurogoods.organizationId) return
+
+    const org = await OrganizationFactory.apply('supplier').create()
+    const supplier = await SupplierFactory.merge({ organizationId: org.id }).create()
+    const category = await CategoryFactory.create()
+
+    const product1 = await ProductFactory.merge({
+      supplierId: supplier.id,
+      categoryId: category.id,
+    }).create()
+    const product2 = await ProductFactory.merge({
+      supplierId: supplier.id,
+      categoryId: category.id,
+    }).create()
+
+    // Produit d'un autre fournisseur : doit etre exclu
+    const otherSupplier = await SupplierFactory.create()
+    const otherProduct = await ProductFactory.merge({
+      supplierId: otherSupplier.id,
+      categoryId: category.id,
+    }).create()
 
     const response = await client
-      .get(`/fr/admin/products?supplierId=${eurogoods.organizationId}`)
+      .get(`/fr/admin/products?supplierId=${org.id}`)
       .withInertia()
       .loginAs(admin)
 
     response.assertStatus(200)
     const slugs = response.inertiaProps.productList.data.map((p: ProductListItem) => p.slug)
-    // Produits du fournisseur eurogoods
-    assert.include(slugs, 'crayon-hb-bleu')
-    assert.include(slugs, 'crayon-hb-rouge')
-    assert.include(slugs, 'casquette-6-panneaux-marine')
-    // Produits d'autres fournisseurs exclus
-    assert.notInclude(slugs, 'stylo-bille-bleu')
-    assert.notInclude(slugs, 'sac-coton-bleu')
-    assert.notInclude(slugs, 'crayon-aquarelle-bleu')
+    assert.include(slugs, product1.slug)
+    assert.include(slugs, product2.slug)
+    assert.notInclude(slugs, otherProduct.slug)
   })
 
   test('filtre categoryId inclut les sous-categories', async ({ client, assert }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
-    // casquettes-chapeaux (N1) contient casquettes-chapeaux-casquettes (N2)
-    // casquette-6-panneaux-marine est dans la sous-categorie
-    const parentCategory = await Category.findByOrFail('slug', 'casquettes-chapeaux')
+
+    const parentCat = await CategoryFactory.create()
+    const childCat = await CategoryFactory.merge({ parentId: parentCat.id }).create()
+    const otherCat = await CategoryFactory.create()
+
+    const supplier = await SupplierFactory.create()
+
+    const parentProduct = await ProductFactory.merge({
+      supplierId: supplier.id,
+      categoryId: parentCat.id,
+    }).create()
+    const childProduct = await ProductFactory.merge({
+      supplierId: supplier.id,
+      categoryId: childCat.id,
+    }).create()
+    const otherProduct = await ProductFactory.merge({
+      supplierId: supplier.id,
+      categoryId: otherCat.id,
+    }).create()
 
     const response = await client
-      .get(`/fr/admin/products?categoryId=${parentCategory.id}`)
+      .get(`/fr/admin/products?categoryId=${parentCat.id}`)
       .withInertia()
       .loginAs(admin)
 
     response.assertStatus(200)
     const slugs = response.inertiaProps.productList.data.map((p: ProductListItem) => p.slug)
-    // La casquette est dans une sous-categorie de casquettes-chapeaux
-    assert.include(slugs, 'casquette-6-panneaux-marine')
-    // Les crayons et stylos ne sont pas dans cette branche
-    assert.notInclude(slugs, 'crayon-hb-bleu')
-    assert.notInclude(slugs, 'stylo-bille-bleu')
+    // Le produit dans la categorie parente est inclus
+    assert.include(slugs, parentProduct.slug)
+    // Le produit dans la sous-categorie est aussi inclus
+    assert.include(slugs, childProduct.slug)
+    // Le produit hors de cette branche est exclu
+    assert.notInclude(slugs, otherProduct.slug)
   })
 
-  test('la page 2 est vide quand le catalogue tient sur une seule page', async ({
+  test('la pagination retourne la page 2 quand il y a plus de 25 produits', async ({
     client,
     assert,
   }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
 
+    const supplier = await SupplierFactory.create()
+    const category = await CategoryFactory.create()
+
+    // Cree 26 produits pour deborder sur la page 2 (perPage=25)
+    await ProductFactory.merge({ supplierId: supplier.id, categoryId: category.id }).createMany(26)
+
     const response = await client.get('/fr/admin/products?page=2').withInertia().loginAs(admin)
 
     response.assertStatus(200)
-    // Les 7 produits seedes tiennent sur la page 1 (perPage=25)
-    assert.equal(response.inertiaProps.productList.data.length, 0)
+    assert.isAbove(response.inertiaProps.productList.data.length, 0)
     assert.equal(response.inertiaProps.productList.meta.currentPage, 2)
   })
 
