@@ -144,7 +144,10 @@ test.group('Administration des attributs de categorie - CRUD', (group) => {
     }
   })
 
-  test('un attribut ne peut pas etre ajoute deux fois a la meme categorie', async ({ client }) => {
+  test('un attribut ne peut pas etre ajoute deux fois a la meme categorie', async ({
+    client,
+    assert,
+  }) => {
     const admin = await platformAdmin()
     const category = await Category.firstOrFail()
     const attribute = await Attribute.firstOrFail()
@@ -169,7 +172,12 @@ test.group('Administration des attributs de categorie - CRUD', (group) => {
       .loginAs(admin)
       .json({ attributeId: attribute.id })
 
-    response.assertStatus(409)
+    // Refus en flash d'erreur (redirection Inertia), sans second pivot.
+    response.assertStatus(302)
+    const pivots = await CategoryAttribute.query()
+      .where('categoryId', category.id)
+      .where('attributeId', attribute.id)
+    assert.lengthOf(pivots, 1)
   })
 
   test('mise a jour de isFilter declenche queueSettings', async ({ client, assert }) => {
@@ -190,13 +198,13 @@ test.group('Administration des attributs de categorie - CRUD', (group) => {
 
     try {
       const response = await client
-        .patch(`/fr/admin/category-attributes/${pivot.id}`)
-        .withInertia()
+        .patch(`/fr/admin/categories/${category.id}/attributes/${pivot.id}`)
+        .redirects(0)
         .withCsrfToken()
         .loginAs(admin)
         .json({ isFilter: true })
 
-      response.assertStatus(200)
+      response.assertStatus(302)
       await pivot.refresh()
       assert.isTrue(pivot.isFilter)
       assert.equal(calls.queueSettings, 1, 'queueSettings doit etre appele quand isFilter change')
@@ -227,13 +235,13 @@ test.group('Administration des attributs de categorie - CRUD', (group) => {
 
     try {
       const response = await client
-        .patch(`/fr/admin/category-attributes/${pivot.id}`)
-        .withInertia()
+        .patch(`/fr/admin/categories/${category.id}/attributes/${pivot.id}`)
+        .redirects(0)
         .withCsrfToken()
         .loginAs(admin)
         .json({ position: 5 })
 
-      response.assertStatus(200)
+      response.assertStatus(302)
       await pivot.refresh()
       assert.equal(pivot.position, 5)
       assert.equal(
@@ -266,12 +274,12 @@ test.group('Administration des attributs de categorie - CRUD', (group) => {
 
     try {
       const response = await client
-        .delete(`/fr/admin/category-attributes/${pivotId}`)
-        .withInertia()
+        .delete(`/fr/admin/categories/${category.id}/attributes/${pivotId}`)
+        .redirects(0)
         .withCsrfToken()
         .loginAs(admin)
 
-      response.assertStatus(200)
+      response.assertStatus(302)
       assert.isNull(await CategoryAttribute.find(pivotId))
       assert.equal(calls.queueSettings, 1, 'queueSettings doit etre appele pour un pivot filtrable')
     } finally {
@@ -301,12 +309,12 @@ test.group('Administration des attributs de categorie - CRUD', (group) => {
 
     try {
       const response = await client
-        .delete(`/fr/admin/category-attributes/${pivotId}`)
-        .withInertia()
+        .delete(`/fr/admin/categories/${category.id}/attributes/${pivotId}`)
+        .redirects(0)
         .withCsrfToken()
         .loginAs(admin)
 
-      response.assertStatus(200)
+      response.assertStatus(302)
       assert.isNull(await CategoryAttribute.find(pivotId))
       assert.equal(
         calls.queueSettings,
@@ -333,8 +341,8 @@ test.group('Administration des attributs de categorie - CRUD', (group) => {
 
     try {
       const response = await client
-        .patch(`/fr/admin/category-attributes/${pivot.id}/ranges`)
-        .withInertia()
+        .patch(`/fr/admin/categories/${category.id}/attributes/${pivot.id}/ranges`)
+        .redirects(0)
         .withCsrfToken()
         .loginAs(admin)
         .json({
@@ -345,7 +353,7 @@ test.group('Administration des attributs de categorie - CRUD', (group) => {
           ],
         })
 
-      response.assertStatus(200)
+      response.assertStatus(302)
 
       const ranges = await CategoryAttributeRange.query()
         .where('categoryAttributeId', pivot.id)
