@@ -59,9 +59,22 @@ jobs:
       - run: pnpm run build
       - run: pnpm typecheck
 
+  # Tests backend répartis en shards parallèles. Chaque job a son propre service
+  # PostgreSQL (la suite tronque les tables : un shard ne partage jamais de base).
+  # Les fichiers `*.spec.ts` d'une suite sont triés puis distribués en round-robin.
   test-backend:
+    name: test-backend (${{ matrix.suite }} ${{ matrix.shard }}/${{ matrix.total }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { suite: unit, shard: 1, total: 1 }
+          - { suite: functional, shard: 1, total: 4 }
+          - { suite: functional, shard: 2, total: 4 }
+          - { suite: functional, shard: 3, total: 4 }
+          - { suite: functional, shard: 4, total: 4 }
     services:
       postgres:
         image: pgvector/pgvector:pg18
@@ -80,7 +93,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
       - name: Backend tests (PostgreSQL)
-        run: pnpm test
+        run: |
+          args=()
+          while IFS= read -r file; do
+            args+=("--files=$file")
+          done < <(
+            find "tests/${{ matrix.suite }}" -name '*.spec.ts' | LC_ALL=C sort \
+              | awk -v n="${{ matrix.total }}" -v k="${{ matrix.shard }}" '(NR - 1) % n == k - 1'
+          )
+          echo "${#args[@]} fichiers de test dans ce shard"
+          node ace test ${{ matrix.suite }} "${args[@]}"
 
   # Jeu de requêtes de référence contre un vrai Meilisearch (#112, ADR 0002) :
   # `pnpm test` l'ignore faute de MEILISEARCH_HOST, ce job le rejoue seul.
