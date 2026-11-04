@@ -44,7 +44,7 @@ export default class UserController {
     // Options de filtres pour le frontend
     const filterOptions: AdminUserFilterOptions = {
       platformRoles: [...PLATFORM_ROLES.filter((r) => r !== 'none'), 'any-role'],
-      organizationTypes: ORGANIZATION_TYPES,
+      organizationTypes: [...ORGANIZATION_TYPES],
     }
 
     return inertia.render('admin/users/index', {
@@ -77,7 +77,13 @@ export default class UserController {
     const currentUserId = auth.getUserOrFail().id
 
     return inertia.render('admin/users/show', {
-      user: new AdminUserDetailTransformer(user, currentUserId, canSupport, canManage).toObject(),
+      // `user` est déjà une prop partagée (l'utilisateur connecté) : ne pas l'écraser.
+      account: new AdminUserDetailTransformer(
+        user,
+        currentUserId,
+        canSupport,
+        canManage
+      ).toObject(),
       canManageRoles: await bouncer.allows('hasPlatformPermission', 'roles.manage'),
     })
   }

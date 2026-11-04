@@ -157,7 +157,8 @@
       "organizations": "Organizacje",
       "status": "Status",
       "createdAt": "Data rejestracji",
-      "role": "Rola platformowa"
+      "role": "Rola platformowa",
+      "lastLogin": "Ostatnie logowanie"
     },
     "unverified": "Adres e-mail niezweryfikowany",
     "resultsCount": "{count, plural, =0 {Brak kont} one {# konto} few {# konta} many {# kont} other {# konta}}",

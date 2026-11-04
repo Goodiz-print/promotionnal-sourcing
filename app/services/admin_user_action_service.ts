@@ -16,6 +16,7 @@ import {
   UserAlreadyVerifiedException,
   UserOwnsOrganizationsException,
 } from '#exceptions/admin_user_errors'
+import { ANONYMIZED_EMAIL_DOMAIN } from '#shared/types/account'
 import type { AdminActionContext } from '#shared/types/admin_audit'
 
 interface ActionOptions {
@@ -204,7 +205,10 @@ export default class AdminUserActionService {
 
   private async findOrFail(id: number): Promise<User> {
     const user = await this.users.find(id)
-    if (!user) throw new AdminUserNotFoundException()
+    // Un compte déjà anonymisé n'est plus un compte exploitable.
+    if (!user || user.email.endsWith(`@${ANONYMIZED_EMAIL_DOMAIN}`)) {
+      throw new AdminUserNotFoundException()
+    }
     return user
   }
 

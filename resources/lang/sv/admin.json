@@ -157,7 +157,8 @@
       "organizations": "Organisationer",
       "status": "Status",
       "createdAt": "Registrerad den",
-      "role": "Plattformsroll"
+      "role": "Plattformsroll",
+      "lastLogin": "Senaste inloggning"
     },
     "unverified": "E-post ej verifierad",
     "resultsCount": "{count, plural, =0 {Inga konton} one {# konto} other {# konton}}",

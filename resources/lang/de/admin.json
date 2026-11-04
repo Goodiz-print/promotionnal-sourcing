@@ -157,7 +157,8 @@
       "organizations": "Organisationen",
       "status": "Status",
       "createdAt": "Registriert am",
-      "role": "Plattformrolle"
+      "role": "Plattformrolle",
+      "lastLogin": "Letzte Anmeldung"
     },
     "unverified": "E-Mail nicht bestätigt",
     "resultsCount": "{count, plural, =0 {Kein Konto} one {# Konto} other {# Konten}}",

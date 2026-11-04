@@ -128,3 +128,10 @@ Réutilise la logique d'anonymisation de `AccountService.destroy` (extraite sans
 - `start/routes.ts` : nouvelles routes
 - `resources/lang/*/admin.json` : clés d'écran et d'audit
 - `resources/lang/*/auth.json` : `auth.suspended`
+
+## Interface (frontend)
+
+- `inertia/pages/admin/users/index.vue` : filtres (`user_filters.vue`, validés par le bouton « Filtrer », resynchronisés avec les props serveur), liste (`user_list.vue`) avec colonnes « dernière connexion » et badge « Suspendu », lien vers la fiche.
+- `inertia/pages/admin/users/show.vue` : fiche (identité, organisations, passkeys, consentements) et barre d'actions `user_actions.vue` (confirmation `window.confirm`, motif de suspension optionnel, mutations via `router.post` / `router.delete`). Les actions suivent `canSupport` / `canManage` / `isSelf` ; un compte anonymisé (`deleted-…`) n'en propose plus.
+- Composable `use_user_list_visit.ts`, clés i18n `admin.users.show.*` et `admin.users.columns.lastLogin` ajoutées dans les 9 langues.
+- Tests : `tests/inertia/admin_users.spec.ts`.

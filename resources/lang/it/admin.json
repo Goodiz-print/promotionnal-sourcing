@@ -157,7 +157,8 @@
       "organizations": "Organizzazioni",
       "status": "Stato",
       "createdAt": "Iscritto il",
-      "role": "Ruolo di piattaforma"
+      "role": "Ruolo di piattaforma",
+      "lastLogin": "Ultimo accesso"
     },
     "unverified": "E-mail non verificata",
     "resultsCount": "{count, plural, =0 {Nessun account} one {# account} other {# account}}",

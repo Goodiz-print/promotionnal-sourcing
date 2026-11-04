@@ -26,8 +26,8 @@ export type AdminUserIndexFilters = {
 
 /** Options de la liste utilisateurs passées en props Inertia pour les filtres. */
 export type AdminUserFilterOptions = {
-  platformRoles: readonly (PlatformRole | 'any-role')[]
-  organizationTypes: readonly OrganizationKind[]
+  platformRoles: (PlatformRole | 'any-role')[]
+  organizationTypes: OrganizationKind[]
 }
 
 /** Ligne de la liste des utilisateurs. */

@@ -157,7 +157,8 @@
       "organizations": "Organisaties",
       "status": "Status",
       "createdAt": "Geregistreerd op",
-      "role": "Platformrol"
+      "role": "Platformrol",
+      "lastLogin": "Laatste aanmelding"
     },
     "unverified": "E-mailadres niet geverifieerd",
     "resultsCount": "{count, plural, =0 {Geen accounts} one {# account} other {# accounts}}",

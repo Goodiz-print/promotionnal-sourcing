@@ -1,48 +1,26 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Head, router } from '@inertiajs/vue3'
-import { Search, Users } from 'lucide-vue-next'
+import { Head } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
-import { urlFor } from '~/client'
-import PlatformRoleSelect from '~/components/admin/platform_role_select.vue'
-import BaseBadge from '~/components/base/base_badge.vue'
-import BaseCard from '~/components/base/base_card.vue'
-import BaseEmptyState from '~/components/base/base_empty_state.vue'
-import BaseInput from '~/components/base/base_input.vue'
+import { useUserListVisit } from '~/composables/use_user_list_visit'
+import UserFilters from '~/components/admin/user_filters.vue'
+import UserList from '~/components/admin/user_list.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
-import BasePagination from '~/components/base/base_pagination.vue'
-import BaseTable from '~/components/base/base_table.vue'
-import type { AdminUserFilters, AdminUserListItem, AdminUsersRolesProps } from '#shared/types/admin'
+import type { AdminUserListItem, AdminUsersRolesProps } from '#shared/types/admin'
+import type { AdminUserFilterOptions, AdminUserIndexFilters } from '#shared/types/admin_user'
 import type { Paginated } from '#shared/types/pagination'
 
 const props = defineProps<
   {
     users: Paginated<AdminUserListItem>
-    filters: AdminUserFilters
+    filters: AdminUserIndexFilters
+    filterOptions: AdminUserFilterOptions
+    canSupport: boolean
+    canManage: boolean
   } & AdminUsersRolesProps
 >()
 
-const { t, locale } = useI18n()
-
-const search = ref(props.filters.search ?? '')
-
-function visit(page: number) {
-  router.get(
-    urlFor('admin.users.index', { locale: locale.value }),
-    { search: search.value || undefined, page },
-    { preserveState: true, preserveScroll: true, only: ['users', 'filters'] }
-  )
-}
-
-let debounce: ReturnType<typeof setTimeout>
-function onSearch() {
-  clearTimeout(debounce)
-  debounce = setTimeout(() => visit(1), 300)
-}
-
-function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(locale.value)
-}
+const { t } = useI18n()
+const { visit } = useUserListVisit()
 </script>
 
 <template>
@@ -51,83 +29,13 @@ function formatDate(value: string): string {
   <div class="flex flex-col gap-8">
     <BasePageHeader :title="t('admin.users.title')" :description="t('admin.users.subtitle')" />
 
-    <BaseCard padding="md">
-      <div class="grid gap-4 sm:grid-cols-[minmax(0,1fr)_200px]">
-        <BaseInput
-          id="search"
-          v-model="search"
-          type="search"
-          :label="t('admin.users.searchLabel')"
-          :placeholder="t('admin.users.searchPlaceholder')"
-          @update:model-value="onSearch"
-        >
-          <template #prefix><Search :size="16" aria-hidden="true" /></template>
-        </BaseInput>
-      </div>
-    </BaseCard>
+    <UserFilters :filters="filters" :options="filterOptions" @change="visit" />
 
-    <div class="flex flex-col gap-4">
-      <p class="text-tabular text-body-sm text-text-secondary">
-        {{ t('admin.users.resultsCount', { count: users.meta.total }) }}
-      </p>
-
-      <BaseEmptyState
-        v-if="users.data.length === 0"
-        :title="t('admin.users.empty')"
-        :description="t('admin.users.emptyDescription')"
-        :icon="Users"
-      />
-
-      <BaseTable v-else :caption="t('admin.users.title')">
-        <template #head>
-          <tr>
-            <th scope="col">{{ t('admin.users.columns.name') }}</th>
-            <th scope="col">{{ t('admin.users.columns.email') }}</th>
-            <th scope="col" class="text-right">{{ t('admin.users.columns.organizations') }}</th>
-            <th scope="col">{{ t('admin.users.columns.role') }}</th>
-            <th scope="col">{{ t('admin.users.columns.status') }}</th>
-            <th scope="col">{{ t('admin.users.columns.createdAt') }}</th>
-          </tr>
-        </template>
-
-        <tr v-for="user in users.data" :key="user.id">
-          <td>
-            <span v-if="user.fullName" class="font-semibold text-text-primary">
-              {{ user.fullName }}
-            </span>
-            <span v-else class="text-text-muted">{{ t('admin.users.noName') }}</span>
-          </td>
-          <td class="text-text-secondary">{{ user.email }}</td>
-          <td class="text-tabular text-right">{{ user.organizationsCount }}</td>
-          <td class="w-52">
-            <PlatformRoleSelect
-              v-if="canManageRoles && user.id !== currentUserId"
-              :user-id="user.id"
-              :platform-role="user.platformRole"
-            />
-            <BaseBadge v-else-if="user.platformRole !== 'none'" dot tone="brand">
-              {{ t(`admin.users.roles.${user.platformRole}`) }}
-            </BaseBadge>
-            <span v-else class="text-text-muted">{{ t('admin.users.roles.none') }}</span>
-          </td>
-          <td>
-            <div class="flex flex-wrap items-center gap-2">
-              <BaseBadge v-if="!user.emailVerified" dot tone="warning">
-                {{ t('admin.users.unverified') }}
-              </BaseBadge>
-              <BaseBadge v-else dot tone="success">{{ t('admin.users.verified') }}</BaseBadge>
-            </div>
-          </td>
-          <td class="text-tabular whitespace-nowrap">{{ formatDate(user.createdAt) }}</td>
-        </tr>
-      </BaseTable>
-
-      <BasePagination
-        :meta="users.meta"
-        :previous-label="t('admin.pagination.previous')"
-        :next-label="t('admin.pagination.next')"
-        @change="visit"
-      />
-    </div>
+    <UserList
+      :users="users"
+      :can-manage-roles="canManageRoles"
+      :current-user-id="currentUserId"
+      @page="(page) => visit(props.filters, page)"
+    />
   </div>
 </template>
