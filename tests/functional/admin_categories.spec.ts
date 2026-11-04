@@ -495,7 +495,7 @@ test.group('Administration des catégories — réordonnancement', (group) => {
 
     await client
       .patch(`/fr/admin/categories/${a.id}`)
-      .json({ parentId: b.id })
+      .json({ parentId: b.id, translations: { fr: { name: 'Catégorie A' } } })
       .withCsrfToken()
       .loginAs(admin)
       .redirects(0)
