@@ -47,6 +47,28 @@
     "hasChildren": "Impossible de supprimer : cette catégorie a des sous-catégories.",
     "hasProducts": "Impossible de supprimer : des produits sont rattachés à cette catégorie."
   },
+  "attributes": {
+    "title": "Attributs associés",
+    "description": "Attributs rattachés directement à cette catégorie (les attributs hérités des ancêtres ne sont pas affichés).",
+    "empty": "Aucun attribut associé à cette catégorie.",
+    "add": "Ajouter un attribut",
+    "columns": {
+      "name": "Attribut",
+      "type": "Type",
+      "required": "Obligatoire",
+      "filter": "Filtre",
+      "position": "Position",
+      "ranges": "Plages",
+      "actions": "Actions"
+    },
+    "flash": {
+      "added": "Attribut ajouté à la catégorie.",
+      "updated": "Association mise à jour.",
+      "removed": "Attribut retiré de la catégorie.",
+      "rangesUpdated": "Plages mises à jour.",
+      "alreadyExists": "Cet attribut est déjà associé à cette catégorie."
+    }
+  },
   "back": "Retour aux catégories",
   "form": {
     "identity": "Identification",

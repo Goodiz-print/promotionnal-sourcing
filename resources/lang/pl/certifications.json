@@ -1,0 +1,67 @@
+{
+  "index": {
+    "title": "Certyfikaty",
+    "subtitle": "Zarzadzaj etykietami zgodnosci w katalogu (eko-etykiety, normy, certyfikaty).",
+    "empty": "Jeszcze brak certyfikatow. Utworz jeden.",
+    "emptyDescription": "Certyfikaty informuja kupujacych o gwarancjach produktow.",
+    "columns": {
+      "name": "Nazwa",
+      "slug": "Slug",
+      "domain": "Domena",
+      "isEco": "Eko-etykieta",
+      "products": "Produkty",
+      "actions": "Akcje"
+    },
+    "yes": "Tak",
+    "no": "Nie"
+  },
+  "create": {
+    "title": "Nowy certyfikat",
+    "subtitle": "Dodaj etykiete zgodnosci do katalogu."
+  },
+  "update": {
+    "title": "Edytuj certyfikat",
+    "subtitle": "Edytuj nazwe, domene i ustawienia \"{slug}\"."
+  },
+  "edit": "Edytuj",
+  "newCertification": "Nowy certyfikat",
+  "delete": "Usun",
+  "save": "Zapisz",
+  "cancel": "Anuluj",
+  "confirmDelete": "Usunac ten certyfikat?",
+  "back": "Wrocic do certyfikatow",
+  "fields": {
+    "slug": "Slug",
+    "slugHint": "Male litery, cyfry i myslniki. Nie mozna zmienic pozniej.",
+    "slugPlaceholder": "np. oeko-tex-100",
+    "domain": "Domena",
+    "domainHint": "Kategoria etykiety (srodowisko, tekstylia, bezpieczenstwo…).",
+    "isEco": "Eko-etykieta",
+    "isEcoHint": "Ta etykieta potwierdza podejscie ekologiczne.",
+    "synonyms": "Synonimy",
+    "synonymsHint": "Rozdzielone przecinkami (poprawia import).",
+    "synonymsPlaceholder": "np. Oeko-Tex, OEKOTEX",
+    "name": "Nazwa"
+  },
+  "domains": {
+    "environment": "Srodowisko",
+    "textile": "Tekstylia",
+    "social": "Spoleczny",
+    "safety": "Bezpieczenstwo",
+    "food_contact": "Kontakt z zywnoscia",
+    "forestry": "Lesnictwo",
+    "quality": "Jakosc"
+  },
+  "form": {
+    "identity": "Identyfikacja",
+    "identityDescription": "Identyfikator techniczny, domena i ustawienia etykiety.",
+    "content": "Tresc w jezyku {language}",
+    "otherLocale": "Inny jezyk do wyswietlenia"
+  },
+  "flash": {
+    "created": "Certyfikat utworzony.",
+    "updated": "Certyfikat zaktualizowany.",
+    "deleted": "Certyfikat usuniety.",
+    "inUse": "Nie mozna usunac: produkty maja ten certyfikat."
+  }
+}

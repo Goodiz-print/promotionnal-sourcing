@@ -7,6 +7,8 @@
     "categories": "Categorie",
     "audit": "Registro di audit",
     "attributes": "Attributi",
+    "certifications": "Certificazioni",
+    "markingTechniques": "Tecniche di marcatura",
     "label": "Sezioni di amministrazione",
     "demand": "Domanda dei clienti",
     "moderation": "Moderazione",
@@ -439,7 +441,16 @@
       "product.published": "Prodotto pubblicato",
       "product.archived": "Prodotto archiviato",
       "product.restored": "Prodotto ripristinato",
-      "product.reindex_requested": "Reindicizzazione prodotto richiesta"
+      "product.reindex_requested": "Reindicizzazione prodotto richiesta",
+      "certification.created": "Certificazione creata",
+      "certification.updated": "Certificazione modificata",
+      "certification.deleted": "Certificazione eliminata",
+      "marking_technique.created": "Tecnica di marcatura creata",
+      "marking_technique.updated": "Tecnica di marcatura modificata",
+      "marking_technique.deleted": "Tecnica di marcatura eliminata",
+      "category_attribute.added": "Attributo aggiunto alla categoria",
+      "category_attribute.updated": "Attributo della categoria modificato",
+      "category_attribute.removed": "Attributo rimosso dalla categoria"
     },
     "targets": {
       "user": "Utente",
@@ -448,7 +459,10 @@
       "attribute_value": "Valore di attributo",
       "organization": "Organizzazione",
       "product": "Prodotto",
-      "rfq": "Richiesta di preventivo"
+      "rfq": "Richiesta di preventivo",
+      "certification": "Certificazione",
+      "marking_technique": "Tecnica di marcatura",
+      "category_attribute": "Attributo della categoria"
     }
   },
   "demand": {

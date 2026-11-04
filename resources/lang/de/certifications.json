@@ -1,0 +1,67 @@
+{
+  "index": {
+    "title": "Zertifizierungen",
+    "subtitle": "Konformitätslabels im Katalog verwalten (Öko-Siegel, Standards, Zertifizierungen).",
+    "empty": "Noch keine Zertifizierungen. Eine erstellen.",
+    "emptyDescription": "Zertifizierungen informieren Käufer über Produktgarantien.",
+    "columns": {
+      "name": "Name",
+      "slug": "Slug",
+      "domain": "Bereich",
+      "isEco": "Öko-Siegel",
+      "products": "Produkte",
+      "actions": "Aktionen"
+    },
+    "yes": "Ja",
+    "no": "Nein"
+  },
+  "create": {
+    "title": "Neue Zertifizierung",
+    "subtitle": "Ein Konformitätslabel zum Katalog hinzufügen."
+  },
+  "update": {
+    "title": "Zertifizierung bearbeiten",
+    "subtitle": "Name, Bereich und Einstellungen von \"{slug}\" bearbeiten."
+  },
+  "edit": "Bearbeiten",
+  "newCertification": "Neue Zertifizierung",
+  "delete": "Löschen",
+  "save": "Speichern",
+  "cancel": "Abbrechen",
+  "confirmDelete": "Diese Zertifizierung löschen?",
+  "back": "Zurück zu den Zertifizierungen",
+  "fields": {
+    "slug": "Slug",
+    "slugHint": "Kleinbuchstaben, Ziffern und Bindestriche. Kann später nicht geändert werden.",
+    "slugPlaceholder": "z. B. oeko-tex-100",
+    "domain": "Bereich",
+    "domainHint": "Label-Kategorie (Umwelt, Textil, Sicherheit…).",
+    "isEco": "Öko-Siegel",
+    "isEcoHint": "Dieses Label zertifiziert einen umweltfreundlichen Ansatz.",
+    "synonyms": "Synonyme",
+    "synonymsHint": "Kommagetrennt (verbessert den Import).",
+    "synonymsPlaceholder": "z. B. Oeko-Tex, OEKOTEX",
+    "name": "Name"
+  },
+  "domains": {
+    "environment": "Umwelt",
+    "textile": "Textil",
+    "social": "Soziales",
+    "safety": "Sicherheit",
+    "food_contact": "Lebensmittelkontakt",
+    "forestry": "Forstwirtschaft",
+    "quality": "Qualität"
+  },
+  "form": {
+    "identity": "Identifikation",
+    "identityDescription": "Technische Kennung, Bereich und Label-Einstellungen.",
+    "content": "Inhalt auf {language}",
+    "otherLocale": "Andere anzuzeigende Sprache"
+  },
+  "flash": {
+    "created": "Zertifizierung erstellt.",
+    "updated": "Zertifizierung aktualisiert.",
+    "deleted": "Zertifizierung gelöscht.",
+    "inUse": "Kann nicht gelöscht werden: Produkte haben diese Zertifizierung."
+  }
+}

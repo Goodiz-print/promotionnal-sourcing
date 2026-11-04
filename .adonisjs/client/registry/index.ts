@@ -1032,6 +1032,102 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"attributes"],[1,"id"],[0,"values"],[1,"valueId"]],
     types: placeholder as Registry['admin.attribute_values.destroy']['types'],
   },
+  'admin.certifications.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/certifications',
+    tokens: [[1,"locale"],[0,"admin"],[0,"certifications"]],
+    types: placeholder as Registry['admin.certifications.index']['types'],
+  },
+  'admin.certifications.create': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/certifications/new',
+    tokens: [[1,"locale"],[0,"admin"],[0,"certifications"],[0,"new"]],
+    types: placeholder as Registry['admin.certifications.create']['types'],
+  },
+  'admin.certifications.store': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/certifications',
+    tokens: [[1,"locale"],[0,"admin"],[0,"certifications"]],
+    types: placeholder as Registry['admin.certifications.store']['types'],
+  },
+  'admin.certifications.edit': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/certifications/:id/edit',
+    tokens: [[1,"locale"],[0,"admin"],[0,"certifications"],[1,"id"],[0,"edit"]],
+    types: placeholder as Registry['admin.certifications.edit']['types'],
+  },
+  'admin.certifications.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/admin/certifications/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"certifications"],[1,"id"]],
+    types: placeholder as Registry['admin.certifications.update']['types'],
+  },
+  'admin.certifications.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/admin/certifications/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"certifications"],[1,"id"]],
+    types: placeholder as Registry['admin.certifications.destroy']['types'],
+  },
+  'admin.marking_techniques.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/marking-techniques',
+    tokens: [[1,"locale"],[0,"admin"],[0,"marking-techniques"]],
+    types: placeholder as Registry['admin.marking_techniques.index']['types'],
+  },
+  'admin.marking_techniques.create': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/marking-techniques/new',
+    tokens: [[1,"locale"],[0,"admin"],[0,"marking-techniques"],[0,"new"]],
+    types: placeholder as Registry['admin.marking_techniques.create']['types'],
+  },
+  'admin.marking_techniques.store': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/marking-techniques',
+    tokens: [[1,"locale"],[0,"admin"],[0,"marking-techniques"]],
+    types: placeholder as Registry['admin.marking_techniques.store']['types'],
+  },
+  'admin.marking_techniques.edit': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/marking-techniques/:id/edit',
+    tokens: [[1,"locale"],[0,"admin"],[0,"marking-techniques"],[1,"id"],[0,"edit"]],
+    types: placeholder as Registry['admin.marking_techniques.edit']['types'],
+  },
+  'admin.marking_techniques.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/admin/marking-techniques/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"marking-techniques"],[1,"id"]],
+    types: placeholder as Registry['admin.marking_techniques.update']['types'],
+  },
+  'admin.marking_techniques.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/admin/marking-techniques/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"marking-techniques"],[1,"id"]],
+    types: placeholder as Registry['admin.marking_techniques.destroy']['types'],
+  },
+  'admin.categories.attributes.store': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/categories/:categoryId/attributes',
+    tokens: [[1,"locale"],[0,"admin"],[0,"categories"],[1,"categoryId"],[0,"attributes"]],
+    types: placeholder as Registry['admin.categories.attributes.store']['types'],
+  },
+  'admin.categories.attributes.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/admin/categories/:categoryId/attributes/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"categories"],[1,"categoryId"],[0,"attributes"],[1,"id"]],
+    types: placeholder as Registry['admin.categories.attributes.update']['types'],
+  },
+  'admin.categories.attributes.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/admin/categories/:categoryId/attributes/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"categories"],[1,"categoryId"],[0,"attributes"],[1,"id"]],
+    types: placeholder as Registry['admin.categories.attributes.destroy']['types'],
+  },
+  'admin.categories.attributes.ranges.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/admin/categories/:categoryId/attributes/:id/ranges',
+    tokens: [[1,"locale"],[0,"admin"],[0,"categories"],[1,"categoryId"],[0,"attributes"],[1,"id"],[0,"ranges"]],
+    types: placeholder as Registry['admin.categories.attributes.ranges.update']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

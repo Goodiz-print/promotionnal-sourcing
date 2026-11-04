@@ -1,0 +1,67 @@
+{
+  "index": {
+    "title": "Certificeringen",
+    "subtitle": "Beheer conformiteitslabels in de catalogus (eco-labels, normen, certificeringen).",
+    "empty": "Nog geen certificeringen. Maak er een aan.",
+    "emptyDescription": "Certificeringen informeren kopers over productgaranties.",
+    "columns": {
+      "name": "Naam",
+      "slug": "Slug",
+      "domain": "Domein",
+      "isEco": "Eco-label",
+      "products": "Producten",
+      "actions": "Acties"
+    },
+    "yes": "Ja",
+    "no": "Nee"
+  },
+  "create": {
+    "title": "Nieuwe certificering",
+    "subtitle": "Een conformiteitslabel aan de catalogus toevoegen."
+  },
+  "update": {
+    "title": "Certificering bewerken",
+    "subtitle": "Naam, domein en instellingen van \"{slug}\" bewerken."
+  },
+  "edit": "Bewerken",
+  "newCertification": "Nieuwe certificering",
+  "delete": "Verwijderen",
+  "save": "Opslaan",
+  "cancel": "Annuleren",
+  "confirmDelete": "Deze certificering verwijderen?",
+  "back": "Terug naar certificeringen",
+  "fields": {
+    "slug": "Slug",
+    "slugHint": "Kleine letters, cijfers en koppeltekens. Kan later niet worden gewijzigd.",
+    "slugPlaceholder": "bijv. oeko-tex-100",
+    "domain": "Domein",
+    "domainHint": "Labelcategorie (milieu, textiel, veiligheid…).",
+    "isEco": "Eco-label",
+    "isEcoHint": "Dit label certificeert een milieuvriendelijke aanpak.",
+    "synonyms": "Synoniemen",
+    "synonymsHint": "Kommagescheiden (verbetert import).",
+    "synonymsPlaceholder": "bijv. Oeko-Tex, OEKOTEX",
+    "name": "Naam"
+  },
+  "domains": {
+    "environment": "Milieu",
+    "textile": "Textiel",
+    "social": "Sociaal",
+    "safety": "Veiligheid",
+    "food_contact": "Voedselcontact",
+    "forestry": "Bosbouw",
+    "quality": "Kwaliteit"
+  },
+  "form": {
+    "identity": "Identificatie",
+    "identityDescription": "Technische identificatie, domein en labelinstellingen.",
+    "content": "Inhoud in {language}",
+    "otherLocale": "Andere taal om weer te geven"
+  },
+  "flash": {
+    "created": "Certificering aangemaakt.",
+    "updated": "Certificering bijgewerkt.",
+    "deleted": "Certificering verwijderd.",
+    "inUse": "Kan niet verwijderen: producten hebben deze certificering."
+  }
+}

@@ -47,6 +47,28 @@
     "hasChildren": "Cannot delete: this category has sub-categories.",
     "hasProducts": "Cannot delete: products are attached to this category."
   },
+  "attributes": {
+    "title": "Associated attributes",
+    "description": "Attributes directly attached to this category (inherited attributes from ancestors are not shown).",
+    "empty": "No attributes associated with this category.",
+    "add": "Add an attribute",
+    "columns": {
+      "name": "Attribute",
+      "type": "Type",
+      "required": "Required",
+      "filter": "Filter",
+      "position": "Position",
+      "ranges": "Ranges",
+      "actions": "Actions"
+    },
+    "flash": {
+      "added": "Attribute added to category.",
+      "updated": "Association updated.",
+      "removed": "Attribute removed from category.",
+      "rangesUpdated": "Ranges updated.",
+      "alreadyExists": "This attribute is already associated with this category."
+    }
+  },
   "back": "Back to categories",
   "form": {
     "identity": "Identification",

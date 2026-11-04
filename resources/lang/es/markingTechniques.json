@@ -1,0 +1,61 @@
+{
+  "index": {
+    "title": "Técnicas de marcado",
+    "subtitle": "Gestionar las técnicas de personalización del catálogo (impresión, grabado, bordado…).",
+    "empty": "Aún no hay técnicas. Crear una.",
+    "emptyDescription": "Las técnicas de marcado describen los métodos de personalización de productos.",
+    "columns": {
+      "name": "Nombre",
+      "slug": "Slug",
+      "family": "Familia",
+      "products": "Productos",
+      "actions": "Acciones"
+    }
+  },
+  "create": {
+    "title": "Nueva técnica",
+    "subtitle": "Añadir una técnica de marcado al catálogo."
+  },
+  "update": {
+    "title": "Editar técnica",
+    "subtitle": "Editar el nombre, familia y configuración de \"{slug}\"."
+  },
+  "edit": "Editar",
+  "newTechnique": "Nueva técnica",
+  "delete": "Eliminar",
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "confirmDelete": "¿Eliminar esta técnica?",
+  "back": "Volver a las técnicas",
+  "fields": {
+    "slug": "Slug",
+    "slugHint": "Minúsculas, dígitos y guiones. No se puede cambiar después.",
+    "slugPlaceholder": "p. ej. serigrafia",
+    "family": "Familia",
+    "familyHint": "Categoría de proceso (impresión, transferencia, grabado…).",
+    "synonyms": "Sinónimos",
+    "synonymsHint": "Separados por comas (mejora la importación).",
+    "synonymsPlaceholder": "p. ej. serigrafía, silk screen",
+    "name": "Nombre"
+  },
+  "families": {
+    "print": "Impresión",
+    "transfer": "Transferencia",
+    "engraving": "Grabado",
+    "embroidery": "Bordado",
+    "relief": "Relieve",
+    "special": "Especial"
+  },
+  "form": {
+    "identity": "Identificación",
+    "identityDescription": "Identificador técnico y categoría de proceso.",
+    "content": "Contenido en {language}",
+    "otherLocale": "Otro idioma a mostrar"
+  },
+  "flash": {
+    "created": "Técnica creada.",
+    "updated": "Técnica actualizada.",
+    "deleted": "Técnica eliminada.",
+    "inUse": "No se puede eliminar: hay productos que usan esta técnica."
+  }
+}

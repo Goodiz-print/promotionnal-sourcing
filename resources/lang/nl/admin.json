@@ -7,6 +7,8 @@
     "categories": "Categorieën",
     "audit": "Auditlogboek",
     "attributes": "Attributen",
+    "certifications": "Certificeringen",
+    "markingTechniques": "Markeertechnieken",
     "label": "Beheersecties",
     "demand": "Klantvraag",
     "moderation": "Moderatie",
@@ -439,7 +441,16 @@
       "product.published": "Product gepubliceerd",
       "product.archived": "Product gearchiveerd",
       "product.restored": "Product hersteld",
-      "product.reindex_requested": "Product herindexering aangevraagd"
+      "product.reindex_requested": "Product herindexering aangevraagd",
+      "certification.created": "Certificering aangemaakt",
+      "certification.updated": "Certificering gewijzigd",
+      "certification.deleted": "Certificering verwijderd",
+      "marking_technique.created": "Markeertechniek aangemaakt",
+      "marking_technique.updated": "Markeertechniek gewijzigd",
+      "marking_technique.deleted": "Markeertechniek verwijderd",
+      "category_attribute.added": "Attribuut toegevoegd aan categorie",
+      "category_attribute.updated": "Categorie-attribuut gewijzigd",
+      "category_attribute.removed": "Attribuut verwijderd van categorie"
     },
     "targets": {
       "user": "Gebruiker",
@@ -448,7 +459,10 @@
       "attribute_value": "Attribuutwaarde",
       "organization": "Organisatie",
       "product": "Product",
-      "rfq": "Offerteaanvraag"
+      "rfq": "Offerteaanvraag",
+      "certification": "Certificering",
+      "marking_technique": "Markeertechniek",
+      "category_attribute": "Categorie-attribuut"
     }
   },
   "demand": {

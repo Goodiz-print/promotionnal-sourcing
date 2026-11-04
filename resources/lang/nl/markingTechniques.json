@@ -1,0 +1,61 @@
+{
+  "index": {
+    "title": "Markeertechnieken",
+    "subtitle": "Beheer personalisatietechnieken in de catalogus (drukwerk, gravure, borduurwerk…).",
+    "empty": "Nog geen technieken. Maak er een aan.",
+    "emptyDescription": "Markeertechnieken beschrijven productpersonalisatiemethoden.",
+    "columns": {
+      "name": "Naam",
+      "slug": "Slug",
+      "family": "Familie",
+      "products": "Producten",
+      "actions": "Acties"
+    }
+  },
+  "create": {
+    "title": "Nieuwe techniek",
+    "subtitle": "Een markeertechniek aan de catalogus toevoegen."
+  },
+  "update": {
+    "title": "Techniek bewerken",
+    "subtitle": "Naam, familie en instellingen van \"{slug}\" bewerken."
+  },
+  "edit": "Bewerken",
+  "newTechnique": "Nieuwe techniek",
+  "delete": "Verwijderen",
+  "save": "Opslaan",
+  "cancel": "Annuleren",
+  "confirmDelete": "Deze techniek verwijderen?",
+  "back": "Terug naar technieken",
+  "fields": {
+    "slug": "Slug",
+    "slugHint": "Kleine letters, cijfers en koppeltekens. Kan later niet worden gewijzigd.",
+    "slugPlaceholder": "bijv. zeefdruk",
+    "family": "Familie",
+    "familyHint": "Procescategorie (drukwerk, transfer, gravure…).",
+    "synonyms": "Synoniemen",
+    "synonymsHint": "Kommagescheiden (verbetert import).",
+    "synonymsPlaceholder": "bijv. silk screen, zeefdruk",
+    "name": "Naam"
+  },
+  "families": {
+    "print": "Drukwerk",
+    "transfer": "Transfer",
+    "engraving": "Gravure",
+    "embroidery": "Borduurwerk",
+    "relief": "Relief",
+    "special": "Speciaal"
+  },
+  "form": {
+    "identity": "Identificatie",
+    "identityDescription": "Technische identificatie en procescategorie.",
+    "content": "Inhoud in {language}",
+    "otherLocale": "Andere taal om weer te geven"
+  },
+  "flash": {
+    "created": "Techniek aangemaakt.",
+    "updated": "Techniek bijgewerkt.",
+    "deleted": "Techniek verwijderd.",
+    "inUse": "Kan niet verwijderen: producten gebruiken deze techniek."
+  }
+}

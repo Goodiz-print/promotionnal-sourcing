@@ -1,0 +1,67 @@
+{
+  "index": {
+    "title": "Certifieringar",
+    "subtitle": "Hantera overensstammelsemarkningen i katalogen (eko-markning, standarder, certifieringar).",
+    "empty": "Inga certifieringar annu. Skapa en.",
+    "emptyDescription": "Certifieringar informerar kopare om produktgarantier.",
+    "columns": {
+      "name": "Namn",
+      "slug": "Slug",
+      "domain": "Doman",
+      "isEco": "Eko-markning",
+      "products": "Produkter",
+      "actions": "Atgarder"
+    },
+    "yes": "Ja",
+    "no": "Nej"
+  },
+  "create": {
+    "title": "Ny certifiering",
+    "subtitle": "Lagg till en overensstammelsemarkning i katalogen."
+  },
+  "update": {
+    "title": "Redigera certifiering",
+    "subtitle": "Redigera namn, doman och installningar for \"{slug}\"."
+  },
+  "edit": "Redigera",
+  "newCertification": "Ny certifiering",
+  "delete": "Radera",
+  "save": "Spara",
+  "cancel": "Avbryt",
+  "confirmDelete": "Radera denna certifiering?",
+  "back": "Tillbaka till certifieringar",
+  "fields": {
+    "slug": "Slug",
+    "slugHint": "Gemener, siffror och bindestreck. Kan inte andras senare.",
+    "slugPlaceholder": "t.ex. oeko-tex-100",
+    "domain": "Doman",
+    "domainHint": "Markningskategori (miljo, textil, sakerhet…).",
+    "isEco": "Eko-markning",
+    "isEcoHint": "Denna markning certifierar en miljovanlig metod.",
+    "synonyms": "Synonymer",
+    "synonymsHint": "Kommaseparerade (forbattrar import).",
+    "synonymsPlaceholder": "t.ex. Oeko-Tex, OEKOTEX",
+    "name": "Namn"
+  },
+  "domains": {
+    "environment": "Miljo",
+    "textile": "Textil",
+    "social": "Social",
+    "safety": "Sakerhet",
+    "food_contact": "Livsmedelskontakt",
+    "forestry": "Skogsbruk",
+    "quality": "Kvalitet"
+  },
+  "form": {
+    "identity": "Identifikation",
+    "identityDescription": "Teknisk identifierare, doman och markningsinstallningar.",
+    "content": "Innehall pa {language}",
+    "otherLocale": "Annat sprak att visa"
+  },
+  "flash": {
+    "created": "Certifiering skapad.",
+    "updated": "Certifiering uppdaterad.",
+    "deleted": "Certifiering raderad.",
+    "inUse": "Kan inte radera: produkter har denna certifiering."
+  }
+}

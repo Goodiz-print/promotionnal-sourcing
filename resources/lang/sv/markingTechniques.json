@@ -1,0 +1,61 @@
+{
+  "index": {
+    "title": "Markningstekniker",
+    "subtitle": "Hantera personaliseringstekniker i katalogen (tryck, gravyr, broderi…).",
+    "empty": "Inga tekniker annu. Skapa en.",
+    "emptyDescription": "Markningstekniker beskriver produktpersonaliseringsmetoder.",
+    "columns": {
+      "name": "Namn",
+      "slug": "Slug",
+      "family": "Familj",
+      "products": "Produkter",
+      "actions": "Atgarder"
+    }
+  },
+  "create": {
+    "title": "Ny teknik",
+    "subtitle": "Lagg till en markningsteknik i katalogen."
+  },
+  "update": {
+    "title": "Redigera teknik",
+    "subtitle": "Redigera namn, familj och installningar for \"{slug}\"."
+  },
+  "edit": "Redigera",
+  "newTechnique": "Ny teknik",
+  "delete": "Radera",
+  "save": "Spara",
+  "cancel": "Avbryt",
+  "confirmDelete": "Radera denna teknik?",
+  "back": "Tillbaka till tekniker",
+  "fields": {
+    "slug": "Slug",
+    "slugHint": "Gemener, siffror och bindestreck. Kan inte andras senare.",
+    "slugPlaceholder": "t.ex. skrigtryck",
+    "family": "Familj",
+    "familyHint": "Processkategori (tryck, overforing, gravyr…).",
+    "synonyms": "Synonymer",
+    "synonymsHint": "Kommaseparerade (forbattrar import).",
+    "synonymsPlaceholder": "t.ex. silk screen, serigrafi",
+    "name": "Namn"
+  },
+  "families": {
+    "print": "Tryck",
+    "transfer": "Overforing",
+    "engraving": "Gravyr",
+    "embroidery": "Broderi",
+    "relief": "Relief",
+    "special": "Special"
+  },
+  "form": {
+    "identity": "Identifikation",
+    "identityDescription": "Teknisk identifierare och processkategori.",
+    "content": "Innehall pa {language}",
+    "otherLocale": "Annat sprak att visa"
+  },
+  "flash": {
+    "created": "Teknik skapad.",
+    "updated": "Teknik uppdaterad.",
+    "deleted": "Teknik raderad.",
+    "inUse": "Kan inte radera: produkter anvander denna teknik."
+  }
+}

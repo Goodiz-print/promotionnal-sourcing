@@ -22,6 +22,75 @@ export interface MarkingTechniqueSeed {
   synonyms: string[]
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Administration des techniques de marquage (#165)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Familles de techniques de marquage (regroupement pour l'UI).
+ */
+export const MARKING_TECHNIQUE_FAMILIES = [
+  'print',
+  'transfer',
+  'engraving',
+  'embroidery',
+  'relief',
+  'special',
+] as const
+
+export type MarkingTechniqueFamily = (typeof MARKING_TECHNIQUE_FAMILIES)[number]
+
+/**
+ * Technique de marquage dans la liste d'administration : nom résolu, famille,
+ * nombre de produits qui l'utilisent.
+ */
+export type MarkingTechniqueAdminType = {
+  id: number
+  slug: string
+  name: string | null
+  family: string
+  /** Nombre de produits qui utilisent cette technique (suppression refusée si > 0). */
+  productsCount: number
+}
+
+/**
+ * Technique de marquage exposée au formulaire d'édition : traductions par
+ * langue de contenu (toutes), slug, famille, synonymes. La langue source est
+ * déduite des traductions is_auto = false (pas de colonne sourceLocale sur
+ * marking_techniques).
+ */
+export type MarkingTechniqueEditType = {
+  id: number
+  slug: string
+  family: string
+  synonyms: string[]
+  /** Langue source déduite de la première traduction non automatique. */
+  sourceLocale: ContentLocale
+  translations: Record<ContentLocale, { name: string; isAuto: boolean }>
+}
+
+/**
+ * Création d'une technique de marquage (administration, #165). Le slug est
+ * figé ensuite. Seule la traduction de `sourceLocale` est requise.
+ */
+export interface CreateMarkingTechniqueData {
+  slug: string
+  family: string
+  synonyms?: string[]
+  sourceLocale: ContentLocale
+  translations: Partial<Record<ContentLocale, { name: string }>>
+}
+
+/**
+ * Mise à jour partielle d'une technique de marquage. Le slug est figé.
+ */
+export interface UpdateMarkingTechniqueData {
+  family?: string
+  synonyms?: string[]
+  sourceLocale?: ContentLocale
+  translations?: Partial<Record<ContentLocale, { name?: string }>>
+}
+
 /**
  * Technique possible sur une position de marquage (écart 2), résolue dans la
  * locale active : libellé de technique + nombre de couleurs max + frais

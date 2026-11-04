@@ -2230,4 +2230,212 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/attribute_value_controller').default['destroy']>>>
     }
   }
+  'admin.certifications.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/certifications'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['index']>>>
+    }
+  }
+  'admin.certifications.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/certifications/new'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['create']>>>
+    }
+  }
+  'admin.certifications.store': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/certifications'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/certification').createCertificationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/certification').createCertificationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.certifications.edit': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/certifications/:id/edit'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['edit']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['edit']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['edit']>>>
+    }
+  }
+  'admin.certifications.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/certifications/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/certification').updateCertificationValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/certification').updateCertificationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.certifications.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/admin/certifications/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/certification_controller').default['destroy']>>>
+    }
+  }
+  'admin.marking_techniques.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/marking-techniques'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['index']>>>
+    }
+  }
+  'admin.marking_techniques.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/marking-techniques/new'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['create']>>>
+    }
+  }
+  'admin.marking_techniques.store': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/marking-techniques'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/marking_technique').createMarkingTechniqueValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/marking_technique').createMarkingTechniqueValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.marking_techniques.edit': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/marking-techniques/:id/edit'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['edit']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['edit']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['edit']>>>
+    }
+  }
+  'admin.marking_techniques.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/marking-techniques/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/marking_technique').updateMarkingTechniqueValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/marking_technique').updateMarkingTechniqueValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.marking_techniques.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/admin/marking-techniques/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/marking_technique_controller').default['destroy']>>>
+    }
+  }
+  'admin.categories.attributes.store': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/categories/:categoryId/attributes'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/category_attribute').addCategoryAttributeValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; categoryId: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/category_attribute').addCategoryAttributeValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_attribute_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_attribute_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/category_attribute_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.categories.attributes.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/categories/:categoryId/attributes/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/category_attribute').updateCategoryAttributeValidator)>>
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; categoryId: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/category_attribute').updateCategoryAttributeValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_attribute_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_attribute_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/category_attribute_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.categories.attributes.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/admin/categories/:categoryId/attributes/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; categoryId: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_attribute_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_attribute_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/category_attribute_controller').default['destroy']>>>
+    }
+  }
+  'admin.categories.attributes.ranges.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/categories/:categoryId/attributes/:id/ranges'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/category_attribute').updateCategoryAttributeRangesValidator)>>
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; categoryId: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/category_attribute').updateCategoryAttributeRangesValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_attribute_controller').default['updateRanges']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_attribute_controller').default['updateRanges']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/category_attribute_controller').default['updateRanges']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
 }

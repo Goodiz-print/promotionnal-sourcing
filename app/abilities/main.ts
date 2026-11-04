@@ -147,6 +147,24 @@ export const canManageAttributes = Bouncer.ability((user: User) => {
 })
 
 /**
+ * Ability to check if a user can administer the certifications reference data
+ * (labels de conformité). Global data: granted by the `catalogue.manage`
+ * platform permission (#165).
+ */
+export const canManageCertifications = Bouncer.ability((user: User) => {
+  return platformRoleHasPermission(user.platformRole, 'catalogue.manage')
+})
+
+/**
+ * Ability to check if a user can administer the marking techniques reference
+ * data (techniques de marquage). Global data: granted by the `catalogue.manage`
+ * platform permission (#165).
+ */
+export const canManageMarkingTechniques = Bouncer.ability((user: User) => {
+  return platformRoleHasPermission(user.platformRole, 'catalogue.manage')
+})
+
+/**
  * Ability to check if a user can create a request for quotation (RFQ).
  * The organization must be a buyer (or both). Aligned on the `sourcing:create`
  * permission, granted to every role down to `member`.

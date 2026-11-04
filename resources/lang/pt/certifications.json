@@ -1,0 +1,67 @@
+{
+  "index": {
+    "title": "Certificacoes",
+    "subtitle": "Gerir etiquetas de conformidade no catalogo (eco-etiquetas, normas, certificacoes).",
+    "empty": "Ainda nao ha certificacoes. Criar uma.",
+    "emptyDescription": "As certificacoes informam os compradores sobre as garantias do produto.",
+    "columns": {
+      "name": "Nome",
+      "slug": "Slug",
+      "domain": "Dominio",
+      "isEco": "Eco-etiqueta",
+      "products": "Produtos",
+      "actions": "Acoes"
+    },
+    "yes": "Sim",
+    "no": "Nao"
+  },
+  "create": {
+    "title": "Nova certificacao",
+    "subtitle": "Adicionar uma etiqueta de conformidade ao catalogo."
+  },
+  "update": {
+    "title": "Editar certificacao",
+    "subtitle": "Editar o nome, dominio e definicoes de \"{slug}\"."
+  },
+  "edit": "Editar",
+  "newCertification": "Nova certificacao",
+  "delete": "Eliminar",
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "confirmDelete": "Eliminar esta certificacao?",
+  "back": "Voltar as certificacoes",
+  "fields": {
+    "slug": "Slug",
+    "slugHint": "Minusculas, digitos e hifenes. Nao pode ser alterado depois.",
+    "slugPlaceholder": "p. ex. oeko-tex-100",
+    "domain": "Dominio",
+    "domainHint": "Categoria da etiqueta (ambiente, textil, seguranca…).",
+    "isEco": "Eco-etiqueta",
+    "isEcoHint": "Esta etiqueta certifica uma abordagem ecologica.",
+    "synonyms": "Sinonimos",
+    "synonymsHint": "Separados por virgulas (melhora a importacao).",
+    "synonymsPlaceholder": "p. ex. Oeko-Tex, OEKOTEX",
+    "name": "Nome"
+  },
+  "domains": {
+    "environment": "Ambiente",
+    "textile": "Textil",
+    "social": "Social",
+    "safety": "Seguranca",
+    "food_contact": "Contacto alimentar",
+    "forestry": "Florestal",
+    "quality": "Qualidade"
+  },
+  "form": {
+    "identity": "Identificacao",
+    "identityDescription": "Identificador tecnico, dominio e definicoes da etiqueta.",
+    "content": "Conteudo em {language}",
+    "otherLocale": "Outra lingua a apresentar"
+  },
+  "flash": {
+    "created": "Certificacao criada.",
+    "updated": "Certificacao atualizada.",
+    "deleted": "Certificacao eliminada.",
+    "inUse": "Nao e possivel eliminar: ha produtos com esta certificacao."
+  }
+}

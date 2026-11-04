@@ -1,0 +1,61 @@
+{
+  "index": {
+    "title": "Marking techniques",
+    "subtitle": "Manage customisation techniques in the catalogue (printing, engraving, embroidery…).",
+    "empty": "No techniques yet. Create one.",
+    "emptyDescription": "Marking techniques describe product personalisation methods.",
+    "columns": {
+      "name": "Name",
+      "slug": "Slug",
+      "family": "Family",
+      "products": "Products",
+      "actions": "Actions"
+    }
+  },
+  "create": {
+    "title": "New technique",
+    "subtitle": "Add a marking technique to the catalogue."
+  },
+  "update": {
+    "title": "Edit technique",
+    "subtitle": "Edit the name, family and settings of “{slug}”."
+  },
+  "edit": "Edit",
+  "newTechnique": "New technique",
+  "delete": "Delete",
+  "save": "Save",
+  "cancel": "Cancel",
+  "confirmDelete": "Delete this technique?",
+  "back": "Back to techniques",
+  "fields": {
+    "slug": "Slug",
+    "slugHint": "Lowercase, digits and hyphens. Cannot be changed later.",
+    "slugPlaceholder": "e.g. screen-printing",
+    "family": "Family",
+    "familyHint": "Process category (printing, transfer, engraving…).",
+    "synonyms": "Synonyms",
+    "synonymsHint": "Comma-separated (improves import).",
+    "synonymsPlaceholder": "e.g. silk screen, serigraphy",
+    "name": "Name"
+  },
+  "families": {
+    "print": "Printing",
+    "transfer": "Transfer",
+    "engraving": "Engraving",
+    "embroidery": "Embroidery",
+    "relief": "Relief",
+    "special": "Special"
+  },
+  "form": {
+    "identity": "Identification",
+    "identityDescription": "Technical identifier and process family.",
+    "content": "Content in {language}",
+    "otherLocale": "Other language to display"
+  },
+  "flash": {
+    "created": "Technique created.",
+    "updated": "Technique updated.",
+    "deleted": "Technique deleted.",
+    "inUse": "Cannot delete: products use this technique."
+  }
+}

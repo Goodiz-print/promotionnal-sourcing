@@ -7,6 +7,8 @@
     "categories": "Kategorier",
     "audit": "Granskningslogg",
     "attributes": "Attribut",
+    "certifications": "Certifieringar",
+    "markingTechniques": "Märkningstekniker",
     "label": "Administrationsavsnitt",
     "demand": "Kundefterfrågan",
     "moderation": "Moderering",
@@ -439,7 +441,16 @@
       "product.published": "Produkt publicerad",
       "product.archived": "Produkt arkiverad",
       "product.restored": "Produkt återställd",
-      "product.reindex_requested": "Omindexering av produkt begärd"
+      "product.reindex_requested": "Omindexering av produkt begärd",
+      "certification.created": "Certifiering skapad",
+      "certification.updated": "Certifiering uppdaterad",
+      "certification.deleted": "Certifiering raderad",
+      "marking_technique.created": "Märkningsteknik skapad",
+      "marking_technique.updated": "Märkningsteknik uppdaterad",
+      "marking_technique.deleted": "Märkningsteknik raderad",
+      "category_attribute.added": "Attribut tillagt i kategori",
+      "category_attribute.updated": "Kategoriattribut uppdaterat",
+      "category_attribute.removed": "Attribut borttaget från kategori"
     },
     "targets": {
       "user": "Användare",
@@ -448,7 +459,10 @@
       "attribute_value": "Attributvärde",
       "organization": "Organisation",
       "product": "Produkt",
-      "rfq": "Offertförfrågan"
+      "rfq": "Offertförfrågan",
+      "certification": "Certifiering",
+      "marking_technique": "Märkningsteknik",
+      "category_attribute": "Kategoriattribut"
     }
   },
   "demand": {

@@ -1,0 +1,61 @@
+{
+  "index": {
+    "title": "Markierungstechniken",
+    "subtitle": "Personalisierungstechniken im Katalog verwalten (Druck, Gravur, Stickerei…).",
+    "empty": "Noch keine Techniken. Eine erstellen.",
+    "emptyDescription": "Markierungstechniken beschreiben Produktpersonalisierungsmethoden.",
+    "columns": {
+      "name": "Name",
+      "slug": "Slug",
+      "family": "Familie",
+      "products": "Produkte",
+      "actions": "Aktionen"
+    }
+  },
+  "create": {
+    "title": "Neue Technik",
+    "subtitle": "Eine Markierungstechnik zum Katalog hinzufügen."
+  },
+  "update": {
+    "title": "Technik bearbeiten",
+    "subtitle": "Name, Familie und Einstellungen von \"{slug}\" bearbeiten."
+  },
+  "edit": "Bearbeiten",
+  "newTechnique": "Neue Technik",
+  "delete": "Löschen",
+  "save": "Speichern",
+  "cancel": "Abbrechen",
+  "confirmDelete": "Diese Technik löschen?",
+  "back": "Zurück zu den Techniken",
+  "fields": {
+    "slug": "Slug",
+    "slugHint": "Kleinbuchstaben, Ziffern und Bindestriche. Kann später nicht geändert werden.",
+    "slugPlaceholder": "z. B. siebdruck",
+    "family": "Familie",
+    "familyHint": "Prozesskategorie (Druck, Transfer, Gravur…).",
+    "synonyms": "Synonyme",
+    "synonymsHint": "Kommagetrennt (verbessert den Import).",
+    "synonymsPlaceholder": "z. B. Siebdruck, Serigrafie",
+    "name": "Name"
+  },
+  "families": {
+    "print": "Druck",
+    "transfer": "Transfer",
+    "engraving": "Gravur",
+    "embroidery": "Stickerei",
+    "relief": "Relief",
+    "special": "Spezial"
+  },
+  "form": {
+    "identity": "Identifikation",
+    "identityDescription": "Technische Kennung und Prozesskategorie.",
+    "content": "Inhalt auf {language}",
+    "otherLocale": "Andere anzuzeigende Sprache"
+  },
+  "flash": {
+    "created": "Technik erstellt.",
+    "updated": "Technik aktualisiert.",
+    "deleted": "Technik gelöscht.",
+    "inUse": "Kann nicht gelöscht werden: Produkte verwenden diese Technik."
+  }
+}

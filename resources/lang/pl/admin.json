@@ -7,6 +7,8 @@
     "categories": "Kategorie",
     "audit": "Dziennik audytu",
     "attributes": "Atrybuty",
+    "certifications": "Certyfikaty",
+    "markingTechniques": "Techniki znakowania",
     "label": "Sekcje administracji",
     "demand": "Popyt klientów",
     "moderation": "Moderacja",
@@ -439,7 +441,16 @@
       "product.published": "Produkt opublikowany",
       "product.archived": "Produkt zarchiwizowany",
       "product.restored": "Produkt przywrócony",
-      "product.reindex_requested": "Zażądano ponownego indeksowania produktu"
+      "product.reindex_requested": "Zażądano ponownego indeksowania produktu",
+      "certification.created": "Certyfikat utworzony",
+      "certification.updated": "Certyfikat zaktualizowany",
+      "certification.deleted": "Certyfikat usunięty",
+      "marking_technique.created": "Technika znakowania utworzona",
+      "marking_technique.updated": "Technika znakowania zaktualizowana",
+      "marking_technique.deleted": "Technika znakowania usunięta",
+      "category_attribute.added": "Atrybut dodany do kategorii",
+      "category_attribute.updated": "Atrybut kategorii zaktualizowany",
+      "category_attribute.removed": "Atrybut usunięty z kategorii"
     },
     "targets": {
       "user": "Użytkownik",
@@ -448,7 +459,10 @@
       "attribute_value": "Wartość atrybutu",
       "organization": "Organizacja",
       "product": "Produkt",
-      "rfq": "Zapytanie ofertowe"
+      "rfq": "Zapytanie ofertowe",
+      "certification": "Certyfikat",
+      "marking_technique": "Technika znakowania",
+      "category_attribute": "Atrybut kategorii"
     }
   },
   "demand": {

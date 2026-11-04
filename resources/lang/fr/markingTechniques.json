@@ -1,0 +1,61 @@
+{
+  "index": {
+    "title": "Techniques de marquage",
+    "subtitle": "Administrez les techniques de personnalisation du catalogue (impression, gravure, broderie…).",
+    "empty": "Aucune technique pour le moment. Créez-en une.",
+    "emptyDescription": "Les techniques de marquage décrivent les méthodes de personnalisation des produits.",
+    "columns": {
+      "name": "Nom",
+      "slug": "Identifiant",
+      "family": "Famille",
+      "products": "Produits",
+      "actions": "Actions"
+    }
+  },
+  "create": {
+    "title": "Nouvelle technique",
+    "subtitle": "Ajoutez une technique de marquage au catalogue."
+  },
+  "update": {
+    "title": "Modifier la technique",
+    "subtitle": "Modifiez le nom, la famille et les paramètres de « {slug} »."
+  },
+  "edit": "Modifier",
+  "newTechnique": "Nouvelle technique",
+  "delete": "Supprimer",
+  "save": "Enregistrer",
+  "cancel": "Annuler",
+  "confirmDelete": "Supprimer cette technique ?",
+  "back": "Retour aux techniques",
+  "fields": {
+    "slug": "Identifiant (slug)",
+    "slugHint": "Minuscules, chiffres et tirets. Non modifiable ensuite.",
+    "slugPlaceholder": "ex. serigraphie",
+    "family": "Famille",
+    "familyHint": "Catégorie de procédé (impression, transfert, gravure…).",
+    "synonyms": "Synonymes",
+    "synonymsHint": "Séparés par des virgules (améliore l'import).",
+    "synonymsPlaceholder": "ex. screen printing, silk screen",
+    "name": "Nom"
+  },
+  "families": {
+    "print": "Impression",
+    "transfer": "Transfert",
+    "engraving": "Gravure",
+    "embroidery": "Broderie",
+    "relief": "Relief",
+    "special": "Spécial"
+  },
+  "form": {
+    "identity": "Identification",
+    "identityDescription": "Identifiant technique et famille de procédé.",
+    "content": "Contenu en {language}",
+    "otherLocale": "Autre langue à afficher"
+  },
+  "flash": {
+    "created": "Technique créée.",
+    "updated": "Technique mise à jour.",
+    "deleted": "Technique supprimée.",
+    "inUse": "Impossible de supprimer : des produits utilisent cette technique."
+  }
+}
