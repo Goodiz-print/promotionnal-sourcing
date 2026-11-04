@@ -19,6 +19,7 @@ import {
 import { registerRfqRoutes } from '#start/routes/rfqs'
 import { registerQuoteRoutes } from '#start/routes/quotes'
 import { registerOrderRoutes } from '#start/routes/orders'
+import { registerMessagingRoutes } from '#start/routes/messaging'
 import { registerNotificationRoutes } from '#start/routes/notifications'
 import { registerDocumentRoutes } from '#start/routes/documents'
 import { registerHealthRoutes } from '#start/routes/health'
@@ -270,6 +271,7 @@ router
                 registerQuoteRoutes()
                 registerOrderRoutes()
                 registerNotificationRoutes()
+                registerMessagingRoutes()
               })
               .use(middleware.onboarded())
 
@@ -511,6 +513,54 @@ router
                   .get('admin/orders/:id', [controllers.admin.Order, 'show'])
                   .where('id', router.matchers.number())
                   .as('admin.orders.show')
+
+                // Modération de la messagerie : fils, signalements, décisions.
+                router
+                  .get('admin/messaging', [controllers.admin.Messaging, 'index'])
+                  .as('admin.messaging.index')
+                router
+                  .get('admin/messaging/reports', [controllers.admin.Messaging, 'reports'])
+                  .as('admin.messaging.reports')
+                router
+                  .get('admin/messaging/conversations/:id', [controllers.admin.Messaging, 'show'])
+                  .where('id', router.matchers.number())
+                  .as('admin.messaging.show')
+                router
+                  .post('admin/messaging/conversations/:id/block', [
+                    controllers.admin.Messaging,
+                    'block',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.messaging.block')
+                router
+                  .post('admin/messaging/conversations/:id/unblock', [
+                    controllers.admin.Messaging,
+                    'unblock',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.messaging.unblock')
+                router
+                  .post('admin/messaging/messages/:id/hide', [controllers.admin.Messaging, 'hide'])
+                  .where('id', router.matchers.number())
+                  .as('admin.messaging.hide')
+                router
+                  .post('admin/messaging/messages/:id/unhide', [
+                    controllers.admin.Messaging,
+                    'unhide',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.messaging.unhide')
+                router
+                  .post('admin/messaging/messages/:id/warn', [controllers.admin.Messaging, 'warn'])
+                  .where('id', router.matchers.number())
+                  .as('admin.messaging.warn')
+                router
+                  .post('admin/messaging/reports/:id/dismiss', [
+                    controllers.admin.Messaging,
+                    'dismiss',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.messaging.dismiss')
 
                 // Demande des clients : recherches, consultations, export CSV.
                 router

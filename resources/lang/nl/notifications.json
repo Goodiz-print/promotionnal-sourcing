@@ -28,6 +28,9 @@
       "shipped": "{supplierName} heeft uw bestelling voor {rfqTitle} verzonden.",
       "delivered": "{buyerName} heeft de ontvangst van de bestelling voor {rfqTitle} bevestigd.",
       "cancelled": "De bestelling voor {rfqTitle} is geannuleerd."
+    },
+    "message": {
+      "warned": "A message you wrote received a warning from the platform. Please follow the messaging usage rules."
     }
   }
 }

@@ -15,7 +15,8 @@
     "agencies": "Agences",
     "rfqs": "Demandes de devis",
     "quotes": "Devis",
-    "orders": "Commandes"
+    "orders": "Commandes",
+    "messaging": "Messagerie"
   },
   "pagination": {
     "previous": "Précédent",
@@ -451,7 +452,14 @@
       "product.published": "Produit publié",
       "product.archived": "Produit archivé",
       "product.restored": "Produit restauré",
-      "product.reindex_requested": "Réindexation produit demandée"
+      "product.reindex_requested": "Réindexation produit demandée",
+      "conversation.viewed": "Conversation consultée",
+      "conversation.blocked": "Conversation bloquée",
+      "conversation.unblocked": "Conversation débloquée",
+      "message.hidden": "Message masqué",
+      "message.unhidden": "Message réaffiché",
+      "message.warned": "Auteur de message averti",
+      "message_report.dismissed": "Signalement classé sans suite"
     },
     "targets": {
       "user": "Utilisateur",
@@ -463,7 +471,10 @@
       "category_attribute": "Attribut de catégorie",
       "organization": "Organisation",
       "product": "Produit",
-      "rfq": "Demande de devis"
+      "rfq": "Demande de devis",
+      "conversation": "Conversation",
+      "message": "Message",
+      "message_report": "Signalement de message"
     }
   },
   "demand": {
@@ -926,6 +937,83 @@
         "confirm": "Demander une réindexation de ce produit ?",
         "done": "Réindexation demandée."
       }
+    }
+  },
+  "messaging": {
+    "title": "Messagerie",
+    "subtitle": "Supervision des conversations acheteur ↔ fournisseur. Chaque consultation d'un fil est tracée dans le journal d'audit.",
+    "resultsCount": "{count, plural, =0 {Aucune conversation} one {# conversation} other {# conversations}}",
+    "empty": "Aucune conversation avec ces filtres.",
+    "emptyDescription": "Modifiez les filtres pour élargir la recherche.",
+    "back": "Retour aux conversations",
+    "untitled": "Conversation n° {id}",
+    "reportsQueue": "File des signalements",
+    "reportsTitle": "Signalements de messages",
+    "reportsSubtitle": "Messages signalés par les participants, du plus ancien au plus récent.",
+    "reportsCount": "{count, plural, =0 {Aucun signalement} one {# signalement} other {# signalements}}",
+    "reportsEmpty": "Aucun signalement.",
+    "reportsEmptyDescription": "Aucun message n'a été signalé avec ce statut.",
+    "blocked": "Bloquée",
+    "hidden": "Message masqué",
+    "unknownAuthor": "Auteur inconnu",
+    "auditNotice": "Les messages sont des données privées : l'ouverture de cette conversation est inscrite dans le journal d'audit.",
+    "blockedReason": "Motif du blocage : {reason}",
+    "messages": "Messages",
+    "noMessages": "Aucun message dans cette conversation.",
+    "filters": {
+      "withOpenReports": "Avec signalements ouverts",
+      "blocked": "Conversations bloquées"
+    },
+    "columns": {
+      "conversation": "Conversation",
+      "messages": "Messages",
+      "reports": "Signalements",
+      "lastMessage": "Dernier message",
+      "createdAt": "Créée le",
+      "reason": "Motif",
+      "message": "Message",
+      "reporter": "Signalé par"
+    },
+    "reasons": {
+      "spam": "Spam",
+      "abuse": "Propos abusifs",
+      "off_platform": "Contournement de la plateforme",
+      "fraud": "Fraude",
+      "other": "Autre"
+    },
+    "status": {
+      "open": "Ouvert",
+      "resolved": "Traité"
+    },
+    "resolutions": {
+      "dismissed": "Sans suite",
+      "hidden": "Message masqué",
+      "warned": "Auteur averti"
+    },
+    "actions": {
+      "hide": "Masquer",
+      "unhide": "Réafficher",
+      "warn": "Avertir l'auteur",
+      "dismiss": "Classer sans suite",
+      "block": "Bloquer la conversation",
+      "unblock": "Débloquer la conversation"
+    },
+    "confirm": {
+      "hide": "Masquer ce message ? Il ne sera plus montré aux participants.",
+      "warn": "Envoyer un avertissement à l'auteur de ce message ?"
+    },
+    "block": {
+      "title": "Blocage",
+      "reason": "Motif du blocage",
+      "hint": "Plus aucun message ne pourra être posté. Le motif est conservé dans le journal d'audit."
+    },
+    "done": {
+      "hidden": "Message masqué.",
+      "unhidden": "Message réaffiché.",
+      "warned": "Avertissement envoyé à l'auteur.",
+      "dismissed": "Signalement classé sans suite.",
+      "blocked": "Conversation bloquée.",
+      "unblocked": "Conversation débloquée."
     }
   }
 }

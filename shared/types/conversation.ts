@@ -5,3 +5,21 @@
 
 /** Longueur maximale d'un message, en caractères. */
 export const MESSAGE_MAX_LENGTH = 5000
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Modération de la messagerie (#167)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Motifs proposés à l'utilisateur qui signale un message. */
+export const MESSAGE_REPORT_REASONS = ['spam', 'abuse', 'off_platform', 'fraud', 'other'] as const
+export type MessageReportReason = (typeof MESSAGE_REPORT_REASONS)[number]
+
+/** Longueur maximale des précisions saisies par le signalant ou le modérateur. */
+export const MESSAGE_REPORT_NOTE_MAX_LENGTH = 1000
+
+export const MESSAGE_REPORT_STATUSES = ['open', 'resolved'] as const
+export type MessageReportStatus = (typeof MESSAGE_REPORT_STATUSES)[number]
+
+/** Issue d'un signalement traité : classé sans suite, message masqué ou auteur averti. */
+export const MESSAGE_REPORT_RESOLUTIONS = ['dismissed', 'hidden', 'warned'] as const
+export type MessageReportResolution = (typeof MESSAGE_REPORT_RESOLUTIONS)[number]

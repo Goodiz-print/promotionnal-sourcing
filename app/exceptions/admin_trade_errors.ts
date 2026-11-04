@@ -13,3 +13,17 @@ export class AdminRfqNotRemindableException extends Exception {
   static code = 'E_ADMIN_RFQ_NOT_REMINDABLE'
   static message = 'Nobody can be reminded on this rfq'
 }
+
+/** Fil, message ou signalement introuvable côté modération de la messagerie (#167). */
+export class AdminMessagingNotFoundException extends Exception {
+  static status = 404
+  static code = 'E_ADMIN_MESSAGING_NOT_FOUND'
+  static message = 'Conversation, message or report not found'
+}
+
+/** Action sans objet : message déjà (dé)masqué, fil déjà (dé)bloqué, signalement déjà traité. */
+export class AdminMessagingStateException extends Exception {
+  static status = 409
+  static code = 'E_ADMIN_MESSAGING_STATE'
+  static message = 'This action is not applicable in the current state'
+}

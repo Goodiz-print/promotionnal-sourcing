@@ -15,7 +15,8 @@
     "agencies": "Agenzie",
     "rfqs": "Richieste di preventivo",
     "quotes": "Preventivi",
-    "orders": "Ordini"
+    "orders": "Ordini",
+    "messaging": "Messaging"
   },
   "pagination": {
     "previous": "Precedente",
@@ -451,7 +452,14 @@
       "marking_technique.deleted": "Tecnica di marcatura eliminata",
       "category_attribute.added": "Attributo aggiunto alla categoria",
       "category_attribute.updated": "Associazione categoria-attributo modificata",
-      "category_attribute.removed": "Attributo rimosso dalla categoria"
+      "category_attribute.removed": "Attributo rimosso dalla categoria",
+      "conversation.viewed": "Conversation viewed",
+      "conversation.blocked": "Conversation blocked",
+      "conversation.unblocked": "Conversation unblocked",
+      "message.hidden": "Message hidden",
+      "message.unhidden": "Message shown again",
+      "message.warned": "Message author warned",
+      "message_report.dismissed": "Report dismissed"
     },
     "targets": {
       "user": "Utente",
@@ -463,7 +471,10 @@
       "rfq": "Richiesta di preventivo",
       "certification": "Certificazione",
       "marking_technique": "Tecnica di marcatura",
-      "category_attribute": "Attributo della categoria"
+      "category_attribute": "Attributo della categoria",
+      "conversation": "Conversation",
+      "message": "Message",
+      "message_report": "Message report"
     }
   },
   "demand": {
@@ -926,6 +937,83 @@
         "confirm": "Richiedere una reindicizzazione di questo prodotto?",
         "done": "Reindicizzazione richiesta."
       }
+    }
+  },
+  "messaging": {
+    "title": "Messaging",
+    "subtitle": "Oversight of buyer ↔ supplier conversations. Every time a thread is opened, it is recorded in the audit log.",
+    "resultsCount": "{count, plural, =0 {No conversations} one {# conversation} other {# conversations}}",
+    "empty": "No conversations match these filters.",
+    "emptyDescription": "Change the filters to widen the search.",
+    "back": "Back to conversations",
+    "untitled": "Conversation #{id}",
+    "reportsQueue": "Reports queue",
+    "reportsTitle": "Message reports",
+    "reportsSubtitle": "Messages reported by participants, oldest first.",
+    "reportsCount": "{count, plural, =0 {No reports} one {# report} other {# reports}}",
+    "reportsEmpty": "No reports.",
+    "reportsEmptyDescription": "No message has been reported with this status.",
+    "blocked": "Blocked",
+    "hidden": "Hidden message",
+    "unknownAuthor": "Unknown author",
+    "auditNotice": "Messages are private data: opening this conversation is recorded in the audit log.",
+    "blockedReason": "Reason for blocking: {reason}",
+    "messages": "Messages",
+    "noMessages": "No messages in this conversation.",
+    "filters": {
+      "withOpenReports": "With open reports",
+      "blocked": "Blocked conversations"
+    },
+    "columns": {
+      "conversation": "Conversation",
+      "messages": "Messages",
+      "reports": "Reports",
+      "lastMessage": "Last message",
+      "createdAt": "Created on",
+      "reason": "Reason",
+      "message": "Message",
+      "reporter": "Reported by"
+    },
+    "reasons": {
+      "spam": "Spam",
+      "abuse": "Abusive language",
+      "off_platform": "Bypassing the platform",
+      "fraud": "Fraud",
+      "other": "Other"
+    },
+    "status": {
+      "open": "Open",
+      "resolved": "Handled"
+    },
+    "resolutions": {
+      "dismissed": "No action",
+      "hidden": "Message hidden",
+      "warned": "Author warned"
+    },
+    "actions": {
+      "hide": "Hide",
+      "unhide": "Show again",
+      "warn": "Warn the author",
+      "dismiss": "Dismiss",
+      "block": "Block the conversation",
+      "unblock": "Unblock the conversation"
+    },
+    "confirm": {
+      "hide": "Hide this message? Participants will no longer see it.",
+      "warn": "Send a warning to the author of this message?"
+    },
+    "block": {
+      "title": "Blocking",
+      "reason": "Reason for blocking",
+      "hint": "No further message can be posted. The reason is kept in the audit log."
+    },
+    "done": {
+      "hidden": "Message hidden.",
+      "unhidden": "Message shown again.",
+      "warned": "Warning sent to the author.",
+      "dismissed": "Report dismissed.",
+      "blocked": "Conversation blocked.",
+      "unblocked": "Conversation unblocked."
     }
   }
 }

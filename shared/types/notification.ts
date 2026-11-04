@@ -18,6 +18,7 @@ export const NOTIFICATION_TYPES = [
   'order.cancelled',
   'organization.invited',
   'organization.member_joined',
+  'message.warned',
 ] as const
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number]

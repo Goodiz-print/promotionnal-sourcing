@@ -666,6 +666,12 @@ const routes = {
     tokens: [[1,"locale"],[0,"notifications"],[0,"read-all"]],
     types: placeholder as Registry['notifications.readAll']['types'],
   },
+  'messages.report': {
+    methods: ["POST"],
+    pattern: '/:locale/messages/:id/report',
+    tokens: [[1,"locale"],[0,"messages"],[1,"id"],[0,"report"]],
+    types: placeholder as Registry['messages.report']['types'],
+  },
   'admin.dashboard': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin',
@@ -929,6 +935,60 @@ const routes = {
     pattern: '/:locale/admin/orders/:id',
     tokens: [[1,"locale"],[0,"admin"],[0,"orders"],[1,"id"]],
     types: placeholder as Registry['admin.orders.show']['types'],
+  },
+  'admin.messaging.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/messaging',
+    tokens: [[1,"locale"],[0,"admin"],[0,"messaging"]],
+    types: placeholder as Registry['admin.messaging.index']['types'],
+  },
+  'admin.messaging.reports': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/messaging/reports',
+    tokens: [[1,"locale"],[0,"admin"],[0,"messaging"],[0,"reports"]],
+    types: placeholder as Registry['admin.messaging.reports']['types'],
+  },
+  'admin.messaging.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/messaging/conversations/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"messaging"],[0,"conversations"],[1,"id"]],
+    types: placeholder as Registry['admin.messaging.show']['types'],
+  },
+  'admin.messaging.block': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/messaging/conversations/:id/block',
+    tokens: [[1,"locale"],[0,"admin"],[0,"messaging"],[0,"conversations"],[1,"id"],[0,"block"]],
+    types: placeholder as Registry['admin.messaging.block']['types'],
+  },
+  'admin.messaging.unblock': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/messaging/conversations/:id/unblock',
+    tokens: [[1,"locale"],[0,"admin"],[0,"messaging"],[0,"conversations"],[1,"id"],[0,"unblock"]],
+    types: placeholder as Registry['admin.messaging.unblock']['types'],
+  },
+  'admin.messaging.hide': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/messaging/messages/:id/hide',
+    tokens: [[1,"locale"],[0,"admin"],[0,"messaging"],[0,"messages"],[1,"id"],[0,"hide"]],
+    types: placeholder as Registry['admin.messaging.hide']['types'],
+  },
+  'admin.messaging.unhide': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/messaging/messages/:id/unhide',
+    tokens: [[1,"locale"],[0,"admin"],[0,"messaging"],[0,"messages"],[1,"id"],[0,"unhide"]],
+    types: placeholder as Registry['admin.messaging.unhide']['types'],
+  },
+  'admin.messaging.warn': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/messaging/messages/:id/warn',
+    tokens: [[1,"locale"],[0,"admin"],[0,"messaging"],[0,"messages"],[1,"id"],[0,"warn"]],
+    types: placeholder as Registry['admin.messaging.warn']['types'],
+  },
+  'admin.messaging.dismiss': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/messaging/reports/:id/dismiss',
+    tokens: [[1,"locale"],[0,"admin"],[0,"messaging"],[0,"reports"],[1,"id"],[0,"dismiss"]],
+    types: placeholder as Registry['admin.messaging.dismiss']['types'],
   },
   'admin.demand.index': {
     methods: ["GET","HEAD"],

@@ -9,6 +9,7 @@ import OrganizationUser from '#models/organization_user'
 import User from '#models/user'
 import {
   ConversationAccessDeniedException,
+  ConversationBlockedException,
   InvalidMessageBodyException,
 } from '#exceptions/messaging_errors'
 import { MESSAGE_MAX_LENGTH } from '#shared/types/conversation'
@@ -73,6 +74,8 @@ export default class ConversationService {
   async post(conversation: Conversation, author: User, rawBody: string): Promise<Message> {
     const body = this.normalizeBody(rawBody)
     await this.assertParticipant(author, conversation)
+    // Fil bloqué par la plateforme (#167) : la lecture reste possible, l'écriture non.
+    if (conversation.blockedAt) throw new ConversationBlockedException()
     const message = await Message.create({
       conversationId: conversation.id,
       authorUserId: author.id,

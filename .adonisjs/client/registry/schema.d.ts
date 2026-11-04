@@ -1437,6 +1437,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/notifications_controller').default['readAll']>>>
     }
   }
+  'messages.report': {
+    methods: ["POST"]
+    pattern: '/:locale/messages/:id/report'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/message_report').reportMessageValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/message_report').reportMessageValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/message_report_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/message_report_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/message_report_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'admin.dashboard': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin'
@@ -2007,6 +2020,123 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/order_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/order_controller').default['show']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/order_controller').default['show']>>>
+    }
+  }
+  'admin.messaging.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/messaging'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_messaging').adminConversationFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.messaging.reports': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/messaging/reports'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_messaging').adminReportFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['reports']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['reports']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['reports']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.messaging.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/messaging/conversations/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['show']>>>
+    }
+  }
+  'admin.messaging.block': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/messaging/conversations/:id/block'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_messaging').adminBlockConversationValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_messaging').adminBlockConversationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['block']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['block']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['block']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.messaging.unblock': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/messaging/conversations/:id/unblock'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['unblock']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['unblock']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['unblock']>>>
+    }
+  }
+  'admin.messaging.hide': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/messaging/messages/:id/hide'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_messaging').adminModerationNoteValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_messaging').adminModerationNoteValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['hide']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['hide']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['hide']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.messaging.unhide': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/messaging/messages/:id/unhide'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['unhide']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['unhide']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['unhide']>>>
+    }
+  }
+  'admin.messaging.warn': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/messaging/messages/:id/warn'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_messaging').adminModerationNoteValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_messaging').adminModerationNoteValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['warn']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['warn']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['warn']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.messaging.dismiss': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/messaging/reports/:id/dismiss'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_messaging').adminModerationNoteValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_messaging').adminModerationNoteValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['dismiss']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['dismiss']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/messaging_controller').default['dismiss']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'admin.demand.index': {

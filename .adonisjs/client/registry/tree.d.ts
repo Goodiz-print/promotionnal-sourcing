@@ -183,6 +183,9 @@ export interface ApiDefinition {
     read: typeof routes['notifications.read']
     readAll: typeof routes['notifications.readAll']
   }
+  messages: {
+    report: typeof routes['messages.report']
+  }
   admin: {
     dashboard: typeof routes['admin.dashboard']
     organizations: {
@@ -247,6 +250,17 @@ export interface ApiDefinition {
     orders: {
       index: typeof routes['admin.orders.index']
       show: typeof routes['admin.orders.show']
+    }
+    messaging: {
+      index: typeof routes['admin.messaging.index']
+      reports: typeof routes['admin.messaging.reports']
+      show: typeof routes['admin.messaging.show']
+      block: typeof routes['admin.messaging.block']
+      unblock: typeof routes['admin.messaging.unblock']
+      hide: typeof routes['admin.messaging.hide']
+      unhide: typeof routes['admin.messaging.unhide']
+      warn: typeof routes['admin.messaging.warn']
+      dismiss: typeof routes['admin.messaging.dismiss']
     }
     demand: {
       index: typeof routes['admin.demand.index']
