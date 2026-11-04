@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import app from '@adonisjs/core/services/app'
 import { OrganizationFactory } from '#database/factories/organization_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import { MarkingTechniqueFactory } from '#database/factories/marking_technique_factory'
@@ -6,6 +7,8 @@ import { MarkingTechniqueTranslationFactory } from '#database/factories/marking_
 import type User from '#models/user'
 import MarkingTechnique from '#models/marking_technique'
 import MarkingTechniqueTranslation from '#models/marking_technique_translation'
+import AdminAuditLog from '#models/admin_audit_log'
+import TranslationQueueService from '#services/translation_queue_service'
 import { createMember } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
 import type { RoleSlug } from '#shared/types/role'
@@ -187,5 +190,85 @@ test.group('Administration des techniques de marquage - CRUD', (group) => {
 
     response.assertStatus(200)
     assert.isNull(await MarkingTechnique.find(technique.id))
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// No-op : une mise a jour identique ne genere ni audit ni file de traduction
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Cree un espion pour TranslationQueueService.
+ */
+function createTranslationQueueSpy() {
+  const queueCalls: Array<{ entity: string; entityId: number; sourceLocale: string }> = []
+  const spy = {
+    async queue(entity: string, entityId: number, sourceLocale: string) {
+      queueCalls.push({ entity, entityId, sourceLocale })
+      return true
+    },
+  } as unknown as TranslationQueueService
+  return { spy, queueCalls }
+}
+
+test.group('Administration des techniques de marquage - no-op', (group) => {
+  useDatabase(group)
+
+  test('mise a jour sans changement ne cree pas de log audit ni de file de traduction', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await platformAdmin()
+    const technique = await MarkingTechniqueFactory.merge({
+      family: 'print',
+      sourceLocale: 'fr',
+    }).create()
+    await MarkingTechniqueTranslationFactory.merge({
+      markingTechniqueId: technique.id,
+      locale: 'fr',
+      name: 'Serigraphie Test',
+    }).create()
+
+    const auditCountBefore = await AdminAuditLog.query()
+      .where('targetType', 'marking_technique')
+      .where('targetId', technique.id)
+      .where('action', 'marking_technique.updated')
+      .count('* as total')
+      .first()
+    const countBefore = Number(auditCountBefore?.$extras.total ?? 0)
+
+    const { spy, queueCalls } = createTranslationQueueSpy()
+    app.container.swap(TranslationQueueService, () => spy)
+
+    try {
+      // Reenvoyer les memes valeurs
+      const response = await client
+        .patch(`/fr/admin/marking-techniques/${technique.id}`)
+        .withInertia()
+        .withCsrfToken()
+        .loginAs(admin)
+        .json({
+          family: 'print',
+          sourceLocale: 'fr',
+          translations: { fr: { name: 'Serigraphie Test' } },
+        })
+
+      response.assertStatus(200)
+
+      // Pas de nouveau log audit
+      const auditCountAfter = await AdminAuditLog.query()
+        .where('targetType', 'marking_technique')
+        .where('targetId', technique.id)
+        .where('action', 'marking_technique.updated')
+        .count('* as total')
+        .first()
+      const countAfter = Number(auditCountAfter?.$extras.total ?? 0)
+      assert.equal(countAfter, countBefore, 'Aucun log audit ne doit etre cree pour un no-op')
+
+      // Pas d'appel a la file de traduction
+      assert.lengthOf(queueCalls, 0, 'La file de traduction ne doit pas etre appelee pour un no-op')
+    } finally {
+      app.container.restore(TranslationQueueService)
+    }
   })
 })

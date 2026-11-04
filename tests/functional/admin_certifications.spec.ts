@@ -1,11 +1,17 @@
 import { test } from '@japa/runner'
+import app from '@adonisjs/core/services/app'
+import db from '@adonisjs/lucid/services/db'
 import { OrganizationFactory } from '#database/factories/organization_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import { CertificationFactory } from '#database/factories/certification_factory'
 import { CertificationTranslationFactory } from '#database/factories/certification_translation_factory'
+import { ProductFactory } from '#database/factories/product_factory'
 import type User from '#models/user'
 import Certification from '#models/certification'
 import CertificationTranslation from '#models/certification_translation'
+import AdminAuditLog from '#models/admin_audit_log'
+import TranslationQueueService from '#services/translation_queue_service'
+import SearchSyncService from '#services/search_sync_service'
 import { createMember } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
 import type { RoleSlug } from '#shared/types/role'
@@ -183,5 +189,154 @@ test.group('Administration des certifications - CRUD', (group) => {
 
     response.assertStatus(200)
     assert.isNull(await Certification.find(cert.id))
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// No-op et effets de bord
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Cree un espion pour TranslationQueueService.
+ */
+function createTranslationQueueSpy() {
+  const queueCalls: Array<{ entity: string; entityId: number; sourceLocale: string }> = []
+  const spy = {
+    async queue(entity: string, entityId: number, sourceLocale: string) {
+      queueCalls.push({ entity, entityId, sourceLocale })
+      return true
+    },
+  } as unknown as TranslationQueueService
+  return { spy, queueCalls }
+}
+
+/**
+ * Cree un espion pour SearchSyncService.
+ */
+function createSearchSyncSpy() {
+  const productIds: number[] = []
+  const spy = {
+    async queueProduct(productId: number) {
+      productIds.push(productId)
+    },
+    async queueOrganization() {},
+    async queueSettings() {},
+  } as unknown as SearchSyncService
+  return { spy, productIds }
+}
+
+test.group('Administration des certifications - no-op', (group) => {
+  useDatabase(group)
+
+  test('mise a jour sans changement ne cree pas de log audit ni de file de traduction', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await platformAdmin()
+    const cert = await CertificationFactory.merge({
+      domain: 'textile',
+      isEco: true,
+      sourceLocale: 'fr',
+    }).create()
+    await CertificationTranslationFactory.merge({
+      certificationId: cert.id,
+      locale: 'fr',
+      name: 'Test',
+    }).create()
+
+    const auditCountBefore = await AdminAuditLog.query()
+      .where('targetType', 'certification')
+      .where('targetId', cert.id)
+      .where('action', 'certification.updated')
+      .count('* as total')
+      .first()
+    const countBefore = Number(auditCountBefore?.$extras.total ?? 0)
+
+    const { spy, queueCalls } = createTranslationQueueSpy()
+    app.container.swap(TranslationQueueService, () => spy)
+
+    try {
+      // Reenvoyer les memes valeurs
+      const response = await client
+        .patch(`/fr/admin/certifications/${cert.id}`)
+        .withInertia()
+        .withCsrfToken()
+        .loginAs(admin)
+        .json({
+          domain: 'textile',
+          isEco: true,
+          sourceLocale: 'fr',
+          translations: { fr: { name: 'Test' } },
+        })
+
+      response.assertStatus(200)
+
+      // Pas de nouveau log audit
+      const auditCountAfter = await AdminAuditLog.query()
+        .where('targetType', 'certification')
+        .where('targetId', cert.id)
+        .where('action', 'certification.updated')
+        .count('* as total')
+        .first()
+      const countAfter = Number(auditCountAfter?.$extras.total ?? 0)
+      assert.equal(countAfter, countBefore, 'Aucun log audit ne doit etre cree pour un no-op')
+
+      // Pas d'appel a la file de traduction
+      assert.lengthOf(queueCalls, 0, 'La file de traduction ne doit pas etre appelee pour un no-op')
+    } finally {
+      app.container.restore(TranslationQueueService)
+    }
+  })
+})
+
+test.group('Administration des certifications - reindexation', (group) => {
+  useDatabase(group)
+
+  test('changement de isEco reindexe les produits par lots', async ({ client, assert }) => {
+    const admin = await platformAdmin()
+    const cert = await CertificationFactory.merge({
+      domain: 'textile',
+      isEco: false,
+      sourceLocale: 'fr',
+    }).create()
+    await CertificationTranslationFactory.merge({
+      certificationId: cert.id,
+      locale: 'fr',
+      name: 'Test Reindex',
+    }).create()
+
+    // Creer des produits avec cette certification
+    const products = await ProductFactory.createMany(5)
+    for (const product of products) {
+      await db.table('product_certifications').insert({
+        product_id: product.id,
+        certification_id: cert.id,
+      })
+    }
+
+    const { spy, productIds } = createSearchSyncSpy()
+    app.container.swap(SearchSyncService, () => spy)
+
+    try {
+      const response = await client
+        .patch(`/fr/admin/certifications/${cert.id}`)
+        .withInertia()
+        .withCsrfToken()
+        .loginAs(admin)
+        .json({
+          isEco: true,
+          translations: { fr: { name: 'Test Reindex' } },
+        })
+
+      response.assertStatus(200)
+
+      // Tous les produits doivent avoir ete reindexes
+      assert.lengthOf(productIds, products.length, 'Tous les produits doivent etre reindexes')
+      for (const product of products) {
+        assert.include(productIds, product.id, `Le produit ${product.id} doit etre reindexe`)
+      }
+    } finally {
+      app.container.restore(SearchSyncService)
+    }
   })
 })

@@ -7,6 +7,7 @@ import Attribute from '#models/attribute'
 import Category from '#models/category'
 import CategoryAttribute from '#models/category_attribute'
 import CategoryAttributeRange from '#models/category_attribute_range'
+import AdminAuditLog from '#models/admin_audit_log'
 import SearchSyncService from '#services/search_sync_service'
 import { createMember } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
@@ -359,14 +360,217 @@ test.group('Administration des attributs de categorie - CRUD', (group) => {
         .where('categoryAttributeId', pivot.id)
         .orderBy('position', 'asc')
       assert.equal(ranges.length, 3)
+      // Comparaison numerique : Postgres renvoie les decimaux avec precision (ex. '100.00')
       assert.isNull(ranges[0].minValue)
-      assert.equal(ranges[0].maxValue, '100')
-      assert.equal(ranges[1].minValue, '100')
-      assert.equal(ranges[1].maxValue, '500')
-      assert.equal(ranges[2].minValue, '500')
+      assert.equal(Number(ranges[0].maxValue), 100)
+      assert.equal(Number(ranges[1].minValue), 100)
+      assert.equal(Number(ranges[1].maxValue), 500)
+      assert.equal(Number(ranges[2].minValue), 500)
       assert.isNull(ranges[2].maxValue)
     } finally {
       await pivot.delete()
     }
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// No-op, validation et robustesse
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.group('Administration des attributs de categorie - no-op', (group) => {
+  useDatabase(group, { seed: 'full' })
+
+  test('mise a jour sans changement ne cree pas de log audit', async ({ client, assert }) => {
+    const admin = await platformAdmin()
+    const category = await Category.firstOrFail()
+    const attribute = await Attribute.firstOrFail()
+
+    // Creer un pivot avec des valeurs connues
+    const pivot = await CategoryAttribute.create({
+      categoryId: category.id,
+      attributeId: attribute.id,
+      isFilter: false,
+      isRequiredForPublication: false,
+      position: 42,
+    })
+
+    const auditCountBefore = await AdminAuditLog.query()
+      .where('targetType', 'category_attribute')
+      .where('targetId', pivot.id)
+      .where('action', 'category_attribute.updated')
+      .count('* as total')
+      .first()
+    const countBefore = Number(auditCountBefore?.$extras.total ?? 0)
+
+    try {
+      // Reenvoyer les memes valeurs
+      const response = await client
+        .patch(`/fr/admin/categories/${category.id}/attributes/${pivot.id}`)
+        .redirects(0)
+        .withCsrfToken()
+        .loginAs(admin)
+        .json({
+          isFilter: false,
+          isRequiredForPublication: false,
+          position: 42,
+        })
+
+      response.assertStatus(302)
+
+      // Pas de nouveau log audit
+      const auditCountAfter = await AdminAuditLog.query()
+        .where('targetType', 'category_attribute')
+        .where('targetId', pivot.id)
+        .where('action', 'category_attribute.updated')
+        .count('* as total')
+        .first()
+      const countAfter = Number(auditCountAfter?.$extras.total ?? 0)
+      assert.equal(countAfter, countBefore, 'Aucun log audit ne doit etre cree pour un no-op')
+    } finally {
+      await pivot.delete()
+    }
+  })
+
+  test('mise a jour des plages sans changement ne cree pas de log audit', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await platformAdmin()
+    const numericAttr = await Attribute.query().where('type', 'number').firstOrFail()
+    const category = await Category.firstOrFail()
+
+    // Creer un pivot avec des plages
+    const pivot = await CategoryAttribute.create({
+      categoryId: category.id,
+      attributeId: numericAttr.id,
+      position: 93,
+    })
+    await CategoryAttributeRange.createMany([
+      { categoryAttributeId: pivot.id, minValue: null, maxValue: '100', position: 0 },
+      { categoryAttributeId: pivot.id, minValue: '100', maxValue: '500', position: 1 },
+    ])
+
+    const auditCountBefore = await AdminAuditLog.query()
+      .where('targetType', 'category_attribute')
+      .where('targetId', pivot.id)
+      .where('action', 'category_attribute.updated')
+      .count('* as total')
+      .first()
+    const countBefore = Number(auditCountBefore?.$extras.total ?? 0)
+
+    try {
+      // Reenvoyer les memes plages
+      const response = await client
+        .patch(`/fr/admin/categories/${category.id}/attributes/${pivot.id}/ranges`)
+        .redirects(0)
+        .withCsrfToken()
+        .loginAs(admin)
+        .json({
+          ranges: [
+            { minValue: null, maxValue: 100 },
+            { minValue: 100, maxValue: 500 },
+          ],
+        })
+
+      response.assertStatus(302)
+
+      // Pas de nouveau log audit (les plages sont identiques)
+      const auditCountAfter = await AdminAuditLog.query()
+        .where('targetType', 'category_attribute')
+        .where('targetId', pivot.id)
+        .where('action', 'category_attribute.updated')
+        .count('* as total')
+        .first()
+      const countAfter = Number(auditCountAfter?.$extras.total ?? 0)
+      assert.equal(
+        countAfter,
+        countBefore,
+        'Aucun log audit ne doit etre cree pour des plages identiques'
+      )
+    } finally {
+      await pivot.delete()
+    }
+  })
+})
+
+test.group('Administration des attributs de categorie - validation', (group) => {
+  useDatabase(group, { seed: 'full' })
+
+  test('position decimale est refusee', async ({ client, assert }) => {
+    const admin = await platformAdmin()
+    const category = await Category.firstOrFail()
+    const existingPivots = await CategoryAttribute.query().where('categoryId', category.id)
+    const existingAttrIds = existingPivots.map((p) => p.attributeId)
+    const attribute = await Attribute.query()
+      .whereNotIn('id', existingAttrIds.length > 0 ? existingAttrIds : [0])
+      .firstOrFail()
+
+    const response = await client
+      .post(`/fr/admin/categories/${category.id}/attributes`)
+      .redirects(0)
+      .withCsrfToken()
+      .loginAs(admin)
+      .json({ attributeId: attribute.id, position: 3.5 })
+
+    // Erreur de validation (redirection avec erreurs de session)
+    response.assertStatus(302)
+
+    // Pas de pivot cree
+    const pivot = await CategoryAttribute.query()
+      .where('categoryId', category.id)
+      .where('attributeId', attribute.id)
+      .first()
+    assert.isNull(pivot, 'Un pivot ne doit pas etre cree avec une position decimale')
+  })
+
+  test('plages qui se chevauchent sont refusees', async ({ client, assert }) => {
+    const admin = await platformAdmin()
+    const numericAttr = await Attribute.query().where('type', 'number').firstOrFail()
+    const category = await Category.firstOrFail()
+
+    // Creer un pivot pour cet attribut
+    const pivot = await CategoryAttribute.create({
+      categoryId: category.id,
+      attributeId: numericAttr.id,
+      position: 92,
+    })
+
+    try {
+      // Plages qui se chevauchent : [0-100] et [50-200]
+      const response = await client
+        .patch(`/fr/admin/categories/${category.id}/attributes/${pivot.id}/ranges`)
+        .redirects(0)
+        .withCsrfToken()
+        .loginAs(admin)
+        .json({
+          ranges: [
+            { minValue: 0, maxValue: 100 },
+            { minValue: 50, maxValue: 200 },
+          ],
+        })
+
+      // Erreur de validation (redirection avec erreurs de session)
+      response.assertStatus(302)
+
+      // Pas de plages creees
+      const ranges = await CategoryAttributeRange.query().where('categoryAttributeId', pivot.id)
+      assert.lengthOf(ranges, 0, 'Les plages ne doivent pas etre creees si elles se chevauchent')
+    } finally {
+      await pivot.delete()
+    }
+  })
+
+  test('ajout avec attributeId inexistant renvoie 404', async ({ client }) => {
+    const admin = await platformAdmin()
+    const category = await Category.firstOrFail()
+
+    const response = await client
+      .post(`/fr/admin/categories/${category.id}/attributes`)
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(admin)
+      .json({ attributeId: 999999 })
+
+    response.assertStatus(404)
   })
 })
