@@ -14,15 +14,15 @@ import {
 } from '#exceptions/admin_product_errors'
 
 /**
- * Actions d'administration sur les produits (#164) : masquage, depublication,
- * archivage, reindexation. Droit `products.manage` (admin seul).
+ * Actions d'administration sur les produits (#164) : masquage, dépublication,
+ * archivage, réindexation. Droit `products.manage` (admin seul).
  */
 @inject()
 export default class ProductManagementController {
   constructor(private actions: AdminProductActionService) {}
 
   /**
-   * Masque un produit (decision de moderation `rejected`).
+   * Masque un produit (décision de modération `rejected`).
    */
   async hide(ctx: HttpContext) {
     const { bouncer, request, response, params, i18n, session, auth } = ctx
@@ -49,7 +49,7 @@ export default class ProductManagementController {
   }
 
   /**
-   * Revele un produit masque (decision de moderation `approved`).
+   * Révèle un produit masqué (décision de modération `approved`).
    */
   async unhide(ctx: HttpContext) {
     const { bouncer, response, params, i18n, session, auth } = ctx
@@ -73,7 +73,7 @@ export default class ProductManagementController {
   }
 
   /**
-   * Depublie un produit (is_active=false).
+   * Dépublie un produit (is_active=false).
    */
   async unpublish(ctx: HttpContext) {
     const { bouncer, response, params, i18n, session } = ctx
@@ -146,7 +146,7 @@ export default class ProductManagementController {
   }
 
   /**
-   * Restaure un produit archive (lifecycle_status='active').
+   * Restaure un produit archivé (lifecycle_status='active').
    */
   async restore(ctx: HttpContext) {
     const { bouncer, response, params, i18n, session } = ctx
@@ -169,7 +169,7 @@ export default class ProductManagementController {
   }
 
   /**
-   * Demande une reindexation du produit.
+   * Demande une réindexation du produit.
    */
   async reindex(ctx: HttpContext) {
     const { bouncer, response, params, i18n, session } = ctx

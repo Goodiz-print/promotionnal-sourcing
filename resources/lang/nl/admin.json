@@ -435,7 +435,7 @@
       "organization.invitation_resent": "Uitnodiging opnieuw verzonden",
       "product.hidden": "Product verborgen",
       "product.unhidden": "Product zichtbaar gemaakt",
-      "product.unpublished": "Product niet gepubliceerd",
+      "product.unpublished": "Publicatie van product ingetrokken",
       "product.published": "Product gepubliceerd",
       "product.archived": "Product gearchiveerd",
       "product.restored": "Product hersteld",
@@ -776,7 +776,7 @@
     "title": "Producten",
     "subtitle": "Alle producten in de catalogus.",
     "empty": "Geen producten voldoen aan deze filters.",
-    "emptyDescription": "Pas de filters aan om de zoekopdracht uit te breiden.",
+    "emptyDescription": "Wijzig de filters om de zoekopdracht uit te breiden.",
     "back": "Terug naar producten",
     "resultsCount": "{count, plural, =0 {Geen producten} one {# product} other {# producten}}",
     "filters": {
@@ -827,7 +827,7 @@
       "certifications": "Certificeringen",
       "attributes": "Attributen",
       "noVariants": "Geen varianten.",
-      "noPricing": "Geen prijsniveaus.",
+      "noPricing": "Geen prijsstaffels.",
       "noImages": "Geen afbeeldingen.",
       "noTranslations": "Geen vertalingen.",
       "noCertifications": "Geen certificeringen.",
@@ -848,7 +848,7 @@
       "description": "Beschrijving",
       "present": "Aanwezig",
       "missing": "Ontbreekt",
-      "decidedBy": "Besloten door",
+      "decidedBy": "Beslist door",
       "reason": "Reden",
       "decidedAt": "Datum",
       "actionsTitle": "Acties",
@@ -860,10 +860,10 @@
       "active": "Actief",
       "new": "Nieuw",
       "end_of_series": "Einde van de serie",
-      "retired": "Uitgelopen"
+      "retired": "Stopgezet"
     },
     "moderationStatus": {
-      "pending": "In behandeling",
+      "pending": "In afwachting",
       "approved": "Goedgekeurd",
       "rejected": "Afgewezen"
     },
@@ -871,7 +871,7 @@
       "hide": {
         "label": "Verbergen",
         "confirm": "Dit product verbergen? Het zal niet meer zichtbaar zijn in de openbare catalogus.",
-        "reasonLabel": "Reden voor verbergen",
+        "reasonLabel": "Reden voor het verbergen",
         "done": "Product verborgen.",
         "alreadyHidden": "Dit product is al verborgen."
       },
@@ -882,20 +882,21 @@
         "notHidden": "Dit product is niet verborgen."
       },
       "unpublish": {
-        "label": "Niet publiceren",
-        "confirm": "Dit product niet publiceren? Het zal niet meer zichtbaar zijn in de openbare catalogus.",
-        "done": "Product niet gepubliceerd.",
-        "alreadyUnpublished": "Dit product is al niet gepubliceerd."
+        "label": "Publicatie intrekken",
+        "confirm": "De publicatie van dit product intrekken? Het zal niet meer zichtbaar zijn in de openbare catalogus.",
+        "done": "Publicatie van product ingetrokken.",
+        "alreadyUnpublished": "De publicatie van dit product is al ingetrokken."
       },
       "publish": {
         "label": "Publiceren",
         "confirm": "Dit product publiceren? Het zal zichtbaar zijn in de openbare catalogus.",
         "done": "Product gepubliceerd.",
-        "alreadyPublished": "Dit product is al gepubliceerd."
+        "alreadyPublished": "Dit product is al gepubliceerd.",
+        "archived": "Dit product is gearchiveerd: herstel het voordat u het publiceert."
       },
       "archive": {
         "label": "Archiveren",
-        "confirm": "Dit product archiveren? Het wordt uit de catalogus verwijderd en als uitgelopen gemarkeerd.",
+        "confirm": "Dit product archiveren? Het wordt uit de catalogus verwijderd en als stopgezet gemarkeerd.",
         "done": "Product gearchiveerd.",
         "alreadyArchived": "Dit product is al gearchiveerd."
       },

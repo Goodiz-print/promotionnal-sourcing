@@ -777,7 +777,7 @@
     "subtitle": "Todos los productos del catálogo.",
     "empty": "Ningún producto coincide con estos filtros.",
     "emptyDescription": "Cambie los filtros para ampliar la búsqueda.",
-    "back": "Volver a productos",
+    "back": "Volver a los productos",
     "resultsCount": "{count, plural, =0 {Ningún producto} one {# producto} other {# productos}}",
     "filters": {
       "search": "Buscar",
@@ -827,7 +827,7 @@
       "certifications": "Certificaciones",
       "attributes": "Atributos",
       "noVariants": "Sin variantes.",
-      "noPricing": "Sin niveles de precios.",
+      "noPricing": "Sin tramos de precio.",
       "noImages": "Sin imágenes.",
       "noTranslations": "Sin traducciones.",
       "noCertifications": "Sin certificaciones.",
@@ -891,7 +891,8 @@
         "label": "Publicar",
         "confirm": "¿Publicar este producto? Será visible en el catálogo público.",
         "done": "Producto publicado.",
-        "alreadyPublished": "Este producto ya está publicado."
+        "alreadyPublished": "Este producto ya está publicado.",
+        "archived": "Este producto está archivado: restáurelo antes de publicarlo."
       },
       "archive": {
         "label": "Archivar",

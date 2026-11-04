@@ -36,8 +36,8 @@ interface UnhideOptions extends ActionOptions {
 }
 
 /**
- * Actions d'administration sur les produits (#164) : masquage, depublication,
- * archivage, reindexation. Chaque action est auditee **dans la meme transaction**.
+ * Actions d'administration sur les produits (#164) : masquage, dépublication,
+ * archivage, réindexation. Chaque action est auditée **dans la même transaction**.
  */
 @inject()
 export default class AdminProductActionService {
@@ -48,18 +48,18 @@ export default class AdminProductActionService {
   ) {}
 
   /**
-   * Masque un produit via une decision de moderation `rejected`.
-   * Idempotence : masquer un produit deja masque renvoie 409.
+   * Masque un produit via une décision de modération `rejected`.
+   * Idempotence : masquer un produit déjà masqué renvoie 409.
    */
   async hide(productId: number, options: HideOptions): Promise<Product> {
     return db.transaction(async (trx) => {
       const product = await this.lockOrFail(productId, trx)
 
-      // Verifier si deja masque
+      // Vérifier si déjà masqué
       const isRejected = await this.isLatestDecisionRejected(productId, trx)
       if (isRejected) throw new ProductAlreadyHiddenException()
 
-      // Enregistre la decision de moderation
+      // Enregistre la décision de modération
       await this.moderation.decide(
         {
           targetType: 'product',
@@ -86,18 +86,18 @@ export default class AdminProductActionService {
   }
 
   /**
-   * Revele un produit masque via une decision de moderation `approved`.
-   * Idempotence : reveler un produit non masque renvoie 409.
+   * Révèle un produit masqué via une décision de modération `approved`.
+   * Idempotence : révéler un produit non masqué renvoie 409.
    */
   async unhide(productId: number, options: UnhideOptions): Promise<Product> {
     return db.transaction(async (trx) => {
       const product = await this.lockOrFail(productId, trx)
 
-      // Verifier si masque
+      // Vérifier si masqué
       const isRejected = await this.isLatestDecisionRejected(productId, trx)
       if (!isRejected) throw new ProductNotHiddenException()
 
-      // Enregistre la decision de moderation
+      // Enregistre la décision de modération
       await this.moderation.decide(
         {
           targetType: 'product',
@@ -123,8 +123,8 @@ export default class AdminProductActionService {
   }
 
   /**
-   * Depublie un produit (is_active=false).
-   * Idempotence : depublier un produit deja depublie renvoie 409.
+   * Dépublie un produit (is_active=false).
+   * Idempotence : dépublier un produit déjà dépublié renvoie 409.
    */
   async unpublish(productId: number, options: ActionOptions): Promise<Product> {
     const product = await db.transaction(async (trx) => {
@@ -149,7 +149,7 @@ export default class AdminProductActionService {
         { ...options.context, client: trx }
       )
 
-      // Reindexation apres le commit
+      // Réindexation après le commit
       trx.after('commit', () => this.emitProductChanged(productId))
 
       return p
@@ -160,7 +160,7 @@ export default class AdminProductActionService {
 
   /**
    * Publie un produit (is_active=true).
-   * Idempotence : publier un produit deja publie renvoie 409.
+   * Idempotence : publier un produit déjà publié renvoie 409.
    */
   async publish(productId: number, options: ActionOptions): Promise<Product> {
     const product = await db.transaction(async (trx) => {
@@ -188,7 +188,7 @@ export default class AdminProductActionService {
         { ...options.context, client: trx }
       )
 
-      // Reindexation apres le commit
+      // Réindexation après le commit
       trx.after('commit', () => this.emitProductChanged(productId))
 
       return p
@@ -199,7 +199,7 @@ export default class AdminProductActionService {
 
   /**
    * Archive un produit (lifecycle_status='retired' ET is_active=false).
-   * Idempotence : archiver un produit deja archive renvoie 409.
+   * Idempotence : archiver un produit déjà archivé renvoie 409.
    */
   async archive(productId: number, options: ActionOptions): Promise<Product> {
     const product = await db.transaction(async (trx) => {
@@ -228,7 +228,7 @@ export default class AdminProductActionService {
         { ...options.context, client: trx }
       )
 
-      // Reindexation apres le commit
+      // Réindexation après le commit
       trx.after('commit', () => this.emitProductChanged(productId))
 
       return p
@@ -238,9 +238,9 @@ export default class AdminProductActionService {
   }
 
   /**
-   * Restaure un produit archive (lifecycle_status='active', is_active inchange).
-   * Note : le produit reste depublie si is_active=false, il faut le publier separement.
-   * Idempotence : restaurer un produit non archive renvoie 409.
+   * Restaure un produit archivé (lifecycle_status='active', is_active inchangé).
+   * Note : le produit reste dépublié si is_active=false, il faut le publier séparément.
+   * Idempotence : restaurer un produit non archivé renvoie 409.
    */
   async restore(productId: number, options: ActionOptions): Promise<Product> {
     const product = await db.transaction(async (trx) => {
@@ -250,7 +250,7 @@ export default class AdminProductActionService {
 
       p.useTransaction(trx)
       p.lifecycleStatus = 'active'
-      // Note : on ne change pas is_active, le produit reste depublie
+      // Note : on ne change pas is_active, le produit reste dépublié
       await p.save()
 
       await this.audit.record(
@@ -266,7 +266,7 @@ export default class AdminProductActionService {
         { ...options.context, client: trx }
       )
 
-      // Reindexation apres le commit (le produit revient potentiellement dans l'index)
+      // Réindexation après le commit (le produit revient potentiellement dans l'index)
       trx.after('commit', () => this.emitProductChanged(productId))
 
       return p
@@ -276,7 +276,7 @@ export default class AdminProductActionService {
   }
 
   /**
-   * Demande une reindexation du produit.
+   * Demande une réindexation du produit.
    */
   async reindex(productId: number, options: ActionOptions): Promise<Product> {
     const product = await db.transaction(async (trx) => {
@@ -292,7 +292,7 @@ export default class AdminProductActionService {
         { ...options.context, client: trx }
       )
 
-      // Reindexation apres le commit
+      // Réindexation après le commit
       trx.after('commit', () => this.searchSync.queueProduct(productId))
 
       return p
@@ -303,8 +303,8 @@ export default class AdminProductActionService {
 
   /**
    * Charge le produit **verrouille** (`FOR UPDATE`) dans la transaction :
-   * deux actions simultanees sont serialisees et l'etat relu est celui qui sera
-   * effectivement modifie.
+   * deux actions simultanées sont sérialisées et l'état relu est celui qui sera
+   * effectivement modifié.
    */
   private async lockOrFail(id: number, trx: TransactionClientContract): Promise<Product> {
     const product = await Product.query({ client: trx }).where('id', id).forUpdate().first()

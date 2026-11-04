@@ -435,7 +435,7 @@
       "organization.invitation_resent": "Einladung erneut gesendet",
       "product.hidden": "Produkt ausgeblendet",
       "product.unhidden": "Produkt eingeblendet",
-      "product.unpublished": "Produkt nicht veröffentlicht",
+      "product.unpublished": "Veröffentlichung des Produkts aufgehoben",
       "product.published": "Produkt veröffentlicht",
       "product.archived": "Produkt archiviert",
       "product.restored": "Produkt wiederhergestellt",
@@ -821,13 +821,13 @@
       "overview": "Übersicht",
       "moderation": "Moderation",
       "variants": "Varianten",
-      "pricing": "Preisgestaltung",
+      "pricing": "Preise",
       "images": "Bilder",
       "translations": "Übersetzungen",
       "certifications": "Zertifizierungen",
       "attributes": "Attribute",
       "noVariants": "Keine Varianten.",
-      "noPricing": "Keine Preisstufen.",
+      "noPricing": "Keine Staffelpreise.",
       "noImages": "Keine Bilder.",
       "noTranslations": "Keine Übersetzungen.",
       "noCertifications": "Keine Zertifizierungen.",
@@ -849,7 +849,7 @@
       "present": "Vorhanden",
       "missing": "Fehlt",
       "decidedBy": "Entschieden von",
-      "reason": "Grund",
+      "reason": "Begründung",
       "decidedAt": "Datum",
       "actionsTitle": "Aktionen",
       "archivedNotice": "Dieses Produkt ist archiviert.",
@@ -882,16 +882,17 @@
         "notHidden": "Dieses Produkt ist nicht ausgeblendet."
       },
       "unpublish": {
-        "label": "Nicht veröffentlichen",
-        "confirm": "Dieses Produkt nicht veröffentlichen? Es wird nicht mehr im öffentlichen Katalog sichtbar sein.",
-        "done": "Produkt nicht veröffentlicht.",
-        "alreadyUnpublished": "Dieses Produkt ist bereits nicht veröffentlicht."
+        "label": "Veröffentlichung aufheben",
+        "confirm": "Veröffentlichung dieses Produkts aufheben? Es wird nicht mehr im öffentlichen Katalog sichtbar sein.",
+        "done": "Veröffentlichung des Produkts aufgehoben.",
+        "alreadyUnpublished": "Die Veröffentlichung dieses Produkts ist bereits aufgehoben."
       },
       "publish": {
         "label": "Veröffentlichen",
         "confirm": "Dieses Produkt veröffentlichen? Es wird im öffentlichen Katalog sichtbar sein.",
         "done": "Produkt veröffentlicht.",
-        "alreadyPublished": "Dieses Produkt ist bereits veröffentlicht."
+        "alreadyPublished": "Dieses Produkt ist bereits veröffentlicht.",
+        "archived": "Dieses Produkt ist archiviert: Stellen Sie es vor der Veröffentlichung wieder her."
       },
       "archive": {
         "label": "Archivieren",
@@ -901,7 +902,7 @@
       },
       "restore": {
         "label": "Wiederherstellen",
-        "confirm": "Dieses Produkt wiederherstellen? Es wird wieder aktiv sein (bleibt aber nicht veröffentlicht).",
+        "confirm": "Dieses Produkt wiederherstellen? Es wird wieder aktiv sein (bleibt aber unveröffentlicht).",
         "done": "Produkt wiederhergestellt.",
         "notArchived": "Dieses Produkt ist nicht archiviert."
       },

@@ -34,7 +34,7 @@ export default class AdminProductTransformer extends BaseTransformer<Product> {
     const supplierName =
       supplierResolved?.name ?? this.resource.supplier?.organization?.name ?? null
 
-    // Nom de la categorie
+    // Nom de la catégorie
     const categoryResolved = this.resource.category
       ? resolveTranslation(this.resource.category.translations, locale, {
           sourceLocale: this.resource.category.sourceLocale,

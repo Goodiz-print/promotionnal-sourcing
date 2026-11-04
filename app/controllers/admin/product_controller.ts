@@ -13,8 +13,8 @@ import type { TranslationLocale } from '#shared/types/i18n'
 const PER_PAGE = 25
 
 /**
- * Consultation des produits par l'equipe plateforme (liste filtrable par
- * fournisseur, categorie, visibilite, qualite et recherche ; fiche detaillee).
+ * Consultation des produits par l'équipe plateforme (liste filtrable par
+ * fournisseur, catégorie, visibilité, qualité et recherche ; fiche détaillée).
  * Droit `products.view`. Les actions de gestion sont dans
  * `ProductManagementController`.
  */
@@ -46,7 +46,7 @@ export default class ProductController {
       locale,
     })
 
-    // Calcul des statuts de visibilite pour chaque produit
+    // Calcul des statuts de visibilité pour chaque produit
     const visibilityStatuses = await this.service.visibilityStatuses(paginator.all())
 
     // Options de filtres pour le frontend

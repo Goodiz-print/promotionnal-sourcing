@@ -49,18 +49,18 @@ export interface AdminProductDetails {
   imagesCount: number
 }
 
-/** Langue de repli du nom d'un produit quand la langue de l'ecran manque. */
+/** Langue de repli du nom d'un produit quand la langue de l'écran manque. */
 const FALLBACK_LOCALE = 'fr'
 
 /**
- * Consultation des produits par l'equipe plateforme : tous les produits,
- * y compris inactifs, archives ou masques.
+ * Consultation des produits par l'équipe plateforme : tous les produits,
+ * y compris inactifs, archivés ou masqués.
  */
 export default class AdminProductService {
   /**
-   * Liste paginee, filtrable par fournisseur, categorie, visibilite, qualite,
+   * Liste paginée, filtrable par fournisseur, catégorie, visibilité, qualité,
    * avec recherche sur nom traduit, slug, SKU de variante ou nom d'organisation.
-   * Les plus recents d'abord.
+   * Les plus récents d'abord.
    */
   async list(
     options: ListOptions
@@ -92,17 +92,17 @@ export default class AdminProductService {
       query = query.whereHas('supplier', (s) => s.where('organizationId', supplierId))
     }
 
-    // Filtre par categorie (inclut les sous-categories)
+    // Filtre par catégorie (inclut les sous-catégories)
     if (categoryId) {
       const categoryIds = await this.getCategoryWithDescendants(categoryId)
       query = query.whereIn('categoryId', categoryIds)
     }
 
-    // Filtre de visibilite
+    // Filtre de visibilité
     if (visibility) {
       switch (visibility) {
         case 'published':
-          // is_active=true ET lifecycle_status!='retired' ET derniere decision != rejected
+          // is_active=true ET lifecycle_status!='retired' ET dernière décision != rejected
           query = query
             .where('isActive', true)
             .where('lifecycleStatus', '!=', 'retired')
@@ -113,7 +113,7 @@ export default class AdminProductService {
           query = query.where('isActive', false)
           break
         case 'hidden':
-          // derniere decision = rejected
+          // dernière décision = rejected
           query = query.whereRaw(latestDecisionIsRejectedSql('product', 'products.id'))
           break
         case 'archived':
@@ -123,7 +123,7 @@ export default class AdminProductService {
       }
     }
 
-    // Filtre de qualite
+    // Filtre de qualité
     if (quality) {
       switch (quality) {
         case 'no_image':
@@ -162,7 +162,7 @@ export default class AdminProductService {
   }
 
   /**
-   * Fiche d'un produit : toutes les informations detaillees.
+   * Fiche d'un produit : toutes les informations détaillées.
    */
   async details(id: number, locale: TranslationLocale): Promise<AdminProductDetails> {
     const product = await Product.query()
@@ -183,13 +183,13 @@ export default class AdminProductService {
 
     if (!product) throw new AdminProductNotFoundException()
 
-    // Statut de visibilite calcule
+    // Statut de visibilité calculé
     const visibilityStatus = await this.computeVisibilityStatus(product)
 
-    // Statut de moderation courant
+    // Statut de modération courant
     const moderationStatus = await this.getModerationStatus(product.id)
 
-    // Historique de moderation
+    // Historique de modération
     const moderationRecords = await ModerationDecisionRecord.query()
       .where('targetType', 'product')
       .where('targetId', product.id)
@@ -282,7 +282,7 @@ export default class AdminProductService {
     const supplierSlug = product.supplier?.slug ?? null
     const supplierOrganizationId = product.supplier?.organizationId ?? null
 
-    // Infos categorie
+    // Infos catégorie
     const categoryResolved = product.category
       ? resolveTranslation(product.category.translations, locale, {
           sourceLocale: product.category.sourceLocale,
@@ -314,7 +314,7 @@ export default class AdminProductService {
   }
 
   /**
-   * Liste des categories pour le filtre (arbre aplati avec profondeur).
+   * Liste des catégories pour le filtre (arbre aplati avec profondeur).
    */
   async categoryOptions(locale: TranslationLocale): Promise<AdminProductCategoryOption[]> {
     const categories = await Category.query().preload('translations').orderBy('slug', 'asc')
@@ -361,7 +361,7 @@ export default class AdminProductService {
   }
 
   /**
-   * Recupere les ids de la categorie et de tous ses descendants.
+   * Récupère les ids de la catégorie et de tous ses descendants.
    */
   private async getCategoryWithDescendants(categoryId: number): Promise<number[]> {
     const categories = await Category.query().select('id', 'parentId')
@@ -379,7 +379,7 @@ export default class AdminProductService {
   }
 
   /**
-   * Calcule le statut de visibilite pour un ensemble de produits.
+   * Calcule le statut de visibilité pour un ensemble de produits.
    */
   async visibilityStatuses(
     products: { id: number; isActive: boolean; lifecycleStatus: string }[]
@@ -387,7 +387,7 @@ export default class AdminProductService {
     const result = new Map<number, AdminProductVisibilityStatus>()
     if (products.length === 0) return result
 
-    // Recupere les produits masques (derniere decision = rejected)
+    // Récupère les produits masqués (dernière décision = rejected)
     const ids = products.map((p) => p.id)
     const hiddenRows = await db
       .from('products')
@@ -412,13 +412,13 @@ export default class AdminProductService {
   }
 
   /**
-   * Calcule le statut de visibilite d'un produit.
+   * Calcule le statut de visibilité d'un produit.
    */
   private async computeVisibilityStatus(product: Product): Promise<AdminProductVisibilityStatus> {
-    // D'abord on verifie l'archivage
+    // D'abord on vérifie l'archivage
     if (product.lifecycleStatus === 'retired') return 'archived'
 
-    // Ensuite le masquage (moderation)
+    // Ensuite le masquage (modération)
     const isRejected = await this.isLatestDecisionRejected(product.id)
     if (isRejected) return 'hidden'
 
@@ -474,8 +474,8 @@ export default class AdminProductService {
 }
 
 /**
- * Neutralise les jokers `%` et `_` (et l'echappement) d'une saisie utilisateur
- * avant de l'inserer dans un motif `ILIKE`.
+ * Neutralise les jokers `%` et `_` (et l'échappement) d'une saisie utilisateur
+ * avant de l'insérer dans un motif `ILIKE`.
  */
 function escapeLike(value: string): string {
   return value.replace(/[\\%_]/g, (char) => `\\${char}`)

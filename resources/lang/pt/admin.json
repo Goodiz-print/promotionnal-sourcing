@@ -434,8 +434,8 @@
       "organization.invitation_revoked": "Convite revogado",
       "organization.invitation_resent": "Convite reenviado",
       "product.hidden": "Produto ocultado",
-      "product.unhidden": "Produto revelado",
-      "product.unpublished": "Produto não publicado",
+      "product.unhidden": "Produto mostrado",
+      "product.unpublished": "Produto despublicado",
       "product.published": "Produto publicado",
       "product.archived": "Produto arquivado",
       "product.restored": "Produto restaurado",
@@ -827,7 +827,7 @@
       "certifications": "Certificações",
       "attributes": "Atributos",
       "noVariants": "Sem variantes.",
-      "noPricing": "Sem escalões de preços.",
+      "noPricing": "Sem escalões de preço.",
       "noImages": "Sem imagens.",
       "noTranslations": "Sem traduções.",
       "noCertifications": "Sem certificações.",
@@ -876,9 +876,9 @@
         "alreadyHidden": "Este produto já está oculto."
       },
       "unhide": {
-        "label": "Revelar",
-        "confirm": "Revelar este produto? Voltará a estar visível no catálogo público.",
-        "done": "Produto revelado.",
+        "label": "Mostrar",
+        "confirm": "Mostrar este produto? Voltará a estar visível no catálogo público.",
+        "done": "Produto mostrado.",
         "notHidden": "Este produto não está oculto."
       },
       "unpublish": {
@@ -891,7 +891,8 @@
         "label": "Publicar",
         "confirm": "Publicar este produto? Estará visível no catálogo público.",
         "done": "Produto publicado.",
-        "alreadyPublished": "Este produto já está publicado."
+        "alreadyPublished": "Este produto já está publicado.",
+        "archived": "Este produto está arquivado: restaure-o antes de o publicar."
       },
       "archive": {
         "label": "Arquivar",

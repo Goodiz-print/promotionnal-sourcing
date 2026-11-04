@@ -435,7 +435,7 @@
       "organization.invitation_resent": "Invito reinviato",
       "product.hidden": "Prodotto nascosto",
       "product.unhidden": "Prodotto mostrato",
-      "product.unpublished": "Prodotto non pubblicato",
+      "product.unpublished": "Pubblicazione del prodotto annullata",
       "product.published": "Prodotto pubblicato",
       "product.archived": "Prodotto archiviato",
       "product.restored": "Prodotto ripristinato",
@@ -827,13 +827,13 @@
       "certifications": "Certificazioni",
       "attributes": "Attributi",
       "noVariants": "Nessuna variante.",
-      "noPricing": "Nessun livello di prezzo.",
+      "noPricing": "Nessuno scaglione di prezzo.",
       "noImages": "Nessuna immagine.",
       "noTranslations": "Nessuna traduzione.",
       "noCertifications": "Nessuna certificazione.",
       "noAttributes": "Nessun attributo.",
       "moderationStatus": "Stato di moderazione",
-      "moderationHistory": "Storico moderazione",
+      "moderationHistory": "Cronologia moderazione",
       "noModerationHistory": "Nessuna decisione di moderazione.",
       "isActive": "Pubblicazione",
       "lifecycleStatus": "Stato del ciclo di vita",
@@ -871,7 +871,7 @@
       "hide": {
         "label": "Nascondi",
         "confirm": "Nascondere questo prodotto? Non sarà più visibile nel catalogo pubblico.",
-        "reasonLabel": "Motivo del nascondimento",
+        "reasonLabel": "Motivo dell'occultamento",
         "done": "Prodotto nascosto.",
         "alreadyHidden": "Questo prodotto è già nascosto."
       },
@@ -882,16 +882,17 @@
         "notHidden": "Questo prodotto non è nascosto."
       },
       "unpublish": {
-        "label": "Non pubblicare",
-        "confirm": "Non pubblicare questo prodotto? Non sarà più visibile nel catalogo pubblico.",
-        "done": "Prodotto non pubblicato.",
-        "alreadyUnpublished": "Questo prodotto è già non pubblicato."
+        "label": "Annulla pubblicazione",
+        "confirm": "Annullare la pubblicazione di questo prodotto? Non sarà più visibile nel catalogo pubblico.",
+        "done": "Pubblicazione del prodotto annullata.",
+        "alreadyUnpublished": "Questo prodotto non è pubblicato."
       },
       "publish": {
         "label": "Pubblica",
         "confirm": "Pubblicare questo prodotto? Sarà visibile nel catalogo pubblico.",
         "done": "Prodotto pubblicato.",
-        "alreadyPublished": "Questo prodotto è già pubblicato."
+        "alreadyPublished": "Questo prodotto è già pubblicato.",
+        "archived": "Questo prodotto è archiviato: ripristinalo prima di pubblicarlo."
       },
       "archive": {
         "label": "Archivia",

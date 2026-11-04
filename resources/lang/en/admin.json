@@ -891,7 +891,8 @@
         "label": "Publish",
         "confirm": "Publish this product? It will be visible in the public catalogue.",
         "done": "Product published.",
-        "alreadyPublished": "This product is already published."
+        "alreadyPublished": "This product is already published.",
+        "archived": "This product is archived: restore it before publishing."
       },
       "archive": {
         "label": "Archive",

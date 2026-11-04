@@ -10,7 +10,7 @@ export class AdminProductNotFoundException extends Exception {
 }
 
 /**
- * Tentative de masquage d'un produit deja masque (derniere decision = rejected).
+ * Tentative de masquage d'un produit déjà masqué (dernière décision = rejected).
  */
 export class ProductAlreadyHiddenException extends Exception {
   static status = 409
@@ -19,7 +19,7 @@ export class ProductAlreadyHiddenException extends Exception {
 }
 
 /**
- * Tentative de reveler un produit qui n'est pas masque.
+ * Tentative de révéler un produit qui n'est pas masqué.
  */
 export class ProductNotHiddenException extends Exception {
   static status = 409
@@ -28,7 +28,7 @@ export class ProductNotHiddenException extends Exception {
 }
 
 /**
- * Tentative de depublier un produit deja depublie (is_active=false).
+ * Tentative de dépublier un produit déjà dépublié (is_active=false).
  */
 export class ProductAlreadyUnpublishedException extends Exception {
   static status = 409
@@ -37,7 +37,7 @@ export class ProductAlreadyUnpublishedException extends Exception {
 }
 
 /**
- * Tentative de publier un produit deja publie (is_active=true).
+ * Tentative de publier un produit déjà publié (is_active=true).
  */
 export class ProductAlreadyPublishedException extends Exception {
   static status = 409
@@ -55,7 +55,7 @@ export class ProductArchivedException extends Exception {
 }
 
 /**
- * Tentative d'archiver un produit deja archive (lifecycle_status='retired').
+ * Tentative d'archiver un produit déjà archivé (lifecycle_status='retired').
  */
 export class ProductAlreadyArchivedException extends Exception {
   static status = 409

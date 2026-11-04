@@ -434,7 +434,7 @@
       "organization.invitation_revoked": "Inbjudan återkallad",
       "organization.invitation_resent": "Inbjudan skickad igen",
       "product.hidden": "Produkt dold",
-      "product.unhidden": "Produkt synlig",
+      "product.unhidden": "Produkt gjord synlig",
       "product.unpublished": "Produkt avpublicerad",
       "product.published": "Produkt publicerad",
       "product.archived": "Produkt arkiverad",
@@ -776,8 +776,8 @@
     "title": "Produkter",
     "subtitle": "Alla produkter i katalogen.",
     "empty": "Inga produkter matchar dessa filter.",
-    "emptyDescription": "Ändra filter för att utöka sökningen.",
-    "back": "Tillbaka till produkter",
+    "emptyDescription": "Ändra filtren för att utöka sökningen.",
+    "back": "Tillbaka till produkterna",
     "resultsCount": "{count, plural, =0 {Inga produkter} one {# produkt} other {# produkter}}",
     "filters": {
       "search": "Sök",
@@ -852,7 +852,7 @@
       "reason": "Anledning",
       "decidedAt": "Datum",
       "actionsTitle": "Åtgärder",
-      "archivedNotice": "Den här produkten är arkiverad.",
+      "archivedNotice": "Denna produkt är arkiverad.",
       "slug": "Slug",
       "imageAlt": "Bild {position} av {name}"
     },
@@ -860,10 +860,10 @@
       "active": "Aktiv",
       "new": "Ny",
       "end_of_series": "Slut på serien",
-      "retired": "Utgången"
+      "retired": "Utgått"
     },
     "moderationStatus": {
-      "pending": "Väntande",
+      "pending": "Väntar",
       "approved": "Godkänd",
       "rejected": "Avvisad"
     },
@@ -871,14 +871,14 @@
       "hide": {
         "label": "Dölj",
         "confirm": "Dölj denna produkt? Den kommer inte längre att vara synlig i den offentliga katalogen.",
-        "reasonLabel": "Anledning till döljande",
+        "reasonLabel": "Anledning till att produkten döljs",
         "done": "Produkt dold.",
         "alreadyHidden": "Denna produkt är redan dold."
       },
       "unhide": {
         "label": "Visa",
         "confirm": "Visa denna produkt? Den kommer att vara synlig igen i den offentliga katalogen.",
-        "done": "Produkt synlig.",
+        "done": "Produkten visas igen.",
         "notHidden": "Denna produkt är inte dold."
       },
       "unpublish": {
@@ -891,11 +891,12 @@
         "label": "Publicera",
         "confirm": "Publicera denna produkt? Den kommer att vara synlig i den offentliga katalogen.",
         "done": "Produkt publicerad.",
-        "alreadyPublished": "Denna produkt är redan publicerad."
+        "alreadyPublished": "Denna produkt är redan publicerad.",
+        "archived": "Denna produkt är arkiverad: återställ den innan den publiceras."
       },
       "archive": {
         "label": "Arkivera",
-        "confirm": "Arkivera denna produkt? Den kommer att tas bort från katalogen och markeras som utgången.",
+        "confirm": "Arkivera denna produkt? Den kommer att tas bort från katalogen och markeras som utgått.",
         "done": "Produkt arkiverad.",
         "alreadyArchived": "Denna produkt är redan arkiverad."
       },

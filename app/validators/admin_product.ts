@@ -6,7 +6,7 @@ import {
 
 /**
  * Filtres de la liste des produits (query string), tous optionnels.
- * Une valeur invalide est refusee en 422.
+ * Une valeur invalide est refusée en 422.
  */
 export const adminProductFiltersValidator = vine.create({
   search: vine.string().trim().maxLength(255).optional(),
@@ -18,7 +18,7 @@ export const adminProductFiltersValidator = vine.create({
 })
 
 /**
- * Donnees de l'action "hide" : motif obligatoire.
+ * Données de l'action "hide" : motif obligatoire.
  */
 export const adminProductHideValidator = vine.create({
   reason: vine.string().trim().minLength(1).maxLength(2000),

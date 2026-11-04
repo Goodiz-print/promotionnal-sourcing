@@ -4,10 +4,10 @@ import type { ContentLocale } from './i18n.js'
 
 /**
  * Administration du catalogue produits (#164).
- * Types exposes en props Inertia : des `type`, pas des `interface`.
+ * Types exposés en props Inertia : des `type`, pas des `interface`.
  */
 
-/** Valeurs du filtre de visibilite */
+/** Valeurs du filtre de visibilité */
 export const ADMIN_PRODUCT_VISIBILITY_FILTERS = [
   'published',
   'unpublished',
@@ -17,7 +17,7 @@ export const ADMIN_PRODUCT_VISIBILITY_FILTERS = [
 
 export type AdminProductVisibilityFilter = (typeof ADMIN_PRODUCT_VISIBILITY_FILTERS)[number]
 
-/** Valeurs du filtre de qualite */
+/** Valeurs du filtre de qualité */
 export const ADMIN_PRODUCT_QUALITY_FILTERS = ['no_image', 'no_translation', 'no_variant'] as const
 
 export type AdminProductQualityFilter = (typeof ADMIN_PRODUCT_QUALITY_FILTERS)[number]
@@ -28,11 +28,11 @@ export type AdminProductIndexFilters = {
   search: string | null
   /** ID du fournisseur (organisation). `null` = tous. */
   supplierId: number | null
-  /** ID de la categorie (inclut les sous-categories). `null` = toutes. */
+  /** ID de la catégorie (inclut les sous-catégories). `null` = toutes. */
   categoryId: number | null
-  /** Statut de visibilite calcule. `null` = tous. */
+  /** Statut de visibilité calculé. `null` = tous. */
   visibility: AdminProductVisibilityFilter | null
-  /** Filtre de qualite. `null` = tous. */
+  /** Filtre de qualité. `null` = tous. */
   quality: AdminProductQualityFilter | null
 }
 
@@ -42,7 +42,7 @@ export type AdminProductFilterOptions = {
   suppliers: AdminProductSupplierOption[]
 }
 
-/** Option de categorie pour le filtre. */
+/** Option de catégorie pour le filtre. */
 export type AdminProductCategoryOption = {
   id: number
   name: string
@@ -55,7 +55,7 @@ export type AdminProductSupplierOption = {
   name: string
 }
 
-/** Statut de visibilite calcule d'un produit. */
+/** Statut de visibilité calculé d'un produit. */
 export type AdminProductVisibilityStatus = 'published' | 'unpublished' | 'hidden' | 'archived'
 
 /** Ligne de la liste des produits. */
@@ -111,7 +111,7 @@ export type AdminProductAttribute = {
   label: string | null
 }
 
-/** Historique de moderation (fiche admin). */
+/** Historique de modération (fiche admin). */
 export type AdminProductModerationHistory = {
   id: number
   status: ModerationStatus
@@ -134,7 +134,7 @@ export type AdminProductDetail = AdminProductListItem & {
   attributes: AdminProductAttribute[]
   supplierSlug: string | null
   categorySlug: string | null
-  /** Flags d'actions autorisees pour l'utilisateur courant. */
+  /** Flags d'actions autorisées pour l'utilisateur courant. */
   canManage: boolean
 }
 

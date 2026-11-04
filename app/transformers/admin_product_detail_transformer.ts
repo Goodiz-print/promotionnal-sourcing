@@ -12,7 +12,7 @@ interface TransformOptions {
 
 /**
  * Fiche d'un produit du back-office : colonnes de la liste + toutes les
- * informations detaillees (variantes, prix, images, traductions, etc.).
+ * informations détaillées (variantes, prix, images, traductions, etc.).
  */
 export default class AdminProductDetailTransformer extends BaseTransformer<AdminProductDetails> {
   constructor(
