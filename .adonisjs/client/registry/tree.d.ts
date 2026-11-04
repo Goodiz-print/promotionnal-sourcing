@@ -188,6 +188,14 @@ export interface ApiDefinition {
     organizations: {
       index: typeof routes['admin.organizations.index']
       show: typeof routes['admin.organizations.show']
+      archive: typeof routes['admin.organizations.archive']
+      restore: typeof routes['admin.organizations.restore']
+      update: typeof routes['admin.organizations.update']
+      changeType: typeof routes['admin.organizations.change_type']
+      memberRole: typeof routes['admin.organizations.member_role']
+      removeMember: typeof routes['admin.organizations.remove_member']
+      revokeInvitation: typeof routes['admin.organizations.revoke_invitation']
+      resendInvitation: typeof routes['admin.organizations.resend_invitation']
     }
     users: {
       index: typeof routes['admin.users.index']

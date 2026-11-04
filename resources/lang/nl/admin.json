@@ -98,7 +98,11 @@
     "filters": {
       "type": "Type",
       "allTypes": "Alle types",
-      "status": "Status"
+      "status": "Status",
+      "search": "Zoeken",
+      "searchPlaceholder": "Naam, slug, SIRET of btw",
+      "country": "Land",
+      "allCountries": "Alle landen"
     },
     "types": {
       "buyer": "Koper",
@@ -143,7 +147,44 @@
       "joinedAt": "Lid sinds"
     },
     "emptyDescription": "Wijzig het type of de status om de lijst uit te breiden.",
-    "resultsCount": "{count, plural, =0 {Geen organisaties} one {# organisatie} other {# organisaties}}"
+    "resultsCount": "{count, plural, =0 {Geen organisaties} one {# organisatie} other {# organisaties}}",
+    "actions": {
+      "archive": {
+        "label": "Archiveren",
+        "confirm": "Deze organisatie archiveren? Ze wordt uit de openbare catalogus verwijderd en lopende uitnodigingen worden ingetrokken.",
+        "done": "Organisatie gearchiveerd.",
+        "alreadyArchived": "Deze organisatie is al gearchiveerd."
+      },
+      "restore": {
+        "label": "Herstellen",
+        "confirm": "Deze organisatie herstellen? Ze wordt opnieuw zichtbaar in de openbare catalogus.",
+        "done": "Organisatie hersteld.",
+        "notArchived": "Deze organisatie is niet gearchiveerd."
+      },
+      "update": {
+        "label": "Bewerken",
+        "done": "Organisatie bijgewerkt.",
+        "noChange": "Geen wijzigingen."
+      },
+      "changeType": {
+        "label": "Type wijzigen",
+        "done": "Organisatietype gewijzigd.",
+        "noChange": "Het type is al het gevraagde.",
+        "hasSupplierData": "Leveranciersfunctie kan niet worden verwijderd: de organisatie heeft producten of een leveranciersprofiel."
+      },
+      "member": {
+        "notFound": "Lid niet gevonden.",
+        "lastOwner": "Niet mogelijk: dit lid is de laatste eigenaar van de organisatie.",
+        "roleChanged": "Rol van het lid gewijzigd.",
+        "removed": "Lid verwijderd uit de organisatie."
+      },
+      "invitation": {
+        "notFound": "Uitnodiging niet gevonden.",
+        "notPending": "Deze uitnodiging is niet meer in behandeling.",
+        "revoked": "Uitnodiging ingetrokken.",
+        "resent": "Uitnodiging opnieuw verzonden."
+      }
+    }
   },
   "users": {
     "title": "Gebruikers",
@@ -308,7 +349,15 @@
       "user.reactivated": "Account reactivated",
       "user.verification_resent": "Email verification resent",
       "user.password_reset_requested": "Password reset requested",
-      "user.deleted": "Account deleted"
+      "user.deleted": "Account verwijderd",
+      "organization.archived": "Organisatie gearchiveerd",
+      "organization.restored": "Organisatie hersteld",
+      "organization.updated": "Organisatie bijgewerkt",
+      "organization.type_changed": "Organisatietype gewijzigd",
+      "organization.member_role_changed": "Rol van lid gewijzigd",
+      "organization.member_removed": "Lid verwijderd",
+      "organization.invitation_revoked": "Uitnodiging ingetrokken",
+      "organization.invitation_resent": "Uitnodiging opnieuw verzonden"
     },
     "targets": {
       "user": "Gebruiker",

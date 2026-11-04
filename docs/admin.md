@@ -6,19 +6,20 @@ Socle du back-office `/:locale/admin` (epic #157) : rôles plateforme fins (#158
 
 `users.platform_role` vaut `none` (défaut), `admin`, `moderator`, `support` ou `analyst`. Un rôle est un **ensemble de droits** (`PLATFORM_ROLE_PERMISSIONS`, `shared/types/user.ts`) ; les routes et le menu raisonnent en droits, jamais en rôles.
 
-| Droit                | admin | moderator | support | analyst | Ouvre                                              |
-| -------------------- | :---: | :-------: | :-----: | :-----: | -------------------------------------------------- |
-| `backoffice.access`  |   x   |     x     |    x    |    x    | porte d'entrée `/admin/**`, tableau de bord        |
-| `organizations.view` |   x   |     x     |    x    |         | liste et fiche des organisations                   |
-| `users.view`         |   x   |           |    x    |         | liste et fiche des utilisateurs                    |
-| `users.support`      |   x   |           |    x    |         | renvoyer vérification, reset mot de passe          |
-| `users.manage`       |   x   |           |         |         | suspendre, réactiver, supprimer un compte          |
-| `catalogue.manage`   |   x   |           |         |         | taxonomie (catégories, attributs)                  |
-| `roles.manage`       |   x   |           |         |         | attribuer un rôle plateforme                       |
-| `audit.view`         |   x   |           |         |         | journal d'audit                                    |
-| `monitoring.view`    |   x   |           |         |    x    | réservé aux écrans de monitoring à venir (lecture) |
-| `trade.view`         |   x   |           |    x    |    x    | demandes de devis, devis, commandes (lecture)      |
-| `trade.manage`       |   x   |           |         |         | clôturer, expirer, relancer une demande de devis   |
+| Droit                  | admin | moderator | support | analyst | Ouvre                                                                     |
+| ---------------------- | :---: | :-------: | :-----: | :-----: | ------------------------------------------------------------------------- |
+| `backoffice.access`    |   x   |     x     |    x    |    x    | porte d'entrée `/admin/**`, tableau de bord                               |
+| `organizations.view`   |   x   |     x     |    x    |         | liste et fiche des organisations                                          |
+| `organizations.manage` |   x   |           |         |         | archiver, restaurer, modifier, changer type, gérer membres et invitations |
+| `users.view`           |   x   |           |    x    |         | liste et fiche des utilisateurs                                           |
+| `users.support`        |   x   |           |    x    |         | renvoyer vérification, reset mot de passe                                 |
+| `users.manage`         |   x   |           |         |         | suspendre, réactiver, supprimer un compte                                 |
+| `catalogue.manage`     |   x   |           |         |         | taxonomie (catégories, attributs)                                         |
+| `roles.manage`         |   x   |           |         |         | attribuer un rôle plateforme                                              |
+| `audit.view`           |   x   |           |         |         | journal d'audit                                                           |
+| `monitoring.view`      |   x   |           |         |    x    | réservé aux écrans de monitoring à venir (lecture)                        |
+| `trade.view`           |   x   |           |    x    |    x    | demandes de devis, devis, commandes (lecture)                             |
+| `trade.manage`         |   x   |           |         |         | clôturer, expirer, relancer une demande de devis                          |
 
 - **Backend** : ability `hasPlatformPermission(permission)` (`app/abilities/main.ts`) ; le middleware `platformAdmin` n'exige que `backoffice.access`, chaque contrôleur autorise le droit de sa section. `isPlatformAdmin` (rôle `admin` strict) est conservée ; `canManageCategories` repose sur `catalogue.manage`.
 - **Frontend** : `platformRoleHasPermission` (`shared/helpers/platform_permissions.ts`) est partagé ; `useAdminTabs` et `usePlatformPermissions` n'affichent que les sections accessibles. Ce n'est qu'un confort d'affichage : le serveur re-vérifie chaque route.
@@ -115,3 +116,39 @@ Trois écrans transverses (toutes organisations, archivées comprises), droit `t
 **Interventions** (droit `trade.manage`, rôle `admin`), réutilisant les transitions de `RfqService` : `POST /admin/rfqs/:id/close` (`published` → `closed`, 422 sinon), `/expire` (`published` → `expired`, les devis ouverts expirent avec elle), `/remind` (relance **une fois** chaque destinataire `sent` ou `viewed` jamais relancé, comme `RemindRfqSuppliersJob` ; 409 si la demande n'attend plus de réponse ou si personne n'est relançable). Chacune écrit son entrée d'audit (`rfq.closed`, `rfq.expired`, `rfq.reminded`, cible `rfq`) dans la même transaction (`AdminRfqInterventionService`) ; les mails et l'expiration des devis partent ensuite. Détail : `docs/changelog/2026-11-03-supervision-rfq-devis-commandes.md`.
 
 Tests : `tests/functional/admin_trade.spec.ts` (droits par rôle, filtres, repérage, interventions, audit, mails) et `tests/inertia/admin_*` des écrans.
+
+## Gestion des organisations (#161)
+
+`GET /admin/organizations` (`admin.organizations.index`, droit `organizations.view`) et fiche `GET /admin/organizations/:id` (`admin.organizations.show`). Lecture dans `AdminOrganizationService` ; toutes les organisations y compris archivées sont accessibles.
+
+**Filtres** (query string, tous optionnels, valeur invalide refusée en 422) : `search` (nom, slug, SIRET ou TVA — partiel, insensible à la casse, jokers `%` `_` échappés), `type` (`buyer`, `supplier`, `both`), `status` (`active` par défaut, `archived`, `all`), `country` (code ISO 2 lettres). La liste expose `filterOptions` (types et pays distincts) pour le frontend.
+
+**Fiche** : informations complètes (nom, slug, type, pays, email, téléphone, site, SIRET, TVA, secteur, taille, description, adresse, logo, dates), membres (avec `membershipId` pour les actions), invitations en attente, profils (fournisseur, agence avec `reviewReasons`/`vat_verified_at`/`domain_verified_at`, facturation — `stripeCustomerId` omis), volumes de produits et de demandes de devis, dernière activité des membres, flag `canManage`.
+
+**Actions** (droit `organizations.manage`, rôle `admin`), toutes via redirection + flash, auditées dans la même transaction :
+
+| Route                                                              | Action                               | Audit                                |
+| ------------------------------------------------------------------ | ------------------------------------ | ------------------------------------ |
+| `POST   /admin/organizations/:id/archive`                          | archive l'organisation               | `organization.archived`              |
+| `POST   /admin/organizations/:id/restore`                          | restaure l'organisation              | `organization.restored`              |
+| `PATCH  /admin/organizations/:id`                                  | modifie les informations             | `organization.updated` (avant/après) |
+| `PATCH  /admin/organizations/:id/type`                             | change le type (buyer/supplier/both) | `organization.type_changed`          |
+| `PATCH  /admin/organizations/:id/members/:membershipId/role`       | change le rôle d'un membre           | `organization.member_role_changed`   |
+| `DELETE /admin/organizations/:id/members/:membershipId`            | retire un membre                     | `organization.member_removed`        |
+| `DELETE /admin/organizations/:id/invitations/:invitationId`        | révoque une invitation               | `organization.invitation_revoked`    |
+| `POST   /admin/organizations/:id/invitations/:invitationId/resend` | renvoie une invitation               | `organization.invitation_resent`     |
+
+**Invariants et idempotence** :
+
+- Archiver une organisation déjà archivée ou restaurer une active → 409, sans audit.
+- Archiver révoque automatiquement les invitations en attente (même transaction) et émet `OrganizationCatalogueChanged` après commit.
+- Restaurer émet aussi `OrganizationCatalogueChanged` pour réindexer le catalogue.
+- Modifier sans changement effectif → pas d'audit.
+- Changement de type : **refusé** (409) si on passe à un type sans capacité fournisseur (`buyer`) alors que l'organisation a des produits ou un profil fournisseur actif. Le cas échéant, émet `OrganizationCatalogueChanged`.
+- Retirer un membre ou rétrograder un owner : **refusé** (409) si c'est le dernier `owner` de l'organisation — une organisation garde toujours au moins un propriétaire. Si le membre retiré avait cette organisation comme courante, il bascule sur une autre (ou sur l'onboarding).
+- Une organisation archivée reste modifiable par l'admin (informations, membres, invitations).
+- Le verrou `FOR UPDATE` sur l'organisation dans la transaction de chaque action garantit la cohérence.
+
+**Réutilisation** : les services `OrganizationService.archiveWithin`/`notifyArchived`, `OrganizationMembersService`, `OrganizationInvitationsService`, `OrganizationContextService.reassignCurrentOrganization` sont réutilisés avec leur paramètre `client` de transaction.
+
+Tests : `tests/functional/admin_organizations.spec.ts` (recherche, filtres, fiche enrichie, droits par rôle, chaque action + audit). Détail : `docs/changelog/2026-11-04-gestion-organisations-admin.md`.

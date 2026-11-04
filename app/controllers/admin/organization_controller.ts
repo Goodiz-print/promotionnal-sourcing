@@ -3,18 +3,20 @@ import { inject } from '@adonisjs/core'
 import AdminOrganizationService from '#services/admin_organization_service'
 import AdminOrganizationTransformer from '#transformers/admin_organization_transformer'
 import AdminOrganizationDetailTransformer from '#transformers/admin_organization_detail_transformer'
-import { ORGANIZATION_TYPES, type OrganizationKind } from '#shared/types/organization'
-import {
-  ADMIN_ORGANIZATION_STATUSES,
-  type AdminOrganizationFilters,
-  type AdminOrganizationStatus,
-} from '#shared/types/admin'
+import { adminOrganizationFiltersValidator } from '#validators/admin_organization'
+import { ORGANIZATION_TYPES } from '#shared/types/organization'
+import type {
+  AdminOrganizationIndexFilters,
+  AdminOrganizationFilterOptions,
+} from '#shared/types/admin_organization'
 
 const PER_PAGE = 25
 
 /**
- * Consultation des organisations par l'équipe plateforme (liste filtrable par
- * type et statut d'archivage, fiche détaillée). Droit `organizations.view`.
+ * Consultation des organisations par l'equipe plateforme (liste filtrable par
+ * type, statut d'archivage, pays et recherche ; fiche detaillee). Droit
+ * `organizations.view`. Les actions de gestion sont dans
+ * `OrganizationManagementController`.
  */
 @inject()
 export default class OrganizationController {
@@ -23,16 +25,31 @@ export default class OrganizationController {
   async index({ bouncer, inertia, request }: HttpContext) {
     await bouncer.authorize('hasPlatformPermission', 'organizations.view')
 
-    const qs = request.qs()
-    const filters: AdminOrganizationFilters = {
-      type: ORGANIZATION_TYPES.includes(qs.type) ? (qs.type as OrganizationKind) : null,
-      status: ADMIN_ORGANIZATION_STATUSES.includes(qs.status)
-        ? (qs.status as AdminOrganizationStatus)
-        : 'active',
-    }
-    const page = Number.parseInt(qs.page, 10) || 1
+    const query = await request.validateUsing(adminOrganizationFiltersValidator, {
+      data: request.qs(),
+    })
 
-    const paginator = await this.service.list({ ...filters, page, perPage: PER_PAGE })
+    const filters: AdminOrganizationIndexFilters = {
+      search: query.search || null,
+      type: query.type ?? null,
+      status: query.status ?? 'active',
+      country: query.country ?? null,
+    }
+
+    const paginator = await this.service.list({
+      ...filters,
+      page: query.page ?? 1,
+      perPage: PER_PAGE,
+    })
+
+    // Options de filtres pour le frontend
+    const countries = await this.service.distinctCountries()
+    const filterOptions: AdminOrganizationFilterOptions = {
+      organizationTypes: [...ORGANIZATION_TYPES],
+      countries,
+    }
+
+    const canManage = await bouncer.allows('hasPlatformPermission', 'organizations.manage')
 
     return inertia.render('admin/organizations/index', {
       organizationList: {
@@ -47,6 +64,8 @@ export default class OrganizationController {
         },
       },
       filters,
+      filterOptions,
+      canManage,
     })
   }
 
@@ -54,9 +73,10 @@ export default class OrganizationController {
     await bouncer.authorize('hasPlatformPermission', 'organizations.view')
 
     const details = await this.service.details(Number(params.id))
+    const canManage = await bouncer.allows('hasPlatformPermission', 'organizations.manage')
 
     return inertia.render('admin/organizations/show', {
-      organization: new AdminOrganizationDetailTransformer(details).toObject(),
+      organization: new AdminOrganizationDetailTransformer(details, { canManage }).toObject(),
     })
   }
 }

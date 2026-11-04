@@ -1,4 +1,9 @@
 import { DateTime } from 'luxon'
+import { signedUrlFor } from '@adonisjs/core/services/url_builder'
+import SendMailJob from '#jobs/send_mail_job'
+import { mailSendKey } from '#shared/helpers/mail'
+import { MAIL_KINDS } from '#shared/types/mail'
+import type { Locale } from '#shared/types/i18n'
 import type Organization from '#models/organization'
 import OrganizationInvitation from '#models/organization_invitation'
 import OrganizationUser from '#models/organization_user'
@@ -113,9 +118,48 @@ export default class OrganizationInvitationsService {
     return invitation
   }
 
+  /** Révoque une invitation **en attente** ; une invitation acceptée ou déjà close est rejetée. */
   async revoke(invitation: OrganizationInvitation): Promise<void> {
+    if (invitation.status !== 'pending') throw new InvitationNotPendingException()
+
     invitation.status = 'revoked'
     await invitation.save()
+  }
+
+  /**
+   * Met le mail d'invitation en **queue** (`SendMailJob`, table `queue_jobs`) et
+   * non dans la file mémoire de `@adonisjs/mail` : un redémarrage du process ne
+   * perd plus l'invitation, et un SMTP indisponible est rejoué. La charge ne
+   * contient que des données déjà résolues (elle transite par la base).
+   * L'invitation doit avoir son `role` préchargé.
+   */
+  async sendMail(
+    invitation: OrganizationInvitation,
+    organization: Organization,
+    inviterName: string,
+    locale: Locale
+  ): Promise<void> {
+    const acceptUrl = signedUrlFor(
+      'organization.invitations.show',
+      { locale, id: invitation.id },
+      { expiresIn: `${INVITATION_TTL_DAYS}d`, purpose: 'organization-invitation' }
+    )
+
+    await SendMailJob.dispatch({
+      kind: MAIL_KINDS.organizationInvitation,
+      // Un renvoi est un nouvel envoi voulu : la clé ne dédoublonne que les rejeux.
+      idempotencyKey: mailSendKey(MAIL_KINDS.organizationInvitation, {
+        invitation: invitation.id,
+      }),
+      to: invitation.email,
+      locale,
+      data: {
+        organizationName: organization.name,
+        roleName: invitation.role.name,
+        inviterName,
+        acceptUrl,
+      },
+    })
   }
 
   /**

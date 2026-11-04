@@ -285,7 +285,69 @@ router
                   .as('admin.organizations.index')
                 router
                   .get('admin/organizations/:id', [controllers.admin.Organization, 'show'])
+                  .where('id', router.matchers.number())
                   .as('admin.organizations.show')
+                // Actions sur les organisations (#161) : archivage, modification, membres, invitations.
+                router
+                  .post('admin/organizations/:id/archive', [
+                    controllers.admin.OrganizationManagement,
+                    'archive',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.organizations.archive')
+                router
+                  .post('admin/organizations/:id/restore', [
+                    controllers.admin.OrganizationManagement,
+                    'restore',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.organizations.restore')
+                router
+                  .patch('admin/organizations/:id', [
+                    controllers.admin.OrganizationManagement,
+                    'update',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.organizations.update')
+                router
+                  .patch('admin/organizations/:id/type', [
+                    controllers.admin.OrganizationManagement,
+                    'changeType',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.organizations.change_type')
+                router
+                  .patch('admin/organizations/:id/members/:membershipId/role', [
+                    controllers.admin.OrganizationManagement,
+                    'changeMemberRole',
+                  ])
+                  .where('id', router.matchers.number())
+                  .where('membershipId', router.matchers.number())
+                  .as('admin.organizations.member_role')
+                router
+                  .delete('admin/organizations/:id/members/:membershipId', [
+                    controllers.admin.OrganizationManagement,
+                    'removeMember',
+                  ])
+                  .where('id', router.matchers.number())
+                  .where('membershipId', router.matchers.number())
+                  .as('admin.organizations.remove_member')
+                router
+                  .delete('admin/organizations/:id/invitations/:invitationId', [
+                    controllers.admin.OrganizationManagement,
+                    'revokeInvitation',
+                  ])
+                  .where('id', router.matchers.number())
+                  .where('invitationId', router.matchers.number())
+                  .as('admin.organizations.revoke_invitation')
+                router
+                  .post('admin/organizations/:id/invitations/:invitationId/resend', [
+                    controllers.admin.OrganizationManagement,
+                    'resendInvitation',
+                  ])
+                  .where('id', router.matchers.number())
+                  .where('invitationId', router.matchers.number())
+                  .as('admin.organizations.resend_invitation')
 
                 router.get('admin/users', [controllers.admin.User, 'index']).as('admin.users.index')
                 router

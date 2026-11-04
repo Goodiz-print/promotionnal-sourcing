@@ -25,6 +25,7 @@ export const PLATFORM_PERMISSIONS = [
   'users.support',
   'users.manage',
   'organizations.view',
+  'organizations.manage',
   'catalogue.manage',
   'roles.manage',
   'audit.view',
@@ -43,3 +44,9 @@ export const PLATFORM_ROLE_PERMISSIONS: Record<PlatformRole, readonly PlatformPe
   support: ['backoffice.access', 'users.view', 'users.support', 'organizations.view', 'trade.view'],
   analyst: ['backoffice.access', 'monitoring.view', 'trade.view'],
 }
+
+/**
+ * Droit `organizations.manage` : admin seul. Permet d'archiver, restaurer,
+ * modifier, changer le type d'une organisation, retirer des membres, revoquer
+ * et renvoyer des invitations.
+ */

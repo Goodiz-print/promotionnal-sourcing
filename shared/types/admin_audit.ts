@@ -26,6 +26,14 @@ export const ADMIN_AUDIT_ACTIONS = [
   'user.verification_resent',
   'user.password_reset_requested',
   'user.deleted',
+  'organization.archived',
+  'organization.restored',
+  'organization.updated',
+  'organization.type_changed',
+  'organization.member_role_changed',
+  'organization.member_removed',
+  'organization.invitation_revoked',
+  'organization.invitation_resent',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]

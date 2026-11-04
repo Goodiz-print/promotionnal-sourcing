@@ -98,7 +98,11 @@
     "filters": {
       "type": "Typ",
       "allTypes": "Wszystkie typy",
-      "status": "Status"
+      "status": "Status",
+      "search": "Szukaj",
+      "searchPlaceholder": "Nazwa, slug, SIRET lub VAT",
+      "country": "Kraj",
+      "allCountries": "Wszystkie kraje"
     },
     "types": {
       "buyer": "Kupujący",
@@ -143,7 +147,44 @@
       "joinedAt": "Członek od"
     },
     "emptyDescription": "Zmień typ lub status, aby poszerzyć listę.",
-    "resultsCount": "{count, plural, =0 {Brak organizacji} one {# organizacja} few {# organizacje} many {# organizacji} other {# organizacji}}"
+    "resultsCount": "{count, plural, =0 {Brak organizacji} one {# organizacja} few {# organizacje} many {# organizacji} other {# organizacji}}",
+    "actions": {
+      "archive": {
+        "label": "Archiwizuj",
+        "confirm": "Czy zarchiwizować tę organizację? Zostanie usunięta z publicznego katalogu, a oczekujące zaproszenia zostaną anulowane.",
+        "done": "Organizacja zarchiwizowana.",
+        "alreadyArchived": "Ta organizacja jest już zarchiwizowana."
+      },
+      "restore": {
+        "label": "Przywróć",
+        "confirm": "Czy przywrócić tę organizację? Ponownie będzie widoczna w publicznym katalogu.",
+        "done": "Organizacja przywrócona.",
+        "notArchived": "Ta organizacja nie jest zarchiwizowana."
+      },
+      "update": {
+        "label": "Edytuj",
+        "done": "Organizacja zaktualizowana.",
+        "noChange": "Brak zmian."
+      },
+      "changeType": {
+        "label": "Zmień typ",
+        "done": "Typ organizacji zmieniony.",
+        "noChange": "Typ jest już zgodny z żądanym.",
+        "hasSupplierData": "Nie można usunąć funkcji dostawcy: organizacja ma produkty lub profil dostawcy."
+      },
+      "member": {
+        "notFound": "Członek nie znaleziony.",
+        "lastOwner": "Niemożliwe: ten członek jest ostatnim właścicielem organizacji.",
+        "roleChanged": "Rola członka zmieniona.",
+        "removed": "Członek usunięty z organizacji."
+      },
+      "invitation": {
+        "notFound": "Zaproszenie nie znalezione.",
+        "notPending": "To zaproszenie nie jest już oczekujące.",
+        "revoked": "Zaproszenie anulowane.",
+        "resent": "Zaproszenie wysłane ponownie."
+      }
+    }
   },
   "users": {
     "title": "Użytkownicy",
@@ -308,7 +349,15 @@
       "user.reactivated": "Account reactivated",
       "user.verification_resent": "Email verification resent",
       "user.password_reset_requested": "Password reset requested",
-      "user.deleted": "Account deleted"
+      "user.deleted": "Konto usunięte",
+      "organization.archived": "Organizacja zarchiwizowana",
+      "organization.restored": "Organizacja przywrócona",
+      "organization.updated": "Organizacja zaktualizowana",
+      "organization.type_changed": "Typ organizacji zmieniony",
+      "organization.member_role_changed": "Rola członka zmieniona",
+      "organization.member_removed": "Członek usunięty",
+      "organization.invitation_revoked": "Zaproszenie anulowane",
+      "organization.invitation_resent": "Zaproszenie wysłane ponownie"
     },
     "targets": {
       "user": "Użytkownik",

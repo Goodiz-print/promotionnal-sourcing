@@ -98,7 +98,11 @@
     "filters": {
       "type": "Type",
       "allTypes": "Tous les types",
-      "status": "Statut"
+      "status": "Statut",
+      "search": "Rechercher",
+      "searchPlaceholder": "Nom, slug, SIRET ou TVA",
+      "country": "Pays",
+      "allCountries": "Tous les pays"
     },
     "types": {
       "buyer": "Acheteur",
@@ -143,7 +147,44 @@
       "joinedAt": "Membre depuis"
     },
     "emptyDescription": "Modifiez le type ou le statut pour élargir la liste.",
-    "resultsCount": "{count, plural, =0 {Aucune organisation} one {# organisation} other {# organisations}}"
+    "resultsCount": "{count, plural, =0 {Aucune organisation} one {# organisation} other {# organisations}}",
+    "actions": {
+      "archive": {
+        "label": "Archiver",
+        "confirm": "Archiver cette organisation ? Elle sera retirée du catalogue public et ses invitations en attente seront révoquées.",
+        "done": "Organisation archivée.",
+        "alreadyArchived": "Cette organisation est déjà archivée."
+      },
+      "restore": {
+        "label": "Restaurer",
+        "confirm": "Restaurer cette organisation ? Elle sera de nouveau visible dans le catalogue public.",
+        "done": "Organisation restaurée.",
+        "notArchived": "Cette organisation n'est pas archivée."
+      },
+      "update": {
+        "label": "Modifier",
+        "done": "Organisation modifiée.",
+        "noChange": "Aucune modification."
+      },
+      "changeType": {
+        "label": "Changer le type",
+        "done": "Type d'organisation modifié.",
+        "noChange": "Le type est déjà celui demandé.",
+        "hasSupplierData": "Impossible de retirer la capacité fournisseur : l'organisation a des produits ou un profil fournisseur."
+      },
+      "member": {
+        "notFound": "Membre introuvable.",
+        "lastOwner": "Impossible : ce membre est le dernier propriétaire de l'organisation.",
+        "roleChanged": "Rôle du membre modifié.",
+        "removed": "Membre retiré de l'organisation."
+      },
+      "invitation": {
+        "notFound": "Invitation introuvable.",
+        "notPending": "Cette invitation n'est plus en attente.",
+        "revoked": "Invitation révoquée.",
+        "resent": "Invitation renvoyée."
+      }
+    }
   },
   "users": {
     "title": "Utilisateurs",
@@ -308,7 +349,15 @@
       "user.reactivated": "Compte réactivé",
       "user.verification_resent": "Vérification email renvoyée",
       "user.password_reset_requested": "Réinitialisation mot de passe demandée",
-      "user.deleted": "Compte supprimé"
+      "user.deleted": "Compte supprimé",
+      "organization.archived": "Organisation archivée",
+      "organization.restored": "Organisation restaurée",
+      "organization.updated": "Organisation modifiée",
+      "organization.type_changed": "Type d'organisation modifié",
+      "organization.member_role_changed": "Rôle de membre modifié",
+      "organization.member_removed": "Membre retiré",
+      "organization.invitation_revoked": "Invitation révoquée",
+      "organization.invitation_resent": "Invitation renvoyée"
     },
     "targets": {
       "user": "Utilisateur",

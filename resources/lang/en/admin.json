@@ -98,7 +98,11 @@
     "filters": {
       "type": "Type",
       "allTypes": "All types",
-      "status": "Status"
+      "status": "Status",
+      "search": "Search",
+      "searchPlaceholder": "Name, slug, SIRET or VAT",
+      "country": "Country",
+      "allCountries": "All countries"
     },
     "types": {
       "buyer": "Buyer",
@@ -143,7 +147,44 @@
       "joinedAt": "Member since"
     },
     "emptyDescription": "Change the type or status to widen the list.",
-    "resultsCount": "{count, plural, =0 {No organizations} one {# organization} other {# organizations}}"
+    "resultsCount": "{count, plural, =0 {No organizations} one {# organization} other {# organizations}}",
+    "actions": {
+      "archive": {
+        "label": "Archive",
+        "confirm": "Archive this organization? It will be removed from the public catalogue and pending invitations will be revoked.",
+        "done": "Organization archived.",
+        "alreadyArchived": "This organization is already archived."
+      },
+      "restore": {
+        "label": "Restore",
+        "confirm": "Restore this organization? It will be visible again in the public catalogue.",
+        "done": "Organization restored.",
+        "notArchived": "This organization is not archived."
+      },
+      "update": {
+        "label": "Edit",
+        "done": "Organization updated.",
+        "noChange": "No changes."
+      },
+      "changeType": {
+        "label": "Change type",
+        "done": "Organization type changed.",
+        "noChange": "The type is already the requested one.",
+        "hasSupplierData": "Cannot remove supplier capability: the organization has products or a supplier profile."
+      },
+      "member": {
+        "notFound": "Member not found.",
+        "lastOwner": "Cannot proceed: this member is the last owner of the organization.",
+        "roleChanged": "Member role changed.",
+        "removed": "Member removed from the organization."
+      },
+      "invitation": {
+        "notFound": "Invitation not found.",
+        "notPending": "This invitation is no longer pending.",
+        "revoked": "Invitation revoked.",
+        "resent": "Invitation resent."
+      }
+    }
   },
   "users": {
     "title": "Users",
@@ -308,7 +349,15 @@
       "user.reactivated": "Account reactivated",
       "user.verification_resent": "Email verification resent",
       "user.password_reset_requested": "Password reset requested",
-      "user.deleted": "Account deleted"
+      "user.deleted": "Account deleted",
+      "organization.archived": "Organization archived",
+      "organization.restored": "Organization restored",
+      "organization.updated": "Organization updated",
+      "organization.type_changed": "Organization type changed",
+      "organization.member_role_changed": "Member role changed",
+      "organization.member_removed": "Member removed",
+      "organization.invitation_revoked": "Invitation revoked",
+      "organization.invitation_resent": "Invitation resent"
     },
     "targets": {
       "user": "User",
