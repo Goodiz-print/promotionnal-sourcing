@@ -5,7 +5,7 @@ import CategoryTranslation from '#models/category_translation'
 import AdminAuditService from '#services/admin_audit_service'
 import TranslationQueueService from '#services/translation_queue_service'
 import { missingSourceTranslation } from '#exceptions/translation_errors'
-import { orderCategoriesAsTree } from '#shared/helpers/category_tree'
+import { compareSiblingCategories, orderCategoriesAsTree } from '#shared/helpers/category_tree'
 import { CONTENT_LOCALES } from '#shared/types/i18n'
 import type {
   CategoryMoveDirection,
@@ -77,13 +77,12 @@ export default class CategoryService {
     context: AdminActionContext
   ): Promise<boolean> {
     return db.transaction(async (trx) => {
-      const siblingsQuery = Category.query({ client: trx })
-        .orderBy('position')
-        .orderBy('slug')
-        .forUpdate()
+      const siblingsQuery = Category.query({ client: trx }).forUpdate()
       if (category.parentId === null) siblingsQuery.whereNull('parentId')
       else siblingsQuery.where('parentId', category.parentId)
-      const siblings = await siblingsQuery
+      // Tri en mémoire avec le comparateur de l'affichage (même ordre que la liste).
+      const loaded = await siblingsQuery
+      const siblings = loaded.sort(compareSiblingCategories)
 
       const index = siblings.findIndex((sibling) => sibling.id === category.id)
       const target = direction === 'up' ? index - 1 : index + 1
@@ -197,7 +196,8 @@ export default class CategoryService {
       category.useTransaction(trx)
       category.sourceLocale = sourceLocale
       if (data.parentId !== undefined && data.parentId !== category.parentId) {
-        // Changement de parent : la catégorie passe en fin de liste de ses nouvelles sœurs.
+        // Changement de parent : la catégorie passe en fin de liste de ses nouvelles
+        // sœurs ; l'ancien parent garde un trou de position, sans effet (`move` renumérote).
         category.parentId = data.parentId
         category.position = await this.nextPosition(data.parentId, trx)
       }

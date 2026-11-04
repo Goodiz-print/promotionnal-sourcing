@@ -5,6 +5,7 @@ import stringHelpers from '@adonisjs/core/helpers/string'
 import Product from '#models/product'
 import Supplier from '#models/supplier'
 import Category from '#models/category'
+import { orderCategoriesAsTree } from '#shared/helpers/category_tree'
 import Attribute from '#models/attribute'
 import AttributeValue from '#models/attribute_value'
 import Certification from '#models/certification'
@@ -328,8 +329,9 @@ export default class SupplierProductService {
    * Toutes les catégories (pour le select du formulaire — pas seulement celles
    * ayant déjà un produit, contrairement au catalogue public).
    */
-  allCategories(): Promise<Category[]> {
-    return Category.query().preload('translations').orderBy('slug')
+  async allCategories(): Promise<Category[]> {
+    const categories = await Category.query().preload('translations')
+    return orderCategoriesAsTree(categories).map((entry) => entry.category)
   }
 
   /**

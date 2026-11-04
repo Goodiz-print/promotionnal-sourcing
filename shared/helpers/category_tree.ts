@@ -18,6 +18,17 @@ export interface CategoryTreeEntry<T extends CategoryTreeNode> {
 }
 
 /**
+ * Comparateur des sœurs : `position`, puis `slug` (comparaison binaire, donc
+ * indépendante de la collation PostgreSQL et de la locale), puis `id`.
+ * `CategoryService.move` l'utilise aussi, pour agir sur l'ordre réellement affiché.
+ */
+export function compareSiblingCategories(a: CategoryTreeNode, b: CategoryTreeNode): number {
+  if (a.position !== b.position) return a.position - b.position
+  if (a.slug !== b.slug) return a.slug < b.slug ? -1 : 1
+  return a.id - b.id
+}
+
+/**
  * Parcours en profondeur. Une catégorie dont le parent est absent de la liste
  * (ex. parent sans produit actif) est traitée comme une racine, pour ne jamais
  * disparaître. Chaque catégorie apparaît une seule fois, même si les données
@@ -36,7 +47,7 @@ export function orderCategoriesAsTree<T extends CategoryTreeNode>(
     byParent.set(parentKey, siblings)
   }
   for (const siblings of byParent.values()) {
-    siblings.sort((a, b) => a.position - b.position || a.slug.localeCompare(b.slug))
+    siblings.sort(compareSiblingCategories)
   }
 
   const ordered: CategoryTreeEntry<T>[] = []

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { ArrowDown, ArrowUp, FolderTree, Plus, Trash2 } from 'lucide-vue-next'
@@ -21,11 +21,19 @@ const DEPTH_INDENT = ['ps-0', 'ps-6', 'ps-12', 'ps-16']
 
 const createUrl = computed(() => urlFor('admin.categories.create', { locale: locale.value }))
 
+/** Un déplacement à la fois : un double-clic ne doit pas déplacer de deux crans. */
+const moving = ref(false)
+
 function move(category: CategoryAdminType, direction: CategoryMoveDirection) {
+  if (moving.value) return
   router.patch(
     urlFor('admin.categories.move', { locale: locale.value, id: category.id }),
     { direction },
-    { preserveScroll: true }
+    {
+      preserveScroll: true,
+      onStart: () => (moving.value = true),
+      onFinish: () => (moving.value = false),
+    }
   )
 }
 
@@ -103,14 +111,14 @@ function destroy(category: CategoryAdminType) {
           <div class="flex items-center justify-end gap-2">
             <BaseIconButton
               :label="t('categories.index.moveUp')"
-              :disabled="!category.canMoveUp"
+              :disabled="!category.canMoveUp || moving"
               @click="move(category, 'up')"
             >
               <ArrowUp :size="18" aria-hidden="true" />
             </BaseIconButton>
             <BaseIconButton
               :label="t('categories.index.moveDown')"
-              :disabled="!category.canMoveDown"
+              :disabled="!category.canMoveDown || moving"
               @click="move(category, 'down')"
             >
               <ArrowDown :size="18" aria-hidden="true" />

@@ -93,8 +93,19 @@ describe('admin/categories/index.vue', () => {
     expect(routerMock.patch).toHaveBeenCalledWith(
       expect.any(String),
       { direction: 'down' },
-      { preserveScroll: true }
+      expect.objectContaining({ preserveScroll: true })
     )
+
+    // Un second clic avant la fin de la visite est ignoré.
+    const options = routerMock.patch.mock.calls[0][2] as {
+      onStart: () => void
+      onFinish: () => void
+    }
+    options.onStart()
+    await wrapper.vm.$nextTick()
+    await wrapper.findAll('button[aria-label="Monter"]')[1].trigger('click')
+    expect(routerMock.patch).toHaveBeenCalledTimes(1)
+    options.onFinish()
   })
 
   it('affiche un état vide', () => {

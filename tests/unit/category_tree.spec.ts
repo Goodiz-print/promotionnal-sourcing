@@ -1,5 +1,5 @@
 import { test } from '@japa/runner'
-import { orderCategoriesAsTree } from '#shared/helpers/category_tree'
+import { compareSiblingCategories, orderCategoriesAsTree } from '#shared/helpers/category_tree'
 
 const node = (id: number, parentId: number | null, position: number, slug: string) => ({
   id,
@@ -55,5 +55,12 @@ test.group('Ordre d’arbre des catégories', () => {
 
     assert.isAtMost(result.length, 2)
     assert.equal(new Set(result.map((entry) => entry.category.id)).size, result.length)
+  })
+
+  test('à position égale, le slug départage (binaire), puis l’identifiant', ({ assert }) => {
+    assert.isBelow(compareSiblingCategories(node(1, null, 0, 'a'), node(2, null, 0, 'b')), 0)
+    assert.isBelow(compareSiblingCategories(node(1, null, 0, 'B'), node(2, null, 0, 'a')), 0)
+    assert.isBelow(compareSiblingCategories(node(1, null, 0, 'x'), node(2, null, 0, 'x')), 0)
+    assert.isBelow(compareSiblingCategories(node(9, null, 0, 'z'), node(1, null, 1, 'a')), 0)
   })
 })
