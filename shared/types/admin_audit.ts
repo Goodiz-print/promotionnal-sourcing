@@ -34,6 +34,13 @@ export const ADMIN_AUDIT_ACTIONS = [
   'organization.member_removed',
   'organization.invitation_revoked',
   'organization.invitation_resent',
+  'product.hidden',
+  'product.unhidden',
+  'product.unpublished',
+  'product.published',
+  'product.archived',
+  'product.restored',
+  'product.reindex_requested',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]

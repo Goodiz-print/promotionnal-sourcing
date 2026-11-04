@@ -11,6 +11,8 @@ Socle du back-office `/:locale/admin` (epic #157) : rôles plateforme fins (#158
 | `backoffice.access`    |   x   |     x     |    x    |    x    | porte d'entrée `/admin/**`, tableau de bord                               |
 | `organizations.view`   |   x   |     x     |    x    |         | liste et fiche des organisations                                          |
 | `organizations.manage` |   x   |           |         |         | archiver, restaurer, modifier, changer type, gérer membres et invitations |
+| `products.view`        |   x   |     x     |    x    |         | liste et fiche des produits                                               |
+| `products.manage`      |   x   |           |         |         | masquer, publier, archiver, réindexer un produit                          |
 | `users.view`           |   x   |           |    x    |         | liste et fiche des utilisateurs                                           |
 | `users.support`        |   x   |           |    x    |         | renvoyer vérification, reset mot de passe                                 |
 | `users.manage`         |   x   |           |         |         | suspendre, réactiver, supprimer un compte                                 |
@@ -152,3 +154,36 @@ Tests : `tests/functional/admin_trade.spec.ts` (droits par rôle, filtres, repé
 **Réutilisation** : les services `OrganizationService.archiveWithin`/`notifyArchived`, `OrganizationMembersService`, `OrganizationInvitationsService`, `OrganizationContextService.reassignCurrentOrganization` sont réutilisés avec leur paramètre `client` de transaction.
 
 Tests : `tests/functional/admin_organizations.spec.ts` (recherche, filtres, fiche enrichie, droits par rôle, chaque action + audit). Détail : `docs/changelog/2026-11-04-gestion-organisations-admin.md`.
+
+## Administration du catalogue produits (#164)
+
+`GET /admin/products` (`admin.products.index`, droit `products.view`) et fiche `GET /admin/products/:id` (`admin.products.show`). Lecture dans `AdminProductService` ; tous les produits y compris inactifs, masqués ou archivés sont accessibles.
+
+**Filtres** (query string, tous optionnels, valeur invalide refusée en 422) : `search` (nom traduit, slug, SKU de variante ou nom d'organisation fournisseur — partiel, insensible à la casse), `supplierId` (ID de l'organisation fournisseur), `categoryId` (inclut les sous-catégories), `visibility` (`published`, `unpublished`, `hidden`, `archived`), `quality` (`no_image`, `no_translation`, `no_variant`). Pagination de 25 éléments.
+
+**Fiche** : informations complètes du produit, fournisseur (avec lien vers l'organisation), catégorie, statut de visibilité calculé (`published` = actif + non masqué + non archivé, `unpublished` = is_active=false, `hidden` = dernière décision de modération rejetée, `archived` = lifecycle_status=retired), variantes (SKU, stock, actif), paliers de prix, images (avec variantes redimensionnées), traductions (locale + présence), certifications, attributs, historique de modération. Flag `canManage` selon le droit de l'utilisateur courant.
+
+**Actions** (droit `products.manage`, rôle `admin`), toutes via redirection + flash, auditées dans la même transaction :
+
+| Route                                | Action                                                        | Audit                       |
+| ------------------------------------ | ------------------------------------------------------------- | --------------------------- |
+| `POST /admin/products/:id/hide`      | masque via modération `rejected` (motif obligatoire)          | `product.hidden`            |
+| `POST /admin/products/:id/unhide`    | révèle via modération `approved`                              | `product.unhidden`          |
+| `POST /admin/products/:id/unpublish` | dépublie (is_active=false)                                    | `product.unpublished`       |
+| `POST /admin/products/:id/publish`   | publie (is_active=true)                                       | `product.published`         |
+| `POST /admin/products/:id/archive`   | archive (lifecycle_status=retired ET is_active=false)         | `product.archived`          |
+| `POST /admin/products/:id/restore`   | restaure (lifecycle_status=active, is_active inchangé)        | `product.restored`          |
+| `POST /admin/products/:id/reindex`   | demande une réindexation via `SearchSyncService.queueProduct` | `product.reindex_requested` |
+
+**Invariants et idempotence** :
+
+- Masquer un produit déjà masqué ou révéler un produit non masqué → 409, sans audit.
+- Dépublier un produit déjà dépublié ou publier un produit déjà publié → 409, sans audit.
+- Archiver un produit déjà archivé ou restaurer un produit non archivé → 409, sans audit.
+- Masquer/révéler réutilise `ModerationService.decide(input, trx)` qui gère la réindexation after-commit.
+- Les autres actions de visibilité (unpublish, publish, archive, restore) émettent `ProductChanged` after-commit pour la réindexation.
+- Le verrou `FOR UPDATE` sur le produit dans la transaction de chaque action garantit la cohérence.
+
+**Réutilisation** : `ModerationService.decide` pour hide/unhide, `SearchSyncService.queueProduct` pour reindex.
+
+Tests : `tests/functional/admin_products.spec.ts` (droits par rôle, filtres, chaque action + audit + no-op, réindexation).

@@ -1697,6 +1697,123 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/audit_log_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'admin.products.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/products'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_product').adminProductFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/product_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/product_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/product_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.products.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/products/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/product_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/product_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/product_controller').default['show']>>>
+    }
+  }
+  'admin.products.hide': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/products/:id/hide'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_product').adminProductHideValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_product').adminProductHideValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['hide']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['hide']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['hide']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.products.unhide': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/products/:id/unhide'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['unhide']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['unhide']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['unhide']>>>
+    }
+  }
+  'admin.products.unpublish': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/products/:id/unpublish'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['unpublish']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['unpublish']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['unpublish']>>>
+    }
+  }
+  'admin.products.publish': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/products/:id/publish'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['publish']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['publish']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['publish']>>>
+    }
+  }
+  'admin.products.archive': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/products/:id/archive'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['archive']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['archive']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['archive']>>>
+    }
+  }
+  'admin.products.restore': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/products/:id/restore'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['restore']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['restore']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['restore']>>>
+    }
+  }
+  'admin.products.reindex': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/products/:id/reindex'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['reindex']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['reindex']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/product_management_controller').default['reindex']>>>
+    }
+  }
   'admin.moderation.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/moderation'
