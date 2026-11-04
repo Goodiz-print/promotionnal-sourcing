@@ -28,7 +28,7 @@ interface UserList {
 }
 
 interface UserDetail {
-  user: AdminUserDetail
+  account: AdminUserDetail
 }
 
 async function userList(client: any, actor: unknown, qs = '') {
@@ -126,7 +126,7 @@ test.group('Gestion utilisateurs - fiche (#160)', (group) => {
     const { owner } = await createOrganizationWithOwner({ name: 'Test Org' })
     await PasskeyFactory.merge({ userId: owner.id, name: 'YubiKey' }).create()
 
-    const { user } = await userShow(client, admin, owner.id)
+    const { account: user } = await userShow(client, admin, owner.id)
 
     assert.equal(user.email, owner.email)
     assert.lengthOf(user.organizations, 1)
@@ -145,7 +145,7 @@ test.group('Gestion utilisateurs - fiche (#160)', (group) => {
       kind: 'terms',
     }).create()
 
-    const { user } = await userShow(client, admin, owner.id)
+    const { account: user } = await userShow(client, admin, owner.id)
 
     assert.lengthOf(user.consents, 1)
     assert.equal(user.consents[0].kind, 'terms')
@@ -155,7 +155,7 @@ test.group('Gestion utilisateurs - fiche (#160)', (group) => {
   test('isSelf est true pour son propre compte', async ({ client, assert }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
 
-    const { user } = await userShow(client, admin, admin.id)
+    const { account: user } = await userShow(client, admin, admin.id)
 
     assert.isTrue(user.isSelf)
     assert.isTrue(user.canSupport)
@@ -321,20 +321,26 @@ test.group('Gestion utilisateurs - droits (#160)', (group) => {
   }) => {
     const target = await UserFactory.apply('unverified').create()
 
-    for (const role of ['platformAdmin', 'platformSupport'] as const) {
-      const user = await UserFactory.apply(role).create()
-      const resend = await userAction(client, user, target.id, 'resend-verification')
-      assert.notEqual(resend.status(), 403)
-      const reset = await userAction(client, user, target.id, 'password-reset')
-      assert.notEqual(reset.status(), 403)
-    }
+    // Sans faux mailer, l'envoi tenterait une vraie connexion SMTP (30 s).
+    mail.fake()
+    try {
+      for (const role of ['platformAdmin', 'platformSupport'] as const) {
+        const user = await UserFactory.apply(role).create()
+        const resend = await userAction(client, user, target.id, 'resend-verification')
+        assert.notEqual(resend.status(), 403)
+        const reset = await userAction(client, user, target.id, 'password-reset')
+        assert.notEqual(reset.status(), 403)
+      }
 
-    for (const role of ['platformModerator', 'platformAnalyst'] as const) {
-      const user = await UserFactory.apply(role).create()
-      const resend = await userAction(client, user, target.id, 'resend-verification')
-      resend.assertStatus(403)
-      const reset = await userAction(client, user, target.id, 'password-reset')
-      reset.assertStatus(403)
+      for (const role of ['platformModerator', 'platformAnalyst'] as const) {
+        const user = await UserFactory.apply(role).create()
+        const resend = await userAction(client, user, target.id, 'resend-verification')
+        resend.assertStatus(403)
+        const reset = await userAction(client, user, target.id, 'password-reset')
+        reset.assertStatus(403)
+      }
+    } finally {
+      mail.restore()
     }
   })
 })
@@ -617,10 +623,12 @@ test.group('Gestion utilisateurs - lastLoginAt (#160)', (group) => {
 
   test('lastLoginAt est mis a jour a la connexion par mot de passe', async ({ client, assert }) => {
     const user = await UserFactory.create()
+    await user.refresh()
     assert.isNull(user.lastLoginAt)
 
     await client
       .post('/fr/login')
+      .redirects(0)
       .withCsrfToken()
       .json({ email: user.email, password: TEST_PASSWORD })
 
