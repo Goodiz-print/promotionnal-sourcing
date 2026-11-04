@@ -17,8 +17,7 @@ export default class MarkingTechniqueAdminTransformer extends BaseTransformer<Ma
   }
 
   toObject(): MarkingTechniqueAdminType {
-    // Déduit la langue source depuis les traductions (première is_auto = false)
-    const sourceLocale = this.resource.translations.find((t) => !t.isAuto)?.locale ?? 'fr'
+    const sourceLocale = this.resource.sourceLocale
 
     const translation = resolveTranslation(this.resource.translations, this.locale, {
       sourceLocale,

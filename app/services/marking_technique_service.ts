@@ -20,10 +20,6 @@ import type { CreateMarkingTechniqueData, UpdateMarkingTechniqueData } from '#sh
  * sont générées à partir de la langue source (`TranslationQueueService`).
  * Le `slug` est figé à la création.
  *
- * **Note** : la table `marking_techniques` n'a pas de colonne `source_locale`.
- * La langue source est déduite de la première traduction `is_auto = false`, ou
- * fournie explicitement lors de la création/mise à jour.
- *
  * **Effets de bord** : renommer une technique de marquage change les documents
  * indexés si les libellés y figurent. `ProductIndexService` n'inclut pas
  * actuellement les noms de techniques dans l'index ; la réindexation n'est donc
@@ -83,21 +79,6 @@ export default class MarkingTechniqueService {
     return MarkingTechnique.find(id)
   }
 
-  /**
-   * Déduit la langue source d'une technique depuis ses traductions : la
-   * première langue avec `is_auto = false`, ou 'fr' par défaut.
-   */
-  async inferSourceLocale(technique: MarkingTechnique): Promise<ContentLocale> {
-    const manual = technique.translations?.find((t) => !t.isAuto)
-    if (manual) return manual.locale as ContentLocale
-    // Charger depuis la base si pas préchargé
-    const row = await MarkingTechniqueTranslation.query()
-      .where('markingTechniqueId', technique.id)
-      .where('isAuto', false)
-      .first()
-    return (row?.locale as ContentLocale) ?? 'fr'
-  }
-
   async create(
     data: CreateMarkingTechniqueData,
     context: AdminActionContext
@@ -110,6 +91,7 @@ export default class MarkingTechniqueService {
           slug: data.slug,
           family: data.family,
           synonyms: data.synonyms ?? [],
+          sourceLocale: data.sourceLocale,
         },
         { client: trx }
       )
@@ -137,7 +119,7 @@ export default class MarkingTechniqueService {
     data: UpdateMarkingTechniqueData,
     context: AdminActionContext
   ): Promise<MarkingTechnique> {
-    const sourceLocale = data.sourceLocale ?? (await this.inferSourceLocale(technique))
+    const sourceLocale = (data.sourceLocale ?? technique.sourceLocale) as ContentLocale
     if (!data.translations?.[sourceLocale]?.name) {
       const existing = await MarkingTechniqueTranslation.query()
         .where('markingTechniqueId', technique.id)
@@ -153,6 +135,7 @@ export default class MarkingTechniqueService {
 
     await db.transaction(async (trx) => {
       technique.useTransaction(trx)
+      technique.sourceLocale = sourceLocale
       if (data.family !== undefined) technique.family = data.family
       if (data.synonyms !== undefined) technique.synonyms = data.synonyms
       await technique.save()
@@ -207,7 +190,7 @@ export default class MarkingTechniqueService {
    */
   private async isInUseWithClient(
     techniqueId: number,
-    client: import('@adonisjs/lucid/types/database').TransactionClientContract
+    client: TransactionClientContract
   ): Promise<boolean> {
     const positionRow = await client
       .from('product_marking_position_techniques')

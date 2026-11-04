@@ -65,12 +65,16 @@ test.group('Rattrapage des traductions (#97)', (group) => {
     assert.equal(report.queued.category, await count('categories'))
     assert.equal(report.queued.attribute, await count('attributes'))
     assert.equal(report.queued.attribute_value, await count('attribute_values'))
+    assert.equal(report.queued.certification, await count('certifications'))
+    assert.equal(report.queued.marking_technique, await count('marking_techniques'))
     assert.equal(
       calls.length,
       report.queued.product +
         report.queued.category +
         report.queued.attribute +
-        report.queued.attribute_value
+        report.queued.attribute_value +
+        report.queued.certification +
+        report.queued.marking_technique
     )
   })
 
@@ -117,7 +121,14 @@ test.group('Rattrapage des traductions (#97)', (group) => {
     })
 
     assert.isFalse(report.failed)
-    assert.deepEqual(report.queued, { product: 1, category: 1, attribute: 0, attribute_value: 0 })
+    assert.deepEqual(report.queued, {
+      product: 1,
+      category: 1,
+      attribute: 0,
+      attribute_value: 0,
+      certification: 0,
+      marking_technique: 0,
+    })
     assert.deepEqual(calls.map((c) => c.entity).sort(), ['category', 'product'])
   })
 

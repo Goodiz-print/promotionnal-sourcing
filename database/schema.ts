@@ -694,7 +694,15 @@ export class MarkingTechniqueTranslationSchema extends BaseModel {
 }
 
 export class MarkingTechniqueSchema extends BaseModel {
-  static $columns = ['createdAt', 'family', 'id', 'slug', 'synonyms', 'updatedAt'] as const
+  static $columns = [
+    'createdAt',
+    'family',
+    'id',
+    'slug',
+    'sourceLocale',
+    'synonyms',
+    'updatedAt',
+  ] as const
   $columns = MarkingTechniqueSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -704,6 +712,8 @@ export class MarkingTechniqueSchema extends BaseModel {
   declare id: number
   @column()
   declare slug: string
+  @column()
+  declare sourceLocale: string
   @column()
   declare synonyms: any
   @column.dateTime({ autoCreate: true, autoUpdate: true })

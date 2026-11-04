@@ -164,7 +164,7 @@ export default class CertificationService {
       const usage = await trx
         .from('product_certifications')
         .where('certification_id', certification.id)
-        .select('id')
+        .select('product_id')
         .first()
       if (usage) {
         throw new CertificationInUseException()

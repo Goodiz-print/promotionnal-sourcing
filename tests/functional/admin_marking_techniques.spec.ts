@@ -60,7 +60,7 @@ test.group('Administration des techniques de marquage - ACL', (group) => {
 
       const list = await client.get('/fr/admin/marking-techniques').withInertia().loginAs(user)
       const create = await client
-        .get('/fr/admin/marking-techniques/create')
+        .get('/fr/admin/marking-techniques/new')
         .withInertia()
         .loginAs(user)
       assert.equal(list.status(), 403)
@@ -121,7 +121,7 @@ test.group('Administration des techniques de marquage - CRUD', (group) => {
     assert.isFalse(fr.isAuto)
   })
 
-  test('le slug doit etre unique', async ({ client }) => {
+  test('le slug doit etre unique', async ({ client, assert }) => {
     const admin = await platformAdmin()
     const existing = await MarkingTechniqueFactory.merge({ slug: 'unique-technique' }).create()
     await MarkingTechniqueTranslationFactory.merge({
@@ -136,7 +136,9 @@ test.group('Administration des techniques de marquage - CRUD', (group) => {
       .loginAs(admin)
       .json({ ...SCREEN_PRINT, slug: 'unique-technique' })
 
-    response.assertStatus(422)
+    // Erreur de validation : redirection Inertia avec les erreurs en session.
+    response.assertStatus(302)
+    assert.lengthOf(await MarkingTechnique.query().where('slug', 'unique-technique'), 1)
   })
 
   test("mise a jour d'une technique", async ({ client, assert }) => {

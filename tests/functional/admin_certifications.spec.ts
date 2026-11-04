@@ -57,7 +57,7 @@ test.group('Administration des certifications - ACL', (group) => {
       }).create()
 
       const list = await client.get('/fr/admin/certifications').withInertia().loginAs(user)
-      const create = await client.get('/fr/admin/certifications/create').withInertia().loginAs(user)
+      const create = await client.get('/fr/admin/certifications/new').withInertia().loginAs(user)
       assert.equal(list.status(), 403)
       assert.equal(create.status(), 403)
 
@@ -118,7 +118,7 @@ test.group('Administration des certifications - CRUD', (group) => {
     assert.isFalse(fr.isAuto)
   })
 
-  test('le slug doit etre unique', async ({ client }) => {
+  test('le slug doit etre unique', async ({ client, assert }) => {
     const admin = await platformAdmin()
     const existing = await CertificationFactory.merge({ slug: 'unique-slug' }).create()
     await CertificationTranslationFactory.merge({
@@ -133,7 +133,9 @@ test.group('Administration des certifications - CRUD', (group) => {
       .loginAs(admin)
       .json({ ...OEKO_TEX, slug: 'unique-slug' })
 
-    response.assertStatus(422)
+    // Erreur de validation : redirection Inertia avec les erreurs en session.
+    response.assertStatus(302)
+    assert.lengthOf(await Certification.query().where('slug', 'unique-slug'), 1)
   })
 
   test("mise a jour d'une certification", async ({ client, assert }) => {
