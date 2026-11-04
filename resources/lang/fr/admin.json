@@ -118,7 +118,9 @@
       "name": "Nom",
       "type": "Type",
       "members": "Membres",
-      "status": "Statut"
+      "status": "Statut",
+      "country": "Pays",
+      "lastActivity": "Dernière activité"
     },
     "fields": {
       "email": "Email",
@@ -144,7 +146,79 @@
       "notProvided": "Non renseigné",
       "membersEmpty": "Aucun membre dans cette organisation.",
       "membersCaption": "Membres de l’organisation",
-      "joinedAt": "Membre depuis"
+      "joinedAt": "Membre depuis",
+      "save": "Enregistrer",
+      "archivedNotice": "Cette organisation est archivée : elle n'apparaît plus dans le catalogue public. Elle reste consultable et modifiable.",
+      "overview": "Synthèse",
+      "slug": "Identifiant (slug)",
+      "plan": "Formule d'abonnement",
+      "locale": "Langue",
+      "info": "Modifier les informations",
+      "typeSection": "Type d'organisation",
+      "lifecycle": {
+        "title": "Archivage",
+        "activeHint": "Archiver retire l'organisation du catalogue public et révoque ses invitations en attente.",
+        "archivedHint": "Restaurer rend de nouveau l’organisation visible dans le catalogue public."
+      },
+      "member": {
+        "actions": "Actions",
+        "roleLabel": "Rôle de {name}",
+        "remove": "Retirer de l’organisation",
+        "removeConfirm": "Retirer {name} de cette organisation ?"
+      },
+      "invitation": {
+        "title": "Invitations en attente",
+        "empty": "Aucune invitation en attente.",
+        "expiresAt": "Expire le",
+        "invitedBy": "Invité par",
+        "resend": "Renvoyer",
+        "resendConfirm": "Renvoyer l’invitation à {email} ?",
+        "revoke": "Révoquer",
+        "revokeConfirm": "Révoquer l’invitation de {email} ?"
+      },
+      "profile": {
+        "yes": "Oui",
+        "no": "Non",
+        "supplier": {
+          "title": "Profil fournisseur",
+          "companyType": "Type d'entreprise",
+          "commercialStatus": "Statut commercial",
+          "minOrderQuantity": "Quantité minimale de commande",
+          "deliveryDays": "Délai de livraison (jours)",
+          "responseTimeDays": "Délai de réponse (jours)",
+          "deliveryScope": "Zone de livraison",
+          "deliveryCountries": "Pays de livraison",
+          "spokenLanguages": "Langues parlées",
+          "certifications": "Certifications",
+          "reportFrequency": "Fréquence des rapports",
+          "catalogueUpdateMode": "Mode de mise à jour du catalogue",
+          "catalogueUpdateFrequency": "Fréquence de mise à jour du catalogue",
+          "defaultOriginScope": "Origine par défaut",
+          "bio": "Présentation",
+          "foundingPartner": "Partenaire fondateur"
+        },
+        "agency": {
+          "title": "Profil agence",
+          "activity": "Activité",
+          "activityOther": "Activité (précision)",
+          "teamSize": "Taille de l’équipe",
+          "purchaseVolume": "Volume d’achats",
+          "clientSectors": "Secteurs clients",
+          "defaultMarginPercent": "Marge par défaut (%)",
+          "reviewReasons": "Motifs de revue",
+          "noReasons": "Aucun motif de revue."
+        },
+        "billing": {
+          "title": "Facturation",
+          "email": "Email de facturation",
+          "addressLine1": "Adresse",
+          "addressLine2": "Complément d'adresse",
+          "city": "Ville",
+          "postalCode": "Code postal",
+          "country": "Pays",
+          "purchaseOrderReference": "Référence de bon de commande"
+        }
+      }
     },
     "emptyDescription": "Modifiez le type ou le statut pour élargir la liste.",
     "resultsCount": "{count, plural, =0 {Aucune organisation} one {# organisation} other {# organisations}}",

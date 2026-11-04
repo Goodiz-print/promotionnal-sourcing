@@ -3,6 +3,7 @@ import { inject } from '@adonisjs/core'
 import AdminOrganizationService from '#services/admin_organization_service'
 import AdminOrganizationTransformer from '#transformers/admin_organization_transformer'
 import AdminOrganizationDetailTransformer from '#transformers/admin_organization_detail_transformer'
+import RoleTransformer from '#transformers/role_transformer'
 import { adminOrganizationFiltersValidator } from '#validators/admin_organization'
 import { ORGANIZATION_TYPES } from '#shared/types/organization'
 import type {
@@ -72,11 +73,15 @@ export default class OrganizationController {
   async show({ bouncer, inertia, params }: HttpContext) {
     await bouncer.authorize('hasPlatformPermission', 'organizations.view')
 
-    const details = await this.service.details(Number(params.id))
-    const canManage = await bouncer.allows('hasPlatformPermission', 'organizations.manage')
+    const [details, roles, canManage] = await Promise.all([
+      this.service.details(Number(params.id)),
+      this.service.roles(),
+      bouncer.allows('hasPlatformPermission', 'organizations.manage'),
+    ])
 
     return inertia.render('admin/organizations/show', {
       organization: new AdminOrganizationDetailTransformer(details, { canManage }).toObject(),
+      roles: roles.map((role) => new RoleTransformer(role).toObject()),
     })
   }
 }

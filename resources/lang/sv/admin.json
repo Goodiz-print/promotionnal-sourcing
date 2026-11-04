@@ -118,7 +118,9 @@
       "name": "Namn",
       "type": "Typ",
       "members": "Medlemmar",
-      "status": "Status"
+      "status": "Status",
+      "country": "Land",
+      "lastActivity": "Senaste aktivitet"
     },
     "fields": {
       "email": "E-post",
@@ -144,7 +146,79 @@
       "notProvided": "Ej angivet",
       "membersEmpty": "Inga medlemmar i den här organisationen.",
       "membersCaption": "Organisationens medlemmar",
-      "joinedAt": "Medlem sedan"
+      "joinedAt": "Medlem sedan",
+      "save": "Spara",
+      "archivedNotice": "Den här organisationen är arkiverad: den visas inte längre i den publika katalogen men kan fortfarande visas och redigeras.",
+      "overview": "Översikt",
+      "slug": "Identifierare (slug)",
+      "plan": "Prenumerationsplan",
+      "locale": "Språk",
+      "info": "Redigera uppgifter",
+      "typeSection": "Organisationstyp",
+      "lifecycle": {
+        "title": "Arkivering",
+        "activeHint": "Arkivering tar bort organisationen från den publika katalogen och återkallar väntande inbjudningar.",
+        "archivedHint": "Återställning gör organisationen synlig i den publika katalogen igen."
+      },
+      "member": {
+        "actions": "Åtgärder",
+        "roleLabel": "Roll för {name}",
+        "remove": "Ta bort från organisationen",
+        "removeConfirm": "Ta bort {name} från den här organisationen?"
+      },
+      "invitation": {
+        "title": "Väntande inbjudningar",
+        "empty": "Inga väntande inbjudningar.",
+        "expiresAt": "Går ut den",
+        "invitedBy": "Inbjuden av",
+        "resend": "Skicka igen",
+        "resendConfirm": "Skicka inbjudan till {email} igen?",
+        "revoke": "Återkalla",
+        "revokeConfirm": "Återkalla inbjudan till {email}?"
+      },
+      "profile": {
+        "yes": "Ja",
+        "no": "Nej",
+        "supplier": {
+          "title": "Leverantörsprofil",
+          "companyType": "Företagstyp",
+          "commercialStatus": "Kommersiell status",
+          "minOrderQuantity": "Minsta orderkvantitet",
+          "deliveryDays": "Leveranstid (dagar)",
+          "responseTimeDays": "Svarstid (dagar)",
+          "deliveryScope": "Leveransområde",
+          "deliveryCountries": "Leveransländer",
+          "spokenLanguages": "Talade språk",
+          "certifications": "Certifieringar",
+          "reportFrequency": "Rapportfrekvens",
+          "catalogueUpdateMode": "Uppdateringsläge för katalogen",
+          "catalogueUpdateFrequency": "Uppdateringsfrekvens för katalogen",
+          "defaultOriginScope": "Standardursprung",
+          "bio": "Presentation",
+          "foundingPartner": "Grundande partner"
+        },
+        "agency": {
+          "title": "Byråprofil",
+          "activity": "Verksamhet",
+          "activityOther": "Verksamhet (detaljer)",
+          "teamSize": "Teamstorlek",
+          "purchaseVolume": "Inköpsvolym",
+          "clientSectors": "Kundbranscher",
+          "defaultMarginPercent": "Standardmarginal (%)",
+          "reviewReasons": "Granskningsskäl",
+          "noReasons": "Inget granskningsskäl."
+        },
+        "billing": {
+          "title": "Fakturering",
+          "email": "E-post för fakturering",
+          "addressLine1": "Adress",
+          "addressLine2": "Adressrad 2",
+          "city": "Stad",
+          "postalCode": "Postnummer",
+          "country": "Land",
+          "purchaseOrderReference": "Inköpsorderreferens"
+        }
+      }
     },
     "emptyDescription": "Ändra typ eller status för att utöka listan.",
     "resultsCount": "{count, plural, =0 {Inga organisationer} one {# organisation} other {# organisationer}}",

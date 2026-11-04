@@ -118,7 +118,9 @@
       "name": "Name",
       "type": "Type",
       "members": "Members",
-      "status": "Status"
+      "status": "Status",
+      "country": "Country",
+      "lastActivity": "Last activity"
     },
     "fields": {
       "email": "Email",
@@ -144,7 +146,79 @@
       "notProvided": "Not provided",
       "membersEmpty": "No members in this organization.",
       "membersCaption": "Organization members",
-      "joinedAt": "Member since"
+      "joinedAt": "Member since",
+      "save": "Save",
+      "archivedNotice": "This organization is archived: it no longer appears in the public catalogue. It can still be viewed and edited.",
+      "overview": "Overview",
+      "slug": "Identifier (slug)",
+      "plan": "Subscription plan",
+      "locale": "Language",
+      "info": "Edit information",
+      "typeSection": "Organization type",
+      "lifecycle": {
+        "title": "Archiving",
+        "activeHint": "Archiving removes the organization from the public catalogue and revokes its pending invitations.",
+        "archivedHint": "Restoring makes the organization visible in the public catalogue again."
+      },
+      "member": {
+        "actions": "Actions",
+        "roleLabel": "Role of {name}",
+        "remove": "Remove from organization",
+        "removeConfirm": "Remove {name} from this organization?"
+      },
+      "invitation": {
+        "title": "Pending invitations",
+        "empty": "No pending invitations.",
+        "expiresAt": "Expires on",
+        "invitedBy": "Invited by",
+        "resend": "Resend",
+        "resendConfirm": "Resend the invitation to {email}?",
+        "revoke": "Revoke",
+        "revokeConfirm": "Revoke the invitation for {email}?"
+      },
+      "profile": {
+        "yes": "Yes",
+        "no": "No",
+        "supplier": {
+          "title": "Supplier profile",
+          "companyType": "Company type",
+          "commercialStatus": "Commercial status",
+          "minOrderQuantity": "Minimum order quantity",
+          "deliveryDays": "Delivery time (days)",
+          "responseTimeDays": "Response time (days)",
+          "deliveryScope": "Delivery scope",
+          "deliveryCountries": "Delivery countries",
+          "spokenLanguages": "Spoken languages",
+          "certifications": "Certifications",
+          "reportFrequency": "Report frequency",
+          "catalogueUpdateMode": "Catalogue update mode",
+          "catalogueUpdateFrequency": "Catalogue update frequency",
+          "defaultOriginScope": "Default origin",
+          "bio": "Presentation",
+          "foundingPartner": "Founding partner"
+        },
+        "agency": {
+          "title": "Agency profile",
+          "activity": "Activity",
+          "activityOther": "Activity (details)",
+          "teamSize": "Team size",
+          "purchaseVolume": "Purchase volume",
+          "clientSectors": "Client sectors",
+          "defaultMarginPercent": "Default margin (%)",
+          "reviewReasons": "Review reasons",
+          "noReasons": "No review reason."
+        },
+        "billing": {
+          "title": "Billing",
+          "email": "Billing email",
+          "addressLine1": "Address",
+          "addressLine2": "Address line 2",
+          "city": "City",
+          "postalCode": "Postal code",
+          "country": "Country",
+          "purchaseOrderReference": "Purchase order reference"
+        }
+      }
     },
     "emptyDescription": "Change the type or status to widen the list.",
     "resultsCount": "{count, plural, =0 {No organizations} one {# organization} other {# organizations}}",

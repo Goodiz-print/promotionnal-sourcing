@@ -1,4 +1,5 @@
 import Organization from '#models/organization'
+import Role from '#models/role'
 import OrganizationInvitation from '#models/organization_invitation'
 import OrganizationUser from '#models/organization_user'
 import Product from '#models/product'
@@ -150,6 +151,11 @@ export default class AdminOrganizationService {
       .orderBy('country', 'asc')
 
     return result.map((org) => org.country)
+  }
+
+  /** Rôles proposables pour un membre (même liste que l'espace propriétaire). */
+  roles(): Promise<Role[]> {
+    return Role.all()
   }
 }
 
