@@ -507,16 +507,24 @@ test.group('Administration des catégories — réordonnancement', (group) => {
     assert.equal(existing.position, 0)
   })
 
-  test('un utilisateur non plateforme ne peut pas déplacer (403)', async ({ client }) => {
+  test('un utilisateur non plateforme ne peut pas déplacer (sans effet)', async ({
+    client,
+    assert,
+  }) => {
     const user = await freshOrgMember('owner')
     const { a } = await threeRoots()
 
+    // Refus sans suivre la redirection de retour (le 403 devient un flash).
     const response = await client
       .patch(`/fr/admin/categories/${a.id}/move`)
       .json({ direction: 'down' })
       .withCsrfToken()
       .loginAs(user)
+      .redirects(0)
 
-    response.assertStatus(403)
+    assert.isAtLeast(response.status(), 302)
+    await a.refresh()
+    assert.equal(a.position, 0)
+    assert.lengthOf(await AdminAuditLog.query().where('action', 'category.reordered'), 0)
   })
 })
