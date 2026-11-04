@@ -1,22 +1,50 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
-import { FolderTree, Plus, Trash2 } from 'lucide-vue-next'
+import { ArrowDown, ArrowUp, FolderTree, Languages, Plus, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import BaseButton from '~/components/base/base_button.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import BaseIconButton from '~/components/base/base_icon_button.vue'
 import BaseLinkButton from '~/components/base/base_link_button.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseTable from '~/components/base/base_table.vue'
-import type { CategoryAdminType } from '#shared/types/category'
+import type { CategoryAdminType, CategoryMoveDirection } from '#shared/types/category'
 
 defineProps<{ categories: CategoryAdminType[] }>()
 
 const { t, locale } = useI18n()
 
+/** Indentation par niveau d'arbre (classes statiques pour Tailwind ; au-delà, le dernier niveau). */
+const DEPTH_INDENT = ['ps-0', 'ps-6', 'ps-12', 'ps-16']
+
 const createUrl = computed(() => urlFor('admin.categories.create', { locale: locale.value }))
+
+function completeTranslations() {
+  router.post(
+    urlFor('admin.categories.translate', { locale: locale.value }),
+    {},
+    { preserveScroll: true }
+  )
+}
+
+/** Un déplacement à la fois : un double-clic ne doit pas déplacer de deux crans. */
+const moving = ref(false)
+
+function move(category: CategoryAdminType, direction: CategoryMoveDirection) {
+  if (moving.value) return
+  router.patch(
+    urlFor('admin.categories.move', { locale: locale.value, id: category.id }),
+    { direction },
+    {
+      preserveScroll: true,
+      onStart: () => (moving.value = true),
+      onFinish: () => (moving.value = false),
+    }
+  )
+}
 
 function destroy(category: CategoryAdminType) {
   if (!window.confirm(t('categories.confirmDelete'))) return
@@ -36,6 +64,10 @@ function destroy(category: CategoryAdminType) {
     >
       <!-- Une seule action primaire par écran : l'état vide porte la sienne. -->
       <template v-if="categories.length > 0" #actions>
+        <BaseButton variant="secondary" @click="completeTranslations">
+          <Languages :size="18" aria-hidden="true" />
+          {{ t('categories.index.completeTranslations') }}
+        </BaseButton>
         <BaseLinkButton :href="createUrl">
           <Plus :size="18" aria-hidden="true" />
           {{ t('categories.newCategory') }}
@@ -63,6 +95,7 @@ function destroy(category: CategoryAdminType) {
           <th scope="col">{{ t('categories.index.columns.name') }}</th>
           <th scope="col">{{ t('categories.index.columns.slug') }}</th>
           <th scope="col">{{ t('categories.index.columns.parent') }}</th>
+          <th scope="col" class="text-right">{{ t('categories.index.columns.languages') }}</th>
           <th scope="col" class="text-right">{{ t('categories.index.columns.products') }}</th>
           <th scope="col" class="text-right">
             <span class="sr-only">{{ t('categories.index.columns.actions') }}</span>
@@ -72,22 +105,49 @@ function destroy(category: CategoryAdminType) {
 
       <tr v-for="category in categories" :key="category.id">
         <td>
-          <Link
-            route="admin.categories.edit"
-            :params="{ locale, id: category.id }"
-            class="font-semibold text-text-primary hover:text-indigo-600"
-          >
-            {{ category.name ?? category.slug }}
-          </Link>
+          <div :class="DEPTH_INDENT[Math.min(category.depth, DEPTH_INDENT.length - 1)]">
+            <Link
+              route="admin.categories.edit"
+              :params="{ locale, id: category.id }"
+              class="font-semibold text-text-primary hover:text-indigo-600"
+            >
+              {{ category.name ?? category.slug }}
+            </Link>
+          </div>
         </td>
         <td class="text-text-secondary">{{ category.slug }}</td>
         <td>
           <template v-if="category.parentName">{{ category.parentName }}</template>
           <span v-else class="text-text-muted">{{ t('categories.index.root') }}</span>
         </td>
+        <td class="text-tabular text-right">
+          <span
+            :class="
+              category.translatedLocales < category.totalLocales
+                ? 'text-warning font-medium'
+                : 'text-text-secondary'
+            "
+          >
+            {{ category.translatedLocales }}/{{ category.totalLocales }}
+          </span>
+        </td>
         <td class="text-tabular text-right">{{ category.productsCount }}</td>
         <td>
           <div class="flex items-center justify-end gap-2">
+            <BaseIconButton
+              :label="t('categories.index.moveUp')"
+              :disabled="!category.canMoveUp || moving"
+              @click="move(category, 'up')"
+            >
+              <ArrowUp :size="18" aria-hidden="true" />
+            </BaseIconButton>
+            <BaseIconButton
+              :label="t('categories.index.moveDown')"
+              :disabled="!category.canMoveDown || moving"
+              @click="move(category, 'down')"
+            >
+              <ArrowDown :size="18" aria-hidden="true" />
+            </BaseIconButton>
             <BaseLinkButton
               :href="urlFor('admin.categories.edit', { locale, id: category.id })"
               size="sm"

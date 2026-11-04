@@ -320,6 +320,7 @@ export class CategorySchema extends BaseModel {
     'createdAt',
     'id',
     'parentId',
+    'position',
     'slug',
     'sourceLocale',
     'synonyms',
@@ -332,6 +333,8 @@ export class CategorySchema extends BaseModel {
   declare id: number
   @column()
   declare parentId: number | null
+  @column()
+  declare position: number
   @column()
   declare slug: string
   @column()

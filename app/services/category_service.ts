@@ -4,9 +4,15 @@ import Category from '#models/category'
 import CategoryTranslation from '#models/category_translation'
 import AdminAuditService from '#services/admin_audit_service'
 import TranslationQueueService from '#services/translation_queue_service'
+import TranslationBackfillService from '#services/translation_backfill_service'
 import { missingSourceTranslation } from '#exceptions/translation_errors'
+import { compareSiblingCategories, orderCategoriesAsTree } from '#shared/helpers/category_tree'
 import { CONTENT_LOCALES } from '#shared/types/i18n'
-import type { CreateCategoryInput, UpdateCategoryInput } from '#shared/types/category'
+import type {
+  CategoryMoveDirection,
+  CreateCategoryInput,
+  UpdateCategoryInput,
+} from '#shared/types/category'
 import type { ContentLocale } from '#shared/types/i18n'
 import type { AdminActionContext } from '#shared/types/admin_audit'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
@@ -20,19 +26,103 @@ import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 export default class CategoryService {
   constructor(
     private translationQueue: TranslationQueueService,
-    private audit: AdminAuditService
+    private audit: AdminAuditService,
+    private backfill: TranslationBackfillService
   ) {}
 
   /**
    * Liste d'administration : catégories + parent (traduit) + nombre de produits
-   * rattachés, triées par slug.
+   * rattachés, dans l'ordre de l'arbre (parcours en profondeur, sœurs triées par
+   * `position` puis slug). `$extras` porte `depth`, `can_move_up`, `can_move_down`.
    */
-  listForAdmin(): Promise<Category[]> {
-    return Category.query()
+  async listForAdmin(): Promise<Category[]> {
+    const all = await Category.query()
       .preload('translations')
       .preload('parent', (parent) => parent.preload('translations'))
       .withCount('products')
-      .orderBy('slug')
+
+    return orderCategoriesAsTree(all).map(
+      ({ category, depth, hasPreviousSibling, hasNextSibling }) => {
+        category.$extras.depth = depth
+        category.$extras.can_move_up = hasPreviousSibling
+        category.$extras.can_move_down = hasNextSibling
+        return category
+      }
+    )
+  }
+
+  /**
+   * Met en file la traduction automatique de **toutes** les catégories vers les
+   * langues manquantes. Idempotent : les langues déjà traduites (et les noms
+   * saisis à la main) ne sont jamais retraités. Aucune écriture en base, donc
+   * pas d'audit. `failed` = file indisponible.
+   */
+  async requestMissingTranslations(): Promise<{ queued: number; failed: boolean }> {
+    const report = await this.backfill.backfill({ entities: ['category'] })
+    return { queued: report.queued.category, failed: report.failed }
+  }
+
+  /**
+   * Position suivante parmi les sœurs de `parentId` (ajout en fin de liste).
+   * Pas de verrou : deux créations simultanées sous le même parent peuvent
+   * obtenir la même position, sans conséquence — `move` renumérote les sœurs.
+   */
+  private async nextPosition(
+    parentId: number | null,
+    trx: TransactionClientContract
+  ): Promise<number> {
+    const query = trx.from('categories').max('position as max')
+    if (parentId === null) query.whereNull('parent_id')
+    else query.where('parent_id', parentId)
+    const row = await query.first()
+    return row?.max === null || row?.max === undefined ? 0 : Number(row.max) + 1
+  }
+
+  /**
+   * Déplace la catégorie d'un cran parmi ses sœurs (même parent). Les sœurs sont
+   * verrouillées (`FOR UPDATE`) puis renumérotées 0..n-1, ce qui répare aussi
+   * d'éventuelles positions en doublon. Retourne `false` (sans écriture ni audit)
+   * si la catégorie est déjà en bout de liste dans ce sens.
+   */
+  async move(
+    category: Category,
+    direction: CategoryMoveDirection,
+    context: AdminActionContext
+  ): Promise<boolean> {
+    return db.transaction(async (trx) => {
+      const siblingsQuery = Category.query({ client: trx }).forUpdate()
+      if (category.parentId === null) siblingsQuery.whereNull('parentId')
+      else siblingsQuery.where('parentId', category.parentId)
+      // Tri en mémoire avec le comparateur de l'affichage (même ordre que la liste).
+      const loaded = await siblingsQuery
+      const siblings = loaded.sort(compareSiblingCategories)
+
+      const index = siblings.findIndex((sibling) => sibling.id === category.id)
+      const target = direction === 'up' ? index - 1 : index + 1
+      if (index === -1 || target < 0 || target >= siblings.length) return false
+
+      const previous = siblings.map((sibling) => sibling.id)
+      ;[siblings[index], siblings[target]] = [siblings[target], siblings[index]]
+
+      for (const [position, sibling] of siblings.entries()) {
+        if (sibling.position === position) continue
+        await sibling.useTransaction(trx).merge({ position }).save()
+      }
+
+      await this.audit.record(
+        {
+          action: 'category.reordered',
+          targetType: 'category',
+          targetId: category.id,
+          changes: {
+            before: { order: previous.join(',') },
+            after: { order: siblings.map((sibling) => sibling.id).join(','), direction },
+          },
+        },
+        { ...context, client: trx }
+      )
+      return true
+    })
   }
 
   /**
@@ -70,6 +160,7 @@ export default class CategoryService {
         {
           slug: data.slug,
           parentId: data.parentId ?? null,
+          position: await this.nextPosition(data.parentId ?? null, trx),
           synonyms: data.synonyms ?? [],
           sourceLocale: data.sourceLocale,
         },
@@ -117,7 +208,12 @@ export default class CategoryService {
     await db.transaction(async (trx) => {
       category.useTransaction(trx)
       category.sourceLocale = sourceLocale
-      if (data.parentId !== undefined) category.parentId = data.parentId
+      if (data.parentId !== undefined && data.parentId !== category.parentId) {
+        // Changement de parent : la catégorie passe en fin de liste de ses nouvelles
+        // sœurs ; l'ancien parent garde un trou de position, sans effet (`move` renumérote).
+        category.parentId = data.parentId
+        category.position = await this.nextPosition(data.parentId, trx)
+      }
       if (data.synonyms !== undefined) category.synonyms = data.synonyms
       await category.save()
       await this.writeTranslations(category, data.translations, trx)

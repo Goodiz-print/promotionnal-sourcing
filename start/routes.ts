@@ -537,6 +537,12 @@ router
                   .patch('admin/categories/:id', [controllers.admin.Category, 'update'])
                   .as('admin.categories.update')
                 router
+                  .post('admin/categories/translate', [controllers.admin.Category, 'translate'])
+                  .as('admin.categories.translate')
+                router
+                  .patch('admin/categories/:id/move', [controllers.admin.Category, 'move'])
+                  .as('admin.categories.move')
+                router
                   .delete('admin/categories/:id', [controllers.admin.Category, 'destroy'])
                   .as('admin.categories.destroy')
 

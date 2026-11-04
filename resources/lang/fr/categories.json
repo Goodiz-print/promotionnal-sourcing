@@ -8,10 +8,14 @@
       "slug": "Identifiant",
       "parent": "Parent",
       "products": "Produits",
-      "actions": "Actions"
+      "actions": "Actions",
+      "languages": "Langues"
     },
     "emptyDescription": "Les catégories structurent le catalogue et ses filtres.",
-    "root": "Racine"
+    "root": "Racine",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "completeTranslations": "Compléter les traductions"
   },
   "create": {
     "title": "Nouvelle catégorie",
@@ -45,7 +49,10 @@
     "deleted": "Catégorie supprimée.",
     "cycle": "Une catégorie ne peut pas être son propre parent ou celui d'un de ses descendants.",
     "hasChildren": "Impossible de supprimer : cette catégorie a des sous-catégories.",
-    "hasProducts": "Impossible de supprimer : des produits sont rattachés à cette catégorie."
+    "hasProducts": "Impossible de supprimer : des produits sont rattachés à cette catégorie.",
+    "moved": "Ordre des catégories mis à jour.",
+    "translationsQueued": "Traduction automatique lancée pour {count} catégories : les langues manquantes seront complétées.",
+    "translationsFailed": "Impossible de lancer les traductions : la file est indisponible. Réessayez plus tard."
   },
   "attributes": {
     "title": "Attributs associés",

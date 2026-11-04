@@ -4,6 +4,7 @@ import Category from '#models/category'
 import Attribute from '#models/attribute'
 import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
 import { applyProductRangeFilters } from '#services/product_range_filters'
+import { orderCategoriesAsTree } from '#shared/helpers/category_tree'
 import {
   NEW_PRODUCT_WINDOW_DAYS,
   type ProductDirectoryFilters,
@@ -196,8 +197,8 @@ export default class ProductCatalogueService {
   /**
    * Catégories ayant au moins un produit actif (pour le filtre catégorie).
    */
-  availableCategories(): Promise<Category[]> {
-    return Category.query()
+  async availableCategories(): Promise<Category[]> {
+    const categories = await Category.query()
       .whereHas('products', (products) =>
         products
           .where('isActive', true)
@@ -208,7 +209,8 @@ export default class ProductCatalogueService {
           )
       )
       .preload('translations')
-      .orderBy('slug')
+    // `position` est relatif aux sœurs : on suit l'arbre plutôt qu'un tri plat.
+    return orderCategoriesAsTree(categories).map((entry) => entry.category)
   }
 
   /**

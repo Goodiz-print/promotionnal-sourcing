@@ -7,6 +7,7 @@ export const ADMIN_AUDIT_ACTIONS = [
   'category.created',
   'category.updated',
   'category.deleted',
+  'category.reordered',
   'attribute.created',
   'attribute.updated',
   'attribute.deleted',

@@ -5,6 +5,7 @@ import ModerationDecisionRecord from '#models/moderation_decision'
 import ProductImageTransformer from '#transformers/product_image_transformer'
 import { AdminProductNotFoundException } from '#exceptions/admin_product_errors'
 import { currentStatusSql, latestDecisionIsRejectedSql } from '#shared/helpers/moderation'
+import { orderCategoriesAsTree } from '#shared/helpers/category_tree'
 import { resolveTranslation } from '#shared/helpers/translations'
 import { CONTENT_LOCALES } from '#shared/types/i18n'
 import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
@@ -317,10 +318,15 @@ export default class AdminProductService {
    * Liste des catégories pour le filtre (arbre aplati avec profondeur).
    */
   async categoryOptions(locale: TranslationLocale): Promise<AdminProductCategoryOption[]> {
-    const categories = await Category.query().preload('translations').orderBy('slug', 'asc')
+    const categories = await Category.query().preload('translations')
+    const byParent = new Map<number | null, Category[]>()
+    for (const entry of orderCategoriesAsTree(categories)) {
+      const key = entry.category.parentId
+      byParent.set(key, [...(byParent.get(key) ?? []), entry.category])
+    }
 
     const result: AdminProductCategoryOption[] = []
-    const roots = categories.filter((c) => c.parentId === null)
+    const roots = byParent.get(null) ?? []
 
     const walk = (cats: Category[], depth: number) => {
       for (const cat of cats) {
@@ -333,7 +339,7 @@ export default class AdminProductService {
           name: resolved?.name ?? cat.slug,
           depth,
         })
-        const children = categories.filter((c) => c.parentId === cat.id)
+        const children = byParent.get(cat.id) ?? []
         if (children.length > 0) walk(children, depth + 1)
       }
     }
