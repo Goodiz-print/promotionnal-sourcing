@@ -55,11 +55,13 @@ test.group('Droits des rôles plateforme', () => {
       'users.view',
       'users.support',
       'organizations.view',
+      'products.view',
       'trade.view',
     ])
     assert.sameMembers(permissionsOf('moderator'), [
       'backoffice.access',
       'organizations.view',
+      'products.view',
       'moderation.manage',
     ])
   })
@@ -68,6 +70,17 @@ test.group('Droits des rôles plateforme', () => {
     assert.isTrue(platformRoleHasPermission('admin', 'organizations.manage'))
     for (const role of ['moderator', 'support', 'analyst'] as const) {
       assert.isFalse(platformRoleHasPermission(role, 'organizations.manage'), role)
+    }
+  })
+
+  test('seul admin gère le catalogue produits, trois rôles le consultent', ({ assert }) => {
+    for (const role of ['admin', 'moderator', 'support'] as const) {
+      assert.isTrue(platformRoleHasPermission(role, 'products.view'), role)
+    }
+    assert.isFalse(platformRoleHasPermission('analyst', 'products.view'))
+    assert.isTrue(platformRoleHasPermission('admin', 'products.manage'))
+    for (const role of ['moderator', 'support', 'analyst'] as const) {
+      assert.isFalse(platformRoleHasPermission(role, 'products.manage'), role)
     }
   })
 
