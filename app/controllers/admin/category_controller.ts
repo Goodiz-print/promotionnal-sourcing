@@ -2,9 +2,11 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import { adminActionContext } from '#services/admin_audit_service'
 import CategoryService from '#services/category_service'
+import CategoryAttributeService from '#services/category_attribute_service'
 import CategoryAdminTransformer from '#transformers/category_admin_transformer'
 import CategoryEditTransformer from '#transformers/category_edit_transformer'
 import CategoryTransformer from '#transformers/category_transformer'
+import CategoryAttributeEditTransformer from '#transformers/category_attribute_edit_transformer'
 import { CategoryNotFoundException } from '#exceptions/catalogue_errors'
 import { createCategoryValidator, updateCategoryValidator } from '#validators/category'
 import type { Locale } from '#shared/types/i18n'
@@ -17,7 +19,10 @@ import type { Locale } from '#shared/types/i18n'
  */
 @inject()
 export default class CategoryController {
-  constructor(private service: CategoryService) {}
+  constructor(
+    private service: CategoryService,
+    private attributeService: CategoryAttributeService
+  ) {}
 
   /**
    * Liste des catégories (avec parent et nombre de produits).
@@ -61,18 +66,29 @@ export default class CategoryController {
   }
 
   /**
-   * Formulaire d'édition (parents assignables = tous sauf la catégorie et ses
-   * descendants, pour éviter les cycles).
+   * Formulaire d'edition (parents assignables = tous sauf la categorie et ses
+   * descendants, pour eviter les cycles ; attributs associes et disponibles).
    */
   async edit({ bouncer, inertia, params, i18n }: HttpContext) {
     await bouncer.authorize('canManageCategories')
+    const locale = i18n.locale as Locale
 
     const category = await this.service.findById(Number(params.id))
     if (!category) throw new CategoryNotFoundException()
 
+    const categoryAttributes = await this.attributeService.listForCategory(category.id)
+    const availableAttributes = await this.attributeService.availableForCategory(
+      category.id,
+      locale
+    )
+
     return inertia.render('admin/categories/edit', {
       category: new CategoryEditTransformer(category).toObject(),
-      parents: await this.parentOptions(i18n.locale as Locale, category.id),
+      parents: await this.parentOptions(locale, category.id),
+      categoryAttributes: categoryAttributes.map((pivot) =>
+        new CategoryAttributeEditTransformer(pivot, locale).toObject()
+      ),
+      availableAttributes,
     })
   }
 

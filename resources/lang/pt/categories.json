@@ -47,6 +47,46 @@
     "hasChildren": "Não é possível eliminar: esta categoria tem subcategorias.",
     "hasProducts": "Não é possível eliminar: existem produtos associados a esta categoria."
   },
+  "attributes": {
+    "title": "Atributos associados",
+    "description": "Atributos ligados diretamente a esta categoria (os atributos herdados das categorias superiores não são apresentados).",
+    "empty": "Nenhum atributo associado a esta categoria.",
+    "add": "Adicionar um atributo",
+    "columns": {
+      "name": "Atributo",
+      "type": "Tipo",
+      "required": "Obrigatório",
+      "filter": "Filtro",
+      "position": "Posição",
+      "ranges": "Intervalos",
+      "actions": "Ações"
+    },
+    "flash": {
+      "added": "Atributo adicionado à categoria.",
+      "updated": "Associação atualizada.",
+      "removed": "Atributo removido da categoria.",
+      "rangesUpdated": "Intervalos atualizados.",
+      "alreadyExists": "Este atributo já está associado a esta categoria."
+    },
+    "selectLabel": "Atributo a adicionar",
+    "selectPlaceholder": "Escolher um atributo",
+    "noneAvailable": "Todos os atributos já estão associados a esta categoria.",
+    "remove": "Remover o atributo",
+    "confirmRemove": "Remover este atributo da categoria?",
+    "editRanges": "Editar os intervalos",
+    "noRanges": "Sem intervalos",
+    "requiredFor": "Obrigatório para {name}",
+    "filterFor": "Filtro para {name}",
+    "positionFor": "Posição de {name}",
+    "ranges": {
+      "min": "Mínimo",
+      "max": "Máximo",
+      "add": "Adicionar um intervalo",
+      "remove": "Eliminar o intervalo",
+      "save": "Guardar os intervalos",
+      "hint": "Deixe um limite vazio para um intervalo aberto (por exemplo, menos de 400)."
+    }
+  },
   "back": "Voltar às categorias",
   "form": {
     "identity": "Identificação",

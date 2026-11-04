@@ -1,0 +1,61 @@
+{
+  "index": {
+    "title": "Bedrukkingstechnieken",
+    "subtitle": "Beheer de personalisatietechnieken van de catalogus (bedrukken, graveren, borduren…).",
+    "empty": "Nog geen technieken. Maak er een aan.",
+    "emptyDescription": "Bedrukkingstechnieken beschrijven de methoden om producten te personaliseren.",
+    "columns": {
+      "name": "Naam",
+      "slug": "Identificatie",
+      "family": "Familie",
+      "products": "Producten",
+      "actions": "Acties"
+    }
+  },
+  "create": {
+    "title": "Nieuwe techniek",
+    "subtitle": "Voeg een bedrukkingstechniek toe aan de catalogus."
+  },
+  "update": {
+    "title": "Techniek bewerken",
+    "subtitle": "Bewerk de naam, de familie en de instellingen van “{slug}”."
+  },
+  "edit": "Bewerken",
+  "newTechnique": "Nieuwe techniek",
+  "delete": "Verwijderen",
+  "save": "Opslaan",
+  "cancel": "Annuleren",
+  "confirmDelete": "Deze techniek verwijderen?",
+  "back": "Terug naar technieken",
+  "fields": {
+    "slug": "Identificatie (slug)",
+    "slugHint": "Kleine letters, cijfers en koppeltekens. Later niet te wijzigen.",
+    "slugPlaceholder": "bijv. zeefdruk",
+    "family": "Familie",
+    "familyHint": "Procescategorie (bedrukken, transfer, graveren…).",
+    "synonyms": "Synoniemen",
+    "synonymsHint": "Gescheiden door komma’s (verbetert de import).",
+    "synonymsPlaceholder": "bijv. silk screen, serigrafie",
+    "name": "Naam"
+  },
+  "families": {
+    "print": "Bedrukken",
+    "transfer": "Transfer",
+    "engraving": "Graveren",
+    "embroidery": "Borduren",
+    "relief": "Reliëf",
+    "special": "Speciaal"
+  },
+  "form": {
+    "identity": "Identificatie",
+    "identityDescription": "Technische identificatie en procescategorie.",
+    "content": "Inhoud in {language}",
+    "otherLocale": "Andere taal om weer te geven"
+  },
+  "flash": {
+    "created": "Techniek aangemaakt.",
+    "updated": "Techniek bijgewerkt.",
+    "deleted": "Techniek verwijderd.",
+    "inUse": "Verwijderen niet mogelijk: er zijn producten die deze techniek gebruiken."
+  }
+}

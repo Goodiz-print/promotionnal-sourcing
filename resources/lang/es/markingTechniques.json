@@ -1,0 +1,61 @@
+{
+  "index": {
+    "title": "Técnicas de marcaje",
+    "subtitle": "Administre las técnicas de personalización del catálogo (impresión, grabado, bordado…).",
+    "empty": "Aún no hay técnicas. Cree una.",
+    "emptyDescription": "Las técnicas de marcaje describen los métodos de personalización de los productos.",
+    "columns": {
+      "name": "Nombre",
+      "slug": "Identificador",
+      "family": "Familia",
+      "products": "Productos",
+      "actions": "Acciones"
+    }
+  },
+  "create": {
+    "title": "Nueva técnica",
+    "subtitle": "Añada una técnica de marcaje al catálogo."
+  },
+  "update": {
+    "title": "Editar la técnica",
+    "subtitle": "Edite el nombre, la familia y la configuración de «{slug}»."
+  },
+  "edit": "Editar",
+  "newTechnique": "Nueva técnica",
+  "delete": "Eliminar",
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "confirmDelete": "¿Eliminar esta técnica?",
+  "back": "Volver a las técnicas",
+  "fields": {
+    "slug": "Identificador (slug)",
+    "slugHint": "Minúsculas, cifras y guiones. No se puede modificar después.",
+    "slugPlaceholder": "p. ej. serigrafía",
+    "family": "Familia",
+    "familyHint": "Categoría de proceso (impresión, transferencia, grabado…).",
+    "synonyms": "Sinónimos",
+    "synonymsHint": "Separados por comas (mejora la importación).",
+    "synonymsPlaceholder": "p. ej. serigrafía, silk screen",
+    "name": "Nombre"
+  },
+  "families": {
+    "print": "Impresión",
+    "transfer": "Transferencia",
+    "engraving": "Grabado",
+    "embroidery": "Bordado",
+    "relief": "Relieve",
+    "special": "Especial"
+  },
+  "form": {
+    "identity": "Identificación",
+    "identityDescription": "Identificador técnico y familia de proceso.",
+    "content": "Contenido en {language}",
+    "otherLocale": "Otro idioma que mostrar"
+  },
+  "flash": {
+    "created": "Técnica creada.",
+    "updated": "Técnica actualizada.",
+    "deleted": "Técnica eliminada.",
+    "inUse": "No se puede eliminar: hay productos que usan esta técnica."
+  }
+}

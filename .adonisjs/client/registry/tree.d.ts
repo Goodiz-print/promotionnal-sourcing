@@ -259,6 +259,14 @@ export interface ApiDefinition {
       edit: typeof routes['admin.categories.edit']
       update: typeof routes['admin.categories.update']
       destroy: typeof routes['admin.categories.destroy']
+      attributes: {
+        store: typeof routes['admin.categories.attributes.store']
+        update: typeof routes['admin.categories.attributes.update']
+        destroy: typeof routes['admin.categories.attributes.destroy']
+        ranges: {
+          update: typeof routes['admin.categories.attributes.ranges.update']
+        }
+      }
     }
     attributes: {
       index: typeof routes['admin.attributes.index']
@@ -272,6 +280,22 @@ export interface ApiDefinition {
       store: typeof routes['admin.attribute_values.store']
       update: typeof routes['admin.attribute_values.update']
       destroy: typeof routes['admin.attribute_values.destroy']
+    }
+    certifications: {
+      index: typeof routes['admin.certifications.index']
+      create: typeof routes['admin.certifications.create']
+      store: typeof routes['admin.certifications.store']
+      edit: typeof routes['admin.certifications.edit']
+      update: typeof routes['admin.certifications.update']
+      destroy: typeof routes['admin.certifications.destroy']
+    }
+    markingTechniques: {
+      index: typeof routes['admin.marking_techniques.index']
+      create: typeof routes['admin.marking_techniques.create']
+      store: typeof routes['admin.marking_techniques.store']
+      edit: typeof routes['admin.marking_techniques.edit']
+      update: typeof routes['admin.marking_techniques.update']
+      destroy: typeof routes['admin.marking_techniques.destroy']
     }
   }
 }

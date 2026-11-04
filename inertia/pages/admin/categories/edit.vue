@@ -4,13 +4,24 @@ import { Head } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BasePageHeader from '~/components/base/base_page_header.vue'
+import CategoryAttributesSection from '~/components/categories/attributes/category_attributes_section.vue'
 import CategoryForm from '~/components/categories/form/category_form.vue'
-import type { CategoryType, CategoryEditType } from '#shared/types/category'
+import type {
+  CategoryType,
+  CategoryEditType,
+  CategoryAttributeEditType,
+  CategoryAttributeOption,
+} from '#shared/types/category'
 
-defineProps<{
-  category: CategoryEditType
-  parents: CategoryType[]
-}>()
+withDefaults(
+  defineProps<{
+    category: CategoryEditType
+    parents: CategoryType[]
+    categoryAttributes?: CategoryAttributeEditType[]
+    availableAttributes?: CategoryAttributeOption[]
+  }>(),
+  { categoryAttributes: () => [], availableAttributes: () => [] }
+)
 
 const { t, locale } = useI18n()
 
@@ -29,5 +40,11 @@ const indexUrl = computed(() => urlFor('admin.categories.index', { locale: local
     />
 
     <CategoryForm mode="edit" :parents="parents" :category="category" />
+
+    <CategoryAttributesSection
+      :category-id="category.id"
+      :attributes="categoryAttributes"
+      :available-attributes="availableAttributes"
+    />
   </div>
 </template>

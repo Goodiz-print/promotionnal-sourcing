@@ -574,6 +574,84 @@ router
                     'destroy',
                   ])
                   .as('admin.attribute_values.destroy')
+
+                // Administration des certifications (labels de conformité, #165).
+                router
+                  .get('admin/certifications', [controllers.admin.Certification, 'index'])
+                  .as('admin.certifications.index')
+                router
+                  .get('admin/certifications/new', [controllers.admin.Certification, 'create'])
+                  .as('admin.certifications.create')
+                router
+                  .post('admin/certifications', [controllers.admin.Certification, 'store'])
+                  .as('admin.certifications.store')
+                router
+                  .get('admin/certifications/:id/edit', [controllers.admin.Certification, 'edit'])
+                  .as('admin.certifications.edit')
+                router
+                  .patch('admin/certifications/:id', [controllers.admin.Certification, 'update'])
+                  .as('admin.certifications.update')
+                router
+                  .delete('admin/certifications/:id', [controllers.admin.Certification, 'destroy'])
+                  .as('admin.certifications.destroy')
+
+                // Administration des techniques de marquage (#165).
+                router
+                  .get('admin/marking-techniques', [controllers.admin.MarkingTechnique, 'index'])
+                  .as('admin.marking_techniques.index')
+                router
+                  .get('admin/marking-techniques/new', [
+                    controllers.admin.MarkingTechnique,
+                    'create',
+                  ])
+                  .as('admin.marking_techniques.create')
+                router
+                  .post('admin/marking-techniques', [controllers.admin.MarkingTechnique, 'store'])
+                  .as('admin.marking_techniques.store')
+                router
+                  .get('admin/marking-techniques/:id/edit', [
+                    controllers.admin.MarkingTechnique,
+                    'edit',
+                  ])
+                  .as('admin.marking_techniques.edit')
+                router
+                  .patch('admin/marking-techniques/:id', [
+                    controllers.admin.MarkingTechnique,
+                    'update',
+                  ])
+                  .as('admin.marking_techniques.update')
+                router
+                  .delete('admin/marking-techniques/:id', [
+                    controllers.admin.MarkingTechnique,
+                    'destroy',
+                  ])
+                  .as('admin.marking_techniques.destroy')
+
+                // Gestion des attributs associés aux catégories (#165).
+                router
+                  .post('admin/categories/:categoryId/attributes', [
+                    controllers.admin.CategoryAttribute,
+                    'store',
+                  ])
+                  .as('admin.categories.attributes.store')
+                router
+                  .patch('admin/categories/:categoryId/attributes/:id', [
+                    controllers.admin.CategoryAttribute,
+                    'update',
+                  ])
+                  .as('admin.categories.attributes.update')
+                router
+                  .delete('admin/categories/:categoryId/attributes/:id', [
+                    controllers.admin.CategoryAttribute,
+                    'destroy',
+                  ])
+                  .as('admin.categories.attributes.destroy')
+                router
+                  .patch('admin/categories/:categoryId/attributes/:id/ranges', [
+                    controllers.admin.CategoryAttribute,
+                    'updateRanges',
+                  ])
+                  .as('admin.categories.attributes.ranges.update')
               })
               .use(middleware.platformAdmin())
           })

@@ -47,6 +47,46 @@
     "hasChildren": "Nie można usunąć: ta kategoria zawiera podkategorie.",
     "hasProducts": "Nie można usunąć: do tej kategorii przypisane są produkty."
   },
+  "attributes": {
+    "title": "Powiązane atrybuty",
+    "description": "Atrybuty przypisane bezpośrednio do tej kategorii (atrybuty odziedziczone po kategoriach nadrzędnych nie są wyświetlane).",
+    "empty": "Do tej kategorii nie przypisano żadnych atrybutów.",
+    "add": "Dodaj atrybut",
+    "columns": {
+      "name": "Atrybut",
+      "type": "Typ",
+      "required": "Wymagany",
+      "filter": "Filtr",
+      "position": "Pozycja",
+      "ranges": "Zakresy",
+      "actions": "Akcje"
+    },
+    "flash": {
+      "added": "Atrybut dodany do kategorii.",
+      "updated": "Powiązanie zaktualizowane.",
+      "removed": "Atrybut usunięty z kategorii.",
+      "rangesUpdated": "Zakresy zaktualizowane.",
+      "alreadyExists": "Ten atrybut jest już przypisany do tej kategorii."
+    },
+    "selectLabel": "Atrybut do dodania",
+    "selectPlaceholder": "Wybierz atrybut",
+    "noneAvailable": "Wszystkie atrybuty są już przypisane do tej kategorii.",
+    "remove": "Usuń atrybut",
+    "confirmRemove": "Usunąć ten atrybut z kategorii?",
+    "editRanges": "Edytuj zakresy",
+    "noRanges": "Brak zakresów",
+    "requiredFor": "Wymagany dla: {name}",
+    "filterFor": "Filtr dla: {name}",
+    "positionFor": "Pozycja: {name}",
+    "ranges": {
+      "min": "Minimum",
+      "max": "Maksimum",
+      "add": "Dodaj zakres",
+      "remove": "Usuń zakres",
+      "save": "Zapisz zakresy",
+      "hint": "Pozostaw granicę pustą, aby utworzyć zakres otwarty (na przykład poniżej 400)."
+    }
+  },
   "back": "Powrót do kategorii",
   "form": {
     "identity": "Identyfikacja",

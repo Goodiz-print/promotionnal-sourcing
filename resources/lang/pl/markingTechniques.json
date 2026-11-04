@@ -1,0 +1,61 @@
+{
+  "index": {
+    "title": "Techniki znakowania",
+    "subtitle": "Zarządzaj technikami personalizacji w katalogu (druk, grawerowanie, haft…).",
+    "empty": "Brak technik. Utwórz pierwszą.",
+    "emptyDescription": "Techniki znakowania opisują metody personalizacji produktów.",
+    "columns": {
+      "name": "Nazwa",
+      "slug": "Identyfikator",
+      "family": "Rodzina",
+      "products": "Produkty",
+      "actions": "Akcje"
+    }
+  },
+  "create": {
+    "title": "Nowa technika",
+    "subtitle": "Dodaj technikę znakowania do katalogu."
+  },
+  "update": {
+    "title": "Edytuj technikę",
+    "subtitle": "Edytuj nazwę, rodzinę i ustawienia „{slug}”."
+  },
+  "edit": "Edytuj",
+  "newTechnique": "Nowa technika",
+  "delete": "Usuń",
+  "save": "Zapisz",
+  "cancel": "Anuluj",
+  "confirmDelete": "Usunąć tę technikę?",
+  "back": "Wróć do technik",
+  "fields": {
+    "slug": "Identyfikator (slug)",
+    "slugHint": "Małe litery, cyfry i myślniki. Nie można zmienić później.",
+    "slugPlaceholder": "np. sitodruk",
+    "family": "Rodzina",
+    "familyHint": "Kategoria procesu (druk, transfer, grawerowanie…).",
+    "synonyms": "Synonimy",
+    "synonymsHint": "Rozdzielone przecinkami (poprawia import).",
+    "synonymsPlaceholder": "np. silk screen, serigrafia",
+    "name": "Nazwa"
+  },
+  "families": {
+    "print": "Druk",
+    "transfer": "Transfer",
+    "engraving": "Grawerowanie",
+    "embroidery": "Haft",
+    "relief": "Tłoczenie",
+    "special": "Specjalne"
+  },
+  "form": {
+    "identity": "Identyfikacja",
+    "identityDescription": "Identyfikator techniczny i kategoria procesu.",
+    "content": "Treść w języku {language}",
+    "otherLocale": "Inny język do wyświetlenia"
+  },
+  "flash": {
+    "created": "Technika utworzona.",
+    "updated": "Technika zaktualizowana.",
+    "deleted": "Technika usunięta.",
+    "inUse": "Nie można usunąć: istnieją produkty korzystające z tej techniki."
+  }
+}

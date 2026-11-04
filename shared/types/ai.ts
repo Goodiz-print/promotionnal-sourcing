@@ -7,6 +7,8 @@ export const TRANSLATABLE_ENTITIES = [
   'category',
   'attribute',
   'attribute_value',
+  'certification',
+  'marking_technique',
 ] as const
 
 export type TranslatableEntity = (typeof TRANSLATABLE_ENTITIES)[number]

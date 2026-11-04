@@ -47,6 +47,46 @@
     "hasChildren": "Cannot delete: this category has sub-categories.",
     "hasProducts": "Cannot delete: products are attached to this category."
   },
+  "attributes": {
+    "title": "Associated attributes",
+    "description": "Attributes directly attached to this category (inherited attributes from ancestors are not shown).",
+    "empty": "No attributes associated with this category.",
+    "add": "Add an attribute",
+    "columns": {
+      "name": "Attribute",
+      "type": "Type",
+      "required": "Required",
+      "filter": "Filter",
+      "position": "Position",
+      "ranges": "Ranges",
+      "actions": "Actions"
+    },
+    "flash": {
+      "added": "Attribute added to category.",
+      "updated": "Association updated.",
+      "removed": "Attribute removed from category.",
+      "rangesUpdated": "Ranges updated.",
+      "alreadyExists": "This attribute is already associated with this category."
+    },
+    "selectLabel": "Attribute to add",
+    "selectPlaceholder": "Choose an attribute",
+    "noneAvailable": "All attributes are already associated with this category.",
+    "remove": "Remove attribute",
+    "confirmRemove": "Remove this attribute from the category?",
+    "editRanges": "Edit ranges",
+    "noRanges": "No ranges",
+    "requiredFor": "Required for {name}",
+    "filterFor": "Filter for {name}",
+    "positionFor": "Position of {name}",
+    "ranges": {
+      "min": "Minimum",
+      "max": "Maximum",
+      "add": "Add a range",
+      "remove": "Delete range",
+      "save": "Save ranges",
+      "hint": "Leave a bound empty for an open range (for example, under 400)."
+    }
+  },
   "back": "Back to categories",
   "form": {
     "identity": "Identification",

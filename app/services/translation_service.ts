@@ -29,6 +29,16 @@ const ENTITY_TABLES: Record<TranslatableEntity, EntityTable> = {
     foreignKey: 'attribute_value_id',
     fields: ['label'],
   },
+  certification: {
+    table: 'certification_translations',
+    foreignKey: 'certification_id',
+    fields: ['name'],
+  },
+  marking_technique: {
+    table: 'marking_technique_translations',
+    foreignKey: 'marking_technique_id',
+    fields: ['name'],
+  },
 }
 
 /**

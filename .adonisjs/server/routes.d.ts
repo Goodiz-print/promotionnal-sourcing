@@ -175,6 +175,22 @@ export type ScannedRoutes = {
     'admin.attribute_values.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.attribute_values.update': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'valueId': ParamValue} }
     'admin.attribute_values.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'valueId': ParamValue} }
+    'admin.certifications.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.certifications.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.certifications.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.certifications.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.certifications.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.certifications.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.marking_techniques.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.marking_techniques.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.marking_techniques.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.marking_techniques.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.marking_techniques.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.marking_techniques.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.categories.attributes.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'categoryId': ParamValue} }
+    'admin.categories.attributes.update': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'categoryId': ParamValue,'id': ParamValue} }
+    'admin.categories.attributes.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'categoryId': ParamValue,'id': ParamValue} }
+    'admin.categories.attributes.ranges.update': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'categoryId': ParamValue,'id': ParamValue} }
   }
   GET: {
     'event_stream': { paramsTuple?: []; params?: {} }
@@ -249,6 +265,12 @@ export type ScannedRoutes = {
     'admin.attributes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.attributes.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.attributes.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.certifications.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.certifications.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.certifications.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.marking_techniques.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.marking_techniques.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.marking_techniques.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
   }
   HEAD: {
     'event_stream': { paramsTuple?: []; params?: {} }
@@ -323,6 +345,12 @@ export type ScannedRoutes = {
     'admin.attributes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.attributes.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.attributes.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.certifications.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.certifications.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.certifications.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.marking_techniques.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.marking_techniques.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.marking_techniques.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
   }
   POST: {
     'subscribe': { paramsTuple?: []; params?: {} }
@@ -383,6 +411,9 @@ export type ScannedRoutes = {
     'admin.categories.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.attributes.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.attribute_values.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.certifications.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.marking_techniques.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.categories.attributes.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'categoryId': ParamValue} }
   }
   PATCH: {
     'account.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -409,6 +440,10 @@ export type ScannedRoutes = {
     'admin.categories.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.attributes.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.attribute_values.update': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'valueId': ParamValue} }
+    'admin.certifications.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.marking_techniques.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.categories.attributes.update': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'categoryId': ParamValue,'id': ParamValue} }
+    'admin.categories.attributes.ranges.update': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'categoryId': ParamValue,'id': ParamValue} }
   }
   DELETE: {
     'account.destroy': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -428,6 +463,9 @@ export type ScannedRoutes = {
     'admin.categories.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.attributes.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.attribute_values.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'valueId': ParamValue} }
+    'admin.certifications.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.marking_techniques.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.categories.attributes.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'categoryId': ParamValue,'id': ParamValue} }
   }
 }
 declare module '@adonisjs/core/types/http' {

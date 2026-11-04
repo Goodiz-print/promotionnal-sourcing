@@ -47,6 +47,46 @@
     "hasChildren": "Löschen nicht möglich: Diese Kategorie enthält Unterkategorien.",
     "hasProducts": "Löschen nicht möglich: Dieser Kategorie sind Produkte zugeordnet."
   },
+  "attributes": {
+    "title": "Zugeordnete Attribute",
+    "description": "Direkt mit dieser Kategorie verknüpfte Attribute (von übergeordneten Kategorien geerbte Attribute werden nicht angezeigt).",
+    "empty": "Dieser Kategorie sind keine Attribute zugeordnet.",
+    "add": "Attribut hinzufügen",
+    "columns": {
+      "name": "Attribut",
+      "type": "Typ",
+      "required": "Pflicht",
+      "filter": "Filter",
+      "position": "Position",
+      "ranges": "Wertebereiche",
+      "actions": "Aktionen"
+    },
+    "flash": {
+      "added": "Attribut zur Kategorie hinzugefügt.",
+      "updated": "Zuordnung aktualisiert.",
+      "removed": "Attribut aus der Kategorie entfernt.",
+      "rangesUpdated": "Wertebereiche aktualisiert.",
+      "alreadyExists": "Dieses Attribut ist dieser Kategorie bereits zugeordnet."
+    },
+    "selectLabel": "Hinzuzufügendes Attribut",
+    "selectPlaceholder": "Attribut auswählen",
+    "noneAvailable": "Alle Attribute sind dieser Kategorie bereits zugeordnet.",
+    "remove": "Attribut entfernen",
+    "confirmRemove": "Dieses Attribut aus der Kategorie entfernen?",
+    "editRanges": "Wertebereiche bearbeiten",
+    "noRanges": "Keine Wertebereiche",
+    "requiredFor": "Pflicht für {name}",
+    "filterFor": "Filter für {name}",
+    "positionFor": "Position von {name}",
+    "ranges": {
+      "min": "Minimum",
+      "max": "Maximum",
+      "add": "Wertebereich hinzufügen",
+      "remove": "Wertebereich löschen",
+      "save": "Wertebereiche speichern",
+      "hint": "Lassen Sie eine Grenze leer, um einen offenen Wertebereich zu definieren (z. B. unter 400)."
+    }
+  },
   "back": "Zurück zu den Kategorien",
   "form": {
     "identity": "Identifikation",

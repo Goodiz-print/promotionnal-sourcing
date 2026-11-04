@@ -116,3 +116,79 @@ export function invalidVariantInput(field: string, message: string, rule: string
 export function invalidMarkingInput(field: string, message: string, rule: string) {
   return new errors.E_VALIDATION_ERROR([{ field, message, rule }])
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Certifications et techniques de marquage (administration, #165)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Certification introuvable (administration des référentiels catalogue, #165).
+ */
+export class CertificationNotFoundException extends Exception {
+  static status = 404
+  static code = 'E_CERTIFICATION_NOT_FOUND'
+  static message = 'Certification not found'
+}
+
+/**
+ * Suppression d'une certification refusée : des produits la portent
+ * (`product_certifications`).
+ */
+export class CertificationInUseException extends Exception {
+  static status = 409
+  static code = 'E_CERTIFICATION_IN_USE'
+
+  constructor() {
+    super('Certification is in use by products')
+  }
+}
+
+/**
+ * Technique de marquage introuvable (administration des référentiels, #165).
+ */
+export class MarkingTechniqueNotFoundException extends Exception {
+  static status = 404
+  static code = 'E_MARKING_TECHNIQUE_NOT_FOUND'
+  static message = 'Marking technique not found'
+}
+
+/**
+ * Suppression d'une technique de marquage refusée : des produits l'utilisent
+ * (`product_marking_position_techniques`, `product_marking_price_tiers`).
+ */
+export class MarkingTechniqueInUseException extends Exception {
+  static status = 409
+  static code = 'E_MARKING_TECHNIQUE_IN_USE'
+
+  constructor() {
+    super('Marking technique is in use by products')
+  }
+}
+
+/**
+ * Pivot catégorie-attribut introuvable (administration, #165).
+ */
+export class CategoryAttributeNotFoundException extends Exception {
+  static status = 404
+  static code = 'E_CATEGORY_ATTRIBUTE_NOT_FOUND'
+  static message = 'Category attribute not found'
+}
+
+/**
+ * Attribut déjà associé à cette catégorie (unicité `(category_id, attribute_id)`).
+ */
+export class CategoryAttributeAlreadyExistsException extends Exception {
+  static status = 409
+  static code = 'E_CATEGORY_ATTRIBUTE_EXISTS'
+
+  constructor() {
+    super('This attribute is already associated with this category')
+  }
+}
+
+/**
+ * Plages de filtre invalides (min >= max ou attribut non numérique).
+ */
+export function invalidCategoryAttributeRanges(message: string) {
+  return new errors.E_VALIDATION_ERROR([{ field: 'ranges', message, rule: 'ranges' }])
+}

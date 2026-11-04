@@ -156,3 +156,82 @@ export interface UpdateCategoryInput {
   sourceLocale?: ContentLocale
   translations?: Partial<Record<ContentLocale, Partial<CategoryTranslationInput>>>
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Administration des attributs associés aux catégories (#165)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Tranche d'attribut numérique dans l'écran d'édition (admin). Identique à
+ * `CategoryAttributeRangeType` mais avec un id pour l'édition.
+ */
+export type CategoryAttributeRangeEditType = {
+  id: number
+  minValue: number | null
+  maxValue: number | null
+  position: number
+}
+
+/**
+ * Attribut associé à une catégorie pour l'écran d'édition admin : les champs
+ * du pivot `category_attributes` + le nom de l'attribut résolu + les plages.
+ */
+export type CategoryAttributeEditType = {
+  id: number
+  attributeId: number
+  slug: string
+  name: string | null
+  type: AttributeDataType
+  unit: string | null
+  isRequiredForPublication: boolean
+  isFilter: boolean
+  position: number
+  ranges: CategoryAttributeRangeEditType[]
+}
+
+/**
+ * Ajout d'un attribut à une catégorie (pivot `category_attributes`).
+ */
+export interface AddCategoryAttributeData {
+  attributeId: number
+  isRequiredForPublication?: boolean
+  isFilter?: boolean
+  position?: number
+}
+
+/**
+ * Mise à jour du pivot catégorie-attribut.
+ */
+export interface UpdateCategoryAttributeData {
+  isRequiredForPublication?: boolean
+  isFilter?: boolean
+  position?: number
+}
+
+/**
+ * Tranche d'un attribut numérique sur une catégorie : min/max sont des nombres
+ * (nullable = borne ouverte). Validation : minValue < maxValue si les deux
+ * sont présents.
+ */
+export interface CategoryAttributeRangeInput {
+  minValue?: number | null
+  maxValue?: number | null
+}
+
+/**
+ * Mise à jour des plages d'un attribut numérique associé à une catégorie.
+ * Le tableau remplace les plages existantes (synchronisation complète).
+ */
+export interface UpdateCategoryAttributeRangesData {
+  ranges: CategoryAttributeRangeInput[]
+}
+
+/**
+ * Attribut proposé à l'ajout sur l'écran d'édition d'une catégorie (attributs
+ * pas encore associés), nom résolu dans la locale active.
+ */
+export type CategoryAttributeOption = {
+  id: number
+  slug: string
+  name: string | null
+}

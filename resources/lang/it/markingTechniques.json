@@ -1,0 +1,61 @@
+{
+  "index": {
+    "title": "Tecniche di marcatura",
+    "subtitle": "Gestisci le tecniche di personalizzazione del catalogo (stampa, incisione, ricamo…).",
+    "empty": "Ancora nessuna tecnica. Creane una.",
+    "emptyDescription": "Le tecniche di marcatura descrivono i metodi di personalizzazione dei prodotti.",
+    "columns": {
+      "name": "Nome",
+      "slug": "Identificativo",
+      "family": "Famiglia",
+      "products": "Prodotti",
+      "actions": "Azioni"
+    }
+  },
+  "create": {
+    "title": "Nuova tecnica",
+    "subtitle": "Aggiungi una tecnica di marcatura al catalogo."
+  },
+  "update": {
+    "title": "Modifica tecnica",
+    "subtitle": "Modifica nome, famiglia e impostazioni di «{slug}»."
+  },
+  "edit": "Modifica",
+  "newTechnique": "Nuova tecnica",
+  "delete": "Elimina",
+  "save": "Salva",
+  "cancel": "Annulla",
+  "confirmDelete": "Eliminare questa tecnica?",
+  "back": "Torna alle tecniche",
+  "fields": {
+    "slug": "Identificativo (slug)",
+    "slugHint": "Minuscole, cifre e trattini. Non modificabile in seguito.",
+    "slugPlaceholder": "es. serigrafia",
+    "family": "Famiglia",
+    "familyHint": "Categoria di processo (stampa, trasferimento, incisione…).",
+    "synonyms": "Sinonimi",
+    "synonymsHint": "Separati da virgole (migliora l’importazione).",
+    "synonymsPlaceholder": "es. silk screen, serigrafia",
+    "name": "Nome"
+  },
+  "families": {
+    "print": "Stampa",
+    "transfer": "Trasferimento",
+    "engraving": "Incisione",
+    "embroidery": "Ricamo",
+    "relief": "Rilievo",
+    "special": "Speciale"
+  },
+  "form": {
+    "identity": "Identificazione",
+    "identityDescription": "Identificativo tecnico e categoria di processo.",
+    "content": "Contenuto in {language}",
+    "otherLocale": "Altra lingua da mostrare"
+  },
+  "flash": {
+    "created": "Tecnica creata.",
+    "updated": "Tecnica aggiornata.",
+    "deleted": "Tecnica eliminata.",
+    "inUse": "Impossibile eliminare: esistono prodotti che usano questa tecnica."
+  }
+}

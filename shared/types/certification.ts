@@ -98,3 +98,60 @@ export interface CertificationSeed {
   names: Partial<Record<ContentLocale, string>>
   synonyms: string[]
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Administration des certifications (#165)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Certification dans la liste d'administration : nom résolu dans la locale
+ * active, domaine, flag éco, nombre de produits qui la portent.
+ */
+export type CertificationAdminType = {
+  id: number
+  slug: string
+  name: string | null
+  domain: CertificationDomain
+  isEco: boolean
+  /** Nombre de produits rattachés (suppression refusée si > 0). */
+  productsCount: number
+}
+
+/**
+ * Certification exposée au formulaire d'édition : traductions par langue de
+ * contenu (toutes), slug, domaine, isEco, synonymes et langue source.
+ */
+export type CertificationEditType = {
+  id: number
+  slug: string
+  domain: CertificationDomain
+  isEco: boolean
+  synonyms: string[]
+  sourceLocale: ContentLocale
+  translations: Record<ContentLocale, { name: string; isAuto: boolean }>
+}
+
+/**
+ * Création d'une certification (administration, #165). Le slug est figé
+ * ensuite : les produits et URLs s'appuient dessus. Seule la traduction de
+ * `sourceLocale` est requise, les autres langues sont générées.
+ */
+export interface CreateCertificationData {
+  slug: string
+  domain: CertificationDomain
+  isEco: boolean
+  synonyms?: string[]
+  sourceLocale: ContentLocale
+  translations: Partial<Record<ContentLocale, { name: string }>>
+}
+
+/**
+ * Mise à jour partielle d'une certification. Le slug est figé.
+ */
+export interface UpdateCertificationData {
+  domain?: CertificationDomain
+  isEco?: boolean
+  synonyms?: string[]
+  sourceLocale?: ContentLocale
+  translations?: Partial<Record<ContentLocale, { name?: string }>>
+}

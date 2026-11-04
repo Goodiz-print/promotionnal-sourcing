@@ -1,0 +1,67 @@
+{
+  "index": {
+    "title": "Certifications",
+    "subtitle": "Manage conformity labels in the catalogue (eco-labels, standards, certifications).",
+    "empty": "No certifications yet. Create one.",
+    "emptyDescription": "Certifications inform buyers about product guarantees.",
+    "columns": {
+      "name": "Name",
+      "slug": "Slug",
+      "domain": "Domain",
+      "isEco": "Eco-label",
+      "products": "Products",
+      "actions": "Actions"
+    },
+    "yes": "Yes",
+    "no": "No"
+  },
+  "create": {
+    "title": "New certification",
+    "subtitle": "Add a conformity label to the catalogue."
+  },
+  "update": {
+    "title": "Edit certification",
+    "subtitle": "Edit the name, domain and settings of “{slug}”."
+  },
+  "edit": "Edit",
+  "newCertification": "New certification",
+  "delete": "Delete",
+  "save": "Save",
+  "cancel": "Cancel",
+  "confirmDelete": "Delete this certification?",
+  "back": "Back to certifications",
+  "fields": {
+    "slug": "Slug",
+    "slugHint": "Lowercase, digits and hyphens. Cannot be changed later.",
+    "slugPlaceholder": "e.g. oeko-tex-100",
+    "domain": "Domain",
+    "domainHint": "Label category (environment, textile, safety…).",
+    "isEco": "Eco-label",
+    "isEcoHint": "This label certifies an eco-friendly approach.",
+    "synonyms": "Synonyms",
+    "synonymsHint": "Comma-separated (improves import).",
+    "synonymsPlaceholder": "e.g. Oeko-Tex, OEKOTEX",
+    "name": "Name"
+  },
+  "domains": {
+    "environment": "Environment",
+    "textile": "Textile",
+    "social": "Social",
+    "safety": "Safety",
+    "food_contact": "Food contact",
+    "forestry": "Forestry",
+    "quality": "Quality"
+  },
+  "form": {
+    "identity": "Identification",
+    "identityDescription": "Technical identifier, domain and label settings.",
+    "content": "Content in {language}",
+    "otherLocale": "Other language to display"
+  },
+  "flash": {
+    "created": "Certification created.",
+    "updated": "Certification updated.",
+    "deleted": "Certification deleted.",
+    "inUse": "Cannot delete: products have this certification."
+  }
+}

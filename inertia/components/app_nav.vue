@@ -3,7 +3,9 @@ import { computed, type Component } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import {
+  BadgeCheck,
   Boxes,
+  Brush,
   Building2,
   FolderTree,
   Gavel,
@@ -64,6 +66,8 @@ const ADMIN_ICONS: Record<string, Component> = {
   users: Users,
   categories: FolderTree,
   attributes: SlidersHorizontal,
+  certifications: BadgeCheck,
+  markingTechniques: Brush,
   moderation: Gavel,
   agencies: Store,
   rfqs: FileText,

@@ -48,4 +48,12 @@ export default abstract class SearchEngine {
    * laisse l'ancien index intact. Renvoie le nombre de documents indexés.
    */
   abstract replaceAll(batches: AsyncIterable<ProductSearchDocument[]>): Promise<number>
+
+  /**
+   * Réapplique les réglages de l'index courant (attributs filtrables, etc.)
+   * sans reconstruire les documents. Utile quand `is_filter` d'un attribut
+   * change : la liste des facettes aplaties (`attributes.<slug>`) doit être
+   * mise à jour dans les réglages. No-op si l'index n'existe pas encore.
+   */
+  abstract refreshSettings(): Promise<void>
 }

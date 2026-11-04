@@ -1,0 +1,67 @@
+{
+  "index": {
+    "title": "Certifications",
+    "subtitle": "Administrez les labels de conformité du catalogue (éco-labels, normes, certifications).",
+    "empty": "Aucune certification pour le moment. Créez-en une.",
+    "emptyDescription": "Les certifications renseignent les acheteurs sur les garanties des produits.",
+    "columns": {
+      "name": "Nom",
+      "slug": "Identifiant",
+      "domain": "Domaine",
+      "isEco": "Éco-label",
+      "products": "Produits",
+      "actions": "Actions"
+    },
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "create": {
+    "title": "Nouvelle certification",
+    "subtitle": "Ajoutez un label de conformité au catalogue."
+  },
+  "update": {
+    "title": "Modifier la certification",
+    "subtitle": "Modifiez le nom, le domaine et les paramètres de « {slug} »."
+  },
+  "edit": "Modifier",
+  "newCertification": "Nouvelle certification",
+  "delete": "Supprimer",
+  "save": "Enregistrer",
+  "cancel": "Annuler",
+  "confirmDelete": "Supprimer cette certification ?",
+  "back": "Retour aux certifications",
+  "fields": {
+    "slug": "Identifiant (slug)",
+    "slugHint": "Minuscules, chiffres et tirets. Non modifiable ensuite.",
+    "slugPlaceholder": "ex. oeko-tex-100",
+    "domain": "Domaine",
+    "domainHint": "Catégorie du label (environnement, textile, sécurité…).",
+    "isEco": "Éco-label",
+    "isEcoHint": "Ce label atteste d'une démarche éco-responsable.",
+    "synonyms": "Synonymes",
+    "synonymsHint": "Séparés par des virgules (améliore l'import).",
+    "synonymsPlaceholder": "ex. Oeko-Tex, OEKOTEX",
+    "name": "Nom"
+  },
+  "domains": {
+    "environment": "Environnement",
+    "textile": "Textile",
+    "social": "Social",
+    "safety": "Sécurité",
+    "food_contact": "Contact alimentaire",
+    "forestry": "Foresterie",
+    "quality": "Qualité"
+  },
+  "form": {
+    "identity": "Identification",
+    "identityDescription": "Identifiant technique, domaine et paramètres du label.",
+    "content": "Contenu en {language}",
+    "otherLocale": "Autre langue à afficher"
+  },
+  "flash": {
+    "created": "Certification créée.",
+    "updated": "Certification mise à jour.",
+    "deleted": "Certification supprimée.",
+    "inUse": "Impossible de supprimer : des produits portent cette certification."
+  }
+}

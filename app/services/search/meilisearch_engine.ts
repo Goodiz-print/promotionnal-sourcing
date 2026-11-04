@@ -332,6 +332,21 @@ export default class MeilisearchEngine extends SearchEngine {
   }
 
   /**
+   * Réapplique les réglages de l'index courant (attributs filtrables, etc.)
+   * sans reconstruire les documents. No-op si l'index n'existe pas encore.
+   */
+  async refreshSettings(): Promise<void> {
+    try {
+      await this.client.getIndex(searchConfig.index)
+    } catch (error) {
+      // Index absent : rien à rafraîchir, le prochain `replaceAll` créera l'index.
+      if ((error as { cause?: { code?: string } }).cause?.code === INDEX_NOT_FOUND) return
+      throw error
+    }
+    await this.applySettings(searchConfig.index)
+  }
+
+  /**
    * Index existant : on réapplique seulement les réglages (idempotent, sans
    * effet s'ils n'ont pas changé). Absent : on le crée, clé primaire `id`.
    */
@@ -343,10 +358,14 @@ export default class MeilisearchEngine extends SearchEngine {
       const created = await this.client.createIndex(uid, { primaryKey: 'id' })
       this.assertSucceeded(await this.client.tasks.waitForTask(created.taskUid, this.waitOptions))
     }
+    await this.applySettings(uid)
+  }
 
-    // Les attributs filtrables aplatis (`attributes.<slug>`) sont dérivés de la
-    // base (`category_attributes.is_filter`) : un changement est appliqué au
-    // prochain `search:reindex` (ou au premier envoi d'un nouveau processus).
+  /**
+   * Applique les réglages à un index existant. Les attributs filtrables aplatis
+   * (`attributes.<slug>`) sont dérivés de `category_attributes.is_filter`.
+   */
+  private async applySettings(uid: string): Promise<void> {
     const facetSlugs = this.facets ? await this.facets.filterableSlugs() : []
     const settings = await this.client.index(uid).updateSettings(productIndexSettings(facetSlugs))
     this.assertSucceeded(await this.client.tasks.waitForTask(settings.taskUid, this.waitOptions))

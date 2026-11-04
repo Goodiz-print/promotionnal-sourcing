@@ -1,0 +1,61 @@
+{
+  "index": {
+    "title": "Markierungstechniken",
+    "subtitle": "Verwalten Sie die Personalisierungstechniken des Katalogs (Druck, Gravur, Stickerei …).",
+    "empty": "Noch keine Techniken. Legen Sie eine an.",
+    "emptyDescription": "Markierungstechniken beschreiben die Methoden zur Personalisierung von Produkten.",
+    "columns": {
+      "name": "Name",
+      "slug": "Kennung",
+      "family": "Familie",
+      "products": "Produkte",
+      "actions": "Aktionen"
+    }
+  },
+  "create": {
+    "title": "Neue Technik",
+    "subtitle": "Fügen Sie dem Katalog eine Markierungstechnik hinzu."
+  },
+  "update": {
+    "title": "Technik bearbeiten",
+    "subtitle": "Bearbeiten Sie Name, Familie und Einstellungen von „{slug}“."
+  },
+  "edit": "Bearbeiten",
+  "newTechnique": "Neue Technik",
+  "delete": "Löschen",
+  "save": "Speichern",
+  "cancel": "Abbrechen",
+  "confirmDelete": "Diese Technik löschen?",
+  "back": "Zurück zu den Techniken",
+  "fields": {
+    "slug": "Kennung (Slug)",
+    "slugHint": "Kleinbuchstaben, Ziffern und Bindestriche. Später nicht änderbar.",
+    "slugPlaceholder": "z. B. siebdruck",
+    "family": "Familie",
+    "familyHint": "Verfahrenskategorie (Druck, Transfer, Gravur …).",
+    "synonyms": "Synonyme",
+    "synonymsHint": "Durch Kommas getrennt (verbessert den Import).",
+    "synonymsPlaceholder": "z. B. Siebdruck, Serigrafie",
+    "name": "Name"
+  },
+  "families": {
+    "print": "Druck",
+    "transfer": "Transfer",
+    "engraving": "Gravur",
+    "embroidery": "Stickerei",
+    "relief": "Relief",
+    "special": "Spezial"
+  },
+  "form": {
+    "identity": "Identifikation",
+    "identityDescription": "Technische Kennung und Verfahrensfamilie.",
+    "content": "Inhalt auf {language}",
+    "otherLocale": "Andere anzuzeigende Sprache"
+  },
+  "flash": {
+    "created": "Technik erstellt.",
+    "updated": "Technik aktualisiert.",
+    "deleted": "Technik gelöscht.",
+    "inUse": "Löschen nicht möglich: Es gibt Produkte, die diese Technik verwenden."
+  }
+}

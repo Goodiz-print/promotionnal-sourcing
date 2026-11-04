@@ -22,6 +22,8 @@ const TABLES: Record<Exclude<TranslatableEntity, 'product'>, string> = {
   category: 'categories',
   attribute: 'attributes',
   attribute_value: 'attribute_values',
+  certification: 'certifications',
+  marking_technique: 'marking_techniques',
 }
 
 /**
@@ -43,7 +45,14 @@ export default class TranslationBackfillService {
 
   async backfill(options: TranslationBackfillOptions = {}): Promise<TranslationBackfillReport> {
     const report: TranslationBackfillReport = {
-      queued: { product: 0, category: 0, attribute: 0, attribute_value: 0 },
+      queued: {
+        product: 0,
+        category: 0,
+        attribute: 0,
+        attribute_value: 0,
+        certification: 0,
+        marking_technique: 0,
+      },
       failed: false,
     }
     const entities = options.entities ?? TRANSLATABLE_ENTITIES
