@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
 import RfqService from '#services/rfq_service'
+import Rfq from '#models/rfq'
 import { AdminTradeNotFoundException } from '#exceptions/admin_trade_errors'
 import {
   RFQ_DEADLINE_TIMEZONE,
@@ -78,13 +79,17 @@ export default class AdminTradeService {
     )
     this.byPeriod(query, options, 'r.created_at')
 
-    const { total, rows } = await this.page<AdminRfqDbRow>(query, page, perPage, (q) =>
+    const {
+      total,
+      rows,
+      page: current,
+    } = await this.page<AdminRfqDbRow>(query, page, perPage, (q) =>
       this.selectRfq(q, today, sentBefore).orderBy('r.created_at', 'desc').orderBy('r.id', 'desc')
     )
     return this.paginated(
       rows.map((row) => this.presentRfq(row)),
       total,
-      page,
+      current,
       perPage
     )
   }
@@ -152,12 +157,7 @@ export default class AdminTradeService {
       })),
       canClose: open,
       canExpire: open,
-      remindableCount:
-        item.attention === 'overdue' || !open
-          ? 0
-          : recipients.filter(
-              (line) => ['sent', 'viewed'].includes(line.status) && !line.reminded_at
-            ).length,
+      remindableCount: await this.remindableCount(id),
     }
   }
 
@@ -170,13 +170,17 @@ export default class AdminTradeService {
     this.byParties(query, options)
     this.byPeriod(query, options, 'q.created_at')
 
-    const { total, rows } = await this.page<AdminQuoteDbRow>(query, page, perPage, (q) =>
+    const {
+      total,
+      rows,
+      page: current,
+    } = await this.page<AdminQuoteDbRow>(query, page, perPage, (q) =>
       this.selectQuote(q).orderBy('q.created_at', 'desc').orderBy('q.id', 'desc')
     )
     return this.paginated(
       rows.map((row) => this.presentQuote(row)),
       total,
-      page,
+      current,
       perPage
     )
   }
@@ -224,13 +228,17 @@ export default class AdminTradeService {
     this.byParties(query, options)
     this.byPeriod(query, options, 'o.created_at')
 
-    const { total, rows } = await this.page<AdminOrderDbRow>(query, page, perPage, (q) =>
+    const {
+      total,
+      rows,
+      page: current,
+    } = await this.page<AdminOrderDbRow>(query, page, perPage, (q) =>
       this.selectOrder(q).orderBy('o.created_at', 'desc').orderBy('o.id', 'desc')
     )
     return this.paginated(
       rows.map((row) => this.presentOrder(row)),
       total,
-      page,
+      current,
       perPage
     )
   }
@@ -264,6 +272,14 @@ export default class AdminTradeService {
         totalPrice: line.total_price,
       })),
     }
+  }
+
+  /** Même règle que l'intervention : la demande attend des réponses et des destinataires sont relançables. */
+  private async remindableCount(rfqId: number): Promise<number> {
+    const rfq = await Rfq.find(rfqId)
+    if (!rfq || !this.rfqs.acceptsResponses(rfq)) return 0
+    const row = await this.rfqs.remindableRecipients(rfqId).count('* as total').first()
+    return Number(row?.$extras.total ?? 0)
   }
 
   /** Repères du repérage des demandes bloquées : même « aujourd'hui » (Paris) que `RfqService`. */
@@ -349,19 +365,29 @@ export default class AdminTradeService {
     }
   }
 
+  /**
+   * Compte et page demandée en parallèle. Une page au-delà de la dernière est
+   * ramenée à la dernière (`page` renvoyée) au lieu d'une liste vide.
+   */
   private async page<T>(
     query: Query,
     page: number,
     perPage: number,
     select: (query: Query) => Query
-  ): Promise<{ total: number; rows: T[] }> {
+  ): Promise<{ total: number; rows: T[]; page: number }> {
+    const rowsOf = (number: number) =>
+      select(query.clone())
+        .limit(perPage)
+        .offset((number - 1) * perPage)
+
     const [count, rows] = await Promise.all([
       query.clone().count('* as total').first(),
-      select(query)
-        .limit(perPage)
-        .offset((page - 1) * perPage),
+      rowsOf(page),
     ])
-    return { total: Number(count?.total ?? 0), rows: rows as T[] }
+    const total = Number(count?.total ?? 0)
+    const lastPage = Math.max(1, Math.ceil(total / perPage))
+    if (page <= lastPage) return { total, rows: rows as T[], page }
+    return { total, rows: (await rowsOf(lastPage)) as T[], page: lastPage }
   }
 
   private paginated<T>(data: T[], total: number, page: number, perPage: number): Paginated<T> {

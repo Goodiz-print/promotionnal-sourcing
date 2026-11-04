@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 import { useI18n } from '~/i18n'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseCard from '~/components/base/base_card.vue'
@@ -23,7 +23,7 @@ const emit = defineEmits<{ change: [filters: TradeFilterValues] }>()
 
 const { t } = useI18n()
 
-const model = reactive({
+const fromProps = () => ({
   status: props.filters.status ?? '',
   attention: props.filters.attention ?? '',
   buyer: props.filters.buyer ?? '',
@@ -31,6 +31,16 @@ const model = reactive({
   from: props.filters.from ?? '',
   to: props.filters.to ?? '',
 })
+
+const model = reactive(fromProps())
+
+// Les filtres du serveur font foi : retour arrière, lien externe ou pagination
+// les changent sans passer par le formulaire.
+watch(
+  () => props.filters,
+  () => Object.assign(model, fromProps()),
+  { deep: true }
+)
 
 function submit() {
   emit('change', {

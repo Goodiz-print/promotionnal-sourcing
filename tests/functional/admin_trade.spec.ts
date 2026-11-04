@@ -22,7 +22,7 @@ import type { AdminRfqDetail, AdminRfqRow } from '#shared/types/admin_trade'
  * Supervision des demandes de devis, devis et commandes par la plateforme (#166).
  */
 interface RfqList {
-  rfqs: { data: AdminRfqRow[]; meta: { total: number } }
+  rfqs: { data: AdminRfqRow[]; meta: { total: number; currentPage: number } }
 }
 
 async function buyerOrg(name?: string) {
@@ -569,5 +569,64 @@ test.group('Supervision — validation et fuseau', (group) => {
     await rfq.refresh()
     assert.include(['closed', 'expired'], rfq.status)
     assert.lengthOf(await AdminAuditLog.all(), 1)
+  })
+
+  test('une page au-delà de la dernière est ramenée à la dernière', async ({ client, assert }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    await publishedRfq(await buyerId())
+
+    const response = await rfqList(client, admin, '?page=500')
+
+    assert.equal(response.rfqs.meta.currentPage, 1)
+    assert.lengthOf(response.rfqs.data, 1)
+  })
+
+  test('relancer sans qu’aucun mail ne puisse partir est refusé, rien n’est consigné', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const rfq = await publishedRfq(await buyerId())
+    // Fournisseur sans adresse de contact ni membre habilité : aucun destinataire de mail.
+    await recipient(rfq.id, await supplierId())
+
+    const { mails } = mail.fake()
+    try {
+      const response = await intervene(client, admin, rfq.id, 'remind')
+
+      response.assertStatus(409)
+      assert.lengthOf(
+        mails.sent((mailer) => mailer instanceof RfqReminderNotification),
+        0
+      )
+    } finally {
+      mail.restore()
+    }
+
+    const [row] = await RfqSupplier.query().where('rfqId', rfq.id)
+    assert.isNull(row.remindedAt)
+    assert.lengthOf(await AdminAuditLog.all(), 0)
+  })
+
+  test('le compteur de relance de la fiche suit la règle de l’intervention', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const open = await publishedRfq(await buyerId())
+    await recipient(open.id, await supplierId())
+    const closed = await RfqFactory.merge({
+      buyerOrganizationId: await buyerId(),
+      status: 'closed',
+    }).create()
+    await recipient(closed.id, await supplierId())
+
+    const count = async (id: number) => {
+      const response = await client.get(`/fr/admin/rfqs/${id}`).withInertia().loginAs(admin)
+      return (response.inertiaProps as { detail: AdminRfqDetail }).detail.remindableCount
+    }
+
+    assert.equal(await count(open.id), 1)
+    assert.equal(await count(closed.id), 0)
   })
 })

@@ -156,6 +156,24 @@ describe('admin/rfqs/index', () => {
   })
 })
 
+describe('filtres synchronisés avec le serveur', () => {
+  it('les champs suivent les filtres reçus (retour arrière, lien externe)', async () => {
+    const wrapper = mount(RfqIndex, {
+      props: {
+        rfqs: { data: [rfq(1)], meta: META },
+        filters: { ...FILTERS, status: null, attention: null, buyer: 'Acme' },
+      },
+    })
+    expect((wrapper.find('#trade-buyer').element as HTMLInputElement).value).toBe('Acme')
+
+    await wrapper.setProps({
+      filters: { ...FILTERS, status: null, attention: null, buyer: 'Beta' },
+    })
+
+    expect((wrapper.find('#trade-buyer').element as HTMLInputElement).value).toBe('Beta')
+  })
+})
+
 describe('admin/rfqs/show', () => {
   beforeEach(() => {
     state.role = 'admin'
@@ -181,7 +199,29 @@ describe('admin/rfqs/show', () => {
     await wrapper.findAll('button')[2].trigger('click')
 
     expect(window.confirm).toHaveBeenCalled()
-    expect(post).toHaveBeenCalledWith('/fr/admin.rfqs.close/5', {}, { preserveScroll: true })
+    expect(post).toHaveBeenCalledWith(
+      '/fr/admin.rfqs.close/5',
+      {},
+      expect.objectContaining({ preserveScroll: true })
+    )
+  })
+
+  it('désactive les boutons pendant l’envoi pour éviter un double clic', async () => {
+    const wrapper = show()
+
+    await wrapper.findAll('button')[2].trigger('click')
+    const options = post.mock.calls[0][2] as { onStart: () => void; onFinish: () => void }
+    options.onStart()
+    await wrapper.vm.$nextTick()
+    expect(
+      wrapper.findAll('button').every((button) => button.attributes('disabled') !== undefined)
+    ).toBe(true)
+
+    options.onFinish()
+    await wrapper.vm.$nextTick()
+    expect(
+      wrapper.findAll('button').some((button) => button.attributes('disabled') !== undefined)
+    ).toBe(false)
   })
 
   it('ne poste rien si la confirmation est refusée', async () => {

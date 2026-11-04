@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { BellRing, Lock, TimerOff } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
@@ -18,12 +19,19 @@ const props = defineProps<{ detail: AdminRfqDetail }>()
 
 const { t, locale } = useI18n()
 
+/** Un envoi à la fois : pendant la requête, tous les boutons sont désactivés. */
+const processing = ref(false)
+
 function run(action: 'close' | 'expire' | 'remind', confirmKey: string, count?: number) {
   if (!window.confirm(count === undefined ? t(confirmKey) : t(confirmKey, { count }))) return
   router.post(
     urlFor(`admin.rfqs.${action}`, { locale: locale.value, id: props.detail.item.id }),
     {},
-    { preserveScroll: true }
+    {
+      preserveScroll: true,
+      onStart: () => (processing.value = true),
+      onFinish: () => (processing.value = false),
+    }
   )
 }
 </script>
@@ -33,6 +41,8 @@ function run(action: 'close' | 'expire' | 'remind', confirmKey: string, count?: 
     <BaseButton
       v-if="detail.remindableCount > 0"
       variant="secondary"
+      :loading="processing"
+      :disabled="processing"
       @click="run('remind', 'admin.rfqs.actions.confirmRemind', detail.remindableCount)"
     >
       <template #icon><BellRing :size="ICON_SIZE" aria-hidden="true" /></template>
@@ -41,6 +51,7 @@ function run(action: 'close' | 'expire' | 'remind', confirmKey: string, count?: 
     <BaseButton
       v-if="detail.canExpire"
       variant="danger"
+      :disabled="processing"
       @click="run('expire', 'admin.rfqs.actions.confirmExpire')"
     >
       <template #icon><TimerOff :size="ICON_SIZE" aria-hidden="true" /></template>
@@ -49,6 +60,7 @@ function run(action: 'close' | 'expire' | 'remind', confirmKey: string, count?: 
     <BaseButton
       v-if="detail.canClose"
       variant="danger"
+      :disabled="processing"
       @click="run('close', 'admin.rfqs.actions.confirmClose')"
     >
       <template #icon><Lock :size="ICON_SIZE" aria-hidden="true" /></template>

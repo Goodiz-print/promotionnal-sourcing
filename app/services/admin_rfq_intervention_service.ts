@@ -7,7 +7,6 @@ import QuoteService from '#services/quote_service'
 import RfqNotificationService from '#services/rfq_notification_service'
 import RfqService from '#services/rfq_service'
 import Rfq from '#models/rfq'
-import RfqSupplier from '#models/rfq_supplier'
 import {
   AdminRfqNotRemindableException,
   AdminTradeNotFoundException,
@@ -82,17 +81,19 @@ export default class AdminRfqInterventionService {
       const rfq = await this.find(rfqId, trx)
       if (!this.rfqs.acceptsResponses(rfq)) throw new AdminRfqNotRemindableException()
 
-      const recipients = await RfqSupplier.query({ client: trx })
-        .where('rfqId', rfq.id)
-        .whereIn('status', ['sent', 'viewed'])
-        .whereNull('remindedAt')
+      const recipients = await this.rfqs
+        .remindableRecipients(rfq.id, trx)
         .forUpdate()
         .preload('rfq', (query) => query.preload('buyerOrganization'))
         .preload('supplierOrganization')
         .orderBy('id')
       if (recipients.length === 0) throw new AdminRfqNotRemindableException()
 
+      // Aucun mail parti (file en erreur, destinataires sans adresse) : rien n'est
+      // consigné, l'admin reçoit 409 plutôt qu'un faux succès.
       const reminded = await this.notifications.remind(recipients)
+      if (reminded.length === 0) throw new AdminRfqNotRemindableException()
+
       await this.rfqs.markReminded(reminded, DateTime.now(), trx)
       await this.audit.record(
         {

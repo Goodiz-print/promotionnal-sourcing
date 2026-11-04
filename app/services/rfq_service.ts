@@ -512,6 +512,18 @@ export default class RfqService {
   }
 
   /**
+   * Destinataires qu'on peut relancer **à la main** (plateforme) : sans réponse
+   * (`sent` ou `viewed`) et jamais relancés. Prédicat unique : l'intervention et le
+   * compteur de la fiche admin lisent la même requête.
+   */
+  remindableRecipients(rfqId: number, client?: TransactionClientContract) {
+    return RfqSupplier.query({ client })
+      .where('rfqId', rfqId)
+      .whereIn('status', ['sent', 'viewed'])
+      .whereNull('remindedAt')
+  }
+
+  /**
    * Consigne la relance des destinataires : c'est ce qui la rend unique. Une seule
    * requête, pour réduire la fenêtre entre « mails en queue » et « relance
    * consignée ».
