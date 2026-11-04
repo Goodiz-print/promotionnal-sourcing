@@ -9,7 +9,10 @@
     "label": "Sections d'administration",
     "demand": "Demande clients",
     "moderation": "Modération",
-    "agencies": "Agences"
+    "agencies": "Agences",
+    "rfqs": "Demandes de devis",
+    "quotes": "Devis",
+    "orders": "Commandes"
   },
   "pagination": {
     "previous": "Précédent",
@@ -212,7 +215,10 @@
       "moderation.rejected": "Élément rejeté en modération",
       "agency_review.approved": "Inscription agence validée",
       "agency_review.rejected": "Inscription agence rejetée",
-      "agency_review.info_requested": "Informations demandées à une agence"
+      "agency_review.info_requested": "Informations demandées à une agence",
+      "rfq.closed": "Demande de devis clôturée",
+      "rfq.expired": "Demande de devis expirée",
+      "rfq.reminded": "Fournisseurs relancés sur une demande"
     },
     "targets": {
       "user": "Utilisateur",
@@ -220,7 +226,8 @@
       "attribute": "Attribut",
       "attribute_value": "Valeur d'attribut",
       "organization": "Organisation",
-      "product": "Produit"
+      "product": "Produit",
+      "rfq": "Demande de devis"
     }
   },
   "demand": {
@@ -422,6 +429,126 @@
       "approved": "Agence validée. Un mail lui a été envoyé.",
       "rejected": "Inscription rejetée : l'organisation est archivée.",
       "info_requested": "Demande d'informations envoyée à l'agence."
+    }
+  },
+  "trade": {
+    "filters": {
+      "status": "Statut",
+      "attention": "À surveiller",
+      "buyer": "Acheteur",
+      "supplier": "Fournisseur",
+      "from": "Créé du",
+      "to": "Au",
+      "all": "Tous",
+      "apply": "Filtrer",
+      "reset": "Réinitialiser"
+    },
+    "columns": {
+      "buyer": "Acheteur",
+      "supplier": "Fournisseur",
+      "status": "Statut",
+      "amount": "Montant",
+      "item": "Désignation",
+      "quantity": "Quantité",
+      "unitPrice": "Prix unitaire",
+      "total": "Total"
+    },
+    "summary": "Résumé",
+    "lines": "Lignes",
+    "view": "Voir"
+  },
+  "rfqs": {
+    "title": "Demandes de devis",
+    "subtitle": "Supervision des demandes de devis de toutes les organisations.",
+    "resultsCount": "{count, plural, =0 {Aucune demande} one {# demande} other {# demandes}}",
+    "empty": "Aucune demande avec ces filtres.",
+    "emptyDescription": "Modifiez les filtres pour élargir la recherche.",
+    "back": "Retour aux demandes",
+    "columns": {
+      "title": "Demande",
+      "deadline": "Échéance",
+      "recipients": "Destinataires",
+      "responses": "Réponses",
+      "quotes": "Devis",
+      "attention": "À surveiller"
+    },
+    "attention": {
+      "overdue": "Échéance dépassée",
+      "no_response": "Sans réponse"
+    },
+    "detail": {
+      "items": "Lignes de la demande",
+      "recipients": "Destinataires",
+      "quotes": "Devis reçus",
+      "noRecipients": "Aucun destinataire.",
+      "noQuotes": "Aucun devis reçu.",
+      "sentAt": "Envoyée le",
+      "remindedAt": "Relancée le",
+      "createdBy": "Créée par",
+      "publishedAt": "Publiée le",
+      "budgetMax": "Budget maximum",
+      "description": "Description",
+      "unit": "Unité"
+    },
+    "actions": {
+      "remind": "{count, plural, one {Relancer # fournisseur} other {Relancer # fournisseurs}}",
+      "expire": "Faire expirer",
+      "close": "Clôturer",
+      "confirmRemind": "{count, plural, one {Relancer # fournisseur n'ayant pas répondu ?} other {Relancer # fournisseurs n'ayant pas répondu ?}}",
+      "confirmExpire": "Faire expirer cette demande ? Les fournisseurs ne pourront plus y répondre.",
+      "confirmClose": "Clôturer cette demande ? Cette action est définitive."
+    },
+    "done": {
+      "closed": "Demande clôturée.",
+      "expired": "Demande expirée.",
+      "reminded": "{count, plural, one {# fournisseur relancé.} other {# fournisseurs relancés.}}"
+    }
+  },
+  "quotes": {
+    "title": "Devis",
+    "subtitle": "Supervision des devis remis par les fournisseurs.",
+    "resultsCount": "{count, plural, =0 {Aucun devis} one {# devis} other {# devis}}",
+    "empty": "Aucun devis avec ces filtres.",
+    "emptyDescription": "Modifiez les filtres pour élargir la recherche.",
+    "back": "Retour aux devis",
+    "number": "Devis n° {id}",
+    "columns": {
+      "quote": "Devis",
+      "rfq": "Demande",
+      "submitted": "Remis le"
+    },
+    "detail": {
+      "validUntil": "Valable jusqu'au",
+      "decidedAt": "Décision le",
+      "notes": "Notes",
+      "leadTime": "Délai",
+      "days": "{count, plural, one {# jour} other {# jours}}",
+      "viewRfq": "Voir la demande",
+      "viewOrder": "Voir la commande"
+    }
+  },
+  "orders": {
+    "title": "Commandes",
+    "subtitle": "Supervision des commandes passées sur la plateforme.",
+    "resultsCount": "{count, plural, =0 {Aucune commande} one {# commande} other {# commandes}}",
+    "empty": "Aucune commande avec ces filtres.",
+    "emptyDescription": "Modifiez les filtres pour élargir la recherche.",
+    "back": "Retour aux commandes",
+    "number": "Commande n° {id}",
+    "columns": {
+      "order": "Commande",
+      "created": "Créée le"
+    },
+    "detail": {
+      "viewQuote": "Voir le devis",
+      "progress": "Avancement",
+      "milestones": {
+        "confirmed": "Confirmée le",
+        "inProduction": "En production le",
+        "shipped": "Expédiée le",
+        "delivered": "Livrée le",
+        "cancelled": "Annulée le"
+      }
     }
   }
 }

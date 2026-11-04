@@ -330,6 +330,40 @@ router
                   .where('id', router.matchers.number())
                   .as('admin.agency_reviews.decide')
 
+                // Supervision des demandes de devis, devis et commandes (#166) : lecture
+                // pour `trade.view`, interventions sur les demandes pour `trade.manage`.
+                router.get('admin/rfqs', [controllers.admin.Rfq, 'index']).as('admin.rfqs.index')
+                router
+                  .get('admin/rfqs/:id', [controllers.admin.Rfq, 'show'])
+                  .where('id', router.matchers.number())
+                  .as('admin.rfqs.show')
+                router
+                  .post('admin/rfqs/:id/close', [controllers.admin.Rfq, 'close'])
+                  .where('id', router.matchers.number())
+                  .as('admin.rfqs.close')
+                router
+                  .post('admin/rfqs/:id/expire', [controllers.admin.Rfq, 'expire'])
+                  .where('id', router.matchers.number())
+                  .as('admin.rfqs.expire')
+                router
+                  .post('admin/rfqs/:id/remind', [controllers.admin.Rfq, 'remind'])
+                  .where('id', router.matchers.number())
+                  .as('admin.rfqs.remind')
+                router
+                  .get('admin/quotes', [controllers.admin.Quote, 'index'])
+                  .as('admin.quotes.index')
+                router
+                  .get('admin/quotes/:id', [controllers.admin.Quote, 'show'])
+                  .where('id', router.matchers.number())
+                  .as('admin.quotes.show')
+                router
+                  .get('admin/orders', [controllers.admin.Order, 'index'])
+                  .as('admin.orders.index')
+                router
+                  .get('admin/orders/:id', [controllers.admin.Order, 'show'])
+                  .where('id', router.matchers.number())
+                  .as('admin.orders.show')
+
                 // Demande des clients : recherches, consultations, export CSV.
                 router
                   .get('admin/demand', [controllers.admin.Demand, 'index'])

@@ -18,6 +18,9 @@ export const ADMIN_AUDIT_ACTIONS = [
   'agency_review.approved',
   'agency_review.rejected',
   'agency_review.info_requested',
+  'rfq.closed',
+  'rfq.expired',
+  'rfq.reminded',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]
@@ -29,6 +32,7 @@ export const ADMIN_AUDIT_TARGET_TYPES = [
   'attribute_value',
   'organization',
   'product',
+  'rfq',
 ] as const
 
 export type AdminAuditTargetType = (typeof ADMIN_AUDIT_TARGET_TYPES)[number]

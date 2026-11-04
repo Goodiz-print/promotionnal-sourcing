@@ -9,7 +9,10 @@
     "label": "Administrationsbereiche",
     "demand": "Kundennachfrage",
     "moderation": "Moderation",
-    "agencies": "Agenturen"
+    "agencies": "Agenturen",
+    "rfqs": "Angebotsanfragen",
+    "quotes": "Angebote",
+    "orders": "Bestellungen"
   },
   "pagination": {
     "previous": "Zurück",
@@ -212,7 +215,10 @@
       "moderation.rejected": "In der Moderation abgelehnt",
       "agency_review.approved": "Agentur-Anmeldung freigegeben",
       "agency_review.rejected": "Agentur-Anmeldung abgelehnt",
-      "agency_review.info_requested": "Informationen bei einer Agentur angefordert"
+      "agency_review.info_requested": "Informationen bei einer Agentur angefordert",
+      "rfq.closed": "Angebotsanfrage geschlossen",
+      "rfq.expired": "Angebotsanfrage abgelaufen",
+      "rfq.reminded": "Lieferanten zu einer Anfrage erinnert"
     },
     "targets": {
       "user": "Benutzer",
@@ -220,7 +226,8 @@
       "attribute": "Attribut",
       "attribute_value": "Attributwert",
       "organization": "Organisation",
-      "product": "Produkt"
+      "product": "Produkt",
+      "rfq": "Angebotsanfrage"
     }
   },
   "demand": {
@@ -422,6 +429,126 @@
       "approved": "Agentur freigegeben. Eine E-Mail wurde gesendet.",
       "rejected": "Anmeldung abgelehnt: Die Organisation ist archiviert.",
       "info_requested": "Informationsanfrage an die Agentur gesendet."
+    }
+  },
+  "trade": {
+    "filters": {
+      "status": "Status",
+      "attention": "Zu beobachten",
+      "buyer": "Käufer",
+      "supplier": "Lieferant",
+      "from": "Erstellt ab",
+      "to": "Bis",
+      "all": "Alle",
+      "apply": "Filtern",
+      "reset": "Zurücksetzen"
+    },
+    "columns": {
+      "buyer": "Käufer",
+      "supplier": "Lieferant",
+      "status": "Status",
+      "amount": "Betrag",
+      "item": "Bezeichnung",
+      "quantity": "Menge",
+      "unitPrice": "Stückpreis",
+      "total": "Summe"
+    },
+    "summary": "Zusammenfassung",
+    "lines": "Positionen",
+    "view": "Ansehen"
+  },
+  "rfqs": {
+    "title": "Angebotsanfragen",
+    "subtitle": "Überwachung der Angebotsanfragen aller Organisationen.",
+    "resultsCount": "{count, plural, =0 {Keine Anfragen} one {# Anfrage} other {# Anfragen}}",
+    "empty": "Keine Anfragen mit diesen Filtern.",
+    "emptyDescription": "Ändern Sie die Filter, um die Suche zu erweitern.",
+    "back": "Zurück zu den Anfragen",
+    "columns": {
+      "title": "Anfrage",
+      "deadline": "Frist",
+      "recipients": "Empfänger",
+      "responses": "Antworten",
+      "quotes": "Angebote",
+      "attention": "Zu beobachten"
+    },
+    "attention": {
+      "overdue": "Frist überschritten",
+      "no_response": "Ohne Antwort"
+    },
+    "detail": {
+      "items": "Positionen der Anfrage",
+      "recipients": "Empfänger",
+      "quotes": "Eingegangene Angebote",
+      "noRecipients": "Keine Empfänger.",
+      "noQuotes": "Keine Angebote eingegangen.",
+      "sentAt": "Gesendet am",
+      "remindedAt": "Erinnert am",
+      "createdBy": "Erstellt von",
+      "publishedAt": "Veröffentlicht am",
+      "budgetMax": "Maximales Budget",
+      "description": "Beschreibung",
+      "unit": "Einheit"
+    },
+    "actions": {
+      "remind": "{count, plural, one {# Lieferanten erinnern} other {# Lieferanten erinnern}}",
+      "expire": "Ablaufen lassen",
+      "close": "Schließen",
+      "confirmRemind": "{count, plural, one {# Lieferanten ohne Antwort erinnern?} other {# Lieferanten ohne Antwort erinnern?}}",
+      "confirmExpire": "Diese Anfrage ablaufen lassen? Lieferanten können dann nicht mehr antworten.",
+      "confirmClose": "Diese Anfrage schließen? Dies kann nicht rückgängig gemacht werden."
+    },
+    "done": {
+      "closed": "Anfrage geschlossen.",
+      "expired": "Anfrage abgelaufen.",
+      "reminded": "{count, plural, one {# Lieferant erinnert.} other {# Lieferanten erinnert.}}"
+    }
+  },
+  "quotes": {
+    "title": "Angebote",
+    "subtitle": "Überwachung der von Lieferanten abgegebenen Angebote.",
+    "resultsCount": "{count, plural, =0 {Keine Angebote} one {# Angebot} other {# Angebote}}",
+    "empty": "Keine Angebote mit diesen Filtern.",
+    "emptyDescription": "Ändern Sie die Filter, um die Suche zu erweitern.",
+    "back": "Zurück zu den Angeboten",
+    "number": "Angebot Nr. {id}",
+    "columns": {
+      "quote": "Angebot",
+      "rfq": "Anfrage",
+      "submitted": "Abgegeben am"
+    },
+    "detail": {
+      "validUntil": "Gültig bis",
+      "decidedAt": "Entschieden am",
+      "notes": "Notizen",
+      "leadTime": "Lieferzeit",
+      "days": "{count, plural, one {# Tag} other {# Tage}}",
+      "viewRfq": "Anfrage ansehen",
+      "viewOrder": "Bestellung ansehen"
+    }
+  },
+  "orders": {
+    "title": "Bestellungen",
+    "subtitle": "Überwachung der auf der Plattform aufgegebenen Bestellungen.",
+    "resultsCount": "{count, plural, =0 {Keine Bestellungen} one {# Bestellung} other {# Bestellungen}}",
+    "empty": "Keine Bestellungen mit diesen Filtern.",
+    "emptyDescription": "Ändern Sie die Filter, um die Suche zu erweitern.",
+    "back": "Zurück zu den Bestellungen",
+    "number": "Bestellung Nr. {id}",
+    "columns": {
+      "order": "Bestellung",
+      "created": "Erstellt am"
+    },
+    "detail": {
+      "viewQuote": "Angebot ansehen",
+      "progress": "Fortschritt",
+      "milestones": {
+        "confirmed": "Bestätigt am",
+        "inProduction": "In Produktion seit",
+        "shipped": "Versendet am",
+        "delivered": "Geliefert am",
+        "cancelled": "Storniert am"
+      }
     }
   }
 }

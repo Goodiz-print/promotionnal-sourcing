@@ -126,6 +126,15 @@ export type ScannedRoutes = {
     'admin.agency_reviews.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.agency_reviews.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.agency_reviews.decide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.rfqs.close': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.rfqs.expire': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.rfqs.remind': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.quotes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.orders.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.orders.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.demand.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.demand.export': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -200,6 +209,12 @@ export type ScannedRoutes = {
     'admin.moderation.show': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
     'admin.agency_reviews.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.agency_reviews.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.quotes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.orders.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.orders.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.demand.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.demand.export': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -265,6 +280,12 @@ export type ScannedRoutes = {
     'admin.moderation.show': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
     'admin.agency_reviews.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.agency_reviews.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.quotes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.orders.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.orders.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.demand.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.demand.export': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -313,6 +334,9 @@ export type ScannedRoutes = {
     'notifications.readAll': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.moderation.decide': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
     'admin.agency_reviews.decide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.rfqs.close': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.rfqs.expire': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.rfqs.remind': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.categories.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.attributes.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.attribute_values.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }

@@ -35,6 +35,9 @@ const ACCESS: Record<string, Record<FineRole | 'admin', number>> = {
   '/fr/admin/attributes': { admin: 200, moderator: 403, support: 403, analyst: 403 },
   '/fr/admin/audit': { admin: 200, moderator: 403, support: 403, analyst: 403 },
   '/fr/admin/moderation': { admin: 200, moderator: 200, support: 403, analyst: 403 },
+  '/fr/admin/rfqs': { admin: 200, moderator: 403, support: 200, analyst: 200 },
+  '/fr/admin/quotes': { admin: 200, moderator: 403, support: 200, analyst: 200 },
+  '/fr/admin/orders': { admin: 200, moderator: 403, support: 200, analyst: 200 },
 }
 
 test.group('Rôles plateforme fins — accès par section', (group) => {

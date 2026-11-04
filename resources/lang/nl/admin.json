@@ -9,7 +9,10 @@
     "label": "Beheersecties",
     "demand": "Klantvraag",
     "moderation": "Moderatie",
-    "agencies": "Bureaus"
+    "agencies": "Bureaus",
+    "rfqs": "Offerteaanvragen",
+    "quotes": "Offertes",
+    "orders": "Bestellingen"
   },
   "pagination": {
     "previous": "Vorige",
@@ -212,7 +215,10 @@
       "moderation.rejected": "Item afgewezen in moderatie",
       "agency_review.approved": "Bureauaanmelding goedgekeurd",
       "agency_review.rejected": "Bureauaanmelding afgewezen",
-      "agency_review.info_requested": "Informatie gevraagd aan een bureau"
+      "agency_review.info_requested": "Informatie gevraagd aan een bureau",
+      "rfq.closed": "Offerteaanvraag gesloten",
+      "rfq.expired": "Offerteaanvraag verlopen",
+      "rfq.reminded": "Leveranciers herinnerd aan een aanvraag"
     },
     "targets": {
       "user": "Gebruiker",
@@ -220,7 +226,8 @@
       "attribute": "Attribuut",
       "attribute_value": "Attribuutwaarde",
       "organization": "Organisatie",
-      "product": "Product"
+      "product": "Product",
+      "rfq": "Offerteaanvraag"
     }
   },
   "demand": {
@@ -422,6 +429,126 @@
       "approved": "Bureau goedgekeurd. Er is een e-mail verstuurd.",
       "rejected": "Aanmelding afgewezen: de organisatie is gearchiveerd.",
       "info_requested": "Informatieverzoek naar het bureau gestuurd."
+    }
+  },
+  "trade": {
+    "filters": {
+      "status": "Status",
+      "attention": "Aandachtspunt",
+      "buyer": "Koper",
+      "supplier": "Leverancier",
+      "from": "Aangemaakt vanaf",
+      "to": "Tot",
+      "all": "Alle",
+      "apply": "Filteren",
+      "reset": "Resetten"
+    },
+    "columns": {
+      "buyer": "Koper",
+      "supplier": "Leverancier",
+      "status": "Status",
+      "amount": "Bedrag",
+      "item": "Omschrijving",
+      "quantity": "Aantal",
+      "unitPrice": "Stuksprijs",
+      "total": "Totaal"
+    },
+    "summary": "Samenvatting",
+    "lines": "Regels",
+    "view": "Bekijken"
+  },
+  "rfqs": {
+    "title": "Offerteaanvragen",
+    "subtitle": "Toezicht op de offerteaanvragen van alle organisaties.",
+    "resultsCount": "{count, plural, =0 {Geen aanvragen} one {# aanvraag} other {# aanvragen}}",
+    "empty": "Geen aanvragen met deze filters.",
+    "emptyDescription": "Pas de filters aan om de zoekopdracht te verruimen.",
+    "back": "Terug naar de aanvragen",
+    "columns": {
+      "title": "Aanvraag",
+      "deadline": "Uiterste datum",
+      "recipients": "Ontvangers",
+      "responses": "Reacties",
+      "quotes": "Offertes",
+      "attention": "Aandachtspunt"
+    },
+    "attention": {
+      "overdue": "Termijn verstreken",
+      "no_response": "Geen reactie"
+    },
+    "detail": {
+      "items": "Regels van de aanvraag",
+      "recipients": "Ontvangers",
+      "quotes": "Ontvangen offertes",
+      "noRecipients": "Geen ontvangers.",
+      "noQuotes": "Geen offertes ontvangen.",
+      "sentAt": "Verzonden op",
+      "remindedAt": "Herinnerd op",
+      "createdBy": "Aangemaakt door",
+      "publishedAt": "Gepubliceerd op",
+      "budgetMax": "Maximumbudget",
+      "description": "Beschrijving",
+      "unit": "Eenheid"
+    },
+    "actions": {
+      "remind": "{count, plural, one {# leverancier herinneren} other {# leveranciers herinneren}}",
+      "expire": "Laten verlopen",
+      "close": "Sluiten",
+      "confirmRemind": "{count, plural, one {# leverancier die niet heeft gereageerd herinneren?} other {# leveranciers die niet hebben gereageerd herinneren?}}",
+      "confirmExpire": "Deze aanvraag laten verlopen? Leveranciers kunnen dan niet meer reageren.",
+      "confirmClose": "Deze aanvraag sluiten? Dit kan niet ongedaan worden gemaakt."
+    },
+    "done": {
+      "closed": "Aanvraag gesloten.",
+      "expired": "Aanvraag verlopen.",
+      "reminded": "{count, plural, one {# leverancier herinnerd.} other {# leveranciers herinnerd.}}"
+    }
+  },
+  "quotes": {
+    "title": "Offertes",
+    "subtitle": "Toezicht op de offertes die leveranciers hebben ingediend.",
+    "resultsCount": "{count, plural, =0 {Geen offertes} one {# offerte} other {# offertes}}",
+    "empty": "Geen offertes met deze filters.",
+    "emptyDescription": "Pas de filters aan om de zoekopdracht te verruimen.",
+    "back": "Terug naar de offertes",
+    "number": "Offerte nr. {id}",
+    "columns": {
+      "quote": "Offerte",
+      "rfq": "Aanvraag",
+      "submitted": "Ingediend op"
+    },
+    "detail": {
+      "validUntil": "Geldig tot",
+      "decidedAt": "Beslist op",
+      "notes": "Notities",
+      "leadTime": "Levertijd",
+      "days": "{count, plural, one {# dag} other {# dagen}}",
+      "viewRfq": "Aanvraag bekijken",
+      "viewOrder": "Bestelling bekijken"
+    }
+  },
+  "orders": {
+    "title": "Bestellingen",
+    "subtitle": "Toezicht op de bestellingen op het platform.",
+    "resultsCount": "{count, plural, =0 {Geen bestellingen} one {# bestelling} other {# bestellingen}}",
+    "empty": "Geen bestellingen met deze filters.",
+    "emptyDescription": "Pas de filters aan om de zoekopdracht te verruimen.",
+    "back": "Terug naar de bestellingen",
+    "number": "Bestelling nr. {id}",
+    "columns": {
+      "order": "Bestelling",
+      "created": "Aangemaakt op"
+    },
+    "detail": {
+      "viewQuote": "Offerte bekijken",
+      "progress": "Voortgang",
+      "milestones": {
+        "confirmed": "Bevestigd op",
+        "inProduction": "In productie sinds",
+        "shipped": "Verzonden op",
+        "delivered": "Geleverd op",
+        "cancelled": "Geannuleerd op"
+      }
     }
   }
 }

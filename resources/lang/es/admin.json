@@ -9,7 +9,10 @@
     "label": "Secciones de administración",
     "demand": "Demanda de clientes",
     "moderation": "Moderación",
-    "agencies": "Agencias"
+    "agencies": "Agencias",
+    "rfqs": "Solicitudes de presupuesto",
+    "quotes": "Presupuestos",
+    "orders": "Pedidos"
   },
   "pagination": {
     "previous": "Anterior",
@@ -212,7 +215,10 @@
       "moderation.rejected": "Elemento rechazado en moderación",
       "agency_review.approved": "Alta de agencia aprobada",
       "agency_review.rejected": "Alta de agencia rechazada",
-      "agency_review.info_requested": "Información solicitada a una agencia"
+      "agency_review.info_requested": "Información solicitada a una agencia",
+      "rfq.closed": "Solicitud de presupuesto cerrada",
+      "rfq.expired": "Solicitud de presupuesto caducada",
+      "rfq.reminded": "Proveedores recordados sobre una solicitud"
     },
     "targets": {
       "user": "Usuario",
@@ -220,7 +226,8 @@
       "attribute": "Atributo",
       "attribute_value": "Valor de atributo",
       "organization": "Organización",
-      "product": "Producto"
+      "product": "Producto",
+      "rfq": "Solicitud de presupuesto"
     }
   },
   "demand": {
@@ -422,6 +429,126 @@
       "approved": "Agencia aprobada. Se le ha enviado un email.",
       "rejected": "Alta rechazada: la organización está archivada.",
       "info_requested": "Solicitud de información enviada a la agencia."
+    }
+  },
+  "trade": {
+    "filters": {
+      "status": "Estado",
+      "attention": "A vigilar",
+      "buyer": "Comprador",
+      "supplier": "Proveedor",
+      "from": "Creada desde",
+      "to": "Hasta",
+      "all": "Todos",
+      "apply": "Filtrar",
+      "reset": "Restablecer"
+    },
+    "columns": {
+      "buyer": "Comprador",
+      "supplier": "Proveedor",
+      "status": "Estado",
+      "amount": "Importe",
+      "item": "Descripción",
+      "quantity": "Cantidad",
+      "unitPrice": "Precio unitario",
+      "total": "Total"
+    },
+    "summary": "Resumen",
+    "lines": "Líneas",
+    "view": "Ver"
+  },
+  "rfqs": {
+    "title": "Solicitudes de presupuesto",
+    "subtitle": "Supervisión de las solicitudes de presupuesto de todas las organizaciones.",
+    "resultsCount": "{count, plural, =0 {Ninguna solicitud} one {# solicitud} other {# solicitudes}}",
+    "empty": "Ninguna solicitud con estos filtros.",
+    "emptyDescription": "Cambie los filtros para ampliar la búsqueda.",
+    "back": "Volver a las solicitudes",
+    "columns": {
+      "title": "Solicitud",
+      "deadline": "Fecha límite",
+      "recipients": "Destinatarios",
+      "responses": "Respuestas",
+      "quotes": "Presupuestos",
+      "attention": "A vigilar"
+    },
+    "attention": {
+      "overdue": "Fecha límite superada",
+      "no_response": "Sin respuesta"
+    },
+    "detail": {
+      "items": "Líneas de la solicitud",
+      "recipients": "Destinatarios",
+      "quotes": "Presupuestos recibidos",
+      "noRecipients": "Ningún destinatario.",
+      "noQuotes": "Ningún presupuesto recibido.",
+      "sentAt": "Enviada el",
+      "remindedAt": "Recordada el",
+      "createdBy": "Creada por",
+      "publishedAt": "Publicada el",
+      "budgetMax": "Presupuesto máximo",
+      "description": "Descripción",
+      "unit": "Unidad"
+    },
+    "actions": {
+      "remind": "{count, plural, one {Recordar a # proveedor} other {Recordar a # proveedores}}",
+      "expire": "Hacer caducar",
+      "close": "Cerrar",
+      "confirmRemind": "{count, plural, one {¿Recordar a # proveedor que no ha respondido?} other {¿Recordar a # proveedores que no han respondido?}}",
+      "confirmExpire": "¿Hacer caducar esta solicitud? Los proveedores ya no podrán responder.",
+      "confirmClose": "¿Cerrar esta solicitud? Esta acción es definitiva."
+    },
+    "done": {
+      "closed": "Solicitud cerrada.",
+      "expired": "Solicitud caducada.",
+      "reminded": "{count, plural, one {# proveedor recordado.} other {# proveedores recordados.}}"
+    }
+  },
+  "quotes": {
+    "title": "Presupuestos",
+    "subtitle": "Supervisión de los presupuestos enviados por los proveedores.",
+    "resultsCount": "{count, plural, =0 {Ningún presupuesto} one {# presupuesto} other {# presupuestos}}",
+    "empty": "Ningún presupuesto con estos filtros.",
+    "emptyDescription": "Cambie los filtros para ampliar la búsqueda.",
+    "back": "Volver a los presupuestos",
+    "number": "Presupuesto n.º {id}",
+    "columns": {
+      "quote": "Presupuesto",
+      "rfq": "Solicitud",
+      "submitted": "Enviado el"
+    },
+    "detail": {
+      "validUntil": "Válido hasta",
+      "decidedAt": "Decisión el",
+      "notes": "Notas",
+      "leadTime": "Plazo",
+      "days": "{count, plural, one {# día} other {# días}}",
+      "viewRfq": "Ver la solicitud",
+      "viewOrder": "Ver el pedido"
+    }
+  },
+  "orders": {
+    "title": "Pedidos",
+    "subtitle": "Supervisión de los pedidos realizados en la plataforma.",
+    "resultsCount": "{count, plural, =0 {Ningún pedido} one {# pedido} other {# pedidos}}",
+    "empty": "Ningún pedido con estos filtros.",
+    "emptyDescription": "Cambie los filtros para ampliar la búsqueda.",
+    "back": "Volver a los pedidos",
+    "number": "Pedido n.º {id}",
+    "columns": {
+      "order": "Pedido",
+      "created": "Creado el"
+    },
+    "detail": {
+      "viewQuote": "Ver el presupuesto",
+      "progress": "Progreso",
+      "milestones": {
+        "confirmed": "Confirmado el",
+        "inProduction": "En producción desde el",
+        "shipped": "Enviado el",
+        "delivered": "Entregado el",
+        "cancelled": "Cancelado el"
+      }
     }
   }
 }

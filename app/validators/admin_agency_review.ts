@@ -8,7 +8,7 @@ import {
 /** Filtres de la file de revue des agences (query string), tous optionnels. */
 export const agencyReviewFiltersValidator = vine.create({
   status: vine.enum(AGENCY_REVIEW_FILTERS).optional(),
-  page: vine.number().positive().optional(),
+  page: vine.number().withoutDecimals().min(1).max(100000).optional(),
 })
 
 /**

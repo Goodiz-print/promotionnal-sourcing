@@ -15,6 +15,8 @@ Socle du back-office `/:locale/admin` (epic #157) : rôles plateforme fins (#158
 | `roles.manage`       |   x   |           |         |         | attribuer un rôle plateforme                       |
 | `audit.view`         |   x   |           |         |         | journal d'audit                                    |
 | `monitoring.view`    |   x   |           |         |    x    | réservé aux écrans de monitoring à venir (lecture) |
+| `trade.view`         |   x   |           |    x    |    x    | demandes de devis, devis, commandes (lecture)      |
+| `trade.manage`       |   x   |           |         |         | clôturer, expirer, relancer une demande de devis   |
 
 - **Backend** : ability `hasPlatformPermission(permission)` (`app/abilities/main.ts`) ; le middleware `platformAdmin` n'exige que `backoffice.access`, chaque contrôleur autorise le droit de sa section. `isPlatformAdmin` (rôle `admin` strict) est conservée ; `canManageCategories` repose sur `catalogue.manage`.
 - **Frontend** : `platformRoleHasPermission` (`shared/helpers/platform_permissions.ts`) est partagé ; `useAdminTabs` et `usePlatformPermissions` n'affichent que les sections accessibles. Ce n'est qu'un confort d'affichage : le serveur re-vérifie chaque route.
@@ -99,3 +101,15 @@ Types (`ActivityEventService`) : `product_viewed`, `supplier_viewed` (fiches pub
 **Décisions** : `approved` (vide les motifs), `rejected` (archive l'organisation ; motif obligatoire), `info_requested` (l'agence reste à revoir ; motif obligatoire, envoyé comme message). Une décision sur une agence déjà traitée ou archivée renvoie 409. L'organisation est verrouillée le temps de la décision (deux décisions simultanées : la seconde reçoit 409) et le rejet archive dans la même transaction (`OrganizationService.archiveWithin`). Chaque décision écrit une entrée d'audit (`agency_review.*`) dans la même transaction et met en queue un mail par propriétaire (`AgencyReviewDecisionNotification`, langue de l'utilisateur).
 
 Le compteur `pendingAgencyReviews` du tableau de bord reprend les agences « à revoir ». Détail : `docs/changelog/2026-11-03-revue-des-inscriptions-agence.md`.
+
+## Supervision des demandes de devis, devis et commandes (#166)
+
+Trois écrans transverses (toutes organisations, archivées comprises), droit `trade.view` (admin, support, analyste) : `GET /admin/rfqs` (`admin.rfqs.index`) et fiche `/admin/rfqs/:id`, `GET /admin/quotes` et `/admin/quotes/:id`, `GET /admin/orders` et `/admin/orders/:id`. Lecture dans `AdminTradeService` (requêtes explicites, pagination de 25).
+
+**Filtres** (query string, tous optionnels, valeur invalide refusée en 422) : `status`, `buyer` et `supplier` (nom partiel, sans casse, jokers `%` `_` échappés ; pour une demande, « fournisseur » = l'un de ses destinataires), `from` / `to` (`AAAA-MM-JJ`, bornes incluses, sur la date de création) ; pour les demandes, `attention`.
+
+**Repérage** (`attention`, calculé en SQL) : `overdue` = demande publiée dont l'échéance (jour calendaire de Paris) est passée sans que le job d'expiration l'ait basculée ; `no_response` = publiée depuis `RFQ_REMINDER_AFTER_DAYS` jours sans aucun devis remis.
+
+**Interventions** (droit `trade.manage`, rôle `admin`), réutilisant les transitions de `RfqService` : `POST /admin/rfqs/:id/close` (`published` → `closed`, 422 sinon), `/expire` (`published` → `expired`, les devis ouverts expirent avec elle), `/remind` (relance **une fois** chaque destinataire `sent` ou `viewed` jamais relancé, comme `RemindRfqSuppliersJob` ; 409 si la demande n'attend plus de réponse ou si personne n'est relançable). Chacune écrit son entrée d'audit (`rfq.closed`, `rfq.expired`, `rfq.reminded`, cible `rfq`) dans la même transaction (`AdminRfqInterventionService`) ; les mails et l'expiration des devis partent ensuite. Détail : `docs/changelog/2026-11-03-supervision-rfq-devis-commandes.md`.
+
+Tests : `tests/functional/admin_trade.spec.ts` (droits par rôle, filtres, repérage, interventions, audit, mails) et `tests/inertia/admin_*` des écrans.
