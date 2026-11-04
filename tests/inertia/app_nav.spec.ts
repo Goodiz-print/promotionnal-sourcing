@@ -14,6 +14,7 @@ const translations: Record<string, string> = {
   'common.nav.groups.organization': 'Organisation',
   'admin.nav.dashboard': 'Tableau de bord',
   'admin.nav.users': 'Utilisateurs',
+  'admin.nav.products': 'Produits',
   'admin.nav.rfqs': 'Demandes de devis',
   'admin.nav.quotes': 'Devis',
   'admin.nav.orders': 'Commandes',
@@ -81,7 +82,7 @@ describe('AppNav', () => {
 
     const links = mount(AppNav).findAll('a')
 
-    expect(links).toHaveLength(12)
+    expect(links).toHaveLength(13)
     expect(links.map((link) => link.text())).not.toContain('Mes demandes de devis')
   })
 

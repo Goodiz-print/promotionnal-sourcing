@@ -3,6 +3,7 @@
     "dashboard": "Översikt",
     "organizations": "Organisationer",
     "users": "Användare",
+    "products": "Produkter",
     "categories": "Kategorier",
     "audit": "Granskningslogg",
     "attributes": "Attribut",
@@ -431,7 +432,14 @@
       "organization.member_role_changed": "Medlemsroll ändrad",
       "organization.member_removed": "Medlem borttagen",
       "organization.invitation_revoked": "Inbjudan återkallad",
-      "organization.invitation_resent": "Inbjudan skickad igen"
+      "organization.invitation_resent": "Inbjudan skickad igen",
+      "product.hidden": "Produkt dold",
+      "product.unhidden": "Produkt synlig",
+      "product.unpublished": "Produkt avpublicerad",
+      "product.published": "Produkt publicerad",
+      "product.archived": "Produkt arkiverad",
+      "product.restored": "Produkt återställd",
+      "product.reindex_requested": "Omindexering av produkt begärd"
     },
     "targets": {
       "user": "Användare",
@@ -761,6 +769,146 @@
         "shipped": "Skickad",
         "delivered": "Levererad",
         "cancelled": "Avbruten"
+      }
+    }
+  },
+  "products": {
+    "title": "Produkter",
+    "subtitle": "Alla produkter i katalogen.",
+    "empty": "Inga produkter matchar dessa filter.",
+    "emptyDescription": "Ändra filter för att utöka sökningen.",
+    "back": "Tillbaka till produkter",
+    "resultsCount": "{count, plural, =0 {Inga produkter} one {# produkt} other {# produkter}}",
+    "filters": {
+      "search": "Sök",
+      "searchPlaceholder": "Namn, slug, SKU eller leverantör",
+      "supplier": "Leverantör",
+      "allSuppliers": "Alla leverantörer",
+      "category": "Kategori",
+      "allCategories": "Alla kategorier",
+      "visibility": "Synlighet",
+      "allVisibility": "Alla",
+      "quality": "Kvalitet",
+      "allQuality": "Alla"
+    },
+    "visibility": {
+      "published": "Publicerad",
+      "unpublished": "Opublicerad",
+      "hidden": "Dold",
+      "archived": "Arkiverad"
+    },
+    "quality": {
+      "no_image": "Ingen bild",
+      "no_translation": "Ofullständig översättning",
+      "no_variant": "Ingen variant"
+    },
+    "columns": {
+      "name": "Namn",
+      "supplier": "Leverantör",
+      "category": "Kategori",
+      "visibility": "Synlighet",
+      "variants": "Varianter",
+      "images": "Bilder",
+      "stock": "Lager",
+      "createdAt": "Skapad"
+    },
+    "stockStatus": {
+      "in_stock": "I lager",
+      "out_of_stock": "Slut i lager",
+      "on_order": "På beställning"
+    },
+    "detail": {
+      "overview": "Översikt",
+      "moderation": "Moderering",
+      "variants": "Varianter",
+      "pricing": "Prissättning",
+      "images": "Bilder",
+      "translations": "Översättningar",
+      "certifications": "Certifieringar",
+      "attributes": "Attribut",
+      "noVariants": "Inga varianter.",
+      "noPricing": "Inga prisnivåer.",
+      "noImages": "Inga bilder.",
+      "noTranslations": "Inga översättningar.",
+      "noCertifications": "Inga certifieringar.",
+      "noAttributes": "Inga attribut.",
+      "moderationStatus": "Modereringsstatus",
+      "moderationHistory": "Modereringshistorik",
+      "noModerationHistory": "Inget modereringsbeslut.",
+      "isActive": "Publicering",
+      "lifecycleStatus": "Livscykelstatus",
+      "sku": "SKU",
+      "variantActive": "Aktiv",
+      "variantInactive": "Inaktiv",
+      "minQuantity": "Minsta kvantitet",
+      "unitPrice": "Styckpris",
+      "appliesTo": "Variant",
+      "allVariants": "Alla",
+      "locale": "Språk",
+      "description": "Beskrivning",
+      "present": "Finns",
+      "missing": "Saknas",
+      "decidedBy": "Beslutat av",
+      "reason": "Anledning",
+      "decidedAt": "Datum",
+      "actionsTitle": "Åtgärder",
+      "archivedNotice": "Den här produkten är arkiverad.",
+      "slug": "Slug",
+      "imageAlt": "Bild {position} av {name}"
+    },
+    "lifecycleStatus": {
+      "active": "Aktiv",
+      "new": "Ny",
+      "end_of_series": "Slut på serien",
+      "retired": "Utgången"
+    },
+    "moderationStatus": {
+      "pending": "Väntande",
+      "approved": "Godkänd",
+      "rejected": "Avvisad"
+    },
+    "actions": {
+      "hide": {
+        "label": "Dölj",
+        "confirm": "Dölj denna produkt? Den kommer inte längre att vara synlig i den offentliga katalogen.",
+        "reasonLabel": "Anledning till döljande",
+        "done": "Produkt dold.",
+        "alreadyHidden": "Denna produkt är redan dold."
+      },
+      "unhide": {
+        "label": "Visa",
+        "confirm": "Visa denna produkt? Den kommer att vara synlig igen i den offentliga katalogen.",
+        "done": "Produkt synlig.",
+        "notHidden": "Denna produkt är inte dold."
+      },
+      "unpublish": {
+        "label": "Avpublicera",
+        "confirm": "Avpublicera denna produkt? Den kommer inte längre att vara synlig i den offentliga katalogen.",
+        "done": "Produkt avpublicerad.",
+        "alreadyUnpublished": "Denna produkt är redan avpublicerad."
+      },
+      "publish": {
+        "label": "Publicera",
+        "confirm": "Publicera denna produkt? Den kommer att vara synlig i den offentliga katalogen.",
+        "done": "Produkt publicerad.",
+        "alreadyPublished": "Denna produkt är redan publicerad."
+      },
+      "archive": {
+        "label": "Arkivera",
+        "confirm": "Arkivera denna produkt? Den kommer att tas bort från katalogen och markeras som utgången.",
+        "done": "Produkt arkiverad.",
+        "alreadyArchived": "Denna produkt är redan arkiverad."
+      },
+      "restore": {
+        "label": "Återställ",
+        "confirm": "Återställ denna produkt? Den kommer att vara aktiv igen (men förblir opublicerad).",
+        "done": "Produkt återställd.",
+        "notArchived": "Denna produkt är inte arkiverad."
+      },
+      "reindex": {
+        "label": "Omindexera",
+        "confirm": "Begär en omindexering av denna produkt?",
+        "done": "Omindexering begärd."
       }
     }
   }

@@ -3,6 +3,7 @@
     "dashboard": "Panel główny",
     "organizations": "Organizacje",
     "users": "Użytkownicy",
+    "products": "Produkty",
     "categories": "Kategorie",
     "audit": "Dziennik audytu",
     "attributes": "Atrybuty",
@@ -431,7 +432,14 @@
       "organization.member_role_changed": "Rola członka zmieniona",
       "organization.member_removed": "Członek usunięty",
       "organization.invitation_revoked": "Zaproszenie anulowane",
-      "organization.invitation_resent": "Zaproszenie wysłane ponownie"
+      "organization.invitation_resent": "Zaproszenie wysłane ponownie",
+      "product.hidden": "Produkt ukryty",
+      "product.unhidden": "Produkt odkryty",
+      "product.unpublished": "Produkt niepublikowany",
+      "product.published": "Produkt opublikowany",
+      "product.archived": "Produkt zarchiwizowany",
+      "product.restored": "Produkt przywrócony",
+      "product.reindex_requested": "Żądanie ponownego indeksowania produktu"
     },
     "targets": {
       "user": "Użytkownik",
@@ -761,6 +769,146 @@
         "shipped": "Wysłano",
         "delivered": "Dostarczono",
         "cancelled": "Anulowano"
+      }
+    }
+  },
+  "products": {
+    "title": "Produkty",
+    "subtitle": "Wszystkie produkty w katalogu.",
+    "empty": "Brak produktów spełniających te kryteria.",
+    "emptyDescription": "Zmień filtry, aby rozszerzyć wyszukiwanie.",
+    "back": "Powrót do produktów",
+    "resultsCount": "{count, plural, =0 {Brak produktów} one {# produkt} few {# produkty} other {# produktów}}",
+    "filters": {
+      "search": "Szukaj",
+      "searchPlaceholder": "Nazwa, slug, SKU lub dostawca",
+      "supplier": "Dostawca",
+      "allSuppliers": "Wszyscy dostawcy",
+      "category": "Kategoria",
+      "allCategories": "Wszystkie kategorie",
+      "visibility": "Widoczność",
+      "allVisibility": "Wszystkie",
+      "quality": "Jakość",
+      "allQuality": "Wszystkie"
+    },
+    "visibility": {
+      "published": "Opublikowany",
+      "unpublished": "Nieopublikowany",
+      "hidden": "Ukryty",
+      "archived": "Zarchiwizowany"
+    },
+    "quality": {
+      "no_image": "Bez obrazu",
+      "no_translation": "Niekompletne tłumaczenie",
+      "no_variant": "Bez wariantu"
+    },
+    "columns": {
+      "name": "Nazwa",
+      "supplier": "Dostawca",
+      "category": "Kategoria",
+      "visibility": "Widoczność",
+      "variants": "Warianty",
+      "images": "Obrazy",
+      "stock": "Stan magazynowy",
+      "createdAt": "Utworzono"
+    },
+    "stockStatus": {
+      "in_stock": "W magazynie",
+      "out_of_stock": "Brak w magazynie",
+      "on_order": "Na zamówienie"
+    },
+    "detail": {
+      "overview": "Przegląd",
+      "moderation": "Moderacja",
+      "variants": "Warianty",
+      "pricing": "Cennik",
+      "images": "Obrazy",
+      "translations": "Tłumaczenia",
+      "certifications": "Certyfikaty",
+      "attributes": "Atrybuty",
+      "noVariants": "Brak wariantów.",
+      "noPricing": "Brak progów cenowych.",
+      "noImages": "Brak obrazów.",
+      "noTranslations": "Brak tłumaczeń.",
+      "noCertifications": "Brak certyfikatów.",
+      "noAttributes": "Brak atrybutów.",
+      "moderationStatus": "Status moderacji",
+      "moderationHistory": "Historia moderacji",
+      "noModerationHistory": "Brak decyzji moderacyjnej.",
+      "isActive": "Publikacja",
+      "lifecycleStatus": "Status cyklu życia",
+      "sku": "SKU",
+      "variantActive": "Aktywny",
+      "variantInactive": "Nieaktywny",
+      "minQuantity": "Minimalna ilość",
+      "unitPrice": "Cena jednostkowa",
+      "appliesTo": "Wariant",
+      "allVariants": "Wszystkie",
+      "locale": "Język",
+      "description": "Opis",
+      "present": "Jest",
+      "missing": "Brak",
+      "decidedBy": "Decyzja:",
+      "reason": "Powód",
+      "decidedAt": "Data",
+      "actionsTitle": "Akcje",
+      "archivedNotice": "Ten produkt jest zarchiwizowany.",
+      "slug": "Slug",
+      "imageAlt": "Obraz {position} produktu {name}"
+    },
+    "lifecycleStatus": {
+      "active": "Aktywny",
+      "new": "Nowy",
+      "end_of_series": "Koniec serii",
+      "retired": "Wycofany"
+    },
+    "moderationStatus": {
+      "pending": "Oczekujący",
+      "approved": "Zatwierdzony",
+      "rejected": "Odrzucony"
+    },
+    "actions": {
+      "hide": {
+        "label": "Ukryj",
+        "confirm": "Ukryć ten produkt? Nie będzie już widoczny w katalogu publicznym.",
+        "reasonLabel": "Powód ukrycia",
+        "done": "Produkt ukryty.",
+        "alreadyHidden": "Ten produkt jest już ukryty."
+      },
+      "unhide": {
+        "label": "Odkryj",
+        "confirm": "Odkryć ten produkt? Będzie znowu widoczny w katalogu publicznym.",
+        "done": "Produkt odkryty.",
+        "notHidden": "Ten produkt nie jest ukryty."
+      },
+      "unpublish": {
+        "label": "Cofnij publikację",
+        "confirm": "Cofnąć publikację tego produktu? Nie będzie już widoczny w katalogu publicznym.",
+        "done": "Publikacja produktu cofnięta.",
+        "alreadyUnpublished": "Ten produkt nie jest już opublikowany."
+      },
+      "publish": {
+        "label": "Opublikuj",
+        "confirm": "Opublikować ten produkt? Będzie widoczny w katalogu publicznym.",
+        "done": "Produkt opublikowany.",
+        "alreadyPublished": "Ten produkt jest już opublikowany."
+      },
+      "archive": {
+        "label": "Zarchiwizuj",
+        "confirm": "Zarchiwizować ten produkt? Zostanie usunięty z katalogu i oznaczony jako wycofany.",
+        "done": "Produkt zarchiwizowany.",
+        "alreadyArchived": "Ten produkt jest już zarchiwizowany."
+      },
+      "restore": {
+        "label": "Przywróć",
+        "confirm": "Przywrócić ten produkt? Będzie znowu aktywny (ale pozostanie nieopublikowany).",
+        "done": "Produkt przywrócony.",
+        "notArchived": "Ten produkt nie jest zarchiwizowany."
+      },
+      "reindex": {
+        "label": "Ponownie indeksuj",
+        "confirm": "Zażądać ponownego indeksowania tego produktu?",
+        "done": "Żądanie ponownego indeksowania wysłane."
       }
     }
   }

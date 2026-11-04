@@ -3,6 +3,7 @@
     "dashboard": "Painel de controlo",
     "organizations": "Organizações",
     "users": "Utilizadores",
+    "products": "Produtos",
     "categories": "Categorias",
     "audit": "Registo de auditoria",
     "attributes": "Atributos",
@@ -431,7 +432,14 @@
       "organization.member_role_changed": "Função do membro alterada",
       "organization.member_removed": "Membro removido",
       "organization.invitation_revoked": "Convite revogado",
-      "organization.invitation_resent": "Convite reenviado"
+      "organization.invitation_resent": "Convite reenviado",
+      "product.hidden": "Produto ocultado",
+      "product.unhidden": "Produto revelado",
+      "product.unpublished": "Produto não publicado",
+      "product.published": "Produto publicado",
+      "product.archived": "Produto arquivado",
+      "product.restored": "Produto restaurado",
+      "product.reindex_requested": "Reindexação de produto solicitada"
     },
     "targets": {
       "user": "Utilizador",
@@ -761,6 +769,146 @@
         "shipped": "Expedida em",
         "delivered": "Entregue em",
         "cancelled": "Cancelada em"
+      }
+    }
+  },
+  "products": {
+    "title": "Produtos",
+    "subtitle": "Todos os produtos do catálogo.",
+    "empty": "Nenhum produto corresponde a estes filtros.",
+    "emptyDescription": "Altere os filtros para alargar a pesquisa.",
+    "back": "Voltar aos produtos",
+    "resultsCount": "{count, plural, =0 {Nenhum produto} one {# produto} other {# produtos}}",
+    "filters": {
+      "search": "Pesquisar",
+      "searchPlaceholder": "Nome, slug, SKU ou fornecedor",
+      "supplier": "Fornecedor",
+      "allSuppliers": "Todos os fornecedores",
+      "category": "Categoria",
+      "allCategories": "Todas as categorias",
+      "visibility": "Visibilidade",
+      "allVisibility": "Todas",
+      "quality": "Qualidade",
+      "allQuality": "Todas"
+    },
+    "visibility": {
+      "published": "Publicado",
+      "unpublished": "Não publicado",
+      "hidden": "Oculto",
+      "archived": "Arquivado"
+    },
+    "quality": {
+      "no_image": "Sem imagem",
+      "no_translation": "Tradução incompleta",
+      "no_variant": "Sem variante"
+    },
+    "columns": {
+      "name": "Nome",
+      "supplier": "Fornecedor",
+      "category": "Categoria",
+      "visibility": "Visibilidade",
+      "variants": "Variantes",
+      "images": "Imagens",
+      "stock": "Stock",
+      "createdAt": "Criado em"
+    },
+    "stockStatus": {
+      "in_stock": "Em stock",
+      "out_of_stock": "Esgotado",
+      "on_order": "Por encomenda"
+    },
+    "detail": {
+      "overview": "Resumo",
+      "moderation": "Moderação",
+      "variants": "Variantes",
+      "pricing": "Preços",
+      "images": "Imagens",
+      "translations": "Traduções",
+      "certifications": "Certificações",
+      "attributes": "Atributos",
+      "noVariants": "Sem variantes.",
+      "noPricing": "Sem escalões de preços.",
+      "noImages": "Sem imagens.",
+      "noTranslations": "Sem traduções.",
+      "noCertifications": "Sem certificações.",
+      "noAttributes": "Sem atributos.",
+      "moderationStatus": "Estado de moderação",
+      "moderationHistory": "Histórico de moderação",
+      "noModerationHistory": "Sem decisão de moderação.",
+      "isActive": "Publicação",
+      "lifecycleStatus": "Estado do ciclo de vida",
+      "sku": "SKU",
+      "variantActive": "Ativa",
+      "variantInactive": "Inativa",
+      "minQuantity": "Quantidade mínima",
+      "unitPrice": "Preço unitário",
+      "appliesTo": "Variante",
+      "allVariants": "Todas",
+      "locale": "Idioma",
+      "description": "Descrição",
+      "present": "Presente",
+      "missing": "Ausente",
+      "decidedBy": "Decidido por",
+      "reason": "Motivo",
+      "decidedAt": "Data",
+      "actionsTitle": "Ações",
+      "archivedNotice": "Este produto está arquivado.",
+      "slug": "Slug",
+      "imageAlt": "Imagem {position} de {name}"
+    },
+    "lifecycleStatus": {
+      "active": "Ativo",
+      "new": "Novo",
+      "end_of_series": "Fim de série",
+      "retired": "Retirado"
+    },
+    "moderationStatus": {
+      "pending": "Pendente",
+      "approved": "Aprovado",
+      "rejected": "Rejeitado"
+    },
+    "actions": {
+      "hide": {
+        "label": "Ocultar",
+        "confirm": "Ocultar este produto? Deixará de estar visível no catálogo público.",
+        "reasonLabel": "Motivo da ocultação",
+        "done": "Produto ocultado.",
+        "alreadyHidden": "Este produto já está oculto."
+      },
+      "unhide": {
+        "label": "Revelar",
+        "confirm": "Revelar este produto? Voltará a estar visível no catálogo público.",
+        "done": "Produto revelado.",
+        "notHidden": "Este produto não está oculto."
+      },
+      "unpublish": {
+        "label": "Despublicar",
+        "confirm": "Despublicar este produto? Deixará de estar visível no catálogo público.",
+        "done": "Produto despublicado.",
+        "alreadyUnpublished": "Este produto já está despublicado."
+      },
+      "publish": {
+        "label": "Publicar",
+        "confirm": "Publicar este produto? Estará visível no catálogo público.",
+        "done": "Produto publicado.",
+        "alreadyPublished": "Este produto já está publicado."
+      },
+      "archive": {
+        "label": "Arquivar",
+        "confirm": "Arquivar este produto? Será removido do catálogo e marcado como retirado.",
+        "done": "Produto arquivado.",
+        "alreadyArchived": "Este produto já está arquivado."
+      },
+      "restore": {
+        "label": "Restaurar",
+        "confirm": "Restaurar este produto? Voltará a estar ativo (mas permanecerá despublicado).",
+        "done": "Produto restaurado.",
+        "notArchived": "Este produto não está arquivado."
+      },
+      "reindex": {
+        "label": "Reindexar",
+        "confirm": "Solicitar uma reindexação deste produto?",
+        "done": "Reindexação solicitada."
       }
     }
   }

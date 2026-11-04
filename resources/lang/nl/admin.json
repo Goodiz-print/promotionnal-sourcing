@@ -3,6 +3,7 @@
     "dashboard": "Dashboard",
     "organizations": "Organisaties",
     "users": "Gebruikers",
+    "products": "Producten",
     "categories": "Categorieën",
     "audit": "Auditlogboek",
     "attributes": "Attributen",
@@ -431,7 +432,14 @@
       "organization.member_role_changed": "Rol van lid gewijzigd",
       "organization.member_removed": "Lid verwijderd",
       "organization.invitation_revoked": "Uitnodiging ingetrokken",
-      "organization.invitation_resent": "Uitnodiging opnieuw verzonden"
+      "organization.invitation_resent": "Uitnodiging opnieuw verzonden",
+      "product.hidden": "Product verborgen",
+      "product.unhidden": "Product zichtbaar gemaakt",
+      "product.unpublished": "Product niet gepubliceerd",
+      "product.published": "Product gepubliceerd",
+      "product.archived": "Product gearchiveerd",
+      "product.restored": "Product hersteld",
+      "product.reindex_requested": "Product herindexering aangevraagd"
     },
     "targets": {
       "user": "Gebruiker",
@@ -761,6 +769,146 @@
         "shipped": "Verzonden op",
         "delivered": "Geleverd op",
         "cancelled": "Geannuleerd op"
+      }
+    }
+  },
+  "products": {
+    "title": "Producten",
+    "subtitle": "Alle producten in de catalogus.",
+    "empty": "Geen producten voldoen aan deze filters.",
+    "emptyDescription": "Pas de filters aan om de zoekopdracht uit te breiden.",
+    "back": "Terug naar producten",
+    "resultsCount": "{count, plural, =0 {Geen producten} one {# product} other {# producten}}",
+    "filters": {
+      "search": "Zoeken",
+      "searchPlaceholder": "Naam, slug, SKU of leverancier",
+      "supplier": "Leverancier",
+      "allSuppliers": "Alle leveranciers",
+      "category": "Categorie",
+      "allCategories": "Alle categorieën",
+      "visibility": "Zichtbaarheid",
+      "allVisibility": "Alle",
+      "quality": "Kwaliteit",
+      "allQuality": "Alle"
+    },
+    "visibility": {
+      "published": "Gepubliceerd",
+      "unpublished": "Niet gepubliceerd",
+      "hidden": "Verborgen",
+      "archived": "Gearchiveerd"
+    },
+    "quality": {
+      "no_image": "Geen afbeelding",
+      "no_translation": "Onvolledige vertaling",
+      "no_variant": "Geen variant"
+    },
+    "columns": {
+      "name": "Naam",
+      "supplier": "Leverancier",
+      "category": "Categorie",
+      "visibility": "Zichtbaarheid",
+      "variants": "Varianten",
+      "images": "Afbeeldingen",
+      "stock": "Voorraad",
+      "createdAt": "Aangemaakt op"
+    },
+    "stockStatus": {
+      "in_stock": "Op voorraad",
+      "out_of_stock": "Niet op voorraad",
+      "on_order": "Op bestelling"
+    },
+    "detail": {
+      "overview": "Overzicht",
+      "moderation": "Moderatie",
+      "variants": "Varianten",
+      "pricing": "Prijzen",
+      "images": "Afbeeldingen",
+      "translations": "Vertalingen",
+      "certifications": "Certificeringen",
+      "attributes": "Attributen",
+      "noVariants": "Geen varianten.",
+      "noPricing": "Geen prijsniveaus.",
+      "noImages": "Geen afbeeldingen.",
+      "noTranslations": "Geen vertalingen.",
+      "noCertifications": "Geen certificeringen.",
+      "noAttributes": "Geen attributen.",
+      "moderationStatus": "Moderatiestatus",
+      "moderationHistory": "Moderatiegeschiedenis",
+      "noModerationHistory": "Geen moderatiebeslissing.",
+      "isActive": "Publicatie",
+      "lifecycleStatus": "Levenscyclusstatus",
+      "sku": "SKU",
+      "variantActive": "Actief",
+      "variantInactive": "Inactief",
+      "minQuantity": "Minimale hoeveelheid",
+      "unitPrice": "Stukprijs",
+      "appliesTo": "Variant",
+      "allVariants": "Alle",
+      "locale": "Taal",
+      "description": "Beschrijving",
+      "present": "Aanwezig",
+      "missing": "Ontbreekt",
+      "decidedBy": "Besloten door",
+      "reason": "Reden",
+      "decidedAt": "Datum",
+      "actionsTitle": "Acties",
+      "archivedNotice": "Dit product is gearchiveerd.",
+      "slug": "Slug",
+      "imageAlt": "Afbeelding {position} van {name}"
+    },
+    "lifecycleStatus": {
+      "active": "Actief",
+      "new": "Nieuw",
+      "end_of_series": "Einde van de serie",
+      "retired": "Uitgelopen"
+    },
+    "moderationStatus": {
+      "pending": "In behandeling",
+      "approved": "Goedgekeurd",
+      "rejected": "Afgewezen"
+    },
+    "actions": {
+      "hide": {
+        "label": "Verbergen",
+        "confirm": "Dit product verbergen? Het zal niet meer zichtbaar zijn in de openbare catalogus.",
+        "reasonLabel": "Reden voor verbergen",
+        "done": "Product verborgen.",
+        "alreadyHidden": "Dit product is al verborgen."
+      },
+      "unhide": {
+        "label": "Zichtbaar maken",
+        "confirm": "Dit product zichtbaar maken? Het zal weer zichtbaar zijn in de openbare catalogus.",
+        "done": "Product zichtbaar gemaakt.",
+        "notHidden": "Dit product is niet verborgen."
+      },
+      "unpublish": {
+        "label": "Niet publiceren",
+        "confirm": "Dit product niet publiceren? Het zal niet meer zichtbaar zijn in de openbare catalogus.",
+        "done": "Product niet gepubliceerd.",
+        "alreadyUnpublished": "Dit product is al niet gepubliceerd."
+      },
+      "publish": {
+        "label": "Publiceren",
+        "confirm": "Dit product publiceren? Het zal zichtbaar zijn in de openbare catalogus.",
+        "done": "Product gepubliceerd.",
+        "alreadyPublished": "Dit product is al gepubliceerd."
+      },
+      "archive": {
+        "label": "Archiveren",
+        "confirm": "Dit product archiveren? Het wordt uit de catalogus verwijderd en als uitgelopen gemarkeerd.",
+        "done": "Product gearchiveerd.",
+        "alreadyArchived": "Dit product is al gearchiveerd."
+      },
+      "restore": {
+        "label": "Herstellen",
+        "confirm": "Dit product herstellen? Het zal weer actief zijn (maar blijft niet gepubliceerd).",
+        "done": "Product hersteld.",
+        "notArchived": "Dit product is niet gearchiveerd."
+      },
+      "reindex": {
+        "label": "Herindexeren",
+        "confirm": "Een herindexering van dit product aanvragen?",
+        "done": "Herindexering aangevraagd."
       }
     }
   }
