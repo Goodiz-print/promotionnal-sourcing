@@ -3,6 +3,7 @@ import mail from '@adonisjs/mail/services/main'
 import { OrganizationFactory } from '#database/factories/organization_factory'
 import { OrganizationInvitationFactory } from '#database/factories/organization_invitation_factory'
 import { UserFactory } from '#database/factories/user_factory'
+import Role from '#models/role'
 import SupplierProfile from '#models/supplier_profile'
 import AdminAuditLog from '#models/admin_audit_log'
 import { createMember, createOrganizationWithOwner } from '#tests/utils/organizations'
@@ -75,17 +76,17 @@ test.group('Back-office — organisations', (group) => {
     assert.equal(response.inertiaProps.filters.type, 'supplier')
   })
 
-  test('une valeur de filtre inconnue est ignorée', async ({ client, assert }) => {
+  test('une valeur de filtre inconnue est refusée', async ({ client }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
 
-    const response = await client
-      .get('/fr/admin/organizations?type=nope&status=nope')
-      .withInertia()
-      .loginAs(admin)
+    for (const qs of ['type=nope', 'status=nope']) {
+      const response = await client
+        .get(`/fr/admin/organizations?${qs}`)
+        .header('Accept', 'application/json')
+        .loginAs(admin)
 
-    response.assertStatus(200)
-    assert.isNull(response.inertiaProps.filters.type)
-    assert.equal(response.inertiaProps.filters.status, 'active')
+      response.assertStatus(422)
+    }
   })
 
   test('la fiche d’une organisation liste ses membres et leur rôle', async ({ client, assert }) => {
@@ -503,11 +504,13 @@ test.group('Gestion organisations - membres (#161)', (group) => {
       (m: { id: number }) => m.id === member.id
     )
 
+    const adminRole = await Role.findByOrFail('slug', 'admin')
+
     const response = await client
       .patch(`/fr/admin/organizations/${organization.id}/members/${membership.membershipId}/role`)
       .redirects(0)
       .withCsrfToken()
-      .json({ roleId: 2 }) // admin role
+      .json({ roleId: adminRole.id })
       .loginAs(admin)
 
     response.assertStatus(302)
