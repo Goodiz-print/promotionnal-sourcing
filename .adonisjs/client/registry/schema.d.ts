@@ -1483,10 +1483,23 @@ export interface Registry {
       body: {}
       paramsTuple: [ParamValue]
       params: { locale: ParamValue }
-      query: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_user').adminUserFiltersValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/user_controller').default['index']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/user_controller').default['index']>>>
-      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/user_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/user_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/user_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.users.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/users/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/user_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/user_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/user_controller').default['show']>>>
     }
   }
   'admin.users.platform_role.update': {
@@ -1500,6 +1513,71 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/platform_role_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/platform_role_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/platform_role_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.users.suspend': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/users/:id/suspend'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_user').suspendUserValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_user').suspendUserValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/user_account_controller').default['suspend']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/user_account_controller').default['suspend']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/user_account_controller').default['suspend']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.users.reactivate': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/users/:id/reactivate'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/user_account_controller').default['reactivate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/user_account_controller').default['reactivate']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/user_account_controller').default['reactivate']>>>
+    }
+  }
+  'admin.users.resend_verification': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/users/:id/resend-verification'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/user_account_controller').default['resendVerification']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/user_account_controller').default['resendVerification']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/user_account_controller').default['resendVerification']>>>
+    }
+  }
+  'admin.users.password_reset': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/users/:id/password-reset'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/user_account_controller').default['passwordReset']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/user_account_controller').default['passwordReset']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/user_account_controller').default['passwordReset']>>>
+    }
+  }
+  'admin.users.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/admin/users/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/user_account_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/user_account_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/user_account_controller').default['destroy']>>>
     }
   }
   'admin.audit.index': {

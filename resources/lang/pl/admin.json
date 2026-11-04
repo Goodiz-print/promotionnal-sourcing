@@ -173,6 +173,90 @@
       "analyst": "Analityk",
       "updated": "Rola platformowa została zaktualizowana.",
       "ownRole": "Nie możesz zmienić własnej roli platformowej."
+    },
+    "filters": {
+      "platformRole": "Platform role",
+      "emailVerified": "Email verified",
+      "activity": "Activity",
+      "organizationType": "Organization type",
+      "status": "Status",
+      "all": "All",
+      "anyRole": "Any role",
+      "verified": "Verified",
+      "unverified": "Not verified",
+      "recent": "Recently logged in",
+      "never": "Never logged in",
+      "active": "Active",
+      "suspended": "Suspended"
+    },
+    "actions": {
+      "suspend": {
+        "label": "Suspend",
+        "confirm": "Suspend this account? The user will no longer be able to log in.",
+        "reasonLabel": "Reason (optional)",
+        "done": "Account suspended.",
+        "selfError": "You cannot suspend your own account.",
+        "adminError": "You cannot suspend a platform administrator.",
+        "alreadySuspended": "This account is already suspended."
+      },
+      "reactivate": {
+        "label": "Reactivate",
+        "confirm": "Reactivate this account? The user will be able to log in again.",
+        "done": "Account reactivated.",
+        "notSuspended": "This account is not suspended."
+      },
+      "resendVerification": {
+        "label": "Resend verification",
+        "confirm": "Resend the verification email to this user?",
+        "done": "Verification email sent.",
+        "alreadyVerified": "This account is already verified."
+      },
+      "passwordReset": {
+        "label": "Reset password",
+        "confirm": "Send a password reset email to this user?",
+        "done": "Password reset email sent."
+      },
+      "destroy": {
+        "label": "Delete account",
+        "confirm": "Delete this account? This action cannot be undone. Data will be anonymized.",
+        "done": "Account deleted.",
+        "selfError": "You cannot delete your own account.",
+        "adminError": "You cannot delete a platform administrator.",
+        "ownsOrganizations": "This account is the last owner of: {organizations}"
+      }
+    },
+    "show": {
+      "back": "Back to users",
+      "identity": "Identity",
+      "organizations": "Organizations",
+      "passkeys": "Passkeys",
+      "consents": "Legal consents",
+      "noOrganizations": "No organizations.",
+      "noPasskeys": "No passkeys.",
+      "noConsents": "No consents.",
+      "lastLogin": "Last login",
+      "suspended": "Suspended",
+      "never": "Never",
+      "archivedOrg": "Archived",
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "civility": "Forma grzecznościowa",
+      "locale": "Język",
+      "orgType": "Typ",
+      "orgRole": "Rola",
+      "passkeyName": "Nazwa",
+      "passkeyCreatedAt": "Utworzono",
+      "passkeyLastUsedAt": "Ostatnie użycie",
+      "consentKind": "Zgoda",
+      "consentVersion": "Wersja",
+      "consentAcceptedAt": "Zaakceptowano",
+      "consentOrganization": "Organizacja",
+      "anonymized": "To konto zostało zanonimizowane: żadne działania nie są dostępne.",
+      "actions": "Działania",
+      "civilityValues": {
+        "madame": "Pani",
+        "monsieur": "Pan"
+      }
     }
   },
   "audit": {
@@ -218,7 +302,12 @@
       "agency_review.info_requested": "Poproszono agencję o informacje",
       "rfq.closed": "Zapytanie ofertowe zamknięte",
       "rfq.expired": "Zapytanie ofertowe wygasło",
-      "rfq.reminded": "Dostawcy otrzymali przypomnienie o zapytaniu"
+      "rfq.reminded": "Dostawcy otrzymali przypomnienie o zapytaniu",
+      "user.suspended": "Account suspended",
+      "user.reactivated": "Account reactivated",
+      "user.verification_resent": "Email verification resent",
+      "user.password_reset_requested": "Password reset requested",
+      "user.deleted": "Account deleted"
     },
     "targets": {
       "user": "Użytkownik",

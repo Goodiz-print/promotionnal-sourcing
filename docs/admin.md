@@ -10,7 +10,9 @@ Socle du back-office `/:locale/admin` (epic #157) : rôles plateforme fins (#158
 | -------------------- | :---: | :-------: | :-----: | :-----: | -------------------------------------------------- |
 | `backoffice.access`  |   x   |     x     |    x    |    x    | porte d'entrée `/admin/**`, tableau de bord        |
 | `organizations.view` |   x   |     x     |    x    |         | liste et fiche des organisations                   |
-| `users.view`         |   x   |           |    x    |         | liste des utilisateurs                             |
+| `users.view`         |   x   |           |    x    |         | liste et fiche des utilisateurs                    |
+| `users.support`      |   x   |           |    x    |         | renvoyer vérification, reset mot de passe          |
+| `users.manage`       |   x   |           |         |         | suspendre, réactiver, supprimer un compte          |
 | `catalogue.manage`   |   x   |           |         |         | taxonomie (catégories, attributs)                  |
 | `roles.manage`       |   x   |           |         |         | attribuer un rôle plateforme                       |
 | `audit.view`         |   x   |           |         |         | journal d'audit                                    |

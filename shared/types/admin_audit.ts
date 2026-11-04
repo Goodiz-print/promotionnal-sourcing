@@ -21,6 +21,11 @@ export const ADMIN_AUDIT_ACTIONS = [
   'rfq.closed',
   'rfq.expired',
   'rfq.reminded',
+  'user.suspended',
+  'user.reactivated',
+  'user.verification_resent',
+  'user.password_reset_requested',
+  'user.deleted',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]
