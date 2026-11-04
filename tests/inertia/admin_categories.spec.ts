@@ -40,6 +40,9 @@ function category(id: number, name: string, slug: string, extra: Partial<Categor
     parentId: null,
     parentName: null,
     productsCount: 0,
+    depth: 0,
+    canMoveUp: false,
+    canMoveDown: false,
     ...extra,
   } satisfies CategoryAdminType
 }

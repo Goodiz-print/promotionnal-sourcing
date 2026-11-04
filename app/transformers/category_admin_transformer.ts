@@ -34,6 +34,9 @@ export default class CategoryAdminTransformer extends BaseTransformer<Category> 
       parentId: this.resource.parentId,
       parentName: parentTranslation?.name ?? null,
       productsCount: Number(this.resource.$extras.products_count ?? 0),
+      depth: Number(this.resource.$extras.depth ?? 0),
+      canMoveUp: Boolean(this.resource.$extras.can_move_up),
+      canMoveDown: Boolean(this.resource.$extras.can_move_down),
     }
   }
 }

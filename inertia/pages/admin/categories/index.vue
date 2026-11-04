@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
-import { FolderTree, Plus, Trash2 } from 'lucide-vue-next'
+import { ArrowDown, ArrowUp, FolderTree, Plus, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
@@ -10,13 +10,21 @@ import BaseIconButton from '~/components/base/base_icon_button.vue'
 import BaseLinkButton from '~/components/base/base_link_button.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseTable from '~/components/base/base_table.vue'
-import type { CategoryAdminType } from '#shared/types/category'
+import type { CategoryAdminType, CategoryMoveDirection } from '#shared/types/category'
 
 defineProps<{ categories: CategoryAdminType[] }>()
 
 const { t, locale } = useI18n()
 
 const createUrl = computed(() => urlFor('admin.categories.create', { locale: locale.value }))
+
+function move(category: CategoryAdminType, direction: CategoryMoveDirection) {
+  router.patch(
+    urlFor('admin.categories.move', { locale: locale.value, id: category.id }),
+    { direction },
+    { preserveScroll: true }
+  )
+}
 
 function destroy(category: CategoryAdminType) {
   if (!window.confirm(t('categories.confirmDelete'))) return
@@ -72,13 +80,15 @@ function destroy(category: CategoryAdminType) {
 
       <tr v-for="category in categories" :key="category.id">
         <td>
-          <Link
-            route="admin.categories.edit"
-            :params="{ locale, id: category.id }"
-            class="font-semibold text-text-primary hover:text-indigo-600"
-          >
-            {{ category.name ?? category.slug }}
-          </Link>
+          <div :style="{ paddingInlineStart: `${category.depth * 1.5}rem` }">
+            <Link
+              route="admin.categories.edit"
+              :params="{ locale, id: category.id }"
+              class="font-semibold text-text-primary hover:text-indigo-600"
+            >
+              {{ category.name ?? category.slug }}
+            </Link>
+          </div>
         </td>
         <td class="text-text-secondary">{{ category.slug }}</td>
         <td>
@@ -88,6 +98,20 @@ function destroy(category: CategoryAdminType) {
         <td class="text-tabular text-right">{{ category.productsCount }}</td>
         <td>
           <div class="flex items-center justify-end gap-2">
+            <BaseIconButton
+              :label="t('categories.index.moveUp')"
+              :disabled="!category.canMoveUp"
+              @click="move(category, 'up')"
+            >
+              <ArrowUp :size="18" aria-hidden="true" />
+            </BaseIconButton>
+            <BaseIconButton
+              :label="t('categories.index.moveDown')"
+              :disabled="!category.canMoveDown"
+              @click="move(category, 'down')"
+            >
+              <ArrowDown :size="18" aria-hidden="true" />
+            </BaseIconButton>
             <BaseLinkButton
               :href="urlFor('admin.categories.edit', { locale, id: category.id })"
               size="sm"

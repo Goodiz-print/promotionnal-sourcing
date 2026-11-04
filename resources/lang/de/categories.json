@@ -11,7 +11,9 @@
       "actions": "Aktionen"
     },
     "emptyDescription": "Kategorien strukturieren den Katalog und seine Filter.",
-    "root": "Wurzel"
+    "root": "Wurzel",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten"
   },
   "create": {
     "title": "Neue Kategorie",
@@ -45,7 +47,8 @@
     "deleted": "Kategorie gelöscht.",
     "cycle": "Eine Kategorie kann nicht ihre eigene übergeordnete Kategorie oder die ihrer Unterkategorien sein.",
     "hasChildren": "Löschen nicht möglich: Diese Kategorie enthält Unterkategorien.",
-    "hasProducts": "Löschen nicht möglich: Dieser Kategorie sind Produkte zugeordnet."
+    "hasProducts": "Löschen nicht möglich: Dieser Kategorie sind Produkte zugeordnet.",
+    "moved": "Reihenfolge der Kategorien aktualisiert."
   },
   "attributes": {
     "title": "Zugeordnete Attribute",

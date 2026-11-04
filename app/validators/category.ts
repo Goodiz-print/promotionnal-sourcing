@@ -1,5 +1,6 @@
 import vine from '@vinejs/vine'
 import { CONTENT_LOCALES } from '#shared/types/i18n'
+import { CATEGORY_MOVE_DIRECTIONS } from '#shared/types/category'
 import { perContentLocale } from '#validators/localized_content'
 
 const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -49,4 +50,11 @@ export const updateCategoryValidator = vine.create({
   synonyms: vine.array(vine.string().maxLength(100)).optional(),
   sourceLocale: vine.enum(CONTENT_LOCALES).optional(),
   translations: vine.object(perContentLocale(partialLocalizedContent)).optional(),
+})
+
+/**
+ * Déplacement d'une catégorie d'un cran parmi ses sœurs (#165).
+ */
+export const moveCategoryValidator = vine.create({
+  direction: vine.enum(CATEGORY_MOVE_DIRECTIONS),
 })

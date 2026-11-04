@@ -408,6 +408,7 @@
       "category.created": "Category created",
       "category.updated": "Category updated",
       "category.deleted": "Category deleted",
+      "category.reordered": "Categories reordered",
       "attribute.created": "Attribute created",
       "attribute.updated": "Attribute updated",
       "attribute.deleted": "Attribute deleted",

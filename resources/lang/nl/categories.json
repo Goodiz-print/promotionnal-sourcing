@@ -11,7 +11,9 @@
       "actions": "Acties"
     },
     "emptyDescription": "Categorieën structureren de catalogus en de filters ervan.",
-    "root": "Hoofdniveau"
+    "root": "Hoofdniveau",
+    "moveUp": "Omhoog",
+    "moveDown": "Omlaag"
   },
   "create": {
     "title": "Nieuwe categorie",
@@ -45,7 +47,8 @@
     "deleted": "Categorie verwijderd.",
     "cycle": "Een categorie kan niet haar eigen bovenliggende categorie zijn, noch die van een van haar onderliggende categorieën.",
     "hasChildren": "Verwijderen is niet mogelijk: deze categorie heeft subcategorieën.",
-    "hasProducts": "Verwijderen is niet mogelijk: er zijn producten aan deze categorie gekoppeld."
+    "hasProducts": "Verwijderen is niet mogelijk: er zijn producten aan deze categorie gekoppeld.",
+    "moved": "Volgorde van de categorieën bijgewerkt."
   },
   "attributes": {
     "title": "Gekoppelde attributen",

@@ -2100,6 +2100,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'admin.categories.move': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/categories/:id/move'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/category').moveCategoryValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/category').moveCategoryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['move']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['move']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/category_controller').default['move']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'admin.categories.destroy': {
     methods: ["DELETE"]
     pattern: '/:locale/admin/categories/:id'

@@ -208,6 +208,7 @@ export default class ProductCatalogueService {
           )
       )
       .preload('translations')
+      .orderBy('position')
       .orderBy('slug')
   }
 

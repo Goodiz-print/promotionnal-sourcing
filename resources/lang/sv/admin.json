@@ -408,6 +408,7 @@
       "category.created": "Kategori skapad",
       "category.updated": "Kategori ändrad",
       "category.deleted": "Kategori borttagen",
+      "category.reordered": "Kategorier omordnade",
       "attribute.created": "Attribut skapad",
       "attribute.updated": "Attribut ändrad",
       "attribute.deleted": "Attribut borttagen",

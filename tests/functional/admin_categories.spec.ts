@@ -4,6 +4,8 @@ import { OrganizationFactory } from '#database/factories/organization_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import type User from '#models/user'
 import Category from '#models/category'
+import AdminAuditLog from '#models/admin_audit_log'
+import { CategoryFactory } from '#database/factories/category_factory'
 import CategoryTranslation from '#models/category_translation'
 import { createMember, joinOrganization } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
@@ -291,5 +293,178 @@ test.group('Administration des categories - Attributs associes', (group) => {
         'Un attribut associe ne doit pas etre dans availableAttributes'
       )
     }
+  })
+})
+
+test.group('Administration des catégories — réordonnancement', (group) => {
+  useDatabase(group)
+
+  /** Crée trois catégories racines A, B, C aux positions 0, 1, 2. */
+  async function threeRoots() {
+    const a = await CategoryFactory.merge({ slug: 'ordre-a', position: 0 }).create()
+    const b = await CategoryFactory.merge({ slug: 'ordre-b', position: 1 }).create()
+    const c = await CategoryFactory.merge({ slug: 'ordre-c', position: 2 }).create()
+    return { a, b, c }
+  }
+
+  test('descendre une catégorie échange sa position avec sa sœur et écrit un audit', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await platformAdmin()
+    const { a, b } = await threeRoots()
+
+    const response = await client
+      .patch(`/fr/admin/categories/${a.id}/move`)
+      .json({ direction: 'down' })
+      .withCsrfToken()
+      .loginAs(admin)
+      .redirects(0)
+
+    response.assertStatus(302)
+    await a.refresh()
+    await b.refresh()
+    assert.equal(a.position, 1)
+    assert.equal(b.position, 0)
+    const audit = await AdminAuditLog.query().where('action', 'category.reordered')
+    assert.lengthOf(audit, 1)
+    assert.equal(audit[0].targetId, a.id)
+  })
+
+  test('monter la première catégorie est sans effet (aucun audit)', async ({ client, assert }) => {
+    const admin = await platformAdmin()
+    const { a } = await threeRoots()
+
+    const response = await client
+      .patch(`/fr/admin/categories/${a.id}/move`)
+      .json({ direction: 'up' })
+      .withCsrfToken()
+      .loginAs(admin)
+      .redirects(0)
+
+    response.assertStatus(302)
+    await a.refresh()
+    assert.equal(a.position, 0)
+    const audit = await AdminAuditLog.query().where('action', 'category.reordered')
+    assert.lengthOf(audit, 0)
+  })
+
+  test('une direction invalide est refusée', async ({ client, assert }) => {
+    const admin = await platformAdmin()
+    const { a } = await threeRoots()
+
+    const response = await client
+      .patch(`/fr/admin/categories/${a.id}/move`)
+      .json({ direction: 'sideways' })
+      .withCsrfToken()
+      .loginAs(admin)
+      .redirects(0)
+
+    response.assertStatus(302)
+    await a.refresh()
+    assert.equal(a.position, 0)
+  })
+
+  test('le déplacement ne touche que les sœurs du même parent', async ({ client, assert }) => {
+    const admin = await platformAdmin()
+    const { a, b } = await threeRoots()
+    const child = await CategoryFactory.merge({
+      slug: 'ordre-enfant',
+      parentId: a.id,
+      position: 0,
+    }).create()
+
+    const response = await client
+      .patch(`/fr/admin/categories/${child.id}/move`)
+      .json({ direction: 'down' })
+      .withCsrfToken()
+      .loginAs(admin)
+      .redirects(0)
+
+    response.assertStatus(302)
+    await a.refresh()
+    await b.refresh()
+    assert.equal(a.position, 0)
+    assert.equal(b.position, 1)
+  })
+
+  test('les positions en doublon sont renumérotées', async ({ client, assert }) => {
+    const admin = await platformAdmin()
+    const x = await CategoryFactory.merge({ slug: 'dup-x', position: 0 }).create()
+    const y = await CategoryFactory.merge({ slug: 'dup-y', position: 0 }).create()
+
+    await client
+      .patch(`/fr/admin/categories/${x.id}/move`)
+      .json({ direction: 'down' })
+      .withCsrfToken()
+      .loginAs(admin)
+      .redirects(0)
+
+    await x.refresh()
+    await y.refresh()
+    assert.equal(y.position, 0)
+    assert.equal(x.position, 1)
+  })
+
+  test('une catégorie créée est placée en fin de liste de ses sœurs', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await platformAdmin()
+    await threeRoots()
+
+    await client
+      .post('/fr/admin/categories')
+      .json({ slug: 'ordre-d', sourceLocale: 'fr', translations: { fr: { name: 'Quatrième' } } })
+      .withCsrfToken()
+      .loginAs(admin)
+      .redirects(0)
+
+    const created = await Category.findByOrFail('slug', 'ordre-d')
+    assert.equal(created.position, 3)
+  })
+
+  test('la liste d’administration suit l’ordre de l’arbre avec profondeur et déplacements possibles', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await platformAdmin()
+    const { a } = await threeRoots()
+    await CategoryFactory.merge({ slug: 'ordre-a-fils', parentId: a.id, position: 0 }).create()
+
+    const response = await client.get('/fr/admin/categories').withInertia().loginAs(admin)
+
+    const list = response.inertiaProps.categories as Array<{
+      slug: string
+      depth: number
+      canMoveUp: boolean
+      canMoveDown: boolean
+    }>
+    assert.deepEqual(
+      list.map((c) => c.slug),
+      ['ordre-a', 'ordre-a-fils', 'ordre-b', 'ordre-c']
+    )
+    assert.deepEqual(
+      list.map((c) => c.depth),
+      [0, 1, 0, 0]
+    )
+    assert.isFalse(list[0].canMoveUp)
+    assert.isTrue(list[0].canMoveDown)
+    assert.isFalse(list[1].canMoveUp)
+    assert.isFalse(list[1].canMoveDown)
+    assert.isFalse(list[3].canMoveDown)
+  })
+
+  test('un utilisateur non plateforme ne peut pas déplacer (403)', async ({ client }) => {
+    const user = await freshOrgMember('owner')
+    const { a } = await threeRoots()
+
+    const response = await client
+      .patch(`/fr/admin/categories/${a.id}/move`)
+      .json({ direction: 'down' })
+      .withCsrfToken()
+      .loginAs(user)
+
+    response.assertStatus(403)
   })
 })

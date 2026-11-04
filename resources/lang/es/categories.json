@@ -11,7 +11,9 @@
       "actions": "Acciones"
     },
     "emptyDescription": "Las categorías estructuran el catálogo y sus filtros.",
-    "root": "Raíz"
+    "root": "Raíz",
+    "moveUp": "Subir",
+    "moveDown": "Bajar"
   },
   "create": {
     "title": "Nueva categoría",
@@ -45,7 +47,8 @@
     "deleted": "Categoría eliminada.",
     "cycle": "Una categoría no puede ser su propia categoría superior ni la de ninguno de sus descendientes.",
     "hasChildren": "No se puede eliminar: esta categoría tiene subcategorías.",
-    "hasProducts": "No se puede eliminar: hay productos asociados a esta categoría."
+    "hasProducts": "No se puede eliminar: hay productos asociados a esta categoría.",
+    "moved": "Orden de las categorías actualizado."
   },
   "attributes": {
     "title": "Atributos asociados",

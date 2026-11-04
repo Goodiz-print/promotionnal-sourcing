@@ -8,7 +8,11 @@ import CategoryEditTransformer from '#transformers/category_edit_transformer'
 import CategoryTransformer from '#transformers/category_transformer'
 import CategoryAttributeEditTransformer from '#transformers/category_attribute_edit_transformer'
 import { CategoryNotFoundException } from '#exceptions/catalogue_errors'
-import { createCategoryValidator, updateCategoryValidator } from '#validators/category'
+import {
+  createCategoryValidator,
+  moveCategoryValidator,
+  updateCategoryValidator,
+} from '#validators/category'
 import type { Locale } from '#shared/types/i18n'
 
 /**
@@ -114,6 +118,24 @@ export default class CategoryController {
 
     session.flash('success', i18n.t('categories.flash.updated'))
     return response.redirect().toRoute('admin.categories.index', { locale: i18n.locale })
+  }
+
+  /**
+   * Déplace la catégorie d'un cran parmi ses sœurs. Sans effet (ni audit) si
+   * elle est déjà en bout de liste.
+   */
+  async move(ctx: HttpContext) {
+    const { bouncer, request, response, params, session } = ctx
+    await bouncer.authorize('canManageCategories')
+
+    const category = await this.service.findById(Number(params.id))
+    if (!category) throw new CategoryNotFoundException()
+
+    const { direction } = await request.validateUsing(moveCategoryValidator)
+    await this.service.move(category, direction, adminActionContext(ctx))
+
+    session.flash('success', ctx.i18n.t('categories.flash.moved'))
+    return response.redirect().back()
   }
 
   /**
