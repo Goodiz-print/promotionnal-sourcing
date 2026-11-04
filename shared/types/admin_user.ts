@@ -1,4 +1,3 @@
-import type { AdminActionContext } from './admin_audit.js'
 import type { OrganizationKind } from './organization.js'
 import type { RoleSlug } from './role.js'
 import type { PlatformRole } from './user.js'
@@ -92,19 +91,4 @@ export type AdminUserDetail = {
   canSupport: boolean
   canManage: boolean
   isSelf: boolean
-}
-
-/** Options d'intervention sur un compte (suspension, suppression, etc.). */
-export type AdminUserActionOptions = {
-  userId: number
-  context: AdminActionContext
-  /** Motif optionnel (suspension uniquement, max 500 caractères). */
-  reason?: string
-  /** Langue de l'utilisateur pour les mails. */
-  locale?: string
-}
-
-/** Noms des organisations bloquant la suppression d'un compte. */
-export type AdminUserBlockingOrganizations = {
-  blockingOrganizations: string[]
 }

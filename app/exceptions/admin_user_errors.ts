@@ -57,12 +57,3 @@ export class UserOwnsOrganizationsException extends Exception {
     super()
   }
 }
-
-/**
- * Connexion refusée car le compte est suspendu.
- */
-export class AccountSuspendedException extends Exception {
-  static status = 403
-  static code = 'E_ACCOUNT_SUSPENDED'
-  static message = 'This account has been suspended'
-}

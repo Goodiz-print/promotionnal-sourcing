@@ -133,7 +133,8 @@ export default class AdminUserActionService {
           action: 'user.verification_resent',
           targetType: 'user',
           targetId: user.id,
-          changes: { after: { email: user.email } },
+          // Pas d'email : le journal est conservé après une suppression RGPD.
+          changes: {},
         },
         { ...options.context, client: trx }
       )
