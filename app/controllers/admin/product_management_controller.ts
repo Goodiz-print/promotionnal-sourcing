@@ -9,6 +9,7 @@ import {
   ProductAlreadyUnpublishedException,
   ProductAlreadyPublishedException,
   ProductAlreadyArchivedException,
+  ProductArchivedException,
   ProductNotArchivedException,
 } from '#exceptions/admin_product_errors'
 
@@ -108,6 +109,10 @@ export default class ProductManagementController {
     } catch (error) {
       if (error instanceof ProductAlreadyPublishedException) {
         session.flash('error', i18n.t('admin.products.actions.publish.alreadyPublished'))
+        return response.redirect().back()
+      }
+      if (error instanceof ProductArchivedException) {
+        session.flash('error', i18n.t('admin.products.actions.publish.archived'))
         return response.redirect().back()
       }
       throw error

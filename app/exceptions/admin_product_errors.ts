@@ -46,6 +46,15 @@ export class ProductAlreadyPublishedException extends Exception {
 }
 
 /**
+ * Tentative de publier un produit archivé : il faut d'abord le restaurer.
+ */
+export class ProductArchivedException extends Exception {
+  static status = 409
+  static code = 'E_PRODUCT_ARCHIVED'
+  static message = 'This product is archived: restore it before publishing'
+}
+
+/**
  * Tentative d'archiver un produit deja archive (lifecycle_status='retired').
  */
 export class ProductAlreadyArchivedException extends Exception {

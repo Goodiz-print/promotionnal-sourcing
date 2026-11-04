@@ -1,6 +1,7 @@
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
 import emitter from '@adonisjs/core/services/emitter'
+import logger from '@adonisjs/core/services/logger'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import AdminAuditService from '#services/admin_audit_service'
 import ModerationService from '#services/moderation_service'
@@ -15,6 +16,7 @@ import {
   ProductAlreadyUnpublishedException,
   ProductAlreadyPublishedException,
   ProductAlreadyArchivedException,
+  ProductArchivedException,
   ProductNotArchivedException,
 } from '#exceptions/admin_product_errors'
 import { latestDecisionIsRejectedSql } from '#shared/helpers/moderation'
@@ -74,7 +76,7 @@ export default class AdminProductActionService {
           action: 'product.hidden',
           targetType: 'product',
           targetId: productId,
-          changes: { after: { hidden: true, reason: options.reason } },
+          changes: { before: { hidden: false }, after: { hidden: true, reason: options.reason } },
         },
         { ...options.context, client: trx }
       )
@@ -111,7 +113,7 @@ export default class AdminProductActionService {
           action: 'product.unhidden',
           targetType: 'product',
           targetId: productId,
-          changes: { after: { hidden: false } },
+          changes: { before: { hidden: true }, after: { hidden: false } },
         },
         { ...options.context, client: trx }
       )
@@ -164,6 +166,9 @@ export default class AdminProductActionService {
     const product = await db.transaction(async (trx) => {
       const p = await this.lockOrFail(productId, trx)
 
+      // Un produit archivé (`retired`) n'est masqué du public que par `is_active` :
+      // le republier sans le restaurer le remettrait en ligne.
+      if (p.lifecycleStatus === 'retired') throw new ProductArchivedException()
       if (p.isActive) throw new ProductAlreadyPublishedException()
 
       p.useTransaction(trx)
@@ -320,8 +325,10 @@ export default class AdminProductActionService {
   }
 
   private emitProductChanged(productId: number): void {
-    emitter.emit(ProductChanged, new ProductChanged(productId)).catch(() => {
-      // L'emission ne doit pas bloquer
+    // La base est déjà à jour : un échec d'émission est loggé sans être propagé,
+    // `search:reindex` (ou l'action « Réindexer ») rattrape l'index.
+    emitter.emit(ProductChanged, new ProductChanged(productId)).catch((error) => {
+      logger.warn({ err: error, productId }, 'failed to emit product change')
     })
   }
 }

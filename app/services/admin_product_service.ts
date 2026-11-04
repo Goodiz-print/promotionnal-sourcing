@@ -179,8 +179,6 @@ export default class AdminProductService {
           .preload('attribute', (attr) => attr.preload('translations'))
           .preload('attributeValue', (val) => val.preload('translations'))
       )
-      .withCount('variants', (q) => q.as('variants_count'))
-      .withCount('images', (q) => q.as('images_count'))
       .first()
 
     if (!product) throw new AdminProductNotFoundException()
@@ -310,8 +308,8 @@ export default class AdminProductService {
       supplierOrganizationId,
       categoryName,
       categorySlug,
-      variantsCount: Number(product.$extras.variants_count ?? 0),
-      imagesCount: Number(product.$extras.images_count ?? 0),
+      variantsCount: product.variants.length,
+      imagesCount: product.images.length,
     }
   }
 
