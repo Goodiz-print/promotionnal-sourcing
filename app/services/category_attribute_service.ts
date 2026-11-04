@@ -6,11 +6,12 @@ import Attribute from '#models/attribute'
 import AdminAuditService from '#services/admin_audit_service'
 import SearchSyncService from '#services/search_sync_service'
 import {
+  AttributeNotFoundException,
   CategoryAttributeAlreadyExistsException,
   invalidCategoryAttributeRanges,
 } from '#exceptions/catalogue_errors'
 import type { AdminActionContext } from '#shared/types/admin_audit'
-import type Category from '#models/category'
+import Category from '#models/category'
 import { resolveTranslation } from '#shared/helpers/translations'
 import type { Locale } from '#shared/types/i18n'
 import type {
@@ -113,69 +114,100 @@ export default class CategoryAttributeService {
   /**
    * Ajoute un attribut a une categorie. Refuse si l'attribut est deja associe.
    * Declenche un rafraichissement des reglages si `isFilter` est `true`.
+   *
+   * La verification d'unicite et l'insertion sont faites dans la meme transaction
+   * avec verrou sur la categorie pour eviter les courses (deux requetes simultanees).
+   * Le code d'erreur Postgres 23505 (violation d'unicite) est intercepte et converti
+   * en `CategoryAttributeAlreadyExistsException`.
    */
   async add(
     category: Category,
     data: AddCategoryAttributeData,
     context: AdminActionContext
   ): Promise<CategoryAttribute> {
-    // Verifier que l'attribut existe
+    // Verifier que l'attribut existe (hors transaction, lecture seule)
     const attribute = await Attribute.find(data.attributeId)
     if (!attribute) {
-      throw invalidCategoryAttributeRanges('Attribute not found')
+      throw new AttributeNotFoundException()
     }
-
-    // Verifier l'unicite
-    const existing = await this.findByCategoryAndAttribute(category.id, data.attributeId)
-    if (existing) {
-      throw new CategoryAttributeAlreadyExistsException()
-    }
-
-    // Calculer la position par defaut (apres le dernier)
-    const maxPosition = await CategoryAttribute.query()
-      .where('categoryId', category.id)
-      .max('position as max')
-      .first()
-    const position = data.position ?? (maxPosition?.$extras.max ?? 0) + 1
 
     const isFilter = data.isFilter ?? false
 
-    const pivot = await db.transaction(async (trx) => {
-      const created = await CategoryAttribute.create(
-        {
-          categoryId: category.id,
-          attributeId: data.attributeId,
-          isRequiredForPublication: data.isRequiredForPublication ?? false,
-          isFilter,
-          position,
-        },
-        { client: trx }
-      )
-      await this.audit.record(
-        {
-          action: 'category_attribute.added',
-          targetType: 'category_attribute',
-          targetId: created.id,
-          changes: {
-            after: {
-              categoryId: category.id,
-              attributeId: data.attributeId,
-              isFilter: created.isFilter,
+    try {
+      const pivot = await db.transaction(async (trx) => {
+        // Verrou sur la categorie pour serialiser les ajouts concurrents
+        await Category.query({ client: trx }).where('id', category.id).forUpdate().firstOrFail()
+
+        // Verifier l'unicite dans la transaction
+        const existing = await CategoryAttribute.query({ client: trx })
+          .where('categoryId', category.id)
+          .where('attributeId', data.attributeId)
+          .first()
+        if (existing) {
+          throw new CategoryAttributeAlreadyExistsException()
+        }
+
+        // Calculer la position par defaut (apres le dernier)
+        const maxPosition = await CategoryAttribute.query({ client: trx })
+          .where('categoryId', category.id)
+          .max('position as max')
+          .first()
+        const position = data.position ?? (maxPosition?.$extras.max ?? 0) + 1
+
+        const created = await CategoryAttribute.create(
+          {
+            categoryId: category.id,
+            attributeId: data.attributeId,
+            isRequiredForPublication: data.isRequiredForPublication ?? false,
+            isFilter,
+            position,
+          },
+          { client: trx }
+        )
+        await this.audit.record(
+          {
+            action: 'category_attribute.added',
+            targetType: 'category_attribute',
+            targetId: created.id,
+            changes: {
+              after: {
+                categoryId: category.id,
+                attributeId: data.attributeId,
+                isFilter: created.isFilter,
+              },
             },
           },
-        },
-        { ...context, client: trx }
-      )
+          { ...context, client: trx }
+        )
 
-      // Si isFilter est true, rafraichir les reglages apres commit
-      if (isFilter) {
-        trx.after('commit', () => this.searchSync.queueSettings())
+        // Si isFilter est true, rafraichir les reglages apres commit
+        if (isFilter) {
+          trx.after('commit', () => this.searchSync.queueSettings())
+        }
+
+        return created
+      })
+
+      return pivot
+    } catch (error) {
+      // Intercepter l'erreur Postgres de violation d'unicite (code 23505)
+      if (this.isUniqueViolation(error)) {
+        throw new CategoryAttributeAlreadyExistsException()
       }
+      throw error
+    }
+  }
 
-      return created
-    })
-
-    return pivot
+  /**
+   * Detecte une violation d'unicite Postgres (code 23505).
+   */
+  private isUniqueViolation(error: unknown): boolean {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      (error as { code: string }).code === '23505'
+    )
   }
 
   /**

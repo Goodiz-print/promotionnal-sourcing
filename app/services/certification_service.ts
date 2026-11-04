@@ -96,12 +96,15 @@ export default class CertificationService {
   /**
    * Mise à jour partielle. Le slug est figé. Si `isEco` change, les produits
    * concernés sont réindexés après commit.
+   *
+   * **Règle no-op** (docs/admin.md) : si rien ne change (ni champs, ni
+   * traductions saisies), aucune trace d'audit ni de file de traduction.
    */
   async update(
     certification: Certification,
     data: UpdateCertificationData,
     context: AdminActionContext
-  ): Promise<Certification> {
+  ): Promise<{ certification: Certification; changed: boolean }> {
     const sourceLocale = (data.sourceLocale ?? certification.sourceLocale) as ContentLocale
     if (!data.translations?.[sourceLocale]?.name) {
       const existing = await CertificationTranslation.query()
@@ -111,13 +114,48 @@ export default class CertificationService {
       if (!existing) throw missingSourceTranslation(sourceLocale)
     }
 
+    // Charger les traductions existantes pour la comparaison
+    const existingTranslations = await CertificationTranslation.query().where(
+      'certificationId',
+      certification.id
+    )
+    const existingTranslationsMap = new Map(existingTranslations.map((t) => [t.locale, t.name]))
+
     const snapshot = (source: Certification) => ({
       domain: source.domain,
       isEco: source.isEco,
       sourceLocale: source.sourceLocale,
+      synonyms: JSON.stringify(source.synonyms ?? []),
     })
     const before = snapshot(certification)
     const wasEco = certification.isEco
+
+    // Calculer si des traductions changent
+    const translationChanges = this.detectTranslationChanges(
+      data.translations,
+      existingTranslationsMap
+    )
+
+    // Simuler les changements pour détecter le no-op
+    const newSourceLocale = sourceLocale
+    const newDomain = data.domain !== undefined ? data.domain : certification.domain
+    const newIsEco = data.isEco !== undefined ? data.isEco : certification.isEco
+    const newSynonyms =
+      data.synonyms !== undefined
+        ? JSON.stringify(data.synonyms)
+        : JSON.stringify(certification.synonyms ?? [])
+
+    const wouldChange =
+      before.sourceLocale !== newSourceLocale ||
+      before.domain !== newDomain ||
+      before.isEco !== newIsEco ||
+      before.synonyms !== newSynonyms ||
+      translationChanges
+
+    // Aucun changement : retour sans écriture ni audit
+    if (!wouldChange) {
+      return { certification, changed: false }
+    }
 
     await db.transaction(async (trx) => {
       certification.useTransaction(trx)
@@ -144,7 +182,24 @@ export default class CertificationService {
       await this.reindexProductsWithCertification(certification.id)
     }
 
-    return certification
+    return { certification, changed: true }
+  }
+
+  /**
+   * Détecte si des traductions saisies changent par rapport à l'existant.
+   */
+  private detectTranslationChanges(
+    translations: UpdateCertificationData['translations'],
+    existingMap: Map<string, string>
+  ): boolean {
+    if (!translations) return false
+    for (const locale of CONTENT_LOCALES) {
+      const name = translations[locale]?.name
+      if (name && existingMap.get(locale) !== name) {
+        return true
+      }
+    }
+    return false
   }
 
   /**
@@ -184,24 +239,35 @@ export default class CertificationService {
   }
 
   /**
-   * IDs des produits portant cette certification.
+   * Taille des lots pour la réindexation des produits.
    */
-  private async productIdsWithCertification(certificationId: number): Promise<number[]> {
-    const rows = await db
-      .from('product_certifications')
-      .where('certification_id', certificationId)
-      .select('product_id')
-    return rows.map((row) => row.product_id)
-  }
+  private static readonly REINDEX_BATCH_SIZE = 50
 
   /**
    * Met en queue la réindexation des produits portant cette certification.
-   * Appelé après changement de is_eco.
+   * Appelé après changement de is_eco. Traite par lots pour éviter de charger
+   * tous les IDs en mémoire et parallélise chaque lot.
    */
   private async reindexProductsWithCertification(certificationId: number): Promise<void> {
-    const productIds = await this.productIdsWithCertification(certificationId)
-    for (const productId of productIds) {
-      await this.searchSync.queueProduct(productId)
+    let lastId = 0
+
+    while (true) {
+      // Pagination curseur : charge un lot d'IDs après le dernier traité
+      const rows = await db
+        .from('product_certifications')
+        .where('certification_id', certificationId)
+        .where('product_id', '>', lastId)
+        .orderBy('product_id', 'asc')
+        .limit(CertificationService.REINDEX_BATCH_SIZE)
+        .select('product_id')
+
+      if (rows.length === 0) break
+
+      // Met en queue en parallèle pour ce lot
+      const productIds = rows.map((row) => row.product_id as number)
+      await Promise.all(productIds.map((id) => this.searchSync.queueProduct(id)))
+
+      lastId = productIds[productIds.length - 1]
     }
   }
 

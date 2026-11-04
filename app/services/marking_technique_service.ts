@@ -5,7 +5,6 @@ import MarkingTechnique from '#models/marking_technique'
 import MarkingTechniqueTranslation from '#models/marking_technique_translation'
 import AdminAuditService from '#services/admin_audit_service'
 import TranslationQueueService from '#services/translation_queue_service'
-import SearchSyncService from '#services/search_sync_service'
 import { MarkingTechniqueInUseException } from '#exceptions/catalogue_errors'
 import { missingSourceTranslation } from '#exceptions/translation_errors'
 import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
@@ -29,9 +28,7 @@ import type { CreateMarkingTechniqueData, UpdateMarkingTechniqueData } from '#sh
 export default class MarkingTechniqueService {
   constructor(
     private translationQueue: TranslationQueueService,
-    private audit: AdminAuditService,
-    // Injection préparée pour la réindexation future si les techniques sont indexées
-    _searchSync: SearchSyncService
+    private audit: AdminAuditService
   ) {}
 
   /**
@@ -113,12 +110,15 @@ export default class MarkingTechniqueService {
 
   /**
    * Mise à jour partielle. Le slug est figé.
+   *
+   * **Règle no-op** (docs/admin.md) : si rien ne change (ni champs, ni
+   * traductions saisies), aucune trace d'audit ni de file de traduction.
    */
   async update(
     technique: MarkingTechnique,
     data: UpdateMarkingTechniqueData,
     context: AdminActionContext
-  ): Promise<MarkingTechnique> {
+  ): Promise<{ technique: MarkingTechnique; changed: boolean }> {
     const sourceLocale = (data.sourceLocale ?? technique.sourceLocale) as ContentLocale
     if (!data.translations?.[sourceLocale]?.name) {
       const existing = await MarkingTechniqueTranslation.query()
@@ -128,10 +128,44 @@ export default class MarkingTechniqueService {
       if (!existing) throw missingSourceTranslation(sourceLocale)
     }
 
+    // Charger les traductions existantes pour la comparaison
+    const existingTranslations = await MarkingTechniqueTranslation.query().where(
+      'markingTechniqueId',
+      technique.id
+    )
+    const existingTranslationsMap = new Map(existingTranslations.map((t) => [t.locale, t.name]))
+
     const snapshot = (source: MarkingTechnique) => ({
       family: source.family,
+      sourceLocale: source.sourceLocale,
+      synonyms: JSON.stringify(source.synonyms ?? []),
     })
     const before = snapshot(technique)
+
+    // Calculer si des traductions changent
+    const translationChanges = this.detectTranslationChanges(
+      data.translations,
+      existingTranslationsMap
+    )
+
+    // Simuler les changements pour détecter le no-op
+    const newSourceLocale = sourceLocale
+    const newFamily = data.family !== undefined ? data.family : technique.family
+    const newSynonyms =
+      data.synonyms !== undefined
+        ? JSON.stringify(data.synonyms)
+        : JSON.stringify(technique.synonyms ?? [])
+
+    const wouldChange =
+      before.sourceLocale !== newSourceLocale ||
+      before.family !== newFamily ||
+      before.synonyms !== newSynonyms ||
+      translationChanges
+
+    // Aucun changement : retour sans écriture ni audit
+    if (!wouldChange) {
+      return { technique, changed: false }
+    }
 
     await db.transaction(async (trx) => {
       technique.useTransaction(trx)
@@ -151,7 +185,24 @@ export default class MarkingTechniqueService {
       )
     })
     await this.translationQueue.queue('marking_technique', technique.id, sourceLocale)
-    return technique
+    return { technique, changed: true }
+  }
+
+  /**
+   * Détecte si des traductions saisies changent par rapport à l'existant.
+   */
+  private detectTranslationChanges(
+    translations: UpdateMarkingTechniqueData['translations'],
+    existingMap: Map<string, string>
+  ): boolean {
+    if (!translations) return false
+    for (const locale of CONTENT_LOCALES) {
+      const name = translations[locale]?.name
+      if (name && existingMap.get(locale) !== name) {
+        return true
+      }
+    }
+    return false
   }
 
   /**
