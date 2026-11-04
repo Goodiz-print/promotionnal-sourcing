@@ -191,9 +191,15 @@ export interface ApiDefinition {
     }
     users: {
       index: typeof routes['admin.users.index']
+      show: typeof routes['admin.users.show']
       platformRole: {
         update: typeof routes['admin.users.platform_role.update']
       }
+      suspend: typeof routes['admin.users.suspend']
+      reactivate: typeof routes['admin.users.reactivate']
+      resendVerification: typeof routes['admin.users.resend_verification']
+      passwordReset: typeof routes['admin.users.password_reset']
+      destroy: typeof routes['admin.users.destroy']
     }
     audit: {
       index: typeof routes['admin.audit.index']

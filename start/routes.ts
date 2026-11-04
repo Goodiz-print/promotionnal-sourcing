@@ -289,11 +289,42 @@ router
 
                 router.get('admin/users', [controllers.admin.User, 'index']).as('admin.users.index')
                 router
+                  .get('admin/users/:id', [controllers.admin.User, 'show'])
+                  .where('id', router.matchers.number())
+                  .as('admin.users.show')
+                router
                   .patch('admin/users/:id/platform-role', [
                     controllers.admin.PlatformRole,
                     'update',
                   ])
                   .as('admin.users.platform_role.update')
+                // Actions sur les comptes (#160) : suspension, suppression, support.
+                router
+                  .post('admin/users/:id/suspend', [controllers.admin.UserAccount, 'suspend'])
+                  .where('id', router.matchers.number())
+                  .as('admin.users.suspend')
+                router
+                  .post('admin/users/:id/reactivate', [controllers.admin.UserAccount, 'reactivate'])
+                  .where('id', router.matchers.number())
+                  .as('admin.users.reactivate')
+                router
+                  .post('admin/users/:id/resend-verification', [
+                    controllers.admin.UserAccount,
+                    'resendVerification',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.users.resend_verification')
+                router
+                  .post('admin/users/:id/password-reset', [
+                    controllers.admin.UserAccount,
+                    'passwordReset',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.users.password_reset')
+                router
+                  .delete('admin/users/:id', [controllers.admin.UserAccount, 'destroy'])
+                  .where('id', router.matchers.number())
+                  .as('admin.users.destroy')
 
                 // Journal d'audit des actions d'écriture du back-office.
                 router

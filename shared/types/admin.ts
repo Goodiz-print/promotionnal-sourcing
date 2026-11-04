@@ -28,6 +28,8 @@ export type AdminOrganizationFilters = {
   status: AdminOrganizationStatus
 }
 
+// Extended AdminUserFilters with all index filters are in './admin_user.js'.
+// Legacy type kept for existing code compatibility:
 export type AdminUserFilters = {
   /** Recherche partielle, insensible à la casse, sur l'email. `null` = aucune. */
   search: string | null
@@ -74,6 +76,8 @@ export type AdminUserListItem = {
   platformRole: PlatformRole
   emailVerified: boolean
   organizationsCount: number
+  lastLoginAt: string | null
+  suspendedAt: string | null
   createdAt: string
 }
 

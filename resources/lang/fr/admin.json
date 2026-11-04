@@ -157,7 +157,8 @@
       "organizations": "Organisations",
       "status": "Statut",
       "createdAt": "Inscrit le",
-      "role": "Rôle plateforme"
+      "role": "Rôle plateforme",
+      "lastLogin": "Dernière connexion"
     },
     "unverified": "Email non vérifié",
     "resultsCount": "{count, plural, =0 {Aucun compte} one {# compte} other {# comptes}}",
@@ -173,6 +174,90 @@
       "analyst": "Analyste",
       "updated": "Rôle plateforme mis à jour.",
       "ownRole": "Vous ne pouvez pas modifier votre propre rôle plateforme."
+    },
+    "filters": {
+      "platformRole": "Rôle plateforme",
+      "emailVerified": "Email vérifié",
+      "activity": "Activité",
+      "organizationType": "Type d'organisation",
+      "status": "Statut",
+      "all": "Tous",
+      "anyRole": "Tout rôle",
+      "verified": "Vérifié",
+      "unverified": "Non vérifié",
+      "recent": "Connecté récemment",
+      "never": "Jamais connecté",
+      "active": "Actif",
+      "suspended": "Suspendu"
+    },
+    "actions": {
+      "suspend": {
+        "label": "Suspendre",
+        "confirm": "Suspendre ce compte ? L'utilisateur ne pourra plus se connecter.",
+        "reasonLabel": "Motif (optionnel)",
+        "done": "Compte suspendu.",
+        "selfError": "Vous ne pouvez pas suspendre votre propre compte.",
+        "adminError": "Vous ne pouvez pas suspendre un administrateur plateforme.",
+        "alreadySuspended": "Ce compte est déjà suspendu."
+      },
+      "reactivate": {
+        "label": "Réactiver",
+        "confirm": "Réactiver ce compte ? L'utilisateur pourra se reconnecter.",
+        "done": "Compte réactivé.",
+        "notSuspended": "Ce compte n'est pas suspendu."
+      },
+      "resendVerification": {
+        "label": "Renvoyer la vérification",
+        "confirm": "Renvoyer l'email de vérification à cet utilisateur ?",
+        "done": "Email de vérification envoyé.",
+        "alreadyVerified": "Ce compte est déjà vérifié."
+      },
+      "passwordReset": {
+        "label": "Réinitialiser le mot de passe",
+        "confirm": "Envoyer un email de réinitialisation de mot de passe à cet utilisateur ?",
+        "done": "Email de réinitialisation envoyé."
+      },
+      "destroy": {
+        "label": "Supprimer le compte",
+        "confirm": "Supprimer ce compte ? Cette action est irréversible. Les données seront anonymisées.",
+        "done": "Compte supprimé.",
+        "selfError": "Vous ne pouvez pas supprimer votre propre compte.",
+        "adminError": "Vous ne pouvez pas supprimer un administrateur plateforme.",
+        "ownsOrganizations": "Ce compte est le dernier propriétaire de : {organizations}"
+      }
+    },
+    "show": {
+      "back": "Retour aux utilisateurs",
+      "identity": "Identité",
+      "organizations": "Organisations",
+      "passkeys": "Passkeys",
+      "consents": "Consentements légaux",
+      "noOrganizations": "Aucune organisation.",
+      "noPasskeys": "Aucune passkey.",
+      "noConsents": "Aucun consentement.",
+      "lastLogin": "Dernière connexion",
+      "suspended": "Suspendu",
+      "never": "Jamais",
+      "archivedOrg": "Archivée",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "civility": "Civilité",
+      "locale": "Langue",
+      "orgType": "Type",
+      "orgRole": "Rôle",
+      "passkeyName": "Nom",
+      "passkeyCreatedAt": "Créée le",
+      "passkeyLastUsedAt": "Dernière utilisation",
+      "consentKind": "Consentement",
+      "consentVersion": "Version",
+      "consentAcceptedAt": "Accepté le",
+      "consentOrganization": "Organisation",
+      "anonymized": "Ce compte est anonymisé : aucune action n'est possible.",
+      "actions": "Actions",
+      "civilityValues": {
+        "madame": "Madame",
+        "monsieur": "Monsieur"
+      }
     }
   },
   "audit": {
@@ -218,7 +303,12 @@
       "agency_review.info_requested": "Informations demandées à une agence",
       "rfq.closed": "Demande de devis clôturée",
       "rfq.expired": "Demande de devis expirée",
-      "rfq.reminded": "Fournisseurs relancés sur une demande"
+      "rfq.reminded": "Fournisseurs relancés sur une demande",
+      "user.suspended": "Compte suspendu",
+      "user.reactivated": "Compte réactivé",
+      "user.verification_resent": "Vérification email renvoyée",
+      "user.password_reset_requested": "Réinitialisation mot de passe demandée",
+      "user.deleted": "Compte supprimé"
     },
     "targets": {
       "user": "Utilisateur",

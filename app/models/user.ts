@@ -6,6 +6,7 @@ import { belongsTo, hasMany, manyToMany } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
+import LegalConsent from '#models/legal_consent'
 import Passkey from '#models/passkey'
 import type { Civility } from '#shared/types/agency'
 import type { PlatformRole } from '#shared/types/user'
@@ -24,6 +25,9 @@ export default class User extends compose(UserSchema, withAuthFinder(hash)) {
 
   @hasMany(() => Passkey)
   declare passkeys: HasMany<typeof Passkey>
+
+  @hasMany(() => LegalConsent)
+  declare legalConsents: HasMany<typeof LegalConsent>
 
   @manyToMany(() => Organization, {
     pivotTable: 'organization_users',

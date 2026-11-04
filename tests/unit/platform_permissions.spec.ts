@@ -53,6 +53,7 @@ test.group('Droits des rôles plateforme', () => {
     assert.sameMembers(permissionsOf('support'), [
       'backoffice.access',
       'users.view',
+      'users.support',
       'organizations.view',
       'trade.view',
     ])
@@ -61,6 +62,18 @@ test.group('Droits des rôles plateforme', () => {
       'organizations.view',
       'moderation.manage',
     ])
+  })
+
+  test('seul admin gère les utilisateurs (suspension, suppression)', ({ assert }) => {
+    assert.isTrue(platformRoleHasPermission('admin', 'users.manage'))
+    assert.isTrue(platformRoleHasPermission('admin', 'users.support'))
+    for (const role of ['moderator', 'analyst'] as const) {
+      assert.isFalse(platformRoleHasPermission(role, 'users.manage'), role)
+      assert.isFalse(platformRoleHasPermission(role, 'users.support'), role)
+    }
+    // Support a users.support mais pas users.manage
+    assert.isTrue(platformRoleHasPermission('support', 'users.support'))
+    assert.isFalse(platformRoleHasPermission('support', 'users.manage'))
   })
 
   test('seul admin intervient sur les demandes de devis, trois rôles les consultent', ({

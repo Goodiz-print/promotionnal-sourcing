@@ -690,11 +690,47 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"users"]],
     types: placeholder as Registry['admin.users.index']['types'],
   },
+  'admin.users.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/users/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"users"],[1,"id"]],
+    types: placeholder as Registry['admin.users.show']['types'],
+  },
   'admin.users.platform_role.update': {
     methods: ["PATCH"],
     pattern: '/:locale/admin/users/:id/platform-role',
     tokens: [[1,"locale"],[0,"admin"],[0,"users"],[1,"id"],[0,"platform-role"]],
     types: placeholder as Registry['admin.users.platform_role.update']['types'],
+  },
+  'admin.users.suspend': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/users/:id/suspend',
+    tokens: [[1,"locale"],[0,"admin"],[0,"users"],[1,"id"],[0,"suspend"]],
+    types: placeholder as Registry['admin.users.suspend']['types'],
+  },
+  'admin.users.reactivate': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/users/:id/reactivate',
+    tokens: [[1,"locale"],[0,"admin"],[0,"users"],[1,"id"],[0,"reactivate"]],
+    types: placeholder as Registry['admin.users.reactivate']['types'],
+  },
+  'admin.users.resend_verification': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/users/:id/resend-verification',
+    tokens: [[1,"locale"],[0,"admin"],[0,"users"],[1,"id"],[0,"resend-verification"]],
+    types: placeholder as Registry['admin.users.resend_verification']['types'],
+  },
+  'admin.users.password_reset': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/users/:id/password-reset',
+    tokens: [[1,"locale"],[0,"admin"],[0,"users"],[1,"id"],[0,"password-reset"]],
+    types: placeholder as Registry['admin.users.password_reset']['types'],
+  },
+  'admin.users.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/admin/users/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"users"],[1,"id"]],
+    types: placeholder as Registry['admin.users.destroy']['types'],
   },
   'admin.audit.index': {
     methods: ["GET","HEAD"],

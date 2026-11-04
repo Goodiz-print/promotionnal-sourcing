@@ -2267,6 +2267,7 @@ export class UserSchema extends BaseModel {
     'locale',
     'password',
     'platformRole',
+    'suspendedAt',
     'updatedAt',
   ] as const
   $columns = UserSchema.$columns
@@ -2294,6 +2295,8 @@ export class UserSchema extends BaseModel {
   declare password: string
   @column()
   declare platformRole: string
+  @column.dateTime()
+  declare suspendedAt: DateTime | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }

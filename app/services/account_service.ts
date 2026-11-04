@@ -3,6 +3,7 @@ import { inject } from '@adonisjs/core'
 import hash from '@adonisjs/core/services/hash'
 import logger from '@adonisjs/core/services/logger'
 import db from '@adonisjs/lucid/services/db'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import OrganizationInvitation from '#models/organization_invitation'
 import OrganizationUser from '#models/organization_user'
 import Passkey from '#models/passkey'
@@ -102,30 +103,37 @@ export default class AccountService {
     const blocking = await this.blockingOrganizations(user)
     if (blocking.length > 0) throw new AccountOwnsOrganizationsException(blocking)
 
+    await db.transaction((trx) => this.anonymize(user, trx))
+  }
+
+  /**
+   * Anonymisation proprement dite, **dans la transaction de l'appelant** (compte
+   * personnel ou suppression par l'équipe plateforme, qui y inscrit son audit).
+   * Les garde-fous (mot de passe, dernier owner) restent à la charge de l'appelant.
+   */
+  async anonymize(user: User, trx: TransactionClientContract): Promise<void> {
     const previousEmail = user.email
 
-    await db.transaction(async (trx) => {
-      await OrganizationUser.query({ client: trx }).where('userId', user.id).delete()
-      // Une passkey est une donnée d'authentification : la ligne `users` est
-      // conservée, pas ses identifiants.
-      await Passkey.query({ client: trx }).where('userId', user.id).delete()
-      await OrganizationInvitation.query({ client: trx })
-        .whereRaw('lower(email) = ?', [previousEmail.toLowerCase()])
-        .where('status', 'pending')
-        .delete()
+    await OrganizationUser.query({ client: trx }).where('userId', user.id).delete()
+    // Une passkey est une donnée d'authentification : la ligne `users` est
+    // conservée, pas ses identifiants.
+    await Passkey.query({ client: trx }).where('userId', user.id).delete()
+    await OrganizationInvitation.query({ client: trx })
+      .whereRaw('lower(email) = ?', [previousEmail.toLowerCase()])
+      .where('status', 'pending')
+      .delete()
 
-      user.useTransaction(trx)
-      user.merge({
-        email: `deleted-${user.id}@${ANONYMIZED_EMAIL_DOMAIN}`,
-        firstName: null,
-        lastName: null,
-        password: randomBytes(32).toString('hex'),
-        locale: DEFAULT_LOCALE,
-        currentOrganizationId: null,
-        emailVerifiedAt: null,
-      })
-      await user.save()
+    user.useTransaction(trx)
+    user.merge({
+      email: `deleted-${user.id}@${ANONYMIZED_EMAIL_DOMAIN}`,
+      firstName: null,
+      lastName: null,
+      password: randomBytes(32).toString('hex'),
+      locale: DEFAULT_LOCALE,
+      currentOrganizationId: null,
+      emailVerifiedAt: null,
     })
+    await user.save()
   }
 
   private async assertCurrentPassword(user: User, candidate: string): Promise<void> {

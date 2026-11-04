@@ -22,6 +22,8 @@ export const DEFAULT_PLATFORM_ROLE: PlatformRole = 'none'
 export const PLATFORM_PERMISSIONS = [
   'backoffice.access',
   'users.view',
+  'users.support',
+  'users.manage',
   'organizations.view',
   'catalogue.manage',
   'roles.manage',
@@ -38,6 +40,6 @@ export const PLATFORM_ROLE_PERMISSIONS: Record<PlatformRole, readonly PlatformPe
   none: [],
   admin: PLATFORM_PERMISSIONS,
   moderator: ['backoffice.access', 'organizations.view', 'moderation.manage'],
-  support: ['backoffice.access', 'users.view', 'organizations.view', 'trade.view'],
+  support: ['backoffice.access', 'users.view', 'users.support', 'organizations.view', 'trade.view'],
   analyst: ['backoffice.access', 'monitoring.view', 'trade.view'],
 }

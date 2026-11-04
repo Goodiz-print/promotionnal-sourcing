@@ -12,6 +12,8 @@ export default class AdminUserTransformer extends BaseTransformer<User> {
       ...this.pick(this.resource, ['id', 'email', 'fullName', 'platformRole']),
       emailVerified: this.resource.emailVerifiedAt !== null,
       organizationsCount: Number(this.resource.$extras.organizations_count ?? 0),
+      lastLoginAt: this.resource.lastLoginAt?.toISO() ?? null,
+      suspendedAt: this.resource.suspendedAt?.toISO() ?? null,
       createdAt: this.resource.createdAt.toISO()!,
     }
   }

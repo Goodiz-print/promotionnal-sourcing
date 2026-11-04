@@ -157,7 +157,8 @@
       "organizations": "Organizações",
       "status": "Estado",
       "createdAt": "Registado em",
-      "role": "Função de plataforma"
+      "role": "Função de plataforma",
+      "lastLogin": "Último acesso"
     },
     "unverified": "E-mail não verificado",
     "resultsCount": "{count, plural, =0 {Nenhuma conta} one {# conta} other {# contas}}",
@@ -173,6 +174,90 @@
       "analyst": "Analista",
       "updated": "Função de plataforma atualizada.",
       "ownRole": "Não pode alterar a sua própria função de plataforma."
+    },
+    "filters": {
+      "platformRole": "Platform role",
+      "emailVerified": "Email verified",
+      "activity": "Activity",
+      "organizationType": "Organization type",
+      "status": "Status",
+      "all": "All",
+      "anyRole": "Any role",
+      "verified": "Verified",
+      "unverified": "Not verified",
+      "recent": "Recently logged in",
+      "never": "Never logged in",
+      "active": "Active",
+      "suspended": "Suspended"
+    },
+    "actions": {
+      "suspend": {
+        "label": "Suspend",
+        "confirm": "Suspend this account? The user will no longer be able to log in.",
+        "reasonLabel": "Reason (optional)",
+        "done": "Account suspended.",
+        "selfError": "You cannot suspend your own account.",
+        "adminError": "You cannot suspend a platform administrator.",
+        "alreadySuspended": "This account is already suspended."
+      },
+      "reactivate": {
+        "label": "Reactivate",
+        "confirm": "Reactivate this account? The user will be able to log in again.",
+        "done": "Account reactivated.",
+        "notSuspended": "This account is not suspended."
+      },
+      "resendVerification": {
+        "label": "Resend verification",
+        "confirm": "Resend the verification email to this user?",
+        "done": "Verification email sent.",
+        "alreadyVerified": "This account is already verified."
+      },
+      "passwordReset": {
+        "label": "Reset password",
+        "confirm": "Send a password reset email to this user?",
+        "done": "Password reset email sent."
+      },
+      "destroy": {
+        "label": "Delete account",
+        "confirm": "Delete this account? This action cannot be undone. Data will be anonymized.",
+        "done": "Account deleted.",
+        "selfError": "You cannot delete your own account.",
+        "adminError": "You cannot delete a platform administrator.",
+        "ownsOrganizations": "This account is the last owner of: {organizations}"
+      }
+    },
+    "show": {
+      "back": "Back to users",
+      "identity": "Identity",
+      "organizations": "Organizations",
+      "passkeys": "Passkeys",
+      "consents": "Legal consents",
+      "noOrganizations": "No organizations.",
+      "noPasskeys": "No passkeys.",
+      "noConsents": "No consents.",
+      "lastLogin": "Last login",
+      "suspended": "Suspended",
+      "never": "Never",
+      "archivedOrg": "Archived",
+      "firstName": "Nome próprio",
+      "lastName": "Apelido",
+      "civility": "Tratamento",
+      "locale": "Idioma",
+      "orgType": "Tipo",
+      "orgRole": "Função",
+      "passkeyName": "Nome",
+      "passkeyCreatedAt": "Criada em",
+      "passkeyLastUsedAt": "Última utilização",
+      "consentKind": "Consentimento",
+      "consentVersion": "Versão",
+      "consentAcceptedAt": "Aceite em",
+      "consentOrganization": "Organização",
+      "anonymized": "Esta conta está anonimizada: não há ações disponíveis.",
+      "actions": "Ações",
+      "civilityValues": {
+        "madame": "Senhora",
+        "monsieur": "Senhor"
+      }
     }
   },
   "audit": {
@@ -218,7 +303,12 @@
       "agency_review.info_requested": "Informações pedidas a uma agência",
       "rfq.closed": "Pedido de cotação encerrado",
       "rfq.expired": "Pedido de cotação expirado",
-      "rfq.reminded": "Fornecedores lembrados sobre um pedido"
+      "rfq.reminded": "Fornecedores lembrados sobre um pedido",
+      "user.suspended": "Account suspended",
+      "user.reactivated": "Account reactivated",
+      "user.verification_resent": "Email verification resent",
+      "user.password_reset_requested": "Password reset requested",
+      "user.deleted": "Account deleted"
     },
     "targets": {
       "user": "Utilizador",
