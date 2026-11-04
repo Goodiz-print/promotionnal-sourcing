@@ -11,8 +11,11 @@ import {
 } from '#exceptions/catalogue_errors'
 import type { AdminActionContext } from '#shared/types/admin_audit'
 import type Category from '#models/category'
+import { resolveTranslation } from '#shared/helpers/translations'
+import type { Locale } from '#shared/types/i18n'
 import type {
   AddCategoryAttributeData,
+  CategoryAttributeOption,
   UpdateCategoryAttributeData,
   UpdateCategoryAttributeRangesData,
 } from '#shared/types/category'
@@ -72,6 +75,39 @@ export default class CategoryAttributeService {
       .where('categoryId', categoryId)
       .where('attributeId', attributeId)
       .first()
+  }
+
+  /**
+   * Attributs NON encore associes a cette categorie, pour le selecteur d'ajout.
+   * Renvoie `{ id, slug, name }` avec `name` resolu dans la locale active.
+   */
+  async availableForCategory(
+    categoryId: number,
+    locale: Locale
+  ): Promise<CategoryAttributeOption[]> {
+    // IDs des attributs deja associes
+    const existing = await CategoryAttribute.query()
+      .where('categoryId', categoryId)
+      .select('attributeId')
+    const excludedIds = existing.map((pivot) => pivot.attributeId)
+
+    // Tous les attributs sauf ceux deja associes
+    const query = Attribute.query().preload('translations').orderBy('slug')
+    if (excludedIds.length > 0) {
+      query.whereNotIn('id', excludedIds)
+    }
+    const attributes = await query
+
+    return attributes.map((attribute) => {
+      const translation = resolveTranslation(attribute.translations, locale, {
+        sourceLocale: attribute.sourceLocale,
+      })
+      return {
+        id: attribute.id,
+        slug: attribute.slug,
+        name: translation?.name ?? null,
+      }
+    })
   }
 
   /**

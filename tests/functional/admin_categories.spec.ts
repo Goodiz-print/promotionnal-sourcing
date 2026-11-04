@@ -240,3 +240,56 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
     assert.isNull(crayon.parentId)
   })
 })
+
+test.group('Administration des categories - Attributs associes', (group) => {
+  useDatabase(group, { seed: 'full' })
+
+  test("la page d'edition expose categoryAttributes et availableAttributes", async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const category = await Category.firstOrFail()
+
+    const response = await client
+      .get(`/fr/admin/categories/${category.id}/edit`)
+      .withInertia()
+      .loginAs(admin)
+
+    response.assertStatus(200)
+    response.assertInertiaComponent('admin/categories/edit')
+
+    const props = response.inertiaProps!
+    assert.isArray(props.categoryAttributes)
+    assert.isArray(props.availableAttributes)
+
+    // Tous les attributs associes ont les champs requis
+    for (const attr of props.categoryAttributes) {
+      assert.property(attr, 'id')
+      assert.property(attr, 'attributeId')
+      assert.property(attr, 'slug')
+      assert.property(attr, 'isFilter')
+      assert.property(attr, 'ranges')
+    }
+
+    // Tous les attributs disponibles ont les champs requis
+    for (const option of props.availableAttributes) {
+      assert.property(option, 'id')
+      assert.property(option, 'slug')
+      assert.property(option, 'name')
+    }
+
+    // Un attribut associe n'est plus dans availableAttributes
+    const associatedIds = props.categoryAttributes.map(
+      (a: { attributeId: number }) => a.attributeId
+    )
+    const availableIds = props.availableAttributes.map((a: { id: number }) => a.id)
+    for (const id of associatedIds) {
+      assert.notInclude(
+        availableIds,
+        id,
+        'Un attribut associe ne doit pas etre dans availableAttributes'
+      )
+    }
+  })
+})
