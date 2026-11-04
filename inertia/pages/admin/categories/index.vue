@@ -16,6 +16,9 @@ defineProps<{ categories: CategoryAdminType[] }>()
 
 const { t, locale } = useI18n()
 
+/** Indentation par niveau d'arbre (classes statiques pour Tailwind ; au-delà, le dernier niveau). */
+const DEPTH_INDENT = ['ps-0', 'ps-6', 'ps-12', 'ps-16']
+
 const createUrl = computed(() => urlFor('admin.categories.create', { locale: locale.value }))
 
 function move(category: CategoryAdminType, direction: CategoryMoveDirection) {
@@ -80,7 +83,7 @@ function destroy(category: CategoryAdminType) {
 
       <tr v-for="category in categories" :key="category.id">
         <td>
-          <div :style="{ paddingInlineStart: `${category.depth * 1.5}rem` }">
+          <div :class="DEPTH_INDENT[Math.min(category.depth, DEPTH_INDENT.length - 1)]">
             <Link
               route="admin.categories.edit"
               :params="{ locale, id: category.id }"

@@ -5,6 +5,7 @@ import CategoryTranslation from '#models/category_translation'
 import AdminAuditService from '#services/admin_audit_service'
 import TranslationQueueService from '#services/translation_queue_service'
 import { missingSourceTranslation } from '#exceptions/translation_errors'
+import { orderCategoriesAsTree } from '#shared/helpers/category_tree'
 import { CONTENT_LOCALES } from '#shared/types/i18n'
 import type {
   CategoryMoveDirection,
@@ -37,36 +38,21 @@ export default class CategoryService {
       .preload('translations')
       .preload('parent', (parent) => parent.preload('translations'))
       .withCount('products')
-      .orderBy('position')
-      .orderBy('slug')
 
-    const byParent = new Map<number | null, Category[]>()
-    for (const category of all) {
-      const siblings = byParent.get(category.parentId) ?? []
-      siblings.push(category)
-      byParent.set(category.parentId, siblings)
-    }
-
-    const ordered: Category[] = []
-    const visited = new Set<number>()
-    const walk = (parentId: number | null, depth: number) => {
-      const siblings = byParent.get(parentId) ?? []
-      siblings.forEach((category, index) => {
-        if (visited.has(category.id)) return
-        visited.add(category.id)
+    return orderCategoriesAsTree(all).map(
+      ({ category, depth, hasPreviousSibling, hasNextSibling }) => {
         category.$extras.depth = depth
-        category.$extras.can_move_up = index > 0
-        category.$extras.can_move_down = index < siblings.length - 1
-        ordered.push(category)
-        walk(category.id, depth + 1)
-      })
-    }
-    walk(null, 0)
-    return ordered
+        category.$extras.can_move_up = hasPreviousSibling
+        category.$extras.can_move_down = hasNextSibling
+        return category
+      }
+    )
   }
 
   /**
    * Position suivante parmi les sœurs de `parentId` (ajout en fin de liste).
+   * Pas de verrou : deux créations simultanées sous le même parent peuvent
+   * obtenir la même position, sans conséquence — `move` renumérote les sœurs.
    */
   private async nextPosition(
     parentId: number | null,

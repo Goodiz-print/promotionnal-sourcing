@@ -132,9 +132,10 @@ export default class CategoryController {
     if (!category) throw new CategoryNotFoundException()
 
     const { direction } = await request.validateUsing(moveCategoryValidator)
-    await this.service.move(category, direction, adminActionContext(ctx))
+    const moved = await this.service.move(category, direction, adminActionContext(ctx))
 
-    session.flash('success', ctx.i18n.t('categories.flash.moved'))
+    // Déjà en bout de liste : rien n'a changé, on n'annonce pas de succès.
+    if (moved) session.flash('success', ctx.i18n.t('categories.flash.moved'))
     return response.redirect().back()
   }
 

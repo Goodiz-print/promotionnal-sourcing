@@ -455,6 +455,58 @@ test.group('Administration des catégories — réordonnancement', (group) => {
     assert.isFalse(list[3].canMoveDown)
   })
 
+  test('un déplacement réel annonce un succès, un no-op n’en annonce pas', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await platformAdmin()
+    const { a } = await threeRoots()
+
+    const moved = await client
+      .patch(`/fr/admin/categories/${a.id}/move`)
+      .json({ direction: 'down' })
+      .withCsrfToken()
+      .loginAs(admin)
+      .redirects(0)
+    assert.isString(moved.flashMessages().success)
+
+    // `ordre-b` est maintenant la première : la monter est un no-op.
+    const first = await Category.findByOrFail('slug', 'ordre-b')
+    const noop = await client
+      .patch(`/fr/admin/categories/${first.id}/move`)
+      .json({ direction: 'up' })
+      .withCsrfToken()
+      .loginAs(admin)
+      .redirects(0)
+    assert.isUndefined(noop.flashMessages().success)
+  })
+
+  test('changer le parent place la catégorie en fin de liste de ses nouvelles sœurs', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await platformAdmin()
+    const { a, b } = await threeRoots()
+    const existing = await CategoryFactory.merge({
+      slug: 'ordre-b-fils',
+      parentId: b.id,
+      position: 0,
+    }).create()
+
+    await client
+      .patch(`/fr/admin/categories/${a.id}`)
+      .json({ parentId: b.id })
+      .withCsrfToken()
+      .loginAs(admin)
+      .redirects(0)
+
+    await a.refresh()
+    await existing.refresh()
+    assert.equal(a.parentId, b.id)
+    assert.equal(a.position, 1)
+    assert.equal(existing.position, 0)
+  })
+
   test('un utilisateur non plateforme ne peut pas déplacer (403)', async ({ client }) => {
     const user = await freshOrgMember('owner')
     const { a } = await threeRoots()

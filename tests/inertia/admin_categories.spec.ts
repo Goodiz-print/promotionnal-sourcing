@@ -13,14 +13,18 @@ const translations = {
   'categories.newCategory': 'Nouvelle catégorie',
   'categories.edit': 'Modifier',
   'categories.delete': 'Supprimer',
+  'categories.index.moveUp': 'Monter',
+  'categories.index.moveDown': 'Descendre',
   'categories.confirmDelete': 'Supprimer cette catégorie ?',
 }
+
+const routerMock = vi.hoisted(() => ({ get: vi.fn(), delete: vi.fn(), patch: vi.fn() }))
 
 vi.mock('@inertiajs/vue3', async () => {
   const m = await import('./support/inertia_mocks')
   return {
     usePage: () => m.inertiaPage(translations),
-    router: { get: vi.fn(), delete: vi.fn() },
+    router: routerMock,
     Head: m.HeadStub,
   }
 })
@@ -66,6 +70,31 @@ describe('admin/categories/index.vue', () => {
     expect(wrapper.text()).toContain('Nouvelle catégorie')
     // Le nom du parent et les compteurs sont rendus.
     expect(wrapper.text()).toContain('Crayon couleur')
+  })
+
+  it('désactive monter/descendre en bout de liste et envoie le déplacement', async () => {
+    const wrapper = mount(Index, {
+      props: {
+        categories: [
+          category(1, 'Premier', 'premier', { canMoveDown: true }),
+          category(2, 'Dernier', 'dernier', { canMoveUp: true, depth: 1 }),
+        ],
+      },
+    })
+
+    const up = wrapper.findAll('button[aria-label="Monter"]')
+    const down = wrapper.findAll('button[aria-label="Descendre"]')
+    expect(up[0].attributes('disabled')).toBeDefined()
+    expect(up[1].attributes('disabled')).toBeUndefined()
+    expect(down[0].attributes('disabled')).toBeUndefined()
+    expect(down[1].attributes('disabled')).toBeDefined()
+
+    await down[0].trigger('click')
+    expect(routerMock.patch).toHaveBeenCalledWith(
+      expect.any(String),
+      { direction: 'down' },
+      { preserveScroll: true }
+    )
   })
 
   it('affiche un état vide', () => {
