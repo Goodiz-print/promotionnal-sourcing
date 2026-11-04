@@ -5,6 +5,8 @@ import { OrganizationFactory } from '#database/factories/organization_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import { CertificationFactory } from '#database/factories/certification_factory'
 import { CertificationTranslationFactory } from '#database/factories/certification_translation_factory'
+import { SupplierFactory } from '#database/factories/supplier_factory'
+import { CategoryFactory } from '#database/factories/category_factory'
 import { ProductFactory } from '#database/factories/product_factory'
 import type User from '#models/user'
 import Certification from '#models/certification'
@@ -305,8 +307,13 @@ test.group('Administration des certifications - reindexation', (group) => {
       name: 'Test Reindex',
     }).create()
 
-    // Creer des produits avec cette certification
-    const products = await ProductFactory.createMany(5)
+    // Creer des produits (fournisseur et categorie obligatoires) avec cette certification
+    const supplier = await SupplierFactory.create()
+    const category = await CategoryFactory.create()
+    const products = await ProductFactory.merge({
+      supplierId: supplier.id,
+      categoryId: category.id,
+    }).createMany(5)
     for (const product of products) {
       await db.table('product_certifications').insert({
         product_id: product.id,
@@ -320,7 +327,7 @@ test.group('Administration des certifications - reindexation', (group) => {
     try {
       const response = await client
         .patch(`/fr/admin/certifications/${cert.id}`)
-        .withInertia()
+        .redirects(0)
         .withCsrfToken()
         .loginAs(admin)
         .json({
@@ -328,7 +335,7 @@ test.group('Administration des certifications - reindexation', (group) => {
           translations: { fr: { name: 'Test Reindex' } },
         })
 
-      response.assertStatus(200)
+      response.assertStatus(302)
 
       // Tous les produits doivent avoir ete reindexes
       assert.lengthOf(productIds, products.length, 'Tous les produits doivent etre reindexes')
