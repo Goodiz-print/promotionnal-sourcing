@@ -63,6 +63,8 @@ export const ADMIN_AUDIT_ACTIONS = [
   'announcement.retried',
   'import.retried',
   'import.errors_exported',
+  'ai.backfill_requested',
+  'translation.corrected',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]
@@ -83,6 +85,8 @@ export const ADMIN_AUDIT_TARGET_TYPES = [
   'message_report',
   'announcement',
   'import_job',
+  'ai_backfill',
+  'translation',
 ] as const
 
 export type AdminAuditTargetType = (typeof ADMIN_AUDIT_TARGET_TYPES)[number]
@@ -119,7 +123,8 @@ export type AdminActionContext = {
 export type AdminAuditEntry = {
   action: AdminAuditAction
   targetType: AdminAuditTargetType
-  targetId: number
+  /** `null` pour une action sans cible précise (ex. rattrapage global). */
+  targetId: number | null
   changes?: AdminAuditChanges
 }
 

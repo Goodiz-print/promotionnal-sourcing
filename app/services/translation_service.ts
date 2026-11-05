@@ -7,39 +7,14 @@ import aiConfig from '#config/ai'
 import { MissingTranslationSourceError, TranslationTruncatedError } from '#exceptions/ai_errors'
 import { idempotencyKey, textHash } from '#shared/helpers/idempotency'
 import TranslationProvider from '#services/translation/translation_provider'
-import type { TranslatableEntity, TranslationOutcome, TranslationTarget } from '#shared/types/ai'
-
-interface EntityTable {
-  table: string
-  foreignKey: string
-  fields: readonly string[]
-}
-
-/** Tables de traduction et champs texte traduits, par type d'entité. */
-const ENTITY_TABLES: Record<TranslatableEntity, EntityTable> = {
-  product: {
-    table: 'product_translations',
-    foreignKey: 'product_id',
-    fields: ['name', 'description'],
-  },
-  category: { table: 'category_translations', foreignKey: 'category_id', fields: ['name'] },
-  attribute: { table: 'attribute_translations', foreignKey: 'attribute_id', fields: ['name'] },
-  attribute_value: {
-    table: 'attribute_value_translations',
-    foreignKey: 'attribute_value_id',
-    fields: ['label'],
-  },
-  certification: {
-    table: 'certification_translations',
-    foreignKey: 'certification_id',
-    fields: ['name'],
-  },
-  marking_technique: {
-    table: 'marking_technique_translations',
-    foreignKey: 'marking_technique_id',
-    fields: ['name'],
-  },
-}
+import AiCallService from '#services/ai_call_service'
+import {
+  ENTITY_TRANSLATION_TABLES as ENTITY_TABLES,
+  type TranslatableEntity,
+  type TranslationOutcome,
+  type TranslationTarget,
+  type TranslationUsage,
+} from '#shared/types/ai'
 
 /**
  * Traduction automatique idempotente d'une entité vers plusieurs locales.
@@ -59,7 +34,10 @@ const ENTITY_TABLES: Record<TranslatableEntity, EntityTable> = {
  */
 @inject()
 export default class TranslationService {
-  constructor(private provider: TranslationProvider) {}
+  constructor(
+    private provider: TranslationProvider,
+    private aiCalls: AiCallService
+  ) {}
 
   async translate(target: TranslationTarget): Promise<TranslationOutcome> {
     const { entity, entityId, sourceLocale } = target
@@ -120,7 +98,7 @@ export default class TranslationService {
         const batch = batches.shift()!
         let translated: Record<string, Record<string, string>>
         try {
-          translated = await this.provider.translate(sourceFields, sourceLocale, batch)
+          translated = await this.callProvider(target, sourceFields, batch)
         } catch (error) {
           if (error instanceof TranslationTruncatedError && batch.length > 1) {
             const middle = Math.ceil(batch.length / 2)
@@ -140,6 +118,48 @@ export default class TranslationService {
 
     logger.info({ ...logContext, outcome: 'called', targetLocales: pending }, 'ai translation')
     return 'called'
+  }
+
+  /**
+   * Appel du fournisseur, journalisé dans `ai_calls` (#177) : succès, réponse
+   * tronquée ou échec, avec tokens et durée. L'enregistrement n'échoue jamais
+   * l'appel (voir `AiCallService`).
+   */
+  private async callProvider(
+    target: TranslationTarget,
+    sourceFields: Record<string, string>,
+    locales: string[]
+  ): Promise<Record<string, Record<string, string>>> {
+    const usage: TranslationUsage = { promptTokens: 0, completionTokens: 0 }
+    const startedAt = Date.now()
+    const record = (status: 'success' | 'truncated' | 'failed', error: string | null) =>
+      this.aiCalls.record({
+        service: 'translation',
+        model: this.provider.model,
+        entity: target.entity,
+        entityId: target.entityId,
+        sourceLocale: target.sourceLocale,
+        targetLocales: locales,
+        usage,
+        durationMs: Date.now() - startedAt,
+        status,
+        error,
+      })
+
+    try {
+      const translated = await this.provider.translate(
+        sourceFields,
+        target.sourceLocale,
+        locales,
+        usage
+      )
+      await record('success', null)
+      return translated
+    } catch (error) {
+      const truncated = error instanceof TranslationTruncatedError
+      await record(truncated ? 'truncated' : 'failed', (error as Error).message)
+      throw error
+    }
   }
 
   /**

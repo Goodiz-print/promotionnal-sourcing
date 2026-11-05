@@ -2,7 +2,7 @@ import { Mistral } from '@mistralai/mistralai'
 import aiConfig from '#config/ai'
 import { TranslationProviderError, TranslationTruncatedError } from '#exceptions/ai_errors'
 import TranslationProvider from '#services/translation/translation_provider'
-import type { MistralChatClientLike } from '#shared/types/ai'
+import type { MistralChatClientLike, TranslationUsage } from '#shared/types/ai'
 
 function defaultClient(): MistralChatClientLike {
   return new Mistral({ apiKey: aiConfig.mistral.apiKey }) as unknown as MistralChatClientLike
@@ -26,7 +26,8 @@ export default class MistralTranslationProvider extends TranslationProvider {
   async translate(
     fields: Record<string, string>,
     sourceLocale: string,
-    targetLocales: string[]
+    targetLocales: string[],
+    usage?: TranslationUsage
   ): Promise<Record<string, Record<string, string>>> {
     const response = await this.client.chat.complete({
       model: this.model,
@@ -47,6 +48,11 @@ export default class MistralTranslationProvider extends TranslationProvider {
         { role: 'user', content: JSON.stringify(fields) },
       ],
     })
+
+    if (usage) {
+      usage.promptTokens = response.usage?.promptTokens ?? 0
+      usage.completionTokens = response.usage?.completionTokens ?? 0
+    }
 
     const choice = response.choices[0]
     if (choice?.finishReason === 'length') throw new TranslationTruncatedError()

@@ -19,7 +19,8 @@
     "messaging": "Messagerie",
     "consents": "Consentements",
     "announcements": "Annonces",
-    "imports": "Imports"
+    "imports": "Imports",
+    "ai": "IA et traductions"
   },
   "pagination": {
     "previous": "Précédent",
@@ -467,7 +468,9 @@
       "announcement.created": "Annonce créée",
       "announcement.retried": "Annonce relancée",
       "import.retried": "Import relancé",
-      "import.errors_exported": "Erreurs d'import exportées"
+      "import.errors_exported": "Erreurs d'import exportées",
+      "ai.backfill_requested": "Rattrapage des traductions lancé",
+      "translation.corrected": "Traduction relue"
     },
     "targets": {
       "user": "Utilisateur",
@@ -484,7 +487,9 @@
       "message": "Message",
       "message_report": "Signalement de message",
       "announcement": "Annonce",
-      "import_job": "Import"
+      "import_job": "Import",
+      "ai_backfill": "Rattrapage IA",
+      "translation": "Traduction"
     }
   },
   "demand": {
@@ -1183,5 +1188,108 @@
       "notRetryable": "Cet import ne peut pas être relancé (déjà relancé, en cours ou terminé)."
     },
     "engineNotice": "Le moteur d'import (#77) n'est pas encore branché : une relance sera aussitôt close en échec. Elle prépare la reprise, sans traiter le fichier."
+  },
+  "ai": {
+    "title": "IA et traductions",
+    "subtitle": "Traduction automatique avec {model} (version du prompt : {version}).",
+    "reviewLink": "Relire les traductions",
+    "disabled": "La traduction automatique est désactivée (AI_TRANSLATION_ENABLED) : aucun appel n'est émis et le rattrapage est refusé.",
+    "kpis": {
+      "calls": "Appels IA",
+      "window": "Sur les {days} derniers jours",
+      "failed": "Échecs",
+      "truncated": "dont {count} réponses tronquées",
+      "tokens": "Tokens consommés",
+      "tokensDetail": "{input} en entrée, {output} en sortie",
+      "cost": "Coût estimé"
+    },
+    "cost": {
+      "unknown": "—",
+      "estimate": "D'après le tarif configuré",
+      "configure": "Renseignez AI_PRICE_INPUT_PER_MILLION et AI_PRICE_OUTPUT_PER_MILLION"
+    },
+    "backfill": {
+      "title": "Rattrapage des traductions",
+      "hint": "Met en file la traduction des contenus manquants. Sans surcoût pour ce qui est déjà traduit ; les traductions saisies à la main ne sont jamais écrasées. Un rattrapage par tranche de 10 minutes.",
+      "entity": "Type de contenu",
+      "all": "Tous les contenus",
+      "submit": "Lancer le rattrapage"
+    },
+    "coverage": {
+      "title": "Couverture par langue",
+      "hint": "Part des contenus traduits (produits actifs, catégories, attributs, certifications, techniques)."
+    },
+    "volume": {
+      "title": "Volume d'appels",
+      "hint": "Appels par jour sur la période, tokens compris."
+    },
+    "failures": {
+      "title": "Derniers échecs",
+      "hint": "Appels en échec ou tronqués, du plus récent au plus ancien.",
+      "empty": "Aucun échec enregistré."
+    },
+    "columns": {
+      "day": "Jour",
+      "calls": "Appels",
+      "failed": "Échecs",
+      "tokens": "Tokens",
+      "language": "Langue",
+      "coverage": "Couverture",
+      "auto": "IA",
+      "manual": "Manuel",
+      "date": "Date",
+      "entity": "Contenu",
+      "status": "Statut",
+      "error": "Erreur",
+      "id": "Identifiant",
+      "text": "Texte",
+      "origin": "Origine"
+    },
+    "statuses": {
+      "success": "Réussi",
+      "truncated": "Tronqué",
+      "failed": "Échec"
+    },
+    "origins": {
+      "auto": "Générée par l'IA",
+      "manual": "Relue ou saisie"
+    },
+    "entities": {
+      "product": "Produit",
+      "category": "Catégorie",
+      "attribute": "Attribut",
+      "attribute_value": "Valeur d'attribut",
+      "certification": "Certification",
+      "marking_technique": "Technique de marquage"
+    },
+    "fields": {
+      "name": "Nom",
+      "description": "Description",
+      "label": "Libellé"
+    },
+    "translations": {
+      "title": "Relecture des traductions",
+      "subtitle": "Corrigez ou validez les traductions générées par l'IA. Une traduction relue n'est plus jamais écrasée.",
+      "resultsCount": "{count} traduction(s)",
+      "empty": "Aucune traduction.",
+      "emptyDescription": "Aucune traduction ne correspond à ces filtres.",
+      "save": "Enregistrer et valider",
+      "filters": {
+        "entity": "Contenu",
+        "language": "Langue",
+        "origin": "Origine",
+        "search": "Texte traduit",
+        "all": "Toutes"
+      }
+    },
+    "flash": {
+      "backfillQueued": "Rattrapage mis en file d'attente : les traductions sont générées par le worker.",
+      "backfill": {
+        "disabled": "La traduction automatique est désactivée : activez AI_TRANSLATION_ENABLED.",
+        "too_soon": "Un rattrapage a déjà été lancé il y a moins de 10 minutes."
+      },
+      "corrected": "Traduction enregistrée : elle ne sera plus écrasée par l'IA.",
+      "invalid": "Le nom ne peut pas être vide."
+    }
   }
 }

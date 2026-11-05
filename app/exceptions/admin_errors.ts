@@ -45,3 +45,13 @@ export class AdminImportNotFoundException extends Exception {
   static code = 'E_ADMIN_IMPORT_NOT_FOUND'
   static message = 'Import not found'
 }
+
+/**
+ * Traduction introuvable (entité, identifiant ou langue inconnus, ou ligne
+ * source) dans l'écran de relecture des traductions automatiques.
+ */
+export class AdminTranslationNotFoundException extends Exception {
+  static status = 404
+  static code = 'E_ADMIN_TRANSLATION_NOT_FOUND'
+  static message = 'Translation not found'
+}

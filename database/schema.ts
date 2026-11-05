@@ -114,6 +114,51 @@ export class AgencyProfileSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class AiCallSchema extends BaseModel {
+  static $columns = [
+    'completionTokens',
+    'createdAt',
+    'durationMs',
+    'entity',
+    'entityId',
+    'error',
+    'id',
+    'model',
+    'promptTokens',
+    'service',
+    'sourceLocale',
+    'status',
+    'targetLocales',
+  ] as const
+  $columns = AiCallSchema.$columns
+  @column()
+  declare completionTokens: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare durationMs: number
+  @column()
+  declare entity: string | null
+  @column()
+  declare entityId: number | null
+  @column()
+  declare error: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare model: string
+  @column()
+  declare promptTokens: number
+  @column()
+  declare service: string
+  @column()
+  declare sourceLocale: string | null
+  @column()
+  declare status: string
+  @column()
+  declare targetLocales: any
+}
+
 export class AgencyReviewDecisionSchema extends BaseModel {
   static $columns = [
     'createdAt',

@@ -852,6 +852,30 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"imports"],[1,"id"],[0,"errors"]],
     types: placeholder as Registry['admin.imports.errors']['types'],
   },
+  'admin.ai.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/ai',
+    tokens: [[1,"locale"],[0,"admin"],[0,"ai"]],
+    types: placeholder as Registry['admin.ai.index']['types'],
+  },
+  'admin.ai.backfill': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/ai/backfill',
+    tokens: [[1,"locale"],[0,"admin"],[0,"ai"],[0,"backfill"]],
+    types: placeholder as Registry['admin.ai.backfill']['types'],
+  },
+  'admin.ai.translations': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/ai/translations',
+    tokens: [[1,"locale"],[0,"admin"],[0,"ai"],[0,"translations"]],
+    types: placeholder as Registry['admin.ai.translations']['types'],
+  },
+  'admin.ai.translations.correct': {
+    methods: ["PATCH"],
+    pattern: '/:locale/admin/ai/translations/:entity/:id/:translationLocale',
+    tokens: [[1,"locale"],[0,"admin"],[0,"ai"],[0,"translations"],[1,"entity"],[1,"id"],[1,"translationLocale"]],
+    types: placeholder as Registry['admin.ai.translations.correct']['types'],
+  },
   'admin.products.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/products',

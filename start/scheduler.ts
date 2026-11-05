@@ -21,6 +21,7 @@ import RecoverStorageUploadsJob from '#jobs/recover_storage_uploads_job'
 import ExpireRfqsJob from '#jobs/expire_rfqs_job'
 import RemindRfqSuppliersJob from '#jobs/remind_rfq_suppliers_job'
 import PurgeSearchEventsJob from '#jobs/purge_search_events_job'
+import PurgeAiCallsJob from '#jobs/purge_ai_calls_job'
 import PurgeActivityEventsJob from '#jobs/purge_activity_events_job'
 
 /**
@@ -83,5 +84,15 @@ await PurgeSearchEventsJob.schedule({})
 await PurgeActivityEventsJob.schedule({})
   .id('purge-activity-events')
   .cron('45 3 * * *')
+  .timezone('Europe/Paris')
+  .run()
+
+/**
+ * Purge quotidienne du journal des appels IA au-delà de 90 jours (#177) — cf.
+ * `AiCallService#purge`.
+ */
+await PurgeAiCallsJob.schedule({})
+  .id('purge-ai-calls')
+  .cron('20 4 * * *')
   .timezone('Europe/Paris')
   .run()
