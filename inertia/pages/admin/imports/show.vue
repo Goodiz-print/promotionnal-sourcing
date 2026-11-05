@@ -5,12 +5,13 @@ import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import { useTradeFormat } from '~/composables/use_trade_format'
 import ImportStatusBadge from '~/components/admin/import/import_status_badge.vue'
+import BaseAlert from '~/components/base/base_alert.vue'
 import BaseButton from '~/components/base/base_button.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import BaseTable from '~/components/base/base_table.vue'
 import { BUTTON_BASE_CLASSES, BUTTON_SIZE_CLASSES, BUTTON_VARIANT_CLASSES } from '~/types/ui'
-import type { AdminImportDetail } from '#shared/types/admin_import'
+import { IMPORT_ENGINE_AVAILABLE, type AdminImportDetail } from '#shared/types/admin_import'
 import { Link } from '@adonisjs/inertia/vue'
 
 const props = defineProps<{ importJob: AdminImportDetail }>()
@@ -63,6 +64,10 @@ const dash = '—'
         </div>
       </template>
     </BasePageHeader>
+
+    <BaseAlert v-if="importJob.retryable && !IMPORT_ENGINE_AVAILABLE" tone="warning">
+      {{ t('admin.imports.engineNotice') }}
+    </BaseAlert>
 
     <BaseSection :title="t('admin.imports.summary')">
       <dl class="grid gap-4 text-body-sm sm:grid-cols-2 lg:grid-cols-3">

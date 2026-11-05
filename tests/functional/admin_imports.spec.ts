@@ -5,6 +5,7 @@ import { ImportJobFactory } from '#database/factories/import_job_factory'
 import { OrganizationFactory } from '#database/factories/organization_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import AdminAuditLog from '#models/admin_audit_log'
+import RunImportJob from '#jobs/run_import_job'
 import { IMPORT_NO_PROCESSOR_MESSAGE } from '#services/import_runner'
 import { useDatabase } from '#tests/utils/setup'
 import type { AdminImportDetail, AdminImportRow } from '#shared/types/admin_import'
@@ -177,7 +178,13 @@ test.group('Imports — administration', (group) => {
     const stuck = await ImportJobFactory.apply('running')
       .merge({ organizationId: organization.id })
       .create()
-    await stuck.merge({ startedAt: DateTime.now().minus({ hours: 3 }) }).save()
+    await db
+      .from('import_jobs')
+      .where('id', stuck.id)
+      .update({
+        started_at: DateTime.now().minus({ hours: 3 }).toJSDate(),
+        updated_at: DateTime.now().minus({ hours: 2 }).toJSDate(),
+      })
 
     const list = await client.get('/fr/admin/imports').withInertia().loginAs(admin)
     assert.isTrue((list.inertiaProps.imports.data as AdminImportRow[])[0].retryable)
@@ -188,6 +195,80 @@ test.group('Imports — administration', (group) => {
     assert.equal(closed.status, 'failed')
     assert.isNotNull(closed.finished_at)
     assert.lengthOf(await db.from('import_jobs').where('retry_of_import_id', stuck.id), 1)
+  })
+
+  test('un import long mais encore actif (activité récente) n’est pas relançable', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const organization = await OrganizationFactory.create()
+    const alive = await ImportJobFactory.apply('running')
+      .merge({ organizationId: organization.id })
+      .create()
+    // Démarré il y a 3 h, mais une ligne vient d'être enregistrée.
+    await db
+      .from('import_jobs')
+      .where('id', alive.id)
+      .update({ started_at: DateTime.now().minus({ hours: 3 }).toJSDate() })
+
+    const list = await client.get('/fr/admin/imports').withInertia().loginAs(admin)
+    assert.isFalse((list.inertiaProps.imports.data as AdminImportRow[])[0].retryable)
+
+    await retry(client, admin, alive.id)
+    assert.lengthOf(await db.from('import_jobs').where('retry_of_import_id', alive.id), 0)
+    const unchanged = await db.from('import_jobs').where('id', alive.id).first()
+    assert.equal(unchanged.status, 'running')
+  })
+
+  test('la relance reste attribuée à l’auteur d’origine', async ({ client, assert }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const author = await UserFactory.create()
+    const organization = await OrganizationFactory.create()
+    const original = await ImportJobFactory.apply('failed')
+      .merge({ organizationId: organization.id, createdByUserId: author.id })
+      .create()
+
+    await retry(client, admin, original.id)
+
+    const created = await db.from('import_jobs').where('retry_of_import_id', original.id).first()
+    assert.equal(created.created_by_user_id, author.id)
+    const [log] = await AdminAuditLog.query().where('action', 'import.retried')
+    assert.equal(log.actorUserId, admin.id)
+  })
+
+  test('un identifiant non numérique est introuvable (404), pas une erreur serveur', async ({
+    client,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const show = await client.get('/fr/admin/imports/abc').withInertia().loginAs(admin)
+    const errors = await client.get('/fr/admin/imports/abc/errors').loginAs(admin)
+    const retried = await retry(client, admin, 'abc' as unknown as number)
+    for (const response of [show, errors, retried]) response.assertStatus(404)
+  })
+
+  test('si la mise en queue échoue, l’import relancé est clos en échec et reste relançable', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const organization = await OrganizationFactory.create()
+    const original = await ImportJobFactory.apply('failed')
+      .merge({ organizationId: organization.id })
+      .create()
+
+    const dispatch = RunImportJob.dispatch
+    RunImportJob.dispatch = (() => Promise.reject(new Error('queue down'))) as never
+    try {
+      const response = await retry(client, admin, original.id)
+      response.assertStatus(500)
+    } finally {
+      RunImportJob.dispatch = dispatch
+    }
+
+    const created = await db.from('import_jobs').where('retry_of_import_id', original.id).first()
+    assert.equal(created.status, 'failed')
+    assert.include(created.errors[0].message, 'mise en file')
   })
 
   test('exporte les erreurs en CSV et trace l’export', async ({ client, assert }) => {

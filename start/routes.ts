@@ -423,12 +423,15 @@ router
                   .as('admin.imports.index')
                 router
                   .get('admin/imports/:id', [controllers.admin.Import, 'show'])
+                  .where('id', router.matchers.number())
                   .as('admin.imports.show')
                 router
                   .post('admin/imports/:id/retry', [controllers.admin.Import, 'retry'])
+                  .where('id', router.matchers.number())
                   .as('admin.imports.retry')
                 router
                   .get('admin/imports/:id/errors', [controllers.admin.Import, 'errors'])
+                  .where('id', router.matchers.number())
                   .as('admin.imports.errors')
 
                 // Administration du catalogue produits (#164) : liste, fiche et actions.

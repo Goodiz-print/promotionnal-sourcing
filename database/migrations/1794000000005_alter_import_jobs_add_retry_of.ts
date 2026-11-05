@@ -17,6 +17,7 @@ export default class extends BaseSchema {
         .references('id')
         .inTable(this.tableName)
         .onDelete('SET NULL')
+      table.index(['retry_of_import_id'])
       table.index(['status', 'created_at'])
     })
   }
@@ -24,6 +25,7 @@ export default class extends BaseSchema {
   async down() {
     this.schema.alterTable(this.tableName, (table) => {
       table.dropIndex(['status', 'created_at'])
+      table.dropIndex(['retry_of_import_id'])
       table.dropColumn('retry_of_import_id')
     })
   }

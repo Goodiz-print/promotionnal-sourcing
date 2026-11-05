@@ -107,7 +107,8 @@ export default class AdminImportService {
         .table('import_jobs')
         .insert({
           organization_id: original.organization_id,
-          created_by_user_id: context.actor?.id ?? null,
+          // L'auteur d'origine reste propriétaire de la relance ; l'admin figure dans l'audit.
+          created_by_user_id: original.created_by_user_id,
           kind: original.kind,
           status: 'pending',
           source_storage_object_id: original.source_storage_object_id,
@@ -215,12 +216,14 @@ export default class AdminImportService {
         'j.errors',
         'j.organization_id',
         'o.name as organization_name',
+        'j.created_by_user_id',
         'u.email as creator_email',
         'j.retry_of_import_id',
         'j.source_storage_object_id',
         'j.started_at',
         'j.finished_at',
         'j.created_at',
+        'j.updated_at',
         db.raw(
           '(select r.id from import_jobs r where r.retry_of_import_id = j.id order by r.id desc limit 1) as retried_by_import_id'
         )
@@ -231,7 +234,8 @@ export default class AdminImportService {
     if (row.retried_by_import_id !== null) return false
     if (row.status === 'failed') return true
     if (row.status !== 'pending' && row.status !== 'running') return false
-    return new Date(row.started_at ?? row.created_at) < staleBefore()
+    // `updated_at` bouge à chaque ligne enregistrée : un import long mais vivant n'est pas « perdu ».
+    return new Date(row.updated_at ?? row.started_at ?? row.created_at) < staleBefore()
   }
 
   private parseErrors(raw: ImportRowError[] | string): ImportRowError[] {

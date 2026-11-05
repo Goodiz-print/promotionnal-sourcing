@@ -15,6 +15,7 @@ const translations = {
   'admin.imports.wholeFile': 'Fichier entier',
   'admin.imports.showTitle': 'Import n° {id}',
   'admin.imports.retriedBy': "Relancé par l'import",
+  'admin.imports.engineNotice': "Le moteur d'import n'est pas encore branché.",
 }
 
 const post = vi.hoisted(() => vi.fn())
@@ -114,6 +115,16 @@ describe('Imports — fiche', () => {
     const retry = wrapper.findAll('button').find((b) => b.text() === "Relancer l'import")
     await retry!.trigger('click')
     expect(post).toHaveBeenCalledTimes(1)
+  })
+
+  it('prévient que le moteur d’import n’est pas branché avant de relancer', () => {
+    const retryable = mount(ImportsShow, {
+      props: { importJob: detail({ status: 'failed', retryable: true }) },
+    })
+    expect(retryable.text()).toContain("Le moteur d'import n'est pas encore branché.")
+
+    const completed = mount(ImportsShow, { props: { importJob: detail() } })
+    expect(completed.text()).not.toContain("Le moteur d'import")
   })
 
   it('ne propose rien sur un import terminé sans erreur', () => {

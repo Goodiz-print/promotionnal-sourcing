@@ -1181,6 +1181,7 @@
     "flash": {
       "retried": "Import relancé : un nouvel import a été mis en file d'attente.",
       "notRetryable": "Cet import ne peut pas être relancé (déjà relancé, en cours ou terminé)."
-    }
+    },
+    "engineNotice": "Le moteur d'import (#77) n'est pas encore branché : une relance sera aussitôt close en échec. Elle prépare la reprise, sans traiter le fichier."
   }
 }

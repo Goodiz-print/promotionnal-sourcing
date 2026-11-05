@@ -1,5 +1,12 @@
 import type { ImportKind, ImportRowError, ImportStatus } from '#shared/types/import_job'
 
+/**
+ * Le moteur qui traite réellement un import (#77) n'est pas branché : tant que
+ * c'est `false`, la fiche prévient qu'une relance échouera aussitôt. À passer à
+ * `true` avec #77.
+ */
+export const IMPORT_ENGINE_AVAILABLE = false
+
 /** Filtres de la liste des imports (query string), tous optionnels. */
 export type AdminImportFilters = {
   status: ImportStatus | null
@@ -8,7 +15,7 @@ export type AdminImportFilters = {
   organization: string | null
 }
 
-/** Un import `pending` ou `running` depuis plus longtemps est considéré perdu (worker arrêté). */
+/** Un import `pending` ou `running` sans activité depuis plus longtemps est considéré perdu (worker arrêté). */
 export const IMPORT_STALE_MINUTES = 60
 
 /** Ligne brute de la requête de liste / détail (snake_case, avant présentation). */
@@ -22,6 +29,7 @@ export type AdminImportDbRow = {
   errors: ImportRowError[] | string
   organization_id: number
   organization_name: string
+  created_by_user_id: number | null
   creator_email: string | null
   retry_of_import_id: number | null
   retried_by_import_id: number | null
@@ -29,6 +37,7 @@ export type AdminImportDbRow = {
   started_at: Date | string | null
   finished_at: Date | string | null
   created_at: Date | string
+  updated_at: Date | string | null
 }
 
 export type AdminImportRow = {

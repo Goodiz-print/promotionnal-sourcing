@@ -1181,6 +1181,7 @@
     "flash": {
       "retried": "Import retried: a new import has been queued.",
       "notRetryable": "This import cannot be retried (already retried, in progress or completed)."
-    }
+    },
+    "engineNotice": "The import engine (#77) is not wired yet: a retry will immediately end in failure. It prepares the resume without processing the file."
   }
 }
