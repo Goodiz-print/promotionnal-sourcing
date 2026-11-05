@@ -41,6 +41,13 @@ La création de l'annonce et son entrée d'audit `announcement.created` (cible `
 
 Migration `1794000000004_create_announcements_table.ts` : table `announcements` (segment, organisation ciblée, canaux, `translations` jsonb, statut, `recipients_count`, `error`, `sent_at`) et colonne `notifications.announcement_id` (FK `SET NULL`) avec contrainte unique `(announcement_id, user_id)`. `database/schema.ts` a été complété à la main pour la nouvelle colonne.
 
+## Robustesse de l'envoi
+
+- **Relance** : `POST /admin/announcements/:id/retry` (droit `announcements.manage`, audit `announcement.retried`) relance une annonce `failed`, ou restée `queued` plus de 15 minutes. Si la mise en queue échoue à la création, l'annonce passe en `failed` avec le motif et reste relançable ; le bouton « Relancer » est dans l'historique.
+- **Double envoi** : un envoi identique (même auteur, segment, canaux, contenu) créé dans les 60 dernières secondes n'est pas recréé.
+- `recipients_count` est mis à jour à chaque lot, un échec en cours de route ne le laisse donc pas à zéro. Les mails sont mis en queue par groupes de 50 en parallèle.
+- Les titres tiennent sur une seule ligne (ils servent d'objet de mail).
+
 ## Non couvert
 
 - **Taux de lecture des mails** : seul le canal in-app est mesuré (pas de pixel de suivi, par choix de confidentialité).

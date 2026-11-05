@@ -218,6 +218,84 @@ test.group('Annonces — administration', (group) => {
     )
   })
 
+  test('un envoi identique rejoué est ignoré (double clic)', async ({ client, assert }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const member = await UserFactory.create()
+
+    await post(client, admin)
+    const replay = await post(client, admin)
+
+    replay.assertStatus(302)
+    assert.lengthOf(await db.from('announcements'), 1)
+    assert.lengthOf(await notificationsOf(member), 1)
+    assert.lengthOf(await AdminAuditLog.all(), 1)
+  })
+
+  test('relance une annonce échouée, journalisée, et refuse une annonce envoyée', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const member = await UserFactory.create()
+    await post(client, admin)
+    const stored = await db.from('announcements').first()
+    const retry = () =>
+      client
+        .post(`/fr/admin/announcements/${stored.id}/retry`)
+        .json({})
+        .redirects(0)
+        .withCsrfToken()
+        .header('Accept', 'application/json')
+        .loginAs(admin)
+
+    // Déjà envoyée : rien à relancer.
+    await retry()
+    assert.lengthOf(await AdminAuditLog.query().where('action', 'announcement.retried'), 0)
+
+    await db.from('notifications').where('user_id', member.id).delete()
+    await db
+      .from('announcements')
+      .where('id', stored.id)
+      .update({ status: 'failed', error: 'boom' })
+    await retry()
+
+    const after = await db.from('announcements').where('id', stored.id).first()
+    assert.equal(after.status, 'sent')
+    assert.isNull(after.error)
+    assert.lengthOf(await notificationsOf(member), 1)
+    assert.lengthOf(await AdminAuditLog.query().where('action', 'announcement.retried'), 1)
+  })
+
+  test('le droit est exigé pour relancer', async ({ client }) => {
+    const support = await UserFactory.apply('platformSupport').create()
+    const response = await client
+      .post('/fr/admin/announcements/1/retry')
+      .json({})
+      .redirects(0)
+      .withCsrfToken()
+      .header('Accept', 'application/json')
+      .loginAs(support)
+    response.assertStatus(403)
+  })
+
+  test('une annonce restée en attente trop longtemps est relançable', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    await post(client, admin)
+    const stored = await db.from('announcements').first()
+    await db
+      .from('announcements')
+      .where('id', stored.id)
+      .update({ status: 'queued', created_at: DateTime.now().minus({ hours: 1 }).toJSDate() })
+
+    const response = await client.get('/fr/admin/announcements').withInertia().loginAs(admin)
+
+    const rows = response.inertiaProps.announcements.data as AdminAnnouncementRow[]
+    assert.isTrue(rows[0].retryable)
+  })
+
   test('trace la création dans le journal d’audit', async ({ client, assert }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
 
@@ -239,6 +317,7 @@ test.group('Annonces — administration', (group) => {
       { ...VALID, audience: 'organization' },
       { ...VALID, audience: 'everyone' },
       { ...VALID, titleEn: 'Only a title' },
+      { ...VALID, titleFr: 'Deux\nlignes' },
     ]
     for (const body of cases) {
       const response = await post(client, admin, body)

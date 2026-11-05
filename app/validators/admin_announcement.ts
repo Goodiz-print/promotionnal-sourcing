@@ -5,6 +5,9 @@ import {
   ANNOUNCEMENT_TITLE_MAX_LENGTH,
 } from '#shared/types/announcement'
 
+/** Le titre sert d'objet de mail : une seule ligne. */
+const SINGLE_LINE = /^[^\r\n]+$/
+
 export const ANNOUNCEMENT_CHANNELS = ['inApp', 'email'] as const
 
 /** Historique : pagination seule. */
@@ -26,12 +29,18 @@ export const adminAnnouncementValidator = vine.create({
     .optional()
     .requiredWhen('audience', '=', 'organization'),
   channels: vine.array(vine.enum(ANNOUNCEMENT_CHANNELS)).minLength(1).distinct(),
-  titleFr: vine.string().trim().minLength(1).maxLength(ANNOUNCEMENT_TITLE_MAX_LENGTH),
+  titleFr: vine
+    .string()
+    .trim()
+    .minLength(1)
+    .maxLength(ANNOUNCEMENT_TITLE_MAX_LENGTH)
+    .regex(SINGLE_LINE),
   bodyFr: vine.string().trim().minLength(1).maxLength(ANNOUNCEMENT_BODY_MAX_LENGTH),
   titleEn: vine
     .string()
     .trim()
     .maxLength(ANNOUNCEMENT_TITLE_MAX_LENGTH)
+    .regex(SINGLE_LINE)
     .optional()
     .requiredIfExists('bodyEn'),
   bodyEn: vine

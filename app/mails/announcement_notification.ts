@@ -17,7 +17,7 @@ export default class AnnouncementNotification extends LocalizedMail {
   }
 
   prepare() {
-    this.message.to(this.email).subject(this.title)
+    this.message.to(this.email).subject(this.title.replace(/\s+/g, ' ').trim())
     this.htmlViewIn('emails/announcement', { title: this.title, body: this.body })
   }
 }

@@ -60,6 +60,7 @@ export const ADMIN_AUDIT_ACTIONS = [
   'message_report.dismissed',
   'consent.exported',
   'announcement.created',
+  'announcement.retried',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]

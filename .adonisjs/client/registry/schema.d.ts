@@ -1775,6 +1775,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'admin.announcements.retry': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/announcements/:id/retry'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['retry']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['retry']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['retry']>>>
+    }
+  }
   'admin.products.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/products'

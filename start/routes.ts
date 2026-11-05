@@ -413,6 +413,9 @@ router
                 router
                   .post('admin/announcements', [controllers.admin.Announcement, 'store'])
                   .as('admin.announcements.store')
+                router
+                  .post('admin/announcements/:id/retry', [controllers.admin.Announcement, 'retry'])
+                  .as('admin.announcements.retry')
 
                 // Administration du catalogue produits (#164) : liste, fiche et actions.
                 router

@@ -140,6 +140,7 @@ export type ScannedRoutes = {
     'admin.announcements.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.announcements.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.announcements.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.announcements.retry': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.products.hide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -429,6 +430,7 @@ export type ScannedRoutes = {
     'admin.users.resend_verification': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.password_reset': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.announcements.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.announcements.retry': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.products.hide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.products.unhide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.products.unpublish': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }

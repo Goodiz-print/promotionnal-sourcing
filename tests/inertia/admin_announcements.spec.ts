@@ -4,6 +4,7 @@ import type { AdminAnnouncementRow } from '#shared/types/announcement'
 
 const translations = {
   'admin.announcements.title': 'Annonces',
+  'admin.announcements.retry': 'Relancer',
   'admin.announcements.empty': 'Aucune annonce.',
   'admin.announcements.new': 'Nouvelle annonce',
   'admin.announcements.noInApp': 'Pas de notification in-app',
@@ -56,6 +57,8 @@ function row(overrides: Partial<AdminAnnouncementRow> = {}): AdminAnnouncementRo
     status: 'sent',
     recipients: 8,
     read: 2,
+    error: null,
+    retryable: false,
     createdBy: 'admin@example.test',
     createdAt: '2026-11-05T10:00:00.000Z',
     sentAt: '2026-11-05T10:00:05.000Z',
@@ -91,6 +94,17 @@ describe('Annonces — historique', () => {
 
     expect(text).toContain('Pas de notification in-app')
     expect(text).not.toContain('/ 8')
+  })
+
+  it('propose de relancer une annonce échouée, et seulement celle-là', async () => {
+    const wrapper = mountIndex([
+      row({ id: 1, status: 'failed', retryable: true, error: 'boom' }),
+      row({ id: 2 }),
+    ])
+
+    const buttons = wrapper.findAll('button').filter((b) => b.text() === 'Relancer')
+    expect(buttons).toHaveLength(1)
+    expect(wrapper.text()).toContain('boom')
   })
 
   it('affiche l’état vide', () => {

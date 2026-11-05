@@ -71,4 +71,15 @@ export default class AnnouncementController {
     session.flash('success', i18n.t('admin.announcements.flash.queued'))
     return response.redirect().toRoute('admin.announcements.index', { locale: i18n.locale })
   }
+
+  /** Relance une annonce échouée ou perdue en queue. */
+  async retry(ctx: HttpContext) {
+    const { bouncer, params, response, session, i18n } = ctx
+    await bouncer.authorize('hasPlatformPermission', 'announcements.manage')
+
+    const retried = await this.service.retry(Number(params.id), adminActionContext(ctx))
+    if (retried) session.flash('success', i18n.t('admin.announcements.flash.retried'))
+    else session.flash('error', i18n.t('admin.announcements.flash.notRetryable'))
+    return response.redirect().toRoute('admin.announcements.index', { locale: i18n.locale })
+  }
 }

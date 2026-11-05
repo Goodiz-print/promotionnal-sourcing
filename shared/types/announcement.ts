@@ -45,6 +45,49 @@ export type SendAnnouncementPayload = {
   announcementId: number
 }
 
+/** Un envoi « en attente » plus ancien que ce délai (minutes) est considéré comme perdu : relançable. */
+export const ANNOUNCEMENT_STALE_QUEUED_MINUTES = 15
+
+/** Deux envois identiques du même auteur dans ce délai (secondes) n'en font qu'un (double clic, POST rejoué). */
+export const ANNOUNCEMENT_DUPLICATE_WINDOW_SECONDS = 60
+
+/** Annonce telle que la relit la distribution (colonnes de `announcements`). */
+export type AnnouncementDeliveryRow = {
+  id: number
+  audience: AnnouncementAudience
+  organization_id: number | null
+  send_in_app: boolean
+  send_email: boolean
+  translations: AnnouncementTranslations | string
+  status: AnnouncementStatus
+}
+
+/** Destinataire lu par lot lors de la distribution. */
+export type AnnouncementRecipientRow = {
+  id: number
+  email: string
+  locale: string
+  email_verified_at: Date | null
+}
+
+/** Ligne de l'historique telle que lue en base, avant présentation. */
+export type AdminAnnouncementDbRow = {
+  id: number
+  audience: AnnouncementAudience
+  organization_id: number | null
+  organization_name: string | null
+  send_in_app: boolean
+  send_email: boolean
+  translations: AnnouncementTranslations | string
+  status: AnnouncementStatus
+  recipients_count: number
+  error: string | null
+  read_count: string | number
+  creator_email: string | null
+  created_at: Date | string
+  sent_at: Date | string | null
+}
+
 export type AdminAnnouncementRow = {
   id: number
   /** Titre dans la langue du back-office, à défaut dans la langue par défaut. */
@@ -58,6 +101,10 @@ export type AdminAnnouncementRow = {
   recipients: number
   /** Notifications in-app lues par leur destinataire. */
   read: number
+  /** Motif de l'échec, le cas échéant. */
+  error: string | null
+  /** Envoi échoué ou perdu en queue : l'admin peut le relancer. */
+  retryable: boolean
   createdBy: string | null
   createdAt: string
   sentAt: string | null

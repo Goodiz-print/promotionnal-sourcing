@@ -15,3 +15,10 @@ export function pickAnnouncementContent(
     translations[DEFAULT_LOCALE] ?? { title: '', body: '' }
   )
 }
+
+/** `translations` est un jsonb : `pg` renvoie un objet, d'autres pilotes une chaîne. */
+export function parseAnnouncementTranslations(
+  raw: AnnouncementTranslations | string
+): AnnouncementTranslations {
+  return typeof raw === 'string' ? (JSON.parse(raw) as AnnouncementTranslations) : raw
+}

@@ -4,33 +4,21 @@ import SendAnnouncementJob from '#jobs/send_announcement_job'
 import AdminAuditService from '#services/admin_audit_service'
 import AnnouncementDispatcher from '#services/announcement_dispatcher'
 import { AdminOrganizationNotFoundException } from '#exceptions/admin_errors'
-import { pickAnnouncementContent } from '#shared/helpers/announcement'
+import {
+  parseAnnouncementTranslations,
+  pickAnnouncementContent,
+} from '#shared/helpers/announcement'
 import type { AdminActionContext } from '#shared/types/admin_audit'
-import type {
-  AdminAnnouncementRow,
-  AnnouncementAudience,
-  AnnouncementStatus,
-  AnnouncementTranslations,
-  CreateAnnouncementInput,
+import {
+  ANNOUNCEMENT_DUPLICATE_WINDOW_SECONDS,
+  ANNOUNCEMENT_STALE_QUEUED_MINUTES,
+  type AdminAnnouncementDbRow,
+  type AdminAnnouncementRow,
+  type AnnouncementAudience,
+  type CreateAnnouncementInput,
 } from '#shared/types/announcement'
 import type { Locale } from '#shared/types/i18n'
 import type { Paginated } from '#shared/types/pagination'
-
-type AnnouncementDbRow = {
-  id: number
-  audience: AnnouncementAudience
-  organization_id: number | null
-  organization_name: string | null
-  send_in_app: boolean
-  send_email: boolean
-  translations: AnnouncementTranslations | string
-  status: AnnouncementStatus
-  recipients_count: number
-  read_count: string | number
-  creator_email: string | null
-  created_at: Date | string
-  sent_at: Date | string | null
-}
 
 const iso = (value: Date | string): string => new Date(value).toISOString()
 
@@ -65,6 +53,7 @@ export default class AdminAnnouncementService {
         'a.translations',
         'a.status',
         'a.recipients_count',
+        'a.error',
         'u.email as creator_email',
         'a.created_at',
         'a.sent_at',
@@ -78,7 +67,7 @@ export default class AdminAnnouncementService {
 
     const { data, meta } = paginator.toJSON()
     return {
-      data: data.map((row: AnnouncementDbRow) => this.present(row, options.locale)),
+      data: data.map((row: AdminAnnouncementDbRow) => this.present(row, options.locale)),
       meta: {
         total: meta.total,
         perPage: meta.perPage,
@@ -104,7 +93,7 @@ export default class AdminAnnouncementService {
    * distribution en queue. Renvoie l'identifiant de l'annonce.
    */
   async create(input: CreateAnnouncementInput, context: AdminActionContext): Promise<number> {
-    const announcementId = await db.transaction(async (trx) => {
+    const { id: announcementId, created } = await db.transaction(async (trx) => {
       if (input.audience === 'organization') {
         const organization = await trx
           .from('organizations')
@@ -113,6 +102,24 @@ export default class AdminAnnouncementService {
           .first()
         if (!organization) throw new AdminOrganizationNotFoundException()
       }
+
+      // Double clic ou POST rejoué : le même envoi du même auteur n'est créé qu'une fois.
+      const duplicate = await trx
+        .from('announcements')
+        .where('created_by_user_id', context.actor?.id ?? 0)
+        .where('audience', input.audience)
+        .where('send_in_app', input.sendInApp)
+        .where('send_email', input.sendEmail)
+        .whereRaw('translations = ?::jsonb', [JSON.stringify(input.translations)])
+        .whereRaw(`created_at > now() - make_interval(secs => ?)`, [
+          ANNOUNCEMENT_DUPLICATE_WINDOW_SECONDS,
+        ])
+        .if(input.audience === 'organization', (q) =>
+          q.where('organization_id', input.organizationId ?? 0)
+        )
+        .select('id')
+        .first()
+      if (duplicate) return { id: duplicate.id as number, created: false }
 
       const now = new Date()
       const [{ id }] = await trx
@@ -147,18 +154,59 @@ export default class AdminAnnouncementService {
         },
         { ...context, client: trx }
       )
-      return id as number
+      return { id: id as number, created: true }
     })
 
-    await SendAnnouncementJob.dispatch({ announcementId })
+    if (created) await this.enqueue(announcementId)
     return announcementId
   }
 
-  private present(row: AnnouncementDbRow, locale: Locale): AdminAnnouncementRow {
-    const translations =
-      typeof row.translations === 'string'
-        ? (JSON.parse(row.translations) as AnnouncementTranslations)
-        : row.translations
+  /**
+   * Relance une annonce échouée, ou restée en attente (mise en queue perdue).
+   * Sans effet sur une annonce déjà envoyée ou en cours. Renvoie `false` si elle
+   * n'est pas relançable.
+   */
+  async retry(announcementId: number, context: AdminActionContext): Promise<boolean> {
+    const staleBefore = new Date(Date.now() - ANNOUNCEMENT_STALE_QUEUED_MINUTES * 60_000)
+    const retried = await db.transaction(async (trx) => {
+      const updated = await trx
+        .from('announcements')
+        .where('id', announcementId)
+        .where((q) =>
+          q
+            .where('status', 'failed')
+            .orWhere((stale) =>
+              stale.where('status', 'queued').where('created_at', '<', staleBefore)
+            )
+        )
+        .update({ status: 'queued', error: null, updated_at: new Date() })
+      if (!updated) return false
+
+      await this.audit.record(
+        { action: 'announcement.retried', targetType: 'announcement', targetId: announcementId },
+        { ...context, client: trx }
+      )
+      return true
+    })
+
+    if (retried) await this.enqueue(announcementId)
+    return retried
+  }
+
+  /** Met la distribution en queue ; si la queue est indisponible, l'échec reste visible et relançable. */
+  private async enqueue(announcementId: number): Promise<void> {
+    try {
+      await SendAnnouncementJob.dispatch({ announcementId })
+    } catch (error) {
+      await this.dispatcher.markFailed(announcementId, error as Error)
+      throw error
+    }
+  }
+
+  private present(row: AdminAnnouncementDbRow, locale: Locale): AdminAnnouncementRow {
+    const translations = parseAnnouncementTranslations(row.translations)
+    const createdAt = new Date(row.created_at)
+    const staleBefore = Date.now() - ANNOUNCEMENT_STALE_QUEUED_MINUTES * 60_000
 
     return {
       id: row.id,
@@ -173,6 +221,9 @@ export default class AdminAnnouncementService {
       status: row.status,
       recipients: Number(row.recipients_count),
       read: Number(row.read_count),
+      error: row.error,
+      retryable:
+        row.status === 'failed' || (row.status === 'queued' && createdAt.getTime() < staleBefore),
       createdBy: row.creator_email,
       createdAt: iso(row.created_at),
       sentAt: row.sent_at ? iso(row.sent_at) : null,

@@ -7,6 +7,7 @@ import { urlFor } from '~/client'
 import { useTradeFormat } from '~/composables/use_trade_format'
 import TradeList from '~/components/admin/trade_list.vue'
 import BaseBadge from '~/components/base/base_badge.vue'
+import BaseButton from '~/components/base/base_button.vue'
 import { BUTTON_BASE_CLASSES, BUTTON_SIZE_CLASSES, BUTTON_VARIANT_CLASSES } from '~/types/ui'
 import type { AdminAnnouncementRow, AnnouncementStatus } from '#shared/types/announcement'
 import type { Paginated } from '#shared/types/pagination'
@@ -35,6 +36,14 @@ function readRate(row: AdminAnnouncementRow): string {
   if (!row.sendInApp) return t('admin.announcements.noInApp')
   const percent = row.recipients > 0 ? Math.round((row.read / row.recipients) * 100) : 0
   return t('admin.announcements.readRate', { read: row.read, total: row.recipients, percent })
+}
+
+function retry(row: AdminAnnouncementRow) {
+  router.post(
+    urlFor('admin.announcements.retry', { locale: locale.value, id: row.id }),
+    {},
+    { preserveScroll: true }
+  )
 }
 
 const newClasses = [BUTTON_BASE_CLASSES, BUTTON_VARIANT_CLASSES.primary, BUTTON_SIZE_CLASSES.md]
@@ -72,6 +81,7 @@ const newClasses = [BUTTON_BASE_CLASSES, BUTTON_VARIANT_CLASSES.primary, BUTTON_
         <th scope="col">{{ t('admin.announcements.columns.readRate') }}</th>
         <th scope="col">{{ t('admin.announcements.columns.createdBy') }}</th>
         <th scope="col">{{ t('admin.announcements.columns.date') }}</th>
+        <th scope="col">{{ t('admin.announcements.columns.actions') }}</th>
       </tr>
     </template>
 
@@ -100,11 +110,23 @@ const newClasses = [BUTTON_BASE_CLASSES, BUTTON_VARIANT_CLASSES.primary, BUTTON_
         <BaseBadge :tone="TONES[row.status]">
           {{ t(`admin.announcements.statuses.${row.status}`) }}
         </BaseBadge>
+        <p
+          v-if="row.error"
+          class="mt-1 max-w-xs truncate text-body-sm text-text-secondary"
+          :title="row.error"
+        >
+          {{ row.error }}
+        </p>
       </td>
       <td class="text-tabular">{{ row.recipients }}</td>
       <td class="text-tabular">{{ readRate(row) }}</td>
       <td>{{ row.createdBy ?? '—' }}</td>
       <td>{{ dateTime(row.createdAt) }}</td>
+      <td>
+        <BaseButton v-if="row.retryable" size="sm" variant="secondary" @click="retry(row)">
+          {{ t('admin.announcements.retry') }}
+        </BaseButton>
+      </td>
     </tr>
   </TradeList>
 </template>

@@ -822,6 +822,12 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"announcements"]],
     types: placeholder as Registry['admin.announcements.store']['types'],
   },
+  'admin.announcements.retry': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/announcements/:id/retry',
+    tokens: [[1,"locale"],[0,"admin"],[0,"announcements"],[1,"id"],[0,"retry"]],
+    types: placeholder as Registry['admin.announcements.retry']['types'],
+  },
   'admin.products.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/products',

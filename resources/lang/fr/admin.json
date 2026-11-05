@@ -463,7 +463,8 @@
       "message.warned": "Auteur de message averti",
       "message_report.dismissed": "Signalement classé sans suite",
       "consent.exported": "Preuve de consentement exportée",
-      "announcement.created": "Annonce créée"
+      "announcement.created": "Annonce créée",
+      "announcement.retried": "Annonce relancée"
     },
     "targets": {
       "user": "Utilisateur",
@@ -1078,7 +1079,8 @@
       "recipients": "Destinataires",
       "readRate": "Lues (in-app)",
       "createdBy": "Envoyée par",
-      "date": "Date"
+      "date": "Date",
+      "actions": "Actions"
     },
     "audiences": {
       "all": "Tous les utilisateurs",
@@ -1115,7 +1117,10 @@
       "cancel": "Annuler"
     },
     "flash": {
-      "queued": "L'annonce est en cours d'envoi."
-    }
+      "queued": "L'annonce est en cours d'envoi.",
+      "retried": "L'annonce est relancée.",
+      "notRetryable": "Cette annonce ne peut pas être relancée."
+    },
+    "retry": "Relancer"
   }
 }

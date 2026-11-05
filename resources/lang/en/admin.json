@@ -463,7 +463,8 @@
       "message.warned": "Message author warned",
       "message_report.dismissed": "Report dismissed",
       "consent.exported": "Consent proof exported",
-      "announcement.created": "Announcement created"
+      "announcement.created": "Announcement created",
+      "announcement.retried": "Announcement retried"
     },
     "targets": {
       "user": "User",
@@ -1078,7 +1079,8 @@
       "recipients": "Recipients",
       "readRate": "Read (in-app)",
       "createdBy": "Sent by",
-      "date": "Date"
+      "date": "Date",
+      "actions": "Actions"
     },
     "audiences": {
       "all": "All users",
@@ -1115,7 +1117,10 @@
       "cancel": "Cancel"
     },
     "flash": {
-      "queued": "The announcement is being sent."
-    }
+      "queued": "The announcement is being sent.",
+      "retried": "The announcement is being sent again.",
+      "notRetryable": "This announcement cannot be retried."
+    },
+    "retry": "Retry"
   }
 }

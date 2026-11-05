@@ -2,27 +2,22 @@ import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 import SendMailJob from '#jobs/send_mail_job'
 import { mailIdempotencyKey } from '#shared/helpers/mail'
-import { pickAnnouncementContent } from '#shared/helpers/announcement'
-import { ANNOUNCEMENT_BATCH_SIZE, type AnnouncementTranslations } from '#shared/types/announcement'
+import {
+  parseAnnouncementTranslations,
+  pickAnnouncementContent,
+} from '#shared/helpers/announcement'
+import {
+  ANNOUNCEMENT_BATCH_SIZE,
+  type AnnouncementAudience,
+  type AnnouncementDeliveryRow,
+  type AnnouncementRecipientRow,
+  type AnnouncementTranslations,
+} from '#shared/types/announcement'
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, type Locale } from '#shared/types/i18n'
 import { MAIL_KINDS, type SendMailPayload } from '#shared/types/mail'
 
-type AnnouncementRow = {
-  id: number
-  audience: string
-  organization_id: number | null
-  send_in_app: boolean
-  send_email: boolean
-  translations: AnnouncementTranslations | string
-  status: string
-}
-
-type RecipientRow = {
-  id: number
-  email: string
-  locale: string
-  email_verified_at: Date | null
-}
+/** Mails mis en queue en parallèle : borne le nombre d'allers-retours simultanés vers la queue. */
+const MAIL_DISPATCH_CONCURRENCY = 50
 
 /**
  * Distribue une annonce (#169) : une notification in-app et/ou un mail par
@@ -44,7 +39,7 @@ export default class AnnouncementDispatcher {
       .where('id', announcementId)
       .update({ status: 'sending', error: null, updated_at: new Date() })
 
-    const translations = this.translations(announcement)
+    const translations = parseAnnouncementTranslations(announcement.translations)
     let total = 0
     let lastId = 0
     for (;;) {
@@ -56,6 +51,12 @@ export default class AnnouncementDispatcher {
       if (announcement.send_in_app)
         await this.createNotifications(announcement, batch, translations)
       if (announcement.send_email) await this.queueMails(announcement, batch, translations)
+
+      // Compteur à jour à chaque lot : un échec en cours de route ne le laisse pas à zéro.
+      await db
+        .from('announcements')
+        .where('id', announcementId)
+        .update({ recipients_count: total, updated_at: new Date() })
     }
 
     await db.from('announcements').where('id', announcementId).update({
@@ -80,12 +81,15 @@ export default class AnnouncementDispatcher {
    * Nombre d'utilisateurs actifs que cible un segment — pour confirmer l'envoi
    * avant de le déclencher.
    */
-  async countAudience(audience: string, organizationId: number | null): Promise<number> {
+  async countAudience(
+    audience: AnnouncementAudience,
+    organizationId: number | null
+  ): Promise<number> {
     const row = await this.audienceQuery(audience, organizationId).count('* as total').first()
     return Number((row as { total: string | number } | null)?.total ?? 0)
   }
 
-  private async find(announcementId: number): Promise<AnnouncementRow | null> {
+  private async find(announcementId: number): Promise<AnnouncementDeliveryRow | null> {
     const row = await db
       .from('announcements')
       .where('id', announcementId)
@@ -99,16 +103,14 @@ export default class AnnouncementDispatcher {
         'status'
       )
       .first()
-    return (row as AnnouncementRow | null) ?? null
-  }
-
-  private translations(announcement: AnnouncementRow): AnnouncementTranslations {
-    const raw = announcement.translations
-    return typeof raw === 'string' ? (JSON.parse(raw) as AnnouncementTranslations) : raw
+    return (row as AnnouncementDeliveryRow | null) ?? null
   }
 
   /** Utilisateurs non suspendus du segment, par ordre d'identifiant (pagination par curseur). */
-  private nextBatch(announcement: AnnouncementRow, afterId: number): Promise<RecipientRow[]> {
+  private nextBatch(
+    announcement: AnnouncementDeliveryRow,
+    afterId: number
+  ): Promise<AnnouncementRecipientRow[]> {
     return this.audienceQuery(announcement.audience, announcement.organization_id)
       .where('u.id', '>', afterId)
       .select('u.id', 'u.email', 'u.locale', 'u.email_verified_at')
@@ -116,7 +118,7 @@ export default class AnnouncementDispatcher {
       .limit(ANNOUNCEMENT_BATCH_SIZE)
   }
 
-  private audienceQuery(audience: string, organizationId: number | null) {
+  private audienceQuery(audience: AnnouncementAudience, organizationId: number | null) {
     const query = db.from('users as u').whereNull('u.suspended_at')
     if (audience === 'all') return query
 
@@ -142,7 +144,7 @@ export default class AnnouncementDispatcher {
     })
   }
 
-  private contentFor(translations: AnnouncementTranslations, recipient: RecipientRow) {
+  private contentFor(translations: AnnouncementTranslations, recipient: AnnouncementRecipientRow) {
     const locale = (SUPPORTED_LOCALES as readonly string[]).includes(recipient.locale)
       ? (recipient.locale as Locale)
       : DEFAULT_LOCALE
@@ -150,8 +152,8 @@ export default class AnnouncementDispatcher {
   }
 
   private async createNotifications(
-    announcement: AnnouncementRow,
-    batch: RecipientRow[],
+    announcement: AnnouncementDeliveryRow,
+    batch: AnnouncementRecipientRow[],
     translations: AnnouncementTranslations
   ): Promise<void> {
     const now = new Date()
@@ -180,23 +182,32 @@ export default class AnnouncementDispatcher {
 
   /** Mails seulement vers des adresses vérifiées, dans la langue du destinataire. */
   private async queueMails(
-    announcement: AnnouncementRow,
-    batch: RecipientRow[],
+    announcement: AnnouncementDeliveryRow,
+    batch: AnnouncementRecipientRow[],
     translations: AnnouncementTranslations
   ): Promise<void> {
-    for (const recipient of batch) {
-      if (!recipient.email_verified_at) continue
-      const { locale, content } = this.contentFor(translations, recipient)
-      await SendMailJob.dispatch({
-        kind: MAIL_KINDS.announcement,
-        idempotencyKey: mailIdempotencyKey(MAIL_KINDS.announcement, {
-          announcement: announcement.id,
+    const payloads = batch
+      .filter((recipient) => recipient.email_verified_at)
+      .map((recipient): SendMailPayload => {
+        const { locale, content } = this.contentFor(translations, recipient)
+        return {
+          kind: MAIL_KINDS.announcement,
+          idempotencyKey: mailIdempotencyKey(MAIL_KINDS.announcement, {
+            announcement: announcement.id,
+            to: recipient.email,
+          }),
           to: recipient.email,
-        }),
-        to: recipient.email,
-        locale,
-        data: { title: content.title, body: content.body },
-      } as SendMailPayload)
+          locale,
+          data: { title: content.title, body: content.body },
+        }
+      })
+
+    for (let i = 0; i < payloads.length; i += MAIL_DISPATCH_CONCURRENCY) {
+      await Promise.all(
+        payloads
+          .slice(i, i + MAIL_DISPATCH_CONCURRENCY)
+          .map((payload) => SendMailJob.dispatch(payload))
+      )
     }
   }
 }
