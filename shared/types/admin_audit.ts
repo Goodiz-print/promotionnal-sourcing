@@ -58,6 +58,7 @@ export const ADMIN_AUDIT_ACTIONS = [
   'message.unhidden',
   'message.warned',
   'message_report.dismissed',
+  'consent.exported',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]

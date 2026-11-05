@@ -792,6 +792,18 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"audit"]],
     types: placeholder as Registry['admin.audit.index']['types'],
   },
+  'admin.consents.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/consents',
+    tokens: [[1,"locale"],[0,"admin"],[0,"consents"]],
+    types: placeholder as Registry['admin.consents.index']['types'],
+  },
+  'admin.consents.export': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/consents/export',
+    tokens: [[1,"locale"],[0,"admin"],[0,"consents"],[0,"export"]],
+    types: placeholder as Registry['admin.consents.export']['types'],
+  },
   'admin.products.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/products',

@@ -16,7 +16,8 @@
     "rfqs": "Offertförfrågningar",
     "quotes": "Offerter",
     "orders": "Beställningar",
-    "messaging": "Messaging"
+    "messaging": "Messaging",
+    "consents": "Consents"
   },
   "pagination": {
     "previous": "Föregående",
@@ -459,7 +460,8 @@
       "message.hidden": "Message hidden",
       "message.unhidden": "Message shown again",
       "message.warned": "Message author warned",
-      "message_report.dismissed": "Report dismissed"
+      "message_report.dismissed": "Report dismissed",
+      "consent.exported": "Consent proof exported"
     },
     "targets": {
       "user": "Användare",
@@ -1014,6 +1016,43 @@
       "dismissed": "Report dismissed.",
       "blocked": "Conversation blocked.",
       "unblocked": "Conversation unblocked."
+    }
+  },
+  "consents": {
+    "title": "Legal consents",
+    "subtitle": "Proof of consent and signature (terms, licences, authorisations). Current version of the texts: {version}. Personal data: exports are recorded in the audit log.",
+    "resultsCount": "{count, plural, =0 {No consents} one {# consent} other {# consents}}",
+    "empty": "No consent matches these filters.",
+    "emptyDescription": "Change the filters to widen the search.",
+    "outdatedSummary": "{count, plural, =0 {No active consent is signed on an older version (current version: {version}).} one {# active consent is signed on an older version (current version: {version}).} other {# active consents are signed on an older version (current version: {version}).}}",
+    "export": "Export proof",
+    "active": "Active",
+    "revoked": "Withdrawn",
+    "outdated": "Outdated version",
+    "filters": {
+      "organization": "Organization",
+      "user": "Signer email",
+      "kind": "Type",
+      "allKinds": "All types",
+      "version": "Version",
+      "outdated": "Outdated version only"
+    },
+    "columns": {
+      "id": "ID",
+      "organization": "Organization",
+      "user": "Signer",
+      "kind": "Type",
+      "version": "Signed version",
+      "acceptedAt": "Signed on",
+      "revokedAt": "Withdrawn on",
+      "ip": "IP address"
+    },
+    "kinds": {
+      "terms": "Terms",
+      "data_license": "Data licence",
+      "supplier_marketing": "Marketing authorisation",
+      "professional_certification": "Professional certification",
+      "partner_communications": "Partner communications"
     }
   }
 }
