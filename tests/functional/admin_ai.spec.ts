@@ -111,6 +111,19 @@ test.group('IA — journal des appels', (group) => {
   })
 })
 
+test.group('IA — rétention', (group) => {
+  useDatabase(group)
+
+  test('purge les appels au-delà de la rétention et garde les récents', async ({ assert }) => {
+    await db
+      .table('ai_calls')
+      .multiInsert([call(), call({ created_at: new Date(Date.now() - 100 * 86_400_000) })])
+
+    assert.equal(await new AiCallService().purge(), 1)
+    assert.equal((await db.from('ai_calls').count('* as n').first())!.n, '1')
+  })
+})
+
 test.group('IA — administration', (group) => {
   useDatabase(group)
 

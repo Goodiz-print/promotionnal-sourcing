@@ -62,6 +62,9 @@ export interface TranslationUsage {
   completionTokens: number
 }
 
+/** Durée de conservation du journal des appels IA (jours) : au-delà, les lignes sont purgées. */
+export const AI_CALL_RETENTION_DAYS = 90
+
 /** Services IA journalisés dans `ai_calls`. */
 export const AI_SERVICES = ['translation'] as const
 export type AiService = (typeof AI_SERVICES)[number]

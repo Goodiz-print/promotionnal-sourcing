@@ -273,12 +273,12 @@ export default class AdminAiService {
       .from('ai_calls')
       .where('created_at', '>=', since)
       .select(
-        db.raw("to_char(created_at, 'YYYY-MM-DD') as day"),
+        db.raw("to_char(created_at at time zone 'UTC', 'YYYY-MM-DD') as day"),
         db.raw('count(*) as calls'),
-        db.raw("count(*) filter (where status <> 'success') as failed"),
+        db.raw("count(*) filter (where status = 'failed') as failed"),
         db.raw('coalesce(sum(prompt_tokens + completion_tokens), 0) as tokens')
       )
-      .groupByRaw("to_char(created_at, 'YYYY-MM-DD')")
+      .groupByRaw("to_char(created_at at time zone 'UTC', 'YYYY-MM-DD')")
     const byDay = new Map(rows.map((row) => [row.day as string, row]))
 
     const days: AdminAiDailyVolume[] = []
@@ -297,7 +297,7 @@ export default class AdminAiService {
 
   /**
    * Par langue : nombre d'entités traduites (IA / à la main) sur le total. Le total
-   * compte les produits actifs et toutes les autres entités ; la langue source de
+   * compte les produits actifs et toutes les autres entités (les traductions des produits inactifs sont écartées aussi) ; la langue source de
    * chaque entité compte comme « à la main ».
    */
   private async coverage(): Promise<AdminAiCoverageRow[]> {
@@ -307,18 +307,22 @@ export default class AdminAiService {
 
     let total = 0
     for (const entity of TRANSLATABLE_ENTITIES) {
-      const { table, parentTable } = ENTITY_TRANSLATION_TABLES[entity]
+      const { table, foreignKey, parentTable } = ENTITY_TRANSLATION_TABLES[entity]
       const parents = db.from(parentTable)
       if (entity === 'product') parents.where('is_active', true)
       const [{ count }] = await parents.count('* as count')
       total += num(count)
 
-      const rows = await db
-        .from(table)
-        .select('locale')
-        .select(db.raw('count(*) filter (where is_auto) as auto'))
-        .select(db.raw('count(*) filter (where not is_auto) as manual'))
-        .groupBy('locale')
+      // Mêmes entités que le total : un produit inactif n'est pas compté non plus ici.
+      const translations = db.from(`${table} as t`)
+      if (entity === 'product') {
+        translations.join('products as p', 'p.id', `t.${foreignKey}`).where('p.is_active', true)
+      }
+      const rows = await translations
+        .select('t.locale as locale')
+        .select(db.raw('count(*) filter (where t.is_auto) as auto'))
+        .select(db.raw('count(*) filter (where not t.is_auto) as manual'))
+        .groupBy('t.locale')
       for (const row of rows) {
         const entry = byLocale.get(row.locale)
         if (!entry) continue

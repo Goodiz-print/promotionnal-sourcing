@@ -1,6 +1,6 @@
 import db from '@adonisjs/lucid/services/db'
 import logger from '@adonisjs/core/services/logger'
-import type { AiCallRecord } from '#shared/types/ai'
+import { AI_CALL_RETENTION_DAYS, type AiCallRecord } from '#shared/types/ai'
 
 /** Longueur maximale du message d'erreur conservé (jamais le contenu des prompts). */
 const MAX_ERROR_LENGTH = 500
@@ -33,5 +33,12 @@ export default class AiCallService {
         'ai call not logged'
       )
     }
+  }
+
+  /** Supprime les appels plus vieux que la rétention ; retourne le nombre de lignes supprimées. */
+  async purge(now: Date = new Date()): Promise<number> {
+    const limit = new Date(now.getTime() - AI_CALL_RETENTION_DAYS * 86_400_000)
+    const deleted = await db.from('ai_calls').where('created_at', '<', limit).delete()
+    return Number(deleted)
   }
 }
