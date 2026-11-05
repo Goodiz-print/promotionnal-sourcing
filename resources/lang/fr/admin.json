@@ -1024,7 +1024,7 @@
     "resultsCount": "{count, plural, =0 {Aucun consentement} one {# consentement} other {# consentements}}",
     "empty": "Aucun consentement ne correspond à ces filtres.",
     "emptyDescription": "Modifiez les filtres pour élargir la recherche.",
-    "outdatedSummary": "{count, plural, =0 {Aucun consentement actif n'est signé sur une ancienne version (version courante : {version}).} one {# consentement actif est signé sur une ancienne version (version courante : {version}).} other {# consentements actifs sont signés sur une ancienne version (version courante : {version}).}}",
+    "outdatedSummary": "{count, plural, =0 {Aucun consentement actif n'est signé sur une version antérieure (version courante : {version}).} one {# consentement actif est signé sur une version antérieure (version courante : {version}).} other {# consentements actifs sont signés sur une version antérieure (version courante : {version}).}}",
     "export": "Exporter la preuve",
     "active": "Actif",
     "revoked": "Retiré",
@@ -1053,6 +1053,8 @@
       "supplier_marketing": "Autorisation marketing",
       "professional_certification": "Certification professionnelle",
       "partner_communications": "Communications partenaires"
-    }
+    },
+    "section": "Preuves de consentement signées par cette organisation.",
+    "viewList": "Voir les consentements"
   }
 }

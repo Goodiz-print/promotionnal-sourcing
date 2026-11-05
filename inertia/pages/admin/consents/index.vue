@@ -181,7 +181,7 @@ const exportClasses = [
         <BaseBadge v-else tone="success">{{ t('admin.consents.active') }}</BaseBadge>
       </td>
       <td class="text-right">
-        <a :href="exportHref(row)" download :class="exportClasses">
+        <a :href="exportHref(row)" :class="exportClasses">
           <Download :size="16" aria-hidden="true" />
           {{ t('admin.consents.export') }}
         </a>

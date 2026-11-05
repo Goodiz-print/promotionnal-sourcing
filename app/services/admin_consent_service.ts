@@ -2,6 +2,7 @@ import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
 import AdminAuditService from '#services/admin_audit_service'
 import { AdminOrganizationNotFoundException } from '#exceptions/admin_errors'
+import type { DatabaseQueryBuilderContract } from '@adonisjs/lucid/types/querybuilder'
 import type { AdminActionContext } from '#shared/types/admin_audit'
 import type {
   AdminConsentFilters,
@@ -148,9 +149,10 @@ export default class AdminConsentService {
       )
   }
 
-  /** Consentement actif (non retiré) signé sur une autre version que la version courante. */
-  private onlyOutdated(query: { whereNull: Function; whereNot: Function }): void {
-    query.whereNull('lc.revoked_at').whereNot('lc.version', CURRENT_LEGAL_VERSION)
+  /** Consentement actif (non retiré) signé sur une version antérieure à la version courante. */
+  private onlyOutdated(query: DatabaseQueryBuilderContract): void {
+    // Versions = dates ISO : la comparaison lexicographique suit l'ordre chronologique.
+    query.whereNull('lc.revoked_at').where('lc.version', '<', CURRENT_LEGAL_VERSION)
   }
 
   private present(row: ConsentDbRow): AdminConsentRow {
@@ -163,7 +165,7 @@ export default class AdminConsentService {
       ipAddress: row.ip_address,
       organization: { id: row.organization_id, name: row.organization_name },
       user: row.user_id && row.user_email ? { id: row.user_id, email: row.user_email } : null,
-      outdated: !row.revoked_at && row.version !== CURRENT_LEGAL_VERSION,
+      outdated: !row.revoked_at && row.version < CURRENT_LEGAL_VERSION,
     }
   }
 }

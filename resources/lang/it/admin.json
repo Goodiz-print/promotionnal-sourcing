@@ -1053,6 +1053,8 @@
       "supplier_marketing": "Marketing authorisation",
       "professional_certification": "Professional certification",
       "partner_communications": "Partner communications"
-    }
+    },
+    "section": "Consent proof signed by this organization.",
+    "viewList": "View consents"
   }
 }

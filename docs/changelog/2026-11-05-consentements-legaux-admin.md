@@ -8,10 +8,11 @@ Issue #168 : la plateforme consulte le journal `legal_consents` et exporte la pr
 
 Le journal contient des données personnelles (adresse IP, email du signataire) : l'accès est réservé au droit `audit.view`, la matrice des rôles n'est pas modifiée.
 
-- `GET /:locale/admin/consents` (`admin.consents.index`, `ConsentController`) : liste paginée (50), plus récent d'abord. Filtres : organisation (partiel), email du signataire (partiel), type, version exacte, « version dépassée uniquement ». Le compteur indique combien de consentements **actifs** (non retirés) sont signés sur une version différente de `CURRENT_LEGAL_VERSION`.
+- `GET /:locale/admin/consents` (`admin.consents.index`, `ConsentController`) : liste paginée (50), plus récent d'abord. Filtres : organisation (partiel), email du signataire (partiel), type, version exacte, « version dépassée uniquement ». Le compteur indique combien de consentements **actifs** (non retirés) sont signés sur une version **antérieure** à `CURRENT_LEGAL_VERSION` (comparaison de dates ISO ; une version plus récente n'est pas « dépassée »).
 - `GET /:locale/admin/consents/export?organizationId=` (`admin.consents.export`) : CSV (`;`, UTF-8 avec BOM) de tous les consentements de l'organisation, le plus ancien d'abord : identifiant, type, version, date de signature, date de retrait, IP, email du signataire. Les cellules qui commencent par `=`, `+`, `-`, `@` sont neutralisées. Organisation inconnue : 404.
 - Chaque export écrit une entrée d'audit `consent.exported` (cible `organization`, nombre de lignes) **dans la même transaction que la lecture**.
-- Onglet « Consentements » dans la navigation admin.
+- Onglet « Consentements » dans la navigation admin, et section « Consentements » sur la fiche organisation (voir la liste filtrée, exporter la preuve) pour qui a le droit `audit.view`.
+- Migration `1794000000003_alter_legal_consents_add_indexes.ts` : index sur `accepted_at` et `version` (tri et filtre de l'écran).
 
 Lecture seule : aucune modification ni suppression de preuve n'est possible depuis l'interface.
 

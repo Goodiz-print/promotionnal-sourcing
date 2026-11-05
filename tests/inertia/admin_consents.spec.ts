@@ -72,7 +72,7 @@ describe('Consentements — page admin', () => {
     expect(wrapper.text()).toContain('Acme')
     expect(wrapper.text()).toContain('jane@acme.test')
     expect(wrapper.text()).toContain('198.51.100.4')
-    const link = wrapper.find('a[download]')
+    const link = wrapper.find('a[href*="consents.export"]')
     expect(link.attributes('href')).toContain('organizationId=7')
   })
 

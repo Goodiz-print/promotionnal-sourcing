@@ -168,4 +168,58 @@ test.group('Consentements — administration', (group) => {
 
     response.assertStatus(403)
   })
+
+  test('une version plus récente que la version courante n’est pas dépassée', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const organization = await OrganizationFactory.create()
+    await LegalConsentFactory.merge({
+      organizationId: organization.id,
+      version: '2999-01-01',
+    }).create()
+
+    const response = await client.get('/fr/admin/consents').withInertia().loginAs(admin)
+
+    const [row] = response.inertiaProps.consents.data as AdminConsentRow[]
+    assert.isFalse(row.outdated)
+    assert.equal(response.inertiaProps.overview.outdatedCount, 0)
+  })
+
+  test('la liste est triée du plus récent au plus ancien et l’export du plus ancien au plus récent', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const organization = await OrganizationFactory.create()
+    const other = await OrganizationFactory.create()
+    const old = await LegalConsentFactory.merge({
+      organizationId: organization.id,
+      ipAddress: '192.0.2.1',
+      acceptedAt: DateTime.now().minus({ days: 3 }),
+    }).create()
+    const recent = await LegalConsentFactory.merge({
+      organizationId: organization.id,
+      ipAddress: '192.0.2.2',
+      acceptedAt: DateTime.now().minus({ days: 1 }),
+    }).create()
+    await LegalConsentFactory.merge({ organizationId: other.id, ipAddress: '192.0.2.99' }).create()
+
+    const list = await client
+      .get(`/fr/admin/consents?organization=${encodeURIComponent(organization.name)}`)
+      .withInertia()
+      .loginAs(admin)
+    const ids = (list.inertiaProps.consents.data as AdminConsentRow[])
+      .filter((row) => row.organization.id === organization.id)
+      .map((row) => row.id)
+    assert.deepEqual(ids, [recent.id, old.id])
+
+    const exported = await client
+      .get(`/fr/admin/consents/export?organizationId=${organization.id}`)
+      .loginAs(admin)
+    const text = exported.text()
+    assert.isBelow(text.indexOf('192.0.2.1'), text.indexOf('192.0.2.2'))
+    assert.notInclude(text, '192.0.2.99')
+  })
 })

@@ -8,7 +8,7 @@ export type AdminConsentFilters = {
   user: string | null
   kind: LegalConsentKind | null
   version: string | null
-  /** Seulement les consentements actifs signés sur une version autre que la version courante. */
+  /** Seulement les consentements actifs signés sur une version antérieure à la version courante. */
   outdated: boolean
 }
 
@@ -22,7 +22,7 @@ export type AdminConsentRow = {
   ipAddress: string | null
   organization: { id: number; name: string }
   user: { id: number; email: string } | null
-  /** Consentement actif dont la version n'est plus la version courante. */
+  /** Consentement actif signé sur une version antérieure à la version courante. */
   outdated: boolean
 }
 
