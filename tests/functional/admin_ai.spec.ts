@@ -93,21 +93,22 @@ test.group('IA — journal des appels', (group) => {
     assert.equal(rows[1].error, 'boom')
   })
 
-  test('une écriture de journal impossible ne fait pas échouer l’appelant', async ({ assert }) => {
+  test('tronque le message d’erreur conservé', async ({ assert }) => {
     await new AiCallService().record({
       service: 'translation',
-      model: 'm'.repeat(500),
+      model: 'mistral-small-latest',
       entity: null,
       entityId: null,
       sourceLocale: null,
       targetLocales: [],
       usage: { promptTokens: 0, completionTokens: 0 },
       durationMs: 0,
-      status: 'success',
-      error: null,
+      status: 'failed',
+      error: 'x'.repeat(2000),
     })
 
-    assert.equal((await db.from('ai_calls').count('* as n').first())!.n, '0')
+    const row = await db.from('ai_calls').first()
+    assert.lengthOf(row.error, 500)
   })
 })
 
