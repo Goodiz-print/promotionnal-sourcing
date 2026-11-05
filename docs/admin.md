@@ -191,3 +191,7 @@ Tests : `tests/functional/admin_products.spec.ts` (droits par rôle, filtres, ch
 ## Modération de la messagerie (#167)
 
 Droit `moderation.manage` (admin, modérateur). Écrans : `GET /admin/messaging` (fils, sans contenu), `/admin/messaging/reports` (file des signalements), `/admin/messaging/conversations/:id` (fil complet — **chaque ouverture est tracée** par `conversation.viewed`). Décisions : masquer / réafficher un message, avertir son auteur (notification `message.warned`), classer un signalement, bloquer / débloquer un fil (motif obligatoire). Côté participant : `POST /messages/:id/report` (`messages.report`). Détail : `docs/changelog/2026-11-04-moderation-messagerie-admin.md`.
+
+## Consentements légaux (#168)
+
+Droit `audit.view` (admin seul : IP et email). `GET /admin/consents` (liste filtrable, repère les versions dépassées) et `GET /admin/consents/export?organizationId=` (CSV de preuve, tracé par `consent.exported`). Les parcours fournisseur n'écrivent pas encore de consentement. Détail : `docs/changelog/2026-11-05-consentements-legaux-admin.md`.

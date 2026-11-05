@@ -135,6 +135,8 @@ export type ScannedRoutes = {
     'admin.users.password_reset': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.audit.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.consents.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.consents.export': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.products.hide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -257,6 +259,8 @@ export type ScannedRoutes = {
     'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.users.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.audit.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.consents.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.consents.export': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -340,6 +344,8 @@ export type ScannedRoutes = {
     'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.users.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.audit.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.consents.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.consents.export': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }

@@ -16,7 +16,8 @@
     "rfqs": "Demandes de devis",
     "quotes": "Devis",
     "orders": "Commandes",
-    "messaging": "Messagerie"
+    "messaging": "Messagerie",
+    "consents": "Consentements"
   },
   "pagination": {
     "previous": "Précédent",
@@ -459,7 +460,8 @@
       "message.hidden": "Message masqué",
       "message.unhidden": "Message réaffiché",
       "message.warned": "Auteur de message averti",
-      "message_report.dismissed": "Signalement classé sans suite"
+      "message_report.dismissed": "Signalement classé sans suite",
+      "consent.exported": "Preuve de consentement exportée"
     },
     "targets": {
       "user": "Utilisateur",
@@ -1015,5 +1017,44 @@
       "blocked": "Conversation bloquée.",
       "unblocked": "Conversation débloquée."
     }
+  },
+  "consents": {
+    "title": "Consentements légaux",
+    "subtitle": "Preuves de consentement et de signature (CGU, licences, autorisations). Version courante des textes : {version}. Données personnelles : l'export est tracé dans le journal d'audit.",
+    "resultsCount": "{count, plural, =0 {Aucun consentement} one {# consentement} other {# consentements}}",
+    "empty": "Aucun consentement ne correspond à ces filtres.",
+    "emptyDescription": "Modifiez les filtres pour élargir la recherche.",
+    "outdatedSummary": "{count, plural, =0 {Aucun consentement actif n'est signé sur une version antérieure (version courante : {version}).} one {# consentement actif est signé sur une version antérieure (version courante : {version}).} other {# consentements actifs sont signés sur une version antérieure (version courante : {version}).}}",
+    "export": "Exporter la preuve",
+    "active": "Actif",
+    "revoked": "Retiré",
+    "outdated": "Version dépassée",
+    "filters": {
+      "organization": "Organisation",
+      "user": "Email du signataire",
+      "kind": "Type",
+      "allKinds": "Tous les types",
+      "version": "Version",
+      "outdated": "Version dépassée uniquement"
+    },
+    "columns": {
+      "id": "Identifiant",
+      "organization": "Organisation",
+      "user": "Signataire",
+      "kind": "Type",
+      "version": "Version signée",
+      "acceptedAt": "Signé le",
+      "revokedAt": "Retiré le",
+      "ip": "Adresse IP"
+    },
+    "kinds": {
+      "terms": "CGU",
+      "data_license": "Licence de données",
+      "supplier_marketing": "Autorisation marketing",
+      "professional_certification": "Certification professionnelle",
+      "partner_communications": "Communications partenaires"
+    },
+    "section": "Preuves de consentement signées par cette organisation.",
+    "viewList": "Voir les consentements"
   }
 }

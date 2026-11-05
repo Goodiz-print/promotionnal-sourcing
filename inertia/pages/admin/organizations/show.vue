@@ -4,6 +4,8 @@ import { Head } from '@inertiajs/vue3'
 import { FileText, Package, Users } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import { usePlatformPermissions } from '~/composables/use_platform_permissions'
+import OrganizationConsentsSection from '~/components/admin/organization/organization_consents_section.vue'
 import OrganizationInfoForm from '~/components/admin/organization/organization_info_form.vue'
 import OrganizationInvitationsSection from '~/components/admin/organization/organization_invitations_section.vue'
 import OrganizationLifecycleActions from '~/components/admin/organization/organization_lifecycle_actions.vue'
@@ -29,6 +31,7 @@ const props = withDefaults(
 )
 
 const { t, locale } = useI18n()
+const { can } = usePlatformPermissions()
 
 const indexUrl = computed(() => urlFor('admin.organizations.index', { locale: locale.value }))
 const archived = computed(() => props.organization.archivedAt !== null)
@@ -107,6 +110,12 @@ const archived = computed(() => props.organization.archivedAt !== null)
     />
 
     <OrganizationProfilesSection :organization="organization" />
+
+    <OrganizationConsentsSection
+      v-if="can('audit.view')"
+      :organization-id="organization.id"
+      :organization-name="organization.name"
+    />
 
     <BaseSection
       v-if="organization.canManage"

@@ -215,6 +215,10 @@ export interface ApiDefinition {
     audit: {
       index: typeof routes['admin.audit.index']
     }
+    consents: {
+      index: typeof routes['admin.consents.index']
+      export: typeof routes['admin.consents.export']
+    }
     products: {
       index: typeof routes['admin.products.index']
       show: typeof routes['admin.products.show']

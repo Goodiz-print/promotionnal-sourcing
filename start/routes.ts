@@ -395,6 +395,14 @@ router
                   .get('admin/audit', [controllers.admin.AuditLog, 'index'])
                   .as('admin.audit.index')
 
+                // Consentements légaux (#168) : consultation et export de preuve par organisation.
+                router
+                  .get('admin/consents', [controllers.admin.Consent, 'index'])
+                  .as('admin.consents.index')
+                router
+                  .get('admin/consents/export', [controllers.admin.Consent, 'export'])
+                  .as('admin.consents.export')
+
                 // Administration du catalogue produits (#164) : liste, fiche et actions.
                 router
                   .get('admin/products', [controllers.admin.Product, 'index'])
