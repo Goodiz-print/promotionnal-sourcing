@@ -92,7 +92,8 @@ export default class AdminImportService {
     const newId = await db.transaction(async (trx) => {
       const original: AdminImportDbRow | undefined = await this.baseQuery(trx)
         .where('j.id', importJobId)
-        .forUpdate()
+        // `OF j` : PostgreSQL refuse de verrouiller le côté nullable d'une jointure externe.
+        .forUpdate('j')
         .first()
       if (!original) throw new AdminImportNotFoundException()
       if (!this.isRetryable(original)) return null
