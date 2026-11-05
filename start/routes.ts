@@ -450,6 +450,23 @@ router
                   .where('id', router.matchers.number())
                   .as('admin.ai.translations.correct')
 
+                // Supervision de la queue (#175) : santé, jobs, relance / annulation, planning.
+                router
+                  .get('admin/queue', [controllers.admin.Queue, 'index'])
+                  .as('admin.queue.index')
+                router
+                  .get('admin/queue/jobs/:queue/:id', [controllers.admin.Queue, 'show'])
+                  .as('admin.queue.show')
+                router
+                  .post('admin/queue/jobs/:queue/:id/retry', [controllers.admin.Queue, 'retry'])
+                  .as('admin.queue.retry')
+                router
+                  .post('admin/queue/jobs/:queue/:id/cancel', [controllers.admin.Queue, 'cancel'])
+                  .as('admin.queue.cancel')
+                router
+                  .post('admin/queue/schedules/:id/run', [controllers.admin.Queue, 'runSchedule'])
+                  .as('admin.queue.schedules.run')
+
                 // Administration du catalogue produits (#164) : liste, fiche et actions.
                 router
                   .get('admin/products', [controllers.admin.Product, 'index'])

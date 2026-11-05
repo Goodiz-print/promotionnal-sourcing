@@ -14,8 +14,10 @@ export const QUEUE_THRESHOLDS = {
 /**
  * Rapport de santé de la queue, produit par `HealthService.queueReport`.
  * `ok` ne dépend que du backlog et des jobs bloqués ; les échecs sont informatifs.
+ * Déclaré en `type` : le rapport est une prop Inertia (tableau de bord, supervision
+ * de la queue), qu'une `interface` ne satisferait pas.
  */
-export interface QueueHealthReport {
+export type QueueHealthReport = {
   ok: boolean
   pendingOverdue: number
   oldestPendingAgeMs: number | null

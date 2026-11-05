@@ -20,7 +20,8 @@
     "consents": "Consentements",
     "announcements": "Annonces",
     "imports": "Imports",
-    "ai": "IA et traductions"
+    "ai": "IA et traductions",
+    "queue": "File d’attente"
   },
   "pagination": {
     "previous": "Précédent",
@@ -470,7 +471,10 @@
       "import.retried": "Import relancé",
       "import.errors_exported": "Erreurs d'import exportées",
       "ai.backfill_requested": "Rattrapage des traductions lancé",
-      "translation.corrected": "Traduction relue"
+      "translation.corrected": "Traduction relue",
+      "queue_job.retried": "Job de queue relancé",
+      "queue_job.cancelled": "Job de queue annulé",
+      "queue_schedule.run": "Job planifié lancé à la main"
     },
     "targets": {
       "user": "Utilisateur",
@@ -489,7 +493,9 @@
       "announcement": "Annonce",
       "import_job": "Import",
       "ai_backfill": "Rattrapage IA",
-      "translation": "Traduction"
+      "translation": "Traduction",
+      "queue_job": "Job de queue",
+      "queue_schedule": "Job planifié"
     }
   },
   "demand": {
@@ -1290,6 +1296,91 @@
       },
       "corrected": "Traduction enregistrée : elle ne sera plus écrasée par l'IA.",
       "invalid": "Le nom ne peut pas être vide."
+    }
+  },
+  "queue": {
+    "title": "File d’attente",
+    "subtitle": "Santé de la queue, jobs en attente, actifs ou échoués, et jobs planifiés.",
+    "resultsCount": "{count, plural, =0 {Aucun job} one {# job} other {# jobs}}",
+    "empty": "Aucun job ne correspond.",
+    "emptyDescription": "Les jobs apparaissent ici dès qu’ils sont mis en file.",
+    "back": "Retour à la file d’attente",
+    "showTitle": "Job {name}",
+    "summary": "Résumé",
+    "minutes": "{count} min",
+    "stuck": "Bloqué",
+    "overdue": "En retard",
+    "statuses": {
+      "pending": "En attente",
+      "delayed": "Différé",
+      "active": "Actif",
+      "completed": "Terminé",
+      "failed": "Échoué"
+    },
+    "health": {
+      "title": "Santé de la queue",
+      "checkedAt": "Mesurée le {date}",
+      "ok": "La queue est saine : aucun retard ni job bloqué.",
+      "ko": "La queue est en difficulté : le worker est peut-être arrêté ou figé.",
+      "details": "Voir la file d’attente",
+      "pendingOverdue": "Jobs en retard",
+      "pendingOverdueHint": "Échéance dépassée de plus de {minutes} min",
+      "oldestPending": "Plus ancien en attente",
+      "stuckActive": "Jobs bloqués",
+      "stuckActiveHint": "Actifs depuis plus de {minutes} min",
+      "failedLast24h": "Échecs sur 24 h"
+    },
+    "filters": {
+      "status": "État",
+      "name": "Nom du job",
+      "all": "Tous"
+    },
+    "columns": {
+      "job": "Job",
+      "status": "État",
+      "attempts": "Essais",
+      "date": "Date",
+      "error": "Erreur",
+      "actions": "Actions"
+    },
+    "actions": {
+      "retry": "Relancer",
+      "cancel": "Annuler",
+      "retryConfirm": "Relancer le job {name} ?",
+      "cancelConfirm": "Annuler définitivement le job {name} ? Il sera supprimé de la file."
+    },
+    "detail": {
+      "worker": "Worker",
+      "executeAt": "Échéance",
+      "acquiredAt": "Pris en charge le",
+      "finishedAt": "Terminé le",
+      "error": "Erreur",
+      "noError": "Aucune erreur.",
+      "payload": "Charge utile",
+      "payloadHint": "Peut contenir des données personnelles ; tronquée à 4 000 caractères."
+    },
+    "schedules": {
+      "title": "Jobs planifiés",
+      "description": "Définis dans le planificateur ; le lancement manuel ne modifie pas le prochain passage.",
+      "empty": "Aucun job planifié.",
+      "every": "Toutes les {seconds} s",
+      "run": "Lancer maintenant",
+      "confirmRun": "Lancer le job {name} maintenant ?",
+      "columns": {
+        "job": "Job",
+        "timing": "Planification",
+        "lastRun": "Dernier passage",
+        "nextRun": "Prochain passage",
+        "runs": "Passages"
+      }
+    },
+    "flash": {
+      "retried": "Le job est remis en file.",
+      "notRetryable": "Ce job ne peut plus être relancé.",
+      "cancelled": "Le job est annulé.",
+      "notCancellable": "Ce job ne peut plus être annulé.",
+      "scheduleRun": "Le job planifié est mis en file.",
+      "notRunnable": "Ce job planifié ne peut pas être lancé à la main."
     }
   }
 }

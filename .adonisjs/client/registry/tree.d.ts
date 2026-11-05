@@ -238,6 +238,15 @@ export interface ApiDefinition {
         correct: typeof routes['admin.ai.translations.correct']
       }
     }
+    queue: {
+      index: typeof routes['admin.queue.index']
+      show: typeof routes['admin.queue.show']
+      retry: typeof routes['admin.queue.retry']
+      cancel: typeof routes['admin.queue.cancel']
+      schedules: {
+        run: typeof routes['admin.queue.schedules.run']
+      }
+    }
     products: {
       index: typeof routes['admin.products.index']
       show: typeof routes['admin.products.show']

@@ -876,6 +876,36 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"ai"],[0,"translations"],[1,"entity"],[1,"id"],[1,"translationLocale"]],
     types: placeholder as Registry['admin.ai.translations.correct']['types'],
   },
+  'admin.queue.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/queue',
+    tokens: [[1,"locale"],[0,"admin"],[0,"queue"]],
+    types: placeholder as Registry['admin.queue.index']['types'],
+  },
+  'admin.queue.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/queue/jobs/:queue/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"queue"],[0,"jobs"],[1,"queue"],[1,"id"]],
+    types: placeholder as Registry['admin.queue.show']['types'],
+  },
+  'admin.queue.retry': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/queue/jobs/:queue/:id/retry',
+    tokens: [[1,"locale"],[0,"admin"],[0,"queue"],[0,"jobs"],[1,"queue"],[1,"id"],[0,"retry"]],
+    types: placeholder as Registry['admin.queue.retry']['types'],
+  },
+  'admin.queue.cancel': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/queue/jobs/:queue/:id/cancel',
+    tokens: [[1,"locale"],[0,"admin"],[0,"queue"],[0,"jobs"],[1,"queue"],[1,"id"],[0,"cancel"]],
+    types: placeholder as Registry['admin.queue.cancel']['types'],
+  },
+  'admin.queue.schedules.run': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/queue/schedules/:id/run',
+    tokens: [[1,"locale"],[0,"admin"],[0,"queue"],[0,"schedules"],[1,"id"],[0,"run"]],
+    types: placeholder as Registry['admin.queue.schedules.run']['types'],
+  },
   'admin.products.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/products',

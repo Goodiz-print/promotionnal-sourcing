@@ -20,7 +20,8 @@
     "consents": "Consents",
     "announcements": "Announcements",
     "imports": "Imports",
-    "ai": "AI and translations"
+    "ai": "AI and translations",
+    "queue": "Queue"
   },
   "pagination": {
     "previous": "Anterior",
@@ -470,7 +471,10 @@
       "import.retried": "Import retried",
       "import.errors_exported": "Import errors exported",
       "ai.backfill_requested": "Translation backfill started",
-      "translation.corrected": "Translation reviewed"
+      "translation.corrected": "Translation reviewed",
+      "queue_job.retried": "Queue job retried",
+      "queue_job.cancelled": "Queue job cancelled",
+      "queue_schedule.run": "Scheduled job run manually"
     },
     "targets": {
       "user": "Utilizador",
@@ -489,7 +493,9 @@
       "announcement": "Announcement",
       "import_job": "Import",
       "ai_backfill": "AI backfill",
-      "translation": "Translation"
+      "translation": "Translation",
+      "queue_job": "Queue job",
+      "queue_schedule": "Scheduled job"
     }
   },
   "demand": {
@@ -1290,6 +1296,91 @@
       },
       "corrected": "Translation saved: the AI will no longer overwrite it.",
       "invalid": "The name cannot be empty."
+    }
+  },
+  "queue": {
+    "title": "Queue",
+    "subtitle": "Queue health, pending, active and failed jobs, and scheduled jobs.",
+    "resultsCount": "{count, plural, =0 {No jobs} one {# job} other {# jobs}}",
+    "empty": "No matching job.",
+    "emptyDescription": "Jobs appear here as soon as they are queued.",
+    "back": "Back to the queue",
+    "showTitle": "Job {name}",
+    "summary": "Summary",
+    "minutes": "{count} min",
+    "stuck": "Stuck",
+    "overdue": "Overdue",
+    "statuses": {
+      "pending": "Pending",
+      "delayed": "Delayed",
+      "active": "Active",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "health": {
+      "title": "Queue health",
+      "checkedAt": "Measured on {date}",
+      "ok": "The queue is healthy: no backlog and no stuck job.",
+      "ko": "The queue is struggling: the worker may be stopped or frozen.",
+      "details": "See the queue",
+      "pendingOverdue": "Overdue jobs",
+      "pendingOverdueHint": "Past due for more than {minutes} min",
+      "oldestPending": "Oldest pending",
+      "stuckActive": "Stuck jobs",
+      "stuckActiveHint": "Active for more than {minutes} min",
+      "failedLast24h": "Failures in 24 h"
+    },
+    "filters": {
+      "status": "Status",
+      "name": "Job name",
+      "all": "All"
+    },
+    "columns": {
+      "job": "Job",
+      "status": "Status",
+      "attempts": "Attempts",
+      "date": "Date",
+      "error": "Error",
+      "actions": "Actions"
+    },
+    "actions": {
+      "retry": "Retry",
+      "cancel": "Cancel",
+      "retryConfirm": "Retry the {name} job?",
+      "cancelConfirm": "Permanently cancel the {name} job? It will be removed from the queue."
+    },
+    "detail": {
+      "worker": "Worker",
+      "executeAt": "Due at",
+      "acquiredAt": "Picked up at",
+      "finishedAt": "Finished at",
+      "error": "Error",
+      "noError": "No error.",
+      "payload": "Payload",
+      "payloadHint": "May contain personal data; truncated to 4,000 characters."
+    },
+    "schedules": {
+      "title": "Scheduled jobs",
+      "description": "Defined in the scheduler; a manual run does not change the next run.",
+      "empty": "No scheduled job.",
+      "every": "Every {seconds} s",
+      "run": "Run now",
+      "confirmRun": "Run the {name} job now?",
+      "columns": {
+        "job": "Job",
+        "timing": "Schedule",
+        "lastRun": "Last run",
+        "nextRun": "Next run",
+        "runs": "Runs"
+      }
+    },
+    "flash": {
+      "retried": "The job is back in the queue.",
+      "notRetryable": "This job can no longer be retried.",
+      "cancelled": "The job is cancelled.",
+      "notCancellable": "This job can no longer be cancelled.",
+      "scheduleRun": "The scheduled job is queued.",
+      "notRunnable": "This scheduled job cannot be run manually."
     }
   }
 }
