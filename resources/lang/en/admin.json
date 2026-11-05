@@ -18,7 +18,8 @@
     "orders": "Orders",
     "messaging": "Messaging",
     "consents": "Consents",
-    "announcements": "Announcements"
+    "announcements": "Announcements",
+    "imports": "Imports"
   },
   "pagination": {
     "previous": "Previous",
@@ -464,7 +465,9 @@
       "message_report.dismissed": "Report dismissed",
       "consent.exported": "Consent proof exported",
       "announcement.created": "Announcement created",
-      "announcement.retried": "Announcement retried"
+      "announcement.retried": "Announcement retried",
+      "import.retried": "Import retried",
+      "import.errors_exported": "Import errors exported"
     },
     "targets": {
       "user": "User",
@@ -480,7 +483,8 @@
       "conversation": "Conversation",
       "message": "Message",
       "message_report": "Message report",
-      "announcement": "Announcement"
+      "announcement": "Announcement",
+      "import_job": "Import"
     }
   },
   "demand": {
@@ -1122,5 +1126,61 @@
       "notRetryable": "This announcement cannot be retried."
     },
     "retry": "Retry"
+  },
+  "imports": {
+    "title": "Imports",
+    "subtitle": "Tracking of bulk imports started by organisations: progress, row-level errors and retry.",
+    "resultsCount": "{count, plural, =0 {No imports} one {# import} other {# imports}}",
+    "empty": "No matching import.",
+    "emptyDescription": "Imports show up here as soon as an organisation starts one.",
+    "back": "Back to imports",
+    "showTitle": "Import #{id}",
+    "summary": "Summary",
+    "filters": {
+      "status": "Status",
+      "kind": "Type",
+      "organization": "Organisation",
+      "all": "All"
+    },
+    "columns": {
+      "id": "Import",
+      "organization": "Organisation",
+      "kind": "Type",
+      "status": "Status",
+      "progress": "Progress",
+      "errors": "Errors",
+      "date": "Created on",
+      "createdBy": "Started by"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "running": "Running",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "kinds": {
+      "products_csv": "Products (CSV)",
+      "suppliers_csv": "Suppliers (CSV)"
+    },
+    "progress": "{done} / {total} rows",
+    "finishedAt": "Finished on",
+    "retryOf": "Retry of import",
+    "retriedBy": "Retried by import",
+    "retry": "Retry import",
+    "exportErrors": "Export errors (CSV)",
+    "errorsTitle": "Errors",
+    "errorsDescription": "{shown} error(s) kept out of {total}.",
+    "noErrors": "No error recorded.",
+    "wholeFile": "Whole file",
+    "errorColumns": {
+      "row": "Row",
+      "column": "Column",
+      "message": "Message",
+      "value": "Received value"
+    },
+    "flash": {
+      "retried": "Import retried: a new import has been queued.",
+      "notRetryable": "This import cannot be retried (already retried, in progress or completed)."
+    }
   }
 }

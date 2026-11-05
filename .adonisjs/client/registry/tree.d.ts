@@ -225,6 +225,12 @@ export interface ApiDefinition {
       store: typeof routes['admin.announcements.store']
       retry: typeof routes['admin.announcements.retry']
     }
+    imports: {
+      index: typeof routes['admin.imports.index']
+      show: typeof routes['admin.imports.show']
+      retry: typeof routes['admin.imports.retry']
+      errors: typeof routes['admin.imports.errors']
+    }
     products: {
       index: typeof routes['admin.products.index']
       show: typeof routes['admin.products.show']

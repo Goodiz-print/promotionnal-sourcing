@@ -36,3 +36,12 @@ export class AdminUserNotFoundException extends Exception {
   static code = 'E_ADMIN_USER_NOT_FOUND'
   static message = 'User not found'
 }
+
+/**
+ * Import introuvable dans le back-office (`/admin/imports/:id`).
+ */
+export class AdminImportNotFoundException extends Exception {
+  static status = 404
+  static code = 'E_ADMIN_IMPORT_NOT_FOUND'
+  static message = 'Import not found'
+}

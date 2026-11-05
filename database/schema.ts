@@ -569,6 +569,7 @@ export class ImportJobSchema extends BaseModel {
     'kind',
     'organizationId',
     'processedRows',
+    'retryOfImportId',
     'sourceStorageObjectId',
     'startedAt',
     'status',
@@ -594,6 +595,8 @@ export class ImportJobSchema extends BaseModel {
   declare organizationId: number
   @column()
   declare processedRows: number
+  @column()
+  declare retryOfImportId: number | null
   @column()
   declare sourceStorageObjectId: number | null
   @column.dateTime()

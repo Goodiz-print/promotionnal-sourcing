@@ -35,6 +35,7 @@ const SECTIONS: { key: string; route: string; permission: PlatformPermission }[]
   { key: 'orders', route: 'admin.orders.index', permission: 'trade.view' },
   { key: 'demand', route: 'admin.demand.index', permission: 'monitoring.view' },
   { key: 'announcements', route: 'admin.announcements.index', permission: 'announcements.manage' },
+  { key: 'imports', route: 'admin.imports.index', permission: 'imports.manage' },
   { key: 'consents', route: 'admin.consents.index', permission: 'audit.view' },
   { key: 'audit', route: 'admin.audit.index', permission: 'audit.view' },
 ]

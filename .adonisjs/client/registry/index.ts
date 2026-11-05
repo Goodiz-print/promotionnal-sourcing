@@ -828,6 +828,30 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"announcements"],[1,"id"],[0,"retry"]],
     types: placeholder as Registry['admin.announcements.retry']['types'],
   },
+  'admin.imports.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/imports',
+    tokens: [[1,"locale"],[0,"admin"],[0,"imports"]],
+    types: placeholder as Registry['admin.imports.index']['types'],
+  },
+  'admin.imports.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/imports/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"imports"],[1,"id"]],
+    types: placeholder as Registry['admin.imports.show']['types'],
+  },
+  'admin.imports.retry': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/imports/:id/retry',
+    tokens: [[1,"locale"],[0,"admin"],[0,"imports"],[1,"id"],[0,"retry"]],
+    types: placeholder as Registry['admin.imports.retry']['types'],
+  },
+  'admin.imports.errors': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/imports/:id/errors',
+    tokens: [[1,"locale"],[0,"admin"],[0,"imports"],[1,"id"],[0,"errors"]],
+    types: placeholder as Registry['admin.imports.errors']['types'],
+  },
   'admin.products.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/products',
