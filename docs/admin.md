@@ -40,7 +40,7 @@ Table `admin_audit_logs`, **en ajout seul** (`AdminAuditService` n'expose que `r
 | `changes`                      | `jsonb` : `before` / `after` (jamais de secret) ; `source: 'cli'` pour une commande ace  |
 | `ip_address`, `created_at`     | origine de la requête et horodatage                                                      |
 
-Actions tracees aujourd'hui : `platform_role.changed` (ecran Utilisateurs et commandes ace, sans acteur dans ce second cas), `category.created` / `.updated` / `.deleted` / `.reordered`, `attribute.created` / `.updated` / `.deleted`, `attribute_value.created` / `.updated` / `.deleted`, `certification.created` / `.updated` / `.deleted`, `marking_technique.created` / `.updated` / `.deleted`, `category_attribute.added` / `.updated` / `.removed` (cibles `category`, `attribute`, `attribute_value`, `certification`, `marking_technique`, `category_attribute`).
+Actions tracees aujourd'hui : `platform_role.changed` (ecran Utilisateurs et commandes ace, sans acteur dans ce second cas), `category.created` / `.updated` / `.deleted` / `.reordered`, `attribute.created` / `.updated` / `.deleted`, `attribute_value.created` / `.updated` / `.deleted`, `certification.created` / `.updated` / `.deleted`, `marking_technique.created` / `.updated` / `.deleted`, `category_attribute.added` / `.updated` / `.removed` (cibles `category`, `attribute`, `attribute_value`, `certification`, `marking_technique`, `category_attribute`), `conversation.viewed` / `.blocked` / `.unblocked`, `message.hidden` / `.unhidden` / `.warned`, `message_report.dismissed` (cibles `conversation`, `message`, `message_report`).
 
 **Règle pour toute nouvelle action d'écriture admin** : le service qui écrit reçoit un `AdminActionContext` (le contrôleur le construit avec `adminActionContext(ctx)`), ouvre une transaction, et appelle `AdminAuditService.record(entry, { ...context, client: trx })` **dans cette transaction** — l'action et sa trace réussissent ou échouent ensemble. Effets de bord asynchrones (queue, mail) : après le commit. Une action sans changement effectif (même valeur) n'écrit rien. Ajouter la valeur à `ADMIN_AUDIT_ACTIONS`, ses libellés `admin.audit.actions.*` dans les 9 langues.
 
@@ -187,3 +187,7 @@ Tests : `tests/functional/admin_organizations.spec.ts` (recherche, filtres, fich
 **Réutilisation** : `ModerationService.decide` pour hide/unhide, `SearchSyncService.queueProduct` pour reindex.
 
 Tests : `tests/functional/admin_products.spec.ts` (droits par rôle, filtres, chaque action + audit + no-op, réindexation).
+
+## Modération de la messagerie (#167)
+
+Droit `moderation.manage` (admin, modérateur). Écrans : `GET /admin/messaging` (fils, sans contenu), `/admin/messaging/reports` (file des signalements), `/admin/messaging/conversations/:id` (fil complet — **chaque ouverture est tracée** par `conversation.viewed`). Décisions : masquer / réafficher un message, avertir son auteur (notification `message.warned`), classer un signalement, bloquer / débloquer un fil (motif obligatoire). Côté participant : `POST /messages/:id/report` (`messages.report`). Détail : `docs/changelog/2026-11-04-moderation-messagerie-admin.md`.

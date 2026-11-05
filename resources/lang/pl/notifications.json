@@ -28,6 +28,9 @@
       "shipped": "{supplierName} wysłał(a) Państwa zamówienie dla zapytania {rfqTitle}.",
       "delivered": "{buyerName} potwierdził(a) odbiór zamówienia dla zapytania {rfqTitle}.",
       "cancelled": "Zamówienie dla zapytania {rfqTitle} zostało anulowane."
+    },
+    "message": {
+      "warned": "A message you wrote received a warning from the platform. Please follow the messaging usage rules."
     }
   }
 }

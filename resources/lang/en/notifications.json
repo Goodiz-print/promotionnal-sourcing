@@ -28,6 +28,9 @@
       "shipped": "{supplierName} shipped your order for {rfqTitle}.",
       "delivered": "{buyerName} confirmed receipt of the order for {rfqTitle}.",
       "cancelled": "The order for {rfqTitle} was cancelled."
+    },
+    "message": {
+      "warned": "A message you wrote received a warning from the platform. Please follow the messaging usage rules."
     }
   }
 }

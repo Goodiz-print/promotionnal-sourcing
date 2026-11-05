@@ -29,6 +29,7 @@ const SECTIONS: { key: string; route: string; permission: PlatformPermission }[]
   },
   { key: 'moderation', route: 'admin.moderation.index', permission: 'moderation.manage' },
   { key: 'agencies', route: 'admin.agency_reviews.index', permission: 'moderation.manage' },
+  { key: 'messaging', route: 'admin.messaging.index', permission: 'moderation.manage' },
   { key: 'rfqs', route: 'admin.rfqs.index', permission: 'trade.view' },
   { key: 'quotes', route: 'admin.quotes.index', permission: 'trade.view' },
   { key: 'orders', route: 'admin.orders.index', permission: 'trade.view' },

@@ -114,6 +114,7 @@ export type ScannedRoutes = {
     'notifications.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'notifications.read': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'notifications.readAll': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'messages.report': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -158,6 +159,15 @@ export type ScannedRoutes = {
     'admin.quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.orders.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.orders.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.messaging.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.messaging.reports': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.messaging.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.messaging.block': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.messaging.unblock': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.messaging.hide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.messaging.unhide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.messaging.warn': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.messaging.dismiss': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.demand.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.demand.export': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -259,6 +269,9 @@ export type ScannedRoutes = {
     'admin.quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.orders.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.orders.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.messaging.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.messaging.reports': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.messaging.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.demand.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.demand.export': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -339,6 +352,9 @@ export type ScannedRoutes = {
     'admin.quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.orders.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.orders.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.messaging.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.messaging.reports': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.messaging.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.demand.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.demand.export': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -391,6 +407,7 @@ export type ScannedRoutes = {
     'supplier.quotes.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
     'supplier.quotes.submit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'notifications.readAll': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'messages.report': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.archive': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.restore': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.resend_invitation': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'invitationId': ParamValue} }
@@ -410,6 +427,12 @@ export type ScannedRoutes = {
     'admin.rfqs.close': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.rfqs.expire': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.rfqs.remind': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.messaging.block': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.messaging.unblock': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.messaging.hide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.messaging.unhide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.messaging.warn': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.messaging.dismiss': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.categories.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.categories.translate': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.attributes.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }

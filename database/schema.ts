@@ -521,6 +521,9 @@ export class ConversationReadSchema extends BaseModel {
 
 export class ConversationSchema extends BaseModel {
   static $columns = [
+    'blockedAt',
+    'blockedByUserId',
+    'blockedReason',
     'buyerOrganizationId',
     'createdAt',
     'createdByUserId',
@@ -531,6 +534,12 @@ export class ConversationSchema extends BaseModel {
     'updatedAt',
   ] as const
   $columns = ConversationSchema.$columns
+  @column.dateTime()
+  declare blockedAt: DateTime | null
+  @column()
+  declare blockedByUserId: number | null
+  @column()
+  declare blockedReason: string | null
   @column()
   declare buyerOrganizationId: number
   @column.dateTime({ autoCreate: true })
@@ -723,12 +732,56 @@ export class MarkingTechniqueSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class MessageReportSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'details',
+    'handledAt',
+    'handledByUserId',
+    'id',
+    'messageId',
+    'reason',
+    'reporterUserId',
+    'resolution',
+    'resolutionNote',
+    'status',
+    'updatedAt',
+  ] as const
+  $columns = MessageReportSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare details: string | null
+  @column.dateTime()
+  declare handledAt: DateTime | null
+  @column()
+  declare handledByUserId: number | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare messageId: number
+  @column()
+  declare reason: string
+  @column()
+  declare reporterUserId: number | null
+  @column()
+  declare resolution: string | null
+  @column()
+  declare resolutionNote: string | null
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class MessageSchema extends BaseModel {
   static $columns = [
     'authorUserId',
     'body',
     'conversationId',
     'createdAt',
+    'hiddenAt',
+    'hiddenByUserId',
     'id',
     'updatedAt',
   ] as const
@@ -741,6 +794,10 @@ export class MessageSchema extends BaseModel {
   declare conversationId: number
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column.dateTime()
+  declare hiddenAt: DateTime | null
+  @column()
+  declare hiddenByUserId: number | null
   @column({ isPrimary: true })
   declare id: number
   @column.dateTime({ autoCreate: true, autoUpdate: true })

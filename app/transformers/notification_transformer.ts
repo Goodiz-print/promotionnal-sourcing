@@ -66,6 +66,9 @@ export default class NotificationTransformer extends BaseTransformer<Notificatio
         break
       case 'organization.member_joined':
         return urlFor('organization.members', { locale })
+      case 'message.warned':
+        // Pas d'écran de messagerie côté utilisateur pour l'instant : la liste fait foi.
+        break
       default:
         break
     }

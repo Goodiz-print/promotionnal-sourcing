@@ -28,6 +28,9 @@
       "shipped": "{supplierName} hat Ihre Bestellung für {rfqTitle} versandt.",
       "delivered": "{buyerName} hat den Erhalt der Bestellung für {rfqTitle} bestätigt.",
       "cancelled": "Die Bestellung für {rfqTitle} wurde storniert."
+    },
+    "message": {
+      "warned": "A message you wrote received a warning from the platform. Please follow the messaging usage rules."
     }
   }
 }

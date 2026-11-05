@@ -28,6 +28,9 @@
       "shipped": "{supplierName} har skickat din beställning för {rfqTitle}.",
       "delivered": "{buyerName} har bekräftat mottagandet av beställningen för {rfqTitle}.",
       "cancelled": "Beställningen för {rfqTitle} har annullerats."
+    },
+    "message": {
+      "warned": "A message you wrote received a warning from the platform. Please follow the messaging usage rules."
     }
   }
 }

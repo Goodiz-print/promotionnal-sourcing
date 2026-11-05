@@ -51,6 +51,13 @@ export const ADMIN_AUDIT_ACTIONS = [
   'product.archived',
   'product.restored',
   'product.reindex_requested',
+  'conversation.viewed',
+  'conversation.blocked',
+  'conversation.unblocked',
+  'message.hidden',
+  'message.unhidden',
+  'message.warned',
+  'message_report.dismissed',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]
@@ -66,6 +73,9 @@ export const ADMIN_AUDIT_TARGET_TYPES = [
   'organization',
   'product',
   'rfq',
+  'conversation',
+  'message',
+  'message_report',
 ] as const
 
 export type AdminAuditTargetType = (typeof ADMIN_AUDIT_TARGET_TYPES)[number]
