@@ -1,5 +1,4 @@
 import { inject } from '@adonisjs/core'
-import db from '@adonisjs/lucid/services/db'
 import ConversationService from '#services/conversation_service'
 import Conversation from '#models/conversation'
 import Message from '#models/message'
@@ -25,6 +24,10 @@ interface ReportInput {
  * signalant : signaler deux fois le même message met à jour le signalement
  * encore ouvert au lieu d'en créer un second.
  */
+/** Violation d'unicité PostgreSQL (SQLSTATE 23505). */
+const isUniqueViolation = (error: unknown): boolean =>
+  typeof error === 'object' && error !== null && (error as { code?: string }).code === '23505'
+
 @inject()
 export default class MessageReportService {
   constructor(private conversations: ConversationService) {}
@@ -45,29 +48,43 @@ export default class MessageReportService {
 
     const details = input.details?.trim().slice(0, MESSAGE_REPORT_NOTE_MAX_LENGTH) || null
 
-    return db.transaction(async (trx) => {
-      const existing = await MessageReport.query({ client: trx })
-        .where('messageId', message.id)
-        .where('reporterUserId', user.id)
-        .forUpdate()
-        .first()
+    const existing = await this.findOwn(message.id, user.id)
+    if (existing) return this.refresh(existing, input.reason, details)
 
-      if (existing) {
-        // Un signalement déjà traité n'est pas rouvert : la décision de la plateforme fait foi.
-        if (existing.status === 'open') existing.merge({ reason: input.reason, details })
-        await existing.save()
-        return existing
-      }
-      return MessageReport.create(
-        {
-          messageId: message.id,
-          reporterUserId: user.id,
-          reason: input.reason,
-          details,
-          status: 'open',
-        },
-        { client: trx }
-      )
-    })
+    try {
+      return await MessageReport.create({
+        messageId: message.id,
+        reporterUserId: user.id,
+        reason: input.reason,
+        details,
+        status: 'open',
+      })
+    } catch (error) {
+      // Deux premiers signalements simultanés du même utilisateur : l'unicité
+      // (message, signalant) départage, le perdant retombe sur le gagnant.
+      if (!isUniqueViolation(error)) throw error
+      return this.refresh(await this.findOwn(message.id, user.id, true), input.reason, details)
+    }
+  }
+
+  private findOwn(messageId: number, userId: number): Promise<MessageReport | null>
+  private findOwn(messageId: number, userId: number, required: true): Promise<MessageReport>
+  private findOwn(messageId: number, userId: number, required = false) {
+    const query = MessageReport.query()
+      .where('messageId', messageId)
+      .where('reporterUserId', userId)
+    return required ? query.firstOrFail() : query.first()
+  }
+
+  /** Un signalement déjà traité n'est pas rouvert : la décision de la plateforme fait foi. */
+  private async refresh(
+    report: MessageReport,
+    reason: MessageReportReason,
+    details: string | null
+  ): Promise<MessageReport> {
+    if (report.status !== 'open') return report
+    report.merge({ reason, details })
+    await report.save()
+    return report
   }
 }

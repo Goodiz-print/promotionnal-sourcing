@@ -1,9 +1,11 @@
 import { DateTime } from 'luxon'
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 import db from '@adonisjs/lucid/services/db'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import AdminAuditService from '#services/admin_audit_service'
 import NotificationService from '#services/notification_service'
+import AdminAuditLog from '#models/admin_audit_log'
 import Conversation from '#models/conversation'
 import Message from '#models/message'
 import MessageReport from '#models/message_report'
@@ -85,6 +87,13 @@ export default class AdminMessagingActionService {
     const message = await db.transaction(async (trx) => {
       const locked = await this.lockMessage(messageId, trx)
       if (!locked.authorUserId) throw new AdminMessagingStateException()
+      // Un seul avertissement par message : sinon l'action est rejouable à l'infini.
+      const warned = await AdminAuditLog.query({ client: trx })
+        .where('action', 'message.warned')
+        .where('target_type', 'message')
+        .where('target_id', locked.id)
+        .first()
+      if (warned) throw new AdminMessagingStateException()
 
       await this.resolveOpenReports(locked.id, 'warned', note, context, trx)
       await this.audit.record(
@@ -95,9 +104,13 @@ export default class AdminMessagingActionService {
     })
 
     // Canal secondaire, hors transaction : l'avertissement est déjà tracé.
-    await this.notifications.notify({ id: message.authorUserId! }, 'message.warned', {
-      conversationId: message.conversationId,
-    })
+    try {
+      await this.notifications.notify({ id: message.authorUserId! }, 'message.warned', {
+        conversationId: message.conversationId,
+      })
+    } catch (error) {
+      logger.error({ err: error, messageId: message.id }, 'message warning notification failed')
+    }
     return message
   }
 

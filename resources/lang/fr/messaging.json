@@ -1,5 +1,6 @@
 {
   "flash": {
-    "reported": "Merci, votre signalement a été transmis à l'équipe de modération."
+    "reported": "Merci, votre signalement a été transmis à l'équipe de modération.",
+    "alreadyHandled": "Ce message a déjà été examiné par l'équipe de modération."
   }
 }

@@ -148,10 +148,15 @@ export default class ConversationService {
     ])
   }
 
-  /** Messages d'un fil, du plus ancien au plus récent. */
+  /**
+   * Messages d'un fil visibles par les participants, du plus ancien au plus
+   * récent. Un message masqué par la plateforme (#167) n'est jamais renvoyé :
+   * seule la modération le lit encore (`AdminMessagingService`).
+   */
   messagesOf(conversation: Conversation) {
     return Message.query()
       .where('conversationId', conversation.id)
+      .whereNull('hiddenAt')
       .orderBy('createdAt', 'asc')
       .orderBy('id', 'asc')
   }

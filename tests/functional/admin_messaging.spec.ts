@@ -210,6 +210,22 @@ test.group('Messagerie — signalement par un participant', (group) => {
     assert.equal(reports[0].reporterUserId, buyerUser.id)
   })
 
+  test('signaler un message déjà traité ne rouvre rien', async ({ client, assert }) => {
+    const { buyerUser, fromSupplier } = await thread()
+    await report(client, buyerUser, fromSupplier.id)
+    const stored = await MessageReport.firstOrFail()
+    const moderator = await UserFactory.apply('platformModerator').create()
+    await post(client, moderator, `/admin/messaging/reports/${stored.id}/dismiss`)
+
+    const response = await report(client, buyerUser, fromSupplier.id, 'fraud')
+    assert.isBelow(response.status(), 400)
+
+    await stored.refresh()
+    assert.equal(stored.status, 'resolved')
+    assert.equal(stored.reason, 'off_platform')
+    assert.lengthOf(await MessageReport.all(), 1)
+  })
+
   test('on ne signale pas son propre message', async ({ client, assert }) => {
     const { buyerUser, fromBuyer } = await thread()
     const response = await report(client, buyerUser, fromBuyer.id)
@@ -309,6 +325,51 @@ test.group('Messagerie admin — décisions', (group) => {
     assert.lengthOf(await AdminAuditLog.query().where('action', 'message.warned'), 1)
     await fromSupplier.refresh()
     assert.isNull(fromSupplier.hiddenAt)
+  })
+
+  test('avertir deux fois le même message est refusé', async ({ client, assert }) => {
+    const { supplierUser, fromSupplier } = await thread()
+    const moderator = await UserFactory.apply('platformModerator').create()
+    const path = `/admin/messaging/messages/${fromSupplier.id}/warn`
+
+    const first = await post(client, moderator, path)
+    assert.isBelow(first.status(), 400)
+    const twice = await post(client, moderator, path)
+    twice.assertStatus(409)
+
+    assert.lengthOf(await Notification.query().where('userId', supplierUser.id), 1)
+    assert.lengthOf(await AdminAuditLog.query().where('action', 'message.warned'), 1)
+  })
+
+  test('avertir un message sans auteur connu est refusé', async ({ client, assert }) => {
+    const { conversation } = await thread()
+    const orphan = await MessageFactory.merge({
+      conversationId: conversation.id,
+      authorUserId: null,
+    }).create()
+    const moderator = await UserFactory.apply('platformModerator').create()
+
+    const response = await post(client, moderator, `/admin/messaging/messages/${orphan.id}/warn`)
+    response.assertStatus(409)
+    assert.lengthOf(await AdminAuditLog.all(), 0)
+  })
+
+  test('un message masqué n’est plus renvoyé aux participants, un fil bloqué reste lisible', async ({
+    client,
+    assert,
+  }) => {
+    const { conversation, fromSupplier } = await thread()
+    const moderator = await UserFactory.apply('platformModerator').create()
+    const service = new ConversationService(new RealtimeService())
+
+    await post(client, moderator, `/admin/messaging/messages/${fromSupplier.id}/hide`)
+    await post(client, moderator, `/admin/messaging/conversations/${conversation.id}/block`, {
+      reason: 'Contournement répété',
+    })
+
+    const visible = await service.messagesOf(await Conversation.findOrFail(conversation.id))
+    assert.lengthOf(visible, 1)
+    assert.notEqual(visible[0].id, fromSupplier.id)
   })
 
   test('classer sans suite un signalement ouvert, une seule fois', async ({ client, assert }) => {

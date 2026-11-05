@@ -87,8 +87,6 @@ export type AdminMessagingActionOptions = {
 
 export type AdminMessageActionOptions = AdminMessagingActionOptions & {
   messageId: number
-  /** Signalement à clore avec l'action, quand elle en découle. */
-  reportId?: number | null
   note?: string | null
 }
 

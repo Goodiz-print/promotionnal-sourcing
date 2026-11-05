@@ -13,9 +13,11 @@ export default class MessageReportController {
 
   async store({ auth, request, response, params, session, i18n }: HttpContext) {
     const payload = await request.validateUsing(reportMessageValidator)
-    await this.service.report(auth.getUserOrFail(), Number(params.id), payload)
+    const report = await this.service.report(auth.getUserOrFail(), Number(params.id), payload)
 
-    session.flash('success', i18n.t('messaging.flash.reported'))
+    // Déjà traité par la plateforme : on ne prétend pas avoir transmis un nouveau signalement.
+    const key = report.status === 'open' ? 'reported' : 'alreadyHandled'
+    session.flash('success', i18n.t(`messaging.flash.${key}`))
     return response.redirect().back()
   }
 }

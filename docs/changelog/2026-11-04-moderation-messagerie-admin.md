@@ -12,6 +12,8 @@ Issue #167 : la plateforme consulte, modère et peut bloquer les conversations a
 ## Côté participant
 
 - `POST /:locale/messages/:id/report` (`messages.report`, `MessageReportController`), corps `{ reason: 'spam' | 'abuse' | 'off_platform' | 'fraud' | 'other', details? }`. Il faut appartenir à l'une des deux organisations du fil ; sinon 404 (pas de fuite d'existence). Signaler son propre message : 422. Signaler deux fois le même message met à jour le signalement encore ouvert (un signalement déjà traité n'est jamais rouvert).
+- Un message masqué n'est plus renvoyé aux participants (`ConversationService.messagesOf`).
+- Signaler un message déjà traité n'envoie rien : le message affiché l'indique (`messaging.flash.alreadyHandled`). Deux premiers signalements simultanés ne créent pas d'erreur (l'unicité départage).
 - Un fil bloqué refuse tout nouveau message (`ConversationBlockedException`, 409) ; la lecture reste possible.
 - Aucun écran de conversation n'existe encore côté utilisateur : le bouton « Signaler » viendra s'y brancher sur cette route.
 
@@ -22,7 +24,7 @@ Issue #167 : la plateforme consulte, modère et peut bloquer les conversations a
 - `GET /admin/messaging/conversations/:id` : fil complet, messages et signalements. **Chaque ouverture écrit `conversation.viewed`** dans la même transaction que la lecture : sans trace, pas de lecture.
 - Décisions (une trace d'audit chacune, dans la même transaction ; 409 si l'action est sans objet) :
   - `POST /admin/messaging/messages/:id/hide` / `unhide` : masque ou réaffiche un message. Masquer clôt les signalements ouverts du message (résolution `hidden`).
-  - `POST /admin/messaging/messages/:id/warn` : notification in-app `message.warned` à l'auteur ; clôt les signalements ouverts (résolution `warned`).
+  - `POST /admin/messaging/messages/:id/warn` (un seul avertissement par message, 409 ensuite) : notification in-app `message.warned` à l'auteur ; clôt les signalements ouverts (résolution `warned`).
   - `POST /admin/messaging/reports/:id/dismiss` : classe sans suite.
   - `POST /admin/messaging/conversations/:id/block` (motif obligatoire) / `unblock`.
 - Audit : `conversation.viewed`, `conversation.blocked`, `conversation.unblocked`, `message.hidden`, `message.unhidden`, `message.warned`, `message_report.dismissed` (cibles `conversation`, `message`, `message_report`).
