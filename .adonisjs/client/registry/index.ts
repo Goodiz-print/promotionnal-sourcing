@@ -804,6 +804,30 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"consents"],[0,"export"]],
     types: placeholder as Registry['admin.consents.export']['types'],
   },
+  'admin.announcements.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/announcements',
+    tokens: [[1,"locale"],[0,"admin"],[0,"announcements"]],
+    types: placeholder as Registry['admin.announcements.index']['types'],
+  },
+  'admin.announcements.create': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/announcements/new',
+    tokens: [[1,"locale"],[0,"admin"],[0,"announcements"],[0,"new"]],
+    types: placeholder as Registry['admin.announcements.create']['types'],
+  },
+  'admin.announcements.store': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/announcements',
+    tokens: [[1,"locale"],[0,"admin"],[0,"announcements"]],
+    types: placeholder as Registry['admin.announcements.store']['types'],
+  },
+  'admin.announcements.retry': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/announcements/:id/retry',
+    tokens: [[1,"locale"],[0,"admin"],[0,"announcements"],[1,"id"],[0,"retry"]],
+    types: placeholder as Registry['admin.announcements.retry']['types'],
+  },
   'admin.products.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/products',

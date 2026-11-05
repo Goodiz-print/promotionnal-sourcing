@@ -74,5 +74,9 @@
       "title": "Servono ulteriori informazioni",
       "body": "Per approvare l'iscrizione di «{organizationName}», il team ha bisogno di informazioni aggiuntive. Rispondi a questa email."
     }
+  },
+  "announcement": {
+    "footer": "Ricevi questo messaggio perché hai un account su {brandName}.",
+    "cta": "Apri {brandName}"
   }
 }

@@ -74,5 +74,9 @@
       "title": "More information needed",
       "body": "To approve the signup of “{organizationName}”, the team needs more information. Please reply to this email."
     }
+  },
+  "announcement": {
+    "footer": "You are receiving this message because you have an account on {brandName}.",
+    "cta": "Open {brandName}"
   }
 }

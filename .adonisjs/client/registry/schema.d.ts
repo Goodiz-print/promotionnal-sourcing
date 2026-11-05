@@ -1736,6 +1736,58 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/consent_controller').default['export']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'admin.announcements.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/announcements'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_announcement').adminAnnouncementFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.announcements.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/announcements/new'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['create']>>>
+    }
+  }
+  'admin.announcements.store': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/announcements'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_announcement').adminAnnouncementValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_announcement').adminAnnouncementValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.announcements.retry': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/announcements/:id/retry'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['retry']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['retry']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['retry']>>>
+    }
+  }
   'admin.products.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/products'

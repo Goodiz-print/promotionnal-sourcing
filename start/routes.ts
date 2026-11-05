@@ -403,6 +403,20 @@ router
                   .get('admin/consents/export', [controllers.admin.Consent, 'export'])
                   .as('admin.consents.export')
 
+                // Annonces plateforme (#169) : historique, création et mise en queue de l'envoi.
+                router
+                  .get('admin/announcements', [controllers.admin.Announcement, 'index'])
+                  .as('admin.announcements.index')
+                router
+                  .get('admin/announcements/new', [controllers.admin.Announcement, 'create'])
+                  .as('admin.announcements.create')
+                router
+                  .post('admin/announcements', [controllers.admin.Announcement, 'store'])
+                  .as('admin.announcements.store')
+                router
+                  .post('admin/announcements/:id/retry', [controllers.admin.Announcement, 'retry'])
+                  .as('admin.announcements.retry')
+
                 // Administration du catalogue produits (#164) : liste, fiche et actions.
                 router
                   .get('admin/products', [controllers.admin.Product, 'index'])

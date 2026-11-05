@@ -74,5 +74,9 @@
       "title": "Meer informatie nodig",
       "body": "Om de aanmelding van “{organizationName}” goed te keuren, heeft het team meer informatie nodig. Beantwoord deze e-mail."
     }
+  },
+  "announcement": {
+    "footer": "Je ontvangt dit bericht omdat je een account hebt bij {brandName}.",
+    "cta": "{brandName} openen"
   }
 }

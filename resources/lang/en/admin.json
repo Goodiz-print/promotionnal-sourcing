@@ -17,7 +17,8 @@
     "quotes": "Quotes",
     "orders": "Orders",
     "messaging": "Messaging",
-    "consents": "Consents"
+    "consents": "Consents",
+    "announcements": "Announcements"
   },
   "pagination": {
     "previous": "Previous",
@@ -461,7 +462,9 @@
       "message.unhidden": "Message shown again",
       "message.warned": "Message author warned",
       "message_report.dismissed": "Report dismissed",
-      "consent.exported": "Consent proof exported"
+      "consent.exported": "Consent proof exported",
+      "announcement.created": "Announcement created",
+      "announcement.retried": "Announcement retried"
     },
     "targets": {
       "user": "User",
@@ -476,7 +479,8 @@
       "rfq": "Quote request",
       "conversation": "Conversation",
       "message": "Message",
-      "message_report": "Message report"
+      "message_report": "Message report",
+      "announcement": "Announcement"
     }
   },
   "demand": {
@@ -1056,5 +1060,67 @@
     },
     "section": "Consent proof signed by this organization.",
     "viewList": "View consents"
+  },
+  "announcements": {
+    "title": "Announcements",
+    "subtitle": "Messages from the team sent as in-app notifications and/or by email to a segment of users. Delivery is asynchronous.",
+    "resultsCount": "{count, plural, =0 {No announcements} one {# announcement} other {# announcements}}",
+    "empty": "No announcement has been sent yet.",
+    "emptyDescription": "Create an announcement to inform your users.",
+    "new": "New announcement",
+    "back": "Back to announcements",
+    "createTitle": "New announcement",
+    "createSubtitle": "Choose the segment and channels, then write the message. French is required; English is used for recipients whose language is not provided.",
+    "columns": {
+      "title": "Title",
+      "audience": "Segment",
+      "channels": "Channels",
+      "status": "Status",
+      "recipients": "Recipients",
+      "readRate": "Read (in-app)",
+      "createdBy": "Sent by",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "audiences": {
+      "all": "All users",
+      "buyers": "Buyers",
+      "suppliers": "Suppliers",
+      "agencies": "Agencies",
+      "organization": "One organization"
+    },
+    "channels": {
+      "inApp": "In-app notification",
+      "email": "Email"
+    },
+    "statuses": {
+      "queued": "Queued",
+      "sending": "Sending",
+      "sent": "Sent",
+      "failed": "Failed"
+    },
+    "readRate": "{read} / {total} ({percent}%)",
+    "noInApp": "No in-app notification",
+    "form": {
+      "audience": "Segment",
+      "audienceOption": "{label} ({count} users)",
+      "organizationId": "Organization ID",
+      "organizationHint": "Visible in the URL of the organization page.",
+      "channels": "Delivery channels",
+      "emailHint": "Emails are only sent to verified addresses, in the account's language.",
+      "titleFr": "Title (French)",
+      "bodyFr": "Message (French)",
+      "titleEn": "Title (English)",
+      "bodyEn": "Message (English)",
+      "confirm": "I confirm sending this announcement to the selected segment.",
+      "submit": "Send announcement",
+      "cancel": "Cancel"
+    },
+    "flash": {
+      "queued": "The announcement is being sent.",
+      "retried": "The announcement is being sent again.",
+      "notRetryable": "This announcement cannot be retried."
+    },
+    "retry": "Retry"
   }
 }

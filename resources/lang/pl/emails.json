@@ -74,5 +74,9 @@
       "title": "Potrzebne dodatkowe informacje",
       "body": "Aby zatwierdzić rejestrację „{organizationName}”, zespół potrzebuje dodatkowych informacji. Odpowiedz na tę wiadomość."
     }
+  },
+  "announcement": {
+    "footer": "Otrzymujesz tę wiadomość, ponieważ masz konto w {brandName}.",
+    "cta": "Otwórz {brandName}"
   }
 }

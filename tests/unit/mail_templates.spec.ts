@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { test } from '@japa/runner'
 import app from '@adonisjs/core/services/app'
 import AgencyReviewDecisionNotification from '#mails/agency_review_decision_notification'
+import AnnouncementNotification from '#mails/announcement_notification'
 import EmailVerificationNotification from '#mails/email_verification_notification'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
 import PasswordResetNotification from '#mails/password_reset_notification'
@@ -208,5 +209,33 @@ test.group('Mails — fichiers de langue', () => {
     for (const locale of SUPPORTED_LOCALES) {
       assert.deepEqual(flatten(load(locale)).sort(), reference, locale)
     }
+  })
+})
+
+test.group('Mails — annonce plateforme', () => {
+  test('le titre est le sujet, le texte est échappé et le pied de page est traduit', async ({
+    assert,
+  }) => {
+    const footers = new Set<string>()
+
+    for (const locale of SUPPORTED_LOCALES) {
+      const { subject, html } = await render(
+        new AnnouncementNotification(
+          'user@example.com',
+          'Maintenance dimanche',
+          'Ligne 1\n<script>alert(1)</script>',
+          locale
+        ) as never
+      )
+
+      assert.equal(subject, 'Maintenance dimanche', locale)
+      assert.notInclude(html, 'emails.', locale)
+      assert.notInclude(html, '<script>', locale)
+      assert.include(html, '&lt;script&gt;', locale)
+      assert.include(html, `<html lang="${locale}">`)
+      footers.add(html.match(/<div class="footer">([\s\S]*?)<\/div>/)?.[1].trim() ?? '')
+    }
+
+    assert.equal(footers.size, SUPPORTED_LOCALES.length)
   })
 })

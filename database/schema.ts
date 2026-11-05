@@ -838,8 +838,19 @@ export class ModerationDecisionSchema extends BaseModel {
 }
 
 export class NotificationSchema extends BaseModel {
-  static $columns = ['createdAt', 'data', 'id', 'readAt', 'type', 'updatedAt', 'userId'] as const
+  static $columns = [
+    'announcementId',
+    'createdAt',
+    'data',
+    'id',
+    'readAt',
+    'type',
+    'updatedAt',
+    'userId',
+  ] as const
   $columns = NotificationSchema.$columns
+  @column()
+  declare announcementId: number | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()

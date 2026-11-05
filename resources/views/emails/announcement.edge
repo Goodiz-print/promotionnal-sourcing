@@ -1,0 +1,9 @@
+@component('emails/layout', {
+  title,
+  locale,
+  i18n,
+  footer: t('emails.announcement.footer', { brandName }),
+})
+  <p style="white-space: pre-line">{{ body }}</p>
+  <p><a class="button" href="{{ appUrl }}">{{ t('emails.announcement.cta', { brandName }) }}</a></p>
+@end

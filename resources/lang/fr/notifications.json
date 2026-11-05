@@ -31,6 +31,7 @@
     },
     "message": {
       "warned": "Un message que vous avez écrit a fait l'objet d'un avertissement de la part de la plateforme. Merci de respecter les règles d'usage de la messagerie."
-    }
+    },
+    "announcement": "{title} — {body}"
   }
 }

@@ -219,6 +219,12 @@ export interface ApiDefinition {
       index: typeof routes['admin.consents.index']
       export: typeof routes['admin.consents.export']
     }
+    announcements: {
+      index: typeof routes['admin.announcements.index']
+      create: typeof routes['admin.announcements.create']
+      store: typeof routes['admin.announcements.store']
+      retry: typeof routes['admin.announcements.retry']
+    }
     products: {
       index: typeof routes['admin.products.index']
       show: typeof routes['admin.products.show']

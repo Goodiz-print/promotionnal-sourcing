@@ -74,5 +74,9 @@
       "title": "Informations complémentaires",
       "body": "Pour valider l'inscription de « {organizationName} », l'équipe a besoin d'informations supplémentaires. Répondez-nous par retour de mail."
     }
+  },
+  "announcement": {
+    "footer": "Vous recevez ce message car vous avez un compte {brandName}.",
+    "cta": "Ouvrir {brandName}"
   }
 }
