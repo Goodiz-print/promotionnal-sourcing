@@ -195,3 +195,7 @@ Droit `moderation.manage` (admin, modérateur). Écrans : `GET /admin/messaging`
 ## Consentements légaux (#168)
 
 Droit `audit.view` (admin seul : IP et email). `GET /admin/consents` (liste filtrable, repère les versions dépassées) et `GET /admin/consents/export?organizationId=` (CSV de preuve, tracé par `consent.exported`). Les parcours fournisseur n'écrivent pas encore de consentement. Détail : `docs/changelog/2026-11-05-consentements-legaux-admin.md`.
+
+## Annonces plateforme (#169)
+
+Droit `announcements.manage` (admin seul). `GET /admin/announcements` (historique avec taux de lecture in-app), `GET /admin/announcements/new` et `POST /admin/announcements` : envoi à un segment (tous, acheteurs, fournisseurs, agences, une organisation) en notification in-app et/ou par mail, contenu fr (obligatoire) et en, distribué par la queue (`SendAnnouncementJob`) et tracé par `announcement.created`. Détail : `docs/changelog/2026-11-05-annonces-plateforme-admin.md`.

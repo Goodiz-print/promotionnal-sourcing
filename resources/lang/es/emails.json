@@ -74,5 +74,9 @@
       "title": "Se necesita más información",
       "body": "Para aprobar el alta de «{organizationName}», el equipo necesita información adicional. Responda a este email."
     }
+  },
+  "announcement": {
+    "footer": "Recibes este mensaje porque tienes una cuenta en {brandName}.",
+    "cta": "Abrir {brandName}"
   }
 }

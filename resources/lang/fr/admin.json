@@ -17,7 +17,8 @@
     "quotes": "Devis",
     "orders": "Commandes",
     "messaging": "Messagerie",
-    "consents": "Consentements"
+    "consents": "Consentements",
+    "announcements": "Annonces"
   },
   "pagination": {
     "previous": "Précédent",
@@ -461,7 +462,8 @@
       "message.unhidden": "Message réaffiché",
       "message.warned": "Auteur de message averti",
       "message_report.dismissed": "Signalement classé sans suite",
-      "consent.exported": "Preuve de consentement exportée"
+      "consent.exported": "Preuve de consentement exportée",
+      "announcement.created": "Annonce créée"
     },
     "targets": {
       "user": "Utilisateur",
@@ -476,7 +478,8 @@
       "rfq": "Demande de devis",
       "conversation": "Conversation",
       "message": "Message",
-      "message_report": "Signalement de message"
+      "message_report": "Signalement de message",
+      "announcement": "Annonce"
     }
   },
   "demand": {
@@ -1056,5 +1059,63 @@
     },
     "section": "Preuves de consentement signées par cette organisation.",
     "viewList": "Voir les consentements"
+  },
+  "announcements": {
+    "title": "Annonces",
+    "subtitle": "Messages de l'équipe envoyés en notification dans l'application et/ou par mail à un segment d'utilisateurs. L'envoi est asynchrone.",
+    "resultsCount": "{count, plural, =0 {Aucune annonce} one {# annonce} other {# annonces}}",
+    "empty": "Aucune annonce n'a encore été émise.",
+    "emptyDescription": "Créez une annonce pour informer vos utilisateurs.",
+    "new": "Nouvelle annonce",
+    "back": "Retour aux annonces",
+    "createTitle": "Nouvelle annonce",
+    "createSubtitle": "Choisissez le segment, les canaux et rédigez le message. Le français est obligatoire ; l'anglais sert aux destinataires dont la langue n'est pas renseignée.",
+    "columns": {
+      "title": "Titre",
+      "audience": "Segment",
+      "channels": "Canaux",
+      "status": "Statut",
+      "recipients": "Destinataires",
+      "readRate": "Lues (in-app)",
+      "createdBy": "Envoyée par",
+      "date": "Date"
+    },
+    "audiences": {
+      "all": "Tous les utilisateurs",
+      "buyers": "Acheteurs",
+      "suppliers": "Fournisseurs",
+      "agencies": "Agences",
+      "organization": "Une organisation"
+    },
+    "channels": {
+      "inApp": "Notification in-app",
+      "email": "Mail"
+    },
+    "statuses": {
+      "queued": "En attente",
+      "sending": "En cours d'envoi",
+      "sent": "Envoyée",
+      "failed": "Échec"
+    },
+    "readRate": "{read} / {total} ({percent} %)",
+    "noInApp": "Pas de notification in-app",
+    "form": {
+      "audience": "Segment",
+      "audienceOption": "{label} ({count} utilisateurs)",
+      "organizationId": "Identifiant de l'organisation",
+      "organizationHint": "Visible dans l'URL de la fiche organisation.",
+      "channels": "Canaux d'envoi",
+      "emailHint": "Les mails ne partent que vers les adresses vérifiées, dans la langue du compte.",
+      "titleFr": "Titre (français)",
+      "bodyFr": "Message (français)",
+      "titleEn": "Titre (anglais)",
+      "bodyEn": "Message (anglais)",
+      "confirm": "Je confirme l'envoi de cette annonce au segment choisi.",
+      "submit": "Envoyer l'annonce",
+      "cancel": "Annuler"
+    },
+    "flash": {
+      "queued": "L'annonce est en cours d'envoi."
+    }
   }
 }

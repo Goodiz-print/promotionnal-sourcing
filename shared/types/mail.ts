@@ -20,6 +20,7 @@ export const MAIL_KINDS = {
   emailVerification: 'email-verification',
   contactRequest: 'contact-request',
   agencyReviewDecision: 'agency-review-decision',
+  announcement: 'announcement',
 } as const
 
 export type MailKind = (typeof MAIL_KINDS)[keyof typeof MAIL_KINDS]
@@ -125,6 +126,15 @@ export interface AgencyReviewDecisionMailData {
 }
 
 /**
+ * Données du mail d'une annonce plateforme (`AnnouncementNotification`) : titre et
+ * texte déjà choisis dans la langue du destinataire par la distribution (#169).
+ */
+export interface AnnouncementMailData {
+  title: string
+  body: string
+}
+
+/**
  * `to` est hissé hors de `data` : il est commun à tous les mails, ce qui permet
  * de loguer le destinataire dans `failed()` sans connaître le `kind`.
  *
@@ -184,6 +194,12 @@ export type SendMailContent =
       to: string
       locale: Locale
       data: AgencyReviewDecisionMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.announcement
+      to: string
+      locale: Locale
+      data: AnnouncementMailData
     }
 
 /**

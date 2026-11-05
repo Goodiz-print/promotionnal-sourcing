@@ -59,6 +59,7 @@ export const ADMIN_AUDIT_ACTIONS = [
   'message.warned',
   'message_report.dismissed',
   'consent.exported',
+  'announcement.created',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]
@@ -77,6 +78,7 @@ export const ADMIN_AUDIT_TARGET_TYPES = [
   'conversation',
   'message',
   'message_report',
+  'announcement',
 ] as const
 
 export type AdminAuditTargetType = (typeof ADMIN_AUDIT_TARGET_TYPES)[number]

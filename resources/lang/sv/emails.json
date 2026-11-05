@@ -74,5 +74,9 @@
       "title": "Mer information behövs",
       "body": "För att godkänna registreringen av ”{organizationName}” behöver teamet mer information. Svara på det här meddelandet."
     }
+  },
+  "announcement": {
+    "footer": "Du får det här meddelandet eftersom du har ett konto hos {brandName}.",
+    "cta": "Öppna {brandName}"
   }
 }

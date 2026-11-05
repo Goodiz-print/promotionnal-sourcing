@@ -74,5 +74,9 @@
       "title": "São necessárias mais informações",
       "body": "Para aprovar o registo de «{organizationName}», a equipa precisa de informações adicionais. Responda a este email."
     }
+  },
+  "announcement": {
+    "footer": "Recebe esta mensagem porque tem uma conta em {brandName}.",
+    "cta": "Abrir {brandName}"
   }
 }

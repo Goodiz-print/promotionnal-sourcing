@@ -74,5 +74,9 @@
       "title": "Weitere Informationen erforderlich",
       "body": "Um die Anmeldung von „{organizationName}“ freizugeben, benötigt das Team weitere Informationen. Bitte antworten Sie auf diese E-Mail."
     }
+  },
+  "announcement": {
+    "footer": "Sie erhalten diese Nachricht, weil Sie ein Konto bei {brandName} haben.",
+    "cta": "{brandName} öffnen"
   }
 }

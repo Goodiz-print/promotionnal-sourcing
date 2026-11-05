@@ -108,4 +108,11 @@ test.group('Droits des rôles plateforme', () => {
       assert.isFalse(platformRoleHasPermission(role, 'trade.manage'), role)
     }
   })
+
+  test('seul admin envoie des annonces à la plateforme', ({ assert }) => {
+    assert.isTrue(platformRoleHasPermission('admin', 'announcements.manage'))
+    for (const role of ['moderator', 'support', 'analyst'] as const) {
+      assert.isFalse(platformRoleHasPermission(role, 'announcements.manage'), role)
+    }
+  })
 })
