@@ -24,6 +24,17 @@ const aiConfig = {
   },
 
   /**
+   * Tarif par million de tokens, pour estimer le coût affiché dans le back-office
+   * (#177). Aucun tarif par défaut : ils changent, et un coût inventé induirait en
+   * erreur. Sans tarif, seuls les tokens sont affichés.
+   */
+  pricing: {
+    inputPerMillion: env.get('AI_PRICE_INPUT_PER_MILLION'),
+    outputPerMillion: env.get('AI_PRICE_OUTPUT_PER_MILLION'),
+    currency: env.get('AI_PRICE_CURRENCY', 'EUR'),
+  },
+
+  /**
    * Recherche par image : un modèle vision Mistral (Pixtral) décrit la photo en
    * mots-clés, puis la recherche hybride du catalogue prend le relais. Désactivée
    * par défaut ; sans clé Mistral elle reste indisponible.

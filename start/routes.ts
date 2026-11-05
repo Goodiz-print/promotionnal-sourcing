@@ -434,6 +434,22 @@ router
                   .where('id', router.matchers.number())
                   .as('admin.imports.errors')
 
+                // IA et traductions (#177) : tableau de bord, rattrapage et relecture.
+                router.get('admin/ai', [controllers.admin.Ai, 'index']).as('admin.ai.index')
+                router
+                  .post('admin/ai/backfill', [controllers.admin.Ai, 'backfill'])
+                  .as('admin.ai.backfill')
+                router
+                  .get('admin/ai/translations', [controllers.admin.Ai, 'translations'])
+                  .as('admin.ai.translations')
+                router
+                  .patch('admin/ai/translations/:entity/:id/:translationLocale', [
+                    controllers.admin.Ai,
+                    'correct',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.ai.translations.correct')
+
                 // Administration du catalogue produits (#164) : liste, fiche et actions.
                 router
                   .get('admin/products', [controllers.admin.Product, 'index'])

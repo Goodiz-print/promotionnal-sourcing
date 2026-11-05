@@ -203,3 +203,7 @@ Droit `announcements.manage` (admin seul). `GET /admin/announcements` (historiqu
 ## Suivi des imports (#170)
 
 Droit `imports.manage` (admin seul : les erreurs reprennent des valeurs saisies par les fournisseurs). `GET /admin/imports` (liste filtrable par statut, type et organisation), `GET /admin/imports/:id` (progression, erreurs conservées, chaîne de relances), `POST /admin/imports/:id/retry` (nouvel import mis en queue par `RunImportJob`, tracé par `import.retried`) et `GET /admin/imports/:id/errors` (CSV des erreurs, tracé par `import.errors_exported`). Le moteur de traitement relève de #77 : tant qu'il n'existe pas, un import relancé est clos en échec avec un motif explicite. Détail : `docs/changelog/2026-11-05-suivi-imports-admin.md`.
+
+## IA et traductions (#177)
+
+Droit `ai.manage` (admin seul). `GET /admin/ai` (appels, échecs, tokens, coût estimé, couverture par langue, volume, derniers échecs), `POST /admin/ai/backfill` (rattrapage des traductions, traité par `TranslationBackfillJob`, un lancement toutes les 10 minutes, tracé par `ai.backfill_requested`), `GET /admin/ai/translations` et `PATCH /admin/ai/translations/:entity/:id/:translationLocale` (relecture : une traduction corrigée ou validée devient manuelle et n'est plus écrasée, tracée par `translation.corrected`). Les appels sont journalisés dans `ai_calls` par `TranslationService`. Le coût demande `AI_PRICE_INPUT_PER_MILLION` / `AI_PRICE_OUTPUT_PER_MILLION`. Détail : `docs/changelog/2026-11-05-suivi-ia-traductions-admin.md`.

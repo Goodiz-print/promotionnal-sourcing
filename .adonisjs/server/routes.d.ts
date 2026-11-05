@@ -145,6 +145,10 @@ export type ScannedRoutes = {
     'admin.imports.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.imports.retry': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.imports.errors': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.ai.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.ai.backfill': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.ai.translations': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.ai.translations.correct': { paramsTuple: [ParamValue,ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'entity': ParamValue,'id': ParamValue,'translationLocale': ParamValue} }
     'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.products.hide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -274,6 +278,8 @@ export type ScannedRoutes = {
     'admin.imports.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.imports.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.imports.errors': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.ai.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.ai.translations': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -364,6 +370,8 @@ export type ScannedRoutes = {
     'admin.imports.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.imports.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.imports.errors': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.ai.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.ai.translations': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -442,6 +450,7 @@ export type ScannedRoutes = {
     'admin.announcements.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.announcements.retry': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.imports.retry': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.ai.backfill': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.hide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.products.unhide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.products.unpublish': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -490,6 +499,7 @@ export type ScannedRoutes = {
     'admin.organizations.change_type': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.member_role': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'membershipId': ParamValue} }
     'admin.users.platform_role.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.ai.translations.correct': { paramsTuple: [ParamValue,ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'entity': ParamValue,'id': ParamValue,'translationLocale': ParamValue} }
     'admin.categories.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.categories.move': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.attributes.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }

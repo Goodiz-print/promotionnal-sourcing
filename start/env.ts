@@ -103,6 +103,10 @@ export default await Env.create(new URL('../', import.meta.url), {
   MISTRAL_EMBED_MODEL: Env.schema.string.optional(),
   AI_TRANSLATION_ENABLED: Env.schema.boolean.optional(),
   MISTRAL_TRANSLATION_MODEL: Env.schema.string.optional(),
+  // Tarif de la traduction (par million de tokens) : sert à estimer le coût dans le back-office
+  AI_PRICE_INPUT_PER_MILLION: Env.schema.number.optional(),
+  AI_PRICE_OUTPUT_PER_MILLION: Env.schema.number.optional(),
+  AI_PRICE_CURRENCY: Env.schema.string.optional(),
   // Recherche par image (modèle vision Mistral)
   AI_VISION_ENABLED: Env.schema.boolean.optional(),
   MISTRAL_VISION_MODEL: Env.schema.string.optional(),

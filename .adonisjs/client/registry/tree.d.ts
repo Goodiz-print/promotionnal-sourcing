@@ -231,6 +231,13 @@ export interface ApiDefinition {
       retry: typeof routes['admin.imports.retry']
       errors: typeof routes['admin.imports.errors']
     }
+    ai: {
+      index: typeof routes['admin.ai.index']
+      backfill: typeof routes['admin.ai.backfill']
+      translations: typeof routes['admin.ai.translations'] & {
+        correct: typeof routes['admin.ai.translations.correct']
+      }
+    }
     products: {
       index: typeof routes['admin.products.index']
       show: typeof routes['admin.products.show']

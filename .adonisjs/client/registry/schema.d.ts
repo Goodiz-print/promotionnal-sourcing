@@ -1840,6 +1840,58 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/import_controller').default['errors']>>>
     }
   }
+  'admin.ai.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/ai'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/ai_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/ai_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/ai_controller').default['index']>>>
+    }
+  }
+  'admin.ai.backfill': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/ai/backfill'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_ai').adminAiBackfillValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_ai').adminAiBackfillValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/ai_controller').default['backfill']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/ai_controller').default['backfill']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/ai_controller').default['backfill']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.ai.translations': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/ai/translations'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_ai').adminAiTranslationFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/ai_controller').default['translations']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/ai_controller').default['translations']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/ai_controller').default['translations']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.ai.translations.correct': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/ai/translations/:entity/:id/:translationLocale'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_ai').adminAiCorrectionValidator)>>
+      paramsTuple: [ParamValue, ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; entity: ParamValue; id: ParamValue; translationLocale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_ai').adminAiCorrectionValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/ai_controller').default['correct']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/ai_controller').default['correct']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/ai_controller').default['correct']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'admin.products.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/products'
