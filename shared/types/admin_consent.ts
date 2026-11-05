@@ -1,7 +1,7 @@
 import type { LegalConsentKind } from '#shared/types/legal'
 
 /** Filtres de la liste des consentements (query string). */
-export interface AdminConsentFilters {
+export type AdminConsentFilters = {
   /** Nom d'organisation, recherche partielle. */
   organization: string | null
   /** Email de l'utilisateur signataire, recherche partielle. */
@@ -13,7 +13,7 @@ export interface AdminConsentFilters {
 }
 
 /** Ligne du journal des consentements (preuve : version, date, IP). */
-export interface AdminConsentRow {
+export type AdminConsentRow = {
   id: number
   kind: LegalConsentKind
   version: string
@@ -27,7 +27,7 @@ export interface AdminConsentRow {
 }
 
 /** Pied de page de l'écran : version courante des textes et consentements à re-signer. */
-export interface AdminConsentOverview {
+export type AdminConsentOverview = {
   currentVersion: string
   outdatedCount: number
 }
