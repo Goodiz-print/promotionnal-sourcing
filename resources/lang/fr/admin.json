@@ -18,7 +18,8 @@
     "orders": "Commandes",
     "messaging": "Messagerie",
     "consents": "Consentements",
-    "announcements": "Annonces"
+    "announcements": "Annonces",
+    "imports": "Imports"
   },
   "pagination": {
     "previous": "Précédent",
@@ -464,7 +465,9 @@
       "message_report.dismissed": "Signalement classé sans suite",
       "consent.exported": "Preuve de consentement exportée",
       "announcement.created": "Annonce créée",
-      "announcement.retried": "Annonce relancée"
+      "announcement.retried": "Annonce relancée",
+      "import.retried": "Import relancé",
+      "import.errors_exported": "Erreurs d'import exportées"
     },
     "targets": {
       "user": "Utilisateur",
@@ -480,7 +483,8 @@
       "conversation": "Conversation",
       "message": "Message",
       "message_report": "Signalement de message",
-      "announcement": "Annonce"
+      "announcement": "Annonce",
+      "import_job": "Import"
     }
   },
   "demand": {
@@ -1122,5 +1126,62 @@
       "notRetryable": "Cette annonce ne peut pas être relancée."
     },
     "retry": "Relancer"
+  },
+  "imports": {
+    "title": "Imports",
+    "subtitle": "Suivi des imports en masse lancés par les organisations : progression, erreurs ligne par ligne et relance.",
+    "resultsCount": "{count, plural, =0 {Aucun import} one {# import} other {# imports}}",
+    "empty": "Aucun import ne correspond.",
+    "emptyDescription": "Les imports apparaissent ici dès qu'une organisation en lance un.",
+    "back": "Retour aux imports",
+    "showTitle": "Import n° {id}",
+    "summary": "Résumé",
+    "filters": {
+      "status": "Statut",
+      "kind": "Type",
+      "organization": "Organisation",
+      "all": "Tous"
+    },
+    "columns": {
+      "id": "Import",
+      "organization": "Organisation",
+      "kind": "Type",
+      "status": "Statut",
+      "progress": "Progression",
+      "errors": "Erreurs",
+      "date": "Créé le",
+      "createdBy": "Lancé par"
+    },
+    "statuses": {
+      "pending": "En attente",
+      "running": "En cours",
+      "completed": "Terminé",
+      "failed": "Échec"
+    },
+    "kinds": {
+      "products_csv": "Produits (CSV)",
+      "suppliers_csv": "Fournisseurs (CSV)"
+    },
+    "progress": "{done} / {total} lignes",
+    "finishedAt": "Terminé le",
+    "retryOf": "Relance de l'import",
+    "retriedBy": "Relancé par l'import",
+    "retry": "Relancer l'import",
+    "exportErrors": "Exporter les erreurs (CSV)",
+    "errorsTitle": "Erreurs",
+    "errorsDescription": "{shown} erreur(s) conservée(s) sur {total}.",
+    "noErrors": "Aucune erreur enregistrée.",
+    "wholeFile": "Fichier entier",
+    "errorColumns": {
+      "row": "Ligne",
+      "column": "Colonne",
+      "message": "Message",
+      "value": "Valeur reçue"
+    },
+    "flash": {
+      "retried": "Import relancé : un nouvel import a été mis en file d'attente.",
+      "notRetryable": "Cet import ne peut pas être relancé (déjà relancé, en cours ou terminé)."
+    },
+    "engineNotice": "Le moteur d'import (#77) n'est pas encore branché : une relance sera aussitôt close en échec. Elle prépare la reprise, sans traiter le fichier."
   }
 }

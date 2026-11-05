@@ -199,3 +199,7 @@ Droit `audit.view` (admin seul : IP et email). `GET /admin/consents` (liste filt
 ## Annonces plateforme (#169)
 
 Droit `announcements.manage` (admin seul). `GET /admin/announcements` (historique avec taux de lecture in-app), `GET /admin/announcements/new` et `POST /admin/announcements` : envoi à un segment (tous, acheteurs, fournisseurs, agences, une organisation) en notification in-app et/ou par mail, contenu fr (obligatoire) et en, distribué par la queue (`SendAnnouncementJob`) et tracé par `announcement.created`. `POST /admin/announcements/:id/retry` relance une annonce échouée ou perdue en queue (`announcement.retried`). Détail : `docs/changelog/2026-11-05-annonces-plateforme-admin.md`.
+
+## Suivi des imports (#170)
+
+Droit `imports.manage` (admin seul : les erreurs reprennent des valeurs saisies par les fournisseurs). `GET /admin/imports` (liste filtrable par statut, type et organisation), `GET /admin/imports/:id` (progression, erreurs conservées, chaîne de relances), `POST /admin/imports/:id/retry` (nouvel import mis en queue par `RunImportJob`, tracé par `import.retried`) et `GET /admin/imports/:id/errors` (CSV des erreurs, tracé par `import.errors_exported`). Le moteur de traitement relève de #77 : tant qu'il n'existe pas, un import relancé est clos en échec avec un motif explicite. Détail : `docs/changelog/2026-11-05-suivi-imports-admin.md`.

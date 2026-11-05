@@ -1788,6 +1788,58 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/announcement_controller').default['retry']>>>
     }
   }
+  'admin.imports.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/imports'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_import').adminImportFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/import_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/import_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/import_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.imports.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/imports/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/import_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/import_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/import_controller').default['show']>>>
+    }
+  }
+  'admin.imports.retry': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/imports/:id/retry'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/import_controller').default['retry']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/import_controller').default['retry']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/import_controller').default['retry']>>>
+    }
+  }
+  'admin.imports.errors': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/imports/:id/errors'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/import_controller').default['errors']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/import_controller').default['errors']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/import_controller').default['errors']>>>
+    }
+  }
   'admin.products.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/products'

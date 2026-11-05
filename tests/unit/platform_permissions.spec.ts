@@ -115,4 +115,11 @@ test.group('Droits des rôles plateforme', () => {
       assert.isFalse(platformRoleHasPermission(role, 'announcements.manage'), role)
     }
   })
+
+  test('seul admin suit et relance les imports', ({ assert }) => {
+    assert.isTrue(platformRoleHasPermission('admin', 'imports.manage'))
+    for (const role of ['moderator', 'support', 'analyst'] as const) {
+      assert.isFalse(platformRoleHasPermission(role, 'imports.manage'), role)
+    }
+  })
 })

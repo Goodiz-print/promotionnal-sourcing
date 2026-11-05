@@ -417,6 +417,23 @@ router
                   .post('admin/announcements/:id/retry', [controllers.admin.Announcement, 'retry'])
                   .as('admin.announcements.retry')
 
+                // Suivi des imports en masse (#170) : liste, fiche, relance et export des erreurs.
+                router
+                  .get('admin/imports', [controllers.admin.Import, 'index'])
+                  .as('admin.imports.index')
+                router
+                  .get('admin/imports/:id', [controllers.admin.Import, 'show'])
+                  .where('id', router.matchers.number())
+                  .as('admin.imports.show')
+                router
+                  .post('admin/imports/:id/retry', [controllers.admin.Import, 'retry'])
+                  .where('id', router.matchers.number())
+                  .as('admin.imports.retry')
+                router
+                  .get('admin/imports/:id/errors', [controllers.admin.Import, 'errors'])
+                  .where('id', router.matchers.number())
+                  .as('admin.imports.errors')
+
                 // Administration du catalogue produits (#164) : liste, fiche et actions.
                 router
                   .get('admin/products', [controllers.admin.Product, 'index'])
