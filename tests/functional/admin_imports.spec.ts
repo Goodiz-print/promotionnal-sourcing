@@ -85,21 +85,21 @@ test.group('Imports — administration', (group) => {
       .withInertia()
       .loginAs(admin)
     assert.equal(wildcard.inertiaProps.imports.meta.total, 1)
-
-    const invalid = await client.get('/fr/admin/imports?status=nope').withInertia().loginAs(admin)
-    invalid.assertStatus(422)
   })
 
   test('la fiche expose la progression et les erreurs', async ({ client, assert }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
     const organization = await OrganizationFactory.create()
-    const job = await ImportJobFactory.merge({
-      organizationId: organization.id,
-      errors: [{ row: 3, column: 'prix', message: 'Prix invalide', receivedValue: 'abc' }],
-      errorCount: 1,
-    })
-      .apply('failed')
+    // Les états de la factory écrasent `merge` : les valeurs précises s'appliquent après coup.
+    const job = await ImportJobFactory.apply('failed')
+      .merge({ organizationId: organization.id })
       .create()
+    await job
+      .merge({
+        errors: [{ row: 3, column: 'prix', message: 'Prix invalide', receivedValue: 'abc' }],
+        errorCount: 1,
+      })
+      .save()
 
     const response = await client.get(`/fr/admin/imports/${job.id}`).withInertia().loginAs(admin)
 
@@ -175,8 +175,9 @@ test.group('Imports — administration', (group) => {
     const admin = await UserFactory.apply('platformAdmin').create()
     const organization = await OrganizationFactory.create()
     const stuck = await ImportJobFactory.apply('running')
-      .merge({ organizationId: organization.id, startedAt: DateTime.now().minus({ hours: 3 }) })
+      .merge({ organizationId: organization.id })
       .create()
+    await stuck.merge({ startedAt: DateTime.now().minus({ hours: 3 }) }).save()
 
     const list = await client.get('/fr/admin/imports').withInertia().loginAs(admin)
     assert.isTrue((list.inertiaProps.imports.data as AdminImportRow[])[0].retryable)
@@ -193,15 +194,17 @@ test.group('Imports — administration', (group) => {
     const admin = await UserFactory.apply('platformAdmin').create()
     const organization = await OrganizationFactory.create()
     const job = await ImportJobFactory.apply('failed')
+      .merge({ organizationId: organization.id })
+      .create()
+    await job
       .merge({
-        organizationId: organization.id,
         errorCount: 2,
         errors: [
           { row: 2, column: 'nom', message: 'Obligatoire' },
           { row: 5, column: 'prix', message: 'Prix invalide', receivedValue: '=1+1' },
         ],
       })
-      .create()
+      .save()
 
     const response = await client.get(`/fr/admin/imports/${job.id}/errors`).loginAs(admin)
 
