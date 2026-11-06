@@ -79,12 +79,13 @@ export type AdminSearchDrift = {
   checkedAt: string
 }
 
+/** Écart non calculable : moteur inerte (`disabled`) ou en erreur pendant le parcours (`failed`). */
+export type AdminSearchDriftFailure = { unavailable: 'disabled' | 'failed' }
+
 /** Synthèse d'une évaluation : le rapport sans le détail des requêtes réussies. */
 export type SearchEvaluationSummary = Omit<SearchEvaluationReport, 'results'> & {
   failures: { id: string; query: string; missing: string[]; unexpected: string[] }[]
 }
-
-export type SearchReindexResult = { indexed: number }
 
 export type AdminSearchRun = {
   id: number
@@ -98,6 +99,11 @@ export type AdminSearchRun = {
   progress: number | null
   evaluation: SearchEvaluationSummary | null
   indexed: number | null
+  /**
+   * En attente ou en cours depuis plus de `SEARCH_RUN_STALE_MS` : le worker a
+   * été perdu en route. Affichée comme interrompue, elle ne bloque plus rien.
+   */
+  stale: boolean
   error: string | null
   requestedBy: string | null
   createdAt: string
@@ -105,13 +111,19 @@ export type AdminSearchRun = {
   finishedAt: string | null
 }
 
-export type AdminSearchOverview = {
-  status: AdminSearchStatus
-  reindexRuns: AdminSearchRun[]
-  evaluationRuns: AdminSearchRun[]
-  /** Une opération est en cours : l'écran se rafraîchit seul. */
-  active: boolean
+/** Historique des opérations, rafraîchi seul pendant le suivi (sans sonder le moteur). */
+export type AdminSearchRuns = {
+  reindex: AdminSearchRun[]
+  evaluation: AdminSearchRun[]
+  /** Une opération de ce type est réellement en cours (hors opérations périmées). */
+  busy: Record<SearchRunKind, boolean>
 }
+
+/** Fournisseur proposé pour une réindexation ciblée. */
+export type AdminSearchSupplierOption = { id: number; name: string }
+
+/** Nombre maximal de fournisseurs proposés dans la liste. */
+export const SEARCH_SUPPLIER_OPTIONS_MAX = 500
 
 /** Issue d'une demande de réindexation ou d'évaluation. */
 export type SearchRequestResult =

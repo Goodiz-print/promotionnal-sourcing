@@ -1420,7 +1420,10 @@
       "title": "PostgreSQL ↔ index gap",
       "hint": "Compares the products visible in PostgreSQL with those in the index. The check scans the whole catalogue, so it runs on demand.",
       "check": "Check the gap",
-      "unavailable": "Cannot compare: the engine is inactive or not responding.",
+      "unavailable": {
+        "disabled": "Cannot compare: search is disabled.",
+        "failed": "The comparison failed: the engine is not responding or returned an error."
+      },
       "inSync": "The index matches PostgreSQL.",
       "outOfSync": "The index differs from PostgreSQL: run a reindex.",
       "checkedAt": "Checked on {date}",
@@ -1433,13 +1436,14 @@
     "reindex": {
       "title": "Reindexing",
       "hint": "Rebuilds the index from PostgreSQL through the queue. A full reindex builds an index alongside, then swaps it in: on failure, the previous one stays in place.",
-      "supplier": "Supplier ID",
-      "supplierHint": "Leave empty to reindex the whole catalogue.",
+      "supplier": "Supplier",
+      "supplierHint": "Choose a supplier to reindex only its products.",
       "submit": "Reindex the whole catalogue",
       "submitSupplier": "Reindex this supplier",
       "confirm": "Rebuild the whole search index?",
       "confirmSupplier": "Reindex this supplier’s products?",
-      "history": "Reindex history"
+      "history": "Reindex history",
+      "allSuppliers": "Whole catalogue"
     },
     "evaluation": {
       "title": "Relevance evaluation",
@@ -1469,7 +1473,8 @@
         "pending": "Pending",
         "running": "Running",
         "completed": "Completed",
-        "failed": "Failed"
+        "failed": "Failed",
+        "interrupted": "Interrupted"
       }
     },
     "flash": {

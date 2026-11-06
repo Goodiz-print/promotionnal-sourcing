@@ -19,7 +19,9 @@ export default class SearchController {
     await bouncer.authorize('hasPlatformPermission', 'search.manage')
 
     return inertia.render('admin/search/index', {
-      overview: await this.service.overview(),
+      status: await this.service.status(),
+      runs: await this.service.runs(),
+      suppliers: await this.service.suppliers(),
       // Parcourt tout le catalogue : calculé à la demande (rechargement partiel).
       drift: inertia.optional(() => this.service.drift()),
     })

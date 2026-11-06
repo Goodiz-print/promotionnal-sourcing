@@ -13,8 +13,11 @@ import {
   SEARCH_PROBE_TIMEOUT_MS,
   SEARCH_RUN_HISTORY,
   SEARCH_RUN_STALE_MS,
+  SEARCH_SUPPLIER_OPTIONS_MAX,
   type AdminSearchDrift,
-  type AdminSearchOverview,
+  type AdminSearchDriftFailure,
+  type AdminSearchRuns,
+  type AdminSearchSupplierOption,
   type AdminSearchRun,
   type AdminSearchRunDbRow,
   type AdminSearchStatus,
@@ -80,14 +83,26 @@ export default class AdminSearchService {
     private evaluation: SearchEvaluationService
   ) {}
 
-  async overview(): Promise<AdminSearchOverview> {
-    const [status, reindexRuns, evaluationRuns] = await Promise.all([
-      this.status(),
-      this.runs('reindex'),
-      this.runs('evaluation'),
+  /** Historique des deux types d'opération et leur état d'occupation. */
+  async runs(): Promise<AdminSearchRuns> {
+    const [reindex, evaluation] = await Promise.all([
+      this.runsOf('reindex'),
+      this.runsOf('evaluation'),
     ])
-    const active = [...reindexRuns, ...evaluationRuns].some((run) => this.isActive(run))
-    return { status, reindexRuns, evaluationRuns, active }
+    const busy = (list: AdminSearchRun[]) =>
+      list.some((run) => (run.status === 'pending' || run.status === 'running') && !run.stale)
+    return { reindex, evaluation, busy: { reindex: busy(reindex), evaluation: busy(evaluation) } }
+  }
+
+  /** Fournisseurs proposés pour une réindexation ciblée, par nom. */
+  async suppliers(): Promise<AdminSearchSupplierOption[]> {
+    const rows: { id: number; name: string | null }[] = await db
+      .from('suppliers')
+      .leftJoin('organizations', 'organizations.id', 'suppliers.organization_id')
+      .select('suppliers.id as id', 'organizations.name as name')
+      .orderByRaw('organizations.name asc nulls last, suppliers.id asc')
+      .limit(SEARCH_SUPPLIER_OPTIONS_MAX)
+    return rows.map((row) => ({ id: row.id, name: row.name ?? `#${row.id}` }))
   }
 
   async status(): Promise<AdminSearchStatus> {
@@ -112,10 +127,14 @@ export default class AdminSearchService {
 
   /**
    * Écart entre ce que PostgreSQL veut dans l'index (produits visibles) et ce
-   * que l'index contient. `null` si le moteur est inerte ou injoignable.
+   * que l'index contient. Une panne ou un moteur inerte est dite, pas masquée.
+   *
+   * Les deux ensembles d'identifiants sont tenus en mémoire (des entiers : une
+   * dizaine de Mo pour un million de produits) ; au-delà, comparer par fenêtres
+   * d'identifiants. Le calcul est lancé à la demande, jamais au chargement.
    */
-  async drift(): Promise<AdminSearchDrift | null> {
-    if (!this.engine.enabled) return null
+  async drift(): Promise<AdminSearchDrift | AdminSearchDriftFailure> {
+    if (!this.engine.enabled) return { unavailable: 'disabled' }
 
     try {
       const expected = new Set<number>()
@@ -136,7 +155,7 @@ export default class AdminSearchService {
       }
     } catch (error) {
       logger.warn({ err: error }, 'search drift check failed')
-      return null
+      return { unavailable: 'failed' }
     }
   }
 
@@ -246,11 +265,19 @@ export default class AdminSearchService {
     const outcome = await db.transaction(async (trx) => {
       await trx.rawQuery('select pg_advisory_xact_lock(?)', [REQUEST_LOCK_KEY])
 
+      // Opérations perdues (worker tué en route) : fermées, elles ne bloquent plus.
+      const cutoff = new Date(Date.now() - SEARCH_RUN_STALE_MS)
+      await trx
+        .from('search_runs')
+        .where('kind', kind)
+        .whereIn('status', ['pending', 'running'])
+        .where('created_at', '<=', cutoff)
+        .update({ status: 'failed', error: 'Interrupted: worker lost', finished_at: new Date() })
+
       const busy = await trx
         .from('search_runs')
         .where('kind', kind)
         .whereIn('status', ['pending', 'running'])
-        .where('created_at', '>', new Date(Date.now() - SEARCH_RUN_STALE_MS))
         .select('id')
         .first()
       if (busy) return 'busy' as const
@@ -308,7 +335,7 @@ export default class AdminSearchService {
     return 'queued'
   }
 
-  private async runs(kind: SearchRunKind): Promise<AdminSearchRun[]> {
+  private async runsOf(kind: SearchRunKind): Promise<AdminSearchRun[]> {
     const rows: AdminSearchRunDbRow[] = await db
       .from('search_runs')
       .where('kind', kind)
@@ -316,13 +343,6 @@ export default class AdminSearchService {
       .limit(SEARCH_RUN_HISTORY)
       .select(...RUN_COLUMNS)
     return rows.map((row) => AdminSearchService.present(row))
-  }
-
-  private isActive(run: AdminSearchRun): boolean {
-    return (
-      (run.status === 'pending' || run.status === 'running') &&
-      Date.now() - new Date(run.createdAt).getTime() < SEARCH_RUN_STALE_MS
-    )
   }
 
   static present(row: AdminSearchRunDbRow): AdminSearchRun {
@@ -347,6 +367,9 @@ export default class AdminSearchService {
             : Math.min(100, Math.round((row.processed / row.total) * 100)),
       evaluation: kind === 'evaluation' ? (result as SearchEvaluationSummary | null) : null,
       indexed: kind === 'reindex' && result ? Number(result.indexed ?? 0) : null,
+      stale:
+        (row.status === 'pending' || row.status === 'running') &&
+        Date.now() - new Date(row.created_at).getTime() >= SEARCH_RUN_STALE_MS,
       error: row.error,
       requestedBy: row.requested_by_email,
       createdAt: iso(row.created_at)!,

@@ -10,8 +10,8 @@ Nouveau droit `search.manage`, porté par le seul rôle `admin`. 403 pour les au
 
 ## Écrans et routes
 
-- `GET /:locale/admin/search` (`admin.search.index`, `SearchController`) : statut du moteur, historique des réindexations et des évaluations (10 dernières de chaque), écart PostgreSQL ↔ index à la demande. La page se rafraîchit toutes les 2 s tant qu'une opération est en cours.
-- `POST /:locale/admin/search/reindex` (`admin.search.reindex`) : met en file une réindexation. Corps optionnel `supplierId` : sans lui, tout le catalogue ; avec lui, les produits de ce fournisseur seulement. Audit `search.reindex_requested`.
+- `GET /:locale/admin/search` (`admin.search.index`, `SearchController`, props `status`, `runs`, `suppliers`, `drift` à la demande) : statut du moteur, historique des réindexations et des évaluations (10 dernières de chaque), écart PostgreSQL ↔ index à la demande. La page se rafraîchit toutes les 2 s tant qu'une opération est en cours.
+- `POST /:locale/admin/search/reindex` (`admin.search.reindex`) : met en file une réindexation. Corps optionnel `supplierId` (liste de fournisseurs, 500 maximum) : sans lui, tout le catalogue ; avec lui, les produits de ce fournisseur seulement. Audit `search.reindex_requested`.
 - `POST /:locale/admin/search/evaluate` (`admin.search.evaluate`) : met en file l'évaluation de pertinence. Audit `search.evaluation_requested`.
 - Tableau de bord (`GET /admin`) : prop `searchDisabled`, vraie quand `MEILISEARCH_HOST` est absent et que le rôle porte `search.manage` ; une alerte renvoie vers l'écran.
 
@@ -27,7 +27,8 @@ Compare les produits visibles (mêmes règles que la fiche publique) aux identif
 
 Table `search_runs` (migration `1794000000007`) : `kind` (`reindex` / `evaluation`), `status` (`pending`, `running`, `completed`, `failed`), périmètre, `processed` / `total` (produits parcourus), `result` (JSON), erreur, auteur, dates. Traitées par `SearchRunJob`, sans nouvel essai automatique.
 
-- Une seule opération d'un même type à la fois ; une demande pendant ce temps est refusée. Une opération restée « en cours » plus de 2 h (worker tué) ne bloque plus.
+- Une seule opération d'un même type à la fois ; une demande pendant ce temps est refusée. Une opération restée « en cours » plus de 2 h (worker tué) est affichée comme interrompue, ne bloque plus l'écran et est refermée en échec par la demande suivante.
+- Pendant une opération, la page ne rafraîchit que l'historique (props `runs`) toutes les 2 s : le moteur n'est pas sondé pendant qu'il indexe. Le statut est rechargé à la fin.
 - Une réindexation complète construit l'index à côté puis l'échange : un échec laisse l'ancien en place. Celle d'un fournisseur réécrit seulement ses produits.
 - Une évaluation conserve le rappel@10, les compteurs, les latences p50 / p95 et les requêtes en échec.
 

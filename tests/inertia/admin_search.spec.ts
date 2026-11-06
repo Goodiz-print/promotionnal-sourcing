@@ -30,7 +30,8 @@ const translations = {
   'admin.search.drift.title': 'Écart',
   'admin.search.drift.hint': 'Compare',
   'admin.search.drift.check': 'Vérifier l’écart',
-  'admin.search.drift.unavailable': 'Impossible de comparer',
+  'admin.search.drift.unavailable.disabled': 'Comparaison impossible : recherche désactivée',
+  'admin.search.drift.unavailable.failed': 'La comparaison a échoué',
   'admin.search.drift.inSync': 'L’index correspond à PostgreSQL.',
   'admin.search.drift.outOfSync': 'L’index diverge de PostgreSQL',
   'admin.search.drift.checkedAt': 'Vérifié le {date}',
@@ -42,7 +43,8 @@ const translations = {
   'admin.search.reindex.title': 'Réindexation',
   'admin.search.reindex.hint': 'Reconstruit',
   'admin.search.reindex.supplier': 'Identifiant du fournisseur',
-  'admin.search.reindex.supplierHint': 'Laissez vide',
+  'admin.search.reindex.supplierHint': 'Choisissez un fournisseur',
+  'admin.search.reindex.allSuppliers': 'Tout le catalogue',
   'admin.search.reindex.submit': 'Réindexer tout le catalogue',
   'admin.search.reindex.submitSupplier': 'Réindexer ce fournisseur',
   'admin.search.reindex.confirm': 'Tout reconstruire ?',
@@ -70,6 +72,7 @@ const translations = {
   'admin.search.runs.statuses.running': 'En cours',
   'admin.search.runs.statuses.completed': 'Terminée',
   'admin.search.runs.statuses.failed': 'Échouée',
+  'admin.search.runs.statuses.interrupted': 'Interrompue',
 }
 
 const post = vi.hoisted(() => vi.fn())
@@ -115,6 +118,7 @@ function run(overrides: Partial<AdminSearchRun> = {}): AdminSearchRun {
     progress: 25,
     evaluation: null,
     indexed: null,
+    stale: false,
     error: null,
     requestedBy: 'admin@example.test',
     createdAt: '2026-11-06T10:00:00.000Z',
@@ -243,39 +247,51 @@ describe('Recherche — écart', () => {
     expect(text).toContain('Ex. : 99')
   })
 
-  it('écart non calculable', () => {
-    const text = mount(SearchDrift, { props: { available: true, drift: null } }).text()
+  it('écart non calculable : dit si la recherche est désactivée ou si le moteur a échoué', () => {
+    const disabled = mount(SearchDrift, {
+      props: { available: true, drift: { unavailable: 'disabled' } },
+    }).text()
+    const failed = mount(SearchDrift, {
+      props: { available: true, drift: { unavailable: 'failed' } },
+    }).text()
 
-    expect(text).toContain('Impossible de comparer')
+    expect(disabled).toContain('recherche désactivée')
+    expect(failed).toContain('La comparaison a échoué')
   })
 })
 
+const suppliers = [
+  { id: 5, name: 'Acme' },
+  { id: 9, name: 'Bureau Plus' },
+]
+
 describe('Recherche — réindexation', () => {
   it('lance la réindexation complète après confirmation', async () => {
-    const wrapper = mount(SearchReindexForm, { props: { enabled: true, busy: false } })
+    const wrapper = mount(SearchReindexForm, { props: { enabled: true, busy: false, suppliers } })
 
     await wrapper.find('form').trigger('submit')
 
     expect(post).toHaveBeenCalledWith('/fr/admin.search.reindex', {}, expect.any(Object))
   })
 
-  it('cible un fournisseur quand son identifiant est saisi', async () => {
-    const wrapper = mount(SearchReindexForm, { props: { enabled: true, busy: false } })
+  it('propose les fournisseurs et cible celui qui est choisi', async () => {
+    const wrapper = mount(SearchReindexForm, { props: { enabled: true, busy: false, suppliers } })
 
-    await wrapper.find('input').setValue('12')
+    expect(wrapper.text()).toContain('Bureau Plus')
+    await wrapper.find('select').setValue('9')
     await wrapper.find('form').trigger('submit')
 
     expect(wrapper.text()).toContain('Réindexer ce fournisseur')
     expect(post).toHaveBeenCalledWith(
       '/fr/admin.search.reindex',
-      { supplierId: 12 },
+      { supplierId: 9 },
       expect.any(Object)
     )
   })
 
   it('n’envoie rien sans confirmation', async () => {
     vi.stubGlobal('confirm', vi.fn().mockReturnValue(false))
-    const wrapper = mount(SearchReindexForm, { props: { enabled: true, busy: false } })
+    const wrapper = mount(SearchReindexForm, { props: { enabled: true, busy: false, suppliers } })
 
     await wrapper.find('form').trigger('submit')
 
@@ -283,7 +299,7 @@ describe('Recherche — réindexation', () => {
   })
 
   it('bouton inactif tant qu’une réindexation est en cours', () => {
-    const wrapper = mount(SearchReindexForm, { props: { enabled: true, busy: true } })
+    const wrapper = mount(SearchReindexForm, { props: { enabled: true, busy: true, suppliers } })
 
     expect(wrapper.find('button').attributes('disabled')).toBeDefined()
   })
@@ -316,6 +332,15 @@ describe('Recherche — historique', () => {
 
     expect(wrapper.text()).toContain('98 produits indexés')
     expect(wrapper.text()).toContain('Acme (n° 5)')
+  })
+
+  it('opération perdue : affichée comme interrompue, pas « en cours »', () => {
+    const text = mount(SearchRuns, {
+      props: { kind: 'reindex', runs: [run({ stale: true })] },
+    }).text()
+
+    expect(text).toContain('Interrompue')
+    expect(text).not.toContain('En cours')
   })
 
   it('échec : message d’erreur visible', () => {

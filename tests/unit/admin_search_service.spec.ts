@@ -1,6 +1,6 @@
 import { test } from '@japa/runner'
 import AdminSearchService from '#services/admin_search_service'
-import type { AdminSearchRunDbRow } from '#shared/types/admin_search'
+import { SEARCH_RUN_STALE_MS, type AdminSearchRunDbRow } from '#shared/types/admin_search'
 import type { SearchEvaluationReport } from '#shared/types/search'
 
 /** Présentation d'une ligne `search_runs` et synthèse d'une évaluation (#176), sans base. */
@@ -55,6 +55,14 @@ test.group('AdminSearchService — présentation', () => {
 
     assert.deepEqual(run.evaluation, summary)
     assert.isNull(run.indexed)
+  })
+
+  test('une opération en cours depuis plus de 2 h est périmée, pas une terminée', ({ assert }) => {
+    const old = new Date(Date.now() - SEARCH_RUN_STALE_MS - 60_000)
+
+    assert.isTrue(AdminSearchService.present(row({ created_at: old })).stale)
+    assert.isFalse(AdminSearchService.present(row({ created_at: new Date() })).stale)
+    assert.isFalse(AdminSearchService.present(row({ created_at: old, status: 'completed' })).stale)
   })
 
   test('dates en ISO, auteur conservé', ({ assert }) => {

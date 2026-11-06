@@ -1420,7 +1420,10 @@
       "title": "Écart PostgreSQL ↔ index",
       "hint": "Compare les produits visibles dans PostgreSQL à ceux de l’index. Le calcul parcourt tout le catalogue : il est lancé à la demande.",
       "check": "Vérifier l’écart",
-      "unavailable": "Impossible de comparer : le moteur est inerte ou ne répond pas.",
+      "unavailable": {
+        "disabled": "Impossible de comparer : la recherche est désactivée.",
+        "failed": "La comparaison a échoué : le moteur ne répond pas ou a renvoyé une erreur."
+      },
       "inSync": "L’index correspond à PostgreSQL.",
       "outOfSync": "L’index diverge de PostgreSQL : lancez une réindexation.",
       "checkedAt": "Vérifié le {date}",
@@ -1433,13 +1436,14 @@
     "reindex": {
       "title": "Réindexation",
       "hint": "Reconstruit l’index depuis PostgreSQL via la queue. Une réindexation complète construit un index à côté puis l’échange : en cas d’échec, l’ancien reste en place.",
-      "supplier": "Identifiant du fournisseur",
-      "supplierHint": "Laissez vide pour réindexer tout le catalogue.",
+      "supplier": "Fournisseur",
+      "supplierHint": "Choisissez un fournisseur pour ne réindexer que ses produits.",
       "submit": "Réindexer tout le catalogue",
       "submitSupplier": "Réindexer ce fournisseur",
       "confirm": "Reconstruire tout l’index de recherche ?",
       "confirmSupplier": "Réindexer les produits de ce fournisseur ?",
-      "history": "Historique des réindexations"
+      "history": "Historique des réindexations",
+      "allSuppliers": "Tout le catalogue"
     },
     "evaluation": {
       "title": "Évaluation de la pertinence",
@@ -1469,7 +1473,8 @@
         "pending": "En attente",
         "running": "En cours",
         "completed": "Terminée",
-        "failed": "Échouée"
+        "failed": "Échouée",
+        "interrupted": "Interrompue"
       }
     },
     "flash": {

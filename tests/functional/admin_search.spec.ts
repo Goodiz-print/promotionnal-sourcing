@@ -11,7 +11,9 @@ import { useDatabase } from '#tests/utils/setup'
 import {
   SEARCH_RUN_STALE_MS,
   type AdminSearchDrift,
-  type AdminSearchOverview,
+  type AdminSearchRuns,
+  type AdminSearchStatus,
+  type AdminSearchSupplierOption,
 } from '#shared/types/admin_search'
 import type { SearchEvaluationReport } from '#shared/types/search'
 
@@ -41,8 +43,9 @@ function useFakeEngine(group: Parameters<typeof useDatabase>[0], enabled = true)
   return state
 }
 
-const overviewOf = (response: { inertiaProps: Record<string, unknown> }) =>
-  response.inertiaProps.overview as AdminSearchOverview
+type Page = { inertiaProps: Record<string, unknown> }
+const statusOf = (response: Page) => response.inertiaProps.status as AdminSearchStatus
+const runsOf = (response: Page) => response.inertiaProps.runs as AdminSearchRuns
 
 test.group('Recherche — droits', (group) => {
   useDatabase(group)
@@ -74,10 +77,9 @@ test.group('Recherche — état du moteur', (group) => {
 
     response.assertStatus(200)
     response.assertInertiaComponent('admin/search/index')
-    const overview = overviewOf(response)
-    assert.equal(overview.status.state, 'disabled')
-    assert.isNull(overview.status.info)
-    assert.isFalse(overview.active)
+    assert.equal(statusOf(response).state, 'disabled')
+    assert.isNull(statusOf(response).info)
+    assert.deepEqual(runsOf(response).busy, { reindex: false, evaluation: false })
     // L’écart n’est calculé qu’à la demande.
     assert.isUndefined(response.inertiaProps.drift)
 
@@ -108,7 +110,7 @@ test.group('Recherche — état du moteur', (group) => {
     try {
       const response = await client.get('/fr/admin/search').withInertia().loginAs(admin)
 
-      const { status } = overviewOf(response)
+      const status = statusOf(response)
       assert.equal(status.state, 'ready')
       assert.equal(status.info!.documents, 42)
       assert.isTrue(status.info!.indexing)
@@ -129,7 +131,7 @@ test.group('Recherche — état du moteur', (group) => {
       const response = await client.get('/fr/admin/search').withInertia().loginAs(admin)
 
       response.assertStatus(200)
-      const { status } = overviewOf(response)
+      const status = statusOf(response)
       assert.equal(status.state, 'unreachable')
       assert.equal(status.error, 'fetch failed')
       assert.isNull(status.info)
@@ -178,33 +180,33 @@ test.group('Recherche — écart PostgreSQL ↔ index', (group) => {
     fake.engine.indexedDocumentIds = [...visible.slice(1), 999_999]
 
     const service = await app.container.make(AdminSearchService)
-    const drift = await service.drift()
+    const drift = (await service.drift()) as AdminSearchDrift
 
-    assert.equal(drift!.expected, visible.length)
-    assert.equal(drift!.indexed, visible.length)
-    assert.deepEqual(drift!.missing, [visible[0]])
-    assert.equal(drift!.missingCount, 1)
-    assert.deepEqual(drift!.extra, [999_999])
-    assert.equal(drift!.extraCount, 1)
+    assert.equal(drift.expected, visible.length)
+    assert.equal(drift.indexed, visible.length)
+    assert.deepEqual(drift.missing, [visible[0]])
+    assert.equal(drift.missingCount, 1)
+    assert.deepEqual(drift.extra, [999_999])
+    assert.equal(drift.extraCount, 1)
   })
 
   test('index identique à PostgreSQL : aucun écart', async ({ assert }) => {
     fake.engine.indexedDocumentIds = await visibleIds()
 
     const service = await app.container.make(AdminSearchService)
-    const drift = await service.drift()
+    const drift = (await service.drift()) as AdminSearchDrift
 
-    assert.equal(drift!.missingCount, 0)
-    assert.equal(drift!.extraCount, 0)
+    assert.equal(drift.missingCount, 0)
+    assert.equal(drift.extraCount, 0)
   })
 
   test('moteur injoignable ou inerte : pas d’écart calculable', async ({ assert }) => {
     fake.engine.indexedDocumentIds = new Error('down')
     const service = await app.container.make(AdminSearchService)
-    assert.isNull(await service.drift())
+    assert.deepEqual(await service.drift(), { unavailable: 'failed' })
 
     fake.engine.enabled = false
-    assert.isNull(await service.drift())
+    assert.deepEqual(await service.drift(), { unavailable: 'disabled' })
   })
 
   test('l’écart est calculé à la demande (rechargement partiel)', async ({ client, assert }) => {
@@ -257,11 +259,33 @@ test.group('Recherche — réindexation', (group) => {
 
     const response = await client.get('/fr/admin/search').withInertia().loginAs(admin)
 
-    const [run] = overviewOf(response).reindexRuns
+    const [run] = runsOf(response).reindex
     assert.equal(run.status, 'completed')
     assert.equal(run.progress, 100)
     assert.isAbove(run.indexed!, 0)
-    assert.isFalse(overviewOf(response).active)
+    assert.isFalse(runsOf(response).busy.reindex)
+  })
+
+  test('une opération réellement en cours rend l’écran occupé, et la liste propose les fournisseurs', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    await db.table('search_runs').insert({
+      kind: 'reindex',
+      status: 'running',
+      processed: 10,
+      total: 100,
+      created_at: new Date(),
+    })
+
+    const page = await client.get('/fr/admin/search').withInertia().loginAs(admin)
+
+    assert.deepEqual(runsOf(page).busy, { reindex: true, evaluation: false })
+    assert.equal(runsOf(page).reindex[0].progress, 10)
+    const suppliers = page.inertiaProps.suppliers as AdminSearchSupplierOption[]
+    assert.isAbove(suppliers.length, 0)
+    assert.isString(suppliers[0].name)
   })
 
   test('limitée à un fournisseur : seuls ses produits sont réindexés', async ({
@@ -316,12 +340,20 @@ test.group('Recherche — réindexation', (group) => {
     assert.equal((await db.from('search_runs').count('* as n').first())!.n, '1')
     assert.lengthOf(fake.engine.replaced, 0)
 
-    // Worker tué en route : l’opération « en cours » ne bloque plus au-delà du délai.
+    // Worker tué en route : l’opération « en cours » est affichée comme interrompue
+    // et ne bloque plus l’écran…
     await db
       .from('search_runs')
       .update({ created_at: new Date(Date.now() - SEARCH_RUN_STALE_MS - 60_000) })
+    const page = await client.get('/fr/admin/search').withInertia().loginAs(admin)
+    assert.isTrue(runsOf(page).reindex[0].stale)
+    assert.isFalse(runsOf(page).busy.reindex)
+
+    // …et une nouvelle demande la referme avant de repartir.
     await post(client, admin, '/fr/admin/search/reindex')
     assert.equal((await db.from('search_runs').count('* as n').first())!.n, '2')
+    const closed = await db.from('search_runs').where('status', 'failed').first()
+    assert.equal(closed.error, 'Interrupted: worker lost')
   })
 
   test('un échec du moteur est conservé sur l’opération, sans planter la requête', async ({
@@ -410,7 +442,7 @@ test.group('Recherche — évaluation', (group) => {
       await post(client, admin, '/fr/admin/search/evaluate')
       const response = await client.get('/fr/admin/search').withInertia().loginAs(admin)
 
-      const [run] = overviewOf(response).evaluationRuns
+      const [run] = runsOf(response).evaluation
       assert.equal(run.status, 'completed')
       assert.equal(run.evaluation!.recallAt10, 0.75)
       assert.equal(run.evaluation!.passed, 1)

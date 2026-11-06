@@ -51,8 +51,8 @@ const TONES: Record<SearchRunStatus, 'neutral' | 'info' | 'success' | 'danger'> 
       <tr v-for="run in runs" :key="run.id">
         <td>{{ dateTime(run.createdAt) }}</td>
         <td>
-          <BaseBadge :tone="TONES[run.status]">{{
-            t(`admin.search.runs.statuses.${run.status}`)
+          <BaseBadge :tone="run.stale ? 'warning' : TONES[run.status]">{{
+            t(`admin.search.runs.statuses.${run.stale ? 'interrupted' : run.status}`)
           }}</BaseBadge>
           <span v-if="run.error" class="block max-w-xs truncate text-caption text-danger">
             {{ run.error }}

@@ -5,21 +5,21 @@ import { DatabaseZap } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
-import BaseInput from '~/components/base/base_input.vue'
+import BaseSelect from '~/components/base/base_select.vue'
 import BaseSection from '~/components/base/base_section.vue'
+import type { AdminSearchSupplierOption } from '#shared/types/admin_search'
 
 /**
  * Réindexation depuis PostgreSQL, traitée par la queue : complète (index
  * reconstruit à côté puis échangé, l'ancien reste en place en cas d'échec) ou
  * limitée aux produits d'un fournisseur.
  */
-defineProps<{ enabled: boolean; busy: boolean }>()
+defineProps<{ enabled: boolean; busy: boolean; suppliers: AdminSearchSupplierOption[] }>()
 
 const { t, locale } = useI18n()
-// Un champ numérique renvoie un nombre une fois saisi, une chaîne vide sinon.
-const supplierId = ref<string | number | null>('')
+const supplierId = ref<number | null>(null)
 const sending = ref(false)
-const scope = computed(() => String(supplierId.value ?? '').trim())
+const scope = computed(() => supplierId.value !== null)
 
 function submit() {
   const confirmation = scope.value
@@ -29,7 +29,7 @@ function submit() {
 
   router.post(
     urlFor('admin.search.reindex', { locale: locale.value }),
-    scope.value ? { supplierId: Number(scope.value) } : {},
+    supplierId.value === null ? {} : { supplierId: supplierId.value },
     {
       preserveScroll: true,
       onStart: () => (sending.value = true),
@@ -45,13 +45,17 @@ function submit() {
     :description="t('admin.search.reindex.hint')"
   >
     <form class="flex flex-wrap items-end gap-4" @submit.prevent="submit">
-      <BaseInput
+      <BaseSelect
         id="search-reindex-supplier"
         v-model="supplierId"
-        type="number"
         :label="t('admin.search.reindex.supplier')"
         :hint="t('admin.search.reindex.supplierHint')"
-      />
+      >
+        <option :value="null">{{ t('admin.search.reindex.allSuppliers') }}</option>
+        <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">
+          {{ supplier.name }}
+        </option>
+      </BaseSelect>
       <BaseButton type="submit" :disabled="!enabled || busy || sending">
         <DatabaseZap :size="16" aria-hidden="true" />
         {{ t(scope ? 'admin.search.reindex.submitSupplier' : 'admin.search.reindex.submit') }}
