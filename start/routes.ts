@@ -478,6 +478,22 @@ router
                   .post('admin/search/evaluate', [controllers.admin.Search, 'evaluate'])
                   .as('admin.search.evaluate')
 
+                // Supervision des emails en échec et du stockage Cellar (#178).
+                router.get('admin/mail', [controllers.admin.Mail, 'index']).as('admin.mail.index')
+                router
+                  .post('admin/mail/retry', [controllers.admin.Mail, 'retryAll'])
+                  .as('admin.mail.retryAll')
+                router.get('admin/mail/:id', [controllers.admin.Mail, 'show']).as('admin.mail.show')
+                router
+                  .post('admin/mail/:id/retry', [controllers.admin.Mail, 'retry'])
+                  .as('admin.mail.retry')
+                router
+                  .get('admin/storage', [controllers.admin.Storage, 'index'])
+                  .as('admin.storage.index')
+                router
+                  .post('admin/storage/recover', [controllers.admin.Storage, 'recover'])
+                  .as('admin.storage.recover')
+
                 // Administration du catalogue produits (#164) : liste, fiche et actions.
                 router
                   .get('admin/products', [controllers.admin.Product, 'index'])

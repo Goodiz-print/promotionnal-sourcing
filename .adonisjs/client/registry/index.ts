@@ -924,6 +924,42 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"search"],[0,"evaluate"]],
     types: placeholder as Registry['admin.search.evaluate']['types'],
   },
+  'admin.mail.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/mail',
+    tokens: [[1,"locale"],[0,"admin"],[0,"mail"]],
+    types: placeholder as Registry['admin.mail.index']['types'],
+  },
+  'admin.mail.retryAll': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/mail/retry',
+    tokens: [[1,"locale"],[0,"admin"],[0,"mail"],[0,"retry"]],
+    types: placeholder as Registry['admin.mail.retryAll']['types'],
+  },
+  'admin.mail.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/mail/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"mail"],[1,"id"]],
+    types: placeholder as Registry['admin.mail.show']['types'],
+  },
+  'admin.mail.retry': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/mail/:id/retry',
+    tokens: [[1,"locale"],[0,"admin"],[0,"mail"],[1,"id"],[0,"retry"]],
+    types: placeholder as Registry['admin.mail.retry']['types'],
+  },
+  'admin.storage.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/storage',
+    tokens: [[1,"locale"],[0,"admin"],[0,"storage"]],
+    types: placeholder as Registry['admin.storage.index']['types'],
+  },
+  'admin.storage.recover': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/storage/recover',
+    tokens: [[1,"locale"],[0,"admin"],[0,"storage"],[0,"recover"]],
+    types: placeholder as Registry['admin.storage.recover']['types'],
+  },
   'admin.products.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/products',

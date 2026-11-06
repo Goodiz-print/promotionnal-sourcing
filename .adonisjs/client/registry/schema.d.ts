@@ -1996,6 +1996,84 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/search_controller').default['evaluate']>>>
     }
   }
+  'admin.mail.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/mail'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_mail').adminMailFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.mail.retryAll': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/mail/retry'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_mail').adminMailRetryAllValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_mail').adminMailRetryAllValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['retryAll']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['retryAll']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['retryAll']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.mail.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/mail/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['show']>>>
+    }
+  }
+  'admin.mail.retry': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/mail/:id/retry'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['retry']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['retry']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['retry']>>>
+    }
+  }
+  'admin.storage.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/storage'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/storage_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/storage_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/storage_controller').default['index']>>>
+    }
+  }
+  'admin.storage.recover': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/storage/recover'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/storage_controller').default['recover']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/storage_controller').default['recover']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/storage_controller').default['recover']>>>
+    }
+  }
   'admin.products.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/products'

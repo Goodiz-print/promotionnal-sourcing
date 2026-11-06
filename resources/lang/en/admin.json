@@ -22,7 +22,9 @@
     "imports": "Imports",
     "ai": "AI and translations",
     "queue": "Queue",
-    "search": "Search"
+    "search": "Search",
+    "mail": "Emails",
+    "storage": "Storage"
   },
   "pagination": {
     "previous": "Previous",
@@ -477,7 +479,10 @@
       "queue_job.cancelled": "Queue job cancelled",
       "queue_schedule.run": "Scheduled job run manually",
       "search.reindex_requested": "Search reindex requested",
-      "search.evaluation_requested": "Search evaluation requested"
+      "search.evaluation_requested": "Search evaluation requested",
+      "mail.retried": "Email retried",
+      "mail.bulk_retried": "Failed emails retried",
+      "storage.recovery_requested": "Storage recovery requested"
     },
     "targets": {
       "user": "User",
@@ -499,7 +504,9 @@
       "translation": "Translation",
       "queue_job": "Queue job",
       "queue_schedule": "Scheduled job",
-      "search_run": "Search operation"
+      "search_run": "Search operation",
+      "mail_delivery": "Email delivery",
+      "storage": "Storage"
     }
   },
   "demand": {
@@ -1484,6 +1491,123 @@
       "busy": "An operation of the same type is already in progress.",
       "unknown_supplier": "Supplier not found.",
       "queue_failed": "The queue is unavailable: the operation could not be queued."
+    }
+  },
+  "mail": {
+    "title": "Emails",
+    "subtitle": "Transactional sends, dead-letter and failure rate by mail type.",
+    "resultsCount": "{count, plural, =0 {No deliveries} one {# delivery} other {# deliveries}}",
+    "empty": "No delivery matches.",
+    "emptyDescription": "Deliveries appear here as soon as a mail is queued.",
+    "back": "Back to emails",
+    "showTitle": "Email: {kind}",
+    "statuses": {
+      "failed": "Failed",
+      "in_progress": "In progress",
+      "sent": "Sent"
+    },
+    "kinds": {
+      "organization-invitation": "Organization invitation",
+      "rfq-received": "Quote request received",
+      "rfq-reminder": "Quote request reminder",
+      "quote-received": "Quote received",
+      "password-reset": "Password reset",
+      "email-verification": "Email address verification",
+      "contact-request": "Contact request",
+      "agency-review-decision": "Agency review decision",
+      "announcement": "Platform announcement"
+    },
+    "filters": {
+      "status": "Status",
+      "kind": "Mail type",
+      "all": "All"
+    },
+    "columns": {
+      "kind": "Type",
+      "recipient": "Recipient",
+      "status": "Status",
+      "attempts": "Attempts",
+      "date": "Last activity",
+      "error": "Error",
+      "actions": "Actions"
+    },
+    "actions": {
+      "retry": "Retry",
+      "retryAll": "Retry all failures",
+      "retryKind": "Retry this type",
+      "retryConfirm": "Put this mail back in the queue?",
+      "retryAllConfirm": "Put all failed mails back in the queue (200 at most)?",
+      "retryKindConfirm": "Put failed “{kind}” mails back in the queue (200 at most)?"
+    },
+    "rates": {
+      "title": "Failure rate by type",
+      "description": "Over the last {days} days. A delivery is failed once the queue has used all its attempts; it stays “in progress” for 30 minutes after its last attempt.",
+      "failedTotal": "{count, plural, =0 {No mail to retry.} one {# mail to retry.} other {# mails to retry.}}",
+      "empty": "No delivery in this period.",
+      "sent": "Sent",
+      "failed": "Failed",
+      "inProgress": "In progress",
+      "rate": "Failure rate"
+    },
+    "detail": {
+      "summary": "Summary",
+      "createdAt": "Created on",
+      "updatedAt": "Last activity",
+      "sentAt": "Sent on",
+      "idempotencyKey": "Idempotency key",
+      "error": "Error",
+      "noError": "No error."
+    },
+    "flash": {
+      "retried": "The mail is back in the queue.",
+      "notRetryable": "This mail can no longer be retried.",
+      "bulkRetried": "{count, plural, one {# mail put back in the queue.} other {# mails put back in the queue.}}",
+      "bulkRetriedSkipped": "{count, plural, one {# mail put back in the queue} other {# mails put back in the queue}}; {skipped, plural, one {# skipped (payload unavailable).} other {# skipped (payload unavailable).}}",
+      "nothingToRetry": "No failed mail to retry."
+    }
+  },
+  "storage": {
+    "title": "Storage",
+    "subtitle": "Cellar file registry: recovery backlog and volume per organization.",
+    "statuses": {
+      "pending_upload": "Upload in progress",
+      "ready": "Ready",
+      "pending_delete": "Deletion pending"
+    },
+    "totals": {
+      "title": "File registry",
+      "description": "Objects tracked in the registry, by status.",
+      "objects": "{count, plural, =0 {No objects} one {# object} other {# objects}}"
+    },
+    "recover": {
+      "ok": "No interrupted upload or lost deletion older than {hours} h.",
+      "backlog": "{count, plural, one {# row} other {# rows}} pending for more than {hours} h: the scheduled recovery handles them every hour.",
+      "submit": "Run recovery now",
+      "hint": "Removes interrupted uploads and replays lost deletions older than 24 h. Never touches a ready file.",
+      "confirm": "Run the storage recovery now?"
+    },
+    "stale": {
+      "title": "Recovery backlog",
+      "description": "Rows pending for more than {hours} h, oldest first.",
+      "empty": "No backlog.",
+      "truncated": "{shown} rows shown out of {total}."
+    },
+    "organizations": {
+      "title": "Volume per organization",
+      "description": "Ready files attached to each organization (logo, banner, news, documents, product images). A shared file counts for each one.",
+      "empty": "No file attached to an organization.",
+      "unattributed": "Ready volume with no known organization: {size}."
+    },
+    "columns": {
+      "key": "Key",
+      "status": "Status",
+      "size": "Size",
+      "createdAt": "Created on",
+      "organization": "Organization",
+      "objects": "Files"
+    },
+    "flash": {
+      "recoveryQueued": "Recovery queued: the worker handles it."
     }
   }
 }

@@ -22,7 +22,9 @@
     "imports": "Imports",
     "ai": "IA et traductions",
     "queue": "File d’attente",
-    "search": "Recherche"
+    "search": "Recherche",
+    "mail": "Emails",
+    "storage": "Stockage"
   },
   "pagination": {
     "previous": "Précédent",
@@ -477,7 +479,10 @@
       "queue_job.cancelled": "Job de queue annulé",
       "queue_schedule.run": "Job planifié lancé à la main",
       "search.reindex_requested": "Réindexation de la recherche demandée",
-      "search.evaluation_requested": "Évaluation de la recherche demandée"
+      "search.evaluation_requested": "Évaluation de la recherche demandée",
+      "mail.retried": "Email rejoué",
+      "mail.bulk_retried": "Emails en échec rejoués",
+      "storage.recovery_requested": "Reprise du stockage demandée"
     },
     "targets": {
       "user": "Utilisateur",
@@ -499,7 +504,9 @@
       "translation": "Traduction",
       "queue_job": "Job de queue",
       "queue_schedule": "Job planifié",
-      "search_run": "Opération de recherche"
+      "search_run": "Opération de recherche",
+      "mail_delivery": "Envoi d’email",
+      "storage": "Stockage"
     }
   },
   "demand": {
@@ -1484,6 +1491,123 @@
       "busy": "Une opération du même type est déjà en cours.",
       "unknown_supplier": "Fournisseur introuvable.",
       "queue_failed": "La queue est indisponible : l’opération n’a pas pu être mise en file."
+    }
+  },
+  "mail": {
+    "title": "Emails",
+    "subtitle": "Envois transactionnels, dead-letter et taux d’échec par type de mail.",
+    "resultsCount": "{count, plural, =0 {Aucun envoi} one {# envoi} other {# envois}}",
+    "empty": "Aucun envoi ne correspond.",
+    "emptyDescription": "Les envois apparaissent ici dès qu’un mail est mis en file.",
+    "back": "Retour aux emails",
+    "showTitle": "Email : {kind}",
+    "statuses": {
+      "failed": "En échec",
+      "in_progress": "En cours",
+      "sent": "Envoyé"
+    },
+    "kinds": {
+      "organization-invitation": "Invitation à une organisation",
+      "rfq-received": "Demande de devis reçue",
+      "rfq-reminder": "Relance de demande de devis",
+      "quote-received": "Devis reçu",
+      "password-reset": "Réinitialisation du mot de passe",
+      "email-verification": "Vérification de l’adresse e-mail",
+      "contact-request": "Demande de contact",
+      "agency-review-decision": "Décision sur une agence",
+      "announcement": "Annonce plateforme"
+    },
+    "filters": {
+      "status": "État",
+      "kind": "Type de mail",
+      "all": "Tous"
+    },
+    "columns": {
+      "kind": "Type",
+      "recipient": "Destinataire",
+      "status": "État",
+      "attempts": "Essais",
+      "date": "Dernière activité",
+      "error": "Erreur",
+      "actions": "Actions"
+    },
+    "actions": {
+      "retry": "Rejouer",
+      "retryAll": "Rejouer tous les échecs",
+      "retryKind": "Rejouer ce type",
+      "retryConfirm": "Remettre ce mail en file ?",
+      "retryAllConfirm": "Remettre en file tous les mails en échec (200 au plus) ?",
+      "retryKindConfirm": "Remettre en file les mails en échec de type « {kind} » (200 au plus) ?"
+    },
+    "rates": {
+      "title": "Taux d’échec par type",
+      "description": "Sur les {days} derniers jours. Un envoi est en échec quand la queue a épuisé ses essais ; il reste « en cours » 30 minutes après sa dernière tentative.",
+      "failedTotal": "{count, plural, =0 {Aucun mail à rejouer.} one {# mail à rejouer.} other {# mails à rejouer.}}",
+      "empty": "Aucun envoi sur la période.",
+      "sent": "Envoyés",
+      "failed": "En échec",
+      "inProgress": "En cours",
+      "rate": "Taux d’échec"
+    },
+    "detail": {
+      "summary": "Résumé",
+      "createdAt": "Créé le",
+      "updatedAt": "Dernière activité",
+      "sentAt": "Envoyé le",
+      "idempotencyKey": "Clé d’idempotence",
+      "error": "Erreur",
+      "noError": "Aucune erreur."
+    },
+    "flash": {
+      "retried": "Le mail est remis en file.",
+      "notRetryable": "Ce mail ne peut plus être rejoué.",
+      "bulkRetried": "{count, plural, one {# mail remis en file.} other {# mails remis en file.}}",
+      "bulkRetriedSkipped": "{count, plural, one {# mail remis en file} other {# mails remis en file}} ; {skipped, plural, one {# ignoré (charge indisponible).} other {# ignorés (charge indisponible).}}",
+      "nothingToRetry": "Aucun mail en échec à rejouer."
+    }
+  },
+  "storage": {
+    "title": "Stockage",
+    "subtitle": "Registre des fichiers Cellar : arriéré de reprise et volume par organisation.",
+    "statuses": {
+      "pending_upload": "Envoi en cours",
+      "ready": "Prêt",
+      "pending_delete": "Suppression en attente"
+    },
+    "totals": {
+      "title": "Registre des fichiers",
+      "description": "Objets suivis dans le registre, par état.",
+      "objects": "{count, plural, =0 {Aucun objet} one {# objet} other {# objets}}"
+    },
+    "recover": {
+      "ok": "Aucun envoi interrompu ni suppression perdue de plus de {hours} h.",
+      "backlog": "{count, plural, one {# ligne} other {# lignes}} en attente depuis plus de {hours} h : la reprise planifiée les traite toutes les heures.",
+      "submit": "Relancer la reprise",
+      "hint": "Supprime les envois interrompus et rejoue les suppressions perdues de plus de 24 h. Ne touche jamais un fichier prêt.",
+      "confirm": "Relancer la reprise du stockage maintenant ?"
+    },
+    "stale": {
+      "title": "Arriéré de reprise",
+      "description": "Lignes en attente depuis plus de {hours} h, les plus anciennes d’abord.",
+      "empty": "Aucun arriéré.",
+      "truncated": "{shown} lignes affichées sur {total}."
+    },
+    "organizations": {
+      "title": "Volume par organisation",
+      "description": "Fichiers prêts rattachés à chaque organisation (logo, bannière, actualités, documents, images de produits). Un fichier partagé compte pour chacune.",
+      "empty": "Aucun fichier rattaché à une organisation.",
+      "unattributed": "Volume prêt sans organisation connue : {size}."
+    },
+    "columns": {
+      "key": "Clé",
+      "status": "État",
+      "size": "Taille",
+      "createdAt": "Créé le",
+      "organization": "Organisation",
+      "objects": "Fichiers"
+    },
+    "flash": {
+      "recoveryQueued": "Reprise mise en file : elle est traitée par le worker."
     }
   }
 }

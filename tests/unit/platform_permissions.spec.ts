@@ -137,6 +137,13 @@ test.group('Droits des rôles plateforme', () => {
     }
   })
 
+  test('seul admin supervise les emails et le stockage', ({ assert }) => {
+    assert.isTrue(platformRoleHasPermission('admin', 'ops.manage'))
+    for (const role of ['moderator', 'support', 'analyst'] as const) {
+      assert.isFalse(platformRoleHasPermission(role, 'ops.manage'), role)
+    }
+  })
+
   test('seul admin suit et relance les imports', ({ assert }) => {
     assert.isTrue(platformRoleHasPermission('admin', 'imports.manage'))
     for (const role of ['moderator', 'support', 'analyst'] as const) {
