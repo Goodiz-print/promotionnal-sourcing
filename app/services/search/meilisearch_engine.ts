@@ -7,6 +7,12 @@ import FilterableFacetsService from '#services/filterable_facets_service'
 import { SearchTaskFailedException } from '#exceptions/search_errors'
 import { ORIGIN_ZONES, PRODUCT_STOCK_STATUSES } from '#shared/types/product'
 import {
+  SEARCH_ID_PAGE_SIZE,
+  SEARCH_TASKS_SHOWN,
+  type SearchEngineInfo,
+  type SearchTaskSummary,
+} from '#shared/types/admin_search'
+import {
   CERTIFICATION_FACET_FIELD,
   STOCK_FACET_FIELD,
   PRICE_FACET_FIELD,
@@ -320,6 +326,59 @@ export default class MeilisearchEngine extends SearchEngine {
       await this.client.deleteIndexIfExists(staging)
     }
     return count
+  }
+
+  async inspect(): Promise<SearchEngineInfo> {
+    // `health` lève si le serveur est injoignable ; un état autre que `available`
+    // est traité comme une panne.
+    const health = await this.client.health()
+    if (health.status !== 'available') throw new Error(`Meilisearch status: ${health.status}`)
+
+    try {
+      const stats = await this.client.index(searchConfig.index).getStats()
+      return {
+        indexExists: true,
+        documents: stats.numberOfDocuments,
+        indexing: stats.isIndexing,
+        tasks: await this.recentTasks(),
+      }
+    } catch (error) {
+      if ((error as { cause?: { code?: string } }).cause?.code !== INDEX_NOT_FOUND) throw error
+      return { indexExists: false, documents: 0, indexing: false, tasks: await this.recentTasks() }
+    }
+  }
+
+  async *documentIds(): AsyncGenerator<number[]> {
+    for (let offset = 0; ; offset += SEARCH_ID_PAGE_SIZE) {
+      let page
+      try {
+        page = await this.client
+          .index(searchConfig.index)
+          .getDocuments<{ id: number }>({ fields: ['id'], limit: SEARCH_ID_PAGE_SIZE, offset })
+      } catch (error) {
+        if ((error as { cause?: { code?: string } }).cause?.code === INDEX_NOT_FOUND) return
+        throw error
+      }
+      if (page.results.length === 0) return
+      yield page.results.map((document) => Number(document.id))
+      if (page.results.length < SEARCH_ID_PAGE_SIZE) return
+    }
+  }
+
+  /** Dernières tâches de l'index (plus récentes d'abord) : écritures, réglages, échecs. */
+  private async recentTasks(): Promise<SearchTaskSummary[]> {
+    const tasks = await this.client.tasks.getTasks({
+      indexUids: [searchConfig.index],
+      limit: SEARCH_TASKS_SHOWN,
+    })
+    return tasks.results.map((task) => ({
+      uid: task.uid,
+      type: task.type,
+      status: task.status,
+      enqueuedAt: task.enqueuedAt ?? null,
+      finishedAt: task.finishedAt,
+      error: task.error?.message ?? null,
+    }))
   }
 
   /** Crée l'index actif et applique ses réglages (une fois par processus). */

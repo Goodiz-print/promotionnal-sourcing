@@ -1,6 +1,7 @@
 import app from '@adonisjs/core/services/app'
 import searchConfig from '#config/search'
 import SearchEngine from '#services/search/search_engine'
+import type { SearchEngineInfo } from '#shared/types/admin_search'
 import type {
   FacetDistribution,
   FacetDistributionRequest,
@@ -29,6 +30,10 @@ export default class FakeSearchEngine extends SearchEngine {
   facetRequests: FacetDistributionRequest[] = []
   /** Nombre d'appels a `refreshSettings`. */
   settingsRefreshed = 0
+  /** Reponse de `inspect` ; `Error` pour simuler un moteur injoignable. */
+  info: SearchEngineInfo | Error = { indexExists: true, documents: 0, indexing: false, tasks: [] }
+  /** Identifiants que contient l'index (`documentIds`) ; `Error` pour un moteur injoignable. */
+  indexedDocumentIds: number[] | Error = []
 
   async upsert(documents: ProductSearchDocument[]) {
     if (documents.length > 0) this.upserted.push(documents)
@@ -62,6 +67,16 @@ export default class FakeSearchEngine extends SearchEngine {
 
   async refreshSettings(): Promise<void> {
     this.settingsRefreshed++
+  }
+
+  async inspect(): Promise<SearchEngineInfo> {
+    if (this.info instanceof Error) throw this.info
+    return this.info
+  }
+
+  async *documentIds(): AsyncGenerator<number[]> {
+    if (this.indexedDocumentIds instanceof Error) throw this.indexedDocumentIds
+    if (this.indexedDocumentIds.length > 0) yield this.indexedDocumentIds
   }
 
   get indexedIds(): number[] {

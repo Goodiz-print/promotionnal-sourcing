@@ -19,7 +19,17 @@ interface Recorded {
   body: unknown
 }
 
-function stubMeilisearch(options: { existing?: string[]; failTasks?: boolean } = {}) {
+function stubMeilisearch(
+  options: {
+    existing?: string[]
+    failTasks?: boolean
+    /** Statut de `GET /health` ; l'absence de réponse est simulée par `unreachable`. */
+    health?: string
+    unreachable?: boolean
+    /** Identifiants que contient l'index (`GET /indexes/:uid/documents`). */
+    documentIds?: number[]
+  } = {}
+) {
   const calls: Recorded[] = []
   const indexes = new Set(options.existing ?? [])
   let taskUid = 0
@@ -39,6 +49,53 @@ function stubMeilisearch(options: { existing?: string[]; failTasks?: boolean } =
     const path = url.pathname
     const raw = init?.body
     calls.push({ method, path, body: typeof raw === 'string' ? JSON.parse(raw) : raw })
+
+    if (options.unreachable) throw new TypeError('fetch failed')
+    if (method === 'GET' && path === '/health')
+      return json(200, { status: options.health ?? 'available' })
+
+    if (method === 'GET' && path === '/tasks') {
+      return json(200, {
+        results: [
+          {
+            uid: 9,
+            indexUid: 'x',
+            status: 'failed',
+            type: 'documentAdditionOrUpdate',
+            enqueuedAt: '2026-11-06T10:00:00.000Z',
+            finishedAt: '2026-11-06T10:00:01.000Z',
+            error: { message: 'boom', code: 'internal', type: 'internal', link: '' },
+          },
+        ],
+        total: 1,
+        limit: 10,
+        from: 9,
+        next: null,
+      })
+    }
+
+    const stats = path.match(/^\/indexes\/([^/]+)\/stats$/)
+    if (method === 'GET' && stats) {
+      return indexes.has(stats[1])
+        ? json(200, { numberOfDocuments: 3, isIndexing: true, fieldDistribution: {} })
+        : json(404, { message: 'not found', code: 'index_not_found', type: 'invalid_request' })
+    }
+
+    const documents = path.match(/^\/indexes\/([^/]+)\/documents$/)
+    if (method === 'GET' && documents) {
+      if (!indexes.has(documents[1])) {
+        return json(404, { message: 'not found', code: 'index_not_found', type: 'invalid_request' })
+      }
+      const offset = Number(url.searchParams.get('offset') ?? 0)
+      const limit = Number(url.searchParams.get('limit') ?? 20)
+      const ids = options.documentIds ?? []
+      return json(200, {
+        results: ids.slice(offset, offset + limit).map((id) => ({ id })),
+        offset,
+        limit,
+        total: ids.length,
+      })
+    }
 
     const task = path.match(/^\/tasks\/(\d+)$/)
     if (method === 'GET' && task) {
@@ -224,6 +281,104 @@ test.group('Meilisearch — pilote', (group) => {
           (call) => call.method === 'DELETE' && call.path === `/indexes/${searchConfig.index}_next`
         )
       )
+    } finally {
+      stub.restore()
+    }
+  })
+})
+
+test.group('Meilisearch — supervision (#176)', (group) => {
+  const previous = { host: searchConfig.host, key: searchConfig.apiKey }
+
+  group.each.setup(() => {
+    searchConfig.host = 'http://meili.test'
+    searchConfig.apiKey = 'key'
+    return () => {
+      searchConfig.host = previous.host
+      searchConfig.apiKey = previous.key
+    }
+  })
+
+  test('inspect : documents, écritures en cours et dernières tâches', async ({ assert }) => {
+    const stub = stubMeilisearch({ existing: [searchConfig.index] })
+    try {
+      const info = await new MeilisearchEngine().inspect()
+
+      assert.deepEqual(info, {
+        indexExists: true,
+        documents: 3,
+        indexing: true,
+        tasks: [
+          {
+            uid: 9,
+            type: 'documentAdditionOrUpdate',
+            status: 'failed',
+            enqueuedAt: '2026-11-06T10:00:00.000Z',
+            finishedAt: '2026-11-06T10:00:01.000Z',
+            error: 'boom',
+          },
+        ],
+      })
+      const tasks = stub.calls.find((call) => call.path === '/tasks')
+      assert.exists(tasks)
+    } finally {
+      stub.restore()
+    }
+  })
+
+  test('inspect : un index absent n’est pas une panne', async ({ assert }) => {
+    const stub = stubMeilisearch()
+    try {
+      const info = await new MeilisearchEngine().inspect()
+
+      assert.isFalse(info.indexExists)
+      assert.equal(info.documents, 0)
+    } finally {
+      stub.restore()
+    }
+  })
+
+  test('inspect : un serveur injoignable ou indisponible lève', async ({ assert }) => {
+    const down = stubMeilisearch({ unreachable: true })
+    try {
+      await assert.rejects(() => new MeilisearchEngine().inspect())
+    } finally {
+      down.restore()
+    }
+
+    const unavailable = stubMeilisearch({ health: 'unavailable' })
+    try {
+      await assert.rejects(() => new MeilisearchEngine().inspect(), /unavailable/)
+    } finally {
+      unavailable.restore()
+    }
+  })
+
+  test('documentIds : parcourt l’index par pages', async ({ assert }) => {
+    const ids = Array.from({ length: 2500 }, (_, index) => index + 1)
+    const stub = stubMeilisearch({ existing: [searchConfig.index], documentIds: ids })
+    try {
+      const seen: number[] = []
+      const sizes: number[] = []
+      for await (const page of new MeilisearchEngine().documentIds()) {
+        sizes.push(page.length)
+        seen.push(...page)
+      }
+
+      assert.deepEqual(sizes, [1000, 1000, 500])
+      assert.deepEqual(seen, ids)
+    } finally {
+      stub.restore()
+    }
+  })
+
+  test('documentIds : un index absent donne une liste vide', async ({ assert }) => {
+    const stub = stubMeilisearch()
+    try {
+      const seen: number[][] = []
+      for await (const page of new MeilisearchEngine().documentIds()) seen.push(page)
+
+      assert.deepEqual(seen, [])
     } finally {
       stub.restore()
     }

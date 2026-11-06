@@ -906,6 +906,24 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"queue"],[0,"schedules"],[1,"id"],[0,"run"]],
     types: placeholder as Registry['admin.queue.schedules.run']['types'],
   },
+  'admin.search.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/search',
+    tokens: [[1,"locale"],[0,"admin"],[0,"search"]],
+    types: placeholder as Registry['admin.search.index']['types'],
+  },
+  'admin.search.reindex': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/search/reindex',
+    tokens: [[1,"locale"],[0,"admin"],[0,"search"],[0,"reindex"]],
+    types: placeholder as Registry['admin.search.reindex']['types'],
+  },
+  'admin.search.evaluate': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/search/evaluate',
+    tokens: [[1,"locale"],[0,"admin"],[0,"search"],[0,"evaluate"]],
+    types: placeholder as Registry['admin.search.evaluate']['types'],
+  },
   'admin.products.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/products',

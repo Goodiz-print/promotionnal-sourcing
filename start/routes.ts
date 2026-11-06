@@ -467,6 +467,17 @@ router
                   .post('admin/queue/schedules/:id/run', [controllers.admin.Queue, 'runSchedule'])
                   .as('admin.queue.schedules.run')
 
+                // État de la recherche (#176) : santé Meilisearch, écart, réindexation, évaluation.
+                router
+                  .get('admin/search', [controllers.admin.Search, 'index'])
+                  .as('admin.search.index')
+                router
+                  .post('admin/search/reindex', [controllers.admin.Search, 'reindex'])
+                  .as('admin.search.reindex')
+                router
+                  .post('admin/search/evaluate', [controllers.admin.Search, 'evaluate'])
+                  .as('admin.search.evaluate')
+
                 // Administration du catalogue produits (#164) : liste, fiche et actions.
                 router
                   .get('admin/products', [controllers.admin.Product, 'index'])

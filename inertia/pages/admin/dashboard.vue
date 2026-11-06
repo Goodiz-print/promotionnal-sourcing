@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, type Component } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
+import { Link } from '@adonisjs/inertia/vue'
 import { Building2, FileText, Package, ShieldCheck, UserCheck, Users } from 'lucide-vue-next'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
@@ -8,6 +9,7 @@ import { usePlatformPermissions } from '~/composables/use_platform_permissions'
 import KpiOverview from '~/components/admin/kpi_overview.vue'
 import KpiPeriodFilter from '~/components/admin/kpi_period_filter.vue'
 import QueueHealth from '~/components/admin/queue/queue_health.vue'
+import BaseAlert from '~/components/base/base_alert.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseStat from '~/components/base/base_stat.vue'
 import type { AdminDashboardStats } from '#shared/types/admin'
@@ -22,6 +24,8 @@ defineProps<{
   filters: AdminKpiFilters | null
   /** Santé de la queue : `null` sans le droit `queue.manage`. */
   queue?: QueueHealthReport | null
+  /** Recherche inerte (pas de `MEILISEARCH_HOST`) et droit `search.manage` : alerte. */
+  searchDisabled?: boolean
 }>()
 
 const { t, locale } = useI18n()
@@ -116,6 +120,13 @@ const counters = computed(() =>
     </div>
 
     <QueueHealth v-if="queue" :health="queue" linked />
+
+    <BaseAlert v-if="searchDisabled" tone="warning">
+      {{ t('admin.search.dashboardAlert') }}
+      <Link :href="urlFor('admin.search.index', { locale })" class="ml-2 font-semibold underline">
+        {{ t('admin.search.dashboardLink') }}
+      </Link>
+    </BaseAlert>
 
     <template v-if="kpis && filters">
       <KpiPeriodFilter :filters="filters" @change="visit" />

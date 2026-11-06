@@ -82,7 +82,7 @@ describe('AppNav', () => {
 
     const links = mount(AppNav).findAll('a')
 
-    expect(links).toHaveLength(21)
+    expect(links).toHaveLength(22)
     expect(links.map((link) => link.text())).not.toContain('Mes demandes de devis')
   })
 

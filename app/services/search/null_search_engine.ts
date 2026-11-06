@@ -1,4 +1,5 @@
 import SearchEngine from '#services/search/search_engine'
+import type { SearchEngineInfo } from '#shared/types/admin_search'
 import type {
   FacetDistribution,
   ProductSearchDocument,
@@ -33,4 +34,10 @@ export default class NullSearchEngine extends SearchEngine {
   }
 
   async refreshSettings(): Promise<void> {}
+
+  async inspect(): Promise<SearchEngineInfo> {
+    return { indexExists: false, documents: 0, indexing: false, tasks: [] }
+  }
+
+  async *documentIds(): AsyncGenerator<number[]> {}
 }

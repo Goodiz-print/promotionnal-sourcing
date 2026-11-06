@@ -21,7 +21,8 @@
     "announcements": "Announcements",
     "imports": "Imports",
     "ai": "AI and translations",
-    "queue": "Queue"
+    "queue": "Queue",
+    "search": "Search"
   },
   "pagination": {
     "previous": "Anterior",
@@ -474,7 +475,9 @@
       "translation.corrected": "Translation reviewed",
       "queue_job.retried": "Queue job retried",
       "queue_job.cancelled": "Queue job cancelled",
-      "queue_schedule.run": "Scheduled job run manually"
+      "queue_schedule.run": "Scheduled job run manually",
+      "search.reindex_requested": "Search reindex requested",
+      "search.evaluation_requested": "Search evaluation requested"
     },
     "targets": {
       "user": "Utilizador",
@@ -495,7 +498,8 @@
       "ai_backfill": "AI backfill",
       "translation": "Translation",
       "queue_job": "Queue job",
-      "queue_schedule": "Scheduled job"
+      "queue_schedule": "Scheduled job",
+      "search_run": "Search operation"
     }
   },
   "demand": {
@@ -1381,6 +1385,105 @@
       "notCancellable": "This job can no longer be cancelled.",
       "scheduleRun": "The scheduled job is queued.",
       "notRunnable": "This scheduled job cannot be run manually."
+    }
+  },
+  "search": {
+    "title": "Search",
+    "subtitle": "Meilisearch status, gap with PostgreSQL, reindexing and relevance evaluation.",
+    "dashboardAlert": "Search is disabled: MEILISEARCH_HOST is missing, no product is indexed.",
+    "dashboardLink": "View search status",
+    "status": {
+      "title": "Search engine",
+      "ok": "Meilisearch is responding and the index exists.",
+      "disabled": "Search is disabled: MEILISEARCH_HOST is missing, no product is indexed and the catalogue cannot be searched.",
+      "unreachable": "Meilisearch is unreachable: search is unavailable.",
+      "missingIndex": "Meilisearch is responding, but the index does not exist yet: run a full reindex.",
+      "index": "Index",
+      "documents": "Documents",
+      "indexing": "Writes in progress",
+      "embedder": "Vectorisation",
+      "semanticRatio": "Semantic weight",
+      "noIndex": "No index",
+      "embedderOff": "Disabled (keywords only)",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "tasks": {
+      "title": "Latest Meilisearch tasks",
+      "uid": "Task",
+      "type": "Type",
+      "status": "Status",
+      "date": "Date",
+      "error": "Error"
+    },
+    "drift": {
+      "title": "PostgreSQL ↔ index gap",
+      "hint": "Compares the products visible in PostgreSQL with those in the index. The check scans the whole catalogue, so it runs on demand.",
+      "check": "Check the gap",
+      "unavailable": {
+        "disabled": "Cannot compare: search is disabled.",
+        "failed": "The comparison failed: the engine is not responding or returned an error."
+      },
+      "inSync": "The index matches PostgreSQL.",
+      "outOfSync": "The index differs from PostgreSQL: run a reindex.",
+      "checkedAt": "Checked on {date}",
+      "expected": "Expected (PostgreSQL)",
+      "indexed": "In the index",
+      "missing": "Missing from the index",
+      "extra": "Extra in the index",
+      "sample": "E.g.: {ids}"
+    },
+    "reindex": {
+      "title": "Reindexing",
+      "hint": "Rebuilds the index from PostgreSQL through the queue. A full reindex builds an index alongside, then swaps it in: on failure, the previous one stays in place.",
+      "supplier": "Supplier",
+      "supplierHint": "Choose a supplier to reindex only its products.",
+      "submit": "Reindex the whole catalogue",
+      "submitSupplier": "Reindex this supplier",
+      "confirm": "Rebuild the whole search index?",
+      "confirmSupplier": "Reindex this supplier’s products?",
+      "history": "Reindex history",
+      "allSuppliers": "Whole catalogue"
+    },
+    "evaluation": {
+      "title": "Relevance evaluation",
+      "hint": "Replays the reference queries on the index and measures recall@10 and latencies.",
+      "submit": "Run the evaluation",
+      "history": "Evaluation history"
+    },
+    "runs": {
+      "empty": "No operation yet.",
+      "emptyDescription": "Operations started from this screen appear here.",
+      "date": "Requested on",
+      "status": "Status",
+      "scope": "Scope",
+      "progress": "Progress",
+      "recall": "Recall@10",
+      "results": "Queries",
+      "latency": "Latency",
+      "requestedBy": "Requested by",
+      "all": "Whole catalogue",
+      "supplier": "{name} (no. {id})",
+      "indexed": "{count, plural, =0 {No product indexed} one {# product indexed} other {# products indexed}}",
+      "processed": "{done} / {total} products scanned",
+      "counts": "{passed} passed, {failed} failed, {skipped} skipped",
+      "latencies": "p50 {p50} ms · p95 {p95} ms",
+      "missing": "missing",
+      "statuses": {
+        "pending": "Pending",
+        "running": "Running",
+        "completed": "Completed",
+        "failed": "Failed",
+        "interrupted": "Interrupted"
+      }
+    },
+    "flash": {
+      "reindexQueued": "Reindex queued: the worker is processing it.",
+      "evaluationQueued": "Evaluation queued: the worker is processing it.",
+      "disabled": "Search is disabled: set MEILISEARCH_HOST.",
+      "busy": "An operation of the same type is already in progress.",
+      "unknown_supplier": "Supplier not found.",
+      "queue_failed": "The queue is unavailable: the operation could not be queued."
     }
   }
 }
