@@ -39,6 +39,7 @@ export const PLATFORM_PERMISSIONS = [
   'imports.manage',
   'ai.manage',
   'queue.manage',
+  'search.manage',
 ] as const
 
 export type PlatformPermission = (typeof PLATFORM_PERMISSIONS)[number]

@@ -1957,6 +1957,45 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['runSchedule']>>>
     }
   }
+  'admin.search.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/search'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/search_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/search_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/search_controller').default['index']>>>
+    }
+  }
+  'admin.search.reindex': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/search/reindex'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_search').adminSearchReindexValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_search').adminSearchReindexValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/search_controller').default['reindex']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/search_controller').default['reindex']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/search_controller').default['reindex']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.search.evaluate': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/search/evaluate'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/search_controller').default['evaluate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/search_controller').default['evaluate']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/search_controller').default['evaluate']>>>
+    }
+  }
   'admin.products.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/products'

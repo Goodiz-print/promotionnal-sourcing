@@ -1,3 +1,4 @@
+import type { SearchEngineInfo } from '#shared/types/admin_search'
 import type {
   FacetDistribution,
   FacetDistributionRequest,
@@ -56,4 +57,17 @@ export default abstract class SearchEngine {
    * mise à jour dans les réglages. No-op si l'index n'existe pas encore.
    */
   abstract refreshSettings(): Promise<void>
+  /**
+   * État de l'index actif (existence, nombre de documents, écritures en cours,
+   * tâches récentes) pour le back-office (#176). Lève si le moteur est
+   * injoignable : l'appelant en fait une alerte.
+   */
+  abstract inspect(): Promise<SearchEngineInfo>
+
+  /**
+   * Identifiants des documents de l'index actif, par lots (écart avec
+   * PostgreSQL, #176). Vide si l'index n'existe pas encore. Lève si le moteur
+   * est injoignable.
+   */
+  abstract documentIds(): AsyncIterable<number[]>
 }

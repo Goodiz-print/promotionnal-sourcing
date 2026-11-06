@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import { errors } from '@vinejs/vine'
+import searchConfig from '#config/search'
 import AdminDashboardService from '#services/admin_dashboard_service'
 import AdminKpiService from '#services/admin_kpi_service'
 import HealthService from '#services/health_service'
@@ -26,8 +27,17 @@ export default class DashboardController {
     const queue = (await bouncer.allows('hasPlatformPermission', 'queue.manage'))
       ? await this.health.queueReport()
       : null
+    // Recherche inerte (#176) : sans `MEILISEARCH_HOST`, rien n'est indexé et personne n'est prévenu.
+    const searchDisabled =
+      !searchConfig.enabled && (await bouncer.allows('hasPlatformPermission', 'search.manage'))
     if (await bouncer.denies('hasPlatformPermission', 'monitoring.view')) {
-      return inertia.render('admin/dashboard', { stats, kpis: null, filters: null, queue })
+      return inertia.render('admin/dashboard', {
+        stats,
+        kpis: null,
+        filters: null,
+        queue,
+        searchDisabled,
+      })
     }
 
     const query = await request.validateUsing(adminPeriodValidator, { data: request.qs() })
@@ -43,6 +53,7 @@ export default class DashboardController {
       kpis: await this.kpis.report(filters),
       filters,
       queue,
+      searchDisabled,
     })
   }
 }

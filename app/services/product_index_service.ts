@@ -11,6 +11,9 @@ import { MATERIAL_ATTRIBUTE_SLUG } from '#shared/types/certification'
 import type { ContentLocale } from '#shared/types/i18n'
 import type { ProductSearchDocument, ProductSyncResult } from '#shared/types/search'
 
+/** Rappel d'avancement d'une indexation : nombre de produits parcourus depuis le début. */
+export type IndexProgress = (scanned: number) => Promise<void> | void
+
 /**
  * Synchronisation PostgreSQL → index de recherche (#112).
  *
@@ -78,17 +81,72 @@ export default class ProductIndexService {
   }
 
   /**
+   * Aligne l'index pour tous les produits d'un fournisseur (réindexation ciblée
+   * depuis le back-office, #176) : par lots, sans reconstruire l'index entier.
+   */
+  async syncSupplier(supplierId: number, onProgress?: IndexProgress): Promise<ProductSyncResult> {
+    const total: ProductSyncResult = { indexed: 0, removed: 0 }
+    let afterId = 0
+    let scanned = 0
+    for (;;) {
+      const rows = await db
+        .from('products')
+        .where('supplier_id', supplierId)
+        .where('id', '>', afterId)
+        .orderBy('id')
+        .limit(searchConfig.batchSize)
+        .select('id')
+      if (rows.length === 0) return total
+
+      afterId = rows[rows.length - 1].id
+      const result = await this.sync(rows.map((row: { id: number }) => row.id))
+      total.indexed += result.indexed
+      total.removed += result.removed
+      scanned += rows.length
+      await onProgress?.(scanned)
+    }
+  }
+
+  /** Nombre de produits à parcourir pour une réindexation (tous, ou ceux d'un fournisseur). */
+  async countProducts(supplierId?: number): Promise<number> {
+    const query = db.from('products')
+    if (supplierId !== undefined) query.where('supplier_id', supplierId)
+    const row = await query.count('* as total').first()
+    return Number(row?.total ?? 0)
+  }
+
+  /**
+   * Identifiants des produits que l'index doit contenir (visibles, mêmes règles
+   * que la fiche publique), par lots, pour mesurer l'écart avec l'index (#176).
+   */
+  async *visibleProductIds(): AsyncGenerator<number[]> {
+    let afterId = 0
+    for (;;) {
+      const rows = await this.visibleProducts()
+        .where('products.id', '>', afterId)
+        .orderBy('products.id')
+        .limit(searchConfig.batchSize)
+        .select('products.id')
+      if (rows.length === 0) return
+      afterId = rows[rows.length - 1].id
+      yield rows.map((row) => row.id)
+    }
+  }
+
+  /**
    * Reconstruit tout l'index depuis la base (`search:reindex`). Parcours par
    * identifiant croissant, par lots : la mémoire reste bornée quel que soit le
    * volume. L'échange d'index est atomique (cf. `SearchEngine#replaceAll`) : un
    * échec laisse l'ancien index en place, la commande peut être relancée.
+   * `onProgress` reçoit le nombre de produits parcourus (suivi du back-office).
    */
-  async reindexAll(): Promise<number> {
-    return this.engine.replaceAll(this.allDocuments())
+  async reindexAll(onProgress?: IndexProgress): Promise<number> {
+    return this.engine.replaceAll(this.allDocuments(onProgress))
   }
 
-  private async *allDocuments(): AsyncGenerator<ProductSearchDocument[]> {
+  private async *allDocuments(onProgress?: IndexProgress): AsyncGenerator<ProductSearchDocument[]> {
     let afterId = 0
+    let scanned = 0
     for (;;) {
       const rows = await Product.query()
         .where('id', '>', afterId)
@@ -99,7 +157,9 @@ export default class ProductIndexService {
 
       afterId = rows[rows.length - 1].id
       const documents = await this.documentsFor(rows.map((row) => row.id))
+      scanned += rows.length
       if (documents.length > 0) yield documents
+      await onProgress?.(scanned)
     }
   }
 

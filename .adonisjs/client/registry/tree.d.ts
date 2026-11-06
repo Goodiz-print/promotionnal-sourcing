@@ -247,6 +247,11 @@ export interface ApiDefinition {
         run: typeof routes['admin.queue.schedules.run']
       }
     }
+    search: {
+      index: typeof routes['admin.search.index']
+      reindex: typeof routes['admin.search.reindex']
+      evaluate: typeof routes['admin.search.evaluate']
+    }
     products: {
       index: typeof routes['admin.products.index']
       show: typeof routes['admin.products.show']
