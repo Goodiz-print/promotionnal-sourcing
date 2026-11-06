@@ -5,6 +5,7 @@ import { Link } from '@adonisjs/inertia/vue'
 import { Layers } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import { useQueueJobActions } from '~/composables/use_queue_job_actions'
 import { useTradeFormat } from '~/composables/use_trade_format'
 import QueueHealth from '~/components/admin/queue/queue_health.vue'
 import QueueSchedules from '~/components/admin/queue/queue_schedules.vue'
@@ -31,6 +32,7 @@ const props = defineProps<{
 
 const { t, locale } = useI18n()
 const { dateTime } = useTradeFormat()
+const { act } = useQueueJobActions()
 
 const model = reactive({ ...props.filters })
 // Les filtres du serveur font foi (retour arrière, pagination…).
@@ -58,11 +60,6 @@ function reset() {
 
 const jobUrl = (row: AdminQueueJobRow, name: 'show' | 'retry' | 'cancel') =>
   urlFor(`admin.queue.${name}`, { locale: locale.value, queue: row.queue, id: row.id })
-
-function act(row: AdminQueueJobRow, name: 'retry' | 'cancel') {
-  if (!window.confirm(t(`admin.queue.actions.${name}Confirm`, { name: row.name }))) return
-  router.post(jobUrl(row, name), {}, { preserveScroll: true })
-}
 </script>
 
 <template>
@@ -138,14 +135,18 @@ function act(row: AdminQueueJobRow, name: 'retry' | 'cancel') {
       <td class="max-w-xs truncate">{{ row.error ?? '—' }}</td>
       <td class="text-right">
         <div class="flex justify-end gap-2">
-          <BaseButton v-if="row.retryable" size="sm" @click="act(row, 'retry')">
+          <BaseButton
+            v-if="row.retryable"
+            size="sm"
+            @click="act(row, 'retry', { preserveScroll: true })"
+          >
             {{ t('admin.queue.actions.retry') }}
           </BaseButton>
           <BaseButton
             v-if="row.cancellable"
             variant="secondary"
             size="sm"
-            @click="act(row, 'cancel')"
+            @click="act(row, 'cancel', { preserveScroll: true })"
           >
             {{ t('admin.queue.actions.cancel') }}
           </BaseButton>

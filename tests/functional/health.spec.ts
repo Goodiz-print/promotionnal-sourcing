@@ -1,7 +1,11 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import HealthService from '#services/health_service'
-import { QUEUE_THRESHOLDS } from '#shared/types/health'
+import {
+  QUEUE_DEFAULT_PRIORITY,
+  QUEUE_PRIORITY_SCORE_MULTIPLIER,
+  QUEUE_THRESHOLDS,
+} from '#shared/types/health'
 import { useDatabase } from '#tests/utils/setup'
 
 /** Ligne de `queue_jobs` minimale ; les horodatages sont en millisecondes. */
@@ -63,6 +67,28 @@ test.group('Sonde de santé de la queue', (group) => {
     assert.equal(report.stuckActive, 1)
     assert.equal(report.failedLast24h, 1)
     assert.equal(report.oldestPendingAgeMs, QUEUE_THRESHOLDS.pendingOverdueMs + 60_000)
+  })
+
+  test('un job pending sans échéance est daté de sa mise en file (score)', async ({ assert }) => {
+    const now = Date.now()
+    const enqueuedAt = now - QUEUE_THRESHOLDS.pendingOverdueMs - 120_000
+    // Comme la lib : pas d'`execute_at` sur un job `pending`, la date est dans le score.
+    await db.table('queue_jobs').insert([
+      job('backlog', {
+        status: 'pending',
+        score: QUEUE_DEFAULT_PRIORITY * QUEUE_PRIORITY_SCORE_MULTIPLIER + enqueuedAt,
+      }),
+      job('recent', {
+        status: 'pending',
+        score: QUEUE_DEFAULT_PRIORITY * QUEUE_PRIORITY_SCORE_MULTIPLIER + now - 60_000,
+      }),
+    ])
+
+    const report = await new HealthService().queueReport(new Date(now))
+
+    assert.isFalse(report.ok)
+    assert.equal(report.pendingOverdue, 1)
+    assert.equal(report.oldestPendingAgeMs, QUEUE_THRESHOLDS.pendingOverdueMs + 120_000)
   })
 
   test('une queue vide est saine avec un âge du plus ancien nul', async ({ assert }) => {

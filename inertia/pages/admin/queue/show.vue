@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3'
+import { Head } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import { useQueueJobActions } from '~/composables/use_queue_job_actions'
 import { useTradeFormat } from '~/composables/use_trade_format'
 import QueueStatusBadge from '~/components/admin/queue/queue_status_badge.vue'
 import BaseButton from '~/components/base/base_button.vue'
@@ -9,22 +10,11 @@ import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import type { AdminQueueJobDetail } from '#shared/types/admin_queue'
 
-const props = defineProps<{ job: AdminQueueJobDetail }>()
+defineProps<{ job: AdminQueueJobDetail }>()
 
 const { t, locale } = useI18n()
 const { dateTime } = useTradeFormat()
-
-function act(name: 'retry' | 'cancel') {
-  if (!window.confirm(t(`admin.queue.actions.${name}Confirm`, { name: props.job.name }))) return
-  router.post(
-    urlFor(`admin.queue.${name}`, {
-      locale: locale.value,
-      queue: props.job.queue,
-      id: props.job.id,
-    }),
-    {}
-  )
-}
+const { act } = useQueueJobActions()
 
 const dash = '—'
 </script>
@@ -44,10 +34,10 @@ const dash = '—'
       </template>
       <template #actions>
         <div class="flex flex-wrap gap-3">
-          <BaseButton v-if="job.retryable" @click="act('retry')">
+          <BaseButton v-if="job.retryable" @click="act(job, 'retry')">
             {{ t('admin.queue.actions.retry') }}
           </BaseButton>
-          <BaseButton v-if="job.cancellable" variant="secondary" @click="act('cancel')">
+          <BaseButton v-if="job.cancellable" variant="secondary" @click="act(job, 'cancel')">
             {{ t('admin.queue.actions.cancel') }}
           </BaseButton>
         </div>

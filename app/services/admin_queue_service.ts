@@ -24,12 +24,12 @@ import {
   type QueueJobStatus,
 } from '#shared/types/admin_queue'
 import type { AdminActionContext } from '#shared/types/admin_audit'
-import { QUEUE_THRESHOLDS } from '#shared/types/health'
+import {
+  QUEUE_DEFAULT_PRIORITY,
+  QUEUE_PRIORITY_SCORE_MULTIPLIER,
+  QUEUE_THRESHOLDS,
+} from '#shared/types/health'
 import type { Paginated } from '#shared/types/pagination'
-
-/** Priorité par défaut de @boringnode/queue et pondération du score (priorité × 1e13 + date). */
-const DEFAULT_PRIORITY = 5
-const PRIORITY_SCORE_MULTIPLIER = 1e13
 
 /** États dont l'annulation est sûre : un job `active` est tenu par un worker. */
 const CANCELLABLE_STATUSES: readonly QueueJobStatus[] = ['pending', 'delayed', 'failed']
@@ -39,15 +39,15 @@ const CANCELLABLE_STATUSES: readonly QueueJobStatus[] = ['pending', 'delayed', '
  * tâches de maintenance idempotentes, sans charge utile. Un planning absent de
  * cette liste s'affiche mais ne se lance pas.
  */
-const MANUAL_RUNS: Record<string, () => PromiseLike<unknown>> = {
-  'purge-expired-invitations': () => PurgeExpiredInvitationsJob.dispatch({}),
-  'recover-storage-uploads': () => RecoverStorageUploadsJob.dispatch({}),
-  'expire-rfqs': () => ExpireRfqsJob.dispatch({}),
-  'remind-rfq-suppliers': () => RemindRfqSuppliersJob.dispatch({}),
-  'purge-search-events': () => PurgeSearchEventsJob.dispatch({}),
-  'purge-activity-events': () => PurgeActivityEventsJob.dispatch({}),
-  'purge-ai-calls': () => PurgeAiCallsJob.dispatch({}),
-}
+const MANUAL_RUNS = new Map<string, () => PromiseLike<unknown>>([
+  ['purge-expired-invitations', () => PurgeExpiredInvitationsJob.dispatch({})],
+  ['recover-storage-uploads', () => RecoverStorageUploadsJob.dispatch({})],
+  ['expire-rfqs', () => ExpireRfqsJob.dispatch({})],
+  ['remind-rfq-suppliers', () => RemindRfqSuppliersJob.dispatch({})],
+  ['purge-search-events', () => PurgeSearchEventsJob.dispatch({})],
+  ['purge-activity-events', () => PurgeActivityEventsJob.dispatch({})],
+  ['purge-ai-calls', () => PurgeAiCallsJob.dispatch({})],
+])
 
 const contains = (term: string) => `%${term.replace(/[\\%_]/g, '\\$&')}%`
 const toIso = (value: string | number | null): string | null =>
@@ -61,7 +61,10 @@ const summarize = (error: string | null) =>
  * Supervision de la queue vue du back-office (#175) : santé (via `HealthService`,
  * mêmes seuils que `node ace queue:health`), jobs, relance / annulation et
  * planning. Accès par `db` : les tables appartiennent à `@adonisjs/queue`.
- * Les horodatages de `queue_jobs` sont en millisecondes.
+ * Les horodatages de `queue_jobs` sont en millisecondes. Les jobs terminés sont
+ * supprimés par la queue (`removeOnComplete` par défaut) et les échecs gardés 30 jours
+ * (`removeOnFail`) : la table reste petite, la liste n'a donc ni index d'expression
+ * ni cache. À revoir si un job est configuré pour conserver ses jobs terminés.
  */
 @inject()
 export default class AdminQueueService {
@@ -93,7 +96,7 @@ export default class AdminQueueService {
         'finished_at',
         db.raw("(data::jsonb ->> 'name') as name"),
         db.raw("coalesce((data::jsonb ->> 'attempts')::int, 0) as attempts"),
-        db.raw('score % ? as enqueued_at', [PRIORITY_SCORE_MULTIPLIER]),
+        db.raw('score % ? as enqueued_at', [QUEUE_PRIORITY_SCORE_MULTIPLIER]),
         db.raw('left(error, ?) as error', [QUEUE_ERROR_SUMMARY_LENGTH * 4])
       )
 
@@ -108,7 +111,7 @@ export default class AdminQueueService {
 
     const paginator = await query
       .orderByRaw('coalesce(finished_at, acquired_at, execute_at, score % ?) desc nulls last', [
-        PRIORITY_SCORE_MULTIPLIER,
+        QUEUE_PRIORITY_SCORE_MULTIPLIER,
       ])
       .orderBy('id', 'asc')
       .paginate(filters.page, filters.perPage)
@@ -139,7 +142,7 @@ export default class AdminQueueService {
         'finished_at',
         'error',
         'data',
-        db.raw('score % ? as enqueued_at', [PRIORITY_SCORE_MULTIPLIER])
+        db.raw('score % ? as enqueued_at', [QUEUE_PRIORITY_SCORE_MULTIPLIER])
       )
       .first()
     if (!row) throw new AdminQueueJobNotFoundException()
@@ -162,7 +165,9 @@ export default class AdminQueueService {
   }
 
   /**
-   * Remet un job échoué en file, avec ses compteurs d'essais remis à zéro.
+   * Remet un job échoué en file, avec ses compteurs d'essais remis à zéro. Le score
+   * reproduit `calculateScore` de la lib (voir `QUEUE_PRIORITY_SCORE_MULTIPLIER`) ; le
+   * test « relance un job échoué » en fige le contrat.
    * `false` si le job n'existe plus ou n'est plus `failed` (un autre admin vient
    * de le relancer, ou le worker l'a repris).
    */
@@ -177,14 +182,14 @@ export default class AdminQueueService {
       if (!row) return false
 
       const data = this.parseData(row.data)
-      const priority = typeof data.priority === 'number' ? data.priority : DEFAULT_PRIORITY
+      const priority = typeof data.priority === 'number' ? data.priority : QUEUE_DEFAULT_PRIORITY
       await trx
         .from('queue_jobs')
         .where({ queue, id })
         .update({
           status: 'pending',
           data: JSON.stringify({ ...data, attempts: 0 }),
-          score: priority * PRIORITY_SCORE_MULTIPLIER + Date.now(),
+          score: priority * QUEUE_PRIORITY_SCORE_MULTIPLIER + Date.now(),
           error: null,
           worker_id: null,
           acquired_at: null,
@@ -221,7 +226,7 @@ export default class AdminQueueService {
    * passage, compteur).
    */
   async runSchedule(scheduleId: string, context: AdminActionContext): Promise<boolean> {
-    const run = MANUAL_RUNS[scheduleId]
+    const run = MANUAL_RUNS.get(scheduleId)
     if (!run) return false
 
     const schedule = await db
@@ -232,6 +237,10 @@ export default class AdminQueueService {
       .first()
     if (!schedule) return false
 
+    // L'audit passe avant le dispatch : si le dispatch échoue, la transaction annule
+    // la trace. Le dispatch écrit sur la connexion de la queue, hors `trx` : un échec
+    // du commit (rarissime) laisserait un job lancé sans trace, ce que l'ordre
+    // choisi limite à ce seul cas.
     await db.transaction(async (trx) => {
       await this.audit.record(
         {
@@ -286,7 +295,7 @@ export default class AdminQueueService {
       runCount: Number(row.run_count),
       lastRunAt: toIso(row.last_run_at),
       nextRunAt: toIso(row.next_run_at),
-      runnable: row.id in MANUAL_RUNS,
+      runnable: MANUAL_RUNS.has(row.id),
     }))
   }
 

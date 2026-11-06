@@ -4,7 +4,11 @@ import { UserFactory } from '#database/factories/user_factory'
 import AdminAuditLog from '#models/admin_audit_log'
 import { useDatabase } from '#tests/utils/setup'
 import type { AdminQueueJobRow, AdminQueueOverview } from '#shared/types/admin_queue'
-import { QUEUE_THRESHOLDS } from '#shared/types/health'
+import {
+  QUEUE_DEFAULT_PRIORITY,
+  QUEUE_PRIORITY_SCORE_MULTIPLIER,
+  QUEUE_THRESHOLDS,
+} from '#shared/types/health'
 
 /**
  * Supervision de la queue (#175). `QUEUE_DRIVER=sync` en test : un job planifié
@@ -166,6 +170,7 @@ test.group('Queue — administration', (group) => {
       })
     )
 
+    const before = Date.now()
     const response = await post(client, admin, '/fr/admin/queue/jobs/default/f1/retry')
 
     response.assertStatus(302)
@@ -173,7 +178,11 @@ test.group('Queue — administration', (group) => {
     assert.equal(row.status, 'pending')
     assert.isNull(row.error)
     assert.isNull(row.finished_at)
-    assert.isNotNull(row.score)
+    // Contrat du score avec la lib : priorité par défaut × 1e13 + date de mise en file.
+    const score = Number(row.score)
+    assert.equal(Math.floor(score / QUEUE_PRIORITY_SCORE_MULTIPLIER), QUEUE_DEFAULT_PRIORITY)
+    assert.isAtLeast(score % QUEUE_PRIORITY_SCORE_MULTIPLIER, before)
+    assert.isAtMost(score % QUEUE_PRIORITY_SCORE_MULTIPLIER, Date.now())
     assert.equal(JSON.parse(row.data).attempts, 0)
 
     const audit = await AdminAuditLog.query().where('action', 'queue_job.retried').firstOrFail()
@@ -256,8 +265,18 @@ test.group('Queue — administration', (group) => {
     const audit = await AdminAuditLog.query().where('action', 'queue_schedule.run').firstOrFail()
     assert.equal(audit.changes?.after?.schedule, 'purge-ai-calls')
 
-    // Planning inconnu de la liste blanche ou absent : refusé, rien n'est tracé.
+    // Planning inconnu de la liste blanche ou absent : refusé, rien n'est tracé. Les noms
+    // de `Object.prototype` ne passent pas la liste blanche, même avec un planning du même id.
+    await db.table('queue_schedules').insert({
+      id: 'constructor',
+      name: 'CustomJob',
+      payload: '{}',
+      every_ms: 60_000,
+      timezone: 'UTC',
+      created_at: Date.now(),
+    })
     await post(client, admin, '/fr/admin/queue/schedules/custom/run')
+    await post(client, admin, '/fr/admin/queue/schedules/constructor/run')
     await post(client, admin, '/fr/admin/queue/schedules/inconnu/run')
     assert.lengthOf(await AdminAuditLog.query().where('action', 'queue_schedule.run'), 1)
   })

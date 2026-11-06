@@ -19,7 +19,7 @@ Nouveau droit `queue.manage`, porté par le seul rôle `admin` : la charge utile
 
 ## Santé
 
-`AdminQueueService` réutilise `HealthService.queueReport` et les seuils de `shared/types/health.ts` (`QUEUE_THRESHOLDS`) : mêmes chiffres que `node ace queue:health`. Un job est **en retard** (`overdue`) quand son échéance est dépassée de plus de 15 minutes ; un job `pending`, qui n'a pas d'échéance, est daté de sa mise en file (dérivée du score). Il est **bloqué** (`stuck`) quand il est actif depuis plus de 30 minutes.
+`AdminQueueService` réutilise `HealthService.queueReport` et les seuils de `shared/types/health.ts` (`QUEUE_THRESHOLDS`) : mêmes chiffres que `node ace queue:health`. Un job est **en retard** (`overdue`) quand son échéance est dépassée de plus de 15 minutes ; un job `pending`, qui n'a pas d'échéance, est daté de sa mise en file (dérivée du score) — `HealthService.queueReport` applique la même règle (`coalesce(execute_at, score % 1e13)`), donc la sonde `queue:health`, le tableau de bord et la liste s'accordent sur les jobs en retard. Il est **bloqué** (`stuck`) quand il est actif depuis plus de 30 minutes.
 
 ## Jobs planifiés
 
