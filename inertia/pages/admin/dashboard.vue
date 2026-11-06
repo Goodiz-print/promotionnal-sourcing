@@ -7,10 +7,12 @@ import { useI18n } from '~/i18n'
 import { usePlatformPermissions } from '~/composables/use_platform_permissions'
 import KpiOverview from '~/components/admin/kpi_overview.vue'
 import KpiPeriodFilter from '~/components/admin/kpi_period_filter.vue'
+import QueueHealth from '~/components/admin/queue/queue_health.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseStat from '~/components/base/base_stat.vue'
 import type { AdminDashboardStats } from '#shared/types/admin'
 import type { AdminKpiFilters, AdminKpiReport } from '#shared/types/admin_kpi'
+import type { QueueHealthReport } from '#shared/types/health'
 import type { PlatformPermission } from '#shared/types/user'
 
 defineProps<{
@@ -18,6 +20,8 @@ defineProps<{
   /** `null` pour les rôles sans droit `monitoring.view` : compteurs seuls. */
   kpis: AdminKpiReport | null
   filters: AdminKpiFilters | null
+  /** Santé de la queue : `null` sans le droit `queue.manage`. */
+  queue?: QueueHealthReport | null
 }>()
 
 const { t, locale } = useI18n()
@@ -110,6 +114,8 @@ const counters = computed(() =>
         "
       />
     </div>
+
+    <QueueHealth v-if="queue" :health="queue" linked />
 
     <template v-if="kpis && filters">
       <KpiPeriodFilter :filters="filters" @change="visit" />

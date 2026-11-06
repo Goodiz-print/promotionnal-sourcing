@@ -12,10 +12,21 @@ export const QUEUE_THRESHOLDS = {
 } as const
 
 /**
+ * Priorité par défaut de @boringnode/queue et pondération du score d'un job
+ * (`priorité × 1e13 + date de mise en file en ms`). Ces valeurs reproduisent
+ * `calculateScore` de la lib (non exportée) : un job `pending` n'a pas d'échéance,
+ * sa date de mise en file se lit donc dans `score % QUEUE_PRIORITY_SCORE_MULTIPLIER`.
+ */
+export const QUEUE_DEFAULT_PRIORITY = 5
+export const QUEUE_PRIORITY_SCORE_MULTIPLIER = 1e13
+
+/**
  * Rapport de santé de la queue, produit par `HealthService.queueReport`.
  * `ok` ne dépend que du backlog et des jobs bloqués ; les échecs sont informatifs.
+ * Déclaré en `type` : le rapport est une prop Inertia (tableau de bord, supervision
+ * de la queue), qu'une `interface` ne satisferait pas.
  */
-export interface QueueHealthReport {
+export type QueueHealthReport = {
   ok: boolean
   pendingOverdue: number
   oldestPendingAgeMs: number | null

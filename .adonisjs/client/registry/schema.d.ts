@@ -1892,6 +1892,71 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/ai_controller').default['correct']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'admin.queue.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/queue'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_queue').adminQueueFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.queue.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/queue/jobs/:queue/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; queue: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['show']>>>
+    }
+  }
+  'admin.queue.retry': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/queue/jobs/:queue/:id/retry'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; queue: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['retry']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['retry']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['retry']>>>
+    }
+  }
+  'admin.queue.cancel': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/queue/jobs/:queue/:id/cancel'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; queue: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['cancel']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['cancel']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['cancel']>>>
+    }
+  }
+  'admin.queue.schedules.run': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/queue/schedules/:id/run'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['runSchedule']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['runSchedule']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/queue_controller').default['runSchedule']>>>
+    }
+  }
   'admin.products.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/products'

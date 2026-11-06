@@ -172,7 +172,8 @@ Deux sondes (#61) :
   Ne regarde pas la queue : un backlog ne doit pas faire redémarrer le web.
 - **`node ace queue:health`** (worker) : affiche un rapport JSON et sort en 1 si
   - un job `pending` ou `delayed` a dépassé son échéance de plus de 15 min
-    (worker absent ou saturé) ;
+    (worker absent ou saturé) ; un job `pending` n'ayant pas d'`execute_at`, son
+    échéance est sa date de mise en file, lue dans le score (`score % 1e13`) ;
   - un job `active` est acquis depuis plus de 30 min (worker figé).
 
   Les échecs des 24 dernières heures sont affichés mais ne dégradent pas la sonde.

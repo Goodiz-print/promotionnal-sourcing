@@ -65,6 +65,9 @@ export const ADMIN_AUDIT_ACTIONS = [
   'import.errors_exported',
   'ai.backfill_requested',
   'translation.corrected',
+  'queue_job.retried',
+  'queue_job.cancelled',
+  'queue_schedule.run',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]
@@ -87,6 +90,8 @@ export const ADMIN_AUDIT_TARGET_TYPES = [
   'import_job',
   'ai_backfill',
   'translation',
+  'queue_job',
+  'queue_schedule',
 ] as const
 
 export type AdminAuditTargetType = (typeof ADMIN_AUDIT_TARGET_TYPES)[number]

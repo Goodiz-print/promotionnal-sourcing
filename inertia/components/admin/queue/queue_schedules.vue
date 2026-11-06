@@ -1,0 +1,75 @@
+<script setup lang="ts">
+import { router } from '@inertiajs/vue3'
+import { Play } from 'lucide-vue-next'
+import { useI18n } from '~/i18n'
+import { urlFor } from '~/client'
+import { useTradeFormat } from '~/composables/use_trade_format'
+import BaseButton from '~/components/base/base_button.vue'
+import BaseSection from '~/components/base/base_section.vue'
+import BaseTable from '~/components/base/base_table.vue'
+import type { AdminQueueScheduleRow } from '#shared/types/admin_queue'
+
+/** Jobs planifiés (`start/scheduler.ts`) : dernier passage, prochain passage, lancement manuel. */
+defineProps<{ schedules: AdminQueueScheduleRow[] }>()
+
+const { t, locale } = useI18n()
+const { dateTime } = useTradeFormat()
+
+function run(schedule: AdminQueueScheduleRow) {
+  if (!window.confirm(t('admin.queue.schedules.confirmRun', { name: schedule.name }))) return
+  router.post(
+    urlFor('admin.queue.schedules.run', { locale: locale.value, id: schedule.id }),
+    {},
+    { preserveScroll: true }
+  )
+}
+
+const timing = (schedule: AdminQueueScheduleRow) =>
+  schedule.cron
+    ? `${schedule.cron} (${schedule.timezone})`
+    : schedule.everyMs
+      ? t('admin.queue.schedules.every', { seconds: Math.round(schedule.everyMs / 1000) })
+      : '—'
+</script>
+
+<template>
+  <BaseSection
+    :title="t('admin.queue.schedules.title')"
+    :description="t('admin.queue.schedules.description')"
+    flush
+  >
+    <p v-if="schedules.length === 0" class="px-6 py-4 text-body-sm text-text-secondary">
+      {{ t('admin.queue.schedules.empty') }}
+    </p>
+    <BaseTable v-else :caption="t('admin.queue.schedules.title')">
+      <template #head>
+        <tr>
+          <th scope="col">{{ t('admin.queue.schedules.columns.job') }}</th>
+          <th scope="col">{{ t('admin.queue.schedules.columns.timing') }}</th>
+          <th scope="col">{{ t('admin.queue.schedules.columns.lastRun') }}</th>
+          <th scope="col">{{ t('admin.queue.schedules.columns.nextRun') }}</th>
+          <th scope="col">{{ t('admin.queue.schedules.columns.runs') }}</th>
+          <th scope="col">
+            <span class="sr-only">{{ t('admin.queue.schedules.run') }}</span>
+          </th>
+        </tr>
+      </template>
+      <tr v-for="schedule in schedules" :key="schedule.id">
+        <td class="font-semibold text-text-primary">
+          {{ schedule.name }}
+          <span class="block text-caption font-normal text-text-muted">{{ schedule.id }}</span>
+        </td>
+        <td class="text-tabular">{{ timing(schedule) }}</td>
+        <td>{{ dateTime(schedule.lastRunAt) }}</td>
+        <td>{{ dateTime(schedule.nextRunAt) }}</td>
+        <td class="text-tabular">{{ schedule.runCount }}</td>
+        <td class="text-right">
+          <BaseButton v-if="schedule.runnable" variant="secondary" size="sm" @click="run(schedule)">
+            <Play :size="16" aria-hidden="true" />
+            {{ t('admin.queue.schedules.run') }}
+          </BaseButton>
+        </td>
+      </tr>
+    </BaseTable>
+  </BaseSection>
+</template>

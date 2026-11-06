@@ -55,3 +55,12 @@ export class AdminTranslationNotFoundException extends Exception {
   static code = 'E_ADMIN_TRANSLATION_NOT_FOUND'
   static message = 'Translation not found'
 }
+
+/**
+ * Job de queue introuvable dans le back-office (`/admin/queue/:queue/:id`).
+ */
+export class AdminQueueJobNotFoundException extends Exception {
+  static status = 404
+  static code = 'E_ADMIN_QUEUE_JOB_NOT_FOUND'
+  static message = 'Queue job not found'
+}
