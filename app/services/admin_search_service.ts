@@ -257,7 +257,13 @@ export default class AdminSearchService {
 
       let supplierName: string | null = null
       if (supplierId !== null) {
-        const supplier = await trx.from('suppliers').where('id', supplierId).select('name').first()
+        // Le nom vit sur l'organisation du fournisseur (rattachement facultatif).
+        const supplier = await trx
+          .from('suppliers')
+          .leftJoin('organizations', 'organizations.id', 'suppliers.organization_id')
+          .where('suppliers.id', supplierId)
+          .select('organizations.name as name')
+          .first()
         if (!supplier) return 'unknown_supplier' as const
         supplierName = supplier.name
       }

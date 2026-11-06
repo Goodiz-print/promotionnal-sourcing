@@ -272,7 +272,8 @@ test.group('Recherche — réindexation', (group) => {
     const row = await db
       .from('products')
       .join('suppliers', 'suppliers.id', 'products.supplier_id')
-      .select('suppliers.id as supplier_id', 'suppliers.name as supplier_name')
+      .leftJoin('organizations', 'organizations.id', 'suppliers.organization_id')
+      .select('suppliers.id as supplier_id', 'organizations.name as supplier_name')
       .first()
     const supplierProducts = await db.from('products').where('supplier_id', row.supplier_id)
 
