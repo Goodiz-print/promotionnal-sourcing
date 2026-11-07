@@ -58,7 +58,7 @@ export type AdminMailDetail = AdminMailRow & {
 
 /** Taux d'échec d'un type de mail sur `MAIL_RATE_WINDOW_DAYS` jours. */
 export type AdminMailKindRate = {
-  kind: string
+  kind: MailKind
   sent: number
   failed: number
   inProgress: number
@@ -73,9 +73,13 @@ export type AdminMailOverview = {
   rates: AdminMailKindRate[]
 }
 
-/** Résultat d'un rejeu : mails remis en file, et lignes sans charge (rejeu impossible). */
+/**
+ * Résultat d'un rejeu : mails remis en file, mises en queue en échec (rendues à la
+ * dead-letter) et lignes sans charge (rejeu impossible).
+ */
 export type AdminMailRetryResult = {
   requeued: number
+  failed: number
   skipped: number
 }
 

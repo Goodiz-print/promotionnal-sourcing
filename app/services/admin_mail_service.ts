@@ -1,4 +1,5 @@
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 import SendMailJob from '#jobs/send_mail_job'
@@ -96,7 +97,7 @@ export default class AdminMailService {
       const sent = Number(row.sent)
       const failed = Number(row.failed)
       return {
-        kind: row.kind,
+        kind: row.kind as MailKind,
         sent,
         failed,
         inProgress: Number(row.in_progress),
@@ -104,7 +105,10 @@ export default class AdminMailService {
       }
     })
 
-    const failedTotal = await this.settledFailures().count('* as total').first()
+    const failedTotal = await this.settledFailures()
+      .whereNotNull('payload')
+      .count('* as total')
+      .first()
     return {
       windowDays: MAIL_RATE_WINDOW_DAYS,
       failedTotal: Number(failedTotal?.total ?? 0),
@@ -162,7 +166,7 @@ export default class AdminMailService {
 
   /**
    * Rejoue un mail de la dead-letter. `null` s'il n'existe plus ou n'est plus
-   * rejouable (déjà parti, déjà rejoué, en cours).
+   * rejouable (déjà parti, déjà rejoué, en cours, charge purgée).
    */
   retryOne(id: number, context: AdminActionContext): Promise<AdminMailRetryResult | null> {
     return this.requeue({ id }, 'mail.retried', context)
@@ -172,8 +176,12 @@ export default class AdminMailService {
    * Rejoue la dead-letter, d'un type de mail ou de tous, dans la limite de
    * `MAIL_BULK_RETRY_LIMIT` (les plus anciens d'abord).
    */
-  retryAll(kind: MailKind | null, context: AdminActionContext): Promise<AdminMailRetryResult> {
-    return this.requeue({ kind }, 'mail.bulk_retried', context) as Promise<AdminMailRetryResult>
+  async retryAll(
+    kind: MailKind | null,
+    context: AdminActionContext
+  ): Promise<AdminMailRetryResult> {
+    const result = await this.requeue({ kind }, 'mail.bulk_retried', context)
+    return result as AdminMailRetryResult
   }
 
   /**
@@ -181,8 +189,10 @@ export default class AdminMailService {
    * écrit l'audit dans la même transaction, puis met les mails en queue **après le
    * commit**. Deux admins qui rejouent en même temps ne remettent donc pas le même
    * mail deux fois, et un clic répété ne le fait pas non plus : la ligne n'est plus
-   * dans la dead-letter avant `MAIL_IN_PROGRESS_MINUTES`. Si la mise en queue échoue
-   * après le commit, la ligne revient d'elle-même dans la dead-letter à l'issue de ce délai.
+   * dans la dead-letter avant `MAIL_IN_PROGRESS_MINUTES`. Une mise en queue qui échoue
+   * rend sa ligne à la dead-letter aussitôt (`updated_at` d'origine) et est comptée dans
+   * `failed`. Seules les lignes **avec charge** sont sélectionnées : celles dont la charge
+   * est purgée ne consomment pas la limite du lot (elles sont comptées dans `skipped`).
    */
   private async requeue(
     target: { id: number } | { kind: MailKind | null },
@@ -191,48 +201,69 @@ export default class AdminMailService {
   ): Promise<AdminMailRetryResult | null> {
     const single = 'id' in target
     const kind = 'kind' in target ? target.kind : null
-    const payloads: SendMailPayload[] = []
+    const batch: { id: number; previousUpdatedAt: Date; payload: SendMailPayload }[] = []
     let skipped = 0
 
     await db.transaction(async (trx) => {
-      const query = this.settledFailures(trx).select('id', 'kind', 'payload')
+      const query = this.settledFailures(trx)
+        .whereNotNull('payload')
+        .select('id', 'payload', 'updated_at')
       if (single) query.where('id', target.id)
       else if (kind) query.where('kind', kind)
-      const rows = await query
+      const rows = (await query
         .orderBy('id', 'asc')
         .limit(single ? 1 : MAIL_BULK_RETRY_LIMIT)
         .forUpdate()
-        .skipLocked()
+        .skipLocked()) as Pick<DeliveryDbRow, 'id' | 'payload' | 'updated_at'>[]
 
-      const ids: number[] = []
-      for (const row of rows as Pick<DeliveryDbRow, 'id' | 'payload'>[]) {
+      for (const row of rows) {
         const payload = this.parsePayload(row.payload)
-        if (!payload) {
-          skipped += 1
-          continue
-        }
-        ids.push(row.id)
-        payloads.push(payload)
+        if (payload) batch.push({ id: row.id, previousUpdatedAt: row.updated_at, payload })
       }
-      if (ids.length === 0) return
+      if (batch.length === 0) return
 
-      await trx.from(TABLE).whereIn('id', ids).update({ updated_at: new Date() })
+      if (!single) {
+        const unreplayable = this.settledFailures(trx).whereNull('payload').count('* as total')
+        if (kind) unreplayable.where('kind', kind)
+        const purged = await unreplayable.first()
+        skipped = Number(purged?.total ?? 0)
+      }
+
+      await trx
+        .from(TABLE)
+        .whereIn(
+          'id',
+          batch.map((entry) => entry.id)
+        )
+        .update({ updated_at: new Date() })
       await this.audit.record(
         {
           action,
           targetType: 'mail_delivery',
           targetId: single ? target.id : null,
           changes: {
-            after: single ? { kind: payloads[0].kind } : { kind, requeued: ids.length, skipped },
+            after: single
+              ? { kind: batch[0].payload.kind }
+              : { kind, requeued: batch.length, skipped },
           },
         },
         { ...context, client: trx }
       )
     })
 
-    if (payloads.length === 0) return single ? null : { requeued: 0, skipped }
-    for (const payload of payloads) await SendMailJob.dispatch(payload)
-    return { requeued: payloads.length, skipped }
+    if (batch.length === 0) return single ? null : { requeued: 0, failed: 0, skipped }
+
+    let failed = 0
+    for (const entry of batch) {
+      try {
+        await SendMailJob.dispatch(entry.payload)
+      } catch (error) {
+        failed += 1
+        logger.error({ err: error, mailDeliveryId: entry.id }, 'admin mail retry: dispatch failed')
+        await db.from(TABLE).where('id', entry.id).update({ updated_at: entry.previousUpdatedAt })
+      }
+    }
+    return { requeued: batch.length - failed, failed, skipped }
   }
 
   private settledBefore(): Date {

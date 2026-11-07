@@ -21,7 +21,7 @@ Nouveau droit `ops.manage`, porté par le seul rôle `admin` (les adresses des d
 
 ### Rejeu
 
-Le rejeu réutilise `SendMailJob` avec le `SendMailPayload` conservé : même clé d'idempotence, donc un mail déjà `sent` n'est jamais renvoyé. Les lignes rejouables sont verrouillées (`FOR UPDATE SKIP LOCKED`), passées « en cours » et auditées dans une même transaction, puis les jobs sont mis en queue après le commit : deux admins, ou un clic répété, ne remettent pas le même mail deux fois. Si la mise en queue échoue après le commit, la ligne revient dans la dead-letter à l'issue des 30 minutes. Une ligne sans charge (purgée) ne peut pas être rejouée : elle est comptée comme ignorée.
+Le rejeu réutilise `SendMailJob` avec le `SendMailPayload` conservé : même clé d'idempotence, donc un mail déjà `sent` n'est jamais renvoyé. Les lignes rejouables sont verrouillées (`FOR UPDATE SKIP LOCKED`), passées « en cours » et auditées dans une même transaction, puis les jobs sont mis en queue après le commit : deux admins, ou un clic répété, ne remettent pas le même mail deux fois. Si la mise en queue échoue après le commit, la ligne revient dans la dead-letter à l'issue des 30 minutes. Une ligne sans charge (purgée) ne peut pas être rejouée : elle n'entre pas dans la limite du lot, n'est pas comptée dans « à rejouer » et apparaît comme ignorée dans le rejeu groupé. Une mise en queue qui échoue rend sa ligne à la dead-letter aussitôt et est signalée à l'admin (l'audit enregistre le lot demandé).
 
 ## Stockage
 
@@ -30,10 +30,10 @@ Le rejeu réutilise `SendMailJob` avec le `SendMailPayload` conservé : même cl
 
 ### Volume par organisation
 
-Un fichier est rattaché à l'organisation propriétaire de chaque colonne qui le référence (logo, bannière, actualités, documents, images et variantes, documents produit). Un fichier partagé entre deux organisations (dédoublonnage par checksum) compte pour chacune : la somme par organisation peut dépasser le total. Le type de la table de rattachement est dérivé de `STORAGE_REFERENCES` : ajouter une colonne référençante sans dire à qui elle appartient est une erreur de compilation.
+Un fichier est rattaché à l'organisation propriétaire de chaque colonne qui le référence (logo, bannière, actualités, documents, images et variantes, documents produit). Un fichier partagé entre deux organisations (dédoublonnage par checksum) compte pour chacune : la somme par organisation peut dépasser le total. Le calcul tient en une seule requête (le rattachement est matérialisé une fois). Le type de la table de rattachement est dérivé de `STORAGE_REFERENCES` : ajouter une colonne référençante sans dire à qui elle appartient est une erreur de compilation.
 
 ## Points d'attention
 
-- Pas de migration.
+- Migration à appliquer : `node ace migration:run` (`1794000000008`, index `updated_at` et `created_at, kind` sur `mail_deliveries`).
 - Les 7 langues autres que le français et l'anglais reçoivent le texte anglais pour les clés admin.
 - Tests : `tests/functional/admin_ops.spec.ts` (non exécuté en local, pas de pgvector ≥ 0.7 dans le conteneur : à vérifier en CI), `tests/inertia/admin_ops.spec.ts`, droits et traductions en tests unitaires.

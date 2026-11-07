@@ -1536,12 +1536,12 @@
       "retryAll": "Retry all failures",
       "retryKind": "Retry this type",
       "retryConfirm": "Put this mail back in the queue?",
-      "retryAllConfirm": "Put all failed mails back in the queue (200 at most)?",
-      "retryKindConfirm": "Put failed “{kind}” mails back in the queue (200 at most)?"
+      "retryAllConfirm": "Put all failed mails back in the queue ({limit} at most)?",
+      "retryKindConfirm": "Put failed “{kind}” mails back in the queue ({limit} at most)?"
     },
     "rates": {
       "title": "Failure rate by type",
-      "description": "Over the last {days} days. A delivery is failed once the queue has used all its attempts; it stays “in progress” for 30 minutes after its last attempt.",
+      "description": "Over the last {days} days. A delivery is failed once the queue has used all its attempts; it stays “in progress” for {minutes} minutes after its last attempt.",
       "failedTotal": "{count, plural, =0 {No mail to retry.} one {# mail to retry.} other {# mails to retry.}}",
       "empty": "No delivery in this period.",
       "sent": "Sent",
@@ -1563,7 +1563,9 @@
       "notRetryable": "This mail can no longer be retried.",
       "bulkRetried": "{count, plural, one {# mail put back in the queue.} other {# mails put back in the queue.}}",
       "bulkRetriedSkipped": "{count, plural, one {# mail put back in the queue} other {# mails put back in the queue}}; {skipped, plural, one {# skipped (payload unavailable).} other {# skipped (payload unavailable).}}",
-      "nothingToRetry": "No failed mail to retry."
+      "nothingToRetry": "No failed mail to retry.",
+      "queueFailed": "Queuing failed: the mail is still to be retried.",
+      "bulkPartial": "{count} mail(s) put back in the queue; {failed} could not be queued and remain to be retried."
     }
   },
   "storage": {
@@ -1583,7 +1585,7 @@
       "ok": "No interrupted upload or lost deletion older than {hours} h.",
       "backlog": "{count, plural, one {# row} other {# rows}} pending for more than {hours} h: the scheduled recovery handles them every hour.",
       "submit": "Run recovery now",
-      "hint": "Removes interrupted uploads and replays lost deletions older than 24 h. Never touches a ready file.",
+      "hint": "Removes interrupted uploads and replays lost deletions older than {hours} h. Never touches a ready file.",
       "confirm": "Run the storage recovery now?"
     },
     "stale": {

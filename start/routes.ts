@@ -483,9 +483,13 @@ router
                 router
                   .post('admin/mail/retry', [controllers.admin.Mail, 'retryAll'])
                   .as('admin.mail.retryAll')
-                router.get('admin/mail/:id', [controllers.admin.Mail, 'show']).as('admin.mail.show')
+                router
+                  .get('admin/mail/:id', [controllers.admin.Mail, 'show'])
+                  .where('id', router.matchers.number())
+                  .as('admin.mail.show')
                 router
                   .post('admin/mail/:id/retry', [controllers.admin.Mail, 'retry'])
+                  .where('id', router.matchers.number())
                   .as('admin.mail.retry')
                 router
                   .get('admin/storage', [controllers.admin.Storage, 'index'])

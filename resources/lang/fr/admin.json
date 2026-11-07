@@ -1536,12 +1536,12 @@
       "retryAll": "Rejouer tous les échecs",
       "retryKind": "Rejouer ce type",
       "retryConfirm": "Remettre ce mail en file ?",
-      "retryAllConfirm": "Remettre en file tous les mails en échec (200 au plus) ?",
-      "retryKindConfirm": "Remettre en file les mails en échec de type « {kind} » (200 au plus) ?"
+      "retryAllConfirm": "Remettre en file tous les mails en échec ({limit} au plus) ?",
+      "retryKindConfirm": "Remettre en file les mails en échec de type « {kind} » ({limit} au plus) ?"
     },
     "rates": {
       "title": "Taux d’échec par type",
-      "description": "Sur les {days} derniers jours. Un envoi est en échec quand la queue a épuisé ses essais ; il reste « en cours » 30 minutes après sa dernière tentative.",
+      "description": "Sur les {days} derniers jours. Un envoi est en échec quand la queue a épuisé ses essais ; il reste « en cours » {minutes} minutes après sa dernière tentative.",
       "failedTotal": "{count, plural, =0 {Aucun mail à rejouer.} one {# mail à rejouer.} other {# mails à rejouer.}}",
       "empty": "Aucun envoi sur la période.",
       "sent": "Envoyés",
@@ -1563,7 +1563,9 @@
       "notRetryable": "Ce mail ne peut plus être rejoué.",
       "bulkRetried": "{count, plural, one {# mail remis en file.} other {# mails remis en file.}}",
       "bulkRetriedSkipped": "{count, plural, one {# mail remis en file} other {# mails remis en file}} ; {skipped, plural, one {# ignoré (charge indisponible).} other {# ignorés (charge indisponible).}}",
-      "nothingToRetry": "Aucun mail en échec à rejouer."
+      "nothingToRetry": "Aucun mail en échec à rejouer.",
+      "queueFailed": "La mise en file a échoué : le mail reste à rejouer.",
+      "bulkPartial": "{count} mail(s) remis en file ; {failed} n’ont pas pu l’être et restent à rejouer."
     }
   },
   "storage": {
@@ -1583,7 +1585,7 @@
       "ok": "Aucun envoi interrompu ni suppression perdue de plus de {hours} h.",
       "backlog": "{count, plural, one {# ligne} other {# lignes}} en attente depuis plus de {hours} h : la reprise planifiée les traite toutes les heures.",
       "submit": "Relancer la reprise",
-      "hint": "Supprime les envois interrompus et rejoue les suppressions perdues de plus de 24 h. Ne touche jamais un fichier prêt.",
+      "hint": "Supprime les envois interrompus et rejoue les suppressions perdues de plus de {hours} h. Ne touche jamais un fichier prêt.",
       "confirm": "Relancer la reprise du stockage maintenant ?"
     },
     "stale": {

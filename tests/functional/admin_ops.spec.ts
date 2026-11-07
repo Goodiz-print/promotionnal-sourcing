@@ -10,6 +10,7 @@ import OrganizationInvitationNotification from '#mails/organization_invitation_n
 import { useDatabase } from '#tests/utils/setup'
 import { useFakeStorage } from '#tests/utils/storage'
 import {
+  MAIL_BULK_RETRY_LIMIT,
   MAIL_IN_PROGRESS_MINUTES,
   type AdminMailDetail,
   type AdminMailOverview,
@@ -253,6 +254,43 @@ test.group('Ops — emails', (group) => {
     assert.equal(after.e1, 'failed')
     const second = await AdminAuditLog.query().where('action', 'mail.bulk_retried').orderBy('id')
     assert.equal(second[1].changes?.after?.skipped, 1)
+  })
+
+  test('une charge purgée ne consomme pas la limite du lot', async ({ client, assert }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const purged = Array.from({ length: MAIL_BULK_RETRY_LIMIT + 1 }, (_, index) => ({
+      idempotency_key: `purged-${index}`,
+      kind: MAIL_KINDS.organizationInvitation,
+      to: `purged-${index}@example.test`,
+      status: 'failed',
+      attempts: 6,
+      payload: null,
+      created_at: SETTLED,
+      updated_at: SETTLED,
+    }))
+    await db.table('mail_deliveries').multiInsert(purged)
+    // Plus récente que les lignes purgées : elle serait hors du lot si celles-ci comptaient.
+    await delivery('replayable')
+
+    await post(client, admin, '/fr/admin/mail/retry')
+
+    assert.equal(sentCount(), 1)
+    const audit = await AdminAuditLog.query().where('action', 'mail.bulk_retried').firstOrFail()
+    assert.equal(audit.changes?.after?.requeued, 1)
+    assert.equal(audit.changes?.after?.skipped, MAIL_BULK_RETRY_LIMIT + 1)
+
+    const response = await client.get('/fr/admin/mail').withInertia().loginAs(admin)
+    assert.equal((response.inertiaProps.overview as AdminMailOverview).failedTotal, 0)
+  })
+
+  test('un identifiant non numérique renvoie 404, pas 500', async ({ client }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+
+    const show = await client.get('/fr/admin/mail/abc').withInertia().loginAs(admin)
+    const retry = await post(client, admin, '/fr/admin/mail/abc/retry')
+
+    show.assertStatus(404)
+    retry.assertStatus(404)
   })
 
   test('rejouer sans rien à rejouer n’écrit pas d’audit', async ({ client, assert }) => {

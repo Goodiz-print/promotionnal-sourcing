@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/vue3'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
+import { MAIL_BULK_RETRY_LIMIT } from '#shared/types/admin_ops'
 import type { MailKind } from '#shared/types/mail'
 
 /**
@@ -18,8 +19,11 @@ export function useMailActions() {
   /** Rejoue toute la dead-letter, ou un seul type de mail. */
   function retryAll(kind: MailKind | null) {
     const message = kind
-      ? t('admin.mail.actions.retryKindConfirm', { kind: t(`admin.mail.kinds.${kind}`) })
-      : t('admin.mail.actions.retryAllConfirm')
+      ? t('admin.mail.actions.retryKindConfirm', {
+          kind: t(`admin.mail.kinds.${kind}`),
+          limit: MAIL_BULK_RETRY_LIMIT,
+        })
+      : t('admin.mail.actions.retryAllConfirm', { limit: MAIL_BULK_RETRY_LIMIT })
     if (!window.confirm(message)) return
     router.post(urlFor('admin.mail.retryAll', { locale: locale.value }), kind ? { kind } : {}, {
       preserveScroll: true,

@@ -6,8 +6,7 @@ import { useMailActions } from '~/composables/use_mail_actions'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import BaseTable from '~/components/base/base_table.vue'
-import type { AdminMailOverview } from '#shared/types/admin_ops'
-import type { MailKind } from '#shared/types/mail'
+import { MAIL_IN_PROGRESS_MINUTES, type AdminMailOverview } from '#shared/types/admin_ops'
 
 /** Taux d'échec par type de mail sur la fenêtre de l'aperçu, et rejeu de la dead-letter. */
 const props = defineProps<{ overview: AdminMailOverview }>()
@@ -24,7 +23,12 @@ const rate = (value: number | null) => (value === null ? '—' : percent.value.f
 <template>
   <BaseSection
     :title="t('admin.mail.rates.title')"
-    :description="t('admin.mail.rates.description', { days: props.overview.windowDays })"
+    :description="
+      t('admin.mail.rates.description', {
+        days: props.overview.windowDays,
+        minutes: MAIL_IN_PROGRESS_MINUTES,
+      })
+    "
     flush
   >
     <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4">
@@ -64,7 +68,7 @@ const rate = (value: number | null) => (value === null ? '—' : percent.value.f
             v-if="row.failed > 0"
             variant="secondary"
             size="sm"
-            @click="retryAll(row.kind as MailKind)"
+            @click="retryAll(row.kind)"
           >
             {{ t('admin.mail.actions.retryKind') }}
           </BaseButton>

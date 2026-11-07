@@ -36,7 +36,7 @@ export default class MailController {
     await bouncer.authorize('hasPlatformPermission', 'ops.manage')
 
     return inertia.render('admin/mail/show', {
-      delivery: await this.service.show(Number(params.id)),
+      delivery: await this.service.show(params.id),
     })
   }
 
@@ -45,12 +45,11 @@ export default class MailController {
     const { bouncer, params, response, session, i18n } = ctx
     await bouncer.authorize('hasPlatformPermission', 'ops.manage')
 
-    const result = await this.service.retryOne(Number(params.id), adminActionContext(ctx))
-    session.flash(
-      result ? 'success' : 'error',
-      i18n.t(result ? 'admin.mail.flash.retried' : 'admin.mail.flash.notRetryable')
-    )
-    return response.redirect().toRoute('admin.mail.index', { locale: i18n.locale })
+    const result = await this.service.retryOne(params.id, adminActionContext(ctx))
+    if (!result) session.flash('error', i18n.t('admin.mail.flash.notRetryable'))
+    else if (result.failed > 0) session.flash('error', i18n.t('admin.mail.flash.queueFailed'))
+    else session.flash('success', i18n.t('admin.mail.flash.retried'))
+    return response.redirect().back()
   }
 
   /** Rejoue la dead-letter (un type de mail, ou tous). */
@@ -59,14 +58,19 @@ export default class MailController {
     await bouncer.authorize('hasPlatformPermission', 'ops.manage')
 
     const { kind } = await request.validateUsing(adminMailRetryAllValidator)
-    const { requeued, skipped } = await this.service.retryAll(kind ?? null, adminActionContext(ctx))
+    const { requeued, failed, skipped } = await this.service.retryAll(
+      kind ?? null,
+      adminActionContext(ctx)
+    )
 
-    if (requeued === 0) session.flash('error', i18n.t('admin.mail.flash.nothingToRetry'))
+    if (failed > 0) {
+      session.flash('error', i18n.t('admin.mail.flash.bulkPartial', { count: requeued, failed }))
+    } else if (requeued === 0) session.flash('error', i18n.t('admin.mail.flash.nothingToRetry'))
     else {
       const key =
         skipped > 0 ? 'admin.mail.flash.bulkRetriedSkipped' : 'admin.mail.flash.bulkRetried'
       session.flash('success', i18n.t(key, { count: requeued, skipped }))
     }
-    return response.redirect().toRoute('admin.mail.index', { locale: i18n.locale })
+    return response.redirect().back()
   }
 }

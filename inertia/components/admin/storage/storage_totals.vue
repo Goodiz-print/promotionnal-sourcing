@@ -65,7 +65,9 @@ function recover() {
           <RotateCw :size="16" aria-hidden="true" />
           {{ t('admin.storage.recover.submit') }}
         </BaseButton>
-        <p class="mt-2 text-caption text-text-muted">{{ t('admin.storage.recover.hint') }}</p>
+        <p class="mt-2 text-caption text-text-muted">
+          {{ t('admin.storage.recover.hint', { hours: props.overview.thresholdHours }) }}
+        </p>
       </div>
     </div>
   </BaseSection>

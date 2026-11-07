@@ -62,7 +62,7 @@ const OWNER_SELECTS: Record<ReferenceKey, string> = {
 
 /** Couples (organisation, objet) distincts : un objet référencé deux fois par la même organisation compte une fois. */
 const OWNED_PAIRS = `
-  WITH pairs AS (
+  WITH pairs AS MATERIALIZED (
     SELECT DISTINCT organization_id, object_id FROM (
       ${Object.values(OWNER_SELECTS).join('\n      UNION ALL\n')}
     ) owned
@@ -86,12 +86,11 @@ export default class AdminStorageService {
   async overview(): Promise<AdminStorageOverview> {
     const threshold = DateTime.now().minus({ hours: STORAGE_RECOVERY_THRESHOLD_HOURS }).toJSDate()
 
-    const [totals, stale, staleCount, organizations, attributed] = await Promise.all([
+    const [totals, stale, staleCount, ownership] = await Promise.all([
       this.totals(),
       this.stale(threshold),
       this.staleCount(threshold),
-      this.organizations(),
-      this.attributedBytes(),
+      this.ownership(),
     ])
 
     const readyBytes = totals.find((total) => total.status === 'ready')?.bytes ?? 0
@@ -100,8 +99,8 @@ export default class AdminStorageService {
       thresholdHours: STORAGE_RECOVERY_THRESHOLD_HOURS,
       staleCount,
       stale,
-      unattributedBytes: Math.max(0, readyBytes - attributed),
-      organizations,
+      unattributedBytes: Math.max(0, readyBytes - ownership.attributedBytes),
+      organizations: ownership.organizations,
     }
   }
 
@@ -172,37 +171,52 @@ export default class AdminStorageService {
     return Number(row?.total ?? 0)
   }
 
-  private async organizations(): Promise<AdminStorageOrganizationRow[]> {
+  /**
+   * Volume rattaché aux organisations, en **une** requête : le CTE `pairs` (jointures
+   * sur toutes les tables d'images) est référencé deux fois, donc matérialisé une seule
+   * fois par PostgreSQL. Retourne les plus volumineuses et le total des octets `ready`
+   * référencés par au moins une organisation (chaque objet une seule fois).
+   */
+  private async ownership(): Promise<{
+    organizations: AdminStorageOrganizationRow[]
+    attributedBytes: number
+  }> {
     const result = await db.rawQuery(
-      `${OWNED_PAIRS}
-       SELECT o.id AS organization_id, o.name, count(*) AS total, sum(so.size) AS bytes
-       FROM pairs
-       JOIN storage_objects so ON so.id = pairs.object_id AND so.status = 'ready'
-       JOIN organizations o ON o.id = pairs.organization_id
-       GROUP BY o.id, o.name
-       ORDER BY bytes DESC, o.id ASC
-       LIMIT ?`,
+      `${OWNED_PAIRS},
+       per_organization AS (
+         SELECT o.id AS organization_id, o.name, count(*) AS total, sum(so.size) AS bytes
+         FROM pairs
+         JOIN storage_objects so ON so.id = pairs.object_id AND so.status = 'ready'
+         JOIN organizations o ON o.id = pairs.organization_id
+         GROUP BY o.id, o.name
+         ORDER BY bytes DESC, o.id ASC
+         LIMIT ?
+       )
+       SELECT organization_id, name, total, bytes, FALSE AS summary FROM per_organization
+       UNION ALL
+       SELECT NULL, NULL, NULL, coalesce(sum(size), 0), TRUE
+       FROM storage_objects
+       WHERE status = 'ready' AND id IN (SELECT object_id FROM pairs)`,
       [STORAGE_ORGANIZATION_LIMIT]
     )
 
-    return (
-      result.rows as { organization_id: number; name: string; total: string; bytes: string }[]
-    ).map((row) => ({
-      organizationId: row.organization_id,
-      name: row.name,
-      count: Number(row.total),
-      bytes: Number(row.bytes),
-    }))
-  }
-
-  /** Octets `ready` référencés par au moins une organisation (chaque objet une seule fois). */
-  private async attributedBytes(): Promise<number> {
-    const result = await db.rawQuery(
-      `${OWNED_PAIRS}
-       SELECT coalesce(sum(size), 0) AS bytes
-       FROM storage_objects
-       WHERE status = 'ready' AND id IN (SELECT object_id FROM pairs)`
-    )
-    return Number((result.rows as { bytes: string }[])[0]?.bytes ?? 0)
+    const rows = result.rows as {
+      organization_id: number | null
+      name: string | null
+      total: string | null
+      bytes: string
+      summary: boolean
+    }[]
+    return {
+      organizations: rows
+        .filter((row) => !row.summary)
+        .map((row) => ({
+          organizationId: row.organization_id!,
+          name: row.name!,
+          count: Number(row.total),
+          bytes: Number(row.bytes),
+        })),
+      attributedBytes: Number(rows.find((row) => row.summary)?.bytes ?? 0),
+    }
   }
 }
