@@ -70,6 +70,9 @@ export const ADMIN_AUDIT_ACTIONS = [
   'queue_schedule.run',
   'search.reindex_requested',
   'search.evaluation_requested',
+  'mail.retried',
+  'mail.bulk_retried',
+  'storage.recovery_requested',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]
@@ -95,6 +98,8 @@ export const ADMIN_AUDIT_TARGET_TYPES = [
   'queue_job',
   'queue_schedule',
   'search_run',
+  'mail_delivery',
+  'storage',
 ] as const
 
 export type AdminAuditTargetType = (typeof ADMIN_AUDIT_TARGET_TYPES)[number]

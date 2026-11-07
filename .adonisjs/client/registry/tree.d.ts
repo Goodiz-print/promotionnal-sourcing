@@ -252,6 +252,16 @@ export interface ApiDefinition {
       reindex: typeof routes['admin.search.reindex']
       evaluate: typeof routes['admin.search.evaluate']
     }
+    mail: {
+      index: typeof routes['admin.mail.index']
+      retryAll: typeof routes['admin.mail.retryAll']
+      show: typeof routes['admin.mail.show']
+      retry: typeof routes['admin.mail.retry']
+    }
+    storage: {
+      index: typeof routes['admin.storage.index']
+      recover: typeof routes['admin.storage.recover']
+    }
     products: {
       index: typeof routes['admin.products.index']
       show: typeof routes['admin.products.show']

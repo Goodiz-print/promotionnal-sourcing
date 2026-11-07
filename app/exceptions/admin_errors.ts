@@ -64,3 +64,12 @@ export class AdminQueueJobNotFoundException extends Exception {
   static code = 'E_ADMIN_QUEUE_JOB_NOT_FOUND'
   static message = 'Queue job not found'
 }
+
+/**
+ * Envoi de mail introuvable dans le back-office (`/admin/mail/:id`).
+ */
+export class AdminMailNotFoundException extends Exception {
+  static status = 404
+  static code = 'E_ADMIN_MAIL_NOT_FOUND'
+  static message = 'Mail delivery not found'
+}
