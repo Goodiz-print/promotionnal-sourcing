@@ -129,6 +129,8 @@ test.group('Santé — point d’entrée détaillé', (group) => {
         status: 'failed',
         attempts: 6,
         error: 'boom',
+        created_at: new Date(),
+        updated_at: new Date(),
       }))
     )
 
@@ -346,6 +348,8 @@ test.group('Santé — surveillance et alertes', (group) => {
       status: 'failed',
       attempts: 6,
       error: 'boom',
+      created_at: new Date(),
+      updated_at: new Date(),
     })
     await service.check()
     assert.lengthOf(alerts(), 1)
