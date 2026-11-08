@@ -4,6 +4,7 @@ import { errors } from '@vinejs/vine'
 import searchConfig from '#config/search'
 import AdminDashboardService from '#services/admin_dashboard_service'
 import AdminKpiService from '#services/admin_kpi_service'
+import HealthMonitorService from '#services/health_monitor_service'
 import HealthService from '#services/health_service'
 import { adminPeriodValidator } from '#validators/admin_period'
 
@@ -18,7 +19,8 @@ export default class DashboardController {
   constructor(
     private service: AdminDashboardService,
     private kpis: AdminKpiService,
-    private health: HealthService
+    private health: HealthService,
+    private monitor: HealthMonitorService
   ) {}
 
   async index({ bouncer, inertia, request }: HttpContext) {
@@ -26,6 +28,10 @@ export default class DashboardController {
     // Santé de la queue (#175) : réservée au droit `queue.manage`, comme l'écran de supervision.
     const queue = (await bouncer.allows('hasPlatformPermission', 'queue.manage'))
       ? await this.health.queueReport()
+      : null
+    // Santé de la plateforme (#179) : derniers états du job de surveillance, sans sonder.
+    const platform = (await bouncer.allows('hasPlatformPermission', 'ops.manage'))
+      ? await this.monitor.summary()
       : null
     // Recherche inerte (#176) : sans `MEILISEARCH_HOST`, rien n'est indexé et personne n'est prévenu.
     const searchDisabled =
@@ -36,6 +42,7 @@ export default class DashboardController {
         kpis: null,
         filters: null,
         queue,
+        platform,
         searchDisabled,
       })
     }
@@ -53,6 +60,7 @@ export default class DashboardController {
       kpis: await this.kpis.report(filters),
       filters,
       queue,
+      platform,
       searchDisabled,
     })
   }

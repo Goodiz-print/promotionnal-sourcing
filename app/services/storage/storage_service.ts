@@ -49,6 +49,15 @@ export default class StorageService {
   }
 
   /**
+   * Sonde de santé (#179) : un `HEAD` sur une clé réservée prouve que Cellar répond
+   * et que les identifiants sont valides, sans rien écrire. L'absence de l'objet
+   * est normale ; seule une erreur (réseau, authentification) est propagée.
+   */
+  async ping(): Promise<void> {
+    await this.driver.exists(`${storageConfig.keyPrefix}/healthcheck`)
+  }
+
+  /**
    * URL publique d'un objet stocké.
    */
   urlFor(object: StorageObject): string {

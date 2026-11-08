@@ -19,6 +19,7 @@ export interface ApiDefinition {
   }
   health: {
     show: typeof routes['health.show']
+    details: typeof routes['health.details']
   }
   home: typeof routes['home']
   suppliers: {
@@ -261,6 +262,9 @@ export interface ApiDefinition {
     storage: {
       index: typeof routes['admin.storage.index']
       recover: typeof routes['admin.storage.recover']
+    }
+    health: {
+      index: typeof routes['admin.health.index']
     }
     products: {
       index: typeof routes['admin.products.index']

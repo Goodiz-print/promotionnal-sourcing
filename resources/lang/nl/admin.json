@@ -24,7 +24,8 @@
     "queue": "Queue",
     "search": "Search",
     "mail": "Emails",
-    "storage": "Storage"
+    "storage": "Storage",
+    "health": "Health"
   },
   "pagination": {
     "previous": "Vorige",
@@ -1610,6 +1611,60 @@
     },
     "flash": {
       "recoveryQueued": "Recovery queued: the worker handles it."
+    }
+  },
+  "health": {
+    "title": "Platform health",
+    "subtitle": "Live status of the components (database, queue, search, storage, email, VIES, Mistral). The monitoring job runs every 5 minutes and emails MAIL_ALERT_ADDRESS when something degrades.",
+    "statuses": {
+      "ok": "Healthy",
+      "degraded": "Degraded",
+      "down": "Down",
+      "disabled": "Not configured"
+    },
+    "overall": {
+      "ok": "All components are responding normally.",
+      "degraded": "At least one component is degraded.",
+      "down": "At least one component is down."
+    },
+    "names": {
+      "database": "Database",
+      "queue": "Queue",
+      "search": "Search (Meilisearch)",
+      "storage": "Storage (Cellar)",
+      "mail": "Email",
+      "vies": "VIES (VAT)",
+      "mistral": "Mistral (AI)"
+    },
+    "hints": {
+      "database": "Test query on PostgreSQL.",
+      "queue": "Overdue or stuck jobs (queue:health thresholds).",
+      "search": "Engine health; not configured without MEILISEARCH_HOST.",
+      "storage": "HEAD request on Cellar, nothing is written.",
+      "mail": "Send failures over the last hour.",
+      "vies": "European Commission service: never worse than degraded, no alert.",
+      "mistral": "Model list, no tokens consumed; not configured without MISTRAL_API_KEY."
+    },
+    "components": {
+      "title": "Components",
+      "checkedAt": "Checked on {date}"
+    },
+    "columns": {
+      "component": "Component",
+      "status": "Status",
+      "latency": "Duration",
+      "detail": "Detail",
+      "since": "Since",
+      "alert": "Alert"
+    },
+    "ms": "{count} ms",
+    "alerted": "Sent",
+    "notAlerted": "—",
+    "summary": {
+      "title": "Platform health",
+      "empty": "The monitoring job has not run yet.",
+      "stale": "The states below are out of date: monitoring is no longer running (is the worker stopped?).",
+      "details": "See details"
     }
   }
 }

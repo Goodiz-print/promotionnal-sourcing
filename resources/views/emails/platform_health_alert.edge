@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Santé de la plateforme</title>
+  </head>
+  <body style="font-family: sans-serif; color: #374151">
+    <h1 style="font-size: 20px">Santé de la plateforme</h1>
+    <ul>
+      @each(event in events)
+        <li>
+          <strong>{{ event.component }}</strong>
+           :
+          {{ event.previous }}
+           →
+          {{ event.status }}
+          @if(event.detail)
+            (
+            {{ event.detail }}
+            )
+          @end
+        </li>
+      @end
+    </ul>
+    <p>Détail : écran « Santé » du back-office.</p>
+  </body>
+</html>

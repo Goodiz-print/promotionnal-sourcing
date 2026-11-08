@@ -85,6 +85,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/health_controller').default['show']>>>
     }
   }
+  'health.details': {
+    methods: ["GET","HEAD"]
+    pattern: '/health/details'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/health_details_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/health_details_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/health_details_controller').default['show']>>>
+    }
+  }
   'home': {
     methods: ["GET","HEAD"]
     pattern: '/:locale'
@@ -2072,6 +2085,19 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/storage_controller').default['recover']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/storage_controller').default['recover']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/storage_controller').default['recover']>>>
+    }
+  }
+  'admin.health.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/health'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/health_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/health_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/health_controller').default['index']>>>
     }
   }
   'admin.products.index': {

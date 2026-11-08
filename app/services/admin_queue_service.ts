@@ -1,6 +1,7 @@
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
+import CheckPlatformHealthJob from '#jobs/check_platform_health_job'
 import PurgeActivityEventsJob from '#jobs/purge_activity_events_job'
 import PurgeAiCallsJob from '#jobs/purge_ai_calls_job'
 import PurgeExpiredInvitationsJob from '#jobs/purge_expired_invitations_job'
@@ -47,6 +48,7 @@ const MANUAL_RUNS = new Map<string, () => PromiseLike<unknown>>([
   ['purge-search-events', () => PurgeSearchEventsJob.dispatch({})],
   ['purge-activity-events', () => PurgeActivityEventsJob.dispatch({})],
   ['purge-ai-calls', () => PurgeAiCallsJob.dispatch({})],
+  ['check-platform-health', () => CheckPlatformHealthJob.dispatch({})],
 ])
 
 const contains = (term: string) => `%${term.replace(/[\\%_]/g, '\\$&')}%`

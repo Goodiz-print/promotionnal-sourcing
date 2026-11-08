@@ -24,7 +24,8 @@
     "queue": "File d’attente",
     "search": "Recherche",
     "mail": "Emails",
-    "storage": "Stockage"
+    "storage": "Stockage",
+    "health": "Santé"
   },
   "pagination": {
     "previous": "Précédent",
@@ -1610,6 +1611,60 @@
     },
     "flash": {
       "recoveryQueued": "Reprise mise en file : elle est traitée par le worker."
+    }
+  },
+  "health": {
+    "title": "Santé de la plateforme",
+    "subtitle": "État en direct des composants (base, queue, recherche, stockage, emails, VIES, Mistral). Le job de surveillance repasse toutes les 5 minutes et alerte par email à MAIL_ALERT_ADDRESS.",
+    "statuses": {
+      "ok": "Sain",
+      "degraded": "Dégradé",
+      "down": "En panne",
+      "disabled": "Non configuré"
+    },
+    "overall": {
+      "ok": "Tous les composants répondent normalement.",
+      "degraded": "Au moins un composant est dégradé.",
+      "down": "Au moins un composant est en panne."
+    },
+    "names": {
+      "database": "Base de données",
+      "queue": "File d’attente",
+      "search": "Recherche (Meilisearch)",
+      "storage": "Stockage (Cellar)",
+      "mail": "Emails",
+      "vies": "VIES (TVA)",
+      "mistral": "Mistral (IA)"
+    },
+    "hints": {
+      "database": "Requête de test sur PostgreSQL.",
+      "queue": "Jobs en retard ou bloqués (seuils de queue:health).",
+      "search": "Santé du moteur ; non configuré sans MEILISEARCH_HOST.",
+      "storage": "Requête HEAD sur Cellar, rien n’est écrit.",
+      "mail": "Échecs d’envoi sur la dernière heure.",
+      "vies": "Service de la Commission européenne : jamais plus que dégradé, sans alerte.",
+      "mistral": "Liste des modèles, sans consommer de tokens ; non configuré sans MISTRAL_API_KEY."
+    },
+    "components": {
+      "title": "Composants",
+      "checkedAt": "Sondé le {date}"
+    },
+    "columns": {
+      "component": "Composant",
+      "status": "Statut",
+      "latency": "Durée",
+      "detail": "Détail",
+      "since": "Depuis",
+      "alert": "Alerte"
+    },
+    "ms": "{count} ms",
+    "alerted": "Envoyée",
+    "notAlerted": "—",
+    "summary": {
+      "title": "Santé de la plateforme",
+      "empty": "Le job de surveillance n’a pas encore tourné.",
+      "stale": "Les états ci-dessous sont périmés : la surveillance ne tourne plus (worker arrêté ?).",
+      "details": "Voir le détail"
     }
   }
 }
