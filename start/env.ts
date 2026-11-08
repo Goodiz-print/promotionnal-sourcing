@@ -67,6 +67,17 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Supervision de la plateforme (#179) — tout est optionnel
+  |----------------------------------------------------------
+  */
+  HEALTH_TOKEN: Env.schema.string.optional(),
+  HEALTH_PROBE_TIMEOUT_MS: Env.schema.number.optional(),
+  HEALTH_SLOW_MS: Env.schema.number.optional(),
+  HEALTH_MAIL_FAILED_THRESHOLD: Env.schema.number.optional(),
+  HEALTH_ALERT_AFTER_FAILURES: Env.schema.number.optional(),
+
+  /*
+  |----------------------------------------------------------
   | Cellar (Clever Cloud, API S3) — stockage des fichiers
   |----------------------------------------------------------
   */

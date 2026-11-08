@@ -23,6 +23,7 @@ import RemindRfqSuppliersJob from '#jobs/remind_rfq_suppliers_job'
 import PurgeSearchEventsJob from '#jobs/purge_search_events_job'
 import PurgeAiCallsJob from '#jobs/purge_ai_calls_job'
 import PurgeActivityEventsJob from '#jobs/purge_activity_events_job'
+import CheckPlatformHealthJob from '#jobs/check_platform_health_job'
 
 /**
  * Purge quotidienne des invitations d'organisation (bascule `pending` échues en
@@ -96,3 +97,11 @@ await PurgeAiCallsJob.schedule({})
   .cron('20 4 * * *')
   .timezone('Europe/Paris')
   .run()
+
+/**
+ * Surveillance de la plateforme toutes les 5 minutes (#179) : sonde les composants,
+ * met à jour leur état et alerte à la dégradation. Le défaut d'`alertAfterFailures`
+ * (2 passes) fait donc partir une alerte une dizaine de minutes après le début d'une
+ * panne.
+ */
+await CheckPlatformHealthJob.schedule({}).id('check-platform-health').cron('*/5 * * * *').run()

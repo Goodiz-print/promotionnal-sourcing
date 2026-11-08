@@ -498,6 +498,11 @@ router
                   .post('admin/storage/recover', [controllers.admin.Storage, 'recover'])
                   .as('admin.storage.recover')
 
+                // Santé de la plateforme (#179).
+                router
+                  .get('admin/health', [controllers.admin.Health, 'index'])
+                  .as('admin.health.index')
+
                 // Administration du catalogue produits (#164) : liste, fiche et actions.
                 router
                   .get('admin/products', [controllers.admin.Product, 'index'])

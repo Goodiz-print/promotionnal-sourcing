@@ -8,12 +8,14 @@ import { useI18n } from '~/i18n'
 import { usePlatformPermissions } from '~/composables/use_platform_permissions'
 import KpiOverview from '~/components/admin/kpi_overview.vue'
 import KpiPeriodFilter from '~/components/admin/kpi_period_filter.vue'
+import HealthSummary from '~/components/admin/health/health_summary.vue'
 import QueueHealth from '~/components/admin/queue/queue_health.vue'
 import BaseAlert from '~/components/base/base_alert.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseStat from '~/components/base/base_stat.vue'
 import type { AdminDashboardStats } from '#shared/types/admin'
 import type { AdminKpiFilters, AdminKpiReport } from '#shared/types/admin_kpi'
+import type { PlatformHealthSummary } from '#shared/types/admin_health'
 import type { QueueHealthReport } from '#shared/types/health'
 import type { PlatformPermission } from '#shared/types/user'
 
@@ -24,6 +26,8 @@ defineProps<{
   filters: AdminKpiFilters | null
   /** Santé de la queue : `null` sans le droit `queue.manage`. */
   queue?: QueueHealthReport | null
+  /** Derniers états de la surveillance : `null` sans le droit `ops.manage`. */
+  platform?: PlatformHealthSummary | null
   /** Recherche inerte (pas de `MEILISEARCH_HOST`) et droit `search.manage` : alerte. */
   searchDisabled?: boolean
 }>()
@@ -118,6 +122,8 @@ const counters = computed(() =>
         "
       />
     </div>
+
+    <HealthSummary v-if="platform" :summary="platform" />
 
     <QueueHealth v-if="queue" :health="queue" linked />
 

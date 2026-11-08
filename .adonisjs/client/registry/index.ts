@@ -42,6 +42,12 @@ const routes = {
     tokens: [[0,"health"]],
     types: placeholder as Registry['health.show']['types'],
   },
+  'health.details': {
+    methods: ["GET","HEAD"],
+    pattern: '/health/details',
+    tokens: [[0,"health"],[0,"details"]],
+    types: placeholder as Registry['health.details']['types'],
+  },
   'home': {
     methods: ["GET","HEAD"],
     pattern: '/:locale',
@@ -959,6 +965,12 @@ const routes = {
     pattern: '/:locale/admin/storage/recover',
     tokens: [[1,"locale"],[0,"admin"],[0,"storage"],[0,"recover"]],
     types: placeholder as Registry['admin.storage.recover']['types'],
+  },
+  'admin.health.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/health',
+    tokens: [[1,"locale"],[0,"admin"],[0,"health"]],
+    types: placeholder as Registry['admin.health.index']['types'],
   },
   'admin.products.index': {
     methods: ["GET","HEAD"],

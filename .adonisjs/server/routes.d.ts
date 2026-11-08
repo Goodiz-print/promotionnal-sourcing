@@ -10,6 +10,7 @@ export type ScannedRoutes = {
     'marketing.sitemap': { paramsTuple?: []; params?: {} }
     'locale.update': { paramsTuple?: []; params?: {} }
     'health.show': { paramsTuple?: []; params?: {} }
+    'health.details': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.contact': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.contact.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -163,6 +164,7 @@ export type ScannedRoutes = {
     'admin.mail.retry': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.storage.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.storage.recover': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.health.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.products.hide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -236,6 +238,7 @@ export type ScannedRoutes = {
     'event_stream': { paramsTuple?: []; params?: {} }
     'marketing.sitemap': { paramsTuple?: []; params?: {} }
     'health.show': { paramsTuple?: []; params?: {} }
+    'health.details': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.contact': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.legal': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -300,6 +303,7 @@ export type ScannedRoutes = {
     'admin.mail.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.storage.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.health.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -334,6 +338,7 @@ export type ScannedRoutes = {
     'event_stream': { paramsTuple?: []; params?: {} }
     'marketing.sitemap': { paramsTuple?: []; params?: {} }
     'health.show': { paramsTuple?: []; params?: {} }
+    'health.details': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.contact': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.legal': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -398,6 +403,7 @@ export type ScannedRoutes = {
     'admin.mail.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.storage.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.health.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
