@@ -39,6 +39,10 @@ const empty = computed(() => props.summary.checkedAt === null)
         </Link>
       </BaseAlert>
 
+      <BaseAlert v-if="summary.stale" tone="warning" data-testid="health-stale">
+        {{ t('admin.health.summary.stale') }}
+      </BaseAlert>
+
       <ul v-if="!empty" class="flex flex-wrap gap-x-6 gap-y-2 text-body-sm">
         <li
           v-for="state in summary.components"

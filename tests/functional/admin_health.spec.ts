@@ -194,6 +194,12 @@ test.group('Santé — point d’entrée détaillé', (group) => {
 
     globalThis.fetch = (async () => new Response('{}', { status: 200 })) as unknown as typeof fetch
     assert.equal(statusOf(await fetchReport(), 'mistral'), 'ok')
+
+    // Injoignable (réseau, délai) : pas prouvé tombé, donc seulement dégradé.
+    globalThis.fetch = (async () => {
+      throw new Error('ECONNRESET')
+    }) as unknown as typeof fetch
+    assert.equal(statusOf(await fetchReport(), 'mistral'), 'degraded')
   })
 })
 
@@ -375,5 +381,39 @@ test.group('Santé — surveillance et alertes', (group) => {
     assert.isNull(summary.checkedAt)
     assert.lengthOf(summary.components, 0)
     assert.equal(summary.status, 'ok')
+  })
+
+  test('une alerte dont le mail échoue est rejouée à la passe suivante', async ({ assert }) => {
+    healthConfig.alertAfterFailures = 1
+    const service = await monitor()
+    breakStorage(true)
+
+    mail.send = (async () => {
+      throw new Error('smtp down')
+    }) as typeof mail.send
+    try {
+      await service.check()
+    } finally {
+      Reflect.deleteProperty(mail, 'send')
+    }
+    assert.lengthOf(alerts(), 0)
+    const pending = await stateOf('storage')
+    assert.isFalse(pending.alerted)
+
+    await service.check()
+    assert.lengthOf(alerts(), 1)
+    const delivered = await stateOf('storage')
+    assert.isTrue(delivered.alerted)
+  })
+
+  test('signale des états périmés quand la surveillance ne tourne plus', async ({ assert }) => {
+    const service = await monitor()
+    const now = new Date()
+    await service.check(now)
+
+    const fresh = await service.summary(new Date(now.getTime() + 5 * 60_000))
+    const old = await service.summary(new Date(now.getTime() + 20 * 60_000))
+    assert.isFalse(fresh.stale)
+    assert.isTrue(old.stale)
   })
 })

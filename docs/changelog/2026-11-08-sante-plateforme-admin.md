@@ -44,8 +44,11 @@ Job `CheckPlatformHealthJob`, planning `check-platform-health` (`*/5 * * * *`, r
 
 - Alerte quand un composant reste hors `ok` **`HEALTH_ALERT_AFTER_FAILURES` passes de suite** (2 par défaut, soit une dizaine de minutes) : un raté isolé ne réveille personne.
 - **Une alerte par incident**, pas une par passe, puis une alerte au rétablissement. Un incident qui s'aggrave (`degraded` → `down`) est notifié à nouveau.
-- Canal : log `error` structuré (`platform health changed`, que Sentry reprendra dès qu'il est branché, #79) et mail à `MAIL_ALERT_ADDRESS` — le même destinataire que les mails en échec ; vide = log seul. Le mail part en direct, pas par la queue : une queue à l'arrêt est justement ce qu'il faut signaler. Une erreur d'envoi est loguée, jamais propagée.
-- Le tableau de bord (droit `ops.manage`) affiche les **derniers états conservés** sans sonder (`platform`) ; il invite à attendre tant que le job n'a jamais tourné.
+- Canal : log `error` structuré (`platform health changed`, que Sentry reprendra dès qu'il est branché, #79) et mail à `MAIL_ALERT_ADDRESS` — le même destinataire que les mails en échec ; vide = log seul. Le mail part en direct, pas par la queue : une queue à l'arrêt est justement ce qu'il faut signaler. Une erreur d'envoi est loguée, jamais propagée, et l'alerte reste due : `alerted` n'est acté qu'une fois le mail parti, elle est donc rejouée à la passe suivante.
+- Le tableau de bord (droit `ops.manage`) affiche les **derniers états conservés** sans sonder (`platform`) ; il invite à attendre tant que le job n'a jamais tourné, et avertit que les états sont **périmés** quand la dernière passe a plus de 15 minutes (worker arrêté).
+- Deux passes ne s'exécutent jamais en même temps (advisory lock Postgres) : la seconde s'efface, ce qui évite une alerte en double.
+- Mistral injoignable (réseau, délai) est `degraded` ; seul un refus de la clé (401/403) est `down`.
+- `GET /health/details` est limité à 60 appels par minute et par IP (chaque appel sonde VIES et Mistral).
 
 ## Configuration
 
@@ -63,6 +66,6 @@ Toutes les variables sont optionnelles (`.env.example`) :
 
 - Migration à appliquer : `node ace migration:run` (`1794000000009`, table `health_component_states`).
 - Si le worker est à l'arrêt, le job ne tourne pas et aucune alerte ne part : c'est le rôle de `GET /health/details` interrogé de l'extérieur (la queue y apparaît `down`) et de `node ace queue:health`.
-- `StorageService.ping()` est ajouté pour la sonde Cellar.
+- `StorageService.ping()` est ajouté pour la sonde Cellar : un `HEAD` sur une clé réservée, qui suppose une clé d'accès pouvant lire le bucket (un 403 est traité comme une panne).
 - Les 7 langues autres que le français et l'anglais reçoivent le texte anglais pour les clés admin.
 - Tests : `tests/functional/admin_health.spec.ts` (à exécuter en CI : pas de PostgreSQL en local), `tests/inertia/admin_health.spec.ts`.

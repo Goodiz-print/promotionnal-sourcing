@@ -34,6 +34,7 @@ const translations = {
   'admin.health.summary.title': 'Santé de la plateforme',
   'admin.health.summary.empty': 'La surveillance n’a pas encore tourné.',
   'admin.health.summary.details': 'Voir le détail',
+  'admin.health.summary.stale': 'Les états sont périmés : la surveillance ne tourne plus.',
 }
 
 vi.mock('@inertiajs/vue3', async () => {
@@ -110,8 +111,26 @@ describe('Santé — composants', () => {
 })
 
 describe('Santé — tableau de bord', () => {
+  it('avertit que les états sont périmés quand la surveillance ne tourne plus', () => {
+    const summary: PlatformHealthSummary = {
+      status: 'ok',
+      checkedAt: '2026-11-08T10:00:00.000Z',
+      stale: true,
+      components: [state({ component: 'database', status: 'ok' })],
+    }
+
+    const wrapper = mount(HealthSummary, { props: { summary } })
+
+    expect(wrapper.get('[data-testid="health-stale"]').text()).toContain('périmés')
+  })
+
   it('invite à attendre le premier passage du job tant que rien n’est conservé', () => {
-    const summary: PlatformHealthSummary = { status: 'ok', components: [], checkedAt: null }
+    const summary: PlatformHealthSummary = {
+      status: 'ok',
+      components: [],
+      checkedAt: null,
+      stale: false,
+    }
 
     const text = mount(HealthSummary, { props: { summary } }).get('[data-testid="health-summary"]')
 
@@ -122,6 +141,7 @@ describe('Santé — tableau de bord', () => {
     const summary: PlatformHealthSummary = {
       status: 'down',
       checkedAt: '2026-11-08T10:00:00.000Z',
+      stale: false,
       components: [state({ component: 'database', status: 'ok' }), state()],
     }
 

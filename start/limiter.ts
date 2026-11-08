@@ -24,6 +24,9 @@ export const EMAIL_VERIFICATION_RESEND_LIMIT = { requests: 5, duration: '1 hour'
 export const CONTACT_REQUEST_LIMIT = { requests: 5, duration: '1 hour' } as const
 export const PASSKEY_LOGIN_LIMIT = { requests: 20, duration: '15 mins' } as const
 
+/** Rapport de santé détaillé : chaque appel sonde VIES et Mistral, et un mauvais jeton se devine. */
+export const HEALTH_DETAILS_LIMIT = { requests: 60, duration: '1 min' } as const
+
 export const IMAGE_SEARCH_LIMIT = { requests: 20, duration: '1 hour' } as const
 
 const normalizeEmail = (value: unknown) =>
@@ -51,6 +54,13 @@ export async function clearLoginThrottle(ctx: HttpContext): Promise<void> {
     .use({ requests: LOGIN_LIMIT.requests, duration: LOGIN_LIMIT.duration })
     .delete(`login_${loginKey(ctx)}`)
 }
+
+export const healthDetailsThrottle = limiter.define('health-details', ({ request }) =>
+  limiter
+    .allowRequests(HEALTH_DETAILS_LIMIT.requests)
+    .every(HEALTH_DETAILS_LIMIT.duration)
+    .usingKey(`ip_${request.ip()}`)
+)
 
 export const signupThrottle = limiter.define('signup', ({ request }) =>
   limiter

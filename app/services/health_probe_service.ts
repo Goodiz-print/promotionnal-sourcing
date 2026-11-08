@@ -10,6 +10,7 @@ import {
   HEALTH_DETAIL_MAX_LENGTH,
   HEALTH_EXTERNAL_COMPONENTS,
   HEALTH_MAIL_WINDOW_MINUTES,
+  HEALTH_SOFT_COMPONENTS,
   HEALTH_SEVERITY,
   type HealthComponent,
   type HealthComponentReport,
@@ -82,7 +83,9 @@ export default class HealthProbeService {
     try {
       outcome = await within(this.run(component), healthConfig.probeTimeoutMs)
     } catch (error) {
-      outcome = { status: 'down', detail: messageOf(error) }
+      // Un tiers injoignable (réseau, délai) n'est pas prouvé tombé : `degraded` seulement.
+      const soft = HEALTH_SOFT_COMPONENTS.includes(component)
+      outcome = { status: soft ? 'degraded' : 'down', detail: messageOf(error) }
     }
     const latencyMs = outcome.status === 'disabled' ? null : Date.now() - startedAt
 

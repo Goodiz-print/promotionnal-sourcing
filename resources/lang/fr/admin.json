@@ -1663,6 +1663,7 @@
     "summary": {
       "title": "Santé de la plateforme",
       "empty": "Le job de surveillance n’a pas encore tourné.",
+      "stale": "Les états ci-dessous sont périmés : la surveillance ne tourne plus (worker arrêté ?).",
       "details": "Voir le détail"
     }
   }

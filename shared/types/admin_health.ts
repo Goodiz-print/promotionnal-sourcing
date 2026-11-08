@@ -32,6 +32,19 @@ export type HealthStatus = (typeof HEALTH_STATUSES)[number]
  */
 export const HEALTH_EXTERNAL_COMPONENTS: readonly HealthComponent[] = ['vies']
 
+/**
+ * Composants dont l'injoignabilité (réseau, délai dépassé) est seulement `degraded` :
+ * le service tiers répond mal mais rien ne prouve qu'il est tombé. Seul un refus
+ * explicite (clé Mistral rejetée) est `down`.
+ */
+export const HEALTH_SOFT_COMPONENTS: readonly HealthComponent[] = ['mistral']
+
+/**
+ * Au-delà de ce délai sans passe du job de surveillance (3 intervalles de 5 minutes),
+ * les états conservés sont périmés : le worker ne tourne plus.
+ */
+export const HEALTH_STALE_AFTER_MINUTES = 15
+
 /** Gravité d'un statut, pour comparer et retenir le pire. */
 export const HEALTH_SEVERITY: Record<HealthStatus, number> = {
   disabled: 0,
@@ -101,4 +114,6 @@ export type PlatformHealthSummary = {
   components: HealthComponentState[]
   /** `null` tant que le job de surveillance n'a jamais tourné. */
   checkedAt: string | null
+  /** Vrai si la dernière passe est trop ancienne : ces états ne sont plus fiables. */
+  stale: boolean
 }

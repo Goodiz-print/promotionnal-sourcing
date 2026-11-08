@@ -21,7 +21,8 @@ export default class CheckPlatformHealthJob extends Job {
     const { default: HealthMonitorService } = await import('#services/health_monitor_service')
     const monitor = await app.container.make(HealthMonitorService)
     const report = await monitor.check()
-    if (report.status !== 'ok') logger.warn({ status: report.status }, 'platform health degraded')
+    if (report && report.status !== 'ok')
+      logger.warn({ status: report.status }, 'platform health degraded')
   }
 
   async failed(error: Error) {

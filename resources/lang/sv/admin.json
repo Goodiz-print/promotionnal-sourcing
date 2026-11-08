@@ -1663,6 +1663,7 @@
     "summary": {
       "title": "Platform health",
       "empty": "The monitoring job has not run yet.",
+      "stale": "The states below are out of date: monitoring is no longer running (is the worker stopped?).",
       "details": "See details"
     }
   }
