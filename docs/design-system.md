@@ -1,4 +1,4 @@
-# Design System — promotionalsourcing.eu
+# Design System — promotional-sourcing.eu
 
 > Un seul langage visuel pour la landing et l'application, **dérivé de la landing** : Manrope pour les titres, Instrument Sans pour le texte, boutons pill indigo, cartes blanches `rounded-xl` à bordure hairline sur fond « sunken », eyebrows, chips indigo clair, chiffres tabulaires.
 > Ce document complète [`charte-graphique.md`](charte-graphique.md) (logo, favicon, règles de marque). En cas de divergence, les fichiers sous `inertia/css/` font foi.
