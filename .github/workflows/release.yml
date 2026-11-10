@@ -1,0 +1,86 @@
+name: Release
+
+# Mise en production : promeut l'image déjà construite et testée pour le commit
+# tagué, sans reconstruction, après approbation de l'environnement `production`.
+#
+# - Tag `vX.Y.Z` poussé : nouvelle release.
+# - Lancement manuel avec un tag existant : rollback (ou redéploiement) vers
+#   cette version. Les migrations ne sont jamais annulées (docs/deploiement.md).
+
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Version déjà publiée à redéployer (ex. v1.3.2)
+        required: true
+        type: string
+
+jobs:
+  resolve:
+    name: Image de la version
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Résoudre l'image
+        id: image
+        run: |
+          repository="ghcr.io/${GITHUB_REPOSITORY,,}"
+
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Tag invalide : $TAG (attendu vX.Y.Z)"
+            exit 1
+          fi
+
+          # Version déjà publiée (rollback, relance) : on reprend son image telle quelle.
+          if ! docker buildx imagetools inspect "$repository:$TAG" > /dev/null 2>&1; then
+            sha="$(git rev-list -n 1 "refs/tags/$TAG")"
+
+            # Une release part d'un commit de main : c'est là que l'image a été testée.
+            if ! git merge-base --is-ancestor "$sha" origin/main; then
+              echo "::error::Le tag $TAG ne pointe pas sur un commit de main."
+              exit 1
+            fi
+            if ! docker buildx imagetools inspect "$repository:$sha" > /dev/null 2>&1; then
+              echo "::error::Aucune image pour $sha : la CI de main n'est pas (encore) passée sur ce commit."
+              exit 1
+            fi
+
+            # Pose le tag de version sur l'image du commit : aucune reconstruction.
+            docker buildx imagetools create --tag "$repository:$TAG" "$repository:$sha"
+          fi
+
+          digest="$(docker buildx imagetools inspect "$repository:$TAG" --format '{{json .Manifest}}' | jq -r '.digest')"
+          echo "image=$repository@$digest" >> "$GITHUB_OUTPUT"
+          echo "Version $TAG → \`$repository@$digest\`" >> "$GITHUB_STEP_SUMMARY"
+
+  deploy-production:
+    needs: resolve
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: production
+      image: ${{ needs.resolve.outputs.image }}
+    secrets: inherit

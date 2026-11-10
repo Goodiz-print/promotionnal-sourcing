@@ -1,0 +1,64 @@
+name: Deploy
+
+# Déploie une image déjà construite sur un environnement Clever Cloud :
+# migrations, puis web, puis worker (ADR 0005, docs/deploiement.md).
+# Appelé par docker.yml (staging) et release.yml (production).
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: Environnement GitHub visé (staging, production)
+        required: true
+        type: string
+      image:
+        description: Image à déployer, référencée par digest (ghcr.io/…@sha256:…)
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    name: deploy (${{ inputs.environment }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # L'environnement porte les identifiants Clever Cloud, les identifiants des
+    # applications et, pour `production`, l'approbation manuelle.
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ vars.APP_URL }}
+    # Jamais deux déploiements en même temps sur un environnement, et jamais
+    # d'annulation en cours de route (migrations déjà passées).
+    concurrency:
+      group: deploy-${{ inputs.environment }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      packages: read
+    env:
+      CLEVER_TOKEN: ${{ secrets.CLEVER_TOKEN }}
+      CLEVER_SECRET: ${{ secrets.CLEVER_SECRET }}
+      IMAGE: ${{ inputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer clever-tools
+        run: npm install --global clever-tools@4.11.0
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Avant tout redémarrage : un échec ici laisse la version en place intacte.
+      - name: Migrations
+        run: scripts/deploy/clever_migrate.sh --app "${{ vars.CLEVER_APP_WEB }}" --image "$IMAGE"
+
+      - name: Déployer le web
+        run: scripts/deploy/clever_push.sh --app "${{ vars.CLEVER_APP_WEB }}" --role web --image "$IMAGE"
+
+      - name: Déployer le worker
+        run: scripts/deploy/clever_push.sh --app "${{ vars.CLEVER_APP_WORKER }}" --role worker --image "$IMAGE"
+
+      - name: Vérifier la sonde /health
+        run: curl --fail --silent --show-error --retry 10 --retry-delay 6 --retry-all-errors "${{ vars.APP_URL }}/health"

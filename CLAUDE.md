@@ -14,7 +14,7 @@
 - **Tests backend** : Japa (functional + unit)
 - **Tests frontend** : Vitest + @vue/test-utils
 - **Package manager** : pnpm
-- **Déploiement** : Clever Cloud (applications Docker web et worker, PostgreSQL managé, Cellar, Meilisearch) + CI/CD GitHub Actions (ADR 0003, `docs/deploiement.md`)
+- **Déploiement** : Clever Cloud (applications Docker web et worker, PostgreSQL managé, Cellar, Meilisearch) + CI/CD GitHub Actions (ADR 0003 et 0005, `docs/deploiement.md`)
 
 ## Dépendances système
 

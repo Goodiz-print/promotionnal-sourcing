@@ -1,38 +1,61 @@
 # Déploiement
 
-> Hébergement : **Clever Cloud** (ADR 0003). Suivi : #78 (CI/CD, sauvegardes).
+> Hébergement : **Clever Cloud** (ADR 0003). Environnements et mécanique de déploiement : [ADR 0005](adr/0005-environnements-et-deploiement.md). Mise en place initiale : [`deploiement-clever-setup.md`](deploiement-clever-setup.md). Suivi : #78 (CI/CD, sauvegardes).
 
 ## Environnements
 
-| Environnement | Applications                           | PostgreSQL             | Cellar                    | Meilisearch                           | Déclenchement                       |
-| ------------- | -------------------------------------- | ---------------------- | ------------------------- | ------------------------------------- | ----------------------------------- |
-| Dev (local)   | `pnpm dev:all` sur le poste            | Conteneur local        | S3Mock (`localhost:9090`) | À confirmer dans `docker-compose.yml` | Manuel                              |
-| Staging       | Docker XS (web), Docker XS (worker)    | PostgreSQL XS Small    | Bucket staging            | Docker XS (test)                      | Push sur `main`                     |
-| Production    | Docker XS ×2 (web), Docker XS (worker) | PostgreSQL S Big Space | Bucket prod               | Docker M                              | Tag `vX.Y.Z` + approbation manuelle |
+| Environnement | Applications                           | PostgreSQL             | Cellar                    | Meilisearch                        | Déclenchement                       |
+| ------------- | -------------------------------------- | ---------------------- | ------------------------- | ---------------------------------- | ----------------------------------- |
+| Dev (local)   | `pnpm dev:all` sur le poste            | Conteneur local        | S3Mock (`localhost:9090`) | Service `meilisearch` du compose   | Manuel                              |
+| Staging       | Docker XS (web), Docker XS (worker)    | PostgreSQL XS Small    | Bucket staging            | À choisir (ADR 0004), sinon absent | Push sur `main`, après CI verte     |
+| Production    | Docker XS ×2 (web), Docker XS (worker) | PostgreSQL S Big Space | Bucket prod               | À choisir (ADR 0004)               | Tag `vX.Y.Z` + approbation manuelle |
+| Review        | Un conteneur web + worker par PR       | Base jetable           | Bucket review partagé     | Absent (recherche PostgreSQL)      | Label `review` (livraison à venir)  |
+
+Staging et reviews vivent dans l'organisation Clever `goodiz-nonprod`, la production dans `goodiz-prod` : le jeton de CI du hors-production n'a aucun droit sur la production. Les paramètres de chaque environnement (tailles, plans, domaine) sont dans `scripts/deploy/environments/`.
 
 ## Règles
 
-- **Staging** : déploiement automatique à chaque push sur `main`.
-- **Prod** : déploiement uniquement sur un tag `vX.Y.Z`, après approbation manuelle (environnement GitHub `production`).
-- **Une image par commit** : construite et testée une fois par la CI, taguée au SHA. La prod réutilise cette image, sans rebuild.
+- **Staging** : déploiement automatique à chaque push sur `main`, une fois la CI verte (`.github/workflows/docker.yml`, actif quand la variable de dépôt `DEPLOY_STAGING` vaut `true`).
+- **Prod** : déploiement uniquement sur un tag `vX.Y.Z`, après approbation manuelle (environnement GitHub `production`, `.github/workflows/release.yml`).
+- **Une image par commit** : construite une fois par la CI sur `main`, poussée sur GHCR et taguée au SHA. La prod réutilise cette image, sans rebuild.
+- **Migrations avant redémarrage**, par la CI. Ordre : migrations, web, worker.
+
+## Comment une image arrive sur Clever Cloud
+
+Clever Cloud ne déploie pas une image : une application Docker reconstruit le `Dockerfile` qu'on lui pousse par git. `scripts/deploy/clever_push.sh` pousse donc sur l'application un dépôt jetable qui ne contient qu'un `Dockerfile` :
+
+```dockerfile
+# web
+FROM ghcr.io/goodiz-print/promotionnal-sourcing@sha256:<digest>
+ENV PORT=8080 HOST=0.0.0.0
+
+# worker
+FROM ghcr.io/goodiz-print/promotionnal-sourcing@sha256:<digest>
+ENV PORT=8080 HOST=0.0.0.0
+CMD ["node", "ace", "queue:serve"]
+```
+
+La « construction » côté Clever se réduit à tirer l'image. Elle est référencée par **digest** : staging et production exécutent le même binaire. Chaque application porte `CC_DOCKER_LOGIN_SERVER`, `CC_DOCKER_LOGIN_USERNAME` et `CC_DOCKER_LOGIN_PASSWORD` pour tirer l'image privée.
+
+> ⚠️ `clever deploy --tag vX.Y.Z` lancé depuis le dépôt pousserait les sources et ferait **reconstruire** l'image par Clever Cloud. Ne pas l'utiliser.
 
 ## Release
 
-1. Merge sur `main`. La CI teste, construit `app:<sha>`, déploie en staging.
+1. Merge sur `main`. La CI teste ; `docker.yml` construit `…:<sha>`, lance les migrations de staging, déploie web puis worker, et vérifie `GET /health`.
 2. Vérification sur staging.
-3. `git tag vX.Y.Z && git push origin vX.Y.Z`.
-4. La CI attend l'approbation du job `production`.
-5. Sur approbation : migrations, puis déploiement de l'image sur Clever Cloud avec `clever deploy --tag vX.Y.Z` (applications web et worker).
+3. `git tag vX.Y.Z && git push origin vX.Y.Z` (sur un commit de `main` dont l'image existe).
+4. `release.yml` pose le tag `vX.Y.Z` sur l'image du commit, puis attend l'approbation du job `production`.
+5. Sur approbation : migrations, web, worker, puis vérification de `GET /health`.
 
 ## Image Docker
 
 Un seul `Dockerfile` (racine) pour l'application web **et** le worker de queue : même image, commande différente.
 
-- Base `node:24.20.0-bookworm-slim` (Node 24 LTS, `engines.node >=24`), pnpm `11.9.0` via corepack (version du champ `packageManager`).
+- Base `node:24.20.0-bookworm-slim` (Node 24 LTS, `engines.node >=24`), pnpm `12.15.0` via corepack (version du champ `packageManager`).
 - Étapes : `deps` (toutes les dépendances) → `build` (`node ace build` : TypeScript + bundle Vite/SSR) → `prod-deps` (`pnpm install --prod --frozen-lockfile`) → `runtime` (ni sources TS, ni devDependencies, ni tests, ni pnpm).
-- Runtime : Ghostscript (compression PDF), dictionnaires hunspell (voir ci-dessous), utilisateur non root `app` (uid 10001), `PORT=3333`, `HOST=0.0.0.0`.
+- Runtime : Ghostscript (compression PDF), dictionnaires hunspell (voir ci-dessous), utilisateur non root `app` (uid 10001), `PORT=3333`, `HOST=0.0.0.0` (sur Clever Cloud : `PORT=8080`, le port attendu par la plateforme).
 - Aucun secret dans l'image : toutes les variables (voir `.env.example`) viennent de l'environnement d'exécution. L'application refuse de démarrer si une variable obligatoire manque.
-- Sondes : `GET /health` (web, 200 si la base répond, 503 sinon) et `node ace queue:health` (worker, sortie 1 si des jobs sont en retard ou figés). Voir `docs/queue.md`. Rapport détaillé pour la supervision externe : `GET /health/details` avec `HEALTH_TOKEN` (`docs/changelog/2026-11-08-sante-plateforme-admin.md`).
+- Sondes : `GET /health` (web, 200 si la base répond, 503 sinon) `node ace queue:health` (worker, sortie 1 si des jobs sont en retard ou figés) et `GET /health` du worker lancé par `queue:serve` (sonde de vie, voir ci-dessous). Voir `docs/queue.md`. Rapport détaillé pour la supervision externe : `GET /health/details` avec `HEALTH_TOKEN` (`docs/changelog/2026-11-08-sante-plateforme-admin.md`).
 
 ### Construire
 
@@ -45,28 +68,23 @@ docker image ls app   # taille de l'image
 
 ### Démarrer les processus
 
-Sur Clever Cloud, chaque processus est une application distincte qui partage le même dépôt :
+Sur Clever Cloud, chaque processus est une application Docker distincte, qui reçoit la même image :
 
-- **Web** : commande par défaut de l'image (`HOST=0.0.0.0`, port `3333`).
-- **Worker** : `node ace queue:work` (les mails, les purges Cellar et la génération des miniatures en dépendent, voir `docs/queue.md`).
+- **Web** : commande par défaut de l'image (`node bin/server.js`), sur `HOST=0.0.0.0`, `PORT=8080`.
+- **Worker** : `node ace queue:serve`, soit `queue:work` plus une sonde HTTP `GET /health` sur `PORT`. Clever Cloud exige qu'un conteneur écoute en HTTP, et sa commande ne se change que dans le `Dockerfile`. La sonde ne dit que « le processus tourne » : un backlog ne doit pas faire échouer un déploiement (`node ace queue:health` reste la sonde métier, voir `docs/queue.md`). Les mails, les purges Cellar et la génération des miniatures dépendent du worker.
 
-Les variables d'environnement sont définies par application sur Clever Cloud. Les variables `CELLAR_ADDON_*` de l'add-on sont mappées vers `CELLAR_ENDPOINT`, `CELLAR_BUCKET`, `CELLAR_ACCESS_KEY_ID` et `CELLAR_SECRET_ACCESS_KEY` (voir `docs/storage.md`).
+Les variables d'environnement sont définies par application sur Clever Cloud. `scripts/deploy/clever_provision.sh` recopie les identifiants des add-ons sous les noms attendus par `start/env.ts` : `POSTGRESQL_ADDON_*` vers `DB_*`, `CELLAR_ADDON_*` vers `CELLAR_ENDPOINT`, `CELLAR_ACCESS_KEY_ID` et `CELLAR_SECRET_ACCESS_KEY` (voir `docs/storage.md`).
 
 ### Migrations
 
-Lancées **avant** le redémarrage des applications, par la CI, jamais au démarrage de l'image :
+Lancées **avant** le redémarrage des applications, par la CI, jamais au démarrage de l'image (Clever Cloud n'a pas de hook avant démarrage en Docker). `scripts/deploy/clever_migrate.sh` lit les variables de l'application web sur Clever Cloud, puis lance dans l'image à déployer :
 
 ```bash
 node ace migration:run --force
+node ace queue:migrate   # tables de @adonisjs/queue, voir docs/queue.md
 ```
 
-Puis, pour la queue (mise à niveau des tables de `@adonisjs/queue` 0.6, voir `docs/queue.md`) :
-
-```bash
-node ace queue:migrate
-```
-
-Les deux commandes sont idempotentes, à lancer avant le redémarrage des applications.
+Les deux commandes sont idempotentes. Aucun identifiant de base n'est stocké dans GitHub ; la base doit en revanche accepter les connexions des runners GitHub.
 
 Une migration déjà exécutée ne se modifie jamais. Le `down()` ne se lance pas automatiquement.
 
@@ -78,10 +96,10 @@ Installés dans `/usr/share/hunspell` : bg, bs, cs, hr, is, lv, pl, sk, sl, uk (
 
 ## Meilisearch (#112)
 
-Moteur de recherche hybride, distinct de l'application web. Hébergement : **Meilisearch Cloud** ou **instance Docker Clever Cloud** (Docker M en prod) avec volume confirmé — voir [ADR 0004](adr/0004-maintien-meilisearch-hebergement.md).
+Moteur de recherche hybride, distinct de l'application web. Hébergement : **Meilisearch Cloud** par défaut — voir [ADR 0004](adr/0004-maintien-meilisearch-hebergement.md). Une application Docker Clever Cloud n'a **pas de volume persistant** (documentation Clever, novembre 2026) : l'index et le modèle y seraient perdus à chaque redémarrage.
 
 - Image officielle `getmeili/meilisearch`, version épinglée (jamais `latest`).
-- Données sur un volume persistant. Volume à confirmer sur instance Docker Clever Cloud.
+- Données sur un volume persistant, donc hors application Docker Clever Cloud.
 - Sauvegarde : snapshot Meilisearch planifié, copié hors de la plateforme.
 - Clé master et clé API de l'application : variables `MEILISEARCH_HOST` et `MEILISEARCH_API_KEY`, validées dans `start/env.ts`, documentées dans `.env.example`. Jamais dans l'image.
 - Sonde : `GET /health` sur le port du moteur.
@@ -140,16 +158,13 @@ base PostgreSQL existante (détails : [`entites-transverses.md`](entites-transve
 
 ## Rollback
 
-Redéployer le tag précédent :
+Actions → **Release** → « Run workflow », avec le tag à remettre en production (ex. `v1.3.2`). Le workflow reprend l'image déjà publiée sous ce tag et la redéploie après approbation, sans reconstruction.
 
-```bash
-clever deploy --tag v1.3.2
-```
-
-Si la release contenait une migration destructive, le rollback applicatif ne suffit pas.
+Les migrations ne sont pas annulées : si la release contenait une migration destructive, le rollback applicatif ne suffit pas.
 
 ## Secrets
 
-- Secrets GitHub : token Clever Cloud pour le déploiement (`CLEVER_TOKEN`, `CLEVER_SECRET`), identifiants du registre si utilisé, clé API Meilisearch.
-- Variables Clever Cloud : une liste par application (web, worker), jamais committée.
+- **Environnements GitHub** `staging` et `production` : secrets `CLEVER_TOKEN` et `CLEVER_SECRET` (un utilisateur Clever de CI par organisation), variables `CLEVER_APP_WEB`, `CLEVER_APP_WORKER` et `APP_URL`. `production` exige un relecteur.
+- **Variables Clever Cloud** : une liste par application (web, worker), jamais committée. `APP_KEY` est générée par `clever_provision.sh`, identique sur web et worker.
+- **Registre** : `CC_DOCKER_LOGIN_PASSWORD` est un jeton GitHub `read:packages`, à renouveler avant expiration (sinon les déploiements échouent au tirage de l'image).
 - `.env` local : jamais committé.
