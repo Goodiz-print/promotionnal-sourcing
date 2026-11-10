@@ -142,4 +142,21 @@ export default await Env.create(new URL('../', import.meta.url), {
   */
   PASSKEY_RP_ID: Env.schema.string.optional(),
   PASSKEY_ORIGIN: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Connecteurs de flux fournisseurs (`node ace supplier:import`)
+  |----------------------------------------------------------
+  | Accès RÉELS aux catalogues (prix nets du compte) : uniquement dans `.env`,
+  | jamais committés. Tous optionnels : un connecteur sans sa variable lève une
+  | erreur explicite à l'usage, sans empêcher l'application de démarrer.
+  | `PFCONCEPT_FEED_CODE` est le code distributeur présent dans les URLs des
+  | flux prix / stock / prix de marquage PF Concept.
+  */
+  PFCONCEPT_FEED_CODE: Env.schema.secret.optional(),
+  PASSOT_API_KEY: Env.schema.secret.optional(),
+  INSPIRION_API_KEY: Env.schema.secret.optional(),
+  AXPOL_API_KEY: Env.schema.secret.optional(),
+  SUPPLIER_FEED_TIMEOUT_MS: Env.schema.number.optional(),
+  SUPPLIER_FEED_USER_AGENT: Env.schema.string.optional(),
 })

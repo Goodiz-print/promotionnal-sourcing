@@ -1,0 +1,6 @@
+{
+  "stocks": [
+    { "sku": "FIXCUP#001", "quantity": 1200, "restocks": null },
+    { "sku": "FIXCUP#002", "quantity": 0, "restocks": [{ "date": "2026/12/01", "quantity": 300 }] }
+  ]
+}

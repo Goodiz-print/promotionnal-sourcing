@@ -1355,6 +1355,7 @@ export class ProductImageSchema extends BaseModel {
     'productId',
     'role',
     'secureUrl',
+    'sourceUrl',
     'storageObjectId',
     'updatedAt',
     'width',
@@ -1374,6 +1375,8 @@ export class ProductImageSchema extends BaseModel {
   declare role: string | null
   @column()
   declare secureUrl: string
+  @column()
+  declare sourceUrl: string | null
   @column()
   declare storageObjectId: number | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -1653,6 +1656,7 @@ export class ProductSchema extends BaseModel {
     'cautionComment',
     'createdAt',
     'currency',
+    'externalId',
     'hsCode',
     'id',
     'imageUrl',
@@ -1692,6 +1696,8 @@ export class ProductSchema extends BaseModel {
   declare createdAt: DateTime
   @column()
   declare currency: string
+  @column()
+  declare externalId: string | null
   @column()
   declare hsCode: string | null
   @column({ isPrimary: true })
