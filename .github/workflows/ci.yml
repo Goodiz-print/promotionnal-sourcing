@@ -60,7 +60,7 @@ jobs:
         run: shellcheck scripts/deploy/*.sh scripts/dev.sh
       # L'image embarque shellcheck : les blocs `run:` sont vérifiés aussi.
       - name: actionlint (workflows)
-        run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.7 -color
+        run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.7@sha256:887a259a5a534f3c4f36cb02dca341673c6089431057242cdc931e9f133147e9 -color
 
   build:
     runs-on: ubuntu-latest

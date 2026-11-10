@@ -15,6 +15,10 @@ on:
         description: Image à déployer, référencée par digest (ghcr.io/…@sha256:…)
         required: true
         type: string
+      version:
+        description: Commit de l'image (APP_VERSION), attendu sur GET /health après déploiement
+        required: true
+        type: string
 
 jobs:
   deploy:
@@ -38,6 +42,10 @@ jobs:
       CLEVER_TOKEN: ${{ secrets.CLEVER_TOKEN }}
       CLEVER_SECRET: ${{ secrets.CLEVER_SECRET }}
       IMAGE: ${{ inputs.image }}
+      VERSION: ${{ inputs.version }}
+      APP_WEB: ${{ vars.CLEVER_APP_WEB }}
+      APP_WORKER: ${{ vars.CLEVER_APP_WORKER }}
+      APP_URL: ${{ vars.APP_URL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -52,13 +60,26 @@ jobs:
 
       # Avant tout redémarrage : un échec ici laisse la version en place intacte.
       - name: Migrations
-        run: scripts/deploy/clever_migrate.sh --app "${{ vars.CLEVER_APP_WEB }}" --image "$IMAGE"
+        run: scripts/deploy/clever_migrate.sh --app "$APP_WEB" --image "$IMAGE"
 
       - name: Déployer le web
-        run: scripts/deploy/clever_push.sh --app "${{ vars.CLEVER_APP_WEB }}" --role web --image "$IMAGE"
+        run: scripts/deploy/clever_push.sh --app "$APP_WEB" --role web --image "$IMAGE"
 
       - name: Déployer le worker
-        run: scripts/deploy/clever_push.sh --app "${{ vars.CLEVER_APP_WORKER }}" --role worker --image "$IMAGE"
+        run: scripts/deploy/clever_push.sh --app "$APP_WORKER" --role worker --image "$IMAGE"
 
-      - name: Vérifier la sonde /health
-        run: curl --fail --silent --show-error --retry 10 --retry-delay 6 --retry-all-errors "${{ vars.APP_URL }}/health"
+      # /health doit répondre ET annoncer la version déployée : pendant la bascule,
+      # l'ancienne version peut encore servir.
+      - name: Vérifier la version servie
+        run: |
+          for attempt in $(seq 1 20); do
+            served="$(curl --silent --show-error --max-time 10 "$APP_URL/health" | jq -r '.version // empty' || true)"
+            if [ "$served" = "$VERSION" ]; then
+              echo "Version servie : $served"
+              exit 0
+            fi
+            echo "Tentative $attempt : version servie « ${served:-aucune} », attendue « $VERSION »"
+            sleep 6
+          done
+          echo "::error::$APP_URL/health n'annonce pas la version $VERSION."
+          exit 1

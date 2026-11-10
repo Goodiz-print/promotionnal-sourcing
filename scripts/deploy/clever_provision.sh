@@ -88,14 +88,16 @@ app_env_json() {
   fi
 }
 
+# ensure_app / ensure_addon rendent l'identifiant dans $REPLY (pas de sous-shell :
+# les commandes affichées en --dry-run restent dans l'ordre d'exécution).
 ensure_app() {
   local name="$1" id
   id="$(app_id "$name")"
   if [ -z "$id" ]; then
-    run clever create --type docker "$name" --org "$CLEVER_ORG" --region "$REGION" --alias "$name" >&2
+    run clever create --type docker "$name" --org "$CLEVER_ORG" --region "$REGION" --alias "$name"
     id="$(app_id "$name")"
   fi
-  echo "${id:-<id de $name>}"
+  REPLY="${id:-<id de $name>}"
 }
 
 ensure_addon() {
@@ -103,10 +105,10 @@ ensure_addon() {
   shift 2
   id="$(addon_id "$name")"
   if [ -z "$id" ]; then
-    run clever addon create "$provider" "$name" --org "$CLEVER_ORG" --region "$REGION" --yes "$@" >&2
+    run clever addon create "$provider" "$name" --org "$CLEVER_ORG" --region "$REGION" --yes "$@"
     id="$(addon_id "$name")"
   fi
-  echo "${id:-<id de $name>}"
+  REPLY="${id:-<id de $name>}"
 }
 
 ensure_link() {
@@ -133,14 +135,18 @@ addon_var() {
 }
 
 say "Applications ($CLEVER_ORG)"
-web="$(ensure_app "$web_name")"
-worker="$(ensure_app "$worker_name")"
+ensure_app "$web_name"
+web="$REPLY"
+ensure_app "$worker_name"
+worker="$REPLY"
 echo "  web    : $web"
 echo "  worker : $worker"
 
 say 'Add-ons'
-pg="$(ensure_addon postgresql-addon "$pg_name" --plan "$PG_PLAN" --addon-version "$PG_VERSION")"
-cellar="$(ensure_addon cellar-addon "$cellar_name")"
+ensure_addon postgresql-addon "$pg_name" --plan "$PG_PLAN" --addon-version "$PG_VERSION"
+pg="$REPLY"
+ensure_addon cellar-addon "$cellar_name"
+cellar="$REPLY"
 echo "  postgresql : $pg"
 echo "  cellar     : $cellar"
 for app in "$web" "$worker"; do

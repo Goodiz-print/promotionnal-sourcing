@@ -27,6 +27,7 @@ jobs:
       packages: write
     outputs:
       image: ${{ steps.image.outputs.image }}
+      version: ${{ steps.image.outputs.version }}
     env:
       TAG: ${{ inputs.tag || github.ref_name }}
     steps:
@@ -52,27 +53,40 @@ jobs:
             exit 1
           fi
 
-          # Version déjà publiée (rollback, relance) : on reprend son image telle quelle.
-          if ! docker buildx imagetools inspect "$repository:$TAG" > /dev/null 2>&1; then
-            sha="$(git rev-list -n 1 "refs/tags/$TAG")"
+          digest_of() {
+            docker buildx imagetools inspect "$1" --format '{{json .Manifest}}' 2> /dev/null | jq -r '.digest'
+          }
 
-            # Une release part d'un commit de main : c'est là que l'image a été testée.
+          sha="$(git rev-list -n 1 "refs/tags/$TAG")"
+          tag_digest="$(digest_of "$repository:$TAG" || true)"
+          sha_digest="$(digest_of "$repository:$sha" || true)"
+
+          if [ -z "$tag_digest" ]; then
+            # Nouvelle version. Elle part d'un commit de main : c'est là que l'image a été testée.
             if ! git merge-base --is-ancestor "$sha" origin/main; then
               echo "::error::Le tag $TAG ne pointe pas sur un commit de main."
               exit 1
             fi
-            if ! docker buildx imagetools inspect "$repository:$sha" > /dev/null 2>&1; then
-              echo "::error::Aucune image pour $sha : la CI de main n'est pas (encore) passée sur ce commit."
+            if [ -z "$sha_digest" ]; then
+              echo "::error::Aucune image pour $sha : le workflow Docker n'est pas (encore) passé sur ce commit. Le relancer, puis relancer cette release."
               exit 1
             fi
 
             # Pose le tag de version sur l'image du commit : aucune reconstruction.
             docker buildx imagetools create --tag "$repository:$TAG" "$repository:$sha"
+            tag_digest="$sha_digest"
+          elif [ "$tag_digest" != "$sha_digest" ]; then
+            # Version déjà publiée, mais le tag git ne désigne plus le même commit :
+            # on refuse de redéployer en silence une image qui n'est pas celle du tag.
+            echo "::error::L'image $TAG existe déjà et ne correspond pas au commit $sha du tag git (tag déplacé ?). Publier une nouvelle version plutôt que de déplacer un tag."
+            exit 1
           fi
 
-          digest="$(docker buildx imagetools inspect "$repository:$TAG" --format '{{json .Manifest}}' | jq -r '.digest')"
-          echo "image=$repository@$digest" >> "$GITHUB_OUTPUT"
-          echo "Version $TAG → \`$repository@$digest\`" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "image=$repository@$tag_digest"
+            echo "version=$sha"
+          } >> "$GITHUB_OUTPUT"
+          echo "Version $TAG (commit \`$sha\`) → \`$repository@$tag_digest\`" >> "$GITHUB_STEP_SUMMARY"
 
   deploy-production:
     needs: resolve
@@ -83,4 +97,5 @@ jobs:
     with:
       environment: production
       image: ${{ needs.resolve.outputs.image }}
+      version: ${{ needs.resolve.outputs.version }}
     secrets: inherit

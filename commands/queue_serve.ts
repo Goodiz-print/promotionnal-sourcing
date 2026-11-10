@@ -15,9 +15,21 @@ export default class QueueServe extends QueueWork {
 
   async run() {
     const probe = await this.app.container.make(WorkerProbeService)
-    const port = await probe.start(env.get('PORT'), env.get('HOST'))
+    const host = env.get('HOST')
+
+    let port: number
+    try {
+      port = await probe.start(env.get('PORT'), host)
+    } catch (error) {
+      // Sans sonde, la plateforme tuerait le conteneur : on échoue tout de suite,
+      // avec un code de sortie non nul (une commande `staysAlive` sortirait en 0).
+      this.logger.error(`Sonde du worker indisponible : ${(error as Error).message}`)
+      this.exitCode = 1
+      return this.terminate()
+    }
+
     this.app.terminating(() => probe.stop())
-    this.logger.info(`Sonde du worker : http://${env.get('HOST')}:${port}/health`)
+    this.logger.info(`Sonde du worker : http://${host}:${port}/health`)
 
     await super.run()
   }

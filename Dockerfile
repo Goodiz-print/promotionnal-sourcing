@@ -77,6 +77,11 @@ COPY --from=build --chown=app:app /app/build ./
 USER app
 EXPOSE 3333
 
+# Commit de l'image, exposé par GET /health (vérification après déploiement).
+# En dernier : ne change que cette couche d'un commit à l'autre.
+ARG APP_VERSION=dev
+ENV APP_VERSION=${APP_VERSION}
+
 # Web. Worker : même image, `node ace queue:work`. Migrations : commande
 # ponctuelle `node ace migration:run --force` (jamais au démarrage).
 CMD ["node", "bin/server.js"]

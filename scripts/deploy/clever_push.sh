@@ -100,4 +100,8 @@ clever link "$app" --alias target
 echo "Déploiement de $image sur $app (rôle $role)…"
 # --force : chaque déploiement part d'un dépôt neuf, sans historique commun.
 # clever deploy suit le déploiement et sort en erreur s'il échoue.
-clever deploy --alias target --force --same-commit-policy rebuild
+# --quiet : les logs de build Clever ne sont pas recopiés dans le job. Clever
+# passe les variables de l'application en --build-arg ; tant qu'il n'est pas
+# établi que ses logs ne les affichent pas, on ne les envoie pas dans GitHub
+# (ils restent lisibles dans la console Clever et par `clever logs`).
+clever deploy --alias target --force --same-commit-policy rebuild --quiet

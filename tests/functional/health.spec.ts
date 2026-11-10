@@ -1,5 +1,6 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
+import env from '#start/env'
 import HealthService from '#services/health_service'
 import {
   QUEUE_DEFAULT_PRIORITY,
@@ -20,6 +21,20 @@ test.group('Sonde de santé HTTP', (group) => {
     const response = await client.get('/health')
     response.assertStatus(200)
     assert.deepEqual(response.body(), { status: 'ok' })
+  })
+
+  test("GET /health annonce la version de l'image quand APP_VERSION est définie", async ({
+    client,
+    assert,
+    cleanup,
+  }) => {
+    env.set('APP_VERSION', 'abc1234')
+    cleanup(() => env.set('APP_VERSION', ''))
+
+    const response = await client.get('/health')
+
+    response.assertStatus(200)
+    assert.deepEqual(response.body(), { status: 'ok', version: 'abc1234' })
   })
 })
 

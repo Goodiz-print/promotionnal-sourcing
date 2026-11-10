@@ -15,7 +15,7 @@ Staging et reviews vivent dans l'organisation Clever `goodiz-nonprod`, la produc
 
 ## Règles
 
-- **Staging** : déploiement automatique à chaque push sur `main`, une fois la CI verte (`.github/workflows/docker.yml`, actif quand la variable de dépôt `DEPLOY_STAGING` vaut `true`).
+- **Staging** : déploiement automatique à chaque push sur `main`, une fois la CI verte (`.github/workflows/docker.yml`, actif quand la variable de dépôt `DEPLOY_STAGING` vaut `true`). Les runs passent un par un, dans l'ordre des merges. Si trois merges s'enchaînent, le run du milieu est annulé : son commit n'a pas d'image, il faut relancer ce run avant de le taguer.
 - **Prod** : déploiement uniquement sur un tag `vX.Y.Z`, après approbation manuelle (environnement GitHub `production`, `.github/workflows/release.yml`).
 - **Une image par commit** : construite une fois par la CI sur `main`, poussée sur GHCR et taguée au SHA. La prod réutilise cette image, sans rebuild.
 - **Migrations avant redémarrage**, par la CI. Ordre : migrations, web, worker.
@@ -41,11 +41,11 @@ La « construction » côté Clever se réduit à tirer l'image. Elle est réfé
 
 ## Release
 
-1. Merge sur `main`. La CI teste ; `docker.yml` construit `…:<sha>`, lance les migrations de staging, déploie web puis worker, et vérifie `GET /health`.
+1. Merge sur `main`. La CI teste ; `docker.yml` construit `…:<sha>`, lance les migrations de staging, déploie web puis worker, et vérifie que `GET /health` annonce ce commit.
 2. Vérification sur staging.
 3. `git tag vX.Y.Z && git push origin vX.Y.Z` (sur un commit de `main` dont l'image existe).
 4. `release.yml` pose le tag `vX.Y.Z` sur l'image du commit, puis attend l'approbation du job `production`.
-5. Sur approbation : migrations, web, worker, puis vérification de `GET /health`.
+5. Sur approbation : migrations, web, worker, puis vérification que `GET /health` annonce la version déployée.
 
 ## Image Docker
 
@@ -87,6 +87,14 @@ node ace queue:migrate   # tables de @adonisjs/queue, voir docs/queue.md
 Les deux commandes sont idempotentes. Aucun identifiant de base n'est stocké dans GitHub ; la base doit en revanche accepter les connexions des runners GitHub.
 
 Une migration déjà exécutée ne se modifie jamais. Le `down()` ne se lance pas automatiquement.
+
+> ⚠️ **Une migration doit rester compatible avec la version en place.** Les migrations passent avant le redémarrage : pendant quelques minutes, l'ancien code tourne sur le nouveau schéma (et un rollback applicatif y revient). Ajouter une colonne nullable ou une table est sans risque. Supprimer ou renommer une colonne, ou la rendre obligatoire, se fait en **deux releases** : la première cesse de l'utiliser, la suivante la retire.
+
+### Vérification après déploiement
+
+L'image porte son commit (`ARG APP_VERSION` du `Dockerfile`, renseigné par `docker.yml`) et `GET /health` le renvoie : `{ "status": "ok", "version": "<sha>" }`. Après le déploiement, la CI attend que `/health` annonce le commit déployé : pendant la bascule, l'ancienne version peut encore répondre. Sans `APP_VERSION` (local, tests), le champ est absent.
+
+Les logs de build Clever ne sont pas recopiés dans GitHub Actions (`clever deploy --quiet`) : Clever passe les variables de l'application au build, et il n'est pas établi que ses logs ne les affichent pas. En cas d'échec, les lire dans la console Clever ou avec `clever logs --app <id>`.
 
 ### Dictionnaires hunspell (#84)
 

@@ -20,7 +20,15 @@ Clever Cloud ne déploie pas une image : une application Docker reconstruit le `
 - `docker.yml` : construit et pousse l'image du **commit validé par la CI** (et non plus la tête de `main`), avec un nom de dépôt en minuscules (GHCR refuse les majuscules de `Goodiz-print`). Déploie ensuite en staging si la variable de dépôt `DEPLOY_STAGING` vaut `true`.
 - `release.yml` (nouveau) : sur un tag `vX.Y.Z`, pose ce tag sur l'image du commit, puis déploie en production après approbation de l'environnement `production`. Lancé à la main avec un tag existant, il sert de rollback.
 - `deploy.yml` (nouveau, réutilisable) : migrations, web, worker, puis vérification de `GET /health`. Un seul déploiement à la fois par environnement.
+- `docker.yml` n'accepte que les runs de CI déclenchés par un push sur `main` du dépôt (pas la PR d'un fork dont la branche s'appelle `main`), et passe un run à la fois, dans l'ordre des merges.
+- `release.yml` refuse un tag git déplacé sur un autre commit que celui de l'image déjà publiée.
 - `ci.yml` : nouveau job `lint-ci`, qui passe shellcheck sur `scripts/deploy/*.sh` et `scripts/dev.sh`, et actionlint sur tous les workflows.
+
+## Version dans `GET /health`
+
+- `GET /health` renvoie `version` (commit de l'image) quand `APP_VERSION` est définie : `{ "status": "ok", "version": "<sha>" }`. Sans elle, la réponse reste `{ "status": "ok" }`.
+- `APP_VERSION` : nouvelle variable optionnelle (`start/env.ts`, `.env.example`), posée au build par `ARG APP_VERSION` du `Dockerfile`.
+- Le déploiement attend que `/health` annonce le commit déployé.
 
 ## Scripts (`scripts/deploy/`)
 
@@ -35,4 +43,6 @@ Clever Cloud ne déploie pas une image : une application Docker reconstruit le `
 - Rien ne se déploie tant que `DEPLOY_STAGING` n'est pas définie et que les environnements GitHub ne sont pas créés.
 - Les reviews par PR (sur label `review`) sont décidées dans l'ADR 0005 mais pas encore livrées : elles dépendent de l'activation des extensions PostgreSQL sur un add-on créé à la volée.
 - Une application Docker Clever Cloud n'a pas de volume persistant : Meilisearch ne peut pas y être hébergé durablement (ADR 0004, `docs/deploiement.md`).
+- `queue:serve` sort en code 1 si la sonde ne peut pas démarrer (port pris).
+- Les migrations doivent rester compatibles avec la version en place (règle des deux releases, `docs/deploiement.md`).
 - Non vérifié contre Clever Cloud : les scripts ont été testés à blanc et contre un faux `clever`.

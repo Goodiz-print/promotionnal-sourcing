@@ -71,6 +71,8 @@ export default await Env.create(new URL('../', import.meta.url), {
   |----------------------------------------------------------
   */
   HEALTH_TOKEN: Env.schema.string.optional(),
+  // Commit de l'image, posé au build (Dockerfile) et annoncé par GET /health.
+  APP_VERSION: Env.schema.string.optional(),
   HEALTH_PROBE_TIMEOUT_MS: Env.schema.number.optional(),
   HEALTH_SLOW_MS: Env.schema.number.optional(),
   HEALTH_MAIL_FAILED_THRESHOLD: Env.schema.number.optional(),
