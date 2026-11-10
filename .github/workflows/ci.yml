@@ -49,6 +49,19 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm lint
 
+  # Workflows et scripts de déploiement : ils ne tournent pour de vrai qu'au
+  # moment de déployer, autant attraper leurs erreurs sur la PR.
+  lint-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck (scripts)
+        run: shellcheck scripts/deploy/*.sh scripts/dev.sh
+      # L'image embarque shellcheck : les blocs `run:` sont vérifiés aussi.
+      - name: actionlint (workflows)
+        run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.7 -color
+
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 10

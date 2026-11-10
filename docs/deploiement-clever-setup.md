@@ -20,7 +20,7 @@ scripts/deploy/clever_provision.sh staging --dry-run   # affiche les commandes, 
 scripts/deploy/clever_provision.sh staging
 ```
 
-Pour la production : renseigner d'abord `APP_DOMAIN` dans `scripts/deploy/environments/production.env`, puis `clever_provision.sh production`.
+Pour la production : `clever_provision.sh production` (domaine `promotional-sourcing.eu`, voir « Base, stockage et DNS »).
 
 Le script :
 
@@ -49,10 +49,12 @@ Le script affiche les commandes exactes. Sur **web et worker** :
 
 Sans `MEILISEARCH_HOST`, la recherche fonctionne sur PostgreSQL seul.
 
-## 4. Base et stockage (manuel)
+## 4. Base, stockage et DNS (manuel)
 
 1. **Extensions PostgreSQL** : demander au support Clever Cloud l'activation de `vector`, `pg_trgm` et `unaccent` sur l'add-on. Ne pas lancer `CREATE EXTENSION` sans son accord. Les migrations échouent tant que ce n'est pas fait.
 2. **Bucket Cellar** : créer le bucket nommé dans `CELLAR_BUCKET` (console Clever, ou tout client S3 avec les identifiants de l'add-on).
+3. **DNS de la production** : `promotional-sourcing.eu` est un domaine nu, un CNAME y est impossible. Créer chez le registrar les enregistrements **A** vers les adresses que la console Clever affiche pour le domaine (ou un ALIAS/ANAME s'il en propose). Vérifier avec `clever domain diag --app <id web>`. Le certificat HTTPS est généré une fois le DNS en place. Pour que `www.promotional-sourcing.eu` réponde aussi, le rediriger vers le domaine nu chez le registrar.
+4. Le staging utilise `ps-staging.cleverapps.io` : aucun DNS à configurer.
 
 ## 5. GitHub (manuel)
 
