@@ -1,0 +1,48 @@
+{
+  "PFCPrintpricefeed": {
+    "decoCharges": {
+      "currency": "EUR",
+      "decoCharge": [
+        {
+          "printCode": "TP-TEST",
+          "impMethod": "Tampographie",
+          "logoSizes": [
+            {
+              "logoSize": [
+                {
+                  "logoSizeCm2": 10,
+                  "amountColors": [
+                    {
+                      "amountColor": [
+                        {
+                          "amountColorsId": "1",
+                          "amountSetupCharges": [
+                            {
+                              "amountSetupCharge": [
+                                {
+                                  "setupCharge": 40.0,
+                                  "decoPrices": [
+                                    {
+                                      "decoPrice": [
+                                        { "decoPriceFromQty": "50", "price": 0.5 },
+                                        { "decoPriceFromQty": "250", "price": 0.3 }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

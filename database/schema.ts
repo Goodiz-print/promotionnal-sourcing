@@ -1653,6 +1653,7 @@ export class ProductSchema extends BaseModel {
     'cautionComment',
     'createdAt',
     'currency',
+    'externalId',
     'hsCode',
     'id',
     'imageUrl',
@@ -1692,6 +1693,8 @@ export class ProductSchema extends BaseModel {
   declare createdAt: DateTime
   @column()
   declare currency: string
+  @column()
+  declare externalId: string | null
   @column()
   declare hsCode: string | null
   @column({ isPrimary: true })
