@@ -17,7 +17,7 @@ node ace supplier:import all                              # les connecteurs conf
 | ---------------- | -------------------------------------------------------------------------------------------- |
 | `--limit`        | Nombre maximal de produits (modèles) par fournisseur, 200 par défaut                         |
 | `--locale`       | Langue du flux : `fr` (défaut), `en`, `de`, `es`                                             |
-| `--dry-run`      | Bilan (produits, catégories et techniques non reconnues) sans écriture                       |
+| `--dry-run`      | Bilan (produits, catégories et techniques non reconnues) sans aucune écriture en base        |
 | `--store-images` | Copie les images dans Cellar (clé sha256, dédoublonnage) au lieu de garder l'URL fournisseur |
 | `--skip-images`  | Ne touche pas à la galerie                                                                   |
 | `--force`        | Autorise l'exécution avec `NODE_ENV=production` (refusée sinon)                              |
@@ -34,6 +34,8 @@ Relançable sans risque : un second import met les fiches à jour, sans doublon.
 | `AXPOL_API_KEY`            | Axpol       | Réservé (connecteur non implémenté)                                                                   |
 | `SUPPLIER_FEED_TIMEOUT_MS` | tous        | Timeout HTTP, 120 s par défaut (les flux PF Concept pèsent jusqu'à ~200 Mo)                           |
 | `SUPPLIER_FEED_USER_AGENT` | tous        | User-Agent annoncé, `GoodizprintSourcing/1.0` par défaut                                              |
+
+Les URLs journalisées passent par `redactUrl` : tout segment `feed_<…>_v3` hors code langue est masqué, quel que soit le format du code, ainsi que les valeurs exactes des secrets configurés et la query string.
 
 Toutes sont optionnelles (`Env.schema.secret.optional()`) : sans elles l'application démarre, et le connecteur concerné lève `SupplierConnectorNotConfiguredException` à l'usage.
 
@@ -61,13 +63,14 @@ Un connecteur **ne fait que lire** : il traduit le flux en `NormalizedProduct[]`
 ### Persistance
 
 - **Fournisseur** créé / mis à jour par slug (`pf-concept`, `passot-innovation`, `inspirion`, `axpol`), sans organisation rattachée.
-- **Produit** rapproché par `(supplier_id, external_id)` : la colonne `products.external_id` (code modèle PF Concept, SKU parent Passot) porte un index unique. Slug `<fournisseur>-<external_id>`.
+- **Produit** rapproché par `(supplier_id, external_id)` : la colonne `products.external_id` (code modèle PF Concept, SKU parent Passot) porte un index unique. Slug `<fournisseur>-<external_id>`, suffixé `-2`, `-3`… si deux codes donnent le même slug (`AB 12` / `AB-12`).
+- **Activation** : une fiche est active à sa création ; un import ne touche plus jamais `is_active` ensuite (une fiche désactivée par un admin n'est pas republiée). Sur un flux **complet** (moins de `--limit` produits récupérés, et au moins un), les fiches du fournisseur absentes du flux sont désactivées (`deactivated` au bilan). Un flux à `--limit` pile peut être tronqué : rien n'est désactivé. Une fiche réapparue dans le flux reste désactivée : la réactiver à la main.
 - **Une transaction par produit** : une fiche invalide est comptée en échec (bilan) sans bloquer les autres.
 - Traduction dans la langue du flux (`is_auto = false`), `source_locale` = cette langue.
 - Variantes, paliers et marquage via `ProductVariantService` / `ProductMarkingService`, avec la sémantique « remplace l'ensemble » des formulaires fournisseur. Les paliers propres à une variante ne sont écrits que s'ils diffèrent de ceux de la fiche. `price_min` / `price_max` sont recalculés.
-- Colonnes dérivées recalculées comme ailleurs : `origin_zone` (`ProductOriginService`), `is_eco` (`ProductEcoService`), `stock_status` (`ProductStockService` : stock > 0 → `in_stock`, 0 → `out_of_stock`, inconnu → `null`).
+- Colonnes dérivées recalculées comme ailleurs : `origin_zone` (`ProductOriginService`), `is_eco` (`ProductEcoService`, en tenant compte des labels éco saisis au back-office), `stock_status` (`ProductStockService` : stock > 0 → `in_stock`, 0 → `out_of_stock`, inconnu → `null`).
 - Réindexation Meilisearch par l'événement `ProductChanged`, jamais d'appel direct.
-- **Images** : au plus 5 par produit (galerie puis images de variantes). Par défaut l'URL fournisseur est conservée (`storage_object_id` nul). Avec `--store-images`, chaque image passe par `StorageService.storeContent`. Une galerie modifiée est remplacée dans la transaction : nouvelles lignes d'abord, puis `release` des anciens objets (un objet dédoublonné encore référencé n'est jamais libéré), et purge après commit.
+- **Images** : au plus 5 par produit (galerie puis images de variantes). L'URL d'origine est gardée dans `product_images.source_url`. Par défaut l'URL fournisseur est aussi l'URL affichée (`storage_object_id` nul). Avec `--store-images`, chaque image passe par `StorageService.storeContent`, **sauf** si elle a déjà été copiée pour cette fiche (même `source_url`) : l'objet existant est réutilisé, sans re-téléchargement. Un téléchargement en échec (timeout, 5xx) laisse la galerie existante **intacte** (le prochain import réessaie) ; une réponse qui n'est pas une image est seulement écartée. Une galerie modifiée est remplacée dans la transaction : nouvelles lignes d'abord, puis `release` des anciens objets (un objet dédoublonné encore référencé n'est jamais libéré), et purge après commit.
 
 ### Rapprochement des référentiels
 
@@ -97,18 +100,19 @@ Manuel « Data feeds » v3.6.5. Base `https://www.pfconcept.com/portal/datafeed/
 - Images : `https://images.pfconcept.com/ProductImages_All/JPG/1600x1600/<fichier>`. `imageMain` → principale, `imageMood*` / `imageModel` / `imageGroup` → ambiance, `imageLogo*` → marquée.
 - `--limit` s'applique aux _models_ **avant** la jointure avec les autres flux.
 - Un flux annexe en échec (prix, stock, marquage) est journalisé et l'import continue sans ces données.
-- Pays d'origine `PRC` → `CN`. Le code douane est tronqué de ses zéros de fin.
+- Pays d'origine `PRC` → `CN`. Le code douane est conservé tel quel (chiffres seulement, 10 au plus) : retirer les zéros de fin corromprait les codes significatifs (`8471300000` → `84713`).
+- Prix de la fiche : la grille **entière** de l'article le moins cher (prix d'appel, puis prix au plus grand palier). Les grilles ne sont jamais mélangées palier par palier ; un article à grille différente garde ses propres paliers.
 
 ## Passot Innovation (PiDesign)
 
 Doc « PiDesign.eu API » v1.0.3. Base `https://www.pidesign.eu/<langue>/rest/V1/`, en-tête `PI-API-KEY`.
 
-| Route                 | Usage                                                                                                                          |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `catalog/products`    | `configurable` = fiche parente, `simple` = déclinaison, reliées par `main_sku` (sinon préfixe avant `#`)                       |
-| `catalog/prices`      | `tier_prices[]` (`qty`, `value`) par SKU de déclinaison ; prix de la fiche = le moins cher par palier                          |
-| `catalog/stock`       | `quantity` par SKU                                                                                                             |
-| `customization/zones` | Zone = position, méthode = technique (`order_fee` = frais fixes, `prices` = paliers) ; méthodes express `is_priority` ignorées |
+| Route                 | Usage                                                                                                                                    |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `catalog/products`    | `configurable` = fiche parente, `simple` = déclinaison, reliées par `main_sku` (sinon préfixe avant `#`)                                 |
+| `catalog/prices`      | `tier_prices[]` (`qty`, `value`) par SKU ; prix de la fiche = ceux du parent s'il en a, sinon la grille de la déclinaison la moins chère |
+| `catalog/stock`       | `quantity` par SKU                                                                                                                       |
+| `customization/zones` | Zone = position, méthode = technique (`order_fee` = frais fixes, `prices` = paliers) ; méthodes express `is_priority` ignorées           |
 
 - Images : `https://media.pidesign.eu/media/catalog/product<file>`.
 - Les SKU de couleur « Echantillon » (échantillons) ne sont pas importés comme déclinaisons.
@@ -124,4 +128,4 @@ Squelettes seulement : `fetchCatalogue` lève `SupplierConnectorNotImplementedEx
 Sans réseau, sur des fixtures **anonymisées à prix fictifs** (`tests/fixtures/supplier_feed/`) qui reproduisent la structure réelle des flux. Le faux client HTTP et le connecteur en mémoire sont dans `tests/utils/supplier_feed.ts`.
 
 - `tests/unit/supplier_feed_connectors.spec.ts` : utilitaires, rapprochement, normalisation PF Concept et Passot, connecteur non configuré.
-- `tests/functional/supplier_feed_import.spec.ts` : création, idempotence, couleurs (nuance + famille), techniques, catégorie de repli, dry-run, échec isolé, registre.
+- `tests/functional/supplier_feed_import.spec.ts` : création, idempotence, couleurs (nuance + famille), techniques, catégorie de repli, dry-run sans écriture, échec isolé, activation et désactivation, slug unique, label éco conservé, images copiées (réutilisation, échec de téléchargement), registre.

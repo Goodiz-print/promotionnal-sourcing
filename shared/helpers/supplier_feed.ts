@@ -1,6 +1,7 @@
 /**
  * Utilitaires purs des connecteurs fournisseurs (parsing de valeurs hétérogènes).
  */
+import type { NormalizedPriceTier } from '#shared/types/supplier_feed'
 
 /**
  * Nombre depuis une valeur de flux : `17,5`, `"0.62"`, `150`, `""`, `null`.
@@ -48,11 +49,46 @@ export function asArray<T>(value: T | T[] | null | undefined): T[] {
 }
 
 /**
- * Masque les parties secrètes d'une URL avant de la journaliser : le code de
- * flux PF Concept (segment `_<uuid>_v3`) et toute query string.
+ * Masque les parties secrètes d'une URL avant de la journaliser :
+ * - tout segment `feed_<…>_v3` qui n'est pas un code langue (`productfeed_fr_v3`
+ *   reste lisible, `pricefeed_<code distributeur>_v3` est masqué quel que soit
+ *   le format du code : UUID, tirets, longueur…) ;
+ * - toute occurrence littérale des `secrets` fournis (valeurs de `.env`) ;
+ * - toute query string.
  */
-export function redactUrl(url: string): string {
-  return url.replace(/(feed_)[0-9a-f_]{20,}(_v3)/gi, '$1***$2').replace(/\?.*$/, '?***')
+export function redactUrl(url: string, secrets: Array<string | null | undefined> = []): string {
+  let redacted = url
+  for (const secret of secrets) {
+    if (secret && secret.length >= 4) redacted = redacted.split(secret).join('***')
+  }
+  return redacted
+    .replace(/(feed_)(?![a-z]{2}_v3)[^/?#]+?(_v3)/gi, '$1***$2')
+    .replace(/\?.*$/, '?***')
+}
+
+/**
+ * Grille de prix d'une fiche à partir des grilles de ses déclinaisons : la
+ * grille **complète** de la déclinaison la moins chère (prix d'appel le plus
+ * bas, puis prix au plus grand palier le plus bas). On ne mélange jamais les
+ * paliers de grilles différentes : un minimum palier par palier sur des
+ * grilles aux seuils différents donnerait une grille incohérente (prix qui
+ * remonte avec la quantité). Les déclinaisons dont la grille diffère gardent
+ * leurs propres paliers (`SupplierCatalogueImporter`).
+ */
+export function cheapestPriceGrid(grids: NormalizedPriceTier[][]): NormalizedPriceTier[] {
+  let best: NormalizedPriceTier[] = []
+  for (const grid of grids) {
+    if (grid.length === 0) continue
+    const sorted = [...grid].sort((a, b) => a.minQuantity - b.minQuantity)
+    if (best.length === 0) {
+      best = sorted
+      continue
+    }
+    const entry = sorted[0].unitPrice - best[0].unitPrice
+    const volume = sorted[sorted.length - 1].unitPrice - best[best.length - 1].unitPrice
+    if (entry < 0 || (entry === 0 && volume < 0)) best = sorted
+  }
+  return best.map((tier) => ({ ...tier }))
 }
 
 /**

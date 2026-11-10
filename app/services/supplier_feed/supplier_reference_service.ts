@@ -47,8 +47,18 @@ export default class SupplierReferenceService {
     return supplier
   }
 
-  async load(): Promise<SupplierReferences> {
-    const fallbackCategoryId = await this.ensureFallbackCategory()
+  /**
+   * Charge les référentiels. Avec `createFallback: false` (dry-run), la
+   * catégorie « Non classé » est seulement cherchée, jamais créée : rien n'est
+   * écrit en base, et `fallbackCategoryId` vaut 0 si elle n'existe pas encore
+   * (aucune catégorie réelle n'a l'id 0).
+   */
+  async load({
+    createFallback = true,
+  }: { createFallback?: boolean } = {}): Promise<SupplierReferences> {
+    const fallbackCategoryId = createFallback
+      ? await this.ensureFallbackCategory()
+      : await this.findFallbackCategory()
 
     const categories = await Category.query()
       .select('id', 'slug', 'parentId', 'synonyms')
@@ -130,6 +140,12 @@ export default class SupplierReferenceService {
       result.set(category.id, depth)
     }
     return result
+  }
+
+  /** Id de « Non classé » sans la créer ; 0 si elle n'existe pas encore. */
+  private async findFallbackCategory(): Promise<number> {
+    const category = await Category.findBy('slug', FALLBACK_CATEGORY_SLUG)
+    return category?.id ?? 0
   }
 
   private async ensureFallbackCategory(): Promise<number> {

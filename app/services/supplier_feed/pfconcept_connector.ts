@@ -6,6 +6,7 @@ import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
 import { collect, field, first } from '#services/supplier_feed/feed_tree'
 import { SupplierConnectorNotConfiguredException } from '#exceptions/supplier_feed_errors'
 import {
+  cheapestPriceGrid,
   cleanString,
   cmToMm,
   kgToG,
@@ -268,16 +269,8 @@ export default class PfConceptConnector extends SupplierConnector {
       .filter((entry): entry is { key: string; file: string } => entry.file !== null)
       .map(({ key, file }) => ({ url: `${imageBase}${file}`, role: imageRole(key) }))
 
-    // Prix de la fiche : le moins cher des articles à chaque palier.
-    const productTiers = new Map<number, number>()
-    for (const variant of variants) {
-      for (const tier of variant.priceTiers) {
-        const current = productTiers.get(tier.minQuantity)
-        if (current === undefined || tier.unitPrice < current) {
-          productTiers.set(tier.minQuantity, tier.unitPrice)
-        }
-      }
-    }
+    // Prix de la fiche : la grille complète de l'article le moins cher.
+    const productTiers = cheapestPriceGrid(variants.map((variant) => variant.priceTiers))
 
     const category = first(firstItem, ['catDesc']) ?? {}
     const categoryRaw = [
@@ -301,7 +294,9 @@ export default class PfConceptConnector extends SupplierConnector {
         .filter(Boolean)
         .slice(0, 30),
       brand: cleanString(field(firstItem, 'brand')),
-      hsCode: cleanString(field(firstItem, 'hsCode'))?.replace(/0+$/, '').slice(0, 10) ?? null,
+      // Code douane conservé tel quel (chiffres seulement) : retirer les zéros de
+      // fin corromprait les codes significatifs (`8471300000` → `84713`).
+      hsCode: cleanString(field(firstItem, 'hsCode'))?.replace(/\D/g, '').slice(0, 10) || null,
       originCountry: normalizeCountry(field(firstItem, 'countryOfOrigin')),
       categoryRaw: categoryRaw || null,
       materialLabels: [
@@ -312,9 +307,7 @@ export default class PfConceptConnector extends SupplierConnector {
       leadTimeDays: parsePositiveInt(field(decoDefault, 'leadTime')),
       videoUrl: cleanString(field(firstItem, 'videoUrl1')),
       currency: prices.get(firstCode)?.currency ?? 'EUR',
-      priceTiers: [...productTiers.entries()]
-        .sort(([a], [b]) => a - b)
-        .map(([minQuantity, unitPrice]) => ({ minQuantity, unitPrice })),
+      priceTiers: productTiers,
       variants,
       images,
       markingPositions: this.markingPositions(printRows.get(firstCode) ?? [], printPrices),

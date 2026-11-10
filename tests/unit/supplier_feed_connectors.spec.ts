@@ -7,7 +7,12 @@ import {
   SupplierConnectorNotConfiguredException,
   SupplierConnectorNotImplementedException,
 } from '#exceptions/supplier_feed_errors'
-import { normalizeCountry, parseDecimal, redactUrl } from '#shared/helpers/supplier_feed'
+import {
+  cheapestPriceGrid,
+  normalizeCountry,
+  parseDecimal,
+  redactUrl,
+} from '#shared/helpers/supplier_feed'
 import {
   FakeSupplierHttpClient,
   supplierFixture,
@@ -33,6 +38,54 @@ test.group('Flux fournisseurs — utilitaires', () => {
     assert.notInclude(redacted, FAKE_FEED_CODE)
     assert.notInclude(redacted, 'secret')
     assert.equal(redacted, 'https://feeds.example/pricefeed_***_v3.json?***')
+  })
+
+  test('redactUrl masque un code de tout format, garde le code langue', ({ assert }) => {
+    // Code avec tirets / lettres hors hexadécimal / court : masqué quand même.
+    for (const code of ['3f2a9c1e-77b4-4d1a-9e0f-1b2c3d4e5f60', 'XYZ-42', 'abc']) {
+      const redacted = redactUrl(`https://feeds.example/stockfeed_${code}_v3.json`)
+      assert.notInclude(redacted, code)
+    }
+    assert.equal(
+      redactUrl('https://feeds.example/productfeed_fr_v3.json'),
+      'https://feeds.example/productfeed_fr_v3.json'
+    )
+    // Valeur exacte d'un secret configuré, où qu'elle apparaisse.
+    assert.equal(
+      redactUrl('https://api.example/v1/s3cr3t-token/items', ['s3cr3t-token']),
+      'https://api.example/v1/***/items'
+    )
+  })
+
+  test('cheapestPriceGrid garde une grille entière, jamais un mélange', ({ assert }) => {
+    // Seuils différents : un minimum palier par palier donnerait 1:5, 50:3, 100:4.
+    const grid = cheapestPriceGrid([
+      [
+        { minQuantity: 1, unitPrice: 5 },
+        { minQuantity: 100, unitPrice: 4 },
+      ],
+      [{ minQuantity: 50, unitPrice: 3 }],
+      [],
+    ])
+    assert.deepEqual(grid, [{ minQuantity: 50, unitPrice: 3 }])
+    // Égalité au prix d'appel : la grille la moins chère en volume.
+    assert.deepEqual(
+      cheapestPriceGrid([
+        [
+          { minQuantity: 1, unitPrice: 2 },
+          { minQuantity: 500, unitPrice: 1.8 },
+        ],
+        [
+          { minQuantity: 500, unitPrice: 1.5 },
+          { minQuantity: 1, unitPrice: 2 },
+        ],
+      ]),
+      [
+        { minQuantity: 1, unitPrice: 2 },
+        { minQuantity: 500, unitPrice: 1.5 },
+      ]
+    )
+    assert.deepEqual(cheapestPriceGrid([]), [])
   })
 
   test('normalizeCountry ramène les alias à l’ISO-2', ({ assert }) => {
@@ -102,7 +155,8 @@ test.group('Connecteur PF Concept', (group) => {
     assert.equal(product.name, 'Mug isotherme Fixture 400ml')
     assert.equal(product.categoryRaw, 'Drinkware > Mugs isothermes')
     assert.equal(product.originCountry, 'CN')
-    assert.equal(product.hsCode, '9617')
+    // Code douane conservé tel quel : pas de troncature des zéros de fin.
+    assert.equal(product.hsCode, '9617000000')
     assert.deepEqual(product.keywords, ['mug', 'isotherme', 'café'])
     assert.deepEqual(product.materialLabels, ['Acier inoxydable'])
     assert.equal(product.leadTimeDays, 6)
@@ -127,10 +181,11 @@ test.group('Connecteur PF Concept', (group) => {
       { minQuantity: 1, unitPrice: 9.5 },
       { minQuantity: 100, unitPrice: 8.25 },
     ])
-    // Fiche : le moins cher des articles à chaque palier.
+    // Fiche : la grille entière de l'article le moins cher (9 € d'appel), sans
+    // mélange avec les paliers d'un autre article.
     assert.deepEqual(product.priceTiers, [
       { minQuantity: 1, unitPrice: 9 },
-      { minQuantity: 100, unitPrice: 8.25 },
+      { minQuantity: 100, unitPrice: 8.5 },
     ])
   })
 
@@ -251,11 +306,33 @@ test.group('Connecteur Passot', (group) => {
     assert.isTrue(client.requests.every((request) => request.url.includes('/fr/rest/V1/')))
   })
 
-  test('prix de la fiche : le moins cher des déclinaisons par palier', async ({ assert }) => {
+  test('prix de la fiche : la grille entière de la déclinaison la moins chère', async ({
+    assert,
+  }) => {
     const [cup] = await new PassotConnector(http()).fetchCatalogue({ limit: 1, locale: 'fr' })
+    // FIXCUP#002 (0,45 € d'appel) l'emporte ; FIXCUP#001 garde sa propre grille.
     assert.deepEqual(cup.priceTiers, [
       { minQuantity: 1, unitPrice: 0.45 },
+      { minQuantity: 500, unitPrice: 0.42 },
+    ])
+    assert.deepEqual(cup.variants[0].priceTiers, [
+      { minQuantity: 1, unitPrice: 0.5 },
       { minQuantity: 500, unitPrice: 0.4 },
+    ])
+  })
+
+  test('parent sans palier exploitable : repli sur les déclinaisons', async ({ assert }) => {
+    const prices = supplierFixture('passot', 'prices') as { items: unknown[] }
+    const client = new FakeSupplierHttpClient({
+      'catalog/products': supplierFixture('passot', 'products'),
+      'catalog/prices': { items: [{ sku: 'FIXCUP', tier_prices: [] }, ...prices.items] },
+      'catalog/stock': supplierFixture('passot', 'stock'),
+      'customization/zones': supplierFixture('passot', 'zones'),
+    })
+    const [cup] = await new PassotConnector(client).fetchCatalogue({ limit: 1, locale: 'fr' })
+    assert.deepEqual(cup.priceTiers, [
+      { minQuantity: 1, unitPrice: 0.45 },
+      { minQuantity: 500, unitPrice: 0.42 },
     ])
   })
 

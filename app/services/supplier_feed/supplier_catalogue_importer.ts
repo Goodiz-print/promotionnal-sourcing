@@ -92,12 +92,14 @@ export default class SupplierCatalogueImporter {
       created: 0,
       updated: 0,
       failed: 0,
+      deactivated: 0,
       unmatchedCategories: [],
       unmatchedTechniques: [],
       errors: [],
     }
 
-    const refs = await this.references.load()
+    // En dry-run, rien n'est écrit : la catégorie de repli n'est pas créée.
+    const refs = await this.references.load({ createFallback: !options.dryRun })
     const unmatchedCategories = new Set<string>()
     const unmatchedTechniques = new Set<string>()
     for (const product of products) {
@@ -136,7 +138,37 @@ export default class SupplierCatalogueImporter {
         )
       }
     }
+    summary.deactivated = await this.deactivateMissing(supplier, products, options.limit)
     return summary
+  }
+
+  /**
+   * Désactive les fiches du fournisseur **absentes du flux**, seulement si le
+   * flux est complet : les connecteurs tronquent à `limit`, donc moins de
+   * `limit` produits récupérés = catalogue entier ; à `limit` pile il peut être
+   * tronqué et rien n'est désactivé. Un flux vide est traité comme une panne
+   * fournisseur (rien n'est désactivé). Les fiches en échec d'import restent
+   * dans le flux : elles ne sont pas désactivées.
+   */
+  private async deactivateMissing(
+    supplier: Supplier,
+    products: NormalizedProduct[],
+    limit: number
+  ): Promise<number> {
+    if (products.length === 0 || products.length >= limit) return 0
+    const missing = await Product.query()
+      .where('supplierId', supplier.id)
+      .whereNotNull('externalId')
+      .whereNotIn(
+        'externalId',
+        products.map((product) => product.externalId)
+      )
+      .where('isActive', true)
+    for (const product of missing) {
+      await product.merge({ isActive: false }).save()
+      await emitter.emit(ProductChanged, new ProductChanged(product.id))
+    }
+    return missing.length
   }
 
   /**
@@ -157,9 +189,10 @@ export default class SupplierCatalogueImporter {
     options: SupplierImportOptions
   ): Promise<boolean> {
     // Téléchargements hors transaction (réseau lent) ; libérés si l'écriture échoue.
+    // `null` = galerie laissée telle quelle (`--skip-images` ou téléchargement en échec).
     const images = options.skipImages
       ? null
-      : await this.resolveImages(normalized, options.storeImages)
+      : await this.resolveImages(supplier, normalized, options.storeImages)
     const storedIds = (images ?? [])
       .map((image) => image.storageObjectId)
       .filter((id): id is number => id !== null)
@@ -212,7 +245,8 @@ export default class SupplierCatalogueImporter {
       supplierCategoryRaw: normalized.categoryRaw?.slice(0, 255) ?? null,
       leadTimeDays: normalized.leadTimeDays,
       videoUrl: normalized.videoUrl,
-      isActive: true,
+      // `isActive` n'est posé qu'à la création : une fiche désactivée (admin,
+      // fournisseur ou absente d'un flux complet) n'est jamais republiée par un import.
       isConfigurable: normalized.variants.length > 1,
       printable: normalized.markingPositions.length > 0,
       sourceLocale: options.locale,
@@ -223,11 +257,15 @@ export default class SupplierCatalogueImporter {
       product = existing.merge(columns)
       await product.save()
     } else {
-      const slug = `${supplierSlug}-${stringHelpers.slug(normalized.externalId, { lower: true })}`
+      const slug = await this.uniqueSlug(
+        trx,
+        `${supplierSlug}-${stringHelpers.slug(normalized.externalId, { lower: true })}`
+      )
       product = await Product.create(
         {
           ...columns,
           slug,
+          isActive: true,
           releasedAt: normalized.lifecycleStatus === 'new' ? DateTime.now() : null,
         },
         { client: trx }
@@ -284,14 +322,33 @@ export default class SupplierCatalogueImporter {
     product.stockStatus = this.stock.deriveStatus(
       variantInputs.map((input) => ({ isActive: true, stockStatus: input.stockStatus ?? null }))
     )
+    // Les labels éco sont saisis hors flux (back-office) : on en tient compte
+    // pour ne pas écraser `is_eco` à chaque import.
+    const ecoCertification = existing
+      ? await product.related('certifications').query().where('is_eco', true).first()
+      : null
     product.isEco = this.eco.deriveIsEco({
       recycledContentPercent: product.recycledContentPercent,
       materialSlugs: materialIds.map((id) => refs.values.get(id)?.slug ?? ''),
-      hasEcoCertification: false,
+      hasEcoCertification: ecoCertification !== null,
     })
     await product.save()
 
     return { productId: product.id, created: !existing, tombstones }
+  }
+
+  /**
+   * Slug libre, suffixé `-2`, `-3`… au besoin : deux codes fournisseur peuvent
+   * donner le même slug (`AB.12` / `AB-12`) ou heurter une fiche existante.
+   */
+  private async uniqueSlug(trx: TransactionClientContract, base: string): Promise<string> {
+    let slug = base
+    let suffix = 2
+    while (await Product.query({ client: trx }).where('slug', slug).select('id').first()) {
+      slug = `${base}-${suffix}`
+      suffix += 1
+    }
+    return slug
   }
 
   private variantInputs(
@@ -413,12 +470,19 @@ export default class SupplierCatalogueImporter {
   /**
    * Images retenues (galerie puis images de variantes, dédoublonnées), au plus
    * `maxImagesPerProduct`. Avec `storeImages`, chacune est copiée dans Cellar
-   * (clé sha256, dédoublonnage) ; une image injoignable est simplement écartée.
+   * (clé sha256, dédoublonnage), sauf si elle l'a déjà été pour cette fiche
+   * (même URL source) : elle est alors réutilisée **sans re-téléchargement**.
+   *
+   * Un téléchargement en échec (timeout, 5xx) renvoie `null` : la galerie
+   * existante est laissée intacte (le prochain import réessaiera) plutôt que
+   * remplacée par une galerie amputée. Une réponse qui n'est pas une image
+   * (échec déterministe) est seulement écartée.
    */
   private async resolveImages(
+    supplier: Supplier,
     normalized: NormalizedProduct,
     storeImages: boolean
-  ): Promise<ResolvedSupplierImage[]> {
+  ): Promise<ResolvedSupplierImage[] | null> {
     const seen = new Set<string>()
     const candidates = [
       ...normalized.images,
@@ -427,32 +491,80 @@ export default class SupplierCatalogueImporter {
       .filter((image) => !seen.has(image.url) && seen.add(image.url))
       .slice(0, supplierFeedsConfig.maxImagesPerProduct)
 
-    if (!storeImages) return candidates.map((image) => ({ ...image, storageObjectId: null }))
+    if (!storeImages) {
+      return candidates.map((image) => ({
+        url: image.url,
+        sourceUrl: image.url,
+        role: image.role,
+        storageObjectId: null,
+      }))
+    }
 
+    const alreadyStored = await this.storedImages(supplier, normalized.externalId)
     const resolved: ResolvedSupplierImage[] = []
-    for (const image of candidates) {
-      try {
-        const { content, mimeType } = await this.http.getBuffer(image.url)
-        const type = mimeType.split(';')[0].trim()
+    const fresh: number[] = []
+    try {
+      for (const image of candidates) {
+        const known = alreadyStored.get(image.url)
+        if (known) {
+          resolved.push({ ...known, sourceUrl: image.url, role: image.role })
+          continue
+        }
+        let download: { content: Buffer; mimeType: string }
+        try {
+          download = await this.http.getBuffer(image.url)
+        } catch (error) {
+          logger.warn(
+            { err: error, externalId: normalized.externalId },
+            'supplier image download failed, gallery left untouched'
+          )
+          await this.storage.discard(fresh)
+          return null
+        }
+        const type = download.mimeType.split(';')[0].trim()
         const extension = IMAGE_EXTENSIONS[type]
         if (!extension) continue
-        const object = await this.storage.storeContent(content, extension, type)
+        const object = await this.storage.storeContent(download.content, extension, type)
+        fresh.push(object.id)
         resolved.push({
           url: this.storage.urlFor(object),
+          sourceUrl: image.url,
           role: image.role,
           storageObjectId: object.id,
         })
-      } catch (error) {
-        logger.warn({ err: error }, 'supplier image download failed, skipped')
       }
+    } catch (error) {
+      await this.storage.discard(fresh)
+      throw error
     }
     return resolved
   }
 
+  /** Images de la fiche déjà copiées dans Cellar, par URL source. */
+  private async storedImages(
+    supplier: Supplier,
+    externalId: string
+  ): Promise<Map<string, { url: string; storageObjectId: number }>> {
+    const rows = await ProductImage.query()
+      .select('sourceUrl', 'secureUrl', 'storageObjectId')
+      .whereNotNull('sourceUrl')
+      .whereNotNull('storageObjectId')
+      .whereHas('product', (query) =>
+        query.where('supplierId', supplier.id).where('externalId', externalId)
+      )
+    const stored = new Map<string, { url: string; storageObjectId: number }>()
+    for (const row of rows) {
+      if (row.sourceUrl && row.storageObjectId) {
+        stored.set(row.sourceUrl, { url: row.secureUrl, storageObjectId: row.storageObjectId })
+      }
+    }
+    return stored
+  }
+
   /**
-   * Galerie : inchangée si les mêmes URLs reviennent dans le même ordre (seuls
-   * les rôles sont recalés) ; sinon remplacée. Les nouvelles lignes sont
-   * écrites **avant** la libération des anciens objets, pour qu'un objet
+   * Galerie : inchangée si les mêmes images (URL source + objet Cellar)
+   * reviennent dans le même ordre (seuls rôle et URL source sont recalés) ;
+   * sinon remplacée. Les nouvelles lignes sont écrites **avant** la libération des anciens objets, pour qu'un objet
    * dédoublonné encore référencé ne soit jamais libéré. Renvoie les pierres
    * tombales à purger après le commit.
    */
@@ -464,14 +576,21 @@ export default class SupplierCatalogueImporter {
     const current = await ProductImage.query({ client: trx })
       .where('productId', product.id)
       .orderBy('position')
+    // Comparaison par URL source (repli sur `secure_url` pour les lignes
+    // antérieures à `source_url`) et par objet Cellar.
     const unchanged =
       current.length === images.length &&
-      current.every((image, index) => image.secureUrl === images[index].url)
+      current.every(
+        (image, index) =>
+          (image.sourceUrl ?? image.secureUrl) === images[index].sourceUrl &&
+          image.storageObjectId === images[index].storageObjectId
+      )
 
     if (unchanged) {
       for (const [index, image] of current.entries()) {
-        if (image.role === images[index].role) continue
-        await image.useTransaction(trx).merge({ role: images[index].role }).save()
+        const { role, sourceUrl } = images[index]
+        if (image.role === role && image.sourceUrl === sourceUrl) continue
+        await image.useTransaction(trx).merge({ role, sourceUrl }).save()
       }
       product.imageUrl = images[0]?.url ?? null
       return []
@@ -497,6 +616,7 @@ export default class SupplierCatalogueImporter {
         images.map((image, position) => ({
           productId: product.id,
           secureUrl: image.url,
+          sourceUrl: image.sourceUrl,
           storageObjectId: image.storageObjectId,
           role: image.role,
           position,

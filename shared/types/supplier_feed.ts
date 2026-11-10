@@ -106,6 +106,11 @@ export interface SupplierImportSummary {
   created: number
   updated: number
   failed: number
+  /**
+   * Fiches du fournisseur absentes d'un flux **complet** (moins de `--limit`
+   * produits récupérés), désactivées. Toujours 0 sur un flux tronqué.
+   */
+  deactivated: number
   unmatchedCategories: string[]
   unmatchedTechniques: string[]
   errors: { externalId: string; message: string }[]
@@ -181,7 +186,10 @@ export interface SupplierReferences {
 
 /** Image retenue pour la galerie, éventuellement déjà copiée dans Cellar. */
 export interface ResolvedSupplierImage {
+  /** URL d'affichage : copie Cellar avec `--store-images`, sinon l'URL source. */
   url: string
+  /** URL d'origine chez le fournisseur (`product_images.source_url`). */
+  sourceUrl: string
   role: NormalizedImage['role']
   storageObjectId: number | null
 }

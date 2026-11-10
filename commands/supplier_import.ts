@@ -124,6 +124,11 @@ export default class SupplierImport extends BaseCommand {
       `${summary.supplier} : ${summary.fetched} récupéré(s), ${summary.created} créé(s), ` +
         `${summary.updated} mis à jour, ${summary.failed} en échec`
     )
+    if (summary.deactivated > 0) {
+      this.logger.warning(
+        `${summary.deactivated} fiche(s) absente(s) du flux complet désactivée(s)`
+      )
+    }
     if (summary.unmatchedCategories.length > 0) {
       this.logger.warning(
         `Catégories non reconnues (→ « Non classé ») : ${summary.unmatchedCategories.slice(0, 15).join(' | ')}` +

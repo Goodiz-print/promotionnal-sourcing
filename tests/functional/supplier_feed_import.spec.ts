@@ -10,12 +10,19 @@ import AttributeValue from '#models/attribute_value'
 import Category from '#models/category'
 import MarkingTechnique from '#models/marking_technique'
 import Supplier from '#models/supplier'
+import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
 import SupplierCatalogueImporter from '#services/supplier_feed/supplier_catalogue_importer'
 import SupplierConnectorRegistry from '#services/supplier_feed/supplier_connector_registry'
 import { FALLBACK_CATEGORY_SLUG } from '#services/supplier_feed/supplier_reference_service'
 import { UnknownSupplierConnectorException } from '#exceptions/supplier_feed_errors'
+import { CertificationFactory } from '#database/factories/certification_factory'
 import { useDatabase } from '#tests/utils/setup'
-import { InMemorySupplierConnector, normalizedProduct } from '#tests/utils/supplier_feed'
+import { useFakeStorage } from '#tests/utils/storage'
+import {
+  FakeSupplierHttpClient,
+  InMemorySupplierConnector,
+  normalizedProduct,
+} from '#tests/utils/supplier_feed'
 import type { SupplierImportOptions } from '#shared/types/supplier_feed'
 
 const OPTIONS: SupplierImportOptions = {
@@ -24,6 +31,12 @@ const OPTIONS: SupplierImportOptions = {
   dryRun: false,
   storeImages: false,
   skipImages: false,
+}
+
+/** Import via le conteneur (dépendances réelles), sur un connecteur en mémoire. */
+async function runImport(connector: InMemorySupplierConnector, options = OPTIONS) {
+  const importer = await app.container.make(SupplierCatalogueImporter)
+  return importer.import(connector, options)
 }
 
 const MARKED = normalizedProduct({
@@ -66,12 +79,6 @@ const MARKED = normalizedProduct({
 
 test.group('Import de catalogue fournisseur', (group) => {
   useDatabase(group, { seed: 'full' })
-
-  /** Import via le conteneur (dépendances réelles), sur un connecteur en mémoire. */
-  async function runImport(connector: InMemorySupplierConnector, options = OPTIONS) {
-    const importer = await app.container.make(SupplierCatalogueImporter)
-    return importer.import(connector, options)
-  }
 
   test('crée fournisseur, fiche, variantes, paliers, facettes et marquage', async ({ assert }) => {
     const summary = await runImport(new InMemorySupplierConnector([MARKED]))
@@ -174,15 +181,83 @@ test.group('Import de catalogue fournisseur', (group) => {
     assert.equal(category.slug, FALLBACK_CATEGORY_SLUG)
   })
 
-  test('dry-run : bilan calculé, rien d’écrit', async ({ assert }) => {
-    const summary = await runImport(new InMemorySupplierConnector([MARKED]), {
+  test('dry-run : bilan calculé, rien d’écrit (pas même « Non classé »)', async ({ assert }) => {
+    const odd = normalizedProduct({
+      externalId: 'EXT-ODD',
+      name: 'Zorglub quantique',
+      categoryRaw: 'Rubrique inexistante',
+    })
+    const summary = await runImport(new InMemorySupplierConnector([MARKED, odd]), {
       ...OPTIONS,
       dryRun: true,
     })
 
-    assert.include(summary, { fetched: 1, created: 0, updated: 0 })
+    assert.include(summary, { fetched: 2, created: 0, updated: 0 })
+    assert.deepEqual(summary.unmatchedCategories, ['Rubrique inexistante'])
     assert.isNull(await Supplier.findBy('slug', 'fixture-supplier'))
     assert.isNull(await Product.findBy('externalId', 'EXT-1'))
+    assert.isNull(await Category.findBy('slug', FALLBACK_CATEGORY_SLUG))
+  })
+
+  test('une fiche désactivée n’est pas republiée par un nouvel import', async ({ assert }) => {
+    await runImport(new InMemorySupplierConnector([MARKED]))
+    const product = await Product.findByOrFail('externalId', 'EXT-1')
+    await product.merge({ isActive: false }).save()
+
+    await runImport(new InMemorySupplierConnector([MARKED]))
+    await product.refresh()
+    assert.isFalse(product.isActive)
+  })
+
+  test('flux complet : les fiches absentes sont désactivées', async ({ assert }) => {
+    const other = normalizedProduct({ externalId: 'EXT-OTHER' })
+    await runImport(new InMemorySupplierConnector([MARKED, other]))
+
+    const summary = await runImport(new InMemorySupplierConnector([MARKED]))
+    assert.equal(summary.deactivated, 1)
+    const missing = await Product.findByOrFail('externalId', 'EXT-OTHER')
+    const kept = await Product.findByOrFail('externalId', 'EXT-1')
+    assert.isFalse(missing.isActive)
+    assert.isTrue(kept.isActive)
+  })
+
+  test('flux tronqué par --limit : rien n’est désactivé', async ({ assert }) => {
+    const other = normalizedProduct({ externalId: 'EXT-OTHER' })
+    await runImport(new InMemorySupplierConnector([MARKED, other]))
+
+    // 1 produit récupéré pour limit = 1 : le flux peut être tronqué.
+    const summary = await runImport(new InMemorySupplierConnector([MARKED, other]), {
+      ...OPTIONS,
+      limit: 1,
+    })
+    assert.equal(summary.deactivated, 0)
+    const stillActive = await Product.findByOrFail('externalId', 'EXT-OTHER')
+    assert.isTrue(stillActive.isActive)
+  })
+
+  test('deux codes au même slug : suffixe, aucun échec', async ({ assert }) => {
+    const summary = await runImport(
+      new InMemorySupplierConnector([
+        normalizedProduct({ externalId: 'AB 12', variants: [] }),
+        normalizedProduct({ externalId: 'AB-12', variants: [] }),
+      ])
+    )
+    assert.deepEqual(summary.errors, [])
+    assert.include(summary, { created: 2, failed: 0 })
+    const products = await Product.query().whereIn('externalId', ['AB 12', 'AB-12'])
+    const slugs = products.map((product) => product.slug)
+    assert.sameMembers(slugs, ['fixture-supplier-ab-12', 'fixture-supplier-ab-12-2'])
+  })
+
+  test('un label éco saisi au back-office survit à l’import', async ({ assert }) => {
+    await runImport(new InMemorySupplierConnector([MARKED]))
+    const product = await Product.findByOrFail('externalId', 'EXT-1')
+    const label = await CertificationFactory.merge({ isEco: true }).create()
+    await product.related('certifications').attach([label.id])
+
+    await runImport(new InMemorySupplierConnector([MARKED]))
+    await product.refresh()
+    assert.isTrue(product.isEco)
   })
 
   test('une fiche invalide est comptée en échec sans bloquer les autres', async ({ assert }) => {
@@ -210,5 +285,73 @@ test.group('Import de catalogue fournisseur', (group) => {
       ['pfconcept', 'passot', 'inspirion', 'axpol']
     )
     assert.throws(() => registry.get('acme'), UnknownSupplierConnectorException)
+  })
+})
+
+test.group('Import de catalogue fournisseur — images copiées (--store-images)', (group) => {
+  useDatabase(group, { seed: 'full' })
+  useFakeStorage(group)
+
+  const JPEG = (label: string) => ({
+    content: Buffer.from(`jpeg ${label}`),
+    mimeType: 'image/jpeg',
+  })
+  const URL_A = 'https://images.fixture.example/a.jpg'
+  const URL_B = 'https://images.fixture.example/b.jpg'
+  const URL_C = 'https://images.fixture.example/c.jpg'
+  const STORE = { ...OPTIONS, storeImages: true }
+
+  let http: FakeSupplierHttpClient
+  group.each.setup(() => {
+    http = new FakeSupplierHttpClient({}, { [URL_A]: JPEG('a'), [URL_B]: JPEG('b') })
+    app.container.swap(SupplierHttpClient, () => http)
+    return () => app.container.restore(SupplierHttpClient)
+  })
+
+  const withImages = (...urls: string[]) =>
+    normalizedProduct({
+      images: urls.map((url, index) => ({ url, role: index === 0 ? 'primary' : 'view' })),
+    })
+
+  async function gallery() {
+    const product = await Product.findByOrFail('externalId', 'EXT-1')
+    return ProductImage.query().where('productId', product.id).orderBy('position')
+  }
+
+  test('images déjà copiées : réutilisées sans re-téléchargement', async ({ assert }) => {
+    await runImport(new InMemorySupplierConnector([withImages(URL_A, URL_B)]), STORE)
+    const before = await gallery()
+    assert.deepEqual(
+      before.map((image) => image.sourceUrl),
+      [URL_A, URL_B]
+    )
+    assert.isTrue(before.every((image) => image.storageObjectId !== null))
+    assert.lengthOf(http.downloads, 2)
+
+    http.downloads = []
+    await runImport(new InMemorySupplierConnector([withImages(URL_A, URL_B)]), STORE)
+    assert.lengthOf(http.downloads, 0)
+    const after = await gallery()
+    assert.deepEqual(
+      after.map((image) => image.id),
+      before.map((image) => image.id)
+    )
+  })
+
+  test('téléchargement en échec : galerie existante intacte', async ({ assert }) => {
+    await runImport(new InMemorySupplierConnector([withImages(URL_A, URL_B)]), STORE)
+    const before = await gallery()
+
+    // URL_C injoignable (503) : la galerie n'est ni amputée ni remplacée.
+    const summary = await runImport(
+      new InMemorySupplierConnector([withImages(URL_A, URL_B, URL_C)]),
+      STORE
+    )
+    assert.include(summary, { updated: 1, failed: 0 })
+    const after = await gallery()
+    assert.deepEqual(
+      after.map((image) => [image.id, image.storageObjectId]),
+      before.map((image) => [image.id, image.storageObjectId])
+    )
   })
 })

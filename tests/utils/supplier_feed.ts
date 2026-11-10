@@ -19,8 +19,17 @@ export function supplierFixture(supplier: string, name: string): unknown {
  */
 export class FakeSupplierHttpClient extends SupplierHttpClient {
   requests: { url: string; headers: Record<string, string> }[] = []
+  /** URLs d'images demandées (`getBuffer`), dans l'ordre. */
+  downloads: string[] = []
 
-  constructor(private routes: Record<string, unknown>) {
+  /**
+   * `files` : contenu servi par `getBuffer` pour une URL exacte ; une URL
+   * absente échoue comme un flux injoignable (timeout, 5xx…).
+   */
+  constructor(
+    private routes: Record<string, unknown>,
+    public files: Record<string, { content: Buffer; mimeType: string }> = {}
+  ) {
     super()
   }
 
@@ -31,8 +40,11 @@ export class FakeSupplierHttpClient extends SupplierHttpClient {
     return this.routes[fragment] as T
   }
 
-  async getBuffer(): Promise<{ content: Buffer; mimeType: string }> {
-    throw new SupplierFeedHttpException('HTTP 404 (fake)')
+  async getBuffer(url: string): Promise<{ content: Buffer; mimeType: string }> {
+    this.downloads.push(url)
+    const file = this.files[url]
+    if (!file) throw new SupplierFeedHttpException('HTTP 503 (fake)')
+    return file
   }
 }
 

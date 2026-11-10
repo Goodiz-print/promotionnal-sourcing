@@ -7,6 +7,7 @@ import { collect, field } from '#services/supplier_feed/feed_tree'
 import { SupplierConnectorNotConfiguredException } from '#exceptions/supplier_feed_errors'
 import {
   asArray,
+  cheapestPriceGrid,
   cleanString,
   cmToMm,
   kgToG,
@@ -197,15 +198,14 @@ export default class PassotConnector extends SupplierConnector {
       }
     })
 
-    // Paliers de la fiche : parent s'il a ses prix, sinon le moins cher des déclinaisons.
-    const productTiers = new Map<number, number>()
-    const sources = tiersBySku.get(group.parentSku) ?? variants.flatMap((v) => v.priceTiers)
-    for (const tier of sources) {
-      const current = productTiers.get(tier.minQuantity)
-      if (current === undefined || tier.unitPrice < current) {
-        productTiers.set(tier.minQuantity, tier.unitPrice)
-      }
-    }
+    // Paliers de la fiche : ceux du parent s'il en a, sinon la grille complète
+    // de la déclinaison la moins chère (un parent présent sans palier exploitable
+    // ne doit pas masquer les prix des déclinaisons).
+    const parentTiers = tiersBySku.get(group.parentSku) ?? []
+    const productTiers =
+      parentTiers.length > 0
+        ? parentTiers
+        : cheapestPriceGrid(variants.map((variant) => variant.priceTiers))
 
     const images = this.images(group.parent ?? undefined)
     const methods = zones.flatMap((zone) =>
@@ -232,9 +232,7 @@ export default class PassotConnector extends SupplierConnector {
       leadTimeDays: delays.length > 0 ? Math.min(...delays) : null,
       videoUrl: null,
       currency: 'EUR',
-      priceTiers: [...productTiers.entries()]
-        .sort(([a], [b]) => a - b)
-        .map(([minQuantity, unitPrice]) => ({ minQuantity, unitPrice })),
+      priceTiers: productTiers,
       variants,
       images: images.length > 0 ? images : this.images(group.children[0]),
       markingPositions: this.markingPositions(zones),
