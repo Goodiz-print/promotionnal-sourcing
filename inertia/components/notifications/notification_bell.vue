@@ -8,6 +8,7 @@ import type { Data } from '@generated/data'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
 import { useNotificationStream } from '~/composables/use_notification_stream'
+import BaseCountBadge from '~/components/base/base_count_badge.vue'
 import BaseDropdown from '~/components/base/base_dropdown.vue'
 import NotificationItem from '~/components/notifications/notification_item.vue'
 
@@ -65,14 +66,11 @@ useNotificationStream(() => {
         @click="toggle"
       >
         <Bell :size="20" aria-hidden="true" />
-        <span
-          v-if="count > 0"
+        <BaseCountBadge
           data-testid="unread-badge"
-          class="text-tabular absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-pill bg-danger px-1 text-[11px] leading-none font-semibold text-white"
-          :aria-label="t('notifications.unreadCount', { count })"
-        >
-          {{ count > 99 ? '99+' : count }}
-        </span>
+          :count="count"
+          :label="t('notifications.unreadCount', { count })"
+        />
       </button>
     </template>
     <div class="flex items-center justify-between border-b border-hairline px-3 py-2.5">

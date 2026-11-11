@@ -1838,6 +1838,36 @@ export class QueueScheduleSchema extends BaseModel {
   declare toDate: DateTime | null
 }
 
+export class QuoteCartItemSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'id',
+    'note',
+    'organizationId',
+    'productId',
+    'quantity',
+    'updatedAt',
+    'userId',
+  ] as const
+  $columns = QuoteCartItemSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare note: string | null
+  @column()
+  declare organizationId: number
+  @column()
+  declare productId: number
+  @column()
+  declare quantity: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: number
+}
+
 export class QuoteItemSchema extends BaseModel {
   static $columns = [
     'createdAt',

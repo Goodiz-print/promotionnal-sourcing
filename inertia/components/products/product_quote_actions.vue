@@ -1,86 +1,95 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
-import { FileText, LogIn, Plus } from 'lucide-vue-next'
+import { Check, FileText, LogIn, ShoppingCart } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
-import BaseSelect from '~/components/base/base_select.vue'
+import BaseInput from '~/components/base/base_input.vue'
+import BaseLinkButton from '~/components/base/base_link_button.vue'
 import type { ProductRfqContextType } from '#shared/types/rfq'
 
 /**
- * Demande de devis « en un clic » depuis une fiche produit.
+ * Demande de devis depuis une fiche produit.
  *
- * - acheteur connecté (`canCreateRfq`) : ouvre le formulaire de demande déjà
- *   rempli avec ce produit et son fournisseur, ou l'ajoute à un brouillon ;
+ * - acheteur connecté (`canCreateRfq`) : ajoute le produit à son panier de
+ *   devis, à la quantité choisie (le minimum de commande par défaut) ; une fois
+ *   au panier, renvoie vers lui. Un lien « Demande détaillée » ouvre le
+ *   formulaire complet, pré-rempli avec ce produit ;
  * - visiteur anonyme : renvoyé vers la connexion, qui le ramène ici ;
  * - connecté sans droit d'acheteur : rien (le bouton serait une impasse).
  */
-const props = defineProps<{ productId: number; rfqContext: ProductRfqContextType }>()
+const props = defineProps<{
+  productId: number
+  productSlug: string
+  minQuantity: number | null
+  rfqContext: ProductRfqContextType
+}>()
 
 const { t, locale } = useI18n()
 const page = usePage()
 
-const draftId = ref<number | null>(null)
-// Évite le double clic : un second envoi ajouterait une seconde ligne.
+const quantity = ref<number | null>(props.minQuantity ?? 1)
+// Évite le double clic pendant l'ajout.
 const adding = ref(false)
 
-function requestQuote() {
-  router.get(urlFor('rfqs.create', { locale: locale.value }), { productId: props.productId })
+const cartUrl = computed(() => urlFor('quote_cart.show', { locale: locale.value }))
+const detailedUrl = computed(
+  () => `${urlFor('rfqs.create', { locale: locale.value })}?productId=${props.productId}`
+)
+
+function addToCart() {
+  if (adding.value) return
+  adding.value = true
+  router.post(
+    urlFor('quote_cart.items.store', { locale: locale.value }),
+    { productId: props.productId, quantity: quantity.value },
+    { preserveScroll: true, onFinish: () => (adding.value = false) }
+  )
 }
 
 function signIn() {
-  const back = `${urlFor('rfqs.create', { locale: locale.value })}?productId=${props.productId}`
-  router.get(urlFor('session.create', { locale: locale.value }), { redirect: back })
-}
-
-function addToDraft() {
-  if (draftId.value === null || adding.value) return
-  adding.value = true
-  router.post(
-    urlFor('rfqs.items.from_product', { locale: locale.value, id: draftId.value }),
-    { productId: props.productId },
-    {
-      preserveScroll: true,
-      onFinish: () => {
-        adding.value = false
-        draftId.value = null
-      },
-    }
-  )
+  router.get(urlFor('session.create', { locale: locale.value }), {
+    redirect: urlFor('products.show', { locale: locale.value, slug: props.productSlug }),
+  })
 }
 </script>
 
 <template>
-  <div v-if="rfqContext.canCreateRfq" class="flex flex-col gap-4">
-    <div>
-      <BaseButton @click="requestQuote()">
-        <template #icon><FileText :size="18" aria-hidden="true" /></template>
-        {{ t('products.show.requestQuote') }}
-      </BaseButton>
+  <div v-if="rfqContext.canCreateRfq" class="flex flex-col gap-3">
+    <div v-if="rfqContext.inCart" class="flex flex-wrap items-center gap-3">
+      <p class="flex items-center gap-2 text-body-sm font-semibold text-success">
+        <Check :size="18" aria-hidden="true" />
+        {{ t('quote_cart.product.inCart') }}
+      </p>
+      <BaseLinkButton :href="cartUrl" variant="secondary">
+        <ShoppingCart :size="18" aria-hidden="true" />
+        {{ t('quote_cart.product.viewCart') }}
+      </BaseLinkButton>
     </div>
 
-    <div
-      v-if="rfqContext.drafts.length > 0"
-      class="flex flex-col gap-3 rounded-lg border border-hairline bg-sunken p-4 sm:flex-row sm:items-end"
-    >
-      <div class="flex-1">
-        <BaseSelect id="rfq-draft" v-model="draftId" :label="t('products.show.addToDraft')">
-          <option :value="null">{{ t('products.show.chooseDraft') }}</option>
-          <option v-for="draft in rfqContext.drafts" :key="draft.id" :value="draft.id">
-            {{ draft.title }}
-          </option>
-        </BaseSelect>
+    <form v-else class="flex flex-wrap items-end gap-3" @submit.prevent="addToCart()">
+      <div class="w-32">
+        <BaseInput
+          id="quote-cart-quantity"
+          v-model="quantity"
+          type="number"
+          :min="1"
+          :step="1"
+          :label="t('quote_cart.product.quantity')"
+        />
       </div>
-      <BaseButton
-        variant="secondary"
-        :disabled="draftId === null || adding"
-        :loading="adding"
-        @click="addToDraft()"
-      >
-        <template #icon><Plus :size="18" aria-hidden="true" /></template>
-        {{ t('rfq.product.add') }}
+      <BaseButton type="submit" :loading="adding" :disabled="!quantity || quantity < 1">
+        <template #icon><ShoppingCart :size="18" aria-hidden="true" /></template>
+        {{ t('quote_cart.product.add') }}
       </BaseButton>
+    </form>
+
+    <div>
+      <BaseLinkButton :href="detailedUrl" variant="ghost" size="sm">
+        <FileText :size="16" aria-hidden="true" />
+        {{ t('quote_cart.product.detailedRequest') }}
+      </BaseLinkButton>
     </div>
   </div>
 

@@ -239,24 +239,16 @@ export interface RfqProductLookupType {
 }
 
 /**
- * Brouillon proposé dans le menu « ajouter à une demande » d'une fiche produit.
- */
-export type RfqDraftOptionType = {
-  id: number
-  title: string
-}
-
-/**
  * Ce que la fiche produit sait de l'acheteur connecté. Toujours défini (jamais
  * `null`, que le sérialiseur de props refuse) : un visiteur anonyme reçoit
  * `canCreateRfq: false`.
  *
- * `drafts` n'est rempli que pour qui peut piloter une demande : modifier un
- * brouillon relève de `canManageRfq`, pas de `canCreateRfq`.
+ * `inCart` : le produit est déjà dans le panier de devis de l'utilisateur
+ * (cf. `docs/quote-cart.md`).
  */
 export type ProductRfqContextType = {
   canCreateRfq: boolean
-  drafts: RfqDraftOptionType[]
+  inCart: boolean
 }
 
 /**

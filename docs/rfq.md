@@ -377,21 +377,11 @@ formulaire déjà rempli, et le formulaire sait chercher dans le catalogue.
 
 ### Depuis une fiche produit
 
-`products/show.vue` délègue à `components/products/product_quote_actions.vue`.
-`ProductsController#show` expose la prop `rfqContext`
-(`ProductRfqContextType`, toujours définie — le sérialiseur de props refuse
-`null`) :
-
-| Visiteur                                  | `rfqContext`                          | Affichage                                                                                                                        |
-| ----------------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| anonyme, ou sans organisation courante    | `{ canCreateRfq: false, drafts: [] }` | bouton « Se connecter pour demander un devis » (anonyme seulement), qui revient sur le formulaire après connexion (`?redirect=`) |
-| fournisseur, ou rôle sans `canCreateRfq`  | idem                                  | rien                                                                                                                             |
-| acheteur (`canCreateRfq`)                 | `{ canCreateRfq: true, drafts: [] }`  | « Demander un devis »                                                                                                            |
-| acheteur pouvant piloter (`canManageRfq`) | `drafts` = ses brouillons             | + menu « Ajouter à une demande en brouillon »                                                                                    |
-
-Un simple `member` peut donc demander un devis mais ne voit pas le menu des
-brouillons : modifier un brouillon relève de `canManageRfq`, comme l'écran de
-détail.
+> **Remplacé par le panier de devis (2026-11-11)** : la fiche produit propose
+> désormais « Ajouter au panier de devis », et le menu « Ajouter à une demande
+> en brouillon » a disparu. `rfqContext` vaut `{ canCreateRfq, inCart }`. Le
+> formulaire pré-rempli reste accessible par le lien « Demande détaillée »
+> (`rfqs.create?productId=`). Voir [`quote-cart.md`](quote-cart.md).
 
 ### Routes
 
@@ -477,8 +467,8 @@ identifiant) reste sur PostgreSQL : ce n'est pas une recherche. Détail :
 - `tests/inertia/product_quote_actions.spec.ts`, `rfq_product_picker.spec.ts`.
 - i18n : `rfq.product.*`, `rfq.actions.delete`/`confirmDelete`,
   `rfq.flash.productAdded`/`deleted`, `rfq.errors.notDeletable`,
-  `rfq.show.viewProduct`, `products.show.addToDraft`/`chooseDraft`/
-  `signInToRequest`, dans les 9 langues.
+  `rfq.show.viewProduct`, `products.show.signInToRequest`, dans les 9 langues
+  (`products.show.addToDraft`/`chooseDraft` retirées avec le panier de devis).
 
 ## Expiration, prolongation et relance (#56)
 

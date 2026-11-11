@@ -88,24 +88,13 @@ test.group('RFQ en un clic — pré-remplissage depuis un produit', (group) => {
     client,
     assert,
   }) => {
-    const { org, owner } = await buyerWithOwner()
+    const { owner } = await buyerWithOwner()
     const product = await requestableProduct()
-    const draft = await RfqFactory.merge({
-      buyerOrganizationId: org.id,
-      title: 'Brouillon',
-    }).create()
-    await RfqFactory.apply('published').merge({ buyerOrganizationId: org.id }).create()
-    // Brouillon d'une autre organisation : jamais proposé.
-    const other = await OrganizationFactory.create()
-    await RfqFactory.merge({ buyerOrganizationId: other.id }).create()
 
     const response = await client.get(`/fr/products/${product.slug}`).withInertia().loginAs(owner)
 
     response.assertStatus(200)
-    assert.deepEqual(response.inertiaProps.rfqContext, {
-      canCreateRfq: true,
-      drafts: [{ id: draft.id, title: 'Brouillon' }],
-    })
+    assert.deepEqual(response.inertiaProps.rfqContext, { canCreateRfq: true, inCart: false })
   })
 
   test('la fiche produit ne propose rien à un visiteur ni à un fournisseur', async ({
@@ -115,7 +104,7 @@ test.group('RFQ en un clic — pré-remplissage depuis un produit', (group) => {
     const product = await requestableProduct()
     const supplierOrg = await OrganizationFactory.apply('supplier').create()
     const supplierUser = await createMember(supplierOrg, 'owner')
-    const none = { canCreateRfq: false, drafts: [] }
+    const none = { canCreateRfq: false, inCart: false }
 
     const anonymous = await client.get(`/fr/products/${product.slug}`).withInertia()
     const supplier = await client
@@ -128,18 +117,14 @@ test.group('RFQ en un clic — pré-remplissage depuis un produit', (group) => {
     assert.deepEqual(supplier.inertiaProps.rfqContext, none)
   })
 
-  test('un simple membre peut demander un devis mais pas modifier un brouillon', async ({
-    client,
-    assert,
-  }) => {
+  test('un simple membre peut demander un devis', async ({ client, assert }) => {
     const { org } = await buyerWithOwner()
     const member = await createMember(org, 'member')
-    await RfqFactory.merge({ buyerOrganizationId: org.id }).create()
     const product = await requestableProduct()
 
     const response = await client.get(`/fr/products/${product.slug}`).withInertia().loginAs(member)
 
-    assert.deepEqual(response.inertiaProps.rfqContext, { canCreateRfq: true, drafts: [] })
+    assert.deepEqual(response.inertiaProps.rfqContext, { canCreateRfq: true, inCart: false })
   })
 })
 

@@ -1,0 +1,59 @@
+{
+  "title": "Offertemand",
+  "subtitle": "Verzamel de producten waarvoor u een prijs wilt en stuur in één keer elke leverancier een aanvraag.",
+  "nav": {
+    "label": "Offertemand",
+    "count": "{count, plural, =0 {Offertemand is leeg} one {# product in de offertemand} other {# producten in de offertemand}}"
+  },
+  "empty": {
+    "title": "Uw offertemand is leeg",
+    "description": "Voeg producten uit de catalogus toe om meerdere leveranciers tegelijk te bevragen.",
+    "browse": "Catalogus bekijken"
+  },
+  "group": {
+    "items": "{count, plural, one {# product} other {# producten}} · een eigen aanvraag",
+    "unreachable": "Onbereikbare leveranciers",
+    "unreachableDescription": "Deze producten kunnen momenteel niet via het platform worden aangevraagd. Ze blijven in uw mand."
+  },
+  "line": {
+    "quantity": "Aantal",
+    "note": "Details (bedrukking, kleur…)",
+    "remove": "{name} uit de mand verwijderen",
+    "belowMinimum": "Minimale bestelling: {count} stuks"
+  },
+  "checkout": {
+    "title": "Aanvragen versturen",
+    "titleDraft": "Aanvragen aanmaken",
+    "description": "Een gemeenschappelijke kop voor alle aanvragen: elke leverancier ontvangt alleen zijn eigen producten.",
+    "fieldTitle": "Onderwerp van de aanvraag",
+    "fieldTitleHint": "De naam van de leverancier wordt aan elke aanvraag toegevoegd.",
+    "fieldDescription": "Context (evenement, termijnen, eisen…)",
+    "fieldDeadline": "Antwoord gewenst vóór",
+    "summary": "{count, plural, one {Eén aanvraag wordt verstuurd naar: {suppliers}} other {# aanvragen worden verstuurd naar: {suppliers}}}",
+    "summaryDraft": "{count, plural, one {Eén concept wordt aangemaakt voor: {suppliers}} other {# concepten worden aangemaakt voor: {suppliers}}}",
+    "draftNotice": "Met uw rol kunt u aanvragen voorbereiden: ze worden als concept aangemaakt en een verantwoordelijke kan ze versturen.",
+    "submit": "{count, plural, one {Aanvraag versturen} other {# aanvragen versturen}}",
+    "submitDraft": "{count, plural, one {Concept aanmaken} other {# concepten aanmaken}}"
+  },
+  "flash": {
+    "added": "Product toegevoegd aan de offertemand.",
+    "alreadyInCart": "Dit product zit al in uw offertemand.",
+    "removed": "Product verwijderd uit de offertemand.",
+    "sent": "{count, plural, one {# aanvraag verstuurd} other {# aanvragen verstuurd}}.",
+    "drafted": "{count, plural, one {# concept aangemaakt} other {# concepten aangemaakt}}. Een verantwoordelijke kan ze versturen."
+  },
+  "errors": {
+    "empty": "Geen enkel product in uw mand kan worden aangevraagd.",
+    "supplierUnavailable": "Een leverancier is niet meer bereikbaar. Laad de mand opnieuw en probeer het nog eens."
+  },
+  "product": {
+    "add": "Toevoegen aan offertemand",
+    "inCart": "In uw offertemand",
+    "viewCart": "Mand bekijken",
+    "detailedRequest": "Gedetailleerde aanvraag",
+    "quantity": "Aantal"
+  },
+  "card": {
+    "add": "{name} toevoegen aan de offertemand"
+  }
+}

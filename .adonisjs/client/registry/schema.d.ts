@@ -1281,6 +1281,71 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['destroy']>>>
     }
   }
+  'quote_cart.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/quote-cart'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['show']>>>
+    }
+  }
+  'quote_cart.items.store': {
+    methods: ["POST"]
+    pattern: '/:locale/quote-cart/items'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/quote_cart').quoteCartItemValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/quote_cart').quoteCartItemValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'quote_cart.items.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/quote-cart/items/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/quote_cart').quoteCartItemUpdateValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/quote_cart').quoteCartItemUpdateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'quote_cart.items.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/quote-cart/items/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['destroy']>>>
+    }
+  }
+  'quote_cart.checkout': {
+    methods: ["POST"]
+    pattern: '/:locale/quote-cart/checkout'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/quote_cart').quoteCartCheckoutValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/quote_cart').quoteCartCheckoutValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['checkout']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['checkout']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['checkout']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'orders.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/orders'
