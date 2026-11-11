@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Link } from '@adonisjs/inertia/vue'
 import { ArrowUpRight, PanelLeftClose, PanelLeftOpen } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
@@ -8,28 +9,30 @@ import AppNav from '~/components/app_nav.vue'
 /**
  * Colonne de navigation de l'application : logo, menu groupé, puis le lien de retour
  * au site. Sur mobile, le layout l'affiche en panneau coulissant (toujours
- * déplié). Dès md, un bouton réduit la colonne à un rail d'icônes.
+ * déplié). Dès md, un bouton réduit la colonne à un rail d'icônes. `peek` déplie
+ * temporairement le rail (survol) sans changer le choix mémorisé : le bouton propose
+ * alors toujours de garder le menu déplié.
  */
-defineProps<{ collapsed: boolean }>()
+const props = withDefaults(defineProps<{ collapsed: boolean; peek?: boolean }>(), { peek: false })
 defineEmits<{ toggleCollapse: [] }>()
 
 const { t, locale } = useI18n()
+
+/* Affichage en rail : réduit et pas en aperçu. */
+const rail = computed(() => props.collapsed && !props.peek)
 
 /* Fichier de `public/` : lié par une chaîne dynamique pour que Vite ne tente pas de le résoudre comme import. */
 const LOGO_SRC = '/logo.png'
 </script>
 
 <template>
-  <div
-    class="flex h-full flex-col gap-6 overflow-y-auto px-4 py-5"
-    :class="collapsed ? 'md:px-3' : ''"
-  >
+  <div class="flex h-full flex-col gap-6 overflow-y-auto px-4 py-5" :class="rail ? 'md:px-3' : ''">
     <div class="flex shrink-0 items-center justify-between gap-2">
       <Link
         route="home"
         :params="{ locale }"
         class="flex items-center px-2"
-        :class="collapsed ? 'md:hidden' : ''"
+        :class="rail ? 'md:hidden' : ''"
       >
         <img
           :src="LOGO_SRC"
@@ -42,7 +45,7 @@ const LOGO_SRC = '/logo.png'
       <BaseIconButton
         :label="collapsed ? t('common.nav.expandSidebar') : t('common.nav.collapseSidebar')"
         class="hidden md:inline-flex"
-        :class="collapsed ? 'md:mx-auto' : ''"
+        :class="rail ? 'md:mx-auto' : ''"
         :aria-expanded="!collapsed"
         aria-controls="app-sidebar"
         @click="$emit('toggleCollapse')"
@@ -52,22 +55,22 @@ const LOGO_SRC = '/logo.png'
       </BaseIconButton>
     </div>
 
-    <AppNav class="flex-1" :collapsed="collapsed" />
+    <AppNav class="flex-1" :collapsed="rail" />
 
     <div class="flex flex-col gap-3 border-t border-hairline pt-4">
       <Link
         route="home"
         :params="{ locale }"
         class="flex items-center gap-2 px-3 text-caption font-semibold text-text-muted transition-colors hover:text-text-primary"
-        :class="collapsed ? 'md:justify-center md:px-0' : ''"
+        :class="rail ? 'md:justify-center md:px-0' : ''"
       >
         <!-- `title` sur un <span> : <Link> (props typées) n'accepte pas l'attribut. -->
         <span
           class="flex items-center gap-2"
-          :title="collapsed ? t('common.nav.backToSite') : undefined"
+          :title="rail ? t('common.nav.backToSite') : undefined"
         >
           <ArrowUpRight :size="14" aria-hidden="true" />
-          <span :class="collapsed ? 'md:sr-only' : ''">{{ t('common.nav.backToSite') }}</span>
+          <span :class="rail ? 'md:sr-only' : ''">{{ t('common.nav.backToSite') }}</span>
         </span>
       </Link>
     </div>
