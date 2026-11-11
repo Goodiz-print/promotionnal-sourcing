@@ -139,10 +139,17 @@ export default class RfqService {
    * Crée un brouillon, avec ses items s'ils sont fournis. Transaction : une
    * demande sans ses lignes n'a pas de sens métier.
    */
-  async create(organization: Organization, user: User, data: CreateRfqData): Promise<Rfq> {
+  async create(
+    organization: Organization,
+    user: User,
+    data: CreateRfqData,
+    client?: TransactionClientContract
+  ): Promise<Rfq> {
     const requestable = await this.withRequestableProducts(data.items ?? [])
 
-    return db.transaction(async (trx) => {
+    // Transaction de l'appelant si fournie (validation du panier : plusieurs
+    // demandes en tout ou rien), sinon la sienne.
+    const write = async (trx: TransactionClientContract) => {
       const rfq = await Rfq.create(
         {
           buyerOrganizationId: organization.id,
@@ -170,7 +177,9 @@ export default class RfqService {
 
       await rfq.load('items', (items) => items.useTransaction(trx))
       return rfq
-    })
+    }
+
+    return client ? write(client) : db.transaction(write)
   }
 
   /**
@@ -262,17 +271,6 @@ export default class RfqService {
   }
 
   /**
-   * Brouillons de l'organisation, du plus récent au plus ancien — le menu
-   * « ajouter à une demande » de la fiche produit.
-   */
-  async listDrafts(organizationId: number): Promise<Rfq[]> {
-    return Rfq.query()
-      .where('buyerOrganizationId', organizationId)
-      .where('status', 'draft')
-      .orderBy('createdAt', 'desc')
-  }
-
-  /**
    * Ajoute des destinataires. Autorisé tant que la demande n'est ni close ni échue :
    * élargir la consultation d'une demande publiée est un cas nominal (les
    * nouveaux arrivent en `pending`, le prochain `send` les notifie).
@@ -332,10 +330,10 @@ export default class RfqService {
    * Fige le besoin : `draft` → `published`. Une demande sans item n'est pas
    * chiffrable, elle est donc refusée.
    */
-  async publish(rfq: Rfq): Promise<Rfq> {
+  async publish(rfq: Rfq, client?: TransactionClientContract): Promise<Rfq> {
     if (rfq.status !== 'draft') throw new RfqNotPublishableException()
 
-    const [{ total }] = await db
+    const [{ total }] = await (client ?? db)
       .from('rfq_items')
       .where('rfq_id', rfq.id)
       .count('* as total')
@@ -344,6 +342,7 @@ export default class RfqService {
     if (Number(total) === 0) throw new RfqNotPublishableException()
 
     rfq.merge({ status: 'published', publishedAt: DateTime.now() })
+    if (client) rfq.useTransaction(client)
     await rfq.save()
     return rfq
   }
@@ -354,10 +353,10 @@ export default class RfqService {
    * pour dispatcher les mails, sans risquer de relancer un fournisseur déjà
    * notifié.
    */
-  async send(rfq: Rfq): Promise<RfqSupplier[]> {
+  async send(rfq: Rfq, client?: TransactionClientContract): Promise<RfqSupplier[]> {
     if (rfq.status !== 'published') throw new RfqNotSendableException()
 
-    const pending = await RfqSupplier.query()
+    const pending = await RfqSupplier.query({ client })
       .where('rfqId', rfq.id)
       .where('status', 'pending')
       .preload('supplierOrganization')

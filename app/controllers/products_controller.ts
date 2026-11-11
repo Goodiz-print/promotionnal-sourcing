@@ -10,10 +10,9 @@ import CatalogueNumericFacetService from '#services/catalogue_numeric_facet_serv
 import DocumentService from '#services/document_service'
 import OrganizationContextService from '#services/organization_context_service'
 import { isImageSearchAvailable } from '#services/vision/image_search_availability'
-import RfqService from '#services/rfq_service'
+import QuoteCartService from '#services/quote_cart_service'
 import SearchEventService from '#services/search_event_service'
 import ProductTransformer from '#transformers/product_transformer'
-import RfqDraftOptionTransformer from '#transformers/rfq_draft_option_transformer'
 import ProductDetailTransformer from '#transformers/product_detail_transformer'
 import CategoryTransformer from '#transformers/category_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
@@ -47,7 +46,7 @@ export default class ProductsController {
     private enumFacets: CatalogueEnumFacetService,
     private documents: DocumentService,
     private organizations: OrganizationContextService,
-    private rfqs: RfqService,
+    private quoteCart: QuoteCartService,
     private searchEvents: SearchEventService,
     private activityEvents: ActivityEventService
   ) {}
@@ -188,20 +187,21 @@ export default class ProductsController {
 
     return inertia.render('products/show', {
       product: new ProductDetailTransformer(product, locale, this.documents.urlFor).toObject(),
-      rfqContext: await this.rfqContext({ auth, bouncer }),
+      rfqContext: await this.rfqContext({ auth, bouncer }, product.id),
     })
   }
 
   /**
-   * Ce que l'acheteur connecté peut faire de cette fiche : demander un devis,
-   * ou l'ajouter à un brouillon. Page publique : un visiteur anonyme, ou un
-   * utilisateur sans organisation courante, reçoit simplement « non ».
+   * Ce que l'acheteur connecté peut faire de cette fiche : l'ajouter à son
+   * panier de devis (ou voir qu'il y est déjà). Page publique : un visiteur
+   * anonyme, ou un utilisateur sans organisation courante, reçoit simplement
+   * « non ».
    */
-  private async rfqContext({
-    auth,
-    bouncer,
-  }: Pick<HttpContext, 'auth' | 'bouncer'>): Promise<ProductRfqContextType> {
-    const none = { canCreateRfq: false, drafts: [] }
+  private async rfqContext(
+    { auth, bouncer }: Pick<HttpContext, 'auth' | 'bouncer'>,
+    productId: number
+  ): Promise<ProductRfqContextType> {
+    const none = { canCreateRfq: false, inCart: false }
     if (!auth.user) return none
 
     let org
@@ -214,13 +214,7 @@ export default class ProductsController {
 
     if (!(await bouncer.allows('canCreateRfq', org))) return none
 
-    const drafts = (await bouncer.allows('canManageRfq', org))
-      ? await this.rfqs.listDrafts(org.id)
-      : []
-    return {
-      canCreateRfq: true,
-      drafts: drafts.map((draft) => new RfqDraftOptionTransformer(draft).toObject()),
-    }
+    return { canCreateRfq: true, inCart: await this.quoteCart.has(auth.user, org, productId) }
   }
 
   /**

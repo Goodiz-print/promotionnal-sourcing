@@ -1,0 +1,363 @@
+import { test } from '@japa/runner'
+import emitter from '@adonisjs/core/services/emitter'
+import { OrganizationFactory } from '#database/factories/organization_factory'
+import RfqSent from '#events/rfq_sent'
+import { ProductFactory } from '#database/factories/product_factory'
+import { SupplierFactory } from '#database/factories/supplier_factory'
+import Organization from '#models/organization'
+import type Product from '#models/product'
+import QuoteCartItem from '#models/quote_cart_item'
+import Rfq from '#models/rfq'
+import { createMember } from '#tests/utils/organizations'
+import { RFQ_DEADLINE_TIMEZONE } from '#shared/types/rfq'
+import { useDatabase } from '#tests/utils/setup'
+import type User from '#models/user'
+import type { ApiClient } from '@japa/api-client'
+
+/**
+ * Panier de devis : ajout depuis le catalogue, édition, cloisonnement, puis
+ * validation éclatée en une demande par fournisseur. Chaque produit a sa propre
+ * organisation fournisseuse (factories).
+ */
+
+/**
+ * Produit demandable d'une organisation fournisseuse qui lui est propre.
+ * `supplier.organization` préchargé.
+ */
+async function supplierProduct(minQuantity: number | null = 100): Promise<Product> {
+  const org = await OrganizationFactory.apply('supplier').create()
+  const supplier = await SupplierFactory.merge({ organizationId: org.id }).create()
+  const product = await ProductFactory.merge({ supplierId: supplier.id, minQuantity })
+    .with('category')
+    .create()
+  await product.load('supplier', (query) => query.preload('organization'))
+  return product
+}
+
+/** Deux produits de deux organisations fournisseuses différentes. */
+async function productsOfTwoSuppliers(): Promise<[Product, Product]> {
+  return [await supplierProduct(), await supplierProduct(null)]
+}
+
+async function buyerWithOwner() {
+  const org = await OrganizationFactory.create()
+  const owner = await createMember(org, 'owner')
+  return { org, owner }
+}
+
+function addToCart(client: ApiClient, user: User, productId: number, quantity?: number) {
+  return client
+    .post('/fr/quote-cart/items')
+    .withInertia()
+    .withCsrfToken()
+    .redirects(0)
+    .loginAs(user)
+    .json({ productId, ...(quantity ? { quantity } : {}) })
+}
+
+function checkout(client: ApiClient, user: User, payload: Record<string, unknown>) {
+  return client
+    .post('/fr/quote-cart/checkout')
+    .withInertia()
+    .withCsrfToken()
+    .redirects(0)
+    .loginAs(user)
+    .json(payload)
+}
+
+test.group('Panier de devis — contenu', (cartGroup) => {
+  useDatabase(cartGroup)
+
+  test('ajoute un produit à sa quantité minimale, sans doublon', async ({ client, assert }) => {
+    const { org, owner } = await buyerWithOwner()
+    const [product] = await productsOfTwoSuppliers()
+
+    const first = await addToCart(client, owner, product.id)
+    const second = await addToCart(client, owner, product.id, 999)
+    first.assertStatus(302)
+    second.assertStatus(302)
+
+    const items = await QuoteCartItem.query().where('userId', owner.id)
+    assert.lengthOf(items, 1)
+    assert.equal(items[0].organizationId, org.id)
+    assert.equal(items[0].productId, product.id)
+    // Le second ajout ne touche pas la ligne existante.
+    assert.equal(items[0].quantity, product.minQuantity ?? 1)
+  })
+
+  test('ajoute à la quantité demandée', async ({ client, assert }) => {
+    const { owner } = await buyerWithOwner()
+    const [product] = await productsOfTwoSuppliers()
+
+    await addToCart(client, owner, product.id, 750)
+
+    const item = await QuoteCartItem.query().where('userId', owner.id).firstOrFail()
+    assert.equal(item.quantity, 750)
+  })
+
+  test('refuse un produit inconnu ou masqué', async ({ client, assert }) => {
+    const { owner } = await buyerWithOwner()
+    const [product] = await productsOfTwoSuppliers()
+    await product.merge({ isActive: false }).save()
+
+    const unknown = await addToCart(client, owner, 999999)
+    const hidden = await addToCart(client, owner, product.id)
+    unknown.assertStatus(404)
+    hidden.assertStatus(404)
+    assert.lengthOf(await QuoteCartItem.query().where('userId', owner.id), 0)
+  })
+
+  test('la page groupe les lignes par fournisseur et la pastille les compte', async ({
+    client,
+    assert,
+  }) => {
+    const { owner } = await buyerWithOwner()
+    const [first, second] = await productsOfTwoSuppliers()
+    await addToCart(client, owner, first.id)
+    await addToCart(client, owner, second.id)
+
+    const response = await client.get('/fr/quote-cart').withInertia().loginAs(owner)
+
+    response.assertStatus(200)
+    const groups = response.inertiaProps.groups as Array<{
+      supplierOrganizationId: number | null
+      items: Array<{ productId: number }>
+    }>
+    assert.deepEqual(
+      groups.map((entry) => entry.supplierOrganizationId),
+      [first.supplier.organizationId, second.supplier.organizationId]
+    )
+    assert.deepEqual(
+      groups[0].items.map((item) => item.productId),
+      [first.id]
+    )
+    assert.equal(response.inertiaProps.quoteCartCount, 2)
+    assert.isTrue(response.inertiaProps.canSend)
+  })
+
+  test('la fiche produit sait que le produit est au panier', async ({ client, assert }) => {
+    const { owner } = await buyerWithOwner()
+    const [product] = await productsOfTwoSuppliers()
+    await addToCart(client, owner, product.id)
+
+    const response = await client.get(`/fr/products/${product.slug}`).withInertia().loginAs(owner)
+
+    assert.deepEqual(response.inertiaProps.rfqContext, { canCreateRfq: true, inCart: true })
+  })
+
+  test("un produit d'un fournisseur devenu inéligible passe en « non joignable »", async ({
+    client,
+    assert,
+  }) => {
+    const { owner } = await buyerWithOwner()
+    const [product] = await productsOfTwoSuppliers()
+    await addToCart(client, owner, product.id)
+    await Organization.query()
+      .where('id', product.supplier.organizationId!)
+      .update({ organizationType: 'buyer' })
+
+    const response = await client.get('/fr/quote-cart').withInertia().loginAs(owner)
+
+    const [unreachable] = response.inertiaProps.groups
+    assert.isNull(unreachable.supplierOrganizationId)
+    assert.equal(unreachable.items[0].productId, product.id)
+  })
+
+  test('modifie et retire une ligne', async ({ client, assert }) => {
+    const { owner } = await buyerWithOwner()
+    const [product] = await productsOfTwoSuppliers()
+    await addToCart(client, owner, product.id)
+    const item = await QuoteCartItem.query().where('userId', owner.id).firstOrFail()
+
+    await client
+      .patch(`/fr/quote-cart/items/${item.id}`)
+      .withInertia()
+      .withCsrfToken()
+      .redirects(0)
+      .loginAs(owner)
+      .json({ quantity: 1200, note: 'Logo deux couleurs' })
+    await item.refresh()
+    assert.equal(item.quantity, 1200)
+    assert.equal(item.note, 'Logo deux couleurs')
+
+    await client
+      .delete(`/fr/quote-cart/items/${item.id}`)
+      .withInertia()
+      .withCsrfToken()
+      .redirects(0)
+      .loginAs(owner)
+    assert.lengthOf(await QuoteCartItem.query().where('userId', owner.id), 0)
+  })
+
+  test("la ligne d'un autre panier est un 404", async ({ client, assert }) => {
+    const { org, owner } = await buyerWithOwner()
+    const colleague = await createMember(org, 'manager')
+    const [product] = await productsOfTwoSuppliers()
+    await addToCart(client, owner, product.id)
+    const item = await QuoteCartItem.query().where('userId', owner.id).firstOrFail()
+
+    const update = await client
+      .patch(`/fr/quote-cart/items/${item.id}`)
+      .withInertia()
+      .withCsrfToken()
+      .redirects(0)
+      .loginAs(colleague)
+      .json({ quantity: 1 })
+    const destroy = await client
+      .delete(`/fr/quote-cart/items/${item.id}`)
+      .withInertia()
+      .withCsrfToken()
+      .redirects(0)
+      .loginAs(colleague)
+
+    update.assertStatus(404)
+    destroy.assertStatus(404)
+    await item.refresh()
+    assert.equal(item.quantity, product.minQuantity ?? 1)
+  })
+
+  test("une organisation fournisseuse n'a pas de panier", async ({ client, assert }) => {
+    const supplierOrg = await OrganizationFactory.apply('supplier').create()
+    const supplierUser = await createMember(supplierOrg, 'owner')
+    const [product] = await productsOfTwoSuppliers()
+
+    const page = await client.get('/fr/quote-cart').withInertia().loginAs(supplierUser)
+    const add = await addToCart(client, supplierUser, product.id)
+
+    page.assertStatus(403)
+    // Formulaire Inertia : un refus Bouncer renvoie d'où l'on vient.
+    add.assertStatus(302)
+    assert.lengthOf(await QuoteCartItem.query().where('userId', supplierUser.id), 0)
+
+    const catalogue = await client.get('/fr/products').withInertia().loginAs(supplierUser)
+    assert.isUndefined(catalogue.inertiaProps.quoteCartCount)
+  })
+})
+
+test.group('Panier de devis — validation', (checkoutGroup) => {
+  useDatabase(checkoutGroup)
+
+  test('crée et envoie une demande par fournisseur, puis vide le panier', async ({
+    client,
+    assert,
+  }) => {
+    const { org, owner } = await buyerWithOwner()
+    const [first, second] = await productsOfTwoSuppliers()
+    await addToCart(client, owner, first.id, 300)
+    await addToCart(client, owner, second.id, 500)
+
+    const events = emitter.fake([RfqSent])
+    let response
+    try {
+      response = await checkout(client, owner, {
+        title: 'Salon 2027',
+        description: 'Goodies pour le stand',
+        deadline: '2099-01-31',
+      })
+      events.assertEmittedCount(RfqSent, 2)
+    } finally {
+      emitter.restore()
+    }
+
+    response.assertStatus(302)
+    response.assertHeader('location', '/fr/rfqs')
+
+    const rfqs = await Rfq.query()
+      .where('buyerOrganizationId', org.id)
+      .preload('items')
+      .preload('suppliers', (suppliers) => suppliers.preload('supplierOrganization'))
+      .orderBy('id')
+    assert.lengthOf(rfqs, 2)
+
+    for (const [rfq, product, quantity] of [
+      [rfqs[0], first, 300],
+      [rfqs[1], second, 500],
+    ] as const) {
+      assert.equal(rfq.status, 'published')
+      assert.equal(rfq.description, 'Goodies pour le stand')
+      assert.equal(rfq.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).toISODate(), '2099-01-31')
+      assert.equal(rfq.title, `Salon 2027 — ${rfq.suppliers[0].supplierOrganization.name}`)
+      // Chaque fournisseur ne reçoit que sa ligne, et la demande que lui.
+      assert.deepEqual(
+        rfq.items.map((item) => [item.productId, item.quantity, item.categoryId]),
+        [[product.id, quantity, product.categoryId]]
+      )
+      assert.lengthOf(rfq.suppliers, 1)
+      assert.equal(rfq.suppliers[0].supplierOrganizationId, product.supplier.organizationId)
+      assert.equal(rfq.suppliers[0].status, 'sent')
+    }
+
+    assert.lengthOf(await QuoteCartItem.query().where('userId', owner.id), 0)
+  })
+
+  test('un membre crée des brouillons, rien ne part', async ({ client, assert }) => {
+    const { org } = await buyerWithOwner()
+    const member = await createMember(org, 'member')
+    const [first, second] = await productsOfTwoSuppliers()
+    await addToCart(client, member, first.id)
+    await addToCart(client, member, second.id)
+
+    const events = emitter.fake([RfqSent])
+    try {
+      const response = await checkout(client, member, { title: 'Kit onboarding' })
+      response.assertStatus(302)
+      events.assertNoneEmitted()
+    } finally {
+      emitter.restore()
+    }
+
+    const rfqs = await Rfq.query().where('buyerOrganizationId', org.id).preload('suppliers')
+    assert.lengthOf(rfqs, 2)
+    for (const rfq of rfqs) {
+      assert.equal(rfq.status, 'draft')
+      assert.equal(rfq.suppliers[0].status, 'pending')
+    }
+    assert.lengthOf(await QuoteCartItem.query().where('userId', member.id), 0)
+  })
+
+  test('le groupe non joignable reste au panier', async ({ client, assert }) => {
+    const { org, owner } = await buyerWithOwner()
+    const [first, second] = await productsOfTwoSuppliers()
+    await addToCart(client, owner, first.id)
+    await addToCart(client, owner, second.id)
+    await Organization.query()
+      .where('id', second.supplier.organizationId!)
+      .update({ archivedAt: new Date() })
+
+    const response = await checkout(client, owner, { title: 'Salon 2027' })
+    response.assertStatus(302)
+
+    const rfqs = await Rfq.query().where('buyerOrganizationId', org.id).preload('items')
+    assert.lengthOf(rfqs, 1)
+    assert.equal(rfqs[0].items[0].productId, first.id)
+    const left = await QuoteCartItem.query().where('userId', owner.id)
+    assert.deepEqual(
+      left.map((item) => item.productId),
+      [second.id]
+    )
+  })
+
+  test('un panier sans rien à demander est refusé', async ({ client, assert }) => {
+    const { org, owner } = await buyerWithOwner()
+
+    const response = await checkout(client, owner, { title: 'Salon 2027' })
+
+    response.assertStatus(302)
+    assert.lengthOf(await Rfq.query().where('buyerOrganizationId', org.id), 0)
+  })
+
+  test('un titre manquant est une erreur de validation, rien n’est créé', async ({
+    client,
+    assert,
+  }) => {
+    const { org, owner } = await buyerWithOwner()
+    const [product] = await productsOfTwoSuppliers()
+    await addToCart(client, owner, product.id)
+
+    const response = await checkout(client, owner, { title: '' })
+
+    response.assertStatus(302)
+    assert.lengthOf(await Rfq.query().where('buyerOrganizationId', org.id), 0)
+    assert.lengthOf(await QuoteCartItem.query().where('userId', owner.id), 1)
+  })
+})

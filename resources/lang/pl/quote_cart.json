@@ -1,0 +1,59 @@
+{
+  "title": "Koszyk zapytań ofertowych",
+  "subtitle": "Zbierz produkty do wyceny, a następnie wyślij jednorazowo zapytanie do każdego dostawcy.",
+  "nav": {
+    "label": "Koszyk zapytań ofertowych",
+    "count": "{count, plural, =0 {Koszyk zapytań jest pusty} one {# produkt w koszyku zapytań} few {# produkty w koszyku zapytań} many {# produktów w koszyku zapytań} other {# produktu w koszyku zapytań}}"
+  },
+  "empty": {
+    "title": "Twój koszyk zapytań jest pusty",
+    "description": "Dodaj produkty z katalogu, aby zapytać kilku dostawców jednocześnie.",
+    "browse": "Przeglądaj katalog"
+  },
+  "group": {
+    "items": "{count, plural, one {# produkt} few {# produkty} many {# produktów} other {# produktu}} · osobne zapytanie",
+    "unreachable": "Niedostępni dostawcy",
+    "unreachableDescription": "Tych produktów nie można obecnie zamówić do wyceny na platformie. Pozostają w koszyku."
+  },
+  "line": {
+    "quantity": "Ilość",
+    "note": "Szczegóły (znakowanie, kolor…)",
+    "remove": "Usuń {name} z koszyka",
+    "belowMinimum": "Minimalne zamówienie: {count} szt."
+  },
+  "checkout": {
+    "title": "Wyślij zapytania",
+    "titleDraft": "Utwórz zapytania",
+    "description": "Wspólny nagłówek dla wszystkich zapytań: każdy dostawca otrzymuje tylko swoje produkty.",
+    "fieldTitle": "Temat zapytania",
+    "fieldTitleHint": "Nazwa dostawcy jest dodawana do każdego zapytania.",
+    "fieldDescription": "Kontekst (wydarzenie, terminy, wymagania…)",
+    "fieldDeadline": "Odpowiedź oczekiwana do",
+    "summary": "{count, plural, one {Jedno zapytanie zostanie wysłane do: {suppliers}} few {# zapytania zostaną wysłane do: {suppliers}} many {# zapytań zostanie wysłanych do: {suppliers}} other {# zapytania zostanie wysłane do: {suppliers}}}",
+    "summaryDraft": "{count, plural, one {Jedna wersja robocza zostanie utworzona dla: {suppliers}} few {# wersje robocze zostaną utworzone dla: {suppliers}} many {# wersji roboczych zostanie utworzonych dla: {suppliers}} other {# wersji roboczej zostanie utworzone dla: {suppliers}}}",
+    "draftNotice": "Twoja rola pozwala przygotować zapytania: zostaną utworzone jako wersje robocze, które wyśle osoba odpowiedzialna.",
+    "submit": "{count, plural, one {Wyślij zapytanie} few {Wyślij # zapytania} many {Wyślij # zapytań} other {Wyślij # zapytania}}",
+    "submitDraft": "{count, plural, one {Utwórz wersję roboczą} few {Utwórz # wersje robocze} many {Utwórz # wersji roboczych} other {Utwórz # wersji roboczej}}"
+  },
+  "flash": {
+    "added": "Produkt dodany do koszyka zapytań.",
+    "alreadyInCart": "Ten produkt jest już w Twoim koszyku zapytań.",
+    "removed": "Produkt usunięty z koszyka zapytań.",
+    "sent": "{count, plural, one {Wysłano # zapytanie} few {Wysłano # zapytania} many {Wysłano # zapytań} other {Wysłano # zapytania}}.",
+    "drafted": "{count, plural, one {Utworzono # wersję roboczą} few {Utworzono # wersje robocze} many {Utworzono # wersji roboczych} other {Utworzono # wersji roboczej}}. Osoba odpowiedzialna może je wysłać."
+  },
+  "errors": {
+    "empty": "Żadnego produktu z koszyka nie można objąć zapytaniem.",
+    "supplierUnavailable": "Dostawca nie jest już dostępny. Odśwież koszyk i spróbuj ponownie."
+  },
+  "product": {
+    "add": "Dodaj do koszyka zapytań",
+    "inCart": "W Twoim koszyku zapytań",
+    "viewCart": "Zobacz koszyk",
+    "detailedRequest": "Szczegółowe zapytanie",
+    "quantity": "Ilość"
+  },
+  "card": {
+    "add": "Dodaj {name} do koszyka zapytań"
+  }
+}

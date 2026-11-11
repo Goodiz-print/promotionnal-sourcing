@@ -11,6 +11,7 @@ import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import BasePagination from '~/components/base/base_pagination.vue'
 import ProductCard from '~/components/product_card.vue'
 import ProductCardSkeleton from '~/components/product_card_skeleton.vue'
+import QuoteCartAddButton from '~/components/quote_cart/quote_cart_add_button.vue'
 import { useVisitLoading } from '~/composables/use_visit_loading'
 import CatalogueFilters from '~/components/catalogue_filters.vue'
 import type { Paginated } from '#shared/types/pagination'
@@ -142,15 +143,20 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
         />
 
         <div v-else-if="products.data.length > 0" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          <Link
-            v-for="product in products.data"
-            :key="product.id"
-            route="products.show"
-            :params="{ locale, slug: product.slug }"
-            class="block rounded-xl"
-          >
-            <ProductCard :product="product" />
-          </Link>
+          <div v-for="product in products.data" :key="product.id" class="relative">
+            <Link
+              route="products.show"
+              :params="{ locale, slug: product.slug }"
+              class="block h-full rounded-xl"
+            >
+              <ProductCard :product="product" />
+            </Link>
+            <QuoteCartAddButton
+              class="absolute top-4 right-4"
+              :product-id="product.id"
+              :product-name="product.name ?? product.slug"
+            />
+          </div>
         </div>
 
         <BasePagination

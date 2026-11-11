@@ -18,6 +18,7 @@ import {
 } from '#start/limiter'
 import { registerRfqRoutes } from '#start/routes/rfqs'
 import { registerQuoteRoutes } from '#start/routes/quotes'
+import { registerQuoteCartRoutes } from '#start/routes/quote_cart'
 import { registerOrderRoutes } from '#start/routes/orders'
 import { registerMessagingRoutes } from '#start/routes/messaging'
 import { registerNotificationRoutes } from '#start/routes/notifications'
@@ -269,6 +270,7 @@ router
                 // Demandes de devis, acheteur et fournisseur — cf. `start/routes/rfqs.ts`.
                 registerRfqRoutes()
                 registerQuoteRoutes()
+                registerQuoteCartRoutes()
                 registerOrderRoutes()
                 registerNotificationRoutes()
                 registerMessagingRoutes()

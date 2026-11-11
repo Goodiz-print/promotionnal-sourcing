@@ -173,6 +173,15 @@ export interface ApiDefinition {
     accept: typeof routes['quotes.accept']
     reject: typeof routes['quotes.reject']
   }
+  quoteCart: {
+    show: typeof routes['quote_cart.show']
+    items: {
+      store: typeof routes['quote_cart.items.store']
+      update: typeof routes['quote_cart.items.update']
+      destroy: typeof routes['quote_cart.items.destroy']
+    }
+    checkout: typeof routes['quote_cart.checkout']
+  }
   orders: {
     index: typeof routes['orders.index']
     show: typeof routes['orders.show']

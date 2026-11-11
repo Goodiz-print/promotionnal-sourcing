@@ -594,6 +594,36 @@ const routes = {
     tokens: [[1,"locale"],[0,"supplier"],[0,"quotes"],[1,"id"]],
     types: placeholder as Registry['supplier.quotes.destroy']['types'],
   },
+  'quote_cart.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/quote-cart',
+    tokens: [[1,"locale"],[0,"quote-cart"]],
+    types: placeholder as Registry['quote_cart.show']['types'],
+  },
+  'quote_cart.items.store': {
+    methods: ["POST"],
+    pattern: '/:locale/quote-cart/items',
+    tokens: [[1,"locale"],[0,"quote-cart"],[0,"items"]],
+    types: placeholder as Registry['quote_cart.items.store']['types'],
+  },
+  'quote_cart.items.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/quote-cart/items/:id',
+    tokens: [[1,"locale"],[0,"quote-cart"],[0,"items"],[1,"id"]],
+    types: placeholder as Registry['quote_cart.items.update']['types'],
+  },
+  'quote_cart.items.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/quote-cart/items/:id',
+    tokens: [[1,"locale"],[0,"quote-cart"],[0,"items"],[1,"id"]],
+    types: placeholder as Registry['quote_cart.items.destroy']['types'],
+  },
+  'quote_cart.checkout': {
+    methods: ["POST"],
+    pattern: '/:locale/quote-cart/checkout',
+    tokens: [[1,"locale"],[0,"quote-cart"],[0,"checkout"]],
+    types: placeholder as Registry['quote_cart.checkout']['types'],
+  },
   'orders.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/orders',

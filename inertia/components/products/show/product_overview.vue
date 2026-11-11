@@ -60,7 +60,12 @@ const price = computed(() => {
         @select="selectedVariantId = $event"
       />
 
-      <ProductQuoteActions :product-id="product.id" :rfq-context="rfqContext" />
+      <ProductQuoteActions
+        :product-id="product.id"
+        :product-slug="product.slug"
+        :min-quantity="product.minQuantity"
+        :rfq-context="rfqContext"
+      />
     </div>
   </BaseCard>
 </template>

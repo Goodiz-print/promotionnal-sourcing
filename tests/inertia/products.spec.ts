@@ -49,7 +49,7 @@ const translations = {
   'products.show.minQuantity': 'Quantité minimum',
   'products.show.category': 'Catégorie',
   'products.show.origin': "Pays d'origine",
-  'products.show.requestQuote': 'Demander un devis',
+  'quote_cart.product.add': 'Ajouter au panier de devis',
   'products.show.packaging': 'Conditionnement',
   'products.show.cartonDimensions': 'Dimensions carton maître (L × l × H, mm)',
   'products.manage.fields.packageType': 'Type de conditionnement',
@@ -485,7 +485,7 @@ describe('products/show.vue', () => {
   it('affiche le produit, le fournisseur, le prix et les facettes', () => {
     const wrapper = mount(Show, {
       props: {
-        rfqContext: { canCreateRfq: true, drafts: [] },
+        rfqContext: { canCreateRfq: true, inCart: false },
         product: {
           ...product(1, 'Crayon Aquarelle Bleu', 'crayon-aquarelle-bleu'),
           supplier: { slug: 'nordic-promo', name: 'Nordic Promo', country: 'SE' },
@@ -528,13 +528,13 @@ describe('products/show.vue', () => {
     expect(wrapper.text()).toContain('1.50 – 2.00 EUR')
     expect(wrapper.text()).toContain('Couleur')
     expect(wrapper.text()).toContain('Bleu')
-    expect(wrapper.text()).toContain('Demander un devis')
+    expect(wrapper.text()).toContain('Ajouter au panier de devis')
   })
 
   it('regroupe les dimensions du carton (L × l × H) avec — pour une dimension manquante', () => {
     const wrapper = mount(Show, {
       props: {
-        rfqContext: { canCreateRfq: false, drafts: [] },
+        rfqContext: { canCreateRfq: false, inCart: false },
         product: {
           ...product(2, 'Mug', 'mug'),
           supplier: { slug: 's', name: 'S', country: 'FR' },

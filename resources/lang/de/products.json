@@ -67,8 +67,6 @@
     "tierQuantity": "Menge",
     "tierPrice": "Stückpreis",
     "tierFrom": "Ab {quantity} Stück",
-    "addToDraft": "Zu einem Anfrage-Entwurf hinzufügen",
-    "chooseDraft": "Entwurf wählen …",
     "signInToRequest": "Anmelden, um ein Angebot anzufragen",
     "compliance": "Konformität",
     "eco": "Umweltfreundlich",

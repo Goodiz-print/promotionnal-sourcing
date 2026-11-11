@@ -1,0 +1,59 @@
+{
+  "title": "Cesta de presupuestos",
+  "subtitle": "Reúna los productos que quiere cotizar y envíe de una vez una solicitud a cada proveedor.",
+  "nav": {
+    "label": "Cesta de presupuestos",
+    "count": "{count, plural, =0 {Cesta de presupuestos vacía} one {# producto en la cesta de presupuestos} other {# productos en la cesta de presupuestos}}"
+  },
+  "empty": {
+    "title": "Su cesta de presupuestos está vacía",
+    "description": "Añada productos desde el catálogo para consultar a varios proveedores a la vez.",
+    "browse": "Explorar el catálogo"
+  },
+  "group": {
+    "items": "{count, plural, one {# producto} other {# productos}} · una solicitud propia",
+    "unreachable": "Proveedores no disponibles",
+    "unreachableDescription": "Estos productos no se pueden solicitar en la plataforma por ahora. Permanecen en su cesta."
+  },
+  "line": {
+    "quantity": "Cantidad",
+    "note": "Detalles (marcaje, color…)",
+    "remove": "Quitar {name} de la cesta",
+    "belowMinimum": "Pedido mínimo: {count} unidades"
+  },
+  "checkout": {
+    "title": "Enviar las solicitudes",
+    "titleDraft": "Crear las solicitudes",
+    "description": "Un encabezado común a todas las solicitudes: cada proveedor solo recibe sus productos.",
+    "fieldTitle": "Asunto de la solicitud",
+    "fieldTitleHint": "El nombre del proveedor se añade a cada solicitud.",
+    "fieldDescription": "Contexto (evento, plazos, requisitos…)",
+    "fieldDeadline": "Respuesta deseada antes del",
+    "summary": "{count, plural, one {Se enviará una solicitud a: {suppliers}} other {Se enviarán # solicitudes a: {suppliers}}}",
+    "summaryDraft": "{count, plural, one {Se creará un borrador para: {suppliers}} other {Se crearán # borradores para: {suppliers}}}",
+    "draftNotice": "Su rol le permite preparar solicitudes: se crearán como borradores y un responsable podrá enviarlas.",
+    "submit": "{count, plural, one {Enviar la solicitud} other {Enviar las # solicitudes}}",
+    "submitDraft": "{count, plural, one {Crear el borrador} other {Crear los # borradores}}"
+  },
+  "flash": {
+    "added": "Producto añadido a la cesta de presupuestos.",
+    "alreadyInCart": "Este producto ya está en su cesta de presupuestos.",
+    "removed": "Producto quitado de la cesta de presupuestos.",
+    "sent": "{count, plural, one {# solicitud enviada} other {# solicitudes enviadas}}.",
+    "drafted": "{count, plural, one {# borrador creado} other {# borradores creados}}. Un responsable podrá enviarlos."
+  },
+  "errors": {
+    "empty": "Ninguno de los productos de su cesta se puede solicitar.",
+    "supplierUnavailable": "Un proveedor ya no está disponible. Recargue la cesta e inténtelo de nuevo."
+  },
+  "product": {
+    "add": "Añadir a la cesta de presupuestos",
+    "inCart": "En su cesta de presupuestos",
+    "viewCart": "Ver la cesta",
+    "detailedRequest": "Solicitud detallada",
+    "quantity": "Cantidad"
+  },
+  "card": {
+    "add": "Añadir {name} a la cesta de presupuestos"
+  }
+}

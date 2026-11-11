@@ -1,0 +1,59 @@
+{
+  "title": "Quote cart",
+  "subtitle": "Gather the products you want priced, then send each supplier a request in one go.",
+  "nav": {
+    "label": "Quote cart",
+    "count": "{count, plural, =0 {Quote cart is empty} one {# product in the quote cart} other {# products in the quote cart}}"
+  },
+  "empty": {
+    "title": "Your quote cart is empty",
+    "description": "Add products from the catalogue to request quotes from several suppliers at once.",
+    "browse": "Browse the catalogue"
+  },
+  "group": {
+    "items": "{count, plural, one {# product} other {# products}} · one dedicated request",
+    "unreachable": "Unreachable suppliers",
+    "unreachableDescription": "These products cannot be requested on the platform for now. They stay in your cart."
+  },
+  "line": {
+    "quantity": "Quantity",
+    "note": "Details (branding, colour…)",
+    "remove": "Remove {name} from the cart",
+    "belowMinimum": "Minimum order: {count} pieces"
+  },
+  "checkout": {
+    "title": "Send the requests",
+    "titleDraft": "Create the requests",
+    "description": "A header shared by every request: each supplier only receives its own products.",
+    "fieldTitle": "Request subject",
+    "fieldTitleHint": "The supplier's name is appended to each request.",
+    "fieldDescription": "Context (event, timing, constraints…)",
+    "fieldDeadline": "Reply wanted by",
+    "summary": "{count, plural, one {One request will be sent to: {suppliers}} other {# requests will be sent to: {suppliers}}}",
+    "summaryDraft": "{count, plural, one {One draft will be created for: {suppliers}} other {# drafts will be created for: {suppliers}}}",
+    "draftNotice": "Your role lets you prepare requests: they will be created as drafts for a manager to send.",
+    "submit": "{count, plural, one {Send the request} other {Send the # requests}}",
+    "submitDraft": "{count, plural, one {Create the draft} other {Create the # drafts}}"
+  },
+  "flash": {
+    "added": "Product added to the quote cart.",
+    "alreadyInCart": "This product is already in your quote cart.",
+    "removed": "Product removed from the quote cart.",
+    "sent": "{count, plural, one {# request sent} other {# requests sent}}.",
+    "drafted": "{count, plural, one {# draft created} other {# drafts created}}. A manager can send them."
+  },
+  "errors": {
+    "empty": "None of the products in your cart can be requested.",
+    "supplierUnavailable": "A supplier can no longer be reached. Reload the cart and try again."
+  },
+  "product": {
+    "add": "Add to quote cart",
+    "inCart": "In your quote cart",
+    "viewCart": "View cart",
+    "detailedRequest": "Detailed request",
+    "quantity": "Quantity"
+  },
+  "card": {
+    "add": "Add {name} to the quote cart"
+  }
+}
