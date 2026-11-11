@@ -1,0 +1,106 @@
+{
+  "sponsored": {
+    "badge": "Sponsrad",
+    "title": "Sponsrade produkter",
+    "hint": "Framlyfta av leverantören. De matchar din sökning och dina filter.",
+    "productTitle": "Sponsrade produkter i denna kategori",
+    "productHint": "Framlyfta av leverantören.",
+    "homeTitle": "Utvalda produkter",
+    "homeSubtitle": "Ett urval som våra leverantörer lyfter fram."
+  },
+  "index": {
+    "title": "Sponsrade produkter",
+    "subtitle": "Placera dina produkter högst upp i katalogen. Du betalar bara per klick.",
+    "newCampaign": "Ny kampanj",
+    "campaigns": "Kampanjer",
+    "empty": "Inga kampanjer",
+    "emptyDescription": "Sponsra en produkt så att den hamnar högst upp bland de resultat den matchar.",
+    "productHidden": "Produkten är inte publicerad: kampanjen visas inte",
+    "period": "Från {from} till {to}",
+    "periodOpen": "Sedan {from}",
+    "columns": {
+      "product": "Produkt",
+      "status": "Status",
+      "bid": "Max. bud",
+      "budget": "Budget / dag",
+      "impressions": "Visningar",
+      "clicks": "Klick",
+      "spent": "Spenderat",
+      "actions": "Åtgärder"
+    }
+  },
+  "status": {
+    "active": "Aktiv",
+    "paused": "Pausad",
+    "suspended": "Avstängd"
+  },
+  "actions": {
+    "pause": "Pausa",
+    "resume": "Återuppta",
+    "edit": "Redigera",
+    "delete": "Ta bort",
+    "confirmDelete": "Ta bort den här kampanjen och dess statistik?"
+  },
+  "wallet": {
+    "title": "Annonsplånbok",
+    "description": "Förbetalt saldo som debiteras vid varje fakturerat klick.",
+    "balance": "Tillgängligt saldo",
+    "amount": "Belopp att fylla på (€)",
+    "amountHint": "Mellan {min} och {max}.",
+    "topUp": "Fyll på",
+    "unavailable": "Påfyllning online är inte tillgänglig ännu. Kontakta oss för att fylla på din plånbok.",
+    "checkoutLabel": "Annonssaldo — {organization}",
+    "topUpSuccess": "Betalning mottagen. Ditt saldo uppdateras inom kort, så snart betalningen har bekräftats.",
+    "topUpCancelled": "Betalningen avbröts. Din plånbok har inte fyllts på.",
+    "history": "Senaste transaktioner",
+    "columns": {
+      "date": "Datum",
+      "type": "Transaktion",
+      "amount": "Belopp",
+      "balance": "Saldo"
+    },
+    "types": {
+      "top_up": "Påfyllning",
+      "adjustment": "Justering",
+      "click": "Fakturerat klick"
+    }
+  },
+  "form": {
+    "createTitle": "Ny kampanj",
+    "createSubtitle": "Välj en produkt, ett bud och en budget.",
+    "editTitle": "Kampanj",
+    "back": "Tillbaka till kampanjer",
+    "settings": "Kampanjinställningar",
+    "settingsHint": "Du kan ändra dem eller pausa kampanjen när som helst.",
+    "product": "Produkt att sponsra",
+    "productPlaceholder": "Välj en produkt",
+    "noProducts": "Ingen produkt att sponsra",
+    "noProductsDescription": "Alla dina publicerade produkter har redan en kampanj, eller så har du ännu ingen publicerad produkt.",
+    "maxCpc": "Högsta bud per klick (€)",
+    "maxCpcHint": "Mellan {min} och {max}. Du betalar högst detta belopp, ofta mindre.",
+    "dailyBudget": "Daglig budget (€)",
+    "dailyBudgetHint": "Kampanjen stoppas för dagen när beloppet har nåtts.",
+    "startsOn": "Startdatum",
+    "endsOn": "Slutdatum",
+    "endsOnHint": "Lämna tomt för en kampanj utan slutdatum.",
+    "cancel": "Avbryt",
+    "submitCreate": "Starta kampanjen",
+    "submitUpdate": "Spara",
+    "howItWorksTitle": "Så fungerar det",
+    "howItWorks": "Din produkt visas högst upp, märkt ”Sponsrad”, bara när den matchar köparens sökning och filter. Du betalar bara när en köpare klickar, till priset för budet närmast under ditt plus en cent."
+  },
+  "flash": {
+    "created": "Kampanj startad",
+    "updated": "Kampanj uppdaterad",
+    "paused": "Kampanj pausad",
+    "resumed": "Kampanj återupptagen",
+    "deleted": "Kampanj borttagen",
+    "suspended": "Den här kampanjen har stängts av av plattformsteamet. Kontakta oss för att återaktivera den.",
+    "topUpUnavailable": "Påfyllning online är inte tillgänglig just nu."
+  },
+  "errors": {
+    "budgetBelowBid": "Den dagliga budgeten måste täcka minst ett klick till högsta budet.",
+    "endBeforeStart": "Slutdatumet får inte ligga före startdatumet.",
+    "productNotEligible": "Den här produkten kan inte sponsras (har redan en kampanj eller är inte publicerad)."
+  }
+}

@@ -21,6 +21,9 @@ export interface ApiDefinition {
     show: typeof routes['health.show']
     details: typeof routes['health.details']
   }
+  webhooks: {
+    stripe: typeof routes['webhooks.stripe']
+  }
   home: typeof routes['home']
   suppliers: {
     index: typeof routes['suppliers.index']
@@ -30,6 +33,9 @@ export interface ApiDefinition {
     index: typeof routes['products.index']
     show: typeof routes['products.show']
     imageSearch: typeof routes['products.image_search']
+  }
+  ads: {
+    click: typeof routes['ads.click']
   }
   organization: {
     invitations: {
@@ -146,6 +152,18 @@ export interface ApiDefinition {
       ship: typeof routes['supplier.orders.ship']
       cancel: typeof routes['supplier.orders.cancel']
     }
+    ads: {
+      index: typeof routes['supplier.ads.index']
+      create: typeof routes['supplier.ads.create']
+      store: typeof routes['supplier.ads.store']
+      wallet: {
+        topUp: typeof routes['supplier.ads.wallet.top_up']
+      }
+      edit: typeof routes['supplier.ads.edit']
+      update: typeof routes['supplier.ads.update']
+      status: typeof routes['supplier.ads.status']
+      destroy: typeof routes['supplier.ads.destroy']
+    }
   }
   rfqs: {
     index: typeof routes['rfqs.index']
@@ -198,6 +216,14 @@ export interface ApiDefinition {
   }
   admin: {
     dashboard: typeof routes['admin.dashboard']
+    ads: {
+      index: typeof routes['admin.ads.index']
+      wallets: {
+        adjust: typeof routes['admin.ads.wallets.adjust']
+      }
+      suspend: typeof routes['admin.ads.suspend']
+      restore: typeof routes['admin.ads.restore']
+    }
     organizations: {
       index: typeof routes['admin.organizations.index']
       show: typeof routes['admin.organizations.show']

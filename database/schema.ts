@@ -34,6 +34,141 @@ export class ActivityEventSchema extends BaseModel {
   declare userId: number | null
 }
 
+export class AdCampaignSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'dailyBudgetCents',
+    'endsOn',
+    'id',
+    'maxCpcCents',
+    'organizationId',
+    'productId',
+    'startsOn',
+    'status',
+    'updatedAt',
+  ] as const
+  $columns = AdCampaignSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare dailyBudgetCents: number
+  @column.date()
+  declare endsOn: DateTime | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare maxCpcCents: number
+  @column()
+  declare organizationId: number
+  @column()
+  declare productId: number
+  @column.date()
+  declare startsOn: DateTime
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class AdClickSchema extends BaseModel {
+  static $columns = [
+    'billed',
+    'campaignId',
+    'costCents',
+    'createdAt',
+    'id',
+    'placement',
+    'unbilledReason',
+    'userId',
+    'visitorHash',
+  ] as const
+  $columns = AdClickSchema.$columns
+  @column()
+  declare billed: boolean
+  @column()
+  declare campaignId: number
+  @column()
+  declare costCents: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: bigint | number
+  @column()
+  declare placement: string
+  @column()
+  declare unbilledReason: string | null
+  @column()
+  declare userId: number | null
+  @column()
+  declare visitorHash: string
+}
+
+export class AdImpressionSchema extends BaseModel {
+  static $columns = ['campaignId', 'count', 'day', 'id', 'placement'] as const
+  $columns = AdImpressionSchema.$columns
+  @column()
+  declare campaignId: number
+  @column()
+  declare count: number
+  @column.date()
+  declare day: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare placement: string
+}
+
+export class AdWalletTransactionSchema extends BaseModel {
+  static $columns = [
+    'amountCents',
+    'balanceAfterCents',
+    'campaignId',
+    'createdAt',
+    'createdByUserId',
+    'externalReference',
+    'id',
+    'note',
+    'type',
+    'walletId',
+  ] as const
+  $columns = AdWalletTransactionSchema.$columns
+  @column()
+  declare amountCents: number
+  @column()
+  declare balanceAfterCents: number
+  @column()
+  declare campaignId: number | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdByUserId: number | null
+  @column()
+  declare externalReference: string | null
+  @column({ isPrimary: true })
+  declare id: bigint | number
+  @column()
+  declare note: string | null
+  @column()
+  declare type: string
+  @column()
+  declare walletId: number
+}
+
+export class AdWalletSchema extends BaseModel {
+  static $columns = ['balanceCents', 'createdAt', 'id', 'organizationId', 'updatedAt'] as const
+  $columns = AdWalletSchema.$columns
+  @column()
+  declare balanceCents: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare organizationId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class AdminAuditLogSchema extends BaseModel {
   static $columns = [
     'action',
@@ -54,7 +189,7 @@ export class AdminAuditLogSchema extends BaseModel {
   @column()
   declare actorUserId: number | null
   @column()
-  declare changes: any
+  declare changes: any | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
@@ -114,6 +249,39 @@ export class AgencyProfileSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class AgencyReviewDecisionSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'decidedAt',
+    'decidedByUserId',
+    'decision',
+    'id',
+    'organizationId',
+    'reason',
+    'reviewReasons',
+    'updatedAt',
+  ] as const
+  $columns = AgencyReviewDecisionSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare decidedAt: DateTime
+  @column()
+  declare decidedByUserId: number | null
+  @column()
+  declare decision: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare organizationId: number
+  @column()
+  declare reason: string | null
+  @column()
+  declare reviewReasons: any
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class AiCallSchema extends BaseModel {
   static $columns = [
     'completionTokens',
@@ -159,35 +327,47 @@ export class AiCallSchema extends BaseModel {
   declare targetLocales: any
 }
 
-export class AgencyReviewDecisionSchema extends BaseModel {
+export class AnnouncementSchema extends BaseModel {
   static $columns = [
+    'audience',
     'createdAt',
-    'decidedAt',
-    'decidedByUserId',
-    'decision',
+    'createdByUserId',
+    'error',
     'id',
     'organizationId',
-    'reason',
-    'reviewReasons',
+    'recipientsCount',
+    'sendEmail',
+    'sendInApp',
+    'sentAt',
+    'status',
+    'translations',
     'updatedAt',
   ] as const
-  $columns = AgencyReviewDecisionSchema.$columns
+  $columns = AnnouncementSchema.$columns
+  @column()
+  declare audience: string
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
-  @column.dateTime()
-  declare decidedAt: DateTime
   @column()
-  declare decidedByUserId: number | null
+  declare createdByUserId: number | null
   @column()
-  declare decision: string
+  declare error: string | null
   @column({ isPrimary: true })
   declare id: number
   @column()
-  declare organizationId: number
+  declare organizationId: number | null
   @column()
-  declare reason: string | null
+  declare recipientsCount: number
   @column()
-  declare reviewReasons: any
+  declare sendEmail: boolean
+  @column()
+  declare sendInApp: boolean
+  @column.dateTime()
+  declare sentAt: DateTime | null
+  @column()
+  declare status: string
+  @column()
+  declare translations: any
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }
@@ -601,6 +781,33 @@ export class ConversationSchema extends BaseModel {
   declare supplierOrganizationId: number
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
+}
+
+export class HealthComponentStateSchema extends BaseModel {
+  static $columns = [
+    'alerted',
+    'checkedAt',
+    'component',
+    'consecutiveFailures',
+    'detail',
+    'since',
+    'status',
+  ] as const
+  $columns = HealthComponentStateSchema.$columns
+  @column()
+  declare alerted: boolean
+  @column.dateTime()
+  declare checkedAt: DateTime
+  @column({ isPrimary: true })
+  declare component: string
+  @column()
+  declare consecutiveFailures: number
+  @column()
+  declare detail: string | null
+  @column.dateTime()
+  declare since: DateTime
+  @column()
+  declare status: string
 }
 
 export class ImportJobSchema extends BaseModel {
@@ -1758,6 +1965,9 @@ export class QueueJobSchema extends BaseModel {
   static $columns = [
     'acquiredAt',
     'data',
+    'dedupAt',
+    'dedupId',
+    'dedupTtl',
     'error',
     'executeAt',
     'finishedAt',
@@ -1772,6 +1982,12 @@ export class QueueJobSchema extends BaseModel {
   declare acquiredAt: bigint | number | null
   @column()
   declare data: string
+  @column()
+  declare dedupAt: bigint | number | null
+  @column()
+  declare dedupId: string | null
+  @column()
+  declare dedupTtl: bigint | number | null
   @column()
   declare error: string | null
   @column()
@@ -1814,16 +2030,16 @@ export class QueueScheduleSchema extends BaseModel {
   declare cronExpression: string | null
   @column()
   declare everyMs: bigint | number | null
-  @column.dateTime()
-  declare fromDate: DateTime | null
+  @column()
+  declare fromDate: bigint | number | null
   @column({ isPrimary: true })
   declare id: string
-  @column.dateTime()
-  declare lastRunAt: DateTime | null
+  @column()
+  declare lastRunAt: bigint | number | null
   @column()
   declare name: string
-  @column.dateTime()
-  declare nextRunAt: DateTime | null
+  @column()
+  declare nextRunAt: bigint | number | null
   @column()
   declare payload: string
   @column()
@@ -1834,8 +2050,8 @@ export class QueueScheduleSchema extends BaseModel {
   declare status: string
   @column()
   declare timezone: string
-  @column.dateTime()
-  declare toDate: DateTime | null
+  @column()
+  declare toDate: bigint | number | null
 }
 
 export class QuoteCartItemSchema extends BaseModel {
@@ -2149,6 +2365,54 @@ export class SearchEventSchema extends BaseModel {
   declare userId: number | null
   @column()
   declare zeroResults: boolean
+}
+
+export class SearchRunSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'error',
+    'finishedAt',
+    'id',
+    'kind',
+    'processed',
+    'requestedByEmail',
+    'requestedById',
+    'result',
+    'startedAt',
+    'status',
+    'supplierId',
+    'supplierName',
+    'total',
+  ] as const
+  $columns = SearchRunSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare error: string | null
+  @column.dateTime()
+  declare finishedAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare kind: string
+  @column()
+  declare processed: number
+  @column()
+  declare requestedByEmail: string | null
+  @column()
+  declare requestedById: number | null
+  @column()
+  declare result: any | null
+  @column.dateTime()
+  declare startedAt: DateTime | null
+  @column()
+  declare status: string
+  @column()
+  declare supplierId: number | null
+  @column()
+  declare supplierName: string | null
+  @column()
+  declare total: number | null
 }
 
 export class StorageObjectSchema extends BaseModel {

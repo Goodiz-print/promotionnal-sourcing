@@ -98,6 +98,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/health_details_controller').default['show']>>>
     }
   }
+  'webhooks.stripe': {
+    methods: ["POST"]
+    pattern: '/webhooks/stripe'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/stripe_webhook_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/stripe_webhook_controller').default['store']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/stripe_webhook_controller').default['store']>>>
+    }
+  }
   'home': {
     methods: ["GET","HEAD"]
     pattern: '/:locale'
@@ -226,6 +239,19 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/products_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/products_controller').default['show']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/products_controller').default['show']>>>
+    }
+  }
+  'ads.click': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/ads/click/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/ad_clicks_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/ad_clicks_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/ad_clicks_controller').default['show']>>>
     }
   }
   'organization.invitations.show': {
@@ -1528,6 +1554,110 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/message_report_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'supplier.ads.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/ads'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['index']>>>
+    }
+  }
+  'supplier.ads.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/ads/new'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['create']>>>
+    }
+  }
+  'supplier.ads.store': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/ads'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/ads').adCampaignValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/ads').adCampaignValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.ads.wallet.top_up': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/ads/wallet/top-up'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/ads').adTopUpValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/ads').adTopUpValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_wallet_controller').default['topUp']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_wallet_controller').default['topUp']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_wallet_controller').default['topUp']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.ads.edit': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/ads/:id/edit'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['edit']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['edit']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['edit']>>>
+    }
+  }
+  'supplier.ads.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/supplier/ads/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/ads').adCampaignUpdateValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/ads').adCampaignUpdateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.ads.status': {
+    methods: ["PATCH"]
+    pattern: '/:locale/supplier/ads/:id/status'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/ads').adCampaignStatusValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/ads').adCampaignStatusValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['updateStatus']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['updateStatus']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['updateStatus']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.ads.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/supplier/ads/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['destroy']>>>
+    }
+  }
   'admin.dashboard': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin'
@@ -1539,6 +1669,58 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.ads.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/ads'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/ads').adminAdListValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.ads.wallets.adjust': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/ads/wallets/adjust'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/ads').adminAdWalletAdjustmentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/ads').adminAdWalletAdjustmentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['adjustWallet']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['adjustWallet']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['adjustWallet']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.ads.suspend': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/ads/:id/suspend'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['suspend']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['suspend']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['suspend']>>>
+    }
+  }
+  'admin.ads.restore': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/ads/:id/restore'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['restore']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['restore']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['restore']>>>
     }
   }
   'admin.organizations.index': {

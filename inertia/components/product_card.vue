@@ -11,7 +11,8 @@ import type { ProductType } from '#shared/types/product'
  * nom, prix, MOQ et badges (made-in-Europe, éco, nouveauté). Le lien est porté
  * par le parent, pour laisser le fournisseur l'afficher sans navigation.
  */
-const props = defineProps<{ product: ProductType }>()
+// `sponsored` : vignette d'un produit sponsorisé (badge obligatoire, cf. `docs/ads.md`).
+const props = defineProps<{ product: ProductType; sponsored?: boolean }>()
 
 const { t } = useI18n()
 
@@ -25,7 +26,9 @@ const price = computed(() => {
 
 const isNew = computed(() => props.product.lifecycleStatus === 'new')
 
-const hasBadges = computed(() => props.product.madeInEurope || props.product.isEco || isNew.value)
+const hasBadges = computed(
+  () => props.sponsored || props.product.madeInEurope || props.product.isEco || isNew.value
+)
 </script>
 
 <template>
@@ -57,6 +60,7 @@ const hasBadges = computed(() => props.product.madeInEurope || props.product.isE
     </div>
 
     <div v-if="hasBadges" class="flex flex-wrap gap-1.5">
+      <BaseBadge v-if="sponsored" tone="neutral">{{ t('ads.sponsored.badge') }}</BaseBadge>
       <BaseBadge v-if="product.madeInEurope" tone="brand">
         {{ t('products.card.madeInEurope') }}
       </BaseBadge>

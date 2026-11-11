@@ -25,7 +25,8 @@
     "search": "Search",
     "mail": "Emails",
     "storage": "Storage",
-    "health": "Health"
+    "health": "Health",
+    "ads": "Produtos patrocinados"
   },
   "pagination": {
     "previous": "Anterior",
@@ -483,7 +484,10 @@
       "search.evaluation_requested": "Search evaluation requested",
       "mail.retried": "Email retried",
       "mail.bulk_retried": "Failed emails retried",
-      "storage.recovery_requested": "Storage recovery requested"
+      "storage.recovery_requested": "Storage recovery requested",
+      "ad_campaign.suspended": "Campanha patrocinada suspensa",
+      "ad_campaign.restored": "Suspensão da campanha levantada",
+      "ad_wallet.adjusted": "Carteira publicitária ajustada"
     },
     "targets": {
       "user": "Utilizador",
@@ -507,7 +511,8 @@
       "queue_schedule": "Scheduled job",
       "search_run": "Search operation",
       "mail_delivery": "Email delivery",
-      "storage": "Storage"
+      "storage": "Storage",
+      "ad_campaign": "Campanha patrocinada"
     }
   },
   "demand": {
@@ -1665,6 +1670,37 @@
       "empty": "The monitoring job has not run yet.",
       "stale": "The states below are out of date: monitoring is no longer running (is the worker stopped?).",
       "details": "See details"
+    }
+  },
+  "ads": {
+    "title": "Produtos patrocinados",
+    "subtitle": "Campanhas de todos os fornecedores, suspensão e crédito das carteiras publicitárias.",
+    "resultsCount": "{count, plural, =0 {Nenhuma campanha} one {# campanha} other {# campanhas}}",
+    "empty": "Nenhuma campanha",
+    "emptyDescription": "Nenhum fornecedor patrocinou ainda um produto.",
+    "columns": {
+      "organization": "Organização",
+      "wallet": "Carteira"
+    },
+    "actions": {
+      "suspend": "Suspender",
+      "restore": "Restabelecer"
+    },
+    "adjust": {
+      "title": "Ajustar uma carteira",
+      "description": "Crédito (montante positivo) ou débito (montante negativo) na carteira publicitária de uma organização. Fica registado no registo de auditoria.",
+      "organizationId": "N.º da organização",
+      "amount": "Montante (€)",
+      "amountHint": "Negativo para debitar.",
+      "note": "Motivo",
+      "submit": "Aplicar"
+    },
+    "flash": {
+      "suspended": "Campanha suspensa",
+      "restored": "Suspensão levantada: a campanha está em pausa",
+      "adjusted": "Carteira ajustada",
+      "insufficientFunds": "O débito excede o saldo da carteira.",
+      "organizationNotFound": "Organização não encontrada."
     }
   }
 }

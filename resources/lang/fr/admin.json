@@ -25,7 +25,8 @@
     "search": "Recherche",
     "mail": "Emails",
     "storage": "Stockage",
-    "health": "Santé"
+    "health": "Santé",
+    "ads": "Produits sponsorisés"
   },
   "pagination": {
     "previous": "Précédent",
@@ -483,7 +484,10 @@
       "search.evaluation_requested": "Évaluation de la recherche demandée",
       "mail.retried": "Email rejoué",
       "mail.bulk_retried": "Emails en échec rejoués",
-      "storage.recovery_requested": "Reprise du stockage demandée"
+      "storage.recovery_requested": "Reprise du stockage demandée",
+      "ad_campaign.suspended": "Campagne sponsorisée suspendue",
+      "ad_campaign.restored": "Suspension de campagne levée",
+      "ad_wallet.adjusted": "Portefeuille publicitaire ajusté"
     },
     "targets": {
       "user": "Utilisateur",
@@ -507,7 +511,8 @@
       "queue_schedule": "Job planifié",
       "search_run": "Opération de recherche",
       "mail_delivery": "Envoi d’email",
-      "storage": "Stockage"
+      "storage": "Stockage",
+      "ad_campaign": "Campagne sponsorisée"
     }
   },
   "demand": {
@@ -1665,6 +1670,37 @@
       "empty": "Le job de surveillance n’a pas encore tourné.",
       "stale": "Les états ci-dessous sont périmés : la surveillance ne tourne plus (worker arrêté ?).",
       "details": "Voir le détail"
+    }
+  },
+  "ads": {
+    "title": "Produits sponsorisés",
+    "subtitle": "Campagnes de tous les fournisseurs, suspension et crédit des portefeuilles publicitaires.",
+    "resultsCount": "{count, plural, =0 {Aucune campagne} one {# campagne} other {# campagnes}}",
+    "empty": "Aucune campagne",
+    "emptyDescription": "Aucun fournisseur n’a encore sponsorisé de produit.",
+    "columns": {
+      "organization": "Organisation",
+      "wallet": "Portefeuille"
+    },
+    "actions": {
+      "suspend": "Suspendre",
+      "restore": "Rétablir"
+    },
+    "adjust": {
+      "title": "Ajuster un portefeuille",
+      "description": "Crédit (montant positif) ou débit (montant négatif) du portefeuille publicitaire d’une organisation. Tracé au journal d’audit.",
+      "organizationId": "N° d’organisation",
+      "amount": "Montant (€)",
+      "amountHint": "Négatif pour débiter.",
+      "note": "Motif",
+      "submit": "Appliquer"
+    },
+    "flash": {
+      "suspended": "Campagne suspendue",
+      "restored": "Suspension levée : la campagne est en pause",
+      "adjusted": "Portefeuille ajusté",
+      "insufficientFunds": "Le débit dépasse le solde du portefeuille.",
+      "organizationNotFound": "Organisation introuvable."
     }
   }
 }

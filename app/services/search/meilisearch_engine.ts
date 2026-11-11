@@ -92,6 +92,8 @@ export function productIndexSettings(facetSlugs: readonly string[] = []): Settin
   return {
     searchableAttributes: ['names', 'descriptions', 'reference'],
     filterableAttributes: [
+      // Restriction à une liste de produits (produits sponsorisés, `docs/ads.md`).
+      'id',
       'categoryId',
       'supplierId',
       'madeInEurope',
@@ -165,6 +167,13 @@ function rangeFieldClause(
  */
 export function buildProductFilter(filter: ProductSearchFilter): string | undefined {
   const clauses: string[] = []
+  // Restriction à une liste de produits (produits sponsorisés). Une liste vide
+  // ne doit rien renvoyer : `id < 0` n'est vrai pour aucun document (les
+  // identifiants sont positifs), sans dépendre de la syntaxe d'un `IN []`.
+  if (filter.ids) {
+    const ids = filter.ids.map((id) => Number(id))
+    clauses.push(ids.length > 0 ? `id IN [${ids.join(', ')}]` : 'id < 0')
+  }
   if (filter.categoryId) clauses.push(`categoryId = ${Number(filter.categoryId)}`)
   if (filter.madeInEurope) clauses.push('madeInEurope = true')
   // Éco-responsable (écart 4) : filtre dérivé booléen.

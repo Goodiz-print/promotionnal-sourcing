@@ -128,6 +128,17 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Produits sponsorisés — recharge du portefeuille (Stripe)
+  |----------------------------------------------------------
+  | Optionnelles : sans `STRIPE_SECRET_KEY`, la recharge en ligne est
+  | désactivée (l'équipe crédite les portefeuilles depuis le back-office).
+  | `STRIPE_WEBHOOK_SECRET` signe les notifications de paiement.
+  */
+  STRIPE_SECRET_KEY: Env.schema.secret.optional(),
+  STRIPE_WEBHOOK_SECRET: Env.schema.secret.optional(),
+
+  /*
+  |----------------------------------------------------------
   | Variables for configuring the limiter package
   |----------------------------------------------------------
   */

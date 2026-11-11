@@ -24,6 +24,12 @@ import { registerMessagingRoutes } from '#start/routes/messaging'
 import { registerNotificationRoutes } from '#start/routes/notifications'
 import { registerDocumentRoutes } from '#start/routes/documents'
 import { registerHealthRoutes } from '#start/routes/health'
+import {
+  registerAdClickRoutes,
+  registerAdminAdRoutes,
+  registerAdWebhookRoutes,
+  registerSupplierAdRoutes,
+} from '#start/routes/ads'
 import { registerMarketingRoutes, registerMarketingLegacyRoutes } from '#start/routes/marketing'
 import { LOCALE_ROUTE_PATTERN } from '#shared/types/i18n'
 import { controllers } from '#generated/controllers'
@@ -49,6 +55,7 @@ router.get('/', ({ i18n, response }: HttpContext) => response.redirect(`/${i18n.
 router.post('locale', [controllers.Locale, 'update']).as('locale.update')
 
 registerHealthRoutes()
+registerAdWebhookRoutes()
 
 /**
  * Toutes les routes applicatives vivent sous un préfixe de locale
@@ -68,6 +75,9 @@ router
     // Catalogue public des produits (sans auth).
     router.get('products', [controllers.Products, 'index']).as('products.index')
     router.get('products/:slug', [controllers.Products, 'show']).as('products.show')
+
+    // Lien de clic d'un produit sponsorisé (URL signée, sans auth).
+    registerAdClickRoutes()
 
     // Aperçu public d'une invitation (URL signée, sans auth requise).
     router
@@ -274,6 +284,8 @@ router
                 registerOrderRoutes()
                 registerNotificationRoutes()
                 registerMessagingRoutes()
+                // Produits sponsorisés côté fournisseur — cf. `start/routes/ads.ts`.
+                registerSupplierAdRoutes()
               })
               .use(middleware.onboarded())
 
@@ -283,6 +295,9 @@ router
             router
               .group(() => {
                 router.get('admin', [controllers.admin.Dashboard, 'index']).as('admin.dashboard')
+
+                // Supervision des produits sponsorisés — cf. `start/routes/ads.ts`.
+                registerAdminAdRoutes()
 
                 router
                   .get('admin/organizations', [controllers.admin.Organization, 'index'])

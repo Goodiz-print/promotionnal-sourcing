@@ -25,7 +25,8 @@
     "search": "Search",
     "mail": "Emails",
     "storage": "Storage",
-    "health": "Health"
+    "health": "Health",
+    "ads": "Gesponsorde producten"
   },
   "pagination": {
     "previous": "Vorige",
@@ -483,7 +484,10 @@
       "search.evaluation_requested": "Search evaluation requested",
       "mail.retried": "Email retried",
       "mail.bulk_retried": "Failed emails retried",
-      "storage.recovery_requested": "Storage recovery requested"
+      "storage.recovery_requested": "Storage recovery requested",
+      "ad_campaign.suspended": "Gesponsorde campagne geschorst",
+      "ad_campaign.restored": "Schorsing van campagne opgeheven",
+      "ad_wallet.adjusted": "Advertentietegoed aangepast"
     },
     "targets": {
       "user": "Gebruiker",
@@ -507,7 +511,8 @@
       "queue_schedule": "Scheduled job",
       "search_run": "Search operation",
       "mail_delivery": "Email delivery",
-      "storage": "Storage"
+      "storage": "Storage",
+      "ad_campaign": "Gesponsorde campagne"
     }
   },
   "demand": {
@@ -1665,6 +1670,37 @@
       "empty": "The monitoring job has not run yet.",
       "stale": "The states below are out of date: monitoring is no longer running (is the worker stopped?).",
       "details": "See details"
+    }
+  },
+  "ads": {
+    "title": "Gesponsorde producten",
+    "subtitle": "Campagnes van alle leveranciers, schorsing en opwaardering van advertentietegoeden.",
+    "resultsCount": "{count, plural, =0 {Geen campagnes} one {# campagne} other {# campagnes}}",
+    "empty": "Geen campagnes",
+    "emptyDescription": "Nog geen enkele leverancier heeft een product gesponsord.",
+    "columns": {
+      "organization": "Organisatie",
+      "wallet": "Tegoed"
+    },
+    "actions": {
+      "suspend": "Schorsen",
+      "restore": "Herstellen"
+    },
+    "adjust": {
+      "title": "Tegoed aanpassen",
+      "description": "Bijschrijving (positief bedrag) of afschrijving (negatief bedrag) op het advertentietegoed van een organisatie. Wordt vastgelegd in het auditlogboek.",
+      "organizationId": "Organisatienr.",
+      "amount": "Bedrag (€)",
+      "amountHint": "Negatief om af te schrijven.",
+      "note": "Reden",
+      "submit": "Toepassen"
+    },
+    "flash": {
+      "suspended": "Campagne geschorst",
+      "restored": "Schorsing opgeheven: de campagne is gepauzeerd",
+      "adjusted": "Tegoed aangepast",
+      "insufficientFunds": "De afschrijving overschrijdt het saldo.",
+      "organizationNotFound": "Organisatie niet gevonden."
     }
   }
 }

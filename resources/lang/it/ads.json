@@ -1,0 +1,106 @@
+{
+  "sponsored": {
+    "badge": "Sponsorizzato",
+    "title": "Prodotti sponsorizzati",
+    "hint": "Messi in evidenza dal fornitore. Corrispondono alla sua ricerca e ai suoi filtri.",
+    "productTitle": "Prodotti sponsorizzati di questa categoria",
+    "productHint": "Messi in evidenza dal fornitore.",
+    "homeTitle": "Prodotti in evidenza",
+    "homeSubtitle": "Una selezione messa in evidenza dai nostri fornitori."
+  },
+  "index": {
+    "title": "Prodotti sponsorizzati",
+    "subtitle": "Porti i suoi prodotti in cima al catalogo. Paga solo per clic.",
+    "newCampaign": "Nuova campagna",
+    "campaigns": "Campagne",
+    "empty": "Nessuna campagna",
+    "emptyDescription": "Sponsorizzi un prodotto per farlo salire in cima ai risultati pertinenti.",
+    "productHidden": "Prodotto non pubblicato: la campagna non viene mostrata",
+    "period": "Dal {from} al {to}",
+    "periodOpen": "Dal {from}",
+    "columns": {
+      "product": "Prodotto",
+      "status": "Stato",
+      "bid": "Offerta max.",
+      "budget": "Budget / giorno",
+      "impressions": "Visualizzazioni",
+      "clicks": "Clic",
+      "spent": "Speso",
+      "actions": "Azioni"
+    }
+  },
+  "status": {
+    "active": "Attiva",
+    "paused": "In pausa",
+    "suspended": "Sospesa"
+  },
+  "actions": {
+    "pause": "Metti in pausa",
+    "resume": "Riprendi",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "confirmDelete": "Eliminare questa campagna e le sue statistiche?"
+  },
+  "wallet": {
+    "title": "Portafoglio pubblicitario",
+    "description": "Credito prepagato, addebitato a ogni clic fatturato.",
+    "balance": "Saldo disponibile",
+    "amount": "Importo da accreditare (€)",
+    "amountHint": "Tra {min} e {max}.",
+    "topUp": "Ricarica",
+    "unavailable": "La ricarica online non è ancora disponibile. Ci contatti per accreditare il portafoglio.",
+    "checkoutLabel": "Credito pubblicitario — {organization}",
+    "topUpSuccess": "Pagamento ricevuto. Il saldo viene aggiornato in pochi istanti, non appena il pagamento è confermato.",
+    "topUpCancelled": "Pagamento annullato. Il portafoglio non è stato accreditato.",
+    "history": "Ultimi movimenti",
+    "columns": {
+      "date": "Data",
+      "type": "Movimento",
+      "amount": "Importo",
+      "balance": "Saldo"
+    },
+    "types": {
+      "top_up": "Ricarica",
+      "adjustment": "Rettifica",
+      "click": "Clic fatturato"
+    }
+  },
+  "form": {
+    "createTitle": "Nuova campagna",
+    "createSubtitle": "Scelga un prodotto, un’offerta e un budget.",
+    "editTitle": "Campagna",
+    "back": "Torna alle campagne",
+    "settings": "Impostazioni della campagna",
+    "settingsHint": "Può modificarle o mettere in pausa la campagna in qualsiasi momento.",
+    "product": "Prodotto da sponsorizzare",
+    "productPlaceholder": "Scegliere un prodotto",
+    "noProducts": "Nessun prodotto da sponsorizzare",
+    "noProductsDescription": "Tutti i suoi prodotti pubblicati hanno già una campagna, oppure non ha ancora prodotti pubblicati.",
+    "maxCpc": "Offerta massima per clic (€)",
+    "maxCpcHint": "Tra {min} e {max}. Paga al massimo questo importo, spesso meno.",
+    "dailyBudget": "Budget giornaliero (€)",
+    "dailyBudgetHint": "La campagna si ferma per la giornata una volta raggiunto questo importo.",
+    "startsOn": "Data di inizio",
+    "endsOn": "Data di fine",
+    "endsOnHint": "Lasci vuoto per una campagna senza data di fine.",
+    "cancel": "Annulla",
+    "submitCreate": "Avvia la campagna",
+    "submitUpdate": "Salva",
+    "howItWorksTitle": "Come funziona",
+    "howItWorks": "Il suo prodotto appare in cima, con la dicitura «Sponsorizzato», solo quando corrisponde alla ricerca e ai filtri dell’acquirente. Paga solo quando un acquirente clicca, al prezzo dell’offerta subito inferiore alla sua più un centesimo."
+  },
+  "flash": {
+    "created": "Campagna avviata",
+    "updated": "Campagna aggiornata",
+    "paused": "Campagna messa in pausa",
+    "resumed": "Campagna ripresa",
+    "deleted": "Campagna eliminata",
+    "suspended": "Questa campagna è stata sospesa dal team della piattaforma. Ci contatti per riattivarla.",
+    "topUpUnavailable": "La ricarica online non è disponibile al momento."
+  },
+  "errors": {
+    "budgetBelowBid": "Il budget giornaliero deve coprire almeno un clic all’offerta massima.",
+    "endBeforeStart": "La data di fine non può precedere la data di inizio.",
+    "productNotEligible": "Questo prodotto non può essere sponsorizzato (già in campagna o non pubblicato)."
+  }
+}
