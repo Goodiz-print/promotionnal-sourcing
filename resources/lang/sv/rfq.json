@@ -172,5 +172,16 @@
   },
   "form": {
     "general": "Allmän information"
+  },
+  "specs": {
+    "variant": "Variant",
+    "sku": "Artikelnummer",
+    "markingPosition": "Märkningsposition",
+    "markingTechnique": "Märkningsteknik",
+    "markingColors": "Märkningsfärger",
+    "estimatedUnitPrice": "Vägledande styckpris",
+    "estimatedMarkingUnitPrice": "Vägledande märkning / st.",
+    "estimatedSetupCharge": "Vägledande startkostnad",
+    "estimatedTotal": "Vägledande summa"
   }
 }

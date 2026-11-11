@@ -94,7 +94,7 @@ test.group('RFQ en un clic — pré-remplissage depuis un produit', (group) => {
     const response = await client.get(`/fr/products/${product.slug}`).withInertia().loginAs(owner)
 
     response.assertStatus(200)
-    assert.deepEqual(response.inertiaProps.rfqContext, { canCreateRfq: true, inCart: false })
+    assert.deepEqual(response.inertiaProps.rfqContext, { canCreateRfq: true, inCartVariantIds: [] })
   })
 
   test('la fiche produit ne propose rien à un visiteur ni à un fournisseur', async ({
@@ -104,7 +104,7 @@ test.group('RFQ en un clic — pré-remplissage depuis un produit', (group) => {
     const product = await requestableProduct()
     const supplierOrg = await OrganizationFactory.apply('supplier').create()
     const supplierUser = await createMember(supplierOrg, 'owner')
-    const none = { canCreateRfq: false, inCart: false }
+    const none = { canCreateRfq: false, inCartVariantIds: [] }
 
     const anonymous = await client.get(`/fr/products/${product.slug}`).withInertia()
     const supplier = await client
@@ -124,7 +124,7 @@ test.group('RFQ en un clic — pré-remplissage depuis un produit', (group) => {
 
     const response = await client.get(`/fr/products/${product.slug}`).withInertia().loginAs(member)
 
-    assert.deepEqual(response.inertiaProps.rfqContext, { canCreateRfq: true, inCart: false })
+    assert.deepEqual(response.inertiaProps.rfqContext, { canCreateRfq: true, inCartVariantIds: [] })
   })
 })
 

@@ -172,5 +172,16 @@
   },
   "form": {
     "general": "Informazioni generali"
+  },
+  "specs": {
+    "variant": "Variante",
+    "sku": "Codice articolo",
+    "markingPosition": "Posizione di personalizzazione",
+    "markingTechnique": "Tecnica di personalizzazione",
+    "markingColors": "Colori di personalizzazione",
+    "estimatedUnitPrice": "Prezzo unitario indicativo",
+    "estimatedMarkingUnitPrice": "Personalizzazione / pezzo indicativa",
+    "estimatedSetupCharge": "Costi di impianto indicativi",
+    "estimatedTotal": "Totale indicativo"
   }
 }

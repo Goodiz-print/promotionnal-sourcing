@@ -485,7 +485,7 @@ describe('products/show.vue', () => {
   it('affiche le produit, le fournisseur, le prix et les facettes', () => {
     const wrapper = mount(Show, {
       props: {
-        rfqContext: { canCreateRfq: true, inCart: false },
+        rfqContext: { canCreateRfq: true, inCartVariantIds: [] },
         product: {
           ...product(1, 'Crayon Aquarelle Bleu', 'crayon-aquarelle-bleu'),
           supplier: { slug: 'nordic-promo', name: 'Nordic Promo', country: 'SE' },
@@ -534,7 +534,7 @@ describe('products/show.vue', () => {
   it('regroupe les dimensions du carton (L × l × H) avec — pour une dimension manquante', () => {
     const wrapper = mount(Show, {
       props: {
-        rfqContext: { canCreateRfq: false, inCart: false },
+        rfqContext: { canCreateRfq: false, inCartVariantIds: [] },
         product: {
           ...product(2, 'Mug', 'mug'),
           supplier: { slug: 's', name: 'S', country: 'FR' },

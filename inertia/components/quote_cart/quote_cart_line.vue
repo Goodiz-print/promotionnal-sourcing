@@ -7,12 +7,16 @@ import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseIconButton from '~/components/base/base_icon_button.vue'
 import BaseInput from '~/components/base/base_input.vue'
-import type { QuoteCartItemType } from '#shared/types/quote_cart'
+import QuoteCartLineEstimate from '~/components/quote_cart/quote_cart_line_estimate.vue'
+import QuoteCartLineOptions from '~/components/quote_cart/quote_cart_line_options.vue'
+import type { QuoteCartItemType, UpdateQuoteCartItemData } from '#shared/types/quote_cart'
 
 /**
- * Une ligne du panier : produit, quantité et précisions. Les modifications
- * sont enregistrées d'elles-mêmes (après une courte pause de saisie), comme
- * dans un panier marchand — pas de bouton « enregistrer ».
+ * Une ligne du panier : produit, quantité, options (variante, marquage),
+ * précisions et estimation indicative. Les modifications sont enregistrées
+ * d'elles-mêmes (après une courte pause de saisie pour le texte, aussitôt pour
+ * un choix d'option), comme dans un panier marchand — pas de bouton
+ * « enregistrer ». L'estimation revient recalculée par le serveur.
  */
 const props = defineProps<{ item: QuoteCartItemType }>()
 
@@ -32,12 +36,12 @@ const belowMinimum = computed(
     quantity.value < props.item.minQuantity
 )
 
-function schedule(changes: { quantity?: number; note?: string | null }) {
+function schedule(changes: UpdateQuoteCartItemData) {
   clearTimeout(timer)
   timer = setTimeout(() => save(changes), SAVE_DELAY_MS)
 }
 
-function save(changes: { quantity?: number; note?: string | null }) {
+function save(changes: UpdateQuoteCartItemData) {
   router.patch(
     urlFor('quote_cart.items.update', { locale: locale.value, id: props.item.id }),
     changes,
@@ -123,6 +127,12 @@ onBeforeUnmount(() => clearTimeout(timer))
           @update:model-value="onNote"
         />
       </div>
+
+      <QuoteCartLineOptions :item="item" @change="save" />
+    </div>
+
+    <div class="sm:w-56 sm:shrink-0">
+      <QuoteCartLineEstimate :estimate="item.estimate" />
     </div>
   </li>
 </template>

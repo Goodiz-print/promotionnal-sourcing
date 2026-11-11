@@ -10,6 +10,7 @@ import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import DocumentList from '~/components/documents/document_list.vue'
 import PriceTierTable from '~/components/products/price_tier_table.vue'
+import { tiersForVariant } from '#shared/helpers/price_tiers'
 import ProductCompliance from '~/components/products/show/product_compliance.vue'
 import ProductMarking from '~/components/products/show/product_marking.vue'
 import ProductOverview from '~/components/products/show/product_overview.vue'
@@ -27,10 +28,7 @@ const catalogueUrl = computed(() => urlFor('products.index', { locale: locale.va
 const selectedVariantId = ref<number | null>(props.product.variants[0]?.id ?? null)
 
 // Grille de la variante choisie si elle a ses propres paliers, sinon celle du produit.
-const tiers = computed(() => {
-  const own = props.product.priceTiers.filter((tier) => tier.variantId === selectedVariantId.value)
-  return own.length > 0 ? own : props.product.priceTiers.filter((tier) => tier.variantId === null)
-})
+const tiers = computed(() => tiersForVariant(props.product.priceTiers, selectedVariantId.value))
 
 const isNew = computed(() => props.product.lifecycleStatus === 'new')
 </script>

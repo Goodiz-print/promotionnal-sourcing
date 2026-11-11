@@ -11,9 +11,15 @@ le chemin pour un besoin hors catalogue ou une demande multi-destinataires
 
 ## Modèle
 
-- **`quote_cart_items`** (migration `1794000000012_create_quote_cart_items_table`) :
-  `user_id`, `organization_id`, `product_id` (tous `CASCADE`), `quantity`,
-  `note`, timestamps. Unicité `(user_id, organization_id, product_id)`.
+- **`quote_cart_items`** (migrations `1794000000012_create_quote_cart_items_table`
+  et `1794000000013_add_options_to_quote_cart_items`) : `user_id`,
+  `organization_id`, `product_id` (tous `CASCADE`), `quantity`, `note`,
+  timestamps, et les options : `variant_id` (→ `product_variants`),
+  `marking_position_technique_id` (→ `product_marking_position_techniques`,
+  position + technique), `marking_colors` — options en `SET NULL`, une option
+  retirée du catalogue laisse la ligne sans elle. Unicité
+  `(user_id, organization_id, product_id, variant_id) NULLS NOT DISTINCT` :
+  deux variantes d'un produit font deux lignes.
 - **Pas de table d'en-tête** : il n'y aurait rien à y stocker. Le panier est
   l'ensemble des lignes d'un utilisateur dans une organisation.
 - **Par utilisateur, dans l'organisation courante** : chaque membre a son
@@ -24,13 +30,41 @@ le chemin pour un besoin hors catalogue ou une demande multi-destinataires
 
 ## Service (`QuoteCartService`)
 
-| Méthode                   | Comportement                                                                                                                                                                                                 |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `add`                     | relit le produit (`ProductCatalogueService#findForRfq`), 404 s'il n'est pas demandable. Quantité par défaut : `min_quantity`, sinon 1. Déjà présent : rien n'est modifié, message « déjà dans votre panier » |
-| `updateItem`/`removeItem` | filtrés sur `(user_id, organization_id)` : la ligne d'un autre panier est un **404**                                                                                                                         |
-| `list`                    | lignes groupées par organisation fournisseuse, dans l'ordre d'ajout                                                                                                                                          |
-| `checkout`                | une RFQ par groupe joignable, **en une transaction** ; les lignes validées quittent le panier                                                                                                                |
-| `count`/`has`             | pastille du bandeau, état « dans le panier » de la fiche produit                                                                                                                                             |
+| Méthode                   | Comportement                                                                                                                                                                                                                                                                                |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `add`                     | relit le produit (`ProductCatalogueService#findForRfq`), 404 s'il n'est pas demandable. `variantId` facultatif, variante active du produit. Quantité par défaut : `min_quantity`, sinon 1. Couple (produit, variante) déjà présent : rien n'est modifié, message « déjà dans votre panier » |
+| `updateItem`/`removeItem` | filtrés sur `(user_id, organization_id)` : la ligne d'un autre panier est un **404**. Options contrôlées contre le produit (cf. ci-dessous)                                                                                                                                                 |
+| `list`                    | lignes groupées par organisation fournisseuse, dans l'ordre d'ajout                                                                                                                                                                                                                         |
+| `checkout`                | une RFQ par groupe joignable, **en une transaction** ; les lignes validées quittent le panier                                                                                                                                                                                               |
+| `count`/`cartVariantIds`  | pastille du bandeau, variantes déjà au panier pour la fiche produit                                                                                                                                                                                                                         |
+
+### Options et estimation
+
+Une ligne peut préciser une **variante** et un **marquage** (une technique sur
+une position, et un nombre de couleurs). `updateItem` refuse
+(`QuoteCartInvalidOptionException`, message flash) une variante inactive ou
+d'un autre produit, un marquage d'un autre produit, des couleurs au-delà du
+`max_colors` de la technique ou sans marquage ; changer pour une variante déjà
+au panier lève `QuoteCartDuplicateLineException`. Retirer le marquage efface
+les couleurs.
+
+`list` renvoie, par ligne (`QuoteCartItemTransformer`), les options proposées
+(`variantOptions`, `markingOptions`) et une **estimation indicative**
+(`estimate`), calculée par `shared/helpers/price_tiers.ts` (entiers en
+dix-millièmes, aucune erreur flottante) :
+
+- prix unitaire du palier atteint (seuil inclus) de la grille de la variante si
+  elle en a une, sinon de la grille produit ;
+- prix de marquage unitaire du palier atteint de la technique (même devise que
+  le produit), frais techniques (`default_setup_charge`) une fois par ligne ;
+- total = quantité × (unitaire + marquage) + frais, arrondi au centime ;
+- palier suivant (« dès 500 pièces : 1,60 € ») ;
+- `null` sans grille (« Prix sur devis ») ; sous le premier seuil, pas de total ;
+  marquage sans prix connu : total `partial`.
+
+Chaque groupe porte un sous-total par devise et `estimateComplete` (faux dès
+qu'une ligne n'est pas entièrement chiffrée). L'écran rappelle que le devis
+du fournisseur fait foi.
 
 ### Groupe « non joignable »
 
@@ -48,7 +82,12 @@ Chaque demande reçoit :
   tronqué à 180 caractères (le formulaire limite la saisie à 120) ;
 - la description et l'échéance communes ;
 - ses lignes : désignation (nom localisé du produit), quantité, `productId`,
-  `categoryId`, et la note de la ligne en `description` ;
+  `categoryId`, la note de la ligne en `description`, et en `specs` les options
+  et l'estimation à clés stables (`QUOTE_CART_SPEC_KEYS` : `variant`, `sku`,
+  `markingPosition`, `markingTechnique`, `markingColors`, `estimatedUnitPrice`,
+  `estimatedMarkingUnitPrice`, `estimatedSetupCharge`, `estimatedTotal` — seules
+  les valeurs connues ; pas de total s'il est partiel). `rfq_item_list.vue` les
+  affiche aux deux parties, libellées par `rfq.specs.<clé>` ;
 - son fournisseur pour unique destinataire.
 
 Selon le rôle :
@@ -92,10 +131,13 @@ Réponses par redirection Inertia ; la validation renvoie sur `rfqs.index`.
 - **Fiche produit** : `product_quote_actions.vue` — quantité + « Ajouter au
   panier de devis » ; « Dans votre panier » et lien vers le panier une fois
   ajouté ; lien secondaire « Demande détaillée » vers `rfqs.create?productId=`.
-  `rfqContext` vaut `{ canCreateRfq, inCart }`.
+  La variante affichée part au panier ; `rfqContext` vaut
+  `{ canCreateRfq, inCartVariantIds }`.
 - **Panier** (`pages/quote_cart/show.vue`) : un `BaseSection` par fournisseur
   (`quote_cart_group.vue`), lignes éditables enregistrées après une pause de
-  saisie (`quote_cart_line.vue`, `router.patch` + `only: ['groups']`), alerte
+  saisie (`quote_cart_line.vue`, `router.patch` + `only: ['groups']`), options
+  enregistrées aussitôt (`quote_cart_line_options.vue`), estimation par ligne
+  (`quote_cart_line_estimate.vue`) et sous-total en pied de groupe, alerte
   sous le minimum de commande, formulaire de validation qui annonce le nombre de
   demandes et leurs destinataires (`quote_cart_checkout_form.vue`).
 
@@ -115,6 +157,8 @@ i18n : `resources/lang/<langue>/quote_cart.json`, 9 langues.
 
 ## Hors périmètre
 
+- Les `specs` ne figurent pas dans le mail `RfqSent` et ne pré-remplissent pas
+  le devis du fournisseur (`quote_items.customization_details`).
 - La route `rfqs.items.from_product` et `RfqService#addProductItem` restent en
   place mais ne sont plus appelées par la fiche produit : à retirer si le panier
   est adopté.

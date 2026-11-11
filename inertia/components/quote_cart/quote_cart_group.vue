@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from '~/i18n'
+import { formatMoney } from '~/components/quotes/types'
 import BaseSection from '~/components/base/base_section.vue'
 import QuoteCartLine from '~/components/quote_cart/quote_cart_line.vue'
 import type { QuoteCartGroupType } from '#shared/types/quote_cart'
@@ -10,7 +11,7 @@ import type { QuoteCartGroupType } from '#shared/types/quote_cart'
  */
 const props = defineProps<{ group: QuoteCartGroupType }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const reachable = props.group.supplierOrganizationId !== null
 </script>
@@ -28,5 +29,29 @@ const reachable = props.group.supplierOrganizationId !== null
     <ul class="-my-4 flex flex-col divide-y divide-hairline">
       <QuoteCartLine v-for="item in group.items" :key="item.id" :item="item" />
     </ul>
+
+    <div
+      v-if="reachable && group.subtotals.length > 0"
+      class="mt-4 flex flex-col items-end gap-1 border-t border-hairline pt-4"
+      data-testid="quote-cart-subtotal"
+    >
+      <p
+        v-for="subtotal in group.subtotals"
+        :key="subtotal.currency"
+        class="text-tabular text-body-md font-semibold text-text-primary"
+      >
+        {{
+          t(
+            group.estimateComplete
+              ? 'quote_cart.estimate.subtotal'
+              : 'quote_cart.estimate.subtotalPartial',
+            {
+              amount: formatMoney(Number(subtotal.total), subtotal.currency, locale),
+            }
+          )
+        }}
+      </p>
+      <p class="text-caption text-text-muted">{{ t('quote_cart.estimate.disclaimer') }}</p>
+    </div>
   </BaseSection>
 </template>

@@ -11,12 +11,17 @@ const quantity = () => vine.number().withoutDecimals().positive().max(10_000_000
 export const quoteCartItemValidator = vine.create({
   productId: vine.number().positive(),
   quantity: quantity().optional().nullable(),
+  variantId: vine.number().withoutDecimals().positive().optional().nullable(),
 })
 
 /** Modification d'une ligne depuis l'écran du panier. */
 export const quoteCartItemUpdateValidator = vine.create({
   quantity: quantity().optional(),
   note: vine.string().maxLength(2000).trim().optional().nullable(),
+  // Options : identifiants relus par le service (appartenance au produit).
+  variantId: vine.number().withoutDecimals().positive().optional().nullable(),
+  markingPositionTechniqueId: vine.number().withoutDecimals().positive().optional().nullable(),
+  markingColors: vine.number().withoutDecimals().min(1).max(20).optional().nullable(),
 })
 
 /**

@@ -17,9 +17,15 @@
   },
   "line": {
     "quantity": "Quantidade",
-    "note": "Detalhes (marcação, cor…)",
+    "note": "Detalhes",
     "remove": "Remover {name} do carrinho",
-    "belowMinimum": "Encomenda mínima: {count} unidades"
+    "belowMinimum": "Encomenda mínima: {count} unidades",
+    "variant": "Variante",
+    "variantAny": "A definir",
+    "marking": "Personalização",
+    "markingNone": "Sem personalização",
+    "markingColors": "Cores",
+    "markingColorsMax": "{count, plural, one {máx. # cor} other {máx. # cores}}"
   },
   "checkout": {
     "title": "Enviar os pedidos",
@@ -44,7 +50,9 @@
   },
   "errors": {
     "empty": "Nenhum produto do seu carrinho pode ser pedido.",
-    "supplierUnavailable": "Um fornecedor deixou de estar disponível. Recarregue o carrinho e tente novamente."
+    "supplierUnavailable": "Um fornecedor deixou de estar disponível. Recarregue o carrinho e tente novamente.",
+    "invalidOption": "Esta opção não está disponível para este produto.",
+    "duplicateLine": "Esta variante já está no seu carrinho de orçamentos."
   },
   "product": {
     "add": "Adicionar ao carrinho de orçamentos",
@@ -55,5 +63,18 @@
   },
   "card": {
     "add": "Adicionar {name} ao carrinho de orçamentos"
+  },
+  "estimate": {
+    "onRequest": "Preço sob orçamento",
+    "unitPrice": "Preço unitário",
+    "markingUnitPrice": "Personalização / unidade",
+    "setupCharge": "Custos técnicos",
+    "total": "Total estimado",
+    "totalPartial": "Total estimado (sem personalização)",
+    "belowFirstTier": "Quantidade abaixo do primeiro escalão de preço.",
+    "nextTier": "A partir de {count} unidades: {price} / unidade",
+    "subtotal": "Subtotal estimado: {amount}",
+    "subtotalPartial": "Subtotal estimado (incompleto): {amount}",
+    "disclaimer": "Estimativa indicativa com base nas tabelas do fornecedor, sem portes. Prevalece o orçamento."
   }
 }

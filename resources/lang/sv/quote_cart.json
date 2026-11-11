@@ -17,9 +17,15 @@
   },
   "line": {
     "quantity": "Antal",
-    "note": "Detaljer (märkning, färg…)",
+    "note": "Detaljer",
     "remove": "Ta bort {name} från korgen",
-    "belowMinimum": "Minsta order: {count} st."
+    "belowMinimum": "Minsta order: {count} st.",
+    "variant": "Variant",
+    "variantAny": "Anges senare",
+    "marking": "Märkning",
+    "markingNone": "Utan märkning",
+    "markingColors": "Färger",
+    "markingColorsMax": "{count, plural, one {max. # färg} other {max. # färger}}"
   },
   "checkout": {
     "title": "Skicka förfrågningarna",
@@ -44,7 +50,9 @@
   },
   "errors": {
     "empty": "Ingen av produkterna i din korg kan efterfrågas.",
-    "supplierUnavailable": "En leverantör kan inte längre nås. Ladda om korgen och försök igen."
+    "supplierUnavailable": "En leverantör kan inte längre nås. Ladda om korgen och försök igen.",
+    "invalidOption": "Det här alternativet finns inte för produkten.",
+    "duplicateLine": "Den här varianten finns redan i din offertkorg."
   },
   "product": {
     "add": "Lägg i offertkorgen",
@@ -55,5 +63,18 @@
   },
   "card": {
     "add": "Lägg {name} i offertkorgen"
+  },
+  "estimate": {
+    "onRequest": "Pris på förfrågan",
+    "unitPrice": "Styckpris",
+    "markingUnitPrice": "Märkning / st.",
+    "setupCharge": "Startkostnad",
+    "total": "Uppskattad summa",
+    "totalPartial": "Uppskattad summa (exkl. märkning)",
+    "belowFirstTier": "Antal under första prisnivån.",
+    "nextTier": "Från {count} st.: {price} / st.",
+    "subtotal": "Uppskattad delsumma: {amount}",
+    "subtotalPartial": "Uppskattad delsumma (ofullständig): {amount}",
+    "disclaimer": "Vägledande uppskattning enligt leverantörens prislistor, exkl. frakt. Offerten gäller."
   }
 }

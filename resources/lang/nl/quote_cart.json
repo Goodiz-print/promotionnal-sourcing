@@ -17,9 +17,15 @@
   },
   "line": {
     "quantity": "Aantal",
-    "note": "Details (bedrukking, kleur…)",
+    "note": "Details",
     "remove": "{name} uit de mand verwijderen",
-    "belowMinimum": "Minimale bestelling: {count} stuks"
+    "belowMinimum": "Minimale bestelling: {count} stuks",
+    "variant": "Variant",
+    "variantAny": "Nader te bepalen",
+    "marking": "Bedrukking",
+    "markingNone": "Zonder bedrukking",
+    "markingColors": "Kleuren",
+    "markingColorsMax": "{count, plural, one {max. # kleur} other {max. # kleuren}}"
   },
   "checkout": {
     "title": "Aanvragen versturen",
@@ -44,7 +50,9 @@
   },
   "errors": {
     "empty": "Geen enkel product in uw mand kan worden aangevraagd.",
-    "supplierUnavailable": "Een leverancier is niet meer bereikbaar. Laad de mand opnieuw en probeer het nog eens."
+    "supplierUnavailable": "Een leverancier is niet meer bereikbaar. Laad de mand opnieuw en probeer het nog eens.",
+    "invalidOption": "Deze optie is niet beschikbaar voor dit product.",
+    "duplicateLine": "Deze variant staat al in uw offertemand."
   },
   "product": {
     "add": "Toevoegen aan offertemand",
@@ -55,5 +63,18 @@
   },
   "card": {
     "add": "{name} toevoegen aan de offertemand"
+  },
+  "estimate": {
+    "onRequest": "Prijs op aanvraag",
+    "unitPrice": "Stukprijs",
+    "markingUnitPrice": "Bedrukking / stuk",
+    "setupCharge": "Instelkosten",
+    "total": "Geschat totaal",
+    "totalPartial": "Geschat totaal (excl. bedrukking)",
+    "belowFirstTier": "Aantal onder de eerste prijsstaffel.",
+    "nextTier": "Vanaf {count} stuks: {price} / stuk",
+    "subtotal": "Geschat subtotaal: {amount}",
+    "subtotalPartial": "Geschat subtotaal (onvolledig): {amount}",
+    "disclaimer": "Indicatieve schatting op basis van de prijslijsten van de leverancier, excl. verzending. De offerte is bindend."
   }
 }

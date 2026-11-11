@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import type { QuoteCartGroupType } from '#shared/types/quote_cart'
+import type { QuoteCartGroupType, QuoteCartItemType } from '#shared/types/quote_cart'
 
 const translations = {
   'quote_cart.title': 'Panier de devis',
@@ -15,6 +15,23 @@ const translations = {
   'quote_cart.line.note': 'Précisions',
   'quote_cart.line.remove': 'Retirer {name} du panier',
   'quote_cart.line.belowMinimum': 'Minimum de commande : {count} pièces',
+  'quote_cart.line.variant': 'Variante',
+  'quote_cart.line.variantAny': 'À préciser',
+  'quote_cart.line.marking': 'Marquage',
+  'quote_cart.line.markingNone': 'Sans marquage',
+  'quote_cart.line.markingColors': 'Couleurs',
+  'quote_cart.line.markingColorsMax': '{count} couleurs max.',
+  'quote_cart.estimate.onRequest': 'Prix sur devis',
+  'quote_cart.estimate.unitPrice': 'Prix unitaire',
+  'quote_cart.estimate.markingUnitPrice': 'Marquage / pièce',
+  'quote_cart.estimate.setupCharge': 'Frais techniques',
+  'quote_cart.estimate.total': 'Total estimé',
+  'quote_cart.estimate.totalPartial': 'Total estimé (hors marquage)',
+  'quote_cart.estimate.belowFirstTier': 'Sous le premier palier',
+  'quote_cart.estimate.nextTier': 'Dès {count} pièces : {price} / pièce',
+  'quote_cart.estimate.subtotal': 'Sous-total estimé : {amount}',
+  'quote_cart.estimate.subtotalPartial': 'Sous-total estimé (incomplet) : {amount}',
+  'quote_cart.estimate.disclaimer': 'Le devis fait foi.',
   'quote_cart.checkout.title': 'Envoyer les demandes',
   'quote_cart.checkout.titleDraft': 'Créer les demandes',
   'quote_cart.checkout.description': 'En-tête commun',
@@ -53,7 +70,12 @@ vi.mock('@adonisjs/inertia/vue', () => ({ Link: { template: '<a><slot /></a>' } 
 const { default: Show } = await import('~/pages/quote_cart/show.vue')
 const { router } = await import('@inertiajs/vue3')
 
-const item = (id: number, name: string, minQuantity: number | null = null) => ({
+const item = (
+  id: number,
+  name: string,
+  minQuantity: number | null = null,
+  overrides: Partial<QuoteCartItemType> = {}
+): QuoteCartItemType => ({
   id,
   productId: id * 10,
   productSlug: `p-${id}`,
@@ -62,16 +84,64 @@ const item = (id: number, name: string, minQuantity: number | null = null) => ({
   minQuantity,
   quantity: 100,
   note: null,
+  variantId: null,
+  markingPositionTechniqueId: null,
+  markingColors: null,
+  variantOptions: [],
+  markingOptions: [],
+  estimate: null,
+  ...overrides,
+})
+
+const priced = item(1, 'Mug', null, {
+  variantOptions: [
+    { id: 11, label: 'Rouge', sku: 'MUG-R' },
+    { id: 12, label: 'Bleu', sku: 'MUG-B' },
+  ],
+  markingOptions: [
+    {
+      id: 21,
+      label: 'Face — Tampographie',
+      positionName: 'Face',
+      techniqueName: 'Tampographie',
+      maxColors: 4,
+      setupCharge: '40.00',
+    },
+  ],
+  estimate: {
+    currency: 'EUR',
+    unitPrice: '2.10',
+    markingUnitPrice: null,
+    setupCharge: null,
+    total: '210.00',
+    partial: false,
+    belowFirstTier: false,
+    nextTier: { minQuantity: 250, unitPrice: '1.85', currency: 'EUR' },
+  },
 })
 
 const groups: QuoteCartGroupType[] = [
   {
     supplierOrganizationId: 1,
     supplierName: 'Nordic Promo',
-    items: [item(1, 'Mug'), item(2, 'Stylo')],
+    items: [priced, item(2, 'Stylo')],
+    subtotals: [{ currency: 'EUR', total: '210.00' }],
+    estimateComplete: false,
   },
-  { supplierOrganizationId: 2, supplierName: 'Textile Co', items: [item(3, 'Tote bag', 500)] },
-  { supplierOrganizationId: null, supplierName: null, items: [item(4, 'Casquette')] },
+  {
+    supplierOrganizationId: 2,
+    supplierName: 'Textile Co',
+    items: [item(3, 'Tote bag', 500)],
+    subtotals: [],
+    estimateComplete: false,
+  },
+  {
+    supplierOrganizationId: null,
+    supplierName: null,
+    items: [item(4, 'Casquette')],
+    subtotals: [],
+    estimateComplete: false,
+  },
 ]
 
 describe('quote_cart/show.vue', () => {
@@ -121,6 +191,64 @@ describe('quote_cart/show.vue', () => {
       { quantity: 300 },
       { preserveScroll: true, preserveState: true, only: ['groups'] }
     )
+  })
+
+  it("affiche l'estimation dégressive, le palier suivant et le sous-total", () => {
+    const wrapper = mount(Show, { props: { groups, canSend: true } })
+
+    const [mug, stylo] = wrapper.findAll('[data-testid="quote-cart-estimate"]')
+    expect(mug.text()).toContain('Prix unitaire')
+    expect(mug.text()).toMatch(/2,10\s€/)
+    expect(mug.text()).toMatch(/Total estimé\s*210,00\s€/)
+    expect(mug.find('[data-testid="quote-cart-next-tier"]').text()).toMatch(
+      /Dès 250 pièces : 1,85\s€ \/ pièce/
+    )
+    expect(stylo.text()).toBe('Prix sur devis')
+    // Une ligne sur devis : sous-total signalé incomplet.
+    expect(wrapper.find('[data-testid="quote-cart-subtotal"]').text()).toMatch(
+      /Sous-total estimé \(incomplet\) : 210,00\s€/
+    )
+  })
+
+  it('enregistre aussitôt le choix de variante', async () => {
+    const wrapper = mount(Show, { props: { groups, canSend: true } })
+
+    await wrapper.find('#quote-cart-variant-1').setValue('12')
+    expect(router.patch).toHaveBeenCalledWith(
+      '/fr/quote_cart.items.update/1',
+      { variantId: 12 },
+      { preserveScroll: true, preserveState: true, only: ['groups'] }
+    )
+  })
+
+  it('propose le nombre de couleurs une fois un marquage choisi', async () => {
+    const wrapper = mount(Show, { props: { groups, canSend: true } })
+
+    expect(wrapper.find('#quote-cart-colors-1').exists()).toBe(false)
+    await wrapper.find('#quote-cart-marking-1').setValue('21')
+    expect(router.patch).toHaveBeenCalledWith(
+      '/fr/quote_cart.items.update/1',
+      { markingPositionTechniqueId: 21, markingColors: null },
+      { preserveScroll: true, preserveState: true, only: ['groups'] }
+    )
+    expect(wrapper.find('#quote-cart-colors-1').exists()).toBe(true)
+    expect(wrapper.text()).toContain('4 couleurs max.')
+
+    await wrapper.find('#quote-cart-colors-1').setValue('9')
+    expect(router.patch).toHaveBeenCalledTimes(1)
+    await wrapper.find('#quote-cart-colors-1').setValue('2')
+    expect(router.patch).toHaveBeenLastCalledWith(
+      '/fr/quote_cart.items.update/1',
+      { markingColors: 2 },
+      { preserveScroll: true, preserveState: true, only: ['groups'] }
+    )
+  })
+
+  it("n'affiche pas de sélecteur d'option pour un produit sans variante ni marquage", () => {
+    const wrapper = mount(Show, { props: { groups, canSend: true } })
+
+    expect(wrapper.find('#quote-cart-variant-2').exists()).toBe(false)
+    expect(wrapper.find('#quote-cart-marking-2').exists()).toBe(false)
   })
 
   it('retire une ligne', async () => {

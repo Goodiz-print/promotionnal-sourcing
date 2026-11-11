@@ -23,6 +23,8 @@ const props = defineProps<{
   productId: number
   productSlug: string
   minQuantity: number | null
+  /** Variante affichée sur la fiche : c'est elle qui part au panier. */
+  variantId?: number | null
   rfqContext: ProductRfqContextType
 }>()
 
@@ -32,6 +34,9 @@ const page = usePage()
 const quantity = ref<number | null>(props.minQuantity ?? 1)
 // Évite le double clic pendant l'ajout.
 const adding = ref(false)
+
+// « Dans votre panier » vaut pour la variante affichée : une autre couleur reste ajoutable.
+const inCart = computed(() => props.rfqContext.inCartVariantIds.includes(props.variantId ?? null))
 
 const cartUrl = computed(() => urlFor('quote_cart.show', { locale: locale.value }))
 const detailedUrl = computed(
@@ -43,7 +48,7 @@ function addToCart() {
   adding.value = true
   router.post(
     urlFor('quote_cart.items.store', { locale: locale.value }),
-    { productId: props.productId, quantity: quantity.value },
+    { productId: props.productId, quantity: quantity.value, variantId: props.variantId ?? null },
     { preserveScroll: true, onFinish: () => (adding.value = false) }
   )
 }
@@ -57,7 +62,7 @@ function signIn() {
 
 <template>
   <div v-if="rfqContext.canCreateRfq" class="flex flex-col gap-3">
-    <div v-if="rfqContext.inCart" class="flex flex-wrap items-center gap-3">
+    <div v-if="inCart" class="flex flex-wrap items-center gap-3">
       <p class="flex items-center gap-2 text-body-sm font-semibold text-success">
         <Check :size="18" aria-hidden="true" />
         {{ t('quote_cart.product.inCart') }}

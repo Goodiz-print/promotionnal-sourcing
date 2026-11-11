@@ -1842,18 +1842,25 @@ export class QuoteCartItemSchema extends BaseModel {
   static $columns = [
     'createdAt',
     'id',
+    'markingColors',
+    'markingPositionTechniqueId',
     'note',
     'organizationId',
     'productId',
     'quantity',
     'updatedAt',
     'userId',
+    'variantId',
   ] as const
   $columns = QuoteCartItemSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare markingColors: number | null
+  @column()
+  declare markingPositionTechniqueId: number | null
   @column()
   declare note: string | null
   @column()
@@ -1866,6 +1873,8 @@ export class QuoteCartItemSchema extends BaseModel {
   declare updatedAt: DateTime | null
   @column()
   declare userId: number
+  @column()
+  declare variantId: number | null
 }
 
 export class QuoteItemSchema extends BaseModel {

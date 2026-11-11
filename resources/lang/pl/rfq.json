@@ -172,5 +172,16 @@
   },
   "form": {
     "general": "Informacje ogólne"
+  },
+  "specs": {
+    "variant": "Wariant",
+    "sku": "Kod produktu",
+    "markingPosition": "Miejsce znakowania",
+    "markingTechnique": "Technika znakowania",
+    "markingColors": "Kolory znakowania",
+    "estimatedUnitPrice": "Orientacyjna cena jednostkowa",
+    "estimatedMarkingUnitPrice": "Orientacyjne znakowanie / szt.",
+    "estimatedSetupCharge": "Orientacyjne koszty przygotowania",
+    "estimatedTotal": "Orientacyjna suma"
   }
 }

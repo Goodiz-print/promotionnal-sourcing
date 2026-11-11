@@ -172,5 +172,16 @@
   },
   "form": {
     "general": "Información general"
+  },
+  "specs": {
+    "variant": "Variante",
+    "sku": "Referencia",
+    "markingPosition": "Posición de marcaje",
+    "markingTechnique": "Técnica de marcaje",
+    "markingColors": "Colores de marcaje",
+    "estimatedUnitPrice": "Precio unitario orientativo",
+    "estimatedMarkingUnitPrice": "Marcaje / unidad orientativo",
+    "estimatedSetupCharge": "Gastos técnicos orientativos",
+    "estimatedTotal": "Total orientativo"
   }
 }

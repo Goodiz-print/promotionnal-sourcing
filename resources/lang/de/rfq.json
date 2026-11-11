@@ -172,5 +172,16 @@
   },
   "form": {
     "general": "Allgemeine Informationen"
+  },
+  "specs": {
+    "variant": "Variante",
+    "sku": "Artikelnummer",
+    "markingPosition": "Veredelungsposition",
+    "markingTechnique": "Veredelungstechnik",
+    "markingColors": "Veredelungsfarben",
+    "estimatedUnitPrice": "Richtpreis pro Stück",
+    "estimatedMarkingUnitPrice": "Richtpreis Veredelung / Stück",
+    "estimatedSetupCharge": "Richtwert Einrichtungskosten",
+    "estimatedTotal": "Richtwert Summe"
   }
 }

@@ -172,5 +172,16 @@
   },
   "form": {
     "general": "Algemene informatie"
+  },
+  "specs": {
+    "variant": "Variant",
+    "sku": "Artikelnummer",
+    "markingPosition": "Bedrukkingspositie",
+    "markingTechnique": "Bedrukkingstechniek",
+    "markingColors": "Bedrukkingskleuren",
+    "estimatedUnitPrice": "Indicatieve stukprijs",
+    "estimatedMarkingUnitPrice": "Indicatieve bedrukking / stuk",
+    "estimatedSetupCharge": "Indicatieve instelkosten",
+    "estimatedTotal": "Indicatief totaal"
   }
 }

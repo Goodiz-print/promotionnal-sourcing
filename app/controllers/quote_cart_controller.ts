@@ -10,7 +10,11 @@ import {
   quoteCartItemUpdateValidator,
   quoteCartItemValidator,
 } from '#validators/quote_cart'
-import { QuoteCartEmptyException } from '#exceptions/quote_cart_errors'
+import {
+  QuoteCartDuplicateLineException,
+  QuoteCartEmptyException,
+  QuoteCartInvalidOptionException,
+} from '#exceptions/quote_cart_errors'
 import { NotASupplierOrganizationException } from '#exceptions/rfq_errors'
 import type { Locale } from '#shared/types/i18n'
 
@@ -42,7 +46,17 @@ export default class QuoteCartController {
     const { user, org } = await this.context({ auth, bouncer })
     const payload = await request.validateUsing(quoteCartItemValidator)
 
-    const { product, created } = await this.service.add(user, org, payload)
+    let added
+    try {
+      added = await this.service.add(user, org, payload)
+    } catch (error) {
+      if (error instanceof QuoteCartInvalidOptionException) {
+        session.flash('error', i18n.t('quote_cart.errors.invalidOption'))
+        return response.redirect().back()
+      }
+      throw error
+    }
+    const { product, created } = added
     if (created) {
       await this.activityEvents.record({
         type: 'rfq_product_added',
@@ -61,11 +75,23 @@ export default class QuoteCartController {
     return response.redirect().back()
   }
 
-  async update({ auth, bouncer, params, request, response }: HttpContext) {
+  async update({ auth, bouncer, params, request, response, session, i18n }: HttpContext) {
     const { user, org } = await this.context({ auth, bouncer })
     const payload = await request.validateUsing(quoteCartItemUpdateValidator)
 
-    await this.service.updateItem(user, org, Number(params.id), payload)
+    try {
+      await this.service.updateItem(user, org, Number(params.id), payload)
+    } catch (error) {
+      if (error instanceof QuoteCartInvalidOptionException) {
+        session.flash('error', i18n.t('quote_cart.errors.invalidOption'))
+        return response.redirect().back()
+      }
+      if (error instanceof QuoteCartDuplicateLineException) {
+        session.flash('error', i18n.t('quote_cart.errors.duplicateLine'))
+        return response.redirect().back()
+      }
+      throw error
+    }
     return response.redirect().back()
   }
 

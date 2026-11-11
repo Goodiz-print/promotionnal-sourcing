@@ -17,9 +17,15 @@
   },
   "line": {
     "quantity": "Menge",
-    "note": "Details (Veredelung, Farbe…)",
+    "note": "Angaben",
     "remove": "{name} aus dem Korb entfernen",
-    "belowMinimum": "Mindestbestellmenge: {count} Stück"
+    "belowMinimum": "Mindestbestellmenge: {count} Stück",
+    "variant": "Variante",
+    "variantAny": "Noch offen",
+    "marking": "Veredelung",
+    "markingNone": "Ohne Veredelung",
+    "markingColors": "Farben",
+    "markingColorsMax": "{count, plural, one {max. # Farbe} other {max. # Farben}}"
   },
   "checkout": {
     "title": "Anfragen senden",
@@ -44,7 +50,9 @@
   },
   "errors": {
     "empty": "Keines der Produkte in Ihrem Korb kann angefragt werden.",
-    "supplierUnavailable": "Ein Lieferant ist nicht mehr erreichbar. Laden Sie den Korb neu und versuchen Sie es erneut."
+    "supplierUnavailable": "Ein Lieferant ist nicht mehr erreichbar. Laden Sie den Korb neu und versuchen Sie es erneut.",
+    "invalidOption": "Diese Option ist für dieses Produkt nicht verfügbar.",
+    "duplicateLine": "Diese Variante ist bereits in Ihrem Angebotskorb."
   },
   "product": {
     "add": "In den Angebotskorb",
@@ -55,5 +63,18 @@
   },
   "card": {
     "add": "{name} in den Angebotskorb legen"
+  },
+  "estimate": {
+    "onRequest": "Preis auf Anfrage",
+    "unitPrice": "Stückpreis",
+    "markingUnitPrice": "Veredelung / Stück",
+    "setupCharge": "Einrichtungskosten",
+    "total": "Geschätzte Summe",
+    "totalPartial": "Geschätzte Summe (ohne Veredelung)",
+    "belowFirstTier": "Menge unter der ersten Preisstaffel.",
+    "nextTier": "Ab {count} Stück: {price} / Stück",
+    "subtotal": "Geschätzte Zwischensumme: {amount}",
+    "subtotalPartial": "Geschätzte Zwischensumme (unvollständig): {amount}",
+    "disclaimer": "Unverbindliche Schätzung nach den Preislisten des Lieferanten, ohne Versand. Maßgeblich ist das Angebot."
   }
 }

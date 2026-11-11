@@ -62,7 +62,7 @@ const tier = (id: number, variantId: number | null, minQuantity: number, unitPri
 function mountShow() {
   return mount(Show, {
     props: {
-      rfqContext: { canCreateRfq: false, inCart: false },
+      rfqContext: { canCreateRfq: false, inCartVariantIds: [] },
       product: {
         id: 1,
         supplierId: 1,

@@ -17,9 +17,15 @@
   },
   "line": {
     "quantity": "Cantidad",
-    "note": "Detalles (marcaje, color…)",
+    "note": "Detalles",
     "remove": "Quitar {name} de la cesta",
-    "belowMinimum": "Pedido mínimo: {count} unidades"
+    "belowMinimum": "Pedido mínimo: {count} unidades",
+    "variant": "Variante",
+    "variantAny": "Por definir",
+    "marking": "Marcaje",
+    "markingNone": "Sin marcaje",
+    "markingColors": "Colores",
+    "markingColorsMax": "{count, plural, one {# color máx.} other {# colores máx.}}"
   },
   "checkout": {
     "title": "Enviar las solicitudes",
@@ -44,7 +50,9 @@
   },
   "errors": {
     "empty": "Ninguno de los productos de su cesta se puede solicitar.",
-    "supplierUnavailable": "Un proveedor ya no está disponible. Recargue la cesta e inténtelo de nuevo."
+    "supplierUnavailable": "Un proveedor ya no está disponible. Recargue la cesta e inténtelo de nuevo.",
+    "invalidOption": "Esta opción no está disponible para este producto.",
+    "duplicateLine": "Esta variante ya está en su cesta de presupuesto."
   },
   "product": {
     "add": "Añadir a la cesta de presupuestos",
@@ -55,5 +63,18 @@
   },
   "card": {
     "add": "Añadir {name} a la cesta de presupuestos"
+  },
+  "estimate": {
+    "onRequest": "Precio bajo presupuesto",
+    "unitPrice": "Precio unitario",
+    "markingUnitPrice": "Marcaje / unidad",
+    "setupCharge": "Gastos técnicos",
+    "total": "Total estimado",
+    "totalPartial": "Total estimado (sin marcaje)",
+    "belowFirstTier": "Cantidad inferior al primer tramo de precio.",
+    "nextTier": "Desde {count} unidades: {price} / unidad",
+    "subtotal": "Subtotal estimado: {amount}",
+    "subtotalPartial": "Subtotal estimado (incompleto): {amount}",
+    "disclaimer": "Estimación orientativa según las tarifas del proveedor, sin gastos de envío. Prevalece el presupuesto."
   }
 }

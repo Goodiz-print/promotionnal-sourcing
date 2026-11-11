@@ -36,9 +36,13 @@ const { default: ProductQuoteActions } =
   await import('~/components/products/product_quote_actions.vue')
 const { router } = await import('@inertiajs/vue3')
 
-function mountActions(rfqContext: ProductRfqContextType, minQuantity: number | null = 50) {
+function mountActions(
+  rfqContext: ProductRfqContextType,
+  minQuantity: number | null = 50,
+  variantId: number | null = null
+) {
   return mount(ProductQuoteActions, {
-    props: { productId: 7, productSlug: 'mug', minQuantity, rfqContext },
+    props: { productId: 7, productSlug: 'mug', minQuantity, variantId, rfqContext },
   })
 }
 
@@ -47,14 +51,14 @@ describe('product_quote_actions.vue', () => {
 
   it('ajoute le produit au panier à la quantité minimale par défaut', async () => {
     user = { id: 1 }
-    const wrapper = mountActions({ canCreateRfq: true, inCart: false })
+    const wrapper = mountActions({ canCreateRfq: true, inCartVariantIds: [] })
 
     expect((wrapper.find('input[type="number"]').element as HTMLInputElement).value).toBe('50')
     await wrapper.find('form').trigger('submit')
 
     expect(router.post).toHaveBeenCalledWith(
       '/fr/quote_cart.items.store',
-      { productId: 7, quantity: 50 },
+      { productId: 7, quantity: 50, variantId: null },
       { preserveScroll: true, onFinish: expect.any(Function) }
     )
     // Le formulaire complet reste accessible, pré-rempli avec ce produit.
@@ -65,21 +69,42 @@ describe('product_quote_actions.vue', () => {
 
   it('envoie la quantité saisie', async () => {
     user = { id: 1 }
-    const wrapper = mountActions({ canCreateRfq: true, inCart: false }, null)
+    const wrapper = mountActions({ canCreateRfq: true, inCartVariantIds: [] }, null)
 
     await wrapper.find('input[type="number"]').setValue('250')
     await wrapper.find('form').trigger('submit')
 
     expect(router.post).toHaveBeenCalledWith(
       '/fr/quote_cart.items.store',
-      { productId: 7, quantity: 250 },
+      { productId: 7, quantity: 250, variantId: null },
       expect.anything()
     )
   })
 
+  it('ajoute la variante affichée sur la fiche', async () => {
+    user = { id: 1 }
+    const wrapper = mountActions({ canCreateRfq: true, inCartVariantIds: [] }, 50, 31)
+
+    await wrapper.find('form').trigger('submit')
+    expect(router.post).toHaveBeenCalledWith(
+      '/fr/quote_cart.items.store',
+      { productId: 7, quantity: 50, variantId: 31 },
+      expect.anything()
+    )
+  })
+
+  it('laisse ajouter une autre variante que celle déjà au panier', () => {
+    user = { id: 1 }
+    const inCart = mountActions({ canCreateRfq: true, inCartVariantIds: [31] }, 50, 31)
+    expect(inCart.text()).toContain('Dans votre panier de devis')
+
+    const other = mountActions({ canCreateRfq: true, inCartVariantIds: [31] }, 50, 32)
+    expect(other.find('form').exists()).toBe(true)
+  })
+
   it('renvoie vers le panier quand le produit y est déjà', () => {
     user = { id: 1 }
-    const wrapper = mountActions({ canCreateRfq: true, inCart: true })
+    const wrapper = mountActions({ canCreateRfq: true, inCartVariantIds: [null] })
 
     expect(wrapper.text()).toContain('Dans votre panier de devis')
     expect(wrapper.find('a[href="/fr/quote_cart.show"]').text()).toContain('Voir le panier')
@@ -88,7 +113,7 @@ describe('product_quote_actions.vue', () => {
 
   it('renvoie un visiteur anonyme vers la connexion, avec retour sur la fiche', async () => {
     user = undefined
-    const wrapper = mountActions({ canCreateRfq: false, inCart: false })
+    const wrapper = mountActions({ canCreateRfq: false, inCartVariantIds: [] })
 
     expect(wrapper.text()).toContain('Se connecter pour demander un devis')
     await wrapper.find('button').trigger('click')
@@ -100,7 +125,7 @@ describe('product_quote_actions.vue', () => {
 
   it("n'affiche rien à un utilisateur connecté qui ne peut pas demander de devis", () => {
     user = { id: 1 }
-    const wrapper = mountActions({ canCreateRfq: false, inCart: false })
+    const wrapper = mountActions({ canCreateRfq: false, inCartVariantIds: [] })
 
     expect(wrapper.find('button').exists()).toBe(false)
   })

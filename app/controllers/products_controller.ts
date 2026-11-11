@@ -201,7 +201,7 @@ export default class ProductsController {
     { auth, bouncer }: Pick<HttpContext, 'auth' | 'bouncer'>,
     productId: number
   ): Promise<ProductRfqContextType> {
-    const none = { canCreateRfq: false, inCart: false }
+    const none = { canCreateRfq: false, inCartVariantIds: [] }
     if (!auth.user) return none
 
     let org
@@ -214,7 +214,10 @@ export default class ProductsController {
 
     if (!(await bouncer.allows('canCreateRfq', org))) return none
 
-    return { canCreateRfq: true, inCart: await this.quoteCart.has(auth.user, org, productId) }
+    return {
+      canCreateRfq: true,
+      inCartVariantIds: await this.quoteCart.cartVariantIds(auth.user, org, productId),
+    }
   }
 
   /**

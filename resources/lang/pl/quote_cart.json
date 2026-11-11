@@ -17,9 +17,15 @@
   },
   "line": {
     "quantity": "Ilość",
-    "note": "Szczegóły (znakowanie, kolor…)",
+    "note": "Szczegóły",
     "remove": "Usuń {name} z koszyka",
-    "belowMinimum": "Minimalne zamówienie: {count} szt."
+    "belowMinimum": "Minimalne zamówienie: {count} szt.",
+    "variant": "Wariant",
+    "variantAny": "Do ustalenia",
+    "marking": "Znakowanie",
+    "markingNone": "Bez znakowania",
+    "markingColors": "Kolory",
+    "markingColorsMax": "{count, plural, one {maks. # kolor} few {maks. # kolory} many {maks. # kolorów} other {maks. # koloru}}"
   },
   "checkout": {
     "title": "Wyślij zapytania",
@@ -44,7 +50,9 @@
   },
   "errors": {
     "empty": "Żadnego produktu z koszyka nie można objąć zapytaniem.",
-    "supplierUnavailable": "Dostawca nie jest już dostępny. Odśwież koszyk i spróbuj ponownie."
+    "supplierUnavailable": "Dostawca nie jest już dostępny. Odśwież koszyk i spróbuj ponownie.",
+    "invalidOption": "Ta opcja nie jest dostępna dla tego produktu.",
+    "duplicateLine": "Ten wariant jest już w koszyku zapytań."
   },
   "product": {
     "add": "Dodaj do koszyka zapytań",
@@ -55,5 +63,18 @@
   },
   "card": {
     "add": "Dodaj {name} do koszyka zapytań"
+  },
+  "estimate": {
+    "onRequest": "Cena na zapytanie",
+    "unitPrice": "Cena jednostkowa",
+    "markingUnitPrice": "Znakowanie / szt.",
+    "setupCharge": "Koszty przygotowania",
+    "total": "Szacowana suma",
+    "totalPartial": "Szacowana suma (bez znakowania)",
+    "belowFirstTier": "Ilość poniżej pierwszego progu cenowego.",
+    "nextTier": "Od {count} szt.: {price} / szt.",
+    "subtotal": "Szacowana suma częściowa: {amount}",
+    "subtotalPartial": "Szacowana suma częściowa (niepełna): {amount}",
+    "disclaimer": "Orientacyjny szacunek na podstawie cenników dostawcy, bez kosztów wysyłki. Wiążąca jest oferta."
   }
 }

@@ -17,9 +17,15 @@
   },
   "line": {
     "quantity": "Quantity",
-    "note": "Details (branding, colour…)",
+    "note": "Details",
     "remove": "Remove {name} from the cart",
-    "belowMinimum": "Minimum order: {count} pieces"
+    "belowMinimum": "Minimum order: {count} pieces",
+    "variant": "Variant",
+    "variantAny": "To be specified",
+    "marking": "Branding",
+    "markingNone": "No branding",
+    "markingColors": "Colours",
+    "markingColorsMax": "{count, plural, one {# colour max.} other {# colours max.}}"
   },
   "checkout": {
     "title": "Send the requests",
@@ -44,7 +50,9 @@
   },
   "errors": {
     "empty": "None of the products in your cart can be requested.",
-    "supplierUnavailable": "A supplier can no longer be reached. Reload the cart and try again."
+    "supplierUnavailable": "A supplier can no longer be reached. Reload the cart and try again.",
+    "invalidOption": "This option is not available for this product.",
+    "duplicateLine": "This variant is already in your quote cart."
   },
   "product": {
     "add": "Add to quote cart",
@@ -55,5 +63,18 @@
   },
   "card": {
     "add": "Add {name} to the quote cart"
+  },
+  "estimate": {
+    "onRequest": "Price on request",
+    "unitPrice": "Unit price",
+    "markingUnitPrice": "Branding / piece",
+    "setupCharge": "Setup charge",
+    "total": "Estimated total",
+    "totalPartial": "Estimated total (excl. branding)",
+    "belowFirstTier": "Quantity below the first price break.",
+    "nextTier": "From {count} pieces: {price} / piece",
+    "subtotal": "Estimated subtotal: {amount}",
+    "subtotalPartial": "Estimated subtotal (incomplete): {amount}",
+    "disclaimer": "Indicative estimate based on the supplier's price lists, excluding shipping. The quote prevails."
   }
 }

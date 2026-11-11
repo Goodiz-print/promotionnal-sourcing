@@ -64,6 +64,7 @@ const price = computed(() => {
         :product-id="product.id"
         :product-slug="product.slug"
         :min-quantity="product.minQuantity"
+        :variant-id="selectedVariantId"
         :rfq-context="rfqContext"
       />
     </div>

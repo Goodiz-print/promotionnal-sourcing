@@ -17,9 +17,15 @@
   },
   "line": {
     "quantity": "Quantità",
-    "note": "Dettagli (personalizzazione, colore…)",
+    "note": "Dettagli",
     "remove": "Rimuovi {name} dal carrello",
-    "belowMinimum": "Ordine minimo: {count} pezzi"
+    "belowMinimum": "Ordine minimo: {count} pezzi",
+    "variant": "Variante",
+    "variantAny": "Da definire",
+    "marking": "Personalizzazione",
+    "markingNone": "Senza personalizzazione",
+    "markingColors": "Colori",
+    "markingColorsMax": "{count, plural, one {max. # colore} other {max. # colori}}"
   },
   "checkout": {
     "title": "Invia le richieste",
@@ -44,7 +50,9 @@
   },
   "errors": {
     "empty": "Nessun prodotto del tuo carrello può essere richiesto.",
-    "supplierUnavailable": "Un fornitore non è più raggiungibile. Ricarica il carrello e riprova."
+    "supplierUnavailable": "Un fornitore non è più raggiungibile. Ricarica il carrello e riprova.",
+    "invalidOption": "Questa opzione non è disponibile per questo prodotto.",
+    "duplicateLine": "Questa variante è già nel carrello preventivi."
   },
   "product": {
     "add": "Aggiungi al carrello preventivi",
@@ -55,5 +63,18 @@
   },
   "card": {
     "add": "Aggiungi {name} al carrello preventivi"
+  },
+  "estimate": {
+    "onRequest": "Prezzo su preventivo",
+    "unitPrice": "Prezzo unitario",
+    "markingUnitPrice": "Personalizzazione / pezzo",
+    "setupCharge": "Costi di impianto",
+    "total": "Totale stimato",
+    "totalPartial": "Totale stimato (esclusa personalizzazione)",
+    "belowFirstTier": "Quantità inferiore alla prima fascia di prezzo.",
+    "nextTier": "Da {count} pezzi: {price} / pezzo",
+    "subtotal": "Subtotale stimato: {amount}",
+    "subtotalPartial": "Subtotale stimato (incompleto): {amount}",
+    "disclaimer": "Stima indicativa basata sui listini del fornitore, spedizione esclusa. Fa fede il preventivo."
   }
 }

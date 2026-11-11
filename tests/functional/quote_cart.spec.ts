@@ -3,6 +3,12 @@ import emitter from '@adonisjs/core/services/emitter'
 import { OrganizationFactory } from '#database/factories/organization_factory'
 import RfqSent from '#events/rfq_sent'
 import { ProductFactory } from '#database/factories/product_factory'
+import { MarkingTechniqueFactory } from '#database/factories/marking_technique_factory'
+import { ProductMarkingPositionFactory } from '#database/factories/product_marking_position_factory'
+import { ProductMarkingPositionTechniqueFactory } from '#database/factories/product_marking_position_technique_factory'
+import { ProductMarkingPriceTierFactory } from '#database/factories/product_marking_price_tier_factory'
+import { ProductPriceTierFactory } from '#database/factories/product_price_tier_factory'
+import { ProductVariantFactory } from '#database/factories/product_variant_factory'
 import { SupplierFactory } from '#database/factories/supplier_factory'
 import Organization from '#models/organization'
 import type Product from '#models/product'
@@ -45,14 +51,90 @@ async function buyerWithOwner() {
   return { org, owner }
 }
 
-function addToCart(client: ApiClient, user: User, productId: number, quantity?: number) {
+function addToCart(
+  client: ApiClient,
+  user: User,
+  productId: number,
+  quantity?: number,
+  variantId?: number
+) {
   return client
     .post('/fr/quote-cart/items')
     .withInertia()
     .withCsrfToken()
     .redirects(0)
     .loginAs(user)
-    .json({ productId, ...(quantity ? { quantity } : {}) })
+    .json({ productId, ...(quantity ? { quantity } : {}), ...(variantId ? { variantId } : {}) })
+}
+
+function updateLine(client: ApiClient, user: User, id: number, payload: Record<string, unknown>) {
+  return client
+    .patch(`/fr/quote-cart/items/${id}`)
+    .withInertia()
+    .withCsrfToken()
+    .redirects(0)
+    .loginAs(user)
+    .json(payload)
+}
+
+/**
+ * Produit chiffré : grille produit (100 → 2,10 ; 250 → 1,85 ; 500 → 1,60),
+ * deux variantes dont une (`blue`) a sa propre grille (100 → 2,50), et un
+ * marquage (une position, une technique : 4 couleurs max, 45 € de frais
+ * techniques, 0,40 puis 0,30 dès 250 pièces).
+ */
+async function pricedProduct() {
+  const product = await supplierProduct(100)
+  const [red, blue] = await ProductVariantFactory.merge({ productId: product.id }).createMany(2)
+  await ProductPriceTierFactory.merge([
+    { productId: product.id, minQuantity: 100, unitPrice: '2.1000' },
+    { productId: product.id, minQuantity: 250, unitPrice: '1.8500' },
+    { productId: product.id, minQuantity: 500, unitPrice: '1.6000' },
+    { productId: product.id, variantId: blue.id, minQuantity: 100, unitPrice: '2.5000' },
+  ]).createMany(4)
+  const technique = await MarkingTechniqueFactory.create()
+  const position = await ProductMarkingPositionFactory.merge({
+    productId: product.id,
+    name: 'Face',
+  }).create()
+  const marking = await ProductMarkingPositionTechniqueFactory.merge({
+    markingPositionId: position.id,
+    markingTechniqueId: technique.id,
+    maxColors: 4,
+    defaultSetupCharge: '45.00',
+  }).create()
+  await ProductMarkingPriceTierFactory.merge([
+    { productId: product.id, markingTechniqueId: technique.id, minQuantity: 1, unitPrice: '0.40' },
+    {
+      productId: product.id,
+      markingTechniqueId: technique.id,
+      minQuantity: 250,
+      unitPrice: '0.30',
+    },
+  ]).createMany(2)
+  return { product, red, blue, marking, technique }
+}
+
+interface LineProps {
+  id: number
+  quantity: number
+  variantId: number | null
+  estimate: {
+    unitPrice: string | null
+    total: string | null
+    markingUnitPrice: string | null
+    setupCharge: string | null
+    nextTier: { minQuantity: number } | null
+  } | null
+}
+
+async function cartGroups(client: ApiClient, user: User) {
+  const response = await client.get('/fr/quote-cart').withInertia().loginAs(user)
+  return response.inertiaProps.groups as Array<{
+    items: LineProps[]
+    subtotals: { currency: string; total: string }[]
+    estimateComplete: boolean
+  }>
 }
 
 function checkout(client: ApiClient, user: User, payload: Record<string, unknown>) {
@@ -142,7 +224,10 @@ test.group('Panier de devis — contenu', (cartGroup) => {
 
     const response = await client.get(`/fr/products/${product.slug}`).withInertia().loginAs(owner)
 
-    assert.deepEqual(response.inertiaProps.rfqContext, { canCreateRfq: true, inCart: true })
+    assert.deepEqual(response.inertiaProps.rfqContext, {
+      canCreateRfq: true,
+      inCartVariantIds: [null],
+    })
   })
 
   test("un produit d'un fournisseur devenu inéligible passe en « non joignable »", async ({
@@ -359,5 +444,211 @@ test.group('Panier de devis — validation', (checkoutGroup) => {
     response.assertStatus(302)
     assert.lengthOf(await Rfq.query().where('buyerOrganizationId', org.id), 0)
     assert.lengthOf(await QuoteCartItem.query().where('userId', owner.id), 1)
+  })
+})
+
+test.group('Panier de devis — options et prix dégressifs', (optionsGroup) => {
+  useDatabase(optionsGroup)
+
+  test('estime la ligne au palier atteint et suit la quantité', async ({ client, assert }) => {
+    const { owner } = await buyerWithOwner()
+    const { product } = await pricedProduct()
+    await addToCart(client, owner, product.id, 200)
+
+    let [group] = await cartGroups(client, owner)
+    let [line] = group.items
+    assert.equal(line.estimate?.unitPrice, '2.10')
+    assert.equal(line.estimate?.total, '420.00')
+    assert.equal(line.estimate?.nextTier?.minQuantity, 250)
+    assert.deepEqual(group.subtotals, [{ currency: 'EUR', total: '420.00' }])
+    assert.isTrue(group.estimateComplete)
+
+    await updateLine(client, owner, line.id, { quantity: 300 }).then((r) => r.assertStatus(303))
+    ;[group] = await cartGroups(client, owner)
+    ;[line] = group.items
+    assert.equal(line.estimate?.unitPrice, '1.85')
+    assert.equal(line.estimate?.total, '555.00')
+  })
+
+  test('la grille propre à la variante prend le pas', async ({ client, assert }) => {
+    const { owner } = await buyerWithOwner()
+    const { product, red, blue } = await pricedProduct()
+    await addToCart(client, owner, product.id, 100, red.id)
+    await addToCart(client, owner, product.id, 100, blue.id)
+
+    const [group] = await cartGroups(client, owner)
+    assert.deepEqual(
+      group.items.map((line) => [line.variantId, line.estimate?.unitPrice]),
+      [
+        [red.id, '2.10'],
+        [blue.id, '2.50'],
+      ]
+    )
+    assert.deepEqual(group.subtotals, [{ currency: 'EUR', total: '460.00' }])
+  })
+
+  test('deux variantes du même produit font deux lignes, la même variante une seule', async ({
+    client,
+    assert,
+  }) => {
+    const { owner } = await buyerWithOwner()
+    const { product, red, blue } = await pricedProduct()
+    await addToCart(client, owner, product.id, 100, red.id)
+    await addToCart(client, owner, product.id, 100, red.id)
+    await addToCart(client, owner, product.id, 100, blue.id)
+    await addToCart(client, owner, product.id)
+
+    const items = await QuoteCartItem.query().where('userId', owner.id).orderBy('id')
+    assert.deepEqual(
+      items.map((item) => item.variantId),
+      [red.id, blue.id, null]
+    )
+
+    const page = await client.get(`/fr/products/${product.slug}`).withInertia().loginAs(owner)
+    assert.sameMembers(page.inertiaProps.rfqContext.inCartVariantIds, [red.id, blue.id, null])
+  })
+
+  test("refuse la variante d'un autre produit ou inactive", async ({ client, assert }) => {
+    const { owner } = await buyerWithOwner()
+    const { product, red } = await pricedProduct()
+    const other = await pricedProduct()
+    await red.merge({ isActive: false }).save()
+
+    await addToCart(client, owner, product.id, 100, other.red.id)
+    await addToCart(client, owner, product.id, 100, red.id)
+
+    assert.lengthOf(await QuoteCartItem.query().where('userId', owner.id), 0)
+  })
+
+  test('le marquage ajoute son prix dégressif et ses frais techniques', async ({
+    client,
+    assert,
+  }) => {
+    const { owner } = await buyerWithOwner()
+    const { product, marking } = await pricedProduct()
+    await addToCart(client, owner, product.id, 250)
+    const item = await QuoteCartItem.query().where('userId', owner.id).firstOrFail()
+
+    const response = await updateLine(client, owner, item.id, {
+      markingPositionTechniqueId: marking.id,
+      markingColors: 2,
+    })
+    response.assertStatus(303)
+
+    const [group] = await cartGroups(client, owner)
+    const [line] = group.items
+    // 250 × (1,85 + 0,30) + 45
+    assert.equal(line.estimate?.markingUnitPrice, '0.30')
+    assert.equal(line.estimate?.setupCharge, '45.00')
+    assert.equal(line.estimate?.total, '582.50')
+  })
+
+  test('refuse un marquage étranger, trop de couleurs ou des couleurs sans marquage', async ({
+    client,
+    assert,
+  }) => {
+    const { owner } = await buyerWithOwner()
+    const { product, marking } = await pricedProduct()
+    const other = await pricedProduct()
+    await addToCart(client, owner, product.id, 250)
+    const item = await QuoteCartItem.query().where('userId', owner.id).firstOrFail()
+
+    await updateLine(client, owner, item.id, { markingPositionTechniqueId: other.marking.id })
+    await updateLine(client, owner, item.id, { markingColors: 2 })
+    await updateLine(client, owner, item.id, {
+      markingPositionTechniqueId: marking.id,
+      markingColors: 5,
+    })
+
+    await item.refresh()
+    assert.isNull(item.markingPositionTechniqueId)
+    assert.isNull(item.markingColors)
+
+    // Retirer le marquage efface les couleurs.
+    await updateLine(client, owner, item.id, {
+      markingPositionTechniqueId: marking.id,
+      markingColors: 3,
+    })
+    await updateLine(client, owner, item.id, { markingPositionTechniqueId: null })
+    await item.refresh()
+    assert.isNull(item.markingPositionTechniqueId)
+    assert.isNull(item.markingColors)
+  })
+
+  test('changer de variante vers une variante déjà au panier est refusé', async ({
+    client,
+    assert,
+  }) => {
+    const { owner } = await buyerWithOwner()
+    const { product, red, blue } = await pricedProduct()
+    await addToCart(client, owner, product.id, 100, red.id)
+    await addToCart(client, owner, product.id, 100, blue.id)
+    const redLine = await QuoteCartItem.query()
+      .where('userId', owner.id)
+      .where('variantId', red.id)
+      .firstOrFail()
+
+    const response = await updateLine(client, owner, redLine.id, { variantId: blue.id })
+    response.assertStatus(303)
+
+    await redLine.refresh()
+    assert.equal(redLine.variantId, red.id)
+  })
+
+  test('la validation transmet options et estimation dans les specs', async ({
+    client,
+    assert,
+  }) => {
+    const { org, owner } = await buyerWithOwner()
+    const { product, blue, marking, technique } = await pricedProduct()
+    await addToCart(client, owner, product.id, 100, blue.id)
+    const item = await QuoteCartItem.query().where('userId', owner.id).firstOrFail()
+    await updateLine(client, owner, item.id, {
+      markingPositionTechniqueId: marking.id,
+      markingColors: 2,
+    })
+
+    emitter.fake([RfqSent])
+    try {
+      await checkout(client, owner, { title: 'Salon 2027' }).then((r) => r.assertStatus(302))
+    } finally {
+      emitter.restore()
+    }
+
+    const rfq = await Rfq.query()
+      .where('buyerOrganizationId', org.id)
+      .preload('items')
+      .firstOrFail()
+    assert.deepEqual(rfq.items[0].specs, {
+      variant: blue.sku,
+      sku: blue.sku,
+      markingPosition: 'Face',
+      markingTechnique: technique.slug,
+      markingColors: '2',
+      estimatedUnitPrice: '2.50 EUR',
+      estimatedMarkingUnitPrice: '0.40 EUR',
+      estimatedSetupCharge: '45.00 EUR',
+      // 100 × (2,50 + 0,40) + 45
+      estimatedTotal: '335.00 EUR',
+    })
+  })
+
+  test('une ligne sans option ni grille ne porte pas de specs', async ({ client, assert }) => {
+    const { org, owner } = await buyerWithOwner()
+    const [product] = await productsOfTwoSuppliers()
+    await addToCart(client, owner, product.id)
+
+    emitter.fake([RfqSent])
+    try {
+      await checkout(client, owner, { title: 'Salon 2027' })
+    } finally {
+      emitter.restore()
+    }
+
+    const rfq = await Rfq.query()
+      .where('buyerOrganizationId', org.id)
+      .preload('items')
+      .firstOrFail()
+    assert.isNull(rfq.items[0].specs)
   })
 })

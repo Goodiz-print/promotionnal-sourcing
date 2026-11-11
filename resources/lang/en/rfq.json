@@ -172,5 +172,16 @@
   },
   "form": {
     "general": "General information"
+  },
+  "specs": {
+    "variant": "Variant",
+    "sku": "SKU",
+    "markingPosition": "Branding position",
+    "markingTechnique": "Branding technique",
+    "markingColors": "Branding colours",
+    "estimatedUnitPrice": "Indicative unit price",
+    "estimatedMarkingUnitPrice": "Indicative branding / piece",
+    "estimatedSetupCharge": "Indicative setup charge",
+    "estimatedTotal": "Indicative total"
   }
 }

@@ -243,12 +243,14 @@ export interface RfqProductLookupType {
  * `null`, que le sérialiseur de props refuse) : un visiteur anonyme reçoit
  * `canCreateRfq: false`.
  *
- * `inCart` : le produit est déjà dans le panier de devis de l'utilisateur
+ * `inCartVariantIds` : variantes de ce produit déjà dans le panier de devis
+ * de l'utilisateur (`null` = ligne sans variante précisée) — la fiche en
+ * déduit l'état « dans votre panier » de la variante choisie
  * (cf. `docs/quote-cart.md`).
  */
 export type ProductRfqContextType = {
   canCreateRfq: boolean
-  inCart: boolean
+  inCartVariantIds: (number | null)[]
 }
 
 /**
