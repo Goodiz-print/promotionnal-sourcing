@@ -861,6 +861,111 @@ export class ImportJobSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class InboundMailAttachmentSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'filename',
+    'id',
+    'inboundMailId',
+    'mimeType',
+    'providerAttachmentId',
+    'sizeBytes',
+    'status',
+    'storageObjectId',
+    'updatedAt',
+  ] as const
+  $columns = InboundMailAttachmentSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare filename: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare inboundMailId: number
+  @column()
+  declare mimeType: string | null
+  @column()
+  declare providerAttachmentId: string
+  @column()
+  declare sizeBytes: number | null
+  @column()
+  declare status: string
+  @column()
+  declare storageObjectId: number | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class InboundMailSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'error',
+    'headers',
+    'htmlBody',
+    'id',
+    'messageId',
+    'processedAt',
+    'provider',
+    'providerMessageId',
+    'receivedAt',
+    'recipient',
+    'rejectionReason',
+    'rfqSupplierId',
+    'senderAddress',
+    'senderKnown',
+    'senderName',
+    'sizeBytes',
+    'status',
+    'subject',
+    'textBody',
+    'updatedAt',
+  ] as const
+  $columns = InboundMailSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare error: string | null
+  @column()
+  declare headers: any | null
+  @column()
+  declare htmlBody: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare messageId: string | null
+  @column.dateTime()
+  declare processedAt: DateTime | null
+  @column()
+  declare provider: string
+  @column()
+  declare providerMessageId: string
+  @column.dateTime()
+  declare receivedAt: DateTime
+  @column()
+  declare recipient: string | null
+  @column()
+  declare rejectionReason: string | null
+  @column()
+  declare rfqSupplierId: number | null
+  @column()
+  declare senderAddress: string
+  @column()
+  declare senderKnown: boolean | null
+  @column()
+  declare senderName: string | null
+  @column()
+  declare sizeBytes: number | null
+  @column()
+  declare status: string
+  @column()
+  declare subject: string | null
+  @column()
+  declare textBody: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class LegalConsentSchema extends BaseModel {
   static $columns = [
     'acceptedAt',
@@ -2229,6 +2334,7 @@ export class RfqSupplierSchema extends BaseModel {
     'createdAt',
     'id',
     'remindedAt',
+    'replyToken',
     'rfqId',
     'sentAt',
     'status',
@@ -2242,6 +2348,8 @@ export class RfqSupplierSchema extends BaseModel {
   declare id: number
   @column.dateTime()
   declare remindedAt: DateTime | null
+  @column()
+  declare replyToken: string
   @column()
   declare rfqId: number
   @column.dateTime()

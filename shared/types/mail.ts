@@ -49,6 +49,11 @@ export interface RfqReceivedMailData {
   /** Échéance déjà formatée par l'appelant (le worker n'a pas de locale). */
   deadline: string | null
   rfqPath: string
+  /**
+   * Adresse relais du couple demande / fournisseur, posée en `Reply-To` (#223).
+   * Absente si la réception est désactivée ou sur un job antérieur à #223.
+   */
+  replyTo?: string | null
 }
 
 /**
@@ -61,6 +66,8 @@ export interface RfqReminderMailData {
   rfqTitle: string
   deadline: string | null
   rfqPath: string
+  /** Même adresse relais que le mail de demande. */
+  replyTo?: string | null
 }
 
 /**

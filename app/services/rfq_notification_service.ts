@@ -1,8 +1,10 @@
+import { inject } from '@adonisjs/core'
 import { urlFor } from '@adonisjs/core/services/url_builder'
 import logger from '@adonisjs/core/services/logger'
 import db from '@adonisjs/lucid/services/db'
 import OrganizationUser from '#models/organization_user'
 import SendMailJob from '#jobs/send_mail_job'
+import InboundAddressService from '#services/inbound_address_service'
 import { mailIdempotencyKey } from '#shared/helpers/mail'
 import { MAIL_KINDS, type SendMailContent, type SendMailPayload } from '#shared/types/mail'
 import { RFQ_DEADLINE_TIMEZONE, RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
@@ -32,7 +34,10 @@ interface MailAddress {
  * et ne renvoie que les lignes réellement basculées. Un second clic sur
  * « envoyer » est refusé par la machine à états, pas rattrapé ici.
  */
+@inject()
 export default class RfqNotificationService {
+  constructor(private inboundAddresses: InboundAddressService) {}
+
   /**
    * Met en queue un mail par adresse destinataire, **dans la langue de chaque
    * destinataire** (lien, échéance et texte). Renvoie le nombre de mails mis en
@@ -116,15 +121,21 @@ export default class RfqNotificationService {
   /**
    * Met en queue le mail `kind` pour chaque adresse du destinataire, sans jamais
    * propager un échec. Renvoie le nombre d'adresses visées et mises en queue.
+   *
+   * Chaque mail porte en `Reply-To` l'adresse relais du couple demande /
+   * fournisseur (#223) — la même pour toutes les adresses du fournisseur.
    */
   private async queueMails<K extends QueuedKind>(
     rfq: Rfq,
     recipient: RfqSupplier,
     kind: K,
     failureMessage: string,
-    buildData: (address: MailAddress) => Extract<SendMailContent, { kind: K }>['data']
+    buildData: (
+      address: MailAddress
+    ) => Omit<Extract<SendMailContent, { kind: K }>['data'], 'replyTo'>
   ): Promise<{ queued: number; total: number }> {
     const addresses = await this.addressesFor(recipient)
+    const replyTo = await this.inboundAddresses.addressFor(recipient)
     let queued = 0
 
     for (const address of addresses) {
@@ -138,7 +149,7 @@ export default class RfqNotificationService {
           }),
           to: address.email,
           locale: address.locale,
-          data: buildData(address),
+          data: { ...buildData(address), replyTo },
         } as SendMailPayload)
         queued += 1
       } catch (error) {

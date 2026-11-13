@@ -139,6 +139,23 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Réception des mails entrants (réponses des fournisseurs, ADR 0005)
+  |----------------------------------------------------------
+  | Toutes optionnelles : sans prestataire, domaine relais et clés, la
+  | réception est désactivée et les mails de demande partent sans `Reply-To`.
+  | `INBOUND_MAIL_SIGNING_KEY` vérifie la signature du webhook,
+  | `INBOUND_MAIL_API_KEY` lit le contenu des mails (web **et** worker).
+  */
+  INBOUND_MAIL_PROVIDER: Env.schema.enum.optional(['resend', 'none'] as const),
+  INBOUND_MAIL_DOMAIN: Env.schema.string.optional({ format: 'host' }),
+  INBOUND_MAIL_SIGNING_KEY: Env.schema.secret.optional(),
+  INBOUND_MAIL_API_KEY: Env.schema.secret.optional(),
+  INBOUND_MAIL_MAX_SIZE_MB: Env.schema.number.optional(),
+  INBOUND_MAIL_MAX_ATTACHMENT_SIZE_MB: Env.schema.number.optional(),
+  INBOUND_MAIL_GRACE_DAYS: Env.schema.number.optional(),
+
+  /*
+  |----------------------------------------------------------
   | Variables for configuring the limiter package
   |----------------------------------------------------------
   */
