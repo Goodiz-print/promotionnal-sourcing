@@ -104,6 +104,9 @@ Autres invariants :
   archivée n'a plus personne pour lire.
 - **`markViewed` ne régresse jamais** : une demande `responded`/`declined` ne
   redevient pas « consultée » parce que le fournisseur rouvre l'écran.
+- **`responded` par mail** (#224) : un destinataire passe aussi `responded` quand
+  il répond par mail en joignant un PDF (`markRespondedByMail`, voir
+  [`quotes.md`](quotes.md)), sans passer par l'application.
 - **Cloisonnement par organisation** : `findForBuyer` filtre sur
   `buyer_organization_id` dans la requête — une demande d'une autre
   organisation est un **404**, pas un 403 (ne pas laisser sonder l'existence

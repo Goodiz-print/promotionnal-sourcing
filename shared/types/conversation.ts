@@ -7,6 +7,28 @@
 export const MESSAGE_MAX_LENGTH = 5000
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Messages nés d'un mail entrant (#224)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Pièce jointe à rattacher à un message : son fichier est déjà sur Cellar. */
+export interface MessageAttachmentInput {
+  storageObjectId: number
+  filename: string
+  mimeType: string
+  sizeBytes: number
+}
+
+/**
+ * Message né d'un mail entrant. `inboundMailId` est sa clé d'idempotence : un
+ * mail ne donne qu'un message.
+ */
+export interface InboundMessageInput {
+  inboundMailId: number
+  body: string
+  attachments: MessageAttachmentInput[]
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Modération de la messagerie (#167)
 // ─────────────────────────────────────────────────────────────────────────────
 

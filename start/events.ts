@@ -16,6 +16,7 @@ import OrderShipped from '#events/order_shipped'
 import RfqSent from '#events/rfq_sent'
 import RfqDeclined from '#events/rfq_declined'
 import MemberJoined from '#events/member_joined'
+import InboundMailReceived from '#events/inbound_mail_received'
 
 emitter.on(UserRegistered, [() => import('#listeners/on_user_registered'), 'handle'])
 emitter.on(UserLoggedIn, [() => import('#listeners/on_user_logged_in'), 'handle'])
@@ -42,3 +43,4 @@ emitter.on(OrganizationCatalogueChanged, [
   () => import('#listeners/on_organization_catalogue_changed'),
   'handle',
 ])
+emitter.on(InboundMailReceived, [() => import('#listeners/on_inbound_mail_received'), 'handle'])

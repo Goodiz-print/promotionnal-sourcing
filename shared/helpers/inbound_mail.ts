@@ -124,3 +124,31 @@ export function matchesFileSignature(extension: string, bytes: Uint8Array): bool
 export function acceptedAttachmentType(filename: string): string | null {
   return INBOUND_ATTACHMENT_TYPES[fileExtension(filename)] ?? null
 }
+
+const HTML_ENTITIES: Record<string, string> = {
+  nbsp: ' ',
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  euro: '€',
+}
+
+/**
+ * Texte lisible d'un corps HTML, pour un mail sans partie texte : balises
+ * retirées, blocs et retours à la ligne conservés. Le résultat est du texte
+ * brut, jamais réinjecté comme HTML.
+ */
+export function htmlToText(html: string): string {
+  return html
+    .replace(/<(style|script|head)\b[^>]*>[\s\S]*?<\/\1>/gi, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|tr|li|h[1-6]|blockquote)>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&#(\d+);/g, (_, code: string) => String.fromCodePoint(Number(code)))
+    .replace(/&([a-z]+);/gi, (entity, name: string) => HTML_ENTITIES[name.toLowerCase()] ?? entity)
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}

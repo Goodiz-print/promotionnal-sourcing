@@ -3,6 +3,7 @@ import { verifySvixSignature, svixSignature } from '#services/inbound_mail/svix_
 import { InboundMailSignatureException } from '#exceptions/inbound_mail_errors'
 import {
   acceptedAttachmentType,
+  htmlToText,
   isAutomaticReply,
   matchesFileSignature,
   parseMailAddress,
@@ -147,5 +148,23 @@ test.group('Mails entrants — signature du webhook (Svix)', () => {
       () => verifySvixSignature({ ...SVIX, signature: 'v1,nope' }),
       InboundMailSignatureException
     )
+  })
+})
+
+test.group('Mails entrants — corps HTML réduit à du texte', () => {
+  test('retire balises, styles et scripts, garde les retours à la ligne', ({ assert }) => {
+    const html =
+      '<html><head><title>x</title></head><body><script>alert(1)</script>' +
+      '<div>Bonjour,</div><p>Prix&nbsp;: 12 &euro; &amp; port &lt;offert&gt;<br/>Délai&#32;: 3 semaines</p>' +
+      '<ul><li>Coton</li><li>Bio</li></ul></body></html>'
+
+    assert.equal(
+      htmlToText(html),
+      'Bonjour,\nPrix : 12 € & port <offert>\nDélai : 3 semaines\nCoton\nBio'
+    )
+  })
+
+  test('un HTML sans texte donne une chaîne vide', ({ assert }) => {
+    assert.equal(htmlToText('<p><img src="cid:logo"></p>'), '')
   })
 })

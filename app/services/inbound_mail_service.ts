@@ -67,8 +67,9 @@ type AttachmentLoader = (attachment: InboundAttachmentDescriptor) => Promise<Buf
  *     garde-fous, rattache le mail à son couple demande / fournisseur, copie les
  *     pièces jointes acceptées sur Cellar et émet `InboundMailReceived`.
  *
- * Ce service s'arrête là : interpréter la réponse comme un devis (#224) ou la
- * transmettre à l'agence (#225) est l'affaire des écouteurs de l'événement.
+ * Ce service s'arrête là : l'enregistrer comme message et comme devis
+ * (`SupplierReplyService`, #224) ou la transmettre à l'agence (#225) est
+ * l'affaire des écouteurs de l'événement.
  */
 @inject()
 export default class InboundMailService {

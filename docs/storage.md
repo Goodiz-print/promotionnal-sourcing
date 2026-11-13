@@ -142,3 +142,12 @@ de purge s'est perdu. Ne touche **jamais** une ligne `ready`.
   - `POST /fr/supplier/products/:id/documents` (champ `file`) et `DELETE /fr/supplier/products/:id/documents/:documentId` — droits `canManageProducts`.
 - **Validation** : PDF uniquement, 20 Mo maximum (`app/validators/document.ts`), et en-tête `%PDF-` vérifié au contenu.
 - **Non couvert** : interfaces (profil, annuaire public, formulaire produit).
+
+## Pièces jointes des réponses reçues par mail (#223, #224)
+
+- **Réception** (#223) : une pièce jointe acceptée est copiée telle quelle par `StorageService.storeContent` et référencée par `inbound_mail_attachments.storage_object_id` (`docs/mail.md`).
+- **Enregistrement** (#224) : `SupplierReplyService` rattache ces fichiers au message du fil par `message_attachments.storage_object_id`, ajoutée à `STORAGE_REFERENCES` (et à `OWNER_SELECTS` d'`AdminStorageService` : le fichier compte pour le fournisseur du fil).
+  - Une pièce qui n'est pas un PDF garde son fichier : le journal et le message référencent le même objet, rien n'est envoyé une seconde fois.
+  - Un **PDF est compressé** par `PdfService` (lu par `StorageService.read`) et stocké sous sa propre clé. Dans la transaction qui écrit le message, `inbound_mail_attachments` est repointée vers le fichier compressé et l'original est libéré (`StorageService.release`), puis purgé après le commit. Si la compression n'apporte rien, le fichier reçu est gardé.
+  - `quote_documents` ne porte pas de référence de stockage : le devis PDF désigne la pièce jointe du message.
+- **Zéro orphelin** : si la transaction échoue, les PDF compressés qui viennent d'être stockés sont libérés par `StorageService.discard` ; le fichier reçu reste référencé par le journal, et le traitement est rejoué.

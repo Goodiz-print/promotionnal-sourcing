@@ -754,6 +754,7 @@ export class ConversationSchema extends BaseModel {
     'createdByUserId',
     'id',
     'rfqId',
+    'rfqSupplierId',
     'subject',
     'supplierOrganizationId',
     'updatedAt',
@@ -775,6 +776,8 @@ export class ConversationSchema extends BaseModel {
   declare id: number
   @column()
   declare rfqId: number | null
+  @column()
+  declare rfqSupplierId: number | null
   @column()
   declare subject: string | null
   @column()
@@ -1092,6 +1095,36 @@ export class MarkingTechniqueSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class MessageAttachmentSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'filename',
+    'id',
+    'messageId',
+    'mimeType',
+    'sizeBytes',
+    'storageObjectId',
+    'updatedAt',
+  ] as const
+  $columns = MessageAttachmentSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare filename: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare messageId: number
+  @column()
+  declare mimeType: string
+  @column()
+  declare sizeBytes: number
+  @column()
+  declare storageObjectId: number | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class MessageReportSchema extends BaseModel {
   static $columns = [
     'createdAt',
@@ -1143,6 +1176,7 @@ export class MessageSchema extends BaseModel {
     'hiddenAt',
     'hiddenByUserId',
     'id',
+    'inboundMailId',
     'updatedAt',
   ] as const
   $columns = MessageSchema.$columns
@@ -1160,6 +1194,8 @@ export class MessageSchema extends BaseModel {
   declare hiddenByUserId: number | null
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare inboundMailId: number | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }
@@ -2196,6 +2232,36 @@ export class QuoteCartItemSchema extends BaseModel {
   declare userId: number
   @column()
   declare variantId: number | null
+}
+
+export class QuoteDocumentSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'id',
+    'messageAttachmentId',
+    'messageId',
+    'receivedAt',
+    'rfqId',
+    'rfqSupplierId',
+    'updatedAt',
+  ] as const
+  $columns = QuoteDocumentSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare messageAttachmentId: number
+  @column()
+  declare messageId: number
+  @column.dateTime()
+  declare receivedAt: DateTime
+  @column()
+  declare rfqId: number
+  @column()
+  declare rfqSupplierId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
 }
 
 export class QuoteItemSchema extends BaseModel {

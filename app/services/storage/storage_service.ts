@@ -65,6 +65,13 @@ export default class StorageService {
   }
 
   /**
+   * Contenu d'un objet stocké (ex. recompresser un PDF reçu par mail).
+   */
+  read(object: StorageObject): Promise<Buffer> {
+    return this.driver.get(object.key)
+  }
+
+  /**
    * Stocke un fichier (ou réutilise l'objet identique déjà stocké).
    */
   async store(file: MultipartFile): Promise<StorageObject> {

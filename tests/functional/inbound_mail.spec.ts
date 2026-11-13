@@ -3,7 +3,6 @@ import mail from '@adonisjs/mail/services/main'
 import app from '@adonisjs/core/services/app'
 import emitter from '@adonisjs/core/services/emitter'
 import { DateTime } from 'luxon'
-import type { ApiClient } from '@japa/api-client'
 import { InboundMailFactory } from '#database/factories/inbound_mail_factory'
 import { OrganizationFactory } from '#database/factories/organization_factory'
 import { RfqFactory } from '#database/factories/rfq_factory'
@@ -15,56 +14,33 @@ import InboundMail from '#models/inbound_mail'
 import InboundMailService from '#services/inbound_mail_service'
 import RfqSupplier from '#models/rfq_supplier'
 import StorageObject from '#models/storage_object'
-import { TEST_RELAY_DOMAIN, useFakeInboundMail } from '#tests/utils/inbound_mail'
+import { TEST_RELAY_DOMAIN, deliver, sentRfq, useFakeInboundMail } from '#tests/utils/inbound_mail'
+import { useFakeGhostscript } from '#tests/utils/pdf'
 import { createMember } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
 import { useFakeStorage } from '#tests/utils/storage'
-import type Organization from '#models/organization'
-import type Rfq from '#models/rfq'
-
-/** Demande publiée, envoyée à un fournisseur : le couple visé par l'adresse relais. */
-async function sentRfq(
-  rfqState: 'published' | 'expired' = 'published'
-): Promise<{ rfq: Rfq; supplier: Organization; recipient: RfqSupplier; address: string }> {
-  const buyer = await OrganizationFactory.create()
-  const supplier = await OrganizationFactory.apply('supplier')
-    .merge({ email: 'contact@fournisseur.test' })
-    .create()
-  const rfq = await RfqFactory.apply(rfqState).merge({ buyerOrganizationId: buyer.id }).create()
-  const created = await RfqSupplierFactory.apply('sent')
-    .merge({ rfqId: rfq.id, supplierOrganizationId: supplier.id })
-    .create()
-  // Le jeton est généré par la base : relire la ligne.
-  const recipient = await RfqSupplier.findOrFail(created.id)
-
-  return {
-    rfq,
-    supplier,
-    recipient,
-    address: `rfq-${recipient.replyToken}@${TEST_RELAY_DOMAIN}`,
-  }
-}
-
-/** Le prestataire appelle le webhook : sans session ni jeton CSRF. */
-function deliver(client: ApiClient, id: string, signature = 'valid') {
-  return client.post('/webhooks/inbound-mail').header('x-test-signature', signature).json({ id })
-}
 
 test.group('Mails entrants — webhook de réception', (group) => {
   useDatabase(group)
   const inbound = useFakeInboundMail(group)
   const storage = useFakeStorage(group)
+  // Ce groupe porte sur la réception : les PDF sont gardés tels quels (#224).
+  useFakeGhostscript(group, { available: false })
 
   test('une réponse signée est rattachée au bon couple demande / fournisseur', async ({
     client,
     assert,
+    cleanup,
   }) => {
     const { recipient, address } = await sentRfq()
     const other = await sentRfq()
     const events: InboundMailReceived[] = []
-    emitter.on(InboundMailReceived, (event) => {
-      events.push(event)
-    })
+    // Ne retirer que cet écouteur : celui de l'application (#224) doit rester.
+    cleanup(
+      emitter.on(InboundMailReceived, (event) => {
+        events.push(event)
+      })
+    )
     inbound.provider.add('mail-1', {
       to: address,
       from: 'Contact <Contact@Fournisseur.test>',
@@ -96,7 +72,7 @@ test.group('Mails entrants — webhook de réception', (group) => {
 
     assert.lengthOf(events, 1)
     assert.deepEqual(events[0].mail, { inboundMailId: journal.id, rfqSupplierId: recipient.id })
-  }).cleanup(() => emitter.clearListeners(InboundMailReceived))
+  })
 
   test('le même mail livré deux fois n’est traité qu’une fois', async ({ client, assert }) => {
     const { address } = await sentRfq()
@@ -120,12 +96,15 @@ test.group('Mails entrants — webhook de réception', (group) => {
   test('un mail d’absence automatique n’est pas pris pour une réponse', async ({
     client,
     assert,
+    cleanup,
   }) => {
     const { address, recipient } = await sentRfq()
     let emitted = 0
-    emitter.on(InboundMailReceived, () => {
-      emitted += 1
-    })
+    cleanup(
+      emitter.on(InboundMailReceived, () => {
+        emitted += 1
+      })
+    )
     inbound.provider.add('mail-1', {
       to: address,
       subject: 'Réponse automatique : absent du bureau',
@@ -145,7 +124,7 @@ test.group('Mails entrants — webhook de réception', (group) => {
     assert.lengthOf(journal.attachments, 0)
     assert.lengthOf(storage.driver.puts, 0)
     assert.equal(emitted, 0)
-  }).cleanup(() => emitter.clearListeners(InboundMailReceived))
+  })
 
   test('un mail vers une adresse inconnue est journalisé sans erreur', async ({
     client,
