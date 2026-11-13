@@ -10,6 +10,9 @@ import type { Locale } from '#shared/types/i18n'
  *
  * `rfqPath` est relatif — le template le préfixe avec le global `appUrl`
  * (cf. `shared/types/mail.ts`) ; il porte la langue du destinataire.
+ *
+ * `replyTo` est l'adresse relais du couple demande / fournisseur (#223) : le
+ * fournisseur répond depuis sa messagerie, la plateforme reçoit la réponse.
  */
 export default class RfqReceivedNotification extends LocalizedMail {
   constructor(
@@ -19,7 +22,8 @@ export default class RfqReceivedNotification extends LocalizedMail {
     private itemCount: number,
     private deadline: string | null,
     private rfqPath: string,
-    locale: Locale
+    locale: Locale,
+    private relayAddress: string | null = null
   ) {
     super(locale)
   }
@@ -28,6 +32,7 @@ export default class RfqReceivedNotification extends LocalizedMail {
     this.message
       .to(this.email)
       .subject(this.t('emails.rfqReceived.subject', { buyerName: this.buyerName }))
+    this.relayRepliesTo(this.relayAddress)
     this.htmlViewIn('emails/rfq_received', {
       buyerName: this.buyerName,
       rfqTitle: this.rfqTitle,

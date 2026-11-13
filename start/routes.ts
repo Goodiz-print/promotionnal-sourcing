@@ -24,6 +24,7 @@ import { registerMessagingRoutes } from '#start/routes/messaging'
 import { registerNotificationRoutes } from '#start/routes/notifications'
 import { registerDocumentRoutes } from '#start/routes/documents'
 import { registerHealthRoutes } from '#start/routes/health'
+import { registerInboundMailWebhookRoutes } from '#start/routes/inbound_mail'
 import {
   registerAdClickRoutes,
   registerAdminAdRoutes,
@@ -56,6 +57,7 @@ router.post('locale', [controllers.Locale, 'update']).as('locale.update')
 
 registerHealthRoutes()
 registerAdWebhookRoutes()
+registerInboundMailWebhookRoutes()
 
 /**
  * Toutes les routes applicatives vivent sous un préfixe de locale

@@ -240,6 +240,127 @@ et HTML des 5 mails dans les 9 langues, pluriels, échappement, symétrie des
 `emails.json`), et la langue de chaque destinataire d'une demande de devis par
 `tests/functional/rfq_mail_locale.spec.ts`.
 
+## Mails entrants (réponses des fournisseurs)
+
+Un fournisseur répond à une demande de devis depuis sa messagerie : la plateforme reçoit la réponse, l'authentifie, la rattache au couple demande / fournisseur et la journalise (#223). Le choix du prestataire, Resend, est motivé dans l'[ADR 0005](adr/0005-reception-mails-entrants.md).
+
+Cette brique s'arrête à la réception. Enregistrer la réponse comme un devis (#224), la transmettre à l'agence (#225) ou alimenter la messagerie (#226) se branche sur l'événement `InboundMailReceived`.
+
+### Adresse relais
+
+- Chaque couple demande / fournisseur a une adresse `rfq-<jeton>@<INBOUND_MAIL_DOMAIN>`.
+- Le jeton (`rfq_suppliers.reply_token`, 32 caractères hexadécimaux) est aléatoire et généré par la base à l'insertion de la ligne.
+- L'adresse est posée en `Reply-To` sur les mails `rfq-received` et `rfq-reminder` (`RfqNotificationService` → `InboundAddressService#addressFor`). Toutes les boîtes d'un même fournisseur reçoivent la même adresse.
+- Ces deux mails portent aussi `X-Auto-Response-Suppress: OOF, AutoReply`, qui demande à Outlook et Exchange de ne pas y répondre par un message d'absence.
+- **L'expéditeur n'authentifie rien** : un fournisseur répond souvent depuis une autre boîte. Le jeton fait foi ; `inbound_mails.sender_known` indique seulement si l'expéditeur est l'adresse de contact du fournisseur ou celle d'un de ses membres.
+- L'adresse reste valide tant que la demande est publiée, puis `INBOUND_MAIL_GRACE_DAYS` jours (30 par défaut) après sa clôture ou son expiration.
+- Sans configuration (dev, test, CI), aucun `Reply-To` n'est posé : les mails partent comme avant.
+
+### Variables d'environnement
+
+```env
+INBOUND_MAIL_PROVIDER=resend          # `none` ou absent : réception désactivée
+INBOUND_MAIL_DOMAIN=reply.example.com # sous-domaine dont les MX pointent vers Resend
+INBOUND_MAIL_SIGNING_KEY=whsec_…      # secret du webhook (signature)
+INBOUND_MAIL_API_KEY=re_…             # clé d'API : lecture du contenu des mails
+INBOUND_MAIL_MAX_SIZE_MB=25           # optionnel
+INBOUND_MAIL_MAX_ATTACHMENT_SIZE_MB=15 # optionnel
+INBOUND_MAIL_GRACE_DAYS=30            # optionnel
+```
+
+La réception n'est active que si le prestataire, le domaine et les deux clés sont renseignés. `INBOUND_MAIL_API_KEY` est lue par le **worker** : la définir sur les deux applications.
+
+### Parcours d'un mail
+
+1. Resend reçoit le mail sur le sous-domaine relais et appelle `POST /webhooks/inbound-mail` (`webhooks.inbound_mail`). La route est hors locale, hors session, exemptée de CSRF (`config/shield.ts`).
+2. `InboundMailService#receive` vérifie la signature Svix sur le **corps brut** (`svix-id`, `svix-timestamp`, `svix-signature`, écart d'horodatage de 5 minutes au plus), insère une ligne `inbound_mails` et met `ProcessInboundMailJob` en file.
+3. Le job (`InboundMailService#process`) lit le corps, les en-têtes et les pièces jointes par l'API Resend, applique les garde-fous, copie les pièces jointes acceptées sur Cellar, puis émet `InboundMailReceived`.
+
+Réponses du webhook :
+
+| Cas                                        | Code                      | Effet                                                                  |
+| ------------------------------------------ | ------------------------- | ---------------------------------------------------------------------- |
+| Mail journalisé                            | 200, `receipt: queued`    | Traitement mis en file                                                 |
+| Mail déjà journalisé                       | 200, `receipt: duplicate` | Rien, sauf s'il attendait encore son traitement : il est remis en file |
+| Événement autre que `email.received`       | 200, `receipt: ignored`   | Rien                                                                   |
+| Signature absente, fausse ou trop ancienne | 403                       | Rien n'est journalisé                                                  |
+| Réception non configurée                   | 503                       | Rien                                                                   |
+| Autre erreur                               | 500                       | Resend relance (8 tentatives sur environ 27 heures)                    |
+
+### Idempotence
+
+- `inbound_mails (provider, provider_message_id)` est unique, et l'insertion se fait en `ON CONFLICT DO NOTHING` : le même mail livré deux fois ne donne qu'une ligne.
+- Le job prend le mail par une bascule conditionnelle `received | failed → processing` : deux jobs concurrents n'en traitent qu'un, et un mail `processed` ou `rejected` n'est jamais repris. Un verrou `processing` sans mouvement depuis 15 minutes est celui d'un worker tué en plein traitement : il peut être repris.
+- `inbound_mail_attachments (inbound_mail_id, provider_attachment_id)` est unique : un job rejoué ne stocke pas deux fois la même pièce.
+
+### Écouteurs de `InboundMailReceived`
+
+L'événement est émis **au moins une fois**, pas exactement une fois. Si un écouteur lève, le mail repasse `failed`, le job est rejoué et l'événement est réémis, y compris pour les écouteurs qui avaient abouti. Tout écouteur (#224 à #226) doit donc être idempotent : vérifier par `inboundMailId` que son effet n'existe pas déjà avant de créer un devis, un message ou un envoi de mail.
+
+### Corps HTML
+
+`inbound_mails.html_body` est stocké tel que reçu, sans assainissement : il vient d'un tiers et peut contenir du script ou des images de pistage. Il ne doit jamais être rendu tel quel (`v-html`). Un écran qui l'affiche (#226, #227) l'assainit au rendu, ou affiche `text_body`.
+
+### Garde-fous
+
+Appliqués dans cet ordre ; le premier qui s'applique écarte le mail (`status = rejected`, motif dans `rejection_reason`) :
+
+| Motif             | Condition                                                                                                                                                                                                                                                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `too_large`       | Mail de plus de `INBOUND_MAIL_MAX_SIZE_MB`                                                                                                                                                                                                                                                                               |
+| `loop`            | Expéditeur = `MAIL_FROM_ADDRESS` ou une adresse du domaine relais                                                                                                                                                                                                                                                        |
+| `auto_reply`      | `Auto-Submitted` autre que `no`, `X-Auto-Response-Suppress: All` (les autres valeurs, posées par des CRM et des ERP sur des mails écrits par une personne, ne comptent pas), `X-Autoreply`, `Precedence: bulk/junk/list`, `Return-Path: <>`, rapport de non-remise, expéditeur `mailer-daemon`, `postmaster`, `no-reply` |
+| `unknown_address` | Aucun couple ne porte ce jeton, ou l'adresse n'est pas une adresse relais                                                                                                                                                                                                                                                |
+| `expired_address` | Demande close ou expirée depuis plus de `INBOUND_MAIL_GRACE_DAYS` jours                                                                                                                                                                                                                                                  |
+
+Un mail écarté n'est que journalisé (expéditeur, adresse visée, objet, en-têtes) : son corps et ses pièces jointes ne sont pas conservés.
+
+Pièces jointes d'un mail accepté, chacune journalisée dans `inbound_mail_attachments` :
+
+| Statut           | Condition                                                                                                                                                   |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `stored`         | Extension acceptée (`INBOUND_ATTACHMENT_TYPES` : PDF, PNG, JPEG, WebP, Word, Excel, OpenDocument, CSV), copiée sur Cellar par `StorageService#storeContent` |
+| `rejected_type`  | Autre extension, ou contenu qui n'est pas du format annoncé par l'extension (premiers octets du fichier, `matchesFileSignature`)                            |
+| `rejected_size`  | Plus de `INBOUND_MAIL_MAX_ATTACHMENT_SIZE_MB`                                                                                                               |
+| `ignored_inline` | Image intégrée au corps (logo de signature)                                                                                                                 |
+
+Une pièce refusée n'écarte pas le mail.
+
+### Journal
+
+`inbound_mails` : `provider`, `provider_message_id`, `message_id`, `rfq_supplier_id`, `recipient`, `sender_address`, `sender_name`, `sender_known`, `subject`, `text_body`, `html_body`, `headers`, `size_bytes`, `status` (`received`, `processing`, `processed`, `rejected`, `failed`), `rejection_reason`, `error`, `received_at`, `processed_at`.
+
+Un mail `failed` porte l'erreur du dernier essai ; le job est rejoué 5 fois avec un backoff de 30 secondes à 15 minutes.
+
+### Reprise des mails non aboutis
+
+Resend ne relance pas un webhook auquel l'application a répondu 200 : un mail journalisé mais non traité ne reviendra pas de lui-même. `RecoverInboundMailsJob`, planifié toutes les 15 minutes (`start/scheduler.ts`), remet donc en file (`InboundMailService#recoverStale`) les mails sans mouvement depuis 15 minutes qui sont encore :
+
+- `processing` : le worker a été tué en plein traitement (déploiement, crash) ;
+- `failed` : le job a épuisé ses tentatives, par exemple pendant une panne de l'API du prestataire ;
+- `received` : la mise en file s'est perdue.
+
+La reprise dure 24 heures après la réception. Au-delà, le mail reste `failed` avec son erreur, pour la supervision (#227). Les deux durées sont dans `config/inbound_mail.ts` (`staleAfterMinutes`, `recoveryWindowHours`).
+
+### Changer de prestataire
+
+Le code dépend de la classe abstraite `InboundMailProvider` (`app/services/inbound_mail/`), liée dans `providers/inbound_mail_provider.ts`. Un autre prestataire s'ajoute par une implémentation de ses trois méthodes : `parseWebhook`, `fetchContent`, `fetchAttachment`.
+
+### En local
+
+Il n'y a ni MX ni webhook en développement. La commande suivante fait passer un mail par les mêmes garde-fous, sans prestataire ni file :
+
+```bash
+node ace inbound-mail:simulate rfq-<jeton>@reply.localhost \
+  --from="Jean <jean@fournisseur.test>" --attachment=devis.pdf
+```
+
+`--auto-reply` simule un message d'absence. Pour que les mails de demande portent un `Reply-To` en local, renseigner les quatre variables (des valeurs factices suffisent pour le domaine et les clés).
+
+### Tests
+
+`tests/functional/inbound_mail.spec.ts` couvre le webhook (rattachement, doublon, réponse automatique, adresse inconnue ou expirée, signature invalide, pièces jointes, reprise après échec) et le `Reply-To`. `tests/unit/inbound_mail_helpers.spec.ts` couvre l'adresse relais, la détection des réponses automatiques et la signature Svix (vecteur de la documentation Svix). Le faux prestataire est dans `tests/utils/inbound_mail.ts` (`useFakeInboundMail(group)`).
+
 ## Références
 
 - [AdonisJS Mail — documentation officielle](https://docs.adonisjs.com/guides/digging-deeper/mail)

@@ -58,6 +58,13 @@ const OWNER_SELECTS: Record<ReferenceKey, string> = {
     FROM product_documents d
     JOIN products p ON p.id = d.product_id
     JOIN suppliers s ON s.id = p.supplier_id`,
+  // Pièce jointe d'une réponse reçue par mail : elle appartient au fournisseur
+  // qui l'a envoyée (#223).
+  'inbound_mail_attachments.storage_object_id': `
+    SELECT rs.supplier_organization_id AS organization_id, a.storage_object_id AS object_id
+    FROM inbound_mail_attachments a
+    JOIN inbound_mails m ON m.id = a.inbound_mail_id
+    JOIN rfq_suppliers rs ON rs.id = m.rfq_supplier_id`,
 }
 
 /** Couples (organisation, objet) distincts : un objet référencé deux fois par la même organisation compte une fois. */

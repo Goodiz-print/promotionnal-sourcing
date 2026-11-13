@@ -148,6 +148,19 @@ clever deploy --tag v1.3.2
 
 Si la release contenait une migration destructive, le rollback applicatif ne suffit pas.
 
+## Mails entrants (#223)
+
+Clever Cloud n'ouvre pas de port 25 entrant : les réponses des fournisseurs sont reçues par Resend, qui appelle `POST /webhooks/inbound-mail` (ADR 0005, `docs/mail.md`).
+
+Par environnement :
+
+1. Ajouter le sous-domaine relais (`reply.<domaine>`) dans Resend, activer la réception, poser chez le registrar l'enregistrement MX affiché par le tableau de bord. Le domaine principal garde ses MX.
+2. Créer dans Resend un webhook sur l'événement `email.received`, vers `https://<application>/webhooks/inbound-mail`.
+3. Définir `INBOUND_MAIL_PROVIDER=resend`, `INBOUND_MAIL_DOMAIN`, `INBOUND_MAIL_SIGNING_KEY` (secret du webhook) et `INBOUND_MAIL_API_KEY` sur les applications **web et worker**.
+4. Répondre à un mail de demande depuis une messagerie, puis contrôler la ligne dans `inbound_mails`.
+
+Utiliser un sous-domaine et un webhook distincts pour le staging et la production.
+
 ## Secrets
 
 - Secrets GitHub : token Clever Cloud pour le déploiement (`CLEVER_TOKEN`, `CLEVER_SECRET`), identifiants du registre si utilisé, clé API Meilisearch.
