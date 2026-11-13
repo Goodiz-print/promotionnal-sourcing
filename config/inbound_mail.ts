@@ -27,6 +27,14 @@ const inboundMailConfig = {
   maxAttachmentSizeBytes: (env.get('INBOUND_MAIL_MAX_ATTACHMENT_SIZE_MB') ?? 15) * MEGABYTE,
   /** Jours pendant lesquels l'adresse relais reste valide après la clôture ou l'expiration. */
   graceDays: env.get('INBOUND_MAIL_GRACE_DAYS') ?? 30,
+  /**
+   * Minutes sans mouvement après lesquelles un mail non abouti est repris : le
+   * verrou `processing` d'un worker tué, ou un mail dont le job a épuisé ses
+   * tentatives. Supérieur au plus long délai entre deux tentatives du job.
+   */
+  staleAfterMinutes: 15,
+  /** Heures pendant lesquelles un mail non abouti est repris après sa réception. */
+  recoveryWindowHours: 24,
   /** Écart d'horodatage toléré sur un webhook signé (anti-rejeu). */
   signatureToleranceSeconds: 300,
 }

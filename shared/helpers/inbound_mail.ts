@@ -64,7 +64,10 @@ export function isAutomaticReply(headers: Record<string, string>, senderAddress:
   if (autoSubmitted && !autoSubmitted.startsWith('no')) return true
 
   if ('x-autoreply' in headers || 'x-autorespond' in headers) return true
-  if ('x-auto-response-suppress' in headers) return true
+  // `All` est ce qu'Exchange pose sur ses propres messages automatiques. Les
+  // autres valeurs (`OOF, AutoReply`…) viennent d'applications — CRM, ERP — qui
+  // les posent sur des mails écrits par une personne : ce n'est pas un signal.
+  if (/^\s*all\s*$/i.test(headers['x-auto-response-suppress'] ?? '')) return true
   if (/^(bulk|junk|list|auto_reply)$/i.test(headers['precedence'] ?? '')) return true
   if ((headers['return-path'] ?? '').trim() === '<>') return true
   if (/multipart\/report/i.test(headers['content-type'] ?? '')) return true

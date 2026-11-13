@@ -290,20 +290,20 @@ Réponses du webhook :
 ### Idempotence
 
 - `inbound_mails (provider, provider_message_id)` est unique, et l'insertion se fait en `ON CONFLICT DO NOTHING` : le même mail livré deux fois ne donne qu'une ligne.
-- Le job prend le mail par une bascule conditionnelle `received | failed → processing` : deux jobs concurrents n'en traitent qu'un, et un mail `processed` ou `rejected` n'est jamais repris.
+- Le job prend le mail par une bascule conditionnelle `received | failed → processing` : deux jobs concurrents n'en traitent qu'un, et un mail `processed` ou `rejected` n'est jamais repris. Un verrou `processing` sans mouvement depuis 15 minutes est celui d'un worker tué en plein traitement : il peut être repris.
 - `inbound_mail_attachments (inbound_mail_id, provider_attachment_id)` est unique : un job rejoué ne stocke pas deux fois la même pièce.
 
 ### Garde-fous
 
 Appliqués dans cet ordre ; le premier qui s'applique écarte le mail (`status = rejected`, motif dans `rejection_reason`) :
 
-| Motif             | Condition                                                                                                                                                                                                |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `too_large`       | Mail de plus de `INBOUND_MAIL_MAX_SIZE_MB`                                                                                                                                                               |
-| `loop`            | Expéditeur = `MAIL_FROM_ADDRESS` ou une adresse du domaine relais                                                                                                                                        |
-| `auto_reply`      | `Auto-Submitted` autre que `no`, `X-Auto-Response-Suppress`, `X-Autoreply`, `Precedence: bulk/junk/list`, `Return-Path: <>`, rapport de non-remise, expéditeur `mailer-daemon`, `postmaster`, `no-reply` |
-| `unknown_address` | Aucun couple ne porte ce jeton, ou l'adresse n'est pas une adresse relais                                                                                                                                |
-| `expired_address` | Demande close ou expirée depuis plus de `INBOUND_MAIL_GRACE_DAYS` jours                                                                                                                                  |
+| Motif             | Condition                                                                                                                                                                                                                                                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `too_large`       | Mail de plus de `INBOUND_MAIL_MAX_SIZE_MB`                                                                                                                                                                                                                                                                               |
+| `loop`            | Expéditeur = `MAIL_FROM_ADDRESS` ou une adresse du domaine relais                                                                                                                                                                                                                                                        |
+| `auto_reply`      | `Auto-Submitted` autre que `no`, `X-Auto-Response-Suppress: All` (les autres valeurs, posées par des CRM et des ERP sur des mails écrits par une personne, ne comptent pas), `X-Autoreply`, `Precedence: bulk/junk/list`, `Return-Path: <>`, rapport de non-remise, expéditeur `mailer-daemon`, `postmaster`, `no-reply` |
+| `unknown_address` | Aucun couple ne porte ce jeton, ou l'adresse n'est pas une adresse relais                                                                                                                                                                                                                                                |
+| `expired_address` | Demande close ou expirée depuis plus de `INBOUND_MAIL_GRACE_DAYS` jours                                                                                                                                                                                                                                                  |
 
 Un mail écarté n'est que journalisé (expéditeur, adresse visée, objet, en-têtes) : son corps et ses pièces jointes ne sont pas conservés.
 
@@ -323,6 +323,16 @@ Une pièce refusée n'écarte pas le mail.
 `inbound_mails` : `provider`, `provider_message_id`, `message_id`, `rfq_supplier_id`, `recipient`, `sender_address`, `sender_name`, `sender_known`, `subject`, `text_body`, `html_body`, `headers`, `size_bytes`, `status` (`received`, `processing`, `processed`, `rejected`, `failed`), `rejection_reason`, `error`, `received_at`, `processed_at`.
 
 Un mail `failed` porte l'erreur du dernier essai ; le job est rejoué 5 fois avec un backoff de 30 secondes à 15 minutes.
+
+### Reprise des mails non aboutis
+
+Resend ne relance pas un webhook auquel l'application a répondu 200 : un mail journalisé mais non traité ne reviendra pas de lui-même. `RecoverInboundMailsJob`, planifié toutes les 15 minutes (`start/scheduler.ts`), remet donc en file (`InboundMailService#recoverStale`) les mails sans mouvement depuis 15 minutes qui sont encore :
+
+- `processing` : le worker a été tué en plein traitement (déploiement, crash) ;
+- `failed` : le job a épuisé ses tentatives, par exemple pendant une panne de l'API du prestataire ;
+- `received` : la mise en file s'est perdue.
+
+La reprise dure 24 heures après la réception. Au-delà, le mail reste `failed` avec son erreur, pour la supervision (#227). Les deux durées sont dans `config/inbound_mail.ts` (`staleAfterMinutes`, `recoveryWindowHours`).
 
 ### Changer de prestataire
 

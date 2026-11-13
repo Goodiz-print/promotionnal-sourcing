@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import inboundMailConfig from '#config/inbound_mail'
-import { replyAddress, replyTokenFrom } from '#shared/helpers/inbound_mail'
+import { parseMailAddress, replyAddress, replyTokenFrom } from '#shared/helpers/inbound_mail'
 import type Rfq from '#models/rfq'
 import type RfqSupplier from '#models/rfq_supplier'
 
@@ -38,10 +38,13 @@ export default class InboundAddressService {
     return domain ? replyTokenFrom(recipients, domain) : null
   }
 
-  /** L'adresse appartient-elle au domaine relais (détection des boucles) ? */
+  /**
+   * L'adresse appartient-elle au domaine relais (détection des boucles) ?
+   * Accepte la forme `Nom <adresse>`.
+   */
   isRelayAddress(address: string): boolean {
     const domain = inboundMailConfig.domain
-    return Boolean(domain) && address.toLowerCase().endsWith(`@${domain}`)
+    return Boolean(domain) && parseMailAddress(address).address.endsWith(`@${domain}`)
   }
 
   /**

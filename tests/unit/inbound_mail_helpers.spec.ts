@@ -72,6 +72,10 @@ test.group('Mails entrants — réponses automatiques', () => {
     assert.isFalse(isAutomaticReply({ 'auto-submitted': 'no' }, 'jean@f.test'))
     assert.isFalse(isAutomaticReply({ 'return-path': '<jean@f.test>' }, 'jean@f.test'))
     assert.isFalse(isAutomaticReply({}, 'norbert@f.test'))
+    // Posé par des CRM et des ERP sur des mails écrits par une personne.
+    assert.isFalse(
+      isAutomaticReply({ 'x-auto-response-suppress': 'OOF, AutoReply' }, 'jean@f.test')
+    )
   })
 
   test('n’accepte que les types de pièces jointes prévus', ({ assert }) => {

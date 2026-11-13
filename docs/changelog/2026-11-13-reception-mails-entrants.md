@@ -19,6 +19,7 @@ Fondation du parcours devis par mail (#223) : un fournisseur répond à une dema
 - Route `POST /webhooks/inbound-mail` (`webhooks.inbound_mail`) : hors locale, hors session, exemptée de CSRF, authentifiée par la signature Svix du prestataire. 200 quand le mail est journalisé (doublon et adresse inconnue compris), 403 si la signature est invalide, 503 si la réception n'est pas configurée.
 - Tables `inbound_mails` (journal, unique sur `provider` + `provider_message_id`) et `inbound_mail_attachments` (pièces jointes, référencée dans `STORAGE_REFERENCES`).
 - `ProcessInboundMailJob` lit le contenu chez le prestataire, applique les garde-fous et copie les pièces jointes acceptées sur Cellar.
+- `RecoverInboundMailsJob`, toutes les 15 minutes : remet en file les mails restés `processing` (worker tué), `failed` (tentatives épuisées) ou `received` (mise en file perdue), pendant 24 heures après la réception.
 - Garde-fous : `too_large`, `loop`, `auto_reply`, `unknown_address`, `expired_address`. Pièces jointes : `stored`, `rejected_type`, `rejected_size`, `ignored_inline`.
 - Événement `InboundMailReceived` (`inboundMailId`, `rfqSupplierId`) émis pour chaque réponse acceptée. Aucun écouteur pour l'instant : le statut du couple et la création du devis relèvent de #224.
 

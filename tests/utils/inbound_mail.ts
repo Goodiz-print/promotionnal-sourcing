@@ -15,6 +15,10 @@ export const TEST_RELAY_DOMAIN = 'reply.test'
 /** Mail tel que le faux prestataire le connaît : métadonnées, contenu et fichiers. */
 export interface FakeInboundMail {
   to: string
+  /** Destinataires annoncés par le webhook, si ce n'est pas `to` seul. */
+  recipients?: string[]
+  /** Date de réception annoncée, si ce n'est pas l'instant présent en ISO. */
+  receivedAt?: string
   from?: string
   subject?: string
   text?: string
@@ -54,11 +58,11 @@ export class FakeInboundMailProvider extends InboundMailProvider {
 
     return {
       providerMessageId: id,
-      recipients: [mail.to],
+      recipients: mail.recipients ?? [mail.to],
       from: mail.from ?? 'Jean Dupont <jean@fournisseur.test>',
       subject: mail.subject ?? 'Re: demande de devis',
       messageId: `<${id}@fournisseur.test>`,
-      receivedAt: new Date().toISOString(),
+      receivedAt: mail.receivedAt ?? new Date().toISOString(),
     }
   }
 

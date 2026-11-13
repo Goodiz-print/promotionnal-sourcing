@@ -34,6 +34,22 @@ import {
   type InboundWebhookHeaders,
 } from '#shared/types/inbound_mail'
 
+/** Longueurs des colonnes de `inbound_mails` : une valeur trop longue est tronquée. */
+const ADDRESS_MAX = 320
+const NAME_MAX = 255
+
+/**
+ * Date de réception annoncée par le prestataire. Resend écrit ses dates en ISO
+ * (`2026-02-22T23:41:11Z`) ou à la façon de PostgreSQL (`2026-02-22 23:41:11+00`)
+ * selon l'appel ; une date illisible ne doit pas empêcher de journaliser le mail.
+ */
+function receivedDate(value: string): Date {
+  const iso = DateTime.fromISO(value, { setZone: true })
+  if (iso.isValid) return iso.toJSDate()
+  const sql = DateTime.fromSQL(value, { setZone: true })
+  return sql.isValid ? sql.toJSDate() : new Date()
+}
+
 /** Lit le contenu d'une pièce jointe (prestataire, ou fichier local en simulation). */
 type AttachmentLoader = (attachment: InboundAttachmentDescriptor) => Promise<Buffer>
 
@@ -123,6 +139,11 @@ export default class InboundMailService {
   ): Promise<{ id: number; created: boolean }> {
     const sender = parseMailAddress(notification.from)
     const token = this.addresses.tokenFrom(notification.recipients)
+    // L'adresse relais, où qu'elle soit parmi les destinataires et quelle que
+    // soit sa forme (`Nom <adresse>`) : le traitement relit cette colonne.
+    const recipient =
+      notification.recipients.find((address) => this.addresses.isRelayAddress(address)) ??
+      notification.recipients[0]
     const now = new Date()
 
     const inserted = await db
@@ -131,18 +152,15 @@ export default class InboundMailService {
         provider,
         provider_message_id: notification.providerMessageId,
         message_id: notification.messageId,
-        recipient:
-          notification.recipients.find((address) => this.addresses.isRelayAddress(address)) ??
-          notification.recipients[0] ??
-          null,
-        sender_address: sender.address,
-        sender_name: sender.name,
+        recipient: recipient ? parseMailAddress(recipient).address.slice(0, ADDRESS_MAX) : null,
+        sender_address: sender.address.slice(0, ADDRESS_MAX),
+        sender_name: sender.name?.slice(0, NAME_MAX) ?? null,
         subject: notification.subject,
         status: INBOUND_MAIL_STATUSES.received,
         // Résolu ici pour que le journal désigne le couple même si le
         // traitement échoue ; le worker le revérifie.
         rfq_supplier_id: token ? await this.recipientIdFor(token) : null,
-        received_at: DateTime.fromISO(notification.receivedAt).toJSDate(),
+        received_at: receivedDate(notification.receivedAt),
         created_at: now,
         updated_at: now,
       })
@@ -219,7 +237,11 @@ export default class InboundMailService {
     } catch (error) {
       await InboundMail.query()
         .where('id', inboundMailId)
-        .update({ status: INBOUND_MAIL_STATUSES.failed, error: (error as Error).message })
+        .update({
+          status: INBOUND_MAIL_STATUSES.failed,
+          error: (error as Error).message,
+          updated_at: new Date(),
+        })
       throw error
     }
   }
@@ -227,14 +249,59 @@ export default class InboundMailService {
   /**
    * Bascule conditionnelle vers `processing` : deux jobs concurrents pour le
    * même mail (webhook relancé) n'en traitent qu'un. Un mail déjà traité ou
-   * écarté n'est jamais repris.
+   * écarté n'est jamais repris. Un verrou `processing` resté posé au-delà de
+   * `staleAfterMinutes` est celui d'un worker tué en plein traitement : il est
+   * repris.
    */
   private async claim(inboundMailId: number): Promise<boolean> {
     const claimed = await InboundMail.query()
       .where('id', inboundMailId)
-      .whereIn('status', [INBOUND_MAIL_STATUSES.received, INBOUND_MAIL_STATUSES.failed])
-      .update({ status: INBOUND_MAIL_STATUSES.processing })
+      .where((open) => {
+        open
+          .whereIn('status', [INBOUND_MAIL_STATUSES.received, INBOUND_MAIL_STATUSES.failed])
+          .orWhere((stale) => {
+            stale
+              .where('status', INBOUND_MAIL_STATUSES.processing)
+              .where('updated_at', '<', this.staleBefore())
+          })
+      })
+      .update({ status: INBOUND_MAIL_STATUSES.processing, updated_at: new Date() })
     return Number(claimed[0] ?? claimed) > 0
+  }
+
+  private staleBefore(): Date {
+    return DateTime.now().minus({ minutes: inboundMailConfig.staleAfterMinutes }).toJSDate()
+  }
+
+  /**
+   * Reprise planifiée (`RecoverInboundMailsJob`) : remet en file les mails qui
+   * n'ont pas abouti et que plus rien ne rejouera — verrou `processing`
+   * abandonné, tentatives du job épuisées (`failed`), mise en file perdue
+   * (`received`). Le prestataire, lui, ne relance pas : le webhook a répondu 200.
+   *
+   * Seuls les mails au repos depuis `staleAfterMinutes` sont repris (le job en
+   * cours a encore ses propres tentatives), et seulement pendant
+   * `recoveryWindowHours` après réception : au-delà, la ligne reste `failed`
+   * pour la supervision.
+   */
+  async recoverStale(): Promise<number> {
+    const stale = await InboundMail.query()
+      .whereIn('status', [
+        INBOUND_MAIL_STATUSES.received,
+        INBOUND_MAIL_STATUSES.processing,
+        INBOUND_MAIL_STATUSES.failed,
+      ])
+      .where('updated_at', '<', this.staleBefore())
+      .where(
+        'received_at',
+        '>',
+        DateTime.now().minus({ hours: inboundMailConfig.recoveryWindowHours }).toJSDate()
+      )
+      .select('id')
+      .orderBy('id')
+
+    for (const mail of stale) await ProcessInboundMailJob.dispatch({ inboundMailId: mail.id })
+    return stale.length
   }
 
   private async resolveRecipient(mail: InboundMail): Promise<RfqSupplier | null> {

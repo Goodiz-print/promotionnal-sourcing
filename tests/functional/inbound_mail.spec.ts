@@ -280,6 +280,71 @@ test.group('Mails entrants — webhook de réception', (group) => {
     await inboundMails.process(journal.id)
     assert.equal(inbound.provider.contentFetches, 2)
   })
+
+  test('l’adresse relais est retrouvée parmi plusieurs destinataires, sous toutes ses formes', async ({
+    client,
+    assert,
+  }) => {
+    const { address, recipient } = await sentRfq()
+    inbound.provider.add('mail-1', {
+      to: address,
+      recipients: ['Achats <achats@agence.test>', `Demande de devis <${address.toUpperCase()}>`],
+      from: `${'Très long nom '.repeat(40)}<jean@fournisseur.test>`,
+      // Date à la façon de PostgreSQL, que `DateTime.fromISO` ne lit pas.
+      receivedAt: '2026-11-13 08:30:00.894719+00',
+    })
+
+    const response = await deliver(client, 'mail-1')
+
+    response.assertStatus(200)
+    const journal = await InboundMail.firstOrFail()
+    assert.equal(journal.status, 'processed')
+    assert.equal(journal.rfqSupplierId, recipient.id)
+    assert.equal(journal.recipient, address)
+    assert.lengthOf(journal.senderName!, 255)
+    assert.equal(journal.receivedAt.toUTC().toISO(), '2026-11-13T08:30:00.894Z')
+  })
+
+  test('un verrou abandonné et un mail en échec sont repris par la reprise planifiée', async ({
+    assert,
+  }) => {
+    const { address } = await sentRfq()
+    const journalIn = async (id: string, status: 'processing' | 'failed', receivedAt: DateTime) =>
+      InboundMailFactory.merge({
+        providerMessageId: inbound.provider.add(id, { to: address }),
+        recipient: address,
+        status,
+        receivedAt,
+      }).create()
+    const idle = (ids: number[], minutes: number) =>
+      InboundMail.query()
+        .whereIn('id', ids)
+        .update({ updated_at: DateTime.now().minus({ minutes }).toJSDate() })
+
+    const now = DateTime.now()
+    const killed = await journalIn('killed', 'processing', now)
+    const exhausted = await journalIn('exhausted', 'failed', now)
+    const running = await journalIn('running', 'processing', now)
+    const tooOld = await journalIn('too-old', 'failed', now.minus({ days: 2 }))
+    await idle([killed.id, exhausted.id, tooOld.id], 20)
+    const inboundMails = await app.container.make(InboundMailService)
+
+    // Un traitement en cours n'est pas repris par un second job.
+    await inboundMails.process(running.id)
+    assert.equal(inbound.provider.contentFetches, 0)
+
+    const recovered = await inboundMails.recoverStale()
+
+    assert.equal(recovered, 2)
+    const statusOf = async (id: number) => {
+      const journal = await InboundMail.findOrFail(id)
+      return journal.status
+    }
+    assert.equal(await statusOf(killed.id), 'processed')
+    assert.equal(await statusOf(exhausted.id), 'processed')
+    assert.equal(await statusOf(running.id), 'processing')
+    assert.equal(await statusOf(tooOld.id), 'failed')
+  })
 })
 
 test.group('Mails entrants — Reply-To des mails de demande', (group) => {

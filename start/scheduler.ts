@@ -24,6 +24,7 @@ import PurgeSearchEventsJob from '#jobs/purge_search_events_job'
 import PurgeAiCallsJob from '#jobs/purge_ai_calls_job'
 import PurgeActivityEventsJob from '#jobs/purge_activity_events_job'
 import CheckPlatformHealthJob from '#jobs/check_platform_health_job'
+import RecoverInboundMailsJob from '#jobs/recover_inbound_mails_job'
 
 /**
  * Purge quotidienne des invitations d'organisation (bascule `pending` échues en
@@ -105,3 +106,11 @@ await PurgeAiCallsJob.schedule({})
  * panne.
  */
 await CheckPlatformHealthJob.schedule({}).id('check-platform-health').cron('*/5 * * * *').run()
+
+/**
+ * Reprise des mails entrants non aboutis, toutes les 15 minutes (#223) : worker
+ * tué en plein traitement, tentatives du job épuisées pendant une panne du
+ * prestataire — cf. `InboundMailService#recoverStale`. Sans elle ces mails
+ * seraient perdus : le prestataire ne relance pas un webhook qui a répondu 200.
+ */
+await RecoverInboundMailsJob.schedule({}).id('recover-inbound-mails').cron('*/15 * * * *').run()
