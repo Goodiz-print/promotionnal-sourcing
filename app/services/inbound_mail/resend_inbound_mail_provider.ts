@@ -15,6 +15,11 @@ import type {
 
 const API = 'https://api.resend.com'
 const RECEIVED_EVENT = 'email.received'
+/**
+ * Début du mail d'origine lu pour ses en-têtes. Large : les en-têtes `Received`,
+ * `DKIM-Signature` et `ARC-*` d'un mail relayé plusieurs fois pèsent lourd.
+ */
+const RAW_HEAD_BYTES = 256 * 1024
 
 /** Événement `email.received` : métadonnées seules. */
 interface ResendReceivedEvent {
@@ -60,7 +65,9 @@ interface ResendReceivedEmail {
  * En-têtes : la réponse de l'API n'en garantit qu'un sous-ensemble. Quand le
  * mail d'origine (`raw.download_url`, fichier `.eml`) est disponible, ses
  * en-têtes complètent ceux de l'API — le filtrage des réponses automatiques en
- * dépend (`Auto-Submitted`, `Precedence`).
+ * dépend (`Auto-Submitted`, `Precedence`). Seul le début du fichier est lu
+ * (`RAW_HEAD_BYTES`) : un mail de 40 Mo n'est jamais chargé en mémoire, sa
+ * taille vient des en-têtes de la réponse HTTP.
  */
 export default class ResendInboundMailProvider extends InboundMailProvider {
   readonly name = 'resend'
@@ -104,7 +111,7 @@ export default class ResendInboundMailProvider extends InboundMailProvider {
     )
 
     const raw = email.raw?.download_url
-      ? await this.download(email.raw.download_url, 'download raw email')
+      ? await this.downloadHead(email.raw.download_url, 'download raw email')
       : null
 
     return {
@@ -112,9 +119,9 @@ export default class ResendInboundMailProvider extends InboundMailProvider {
       html: email.html ?? null,
       headers: {
         ...lowercaseKeys(email.headers ?? {}),
-        ...(raw ? parseRawHeaders(raw.toString('latin1')) : {}),
+        ...(raw ? parseRawHeaders(raw.head.toString('latin1')) : {}),
       },
-      sizeBytes: raw?.length ?? null,
+      sizeBytes: raw?.totalBytes ?? null,
       attachments: (email.attachments ?? []).map(toDescriptor),
     }
   }
@@ -151,6 +158,45 @@ export default class ResendInboundMailProvider extends InboundMailProvider {
     if (!response.ok) throw new InboundMailProviderException(operation, response.status)
     return Buffer.from(await response.arrayBuffer())
   }
+
+  /**
+   * Les `RAW_HEAD_BYTES` premiers octets d'un fichier et sa taille totale. La
+   * tranche est demandée par `Range` ; si le serveur l'ignore et renvoie tout
+   * le fichier, la lecture est interrompue une fois la tranche obtenue.
+   */
+  private async downloadHead(
+    url: string,
+    operation: string
+  ): Promise<{ head: Buffer; totalBytes: number | null }> {
+    const response = await fetch(url, { headers: { Range: `bytes=0-${RAW_HEAD_BYTES - 1}` } })
+    if (!response.ok) throw new InboundMailProviderException(operation, response.status)
+
+    const chunks: Uint8Array[] = []
+    let read = 0
+    const reader = response.body?.getReader()
+    while (reader && read < RAW_HEAD_BYTES) {
+      const { done, value } = await reader.read()
+      if (done) break
+      chunks.push(value)
+      read += value.length
+    }
+    await reader?.cancel()
+
+    return {
+      head: Buffer.concat(chunks).subarray(0, RAW_HEAD_BYTES),
+      totalBytes: totalBytesOf(response),
+    }
+  }
+}
+
+/** Taille du fichier entier : `Content-Range` d'une tranche (206), sinon `Content-Length`. */
+function totalBytesOf(response: Response): number | null {
+  const header =
+    response.status === 206
+      ? response.headers.get('content-range')?.match(/\/(\d+)\s*$/)?.[1]
+      : response.headers.get('content-length')
+  const total = Number(header)
+  return header && Number.isFinite(total) ? total : null
 }
 
 function single(value: string | string[] | undefined): string | undefined {

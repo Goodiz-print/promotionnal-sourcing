@@ -20,6 +20,8 @@ Fondation du parcours devis par mail (#223) : un fournisseur répond à une dema
 - Tables `inbound_mails` (journal, unique sur `provider` + `provider_message_id`) et `inbound_mail_attachments` (pièces jointes, référencée dans `STORAGE_REFERENCES`).
 - `ProcessInboundMailJob` lit le contenu chez le prestataire, applique les garde-fous et copie les pièces jointes acceptées sur Cellar.
 - `RecoverInboundMailsJob`, toutes les 15 minutes : remet en file les mails restés `processing` (worker tué), `failed` (tentatives épuisées) ou `received` (mise en file perdue), pendant 24 heures après la réception.
+- Le mail d'origine (`.eml`) n'est lu que sur ses 256 premiers kilo-octets, pour ses en-têtes ; sa taille vient de la réponse HTTP.
+- Une pièce jointe dont le contenu n'est pas du format annoncé par son extension est refusée (`rejected_type`).
 - Garde-fous : `too_large`, `loop`, `auto_reply`, `unknown_address`, `expired_address`. Pièces jointes : `stored`, `rejected_type`, `rejected_size`, `ignored_inline`.
 - Événement `InboundMailReceived` (`inboundMailId`, `rfqSupplierId`) émis pour chaque réponse acceptée. Aucun écouteur pour l'instant : le statut du couple et la création du devis relèvent de #224.
 
@@ -31,4 +33,4 @@ Fondation du parcours devis par mail (#223) : un fournisseur répond à une dema
 
 ## Tests
 
-- `tests/functional/inbound_mail.spec.ts`, `tests/unit/inbound_mail_helpers.spec.ts`, faux prestataire `tests/utils/inbound_mail.ts`.
+- `tests/unit/resend_inbound_mail_provider.spec.ts` (webhook signé, lecture du contenu et des pièces jointes, `fetch` simulé), `tests/functional/inbound_mail.spec.ts`, `tests/unit/inbound_mail_helpers.spec.ts`, faux prestataire `tests/utils/inbound_mail.ts`.

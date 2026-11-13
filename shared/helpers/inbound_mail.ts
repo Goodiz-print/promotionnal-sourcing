@@ -81,6 +81,45 @@ export function fileExtension(filename: string): string {
   return dot <= 0 ? '' : filename.slice(dot + 1).toLowerCase()
 }
 
+/** Premiers octets attendus selon l'extension (« nombre magique » du format). */
+const ZIP = [0x50, 0x4b, 0x03, 0x04]
+const OLE = [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]
+const FILE_SIGNATURES: Record<string, number[]> = {
+  pdf: [0x25, 0x50, 0x44, 0x46, 0x2d],
+  png: [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a],
+  jpg: [0xff, 0xd8, 0xff],
+  jpeg: [0xff, 0xd8, 0xff],
+  webp: [0x52, 0x49, 0x46, 0x46],
+  doc: OLE,
+  xls: OLE,
+  docx: ZIP,
+  xlsx: ZIP,
+  ods: ZIP,
+  odt: ZIP,
+}
+const WEBP_MARK = [0x57, 0x45, 0x42, 0x50]
+/** Octets inspectés d'un fichier texte, à la recherche d'un octet nul. */
+const TEXT_PROBE_BYTES = 8192
+
+function startsWith(bytes: Uint8Array, signature: number[], offset = 0): boolean {
+  return signature.every((byte, index) => bytes[offset + index] === byte)
+}
+
+/**
+ * Le contenu correspond-il au format que son extension annonce ? Écarte un
+ * fichier déguisé (un exécutable renommé `devis.pdf`). Un CSV n'a pas de
+ * signature : il suffit qu'il ne contienne pas d'octet nul, signe d'un binaire.
+ * Une extension sans signature connue est refusée.
+ */
+export function matchesFileSignature(extension: string, bytes: Uint8Array): boolean {
+  if (extension === 'csv') return !bytes.subarray(0, TEXT_PROBE_BYTES).includes(0)
+
+  const signature = FILE_SIGNATURES[extension]
+  if (!signature || !startsWith(bytes, signature)) return false
+  // `RIFF` ouvre aussi un WAV ou un AVI : le format est nommé à l'octet 8.
+  return extension !== 'webp' || startsWith(bytes, WEBP_MARK, 8)
+}
+
 /** Type MIME à stocker pour une pièce jointe acceptée, `null` si elle est refusée. */
 export function acceptedAttachmentType(filename: string): string | null {
   return INBOUND_ATTACHMENT_TYPES[fileExtension(filename)] ?? null

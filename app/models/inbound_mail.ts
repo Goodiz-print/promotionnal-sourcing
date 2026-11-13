@@ -16,6 +16,13 @@ export default class InboundMail extends InboundMailSchema {
   declare rejectionReason: InboundMailRejection | null
   declare headers: Record<string, string> | null
 
+  /**
+   * Corps HTML **tel que reçu**, jamais assaini : il vient d'un tiers. À ne
+   * jamais rendre tel quel (`v-html`) — l'assainir à l'affichage, ou afficher
+   * `textBody` (cf. `docs/mail.md`).
+   */
+  declare htmlBody: string | null
+
   @belongsTo(() => RfqSupplier)
   declare rfqSupplier: BelongsTo<typeof RfqSupplier>
 

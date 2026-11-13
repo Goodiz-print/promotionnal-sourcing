@@ -19,6 +19,7 @@ import {
   acceptedAttachmentType,
   fileExtension,
   isAutomaticReply,
+  matchesFileSignature,
   parseMailAddress,
 } from '#shared/helpers/inbound_mail'
 import {
@@ -370,6 +371,18 @@ export default class InboundMailService {
           mail,
           { ...attachment, sizeBytes: content.length },
           INBOUND_ATTACHMENT_STATUSES.rejectedSize,
+          null,
+          null
+        )
+        continue
+      }
+
+      // L'extension ne prouve rien : le contenu doit être du format annoncé.
+      if (!matchesFileSignature(fileExtension(attachment.filename), content)) {
+        await this.recordAttachment(
+          mail,
+          { ...attachment, sizeBytes: content.length },
+          INBOUND_ATTACHMENT_STATUSES.rejectedType,
           null,
           null
         )

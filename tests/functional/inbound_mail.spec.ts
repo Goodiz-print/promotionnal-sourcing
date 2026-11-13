@@ -227,6 +227,8 @@ test.group('Mails entrants — webhook de réception', (group) => {
       attachments: [
         { filename: 'devis.pdf', content: '%PDF-1.7 devis' },
         { filename: 'outil.exe', content: 'MZ' },
+        // Exécutable renommé : l'extension est acceptée, pas le contenu.
+        { filename: 'tarifs.pdf', content: 'MZ déguisé' },
         { filename: 'logo.png', content: 'png', inline: true },
         // Sous la limite du mail (25 Mo), au-dessus de celle d'une pièce (15 Mo).
         { filename: 'catalogue.pdf', sizeBytes: 20 * 1024 * 1024 },
@@ -245,6 +247,7 @@ test.group('Mails entrants — webhook de réception', (group) => {
       [
         ['devis.pdf', 'stored'],
         ['outil.exe', 'rejected_type'],
+        ['tarifs.pdf', 'rejected_type'],
         ['logo.png', 'ignored_inline'],
         ['catalogue.pdf', 'rejected_size'],
       ]

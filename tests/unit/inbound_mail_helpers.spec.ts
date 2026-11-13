@@ -4,6 +4,7 @@ import { InboundMailSignatureException } from '#exceptions/inbound_mail_errors'
 import {
   acceptedAttachmentType,
   isAutomaticReply,
+  matchesFileSignature,
   parseMailAddress,
   parseRawHeaders,
   replyAddress,
@@ -84,6 +85,30 @@ test.group('Mails entrants — réponses automatiques', () => {
     assert.isNull(acceptedAttachmentType('macro.xlsm'))
     assert.isNull(acceptedAttachmentType('installeur.exe'))
     assert.isNull(acceptedAttachmentType('sans-extension'))
+  })
+
+  test('vérifie que le contenu est du format annoncé par l’extension', ({ assert }) => {
+    const bytes = (...values: Array<number | string>) =>
+      Buffer.concat(values.map((v) => (typeof v === 'string' ? Buffer.from(v) : Buffer.from([v]))))
+    const zip = bytes('PK', 3, 4, 'contenu')
+
+    assert.isTrue(matchesFileSignature('pdf', bytes('%PDF-1.7')))
+    assert.isTrue(matchesFileSignature('png', bytes(0x89, 'PNG', 0x0d, 0x0a, 0x1a, 0x0a)))
+    assert.isTrue(matchesFileSignature('jpeg', bytes(0xff, 0xd8, 0xff, 0xe0)))
+    assert.isTrue(matchesFileSignature('webp', bytes('RIFF', 0, 0, 0, 0, 'WEBPVP8 ')))
+    assert.isTrue(matchesFileSignature('xlsx', zip))
+    assert.isTrue(matchesFileSignature('odt', zip))
+    assert.isTrue(
+      matchesFileSignature('xls', bytes(0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1))
+    )
+    assert.isTrue(matchesFileSignature('csv', bytes('ref;prix\nA1;12,50\n')))
+
+    // Exécutable renommé, autre format RIFF, binaire en `.csv`, fichier vide.
+    assert.isFalse(matchesFileSignature('pdf', bytes('MZ', 0x90, 0)))
+    assert.isFalse(matchesFileSignature('webp', bytes('RIFF', 0, 0, 0, 0, 'WAVEfmt ')))
+    assert.isFalse(matchesFileSignature('csv', bytes('MZ', 0, 0)))
+    assert.isFalse(matchesFileSignature('docx', bytes()))
+    assert.isFalse(matchesFileSignature('exe', bytes('MZ')))
   })
 })
 

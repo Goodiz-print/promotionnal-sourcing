@@ -293,6 +293,14 @@ Réponses du webhook :
 - Le job prend le mail par une bascule conditionnelle `received | failed → processing` : deux jobs concurrents n'en traitent qu'un, et un mail `processed` ou `rejected` n'est jamais repris. Un verrou `processing` sans mouvement depuis 15 minutes est celui d'un worker tué en plein traitement : il peut être repris.
 - `inbound_mail_attachments (inbound_mail_id, provider_attachment_id)` est unique : un job rejoué ne stocke pas deux fois la même pièce.
 
+### Écouteurs de `InboundMailReceived`
+
+L'événement est émis **au moins une fois**, pas exactement une fois. Si un écouteur lève, le mail repasse `failed`, le job est rejoué et l'événement est réémis, y compris pour les écouteurs qui avaient abouti. Tout écouteur (#224 à #226) doit donc être idempotent : vérifier par `inboundMailId` que son effet n'existe pas déjà avant de créer un devis, un message ou un envoi de mail.
+
+### Corps HTML
+
+`inbound_mails.html_body` est stocké tel que reçu, sans assainissement : il vient d'un tiers et peut contenir du script ou des images de pistage. Il ne doit jamais être rendu tel quel (`v-html`). Un écran qui l'affiche (#226, #227) l'assainit au rendu, ou affiche `text_body`.
+
 ### Garde-fous
 
 Appliqués dans cet ordre ; le premier qui s'applique écarte le mail (`status = rejected`, motif dans `rejection_reason`) :
@@ -312,7 +320,7 @@ Pièces jointes d'un mail accepté, chacune journalisée dans `inbound_mail_atta
 | Statut           | Condition                                                                                                                                                   |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `stored`         | Extension acceptée (`INBOUND_ATTACHMENT_TYPES` : PDF, PNG, JPEG, WebP, Word, Excel, OpenDocument, CSV), copiée sur Cellar par `StorageService#storeContent` |
-| `rejected_type`  | Autre extension                                                                                                                                             |
+| `rejected_type`  | Autre extension, ou contenu qui n'est pas du format annoncé par l'extension (premiers octets du fichier, `matchesFileSignature`)                            |
 | `rejected_size`  | Plus de `INBOUND_MAIL_MAX_ATTACHMENT_SIZE_MB`                                                                                                               |
 | `ignored_inline` | Image intégrée au corps (logo de signature)                                                                                                                 |
 
