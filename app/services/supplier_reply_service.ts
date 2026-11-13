@@ -47,8 +47,8 @@ export default class SupplierReplyService {
   ) {}
 
   /**
-   * Renvoie ce qui a été enregistré, ou `null` si ce mail l'était déjà (ou
-   * n'est rattaché à aucun destinataire).
+   * Renvoie ce qui a été enregistré, ou `null` si ce mail l'était déjà, n'est
+   * rattaché à aucun destinataire, ou n'a ni texte ni fichier à enregistrer.
    */
   async record(inboundMailId: number): Promise<SupplierReplyRecordedData | null> {
     if (await this.conversations.findInboundMessage(inboundMailId)) return null
@@ -60,6 +60,14 @@ export default class SupplierReplyService {
       .preload('rfq')
       .first()
     if (!recipient) return null
+
+    // Ni texte ni fichier conservé (pièces refusées, mail vide) : il n'y a rien
+    // à lire dans le fil, le mail reste dans le journal.
+    const body = this.bodyOf(mail)
+    if (body === '' && !(await this.hasStoredAttachments(mail))) {
+      logger.info({ inboundMailId }, 'empty supplier reply not recorded as a message')
+      return null
+    }
 
     const attachments = await this.prepareAttachments(mail)
     // Fichiers créés ici (PDF compressés) : à libérer si rien ne les référence.
@@ -78,7 +86,7 @@ export default class SupplierReplyService {
         const conversation = await this.conversations.threadForRecipient(recipient, trx)
         const message = await this.conversations.recordInbound(
           conversation,
-          { inboundMailId, body: this.bodyOf(mail), attachments },
+          { inboundMailId, body, attachments },
           trx
         )
 
@@ -139,18 +147,24 @@ export default class SupplierReplyService {
     return outcome.reply
   }
 
+  private storedAttachments(mail: InboundMail) {
+    return InboundMailAttachment.query()
+      .where('inboundMailId', mail.id)
+      .where('status', INBOUND_ATTACHMENT_STATUSES.stored)
+      .whereNotNull('storageObjectId')
+  }
+
+  private async hasStoredAttachments(mail: InboundMail): Promise<boolean> {
+    return (await this.storedAttachments(mail).select('id').first()) !== null
+  }
+
   /**
    * Pièces jointes stockées du mail, prêtes pour le message. Un PDF est
    * compressé et stocké sous sa propre clé ; si la compression n'apporte rien
    * (`PdfService` ne lève jamais), le fichier reçu est gardé tel quel.
    */
   private async prepareAttachments(mail: InboundMail): Promise<PreparedReplyAttachment[]> {
-    const stored = await InboundMailAttachment.query()
-      .where('inboundMailId', mail.id)
-      .where('status', INBOUND_ATTACHMENT_STATUSES.stored)
-      .whereNotNull('storageObjectId')
-      .preload('storageObject')
-      .orderBy('id')
+    const stored = await this.storedAttachments(mail).preload('storageObject').orderBy('id')
 
     const prepared: PreparedReplyAttachment[] = []
     try {

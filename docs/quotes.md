@@ -146,7 +146,14 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
   toucher au statut.
 - **Corps du message** : la partie texte du mail, à défaut son HTML réduit à du
   texte (`htmlToText`), borné à `MESSAGE_MAX_LENGTH`. Le mail complet reste dans
-  `inbound_mails`.
+  `inbound_mails`. `htmlToText` ne lève jamais et travaille en temps linéaire sur
+  au plus `HTML_TEXT_SOURCE_MAX` caractères : le HTML vient d'un tiers.
+- **Mail sans rien à lire** (ni texte, ni fichier conservé — pièces toutes
+  refusées, par exemple) : aucun message n'est créé, le mail reste dans le journal.
+- **Expéditeur** : le jeton de l'adresse relais fait foi, pas l'expéditeur
+  ([`mail.md`](mail.md)). Un écran qui affiche ces messages (#226) doit montrer
+  l'expéditeur et s'il est connu : `message.inboundMail` (`senderName`,
+  `senderAddress`, `senderKnown`).
 - **Idempotence** : `messages.inbound_mail_id` est unique ; un mail rejoué ne
   crée ni second message ni second devis.
 - **Atomicité** : message, pièces jointes, devis et statut sont écrits dans une
@@ -158,6 +165,11 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
   `conversationId`, `messageId`, `quoteDocumentIds`, `responded`), émis une fois
   par mail après le commit — le point d'accroche de la transmission à l'agence
   (#225). Un écouteur défaillant est loggué sans faire rejouer le mail.
+  **L'émission n'est pas garantie** : si le worker s'arrête entre le commit et
+  l'émission, l'événement est perdu et rien ne le rejoue (le mail est déjà
+  enregistré). #225 ne doit donc pas dépendre de ce seul événement pour
+  transmettre la réponse : prévoir une reprise sur les messages portant
+  `inbound_mail_id` sans envoi correspondant dans `mail_deliveries`.
 
 Aucun écran n'affiche encore ces devis : la transmission à l'agence relève de
 #225, le fil d'échanges de #226.

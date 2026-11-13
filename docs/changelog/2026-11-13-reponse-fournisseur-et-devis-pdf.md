@@ -12,6 +12,8 @@ Suite de la réception des mails entrants (#223) : chaque réponse reçue devien
 - Chaque PDF est enregistré comme devis du fournisseur. Avec au moins un PDF, le destinataire passe `sent`/`viewed` → `responded`. Sans PDF, c'est un simple message et le statut ne change pas.
 - Plusieurs devis successifs : rien n'est écrasé. `QuoteService#currentDocumentsFor` renvoie ceux de la dernière réponse (ils font foi), `#documentsFor` tous.
 - Une réponse à une demande close ou expirée (adresse relais encore valide) est enregistrée sans changer le statut. Un destinataire `declined` le reste.
+- Un mail sans texte ni fichier conservé ne crée pas de message : il reste dans le journal.
+- `htmlToText` ne lève jamais (entité invalide laissée telle quelle) et travaille en temps linéaire sur au plus `HTML_TEXT_SOURCE_MAX` caractères.
 - Tout part de la ligne `rfq_suppliers` : aucun compte ni membre n'est requis côté fournisseur (#218).
 - Message, pièces jointes, devis et statut sont écrits dans une seule transaction. En cas d'échec, rien n'est écrit, les PDF compressés sont libérés et le mail est rejoué. Un mail rejoué n'est enregistré qu'une fois.
 - Nouvel événement `SupplierReplyRecorded` (`inboundMailId`, `rfqSupplierId`, `conversationId`, `messageId`, `quoteDocumentIds`, `responded`), émis une fois par mail après le commit, pour la transmission à l'agence (#225).

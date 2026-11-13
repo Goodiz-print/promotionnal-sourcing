@@ -318,6 +318,29 @@ test.group('Réponse du fournisseur reçue par mail', (group) => {
     assert.equal(recipient.status, 'sent')
   })
 
+  test('un mail sans texte ni fichier conservé ne crée pas de message vide', async ({
+    client,
+    assert,
+  }) => {
+    const { recipient, address } = await sentRfq()
+    inbound.provider.add('mail-1', {
+      to: address,
+      text: '  ',
+      attachments: [{ filename: 'devis.zip', content: 'PK' }],
+    })
+
+    const response = await deliver(client, 'mail-1')
+
+    response.assertStatus(200)
+    // Le mail reste dans le journal, traité ; le fil n'est pas ouvert pour rien.
+    const journal = await InboundMail.firstOrFail()
+    assert.equal(journal.status, 'processed')
+    assert.lengthOf(await Conversation.all(), 0)
+    assert.lengthOf(await Message.all(), 0)
+    await recipient.refresh()
+    assert.equal(recipient.status, 'sent')
+  })
+
   test('un mail sans partie texte donne le texte de son HTML, borné à la taille d’un message', async ({
     client,
     assert,

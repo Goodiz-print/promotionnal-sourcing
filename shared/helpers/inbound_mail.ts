@@ -135,20 +135,101 @@ const HTML_ENTITIES: Record<string, string> = {
   euro: '€',
 }
 
+/** Éléments dont le contenu n'est pas du texte à lire. */
+const SKIPPED_ELEMENTS = new Set(['style', 'script', 'head'])
+/** Fermetures qui valent un retour à la ligne. */
+const BLOCK_ELEMENTS = new Set([
+  'p',
+  'div',
+  'tr',
+  'li',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'blockquote',
+])
+const TAG_NAME = /^\/?([a-z][a-z0-9]*)/i
+
+/**
+ * Part du HTML lue par `htmlToText` : un message ne garde que quelques
+ * milliers de caractères, inutile de convertir un mail de plusieurs Mo.
+ */
+export const HTML_TEXT_SOURCE_MAX = 200_000
+
+/** Caractère d'une entité numérique, ou `null` si le code n'en désigne aucun. */
+function characterFor(code: number): string | null {
+  const valid = code > 0 && code <= 0x10ffff && (code < 0xd800 || code > 0xdfff)
+  return valid ? String.fromCodePoint(code) : null
+}
+
+/**
+ * Retire les balises en un seul passage : chaque recherche repart de là où la
+ * précédente s'est arrêtée, le temps reste proportionnel à la taille du HTML
+ * même s'il est malformé (balise jamais fermée, `<style>` sans fin).
+ */
+function stripTags(html: string): string {
+  const lower = html.toLowerCase()
+  const parts: string[] = []
+  let position = 0
+
+  while (position < html.length) {
+    const open = html.indexOf('<', position)
+    if (open === -1) {
+      parts.push(html.slice(position))
+      break
+    }
+    parts.push(html.slice(position, open))
+
+    const close = html.indexOf('>', open)
+    // Balise jamais fermée : le reste n'est pas du texte.
+    if (close === -1) break
+
+    const tag = html.slice(open + 1, close)
+    const name = tag.match(TAG_NAME)?.[1].toLowerCase()
+    position = close + 1
+    if (!name) continue
+
+    const closing = tag.startsWith('/')
+    if (!closing && SKIPPED_ELEMENTS.has(name)) {
+      const end = lower.indexOf(`</${name}`, position)
+      if (end === -1) break
+      const endClose = html.indexOf('>', end)
+      if (endClose === -1) break
+      position = endClose + 1
+    } else if (name === 'br' || (closing && BLOCK_ELEMENTS.has(name))) {
+      parts.push('\n')
+    }
+  }
+  return parts.join('')
+}
+
 /**
  * Texte lisible d'un corps HTML, pour un mail sans partie texte : balises
  * retirées, blocs et retours à la ligne conservés. Le résultat est du texte
  * brut, jamais réinjecté comme HTML.
+ *
+ * Le HTML vient d'un tiers : la fonction ne lève jamais (une entité invalide
+ * est laissée telle quelle) et son temps est linéaire, sur au plus
+ * `HTML_TEXT_SOURCE_MAX` caractères.
  */
 export function htmlToText(html: string): string {
-  return html
-    .replace(/<(style|script|head)\b[^>]*>[\s\S]*?<\/\1>/gi, '')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/(p|div|tr|li|h[1-6]|blockquote)>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&#(\d+);/g, (_, code: string) => String.fromCodePoint(Number(code)))
-    .replace(/&([a-z]+);/gi, (entity, name: string) => HTML_ENTITIES[name.toLowerCase()] ?? entity)
-    .replace(/[ \t]+\n/g, '\n')
+  return stripTags(html.slice(0, HTML_TEXT_SOURCE_MAX))
+    .replace(/&#(\d{1,7});/g, (entity, code: string) => characterFor(Number(code)) ?? entity)
+    .replace(
+      /&#x([0-9a-f]{1,6});/gi,
+      (entity, code: string) => characterFor(Number.parseInt(code, 16)) ?? entity
+    )
+    .replace(
+      /&([a-z]{1,10});/gi,
+      (entity, name: string) => HTML_ENTITIES[name.toLowerCase()] ?? entity
+    )
+    .replace(/[ \t]{2,}/g, ' ')
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .join('\n')
     .replace(/\n{3,}/g, '\n\n')
     .trim()
 }

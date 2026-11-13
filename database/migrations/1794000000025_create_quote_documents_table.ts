@@ -51,6 +51,7 @@ export default class extends BaseSchema {
       table.unique(['message_attachment_id'])
       table.index(['rfq_supplier_id', 'received_at'])
       table.index(['rfq_id'])
+      table.index(['message_id'])
     })
   }
 

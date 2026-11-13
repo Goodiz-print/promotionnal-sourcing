@@ -2,6 +2,7 @@ import { test } from '@japa/runner'
 import { verifySvixSignature, svixSignature } from '#services/inbound_mail/svix_signature'
 import { InboundMailSignatureException } from '#exceptions/inbound_mail_errors'
 import {
+  HTML_TEXT_SOURCE_MAX,
   acceptedAttachmentType,
   htmlToText,
   isAutomaticReply,
@@ -162,6 +163,36 @@ test.group('Mails entrants — corps HTML réduit à du texte', () => {
       htmlToText(html),
       'Bonjour,\nPrix : 12 € & port <offert>\nDélai : 3 semaines\nCoton\nBio'
     )
+  })
+
+  test('décode les entités numériques, et laisse telle quelle une entité invalide', ({
+    assert,
+  }) => {
+    assert.equal(htmlToText('<p>12 &#x20AC; ou 12 &#8364;</p>'), '12 € ou 12 €')
+    // Code hors d'Unicode, ou moitié de paire de substitution : jamais d'erreur.
+    assert.equal(htmlToText('a&#99999999;b &#55296; &#0;'), 'a&#99999999;b &#55296; &#0;')
+  })
+
+  test('un HTML malformé ou démesuré est traité en temps linéaire', ({ assert }) => {
+    const hostile = [
+      `<p>a${' '.repeat(HTML_TEXT_SOURCE_MAX)}b</p>`,
+      '<'.repeat(HTML_TEXT_SOURCE_MAX),
+      '<style>'.repeat(HTML_TEXT_SOURCE_MAX / 7),
+      '&#'.repeat(HTML_TEXT_SOURCE_MAX / 2),
+    ]
+
+    const started = Date.now()
+    const texts = hostile.map((html) => htmlToText(html))
+
+    assert.isBelow(Date.now() - started, 1000)
+    assert.equal(texts[0], 'a')
+    assert.equal(texts[1], '')
+    assert.equal(texts[2], '')
+  })
+
+  test('une balise jamais fermée ne laisse pas passer son contenu', ({ assert }) => {
+    assert.equal(htmlToText('Bonjour<script>alert(1)'), 'Bonjour')
+    assert.equal(htmlToText('Bonjour <img src="x" onerror="alert(1)'), 'Bonjour')
   })
 
   test('un HTML sans texte donne une chaîne vide', ({ assert }) => {
