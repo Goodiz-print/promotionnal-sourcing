@@ -12,7 +12,9 @@ import OrganizationContextService from '#services/organization_context_service'
 import { isImageSearchAvailable } from '#services/vision/image_search_availability'
 import QuoteCartService from '#services/quote_cart_service'
 import SearchEventService from '#services/search_event_service'
+import SponsoredProductService from '#services/sponsored_product_service'
 import ProductTransformer from '#transformers/product_transformer'
+import SponsoredProductTransformer from '#transformers/sponsored_product_transformer'
 import ProductDetailTransformer from '#transformers/product_detail_transformer'
 import CategoryTransformer from '#transformers/category_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
@@ -48,7 +50,8 @@ export default class ProductsController {
     private organizations: OrganizationContextService,
     private quoteCart: QuoteCartService,
     private searchEvents: SearchEventService,
-    private activityEvents: ActivityEventService
+    private activityEvents: ActivityEventService,
+    private sponsoredProducts: SponsoredProductService
   ) {}
 
   /**
@@ -124,8 +127,10 @@ export default class ProductsController {
     // - `numericFacets` : facettes transverses prix / MOQ à buckets (plan L125),
     //   globales (comme certifications), avec compteurs par tranche.
     // - `enumFacets` : compteurs provenance / stock, pour masquer les options vides.
-    const [categories, facetBar, certificationFacet, numericFacets, enumFacets] = await Promise.all(
-      [
+    // - `sponsored` : produits sponsorisés en tête de liste (cf. `docs/ads.md`),
+    //   uniquement ceux qui respectent le terme cherché et tous les filtres.
+    const [categories, facetBar, certificationFacet, numericFacets, enumFacets, sponsored] =
+      await Promise.all([
         this.service.availableCategories(),
         this.facetBar.forCategory(filters.categoryId, locale, {
           search: filters.search,
@@ -134,8 +139,8 @@ export default class ProductsController {
         this.certificationFacets.forCatalogue(filters, locale),
         this.numericFacets.forCatalogue(filters),
         this.enumFacets.forCatalogue(filters),
-      ]
-    )
+        searchUnavailable ? [] : this.sponsoredProducts.forCatalogue(filters, page),
+      ])
 
     return inertia.render('products/index', {
       products: {
@@ -149,6 +154,9 @@ export default class ProductsController {
           lastPage: paginator?.lastPage ?? 1,
         },
       },
+      sponsored: sponsored.map((selection) =>
+        new SponsoredProductTransformer(selection, locale).toObject()
+      ),
       searchUnavailable,
       filters,
       imageSearch,
@@ -185,8 +193,13 @@ export default class ProductsController {
       isStaff: auth.user?.hasBackOffice ?? false,
     })
 
+    const sponsored = await this.sponsoredProducts.forProduct(product)
+
     return inertia.render('products/show', {
       product: new ProductDetailTransformer(product, locale, this.documents.urlFor).toObject(),
+      sponsored: sponsored.map((selection) =>
+        new SponsoredProductTransformer(selection, locale).toObject()
+      ),
       rfqContext: await this.rfqContext({ auth, bouncer }, product.id),
     })
   }

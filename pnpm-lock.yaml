@@ -280,6 +280,9 @@ importers:
       sharp:
         specifier: 0.35.5
         version: 0.35.5(@types/node@25.9.9)
+      stripe:
+        specifier: ^23.1.0
+        version: 23.1.0(@types/node@25.9.9)
       vue:
         specifier: 3.5.44
         version: 3.5.44(typescript@6.0.3)
@@ -4413,6 +4416,15 @@ packages:
   strip-json-comments@5.0.3:
     resolution: {integrity: sha512-1tB5mhVo7U+ETBKNf92xT4hrQa3pm0MZ0PQvuDnWgAAGHDsfp4lPSpiS6psrSiet87wyGPh9ft6wmhOMQ0hDiw==}
     engines: {node: '>=14.16'}
+
+  stripe@23.1.0:
+    resolution: {integrity: sha512-fVUfMSfTPoukfoV//MUKAx2+YxyKmYaYtnAL9VkfnHfaPNQylFdWZMD+zgUFerI8rjbaiER8Vzj2XEUQ2AhAsQ==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@types/node': '>=20'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
 
   strtok3@10.3.5:
     resolution: {integrity: sha512-ki4hZQfh5rX0QDLLkOCj+h+CVNkqmp/CMf8v8kZpkNVK6jGQooMytqzLZYUVYIZcFZ6yDB70EfD8POcFXiF5oA==}
@@ -8629,6 +8641,10 @@ snapshots:
   strip-indent@4.1.1: {}
 
   strip-json-comments@5.0.3: {}
+
+  stripe@23.1.0(@types/node@25.9.9):
+    optionalDependencies:
+      '@types/node': 25.9.9
 
   strtok3@10.3.5:
     dependencies:

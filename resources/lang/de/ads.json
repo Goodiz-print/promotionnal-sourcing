@@ -1,0 +1,106 @@
+{
+  "sponsored": {
+    "badge": "Gesponsert",
+    "title": "Gesponserte Produkte",
+    "hint": "Vom Lieferanten hervorgehoben. Sie passen zu Ihrer Suche und Ihren Filtern.",
+    "productTitle": "Gesponserte Produkte dieser Kategorie",
+    "productHint": "Vom Lieferanten hervorgehoben.",
+    "homeTitle": "Produkte im Fokus",
+    "homeSubtitle": "Eine Auswahl, die unsere Lieferanten hervorheben."
+  },
+  "index": {
+    "title": "Gesponserte Produkte",
+    "subtitle": "Bringen Sie Ihre Produkte an die Spitze des Katalogs. Sie zahlen nur pro Klick.",
+    "newCampaign": "Neue Kampagne",
+    "campaigns": "Kampagnen",
+    "empty": "Keine Kampagne",
+    "emptyDescription": "Sponsern Sie ein Produkt, damit es bei passenden Ergebnissen ganz oben erscheint.",
+    "productHidden": "Produkt nicht veröffentlicht: Die Kampagne wird nicht ausgespielt",
+    "period": "Vom {from} bis {to}",
+    "periodOpen": "Seit {from}",
+    "columns": {
+      "product": "Produkt",
+      "status": "Status",
+      "bid": "Max. Gebot",
+      "budget": "Budget / Tag",
+      "impressions": "Einblendungen",
+      "clicks": "Klicks",
+      "spent": "Ausgegeben",
+      "actions": "Aktionen"
+    }
+  },
+  "status": {
+    "active": "Aktiv",
+    "paused": "Pausiert",
+    "suspended": "Gesperrt"
+  },
+  "actions": {
+    "pause": "Pausieren",
+    "resume": "Fortsetzen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "confirmDelete": "Diese Kampagne und ihre Statistiken löschen?"
+  },
+  "wallet": {
+    "title": "Werbeguthaben",
+    "description": "Vorausbezahltes Guthaben, das bei jedem berechneten Klick belastet wird.",
+    "balance": "Verfügbares Guthaben",
+    "amount": "Aufzuladender Betrag (€)",
+    "amountHint": "Zwischen {min} und {max}.",
+    "topUp": "Aufladen",
+    "unavailable": "Die Online-Aufladung ist noch nicht verfügbar. Kontaktieren Sie uns, um Ihr Guthaben aufzuladen.",
+    "checkoutLabel": "Werbeguthaben — {organization}",
+    "topUpSuccess": "Zahlung erhalten. Ihr Guthaben wird in wenigen Augenblicken aktualisiert, sobald die Zahlung bestätigt ist.",
+    "topUpCancelled": "Zahlung abgebrochen. Ihr Guthaben wurde nicht aufgeladen.",
+    "history": "Letzte Bewegungen",
+    "columns": {
+      "date": "Datum",
+      "type": "Bewegung",
+      "amount": "Betrag",
+      "balance": "Guthaben"
+    },
+    "types": {
+      "top_up": "Aufladung",
+      "adjustment": "Korrektur",
+      "click": "Berechneter Klick"
+    }
+  },
+  "form": {
+    "createTitle": "Neue Kampagne",
+    "createSubtitle": "Wählen Sie ein Produkt, ein Gebot und ein Budget.",
+    "editTitle": "Kampagne",
+    "back": "Zurück zu den Kampagnen",
+    "settings": "Kampagneneinstellungen",
+    "settingsHint": "Sie können sie jederzeit ändern oder die Kampagne pausieren.",
+    "product": "Zu sponserndes Produkt",
+    "productPlaceholder": "Produkt auswählen",
+    "noProducts": "Kein Produkt zum Sponsern",
+    "noProductsDescription": "Alle Ihre veröffentlichten Produkte haben bereits eine Kampagne, oder Sie haben noch kein veröffentlichtes Produkt.",
+    "maxCpc": "Maximales Gebot pro Klick (€)",
+    "maxCpcHint": "Zwischen {min} und {max}. Sie zahlen höchstens diesen Betrag, oft weniger.",
+    "dailyBudget": "Tagesbudget (€)",
+    "dailyBudgetHint": "Die Kampagne stoppt für den Tag, sobald dieser Betrag erreicht ist.",
+    "startsOn": "Startdatum",
+    "endsOn": "Enddatum",
+    "endsOnHint": "Leer lassen für eine Kampagne ohne Enddatum.",
+    "cancel": "Abbrechen",
+    "submitCreate": "Kampagne starten",
+    "submitUpdate": "Speichern",
+    "howItWorksTitle": "So funktioniert es",
+    "howItWorks": "Ihr Produkt erscheint ganz oben mit dem Hinweis „Gesponsert“, nur wenn es zur Suche und zu den Filtern des Käufers passt. Sie zahlen nur, wenn ein Käufer klickt, und zwar den Preis des Gebots direkt unter Ihrem plus einen Cent."
+  },
+  "flash": {
+    "created": "Kampagne gestartet",
+    "updated": "Kampagne aktualisiert",
+    "paused": "Kampagne pausiert",
+    "resumed": "Kampagne fortgesetzt",
+    "deleted": "Kampagne gelöscht",
+    "suspended": "Diese Kampagne wurde vom Plattform-Team gesperrt. Kontaktieren Sie uns, um sie zu reaktivieren.",
+    "topUpUnavailable": "Die Online-Aufladung ist derzeit nicht verfügbar."
+  },
+  "errors": {
+    "budgetBelowBid": "Das Tagesbudget muss mindestens einen Klick zum maximalen Gebot abdecken.",
+    "endBeforeStart": "Das Enddatum darf nicht vor dem Startdatum liegen.",
+    "productNotEligible": "Dieses Produkt kann nicht gesponsert werden (bereits in einer Kampagne oder nicht veröffentlicht)."
+  }
+}

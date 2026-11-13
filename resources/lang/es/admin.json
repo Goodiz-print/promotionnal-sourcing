@@ -25,7 +25,8 @@
     "search": "Search",
     "mail": "Emails",
     "storage": "Storage",
-    "health": "Health"
+    "health": "Health",
+    "ads": "Productos patrocinados"
   },
   "pagination": {
     "previous": "Anterior",
@@ -483,7 +484,10 @@
       "search.evaluation_requested": "Search evaluation requested",
       "mail.retried": "Email retried",
       "mail.bulk_retried": "Failed emails retried",
-      "storage.recovery_requested": "Storage recovery requested"
+      "storage.recovery_requested": "Storage recovery requested",
+      "ad_campaign.suspended": "Campaña patrocinada suspendida",
+      "ad_campaign.restored": "Suspensión de campaña levantada",
+      "ad_wallet.adjusted": "Monedero publicitario ajustado"
     },
     "targets": {
       "user": "Usuario",
@@ -507,7 +511,8 @@
       "queue_schedule": "Scheduled job",
       "search_run": "Search operation",
       "mail_delivery": "Email delivery",
-      "storage": "Storage"
+      "storage": "Storage",
+      "ad_campaign": "Campaña patrocinada"
     }
   },
   "demand": {
@@ -1665,6 +1670,37 @@
       "empty": "The monitoring job has not run yet.",
       "stale": "The states below are out of date: monitoring is no longer running (is the worker stopped?).",
       "details": "See details"
+    }
+  },
+  "ads": {
+    "title": "Productos patrocinados",
+    "subtitle": "Campañas de todos los proveedores, suspensión y abono de los monederos publicitarios.",
+    "resultsCount": "{count, plural, =0 {Ninguna campaña} one {# campaña} other {# campañas}}",
+    "empty": "Ninguna campaña",
+    "emptyDescription": "Ningún proveedor ha patrocinado aún un producto.",
+    "columns": {
+      "organization": "Organización",
+      "wallet": "Monedero"
+    },
+    "actions": {
+      "suspend": "Suspender",
+      "restore": "Restablecer"
+    },
+    "adjust": {
+      "title": "Ajustar un monedero",
+      "description": "Abono (importe positivo) o cargo (importe negativo) en el monedero publicitario de una organización. Queda registrado en el registro de auditoría.",
+      "organizationId": "N.º de organización",
+      "amount": "Importe (€)",
+      "amountHint": "Negativo para cargar.",
+      "note": "Motivo",
+      "submit": "Aplicar"
+    },
+    "flash": {
+      "suspended": "Campaña suspendida",
+      "restored": "Suspensión levantada: la campaña está en pausa",
+      "adjusted": "Monedero ajustado",
+      "insufficientFunds": "El cargo supera el saldo del monedero.",
+      "organizationNotFound": "Organización no encontrada."
     }
   }
 }

@@ -143,6 +143,12 @@ export interface ProductSyncResult {
  * facettes se combinent en ET : le produit doit porter **toutes** les valeurs.
  */
 export interface ProductSearchFilter {
+  /**
+   * Restreint la recherche à ces produits (`id IN […]`) : sert à savoir lesquels
+   * des produits sponsorisés correspondent à la requête (cf. `docs/ads.md`).
+   * Absent = pas de restriction ; **tableau vide = aucun produit**.
+   */
+  ids?: number[]
   categoryId?: number | null
   madeInEurope?: boolean
   attributeValueIds?: number[]

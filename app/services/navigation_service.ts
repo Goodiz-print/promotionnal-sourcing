@@ -52,6 +52,8 @@ export default class NavigationService {
       add('supplierRfqs', 'supplier.rfqs.index')
       add('supplierQuotes', 'supplier.quotes.index')
       add('supplierOrders', 'supplier.orders.index')
+      // Produits sponsorisés : réservés aux rôles qui gèrent le catalogue.
+      if (MANAGEMENT_ROLES.includes(roleSlug)) add('supplierAds', 'supplier.ads.index')
       add('supplierProfile', 'supplier.profile')
     }
     if (MANAGEMENT_ROLES.includes(roleSlug)) {

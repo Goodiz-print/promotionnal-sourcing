@@ -14,6 +14,8 @@ import ProductCardSkeleton from '~/components/product_card_skeleton.vue'
 import QuoteCartAddButton from '~/components/quote_cart/quote_cart_add_button.vue'
 import { useVisitLoading } from '~/composables/use_visit_loading'
 import CatalogueFilters from '~/components/catalogue_filters.vue'
+import SponsoredProducts from '~/components/ads/sponsored_products.vue'
+import type { SponsoredProductType } from '#shared/types/ads'
 import type { Paginated } from '#shared/types/pagination'
 import type { CategoryType, CategoryFacetBarType } from '#shared/types/category'
 import type { CertificationFacetBarType } from '#shared/types/certification'
@@ -26,6 +28,8 @@ import type {
 
 defineProps<{
   products: Paginated<ProductType>
+  // Produits sponsorisés en tête de liste : ils respectent la recherche et les filtres.
+  sponsored?: SponsoredProductType[]
   searchUnavailable: boolean
   filters: ProductDirectoryFilters
   // Le terme vient d'une photo (recherche par image) ; bouton actif pour l'acheteur connecté.
@@ -73,6 +77,7 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
       // de la catégorie et des filtres de navigation.
       only: [
         'products',
+        'sponsored',
         'filters',
         'searchUnavailable',
         'imageSearch',
@@ -125,6 +130,20 @@ function visit(filters: ProductDirectoryFilters, page = 1) {
             {{ t('products.index.resultsCount', { count: products.meta.total }) }}
           </p>
         </div>
+
+        <section
+          v-if="!loading && sponsored && sponsored.length > 0"
+          class="flex flex-col gap-3"
+          :aria-label="t('ads.sponsored.title')"
+        >
+          <div class="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 class="text-body-sm font-semibold text-text-secondary">
+              {{ t('ads.sponsored.title') }}
+            </h2>
+            <p class="text-caption text-text-muted">{{ t('ads.sponsored.hint') }}</p>
+          </div>
+          <SponsoredProducts :items="sponsored" />
+        </section>
 
         <div
           v-if="loading"

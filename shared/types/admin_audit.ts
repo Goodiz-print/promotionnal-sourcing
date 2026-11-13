@@ -73,6 +73,9 @@ export const ADMIN_AUDIT_ACTIONS = [
   'mail.retried',
   'mail.bulk_retried',
   'storage.recovery_requested',
+  'ad_campaign.suspended',
+  'ad_campaign.restored',
+  'ad_wallet.adjusted',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]
@@ -100,6 +103,7 @@ export const ADMIN_AUDIT_TARGET_TYPES = [
   'search_run',
   'mail_delivery',
   'storage',
+  'ad_campaign',
 ] as const
 
 export type AdminAuditTargetType = (typeof ADMIN_AUDIT_TARGET_TYPES)[number]

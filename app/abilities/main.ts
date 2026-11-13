@@ -106,6 +106,17 @@ export const canManageProducts = Bouncer.ability(async (user: User, org: Organiz
 })
 
 /**
+ * Ability to check if a user can manage the sponsored-product campaigns and the
+ * ad wallet of an organization (it spends the organization's money).
+ * The organization must be a supplier (or both), and the user an owner/admin.
+ */
+export const canManageAds = Bouncer.ability(async (user: User, org: Organization) => {
+  if (!['supplier', 'both'].includes(org.organizationType)) return false
+  const m = await getMembership(user, org)
+  return m ? ['owner', 'admin'].includes(m.role.slug) : false
+})
+
+/**
  * Ability to check if a user is a **full** platform admin (`users.platform_role
  * = 'admin'`). Orthogonal to organization roles: an `owner` of an ordinary
  * organization is not a platform admin, and a platform admin needs no

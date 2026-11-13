@@ -25,7 +25,8 @@
     "search": "Search",
     "mail": "Emails",
     "storage": "Storage",
-    "health": "Health"
+    "health": "Health",
+    "ads": "Produkty sponsorowane"
   },
   "pagination": {
     "previous": "Poprzednia",
@@ -483,7 +484,10 @@
       "search.evaluation_requested": "Search evaluation requested",
       "mail.retried": "Email retried",
       "mail.bulk_retried": "Failed emails retried",
-      "storage.recovery_requested": "Storage recovery requested"
+      "storage.recovery_requested": "Storage recovery requested",
+      "ad_campaign.suspended": "Kampania sponsorowana zawieszona",
+      "ad_campaign.restored": "Zniesiono zawieszenie kampanii",
+      "ad_wallet.adjusted": "Portfel reklamowy skorygowany"
     },
     "targets": {
       "user": "Użytkownik",
@@ -507,7 +511,8 @@
       "queue_schedule": "Scheduled job",
       "search_run": "Search operation",
       "mail_delivery": "Email delivery",
-      "storage": "Storage"
+      "storage": "Storage",
+      "ad_campaign": "Kampania sponsorowana"
     }
   },
   "demand": {
@@ -1665,6 +1670,37 @@
       "empty": "The monitoring job has not run yet.",
       "stale": "The states below are out of date: monitoring is no longer running (is the worker stopped?).",
       "details": "See details"
+    }
+  },
+  "ads": {
+    "title": "Produkty sponsorowane",
+    "subtitle": "Kampanie wszystkich dostawców, zawieszanie i zasilanie portfeli reklamowych.",
+    "resultsCount": "{count, plural, =0 {Brak kampanii} one {# kampania} few {# kampanie} other {# kampanii}}",
+    "empty": "Brak kampanii",
+    "emptyDescription": "Żaden dostawca nie zasponsorował jeszcze produktu.",
+    "columns": {
+      "organization": "Organizacja",
+      "wallet": "Portfel"
+    },
+    "actions": {
+      "suspend": "Zawieś",
+      "restore": "Przywróć"
+    },
+    "adjust": {
+      "title": "Skoryguj portfel",
+      "description": "Uznanie (kwota dodatnia) lub obciążenie (kwota ujemna) portfela reklamowego organizacji. Zapisywane w dzienniku audytu.",
+      "organizationId": "Nr organizacji",
+      "amount": "Kwota (€)",
+      "amountHint": "Ujemna, aby obciążyć.",
+      "note": "Powód",
+      "submit": "Zastosuj"
+    },
+    "flash": {
+      "suspended": "Kampania zawieszona",
+      "restored": "Zawieszenie zniesione: kampania jest wstrzymana",
+      "adjusted": "Portfel skorygowany",
+      "insufficientFunds": "Obciążenie przekracza saldo portfela.",
+      "organizationNotFound": "Nie znaleziono organizacji."
     }
   }
 }

@@ -4,14 +4,20 @@ import FeaturesGrid from '~/components/marketing/features_grid.vue'
 import FinalCta from '~/components/marketing/final_cta.vue'
 import Hero from '~/components/marketing/hero.vue'
 import MarketingHead from '~/components/marketing/marketing_head.vue'
+import SponsoredSection from '~/components/marketing/sponsored_section.vue'
 import StatsBand from '~/components/marketing/stats_band.vue'
 import SuppliersSection from '~/components/marketing/suppliers_section.vue'
 import { useMarketing } from '~/composables/use_marketing'
 import MarketingLayout from '~/layouts/marketing.vue'
+import type { SponsoredProductType } from '#shared/types/ads'
 import type { CategoryType } from '#shared/types/category'
 
 defineOptions({ layout: MarketingLayout })
-defineProps<{ siteUrl: string; featuredCategories: CategoryType[] }>()
+defineProps<{
+  siteUrl: string
+  featuredCategories: CategoryType[]
+  sponsored?: SponsoredProductType[]
+}>()
 
 const { t } = useMarketing()
 </script>
@@ -24,6 +30,7 @@ const { t } = useMarketing()
   />
   <Hero />
   <DiscoverSection :categories="featuredCategories" />
+  <SponsoredSection :items="sponsored ?? []" />
   <FeaturesGrid />
   <StatsBand />
   <SuppliersSection />

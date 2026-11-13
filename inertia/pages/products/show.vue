@@ -18,8 +18,15 @@ import ProductPackaging from '~/components/products/show/product_packaging.vue'
 import ProductSpecifications from '~/components/products/show/product_specifications.vue'
 import type { ProductDetailType } from '#shared/types/product'
 import type { ProductRfqContextType } from '#shared/types/rfq'
+import SponsoredProducts from '~/components/ads/sponsored_products.vue'
+import type { SponsoredProductType } from '#shared/types/ads'
 
-const props = defineProps<{ product: ProductDetailType; rfqContext: ProductRfqContextType }>()
+const props = defineProps<{
+  product: ProductDetailType
+  rfqContext: ProductRfqContextType
+  // Produits sponsorisés de la même catégorie.
+  sponsored?: SponsoredProductType[]
+}>()
 
 const { t, locale } = useI18n()
 
@@ -85,6 +92,14 @@ const isNew = computed(() => props.product.lifecycleStatus === 'new')
         :documents="product.documents"
         :label-for="(document) => t(`documents.types.${document.type}`)"
       />
+    </BaseSection>
+
+    <BaseSection
+      v-if="sponsored && sponsored.length > 0"
+      :title="t('ads.sponsored.productTitle')"
+      :description="t('ads.sponsored.productHint')"
+    >
+      <SponsoredProducts :items="sponsored" :columns="4" />
     </BaseSection>
   </div>
 </template>

@@ -9,7 +9,11 @@ import { applyProductRangeFilters } from '#services/product_range_filters'
 import { newProductThreshold } from '#services/new_product_window'
 import { MOQ_BUCKETS, PRICE_BUCKETS, type ProductDirectoryFilters } from '#shared/types/product'
 import { attributeSelectionsToFilters, bucketsToRanges } from '#shared/helpers/numeric_ranges'
-import type { ProductSearchHits, ProductSearchRequest } from '#shared/types/search'
+import type {
+  ProductSearchFilter,
+  ProductSearchHits,
+  ProductSearchRequest,
+} from '#shared/types/search'
 import type { SearchTrace } from '#shared/types/search_event'
 
 /** Paramètres d'une recherche du catalogue public. */
@@ -56,29 +60,11 @@ export default class ProductSearchService {
       return null
     }
 
-    const threshold = newProductThreshold(options.newOnly)
     const hits = await this.query(
       {
         query,
         semanticRatio: searchConfig.embedder.enabled ? searchConfig.semanticRatio : 0,
-        filter: {
-          categoryId: options.categoryId,
-          madeInEurope: options.madeInEurope,
-          attributeValueIds: options.attributeValueIds,
-          // Labels de conformité (écart 4, ÉTAPE 6) : ET exact.
-          certificationIds: options.certificationIds,
-          originZones: options.originZones,
-          // Statut de stock (plan L98) : OU entre les statuts cochés.
-          stockStatuses: options.stockStatuses,
-          // Tranches numériques (plan L125) : prix, MOQ (buckets → intervalles) et
-          // attributs EAV. OU entre tranches d'un même champ, ET entre champs.
-          priceRanges: bucketsToRanges(options.priceBuckets, PRICE_BUCKETS),
-          moqRanges: bucketsToRanges(options.moqBuckets, MOQ_BUCKETS),
-          attributeRanges: attributeSelectionsToFilters(options.attributeRanges),
-          releasedAfter: threshold ? Math.trunc(threshold.toSeconds()) : null,
-          // Éco-responsable (écart 4).
-          isEco: options.ecoOnly,
-        },
+        filter: this.engineFilter(options),
         page: options.page,
         perPage: options.perPage,
       },
@@ -88,6 +74,56 @@ export default class ProductSearchService {
 
     const products = await this.reload(hits.ids, options)
     return new ModelPaginator(hits.total, options.perPage, options.page, ...products)
+  }
+
+  /**
+   * Parmi `productIds`, les produits qui répondent à la requête **et** à tous les
+   * filtres — pour les produits sponsorisés (cf. `docs/ads.md`). Mots-clés seuls :
+   * en hybride, tout produit « ressemble » un peu à la requête et rien ne serait
+   * écarté ; ici le produit doit réellement contenir les termes cherchés. `null` :
+   * recherche indisponible (aucun produit sponsorisé n'est alors affiché).
+   */
+  async matching(
+    filters: ProductDirectoryFilters,
+    productIds: number[]
+  ): Promise<Product[] | null> {
+    const query = filters.search?.trim()
+    if (!this.enabled || !query) return null
+    if (productIds.length === 0) return []
+
+    const hits = await this.query({
+      query,
+      semanticRatio: 0,
+      filter: { ...this.engineFilter(filters), ids: productIds },
+      page: 1,
+      perPage: productIds.length,
+    })
+    if (!hits) return null
+
+    return this.reload(hits.ids, filters)
+  }
+
+  /** Filtres exacts du moteur pour ces filtres de catalogue. */
+  private engineFilter(options: ProductDirectoryFilters): ProductSearchFilter {
+    const threshold = newProductThreshold(options.newOnly)
+    return {
+      categoryId: options.categoryId,
+      madeInEurope: options.madeInEurope,
+      attributeValueIds: options.attributeValueIds,
+      // Labels de conformité (écart 4, ÉTAPE 6) : ET exact.
+      certificationIds: options.certificationIds,
+      originZones: options.originZones,
+      // Statut de stock (plan L98) : OU entre les statuts cochés.
+      stockStatuses: options.stockStatuses,
+      // Tranches numériques (plan L125) : prix, MOQ (buckets → intervalles) et
+      // attributs EAV. OU entre tranches d'un même champ, ET entre champs.
+      priceRanges: bucketsToRanges(options.priceBuckets, PRICE_BUCKETS),
+      moqRanges: bucketsToRanges(options.moqBuckets, MOQ_BUCKETS),
+      attributeRanges: attributeSelectionsToFilters(options.attributeRanges),
+      releasedAfter: threshold ? Math.trunc(threshold.toSeconds()) : null,
+      // Éco-responsable (écart 4).
+      isEco: options.ecoOnly,
+    }
   }
 
   /**

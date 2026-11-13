@@ -25,7 +25,8 @@
     "search": "Search",
     "mail": "Emails",
     "storage": "Storage",
-    "health": "Health"
+    "health": "Health",
+    "ads": "Gesponserte Produkte"
   },
   "pagination": {
     "previous": "Zurück",
@@ -483,7 +484,10 @@
       "search.evaluation_requested": "Search evaluation requested",
       "mail.retried": "Email retried",
       "mail.bulk_retried": "Failed emails retried",
-      "storage.recovery_requested": "Storage recovery requested"
+      "storage.recovery_requested": "Storage recovery requested",
+      "ad_campaign.suspended": "Gesponserte Kampagne gesperrt",
+      "ad_campaign.restored": "Kampagnensperre aufgehoben",
+      "ad_wallet.adjusted": "Werbeguthaben angepasst"
     },
     "targets": {
       "user": "Benutzer",
@@ -507,7 +511,8 @@
       "queue_schedule": "Scheduled job",
       "search_run": "Search operation",
       "mail_delivery": "Email delivery",
-      "storage": "Storage"
+      "storage": "Storage",
+      "ad_campaign": "Gesponserte Kampagne"
     }
   },
   "demand": {
@@ -1665,6 +1670,37 @@
       "empty": "The monitoring job has not run yet.",
       "stale": "The states below are out of date: monitoring is no longer running (is the worker stopped?).",
       "details": "See details"
+    }
+  },
+  "ads": {
+    "title": "Gesponserte Produkte",
+    "subtitle": "Kampagnen aller Lieferanten, Sperrung und Gutschrift von Werbeguthaben.",
+    "resultsCount": "{count, plural, =0 {Keine Kampagne} one {# Kampagne} other {# Kampagnen}}",
+    "empty": "Keine Kampagne",
+    "emptyDescription": "Noch hat kein Lieferant ein Produkt gesponsert.",
+    "columns": {
+      "organization": "Organisation",
+      "wallet": "Guthaben"
+    },
+    "actions": {
+      "suspend": "Sperren",
+      "restore": "Wiederherstellen"
+    },
+    "adjust": {
+      "title": "Guthaben anpassen",
+      "description": "Gutschrift (positiver Betrag) oder Belastung (negativer Betrag) des Werbeguthabens einer Organisation. Wird im Audit-Protokoll erfasst.",
+      "organizationId": "Organisations-Nr.",
+      "amount": "Betrag (€)",
+      "amountHint": "Negativ für eine Belastung.",
+      "note": "Grund",
+      "submit": "Anwenden"
+    },
+    "flash": {
+      "suspended": "Kampagne gesperrt",
+      "restored": "Sperre aufgehoben: Die Kampagne ist pausiert",
+      "adjusted": "Guthaben angepasst",
+      "insufficientFunds": "Die Belastung übersteigt das Guthaben.",
+      "organizationNotFound": "Organisation nicht gefunden."
     }
   }
 }
