@@ -244,7 +244,7 @@ et HTML des 5 mails dans les 9 langues, pluriels, échappement, symétrie des
 
 Un fournisseur répond à une demande de devis depuis sa messagerie : la plateforme reçoit la réponse, l'authentifie, la rattache au couple demande / fournisseur et la journalise (#223). Le choix du prestataire, Resend, est motivé dans l'[ADR 0005](adr/0005-reception-mails-entrants.md).
 
-Cette brique s'arrête à la réception. Enregistrer la réponse comme un devis (#224), la transmettre à l'agence (#225) ou alimenter la messagerie (#226) se branche sur l'événement `InboundMailReceived`.
+Cette brique s'arrête à la réception. La suite se branche sur l'événement `InboundMailReceived` : l'enregistrement de la réponse comme message du fil et comme devis PDF (#224, `OnInboundMailReceived` → `SupplierReplyService`, voir [`quotes.md`](quotes.md)), puis sa transmission à l'agence (#225) et la messagerie (#226).
 
 ### Adresse relais
 
@@ -295,7 +295,7 @@ Réponses du webhook :
 
 ### Écouteurs de `InboundMailReceived`
 
-L'événement est émis **au moins une fois**, pas exactement une fois. Si un écouteur lève, le mail repasse `failed`, le job est rejoué et l'événement est réémis, y compris pour les écouteurs qui avaient abouti. Tout écouteur (#224 à #226) doit donc être idempotent : vérifier par `inboundMailId` que son effet n'existe pas déjà avant de créer un devis, un message ou un envoi de mail.
+L'événement est émis **au moins une fois**, pas exactement une fois. Si un écouteur lève, le mail repasse `failed`, le job est rejoué et l'événement est réémis, y compris pour les écouteurs qui avaient abouti. Tout écouteur (#224 à #226) doit donc être idempotent : vérifier par `inboundMailId` que son effet n'existe pas déjà avant de créer un devis, un message ou un envoi de mail. Celui de #224 s'appuie sur l'unicité de `messages.inbound_mail_id`.
 
 ### Corps HTML
 

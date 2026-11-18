@@ -569,6 +569,27 @@ export default class RfqService {
   }
 
   /**
+   * Le fournisseur a répondu par mail avec son devis en PDF (#224) :
+   * `sent`/`viewed` → `responded`, dans la transaction qui enregistre la
+   * réponse. Désigné par la ligne destinataire, pas par l'organisation. Sans
+   * effet (`false`) si la demande n'attend plus de réponse ou si le
+   * destinataire a déjà répondu ou décliné — la garde est en base.
+   * `recipient.rfq` doit être chargée.
+   */
+  async markRespondedByMail(
+    recipient: RfqSupplier,
+    trx: TransactionClientContract
+  ): Promise<boolean> {
+    if (!this.acceptsResponses(recipient.rfq)) return false
+
+    const [updated] = await RfqSupplier.query({ client: trx })
+      .where('id', recipient.id)
+      .whereIn('status', ['sent', 'viewed'])
+      .update({ status: 'responded', updatedAt: DateTime.now().toJSDate() })
+    return Number(updated) > 0
+  }
+
+  /**
    * Le fournisseur décline la consultation : `sent`/`viewed` → `declined`.
    */
   async decline(rfq: Rfq, supplierOrganizationId: number): Promise<RfqSupplier> {

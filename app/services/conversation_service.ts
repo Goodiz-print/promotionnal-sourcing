@@ -1,10 +1,13 @@
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import Conversation from '#models/conversation'
 import ConversationRead from '#models/conversation_read'
 import RealtimeService from '#services/realtime_service'
 import Message from '#models/message'
+import MessageAttachment from '#models/message_attachment'
+import type RfqSupplier from '#models/rfq_supplier'
 import OrganizationUser from '#models/organization_user'
 import User from '#models/user'
 import {
@@ -12,7 +15,10 @@ import {
   ConversationBlockedException,
   InvalidMessageBodyException,
 } from '#exceptions/messaging_errors'
-import { MESSAGE_MAX_LENGTH } from '#shared/types/conversation'
+import { MESSAGE_MAX_LENGTH, type InboundMessageInput } from '#shared/types/conversation'
+
+/** Longueur de `conversations.subject`. */
+const SUBJECT_MAX = 180
 
 interface StartInput {
   buyerOrganizationId: number
@@ -87,6 +93,88 @@ export default class ConversationService {
       authorUserId: author.id,
     })
     return message
+  }
+
+  // ── Réponses reçues par mail (#224) ─────────────────────────────────────
+
+  /**
+   * Fil d'une demande pour un destinataire : retrouvé par `rfq_supplier_id`,
+   * ouvert à la première réponse. À appeler dans une transaction qui tient le
+   * verrou du destinataire (un seul fil par destinataire). `recipient.rfq` doit
+   * être chargée.
+   */
+  async threadForRecipient(
+    recipient: RfqSupplier,
+    trx: TransactionClientContract
+  ): Promise<Conversation> {
+    const existing = await Conversation.query({ client: trx })
+      .where('rfqSupplierId', recipient.id)
+      .first()
+    if (existing) return existing
+
+    return Conversation.create(
+      {
+        buyerOrganizationId: recipient.rfq.buyerOrganizationId,
+        supplierOrganizationId: recipient.supplierOrganizationId,
+        rfqId: recipient.rfqId,
+        rfqSupplierId: recipient.id,
+        subject: recipient.rfq.title.slice(0, SUBJECT_MAX),
+        createdByUserId: null,
+      },
+      { client: trx }
+    )
+  }
+
+  /**
+   * Écrit le message né d'un mail entrant, avec ses pièces jointes (fichiers
+   * déjà sur Cellar). Sans auteur : l'expéditeur est celui du mail. Un fil
+   * bloqué par la plateforme le reçoit quand même — c'est une réception, pas
+   * une écriture d'un participant, et la réponse ne doit pas se perdre.
+   * Renvoie le message, `attachments` chargées.
+   */
+  async recordInbound(
+    conversation: Conversation,
+    input: InboundMessageInput,
+    trx: TransactionClientContract
+  ): Promise<Message> {
+    const message = await Message.create(
+      {
+        conversationId: conversation.id,
+        authorUserId: null,
+        inboundMailId: input.inboundMailId,
+        body: input.body,
+      },
+      { client: trx }
+    )
+    const attachments = await MessageAttachment.createMany(
+      input.attachments.map(({ storageObjectId, filename, mimeType, sizeBytes }) => ({
+        messageId: message.id,
+        storageObjectId,
+        filename,
+        mimeType,
+        sizeBytes,
+      })),
+      { client: trx }
+    )
+    message.$setRelated('attachments', attachments)
+    return message
+  }
+
+  /** Message déjà né de ce mail, s'il existe (garde d'idempotence). */
+  findInboundMessage(
+    inboundMailId: number,
+    trx?: TransactionClientContract
+  ): Promise<Message | null> {
+    return Message.query({ client: trx }).where('inboundMailId', inboundMailId).first()
+  }
+
+  /** Diffuse en temps réel un message né d'un mail — après le commit. */
+  announce(conversationId: number, messageId: number): void {
+    this.realtime.messagePosted(conversationId, {
+      type: 'message.posted',
+      messageId,
+      authorUserId: null,
+    })
   }
 
   /**

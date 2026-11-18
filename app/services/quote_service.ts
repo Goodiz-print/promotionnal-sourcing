@@ -5,6 +5,7 @@ import logger from '@adonisjs/core/services/logger'
 import db from '@adonisjs/lucid/services/db'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import Quote from '#models/quote'
+import QuoteDocument from '#models/quote_document'
 import QuoteItem from '#models/quote_item'
 import Rfq from '#models/rfq'
 import RfqSupplier from '#models/rfq_supplier'
@@ -28,7 +29,7 @@ import {
   DEFAULT_QUOTE_CURRENCY,
   LIVE_QUOTE_STATUSES,
 } from '#shared/types/quote'
-import type { QuoteData, QuoteItemData } from '#shared/types/quote'
+import type { QuoteData, QuoteDocumentInput, QuoteItemData } from '#shared/types/quote'
 
 /** Violation de contrainte d'unicité Postgres (`23505`). */
 const UNIQUE_VIOLATION = '23505'
@@ -333,6 +334,47 @@ export default class QuoteService {
     await quote.refresh()
     await this.emitRejected(quote)
     return quote
+  }
+
+  // ── Devis reçus en PDF (#224) ───────────────────────────────────────────
+
+  /**
+   * Enregistre les PDF d'une réponse reçue par mail comme devis du
+   * fournisseur, dans la transaction qui écrit le message. Ils s'ajoutent aux
+   * précédents sans les remplacer, et coexistent avec le devis structuré.
+   */
+  recordDocuments(
+    documents: QuoteDocumentInput[],
+    trx: TransactionClientContract
+  ): Promise<QuoteDocument[]> {
+    return QuoteDocument.createMany(
+      documents.map((document) => ({
+        ...document,
+        receivedAt: DateTime.fromJSDate(document.receivedAt),
+      })),
+      { client: trx }
+    )
+  }
+
+  /**
+   * Tous les devis PDF d'un destinataire, du plus récent au plus ancien, avec
+   * leur fichier.
+   */
+  documentsFor(rfqSupplierId: number): Promise<QuoteDocument[]> {
+    return QuoteDocument.query()
+      .where('rfqSupplierId', rfqSupplierId)
+      .preload('attachment', (attachment) => attachment.preload('storageObject'))
+      .orderBy('receivedAt', 'desc')
+      .orderBy('id', 'desc')
+  }
+
+  /**
+   * Les devis PDF **qui font foi** pour un destinataire : ceux de sa dernière
+   * réponse (un mail peut en porter plusieurs). Vide s'il n'en a envoyé aucun.
+   */
+  async currentDocumentsFor(rfqSupplierId: number): Promise<QuoteDocument[]> {
+    const documents = await this.documentsFor(rfqSupplierId)
+    return documents.filter((document) => document.messageId === documents[0].messageId)
   }
 
   // ── Expiration ──────────────────────────────────────────────────────────

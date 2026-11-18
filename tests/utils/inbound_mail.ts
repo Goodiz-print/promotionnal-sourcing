@@ -1,5 +1,12 @@
 import app from '@adonisjs/core/services/app'
+import type { ApiClient } from '@japa/api-client'
 import type { Group } from '@japa/runner/core'
+import { OrganizationFactory } from '#database/factories/organization_factory'
+import { RfqFactory } from '#database/factories/rfq_factory'
+import { RfqSupplierFactory } from '#database/factories/rfq_supplier_factory'
+import RfqSupplier from '#models/rfq_supplier'
+import type Organization from '#models/organization'
+import type Rfq from '#models/rfq'
 import inboundMailConfig from '#config/inbound_mail'
 import InboundMailProvider from '#services/inbound_mail/inbound_mail_provider'
 import { InboundMailSignatureException } from '#exceptions/inbound_mail_errors'
@@ -22,6 +29,8 @@ export interface FakeInboundMail {
   from?: string
   subject?: string
   text?: string
+  /** Corps HTML ; avec `text: ''`, simule un mail sans partie texte. */
+  html?: string
   headers?: Record<string, string>
   sizeBytes?: number | null
   attachments?: Array<Partial<InboundAttachmentDescriptor> & { filename: string; content?: string }>
@@ -73,7 +82,7 @@ export class FakeInboundMailProvider extends InboundMailProvider {
     const mail = this.mails.get(providerMessageId)!
     return {
       text: mail.text ?? 'Bonjour, voici notre devis.',
-      html: null,
+      html: mail.html ?? null,
       headers: mail.headers ?? {},
       sizeBytes: mail.sizeBytes ?? null,
       attachments: (mail.attachments ?? []).map((attachment, index) => ({
@@ -119,4 +128,32 @@ export function useFakeInboundMail(group: Group): { readonly provider: FakeInbou
       return state.provider
     },
   }
+}
+
+/** Demande publiée, envoyée à un fournisseur : le couple visé par l'adresse relais. */
+export async function sentRfq(
+  rfqState: 'published' | 'expired' = 'published'
+): Promise<{ rfq: Rfq; supplier: Organization; recipient: RfqSupplier; address: string }> {
+  const buyer = await OrganizationFactory.create()
+  const supplier = await OrganizationFactory.apply('supplier')
+    .merge({ email: 'contact@fournisseur.test' })
+    .create()
+  const rfq = await RfqFactory.apply(rfqState).merge({ buyerOrganizationId: buyer.id }).create()
+  const created = await RfqSupplierFactory.apply('sent')
+    .merge({ rfqId: rfq.id, supplierOrganizationId: supplier.id })
+    .create()
+  // Le jeton est généré par la base : relire la ligne.
+  const recipient = await RfqSupplier.findOrFail(created.id)
+
+  return {
+    rfq,
+    supplier,
+    recipient,
+    address: `rfq-${recipient.replyToken}@${TEST_RELAY_DOMAIN}`,
+  }
+}
+
+/** Le prestataire appelle le webhook : sans session ni jeton CSRF. */
+export function deliver(client: ApiClient, id: string, signature = 'valid') {
+  return client.post('/webhooks/inbound-mail').header('x-test-signature', signature).json({ id })
 }

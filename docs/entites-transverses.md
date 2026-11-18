@@ -84,6 +84,13 @@ et `OnQuoteSubmitted` envoient aussi le mail : deux canaux indépendants.
 - **Suivi de lecture** (`conversation_reads`) : un dernier message lu par participant.
   `markRead` est idempotent. `unreadCount` compte les messages postérieurs à la
   lecture et écrits par d'autres. Les messages propres ne sont jamais non lus.
+- **Réponses reçues par mail** (#224) : la réponse d'un fournisseur à une demande de
+  devis devient un message du fil de cette demande **pour ce destinataire**
+  (`conversations.rfq_supplier_id`, un seul fil par destinataire, ouvert à la première
+  réponse). Ce message n'a pas d'auteur (`author_user_id` nul) et porte
+  `inbound_mail_id` (unique), l'expéditeur étant celui du mail. Ses fichiers sont dans
+  `message_attachments` (`MessageAttachment`). Un fil bloqué reçoit quand même ces
+  messages. Détail dans [`quotes.md`](quotes.md).
 
 ## Imports (#49, #77)
 

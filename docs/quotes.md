@@ -102,7 +102,81 @@ fournisseur (`RFQ_RESPONDER_ROLES`). Voir [`entites-transverses.md`](entites-tra
 `quotes.currency` existe (`EUR` par défaut) mais une seule devise est gérée : pas de
 conversion, pas de sélecteur.
 
+## Devis reçu par mail, en PDF (#224)
+
+Un fournisseur répond aussi à la demande **depuis sa messagerie**, en joignant le
+PDF produit par son propre logiciel ([`mail.md`](mail.md), « Mails entrants »). Ce
+devis PDF **coexiste** avec le devis structuré ci-dessus : aucun des deux ne
+remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
+
+`InboundMailReceived` → `OnInboundMailReceived` → `SupplierReplyService#record` :
+
+1. le mail devient un **message** du fil de la demande pour ce destinataire
+   (`ConversationService#threadForRecipient`, `#recordInbound`) — voir
+   [`entites-transverses.md`](entites-transverses.md) ;
+2. ses pièces jointes acceptées deviennent celles du message
+   (`message_attachments`) ; un **PDF est compressé** par `PdfService` avant
+   d'être rattaché ([`storage.md`](storage.md)) ;
+3. chaque PDF est enregistré comme **devis du fournisseur** (`quote_documents`,
+   `QuoteService#recordDocuments`) ;
+4. s'il y a au moins un PDF, le destinataire passe `responded`
+   (`RfqService#markRespondedByMail`).
+
+| Table             | Colonnes notables                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------ |
+| `quote_documents` | `rfq_id`, `rfq_supplier_id`, `message_id`, `message_attachment_id` (unique), `received_at` |
+
+- **Rattaché au destinataire** (`rfq_suppliers`), pas à l'organisation ni à un
+  utilisateur : le message n'a pas d'auteur (`author_user_id` nul), l'expéditeur
+  est celui du mail. Rien ne suppose un compte ou un membre côté fournisseur
+  (#218). Reste à faire quand #218 rendra `rfq_suppliers.supplier_organization_id`
+  facultative : rendre `conversations.supplier_organization_id` facultative de même.
+- **Plusieurs devis successifs** : chaque réponse ajoute ses PDF, rien n'est
+  écrasé. `QuoteService#currentDocumentsFor(rfqSupplierId)` renvoie ceux qui
+  **font foi** (les PDF de la dernière réponse qui en porte),
+  `#documentsFor(rfqSupplierId)` tous, du plus récent au plus ancien.
+- **Tout PDF joint vaut devis** : la plateforme ne lit pas le contenu, elle ne
+  distingue pas un devis d'un catalogue joint au même mail.
+- **Sans PDF** (texte seul, ou pièce d'un autre format) : simple message, le
+  statut ne change pas.
+- **Statut** : `sent`/`viewed` → `responded`, par un `UPDATE` conditionnel. Un
+  destinataire `declined` ou déjà `responded` le reste. Si la demande n'attend
+  plus de réponse (close, expirée, échéance passée) mais que l'adresse relais est
+  encore valide (délai de grâce), le message et le devis sont enregistrés sans
+  toucher au statut.
+- **Corps du message** : la partie texte du mail, à défaut son HTML réduit à du
+  texte (`htmlToText`), borné à `MESSAGE_MAX_LENGTH`. Le mail complet reste dans
+  `inbound_mails`. `htmlToText` ne lève jamais et travaille en temps linéaire sur
+  au plus `HTML_TEXT_SOURCE_MAX` caractères : le HTML vient d'un tiers.
+- **Mail sans rien à lire** (ni texte, ni fichier conservé — pièces toutes
+  refusées, par exemple) : aucun message n'est créé, le mail reste dans le journal.
+- **Expéditeur** : le jeton de l'adresse relais fait foi, pas l'expéditeur
+  ([`mail.md`](mail.md)). Un écran qui affiche ces messages (#226) doit montrer
+  l'expéditeur et s'il est connu : `message.inboundMail` (`senderName`,
+  `senderAddress`, `senderKnown`).
+- **Idempotence** : `messages.inbound_mail_id` est unique ; un mail rejoué ne
+  crée ni second message ni second devis.
+- **Atomicité** : message, pièces jointes, devis et statut sont écrits dans une
+  seule transaction, sous verrou de la ligne destinataire (un seul fil par
+  destinataire, même pour deux réponses simultanées). En cas d'échec rien n'est
+  écrit, les PDF compressés sont libérés (`StorageService.discard`), le mail
+  repasse `failed` et son traitement est rejoué.
+- **Événement** : `SupplierReplyRecorded` (`inboundMailId`, `rfqSupplierId`,
+  `conversationId`, `messageId`, `quoteDocumentIds`, `responded`), émis une fois
+  par mail après le commit — le point d'accroche de la transmission à l'agence
+  (#225). Un écouteur défaillant est loggué sans faire rejouer le mail.
+  **L'émission n'est pas garantie** : si le worker s'arrête entre le commit et
+  l'émission, l'événement est perdu et rien ne le rejoue (le mail est déjà
+  enregistré). #225 ne doit donc pas dépendre de ce seul événement pour
+  transmettre la réponse : prévoir une reprise sur les messages portant
+  `inbound_mail_id` sans envoi correspondant dans `mail_deliveries`.
+
+Aucun écran n'affiche encore ces devis : la transmission à l'agence relève de
+#225, le fil d'échanges de #226.
+
 ## Tests
 
-`tests/functional/quotes.spec.ts` (service et écrans), `tests/inertia/*` pour les
+`tests/functional/supplier_replies.spec.ts` (réponse par mail : message, pièce
+jointe compressée, devis PDF, statut, devis successifs, rejeu, échec sans
+orphelin). `tests/functional/quotes.spec.ts` (service et écrans), `tests/inertia/*` pour les
 props de `supplier/rfqs/show.vue` et `rfqs/show.vue`.

@@ -101,3 +101,15 @@ export type RfqQuoteSummaryType = {
   id: number
   status: QuoteStatus
 }
+
+/**
+ * Devis du fournisseur reçu en PDF (#224), à enregistrer pour un destinataire.
+ * Son fichier est la pièce jointe du message qui l'a apporté.
+ */
+export interface QuoteDocumentInput {
+  rfqId: number
+  rfqSupplierId: number
+  messageId: number
+  messageAttachmentId: number
+  receivedAt: Date
+}
