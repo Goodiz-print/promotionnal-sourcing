@@ -69,6 +69,7 @@ export default defineConfig({
     () => import('#providers/vat_provider'),
     () => import('#providers/search_provider'),
     () => import('#providers/ads_provider'),
+    () => import('#providers/subscription_provider'),
     () => import('#providers/inbound_mail_provider'),
     () => import('@adonisjs/queue/queue_provider'),
     () => import('@adonisjs/bouncer/bouncer_provider'),

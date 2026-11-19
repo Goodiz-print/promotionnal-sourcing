@@ -95,6 +95,8 @@ aucune adresse IP n'est conservée.
 Variables : `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (optionnelles,
 `start/env.ts`, `.env.example`). Côté Stripe, déclarer le webhook
 `https://<domaine>/webhooks/stripe` pour l'événement `checkout.session.completed`.
+La même route reçoit les notifications d'abonnement (`docs/abonnements.md`) :
+chaque service ne retient que les événements qui le concernent.
 
 Non traité à ce stade : TVA et facture de la recharge (à configurer côté Stripe ou
 à émettre hors plateforme), remboursement d'un solde.

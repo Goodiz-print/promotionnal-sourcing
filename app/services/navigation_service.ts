@@ -54,6 +54,10 @@ export default class NavigationService {
       add('supplierOrders', 'supplier.orders.index')
       // Produits sponsorisés : réservés aux rôles qui gèrent le catalogue.
       if (MANAGEMENT_ROLES.includes(roleSlug)) add('supplierAds', 'supplier.ads.index')
+      // Tarifs et abonnement : engagent un paiement récurrent, mêmes rôles.
+      if (MANAGEMENT_ROLES.includes(roleSlug)) {
+        add('supplierSubscription', 'supplier.subscription.show')
+      }
       add('supplierProfile', 'supplier.profile')
     }
     if (MANAGEMENT_ROLES.includes(roleSlug)) {

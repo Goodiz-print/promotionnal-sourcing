@@ -1,0 +1,90 @@
+{
+  "page": {
+    "title": "Cennik i subskrypcja",
+    "subtitle": "Wybierz plan dopasowany do Twojej działalności. Zakup, zmiana planu i rezygnacja odbywają się online.",
+    "checkoutSuccess": "Płatność otrzymana. Plan zostanie aktywowany, gdy Stripe go potwierdzi, zwykle w ciągu kilku sekund: w razie potrzeby odśwież stronę.",
+    "checkoutCancelled": "Zakup subskrypcji anulowany: nie pobrano żadnej płatności.",
+    "unavailable": "Zakup subskrypcji online nie jest jeszcze dostępny. Skontaktuj się z zespołem, aby aktywować plan.",
+    "taxNote": "Ceny miesięczne netto, bez zobowiązań. Faktury są dostępne w portalu rozliczeń."
+  },
+  "plans": {
+    "current": "Obecny plan",
+    "perMonth": "netto / miesiąc",
+    "subscribe": "Subskrybuj",
+    "change": "Zmień plan",
+    "free": {
+      "name": "Bezpłatny",
+      "tagline": "Twój katalog w serwisie, bez opłat."
+    },
+    "business": {
+      "name": "Business",
+      "tagline": "Poznaj swoich potencjalnych klientów i zyskaj widoczność."
+    },
+    "premium": {
+      "name": "Premium",
+      "tagline": "Maksymalna widoczność i priorytetowe wsparcie."
+    }
+  },
+  "current": {
+    "title": "Twoja subskrypcja",
+    "plan": "Plan",
+    "status": "Status",
+    "since": "Od",
+    "renewsOn": "Odnowienie",
+    "endsOn": "Koniec",
+    "manage": "Zarządzaj subskrypcją",
+    "manual": "Subskrypcją zarządza zespół platformy. Skontaktuj się z nami, aby ją zmienić.",
+    "pastDue": "Ostatnia płatność nie powiodła się. Stripe ponowi próbę: zaktualizuj metodę płatności, aby zachować plan.",
+    "cancelScheduled": "Rezygnacja zaplanowana: plan pozostaje aktywny do końca bieżącego okresu."
+  },
+  "status": {
+    "scheduled": "Zaplanowana",
+    "pending": "Płatność w toku",
+    "active": "Aktywna",
+    "past_due": "Zaległa",
+    "expired": "Wygasła",
+    "cancelled": "Anulowana"
+  },
+  "features": {
+    "catalogue": {
+      "free": "Katalog indeksowany w wyszukiwarce",
+      "business": "Katalog indeksowany w wyszukiwarce",
+      "premium": "Katalog indeksowany w wyszukiwarce"
+    },
+    "statistics": {
+      "free": "Anonimowe statystyki (liczba wyświetleń)",
+      "business": "Szczegółowe statystyki z tożsamością agencji",
+      "premium": "Szczegółowe statystyki z tożsamością agencji"
+    },
+    "quoteRequests": {
+      "free": "Zapytania ofertowe bez tożsamości agencji",
+      "business": "Tożsamość i dane kontaktowe agencji w zapytaniach",
+      "premium": "Tożsamość i dane kontaktowe agencji w zapytaniach"
+    },
+    "competitors": {
+      "free": "Produkty konkurencji na Twoich stronach",
+      "business": "Brak produktów konkurencji na Twoich stronach",
+      "premium": "Brak produktów konkurencji na Twoich stronach"
+    },
+    "ranking": {
+      "free": "Naturalna kolejność wyników",
+      "business": "250 punktów pozycjonowania miesięcznie",
+      "premium": "600 punktów pozycjonowania miesięcznie"
+    },
+    "superboost": {
+      "free": "Brak superboostów",
+      "business": "Superboosty do dokupienia",
+      "premium": "3 superboosty miesięcznie w cenie"
+    },
+    "support": {
+      "free": "Standardowe wsparcie",
+      "business": "Standardowe wsparcie",
+      "premium": "Priorytetowe wsparcie i wdrożenie"
+    }
+  },
+  "flash": {
+    "unavailable": "Zakup subskrypcji online jest obecnie niedostępny.",
+    "alreadySubscribed": "Masz już aktywną subskrypcję: zmień plan w portalu rozliczeń.",
+    "noBillingAccount": "Twoja organizacja nie ma konta rozliczeń online."
+  }
+}

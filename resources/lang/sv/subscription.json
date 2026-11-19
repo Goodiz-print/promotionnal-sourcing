@@ -1,0 +1,90 @@
+{
+  "page": {
+    "title": "Priser och abonnemang",
+    "subtitle": "Välj den plan som passar din verksamhet. Teckna, byt plan och säg upp online.",
+    "checkoutSuccess": "Betalningen har tagits emot. Din plan aktiveras så snart Stripe bekräftar den, oftast inom några sekunder: ladda om sidan vid behov.",
+    "checkoutCancelled": "Tecknandet avbröts: ingen betalning har gjorts.",
+    "unavailable": "Att teckna abonnemang online är inte tillgängligt ännu. Kontakta teamet för att aktivera en plan.",
+    "taxNote": "Månadspriser exklusive moms, utan bindningstid. Fakturor finns i faktureringsportalen."
+  },
+  "plans": {
+    "current": "Nuvarande plan",
+    "perMonth": "exkl. moms / månad",
+    "subscribe": "Teckna",
+    "change": "Byt plan",
+    "free": {
+      "name": "Gratis",
+      "tagline": "Din katalog listad, utan kostnad."
+    },
+    "business": {
+      "name": "Business",
+      "tagline": "Identifiera dina potentiella kunder och syns mer."
+    },
+    "premium": {
+      "name": "Premium",
+      "tagline": "Maximal synlighet och prioriterad support."
+    }
+  },
+  "current": {
+    "title": "Ditt abonnemang",
+    "plan": "Plan",
+    "status": "Status",
+    "since": "Sedan",
+    "renewsOn": "Förnyas",
+    "endsOn": "Upphör",
+    "manage": "Hantera mitt abonnemang",
+    "manual": "Abonnemanget hanteras av plattformsteamet. Kontakta oss för att ändra det.",
+    "pastDue": "Den senaste betalningen misslyckades. Stripe försöker igen: uppdatera din betalningsmetod för att behålla din plan.",
+    "cancelScheduled": "Uppsägning planerad: din plan är aktiv till slutet av den pågående perioden."
+  },
+  "status": {
+    "scheduled": "Planerat",
+    "pending": "Betalning väntar",
+    "active": "Aktivt",
+    "past_due": "Obetalt",
+    "expired": "Utgånget",
+    "cancelled": "Uppsagt"
+  },
+  "features": {
+    "catalogue": {
+      "free": "Katalog indexerad i sökningen",
+      "business": "Katalog indexerad i sökningen",
+      "premium": "Katalog indexerad i sökningen"
+    },
+    "statistics": {
+      "free": "Anonym statistik (antal visningar)",
+      "business": "Detaljerad statistik, med byråernas identitet",
+      "premium": "Detaljerad statistik, med byråernas identitet"
+    },
+    "quoteRequests": {
+      "free": "Offertförfrågningar utan byråns identitet",
+      "business": "Byråernas identitet och kontaktuppgifter i förfrågningarna",
+      "premium": "Byråernas identitet och kontaktuppgifter i förfrågningarna"
+    },
+    "competitors": {
+      "free": "Konkurrenters produkter visas på dina sidor",
+      "business": "Inga konkurrenters produkter på dina sidor",
+      "premium": "Inga konkurrenters produkter på dina sidor"
+    },
+    "ranking": {
+      "free": "Naturlig rangordning av resultat",
+      "business": "250 rankingpoäng per månad",
+      "premium": "600 rankingpoäng per månad"
+    },
+    "superboost": {
+      "free": "Ingen superboost",
+      "business": "Superboosts à la carte",
+      "premium": "3 superboosts ingår per månad"
+    },
+    "support": {
+      "free": "Standardsupport",
+      "business": "Standardsupport",
+      "premium": "Prioriterad support och onboarding"
+    }
+  },
+  "flash": {
+    "unavailable": "Att teckna abonnemang online är inte tillgängligt just nu.",
+    "alreadySubscribed": "Du har redan ett pågående abonnemang: byt plan i faktureringsportalen.",
+    "noBillingAccount": "Din organisation har inget faktureringskonto online."
+  }
+}
