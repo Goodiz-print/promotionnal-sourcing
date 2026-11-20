@@ -1,3 +1,5 @@
+import type { PlatformRole } from './user.js'
+
 /**
  * Types de notification in-app. Le type est une chaîne en base (pas un enum
  * SQL) : ajouter un type = ajouter une entrée ici, sans migration. Le `data`
@@ -49,4 +51,48 @@ export type NotificationItemType = {
   readAt: string | null
   createdAt: string
   href: string
+}
+
+/** Politique de rappel par mail d'un type de notification (#243). */
+export interface NotificationEmailFallbackPolicy {
+  /** Délai (minutes) après la création au-delà duquel une notification non lue déclenche le mail. */
+  delayMinutes: number
+  /**
+   * Rôle plateforme que le destinataire doit **encore** avoir au moment du rappel
+   * (alerte réservée à l'équipe plateforme). Un utilisateur rétrogradé entre-temps
+   * ne reçoit pas de mail menant à un écran qui lui est désormais refusé.
+   */
+  recipientPlatformRole?: PlatformRole
+}
+
+/**
+ * Âge maximal (heures) d'une notification pour son rappel : au-delà, plus aucun
+ * mail ne part. Évite, au déploiement d'une politique, une rafale de rappels pour
+ * des notifications anciennes, et borne la sélection du job.
+ */
+export const NOTIFICATION_REMINDER_MAX_AGE_HOURS = 7 * 24
+
+/** Délai (minutes) de rappel des notifications destinées aux acheteurs et fournisseurs. */
+const BUSINESS_REMINDER_DELAY_MINUTES = 24 * 60
+
+/**
+ * Types « à rappeler » : une notification de ces types encore non lue après
+ * `delayMinutes` déclenche **un seul** mail de rappel vers son destinataire.
+ * Un type absent de cette table n'envoie jamais de mail. Les types qui ont déjà
+ * leur propre mail à la création (`rfq.received`, `quote.received`, `announcement`,
+ * invitation) n'y figurent pas : le rappel ferait doublon.
+ */
+export const NOTIFICATION_EMAIL_FALLBACK: Partial<
+  Record<NotificationType, NotificationEmailFallbackPolicy>
+> = {
+  'subscription.duplicate_cancelled': { delayMinutes: 30, recipientPlatformRole: 'admin' },
+  'order.created': { delayMinutes: BUSINESS_REMINDER_DELAY_MINUTES },
+  'order.confirmed': { delayMinutes: BUSINESS_REMINDER_DELAY_MINUTES },
+  'order.in_production': { delayMinutes: BUSINESS_REMINDER_DELAY_MINUTES },
+  'order.shipped': { delayMinutes: BUSINESS_REMINDER_DELAY_MINUTES },
+  'order.cancelled': { delayMinutes: BUSINESS_REMINDER_DELAY_MINUTES },
+  'quote.accepted': { delayMinutes: BUSINESS_REMINDER_DELAY_MINUTES },
+  'quote.rejected': { delayMinutes: BUSINESS_REMINDER_DELAY_MINUTES },
+  'rfq.declined': { delayMinutes: BUSINESS_REMINDER_DELAY_MINUTES },
+  'message.warned': { delayMinutes: BUSINESS_REMINDER_DELAY_MINUTES },
 }

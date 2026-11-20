@@ -1,7 +1,7 @@
+import { inject } from '@adonisjs/core'
 import { Job } from '@adonisjs/queue'
 import type { JobOptions } from '@adonisjs/queue/types'
 import logger from '@adonisjs/core/services/logger'
-import app from '@adonisjs/core/services/app'
 import SearchEngine from '#services/search/search_engine'
 
 /**
@@ -15,19 +15,23 @@ import SearchEngine from '#services/search/search_engine'
  * execution. No-op si l'index n'existe pas encore.
  *
  * NB : pas d'import statique de modele Lucid (regle CLAUDE.md) — le moteur
- * est resolu par DI et n'importe pas de modele directement.
+ * est injecte par le constructeur et n'importe pas de modele directement.
  */
+@inject()
 export default class RefreshSearchSettingsJob extends Job<{}> {
   static options: JobOptions = {
     queue: 'default',
     maxRetries: 3,
   }
 
-  async execute() {
-    const engine = await app.container.make(SearchEngine)
-    if (!engine.enabled) return
+  constructor(private engine: SearchEngine) {
+    super()
+  }
 
-    await engine.refreshSettings()
+  async execute() {
+    if (!this.engine.enabled) return
+
+    await this.engine.refreshSettings()
     logger.info('search settings refreshed')
   }
 

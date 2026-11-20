@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import app from '@adonisjs/core/services/app'
 import mail from '@adonisjs/mail/services/main'
 import SendMailJob from '#jobs/send_mail_job'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
@@ -30,8 +31,8 @@ const PAYLOAD = {
  * Instancie le job comme le ferait le worker : `$hydrate` fournit la charge
  * désérialisée depuis `queue_jobs` et le contexte d'exécution.
  */
-function jobFor(payload: SendMailPayload, attempt = 1) {
-  const job = new SendMailJob()
+async function jobFor(payload: SendMailPayload, attempt = 1) {
+  const job = await app.container.make(SendMailJob)
   job.$hydrate(payload, {
     jobId: 'job-test',
     name: 'SendMailJob',
@@ -44,6 +45,16 @@ function jobFor(payload: SendMailPayload, attempt = 1) {
   return job
 }
 
+async function runJob(payload: SendMailPayload, attempt = 1) {
+  const job = await jobFor(payload, attempt)
+  return job.execute()
+}
+
+async function failJob(error: Error, payload: SendMailPayload, attempt = 1) {
+  const job = await jobFor(payload, attempt)
+  return job.failed(error)
+}
+
 test.group('SendMailJob', (group) => {
   useDatabase(group, { seed: 'none' })
 
@@ -54,7 +65,7 @@ test.group('SendMailJob', (group) => {
   })
 
   test('le mail est reconstruit dans la langue portée par la charge', async () => {
-    await jobFor({ ...PAYLOAD, locale: 'en' }).execute()
+    await runJob({ ...PAYLOAD, locale: 'en' })
 
     fakeMailer.mails.assertSent(OrganizationInvitationNotification, (sent) => {
       return (sent as unknown as { locale: string }).locale === 'en'
@@ -64,7 +75,7 @@ test.group('SendMailJob', (group) => {
   test('une charge mise en queue avant #58 (sans langue) retombe sur le français', async () => {
     const legacy: Record<string, unknown> = { ...PAYLOAD, idempotencyKey: 'legacy:no-locale' }
     delete legacy.locale
-    await jobFor(legacy as unknown as SendMailPayload).execute()
+    await runJob(legacy as unknown as SendMailPayload)
 
     fakeMailer.mails.assertSent(OrganizationInvitationNotification, (sent) => {
       return (sent as unknown as { locale: string }).locale === 'fr'
@@ -72,7 +83,7 @@ test.group('SendMailJob', (group) => {
   })
 
   test("reconstruit le mail d'invitation depuis la charge et l'envoie", async () => {
-    await jobFor(PAYLOAD).execute()
+    await runJob(PAYLOAD)
 
     // `send` et non `sendLater` : la file, c'est la queue — pas celle de
     // `@adonisjs/mail`, qui vit en mémoire et se perd au redémarrage.
@@ -104,7 +115,7 @@ test.group('SendMailJob', (group) => {
       },
     } satisfies SendMailPayload
 
-    await jobFor(payload).execute()
+    await runJob(payload)
 
     fakeMailer.mails.assertSent(RfqReceivedNotification, (sent) => {
       const fields = sent as unknown as Record<string, unknown>
@@ -130,7 +141,7 @@ test.group('SendMailJob', (group) => {
       },
     } satisfies SendMailPayload
 
-    await jobFor(payload).execute()
+    await runJob(payload)
 
     fakeMailer.mails.assertSent(PasswordResetNotification, (sent) => {
       const fields = sent as unknown as Record<string, unknown>
@@ -154,7 +165,7 @@ test.group('SendMailJob', (group) => {
       },
     } satisfies SendMailPayload
 
-    await jobFor(payload).execute()
+    await runJob(payload)
 
     fakeMailer.mails.assertSent(EmailVerificationNotification, (sent) => {
       const fields = sent as unknown as Record<string, unknown>
@@ -183,7 +194,7 @@ test.group('SendMailJob', (group) => {
       },
     } satisfies SendMailPayload
 
-    await jobFor(payload).execute()
+    await runJob(payload)
 
     fakeMailer.mails.assertSent(ContactRequestNotification, ({ message }) => {
       assert.isTrue(message.hasTo('partners@promotional-sourcing.eu'))
@@ -197,16 +208,13 @@ test.group('SendMailJob', (group) => {
       throw new Error('ECONNREFUSED 127.0.0.1:1025')
     }
 
-    await assert.rejects(() => jobFor(PAYLOAD, 2).execute(), 'ECONNREFUSED 127.0.0.1:1025')
+    await assert.rejects(() => runJob(PAYLOAD, 2), 'ECONNREFUSED 127.0.0.1:1025')
   })
 
   test('une charge de type inconnu fait échouer le job explicitement', async ({ assert }) => {
     const corrupted = { ...PAYLOAD, kind: 'unknown-mail' } as unknown as SendMailPayload
 
-    await assert.rejects(
-      () => jobFor(corrupted).execute(),
-      'Unknown transactional mail kind "unknown-mail"'
-    )
+    await assert.rejects(() => runJob(corrupted), 'Unknown transactional mail kind "unknown-mail"')
     fakeMailer.mails.assertNoneSent()
   })
 
@@ -216,13 +224,13 @@ test.group('SendMailJob', (group) => {
   })
 
   test('failed() loggue sans relancer (dernière tentative épuisée)', async ({ assert }) => {
-    const job = jobFor(PAYLOAD, 6)
+    const job = await jobFor(PAYLOAD, 6)
     await assert.doesNotReject(() => job.failed(new Error('ECONNREFUSED')))
   })
 
   test('deux exécutions de la même charge ne produisent qu’un seul envoi', async ({ assert }) => {
-    await jobFor(PAYLOAD).execute()
-    await jobFor(PAYLOAD).execute()
+    await runJob(PAYLOAD)
+    await runJob(PAYLOAD)
 
     assert.lengthOf(
       fakeMailer.mails.sent((m) => m instanceof OrganizationInvitationNotification),
@@ -249,7 +257,7 @@ test.group('SendMailJob', (group) => {
       return realSend(...args)
     }) as typeof fakeMailer.send
 
-    await assert.rejects(() => jobFor(PAYLOAD, 1).execute(), 'ECONNREFUSED')
+    await assert.rejects(() => runJob(PAYLOAD, 1), 'ECONNREFUSED')
     const failedRow = await db
       .from('mail_deliveries')
       .where('idempotency_key', PAYLOAD.idempotencyKey)
@@ -258,8 +266,8 @@ test.group('SendMailJob', (group) => {
     assert.equal(failedRow.error, 'ECONNREFUSED')
     assert.isNotNull(failedRow.payload)
 
-    await jobFor(PAYLOAD, 2).execute()
-    await jobFor(PAYLOAD, 3).execute()
+    await runJob(PAYLOAD, 2)
+    await runJob(PAYLOAD, 3)
 
     assert.lengthOf(
       fakeMailer.mails.sent((m) => m instanceof OrganizationInvitationNotification),
@@ -279,11 +287,10 @@ test.group('SendMailJob', (group) => {
       if (marks === 1) throw new Error('db blip')
       return originalMarkSent(key)
     }
-    const { default: app } = await import('@adonisjs/core/services/app')
     app.container.swap(MailDeliveryService, () => service)
 
     try {
-      await assert.doesNotReject(() => jobFor(PAYLOAD).execute())
+      await assert.doesNotReject(() => runJob(PAYLOAD))
       assert.lengthOf(
         fakeMailer.mails.sent((m) => m instanceof OrganizationInvitationNotification),
         1
@@ -300,9 +307,9 @@ test.group('SendMailJob', (group) => {
         fakeMailer.send = async () => {
           throw new Error('ECONNREFUSED')
         }
-        await jobFor(PAYLOAD, 1).execute()
+        await runJob(PAYLOAD, 1)
       })
-      await jobFor(PAYLOAD, 6).failed(new Error('ECONNREFUSED'))
+      await failJob(new Error('ECONNREFUSED'), PAYLOAD, 6)
 
       const row = await db
         .from('mail_deliveries')
@@ -324,8 +331,8 @@ test.group('SendMailJob', (group) => {
   }) => {
     const legacy: Partial<SendMailPayload> = { ...PAYLOAD }
     delete legacy.idempotencyKey
-    await jobFor(legacy as unknown as SendMailPayload).execute()
-    await jobFor(legacy as unknown as SendMailPayload).execute()
+    await runJob(legacy as unknown as SendMailPayload)
+    await runJob(legacy as unknown as SendMailPayload)
 
     assert.lengthOf(
       fakeMailer.mails.sent((m) => m instanceof OrganizationInvitationNotification),

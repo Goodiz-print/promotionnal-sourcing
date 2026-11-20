@@ -1,14 +1,15 @@
+import { inject } from '@adonisjs/core'
 import { Job, exponentialBackoff } from '@adonisjs/queue'
 import type { JobOptions } from '@adonisjs/queue/types'
 import type { BaseMail } from '@adonisjs/mail'
 import mail from '@adonisjs/mail/services/main'
 import logger from '@adonisjs/core/services/logger'
-import app from '@adonisjs/core/services/app'
 import emitter from '@adonisjs/core/services/emitter'
 import MailDeliveryService from '#services/mail_delivery_service'
 import MailDeliveryFailed from '#events/mail_delivery_failed'
 import AgencyReviewDecisionNotification from '#mails/agency_review_decision_notification'
 import AnnouncementNotification from '#mails/announcement_notification'
+import NotificationReminderNotification from '#mails/notification_reminder_notification'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
 import ContactRequestNotification from '#mails/contact_request_notification'
 import EmailVerificationNotification from '#mails/email_verification_notification'
@@ -46,6 +47,7 @@ import { MAIL_KINDS, type SendMailPayload } from '#shared/types/mail'
  * importé statiquement dans un job » est respectée — les classes de mail
  * n'importent les modèles qu'en `import type` (effacé à la compilation).
  */
+@inject()
 export default class SendMailJob extends Job<SendMailPayload> {
   static options: JobOptions = {
     queue: 'default',
@@ -56,11 +58,13 @@ export default class SendMailJob extends Job<SendMailPayload> {
     removeOnFail: { age: '30d' },
   }
 
+  constructor(private deliveries: MailDeliveryService) {
+    super()
+  }
+
   async execute() {
     const payload = this.resolvedPayload()
-    const deliveries = await app.container.make(MailDeliveryService)
-
-    if (!(await deliveries.begin(payload))) {
+    if (!(await this.deliveries.begin(payload))) {
       logger.info(
         { idempotencyKey: payload.idempotencyKey, kind: payload.kind },
         'transactional mail already sent, skipping'
@@ -71,14 +75,14 @@ export default class SendMailJob extends Job<SendMailPayload> {
     try {
       await mail.send(this.buildMail(payload))
     } catch (error) {
-      await deliveries.markFailed(payload, error as Error)
+      await this.deliveries.markFailed(payload, error as Error)
       throw error
     }
 
     // Le mail est parti : ne jamais faire échouer (donc rejouer) le job pour un
     // simple défaut de traçabilité.
     try {
-      await deliveries.markSent(payload.idempotencyKey)
+      await this.deliveries.markSent(payload.idempotencyKey)
     } catch (error) {
       logger.error(
         { err: error, idempotencyKey: payload.idempotencyKey },
@@ -95,9 +99,8 @@ export default class SendMailJob extends Job<SendMailPayload> {
     )
 
     try {
-      const deliveries = await app.container.make(MailDeliveryService)
-      await deliveries.markFailed(payload, error)
-      const attempts = await deliveries.attemptsFor(payload.idempotencyKey)
+      await this.deliveries.markFailed(payload, error)
+      const attempts = await this.deliveries.attemptsFor(payload.idempotencyKey)
       await emitter.emit(
         MailDeliveryFailed,
         new MailDeliveryFailed({
@@ -189,6 +192,14 @@ export default class SendMailJob extends Job<SendMailPayload> {
         )
       case MAIL_KINDS.announcement:
         return new AnnouncementNotification(to, data.title, data.body, locale)
+      case MAIL_KINDS.notificationReminder:
+        return new NotificationReminderNotification(
+          to,
+          data.notificationType,
+          data.notificationData,
+          data.path,
+          locale
+        )
       case MAIL_KINDS.contactRequest:
         return new ContactRequestNotification(to, data)
       default:

@@ -78,5 +78,12 @@
   "announcement": {
     "footer": "Otrzymujesz tę wiadomość, ponieważ masz konto w {brandName}.",
     "cta": "Otwórz {brandName}"
+  },
+  "notificationReminder": {
+    "subject": "Wymagane działanie: ważne powiadomienie nie zostało jeszcze przeczytane",
+    "title": "Czeka na Ciebie ważne powiadomienie",
+    "intro": "To powiadomienie zostało wysłane do Ciebie w {brandName} i nie zostało jeszcze przeczytane:",
+    "cta": "Otwórz powiązaną stronę",
+    "footer": "Otrzymujesz to przypomnienie tylko raz. Nie jest wysyłane, gdy powiadomienie zostanie przeczytane."
   }
 }

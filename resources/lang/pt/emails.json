@@ -78,5 +78,12 @@
   "announcement": {
     "footer": "Recebe esta mensagem porque tem uma conta em {brandName}.",
     "cta": "Abrir {brandName}"
+  },
+  "notificationReminder": {
+    "subject": "Ação necessária: uma notificação importante ainda não foi lida",
+    "title": "Uma notificação importante está à sua espera",
+    "intro": "Esta notificação foi-lhe enviada em {brandName} e ainda não foi lida:",
+    "cta": "Abrir a página correspondente",
+    "footer": "Recebe este lembrete apenas uma vez. Deixa de ser enviado assim que a notificação é lida."
   }
 }

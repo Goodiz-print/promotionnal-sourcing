@@ -78,5 +78,12 @@
   "announcement": {
     "footer": "Du får det här meddelandet eftersom du har ett konto hos {brandName}.",
     "cta": "Öppna {brandName}"
+  },
+  "notificationReminder": {
+    "subject": "Åtgärd krävs: en viktig avisering är fortfarande oläst",
+    "title": "En viktig avisering väntar på dig",
+    "intro": "Den här aviseringen skickades till dig på {brandName} och har inte lästs än:",
+    "cta": "Öppna den berörda sidan",
+    "footer": "Du får den här påminnelsen bara en gång. Den skickas inte när aviseringen har lästs."
   }
 }

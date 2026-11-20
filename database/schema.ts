@@ -1238,6 +1238,7 @@ export class NotificationSchema extends BaseModel {
     'announcementId',
     'createdAt',
     'data',
+    'emailRemindedAt',
     'id',
     'readAt',
     'type',
@@ -1251,6 +1252,8 @@ export class NotificationSchema extends BaseModel {
   declare createdAt: DateTime
   @column()
   declare data: any
+  @column.dateTime()
+  declare emailRemindedAt: DateTime | null
   @column({ isPrimary: true })
   declare id: number
   @column.dateTime()

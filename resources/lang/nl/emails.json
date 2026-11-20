@@ -78,5 +78,12 @@
   "announcement": {
     "footer": "Je ontvangt dit bericht omdat je een account hebt bij {brandName}.",
     "cta": "{brandName} openen"
+  },
+  "notificationReminder": {
+    "subject": "Actie vereist: een belangrijke melding is nog niet gelezen",
+    "title": "Er wacht een belangrijke melding op u",
+    "intro": "Deze melding is naar u verstuurd op {brandName} en is nog niet gelezen:",
+    "cta": "De betreffende pagina openen",
+    "footer": "U ontvangt deze herinnering maar één keer. Ze wordt niet meer verstuurd zodra de melding is gelezen."
   }
 }

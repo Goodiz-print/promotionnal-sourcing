@@ -78,5 +78,12 @@
   "announcement": {
     "footer": "Recibes este mensaje porque tienes una cuenta en {brandName}.",
     "cta": "Abrir {brandName}"
+  },
+  "notificationReminder": {
+    "subject": "Acción necesaria: una notificación importante sigue sin leer",
+    "title": "Una notificación importante te espera",
+    "intro": "Esta notificación se te envió en {brandName} y aún no se ha leído:",
+    "cta": "Abrir la página correspondiente",
+    "footer": "Recibes este recordatorio una sola vez. Deja de enviarse en cuanto se lee la notificación."
   }
 }

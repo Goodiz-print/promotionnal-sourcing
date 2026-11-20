@@ -78,5 +78,12 @@
   "announcement": {
     "footer": "Sie erhalten diese Nachricht, weil Sie ein Konto bei {brandName} haben.",
     "cta": "{brandName} öffnen"
+  },
+  "notificationReminder": {
+    "subject": "Handlung erforderlich: Eine wichtige Benachrichtigung ist noch ungelesen",
+    "title": "Eine wichtige Benachrichtigung wartet auf Sie",
+    "intro": "Diese Benachrichtigung wurde Ihnen auf {brandName} gesendet und ist noch ungelesen:",
+    "cta": "Zugehörige Seite öffnen",
+    "footer": "Sie erhalten diese Erinnerung nur einmal. Sie wird nicht mehr gesendet, sobald die Benachrichtigung gelesen wurde."
   }
 }

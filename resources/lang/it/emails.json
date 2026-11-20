@@ -78,5 +78,12 @@
   "announcement": {
     "footer": "Ricevi questo messaggio perché hai un account su {brandName}.",
     "cta": "Apri {brandName}"
+  },
+  "notificationReminder": {
+    "subject": "Azione richiesta: una notifica importante non è ancora stata letta",
+    "title": "Una notifica importante ti aspetta",
+    "intro": "Questa notifica ti è stata inviata su {brandName} e non è ancora stata letta:",
+    "cta": "Apri la pagina interessata",
+    "footer": "Ricevi questo promemoria una sola volta. Non viene più inviato appena la notifica viene letta."
   }
 }

@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import app from '@adonisjs/core/services/app'
 import ace from '@adonisjs/core/services/ace'
 import db from '@adonisjs/lucid/services/db'
 import mail from '@adonisjs/mail/services/main'
@@ -20,8 +21,8 @@ function payload(key: string): SendMailPayload {
   }
 }
 
-function jobFor(content: SendMailPayload, attempt: number) {
-  const job = new SendMailJob()
+async function jobFor(content: SendMailPayload, attempt: number) {
+  const job = await app.container.make(SendMailJob)
   job.$hydrate(content, {
     jobId: 'job-test',
     name: 'SendMailJob',
@@ -32,6 +33,16 @@ function jobFor(content: SendMailPayload, attempt: number) {
     stalledCount: 0,
   })
   return job
+}
+
+async function runJob(content: SendMailPayload, attempt: number) {
+  const job = await jobFor(content, attempt)
+  return job.execute()
+}
+
+async function failJob(error: Error, content: SendMailPayload, attempt: number) {
+  const job = await jobFor(content, attempt)
+  return job.failed(error)
 }
 
 test.group('mail:retry', (group) => {
@@ -61,8 +72,8 @@ test.group('mail:retry', (group) => {
       return real(...args)
     }) as typeof fakeMailer.send
 
-    await assert.rejects(() => jobFor(content, 5).execute(), 'ECONNREFUSED')
-    await jobFor(content, 6).failed(new Error('ECONNREFUSED'))
+    await assert.rejects(() => runJob(content, 5), 'ECONNREFUSED')
+    await failJob(new Error('ECONNREFUSED'), content, 6)
 
     const deliveries = new MailDeliveryService()
     assert.equal(await deliveries.statusOf(content.idempotencyKey), 'failed')

@@ -1,5 +1,6 @@
 import type { Locale } from './i18n.js'
 import type { ContactRequestType } from './marketing.js'
+import type { NotificationData, NotificationType } from './notification.js'
 
 /**
  * Charges des mails transactionnels envoyés via la queue (`SendMailJob`).
@@ -21,6 +22,7 @@ export const MAIL_KINDS = {
   contactRequest: 'contact-request',
   agencyReviewDecision: 'agency-review-decision',
   announcement: 'announcement',
+  notificationReminder: 'notification-reminder',
 } as const
 
 export type MailKind = (typeof MAIL_KINDS)[keyof typeof MAIL_KINDS]
@@ -142,6 +144,18 @@ export interface AnnouncementMailData {
 }
 
 /**
+ * Données du mail de rappel d'une notification in-app restée non lue
+ * (`NotificationReminderNotification`, #243). Le mail reprend le texte de la
+ * notification (`notifications.types.<type>`, paramètres `notificationData`),
+ * rendu dans la langue du destinataire. `path` est relatif, préfixé par `appUrl`.
+ */
+export interface NotificationReminderMailData {
+  notificationType: NotificationType
+  notificationData: NotificationData
+  path: string
+}
+
+/**
  * `to` est hissé hors de `data` : il est commun à tous les mails, ce qui permet
  * de loguer le destinataire dans `failed()` sans connaître le `kind`.
  *
@@ -207,6 +221,12 @@ export type SendMailContent =
       to: string
       locale: Locale
       data: AnnouncementMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.notificationReminder
+      to: string
+      locale: Locale
+      data: NotificationReminderMailData
     }
 
 /**

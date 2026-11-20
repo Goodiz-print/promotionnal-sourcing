@@ -4,6 +4,7 @@ import app from '@adonisjs/core/services/app'
 import AgencyReviewDecisionNotification from '#mails/agency_review_decision_notification'
 import AnnouncementNotification from '#mails/announcement_notification'
 import EmailVerificationNotification from '#mails/email_verification_notification'
+import NotificationReminderNotification from '#mails/notification_reminder_notification'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
 import PasswordResetNotification from '#mails/password_reset_notification'
 import QuoteReceivedNotification from '#mails/quote_received_notification'
@@ -11,6 +12,7 @@ import RfqReceivedNotification from '#mails/rfq_received_notification'
 import RfqReminderNotification from '#mails/rfq_reminder_notification'
 import WelcomeNotification from '#mails/welcome_notification'
 import { SUPPORTED_LOCALES, type Locale } from '#shared/types/i18n'
+import { NOTIFICATION_EMAIL_FALLBACK } from '#shared/types/notification'
 import type User from '#models/user'
 
 /**
@@ -102,6 +104,14 @@ const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> 
       'Merci de joindre un Kbis.',
       locale
     ) as never,
+  notificationReminder: (locale) =>
+    new NotificationReminderNotification(
+      'admin@example.com',
+      'subscription.duplicate_cancelled',
+      { organizationName: 'Acme', organizationId: 7, cancelledSubscriptionId: 'sub_123' },
+      '/x/admin/organizations/7',
+      locale
+    ) as never,
   welcome: (locale) =>
     new WelcomeNotification({
       email: 'new@example.com',
@@ -163,6 +173,48 @@ test.group('Mails — rendu dans la langue du destinataire', () => {
     )
     const { html } = await render(mailer as never)
     assert.notInclude(html, '<script>alert(1)</script>')
+  })
+
+  test('le rappel de notification reprend le texte de la notification et son lien', async ({
+    assert,
+  }) => {
+    const { html } = await render(mailers.notificationReminder('de'))
+
+    assert.include(html, 'Acme hat zwei Abonnements gleichzeitig bezahlt')
+    assert.include(html, 'sub_123')
+    assert.include(html, '/x/admin/organizations/7')
+    assert.notInclude(html, 'notifications.types')
+  })
+
+  test('un libellé non formatable n’empêche pas le rappel de partir, lien compris', async ({
+    assert,
+  }) => {
+    const mailer = new NotificationReminderNotification(
+      'admin@example.com',
+      'subscription.duplicate_cancelled',
+      {},
+      '/x/admin/organizations/7',
+      'fr'
+    )
+    const { subject, html } = await render(mailer as never)
+
+    assert.isNotEmpty(subject)
+    assert.include(html, '/x/admin/organizations/7')
+    assert.notInclude(html, 'notifications.types')
+    assert.notInclude(html, '{organizationName}')
+  })
+
+  test('chaque type à rappeler a son libellé dans les 9 langues', async ({ assert }) => {
+    for (const type of Object.keys(NOTIFICATION_EMAIL_FALLBACK)) {
+      const [group, name] = type.split('.')
+      for (const locale of SUPPORTED_LOCALES) {
+        const labels = JSON.parse(
+          readFileSync(app.languageFilesPath(`${locale}/notifications.json`), 'utf8')
+        )
+        const label = name ? labels.types?.[group]?.[name] : labels.types?.[group]
+        assert.isString(label, `${locale} : notifications.types.${type}`)
+      }
+    }
   })
 
   test('le pluriel suit les règles de la langue (polonais : one / few / many)', async ({

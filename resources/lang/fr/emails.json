@@ -78,5 +78,12 @@
   "announcement": {
     "footer": "Vous recevez ce message car vous avez un compte {brandName}.",
     "cta": "Ouvrir {brandName}"
+  },
+  "notificationReminder": {
+    "subject": "Action attendue : une notification importante n'a pas été lue",
+    "title": "Une notification importante vous attend",
+    "intro": "Cette notification vous a été envoyée sur {brandName} et n'a pas encore été lue :",
+    "cta": "Ouvrir l'écran concerné",
+    "footer": "Vous recevez ce rappel une seule fois. Il n'est plus envoyé dès que la notification est lue."
   }
 }

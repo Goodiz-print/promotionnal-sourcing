@@ -71,7 +71,52 @@ et `OnQuoteSubmitted` envoient aussi le mail : deux canaux indépendants.
   (`notifications.types.<type>`) ; les autres langues retombent sur l'anglais
   (`ENGLISH_FALLBACK_NAMESPACES`).
 - Ajouter un type : une entrée dans `NOTIFICATION_TYPES`, un libellé fr/en, un cas dans
-  `NotificationTransformer#href`, et l'appel dans `InAppNotificationService`.
+  `notificationHref` (`app/transformers/notification_transformer.ts`), et l'appel dans
+  `InAppNotificationService`.
+
+### Rappel par mail des notifications non lues (#243)
+
+Une alerte urgente ne doit pas rester invisible tant que son destinataire ne se connecte
+pas. Certains types sont donc « à rappeler » :
+
+- **Politique** : `NOTIFICATION_EMAIL_FALLBACK` (`shared/types/notification.ts`) associe un
+  type à son délai (`delayMinutes`) et, au besoin, au rôle plateforme que le destinataire doit
+  encore avoir (`recipientPlatformRole`). Types branchés :
+  - `subscription.duplicate_cancelled` : 30 minutes, administrateurs uniquement ;
+  - 24 heures pour les notifications des acheteurs et fournisseurs : `order.created`,
+    `order.confirmed`, `order.in_production`, `order.shipped`, `order.cancelled`,
+    `quote.accepted`, `quote.rejected`, `rfq.declined`, `message.warned`.
+
+  Un type absent n'envoie jamais de mail. Les types qui ont déjà leur mail à la création
+  (`rfq.received`, `quote.received`, `announcement`, invitation) restent hors de la table,
+  pour ne pas envoyer deux mails. `order.delivered` et `organization.member_joined` n'y
+  figurent pas non plus : ils sont informatifs.
+
+- **Âge maximal** : une notification plus vieille que `NOTIFICATION_REMINDER_MAX_AGE_HOURS`
+  (7 jours) n'est plus rappelée. Brancher un type n'envoie donc pas de rafale pour un vieil
+  historique.
+- **Job** : `SendNotificationRemindersJob`, toutes les 5 minutes (`start/scheduler.ts`,
+  planning `send-notification-reminders`, lançable depuis le back-office). Il appelle
+  `NotificationReminderService#sendDue`.
+- **Un seul mail par notification** : une notification non lue, plus vieille que le délai de
+  son type et sans rappel (`email_reminded_at` null) est réservée par un `UPDATE … SET
+email_reminded_at` sur une sélection `FOR UPDATE SKIP LOCKED`, puis le mail est mis en queue
+  dans la même transaction. Deux passes concurrentes ne prennent jamais la même ligne ; un
+  rejeu du mail est absorbé par sa clé d'idempotence (`notification-reminder:notification=<id>`).
+  Une notification lue avant le délai n'envoie rien.
+- **Échec de mise en queue** : isolé ligne par ligne. Seule la notification en échec est
+  libérée (`email_reminded_at` remis à null, reprise à la passe suivante) ; les autres mails du
+  lot gardent leur réservation. Lots de 50 par type et par passe.
+- **Mail** : `notification-reminder` (`NotificationReminderNotification`). Il reprend le texte
+  de la notification (`notifications.types.<type>`) dans la langue du destinataire et pointe
+  vers le même écran que la cloche (`notificationHref`, préfixé par `appUrl`). Le libellé du
+  type doit donc exister dans les 9 langues (vérifié par `tests/unit/mail_templates.spec.ts`).
+  Si le libellé manque ou ne peut pas être formaté (paramètre absent de `data`), le mail part
+  sans ce texte, avec son lien, plutôt que d'échouer.
+- Brancher un type : une entrée dans `NOTIFICATION_EMAIL_FALLBACK` (et son libellé dans les
+  9 `notifications.json`). Ni réglage utilisateur, ni second rappel, ni regroupement.
+- **Index** : `notifications_pending_email_reminder_index`, partiel
+  (`read_at IS NULL AND email_reminded_at IS NULL`) sur `(type, created_at)`.
 
 ## Messagerie (#8)
 
