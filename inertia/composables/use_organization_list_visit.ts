@@ -12,7 +12,7 @@ export function useOrganizationListVisit() {
   const { locale } = useI18n()
 
   function visit(filters: AdminOrganizationIndexFilters, page = 1) {
-    const query: Record<string, string | number> = { page }
+    const query: Record<string, string | number | boolean> = { page }
     for (const [key, value] of Object.entries(filters)) {
       if (value) query[key] = value
     }

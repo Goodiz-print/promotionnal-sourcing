@@ -12,6 +12,7 @@ import AnnouncementNotification from '#mails/announcement_notification'
 import NotificationReminderNotification from '#mails/notification_reminder_notification'
 import SubscriptionActivatedNotification from '#mails/subscription_activated_notification'
 import SubscriptionExpiringNotification from '#mails/subscription_expiring_notification'
+import QuoteEmailVerificationNotification from '#mails/quote_email_verification_notification'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
 import ContactRequestNotification from '#mails/contact_request_notification'
 import EmailVerificationNotification from '#mails/email_verification_notification'
@@ -207,6 +208,8 @@ export default class SendMailJob extends Job<SendMailPayload> {
         return new SubscriptionActivatedNotification(to, data, locale)
       case MAIL_KINDS.subscriptionExpiring:
         return new SubscriptionExpiringNotification(to, data, locale)
+      case MAIL_KINDS.quoteEmailVerification:
+        return new QuoteEmailVerificationNotification(to, data, locale)
       case MAIL_KINDS.contactRequest:
         return new ContactRequestNotification(to, data)
       default:

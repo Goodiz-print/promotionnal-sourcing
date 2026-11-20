@@ -138,6 +138,12 @@ const routes = {
     tokens: [[1,"locale"],[0,"email"],[0,"verify"],[1,"id"]],
     types: placeholder as Registry['email.verify']['types'],
   },
+  'supplier.quoteEmail.verify': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/quote-email/verify/:id',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"quote-email"],[0,"verify"],[1,"id"]],
+    types: placeholder as Registry['supplier.quoteEmail.verify']['types'],
+  },
   'new_account.create': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/signup',
@@ -395,6 +401,12 @@ const routes = {
     pattern: '/:locale/supplier/profile',
     tokens: [[1,"locale"],[0,"supplier"],[0,"profile"]],
     types: placeholder as Registry['supplier.profile.update']['types'],
+  },
+  'supplier.profile.quoteEmail.resend': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/profile/quote-email/resend',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"profile"],[0,"quote-email"],[0,"resend"]],
+    types: placeholder as Registry['supplier.profile.quoteEmail.resend']['types'],
   },
   'supplier.products.index': {
     methods: ["GET","HEAD"],

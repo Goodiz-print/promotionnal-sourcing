@@ -2794,6 +2794,7 @@ export class SupplierProfileSchema extends BaseModel {
     'primaryContactEmail',
     'primaryContactName',
     'quoteEmail',
+    'quoteEmailVerifiedAt',
     'reportFrequency',
     'responseTimeDays',
     'showAllContacts',
@@ -2845,6 +2846,8 @@ export class SupplierProfileSchema extends BaseModel {
   declare primaryContactName: string | null
   @column()
   declare quoteEmail: string | null
+  @column.dateTime()
+  declare quoteEmailVerifiedAt: DateTime | null
   @column()
   declare reportFrequency: string
   @column()

@@ -8,7 +8,9 @@
       "terms": "Geschäftsbedingungen",
       "termsHint": "Mindestbestellwert, Lieferzeiten und Liefergebiet, die den Käufern angezeigt werden.",
       "certificationsHint": "Normen und Siegel, die Sie besitzen (ISO, FSC, OEKO-TEX …).",
-      "presentation": "Unternehmensvorstellung"
+      "presentation": "Unternehmensvorstellung",
+      "quoteReception": "Empfang von Angebotsanfragen",
+      "quoteReceptionHint": "Agenturen senden Ihnen ihre Anfragen per E-Mail: Geben Sie die Adresse an, die sie empfangen soll."
     },
     "moderation": {
       "pending": "Profil wird geprüft",
@@ -18,6 +20,16 @@
       "rejected": "Profil abgelehnt",
       "rejectedHint": "Ihre Organisation wurde abgelehnt: Ihr Katalog ist für Käufer nicht mehr sichtbar.",
       "reason": "Begründung: {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Adresse wartet auf Bestätigung",
+      "pendingHint": "Ein Bestätigungslink wurde an {email} gesendet. Bis er angeklickt wird, gehen Angebotsanfragen an die Kontaktadresse der Organisation, ersatzweise an die Verantwortlichen des Kontos.",
+      "resend": "Link erneut senden",
+      "resent": "Der Bestätigungslink wurde erneut gesendet.",
+      "verified": "Angebotsanfragen werden an {email} gesendet.",
+      "willSend": "Beim Speichern wird ein Bestätigungslink an diese Adresse gesendet.",
+      "invalidLink": "Dieser Bestätigungslink ist nicht mehr gültig. Fordern Sie im Lieferantenprofil einen neuen an.",
+      "verifiedFlash": "Empfangsadresse bestätigt: Sie erhält ab jetzt die Angebotsanfragen."
     }
   },
   "fields": {
@@ -31,7 +43,9 @@
     "certificationRemove": "Entfernen",
     "bio": "Vorstellung",
     "defaultOriginScope": "Standardherkunft",
-    "certificationsEmpty": "Keine Zertifizierung angegeben."
+    "certificationsEmpty": "Keine Zertifizierung angegeben.",
+    "quoteEmail": "Empfangsadresse für Anfragen",
+    "quoteEmailHint": "Bleibt das Feld leer, geht die Anfrage an die Kontaktadresse der Organisation, ersatzweise an die Verantwortlichen des Kontos."
   },
   "deliveryScope": {
     "none": "Nicht angegeben",

@@ -103,5 +103,13 @@
     "after": "Sem renovação, a sua organização volta ao plano gratuito: a identidade das agências deixa de ser visível nos pedidos de orçamento e nas estatísticas.",
     "cta": "Renovar a minha assinatura",
     "footer": "Recebe este lembrete como responsável da organização."
+  },
+  "quoteEmailVerification": {
+    "subject": "Confirme o endereço de receção dos pedidos de orçamento de {organizationName}",
+    "title": "Confirme este endereço",
+    "body": "{organizationName} escolheu este endereço para receber os seus pedidos de orçamento em {brandName}. Confirme-o para que as agências o possam contactar aqui.",
+    "cta": "Confirmar o endereço",
+    "validity": "Este link é válido durante {days, plural, one {# dia} other {# dias}}.",
+    "ignore": "Se não trabalha para {organizationName}, ignore esta mensagem: não lhe será enviado nenhum pedido."
   }
 }

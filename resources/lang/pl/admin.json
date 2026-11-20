@@ -118,7 +118,9 @@
       "search": "Szukaj",
       "searchPlaceholder": "Nazwa, slug, SIRET lub VAT",
       "country": "Kraj",
-      "allCountries": "Wszystkie kraje"
+      "allCountries": "Wszystkie kraje",
+      "missingQuoteAddress": "Bez adresu odbioru",
+      "missingQuoteAddressHint": "Dostawcy, których zapytania trafiają do osób odpowiedzialnych za konto z braku adresu odbioru lub kontaktowego."
     },
     "types": {
       "buyer": "Kupujący",
@@ -197,6 +199,9 @@
         "no": "Nie",
         "supplier": {
           "title": "Profil dostawcy",
+          "quoteEmail": "Adres odbioru zapytań",
+          "quoteEmailStatus": "Potwierdzenie adresu odbioru",
+          "quoteEmailPending": "Oczekuje na potwierdzenie",
           "companyType": "Typ firmy",
           "commercialStatus": "Status handlowy",
           "minOrderQuantity": "Minimalna ilość zamówienia",
@@ -306,6 +311,9 @@
         "notEditable": "Tej subskrypcji nie można już tu zmienić.",
         "notSupplier": "Tylko organizacja dostawcy może wykupić subskrypcję."
       }
+    },
+    "quoteAddress": {
+      "missing": "Bez adresu odbioru"
     }
   },
   "supplierLinks": {

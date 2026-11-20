@@ -8,7 +8,9 @@
       "terms": "Kommersiella villkor",
       "termsHint": "Minsta order, ledtider och leveransområde som visas för köpare.",
       "certificationsHint": "Standarder och märkningar som du innehar (ISO, FSC, OEKO-TEX…).",
-      "presentation": "Presentation av företaget"
+      "presentation": "Presentation av företaget",
+      "quoteReception": "Mottagning av offertförfrågningar",
+      "quoteReceptionHint": "Byråer skickar sina förfrågningar via e-post: ange adressen som ska ta emot dem."
     },
     "moderation": {
       "pending": "Profilen granskas",
@@ -18,6 +20,16 @@
       "rejected": "Profilen avvisades",
       "rejectedHint": "Din organisation avvisades: din katalog är inte längre synlig för köpare.",
       "reason": "Anledning: {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Adressen väntar på bekräftelse",
+      "pendingHint": "En bekräftelselänk har skickats till {email}. Tills den har klickats går offertförfrågningar till organisationens kontaktadress, annars till kontots ansvariga.",
+      "resend": "Skicka länken igen",
+      "resent": "Bekräftelselänken har skickats igen.",
+      "verified": "Offertförfrågningar skickas till {email}.",
+      "willSend": "När ni sparar skickas en bekräftelselänk till den här adressen.",
+      "invalidLink": "Den här bekräftelselänken är inte längre giltig. Begär en ny från leverantörsprofilen.",
+      "verifiedFlash": "Mottagaradressen är bekräftad: den tar nu emot offertförfrågningar."
     }
   },
   "fields": {
@@ -31,7 +43,9 @@
     "certificationRemove": "Ta bort",
     "bio": "Presentation",
     "defaultOriginScope": "Standardursprung",
-    "certificationsEmpty": "Ingen certifiering angiven."
+    "certificationsEmpty": "Ingen certifiering angiven.",
+    "quoteEmail": "Mottagaradress för förfrågningar",
+    "quoteEmailHint": "Lämnas fältet tomt går förfrågan till organisationens kontaktadress, annars till kontots ansvariga."
   },
   "deliveryScope": {
     "none": "Ej angivet",

@@ -10,6 +10,7 @@
 import { middleware } from '#start/kernel'
 import {
   emailVerificationResendThrottle,
+  quoteEmailVerificationResendThrottle,
   imageSearchThrottle,
   loginThrottle,
   passkeyLoginThrottle,
@@ -97,6 +98,11 @@ router
     // Lien de vérification d'email reçu par mail : URL signée, hors `auth` (peut
     // être ouvert depuis un autre navigateur que celui de l'inscription).
     router.get('email/verify/:id', [controllers.EmailVerification, 'verify']).as('email.verify')
+    // Confirmation de l'adresse de réception des demandes de devis (#217) : URL
+    // signée, hors `auth` (la boîte peut être partagée, sans compte).
+    router
+      .get('supplier/quote-email/verify/:id', [controllers.QuoteEmailVerification, 'verify'])
+      .as('supplier.quoteEmail.verify')
 
     router
       .group(() => {
@@ -259,6 +265,13 @@ router
                 router
                   .patch('supplier/profile', [controllers.supplier.Profile, 'update'])
                   .as('supplier.profile.update')
+                router
+                  .post('supplier/profile/quote-email/resend', [
+                    controllers.supplier.Profile,
+                    'resendQuoteEmailVerification',
+                  ])
+                  .use(quoteEmailVerificationResendThrottle)
+                  .as('supplier.profile.quoteEmail.resend')
 
                 // Gestion des produits par le fournisseur (CRUD + upload images).
                 router

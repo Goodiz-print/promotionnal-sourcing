@@ -103,5 +103,13 @@
     "after": "Sans renouvellement, votre organisation repassera en formule gratuite : l'identité des agences ne sera plus visible sur vos demandes de devis ni dans vos statistiques.",
     "cta": "Renouveler mon abonnement",
     "footer": "Vous recevez ce rappel en tant que responsable de l'organisation."
+  },
+  "quoteEmailVerification": {
+    "subject": "Confirmez l'adresse de réception des demandes de devis de {organizationName}",
+    "title": "Confirmez cette adresse",
+    "body": "{organizationName} a choisi cette adresse pour recevoir ses demandes de devis sur {brandName}. Confirmez-la pour que les agences puissent vous joindre ici.",
+    "cta": "Confirmer l'adresse",
+    "validity": "Ce lien est valable {days, plural, one {# jour} other {# jours}}.",
+    "ignore": "Si vous ne travaillez pas pour {organizationName}, ignorez ce message : aucune demande ne vous sera envoyée."
   }
 }

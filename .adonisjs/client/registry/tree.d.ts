@@ -66,54 +66,15 @@ export interface ApiDefinition {
       resend: typeof routes['email.verification.resend']
     }
   }
-  newAccount: {
-    create: typeof routes['new_account.create']
-    store: typeof routes['new_account.store']
-  }
-  agencySignup: {
-    create: typeof routes['agency_signup.create']
-    store: typeof routes['agency_signup.store']
-  }
-  session: {
-    create: typeof routes['session.create']
-    store: typeof routes['session.store']
-    destroy: typeof routes['session.destroy']
-  }
-  passkey: {
-    login: typeof routes['passkey.login'] & {
-      options: typeof routes['passkey.login.options']
-    }
-  }
-  password: {
-    forgot: typeof routes['password.forgot']
-    email: typeof routes['password.email']
-    reset: typeof routes['password.reset']
-    update: typeof routes['password.update']
-  }
-  account: {
-    show: typeof routes['account.show']
-    update: typeof routes['account.update']
-    password: {
-      update: typeof routes['account.password.update']
-    }
-    destroy: typeof routes['account.destroy']
-    passkeys: {
-      options: typeof routes['account.passkeys.options']
-      store: typeof routes['account.passkeys.store']
-      update: typeof routes['account.passkeys.update']
-      destroy: typeof routes['account.passkeys.destroy']
-    }
-  }
-  onboarding: {
-    show: typeof routes['onboarding.show']
-    store: typeof routes['onboarding.store']
-  }
-  dashboard: {
-    show: typeof routes['dashboard.show']
-  }
   supplier: {
+    quoteEmail: {
+      verify: typeof routes['supplier.quoteEmail.verify']
+    }
     profile: typeof routes['supplier.profile'] & {
       update: typeof routes['supplier.profile.update']
+      quoteEmail: {
+        resend: typeof routes['supplier.profile.quoteEmail.resend']
+      }
     }
     products: {
       index: typeof routes['supplier.products.index']
@@ -178,6 +139,51 @@ export interface ApiDefinition {
       destroy: typeof routes['supplier.contacts.destroy']
       move: typeof routes['supplier.contacts.move']
     }
+  }
+  newAccount: {
+    create: typeof routes['new_account.create']
+    store: typeof routes['new_account.store']
+  }
+  agencySignup: {
+    create: typeof routes['agency_signup.create']
+    store: typeof routes['agency_signup.store']
+  }
+  session: {
+    create: typeof routes['session.create']
+    store: typeof routes['session.store']
+    destroy: typeof routes['session.destroy']
+  }
+  passkey: {
+    login: typeof routes['passkey.login'] & {
+      options: typeof routes['passkey.login.options']
+    }
+  }
+  password: {
+    forgot: typeof routes['password.forgot']
+    email: typeof routes['password.email']
+    reset: typeof routes['password.reset']
+    update: typeof routes['password.update']
+  }
+  account: {
+    show: typeof routes['account.show']
+    update: typeof routes['account.update']
+    password: {
+      update: typeof routes['account.password.update']
+    }
+    destroy: typeof routes['account.destroy']
+    passkeys: {
+      options: typeof routes['account.passkeys.options']
+      store: typeof routes['account.passkeys.store']
+      update: typeof routes['account.passkeys.update']
+      destroy: typeof routes['account.passkeys.destroy']
+    }
+  }
+  onboarding: {
+    show: typeof routes['onboarding.show']
+    store: typeof routes['onboarding.store']
+  }
+  dashboard: {
+    show: typeof routes['dashboard.show']
   }
   rfqs: {
     index: typeof routes['rfqs.index']

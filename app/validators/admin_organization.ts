@@ -21,6 +21,7 @@ export const adminOrganizationFiltersValidator = vine.create({
     .regex(ISO_COUNTRY_REGEX)
     .transform((v) => v.toUpperCase())
     .optional(),
+  missingQuoteAddress: vine.boolean().optional(),
   page: vine.number().withoutDecimals().min(1).max(100000).optional(),
 })
 

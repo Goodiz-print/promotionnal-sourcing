@@ -8,7 +8,9 @@
       "terms": "Condições comerciais",
       "termsHint": "Encomenda mínima, prazos e âmbito de entrega apresentados aos compradores.",
       "certificationsHint": "Normas e selos que possui (ISO, FSC, OEKO-TEX…).",
-      "presentation": "Apresentação da empresa"
+      "presentation": "Apresentação da empresa",
+      "quoteReception": "Receção de pedidos de orçamento",
+      "quoteReceptionHint": "As agências enviam-lhe os pedidos por e-mail: indique o endereço que os deve receber."
     },
     "moderation": {
       "pending": "Ficha em validação",
@@ -18,6 +20,16 @@
       "rejected": "Ficha rejeitada",
       "rejectedHint": "A sua organização foi rejeitada: o seu catálogo já não é visível para os compradores.",
       "reason": "Motivo: {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Endereço a aguardar confirmação",
+      "pendingHint": "Foi enviado um link de confirmação para {email}. Enquanto não for clicado, os pedidos de orçamento vão para o endereço de contacto da organização ou, na sua falta, para os responsáveis da conta.",
+      "resend": "Reenviar o link",
+      "resent": "O link de confirmação foi reenviado.",
+      "verified": "Os pedidos de orçamento são enviados para {email}.",
+      "willSend": "Ao guardar, será enviado um link de confirmação para este endereço.",
+      "invalidLink": "Este link de confirmação já não é válido. Peça um novo no perfil de fornecedor.",
+      "verifiedFlash": "Endereço de receção confirmado: passará a receber os pedidos de orçamento."
     }
   },
   "fields": {
@@ -31,7 +43,9 @@
     "certificationRemove": "Remover",
     "bio": "Apresentação",
     "defaultOriginScope": "Proveniência por defeito",
-    "certificationsEmpty": "Nenhuma certificação indicada."
+    "certificationsEmpty": "Nenhuma certificação indicada.",
+    "quoteEmail": "Endereço de receção dos pedidos",
+    "quoteEmailHint": "Se ficar vazio, o pedido vai para o endereço de contacto da organização ou, na sua falta, para os responsáveis da conta."
   },
   "deliveryScope": {
     "none": "Não especificado",

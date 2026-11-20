@@ -103,5 +103,13 @@
     "after": "Without renewal, your organization will go back to the free plan: agencies' identity will no longer be visible on your quote requests or in your statistics.",
     "cta": "Renew my subscription",
     "footer": "You are receiving this reminder as a manager of the organization."
+  },
+  "quoteEmailVerification": {
+    "subject": "Confirm the quote request address of {organizationName}",
+    "title": "Confirm this address",
+    "body": "{organizationName} chose this address to receive its quote requests on {brandName}. Confirm it so agencies can reach you here.",
+    "cta": "Confirm the address",
+    "validity": "This link is valid for {days, plural, one {# day} other {# days}}.",
+    "ignore": "If you do not work for {organizationName}, ignore this message: no request will be sent to you."
   }
 }

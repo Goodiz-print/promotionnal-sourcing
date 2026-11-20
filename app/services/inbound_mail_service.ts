@@ -12,6 +12,7 @@ import InboundMail from '#models/inbound_mail'
 import InboundMailAttachment from '#models/inbound_mail_attachment'
 import OrganizationUser from '#models/organization_user'
 import RfqSupplier from '#models/rfq_supplier'
+import SupplierProfile from '#models/supplier_profile'
 import InboundAddressService from '#services/inbound_address_service'
 import InboundMailProvider from '#services/inbound_mail/inbound_mail_provider'
 import StorageService from '#services/storage/storage_service'
@@ -459,18 +460,29 @@ export default class InboundMailService {
   }
 
   /**
-   * L'expéditeur est-il l'adresse de contact du fournisseur ou celle d'un de
-   * ses membres ? Indicatif (affiché à l'équipe et à l'agence) : un fournisseur
-   * répond souvent depuis une autre boîte, ce n'est pas un motif de rejet.
+   * L'expéditeur est-il l'adresse de réception (#217) ou de contact du
+   * fournisseur, ou celle d'un de ses membres ? Indicatif (affiché à l'équipe
+   * et à l'agence) : un fournisseur répond souvent depuis une autre boîte, ce
+   * n'est pas un motif de rejet.
    */
   private async isKnownSender(senderAddress: string, recipient: RfqSupplier): Promise<boolean> {
-    await recipient.load('supplierOrganization')
-    if (recipient.supplierOrganization.email?.toLowerCase() === senderAddress) return true
+    if (await this.isDeclaredAddress(senderAddress, recipient)) return true
 
     const member = await OrganizationUser.query()
       .where('organizationId', recipient.supplierOrganizationId)
       .whereHas('user', (user) => user.whereRaw('lower(email) = ?', [senderAddress]))
       .first()
     return member !== null
+  }
+
+  /** Adresse de réception du profil ou de contact de l'organisation. */
+  private async isDeclaredAddress(senderAddress: string, recipient: RfqSupplier) {
+    await recipient.load('supplierOrganization')
+    const profile = await SupplierProfile.query()
+      .select('id', 'quoteEmail')
+      .where('organizationId', recipient.supplierOrganizationId)
+      .first()
+    const declared = [profile?.quoteEmail, recipient.supplierOrganization.email]
+    return declared.some((email) => email?.trim().toLowerCase() === senderAddress)
   }
 }

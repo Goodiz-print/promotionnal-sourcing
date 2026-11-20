@@ -118,7 +118,9 @@
       "search": "Search",
       "searchPlaceholder": "Name, slug, SIRET or VAT",
       "country": "Country",
-      "allCountries": "All countries"
+      "allCountries": "All countries",
+      "missingQuoteAddress": "No quote request address",
+      "missingQuoteAddressHint": "Suppliers whose requests go to the account managers, for lack of a quote request or contact address."
     },
     "types": {
       "buyer": "Buyer",
@@ -197,6 +199,9 @@
         "no": "No",
         "supplier": {
           "title": "Supplier profile",
+          "quoteEmail": "Quote request address",
+          "quoteEmailStatus": "Quote request address confirmation",
+          "quoteEmailPending": "Awaiting confirmation",
           "companyType": "Company type",
           "commercialStatus": "Commercial status",
           "minOrderQuantity": "Minimum order quantity",
@@ -306,6 +311,9 @@
         "notEditable": "This subscription can no longer be changed here.",
         "notSupplier": "Only a supplier organization can subscribe."
       }
+    },
+    "quoteAddress": {
+      "missing": "No quote request address"
     }
   },
   "supplierLinks": {

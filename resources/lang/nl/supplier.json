@@ -8,7 +8,9 @@
       "terms": "Commerciële voorwaarden",
       "termsHint": "Minimumbestelling, levertijden en leveringsgebied zoals getoond aan kopers.",
       "certificationsHint": "Normen en labels waarover u beschikt (ISO, FSC, OEKO-TEX…).",
-      "presentation": "Bedrijfspresentatie"
+      "presentation": "Bedrijfspresentatie",
+      "quoteReception": "Ontvangst van offerteaanvragen",
+      "quoteReceptionHint": "Bureaus sturen u hun aanvragen per e-mail: geef het adres op dat ze moet ontvangen."
     },
     "moderation": {
       "pending": "Profiel wordt beoordeeld",
@@ -18,6 +20,16 @@
       "rejected": "Profiel afgewezen",
       "rejectedHint": "Uw organisatie is afgewezen: uw catalogus is niet langer zichtbaar voor kopers.",
       "reason": "Reden: {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Adres wacht op bevestiging",
+      "pendingHint": "Er is een bevestigingslink naar {email} gestuurd. Zolang die niet is aangeklikt, gaan offerteaanvragen naar het contactadres van de organisatie, anders naar de verantwoordelijken van het account.",
+      "resend": "Link opnieuw sturen",
+      "resent": "De bevestigingslink is opnieuw verstuurd.",
+      "verified": "Offerteaanvragen worden naar {email} gestuurd.",
+      "willSend": "Bij het opslaan wordt een bevestigingslink naar dit adres gestuurd.",
+      "invalidLink": "Deze bevestigingslink is niet meer geldig. Vraag een nieuwe aan via het leveranciersprofiel.",
+      "verifiedFlash": "Ontvangstadres bevestigd: het ontvangt voortaan de offerteaanvragen."
     }
   },
   "fields": {
@@ -31,7 +43,9 @@
     "certificationRemove": "Verwijderen",
     "bio": "Presentatie",
     "defaultOriginScope": "Standaardherkomst",
-    "certificationsEmpty": "Nog geen certificering opgegeven."
+    "certificationsEmpty": "Nog geen certificering opgegeven.",
+    "quoteEmail": "Ontvangstadres voor aanvragen",
+    "quoteEmailHint": "Leeg gelaten gaat de aanvraag naar het contactadres van de organisatie, anders naar de verantwoordelijken van het account."
   },
   "deliveryScope": {
     "none": "Niet opgegeven",

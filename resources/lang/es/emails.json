@@ -103,5 +103,13 @@
     "after": "Si no la renuevas, tu organización volverá al plan gratuito: la identidad de las agencias dejará de verse en tus solicitudes de presupuesto y en tus estadísticas.",
     "cta": "Renovar mi suscripción",
     "footer": "Recibes este recordatorio como responsable de la organización."
+  },
+  "quoteEmailVerification": {
+    "subject": "Confirme la dirección de recepción de solicitudes de presupuesto de {organizationName}",
+    "title": "Confirme esta dirección",
+    "body": "{organizationName} ha elegido esta dirección para recibir sus solicitudes de presupuesto en {brandName}. Confírmela para que las agencias puedan contactarle aquí.",
+    "cta": "Confirmar la dirección",
+    "validity": "Este enlace es válido durante {days, plural, one {# día} other {# días}}.",
+    "ignore": "Si no trabaja para {organizationName}, ignore este mensaje: no se le enviará ninguna solicitud."
   }
 }

@@ -3,24 +3,20 @@ import { urlFor } from '@adonisjs/core/services/url_builder'
 import logger from '@adonisjs/core/services/logger'
 import db from '@adonisjs/lucid/services/db'
 import OrganizationUser from '#models/organization_user'
+import SupplierProfile from '#models/supplier_profile'
 import SendMailJob from '#jobs/send_mail_job'
 import InboundAddressService from '#services/inbound_address_service'
 import { mailIdempotencyKey } from '#shared/helpers/mail'
 import { MAIL_KINDS, type SendMailContent, type SendMailPayload } from '#shared/types/mail'
-import { RFQ_DEADLINE_TIMEZONE, RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
+import { RFQ_DEADLINE_TIMEZONE, RFQ_RESPONDER_ROLES, type RfqMailAddress } from '#shared/types/rfq'
+import { resolveQuoteAddresses } from '#shared/helpers/quote_address'
 import type Organization from '#models/organization'
 import type Rfq from '#models/rfq'
-import { DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
+import type { Locale } from '#shared/types/i18n'
 import type RfqSupplier from '#models/rfq_supplier'
 
 /** Les mails de demande de devis envoyés aux fournisseurs. */
 type QueuedKind = typeof MAIL_KINDS.rfqReceived | typeof MAIL_KINDS.rfqReminder
-
-/** Adresse à prévenir et langue dans laquelle lui écrire. */
-interface MailAddress {
-  email: string
-  locale: Locale
-}
 
 /**
  * Notification des destinataires d'une demande de devis, au moment où
@@ -131,7 +127,7 @@ export default class RfqNotificationService {
     kind: K,
     failureMessage: string,
     buildData: (
-      address: MailAddress
+      address: RfqMailAddress
     ) => Omit<Extract<SendMailContent, { kind: K }>['data'], 'replyTo'>
   ): Promise<{ queued: number; total: number }> {
     const addresses = await this.addressesFor(recipient)
@@ -175,37 +171,39 @@ export default class RfqNotificationService {
   /**
    * Adresses à prévenir pour un destinataire, chacune avec sa langue.
    *
-   * L'adresse de contact de l'organisation prime quand elle est renseignée :
-   * c'est celle que le fournisseur a lui-même déclarée pour être joint. À
-   * défaut, on prévient les membres qui peuvent effectivement répondre
-   * (`RFQ_RESPONDER_ROLES`, mêmes rôles que `canRespondToRfq`) — notifier un
-   * `member`, qui n'a pas accès à l'écran, serait une impasse.
-   *
-   * Langue : celle du compte (`users.locale`) pour un membre. Une adresse de
-   * contact n'appartient à aucun compte ; l'organisation n'a pas de langue
-   * propre, on prend celle du premier membre habilité (le plus ancien), à
-   * défaut la langue par défaut.
+   * Ordre de résolution (#217, `resolveQuoteAddresses`) : l'adresse de
+   * réception du profil fournisseur (`supplier_profiles.quote_email`), si elle
+   * a été confirmée par lien, puis
+   * l'adresse de contact de l'organisation, puis les membres qui peuvent
+   * effectivement répondre (`RFQ_RESPONDER_ROLES`, mêmes rôles que
+   * `canRespondToRfq`) — notifier un `member`, qui n'a pas accès à l'écran,
+   * serait une impasse.
    *
    * Suppose `supplierOrganization` préchargé, ce que garantit
    * `RfqService#send` sur les lignes qu'il renvoie.
    */
-  private async addressesFor(recipient: RfqSupplier): Promise<MailAddress[]> {
-    const memberships = await OrganizationUser.query()
-      .where('organizationId', recipient.supplierOrganizationId)
-      .whereHas('role', (role) => role.whereIn('slug', [...RFQ_RESPONDER_ROLES]))
-      .preload('user')
-      .orderBy('joinedAt', 'asc')
+  private async addressesFor(recipient: RfqSupplier): Promise<RfqMailAddress[]> {
+    const organizationId = recipient.supplierOrganizationId
+    const [memberships, profile] = await Promise.all([
+      OrganizationUser.query()
+        .where('organizationId', organizationId)
+        .whereHas('role', (role) => role.whereIn('slug', [...RFQ_RESPONDER_ROLES]))
+        .preload('user')
+        .orderBy('joinedAt', 'asc'),
+      SupplierProfile.query()
+        .select('id', 'quoteEmail', 'quoteEmailVerifiedAt')
+        .where('organizationId', organizationId)
+        .first(),
+    ])
 
-    const contactEmail = recipient.supplierOrganization.email
-    if (contactEmail) {
-      const locale = (memberships[0]?.user.locale as Locale | undefined) ?? DEFAULT_LOCALE
-      return [{ email: contactEmail, locale }]
-    }
-
-    const byEmail = new Map<string, MailAddress>()
-    for (const { user } of memberships) {
-      byEmail.set(user.email, { email: user.email, locale: user.locale as Locale })
-    }
-    return [...byEmail.values()]
+    return resolveQuoteAddresses({
+      quoteEmail: profile?.quoteEmail ?? null,
+      quoteEmailVerified: Boolean(profile?.quoteEmailVerifiedAt),
+      organizationEmail: recipient.supplierOrganization.email,
+      members: memberships.map(({ user }) => ({
+        email: user.email,
+        locale: user.locale as Locale,
+      })),
+    })
   }
 }

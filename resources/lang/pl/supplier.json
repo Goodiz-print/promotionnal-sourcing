@@ -8,7 +8,9 @@
       "terms": "Warunki handlowe",
       "termsHint": "Minimalna wartość zamówienia, terminy i zakres dostaw wyświetlane kupującym.",
       "certificationsHint": "Normy i znaki, które Państwo posiadają (ISO, FSC, OEKO-TEX…).",
-      "presentation": "Prezentacja firmy"
+      "presentation": "Prezentacja firmy",
+      "quoteReception": "Odbiór zapytań ofertowych",
+      "quoteReceptionHint": "Agencje wysyłają Państwu zapytania e-mailem: podaj adres, który ma je otrzymywać."
     },
     "moderation": {
       "pending": "Profil w trakcie weryfikacji",
@@ -18,6 +20,16 @@
       "rejected": "Profil odrzucony",
       "rejectedHint": "Twoja organizacja została odrzucona: katalog nie jest już widoczny dla kupujących.",
       "reason": "Powód: {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Adres oczekuje na potwierdzenie",
+      "pendingHint": "Link potwierdzający wysłano na adres {email}. Dopóki nie zostanie kliknięty, zapytania ofertowe trafiają na adres kontaktowy organizacji, a w jego braku do osób odpowiedzialnych za konto.",
+      "resend": "Wyślij link ponownie",
+      "resent": "Link potwierdzający został wysłany ponownie.",
+      "verified": "Zapytania ofertowe są wysyłane na adres {email}.",
+      "willSend": "Po zapisaniu na ten adres zostanie wysłany link potwierdzający.",
+      "invalidLink": "Ten link potwierdzający jest już nieważny. Poproś o nowy w profilu dostawcy.",
+      "verifiedFlash": "Adres odbioru potwierdzony: od teraz będzie otrzymywać zapytania ofertowe."
     }
   },
   "fields": {
@@ -31,7 +43,9 @@
     "certificationRemove": "Usuń",
     "bio": "Prezentacja",
     "defaultOriginScope": "Domyślne pochodzenie",
-    "certificationsEmpty": "Nie podano żadnych certyfikatów."
+    "certificationsEmpty": "Nie podano żadnych certyfikatów.",
+    "quoteEmail": "Adres odbioru zapytań",
+    "quoteEmailHint": "Jeśli pole pozostanie puste, zapytanie trafi na adres kontaktowy organizacji, a w jego braku do osób odpowiedzialnych za konto."
   },
   "deliveryScope": {
     "none": "Nie określono",

@@ -11,6 +11,7 @@ import BaseSelect from '~/components/base/base_select.vue'
 import BaseTextarea from '~/components/base/base_textarea.vue'
 import DocumentManager from '~/components/documents/document_manager.vue'
 import SupplierCertificationsFields from '~/components/supplier/profile/supplier_certifications_fields.vue'
+import SupplierQuoteEmailField from '~/components/supplier/profile/supplier_quote_email_field.vue'
 import {
   DEFAULT_ORIGIN_SCOPES,
   DELIVERY_SCOPES,
@@ -42,6 +43,7 @@ const form = useForm({
   certifications: props.profile?.certifications ? [...props.profile.certifications] : [],
   bio: props.profile?.bio ?? '',
   responseTimeDays: props.profile?.responseTimeDays ?? null,
+  quoteEmail: props.profile?.quoteEmail ?? '',
 })
 
 function documentLabel(document: OrganizationDocumentType) {
@@ -55,6 +57,7 @@ function submit() {
       deliveryScope: data.deliveryScope || null,
       defaultOriginScope: data.defaultOriginScope || null,
       bio: data.bio.trim() ? data.bio.trim() : null,
+      quoteEmail: data.quoteEmail.trim() || null,
       certifications: data.certifications.map((c) => c.trim()).filter((c) => c !== ''),
     }))
     .patch(urlFor('supplier.profile.update', { locale: locale.value }), { preserveScroll: true })
@@ -81,6 +84,19 @@ function submit() {
     </BaseAlert>
 
     <form class="flex flex-col gap-6" @submit.prevent="submit">
+      <BaseSection
+        as="fieldset"
+        :title="t('supplier.profile.sections.quoteReception')"
+        :description="t('supplier.profile.sections.quoteReceptionHint')"
+      >
+        <SupplierQuoteEmailField
+          v-model="form.quoteEmail"
+          :saved-email="profile?.quoteEmail ?? null"
+          :verified-at="profile?.quoteEmailVerifiedAt ?? null"
+          :error="form.errors.quoteEmail"
+        />
+      </BaseSection>
+
       <BaseSection
         as="fieldset"
         :title="t('supplier.profile.sections.terms')"

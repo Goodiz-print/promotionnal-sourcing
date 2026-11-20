@@ -159,6 +159,7 @@ describe('suppliers/show.vue', () => {
             spokenLanguages: null,
             minOrderNote: null,
             quoteEmail: null,
+            quoteEmailVerifiedAt: null,
             reportFrequency: 'none' as const,
             catalogueUpdateMode: null,
             catalogueUpdateFrequency: null,

@@ -30,7 +30,8 @@ formulaires d'inscription, d'activation et de page fournisseur viennent ensuite.
 
 - **Saisi par le fournisseur** : `company_type`, `delivery_countries` (si périmètre
   « pays choisis »), `spoken_languages`, `min_order_note` (texte libre type
-  « 50 pièces ou 150 € HT »), `quote_email`, `report_frequency`,
+  « 50 pièces ou 150 € HT »), `quote_email` (adresse de réception des demandes de
+  devis, prioritaire sur `organizations.email` — #217, voir `docs/rfq.md`), `report_frequency`,
   `catalogue_update_mode`, `catalogue_update_frequency`. Existants réutilisés :
   `bio` (« Notre histoire »), `certifications`, `delivery_scope`, `min_order_quantity`.
 - **Suivi commercial interne** (jamais exposé : absent de `SupplierProfileType`

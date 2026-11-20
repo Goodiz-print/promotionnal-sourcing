@@ -8,7 +8,9 @@
       "terms": "Conditions commerciales",
       "termsHint": "Minimum de commande, délais et périmètre de livraison affichés aux acheteurs.",
       "certificationsHint": "Normes et labels que vous détenez (ISO, FSC, OEKO-TEX…).",
-      "presentation": "Présentation de l'entreprise"
+      "presentation": "Présentation de l'entreprise",
+      "quoteReception": "Réception des demandes de devis",
+      "quoteReceptionHint": "Les agences vous envoient leurs demandes par mail : indiquez l'adresse qui doit les recevoir."
     },
     "moderation": {
       "pending": "Fiche en cours de validation",
@@ -18,6 +20,16 @@
       "rejected": "Fiche rejetée",
       "rejectedHint": "Votre organisation a été rejetée : votre catalogue n'est plus visible des acheteurs.",
       "reason": "Motif : {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Adresse en attente de confirmation",
+      "pendingHint": "Un lien de confirmation a été envoyé à {email}. Tant qu'il n'a pas été cliqué, les demandes de devis partent à l'adresse de contact de l'organisation, à défaut aux responsables du compte.",
+      "resend": "Renvoyer le lien",
+      "resent": "Le lien de confirmation a été renvoyé.",
+      "verified": "Les demandes de devis sont envoyées à {email}.",
+      "willSend": "Un lien de confirmation sera envoyé à cette adresse à l'enregistrement.",
+      "invalidLink": "Ce lien de confirmation n'est plus valable. Demandez-en un nouveau depuis le profil fournisseur.",
+      "verifiedFlash": "Adresse de réception confirmée : elle recevra désormais les demandes de devis."
     }
   },
   "fields": {
@@ -31,7 +43,9 @@
     "certificationRemove": "Retirer",
     "bio": "Présentation",
     "defaultOriginScope": "Provenance par défaut",
-    "certificationsEmpty": "Aucune certification renseignée."
+    "certificationsEmpty": "Aucune certification renseignée.",
+    "quoteEmail": "Adresse de réception des demandes",
+    "quoteEmailHint": "Laissée vide, la demande part à l'adresse de contact de l'organisation, à défaut aux responsables du compte."
   },
   "deliveryScope": {
     "none": "Non précisé",

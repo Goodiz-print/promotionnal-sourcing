@@ -8,7 +8,9 @@
       "terms": "Commercial terms",
       "termsHint": "Minimum order, lead times and delivery scope shown to buyers.",
       "certificationsHint": "Standards and labels you hold (ISO, FSC, OEKO-TEX…).",
-      "presentation": "Company presentation"
+      "presentation": "Company presentation",
+      "quoteReception": "Receiving quote requests",
+      "quoteReceptionHint": "Agencies send you their requests by email: enter the address that should receive them."
     },
     "moderation": {
       "pending": "Profile under review",
@@ -18,6 +20,16 @@
       "rejected": "Profile rejected",
       "rejectedHint": "Your organization was rejected: your catalogue is no longer visible to buyers.",
       "reason": "Reason: {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Address awaiting confirmation",
+      "pendingHint": "A confirmation link was sent to {email}. Until it is clicked, quote requests go to the organisation's contact address, or failing that to the account managers.",
+      "resend": "Resend the link",
+      "resent": "The confirmation link has been resent.",
+      "verified": "Quote requests are sent to {email}.",
+      "willSend": "A confirmation link will be sent to this address when you save.",
+      "invalidLink": "This confirmation link is no longer valid. Request a new one from the supplier profile.",
+      "verifiedFlash": "Quote request address confirmed: it will now receive quote requests."
     }
   },
   "fields": {
@@ -31,7 +43,9 @@
     "certificationRemove": "Remove",
     "bio": "About",
     "defaultOriginScope": "Default origin",
-    "certificationsEmpty": "No certification yet."
+    "certificationsEmpty": "No certification yet.",
+    "quoteEmail": "Quote request address",
+    "quoteEmailHint": "If left empty, requests go to the organisation's contact address, or failing that to the account managers."
   },
   "deliveryScope": {
     "none": "Not specified",
