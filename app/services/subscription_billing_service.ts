@@ -99,7 +99,8 @@ export default class SubscriptionBillingService {
     const snapshot = await this.gateway.fetchSubscription(event.subscriptionId)
     await db.transaction(async (trx) => {
       // Traitement concurrent de la même notification : le premier l'emporte.
-      if (!(await this.events.record(event, trx))) return
+      const recorded = await this.events.record(event, trx)
+      if (!recorded) return
 
       const subscription = await this.sync(snapshot, trx)
       logger.info(

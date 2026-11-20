@@ -194,7 +194,8 @@ export default class InboundMailService {
     loadContent: (mail: InboundMail) => Promise<InboundMailContent>,
     attachmentLoaderFor: (mail: InboundMail) => AttachmentLoader
   ): Promise<void> {
-    if (!(await this.claim(inboundMailId))) return
+    const claimed = await this.claim(inboundMailId)
+    if (!claimed) return
 
     const mail = await InboundMail.find(inboundMailId)
     if (!mail) throw new InboundMailNotFoundException(inboundMailId)

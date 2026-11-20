@@ -20,7 +20,10 @@ export default class OnboardedMiddleware {
 
   async handle(ctx: HttpContext, next: NextFn) {
     const user = ctx.auth.user
-    if (user && !(await this.context.ensureUsableOrganization(user))) {
+    if (!user) return next()
+
+    const hasUsableOrganization = await this.context.ensureUsableOrganization(user)
+    if (!hasUsableOrganization) {
       return ctx.response.redirect().toRoute('onboarding.show', { locale: ctx.i18n.locale })
     }
 

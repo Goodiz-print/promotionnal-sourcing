@@ -185,7 +185,9 @@ export default class HealthMonitorService {
 
   /** Notifie, puis seulement alors acte `alerted` : un envoi raté sera rejoué. */
   private async deliver(pending: PendingAlert[]) {
-    if (!(await this.notify(pending.map(({ event }) => event)))) return
+    const notified = await this.notify(pending.map(({ event }) => event))
+    if (!notified) return
+
     for (const { event, alerted } of pending) {
       await db
         .from('health_component_states')
