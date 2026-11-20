@@ -9,7 +9,8 @@ import AdminAuditLog from '#models/admin_audit_log'
 import type Organization from '#models/organization'
 import OrganizationSubscription from '#models/organization_subscription'
 import type User from '#models/user'
-import ManualSubscriptionService from '#services/manual_subscription_service'
+import SyncSubscriptionsJob from '#jobs/sync_subscriptions_job'
+import SubscriptionScheduleService from '#services/subscription_schedule_service'
 import SubscriptionService from '#services/subscription_service'
 import { dayInSubscriptionZone } from '#shared/helpers/subscription'
 import { SUBSCRIPTION_TIMEZONE } from '#shared/types/subscription'
@@ -49,8 +50,20 @@ async function planOf(org: Organization): Promise<string> {
 }
 
 async function syncDue() {
-  const service = await app.container.make(ManualSubscriptionService)
-  return service.syncDue()
+  const schedule = await app.container.make(SubscriptionScheduleService)
+  return schedule.syncDue()
+}
+
+const subscriptions = () => app.container.make(SubscriptionService)
+
+async function isSubscribed(org: Organization): Promise<boolean> {
+  const service = await subscriptions()
+  return service.isSubscribed(org.id)
+}
+
+async function refreshPlan(org: Organization): Promise<void> {
+  const service = await subscriptions()
+  await db.transaction((trx) => service.refreshPlan(org.id, trx))
 }
 
 /** Abonnement manuel inséré directement, pour placer ses dates dans le passé. */
@@ -90,7 +103,7 @@ test.group('Abonnements manuels — saisie admin', (group) => {
     // Fin exclusive : début du jour qui suit le dernier jour saisi, heure de Paris.
     assert.equal(subscription.endsAt!.toMillis(), startOf(31))
     assert.equal(await planOf(org), 'premium')
-    assert.isTrue(await new SubscriptionService().isSubscribed(org.id))
+    assert.isTrue(await isSubscribed(org))
 
     const log = await AdminAuditLog.findByOrFail('action', 'subscription.created')
     assert.equal(log.targetId, org.id)
@@ -112,7 +125,7 @@ test.group('Abonnements manuels — saisie admin', (group) => {
     const subscription = await OrganizationSubscription.findByOrFail('organizationId', org.id)
     assert.equal(subscription.status, 'scheduled')
     assert.equal(await planOf(org), 'free')
-    assert.isFalse(await new SubscriptionService().isSubscribed(org.id))
+    assert.isFalse(await isSubscribed(org))
   })
 
   test('un second abonnement est refusé tant qu’un autre est ouvert', async ({
@@ -203,7 +216,7 @@ test.group('Abonnements manuels — saisie admin', (group) => {
     const admin = await UserFactory.apply('platformAdmin').create()
     const org = await OrganizationFactory.apply('supplier').create()
     const subscription = await manualRow(org, { plan: 'premium' })
-    await db.transaction((trx) => new SubscriptionService().refreshPlan(org.id, trx))
+    await refreshPlan(org)
     assert.equal(await planOf(org), 'premium')
 
     await send(client, { url: `${subscriptionUrl(org, subscription)}/cancel`, user: admin })
@@ -261,7 +274,7 @@ test.group('Abonnements manuels — règle et passage planifié', (group) => {
   test('règle « abonné » : actif oui ; programmé, expiré, résilié, échu non', async ({
     assert,
   }) => {
-    const service = new SubscriptionService()
+    const service = await subscriptions()
     const cases: Array<[Partial<OrganizationSubscription>, boolean]> = [
       [{ status: 'active' }, true],
       [{ status: 'past_due' }, true],
@@ -292,7 +305,7 @@ test.group('Abonnements manuels — règle et passage planifié', (group) => {
       endsAt: DateTime.now().minus({ days: 2 }),
     })
 
-    assert.isTrue(await new SubscriptionService().isSubscribed(org.id))
+    assert.isTrue(await isSubscribed(org))
   })
 
   test('deux abonnements en cours ou deux programmés sont impossibles en base', async ({
@@ -325,7 +338,7 @@ test.group('Abonnements manuels — règle et passage planifié', (group) => {
       stripeSubscriptionId: 'sub_sync_1',
       endsAt: DateTime.now().minus({ days: 1 }),
     })
-    await db.transaction((trx) => new SubscriptionService().refreshPlan(ending.id, trx))
+    await refreshPlan(ending)
 
     const result = await syncDue()
     const again = await syncDue()
@@ -359,5 +372,18 @@ test.group('Abonnements manuels — règle et passage planifié', (group) => {
     assert.equal(first.status, 'expired')
     assert.equal(renewal.status, 'active')
     assert.equal(await planOf(org), 'premium')
+  })
+
+  test('le job planifié, résolu par le conteneur, applique le passage', async ({ assert }) => {
+    const org = await OrganizationFactory.apply('supplier').create()
+    const expiring = await manualRow(org, { endsAt: DateTime.now().minus({ minutes: 1 }) })
+    await refreshPlan(org)
+
+    const job = await app.container.make(SyncSubscriptionsJob)
+    await job.execute()
+
+    await expiring.refresh()
+    assert.equal(expiring.status, 'expired')
+    assert.equal(await planOf(org), 'free')
   })
 })

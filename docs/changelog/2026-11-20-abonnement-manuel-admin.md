@@ -15,7 +15,8 @@ Issue #214. L'équipe plateforme active à la main l'abonnement d'un fournisseur
 - **Dates** : jours à l'heure de Paris, dernier jour inclus. Un premier jour futur crée un abonnement `scheduled`.
 - **Refus** : un second abonnement tant qu'un autre est ouvert ; un dernier jour avant le premier ou déjà passé ; une organisation uniquement acheteuse ; la modification d'un abonnement en ligne (il se gère dans Stripe).
 - **Job planifié** `SyncSubscriptionsJob` (`sync-subscriptions`, toutes les heures) : il expire les abonnements manuels échus puis active les abonnements programmés. Il recalcule ensuite `organizations.subscription_plan` et ne touche jamais aux abonnements en ligne.
-- **Règle « abonné »** (`SubscriptionService#isSubscribed` / `subscribedAmong`) : un abonnement manuel dont la date de fin est passée ne compte plus, même avant le passage du job.
+- **Règle « abonné »** (`SubscriptionService#isSubscribed` / `subscribedAmong`, définie une fois dans `whereCurrentSubscription`) : un abonnement manuel dont la date de fin est passée ne compte plus, même avant le passage du job.
+- **Utilitaires** testés unitairement : `shared/helpers/subscription_period.ts` (jours heure de Paris, validité d'une période) et `shared/helpers/collections.ts` (`partition`).
 - **Base** : migration `1794000000030` ajoutant l'index unique partiel `organization_subscriptions_one_scheduled_idx`, soit un seul abonnement programmé par organisation.
-- **Tests** : `tests/functional/manual_subscriptions.spec.ts`.
+- **Tests** : `tests/functional/manual_subscriptions.spec.ts`, `tests/unit/subscription_period.spec.ts`.
 - **Documentation** : `docs/abonnements.md`, section « Saisie manuelle par l'admin ».

@@ -44,8 +44,13 @@ avec activation et expiration automatiques (#214) et la **souscription en ligne*
   validation (`pending`) — ce qui interdit une nouvelle souscription ;
 - `isSubscribed(organizationId)` : la règle, évaluée **à la lecture** ;
 - `subscribedAmong(organizationIds)` : la même règle pour plusieurs organisations, en une requête ;
-- `refreshPlan(organizationId, trx)` / `refreshPlans(organizationIds, trx)` :
-  recalculent `organizations.subscription_plan`.
+- `refreshPlan(organizationId, trx)` : recalcule `organizations.subscription_plan`.
+
+La règle elle-même est **une seule fonction**, `whereCurrentSubscription`
+(`app/services/subscription_plan_service.ts`), appliquée aux requêtes Lucid comme
+aux requêtes `db`. `SubscriptionPlanService` (lecture en masse, seule écriture de
+`organizations.subscription_plan`) n'utilise aucun modèle Lucid : les jobs peuvent
+l'injecter par leur constructeur (la queue charge les jobs au boot, cf. `CLAUDE.md`).
 
 ## Saisie manuelle par l'admin (#214)
 
@@ -63,7 +68,8 @@ formulaire de saisie n'apparaît que lorsqu'aucun abonnement n'est ouvert. Droit
 | `PATCH /:locale/admin/organizations/:id/subscriptions/:sid`       | `admin.organizations.subscriptions.extend` |
 | `POST /:locale/admin/organizations/:id/subscriptions/:sid/cancel` | `admin.organizations.subscriptions.cancel` |
 
-- **Dates** : l'admin saisit un premier et un dernier jour (`AAAA-MM-JJ`, heure de
+- **Dates** (`shared/helpers/subscription_period.ts`, testé dans
+  `tests/unit/subscription_period.spec.ts`) : l'admin saisit un premier et un dernier jour (`AAAA-MM-JJ`, heure de
   Paris, `SUBSCRIPTION_TIMEZONE`). `starts_at` est le début du premier jour,
   `ends_at` le début du jour qui suit le dernier (fin **exclusive**).
 - **Création** (`ManualSubscriptionService#create`) : `active` si le premier jour
@@ -74,7 +80,7 @@ formulaire de saisie n'apparaît que lorsqu'aucun abonnement n'est ouvert. Droit
   `active`. **Résiliation** : `cancelled` immédiat, retour en `free`.
 - Un abonnement **en ligne** ne se modifie pas depuis le back-office : il se gère
   dans Stripe.
-- **Passage planifié** `SyncSubscriptionsJob` (planning `sync-subscriptions`, toutes
+- **Passage planifié** `SyncSubscriptionsJob` → `SubscriptionScheduleService#syncDue` (accès `db` seul) (planning `sync-subscriptions`, toutes
   les heures à la minute 5, lançable depuis l'admin de la queue) : expire les
   abonnements manuels échus, **puis** active les abonnements programmés arrivés à
   leur premier jour — un renouvellement programmé prend donc le relais de

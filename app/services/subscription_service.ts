@@ -1,9 +1,13 @@
+import { inject } from '@adonisjs/core'
 import { DateTime } from 'luxon'
 import logger from '@adonisjs/core/services/logger'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import BillingProfile from '#models/billing_profile'
 import Organization from '#models/organization'
 import OrganizationSubscription from '#models/organization_subscription'
+import SubscriptionPlanService, {
+  whereCurrentSubscription,
+} from '#services/subscription_plan_service'
 import { statusFromProvider } from '#shared/helpers/subscription'
 import {
   BLOCKING_SUBSCRIPTION_STATUSES,
@@ -13,23 +17,23 @@ import {
 } from '#shared/types/subscription'
 
 /**
- * Abonnements des organisations (cf. `docs/abonnements.md`). **Seul** point du
- * code qui écrit `organizations.subscription_plan` (formule courante
- * dénormalisée), et seul point qui répond à « abonné ou non ».
+ * Abonnements des organisations (cf. `docs/abonnements.md`). Seul point qui
+ * répond à « abonné ou non » ; la règle elle-même (`whereCurrentSubscription`)
+ * et l'écriture de `organizations.subscription_plan` vivent dans
+ * `SubscriptionPlanService`, sans modèle Lucid, pour servir aussi aux jobs.
  */
+@inject()
 export default class SubscriptionService {
-  /**
-   * Abonnement en cours de l'organisation, s'il existe : statut `active` ou
-   * `past_due` et, pour un abonnement manuel, date de fin non dépassée — un
-   * abonnement échu ne compte plus, même avant le passage du job qui l'expire.
-   * La date de fin d'un abonnement en ligne est celle de la période facturée :
-   * Stripe en reste juge (relances d'impayé), elle n'est pas lue ici.
-   */
+  constructor(private plans: SubscriptionPlanService) {}
+
+  /** Abonnement en cours de l'organisation, s'il existe (cf. `whereCurrentSubscription`). */
   current(
     organizationId: number,
     client?: TransactionClientContract
   ): Promise<OrganizationSubscription | null> {
-    return this.currentQuery(client).where('organizationId', organizationId).first()
+    return whereCurrentSubscription(OrganizationSubscription.query({ client }))
+      .where('organizationId', organizationId)
+      .first()
   }
 
   /**
@@ -52,25 +56,11 @@ export default class SubscriptionService {
    * `isSubscribed` pour plusieurs organisations en une requête : les
    * identifiants de celles qui ont un abonnement payant en cours.
    */
-  async subscribedAmong(
+  subscribedAmong(
     organizationIds: number[],
     client?: TransactionClientContract
   ): Promise<Set<number>> {
-    if (organizationIds.length === 0) return new Set()
-    const rows = await this.currentQuery(client)
-      .whereIn('organizationId', organizationIds)
-      .select('organizationId')
-    return new Set(rows.map((row) => row.organizationId))
-  }
-
-  /** Abonnements en cours à l'instant de la lecture (cf. `current`). */
-  private currentQuery(client?: TransactionClientContract) {
-    const now = DateTime.now().toSQL()
-    return OrganizationSubscription.query({ client })
-      .whereIn('status', [...CURRENT_SUBSCRIPTION_STATUSES])
-      .where((query) =>
-        query.whereNotNull('stripeSubscriptionId').orWhereNull('endsAt').orWhere('endsAt', '>', now)
-      )
+    return this.plans.subscribedAmong(organizationIds, client)
   }
 
   /**
@@ -138,21 +128,7 @@ export default class SubscriptionService {
    * sa formule, ou `free` sans abonnement en cours.
    */
   async refreshPlan(organizationId: number, trx: TransactionClientContract): Promise<void> {
-    await this.refreshPlans([organizationId], trx)
-  }
-
-  /** `refreshPlan` pour plusieurs organisations, en une lecture et une écriture. */
-  async refreshPlans(organizationIds: number[], trx: TransactionClientContract): Promise<void> {
-    if (organizationIds.length === 0) return
-    const current = await this.currentQuery(trx)
-      .whereIn('organizationId', organizationIds)
-      .select('organizationId', 'plan')
-    const planOf = new Map(current.map((row) => [row.organizationId, row.plan]))
-    const cases = organizationIds.map(() => 'WHEN ? THEN ?').join(' ')
-    const bindings = organizationIds.flatMap((id) => [id, planOf.get(id) ?? 'free'])
-    await Organization.query({ client: trx })
-      .whereIn('id', organizationIds)
-      .update({ subscriptionPlan: trx.raw(`CASE id ${cases} END`, bindings) })
+    await this.plans.refreshPlans([organizationId], trx)
   }
 
   /**
