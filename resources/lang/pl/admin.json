@@ -200,6 +200,8 @@
         "supplier": {
           "title": "Profil dostawcy",
           "quoteEmail": "Adres odbioru zapytań",
+          "quoteEmailStatus": "Potwierdzenie adresu odbioru",
+          "quoteEmailPending": "Oczekuje na potwierdzenie",
           "companyType": "Typ firmy",
           "commercialStatus": "Status handlowy",
           "minOrderQuantity": "Minimalna ilość zamówienia",
@@ -311,8 +313,7 @@
       }
     },
     "quoteAddress": {
-      "missing": "Bez adresu odbioru",
-      "missingHint": "Zapytania ofertowe trafiają do osób odpowiedzialnych za konto."
+      "missing": "Bez adresu odbioru"
     }
   },
   "supplierLinks": {

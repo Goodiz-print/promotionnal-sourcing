@@ -200,6 +200,8 @@
         "supplier": {
           "title": "Profilo fornitore",
           "quoteEmail": "Indirizzo di ricezione delle richieste",
+          "quoteEmailStatus": "Conferma dell'indirizzo di ricezione",
+          "quoteEmailPending": "In attesa di conferma",
           "companyType": "Tipo di azienda",
           "commercialStatus": "Stato commerciale",
           "minOrderQuantity": "Quantità minima d’ordine",
@@ -311,8 +313,7 @@
       }
     },
     "quoteAddress": {
-      "missing": "Senza indirizzo di ricezione",
-      "missingHint": "Le richieste di preventivo vanno ai responsabili dell'account."
+      "missing": "Senza indirizzo di ricezione"
     }
   },
   "supplierLinks": {

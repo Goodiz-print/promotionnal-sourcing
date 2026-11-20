@@ -20,6 +20,16 @@
       "rejected": "Scheda rifiutata",
       "rejectedHint": "La tua organizzazione è stata rifiutata: il tuo catalogo non è più visibile agli acquirenti.",
       "reason": "Motivo: {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Indirizzo in attesa di conferma",
+      "pendingHint": "È stato inviato un link di conferma a {email}. Finché non viene cliccato, le richieste di preventivo vanno all'indirizzo di contatto dell'organizzazione o, in mancanza, ai responsabili dell'account.",
+      "resend": "Invia di nuovo il link",
+      "resent": "Il link di conferma è stato inviato di nuovo.",
+      "verified": "Le richieste di preventivo vengono inviate a {email}.",
+      "willSend": "Al salvataggio verrà inviato un link di conferma a questo indirizzo.",
+      "invalidLink": "Questo link di conferma non è più valido. Richiedetene uno nuovo dal profilo fornitore.",
+      "verifiedFlash": "Indirizzo di ricezione confermato: d'ora in poi riceverà le richieste di preventivo."
     }
   },
   "fields": {

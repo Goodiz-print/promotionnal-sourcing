@@ -21,6 +21,8 @@ export const LOGIN_LIMIT = { requests: 5, duration: '15 mins' } as const
 export const SIGNUP_LIMIT = { requests: 10, duration: '1 hour' } as const
 export const PASSWORD_RESET_LIMIT = { requests: 5, duration: '1 hour' } as const
 export const EMAIL_VERIFICATION_RESEND_LIMIT = { requests: 5, duration: '1 hour' } as const
+/** Renvoi du lien de confirmation de l'adresse de réception des demandes (#217). */
+export const QUOTE_EMAIL_VERIFICATION_RESEND_LIMIT = { requests: 5, duration: '1 hour' } as const
 export const CONTACT_REQUEST_LIMIT = { requests: 5, duration: '1 hour' } as const
 export const PASSKEY_LOGIN_LIMIT = { requests: 20, duration: '15 mins' } as const
 
@@ -84,6 +86,20 @@ export const emailVerificationResendThrottle = limiter.define(
     limiter
       .allowRequests(EMAIL_VERIFICATION_RESEND_LIMIT.requests)
       .every(EMAIL_VERIFICATION_RESEND_LIMIT.duration)
+      .usingKey(auth.user ? `user_${auth.user.id}` : `ip_${request.ip()}`)
+)
+
+/**
+ * Renvoi du lien de confirmation de l'adresse de réception (#217) : par compte.
+ * Le mail part à une adresse saisie par le fournisseur, pas à la sienne : la
+ * limite évite d'en faire un relais de spam.
+ */
+export const quoteEmailVerificationResendThrottle = limiter.define(
+  'quote-email-verification-resend',
+  ({ auth, request }) =>
+    limiter
+      .allowRequests(QUOTE_EMAIL_VERIFICATION_RESEND_LIMIT.requests)
+      .every(QUOTE_EMAIL_VERIFICATION_RESEND_LIMIT.duration)
       .usingKey(auth.user ? `user_${auth.user.id}` : `ip_${request.ip()}`)
 )
 

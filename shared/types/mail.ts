@@ -26,6 +26,7 @@ export const MAIL_KINDS = {
   notificationReminder: 'notification-reminder',
   subscriptionActivated: 'subscription-activated',
   subscriptionExpiring: 'subscription-expiring',
+  quoteEmailVerification: 'quote-email-verification',
 } as const
 
 export type MailKind = (typeof MAIL_KINDS)[keyof typeof MAIL_KINDS]
@@ -105,6 +106,17 @@ export interface PasswordResetMailData {
  * `EmailVerificationService`.
  */
 export interface EmailVerificationMailData {
+  verifyUrl: string
+  expiresInHours: number
+}
+
+/**
+ * Confirmation de l'adresse de réception des demandes de devis (#217),
+ * envoyée **à cette adresse** quand le fournisseur la saisit ou la change.
+ * `verifyUrl` est une URL signée complète (`QuoteEmailVerificationService`).
+ */
+export interface QuoteEmailVerificationMailData {
+  organizationName: string
   verifyUrl: string
   expiresInHours: number
 }
@@ -267,6 +279,12 @@ export type SendMailContent =
       to: string
       locale: Locale
       data: SubscriptionExpiringMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.quoteEmailVerification
+      to: string
+      locale: Locale
+      data: QuoteEmailVerificationMailData
     }
 
 /**

@@ -200,6 +200,8 @@
         "supplier": {
           "title": "Leverantörsprofil",
           "quoteEmail": "Mottagaradress för förfrågningar",
+          "quoteEmailStatus": "Bekräftelse av mottagaradressen",
+          "quoteEmailPending": "Väntar på bekräftelse",
           "companyType": "Företagstyp",
           "commercialStatus": "Kommersiell status",
           "minOrderQuantity": "Minsta orderkvantitet",
@@ -311,8 +313,7 @@
       }
     },
     "quoteAddress": {
-      "missing": "Utan mottagaradress",
-      "missingHint": "Offertförfrågningar går till kontots ansvariga."
+      "missing": "Utan mottagaradress"
     }
   },
   "supplierLinks": {

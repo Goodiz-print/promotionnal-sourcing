@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import { DateTime } from 'luxon'
 import type { ApiClient } from '@japa/api-client'
 import mail from '@adonisjs/mail/services/main'
 import { OrganizationFactory } from '#database/factories/organization_factory'
@@ -122,11 +123,19 @@ test.group('Mail RFQ — langue du destinataire', (group) => {
 test.group('Mail RFQ — adresse de réception', (group) => {
   useDatabase(group)
 
-  async function supplierWith(emails: { contact: string | null; quote: string | null }) {
+  async function supplierWith(emails: {
+    contact: string | null
+    quote: string | null
+    verified?: boolean
+  }) {
     const supplier = await OrganizationFactory.apply('supplier')
       .merge({ email: emails.contact })
       .create()
-    await SupplierProfile.create({ organizationId: supplier.id, quoteEmail: emails.quote })
+    await SupplierProfile.create({
+      organizationId: supplier.id,
+      quoteEmail: emails.quote,
+      quoteEmailVerifiedAt: emails.verified === false ? null : DateTime.now(),
+    })
     const manager = await memberWithLocale(supplier, 'manager', 'en')
     return { supplier, manager }
   }
@@ -152,6 +161,24 @@ test.group('Mail RFQ — adresse de réception', (group) => {
     assert.deepEqual(
       sent.map(({ email, locale }) => ({ email, locale })),
       [{ email: 'devis@fournisseur.test', locale: 'en' }]
+    )
+  })
+
+  test('une adresse de réception non confirmée laisse le mail partir au contact', async ({
+    client,
+    assert,
+  }) => {
+    const { supplier } = await supplierWith({
+      contact: 'contact@fournisseur.test',
+      quote: 'devis@fournisseur.test',
+      verified: false,
+    })
+
+    const sent = await sentTo(client, supplier.id)
+
+    assert.deepEqual(
+      sent.map(({ email }) => email),
+      ['contact@fournisseur.test']
     )
   })
 

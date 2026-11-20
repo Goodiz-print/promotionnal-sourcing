@@ -200,6 +200,8 @@
         "supplier": {
           "title": "Perfil de fornecedor",
           "quoteEmail": "Endereço de receção dos pedidos",
+          "quoteEmailStatus": "Confirmação do endereço de receção",
+          "quoteEmailPending": "A aguardar confirmação",
           "companyType": "Tipo de empresa",
           "commercialStatus": "Estado comercial",
           "minOrderQuantity": "Quantidade mínima de encomenda",
@@ -311,8 +313,7 @@
       }
     },
     "quoteAddress": {
-      "missing": "Sem endereço de receção",
-      "missingHint": "Os pedidos de orçamento vão para os responsáveis da conta."
+      "missing": "Sem endereço de receção"
     }
   },
   "supplierLinks": {

@@ -200,6 +200,8 @@
         "supplier": {
           "title": "Perfil de proveedor",
           "quoteEmail": "Dirección de recepción de solicitudes",
+          "quoteEmailStatus": "Confirmación de la dirección de recepción",
+          "quoteEmailPending": "Pendiente de confirmación",
           "companyType": "Tipo de empresa",
           "commercialStatus": "Estado comercial",
           "minOrderQuantity": "Cantidad mínima de pedido",
@@ -311,8 +313,7 @@
       }
     },
     "quoteAddress": {
-      "missing": "Sin dirección de recepción",
-      "missingHint": "Las solicitudes de presupuesto se envían a los responsables de la cuenta."
+      "missing": "Sin dirección de recepción"
     }
   },
   "supplierLinks": {

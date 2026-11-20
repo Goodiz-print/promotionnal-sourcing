@@ -103,5 +103,13 @@
     "after": "Utan förnyelse går organisationen tillbaka till gratisplanen: byråernas identitet syns inte längre i offertförfrågningar eller statistik.",
     "cta": "Förnya mitt abonnemang",
     "footer": "Du får den här påminnelsen som ansvarig för organisationen."
+  },
+  "quoteEmailVerification": {
+    "subject": "Bekräfta mottagaradressen för offertförfrågningar till {organizationName}",
+    "title": "Bekräfta den här adressen",
+    "body": "{organizationName} har valt den här adressen för att ta emot offertförfrågningar på {brandName}. Bekräfta den så att byråer kan nå er här.",
+    "cta": "Bekräfta adressen",
+    "validity": "Länken är giltig i {days, plural, one {# dag} other {# dagar}}.",
+    "ignore": "Om ni inte arbetar för {organizationName} kan ni ignorera meddelandet: inga förfrågningar skickas till er."
   }
 }

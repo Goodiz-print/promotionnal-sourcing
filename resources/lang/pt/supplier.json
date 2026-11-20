@@ -20,6 +20,16 @@
       "rejected": "Ficha rejeitada",
       "rejectedHint": "A sua organização foi rejeitada: o seu catálogo já não é visível para os compradores.",
       "reason": "Motivo: {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Endereço a aguardar confirmação",
+      "pendingHint": "Foi enviado um link de confirmação para {email}. Enquanto não for clicado, os pedidos de orçamento vão para o endereço de contacto da organização ou, na sua falta, para os responsáveis da conta.",
+      "resend": "Reenviar o link",
+      "resent": "O link de confirmação foi reenviado.",
+      "verified": "Os pedidos de orçamento são enviados para {email}.",
+      "willSend": "Ao guardar, será enviado um link de confirmação para este endereço.",
+      "invalidLink": "Este link de confirmação já não é válido. Peça um novo no perfil de fornecedor.",
+      "verifiedFlash": "Endereço de receção confirmado: passará a receber os pedidos de orçamento."
     }
   },
   "fields": {

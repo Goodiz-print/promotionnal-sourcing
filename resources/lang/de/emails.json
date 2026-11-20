@@ -103,5 +103,13 @@
     "after": "Ohne Verlängerung wechselt Ihre Organisation in den kostenlosen Tarif: Die Identität der Agenturen ist dann weder in Ihren Angebotsanfragen noch in Ihren Statistiken sichtbar.",
     "cta": "Abonnement verlängern",
     "footer": "Sie erhalten diese Erinnerung als Verantwortliche(r) der Organisation."
+  },
+  "quoteEmailVerification": {
+    "subject": "Bestätigen Sie die Empfangsadresse für Angebotsanfragen von {organizationName}",
+    "title": "Bestätigen Sie diese Adresse",
+    "body": "{organizationName} hat diese Adresse gewählt, um Angebotsanfragen auf {brandName} zu erhalten. Bestätigen Sie sie, damit Agenturen Sie hier erreichen.",
+    "cta": "Adresse bestätigen",
+    "validity": "Dieser Link ist {days, plural, one {# Tag} other {# Tage}} gültig.",
+    "ignore": "Wenn Sie nicht für {organizationName} arbeiten, ignorieren Sie diese Nachricht: Ihnen wird keine Anfrage gesendet."
   }
 }

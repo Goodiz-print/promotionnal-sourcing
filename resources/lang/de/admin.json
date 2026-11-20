@@ -200,6 +200,8 @@
         "supplier": {
           "title": "Lieferantenprofil",
           "quoteEmail": "Empfangsadresse für Anfragen",
+          "quoteEmailStatus": "Bestätigung der Empfangsadresse",
+          "quoteEmailPending": "Wartet auf Bestätigung",
           "companyType": "Unternehmenstyp",
           "commercialStatus": "Geschäftsstatus",
           "minOrderQuantity": "Mindestbestellmenge",
@@ -311,8 +313,7 @@
       }
     },
     "quoteAddress": {
-      "missing": "Ohne Empfangsadresse",
-      "missingHint": "Angebotsanfragen gehen an die Verantwortlichen des Kontos."
+      "missing": "Ohne Empfangsadresse"
     }
   },
   "supplierLinks": {

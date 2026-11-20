@@ -8,6 +8,7 @@ import NotificationReminderNotification from '#mails/notification_reminder_notif
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
 import PasswordResetNotification from '#mails/password_reset_notification'
 import QuoteReceivedNotification from '#mails/quote_received_notification'
+import QuoteEmailVerificationNotification from '#mails/quote_email_verification_notification'
 import RfqReceivedNotification from '#mails/rfq_received_notification'
 import RfqReminderNotification from '#mails/rfq_reminder_notification'
 import SubscriptionActivatedNotification from '#mails/subscription_activated_notification'
@@ -135,6 +136,16 @@ const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> 
         endsOn: '19/11/2027',
         daysLeft: 7,
         path: '/x/supplier/subscription',
+      },
+      locale
+    ) as never,
+  quoteEmailVerification: (locale) =>
+    new QuoteEmailVerificationNotification(
+      'devis@example.com',
+      {
+        organizationName: 'Textiles SA',
+        verifyUrl: 'https://example.test/verify',
+        expiresInHours: 168,
       },
       locale
     ) as never,
@@ -315,5 +326,27 @@ test.group('Mails — annonce plateforme', () => {
     }
 
     assert.equal(footers.size, SUPPORTED_LOCALES.length)
+  })
+})
+
+test.group('Mails — confirmation de l’adresse de réception (#217)', () => {
+  test('le lien, la durée en jours et le nom du fournisseur figurent dans le mail', async ({
+    assert,
+  }) => {
+    const { subject, html } = await render(
+      new QuoteEmailVerificationNotification(
+        'devis@example.com',
+        {
+          organizationName: 'Textiles SA',
+          verifyUrl: 'https://example.test/v',
+          expiresInHours: 168,
+        },
+        'fr'
+      ) as never
+    )
+
+    assert.include(subject, 'Textiles SA')
+    assert.include(html, 'https://example.test/v')
+    assert.include(html, '7 jours')
   })
 })

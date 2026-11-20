@@ -103,5 +103,13 @@
     "after": "Zonder verlenging gaat uw organisatie terug naar de gratis formule: de identiteit van de bureaus is dan niet meer zichtbaar in uw offerteaanvragen en statistieken.",
     "cta": "Mijn abonnement verlengen",
     "footer": "U ontvangt deze herinnering als verantwoordelijke van de organisatie."
+  },
+  "quoteEmailVerification": {
+    "subject": "Bevestig het ontvangstadres voor offerteaanvragen van {organizationName}",
+    "title": "Bevestig dit adres",
+    "body": "{organizationName} heeft dit adres gekozen om offerteaanvragen op {brandName} te ontvangen. Bevestig het zodat bureaus u hier kunnen bereiken.",
+    "cta": "Adres bevestigen",
+    "validity": "Deze link is {days, plural, one {# dag} other {# dagen}} geldig.",
+    "ignore": "Als u niet voor {organizationName} werkt, negeer dit bericht dan: u ontvangt geen aanvragen."
   }
 }

@@ -61,7 +61,6 @@ function formatDate(value: string): string {
             v-if="organization.quoteAddressSource === 'members'"
             tone="warning"
             class="ml-2"
-            :title="t('admin.organizations.quoteAddress.missingHint')"
           >
             {{ t('admin.organizations.quoteAddress.missing') }}
           </BaseBadge>

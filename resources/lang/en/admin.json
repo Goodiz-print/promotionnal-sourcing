@@ -200,6 +200,8 @@
         "supplier": {
           "title": "Supplier profile",
           "quoteEmail": "Quote request address",
+          "quoteEmailStatus": "Quote request address confirmation",
+          "quoteEmailPending": "Awaiting confirmation",
           "companyType": "Company type",
           "commercialStatus": "Commercial status",
           "minOrderQuantity": "Minimum order quantity",
@@ -311,8 +313,7 @@
       }
     },
     "quoteAddress": {
-      "missing": "No quote request address",
-      "missingHint": "Quote requests go to the account managers."
+      "missing": "No quote request address"
     }
   },
   "supplierLinks": {

@@ -106,6 +106,7 @@ export default class AdminOrganizationDetailTransformer extends BaseTransformer<
     if (!SUPPLIER_ORGANIZATION_KINDS.includes(organization.organizationType)) return null
     return quoteAddressSource({
       quoteEmail: supplierProfile?.quoteEmail ?? null,
+      quoteEmailVerified: Boolean(supplierProfile?.quoteEmailVerifiedAt),
       organizationEmail: organization.email,
     })
   }
@@ -116,6 +117,7 @@ export default class AdminOrganizationDetailTransformer extends BaseTransformer<
     return {
       id: profile.id,
       quoteEmail: profile.quoteEmail,
+      quoteEmailVerifiedAt: profile.quoteEmailVerifiedAt?.toISO() ?? null,
       minOrderQuantity: profile.minOrderQuantity,
       deliveryDays: profile.deliveryDays,
       deliveryScope: profile.deliveryScope,

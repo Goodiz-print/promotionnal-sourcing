@@ -155,6 +155,8 @@ export type SupplierProfileType = {
   spokenLanguages: string[] | null
   minOrderNote: string | null
   quoteEmail: string | null
+  /** Date de confirmation de `quoteEmail` par lien (#217) ; `null` tant qu'elle ne l'est pas. */
+  quoteEmailVerifiedAt: string | null
   reportFrequency: ReportFrequency
   catalogueUpdateMode: CatalogueUpdateMode | null
   catalogueUpdateFrequency: CatalogueUpdateFrequency | null

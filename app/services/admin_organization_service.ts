@@ -46,7 +46,9 @@ export default class AdminOrganizationService {
 
     return Organization.query()
       .withCount('organizationUsers', (query) => query.as('members_count'))
-      .preload('supplierProfile', (profile) => profile.select('id', 'organizationId', 'quoteEmail'))
+      .preload('supplierProfile', (profile) =>
+        profile.select('id', 'organizationId', 'quoteEmail', 'quoteEmailVerifiedAt')
+      )
       .if(search, (query) => {
         const pattern = `%${escapeLike(search!)}%`
         query.where((sub) =>
@@ -181,15 +183,22 @@ function escapeLike(value: string): string {
 
 /**
  * Organisations fournisseurs dont les demandes de devis partent faute de mieux
- * aux membres responsables (#217) : ni adresse de réception dans le profil, ni
- * adresse de contact. Même règle que `quoteAddressSource`, une adresse vide
- * comptant comme absente.
+ * aux membres responsables (#217) : ni adresse de réception confirmée dans le
+ * profil, ni adresse de contact, une adresse vide comptant comme absente.
+ *
+ * Traduction SQL de `quoteAddressSource(...) === 'members'`
+ * (`shared/helpers/quote_address.ts`) : modifier l'une impose de modifier
+ * l'autre. `admin_organizations.spec.ts` vérifie que le filtre et la liste
+ * désignent exactement les mêmes organisations.
  */
 function withoutQuoteAddress(query: ModelQueryBuilderContract<typeof Organization>) {
   query
     .whereIn('organizationType', [...SUPPLIER_ORGANIZATION_KINDS])
-    .where((email) => email.whereNull('email').orWhereRaw("trim(email) = ''"))
+    .where((contact) => contact.whereNull('email').orWhereRaw("trim(email) = ''"))
     .whereDoesntHave('supplierProfile', (profile) =>
-      profile.whereNotNull('quoteEmail').whereRaw("trim(quote_email) <> ''")
+      profile
+        .whereNotNull('quoteEmailVerifiedAt')
+        .whereNotNull('quoteEmail')
+        .whereRaw("trim(quote_email) <> ''")
     )
 }

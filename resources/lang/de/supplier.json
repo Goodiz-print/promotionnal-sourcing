@@ -20,6 +20,16 @@
       "rejected": "Profil abgelehnt",
       "rejectedHint": "Ihre Organisation wurde abgelehnt: Ihr Katalog ist für Käufer nicht mehr sichtbar.",
       "reason": "Begründung: {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Adresse wartet auf Bestätigung",
+      "pendingHint": "Ein Bestätigungslink wurde an {email} gesendet. Bis er angeklickt wird, gehen Angebotsanfragen an die Kontaktadresse der Organisation, ersatzweise an die Verantwortlichen des Kontos.",
+      "resend": "Link erneut senden",
+      "resent": "Der Bestätigungslink wurde erneut gesendet.",
+      "verified": "Angebotsanfragen werden an {email} gesendet.",
+      "willSend": "Beim Speichern wird ein Bestätigungslink an diese Adresse gesendet.",
+      "invalidLink": "Dieser Bestätigungslink ist nicht mehr gültig. Fordern Sie im Lieferantenprofil einen neuen an.",
+      "verifiedFlash": "Empfangsadresse bestätigt: Sie erhält ab jetzt die Angebotsanfragen."
     }
   },
   "fields": {

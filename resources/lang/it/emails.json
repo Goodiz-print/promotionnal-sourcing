@@ -103,5 +103,13 @@
     "after": "Senza rinnovo, la tua organizzazione tornerà al piano gratuito: l'identità delle agenzie non sarà più visibile nelle richieste di preventivo né nelle statistiche.",
     "cta": "Rinnova il mio abbonamento",
     "footer": "Ricevi questo promemoria in quanto responsabile dell'organizzazione."
+  },
+  "quoteEmailVerification": {
+    "subject": "Confermate l'indirizzo di ricezione delle richieste di preventivo di {organizationName}",
+    "title": "Confermate questo indirizzo",
+    "body": "{organizationName} ha scelto questo indirizzo per ricevere le richieste di preventivo su {brandName}. Confermatelo perché le agenzie possano contattarvi qui.",
+    "cta": "Conferma l'indirizzo",
+    "validity": "Questo link è valido {days, plural, one {# giorno} other {# giorni}}.",
+    "ignore": "Se non lavorate per {organizationName}, ignorate questo messaggio: non vi verrà inviata alcuna richiesta."
   }
 }

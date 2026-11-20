@@ -172,7 +172,8 @@ export default class RfqNotificationService {
    * Adresses à prévenir pour un destinataire, chacune avec sa langue.
    *
    * Ordre de résolution (#217, `resolveQuoteAddresses`) : l'adresse de
-   * réception du profil fournisseur (`supplier_profiles.quote_email`), puis
+   * réception du profil fournisseur (`supplier_profiles.quote_email`), si elle
+   * a été confirmée par lien, puis
    * l'adresse de contact de l'organisation, puis les membres qui peuvent
    * effectivement répondre (`RFQ_RESPONDER_ROLES`, mêmes rôles que
    * `canRespondToRfq`) — notifier un `member`, qui n'a pas accès à l'écran,
@@ -190,13 +191,14 @@ export default class RfqNotificationService {
         .preload('user')
         .orderBy('joinedAt', 'asc'),
       SupplierProfile.query()
-        .select('id', 'quoteEmail')
+        .select('id', 'quoteEmail', 'quoteEmailVerifiedAt')
         .where('organizationId', organizationId)
         .first(),
     ])
 
     return resolveQuoteAddresses({
       quoteEmail: profile?.quoteEmail ?? null,
+      quoteEmailVerified: Boolean(profile?.quoteEmailVerifiedAt),
       organizationEmail: recipient.supplierOrganization.email,
       members: memberships.map(({ user }) => ({
         email: user.email,

@@ -200,6 +200,8 @@
         "supplier": {
           "title": "Leveranciersprofiel",
           "quoteEmail": "Ontvangstadres voor aanvragen",
+          "quoteEmailStatus": "Bevestiging van het ontvangstadres",
+          "quoteEmailPending": "Wacht op bevestiging",
           "companyType": "Type bedrijf",
           "commercialStatus": "Commerciële status",
           "minOrderQuantity": "Minimale bestelhoeveelheid",
@@ -311,8 +313,7 @@
       }
     },
     "quoteAddress": {
-      "missing": "Zonder ontvangstadres",
-      "missingHint": "Offerteaanvragen gaan naar de verantwoordelijken van het account."
+      "missing": "Zonder ontvangstadres"
     }
   },
   "supplierLinks": {

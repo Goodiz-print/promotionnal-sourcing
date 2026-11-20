@@ -83,9 +83,15 @@ export interface RfqMailAddress {
   locale: Locale
 }
 
+/** Validité du lien de confirmation de l'adresse de réception (7 jours). */
+export const QUOTE_EMAIL_VERIFICATION_TTL_HOURS = 168
+export const QUOTE_EMAIL_VERIFICATION_SIGNATURE_PURPOSE = 'quote-email-verification'
+
 /** Données nécessaires pour résoudre les adresses de réception d'un fournisseur. */
 export interface QuoteAddressCandidates {
   quoteEmail: string | null
+  /** L'adresse de réception n'est retenue qu'une fois confirmée par lien. */
+  quoteEmailVerified: boolean
   organizationEmail: string | null
   /** Membres responsables, du plus ancien au plus récent. */
   members: RfqMailAddress[]

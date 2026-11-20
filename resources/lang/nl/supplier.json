@@ -20,6 +20,16 @@
       "rejected": "Profiel afgewezen",
       "rejectedHint": "Uw organisatie is afgewezen: uw catalogus is niet langer zichtbaar voor kopers.",
       "reason": "Reden: {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Adres wacht op bevestiging",
+      "pendingHint": "Er is een bevestigingslink naar {email} gestuurd. Zolang die niet is aangeklikt, gaan offerteaanvragen naar het contactadres van de organisatie, anders naar de verantwoordelijken van het account.",
+      "resend": "Link opnieuw sturen",
+      "resent": "De bevestigingslink is opnieuw verstuurd.",
+      "verified": "Offerteaanvragen worden naar {email} gestuurd.",
+      "willSend": "Bij het opslaan wordt een bevestigingslink naar dit adres gestuurd.",
+      "invalidLink": "Deze bevestigingslink is niet meer geldig. Vraag een nieuwe aan via het leveranciersprofiel.",
+      "verifiedFlash": "Ontvangstadres bevestigd: het ontvangt voortaan de offerteaanvragen."
     }
   },
   "fields": {

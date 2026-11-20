@@ -293,6 +293,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['verify']>>>
     }
   }
+  'supplier.quoteEmail.verify': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/quote-email/verify/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_email_verification_controller').default['verify']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_email_verification_controller').default['verify']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_email_verification_controller').default['verify']>>>
+    }
+  }
   'new_account.create': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/signup'
@@ -850,6 +863,19 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.profile.quoteEmail.resend': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/profile/quote-email/resend'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['resendQuoteEmailVerification']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['resendQuoteEmailVerification']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['resendQuoteEmailVerification']>>>
     }
   }
   'supplier.products.index': {

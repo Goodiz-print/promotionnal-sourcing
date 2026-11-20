@@ -32,6 +32,7 @@ export default class AdminOrganizationTransformer extends BaseTransformer<Organi
     if (!SUPPLIER_ORGANIZATION_KINDS.includes(this.resource.organizationType)) return null
     return quoteAddressSource({
       quoteEmail: this.resource.supplierProfile?.quoteEmail ?? null,
+      quoteEmailVerified: Boolean(this.resource.supplierProfile?.quoteEmailVerifiedAt),
       organizationEmail: this.resource.email,
     })
   }

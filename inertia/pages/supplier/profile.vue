@@ -11,6 +11,7 @@ import BaseSelect from '~/components/base/base_select.vue'
 import BaseTextarea from '~/components/base/base_textarea.vue'
 import DocumentManager from '~/components/documents/document_manager.vue'
 import SupplierCertificationsFields from '~/components/supplier/profile/supplier_certifications_fields.vue'
+import SupplierQuoteEmailField from '~/components/supplier/profile/supplier_quote_email_field.vue'
 import {
   DEFAULT_ORIGIN_SCOPES,
   DELIVERY_SCOPES,
@@ -88,13 +89,10 @@ function submit() {
         :title="t('supplier.profile.sections.quoteReception')"
         :description="t('supplier.profile.sections.quoteReceptionHint')"
       >
-        <BaseInput
-          id="quoteEmail"
+        <SupplierQuoteEmailField
           v-model="form.quoteEmail"
-          type="email"
-          autocomplete="email"
-          :label="t('supplier.fields.quoteEmail')"
-          :hint="t('supplier.fields.quoteEmailHint')"
+          :saved-email="profile?.quoteEmail ?? null"
+          :verified-at="profile?.quoteEmailVerifiedAt ?? null"
           :error="form.errors.quoteEmail"
         />
       </BaseSection>

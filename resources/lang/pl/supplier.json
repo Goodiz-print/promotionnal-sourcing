@@ -20,6 +20,16 @@
       "rejected": "Profil odrzucony",
       "rejectedHint": "Twoja organizacja została odrzucona: katalog nie jest już widoczny dla kupujących.",
       "reason": "Powód: {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Adres oczekuje na potwierdzenie",
+      "pendingHint": "Link potwierdzający wysłano na adres {email}. Dopóki nie zostanie kliknięty, zapytania ofertowe trafiają na adres kontaktowy organizacji, a w jego braku do osób odpowiedzialnych za konto.",
+      "resend": "Wyślij link ponownie",
+      "resent": "Link potwierdzający został wysłany ponownie.",
+      "verified": "Zapytania ofertowe są wysyłane na adres {email}.",
+      "willSend": "Po zapisaniu na ten adres zostanie wysłany link potwierdzający.",
+      "invalidLink": "Ten link potwierdzający jest już nieważny. Poproś o nowy w profilu dostawcy.",
+      "verifiedFlash": "Adres odbioru potwierdzony: od teraz będzie otrzymywać zapytania ofertowe."
     }
   },
   "fields": {

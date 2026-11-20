@@ -88,6 +88,21 @@ const formatDate = (value: string) => new Date(value).toLocaleDateString(locale.
   >
     <BaseDescriptionList :items="supplierItems">
       <BaseDescriptionItem
+        v-if="organization.supplierProfile.quoteEmail"
+        :label="t('admin.organizations.detail.profile.supplier.quoteEmailStatus')"
+      >
+        <BaseBadge
+          dot
+          :tone="organization.supplierProfile.quoteEmailVerifiedAt ? 'success' : 'warning'"
+        >
+          {{
+            organization.supplierProfile.quoteEmailVerifiedAt
+              ? `${t('admin.agencyReviews.verified')} · ${formatDate(organization.supplierProfile.quoteEmailVerifiedAt)}`
+              : t('admin.organizations.detail.profile.supplier.quoteEmailPending')
+          }}
+        </BaseBadge>
+      </BaseDescriptionItem>
+      <BaseDescriptionItem
         :label="t('admin.organizations.detail.profile.supplier.foundingPartner')"
       >
         {{

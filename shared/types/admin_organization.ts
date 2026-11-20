@@ -80,6 +80,8 @@ export type AdminOrganizationSupplierProfile = {
   id: number
   /** Adresse de réception des demandes de devis (#217). */
   quoteEmail: string | null
+  /** Confirmation de `quoteEmail` par lien ; `null` : pas encore confirmée, donc pas utilisée. */
+  quoteEmailVerifiedAt: string | null
   minOrderQuantity: number | null
   deliveryDays: number | null
   deliveryScope: string | null

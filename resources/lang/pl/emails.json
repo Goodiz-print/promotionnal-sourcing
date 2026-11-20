@@ -103,5 +103,13 @@
     "after": "Bez odnowienia Twoja organizacja wróci do planu bezpłatnego: tożsamość agencji nie będzie już widoczna w zapytaniach ofertowych ani w statystykach.",
     "cta": "Odnów subskrypcję",
     "footer": "Otrzymujesz to przypomnienie jako osoba odpowiedzialna za organizację."
+  },
+  "quoteEmailVerification": {
+    "subject": "Potwierdź adres odbioru zapytań ofertowych firmy {organizationName}",
+    "title": "Potwierdź ten adres",
+    "body": "Firma {organizationName} wybrała ten adres do otrzymywania zapytań ofertowych w {brandName}. Potwierdź go, aby agencje mogły się z Tobą tu kontaktować.",
+    "cta": "Potwierdź adres",
+    "validity": "Ten link jest ważny przez {days, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}.",
+    "ignore": "Jeśli nie pracujesz dla {organizationName}, zignoruj tę wiadomość: nie otrzymasz żadnych zapytań."
   }
 }

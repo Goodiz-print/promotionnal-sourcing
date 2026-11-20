@@ -25,6 +25,7 @@ export default class SupplierProfileTransformer extends BaseTransformer<Supplier
         'defaultOriginScope',
         'isFoundingPartner',
       ]),
+      quoteEmailVerifiedAt: this.resource.quoteEmailVerifiedAt?.toISO() ?? null,
       foundingPartnerUntil: this.resource.foundingPartnerUntil?.toISODate() ?? null,
       createdAt: this.resource.createdAt.toISO()!,
       updatedAt: this.resource.updatedAt?.toISO() ?? null,
