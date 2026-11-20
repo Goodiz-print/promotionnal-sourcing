@@ -135,6 +135,11 @@ export interface SupplierImportSummary {
    * `--limit` produits récupérés), désactivées. Toujours 0 sur un flux tronqué.
    */
   deactivated: number
+  /**
+   * Fiches absentes du flux **non** désactivées parce qu'elles dépassent le
+   * garde-fou de désactivation en masse (flux probablement amputé).
+   */
+  deactivationSkipped: number
   unmatchedCategories: string[]
   unmatchedTechniques: string[]
   /**
@@ -249,6 +254,8 @@ export interface SupplierImportOptions {
   locale: SupplierFeedLocale
   /** Retélécharge les flux au lieu de réutiliser le cache disque. */
   refresh?: boolean
+  /** Désactive les fiches absentes même au-delà du garde-fou de masse. */
+  allowMassDeactivation?: boolean
   dryRun: boolean
   /** Copie les images dans Cellar (sinon l'URL fournisseur est conservée). */
   storeImages: boolean

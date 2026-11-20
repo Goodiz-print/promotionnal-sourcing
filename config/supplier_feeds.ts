@@ -25,6 +25,13 @@ const supplierFeedsConfig = {
      */
     userAgent: env.get('SUPPLIER_FEED_USER_AGENT') ?? 'GoodizprintSourcing/1.0',
   },
+  /**
+   * Garde-fou d'un import complet : au-delà de `minimum` fiches **et** de
+   * `ratio` des fiches actives du fournisseur à désactiver d'un coup, le flux
+   * est jugé amputé et rien n'est désactivé (`--allow-mass-deactivation` pour
+   * passer outre).
+   */
+  massDeactivation: { ratio: 0.2, minimum: 10 },
   /** Images conservées par produit importé (galerie + images de variantes). */
   maxImagesPerProduct: 5,
   pfconcept: {

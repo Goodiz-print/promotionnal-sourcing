@@ -43,6 +43,9 @@ test.group('Flux fournisseurs — utilitaires', () => {
     assert.equal(parseGroupedInt(12), 12)
     assert.isNull(parseGroupedInt(''))
     assert.isNull(parseGroupedInt('n/a'))
+    // Un décimal n'est pas un nombre à points de milliers.
+    assert.isNull(parseGroupedInt('24.0'))
+    assert.isNull(parseGroupedInt('0.5'))
   })
 
   test('sectionPriceTiers : seuils bas ou bornes hautes, colonnes vides ignorées', ({ assert }) => {

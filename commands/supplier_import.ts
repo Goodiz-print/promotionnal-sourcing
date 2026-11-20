@@ -67,6 +67,11 @@ export default class SupplierImport extends BaseCommand {
   @flags.boolean({ description: 'Ne touche pas aux images' })
   declare skipImages: boolean
 
+  @flags.boolean({
+    description: 'Désactive les fiches absentes du flux même si elles sont très nombreuses',
+  })
+  declare allowMassDeactivation: boolean
+
   @flags.boolean({ description: 'Autorise l’exécution en production' })
   declare force: boolean
 
@@ -115,6 +120,7 @@ export default class SupplierImport extends BaseCommand {
         const summary = await importer.import(connector, {
           limit: this.full ? null : this.limit,
           refresh: this.refresh,
+          allowMassDeactivation: this.allowMassDeactivation,
           locale: this.locale as SupplierFeedLocale,
           dryRun: this.dryRun,
           storeImages: this.storeImages,
@@ -139,6 +145,13 @@ export default class SupplierImport extends BaseCommand {
       this.logger.warning(
         `${summary.deactivated} fiche(s) absente(s) du flux complet désactivée(s)`
       )
+    }
+    if (summary.deactivationSkipped > 0) {
+      this.logger.warning(
+        `${summary.deactivationSkipped} fiche(s) absente(s) du flux NON désactivée(s) : trop nombreuses, ` +
+          'le flux est peut-être amputé. Vérifier, puis relancer avec --allow-mass-deactivation.'
+      )
+      this.exitCode = 1
     }
     if (summary.missingFeeds.length > 0) {
       this.logger.warning(

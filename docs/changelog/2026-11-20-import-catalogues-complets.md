@@ -11,6 +11,7 @@
 - Nouveau connecteur accepté : `makito`.
 - Un point d'avancement est journalisé toutes les 500 fiches.
 - Flux annexe indisponible (prix, stock, marquage…) : listé au bilan ; sur un import intégral, l'import est annulé avant toute écriture (`SupplierFeedIncompleteException`) pour ne pas remplacer les données existantes par du vide.
+- Garde-fou de désactivation en masse : si plus de 10 fiches et plus de 20 % des fiches actives d'un fournisseur sont absentes du flux, rien n'est désactivé (flux probablement amputé) ; `--allow-mass-deactivation` pour passer outre.
 - La désactivation des fiches absentes filtre en mémoire au lieu d'un `NOT IN` de tout le catalogue (limite de paramètres PostgreSQL).
 
 ## Cache disque des flux

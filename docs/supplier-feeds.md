@@ -17,16 +17,17 @@ pnpm db:populate                                          # = supplier:import al
 
 `pnpm db:populate` peuple une base de dev / staging avec **tous les catalogues complets** des connecteurs configurés (lancer `node ace migration:run` avant). Un fournisseur en échec n'arrête pas les suivants ; la commande sort en code 1 s'il y a eu un échec. L'indexation Meilisearch suit par la queue (`ProductChanged`) ; si le worker ne tourne pas, rattraper avec `node ace search:reindex`.
 
-| Option           | Effet                                                                                        |
-| ---------------- | -------------------------------------------------------------------------------------------- |
-| `--limit`        | Nombre maximal de produits (modèles) par fournisseur, 200 par défaut                         |
-| `--full`         | Catalogue entier (ignore `--limit`) ; les fiches absentes du flux sont désactivées           |
-| `--refresh`      | Retélécharge les flux au lieu de réutiliser le cache disque (voir « Cache des flux »)        |
-| `--locale`       | Langue du flux : `fr` (défaut), `en`, `de`, `es`                                             |
-| `--dry-run`      | Bilan (produits, catégories et techniques non reconnues) sans aucune écriture en base        |
-| `--store-images` | Copie les images dans Cellar (clé sha256, dédoublonnage) au lieu de garder l'URL fournisseur |
-| `--skip-images`  | Ne touche pas à la galerie                                                                   |
-| `--force`        | Autorise l'exécution avec `NODE_ENV=production` (refusée sinon)                              |
+| Option                      | Effet                                                                                        |
+| --------------------------- | -------------------------------------------------------------------------------------------- |
+| `--limit`                   | Nombre maximal de produits (modèles) par fournisseur, 200 par défaut                         |
+| `--full`                    | Catalogue entier (ignore `--limit`) ; les fiches absentes du flux sont désactivées           |
+| `--allow-mass-deactivation` | Désactive les fiches absentes du flux même au-delà du garde-fou (voir « Activation »)        |
+| `--refresh`                 | Retélécharge les flux au lieu de réutiliser le cache disque (voir « Cache des flux »)        |
+| `--locale`                  | Langue du flux : `fr` (défaut), `en`, `de`, `es`                                             |
+| `--dry-run`                 | Bilan (produits, catégories et techniques non reconnues) sans aucune écriture en base        |
+| `--store-images`            | Copie les images dans Cellar (clé sha256, dédoublonnage) au lieu de garder l'URL fournisseur |
+| `--skip-images`             | Ne touche pas à la galerie                                                                   |
+| `--force`                   | Autorise l'exécution avec `NODE_ENV=production` (refusée sinon)                              |
 
 Relançable sans risque : un second import met les fiches à jour, sans doublon.
 
@@ -83,7 +84,7 @@ Un connecteur **ne fait que lire** : il traduit le flux en `NormalizedProduct[]`
 
 - **Fournisseur** créé / mis à jour par slug (`pf-concept`, `passot-innovation`, `inspirion`, `makito`), sans organisation rattachée.
 - **Produit** rapproché par `(supplier_id, external_id)` : la colonne `products.external_id` (code modèle PF Concept, SKU parent Passot, `sku` Inspirion, `ref` Makito) porte un index unique. Slug `<fournisseur>-<external_id>`, suffixé `-2`, `-3`… si deux codes donnent le même slug (`AB 12` / `AB-12`).
-- **Activation** : une fiche est active à sa création ; un import ne touche plus jamais `is_active` ensuite (une fiche désactivée par un admin n'est pas republiée). Sur un flux **complet** (`--full`, ou moins de `--limit` produits récupérés ; et au moins un produit), les fiches du fournisseur absentes du flux sont désactivées (`deactivated` au bilan). Un flux à `--limit` pile peut être tronqué : rien n'est désactivé. Une fiche réapparue dans le flux reste désactivée : la réactiver à la main.
+- **Activation** : une fiche est active à sa création ; un import ne touche plus jamais `is_active` ensuite (une fiche désactivée par un admin n'est pas republiée). Sur un flux **complet** (`--full`, ou moins de `--limit` produits récupérés ; et au moins un produit), les fiches du fournisseur absentes du flux sont désactivées (`deactivated` au bilan). Un flux à `--limit` pile peut être tronqué : rien n'est désactivé. Une fiche réapparue dans le flux reste désactivée : la réactiver à la main. **Garde-fou** : seul Makito annonce le total de son catalogue ; pour les autres, un JSON valide mais amputé ne se distingue pas d'un catalogue réduit. Si plus de 10 fiches **et** plus de 20 % des fiches actives du fournisseur devaient être désactivées d'un coup (`massDeactivation` dans `config/supplier_feeds.ts`), rien n'est désactivé, le bilan l'indique (`deactivationSkipped`) et la commande sort en code 1 ; après vérification, relancer avec `--allow-mass-deactivation`.
 - **Une transaction par produit** : une fiche invalide est comptée en échec (bilan) sans bloquer les autres.
 - Traduction dans la langue du flux (`is_auto = false`), `source_locale` = cette langue.
 - Variantes, paliers et marquage via `ProductVariantService` / `ProductMarkingService`, avec la sémantique « remplace l'ensemble » des formulaires fournisseur. Les paliers propres à une variante ne sont écrits que s'ils diffèrent de ceux de la fiche. `price_min` / `price_max` sont recalculés.

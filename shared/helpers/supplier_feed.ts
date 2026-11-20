@@ -25,13 +25,16 @@ export function parsePositiveInt(value: unknown): number | null {
 
 /**
  * Entier écrit avec des points de milliers (`"24.000"` = 24 000, format
- * espagnol des stocks Makito). `null` si vide ou non numérique.
+ * espagnol des stocks Makito). Seuls les groupes de trois chiffres sont des
+ * milliers : `"24.0"` ou `"0.5"` (décimaux) sont refusés plutôt que lus 240 ou
+ * 5. `null` si vide, décimal ou non numérique.
  */
 export function parseGroupedInt(value: unknown): number | null {
   if (typeof value === 'number') return Number.isFinite(value) ? Math.round(value) : null
   if (typeof value !== 'string') return null
-  const cleaned = value.trim().replace(/[\s.]/g, '')
-  return /^\d+$/.test(cleaned) ? Number(cleaned) : null
+  const cleaned = value.trim().replace(/\s/g, '')
+  if (/^\d+$/.test(cleaned)) return Number(cleaned)
+  return /^\d{1,3}(\.\d{3})+$/.test(cleaned) ? Number(cleaned.replaceAll('.', '')) : null
 }
 
 /**

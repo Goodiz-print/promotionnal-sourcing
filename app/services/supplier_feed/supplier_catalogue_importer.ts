@@ -100,6 +100,7 @@ export default class SupplierCatalogueImporter {
       updated: 0,
       failed: 0,
       deactivated: 0,
+      deactivationSkipped: 0,
       unmatchedCategories: [],
       unmatchedTechniques: [],
       missingFeeds: [...missingFeeds].sort(),
@@ -160,37 +161,58 @@ export default class SupplierCatalogueImporter {
         )
       }
     }
-    summary.deactivated = await this.deactivateMissing(supplier, products, options.limit)
+    const missing = await this.missingProducts(supplier, products, options.limit)
+    const { ratio, minimum } = supplierFeedsConfig.massDeactivation
+    if (
+      !options.allowMassDeactivation &&
+      missing.products.length > minimum &&
+      missing.products.length > missing.active * ratio
+    ) {
+      // Aucun flux n'annonce son total (sauf Makito) : un JSON valide mais
+      // amputé ferait désactiver des fiches toujours vendues.
+      summary.deactivationSkipped = missing.products.length
+      logger.warn(
+        { supplier: connector.key, missing: missing.products.length, active: missing.active },
+        'supplier import: mass deactivation skipped, feed looks truncated'
+      )
+      return summary
+    }
+    for (const product of missing.products) {
+      await product.merge({ isActive: false }).save()
+      await emitter.emit(ProductChanged, new ProductChanged(product.id))
+    }
+    summary.deactivated = missing.products.length
     return summary
   }
 
   /**
-   * Désactive les fiches du fournisseur **absentes du flux**, seulement si le
-   * flux est complet : sans limite (`--full`), ou moins de `limit` produits
-   * récupérés (les connecteurs tronquent à `limit`) ; à `limit` pile il peut
-   * être tronqué et rien n'est désactivé. Un flux vide est traité comme une panne
-   * fournisseur (rien n'est désactivé). Les fiches en échec d'import restent
-   * dans le flux : elles ne sont pas désactivées.
+   * Fiches actives du fournisseur **absentes du flux**, à désactiver, et nombre
+   * de fiches actives. Vide si le flux n'est pas complet : il l'est sans limite
+   * (`--full`), ou avec moins de `limit` produits récupérés (les connecteurs
+   * tronquent à `limit`) ; à `limit` pile il peut être tronqué. Un flux vide
+   * est traité comme une panne fournisseur. Les fiches en échec d'import
+   * restent dans le flux : elles ne sont pas désactivées.
    */
-  private async deactivateMissing(
+  private async missingProducts(
     supplier: Supplier,
     products: NormalizedProduct[],
     limit: number | null
-  ): Promise<number> {
-    if (products.length === 0 || (limit !== null && products.length >= limit)) return 0
+  ): Promise<{ products: Product[]; active: number }> {
+    if (products.length === 0 || (limit !== null && products.length >= limit)) {
+      return { products: [], active: 0 }
+    }
     // Filtrage en mémoire : un `NOT IN` de tout le catalogue dépasserait la
     // limite de paramètres de PostgreSQL (65 535) sur un gros fournisseur.
     const present = new Set(products.map((product) => product.externalId))
     const active = await Product.query()
+      .select('id', 'externalId')
       .where('supplierId', supplier.id)
       .whereNotNull('externalId')
       .where('isActive', true)
-    const missing = active.filter((product) => !present.has(product.externalId!))
-    for (const product of missing) {
-      await product.merge({ isActive: false }).save()
-      await emitter.emit(ProductChanged, new ProductChanged(product.id))
+    return {
+      products: active.filter((product) => !present.has(product.externalId!)),
+      active: active.length,
     }
-    return missing.length
   }
 
   /**

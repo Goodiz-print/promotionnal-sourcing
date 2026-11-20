@@ -274,6 +274,38 @@ test.group('Import de catalogue fournisseur', (group) => {
     assert.equal(limited.created, 1)
   })
 
+  test('flux amputé : désactivation en masse refusée, sauf demande explicite', async ({
+    assert,
+  }) => {
+    const catalogue = Array.from({ length: 12 }, (_, index) =>
+      normalizedProduct({
+        externalId: `EXT-${index}`,
+        variants: [{ ...MARKED.variants[0], sku: `EXT-${index}-A` }],
+      })
+    )
+    await runImport(new InMemorySupplierConnector(catalogue), { ...OPTIONS, limit: null })
+    const activeCount = async () => {
+      const rows = await Product.query().where('isActive', true).whereNotNull('externalId')
+      return rows.length
+    }
+
+    // 11 fiches sur 12 disparues d'un coup : le flux est jugé amputé.
+    const truncated = new InMemorySupplierConnector(catalogue.slice(0, 1))
+    const guarded = await runImport(truncated, { ...OPTIONS, limit: null })
+    assert.equal(guarded.deactivated, 0)
+    assert.equal(guarded.deactivationSkipped, 11)
+    assert.equal(await activeCount(), 12)
+
+    const forced = await runImport(truncated, {
+      ...OPTIONS,
+      limit: null,
+      allowMassDeactivation: true,
+    })
+    assert.equal(forced.deactivated, 11)
+    assert.equal(forced.deactivationSkipped, 0)
+    assert.equal(await activeCount(), 1)
+  })
+
   test('flux tronqué par --limit : rien n’est désactivé', async ({ assert }) => {
     const other = normalizedProduct({ externalId: 'EXT-OTHER' })
     await runImport(new InMemorySupplierConnector([MARKED, other]))
