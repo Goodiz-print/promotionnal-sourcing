@@ -1,4 +1,4 @@
-import type { SubscriptionStatus } from '../types/subscription.js'
+import { SUBSCRIPTION_TIMEZONE, type SubscriptionStatus } from '../types/subscription.js'
 
 /**
  * Traduit le statut Stripe d'un abonnement en statut de la plateforme
@@ -32,4 +32,20 @@ export function statusFromProvider(providerStatus: string): SubscriptionStatus {
  */
 export function isSubscriptionEventType(type: string): boolean {
   return type.startsWith('customer.subscription.') || type.startsWith('invoice.')
+}
+
+/**
+ * Dernier jour couvert par un abonnement, au format `AAAA-MM-JJ` (heure de
+ * Paris). `ends_at` est exclusif : il pointe sur le début du jour qui suit.
+ */
+export function lastCoveredDay(endsAt: string): string {
+  return dayInSubscriptionZone(new Date(Date.parse(endsAt) - 1))
+}
+
+/**
+ * Jour d'un instant au format `AAAA-MM-JJ`, heure de Paris (aujourd'hui par
+ * défaut). Le format suédois est l'ISO `AAAA-MM-JJ`.
+ */
+export function dayInSubscriptionZone(instant: Date = new Date()): string {
+  return instant.toLocaleDateString('sv-SE', { timeZone: SUBSCRIPTION_TIMEZONE })
 }

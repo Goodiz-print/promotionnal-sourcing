@@ -156,6 +156,9 @@ export type ScannedRoutes = {
     'admin.organizations.remove_member': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'membershipId': ParamValue} }
     'admin.organizations.revoke_invitation': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'invitationId': ParamValue} }
     'admin.organizations.resend_invitation': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'invitationId': ParamValue} }
+    'admin.organizations.subscriptions.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.organizations.subscriptions.extend': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'subscriptionId': ParamValue} }
+    'admin.organizations.subscriptions.cancel': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'subscriptionId': ParamValue} }
     'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.users.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.platform_role.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -533,6 +536,8 @@ export type ScannedRoutes = {
     'admin.organizations.archive': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.restore': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.resend_invitation': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'invitationId': ParamValue} }
+    'admin.organizations.subscriptions.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.organizations.subscriptions.cancel': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'subscriptionId': ParamValue} }
     'admin.users.suspend': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.reactivate': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.resend_verification': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -601,6 +606,7 @@ export type ScannedRoutes = {
     'admin.organizations.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.change_type': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.member_role': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'membershipId': ParamValue} }
+    'admin.organizations.subscriptions.extend': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'subscriptionId': ParamValue} }
     'admin.users.platform_role.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.ai.translations.correct': { paramsTuple: [ParamValue,ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'entity': ParamValue,'id': ParamValue,'translationLocale': ParamValue} }
     'admin.categories.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }

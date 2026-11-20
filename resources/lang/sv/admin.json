@@ -272,6 +272,38 @@
         "revoked": "Inbjudan återkallad.",
         "resent": "Inbjudan skickad igen."
       }
+    },
+    "subscription": {
+      "title": "Abonnemang",
+      "empty": "Inget abonnemang: gratisplan.",
+      "create": "Skapa abonnemang",
+      "extend": "Ändra slutdatum",
+      "cancel": "Säg upp",
+      "cancelConfirm": "Säga upp abonnemanget nu? Organisationen går tillbaka till gratisplanen.",
+      "fields": {
+        "plan": "Plan",
+        "status": "Status",
+        "period": "Period",
+        "origin": "Ursprung",
+        "author": "Registrerat av",
+        "startsOn": "Första dag",
+        "endsOn": "Sista dag"
+      },
+      "origins": {
+        "manual": "Manuellt",
+        "stripe": "Online"
+      },
+      "done": {
+        "created": "Abonnemanget har sparats.",
+        "extended": "Slutdatumet har ändrats.",
+        "cancelled": "Abonnemanget har sagts upp."
+      },
+      "errors": {
+        "alreadyOpen": "Det finns redan ett pågående eller planerat abonnemang: förläng eller säg upp det.",
+        "invalidPeriod": "Ogiltiga datum: sista dagen måste komma efter den första och får inte ha passerat.",
+        "notEditable": "Det här abonnemanget kan inte längre ändras här.",
+        "notSupplier": "Endast en leverantörsorganisation kan teckna abonnemang."
+      }
     }
   },
   "users": {
@@ -487,7 +519,10 @@
       "storage.recovery_requested": "Storage recovery requested",
       "ad_campaign.suspended": "Sponsrad kampanj avstängd",
       "ad_campaign.restored": "Avstängning av kampanj hävd",
-      "ad_wallet.adjusted": "Annonsplånbok justerad"
+      "ad_wallet.adjusted": "Annonsplånbok justerad",
+      "subscription.created": "Abonnemang skapat",
+      "subscription.extended": "Abonnemangets slut ändrat",
+      "subscription.cancelled": "Abonnemang uppsagt"
     },
     "targets": {
       "user": "Användare",

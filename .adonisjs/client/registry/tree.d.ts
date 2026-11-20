@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */
+ 
 import type { routes } from './index.ts'
 
 export interface ApiDefinition {
@@ -249,6 +249,11 @@ export interface ApiDefinition {
       removeMember: typeof routes['admin.organizations.remove_member']
       revokeInvitation: typeof routes['admin.organizations.revoke_invitation']
       resendInvitation: typeof routes['admin.organizations.resend_invitation']
+      subscriptions: {
+        store: typeof routes['admin.organizations.subscriptions.store']
+        extend: typeof routes['admin.organizations.subscriptions.extend']
+        cancel: typeof routes['admin.organizations.subscriptions.cancel']
+      }
     }
     users: {
       index: typeof routes['admin.users.index']

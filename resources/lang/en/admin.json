@@ -272,6 +272,38 @@
         "revoked": "Invitation revoked.",
         "resent": "Invitation resent."
       }
+    },
+    "subscription": {
+      "title": "Subscription",
+      "empty": "No subscription: free plan.",
+      "create": "Create subscription",
+      "extend": "Change end date",
+      "cancel": "Cancel",
+      "cancelConfirm": "Cancel this subscription now? The organization goes back to the free plan.",
+      "fields": {
+        "plan": "Plan",
+        "status": "Status",
+        "period": "Period",
+        "origin": "Origin",
+        "author": "Entered by",
+        "startsOn": "First day",
+        "endsOn": "Last day"
+      },
+      "origins": {
+        "manual": "Manual",
+        "stripe": "Online"
+      },
+      "done": {
+        "created": "Subscription saved.",
+        "extended": "End date changed.",
+        "cancelled": "Subscription cancelled."
+      },
+      "errors": {
+        "alreadyOpen": "A subscription is already current or scheduled: extend or cancel it.",
+        "invalidPeriod": "Invalid dates: the last day must follow the first one and not be in the past.",
+        "notEditable": "This subscription can no longer be changed here.",
+        "notSupplier": "Only a supplier organization can subscribe."
+      }
     }
   },
   "users": {
@@ -487,7 +519,10 @@
       "storage.recovery_requested": "Storage recovery requested",
       "ad_campaign.suspended": "Sponsored campaign suspended",
       "ad_campaign.restored": "Campaign suspension lifted",
-      "ad_wallet.adjusted": "Ad wallet adjusted"
+      "ad_wallet.adjusted": "Ad wallet adjusted",
+      "subscription.created": "Subscription created",
+      "subscription.extended": "Subscription end changed",
+      "subscription.cancelled": "Subscription cancelled"
     },
     "targets": {
       "user": "User",

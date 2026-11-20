@@ -5,7 +5,6 @@ import BillingProfile from '#models/billing_profile'
 import Organization from '#models/organization'
 import OrganizationSubscription from '#models/organization_subscription'
 import { statusFromProvider } from '#shared/helpers/subscription'
-import type { SubscriptionPlan } from '#shared/types/organization'
 import {
   BLOCKING_SUBSCRIPTION_STATUSES,
   CURRENT_SUBSCRIPTION_STATUSES,
@@ -19,15 +18,18 @@ import {
  * dénormalisée), et seul point qui répond à « abonné ou non ».
  */
 export default class SubscriptionService {
-  /** Abonnement en cours (`active` ou `past_due`) de l'organisation, s'il existe. */
+  /**
+   * Abonnement en cours de l'organisation, s'il existe : statut `active` ou
+   * `past_due` et, pour un abonnement manuel, date de fin non dépassée — un
+   * abonnement échu ne compte plus, même avant le passage du job qui l'expire.
+   * La date de fin d'un abonnement en ligne est celle de la période facturée :
+   * Stripe en reste juge (relances d'impayé), elle n'est pas lue ici.
+   */
   current(
     organizationId: number,
     client?: TransactionClientContract
   ): Promise<OrganizationSubscription | null> {
-    return OrganizationSubscription.query({ client })
-      .where('organizationId', organizationId)
-      .whereIn('status', [...CURRENT_SUBSCRIPTION_STATUSES])
-      .first()
+    return this.currentQuery(client).where('organizationId', organizationId).first()
   }
 
   /**
@@ -50,13 +52,25 @@ export default class SubscriptionService {
    * `isSubscribed` pour plusieurs organisations en une requête : les
    * identifiants de celles qui ont un abonnement payant en cours.
    */
-  async subscribedAmong(organizationIds: number[]): Promise<Set<number>> {
+  async subscribedAmong(
+    organizationIds: number[],
+    client?: TransactionClientContract
+  ): Promise<Set<number>> {
     if (organizationIds.length === 0) return new Set()
-    const rows = await OrganizationSubscription.query()
+    const rows = await this.currentQuery(client)
       .whereIn('organizationId', organizationIds)
-      .whereIn('status', [...CURRENT_SUBSCRIPTION_STATUSES])
       .select('organizationId')
     return new Set(rows.map((row) => row.organizationId))
+  }
+
+  /** Abonnements en cours à l'instant de la lecture (cf. `current`). */
+  private currentQuery(client?: TransactionClientContract) {
+    const now = DateTime.now().toSQL()
+    return OrganizationSubscription.query({ client })
+      .whereIn('status', [...CURRENT_SUBSCRIPTION_STATUSES])
+      .where((query) =>
+        query.whereNotNull('stripeSubscriptionId').orWhereNull('endsAt').orWhere('endsAt', '>', now)
+      )
   }
 
   /**
@@ -124,11 +138,21 @@ export default class SubscriptionService {
    * sa formule, ou `free` sans abonnement en cours.
    */
   async refreshPlan(organizationId: number, trx: TransactionClientContract): Promise<void> {
-    const current = await this.current(organizationId, trx)
-    const plan: SubscriptionPlan = current?.plan ?? 'free'
+    await this.refreshPlans([organizationId], trx)
+  }
+
+  /** `refreshPlan` pour plusieurs organisations, en une lecture et une écriture. */
+  async refreshPlans(organizationIds: number[], trx: TransactionClientContract): Promise<void> {
+    if (organizationIds.length === 0) return
+    const current = await this.currentQuery(trx)
+      .whereIn('organizationId', organizationIds)
+      .select('organizationId', 'plan')
+    const planOf = new Map(current.map((row) => [row.organizationId, row.plan]))
+    const cases = organizationIds.map(() => 'WHEN ? THEN ?').join(' ')
+    const bindings = organizationIds.flatMap((id) => [id, planOf.get(id) ?? 'free'])
     await Organization.query({ client: trx })
-      .where('id', organizationId)
-      .update({ subscriptionPlan: plan })
+      .whereIn('id', organizationIds)
+      .update({ subscriptionPlan: trx.raw(`CASE id ${cases} END`, bindings) })
   }
 
   /**

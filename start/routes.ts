@@ -32,7 +32,10 @@ import {
   registerSupplierAdRoutes,
 } from '#start/routes/ads'
 import { registerMarketingRoutes, registerMarketingLegacyRoutes } from '#start/routes/marketing'
-import { registerSupplierSubscriptionRoutes } from '#start/routes/subscriptions'
+import {
+  registerAdminSubscriptionRoutes,
+  registerSupplierSubscriptionRoutes,
+} from '#start/routes/subscriptions'
 import { registerSupplierContactRoutes } from '#start/routes/supplier_contacts'
 import { LOCALE_ROUTE_PATTERN } from '#shared/types/i18n'
 import { controllers } from '#generated/controllers'
@@ -375,6 +378,8 @@ router
                   .where('id', router.matchers.number())
                   .where('invitationId', router.matchers.number())
                   .as('admin.organizations.resend_invitation')
+                // Abonnements manuels (#214) — cf. `start/routes/subscriptions.ts`.
+                registerAdminSubscriptionRoutes()
 
                 router.get('admin/users', [controllers.admin.User, 'index']).as('admin.users.index')
                 router

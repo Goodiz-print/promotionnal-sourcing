@@ -272,6 +272,38 @@
         "revoked": "Invito revocato.",
         "resent": "Invito reinviato."
       }
+    },
+    "subscription": {
+      "title": "Abbonamento",
+      "empty": "Nessun abbonamento: piano gratuito.",
+      "create": "Crea l'abbonamento",
+      "extend": "Modifica la fine",
+      "cancel": "Disdici",
+      "cancelConfirm": "Disdire subito questo abbonamento? L'organizzazione torna al piano gratuito.",
+      "fields": {
+        "plan": "Piano",
+        "status": "Stato",
+        "period": "Periodo",
+        "origin": "Origine",
+        "author": "Inserito da",
+        "startsOn": "Primo giorno",
+        "endsOn": "Ultimo giorno"
+      },
+      "origins": {
+        "manual": "Manuale",
+        "stripe": "Online"
+      },
+      "done": {
+        "created": "Abbonamento registrato.",
+        "extended": "Data di fine modificata.",
+        "cancelled": "Abbonamento disdetto."
+      },
+      "errors": {
+        "alreadyOpen": "Esiste già un abbonamento in corso o programmato: prolungalo o disdicilo.",
+        "invalidPeriod": "Date non valide: l'ultimo giorno deve seguire il primo e non essere passato.",
+        "notEditable": "Questo abbonamento non può più essere modificato qui.",
+        "notSupplier": "Solo un'organizzazione fornitore può abbonarsi."
+      }
     }
   },
   "users": {
@@ -487,7 +519,10 @@
       "storage.recovery_requested": "Storage recovery requested",
       "ad_campaign.suspended": "Campagna sponsorizzata sospesa",
       "ad_campaign.restored": "Sospensione della campagna revocata",
-      "ad_wallet.adjusted": "Portafoglio pubblicitario rettificato"
+      "ad_wallet.adjusted": "Portafoglio pubblicitario rettificato",
+      "subscription.created": "Abbonamento creato",
+      "subscription.extended": "Fine abbonamento modificata",
+      "subscription.cancelled": "Abbonamento disdetto"
     },
     "targets": {
       "user": "Utente",

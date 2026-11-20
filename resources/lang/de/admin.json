@@ -272,6 +272,38 @@
         "revoked": "Einladung widerrufen.",
         "resent": "Einladung erneut gesendet."
       }
+    },
+    "subscription": {
+      "title": "Abonnement",
+      "empty": "Kein Abonnement: kostenloser Tarif.",
+      "create": "Abonnement anlegen",
+      "extend": "Enddatum ändern",
+      "cancel": "Kündigen",
+      "cancelConfirm": "Dieses Abonnement jetzt kündigen? Die Organisation wechselt zurück in den kostenlosen Tarif.",
+      "fields": {
+        "plan": "Tarif",
+        "status": "Status",
+        "period": "Zeitraum",
+        "origin": "Herkunft",
+        "author": "Erfasst von",
+        "startsOn": "Erster Tag",
+        "endsOn": "Letzter Tag"
+      },
+      "origins": {
+        "manual": "Manuell",
+        "stripe": "Online"
+      },
+      "done": {
+        "created": "Abonnement gespeichert.",
+        "extended": "Enddatum geändert.",
+        "cancelled": "Abonnement gekündigt."
+      },
+      "errors": {
+        "alreadyOpen": "Es gibt bereits ein laufendes oder geplantes Abonnement: verlängern oder kündigen Sie es.",
+        "invalidPeriod": "Ungültige Daten: Der letzte Tag muss nach dem ersten liegen und darf nicht vergangen sein.",
+        "notEditable": "Dieses Abonnement kann hier nicht mehr geändert werden.",
+        "notSupplier": "Nur eine Lieferantenorganisation kann ein Abonnement abschließen."
+      }
     }
   },
   "users": {
@@ -487,7 +519,10 @@
       "storage.recovery_requested": "Storage recovery requested",
       "ad_campaign.suspended": "Gesponserte Kampagne gesperrt",
       "ad_campaign.restored": "Kampagnensperre aufgehoben",
-      "ad_wallet.adjusted": "Werbeguthaben angepasst"
+      "ad_wallet.adjusted": "Werbeguthaben angepasst",
+      "subscription.created": "Abonnement angelegt",
+      "subscription.extended": "Abonnementende geändert",
+      "subscription.cancelled": "Abonnement gekündigt"
     },
     "targets": {
       "user": "Benutzer",

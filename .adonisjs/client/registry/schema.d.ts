@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */
+ 
 /// <reference path="../manifest.d.ts" />
 
 import type { ExtractBody, ExtractErrorResponse, ExtractQuery, ExtractQueryForGet, ExtractRawResponse, ExtractResponse } from '@tuyau/core/types'
@@ -1981,6 +1981,45 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['resendInvitation']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['resendInvitation']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['resendInvitation']>>>
+    }
+  }
+  'admin.organizations.subscriptions.store': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/organizations/:id/subscriptions'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_subscription').adminSubscriptionCreateValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_subscription').adminSubscriptionCreateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.organizations.subscriptions.extend': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/organizations/:id/subscriptions/:subscriptionId'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_subscription').adminSubscriptionExtendValidator)>>
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; subscriptionId: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_subscription').adminSubscriptionExtendValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['extend']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['extend']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['extend']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.organizations.subscriptions.cancel': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/organizations/:id/subscriptions/:subscriptionId/cancel'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; subscriptionId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['cancel']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['cancel']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['cancel']>>>
     }
   }
   'admin.users.index': {

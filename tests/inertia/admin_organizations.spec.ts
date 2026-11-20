@@ -264,6 +264,7 @@ function detail(extra: Partial<AdminOrganizationDetail> = {}): AdminOrganization
     postalCode: null,
     logoUrl: null,
     subscriptionPlan: 'free',
+    subscriptions: [],
     locale: 'fr',
     updatedAt: null,
     reviewReasons: null,
