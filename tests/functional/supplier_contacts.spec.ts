@@ -9,6 +9,7 @@ import { SupplierContactFactory } from '#database/factories/supplier_contact_fac
 import { SupplierFactory } from '#database/factories/supplier_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import type Organization from '#models/organization'
+import OrganizationUser from '#models/organization_user'
 import SupplierContact from '#models/supplier_contact'
 import SupplierProfile from '#models/supplier_profile'
 import type User from '#models/user'
@@ -123,6 +124,51 @@ test.group('Contacts commerciaux — règle d’affichage', (group) => {
       visible.map((row) => row.name),
       ['Premier', 'Second']
     )
+  })
+
+  test('plusieurs fournisseurs à la fois : la règle s’applique à chacun', async ({ assert }) => {
+    const service = await app.container.make(SupplierContactService)
+    const filtered = await supplierOrg()
+    await subscribe(filtered)
+    await contact(filtered, 'Claire', ['FR'])
+    await contact(filtered, 'Ana', ['RO'])
+    const wholeTeam = await supplierOrg()
+    await subscribe(wholeTeam)
+    await contact(wholeTeam, 'Hans', ['DE'])
+    await contact(wholeTeam, 'Export', ['IT'])
+    await service.setShowAllContacts(wholeTeam.id, true)
+    const free = await supplierOrg()
+    await contact(free, 'Gratuit', [])
+    const empty = await supplierOrg()
+    await subscribe(empty)
+
+    const visible = await service.visibleForMany(
+      [filtered.id, wholeTeam.id, free.id, empty.id, filtered.id],
+      viewer('FR')
+    )
+
+    assert.sameMembers([...visible.keys()], [filtered.id, wholeTeam.id])
+    assert.deepEqual(names(visible.get(filtered.id)!), ['Claire'])
+    assert.deepEqual(names(visible.get(wholeTeam.id)!), ['Export', 'Hans'])
+  })
+
+  test('seule une agence connectée est un visiteur qui reçoit des contacts', async ({ assert }) => {
+    const service = await app.container.make(SupplierContactService)
+    const agency = await OrganizationFactory.merge({ country: 'BE' }).create()
+    const both = await OrganizationFactory.apply('both').create()
+    const competitor = await supplierOrg()
+    const archived = await OrganizationFactory.apply('archived').create()
+
+    assert.isNull(await service.viewerFor(null))
+    assert.isNull(await service.viewerFor(await UserFactory.create()))
+    assert.isNull(await service.viewerFor(await createMember(competitor, 'owner')))
+    assert.isNull(await service.viewerFor(await createMember(archived, 'owner')))
+    assert.deepEqual(await service.viewerFor(await createMember(agency, 'member')), {
+      organizationId: agency.id,
+      country: 'BE',
+    })
+    const bothViewer = await service.viewerFor(await createMember(both, 'owner'))
+    assert.equal(bothViewer?.organizationId, both.id)
   })
 })
 
@@ -289,6 +335,40 @@ test.group('Contacts commerciaux — espace fournisseur', (group) => {
     assert.isNotNull(await SupplierContact.find(foreign.id))
   })
 
+  test('le départ du membre relié délie le contact sans le supprimer', async ({
+    client,
+    assert,
+  }) => {
+    const { org, user } = await owner()
+    const seller = await createMember(org, 'member')
+    const linked = await SupplierContactFactory.merge({
+      organizationId: org.id,
+      userId: seller.id,
+    }).create()
+    const membership = await OrganizationUser.query()
+      .where('organizationId', org.id)
+      .where('userId', seller.id)
+      .firstOrFail()
+
+    await send(client, 'delete', `/fr/organization/members/${membership.id}`, user).then(
+      (response) => response.assertStatus(303)
+    )
+
+    await linked.refresh()
+    assert.isNull(linked.userId)
+  })
+
+  test('la base refuse de relier un utilisateur qui n’est pas membre du compte', async ({
+    assert,
+  }) => {
+    const org = await supplierOrg()
+    const stranger = await UserFactory.create()
+
+    await assert.rejects(() =>
+      SupplierContactFactory.merge({ organizationId: org.id, userId: stranger.id }).create()
+    )
+  })
+
   test("enregistre l'option « montrer toute l'équipe »", async ({ client, assert }) => {
     const { org, user } = await owner()
 
@@ -341,6 +421,22 @@ test.group('Contacts commerciaux — props envoyées à l’agence', (group) => 
       ['Claire']
     )
     assert.deepEqual(response.inertiaProps.contacts[0].countries, ['FR'])
+  })
+
+  test('page fournisseur : un fournisseur concurrent ne reçoit aucun contact', async ({
+    client,
+    assert,
+  }) => {
+    const { org, supplier } = await publicSupplier()
+    await subscribe(org)
+    const competitor = await createMember(await supplierOrg(), 'owner')
+
+    const response = await client
+      .get(`/fr/suppliers/${supplier.slug}`)
+      .withInertia()
+      .loginAs(competitor)
+
+    assert.deepEqual(response.inertiaProps.contacts, [])
   })
 
   test('page fournisseur : rien pour un fournisseur gratuit', async ({ client, assert }) => {

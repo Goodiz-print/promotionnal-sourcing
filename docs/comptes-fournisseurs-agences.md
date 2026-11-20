@@ -48,12 +48,17 @@ de catégories). Catalogue PDF et justificatifs de certification : `organization
 
 Chaque contact de `supplier_contacts` porte `countries` (codes ISO alpha-2,
 liste vide = tous les pays) et, facultativement, `user_id` : le commercial est
-alors aussi un membre du compte fournisseur. L'option
+alors aussi un membre du compte fournisseur. La clé étrangère est composite,
+vers `organization_users (organization_id, user_id)` : on ne peut relier qu'un
+membre, et son départ (quel qu'en soit le chemin) délie le contact
+(`ON DELETE SET NULL (user_id)`) sans le supprimer. L'option
 `supplier_profiles.show_all_contacts` (désactivée par défaut) montre toute
 l'équipe à toutes les agences.
 
 `SupplierContactService.visibleFor` est la **seule** règle d'affichage, évaluée
-à la lecture : visiteur non connecté ou fournisseur non abonné
+à la lecture : visiteur non connecté, dont l'organisation courante n'est pas
+une agence (`buyer` ou `both` — un fournisseur concurrent ne voit rien), ou
+fournisseur non abonné
 (`SubscriptionService.isSubscribed`) → aucun contact ; option activée → tous ;
 sinon les contacts qui couvrent le pays de l'organisation courante du visiteur
 (ou tous les pays) ; aucun → toute l'équipe (repli). Les contacts écartés ne sont

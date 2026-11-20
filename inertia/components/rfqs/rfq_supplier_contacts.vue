@@ -27,7 +27,7 @@ const groups = computed(() =>
 <template>
   <div class="flex flex-col gap-6">
     <div v-for="group in groups" :key="group.supplier.id" class="flex flex-col gap-3">
-      <h3 class="text-body-sm font-semibold text-text-primary">{{ group.supplier.name }}</h3>
+      <h3 class="text-heading-sm text-text-primary">{{ group.supplier.name }}</h3>
       <SupplierContactCards :contacts="group.contacts" />
     </div>
   </div>

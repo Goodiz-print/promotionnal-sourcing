@@ -32,8 +32,23 @@ const form = useForm({
   phone: props.contact?.phone ?? '',
   languages: [...(props.contact?.languages ?? [])] as Locale[],
   countries: [...(props.contact?.countries ?? [])] as CountryCode[],
-  userId: props.contact?.userId ?? null,
+  // Un lien vers un ancien membre (absent de `members`) n'est pas renvoyé :
+  // le serveur refuserait un utilisateur qui n'est plus membre du compte.
+  userId: props.members.some((member) => member.id === props.contact?.userId)
+    ? (props.contact?.userId ?? null)
+    : null,
 })
+
+/**
+ * Erreur d'un champ tableau : VineJS la range sous `countries` (le tableau)
+ * ou `countries.0` (un élément) ; on affiche la première trouvée.
+ */
+function arrayError(field: 'countries' | 'languages'): string | undefined {
+  const errors = form.errors as Record<string, string | undefined>
+  if (errors[field]) return errors[field]
+  const key = Object.keys(errors).find((name) => name.startsWith(`${field}.`))
+  return key ? errors[key] : undefined
+}
 
 function submit() {
   const options = { preserveScroll: true, onSuccess: () => emit('done') }
@@ -96,7 +111,7 @@ const fieldId = (name: string) => `contact-${props.contact?.id ?? 'new'}-${name}
         :placeholder="t('supplier.contacts.fields.addCountry')"
         :empty-label="t('supplier.contacts.allCountries')"
         :remove-label="(label) => t('supplier.contacts.remove', { label })"
-        :error="form.errors.countries"
+        :error="arrayError('countries')"
       />
       <BaseTagPicker
         :id="fieldId('languages')"
@@ -105,7 +120,7 @@ const fieldId = (name: string) => `contact-${props.contact?.id ?? 'new'}-${name}
         :label="t('supplier.contacts.fields.languages')"
         :placeholder="t('supplier.contacts.fields.addLanguage')"
         :remove-label="(label) => t('supplier.contacts.remove', { label })"
-        :error="form.errors.languages"
+        :error="arrayError('languages')"
       />
       <BaseSelect
         :id="fieldId('userId')"
