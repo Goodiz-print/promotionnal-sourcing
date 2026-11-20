@@ -72,6 +72,9 @@ export const ADMIN_AUDIT_ACTIONS = [
   'search.evaluation_requested',
   'mail.retried',
   'mail.bulk_retried',
+  'inbound_mail.attached',
+  'inbound_mail.replayed',
+  'inbound_mail.dismissed',
   'storage.recovery_requested',
   'ad_campaign.suspended',
   'ad_campaign.restored',
@@ -102,6 +105,7 @@ export const ADMIN_AUDIT_TARGET_TYPES = [
   'queue_schedule',
   'search_run',
   'mail_delivery',
+  'inbound_mail',
   'storage',
   'ad_campaign',
 ] as const

@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */
+ 
 /// <reference path="../manifest.d.ts" />
 
 import type { ExtractBody, ExtractErrorResponse, ExtractQuery, ExtractQueryForGet, ExtractRawResponse, ExtractResponse } from '@tuyau/core/types'
@@ -2436,6 +2436,71 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['retry']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['retry']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['retry']>>>
+    }
+  }
+  'admin.inbound_mail.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/inbound-mail'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_inbound_mail').adminInboundMailFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.inbound_mail.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/inbound-mail/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_inbound_mail').adminInboundMailShowValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['show']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['show']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.inbound_mail.attach': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/inbound-mail/:id/attach'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_inbound_mail').adminInboundMailAttachValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_inbound_mail').adminInboundMailAttachValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['attach']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['attach']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['attach']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.inbound_mail.replay': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/inbound-mail/:id/replay'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['replay']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['replay']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['replay']>>>
+    }
+  }
+  'admin.inbound_mail.dismiss': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/inbound-mail/:id/dismiss'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['dismiss']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['dismiss']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['dismiss']>>>
     }
   }
   'admin.storage.index': {

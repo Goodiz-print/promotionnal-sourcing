@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mail entrant en échec</title>
+  </head>
+  <body style="font-family: sans-serif; color: #374151">
+    <h1 style="font-size: 20px">Mail entrant en échec définitif</h1>
+    <p>
+      Le traitement de cette réponse de fournisseur a échoué à chaque tentative.
+      {{ failure.recentFailures }}
+      mail(s) entrant(s) en échec sur les dernières 24 heures.
+    </p>
+    <ul>
+      <li>Mail n° {{ failure.inboundMailId }}</li>
+      <li>Expéditeur : {{ failure.senderAddress }}</li>
+      <li>Adresse visée : {{ failure.recipient ?? '—' }}</li>
+      <li>Objet : {{ failure.subject ?? '—' }}</li>
+      <li>Reçu le : {{ failure.receivedAt }}</li>
+      <li>Erreur : {{ failure.error }}</li>
+    </ul>
+    <p>
+      Rattacher, rejouer ou écarter :
+      <a href="{{ failure.adminUrl }}">{{ failure.adminUrl }}</a>
+    </p>
+  </body>
+</html>

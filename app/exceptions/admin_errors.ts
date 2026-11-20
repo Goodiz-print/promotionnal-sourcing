@@ -73,3 +73,12 @@ export class AdminMailNotFoundException extends Exception {
   static code = 'E_ADMIN_MAIL_NOT_FOUND'
   static message = 'Mail delivery not found'
 }
+
+/**
+ * Mail entrant introuvable dans le back-office (`/admin/inbound-mail/:id`).
+ */
+export class AdminInboundMailNotFoundException extends Exception {
+  static status = 404
+  static code = 'E_ADMIN_INBOUND_MAIL_NOT_FOUND'
+  static message = 'Inbound mail not found'
+}

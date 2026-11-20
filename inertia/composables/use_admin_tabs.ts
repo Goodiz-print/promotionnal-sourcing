@@ -9,7 +9,7 @@ import type { PlatformPermission } from '#shared/types/user'
 
 /**
  * Onglets du back-office (`BaseTabs`) : tableau de bord, organisations,
- * utilisateurs, produits, catégories, attributs, certifications, techniques de marquage, modération, agences, demandes de devis, devis, commandes, demande des clients, produits sponsorisés, consentements légaux, annonces, imports, IA et traductions, supervision de la queue, état de la recherche, emails, stockage, santé de la plateforme, journal d'audit. Seules les sections dont le rôle
+ * utilisateurs, produits, catégories, attributs, certifications, techniques de marquage, modération, agences, demandes de devis, devis, commandes, demande des clients, produits sponsorisés, consentements légaux, annonces, imports, IA et traductions, supervision de la queue, état de la recherche, emails, mails entrants, stockage, santé de la plateforme, journal d'audit. Seules les sections dont le rôle
  * plateforme porte le droit sont affichées. L'onglet courant est déduit de
  * l'URL de la page (`isActivePath`) ; `/admin` étant le parent de toutes les
  * autres sections, il n'est actif que si aucun onglet plus précis ne l'est.
@@ -41,6 +41,7 @@ const SECTIONS: { key: string; route: string; permission: PlatformPermission }[]
   { key: 'queue', route: 'admin.queue.index', permission: 'queue.manage' },
   { key: 'search', route: 'admin.search.index', permission: 'search.manage' },
   { key: 'mail', route: 'admin.mail.index', permission: 'ops.manage' },
+  { key: 'inboundMail', route: 'admin.inbound_mail.index', permission: 'ops.manage' },
   { key: 'storage', route: 'admin.storage.index', permission: 'ops.manage' },
   { key: 'health', route: 'admin.health.index', permission: 'ops.manage' },
   { key: 'consents', route: 'admin.consents.index', permission: 'audit.view' },
