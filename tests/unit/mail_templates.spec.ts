@@ -10,6 +10,8 @@ import PasswordResetNotification from '#mails/password_reset_notification'
 import QuoteReceivedNotification from '#mails/quote_received_notification'
 import RfqReceivedNotification from '#mails/rfq_received_notification'
 import RfqReminderNotification from '#mails/rfq_reminder_notification'
+import SubscriptionActivatedNotification from '#mails/subscription_activated_notification'
+import SubscriptionExpiringNotification from '#mails/subscription_expiring_notification'
 import WelcomeNotification from '#mails/welcome_notification'
 import { SUPPORTED_LOCALES, type Locale } from '#shared/types/i18n'
 import { NOTIFICATION_EMAIL_FALLBACK } from '#shared/types/notification'
@@ -110,6 +112,30 @@ const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> 
       'subscription.duplicate_cancelled',
       { organizationName: 'Acme', organizationId: 7, cancelledSubscriptionId: 'sub_123' },
       '/x/admin/organizations/7',
+      locale
+    ) as never,
+  subscriptionActivated: (locale) =>
+    new SubscriptionActivatedNotification(
+      'owner@example.com',
+      {
+        organizationName: 'Acme',
+        plan: 'premium',
+        startsOn: '20/11/2026',
+        endsOn: '19/11/2027',
+        path: '/x/supplier/subscription',
+      },
+      locale
+    ) as never,
+  subscriptionExpiring: (locale) =>
+    new SubscriptionExpiringNotification(
+      'owner@example.com',
+      {
+        organizationName: 'Acme',
+        plan: 'business',
+        endsOn: '19/11/2027',
+        daysLeft: 7,
+        path: '/x/supplier/subscription',
+      },
       locale
     ) as never,
   welcome: (locale) =>

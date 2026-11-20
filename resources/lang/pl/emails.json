@@ -85,5 +85,23 @@
     "intro": "To powiadomienie zostało wysłane do Ciebie w {brandName} i nie zostało jeszcze przeczytane:",
     "cta": "Otwórz powiązaną stronę",
     "footer": "Otrzymujesz to przypomnienie tylko raz. Nie jest wysyłane, gdy powiadomienie zostanie przeczytane."
+  },
+  "subscriptionActivated": {
+    "subject": "Twoja subskrypcja {planName} jest aktywna",
+    "title": "Subskrypcja {planName} aktywowana",
+    "intro": "Subskrypcja {planName} organizacji {organizationName} jest aktywna w {brandName}.",
+    "period": "Obejmuje okres od {startsOn} do {endsOn} włącznie.",
+    "since": "Jest aktywna od {startsOn}.",
+    "features": "Twój plan obejmuje:",
+    "cta": "Zobacz moją subskrypcję",
+    "footer": "Otrzymujesz tę wiadomość jako osoba odpowiedzialna za organizację."
+  },
+  "subscriptionExpiring": {
+    "subject": "Twoja subskrypcja {planName} kończy się {endsOn}",
+    "title": "Twoja subskrypcja {planName} kończy się za {daysLeft, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}",
+    "intro": "Subskrypcja {planName} organizacji {organizationName} kończy się {endsOn}.",
+    "after": "Bez odnowienia Twoja organizacja wróci do planu bezpłatnego: tożsamość agencji nie będzie już widoczna w zapytaniach ofertowych ani w statystykach.",
+    "cta": "Odnów subskrypcję",
+    "footer": "Otrzymujesz to przypomnienie jako osoba odpowiedzialna za organizację."
   }
 }

@@ -85,5 +85,23 @@
     "intro": "Esta notificação foi-lhe enviada em {brandName} e ainda não foi lida:",
     "cta": "Abrir a página correspondente",
     "footer": "Recebe este lembrete apenas uma vez. Deixa de ser enviado assim que a notificação é lida."
+  },
+  "subscriptionActivated": {
+    "subject": "A sua assinatura {planName} está ativa",
+    "title": "Assinatura {planName} ativada",
+    "intro": "A assinatura {planName} de {organizationName} está ativa em {brandName}.",
+    "period": "Cobre o período de {startsOn} a {endsOn}, inclusive.",
+    "since": "Está ativa desde {startsOn}.",
+    "features": "O seu plano inclui:",
+    "cta": "Ver a minha assinatura",
+    "footer": "Recebe este email como responsável da organização."
+  },
+  "subscriptionExpiring": {
+    "subject": "A sua assinatura {planName} termina a {endsOn}",
+    "title": "A sua assinatura {planName} termina dentro de {daysLeft, plural, one {# dia} other {# dias}}",
+    "intro": "A assinatura {planName} de {organizationName} termina a {endsOn}.",
+    "after": "Sem renovação, a sua organização volta ao plano gratuito: a identidade das agências deixa de ser visível nos pedidos de orçamento e nas estatísticas.",
+    "cta": "Renovar a minha assinatura",
+    "footer": "Recebe este lembrete como responsável da organização."
   }
 }

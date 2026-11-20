@@ -313,6 +313,13 @@ export interface ApiDefinition {
       show: typeof routes['admin.mail.show']
       retry: typeof routes['admin.mail.retry']
     }
+    inboundMail: {
+      index: typeof routes['admin.inbound_mail.index']
+      show: typeof routes['admin.inbound_mail.show']
+      attach: typeof routes['admin.inbound_mail.attach']
+      replay: typeof routes['admin.inbound_mail.replay']
+      dismiss: typeof routes['admin.inbound_mail.dismiss']
+    }
     storage: {
       index: typeof routes['admin.storage.index']
       recover: typeof routes['admin.storage.recover']

@@ -308,7 +308,14 @@ export default class InboundMailService {
     return stale.length
   }
 
+  /**
+   * Couple visé : celui qu'un admin a choisi (rattachement manuel, #227), sinon
+   * celui que désigne le jeton de l'adresse relais.
+   */
   private async resolveRecipient(mail: InboundMail): Promise<RfqSupplier | null> {
+    if (mail.attachedManuallyAt && mail.rfqSupplierId) {
+      return RfqSupplier.query().where('id', mail.rfqSupplierId).preload('rfq').first()
+    }
     const token = mail.recipient ? this.addresses.tokenFrom([mail.recipient]) : null
     if (!token) return null
     return RfqSupplier.query().where('replyToken', token).preload('rfq').first()
@@ -318,21 +325,19 @@ export default class InboundMailService {
    * Garde-fous, du moins coûteux au plus spécifique. Les boucles et les
    * réponses automatiques passent avant l'adresse : un avis de non-remise vers
    * une adresse inconnue reste d'abord une réponse automatique.
+   *
+   * Un mail rattaché à la main par un admin (#227) n'est plus écarté que s'il
+   * est trop gros ou forme une boucle : l'admin a jugé que c'est une réponse,
+   * même vers une adresse expirée ou détectée à tort comme automatique.
    */
   private rejectionFor(
     mail: InboundMail,
     content: InboundMailContent,
     recipient: RfqSupplier | null
   ): InboundMailRejection | null {
-    const attachmentsSize = content.attachments.reduce((sum, a) => sum + (a.sizeBytes ?? 0), 0)
-    if ((content.sizeBytes ?? attachmentsSize) > inboundMailConfig.maxSizeBytes) {
-      return INBOUND_MAIL_REJECTIONS.tooLarge
-    }
-
-    const ownAddress = env.get('MAIL_FROM_ADDRESS').toLowerCase()
-    if (mail.senderAddress === ownAddress || this.addresses.isRelayAddress(mail.senderAddress)) {
-      return INBOUND_MAIL_REJECTIONS.loop
-    }
+    if (this.isTooLarge(content)) return INBOUND_MAIL_REJECTIONS.tooLarge
+    if (this.isLoop(mail)) return INBOUND_MAIL_REJECTIONS.loop
+    if (mail.attachedManuallyAt) return recipient ? null : INBOUND_MAIL_REJECTIONS.unknownAddress
 
     if (isAutomaticReply(content.headers, mail.senderAddress)) {
       return INBOUND_MAIL_REJECTIONS.autoReply
@@ -341,6 +346,17 @@ export default class InboundMailService {
     if (!recipient) return INBOUND_MAIL_REJECTIONS.unknownAddress
     if (this.addresses.isExpired(recipient.rfq)) return INBOUND_MAIL_REJECTIONS.expiredAddress
     return null
+  }
+
+  private isTooLarge(content: InboundMailContent): boolean {
+    const attachmentsSize = content.attachments.reduce((sum, a) => sum + (a.sizeBytes ?? 0), 0)
+    return (content.sizeBytes ?? attachmentsSize) > inboundMailConfig.maxSizeBytes
+  }
+
+  /** Mail envoyé par la plateforme elle-même, ou depuis une adresse relais. */
+  private isLoop(mail: InboundMail): boolean {
+    const ownAddress = env.get('MAIL_FROM_ADDRESS').toLowerCase()
+    return mail.senderAddress === ownAddress || this.addresses.isRelayAddress(mail.senderAddress)
   }
 
   /**

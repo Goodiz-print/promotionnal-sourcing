@@ -32,6 +32,8 @@ export const INBOUND_MAIL_REJECTIONS = {
   autoReply: 'auto_reply',
   unknownAddress: 'unknown_address',
   expiredAddress: 'expired_address',
+  /** Écarté à la main par un admin depuis la supervision (#227). */
+  dismissed: 'dismissed',
 } as const
 export type InboundMailRejection =
   (typeof INBOUND_MAIL_REJECTIONS)[keyof typeof INBOUND_MAIL_REJECTIONS]
@@ -111,6 +113,26 @@ export type InboundMailReceipt = 'queued' | 'duplicate' | 'ignored'
 /** Charge de `ProcessInboundMailJob`. */
 export interface ProcessInboundMailPayload {
   inboundMailId: number
+}
+
+/** Fait annoncé par l'événement `InboundMailProcessingFailed` (tentatives épuisées). */
+export interface InboundMailProcessingFailure {
+  inboundMailId: number
+  error: string
+}
+
+/** Contenu de l'alerte « mail entrant en échec définitif » (#227). */
+export interface InboundMailFailureAlertData {
+  inboundMailId: number
+  senderAddress: string
+  recipient: string | null
+  subject: string | null
+  error: string
+  receivedAt: string
+  /** Mails entrants en échec reçus sur les dernières 24 h, celui-ci compris. */
+  recentFailures: number
+  /** Fiche du mail dans la supervision. */
+  adminUrl: string
 }
 
 /** Fait annoncé par l'événement `InboundMailReceived`. */

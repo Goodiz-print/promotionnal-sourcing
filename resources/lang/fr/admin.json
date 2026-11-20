@@ -25,6 +25,7 @@
     "queue": "File d’attente",
     "search": "Recherche",
     "mail": "Emails",
+    "inboundMail": "Mails entrants",
     "storage": "Stockage",
     "health": "Santé",
     "ads": "Produits sponsorisés"
@@ -569,6 +570,9 @@
       "search.evaluation_requested": "Évaluation de la recherche demandée",
       "mail.retried": "Email rejoué",
       "mail.bulk_retried": "Emails en échec rejoués",
+      "inbound_mail.attached": "Mail entrant rattaché à une demande",
+      "inbound_mail.replayed": "Traitement d’un mail entrant rejoué",
+      "inbound_mail.dismissed": "Mail entrant écarté",
       "storage.recovery_requested": "Reprise du stockage demandée",
       "ad_campaign.suspended": "Campagne sponsorisée suspendue",
       "ad_campaign.restored": "Suspension de campagne levée",
@@ -600,6 +604,7 @@
       "queue_schedule": "Job planifié",
       "search_run": "Opération de recherche",
       "mail_delivery": "Envoi d’email",
+      "inbound_mail": "Mail entrant",
       "storage": "Stockage",
       "ad_campaign": "Campagne sponsorisée"
     }
@@ -1661,6 +1666,107 @@
       "nothingToRetry": "Aucun mail en échec à rejouer.",
       "queueFailed": "La mise en file a échoué : le mail reste à rejouer.",
       "bulkPartial": "{count} mail(s) remis en file ; {failed} n’ont pas pu l’être et restent à rejouer."
+    }
+  },
+  "inboundMail": {
+    "title": "Mails entrants",
+    "subtitle": "Réponses des fournisseurs reçues à l’adresse relais : rattachement, rejeu et rejet des mails non aboutis.",
+    "resultsCount": "{count, plural, =0 {Aucun mail} one {# mail} other {# mails}}",
+    "empty": "Aucun mail ne correspond.",
+    "emptyDescription": "Les mails apparaissent ici dès que le prestataire de réception les annonce.",
+    "back": "Retour aux mails entrants",
+    "noSubject": "(sans objet)",
+    "unattached": "Non rattaché",
+    "statuses": {
+      "received": "En attente",
+      "processing": "En traitement",
+      "processed": "Traité",
+      "rejected": "Écarté",
+      "failed": "En échec"
+    },
+    "rejections": {
+      "too_large": "Trop volumineux",
+      "loop": "Boucle de messagerie",
+      "auto_reply": "Réponse automatique",
+      "unknown_address": "Adresse inconnue",
+      "expired_address": "Adresse expirée",
+      "dismissed": "Écarté par un admin"
+    },
+    "filters": {
+      "status": "État",
+      "rejection": "Motif de rejet",
+      "all": "Tous"
+    },
+    "columns": {
+      "sender": "Expéditeur",
+      "subject": "Objet",
+      "target": "Demande / fournisseur",
+      "status": "État",
+      "receivedAt": "Reçu le",
+      "actions": "Actions"
+    },
+    "actions": {
+      "attach": "Rattacher",
+      "replay": "Rejouer",
+      "dismiss": "Écarter",
+      "attachConfirm": "Rattacher ce mail à cette demande et le traiter ?",
+      "replayConfirm": "Rejouer le traitement de ce mail ? Un mail déjà traité ne crée pas de doublon.",
+      "dismissConfirm": "Écarter ce mail ? Il ne sera plus traité."
+    },
+    "attach": {
+      "title": "Rattacher à une demande",
+      "description": "Fournisseurs du domaine de l’expéditeur, ou destinataires d’une demande cherchée par son numéro. Le mail est ensuite traité comme une réponse à cette demande.",
+      "rfqLabel": "Numéro de demande",
+      "rfqHint": "Vide : suggestions d’après l’expéditeur.",
+      "search": "Chercher",
+      "empty": "Aucune demande à proposer.",
+      "emptyDescription": "Saisissez le numéro de la demande visée.",
+      "columns": {
+        "rfq": "Demande",
+        "supplier": "Fournisseur",
+        "sentAt": "Envoyée le"
+      }
+    },
+    "detail": {
+      "summary": "Résumé",
+      "recipient": "Adresse visée",
+      "attachedManually": "Rattaché à la main le",
+      "processedAt": "Traité le",
+      "senderKnownLabel": "Expéditeur connu du fournisseur",
+      "senderKnown": {
+        "yes": "Oui",
+        "no": "Non"
+      },
+      "provider": "Prestataire",
+      "messageId": "Message-ID",
+      "error": "Erreur",
+      "body": "Contenu (texte)",
+      "noBody": "Aucun contenu conservé : un mail écarté n’est que journalisé."
+    },
+    "attachments": {
+      "title": "Pièces jointes",
+      "empty": "Aucune pièce jointe journalisée.",
+      "columns": {
+        "filename": "Fichier",
+        "type": "Type",
+        "size": "Taille",
+        "status": "Sort"
+      },
+      "statuses": {
+        "stored": "Stockée",
+        "rejected_type": "Type refusé",
+        "rejected_size": "Trop volumineuse",
+        "ignored_inline": "Image intégrée"
+      }
+    },
+    "flash": {
+      "processed": "Le mail est traité et rattaché à la demande.",
+      "republished": "L’enregistrement de la réponse est rejoué, sans doublon.",
+      "pending": "Le mail est en cours de traitement.",
+      "rejected": "Le mail a de nouveau été écarté par un garde-fou.",
+      "failed": "Le traitement a échoué : le mail reste en échec et sera repris automatiquement.",
+      "dismissed": "Le mail est écarté.",
+      "notAllowed": "Cette action n’est pas possible dans l’état actuel du mail."
     }
   },
   "storage": {
