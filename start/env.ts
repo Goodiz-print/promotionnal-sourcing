@@ -194,7 +194,8 @@ export default await Env.create(new URL('../', import.meta.url), {
   PFCONCEPT_FEED_CODE: Env.schema.secret.optional(),
   PASSOT_API_KEY: Env.schema.secret.optional(),
   INSPIRION_API_KEY: Env.schema.secret.optional(),
-  AXPOL_API_KEY: Env.schema.secret.optional(),
+  MAKITO_EMAIL: Env.schema.string.optional(),
+  MAKITO_PASSWORD: Env.schema.secret.optional(),
   SUPPLIER_FEED_TIMEOUT_MS: Env.schema.number.optional(),
   SUPPLIER_FEED_USER_AGENT: Env.schema.string.optional(),
 })

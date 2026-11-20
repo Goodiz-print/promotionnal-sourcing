@@ -14,19 +14,19 @@ export const MARKING_TECHNIQUES: MarkingTechniqueSeed[] = [
     slug: 'pad-printing',
     family: 'print',
     names: { fr: 'Tampographie', en: 'Pad printing' },
-    synonyms: ['tampographie', 'pad printing', 'tampo', 'tampondruck'],
+    synonyms: ['tampographie', 'pad printing', 'tampo', 'tampondruck', 'tampografia'],
   },
   {
     slug: 'screen-printing',
     family: 'print',
     names: { fr: 'Sérigraphie', en: 'Screen printing' },
-    synonyms: ['sérigraphie', 'screen printing', 'silk screen', 'siebdruck'],
+    synonyms: ['sérigraphie', 'screen printing', 'silk screen', 'siebdruck', 'serigrafia'],
   },
   {
     slug: 'digital-printing',
     family: 'print',
     names: { fr: 'Impression numérique', en: 'Digital printing' },
-    synonyms: ['impression numérique', 'digital print', 'inkjet'],
+    synonyms: ['impression numérique', 'digital print', 'inkjet', 'digital', 'digitalw2'],
   },
   {
     slug: 'uv-printing',
@@ -56,13 +56,13 @@ export const MARKING_TECHNIQUES: MarkingTechniqueSeed[] = [
     slug: 'sublimation',
     family: 'transfer',
     names: { fr: 'Sublimation', en: 'Sublimation' },
-    synonyms: ['sublimation', 'dye sublimation', 'all-over print'],
+    synonyms: ['sublimation', 'dye sublimation', 'all-over print', 'sublimacion'],
   },
   {
     slug: 'dtf',
     family: 'transfer',
     names: { fr: 'DTF (transfert direct sur film)', en: 'DTF (direct-to-film)' },
-    synonyms: ['dtf', 'direct to film', 'direct-to-film'],
+    synonyms: ['dtf', 'direct to film', 'direct-to-film', 'dtf1', 'dtf2', 'dtf3'],
   },
   {
     slug: 'laser-engraving',

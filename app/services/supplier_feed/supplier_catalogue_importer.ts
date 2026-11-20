@@ -19,6 +19,7 @@ import ProductStockService from '#services/product_stock_service'
 import StorageService from '#services/storage/storage_service'
 import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
 import SupplierReferenceService from '#services/supplier_feed/supplier_reference_service'
+import { SupplierFeedIncompleteException } from '#exceptions/supplier_feed_errors'
 import { isEuEeaCountry } from '#shared/types/country'
 import type Supplier from '#models/supplier'
 import type SupplierConnector from '#services/supplier_feed/supplier_connector'
@@ -43,6 +44,9 @@ const IMAGE_EXTENSIONS: Record<string, string> = {
   'image/webp': 'webp',
   'image/gif': 'gif',
 }
+
+/** Un point d'avancement est journalisé toutes les N fiches (imports complets). */
+const PROGRESS_EVERY = 500
 
 function sameTiers(a: NormalizedPriceTier[], b: NormalizedPriceTier[]): boolean {
   return (
@@ -82,9 +86,12 @@ export default class SupplierCatalogueImporter {
     connector: SupplierConnector,
     options: SupplierImportOptions
   ): Promise<SupplierImportSummary> {
+    const missingFeeds = new Set<string>()
     const products = await connector.fetchCatalogue({
       limit: options.limit,
       locale: options.locale,
+      refresh: options.refresh,
+      onMissingFeed: (feed) => missingFeeds.add(feed),
     })
     const summary: SupplierImportSummary = {
       supplier: connector.key,
@@ -93,31 +100,36 @@ export default class SupplierCatalogueImporter {
       updated: 0,
       failed: 0,
       deactivated: 0,
+      deactivationSkipped: 0,
       unmatchedCategories: [],
       unmatchedTechniques: [],
+      missingFeeds: [...missingFeeds].sort(),
       errors: [],
     }
 
     // En dry-run, rien n'est écrit : la catégorie de repli n'est pas créée.
     const refs = await this.references.load({ createFallback: !options.dryRun })
-    const unmatchedCategories = new Set<string>()
-    const unmatchedTechniques = new Set<string>()
-    for (const product of products) {
-      if (this.categoryFor(product, refs) === refs.fallbackCategoryId) {
-        unmatchedCategories.add(product.categoryRaw ?? product.name)
-      }
-      for (const position of product.markingPositions)
-        for (const technique of position.techniques)
-          if (refs.techniques.match(technique.label) === null)
-            unmatchedTechniques.add(technique.label)
-    }
-    summary.unmatchedCategories = [...unmatchedCategories].sort()
-    summary.unmatchedTechniques = [...unmatchedTechniques].sort()
+    summary.unmatchedCategories = this.unmatchedCategories(products, refs)
+    summary.unmatchedTechniques = this.unmatchedTechniques(products, refs)
 
     if (options.dryRun) return summary
 
+    // Import intégral amputé d'un flux annexe : l'écrire remplacerait prix,
+    // déclinaisons ou marquages existants par du vide sur tout le catalogue.
+    if (options.limit === null && summary.missingFeeds.length > 0) {
+      throw new SupplierFeedIncompleteException(
+        `Import intégral annulé, flux indisponible(s) : ${summary.missingFeeds.join(', ')}`
+      )
+    }
+
     const supplier = await this.references.upsertSupplier(connector.identity, options.locale)
-    for (const product of products) {
+    for (const [index, product] of products.entries()) {
+      if (index > 0 && index % PROGRESS_EVERY === 0) {
+        logger.info(
+          { supplier: connector.key, done: index, total: products.length, failed: summary.failed },
+          'supplier import progress'
+        )
+      }
       try {
         const created = await this.persist(
           supplier,
@@ -138,37 +150,88 @@ export default class SupplierCatalogueImporter {
         )
       }
     }
-    summary.deactivated = await this.deactivateMissing(supplier, products, options.limit)
+    const missing = await this.missingProducts(supplier, products, options.limit)
+    const { ratio, minimum } = supplierFeedsConfig.massDeactivation
+    if (
+      !options.allowMassDeactivation &&
+      missing.products.length > minimum &&
+      missing.products.length > missing.active * ratio
+    ) {
+      // Aucun flux n'annonce son total (sauf Makito) : un JSON valide mais
+      // amputé ferait désactiver des fiches toujours vendues.
+      summary.deactivationSkipped = missing.products.length
+      logger.warn(
+        { supplier: connector.key, missing: missing.products.length, active: missing.active },
+        'supplier import: mass deactivation skipped, feed looks truncated'
+      )
+      return summary
+    }
+    await this.deactivate(missing.products.map((product) => product.id))
+    summary.deactivated = missing.products.length
     return summary
   }
 
+  /** Catégories fournisseur (ou noms de fiche) tombées dans « Non classé », triées. */
+  private unmatchedCategories(products: NormalizedProduct[], refs: SupplierReferences): string[] {
+    const labels = products
+      .filter((product) => this.categoryFor(product, refs) === refs.fallbackCategoryId)
+      .map((product) => product.categoryRaw ?? product.name)
+    return [...new Set(labels)].sort()
+  }
+
   /**
-   * Désactive les fiches du fournisseur **absentes du flux**, seulement si le
-   * flux est complet : les connecteurs tronquent à `limit`, donc moins de
-   * `limit` produits récupérés = catalogue entier ; à `limit` pile il peut être
-   * tronqué et rien n'est désactivé. Un flux vide est traité comme une panne
-   * fournisseur (rien n'est désactivé). Les fiches en échec d'import restent
-   * dans le flux : elles ne sont pas désactivées.
+   * Libellés de technique de marquage sans correspondance, triés. Dédoublonnés
+   * avant le rapprochement : chaque libellé n'est rapproché qu'une fois.
    */
-  private async deactivateMissing(
+  private unmatchedTechniques(products: NormalizedProduct[], refs: SupplierReferences): string[] {
+    const labels = products
+      .flatMap((product) => product.markingPositions)
+      .flatMap((position) => position.techniques)
+      .map((technique) => technique.label)
+    return [...new Set(labels)].filter((label) => refs.techniques.match(label) === null).sort()
+  }
+
+  /**
+   * Dépublie les fiches en **une requête** (tableau passé en un seul paramètre :
+   * pas de limite de paramètres PostgreSQL), puis met en queue leur
+   * réindexation.
+   */
+  private async deactivate(productIds: number[]): Promise<void> {
+    if (productIds.length === 0) return
+    await Product.query()
+      .whereRaw('id = ANY(?)', [productIds])
+      .update({ isActive: false, updatedAt: DateTime.now() })
+    await Promise.all(productIds.map((id) => emitter.emit(ProductChanged, new ProductChanged(id))))
+  }
+
+  /**
+   * Fiches actives du fournisseur **absentes du flux**, à désactiver, et nombre
+   * de fiches actives. Vide si le flux n'est pas complet : il l'est sans limite
+   * (`--full`), ou avec moins de `limit` produits récupérés (les connecteurs
+   * tronquent à `limit`) ; à `limit` pile il peut être tronqué. Un flux vide
+   * est traité comme une panne fournisseur. Les fiches en échec d'import
+   * restent dans le flux : elles ne sont pas désactivées.
+   */
+  private async missingProducts(
     supplier: Supplier,
     products: NormalizedProduct[],
-    limit: number
-  ): Promise<number> {
-    if (products.length === 0 || products.length >= limit) return 0
-    const missing = await Product.query()
+    limit: number | null
+  ): Promise<{ products: Product[]; active: number }> {
+    if (products.length === 0 || (limit !== null && products.length >= limit)) {
+      return { products: [], active: 0 }
+    }
+    // Filtrage en mémoire : un `NOT IN` de tout le catalogue dépasserait la
+    // limite de paramètres de PostgreSQL (65 535) sur un gros fournisseur.
+    const present = new Set(products.map((product) => product.externalId))
+    const active = await Product.query()
+      .select('id', 'externalId')
       .where('supplierId', supplier.id)
       .whereNotNull('externalId')
-      .whereNotIn(
-        'externalId',
-        products.map((product) => product.externalId)
-      )
       .where('isActive', true)
-    for (const product of missing) {
-      await product.merge({ isActive: false }).save()
-      await emitter.emit(ProductChanged, new ProductChanged(product.id))
+    return {
+      products: active.filter((product) => !present.has(product.externalId!)),
+      active: active.length,
     }
-    return missing.length
   }
 
   /**

@@ -1,0 +1,176 @@
+{
+  "/api/v2/products": [
+    {
+      "name": "Mug émaillé FIXTURE CUP",
+      "description": "<b>Mug émaillé FIXTURE CUP</b> : avec anse, contenance env. 350 ml",
+      "sku": "9990001",
+      "materials": ["Métal", "Émail"],
+      "brand": null,
+      "commodity_code": "7323 9400 000",
+      "origin_country": "CN",
+      "keywords": ["Mug", "Tasse"],
+      "total_variants": 2,
+      "details_images": [],
+      "details_images_300": [
+        { "image_url": "https://media.fixture.example/300/9990001_detail.jpg" }
+      ],
+      "variants": [
+        {
+          "article_id": "56-9990001",
+          "colour": "noir, blanc",
+          "ean": "4000000000017",
+          "weight": { "net": "90.000", "gross": "98.000", "unit": "g" },
+          "pu": {
+            "pu": 60,
+            "length": "37.500",
+            "length_unit": "cm",
+            "width": "28.500",
+            "width_unit": "cm",
+            "height": "44.500",
+            "height_unit": "cm",
+            "gross_weight": "5.9000",
+            "weight_unit": "kg"
+          },
+          "images": [{ "image_url": "https://media.fixture.example/72/56-9990001_01.jpg" }],
+          "images_300": [{ "image_url": "https://media.fixture.example/300/56-9990001_01.jpg" }]
+        },
+        {
+          "article_id": "56-9990002",
+          "colour": "rouge, blanc",
+          "ean": "4000000000024",
+          "weight": { "net": "90.000", "gross": "98.000", "unit": "g" },
+          "pu": { "pu": 60 },
+          "images": [],
+          "images_300": [{ "image_url": "https://media.fixture.example/300/56-9990002_01.jpg" }]
+        }
+      ]
+    },
+    {
+      "name": "Stylo FIXTURE PEN",
+      "description": "Stylo bille",
+      "sku": "9990010",
+      "materials": ["Plastique"],
+      "brand": "FixBrand",
+      "commodity_code": "9608 1010 000",
+      "origin_country": "DE",
+      "keywords": [],
+      "variants": [
+        {
+          "article_id": "56-9990010",
+          "colour": "bleu",
+          "ean": null,
+          "images": [],
+          "images_300": []
+        }
+      ]
+    }
+  ],
+  "/api/v2/pricelist": [
+    {
+      "article_id": "56-9990001",
+      "pricelist": [
+        { "price": "5.40", "catalog_price": "7.50", "currency": "EUR", "bulk_volume": 1 },
+        { "price": "5.10", "catalog_price": "7.00", "currency": "EUR", "bulk_volume": 100 }
+      ]
+    },
+    {
+      "article_id": "56-9990002",
+      "pricelist": [
+        { "price": "5.00", "catalog_price": "7.50", "currency": "EUR", "bulk_volume": 1 },
+        { "price": "4.80", "catalog_price": "7.00", "currency": "EUR", "bulk_volume": 100 }
+      ]
+    }
+  ],
+  "/api/v1/stock": [
+    {
+      "article_id": "56-9990001",
+      "stock_dach": 810,
+      "stock_france": 640,
+      "warehouses": { "germany": 810 }
+    },
+    {
+      "article_id": "56-9990002",
+      "stock_dach": 0,
+      "stock_france": 0,
+      "warehouses": { "germany": 0 }
+    }
+  ],
+  "/api/v1/products/categories": [
+    {
+      "articleId": "56-9990001",
+      "categories": [
+        {
+          "parent_category": "kitchen-and-household",
+          "parent_category_translation": "Cuisine et maison",
+          "category": "mugs",
+          "category_translation": "Mugs et tasses"
+        }
+      ]
+    }
+  ],
+  "/api/v1/printdata": [
+    {
+      "article_id": "56-9990001",
+      "print_positions": [
+        {
+          "position_key": "side",
+          "position_name": "Sur le côté",
+          "print_methods": [
+            {
+              "print_method_key": "laser",
+              "print_method_name": "Gravure laser",
+              "print_method_code": "L",
+              "print_codes": [
+                {
+                  "print_code": "L12",
+                  "max_colours": "1",
+                  "default": false,
+                  "print_area": {
+                    "width_bottom": 40,
+                    "width_unit": "mm",
+                    "height": 30,
+                    "height_unit": "mm"
+                  }
+                },
+                {
+                  "print_code": "L25",
+                  "max_colours": "1",
+                  "default": true,
+                  "print_area": {
+                    "width_bottom": 6,
+                    "width_unit": "cm",
+                    "height": 4,
+                    "height_unit": "cm"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "/api/v2/print-prices": [
+    {
+      "printcode": "L12",
+      "currency": "EUR",
+      "setup": "20",
+      "pricelist": [{ "quantity": 100, "price": "0.90", "currency": "EUR" }]
+    },
+    {
+      "printcode": "L25",
+      "currency": "EUR",
+      "setup": "30",
+      "setup_per_colour": false,
+      "pricelist": [
+        { "quantity": 100, "price": "1.98", "currency": "EUR" },
+        { "quantity": 500, "price": "1.50", "currency": "EUR" }
+      ]
+    }
+  ],
+  "/api/v2/delivery-time": [
+    { "article_id": "56-9990001", "print_code": null, "delivery_days": 2 },
+    { "article_id": "56-9990001", "print_code": "L25", "delivery_days": 10 },
+    { "article_id": "56-9990010", "print_code": null, "delivery_days": 3 }
+  ]
+}

@@ -1,5 +1,4 @@
 import { inject } from '@adonisjs/core'
-import logger from '@adonisjs/core/services/logger'
 import supplierFeedsConfig from '#config/supplier_feeds'
 import SupplierConnector from '#services/supplier_feed/supplier_connector'
 import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
@@ -14,9 +13,11 @@ import {
   normalizeCountry,
   parseDecimal,
   parsePositiveInt,
+  sortedPriceTiers,
 } from '#shared/helpers/supplier_feed'
 import type {
   FeedNode,
+  FeedRequestContext,
   FetchCatalogueOptions,
   NormalizedImage,
   NormalizedMarkingPosition,
@@ -27,17 +28,15 @@ import type {
 } from '#shared/types/supplier_feed'
 
 function tiersFrom(nodes: unknown, priceKey: string): NormalizedPriceTier[] {
-  const byQuantity = new Map<number, number>()
-  for (const node of collect(nodes, ['qty', priceKey])) {
-    const minQuantity = parsePositiveInt(field(node, 'qty'))
-    const unitPrice = parseDecimal(field(node, priceKey))
-    if (minQuantity !== null && unitPrice !== null && unitPrice >= 0) {
-      byQuantity.set(minQuantity, unitPrice)
-    }
-  }
-  return [...byQuantity.entries()]
-    .sort(([a], [b]) => a - b)
-    .map(([minQuantity, unitPrice]) => ({ minQuantity, unitPrice }))
+  return sortedPriceTiers(
+    collect(nodes, ['qty', priceKey]).flatMap((node) => {
+      const minQuantity = parsePositiveInt(field(node, 'qty'))
+      const unitPrice = parseDecimal(field(node, priceKey))
+      return minQuantity !== null && unitPrice !== null && unitPrice >= 0
+        ? [{ minQuantity, unitPrice }]
+        : []
+    })
+  )
 }
 
 /** Liste de libellés depuis une valeur chaîne (`"a, b"`) ou tableau. */
@@ -77,7 +76,12 @@ export default class PassotConnector extends SupplierConnector {
     return Boolean(supplierFeedsConfig.passot.apiKey)
   }
 
-  async fetchCatalogue({ limit, locale }: FetchCatalogueOptions): Promise<NormalizedProduct[]> {
+  async fetchCatalogue({
+    limit,
+    locale,
+    refresh,
+    onMissingFeed,
+  }: FetchCatalogueOptions): Promise<NormalizedProduct[]> {
     const apiKey = supplierFeedsConfig.passot.apiKey
     if (!apiKey) {
       throw new SupplierConnectorNotConfiguredException('PASSOT_API_KEY manquant dans .env')
@@ -85,13 +89,17 @@ export default class PassotConnector extends SupplierConnector {
     const headers = { 'PI-API-KEY': apiKey }
     const base = `${supplierFeedsConfig.passot.baseUrl}/${locale}/rest/V1`
 
-    const productsFeed = await this.http.getJson(`${base}/catalog/products`, headers)
-    const groups = this.group(collect(productsFeed, ['sku', 'type_id'])).slice(0, limit)
+    const context: FeedRequestContext = { cache: { refresh: refresh ?? false }, onMissingFeed }
+    const productsFeed = await this.http.getJson(`${base}/catalog/products`, headers, context.cache)
+    const groups = this.group(collect(productsFeed, ['sku', 'type_id'])).slice(
+      0,
+      limit ?? undefined
+    )
 
     const [prices, stock, zones] = await Promise.all([
-      this.optionalFeed(`${base}/catalog/prices`, headers),
-      this.optionalFeed(`${base}/catalog/stock`, headers),
-      this.optionalFeed(`${base}/customization/zones`, headers),
+      this.optionalFeed('prix', `${base}/catalog/prices`, headers, context),
+      this.optionalFeed('stock', `${base}/catalog/stock`, headers, context),
+      this.optionalFeed('marquage', `${base}/customization/zones`, headers, context),
     ])
 
     const tiersBySku = new Map<string, NormalizedPriceTier[]>()
@@ -141,13 +149,13 @@ export default class PassotConnector extends SupplierConnector {
     return [...groups.values()]
   }
 
-  private async optionalFeed(url: string, headers: Record<string, string>): Promise<unknown> {
-    try {
-      return await this.http.getJson(url, headers)
-    } catch (error) {
-      logger.warn({ err: error }, 'passot optional feed unavailable, continuing without it')
-      return null
-    }
+  private optionalFeed(
+    feed: string,
+    url: string,
+    headers: Record<string, string>,
+    context: FeedRequestContext
+  ): Promise<unknown> {
+    return this.optional(feed, context, () => this.http.getJson(url, headers, context.cache))
   }
 
   private images(item: FeedNode | undefined): NormalizedImage[] {

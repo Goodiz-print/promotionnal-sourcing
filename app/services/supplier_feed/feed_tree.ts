@@ -10,6 +10,11 @@ function isNode(value: unknown): value is FeedNode {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+/** La valeur si c'est un nœud (objet), sinon un nœud vide : lecture sans garde. */
+export function asNode(value: unknown): FeedNode {
+  return isNode(value) ? value : {}
+}
+
 /** Le nœud porte-t-il toutes ces clés ? (comparaison insensible à la casse) */
 export function hasKeys(node: FeedNode, keys: string[]): boolean {
   const lower = new Set(Object.keys(node).map((key) => key.toLowerCase()))

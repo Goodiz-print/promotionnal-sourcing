@@ -1,5 +1,4 @@
 import { inject } from '@adonisjs/core'
-import logger from '@adonisjs/core/services/logger'
 import supplierFeedsConfig from '#config/supplier_feeds'
 import SupplierConnector from '#services/supplier_feed/supplier_connector'
 import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
@@ -13,9 +12,11 @@ import {
   normalizeCountry,
   parseDecimal,
   parsePositiveInt,
+  sortedPriceTiers,
 } from '#shared/helpers/supplier_feed'
 import type {
   FeedNode,
+  FeedRequestContext,
   FetchCatalogueOptions,
   NormalizedImage,
   NormalizedMarkingPosition,
@@ -53,15 +54,6 @@ function imageRole(key: string): NormalizedImage['role'] {
   return 'view'
 }
 
-/** Paliers triés, dédoublonnés par quantité de départ. */
-function sortTiers(tiers: NormalizedPriceTier[]): NormalizedPriceTier[] {
-  const byQuantity = new Map<number, number>()
-  for (const tier of tiers) byQuantity.set(tier.minQuantity, tier.unitPrice)
-  return [...byQuantity.entries()]
-    .sort(([a], [b]) => a - b)
-    .map(([minQuantity, unitPrice]) => ({ minQuantity, unitPrice }))
-}
-
 /**
  * PF Concept : flux JSON v3 (manuel « Data feeds » v3.6.5).
  *
@@ -90,24 +82,34 @@ export default class PfConceptConnector extends SupplierConnector {
     return Boolean(supplierFeedsConfig.pfconcept.feedCode)
   }
 
-  async fetchCatalogue({ limit, locale }: FetchCatalogueOptions): Promise<NormalizedProduct[]> {
+  async fetchCatalogue({
+    limit,
+    locale,
+    refresh,
+    onMissingFeed,
+  }: FetchCatalogueOptions): Promise<NormalizedProduct[]> {
     const code = supplierFeedsConfig.pfconcept.feedCode
     if (!code) {
       throw new SupplierConnectorNotConfiguredException('PFCONCEPT_FEED_CODE manquant dans .env')
     }
 
     const base = supplierFeedsConfig.pfconcept.baseUrl
-    const productFeed = await this.http.getJson(`${base}/${PRODUCT_FEED_FILES[locale]}`)
-    const models = collect(productFeed, ['modelCode', 'items'], limit)
+    const context: FeedRequestContext = { cache: { refresh: refresh ?? false }, onMissingFeed }
+    const productFeed = await this.http.getJson(
+      `${base}/${PRODUCT_FEED_FILES[locale]}`,
+      {},
+      context.cache
+    )
+    const models = collect(productFeed, ['modelCode', 'items'], limit ?? undefined)
 
     // Les autres flux sont joints par code article ; on ne garde que les articles retenus.
     const itemCodes = new Set(models.flatMap((model) => this.itemCodes(model)))
 
     const [prices, stock, printRows, printPrices] = await Promise.all([
-      this.loadPrices(`${base}/pricefeed_${code}_v3.json`, itemCodes),
-      this.loadStock(`${base}/stockfeed_${code}_v3.json`, itemCodes),
-      this.loadPrintRows(`${base}/${PRINT_DATA_FILES[locale]}`, itemCodes),
-      this.loadPrintPrices(`${base}/printpricefeed_${code}_v3.json`),
+      this.loadPrices(`${base}/pricefeed_${code}_v3.json`, itemCodes, context),
+      this.loadStock(`${base}/stockfeed_${code}_v3.json`, itemCodes, context),
+      this.loadPrintRows(`${base}/${PRINT_DATA_FILES[locale]}`, itemCodes, context),
+      this.loadPrintPrices(`${base}/printpricefeed_${code}_v3.json`, context),
     ])
 
     return models.map((model) => this.normalize(model, prices, stock, printRows, printPrices))
@@ -120,8 +122,12 @@ export default class PfConceptConnector extends SupplierConnector {
   }
 
   /** Prix nets par article (`scales[].priceBar` / `nettPrice`) + devise. */
-  async loadPrices(url: string, itemCodes: Set<string>): Promise<Map<string, PfConceptItemPrices>> {
-    const feed = await this.optionalFeed(url)
+  async loadPrices(
+    url: string,
+    itemCodes: Set<string>,
+    context: FeedRequestContext
+  ): Promise<Map<string, PfConceptItemPrices>> {
+    const feed = await this.optionalFeed('prix', url, context)
     const result = new Map<string, PfConceptItemPrices>()
     for (const item of collect(feed, ['itemcode', 'scales'])) {
       const code = cleanString(field(item, 'itemcode'))
@@ -138,15 +144,19 @@ export default class PfConceptConnector extends SupplierConnector {
         )
       result.set(code, {
         currency: cleanString(field(item, 'currency')) ?? 'EUR',
-        tiers: sortTiers(tiers),
+        tiers: sortedPriceTiers(tiers),
       })
     }
     return result
   }
 
   /** Stock disponible par article (`stockDirect`). */
-  async loadStock(url: string, itemCodes: Set<string>): Promise<Map<string, number>> {
-    const feed = await this.optionalFeed(url)
+  async loadStock(
+    url: string,
+    itemCodes: Set<string>,
+    context: FeedRequestContext
+  ): Promise<Map<string, number>> {
+    const feed = await this.optionalFeed('stock', url, context)
     const result = new Map<string, number>()
     for (const item of collect(feed, ['itemCode', 'stockDirect'])) {
       const code = cleanString(field(item, 'itemCode'))
@@ -159,9 +169,10 @@ export default class PfConceptConnector extends SupplierConnector {
   /** Options de marquage par article : `printfeedrefs` → `printFeedRows` (par `ref`). */
   async loadPrintRows(
     url: string,
-    itemCodes: Set<string>
+    itemCodes: Set<string>,
+    context: FeedRequestContext
   ): Promise<Map<string, PfConceptPrintRow[]>> {
-    const feed = await this.optionalFeed(url)
+    const feed = await this.optionalFeed('marquage', url, context)
     const rowsByRef = new Map<string, PfConceptPrintRow>()
     for (const row of collect(feed, ['ref', 'printCode', 'impMethod'])) {
       const ref = cleanString(field(row, 'ref'))
@@ -194,8 +205,11 @@ export default class PfConceptConnector extends SupplierConnector {
    * Prix de marquage par code d'impression. On retient la première taille de
    * logo, une couleur, un passage : c'est le prix « d'appel » affichable.
    */
-  async loadPrintPrices(url: string): Promise<Map<string, PfConceptPrintPrice>> {
-    const feed = await this.optionalFeed(url)
+  async loadPrintPrices(
+    url: string,
+    context: FeedRequestContext
+  ): Promise<Map<string, PfConceptPrintPrice>> {
+    const feed = await this.optionalFeed('prix de marquage', url, context)
     const result = new Map<string, PfConceptPrintPrice>()
     for (const charge of collect(feed, ['printCode', 'logoSizes'])) {
       const printCode = cleanString(field(charge, 'printCode'))
@@ -213,7 +227,7 @@ export default class PfConceptConnector extends SupplierConnector {
         )
       result.set(printCode, {
         setupCharge: parseDecimal(field(setup, 'SetupCharge')),
-        tiers: sortTiers(tiers),
+        tiers: sortedPriceTiers(tiers),
       })
     }
     return result
@@ -224,13 +238,8 @@ export default class PfConceptConnector extends SupplierConnector {
    * week-end…) n'empêche pas l'import du catalogue : on journalise et on
    * continue sans ces données.
    */
-  private async optionalFeed(url: string): Promise<unknown> {
-    try {
-      return await this.http.getJson(url)
-    } catch (error) {
-      logger.warn({ err: error }, 'pfconcept optional feed unavailable, continuing without it')
-      return null
-    }
+  private optionalFeed(feed: string, url: string, context: FeedRequestContext): Promise<unknown> {
+    return this.optional(feed, context, () => this.http.getJson(url, {}, context.cache))
   }
 
   normalize(

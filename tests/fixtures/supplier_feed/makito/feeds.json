@@ -1,0 +1,333 @@
+{
+  "/products": {
+    "status_code": 200,
+    "page_info": {
+      "current_page": 1,
+      "last_page": 1,
+      "per_page": "1000",
+      "total": 2,
+      "from": 1,
+      "to": 2
+    },
+    "products": [
+      {
+        "ref": "9001",
+        "name": "Fixy",
+        "printcode": "F(1),N(8)",
+        "length": "180",
+        "height": "50",
+        "width": "",
+        "diameter": "",
+        "weight": "78",
+        "intrastat": "6117100000",
+        "country_of_origin": "India",
+        "ptc_type": 1001,
+        "ptc_units": 100,
+        "ptc_length": "70",
+        "ptc_height": "20",
+        "ptc_width": "34",
+        "ptc_wight": "9.6",
+        "ptc_net_weight": "",
+        "pallet_units": 3600,
+        "sizes": "",
+        "colors": "",
+        "brand": ""
+      },
+      {
+        "ref": "9002",
+        "name": "Stylo Fixpen",
+        "printcode": "D(1)",
+        "length": "",
+        "height": "",
+        "width": "",
+        "diameter": "",
+        "weight": "12",
+        "intrastat": "9608101000",
+        "country_of_origin": "China",
+        "ptc_type": 1001,
+        "ptc_units": 500,
+        "ptc_length": "",
+        "ptc_height": "",
+        "ptc_width": "",
+        "ptc_wight": "",
+        "ptc_net_weight": "",
+        "pallet_units": 0,
+        "sizes": "",
+        "colors": "",
+        "brand": "FIXBRAND"
+      }
+    ]
+  },
+  "/markingsTranslations": {
+    "status_code": 200,
+    "markings": [{ "print_area_id": 501, "lang": 4, "txt": "Sur le devant" }]
+  },
+  "/markingTechniquesPrices": {
+    "status_code": 200,
+    "techniques": [
+      {
+        "technique_ref": "100600",
+        "code": "N",
+        "section_1": 250,
+        "price_1": 0.5,
+        "price_col_1": 0.1,
+        "price_cm_1": 0,
+        "section_2": 500,
+        "price_2": 0.4,
+        "price_col_2": 0.08,
+        "price_cm_2": 0,
+        "section_3": 2000,
+        "price_3": 0.3,
+        "price_col_3": 0.06,
+        "price_cm_3": 0,
+        "section_4": 0,
+        "price_4": 0,
+        "price_col_4": 0,
+        "price_cm_4": 0,
+        "cliche": 30,
+        "cliche_repetition": 15,
+        "min": 35
+      }
+    ]
+  },
+  "/markingTechniques": {
+    "status_code": 200,
+    "techniques": [
+      { "ref": "9001", "technique_ref": "100600", "name": "TRANSFERT SÉRIGRAPHIQUE", "col_inc": 1 },
+      {
+        "ref": "9001",
+        "technique_ref": "100903",
+        "name": "DIGITAL W1 (-5  cm<sup>2</sup>) (FULLCOLOR)",
+        "col_inc": 1
+      }
+    ]
+  },
+  "/markings": {
+    "status_code": 200,
+    "markings": [
+      {
+        "ref": "9001",
+        "technique_ref": "100600",
+        "print_area_id": 501,
+        "max_colors": "8",
+        "position": "",
+        "width": 8,
+        "height": 5,
+        "area_img": "9001-A1.jpg"
+      },
+      {
+        "ref": "9001",
+        "technique_ref": "100903",
+        "print_area_id": 501,
+        "max_colors": "1",
+        "position": "",
+        "width": 2.5,
+        "height": 2,
+        "area_img": "9001-A1.jpg"
+      },
+      {
+        "ref": "9001",
+        "technique_ref": "100600",
+        "print_area_id": 777,
+        "max_colors": "8",
+        "position": "",
+        "width": 28,
+        "height": 40,
+        "area_img": "9001-A2.jpg"
+      },
+      {
+        "ref": "8888",
+        "technique_ref": "100600",
+        "print_area_id": 501,
+        "max_colors": "8",
+        "position": "",
+        "width": 8,
+        "height": 8,
+        "area_img": "8888-A1.jpg"
+      }
+    ]
+  },
+  "/descriptionslang": {
+    "status_code": 200,
+    "descriptions": [
+      {
+        "ref": "9001",
+        "lang": 4,
+        "type": "Foulard",
+        "comp": "Coton Organique 70 g/ m2",
+        "info": "Étui coton organique"
+      },
+      { "ref": "9002", "lang": 4, "type": "Stylo", "comp": "", "info": "" }
+    ]
+  },
+  "/descriptionextlang": {
+    "status_code": 200,
+    "descriptions": [
+      { "ref": "9001", "lang": "4", "desc": "Foulard en coton organique.", "commercial_desc": null }
+    ]
+  },
+  "/keywords": {
+    "status_code": 200,
+    "keywords": {
+      "9001": { "4": "Foulard, Développement Durable, Pluie et hiver" },
+      "8888": { "4": "Hors sélection" }
+    }
+  },
+  "/categories": {
+    "status_code": 200,
+    "categories": [
+      { "ref": "9001", "lang": 4, "id_category": "41", "category": "Développement Durable" },
+      { "ref": "9001", "lang": 4, "id_category": "63", "category": "Nouveautés" },
+      { "ref": "9002", "lang": 4, "id_category": "12", "category": "Écriture" },
+      { "ref": "9002", "lang": 4, "id_category": "90", "category": "Destockage" }
+    ]
+  },
+  "/variants": {
+    "status_code": 200,
+    "variants": [
+      {
+        "matnr": "19001008000",
+        "unique_ref": "9001GRIS/T",
+        "ref": "9001",
+        "color": "GRI",
+        "size": "S/T",
+        "img100": "https://img.fixture.example/9001-008-P.jpg"
+      },
+      {
+        "matnr": "19001002004",
+        "unique_ref": "9001NEGXL",
+        "ref": "9001",
+        "color": "NEG",
+        "size": "XL",
+        "img100": ""
+      },
+      {
+        "matnr": "18888002000",
+        "unique_ref": "8888NEGS/T",
+        "ref": "8888",
+        "color": "NEG",
+        "size": "S/T",
+        "img100": ""
+      }
+    ]
+  },
+  "/colors": {
+    "status_code": 200,
+    "colors": [
+      { "color_code": "GRI", "lang": 4, "name": "GRIS", "code": "008", "url": null },
+      { "color_code": "NEG", "lang": 4, "name": "NOIR", "code": "002", "url": null }
+    ]
+  },
+  "/stockVariants": {
+    "status_code": 200,
+    "stock": [
+      {
+        "matnr": "19001008000",
+        "unique_ref": "9001GRIS/T",
+        "ref": "9001",
+        "stock_availability": "immediately",
+        "stock": "24.000",
+        "date": "2026-11-20 03:25:07"
+      },
+      {
+        "matnr": "19001008000",
+        "unique_ref": "9001GRIS/T",
+        "ref": "9001",
+        "stock_availability": "10-12-2026",
+        "stock": "7.400",
+        "date": "2026-11-20 03:25:07"
+      },
+      {
+        "matnr": "19001002004",
+        "unique_ref": "9001NEGXL",
+        "ref": "9001",
+        "stock_availability": "immediately",
+        "stock": "0",
+        "date": "2026-11-20 03:25:07"
+      }
+    ]
+  },
+  "/prices": {
+    "status_code": 200,
+    "tarifs": [
+      {
+        "ref": "9001",
+        "section_1": -500,
+        "price_1": 4.4,
+        "section_2": 500,
+        "price_2": 4.2,
+        "section_3": 2000,
+        "price_3": 4.1,
+        "section_4": 5000,
+        "price_4": 3.9,
+        "section_5": 0,
+        "price_5": 0,
+        "section_6": 0,
+        "price_6": 0,
+        "canon": null
+      }
+    ]
+  },
+  "/imgResources": {
+    "status_code": 200,
+    "images": [
+      {
+        "ref": "9001",
+        "url": "https://img.fixture.example/1000/9001/areas/9001-A1.jpg",
+        "main": 0
+      },
+      {
+        "ref": "9001",
+        "url": "https://img.fixture.example/1000/9001/detalles/9001-D1.jpg",
+        "main": 0
+      },
+      {
+        "ref": "9001",
+        "url": "https://img.fixture.example/1000/9001/variantes/9001-008-P.jpg",
+        "main": 0
+      },
+      {
+        "ref": "9001",
+        "url": "https://img.fixture.example/1000/9001/principal/9001-W.jpg",
+        "main": 1
+      },
+      {
+        "ref": "9001",
+        "url": "https://img.fixture.example/1000/9001/bodegones/9001-B1.jpg",
+        "main": 0
+      }
+    ]
+  },
+  "/leadtimes": {
+    "status_code": 200,
+    "images": [
+      {
+        "material": "100600",
+        "printing_group": "TRANSFER",
+        "zone_code": "EXP",
+        "quantity_to": 499,
+        "printing_lead_time": "5",
+        "unit": "D",
+        "comments": ""
+      },
+      {
+        "material": "100600",
+        "printing_group": "TRANSFER",
+        "zone_code": "EXP",
+        "quantity_to": 1500,
+        "printing_lead_time": "7",
+        "unit": "D",
+        "comments": ""
+      },
+      {
+        "material": "100600",
+        "printing_group": "TRANSFER",
+        "zone_code": "IBE",
+        "quantity_to": 499,
+        "printing_lead_time": "2",
+        "unit": "D",
+        "comments": ""
+      }
+    ]
+  }
+}

@@ -6,16 +6,19 @@ export class SupplierConnectorNotConfiguredException extends Exception {
   static code = 'E_SUPPLIER_CONNECTOR_NOT_CONFIGURED'
 }
 
-/** Le connecteur existe mais son mapping n'est pas encore écrit (doc fournisseur manquante). */
-export class SupplierConnectorNotImplementedException extends Exception {
-  static status = 501
-  static code = 'E_SUPPLIER_CONNECTOR_NOT_IMPLEMENTED'
-}
-
 /** Réponse HTTP en erreur ou illisible d'un flux fournisseur. L'URL est toujours masquée. */
 export class SupplierFeedHttpException extends Exception {
   static status = 502
   static code = 'E_SUPPLIER_FEED_HTTP'
+}
+
+/**
+ * Catalogue ou flux annexe incomplet sur un import intégral : rien n'est écrit,
+ * pour ne pas écraser ni désactiver des données existantes.
+ */
+export class SupplierFeedIncompleteException extends Exception {
+  static status = 502
+  static code = 'E_SUPPLIER_FEED_INCOMPLETE'
 }
 
 /** Clé de connecteur inconnue. */

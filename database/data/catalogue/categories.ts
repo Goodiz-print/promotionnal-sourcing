@@ -25,7 +25,12 @@ export const CATEGORY_TREE: CategorySeed[] = [
     synonyms: ['bagagerie', 'sacs'],
     name: 'Sacs & bagagerie',
   },
-  { slug: 'textile', parentSlug: null, synonyms: ['textile'], name: 'Textile' },
+  {
+    slug: 'textile',
+    parentSlug: null,
+    synonyms: ['textile', 'foulard', 'écharpe', 'poncho'],
+    name: 'Textile',
+  },
   {
     slug: 'casquettes-chapeaux',
     parentSlug: null,
@@ -110,7 +115,7 @@ export const CATEGORY_TREE: CategorySeed[] = [
   {
     slug: 'boissons-gourdes-et-bouteilles',
     parentSlug: 'boissons',
-    synonyms: ['bouteilles', 'gourdes'],
+    synonyms: ['bouteilles', 'gourdes', 'bidon'],
     name: 'Gourdes et bouteilles',
   },
   {
@@ -140,7 +145,16 @@ export const CATEGORY_TREE: CategorySeed[] = [
   {
     slug: 'sacs-bagagerie-sacoches-sacs-de-voyage-trolleys',
     parentSlug: 'sacs-bagagerie',
-    synonyms: ['sacoches', 'sacs', 'trolleys', 'voyage'],
+    synonyms: [
+      'sacoches',
+      'sacs',
+      'trolleys',
+      'voyage',
+      'banane',
+      'bandoulière',
+      'fourre-tout',
+      'balluchon',
+    ],
     name: 'Sacoches, sacs de voyage, trolleys',
   },
   {
@@ -220,7 +234,7 @@ export const CATEGORY_TREE: CategorySeed[] = [
   {
     slug: 'maison-cuisine-lunch-box-et-contenants-alimentaires',
     parentSlug: 'maison-cuisine',
-    synonyms: ['alimentaires', 'box', 'contenants', 'lunch'],
+    synonyms: ['alimentaires', 'box', 'contenants', 'lunch', 'gamelle'],
     name: 'Lunch box et contenants alimentaires',
   },
   {
@@ -256,7 +270,7 @@ export const CATEGORY_TREE: CategorySeed[] = [
   {
     slug: 'porte-cles-petits-objets-outils-multifonctions',
     parentSlug: 'porte-cles-petits-objets',
-    synonyms: ['multifonctions', 'outils'],
+    synonyms: ['multifonctions', 'outils', 'canif'],
     name: 'Outils multifonctions',
   },
   {
@@ -280,7 +294,20 @@ export const CATEGORY_TREE: CategorySeed[] = [
   {
     slug: 'sport-plein-air-pique-nique-camping-exterieur',
     parentSlug: 'sport-plein-air',
-    synonyms: ['camping', 'exterieur', 'nique', 'pique'],
+    synonyms: [
+      'camping',
+      'exterieur',
+      'nique',
+      'pique',
+      'glacière',
+      'barbecue',
+      'parasol',
+      'hamac',
+      'tente',
+      'natte de plage',
+      'raquette plage',
+      'frisbee',
+    ],
     name: 'Pique-nique, camping, extérieur',
   },
   {

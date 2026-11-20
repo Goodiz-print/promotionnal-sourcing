@@ -4,7 +4,11 @@ import supplierFeedsConfig from '#config/supplier_feeds'
 import SupplierConnector from '#services/supplier_feed/supplier_connector'
 import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
 import { SupplierFeedHttpException } from '#exceptions/supplier_feed_errors'
-import type { NormalizedProduct, SupplierFeedKey } from '#shared/types/supplier_feed'
+import type {
+  FetchCatalogueOptions,
+  NormalizedProduct,
+  SupplierFeedKey,
+} from '#shared/types/supplier_feed'
 
 /** Fixture JSON anonymisée (`tests/fixtures/supplier_feed/<fournisseur>/<nom>.json`). */
 export function supplierFixture(supplier: string, name: string): unknown {
@@ -19,6 +23,8 @@ export function supplierFixture(supplier: string, name: string): unknown {
  */
 export class FakeSupplierHttpClient extends SupplierHttpClient {
   requests: { url: string; headers: Record<string, string> }[] = []
+  /** Corps envoyés en `POST` (`postJson`), dans l'ordre. */
+  posts: { url: string; body: unknown }[] = []
   /** URLs d'images demandées (`getBuffer`), dans l'ordre. */
   downloads: string[] = []
 
@@ -40,6 +46,13 @@ export class FakeSupplierHttpClient extends SupplierHttpClient {
     return this.routes[fragment] as T
   }
 
+  async postJson<T = unknown>(url: string, body: unknown): Promise<T> {
+    this.posts.push({ url, body })
+    const fragment = Object.keys(this.routes).find((candidate) => url.includes(candidate))
+    if (fragment === undefined) throw new SupplierFeedHttpException('HTTP 404 (fake)')
+    return this.routes[fragment] as T
+  }
+
   async getBuffer(url: string): Promise<{ content: Buffer; mimeType: string }> {
     this.downloads.push(url)
     const file = this.files[url]
@@ -55,17 +68,31 @@ export class FakeSupplierHttpClient extends SupplierHttpClient {
 export function withSupplierCredentials(values: {
   pfconceptFeedCode?: string | null
   passotApiKey?: string | null
+  inspirionApiKey?: string | null
+  makitoEmail?: string | null
+  makitoPassword?: string | null
 }): () => void {
   const previous = {
     feedCode: supplierFeedsConfig.pfconcept.feedCode,
     apiKey: supplierFeedsConfig.passot.apiKey,
+    inspirionApiKey: supplierFeedsConfig.inspirion.apiKey,
+    makitoEmail: supplierFeedsConfig.makito.email,
+    makitoPassword: supplierFeedsConfig.makito.password,
   }
+  if (values.inspirionApiKey !== undefined)
+    supplierFeedsConfig.inspirion.apiKey = values.inspirionApiKey
+  if (values.makitoEmail !== undefined) supplierFeedsConfig.makito.email = values.makitoEmail
+  if (values.makitoPassword !== undefined)
+    supplierFeedsConfig.makito.password = values.makitoPassword
   if (values.pfconceptFeedCode !== undefined)
     supplierFeedsConfig.pfconcept.feedCode = values.pfconceptFeedCode
   if (values.passotApiKey !== undefined) supplierFeedsConfig.passot.apiKey = values.passotApiKey
   return () => {
     supplierFeedsConfig.pfconcept.feedCode = previous.feedCode
     supplierFeedsConfig.passot.apiKey = previous.apiKey
+    supplierFeedsConfig.inspirion.apiKey = previous.inspirionApiKey
+    supplierFeedsConfig.makito.email = previous.makitoEmail
+    supplierFeedsConfig.makito.password = previous.makitoPassword
   }
 }
 
@@ -80,6 +107,9 @@ export class InMemorySupplierConnector extends SupplierConnector {
     website: 'https://fixture.example',
   }
 
+  /** Flux annexes signalés indisponibles à chaque lecture. */
+  missingFeeds: string[] = []
+
   constructor(public products: NormalizedProduct[]) {
     super()
   }
@@ -88,8 +118,12 @@ export class InMemorySupplierConnector extends SupplierConnector {
     return true
   }
 
-  async fetchCatalogue({ limit }: { limit: number }): Promise<NormalizedProduct[]> {
-    return this.products.slice(0, limit)
+  async fetchCatalogue({
+    limit,
+    onMissingFeed,
+  }: FetchCatalogueOptions): Promise<NormalizedProduct[]> {
+    for (const feed of this.missingFeeds) onMissingFeed?.(feed)
+    return this.products.slice(0, limit ?? undefined)
   }
 }
 
