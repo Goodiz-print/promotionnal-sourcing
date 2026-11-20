@@ -64,7 +64,8 @@ export default class SendMailJob extends Job<SendMailPayload> {
 
   async execute() {
     const payload = this.resolvedPayload()
-    if (!(await this.deliveries.begin(payload))) {
+    const shouldSend = await this.deliveries.begin(payload)
+    if (!shouldSend) {
       logger.info(
         { idempotencyKey: payload.idempotencyKey, kind: payload.kind },
         'transactional mail already sent, skipping'
