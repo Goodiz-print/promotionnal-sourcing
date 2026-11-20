@@ -139,7 +139,15 @@
       "expiredNotice": "Questa richiesta è scaduta: l'acquirente non attende più una risposta.",
       "responseTitle": "La Sua risposta",
       "responseOpen": "Quantifichi questa esigenza presentando un preventivo, oppure declini la richiesta se non può darvi seguito.",
-      "responseQuote": "Ha redatto un preventivo per questa richiesta."
+      "responseQuote": "Ha redatto un preventivo per questa richiesta.",
+      "contact": {
+        "title": "Recapiti dell'agenzia",
+        "agency": "Agenzia",
+        "requester": "Richiesta di",
+        "email": "E-mail",
+        "phone": "Telefono",
+        "address": "Indirizzo"
+      }
     },
     "actions": {
       "decline": "Rifiuta la richiesta",

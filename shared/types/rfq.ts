@@ -245,9 +245,41 @@ export type SupplierRfqType = {
   publishedAt: string | null
 }
 
+/**
+ * Coordonnées de l'agence transmises à un fournisseur **abonné** (#221), pour
+ * qu'il la contacte en direct. `email` est l'adresse de contact de l'agence, à
+ * défaut celle de l'auteur de la demande ; `addressLines` est l'adresse postale
+ * prête à afficher (pays dans la langue du lecteur), vide si rien n'est saisi.
+ */
+export type BuyerContactType = {
+  agencyName: string
+  requesterName: string | null
+  email: string | null
+  phone: string | null
+  addressLines: string[]
+}
+
+/** Ce que `buyerContactOf` lit de l'agence et de l'auteur de la demande. */
+export interface BuyerContactSource {
+  organization: {
+    name: string
+    email: string | null
+    phone: string | null
+    addressLine1: string | null
+    addressLine2: string | null
+    postalCode: string | null
+    city: string | null
+    country: string | null
+  }
+  /** `null` : auteur inconnu (ancienne demande) ou parti depuis. */
+  requester: { fullName: string | null; email: string } | null
+}
+
 export type SupplierRfqDetailType = SupplierRfqType & {
   description: string | null
   items: RfqItemType[]
+  /** `null` pour un fournisseur non abonné (#220) : rien ne fuit de l'agence. */
+  buyerContact: BuyerContactType | null
 }
 
 /**

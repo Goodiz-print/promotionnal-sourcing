@@ -139,7 +139,15 @@
       "expiredNotice": "Deze aanvraag is verlopen: de koper verwacht geen antwoord meer.",
       "responseTitle": "Uw reactie",
       "responseOpen": "Maak een prijsopgave voor deze behoefte door een offerte in te dienen, of wijs de aanvraag af als u er geen gevolg aan kunt geven.",
-      "responseQuote": "U hebt een offerte voor deze aanvraag opgesteld."
+      "responseQuote": "U hebt een offerte voor deze aanvraag opgesteld.",
+      "contact": {
+        "title": "Contactgegevens van het bureau",
+        "agency": "Bureau",
+        "requester": "Aangevraagd door",
+        "email": "E-mail",
+        "phone": "Telefoon",
+        "address": "Adres"
+      }
     },
     "actions": {
       "decline": "Aanvraag afwijzen",

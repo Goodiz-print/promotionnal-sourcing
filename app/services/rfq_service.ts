@@ -112,6 +112,8 @@ export default class RfqService {
         suppliers.where('supplierOrganizationId', organizationId).whereNot('status', 'pending')
       )
       .preload('buyerOrganization')
+      // Auteur de la demande, pour les coordonnées montrées à un abonné (#221).
+      .preload('createdBy', (author) => author.select('id', 'firstName', 'lastName', 'email'))
       .preload('items', (items) => this.preloadItemLabels(items))
       .preload('suppliers', (suppliers) =>
         suppliers.where('supplierOrganizationId', organizationId)

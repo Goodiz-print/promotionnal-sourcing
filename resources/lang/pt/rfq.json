@@ -139,7 +139,15 @@
       "expiredNotice": "Este pedido expirou: o comprador já não espera resposta.",
       "responseTitle": "A sua resposta",
       "responseOpen": "Calcule o preço desta necessidade apresentando um orçamento ou recuse o pedido se não lhe puder dar seguimento.",
-      "responseQuote": "Redigiu um orçamento para este pedido."
+      "responseQuote": "Redigiu um orçamento para este pedido.",
+      "contact": {
+        "title": "Contactos da agência",
+        "agency": "Agência",
+        "requester": "Pedido feito por",
+        "email": "E-mail",
+        "phone": "Telefone",
+        "address": "Morada"
+      }
     },
     "actions": {
       "decline": "Recusar o pedido",

@@ -22,7 +22,8 @@
     "phone": "Telefon",
     "activity": "Tätigkeit",
     "activityOther": "Tätigkeit beschreiben",
-    "locale": "Sprache"
+    "locale": "Sprache",
+    "contactEmail": "Kontakt-E-Mail der Agentur"
   },
   "civility": {
     "none": "Keine Angabe",
@@ -44,5 +45,6 @@
     "professional": "Ich bestätige, dass ich Fachmann für Werbeartikel und individuell bedruckte Textilien bin.",
     "terms": "Ich akzeptiere die Nutzungsbedingungen.",
     "partners": "Ich möchte den Newsletter und Mitteilungen von Partnern erhalten (optional)."
-  }
+  },
+  "contactEmailHelp": "Optional. Wird zusammen mit Ihrer Telefonnummer und Adresse an die abonnierten Lieferanten übermittelt, die Sie anfragen. Andernfalls erhalten sie die E-Mail der anfragenden Person."
 }

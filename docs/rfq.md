@@ -311,6 +311,36 @@ ailleurs.
   ou une signature saisis par l'agence peuvent la nommer. Ni filtrage, ni
   avertissement.
 
+### Coordonnées de l'agence pour un fournisseur abonné (#221)
+
+Un fournisseur abonné peut contacter l'agence en direct. Il reçoit pour cela le
+bloc `BuyerContactType`, construit par `buyerContactOf`
+(`shared/helpers/buyer_contact.ts`), un calcul pur partagé par l'écran et les
+mails :
+
+| Champ           | Source                                                                                              |
+| --------------- | --------------------------------------------------------------------------------------------------- |
+| `agencyName`    | `organizations.name`                                                                                |
+| `requesterName` | auteur de la demande (`rfqs.created_by_user_id`), `null` s'il est inconnu ou a quitté la plateforme |
+| `email`         | `organizations.email`, **à défaut** l'email de l'auteur de la demande                               |
+| `phone`         | `organizations.phone`                                                                               |
+| `addressLines`  | adresse postale de l'agence, pays nommé dans la langue du lecteur ; vide si rien n'est saisi        |
+
+- **Écran** : `SupplierRfqDetailType.buyerContact` (détail de la demande et
+  formulaire de devis), affiché par `SupplierBuyerContact`. `null` pour un non
+  abonné : rien ne part vers son navigateur. Comme le nom de l'agence, le bloc
+  suit l'abonnement à chaque lecture : un fournisseur qui s'abonne le voit sur
+  les demandes reçues avant.
+- **Mails** de demande et de relance : `buyerContact` dans la charge du job, lu
+  à la mise en queue, rendu par les partiels `emails/partials/buyer_contact`
+  (HTML et texte). Les mails déjà partis ne sont pas renvoyés.
+- **Auteur** : `rfqs.created_by_user_id` est posé par `RfqService#create`, que
+  la demande vienne du formulaire ou du panier (`QuoteCartService#checkout`).
+- **Collecte** : l'email de contact se saisit à l'inscription de l'agence
+  (champ facultatif `contactEmail` → `organizations.email`, le téléphone l'était
+  déjà) et se modifie dans les paramètres de l'organisation, où une agence est
+  prévenue qu'il est transmis aux fournisseurs abonnés.
+
 Le cloisonnement lui-même est porté par le service : `listForSupplier` et
 `findForSupplier` filtrent sur l'organisation destinataire **et** excluent les
 lignes encore `pending`. Une demande préparée mais jamais envoyée n'existe donc

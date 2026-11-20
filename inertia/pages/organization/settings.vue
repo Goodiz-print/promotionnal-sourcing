@@ -107,7 +107,7 @@ function submit() {
       </BaseSection>
 
       <BaseSection as="fieldset" :title="t('organization.settings.sections.general')">
-        <GeneralFields />
+        <GeneralFields :is-buyer="organization.organizationType === 'buyer'" />
       </BaseSection>
 
       <BaseSection as="fieldset" :title="t('organization.settings.sections.address')">

@@ -139,7 +139,15 @@
       "expiredNotice": "Cette demande est échue : l'acheteur n'attend plus de réponse.",
       "responseTitle": "Votre réponse",
       "responseOpen": "Chiffrez ce besoin en remettant un devis, ou déclinez la demande si vous ne pouvez pas y donner suite.",
-      "responseQuote": "Vous avez rédigé un devis pour cette demande."
+      "responseQuote": "Vous avez rédigé un devis pour cette demande.",
+      "contact": {
+        "title": "Coordonnées de l'agence",
+        "agency": "Agence",
+        "requester": "Demande faite par",
+        "email": "E-mail",
+        "phone": "Téléphone",
+        "address": "Adresse"
+      }
     },
     "actions": {
       "decline": "Décliner la demande",

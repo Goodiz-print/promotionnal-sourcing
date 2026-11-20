@@ -19,7 +19,8 @@ import type { RfqReceivedMailData } from '#shared/types/mail'
  *
  * `buyerName` à `null` (fournisseur non abonné, #220) : objet, titre et
  * introduction ne nomment pas l'agence, et l'encart d'abonnement (#222) mène à
- * `subscribePath`.
+ * `subscribePath`. Pour un abonné, `buyerContact` porte les coordonnées de
+ * l'agence (#221).
  */
 export default class RfqReceivedNotification extends LocalizedMail {
   constructor(
@@ -31,7 +32,7 @@ export default class RfqReceivedNotification extends LocalizedMail {
   }
 
   prepare() {
-    const { buyerName, replyTo, subscribePath, ...rest } = this.data
+    const { buyerName, replyTo, subscribePath, buyerContact, ...rest } = this.data
     const copy = buyerName === null ? 'emails.rfqReceived.anonymous' : 'emails.rfqReceived'
     const texts = { buyerName, rfqTitle: rest.rfqTitle, itemCount: rest.itemCount }
     this.message.to(this.email).subject(this.t(`${copy}.subject`, texts))
@@ -42,6 +43,8 @@ export default class RfqReceivedNotification extends LocalizedMail {
       title: this.t(`${copy}.title`, texts),
       intro: this.t(`${copy}.body`, texts),
       subscribePath: buyerName === null ? (subscribePath ?? null) : null,
+      // Coordonnées de l'agence : jamais dans un mail anonyme (#220, #221).
+      buyerContact: buyerName === null ? null : (buyerContact ?? null),
       description: rest.description ?? null,
       lines: rest.lines ?? [],
       canReply: Boolean(replyTo),

@@ -6,7 +6,7 @@ import { SUPPORTED_LOCALES } from '#shared/types/i18n'
 /**
  * Inscription agence. Seuls prénom, nom, email, mot de passe, société, pays,
  * identifiant fiscal et activité sont obligatoires, avec les deux cases
- * juridiques ; site web et téléphone restent facultatifs (sans site : validation
+ * juridiques ; site web, téléphone et email de contact restent facultatifs (sans site : validation
  * manuelle). L'identifiant fiscal est validé par `resolveTaxId` dans le service
  * et ici par une forme large (SIRET ou TVA).
  */
@@ -40,6 +40,8 @@ export const agencySignupValidator = vine.create({
     .optional()
     .nullable(),
   phone: vine.string().trim().maxLength(30).optional().nullable(),
+  // Email de contact de l'agence, transmis aux fournisseurs abonnés (#221).
+  contactEmail: vine.string().trim().email().maxLength(254).optional().nullable(),
   activity: vine.enum(AGENCY_ACTIVITIES),
   activityOther: vine
     .string()

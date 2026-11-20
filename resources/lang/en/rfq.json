@@ -139,7 +139,15 @@
       "expiredNotice": "This request has expired: the buyer no longer expects a reply.",
       "responseTitle": "Your response",
       "responseOpen": "Price this need by submitting a quote, or decline the request if you cannot follow up on it.",
-      "responseQuote": "You have written a quote for this request."
+      "responseQuote": "You have written a quote for this request.",
+      "contact": {
+        "title": "Agency contact details",
+        "agency": "Agency",
+        "requester": "Requested by",
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address"
+      }
     },
     "actions": {
       "decline": "Decline the request",

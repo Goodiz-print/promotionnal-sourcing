@@ -10,6 +10,7 @@
   @if(deadline)
     <p>{{ t('emails.rfqReminder.deadline', { deadline }) }}</p>
   @end
+  @include('emails/partials/buyer_contact')
   @include('emails/partials/rfq_details')
   @include('emails/partials/subscription_upsell')
   @if(canReply)

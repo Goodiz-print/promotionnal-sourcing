@@ -19,6 +19,7 @@ export interface AgencySignupFormState {
   taxId: string
   website: string
   phone: string
+  contactEmail: string
   activity: AgencyActivity | ''
   activityOther: string
   locale: Locale

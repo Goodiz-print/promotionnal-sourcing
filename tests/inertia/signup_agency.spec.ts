@@ -77,6 +77,7 @@ describe('auth/signup_agency.vue', () => {
       'taxId',
       'website',
       'phone',
+      'contactEmail',
       'activity',
       'locale',
       'certifiesProfessional',
@@ -123,6 +124,7 @@ describe('auth/signup_agency.vue', () => {
       civility: '',
       website: '  ',
       phone: '',
+      contactEmail: ' ',
       activity: 'distributor_reseller',
       activityOther: 'ignoré',
       locale: 'fr',
@@ -132,6 +134,7 @@ describe('auth/signup_agency.vue', () => {
       civility: null,
       website: null,
       phone: null,
+      contactEmail: null,
       activityOther: null,
     })
   })

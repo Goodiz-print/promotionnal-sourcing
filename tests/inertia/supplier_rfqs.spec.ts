@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import type { SupplierRfqDetailType, SupplierRfqType } from '#shared/types/rfq'
+import type { BuyerContactType, SupplierRfqDetailType, SupplierRfqType } from '#shared/types/rfq'
 
 const translations = {
   'rfq.supplier.index.title': 'Demandes reçues',
@@ -33,6 +33,12 @@ const translations = {
   'subscription.upsell.body': 'Abonnez-vous pour la contacter directement.',
   'subscription.upsell.askAdmin': 'Un administrateur peut abonner votre organisation.',
   'subscription.upsell.cta': 'Découvrir les abonnements',
+  'rfq.supplier.show.contact.title': 'Coordonnées de l’agence',
+  'rfq.supplier.show.contact.agency': 'Agence',
+  'rfq.supplier.show.contact.requester': 'Demande faite par',
+  'rfq.supplier.show.contact.email': 'E-mail',
+  'rfq.supplier.show.contact.phone': 'Téléphone',
+  'rfq.supplier.show.contact.address': 'Adresse',
 }
 
 vi.mock('@inertiajs/vue3', async () => {
@@ -88,8 +94,17 @@ function detail(overrides: Partial<SupplierRfqDetailType> = {}): SupplierRfqDeta
         specs: null,
       },
     ],
+    buyerContact: null,
     ...overrides,
   }
+}
+
+const contact: BuyerContactType = {
+  agencyName: 'Acme',
+  requesterName: 'Alice Martin',
+  email: 'contact@acme.test',
+  phone: '+33 1 23 45 67 89',
+  addressLines: ['12 rue des Lilas', '75011 Paris', 'France'],
 }
 
 describe('supplier/rfqs/index.vue', () => {
@@ -178,6 +193,42 @@ describe('supplier/rfqs/show.vue', () => {
     expect(wrapper.text()).toContain('Agence anonyme')
     expect(wrapper.text()).toContain('Découvrir les abonnements')
     expect(wrapper.text()).not.toContain('Acme')
+  })
+
+  it('donne les coordonnées de l’agence à un fournisseur abonné', () => {
+    const wrapper = mount(SupplierRfqShow, {
+      props: { ...open, rfq: detail({ buyerContact: contact }) },
+    })
+
+    expect(wrapper.text()).toContain('Coordonnées de l’agence')
+    expect(wrapper.text()).toContain('Alice Martin')
+    expect(wrapper.text()).toContain('12 rue des Lilas, 75011 Paris, France')
+    expect(wrapper.find('a[href="mailto:contact@acme.test"]').exists()).toBe(true)
+    expect(wrapper.find('a[href="tel:+33 1 23 45 67 89"]').exists()).toBe(true)
+  })
+
+  it('omet les coordonnées que l’agence n’a pas renseignées', () => {
+    const wrapper = mount(SupplierRfqShow, {
+      props: {
+        ...open,
+        rfq: detail({
+          buyerContact: { ...contact, requesterName: null, phone: null, addressLines: [] },
+        }),
+      },
+    })
+
+    expect(wrapper.find('[data-row="email"]').exists()).toBe(true)
+    expect(wrapper.find('[data-row="phone"]').exists()).toBe(false)
+    expect(wrapper.find('[data-row="requesterName"]').exists()).toBe(false)
+    expect(wrapper.find('[data-row="addressLines"]').exists()).toBe(false)
+  })
+
+  it('n’affiche aucune coordonnée à un non abonné', () => {
+    const wrapper = mount(SupplierRfqShow, {
+      props: { ...open, upsell: { canSubscribe: true }, rfq: detail({ buyerName: null }) },
+    })
+
+    expect(wrapper.text()).not.toContain('Coordonnées de l’agence')
   })
 
   it('n’expose pas le budget de l’acheteur', () => {

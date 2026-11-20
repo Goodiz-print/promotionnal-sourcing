@@ -144,5 +144,13 @@
     "title": "Abonnez-vous pour connaître l'agence",
     "body": "Abonnez-vous pour connaître l'agence qui vous consulte et la contacter directement. La souscription est réservée aux propriétaires et administrateurs de votre organisation.",
     "cta": "Découvrir les abonnements"
+  },
+  "buyerContact": {
+    "title": "Coordonnées de l'agence",
+    "agency": "Agence",
+    "requester": "Demande faite par",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "address": "Adresse"
   }
 }

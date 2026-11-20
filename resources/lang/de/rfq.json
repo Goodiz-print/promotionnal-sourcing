@@ -139,7 +139,15 @@
       "expiredNotice": "Diese Anfrage ist abgelaufen: Der Käufer erwartet keine Antwort mehr.",
       "responseTitle": "Ihre Antwort",
       "responseOpen": "Kalkulieren Sie diesen Bedarf, indem Sie ein Angebot abgeben, oder lehnen Sie die Anfrage ab, wenn Sie ihr nicht nachkommen können.",
-      "responseQuote": "Sie haben ein Angebot für diese Anfrage erstellt."
+      "responseQuote": "Sie haben ein Angebot für diese Anfrage erstellt.",
+      "contact": {
+        "title": "Kontaktdaten der Agentur",
+        "agency": "Agentur",
+        "requester": "Angefragt von",
+        "email": "E-Mail",
+        "phone": "Telefon",
+        "address": "Adresse"
+      }
     },
     "actions": {
       "decline": "Anfrage ablehnen",

@@ -24,7 +24,8 @@
     "city": "Cidade",
     "postalCode": "Código postal",
     "country": "País",
-    "logo": "Logótipo"
+    "logo": "Logótipo",
+    "emailBuyerHint": "Partilhado com os fornecedores subscritores que consulta, com o telefone e a morada. Caso contrário, recebem o e-mail do autor do pedido."
   },
   "size": {
     "none": "Não especificada",

@@ -144,5 +144,13 @@
     "title": "Prenumerera för att se vilken byrå det är",
     "body": "Prenumerera för att se vilken byrå som kontaktar dig och kontakta den direkt. Prenumerationen är förbehållen ägare och administratörer i din organisation.",
     "cta": "Se prenumerationerna"
+  },
+  "buyerContact": {
+    "title": "Byråns kontaktuppgifter",
+    "agency": "Byrå",
+    "requester": "Förfrågan från",
+    "email": "E-post",
+    "phone": "Telefon",
+    "address": "Adress"
   }
 }

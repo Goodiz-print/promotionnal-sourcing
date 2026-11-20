@@ -22,7 +22,8 @@
     "phone": "Telefoon",
     "activity": "Activiteit",
     "activityOther": "Beschrijf je activiteit",
-    "locale": "Taal"
+    "locale": "Taal",
+    "contactEmail": "Contact-e-mail van het bureau"
   },
   "civility": {
     "none": "Niet opgegeven",
@@ -44,5 +45,6 @@
     "professional": "Ik verklaar professional te zijn in reclameartikelen en bedrukt textiel.",
     "terms": "Ik accepteer de gebruiksvoorwaarden.",
     "partners": "Ik wil de nieuwsbrief en mededelingen van partners ontvangen (optioneel)."
-  }
+  },
+  "contactEmailHelp": "Optioneel. Wordt samen met uw telefoonnummer en adres gedeeld met de geabonneerde leveranciers die u raadpleegt. Anders ontvangen zij het e-mailadres van de aanvrager."
 }

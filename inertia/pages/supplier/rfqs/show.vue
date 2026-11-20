@@ -11,6 +11,7 @@ import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import RfqItemList from '~/components/rfqs/rfq_item_list.vue'
 import SupplierRfqMetaPills from '~/components/rfqs/supplier_rfq_meta_pills.vue'
+import SupplierBuyerContact from '~/components/rfqs/supplier_buyer_contact.vue'
 import SubscriptionUpsell from '~/components/subscription/subscription_upsell.vue'
 import { RFQ_SUPPLIER_STATUS_TONES } from '~/components/rfqs/types'
 import { QUOTE_STATUS_TONES } from '~/components/quotes/types'
@@ -93,6 +94,9 @@ function decline() {
     <BaseAlert v-else-if="rfq.status === 'expired'" tone="warning">
       {{ t('rfq.supplier.show.expiredNotice') }}
     </BaseAlert>
+
+    <!-- Coordonnées de l'agence : envoyées par le serveur aux seuls abonnés (#221). -->
+    <SupplierBuyerContact v-if="rfq.buyerContact" :contact="rfq.buyerContact" />
 
     <BaseSection :title="t('rfq.supplier.show.needTitle')">
       <div class="flex flex-col gap-4">

@@ -7,6 +7,12 @@ import BaseTextarea from '~/components/base/base_textarea.vue'
 import { ORGANIZATION_SIZES } from '#shared/types/organization'
 import { OrganizationSettingsFormKey } from './types'
 
+/**
+ * `isBuyer` : pour une agence, l'email est celui que reçoivent les fournisseurs
+ * abonnés qu'elle consulte (#221) — on le dit sous le champ.
+ */
+const props = defineProps<{ isBuyer?: boolean }>()
+
 const form = inject(OrganizationSettingsFormKey)!
 
 const { t } = useI18n()
@@ -37,6 +43,7 @@ const { t } = useI18n()
       v-model="form.email"
       type="email"
       :label="t('organization.fields.email')"
+      :hint="props.isBuyer ? t('organization.fields.emailBuyerHint') : ''"
       :error="form.errors.email"
     />
     <BaseInput

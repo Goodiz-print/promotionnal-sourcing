@@ -9,6 +9,7 @@ const translations = {
   'organization.fields.siret': 'SIRET',
   'organization.fields.vatNumber': 'N° TVA intracommunautaire',
   'organization.fields.email': 'Email',
+  'organization.fields.emailBuyerHint': 'Transmis aux fournisseurs abonnés que vous consultez.',
   'organization.fields.phone': 'Téléphone',
   'organization.fields.website': 'Site web',
   'organization.fields.industry': "Secteur d'activité",
@@ -110,6 +111,18 @@ describe('organization/settings.vue', () => {
 
     expect((wrapper.find('#name').element as HTMLInputElement).value).toBe('EuroGoods SAS')
     expect((wrapper.find('#city').element as HTMLInputElement).value).toBe('Lyon')
+  })
+
+  it('prévient une agence que son email est transmis aux fournisseurs abonnés (#221)', () => {
+    const agency = mount(OrganizationSettings, {
+      props: { organization: { ...baseOrganization, organizationType: 'buyer' }, canLeave: true },
+    })
+    const supplier = mount(OrganizationSettings, {
+      props: { organization: baseOrganization, canLeave: true },
+    })
+
+    expect(agency.text()).toContain('Transmis aux fournisseurs abonnés que vous consultez.')
+    expect(supplier.text()).not.toContain('Transmis aux fournisseurs abonnés')
   })
 
   it('ne rend jamais de champ slug éditable', () => {

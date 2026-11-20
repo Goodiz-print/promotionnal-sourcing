@@ -29,6 +29,7 @@ export default class AgencySignupController {
       civility: payload.civility ?? null,
       website: payload.website ?? null,
       phone: payload.phone ?? null,
+      contactEmail: payload.contactEmail ?? null,
       activityOther: payload.activityOther ?? null,
       acceptsPartnerCommunications: payload.acceptsPartnerCommunications ?? false,
     }

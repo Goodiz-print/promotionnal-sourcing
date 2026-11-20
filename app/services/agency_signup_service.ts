@@ -133,6 +133,7 @@ export default class AgencySignupService {
       locale: data.locale,
       website: data.website,
       phone: data.phone,
+      email: data.contactEmail,
       // L'identifiant saisi est conservé tel quel, pas converti : un SIRET reste
       // un SIRET, un numéro de TVA reste un numéro de TVA.
       siret: taxId.siret,

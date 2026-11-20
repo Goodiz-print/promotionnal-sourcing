@@ -144,5 +144,13 @@
     "title": "Suscríbase para conocer la agencia",
     "body": "Suscríbase para saber qué agencia le consulta y contactarla directamente. La suscripción está reservada a los propietarios y administradores de su organización.",
     "cta": "Ver las suscripciones"
+  },
+  "buyerContact": {
+    "title": "Datos de contacto de la agencia",
+    "agency": "Agencia",
+    "requester": "Solicitado por",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "address": "Dirección"
   }
 }

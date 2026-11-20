@@ -144,5 +144,13 @@
     "title": "Neem een abonnement om het bureau te kennen",
     "body": "Neem een abonnement om te weten welk bureau u raadpleegt en het rechtstreeks te contacteren. Een abonnement nemen is voorbehouden aan de eigenaars en beheerders van uw organisatie.",
     "cta": "Abonnementen bekijken"
+  },
+  "buyerContact": {
+    "title": "Contactgegevens van het bureau",
+    "agency": "Bureau",
+    "requester": "Aangevraagd door",
+    "email": "E-mail",
+    "phone": "Telefoon",
+    "address": "Adres"
   }
 }
