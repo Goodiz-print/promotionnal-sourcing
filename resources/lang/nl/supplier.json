@@ -45,5 +45,53 @@
     "europe": "Europa",
     "outside_europe": "Buiten Europa",
     "per_product": "Per product"
+  },
+  "contacts": {
+    "title": "Verkoopteam",
+    "subtitle": "De vertegenwoordigers die bureaus rechtstreeks kunnen contacteren, op basis van hun land.",
+    "add": "Contact toevoegen",
+    "newTitle": "Nieuw contact",
+    "teamTitle": "Contacten",
+    "teamHint": "Elk bureau ziet de contacten voor zijn land; zonder contact voor zijn land ziet het het hele team.",
+    "empty": "Geen verkoopcontacten",
+    "emptyHint": "Voeg de vertegenwoordigers toe die bureaus kunnen bereiken.",
+    "settingsTitle": "Weergave",
+    "showAll": "Het hele team aan alle bureaus tonen",
+    "showAllHint": "Bureaus zien al uw contacten, ongeacht hun land.",
+    "allCountries": "Alle landen",
+    "remove": "{label} verwijderen",
+    "linkedMember": "Accountlid: {name}",
+    "moveUp": "Omhoog",
+    "moveDown": "Omlaag",
+    "edit": "Bewerken",
+    "delete": "Verwijderen",
+    "confirmDelete": "Contact {name} verwijderen?",
+    "cancel": "Annuleren",
+    "save": "Opslaan",
+    "upsell": {
+      "title": "Contacten alleen voor geabonneerde leveranciers",
+      "body": "U kunt uw team nu al voorbereiden: het wordt aan bureaus getoond zodra u zich abonneert.",
+      "cta": "Abonnementen bekijken"
+    },
+    "fields": {
+      "name": "Naam",
+      "jobTitle": "Functie",
+      "email": "E-mail",
+      "phone": "Telefoon",
+      "countries": "Bediende landen",
+      "countriesHint": "Geen land gekozen: het contact bedient alle landen.",
+      "addCountry": "Land toevoegen…",
+      "languages": "Gesproken talen",
+      "addLanguage": "Taal toevoegen…",
+      "member": "Accountlid",
+      "memberHint": "Optioneel: koppel het contact aan een gebruiker die op het account inlogt.",
+      "noMember": "Geen (alleen contact)"
+    },
+    "flash": {
+      "created": "Contact toegevoegd.",
+      "updated": "Contact bijgewerkt.",
+      "deleted": "Contact verwijderd.",
+      "settingsUpdated": "Instelling opgeslagen."
+    }
   }
 }

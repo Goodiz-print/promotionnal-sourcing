@@ -23,6 +23,8 @@
     "backToDirectory": "Terug naar de gids",
     "foundingPartner": "Oprichtingspartner",
     "contact": "Contact",
-    "websiteLabel": "Website"
+    "websiteLabel": "Website",
+    "salesTeam": "Verkoopteam",
+    "salesTeamHint": "De vertegenwoordigers die uw land bedienen."
   }
 }

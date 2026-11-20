@@ -24,6 +24,7 @@ import {
   Sparkles,
   SlidersHorizontal,
   Store,
+  Contact,
   Truck,
   Users,
 } from 'lucide-vue-next'
@@ -58,6 +59,7 @@ const NAV_META: Record<string, { icon: Component; group: NavGroup }> = {
   supplierAds: { icon: Megaphone, group: 'supplier' },
   supplierSubscription: { icon: Sparkles, group: 'supplier' },
   supplierProfile: { icon: Store, group: 'supplier' },
+  supplierContacts: { icon: Contact, group: 'supplier' },
   members: { icon: Users, group: 'organization' },
   settings: { icon: Settings, group: 'organization' },
   admin: { icon: ShieldCheck, group: 'admin' },

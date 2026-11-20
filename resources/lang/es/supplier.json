@@ -45,5 +45,53 @@
     "europe": "Europa",
     "outside_europe": "Fuera de Europa",
     "per_product": "Según el producto"
+  },
+  "contacts": {
+    "title": "Equipo comercial",
+    "subtitle": "Los comerciales que las agencias pueden contactar directamente, según su país.",
+    "add": "Añadir un contacto",
+    "newTitle": "Nuevo contacto",
+    "teamTitle": "Contactos",
+    "teamHint": "Cada agencia ve los contactos que cubren su país; si no hay ninguno, ve todo el equipo.",
+    "empty": "Ningún contacto comercial",
+    "emptyHint": "Añada los comerciales que las agencias pueden contactar.",
+    "settingsTitle": "Visualización",
+    "showAll": "Mostrar todo el equipo a todas las agencias",
+    "showAllHint": "Las agencias ven todos sus contactos, sea cual sea su país.",
+    "allCountries": "Todos los países",
+    "remove": "Quitar {label}",
+    "linkedMember": "Miembro de la cuenta: {name}",
+    "moveUp": "Subir",
+    "moveDown": "Bajar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "confirmDelete": "¿Eliminar el contacto {name}?",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "upsell": {
+      "title": "Contactos reservados a los proveedores suscritos",
+      "body": "Puede preparar su equipo ya: se mostrará a las agencias en cuanto se suscriba.",
+      "cta": "Ver las suscripciones"
+    },
+    "fields": {
+      "name": "Nombre",
+      "jobTitle": "Cargo",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "countries": "Países cubiertos",
+      "countriesHint": "Ningún país elegido: el contacto cubre todos los países.",
+      "addCountry": "Añadir un país…",
+      "languages": "Idiomas hablados",
+      "addLanguage": "Añadir un idioma…",
+      "member": "Miembro de la cuenta",
+      "memberHint": "Opcional: vincule el contacto a un usuario que accede a la cuenta.",
+      "noMember": "Ninguno (solo contacto)"
+    },
+    "flash": {
+      "created": "Contacto añadido.",
+      "updated": "Contacto actualizado.",
+      "deleted": "Contacto eliminado.",
+      "settingsUpdated": "Ajuste guardado."
+    }
   }
 }

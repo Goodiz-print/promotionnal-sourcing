@@ -39,7 +39,9 @@
     "addSuppliers": "Aggiungi destinatari",
     "removeSupplier": "Rimuovi",
     "sentAt": "Inviata il {date}",
-    "viewProduct": "Vedi la scheda prodotto"
+    "viewProduct": "Vedi la scheda prodotto",
+    "salesContactsTitle": "Contatti commerciali",
+    "salesContactsHint": "Le richieste arrivano all'indirizzo generale del fornitore; questi commerciali seguono il vostro paese."
   },
   "status": {
     "draft": "Bozza",

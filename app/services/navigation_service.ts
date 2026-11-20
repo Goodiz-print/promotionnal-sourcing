@@ -59,6 +59,8 @@ export default class NavigationService {
         add('supplierSubscription', 'supplier.subscription.show')
       }
       add('supplierProfile', 'supplier.profile')
+      // Équipe commerciale : mêmes droits que l'édition du profil.
+      if (MANAGEMENT_ROLES.includes(roleSlug)) add('supplierContacts', 'supplier.contacts.index')
     }
     if (MANAGEMENT_ROLES.includes(roleSlug)) {
       add('members', 'organization.members')

@@ -16,6 +16,7 @@ export const NAVIGATION_ROUTES = [
   'supplier.ads.index',
   'supplier.subscription.show',
   'supplier.profile',
+  'supplier.contacts.index',
   'organization.members',
   'organization.settings',
   'admin.dashboard',

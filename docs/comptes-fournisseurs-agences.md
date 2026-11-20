@@ -39,9 +39,26 @@ formulaires d'inscription, d'activation et de page fournisseur viennent ensuite.
   `internal_notes`.
 
 Nouvelles tables de la page publique : `supplier_contacts` (nom, fonction, email,
-téléphone, langues, zone), `supplier_news` (image dans `STORAGE_REFERENCES`),
+téléphone, langues, pays couverts, membre du compte relié — cf. « Équipe
+commerciale » ci-dessous), `supplier_news` (image dans `STORAGE_REFERENCES`),
 `supplier_trade_shows`, `organization_categories` (spécialités, pivot vers l'arbre
 de catégories). Catalogue PDF et justificatifs de certification : `organization_documents`.
+
+### Équipe commerciale (#241)
+
+Chaque contact de `supplier_contacts` porte `countries` (codes ISO alpha-2,
+liste vide = tous les pays) et, facultativement, `user_id` : le commercial est
+alors aussi un membre du compte fournisseur. L'option
+`supplier_profiles.show_all_contacts` (désactivée par défaut) montre toute
+l'équipe à toutes les agences.
+
+`SupplierContactService.visibleFor` est la **seule** règle d'affichage, évaluée
+à la lecture : visiteur non connecté ou fournisseur non abonné
+(`SubscriptionService.isSubscribed`) → aucun contact ; option activée → tous ;
+sinon les contacts qui couvrent le pays de l'organisation courante du visiteur
+(ou tous les pays) ; aucun → toute l'équipe (repli). Les contacts écartés ne sont
+jamais envoyés au navigateur. Les demandes de devis partent toujours à l'adresse
+de réception générale du fournisseur, pas au commercial.
 
 ### Agence
 

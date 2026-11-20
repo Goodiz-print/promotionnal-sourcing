@@ -45,5 +45,53 @@
     "europe": "Europe",
     "outside_europe": "Hors Europe",
     "per_product": "Au cas par cas"
+  },
+  "contacts": {
+    "title": "Équipe commerciale",
+    "subtitle": "Les commerciaux que les agences peuvent contacter directement, selon leur pays.",
+    "add": "Ajouter un contact",
+    "newTitle": "Nouveau contact",
+    "teamTitle": "Contacts",
+    "teamHint": "Chaque agence voit les contacts qui couvrent son pays ; sans contact pour son pays, elle voit toute l'équipe.",
+    "empty": "Aucun contact commercial",
+    "emptyHint": "Ajoutez les commerciaux que les agences peuvent joindre.",
+    "settingsTitle": "Affichage",
+    "showAll": "Montrer toute l'équipe à toutes les agences",
+    "showAllHint": "Les agences voient tous vos contacts, quel que soit leur pays.",
+    "allCountries": "Tous les pays",
+    "remove": "Retirer {label}",
+    "linkedMember": "Membre du compte : {name}",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "confirmDelete": "Supprimer le contact {name} ?",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "upsell": {
+      "title": "Contacts réservés aux fournisseurs abonnés",
+      "body": "Vous pouvez préparer votre équipe dès maintenant : elle sera montrée aux agences dès votre abonnement.",
+      "cta": "Voir les abonnements"
+    },
+    "fields": {
+      "name": "Nom",
+      "jobTitle": "Fonction",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "countries": "Pays couverts",
+      "countriesHint": "Aucun pays choisi : le contact couvre tous les pays.",
+      "addCountry": "Ajouter un pays…",
+      "languages": "Langues parlées",
+      "addLanguage": "Ajouter une langue…",
+      "member": "Membre du compte",
+      "memberHint": "Facultatif : reliez le contact à un utilisateur qui se connecte au compte.",
+      "noMember": "Aucun (simple contact)"
+    },
+    "flash": {
+      "created": "Contact ajouté.",
+      "updated": "Contact mis à jour.",
+      "deleted": "Contact supprimé.",
+      "settingsUpdated": "Réglage enregistré."
+    }
   }
 }

@@ -45,5 +45,53 @@
     "europe": "Europa",
     "outside_europe": "Spoza Europy",
     "per_product": "Zależnie od produktu"
+  },
+  "contacts": {
+    "title": "Zespół handlowy",
+    "subtitle": "Handlowcy, z którymi agencje mogą kontaktować się bezpośrednio, zależnie od kraju.",
+    "add": "Dodaj kontakt",
+    "newTitle": "Nowy kontakt",
+    "teamTitle": "Kontakty",
+    "teamHint": "Każda agencja widzi kontakty obsługujące jej kraj; jeśli ich brak, widzi cały zespół.",
+    "empty": "Brak kontaktów handlowych",
+    "emptyHint": "Dodaj handlowców, z którymi agencje mogą się skontaktować.",
+    "settingsTitle": "Wyświetlanie",
+    "showAll": "Pokazuj cały zespół wszystkim agencjom",
+    "showAllHint": "Agencje widzą wszystkie Twoje kontakty, niezależnie od kraju.",
+    "allCountries": "Wszystkie kraje",
+    "remove": "Usuń {label}",
+    "linkedMember": "Członek konta: {name}",
+    "moveUp": "W górę",
+    "moveDown": "W dół",
+    "edit": "Edytuj",
+    "delete": "Usuń",
+    "confirmDelete": "Usunąć kontakt {name}?",
+    "cancel": "Anuluj",
+    "save": "Zapisz",
+    "upsell": {
+      "title": "Kontakty tylko dla dostawców z subskrypcją",
+      "body": "Możesz już teraz przygotować zespół: zostanie pokazany agencjom, gdy tylko wykupisz subskrypcję.",
+      "cta": "Zobacz subskrypcje"
+    },
+    "fields": {
+      "name": "Imię i nazwisko",
+      "jobTitle": "Stanowisko",
+      "email": "E-mail",
+      "phone": "Telefon",
+      "countries": "Obsługiwane kraje",
+      "countriesHint": "Nie wybrano kraju: kontakt obsługuje wszystkie kraje.",
+      "addCountry": "Dodaj kraj…",
+      "languages": "Języki",
+      "addLanguage": "Dodaj język…",
+      "member": "Członek konta",
+      "memberHint": "Opcjonalnie: powiąż kontakt z użytkownikiem logującym się na konto.",
+      "noMember": "Brak (tylko kontakt)"
+    },
+    "flash": {
+      "created": "Kontakt dodany.",
+      "updated": "Kontakt zaktualizowany.",
+      "deleted": "Kontakt usunięty.",
+      "settingsUpdated": "Ustawienie zapisane."
+    }
   }
 }

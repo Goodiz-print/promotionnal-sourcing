@@ -792,6 +792,42 @@ const routes = {
     tokens: [[1,"locale"],[0,"supplier"],[0,"subscription"],[0,"portal"]],
     types: placeholder as Registry['supplier.subscription.portal']['types'],
   },
+  'supplier.contacts.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/contacts',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"contacts"]],
+    types: placeholder as Registry['supplier.contacts.index']['types'],
+  },
+  'supplier.contacts.store': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/contacts',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"contacts"]],
+    types: placeholder as Registry['supplier.contacts.store']['types'],
+  },
+  'supplier.contacts.settings': {
+    methods: ["PATCH"],
+    pattern: '/:locale/supplier/contacts/settings',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"contacts"],[0,"settings"]],
+    types: placeholder as Registry['supplier.contacts.settings']['types'],
+  },
+  'supplier.contacts.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/supplier/contacts/:id',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"contacts"],[1,"id"]],
+    types: placeholder as Registry['supplier.contacts.update']['types'],
+  },
+  'supplier.contacts.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/supplier/contacts/:id',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"contacts"],[1,"id"]],
+    types: placeholder as Registry['supplier.contacts.destroy']['types'],
+  },
+  'supplier.contacts.move': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/contacts/:id/move',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"contacts"],[1,"id"],[0,"move"]],
+    types: placeholder as Registry['supplier.contacts.move']['types'],
+  },
   'admin.dashboard': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin',

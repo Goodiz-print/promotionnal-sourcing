@@ -23,6 +23,8 @@
     "backToDirectory": "Tillbaka till katalogen",
     "foundingPartner": "Grundande partner",
     "contact": "Kontakt",
-    "websiteLabel": "Webbplats"
+    "websiteLabel": "Webbplats",
+    "salesTeam": "Säljteam",
+    "salesTeamHint": "Säljarna som ansvarar för ditt land."
   }
 }

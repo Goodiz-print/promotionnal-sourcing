@@ -11,8 +11,10 @@ import QuoteService from '#services/quote_service'
 import emitter from '@adonisjs/core/services/emitter'
 import RfqSent from '#events/rfq_sent'
 import RfqService from '#services/rfq_service'
+import SupplierContactService from '#services/supplier_contact_service'
 import CategoryTransformer from '#transformers/category_transformer'
 import QuoteTransformer from '#transformers/quote_transformer'
+import SupplierContactTransformer from '#transformers/supplier_contact_transformer'
 import RfqDetailTransformer from '#transformers/rfq_detail_transformer'
 import RfqProductOptionTransformer from '#transformers/rfq_product_option_transformer'
 import RfqTransformer from '#transformers/rfq_transformer'
@@ -38,6 +40,7 @@ import type Rfq from '#models/rfq'
 import type User from '#models/user'
 import type { Locale } from '#shared/types/i18n'
 import type { RfqProductLookupType } from '#shared/types/rfq'
+import type { SupplierContactsByOrganization } from '#shared/types/supplier'
 
 /**
  * Refus de transition → clé de traduction. Une exception absente de cette
@@ -79,7 +82,8 @@ export default class RfqsController {
     private productSearch: ProductSearchService,
     private activityEvents: ActivityEventService,
     private organizations: OrganizationContextService,
-    private searchEvents: SearchEventService
+    private searchEvents: SearchEventService,
+    private supplierContacts: SupplierContactService
   ) {}
 
   /**
@@ -161,10 +165,22 @@ export default class RfqsController {
     const { productSearch } = await this.lookupParams(request)
     // Devis remis par les fournisseurs, du moins cher au plus cher.
     const quotes = await this.quotes.listForRfq(rfq.id)
+    // Équipe commerciale des destinataires (#241), filtrée selon le pays de l'agence.
+    const contacts = await this.supplierContacts.visibleForMany(
+      rfq.suppliers.map((row) => row.supplierOrganizationId),
+      { organizationId: org.id, country: org.country || null }
+    )
+    const supplierContacts: SupplierContactsByOrganization = {}
+    for (const [organizationId, rows] of contacts) {
+      supplierContacts[organizationId] = rows.map((contact) =>
+        new SupplierContactTransformer(contact).toObject()
+      )
+    }
 
     return inertia.render('rfqs/show', {
       rfq: new RfqDetailTransformer(rfq, locale).toObject(),
       quotes: quotes.map((quote) => new QuoteTransformer(quote).toObject()),
+      supplierContacts,
       canManageRfq: await bouncer.allows('canManageRfq', org),
       ...(await this.formData(locale)),
       ...this.productLookup(inertia, productSearch, locale, auth.getUserOrFail()),

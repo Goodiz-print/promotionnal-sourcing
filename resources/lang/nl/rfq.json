@@ -39,7 +39,9 @@
     "addSuppliers": "Ontvangers toevoegen",
     "removeSupplier": "Verwijderen",
     "sentAt": "Verstuurd op {date}",
-    "viewProduct": "Productpagina bekijken"
+    "viewProduct": "Productpagina bekijken",
+    "salesContactsTitle": "Verkoopcontacten",
+    "salesContactsHint": "Aanvragen gaan naar het algemene adres van de leverancier; deze vertegenwoordigers bedienen uw land."
   },
   "status": {
     "draft": "Concept",

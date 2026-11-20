@@ -12,6 +12,7 @@ import RfqDeadlineExtension from '~/components/rfqs/rfq_deadline_extension.vue'
 import RfqForm from '~/components/rfqs/rfq_form.vue'
 import RfqItemList from '~/components/rfqs/rfq_item_list.vue'
 import RfqMetaPills from '~/components/rfqs/rfq_meta_pills.vue'
+import RfqSupplierContacts from '~/components/rfqs/rfq_supplier_contacts.vue'
 import RfqSupplierList from '~/components/rfqs/rfq_supplier_list.vue'
 import RfqSupplierPicker from '~/components/rfqs/rfq_supplier_picker.vue'
 import QuoteComparisonTable from '~/components/quotes/quote_comparison_table.vue'
@@ -19,10 +20,13 @@ import { RFQ_STATUS_TONES } from '~/components/rfqs/types'
 import type { CategoryType } from '#shared/types/category'
 import type { QuoteType } from '#shared/types/quote'
 import type { RfqDetailType, RfqProductOptionType, SupplierOptionType } from '#shared/types/rfq'
+import type { SupplierContactsByOrganization } from '#shared/types/supplier'
 
 const props = defineProps<{
   rfq: RfqDetailType
   quotes: QuoteType[]
+  /** Équipe commerciale des destinataires, filtrée par le serveur (#241). */
+  supplierContacts: SupplierContactsByOrganization
   categories: CategoryType[]
   supplierOptions: SupplierOptionType[]
   canManageRfq: boolean
@@ -52,6 +56,12 @@ const addableSuppliers = computed(() => {
 })
 
 const supplierIdsToAdd = ref<number[]>([])
+
+const hasSupplierContacts = computed(() =>
+  props.rfq.suppliers.some(
+    (row) => (props.supplierContacts[row.supplierOrganizationId] ?? []).length > 0
+  )
+)
 
 function addSuppliers() {
   router.post(
@@ -135,6 +145,14 @@ function queueSupplier(product: RfqProductOptionType) {
           </div>
         </div>
       </template>
+    </BaseSection>
+
+    <BaseSection
+      v-if="hasSupplierContacts"
+      :title="t('rfq.show.salesContactsTitle')"
+      :description="t('rfq.show.salesContactsHint')"
+    >
+      <RfqSupplierContacts :suppliers="rfq.suppliers" :contacts="supplierContacts" />
     </BaseSection>
   </div>
 </template>

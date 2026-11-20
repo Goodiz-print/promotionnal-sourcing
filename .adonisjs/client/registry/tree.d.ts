@@ -170,6 +170,14 @@ export interface ApiDefinition {
       checkout: typeof routes['supplier.subscription.checkout']
       portal: typeof routes['supplier.subscription.portal']
     }
+    contacts: {
+      index: typeof routes['supplier.contacts.index']
+      store: typeof routes['supplier.contacts.store']
+      settings: typeof routes['supplier.contacts.settings']
+      update: typeof routes['supplier.contacts.update']
+      destroy: typeof routes['supplier.contacts.destroy']
+      move: typeof routes['supplier.contacts.move']
+    }
   }
   rfqs: {
     index: typeof routes['rfqs.index']

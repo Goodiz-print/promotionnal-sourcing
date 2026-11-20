@@ -39,7 +39,9 @@
     "addSuppliers": "Adicionar destinatários",
     "removeSupplier": "Remover",
     "sentAt": "Enviado em {date}",
-    "viewProduct": "Ver a ficha do produto"
+    "viewProduct": "Ver a ficha do produto",
+    "salesContactsTitle": "Contactos comerciais",
+    "salesContactsHint": "Os pedidos seguem para o endereço geral do fornecedor; estes comerciais acompanham o seu país."
   },
   "status": {
     "draft": "Rascunho",

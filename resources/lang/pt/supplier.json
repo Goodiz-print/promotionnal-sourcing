@@ -45,5 +45,53 @@
     "europe": "Europa",
     "outside_europe": "Fora da Europa",
     "per_product": "Caso a caso"
+  },
+  "contacts": {
+    "title": "Equipa comercial",
+    "subtitle": "Os comerciais que as agências podem contactar diretamente, consoante o seu país.",
+    "add": "Adicionar um contacto",
+    "newTitle": "Novo contacto",
+    "teamTitle": "Contactos",
+    "teamHint": "Cada agência vê os contactos que cobrem o seu país; sem nenhum, vê toda a equipa.",
+    "empty": "Nenhum contacto comercial",
+    "emptyHint": "Adicione os comerciais que as agências podem contactar.",
+    "settingsTitle": "Apresentação",
+    "showAll": "Mostrar toda a equipa a todas as agências",
+    "showAllHint": "As agências veem todos os seus contactos, seja qual for o país.",
+    "allCountries": "Todos os países",
+    "remove": "Remover {label}",
+    "linkedMember": "Membro da conta: {name}",
+    "moveUp": "Subir",
+    "moveDown": "Descer",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "confirmDelete": "Eliminar o contacto {name}?",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "upsell": {
+      "title": "Contactos reservados aos fornecedores subscritores",
+      "body": "Pode preparar a sua equipa já: será mostrada às agências assim que subscrever.",
+      "cta": "Ver as subscrições"
+    },
+    "fields": {
+      "name": "Nome",
+      "jobTitle": "Função",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "countries": "Países cobertos",
+      "countriesHint": "Nenhum país escolhido: o contacto cobre todos os países.",
+      "addCountry": "Adicionar um país…",
+      "languages": "Línguas faladas",
+      "addLanguage": "Adicionar uma língua…",
+      "member": "Membro da conta",
+      "memberHint": "Opcional: associe o contacto a um utilizador que acede à conta.",
+      "noMember": "Nenhum (apenas contacto)"
+    },
+    "flash": {
+      "created": "Contacto adicionado.",
+      "updated": "Contacto atualizado.",
+      "deleted": "Contacto eliminado.",
+      "settingsUpdated": "Definição guardada."
+    }
   }
 }
