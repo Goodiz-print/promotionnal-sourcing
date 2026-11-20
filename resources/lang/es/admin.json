@@ -2,6 +2,7 @@
   "nav": {
     "dashboard": "Panel de control",
     "organizations": "Organizaciones",
+    "supplierLinks": "Vinculación de proveedores",
     "users": "Usuarios",
     "products": "Productos",
     "categories": "Categorías",
@@ -273,6 +274,81 @@
         "revoked": "Invitación revocada.",
         "resent": "Invitación reenviada."
       }
+    },
+    "subscription": {
+      "title": "Suscripción",
+      "empty": "Sin suscripción: plan gratuito.",
+      "create": "Crear la suscripción",
+      "extend": "Cambiar la fecha de fin",
+      "cancel": "Cancelar",
+      "cancelConfirm": "¿Cancelar esta suscripción ahora? La organización vuelve al plan gratuito.",
+      "fields": {
+        "plan": "Plan",
+        "status": "Estado",
+        "period": "Periodo",
+        "origin": "Origen",
+        "author": "Registrado por",
+        "startsOn": "Primer día",
+        "endsOn": "Último día"
+      },
+      "origins": {
+        "manual": "Manual",
+        "stripe": "En línea"
+      },
+      "done": {
+        "created": "Suscripción registrada.",
+        "extended": "Fecha de fin cambiada.",
+        "cancelled": "Suscripción cancelada."
+      },
+      "errors": {
+        "alreadyOpen": "Ya hay una suscripción en curso o programada: prolóngala o cancélala.",
+        "invalidPeriod": "Fechas no válidas: el último día debe seguir al primero y no estar en el pasado.",
+        "notEditable": "Esta suscripción ya no se puede modificar aquí.",
+        "notSupplier": "Solo una organización proveedora puede suscribirse."
+      }
+    }
+  },
+  "supplierLinks": {
+    "title": "Vinculación de fichas de proveedor",
+    "subtitle": "Fichas importadas a la espera del acuerdo del proveedor. Vincularlas a su organización registra ese acuerdo y publica su catálogo.",
+    "resultsCount": "{count, plural, =0 {Ninguna ficha} one {# ficha} other {# fichas}}",
+    "empty": {
+      "pending": "Ninguna ficha a la espera de acuerdo.",
+      "linked": "Ninguna ficha vinculada."
+    },
+    "emptyDescription": "Cambie el filtro o vuelva tras la próxima importación.",
+    "filters": {
+      "status": "Mostrar",
+      "pending": "A la espera de acuerdo",
+      "linked": "Vinculadas"
+    },
+    "columns": {
+      "supplier": "Ficha de proveedor",
+      "products": "Productos",
+      "suggestion": "Sugerencia",
+      "organization": "Organización",
+      "linkedTo": "Organización",
+      "agreement": "Acuerdo",
+      "actions": "Acciones"
+    },
+    "match": {
+      "email": "{name} (mismo email)",
+      "domain": "{name} (mismo dominio)"
+    },
+    "noSuggestion": "Sin coincidencia",
+    "chooseOrganization": "Elegir una organización",
+    "organizationLabel": "Organización para vincular a {name}",
+    "link": "Vincular",
+    "unlink": "Desvincular",
+    "confirmUnlink": "¿Desvincular {name}? Sus productos se retirarán del sitio.",
+    "by": "por {email}",
+    "noAgreementDate": "Vinculada anteriormente",
+    "linked": "Ficha vinculada: su catálogo está publicado.",
+    "unlinked": "Ficha desvinculada: sus productos se retiran del sitio.",
+    "errors": {
+      "alreadyLinked": "Esta ficha ya está vinculada a una organización. Desvincúlela primero.",
+      "invalidOrganization": "Elija una organización proveedora activa.",
+      "notLinked": "Esta ficha no está vinculada a ninguna organización."
     }
   },
   "users": {
@@ -448,6 +524,8 @@
       "organization.member_removed": "Miembro eliminado",
       "organization.invitation_revoked": "Invitación revocada",
       "organization.invitation_resent": "Invitación reenviada",
+      "supplier.linked": "Ficha de proveedor vinculada",
+      "supplier.unlinked": "Ficha de proveedor desvinculada",
       "product.hidden": "Producto oculto",
       "product.unhidden": "Producto mostrado",
       "product.unpublished": "Producto despublicado",
@@ -491,7 +569,10 @@
       "storage.recovery_requested": "Storage recovery requested",
       "ad_campaign.suspended": "Campaña patrocinada suspendida",
       "ad_campaign.restored": "Suspensión de campaña levantada",
-      "ad_wallet.adjusted": "Monedero publicitario ajustado"
+      "ad_wallet.adjusted": "Monedero publicitario ajustado",
+      "subscription.created": "Suscripción creada",
+      "subscription.extended": "Fin de suscripción cambiado",
+      "subscription.cancelled": "Suscripción cancelada"
     },
     "targets": {
       "user": "Usuario",
@@ -499,6 +580,7 @@
       "attribute": "Atributo",
       "attribute_value": "Valor de atributo",
       "organization": "Organización",
+      "supplier": "Ficha de proveedor",
       "product": "Producto",
       "rfq": "Solicitud de presupuesto",
       "certification": "Certificación",

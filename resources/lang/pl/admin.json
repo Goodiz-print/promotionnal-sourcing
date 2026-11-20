@@ -2,6 +2,7 @@
   "nav": {
     "dashboard": "Panel główny",
     "organizations": "Organizacje",
+    "supplierLinks": "Powiązanie dostawców",
     "users": "Użytkownicy",
     "products": "Produkty",
     "categories": "Kategorie",
@@ -273,6 +274,81 @@
         "revoked": "Zaproszenie anulowane.",
         "resent": "Zaproszenie wysłane ponownie."
       }
+    },
+    "subscription": {
+      "title": "Subskrypcja",
+      "empty": "Brak subskrypcji: plan bezpłatny.",
+      "create": "Utwórz subskrypcję",
+      "extend": "Zmień datę końca",
+      "cancel": "Anuluj",
+      "cancelConfirm": "Anulować tę subskrypcję teraz? Organizacja wraca do planu bezpłatnego.",
+      "fields": {
+        "plan": "Plan",
+        "status": "Status",
+        "period": "Okres",
+        "origin": "Pochodzenie",
+        "author": "Wprowadził(a)",
+        "startsOn": "Pierwszy dzień",
+        "endsOn": "Ostatni dzień"
+      },
+      "origins": {
+        "manual": "Ręczna",
+        "stripe": "Online"
+      },
+      "done": {
+        "created": "Subskrypcja zapisana.",
+        "extended": "Data końca zmieniona.",
+        "cancelled": "Subskrypcja anulowana."
+      },
+      "errors": {
+        "alreadyOpen": "Istnieje już trwająca lub zaplanowana subskrypcja: przedłuż ją lub anuluj.",
+        "invalidPeriod": "Nieprawidłowe daty: ostatni dzień musi następować po pierwszym i nie może być w przeszłości.",
+        "notEditable": "Tej subskrypcji nie można już tu zmienić.",
+        "notSupplier": "Tylko organizacja dostawcy może wykupić subskrypcję."
+      }
+    }
+  },
+  "supplierLinks": {
+    "title": "Powiązanie kart dostawców",
+    "subtitle": "Zaimportowane karty oczekujące na zgodę dostawcy. Powiązanie z jego organizacją oznacza zgodę i publikuje katalog.",
+    "resultsCount": "{count, plural, =0 {Brak kart} one {# karta} few {# karty} many {# kart} other {# karty}}",
+    "empty": {
+      "pending": "Brak kart oczekujących na zgodę.",
+      "linked": "Brak powiązanych kart."
+    },
+    "emptyDescription": "Zmień filtr lub wróć po następnym imporcie.",
+    "filters": {
+      "status": "Widok",
+      "pending": "Oczekujące na zgodę",
+      "linked": "Powiązane"
+    },
+    "columns": {
+      "supplier": "Karta dostawcy",
+      "products": "Produkty",
+      "suggestion": "Propozycja",
+      "organization": "Organizacja",
+      "linkedTo": "Organizacja",
+      "agreement": "Zgoda",
+      "actions": "Akcje"
+    },
+    "match": {
+      "email": "{name} (ten sam e-mail)",
+      "domain": "{name} (ta sama domena)"
+    },
+    "noSuggestion": "Brak dopasowania",
+    "chooseOrganization": "Wybierz organizację",
+    "organizationLabel": "Organizacja do powiązania z {name}",
+    "link": "Powiąż",
+    "unlink": "Odłącz",
+    "confirmUnlink": "Odłączyć {name}? Produkty zostaną usunięte z serwisu.",
+    "by": "przez {email}",
+    "noAgreementDate": "Powiązana wcześniej",
+    "linked": "Karta powiązana: katalog jest opublikowany.",
+    "unlinked": "Karta odłączona: produkty są usuwane z serwisu.",
+    "errors": {
+      "alreadyLinked": "Ta karta jest już powiązana z organizacją. Najpierw ją odłącz.",
+      "invalidOrganization": "Wybierz aktywną organizację dostawcy.",
+      "notLinked": "Ta karta nie jest powiązana z żadną organizacją."
     }
   },
   "users": {
@@ -448,6 +524,8 @@
       "organization.member_removed": "Członek usunięty",
       "organization.invitation_revoked": "Zaproszenie anulowane",
       "organization.invitation_resent": "Zaproszenie wysłane ponownie",
+      "supplier.linked": "Karta dostawcy powiązana",
+      "supplier.unlinked": "Karta dostawcy odłączona",
       "product.hidden": "Produkt ukryty",
       "product.unhidden": "Produkt pokazany",
       "product.unpublished": "Cofnięto publikację produktu",
@@ -491,7 +569,10 @@
       "storage.recovery_requested": "Storage recovery requested",
       "ad_campaign.suspended": "Kampania sponsorowana zawieszona",
       "ad_campaign.restored": "Zniesiono zawieszenie kampanii",
-      "ad_wallet.adjusted": "Portfel reklamowy skorygowany"
+      "ad_wallet.adjusted": "Portfel reklamowy skorygowany",
+      "subscription.created": "Subskrypcja utworzona",
+      "subscription.extended": "Zmieniono koniec subskrypcji",
+      "subscription.cancelled": "Subskrypcja anulowana"
     },
     "targets": {
       "user": "Użytkownik",
@@ -499,6 +580,7 @@
       "attribute": "Atrybut",
       "attribute_value": "Wartość atrybutu",
       "organization": "Organizacja",
+      "supplier": "Karta dostawcy",
       "product": "Produkt",
       "rfq": "Zapytanie ofertowe",
       "certification": "Certyfikat",

@@ -2,6 +2,7 @@
   "nav": {
     "dashboard": "Painel de controlo",
     "organizations": "Organizações",
+    "supplierLinks": "Associação de fornecedores",
     "users": "Utilizadores",
     "products": "Produtos",
     "categories": "Categorias",
@@ -273,6 +274,81 @@
         "revoked": "Convite revogado.",
         "resent": "Convite reenviado."
       }
+    },
+    "subscription": {
+      "title": "Assinatura",
+      "empty": "Sem assinatura: plano gratuito.",
+      "create": "Criar a assinatura",
+      "extend": "Alterar a data de fim",
+      "cancel": "Cancelar",
+      "cancelConfirm": "Cancelar esta assinatura agora? A organização volta ao plano gratuito.",
+      "fields": {
+        "plan": "Plano",
+        "status": "Estado",
+        "period": "Período",
+        "origin": "Origem",
+        "author": "Registado por",
+        "startsOn": "Primeiro dia",
+        "endsOn": "Último dia"
+      },
+      "origins": {
+        "manual": "Manual",
+        "stripe": "Online"
+      },
+      "done": {
+        "created": "Assinatura registada.",
+        "extended": "Data de fim alterada.",
+        "cancelled": "Assinatura cancelada."
+      },
+      "errors": {
+        "alreadyOpen": "Já existe uma assinatura em curso ou programada: prolongue-a ou cancele-a.",
+        "invalidPeriod": "Datas inválidas: o último dia deve seguir o primeiro e não estar no passado.",
+        "notEditable": "Esta assinatura já não pode ser alterada aqui.",
+        "notSupplier": "Só uma organização fornecedora pode subscrever."
+      }
+    }
+  },
+  "supplierLinks": {
+    "title": "Associação das fichas de fornecedor",
+    "subtitle": "Fichas importadas a aguardar o acordo do fornecedor. Associá-las à sua organização regista esse acordo e publica o catálogo.",
+    "resultsCount": "{count, plural, =0 {Nenhuma ficha} one {# ficha} other {# fichas}}",
+    "empty": {
+      "pending": "Nenhuma ficha a aguardar acordo.",
+      "linked": "Nenhuma ficha associada."
+    },
+    "emptyDescription": "Altere o filtro ou volte após a próxima importação.",
+    "filters": {
+      "status": "Mostrar",
+      "pending": "A aguardar acordo",
+      "linked": "Associadas"
+    },
+    "columns": {
+      "supplier": "Ficha de fornecedor",
+      "products": "Produtos",
+      "suggestion": "Sugestão",
+      "organization": "Organização",
+      "linkedTo": "Organização",
+      "agreement": "Acordo",
+      "actions": "Ações"
+    },
+    "match": {
+      "email": "{name} (mesmo email)",
+      "domain": "{name} (mesmo domínio)"
+    },
+    "noSuggestion": "Sem correspondência",
+    "chooseOrganization": "Escolher uma organização",
+    "organizationLabel": "Organização a associar a {name}",
+    "link": "Associar",
+    "unlink": "Desassociar",
+    "confirmUnlink": "Desassociar {name}? Os produtos serão retirados do site.",
+    "by": "por {email}",
+    "noAgreementDate": "Associada anteriormente",
+    "linked": "Ficha associada: o catálogo está publicado.",
+    "unlinked": "Ficha desassociada: os produtos são retirados do site.",
+    "errors": {
+      "alreadyLinked": "Esta ficha já está associada a uma organização. Desassocie-a primeiro.",
+      "invalidOrganization": "Escolha uma organização fornecedora ativa.",
+      "notLinked": "Esta ficha não está associada a nenhuma organização."
     }
   },
   "users": {
@@ -448,6 +524,8 @@
       "organization.member_removed": "Membro removido",
       "organization.invitation_revoked": "Convite revogado",
       "organization.invitation_resent": "Convite reenviado",
+      "supplier.linked": "Ficha de fornecedor associada",
+      "supplier.unlinked": "Ficha de fornecedor desassociada",
       "product.hidden": "Produto ocultado",
       "product.unhidden": "Produto mostrado",
       "product.unpublished": "Produto despublicado",
@@ -491,7 +569,10 @@
       "storage.recovery_requested": "Storage recovery requested",
       "ad_campaign.suspended": "Campanha patrocinada suspensa",
       "ad_campaign.restored": "Suspensão da campanha levantada",
-      "ad_wallet.adjusted": "Carteira publicitária ajustada"
+      "ad_wallet.adjusted": "Carteira publicitária ajustada",
+      "subscription.created": "Assinatura criada",
+      "subscription.extended": "Fim da assinatura alterado",
+      "subscription.cancelled": "Assinatura cancelada"
     },
     "targets": {
       "user": "Utilizador",
@@ -499,6 +580,7 @@
       "attribute": "Atributo",
       "attribute_value": "Valor de atributo",
       "organization": "Organização",
+      "supplier": "Ficha de fornecedor",
       "product": "Produto",
       "rfq": "Pedido de cotação",
       "certification": "Certificação",

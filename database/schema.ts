@@ -2909,6 +2909,8 @@ export class SupplierSchema extends BaseModel {
     'email',
     'id',
     'isActive',
+    'linkedAt',
+    'linkedByUserId',
     'logoUrl',
     'organizationId',
     'phone',
@@ -2927,6 +2929,10 @@ export class SupplierSchema extends BaseModel {
   declare id: number
   @column()
   declare isActive: boolean
+  @column.dateTime()
+  declare linkedAt: DateTime | null
+  @column()
+  declare linkedByUserId: number | null
   @column()
   declare logoUrl: string | null
   @column()

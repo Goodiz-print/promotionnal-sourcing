@@ -5,6 +5,7 @@ import { latestDecisionIsRejectedSql } from '#shared/helpers/moderation'
 import Organization from '#models/organization'
 import Product from '#models/product'
 import SupplierTranslation from '#models/supplier_translation'
+import User from '#models/user'
 import type { ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
 
 export default class Supplier extends SupplierSchema {
@@ -32,4 +33,8 @@ export default class Supplier extends SupplierSchema {
 
   @belongsTo(() => Organization)
   declare organization: BelongsTo<typeof Organization>
+
+  /** Admin qui a validé le rattachement à l'organisation (#231). */
+  @belongsTo(() => User, { foreignKey: 'linkedByUserId' })
+  declare linkedBy: BelongsTo<typeof User>
 }

@@ -2,6 +2,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "organizations": "Organisaties",
+    "supplierLinks": "Leverancierskoppeling",
     "users": "Gebruikers",
     "products": "Producten",
     "categories": "Categorieën",
@@ -273,6 +274,81 @@
         "revoked": "Uitnodiging ingetrokken.",
         "resent": "Uitnodiging opnieuw verzonden."
       }
+    },
+    "subscription": {
+      "title": "Abonnement",
+      "empty": "Geen abonnement: gratis formule.",
+      "create": "Abonnement aanmaken",
+      "extend": "Einddatum wijzigen",
+      "cancel": "Opzeggen",
+      "cancelConfirm": "Dit abonnement nu opzeggen? De organisatie gaat terug naar de gratis formule.",
+      "fields": {
+        "plan": "Formule",
+        "status": "Status",
+        "period": "Periode",
+        "origin": "Herkomst",
+        "author": "Ingevoerd door",
+        "startsOn": "Eerste dag",
+        "endsOn": "Laatste dag"
+      },
+      "origins": {
+        "manual": "Handmatig",
+        "stripe": "Online"
+      },
+      "done": {
+        "created": "Abonnement opgeslagen.",
+        "extended": "Einddatum gewijzigd.",
+        "cancelled": "Abonnement opgezegd."
+      },
+      "errors": {
+        "alreadyOpen": "Er loopt al een abonnement of er is er een gepland: verleng of zeg het op.",
+        "invalidPeriod": "Ongeldige data: de laatste dag moet na de eerste liggen en niet in het verleden.",
+        "notEditable": "Dit abonnement kan hier niet meer worden gewijzigd.",
+        "notSupplier": "Alleen een leveranciersorganisatie kan een abonnement nemen."
+      }
+    }
+  },
+  "supplierLinks": {
+    "title": "Koppeling van leveranciersfiches",
+    "subtitle": "Geïmporteerde fiches die wachten op toestemming van de leverancier. Koppelen aan zijn organisatie legt die toestemming vast en publiceert de catalogus.",
+    "resultsCount": "{count, plural, =0 {Geen fiche} one {# fiche} other {# fiches}}",
+    "empty": {
+      "pending": "Geen fiche wacht op toestemming.",
+      "linked": "Geen gekoppelde fiche."
+    },
+    "emptyDescription": "Wijzig het filter of kom terug na de volgende import.",
+    "filters": {
+      "status": "Weergave",
+      "pending": "Wacht op toestemming",
+      "linked": "Gekoppeld"
+    },
+    "columns": {
+      "supplier": "Leveranciersfiche",
+      "products": "Producten",
+      "suggestion": "Voorstel",
+      "organization": "Organisatie",
+      "linkedTo": "Organisatie",
+      "agreement": "Toestemming",
+      "actions": "Acties"
+    },
+    "match": {
+      "email": "{name} (zelfde e-mail)",
+      "domain": "{name} (zelfde domein)"
+    },
+    "noSuggestion": "Geen overeenkomst",
+    "chooseOrganization": "Kies een organisatie",
+    "organizationLabel": "Organisatie om aan {name} te koppelen",
+    "link": "Koppelen",
+    "unlink": "Ontkoppelen",
+    "confirmUnlink": "{name} ontkoppelen? De producten worden van de site verwijderd.",
+    "by": "door {email}",
+    "noAgreementDate": "Eerder gekoppeld",
+    "linked": "Fiche gekoppeld: de catalogus is gepubliceerd.",
+    "unlinked": "Fiche ontkoppeld: de producten worden van de site verwijderd.",
+    "errors": {
+      "alreadyLinked": "Deze fiche is al aan een organisatie gekoppeld. Ontkoppel haar eerst.",
+      "invalidOrganization": "Kies een actieve leveranciersorganisatie.",
+      "notLinked": "Deze fiche is aan geen enkele organisatie gekoppeld."
     }
   },
   "users": {
@@ -448,6 +524,8 @@
       "organization.member_removed": "Lid verwijderd",
       "organization.invitation_revoked": "Uitnodiging ingetrokken",
       "organization.invitation_resent": "Uitnodiging opnieuw verzonden",
+      "supplier.linked": "Leveranciersfiche gekoppeld",
+      "supplier.unlinked": "Leveranciersfiche ontkoppeld",
       "product.hidden": "Product verborgen",
       "product.unhidden": "Product zichtbaar gemaakt",
       "product.unpublished": "Publicatie van product ingetrokken",
@@ -491,7 +569,10 @@
       "storage.recovery_requested": "Storage recovery requested",
       "ad_campaign.suspended": "Gesponsorde campagne geschorst",
       "ad_campaign.restored": "Schorsing van campagne opgeheven",
-      "ad_wallet.adjusted": "Advertentietegoed aangepast"
+      "ad_wallet.adjusted": "Advertentietegoed aangepast",
+      "subscription.created": "Abonnement aangemaakt",
+      "subscription.extended": "Einde abonnement gewijzigd",
+      "subscription.cancelled": "Abonnement opgezegd"
     },
     "targets": {
       "user": "Gebruiker",
@@ -499,6 +580,7 @@
       "attribute": "Attribuut",
       "attribute_value": "Attribuutwaarde",
       "organization": "Organisatie",
+      "supplier": "Leveranciersfiche",
       "product": "Product",
       "rfq": "Offerteaanvraag",
       "certification": "Certificering",

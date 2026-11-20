@@ -249,6 +249,11 @@ export interface ApiDefinition {
       removeMember: typeof routes['admin.organizations.remove_member']
       revokeInvitation: typeof routes['admin.organizations.revoke_invitation']
       resendInvitation: typeof routes['admin.organizations.resend_invitation']
+      subscriptions: {
+        store: typeof routes['admin.organizations.subscriptions.store']
+        extend: typeof routes['admin.organizations.subscriptions.extend']
+        cancel: typeof routes['admin.organizations.subscriptions.cancel']
+      }
     }
     users: {
       index: typeof routes['admin.users.index']
@@ -337,6 +342,11 @@ export interface ApiDefinition {
       index: typeof routes['admin.moderation.index']
       show: typeof routes['admin.moderation.show']
       decide: typeof routes['admin.moderation.decide']
+    }
+    supplierLinks: {
+      index: typeof routes['admin.supplier_links.index']
+      link: typeof routes['admin.supplier_links.link']
+      unlink: typeof routes['admin.supplier_links.unlink']
     }
     agencyReviews: {
       index: typeof routes['admin.agency_reviews.index']

@@ -156,6 +156,9 @@ export type ScannedRoutes = {
     'admin.organizations.remove_member': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'membershipId': ParamValue} }
     'admin.organizations.revoke_invitation': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'invitationId': ParamValue} }
     'admin.organizations.resend_invitation': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'invitationId': ParamValue} }
+    'admin.organizations.subscriptions.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.organizations.subscriptions.extend': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'subscriptionId': ParamValue} }
+    'admin.organizations.subscriptions.cancel': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'subscriptionId': ParamValue} }
     'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.users.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.platform_role.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -211,6 +214,9 @@ export type ScannedRoutes = {
     'admin.moderation.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.moderation.show': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
     'admin.moderation.decide': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
+    'admin.supplier_links.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.supplier_links.link': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.supplier_links.unlink': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.agency_reviews.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.agency_reviews.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.agency_reviews.decide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -352,6 +358,7 @@ export type ScannedRoutes = {
     'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.moderation.show': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
+    'admin.supplier_links.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.agency_reviews.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.agency_reviews.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -462,6 +469,7 @@ export type ScannedRoutes = {
     'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.moderation.show': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
+    'admin.supplier_links.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.agency_reviews.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.agency_reviews.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -542,6 +550,8 @@ export type ScannedRoutes = {
     'admin.organizations.archive': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.restore': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.resend_invitation': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'invitationId': ParamValue} }
+    'admin.organizations.subscriptions.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.organizations.subscriptions.cancel': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'subscriptionId': ParamValue} }
     'admin.users.suspend': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.reactivate': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.resend_verification': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -569,6 +579,7 @@ export type ScannedRoutes = {
     'admin.products.restore': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.products.reindex': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.decide': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
+    'admin.supplier_links.link': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.agency_reviews.decide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.rfqs.close': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.rfqs.expire': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -613,6 +624,7 @@ export type ScannedRoutes = {
     'admin.organizations.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.change_type': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.member_role': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'membershipId': ParamValue} }
+    'admin.organizations.subscriptions.extend': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'subscriptionId': ParamValue} }
     'admin.users.platform_role.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.ai.translations.correct': { paramsTuple: [ParamValue,ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'entity': ParamValue,'id': ParamValue,'translationLocale': ParamValue} }
     'admin.categories.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -642,6 +654,7 @@ export type ScannedRoutes = {
     'admin.organizations.remove_member': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'membershipId': ParamValue} }
     'admin.organizations.revoke_invitation': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'invitationId': ParamValue} }
     'admin.users.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.supplier_links.unlink': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.categories.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.attributes.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.attribute_values.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'valueId': ParamValue} }

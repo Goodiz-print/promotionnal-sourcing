@@ -918,6 +918,24 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"organizations"],[1,"id"],[0,"invitations"],[1,"invitationId"],[0,"resend"]],
     types: placeholder as Registry['admin.organizations.resend_invitation']['types'],
   },
+  'admin.organizations.subscriptions.store': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/organizations/:id/subscriptions',
+    tokens: [[1,"locale"],[0,"admin"],[0,"organizations"],[1,"id"],[0,"subscriptions"]],
+    types: placeholder as Registry['admin.organizations.subscriptions.store']['types'],
+  },
+  'admin.organizations.subscriptions.extend': {
+    methods: ["PATCH"],
+    pattern: '/:locale/admin/organizations/:id/subscriptions/:subscriptionId',
+    tokens: [[1,"locale"],[0,"admin"],[0,"organizations"],[1,"id"],[0,"subscriptions"],[1,"subscriptionId"]],
+    types: placeholder as Registry['admin.organizations.subscriptions.extend']['types'],
+  },
+  'admin.organizations.subscriptions.cancel': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/organizations/:id/subscriptions/:subscriptionId/cancel',
+    tokens: [[1,"locale"],[0,"admin"],[0,"organizations"],[1,"id"],[0,"subscriptions"],[1,"subscriptionId"],[0,"cancel"]],
+    types: placeholder as Registry['admin.organizations.subscriptions.cancel']['types'],
+  },
   'admin.users.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/users',
@@ -1247,6 +1265,24 @@ const routes = {
     pattern: '/:locale/admin/moderation/:type/:id/decision',
     tokens: [[1,"locale"],[0,"admin"],[0,"moderation"],[1,"type"],[1,"id"],[0,"decision"]],
     types: placeholder as Registry['admin.moderation.decide']['types'],
+  },
+  'admin.supplier_links.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/supplier-links',
+    tokens: [[1,"locale"],[0,"admin"],[0,"supplier-links"]],
+    types: placeholder as Registry['admin.supplier_links.index']['types'],
+  },
+  'admin.supplier_links.link': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/supplier-links/:id/link',
+    tokens: [[1,"locale"],[0,"admin"],[0,"supplier-links"],[1,"id"],[0,"link"]],
+    types: placeholder as Registry['admin.supplier_links.link']['types'],
+  },
+  'admin.supplier_links.unlink': {
+    methods: ["DELETE"],
+    pattern: '/:locale/admin/supplier-links/:id/link',
+    tokens: [[1,"locale"],[0,"admin"],[0,"supplier-links"],[1,"id"],[0,"link"]],
+    types: placeholder as Registry['admin.supplier_links.unlink']['types'],
   },
   'admin.agency_reviews.index': {
     methods: ["GET","HEAD"],

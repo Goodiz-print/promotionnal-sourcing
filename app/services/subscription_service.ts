@@ -1,11 +1,14 @@
+import { inject } from '@adonisjs/core'
 import { DateTime } from 'luxon'
 import logger from '@adonisjs/core/services/logger'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import BillingProfile from '#models/billing_profile'
 import Organization from '#models/organization'
 import OrganizationSubscription from '#models/organization_subscription'
+import SubscriptionPlanService, {
+  whereCurrentSubscription,
+} from '#services/subscription_plan_service'
 import { statusFromProvider } from '#shared/helpers/subscription'
-import type { SubscriptionPlan } from '#shared/types/organization'
 import {
   BLOCKING_SUBSCRIPTION_STATUSES,
   CURRENT_SUBSCRIPTION_STATUSES,
@@ -14,19 +17,22 @@ import {
 } from '#shared/types/subscription'
 
 /**
- * Abonnements des organisations (cf. `docs/abonnements.md`). **Seul** point du
- * code qui écrit `organizations.subscription_plan` (formule courante
- * dénormalisée), et seul point qui répond à « abonné ou non ».
+ * Abonnements des organisations (cf. `docs/abonnements.md`). Seul point qui
+ * répond à « abonné ou non » ; la règle elle-même (`whereCurrentSubscription`)
+ * et l'écriture de `organizations.subscription_plan` vivent dans
+ * `SubscriptionPlanService`, sans modèle Lucid, pour servir aussi aux jobs.
  */
+@inject()
 export default class SubscriptionService {
-  /** Abonnement en cours (`active` ou `past_due`) de l'organisation, s'il existe. */
+  constructor(private plans: SubscriptionPlanService) {}
+
+  /** Abonnement en cours de l'organisation, s'il existe (cf. `whereCurrentSubscription`). */
   current(
     organizationId: number,
     client?: TransactionClientContract
   ): Promise<OrganizationSubscription | null> {
-    return OrganizationSubscription.query({ client })
+    return whereCurrentSubscription(OrganizationSubscription.query({ client }))
       .where('organizationId', organizationId)
-      .whereIn('status', [...CURRENT_SUBSCRIPTION_STATUSES])
       .first()
   }
 
@@ -50,13 +56,11 @@ export default class SubscriptionService {
    * `isSubscribed` pour plusieurs organisations en une requête : les
    * identifiants de celles qui ont un abonnement payant en cours.
    */
-  async subscribedAmong(organizationIds: number[]): Promise<Set<number>> {
-    if (organizationIds.length === 0) return new Set()
-    const rows = await OrganizationSubscription.query()
-      .whereIn('organizationId', organizationIds)
-      .whereIn('status', [...CURRENT_SUBSCRIPTION_STATUSES])
-      .select('organizationId')
-    return new Set(rows.map((row) => row.organizationId))
+  subscribedAmong(
+    organizationIds: number[],
+    client?: TransactionClientContract
+  ): Promise<Set<number>> {
+    return this.plans.subscribedAmong(organizationIds, client)
   }
 
   /**
@@ -124,11 +128,7 @@ export default class SubscriptionService {
    * sa formule, ou `free` sans abonnement en cours.
    */
   async refreshPlan(organizationId: number, trx: TransactionClientContract): Promise<void> {
-    const current = await this.current(organizationId, trx)
-    const plan: SubscriptionPlan = current?.plan ?? 'free'
-    await Organization.query({ client: trx })
-      .where('id', organizationId)
-      .update({ subscriptionPlan: plan })
+    await this.plans.refreshPlans([organizationId], trx)
   }
 
   /**

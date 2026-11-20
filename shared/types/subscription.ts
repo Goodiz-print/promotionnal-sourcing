@@ -187,3 +187,38 @@ export const SUBSCRIPTION_FEATURE_INCLUDED: Record<
   superboost: { free: false, business: false, premium: true },
   support: { free: false, business: false, premium: true },
 }
+
+/**
+ * Fuseau des dates d'abonnement saisies par l'admin : un abonnement court du
+ * début du jour de début à la fin du jour de fin, heure de Paris.
+ */
+export const SUBSCRIPTION_TIMEZONE = 'Europe/Paris'
+
+/**
+ * Abonnement saisi à la main par l'admin (#214). Dates au format `YYYY-MM-DD`,
+ * jour de fin **inclus**. Un jour de début futur programme l'abonnement.
+ */
+export interface ManualSubscriptionInput {
+  organizationId: number
+  plan: PaidSubscriptionPlan
+  startsOn: string
+  endsOn: string
+  authorId: number | null
+}
+
+/** Abonnement visé par une action admin, avec l'organisation de l'URL. */
+export interface ManualSubscriptionTarget {
+  organizationId: number
+  subscriptionId: number
+}
+
+/** Nouvelle date de fin (`AAAA-MM-JJ`, jour inclus) d'un abonnement manuel. */
+export interface ManualSubscriptionExtension extends ManualSubscriptionTarget {
+  endsOn: string
+}
+
+/** Passage planifié sur les abonnements manuels : identifiants activés et expirés. */
+export interface SubscriptionSyncDueResult {
+  activated: number[]
+  expired: number[]
+}

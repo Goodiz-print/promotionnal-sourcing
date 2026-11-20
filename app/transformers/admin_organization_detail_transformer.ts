@@ -7,6 +7,7 @@ import type {
   AdminOrganizationSupplierProfile,
   AdminOrganizationAgencyProfile,
   AdminOrganizationBillingProfile,
+  AdminOrganizationSubscription,
 } from '#shared/types/admin_organization'
 import type { RoleSlug } from '#shared/types/role'
 
@@ -36,6 +37,7 @@ export default class AdminOrganizationDetailTransformer extends BaseTransformer<
       supplierProfile,
       agencyProfile,
       billingProfile,
+      subscriptions,
       lastActivity,
     } = this.resource
 
@@ -63,6 +65,7 @@ export default class AdminOrganizationDetailTransformer extends BaseTransformer<
       postalCode: organization.postalCode,
       logoUrl: organization.logoUrl,
       subscriptionPlan: organization.subscriptionPlan,
+      subscriptions: subscriptions.map((subscription) => this.transformSubscription(subscription)),
       locale: organization.locale,
       updatedAt: organization.updatedAt?.toISO() ?? null,
       reviewReasons: organization.reviewReasons?.length > 0 ? organization.reviewReasons : null,
@@ -131,6 +134,25 @@ export default class AdminOrganizationDetailTransformer extends BaseTransformer<
       defaultMarginPercent: profile.defaultMarginPercent,
       createdAt: profile.createdAt.toISO()!,
       updatedAt: profile.updatedAt?.toISO() ?? null,
+    }
+  }
+
+  private transformSubscription(
+    subscription: AdminOrganizationDetails['subscriptions'][number]
+  ): AdminOrganizationSubscription {
+    return {
+      id: subscription.id,
+      plan: subscription.plan,
+      status: subscription.status,
+      origin: subscription.origin,
+      startsAt: subscription.startsAt.toISO()!,
+      endsAt: subscription.endsAt?.toISO() ?? null,
+      cancelledAt: subscription.cancelledAt?.toISO() ?? null,
+      createdByEmail: subscription.createdBy?.email ?? null,
+      createdAt: subscription.createdAt.toISO()!,
+      editable:
+        subscription.stripeSubscriptionId === null &&
+        (subscription.status === 'active' || subscription.status === 'scheduled'),
     }
   }
 

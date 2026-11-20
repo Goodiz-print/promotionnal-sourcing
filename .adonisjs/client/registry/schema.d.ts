@@ -1983,6 +1983,45 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['resendInvitation']>>>
     }
   }
+  'admin.organizations.subscriptions.store': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/organizations/:id/subscriptions'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_subscription').adminSubscriptionCreateValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_subscription').adminSubscriptionCreateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.organizations.subscriptions.extend': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/organizations/:id/subscriptions/:subscriptionId'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_subscription').adminSubscriptionExtendValidator)>>
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; subscriptionId: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_subscription').adminSubscriptionExtendValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['extend']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['extend']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['extend']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.organizations.subscriptions.cancel': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/organizations/:id/subscriptions/:subscriptionId/cancel'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; subscriptionId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['cancel']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['cancel']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['cancel']>>>
+    }
+  }
   'admin.users.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/users'
@@ -2696,6 +2735,45 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/moderation_controller').default['decide']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/moderation_controller').default['decide']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/moderation_controller').default['decide']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.supplier_links.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/supplier-links'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_supplier_link').supplierLinkFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.supplier_links.link': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/supplier-links/:id/link'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_supplier_link').supplierLinkValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_supplier_link').supplierLinkValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['link']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['link']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['link']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.supplier_links.unlink': {
+    methods: ["DELETE"]
+    pattern: '/:locale/admin/supplier-links/:id/link'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['unlink']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['unlink']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['unlink']>>>
     }
   }
   'admin.agency_reviews.index': {
