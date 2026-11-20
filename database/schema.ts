@@ -1428,6 +1428,54 @@ export class OrganizationInvitationSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class OrganizationSubscriptionSchema extends BaseModel {
+  static $columns = [
+    'cancelAtPeriodEnd',
+    'cancelledAt',
+    'createdAt',
+    'createdByUserId',
+    'endsAt',
+    'id',
+    'organizationId',
+    'origin',
+    'plan',
+    'startsAt',
+    'status',
+    'stripeStatus',
+    'stripeSubscriptionId',
+    'updatedAt',
+  ] as const
+  $columns = OrganizationSubscriptionSchema.$columns
+  @column()
+  declare cancelAtPeriodEnd: boolean
+  @column.dateTime()
+  declare cancelledAt: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdByUserId: number | null
+  @column.dateTime()
+  declare endsAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare organizationId: number
+  @column()
+  declare origin: string
+  @column()
+  declare plan: string
+  @column.dateTime()
+  declare startsAt: DateTime
+  @column()
+  declare status: string
+  @column()
+  declare stripeStatus: string | null
+  @column()
+  declare stripeSubscriptionId: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class OrganizationUserSchema extends BaseModel {
   static $columns = ['id', 'joinedAt', 'organizationId', 'roleId', 'userId'] as const
   $columns = OrganizationUserSchema.$columns
@@ -2617,6 +2665,19 @@ export class StorageObjectSchema extends BaseModel {
   declare status: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
+}
+
+export class StripeWebhookEventSchema extends BaseModel {
+  static $columns = ['createdAt', 'eventId', 'id', 'type'] as const
+  $columns = StripeWebhookEventSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare eventId: string
+  @column({ isPrimary: true })
+  declare id: bigint | number
+  @column()
+  declare type: string
 }
 
 export class SupplierContactSchema extends BaseModel {

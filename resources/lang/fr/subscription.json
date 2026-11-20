@@ -1,0 +1,91 @@
+{
+  "page": {
+    "title": "Tarifs et abonnement",
+    "subtitle": "Choisissez la formule qui correspond à votre activité. Souscription, changement de formule et résiliation se font en ligne.",
+    "checkoutSuccess": "Paiement reçu. Votre formule est activée dès la confirmation de Stripe, en général sous quelques secondes : actualisez la page si besoin.",
+    "checkoutCancelled": "Souscription annulée : aucun paiement n’a été effectué.",
+    "unavailable": "La souscription en ligne n’est pas encore disponible. Contactez l’équipe pour activer une formule.",
+    "taxNote": "Prix mensuels hors taxes, sans engagement. Factures disponibles dans le portail de facturation."
+  },
+  "plans": {
+    "current": "Formule actuelle",
+    "perMonth": "HT / mois",
+    "subscribe": "Souscrire",
+    "change": "Changer de formule",
+    "free": {
+      "name": "Gratuit",
+      "tagline": "Votre catalogue référencé, sans frais."
+    },
+    "business": {
+      "name": "Business",
+      "tagline": "Identifiez vos prospects et gagnez en visibilité."
+    },
+    "premium": {
+      "name": "Premium",
+      "tagline": "Visibilité maximale et accompagnement prioritaire."
+    }
+  },
+  "current": {
+    "title": "Votre abonnement",
+    "plan": "Formule",
+    "status": "Statut",
+    "since": "Depuis le",
+    "renewsOn": "Renouvellement le",
+    "endsOn": "Fin le",
+    "manage": "Gérer mon abonnement",
+    "manual": "Abonnement géré par l’équipe de la plateforme. Contactez-nous pour le modifier.",
+    "pastDue": "Le dernier paiement a échoué. Stripe va réessayer : mettez à jour votre moyen de paiement pour conserver votre formule.",
+    "cancelScheduled": "Résiliation programmée : votre formule reste active jusqu’à la fin de la période en cours."
+  },
+  "status": {
+    "scheduled": "Programmé",
+    "pending": "Paiement en attente",
+    "active": "Actif",
+    "past_due": "Impayé",
+    "expired": "Expiré",
+    "cancelled": "Résilié"
+  },
+  "features": {
+    "catalogue": {
+      "free": "Catalogue indexé dans la recherche",
+      "business": "Catalogue indexé dans la recherche",
+      "premium": "Catalogue indexé dans la recherche"
+    },
+    "statistics": {
+      "free": "Statistiques anonymes (nombre de vues)",
+      "business": "Statistiques détaillées, avec l’identité des agences",
+      "premium": "Statistiques détaillées, avec l’identité des agences"
+    },
+    "quoteRequests": {
+      "free": "Demandes de devis sans l’identité de l’agence",
+      "business": "Identité et coordonnées des agences sur les demandes",
+      "premium": "Identité et coordonnées des agences sur les demandes"
+    },
+    "competitors": {
+      "free": "Produits concurrents affichés sur vos pages",
+      "business": "Aucun produit concurrent sur vos pages",
+      "premium": "Aucun produit concurrent sur vos pages"
+    },
+    "ranking": {
+      "free": "Classement naturel des résultats",
+      "business": "250 points de référencement par mois",
+      "premium": "600 points de référencement par mois"
+    },
+    "superboost": {
+      "free": "Pas de superboost",
+      "business": "Superboosts à la carte",
+      "premium": "3 superboosts inclus par mois"
+    },
+    "support": {
+      "free": "Support standard",
+      "business": "Support standard",
+      "premium": "Support et intégration prioritaires"
+    }
+  },
+  "flash": {
+    "unavailable": "La souscription en ligne n’est pas disponible pour le moment.",
+    "alreadySubscribed": "Vous avez déjà un abonnement en cours : changez de formule depuis le portail de facturation.",
+    "noBillingAccount": "Aucun compte de facturation en ligne pour votre organisation.",
+    "paymentPending": "Un paiement d’abonnement est en cours de validation : finalisez-le depuis le portail de facturation ou réessayez plus tard."
+  }
+}

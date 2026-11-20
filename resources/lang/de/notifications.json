@@ -32,6 +32,9 @@
     "message": {
       "warned": "A message you wrote received a warning from the platform. Please follow the messaging usage rules."
     },
-    "announcement": "{title} — {body}"
+    "announcement": "{title} — {body}",
+    "subscription": {
+      "duplicate_cancelled": "{organizationName} hat zwei Abonnements gleichzeitig bezahlt: Das doppelte Abonnement {cancelledSubscriptionId} wurde in Stripe gekündigt. Erstatten Sie die Zahlung im Stripe-Dashboard."
+    }
   }
 }

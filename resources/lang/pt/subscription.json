@@ -1,0 +1,91 @@
+{
+  "page": {
+    "title": "Preços e assinatura",
+    "subtitle": "Escolha o plano adequado à sua atividade. A assinatura, a mudança de plano e o cancelamento são feitos online.",
+    "checkoutSuccess": "Pagamento recebido. O seu plano é ativado assim que a Stripe o confirmar, normalmente em poucos segundos: atualize a página se necessário.",
+    "checkoutCancelled": "Assinatura cancelada: nenhum pagamento foi efetuado.",
+    "unavailable": "A assinatura online ainda não está disponível. Contacte a equipa para ativar um plano.",
+    "taxNote": "Preços mensais sem IVA, sem fidelização. As faturas estão disponíveis no portal de faturação."
+  },
+  "plans": {
+    "current": "Plano atual",
+    "perMonth": "sem IVA / mês",
+    "subscribe": "Assinar",
+    "change": "Mudar de plano",
+    "free": {
+      "name": "Gratuito",
+      "tagline": "O seu catálogo referenciado, sem custos."
+    },
+    "business": {
+      "name": "Business",
+      "tagline": "Identifique os seus potenciais clientes e ganhe visibilidade."
+    },
+    "premium": {
+      "name": "Premium",
+      "tagline": "Visibilidade máxima e apoio prioritário."
+    }
+  },
+  "current": {
+    "title": "A sua assinatura",
+    "plan": "Plano",
+    "status": "Estado",
+    "since": "Desde",
+    "renewsOn": "Renovação a",
+    "endsOn": "Termina a",
+    "manage": "Gerir a minha assinatura",
+    "manual": "Assinatura gerida pela equipa da plataforma. Contacte-nos para a alterar.",
+    "pastDue": "O último pagamento falhou. A Stripe vai tentar novamente: atualize o seu meio de pagamento para manter o seu plano.",
+    "cancelScheduled": "Cancelamento agendado: o seu plano mantém-se ativo até ao fim do período em curso."
+  },
+  "status": {
+    "scheduled": "Agendada",
+    "pending": "Pagamento pendente",
+    "active": "Ativa",
+    "past_due": "Em atraso",
+    "expired": "Expirada",
+    "cancelled": "Cancelada"
+  },
+  "features": {
+    "catalogue": {
+      "free": "Catálogo indexado na pesquisa",
+      "business": "Catálogo indexado na pesquisa",
+      "premium": "Catálogo indexado na pesquisa"
+    },
+    "statistics": {
+      "free": "Estatísticas anónimas (número de visualizações)",
+      "business": "Estatísticas detalhadas, com a identidade das agências",
+      "premium": "Estatísticas detalhadas, com a identidade das agências"
+    },
+    "quoteRequests": {
+      "free": "Pedidos de orçamento sem a identidade da agência",
+      "business": "Identidade e contactos das agências nos pedidos",
+      "premium": "Identidade e contactos das agências nos pedidos"
+    },
+    "competitors": {
+      "free": "Produtos concorrentes nas suas páginas",
+      "business": "Nenhum produto concorrente nas suas páginas",
+      "premium": "Nenhum produto concorrente nas suas páginas"
+    },
+    "ranking": {
+      "free": "Classificação natural dos resultados",
+      "business": "250 pontos de posicionamento por mês",
+      "premium": "600 pontos de posicionamento por mês"
+    },
+    "superboost": {
+      "free": "Sem superboost",
+      "business": "Superboosts avulsos",
+      "premium": "3 superboosts incluídos por mês"
+    },
+    "support": {
+      "free": "Apoio padrão",
+      "business": "Apoio padrão",
+      "premium": "Apoio e integração prioritários"
+    }
+  },
+  "flash": {
+    "unavailable": "A assinatura online não está disponível de momento.",
+    "alreadySubscribed": "Já tem uma assinatura em curso: mude de plano no portal de faturação.",
+    "noBillingAccount": "A sua organização não tem conta de faturação online.",
+    "paymentPending": "Um pagamento de assinatura ainda está a ser confirmado: conclua-o no portal de faturação ou tente mais tarde."
+  }
+}

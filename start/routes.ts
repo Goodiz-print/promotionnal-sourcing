@@ -32,6 +32,7 @@ import {
   registerSupplierAdRoutes,
 } from '#start/routes/ads'
 import { registerMarketingRoutes, registerMarketingLegacyRoutes } from '#start/routes/marketing'
+import { registerSupplierSubscriptionRoutes } from '#start/routes/subscriptions'
 import { LOCALE_ROUTE_PATTERN } from '#shared/types/i18n'
 import { controllers } from '#generated/controllers'
 import router from '@adonisjs/core/services/router'
@@ -288,6 +289,8 @@ router
                 registerMessagingRoutes()
                 // Produits sponsorisés côté fournisseur — cf. `start/routes/ads.ts`.
                 registerSupplierAdRoutes()
+                // Tarifs et abonnement fournisseur — cf. `start/routes/subscriptions.ts`.
+                registerSupplierSubscriptionRoutes()
               })
               .use(middleware.onboarded())
 

@@ -1,0 +1,91 @@
+{
+  "page": {
+    "title": "Prezzi e abbonamento",
+    "subtitle": "Scegli il piano adatto alla tua attività. Sottoscrizione, cambio di piano e disdetta avvengono online.",
+    "checkoutSuccess": "Pagamento ricevuto. Il tuo piano viene attivato non appena Stripe lo conferma, di solito in pochi secondi: aggiorna la pagina se necessario.",
+    "checkoutCancelled": "Sottoscrizione annullata: non è stato effettuato alcun pagamento.",
+    "unavailable": "La sottoscrizione online non è ancora disponibile. Contatta il team per attivare un piano.",
+    "taxNote": "Prezzi mensili IVA esclusa, senza vincoli. Le fatture sono disponibili nel portale di fatturazione."
+  },
+  "plans": {
+    "current": "Piano attuale",
+    "perMonth": "IVA esclusa / mese",
+    "subscribe": "Abbonati",
+    "change": "Cambia piano",
+    "free": {
+      "name": "Gratuito",
+      "tagline": "Il tuo catalogo referenziato, senza costi."
+    },
+    "business": {
+      "name": "Business",
+      "tagline": "Identifica i tuoi potenziali clienti e guadagna visibilità."
+    },
+    "premium": {
+      "name": "Premium",
+      "tagline": "Massima visibilità e assistenza prioritaria."
+    }
+  },
+  "current": {
+    "title": "Il tuo abbonamento",
+    "plan": "Piano",
+    "status": "Stato",
+    "since": "Dal",
+    "renewsOn": "Rinnovo il",
+    "endsOn": "Termina il",
+    "manage": "Gestisci il mio abbonamento",
+    "manual": "Abbonamento gestito dal team della piattaforma. Contattaci per modificarlo.",
+    "pastDue": "L’ultimo pagamento non è andato a buon fine. Stripe riproverà: aggiorna il metodo di pagamento per mantenere il tuo piano.",
+    "cancelScheduled": "Disdetta programmata: il tuo piano resta attivo fino alla fine del periodo in corso."
+  },
+  "status": {
+    "scheduled": "Programmato",
+    "pending": "Pagamento in sospeso",
+    "active": "Attivo",
+    "past_due": "Insoluto",
+    "expired": "Scaduto",
+    "cancelled": "Disdetto"
+  },
+  "features": {
+    "catalogue": {
+      "free": "Catalogo indicizzato nella ricerca",
+      "business": "Catalogo indicizzato nella ricerca",
+      "premium": "Catalogo indicizzato nella ricerca"
+    },
+    "statistics": {
+      "free": "Statistiche anonime (numero di visualizzazioni)",
+      "business": "Statistiche dettagliate, con l’identità delle agenzie",
+      "premium": "Statistiche dettagliate, con l’identità delle agenzie"
+    },
+    "quoteRequests": {
+      "free": "Richieste di preventivo senza l’identità dell’agenzia",
+      "business": "Identità e recapiti delle agenzie nelle richieste",
+      "premium": "Identità e recapiti delle agenzie nelle richieste"
+    },
+    "competitors": {
+      "free": "Prodotti concorrenti mostrati sulle tue pagine",
+      "business": "Nessun prodotto concorrente sulle tue pagine",
+      "premium": "Nessun prodotto concorrente sulle tue pagine"
+    },
+    "ranking": {
+      "free": "Posizionamento naturale dei risultati",
+      "business": "250 punti di posizionamento al mese",
+      "premium": "600 punti di posizionamento al mese"
+    },
+    "superboost": {
+      "free": "Nessun superboost",
+      "business": "Superboost à la carte",
+      "premium": "3 superboost inclusi al mese"
+    },
+    "support": {
+      "free": "Assistenza standard",
+      "business": "Assistenza standard",
+      "premium": "Assistenza e integrazione prioritarie"
+    }
+  },
+  "flash": {
+    "unavailable": "La sottoscrizione online non è al momento disponibile.",
+    "alreadySubscribed": "Hai già un abbonamento in corso: cambia piano dal portale di fatturazione.",
+    "noBillingAccount": "La tua organizzazione non ha un account di fatturazione online.",
+    "paymentPending": "Un pagamento dell’abbonamento è in fase di conferma: completalo dal portale di fatturazione o riprova più tardi."
+  }
+}

@@ -111,6 +111,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/stripe_webhook_controller').default['store']>>>
     }
   }
+  'webhooks.inbound_mail': {
+    methods: ["POST"]
+    pattern: '/webhooks/inbound-mail'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/inbound_mail_webhook_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/inbound_mail_webhook_controller').default['store']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/inbound_mail_webhook_controller').default['store']>>>
+    }
+  }
   'home': {
     methods: ["GET","HEAD"]
     pattern: '/:locale'
@@ -1656,6 +1669,45 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['destroy']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['destroy']>>>
+    }
+  }
+  'supplier.subscription.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/subscription'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['show']>>>
+    }
+  }
+  'supplier.subscription.checkout': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/subscription/checkout'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/subscription').subscriptionCheckoutValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/subscription').subscriptionCheckoutValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['checkout']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['checkout']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['checkout']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.subscription.portal': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/subscription/portal'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['portal']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['portal']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['portal']>>>
     }
   }
   'admin.dashboard': {

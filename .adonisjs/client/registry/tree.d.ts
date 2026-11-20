@@ -23,6 +23,7 @@ export interface ApiDefinition {
   }
   webhooks: {
     stripe: typeof routes['webhooks.stripe']
+    inboundMail: typeof routes['webhooks.inbound_mail']
   }
   home: typeof routes['home']
   suppliers: {
@@ -163,6 +164,11 @@ export interface ApiDefinition {
       update: typeof routes['supplier.ads.update']
       status: typeof routes['supplier.ads.status']
       destroy: typeof routes['supplier.ads.destroy']
+    }
+    subscription: {
+      show: typeof routes['supplier.subscription.show']
+      checkout: typeof routes['supplier.subscription.checkout']
+      portal: typeof routes['supplier.subscription.portal']
     }
   }
   rfqs: {

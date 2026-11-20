@@ -139,6 +139,16 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Abonnements fournisseurs — souscription en ligne (Stripe)
+  |----------------------------------------------------------
+  | Identifiants des prix récurrents mensuels (`price_…`). Optionnels : sans
+  | eux (ou sans `STRIPE_SECRET_KEY`), la souscription en ligne est désactivée.
+  */
+  STRIPE_PRICE_BUSINESS: Env.schema.string.optional(),
+  STRIPE_PRICE_PREMIUM: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
   | Réception des mails entrants (réponses des fournisseurs, ADR 0005)
   |----------------------------------------------------------
   | Toutes optionnelles : sans prestataire, domaine relais et clés, la

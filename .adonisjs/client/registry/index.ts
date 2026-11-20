@@ -54,6 +54,12 @@ const routes = {
     tokens: [[0,"webhooks"],[0,"stripe"]],
     types: placeholder as Registry['webhooks.stripe']['types'],
   },
+  'webhooks.inbound_mail': {
+    methods: ["POST"],
+    pattern: '/webhooks/inbound-mail',
+    tokens: [[0,"webhooks"],[0,"inbound-mail"]],
+    types: placeholder as Registry['webhooks.inbound_mail']['types'],
+  },
   'home': {
     methods: ["GET","HEAD"],
     pattern: '/:locale',
@@ -767,6 +773,24 @@ const routes = {
     pattern: '/:locale/supplier/ads/:id',
     tokens: [[1,"locale"],[0,"supplier"],[0,"ads"],[1,"id"]],
     types: placeholder as Registry['supplier.ads.destroy']['types'],
+  },
+  'supplier.subscription.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/subscription',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"subscription"]],
+    types: placeholder as Registry['supplier.subscription.show']['types'],
+  },
+  'supplier.subscription.checkout': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/subscription/checkout',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"subscription"],[0,"checkout"]],
+    types: placeholder as Registry['supplier.subscription.checkout']['types'],
+  },
+  'supplier.subscription.portal': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/subscription/portal',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"subscription"],[0,"portal"]],
+    types: placeholder as Registry['supplier.subscription.portal']['types'],
   },
   'admin.dashboard': {
     methods: ["GET","HEAD"],

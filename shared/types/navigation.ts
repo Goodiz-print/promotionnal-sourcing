@@ -14,6 +14,7 @@ export const NAVIGATION_ROUTES = [
   'supplier.quotes.index',
   'supplier.orders.index',
   'supplier.ads.index',
+  'supplier.subscription.show',
   'supplier.profile',
   'organization.members',
   'organization.settings',

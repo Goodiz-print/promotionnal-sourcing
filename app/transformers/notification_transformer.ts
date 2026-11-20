@@ -31,7 +31,7 @@ export default class NotificationTransformer extends BaseTransformer<Notificatio
   /** Écran où la notification mène ; retombe sur la liste si le contexte manque. */
   private href(): string {
     const { locale } = this
-    const { rfqId, quoteId, orderId, side } = this.resource.data
+    const { rfqId, quoteId, orderId, organizationId, side } = this.resource.data
 
     switch (this.resource.type) {
       case 'rfq.received':
@@ -66,6 +66,11 @@ export default class NotificationTransformer extends BaseTransformer<Notificatio
         break
       case 'organization.member_joined':
         return urlFor('organization.members', { locale })
+      case 'subscription.duplicate_cancelled':
+        if (typeof organizationId === 'number') {
+          return urlFor('admin.organizations.show', { locale, id: organizationId })
+        }
+        break
       case 'message.warned':
         // Pas d'écran de messagerie côté utilisateur pour l'instant : la liste fait foi.
         break
