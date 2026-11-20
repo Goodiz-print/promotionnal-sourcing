@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */
+ 
 /// <reference path="../manifest.d.ts" />
 
 import type { ExtractBody, ExtractErrorResponse, ExtractQuery, ExtractQueryForGet, ExtractRawResponse, ExtractResponse } from '@tuyau/core/types'
@@ -2631,6 +2631,45 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/moderation_controller').default['decide']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/moderation_controller').default['decide']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/moderation_controller').default['decide']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.supplier_links.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/supplier-links'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_supplier_link').supplierLinkFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.supplier_links.link': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/supplier-links/:id/link'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_supplier_link').supplierLinkValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_supplier_link').supplierLinkValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['link']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['link']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['link']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.supplier_links.unlink': {
+    methods: ["DELETE"]
+    pattern: '/:locale/admin/supplier-links/:id/link'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['unlink']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['unlink']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['unlink']>>>
     }
   }
   'admin.agency_reviews.index': {

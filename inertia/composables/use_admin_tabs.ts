@@ -9,7 +9,7 @@ import type { PlatformPermission } from '#shared/types/user'
 
 /**
  * Onglets du back-office (`BaseTabs`) : tableau de bord, organisations,
- * utilisateurs, produits, catégories, attributs, certifications, techniques de marquage, modération, agences, demandes de devis, devis, commandes, demande des clients, produits sponsorisés, consentements légaux, annonces, imports, IA et traductions, supervision de la queue, état de la recherche, emails, stockage, santé de la plateforme, journal d'audit. Seules les sections dont le rôle
+ * rattachement des fiches fournisseur, utilisateurs, produits, catégories, attributs, certifications, techniques de marquage, modération, agences, demandes de devis, devis, commandes, demande des clients, produits sponsorisés, consentements légaux, annonces, imports, IA et traductions, supervision de la queue, état de la recherche, emails, stockage, santé de la plateforme, journal d'audit. Seules les sections dont le rôle
  * plateforme porte le droit sont affichées. L'onglet courant est déduit de
  * l'URL de la page (`isActivePath`) ; `/admin` étant le parent de toutes les
  * autres sections, il n'est actif que si aucun onglet plus précis ne l'est.
@@ -17,6 +17,11 @@ import type { PlatformPermission } from '#shared/types/user'
 const SECTIONS: { key: string; route: string; permission: PlatformPermission }[] = [
   { key: 'dashboard', route: 'admin.dashboard', permission: 'backoffice.access' },
   { key: 'organizations', route: 'admin.organizations.index', permission: 'organizations.view' },
+  {
+    key: 'supplierLinks',
+    route: 'admin.supplier_links.index',
+    permission: 'organizations.manage',
+  },
   { key: 'users', route: 'admin.users.index', permission: 'users.view' },
   { key: 'products', route: 'admin.products.index', permission: 'products.view' },
   { key: 'categories', route: 'admin.categories.index', permission: 'catalogue.manage' },

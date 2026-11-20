@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */
+ 
 import type { AdonisEndpoint } from '@tuyau/core/types'
 import type { Registry } from './schema.d.ts'
 import type { ApiDefinition } from './tree.d.ts'
@@ -1217,6 +1217,24 @@ const routes = {
     pattern: '/:locale/admin/moderation/:type/:id/decision',
     tokens: [[1,"locale"],[0,"admin"],[0,"moderation"],[1,"type"],[1,"id"],[0,"decision"]],
     types: placeholder as Registry['admin.moderation.decide']['types'],
+  },
+  'admin.supplier_links.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/supplier-links',
+    tokens: [[1,"locale"],[0,"admin"],[0,"supplier-links"]],
+    types: placeholder as Registry['admin.supplier_links.index']['types'],
+  },
+  'admin.supplier_links.link': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/supplier-links/:id/link',
+    tokens: [[1,"locale"],[0,"admin"],[0,"supplier-links"],[1,"id"],[0,"link"]],
+    types: placeholder as Registry['admin.supplier_links.link']['types'],
+  },
+  'admin.supplier_links.unlink': {
+    methods: ["DELETE"],
+    pattern: '/:locale/admin/supplier-links/:id/link',
+    tokens: [[1,"locale"],[0,"admin"],[0,"supplier-links"],[1,"id"],[0,"link"]],
+    types: placeholder as Registry['admin.supplier_links.unlink']['types'],
   },
   'admin.agency_reviews.index': {
     methods: ["GET","HEAD"],

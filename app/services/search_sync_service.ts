@@ -3,6 +3,7 @@ import logger from '@adonisjs/core/services/logger'
 import searchConfig from '#config/search'
 import IndexProductJob from '#jobs/index_product_job'
 import IndexOrganizationProductsJob from '#jobs/index_organization_products_job'
+import IndexSupplierProductsJob from '#jobs/index_supplier_products_job'
 import RefreshSearchSettingsJob from '#jobs/refresh_search_settings_job'
 
 /**
@@ -32,6 +33,19 @@ export default class SearchSyncService {
       await IndexOrganizationProductsJob.dispatch({ organizationId })
     } catch (error) {
       logger.warn({ err: error, organizationId }, 'failed to queue organization indexing')
+    }
+  }
+
+  /**
+   * Met en queue la synchronisation de tous les produits d'une fiche
+   * fournisseur (rattachement ou detachement de son organisation, #231).
+   */
+  async queueSupplier(supplierId: number): Promise<void> {
+    if (!searchConfig.enabled) return
+    try {
+      await IndexSupplierProductsJob.dispatch({ supplierId })
+    } catch (error) {
+      logger.warn({ err: error, supplierId }, 'failed to queue supplier indexing')
     }
   }
 

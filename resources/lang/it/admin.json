@@ -2,6 +2,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "organizations": "Organizzazioni",
+    "supplierLinks": "Collegamento fornitori",
     "users": "Utenti",
     "products": "Prodotti",
     "categories": "Categorie",
@@ -274,6 +275,49 @@
       }
     }
   },
+  "supplierLinks": {
+    "title": "Collegamento delle schede fornitore",
+    "subtitle": "Schede importate in attesa del consenso del fornitore. Collegarle alla sua organizzazione registra il consenso e pubblica il catalogo.",
+    "resultsCount": "{count, plural, =0 {Nessuna scheda} one {# scheda} other {# schede}}",
+    "empty": {
+      "pending": "Nessuna scheda in attesa di consenso.",
+      "linked": "Nessuna scheda collegata."
+    },
+    "emptyDescription": "Cambia filtro o torna dopo la prossima importazione.",
+    "filters": {
+      "status": "Mostra",
+      "pending": "In attesa di consenso",
+      "linked": "Collegate"
+    },
+    "columns": {
+      "supplier": "Scheda fornitore",
+      "products": "Prodotti",
+      "suggestion": "Suggerimento",
+      "organization": "Organizzazione",
+      "linkedTo": "Organizzazione",
+      "agreement": "Consenso",
+      "actions": "Azioni"
+    },
+    "match": {
+      "email": "{name} (stessa email)",
+      "domain": "{name} (stesso dominio)"
+    },
+    "noSuggestion": "Nessuna corrispondenza",
+    "chooseOrganization": "Scegli un'organizzazione",
+    "organizationLabel": "Organizzazione da collegare a {name}",
+    "link": "Collega",
+    "unlink": "Scollega",
+    "confirmUnlink": "Scollegare {name}? I suoi prodotti saranno rimossi dal sito.",
+    "by": "da {email}",
+    "noAgreementDate": "Collegata in precedenza",
+    "linked": "Scheda collegata: il catalogo è pubblicato.",
+    "unlinked": "Scheda scollegata: i prodotti sono rimossi dal sito.",
+    "errors": {
+      "alreadyLinked": "Questa scheda è già collegata a un'organizzazione. Scollegala prima.",
+      "invalidOrganization": "Scegli un'organizzazione fornitore attiva.",
+      "notLinked": "Questa scheda non è collegata a nessuna organizzazione."
+    }
+  },
   "users": {
     "title": "Utenti",
     "subtitle": "Tutti gli account della piattaforma.",
@@ -447,6 +491,8 @@
       "organization.member_removed": "Membro rimosso",
       "organization.invitation_revoked": "Invito revocato",
       "organization.invitation_resent": "Invito reinviato",
+      "supplier.linked": "Scheda fornitore collegata",
+      "supplier.unlinked": "Scheda fornitore scollegata",
       "product.hidden": "Prodotto nascosto",
       "product.unhidden": "Prodotto mostrato",
       "product.unpublished": "Pubblicazione del prodotto annullata",
@@ -495,6 +541,7 @@
       "attribute": "Attributo",
       "attribute_value": "Valore di attributo",
       "organization": "Organizzazione",
+      "supplier": "Scheda fornitore",
       "product": "Prodotto",
       "rfq": "Richiesta di preventivo",
       "certification": "Certificazione",

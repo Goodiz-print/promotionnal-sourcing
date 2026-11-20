@@ -2,6 +2,7 @@
   "nav": {
     "dashboard": "Tableau de bord",
     "organizations": "Organisations",
+    "supplierLinks": "Rattachement fournisseurs",
     "users": "Utilisateurs",
     "products": "Produits",
     "categories": "Catégories",
@@ -274,6 +275,49 @@
       }
     }
   },
+  "supplierLinks": {
+    "title": "Rattachement des fiches fournisseur",
+    "subtitle": "Fiches importées en attente de l'accord du fournisseur. Les rattacher à son organisation vaut accord et publie leur catalogue.",
+    "resultsCount": "{count, plural, =0 {Aucune fiche} one {# fiche} other {# fiches}}",
+    "empty": {
+      "pending": "Aucune fiche en attente d'accord.",
+      "linked": "Aucune fiche rattachée."
+    },
+    "emptyDescription": "Changez de filtre ou revenez après le prochain import.",
+    "filters": {
+      "status": "Affichage",
+      "pending": "En attente d'accord",
+      "linked": "Rattachées"
+    },
+    "columns": {
+      "supplier": "Fiche fournisseur",
+      "products": "Produits",
+      "suggestion": "Proposition",
+      "organization": "Organisation",
+      "linkedTo": "Organisation",
+      "agreement": "Accord",
+      "actions": "Actions"
+    },
+    "match": {
+      "email": "{name} (même email)",
+      "domain": "{name} (même domaine)"
+    },
+    "noSuggestion": "Aucune correspondance",
+    "chooseOrganization": "Choisir une organisation",
+    "organizationLabel": "Organisation à rattacher à {name}",
+    "link": "Rattacher",
+    "unlink": "Détacher",
+    "confirmUnlink": "Détacher {name} ? Ses produits seront retirés du site.",
+    "by": "par {email}",
+    "noAgreementDate": "Rattachement antérieur",
+    "linked": "Fiche rattachée : son catalogue est publié.",
+    "unlinked": "Fiche détachée : ses produits sont retirés du site.",
+    "errors": {
+      "alreadyLinked": "Cette fiche est déjà rattachée à une organisation. Détachez-la d'abord.",
+      "invalidOrganization": "Choisissez une organisation fournisseur active.",
+      "notLinked": "Cette fiche n'est rattachée à aucune organisation."
+    }
+  },
   "users": {
     "title": "Utilisateurs",
     "subtitle": "Tous les comptes de la plateforme.",
@@ -456,6 +500,8 @@
       "organization.member_removed": "Membre retiré",
       "organization.invitation_revoked": "Invitation révoquée",
       "organization.invitation_resent": "Invitation renvoyée",
+      "supplier.linked": "Fiche fournisseur rattachée",
+      "supplier.unlinked": "Fiche fournisseur détachée",
       "product.hidden": "Produit masqué",
       "product.unhidden": "Produit révélé",
       "product.unpublished": "Produit dépublié",
@@ -498,6 +544,7 @@
       "marking_technique": "Technique de marquage",
       "category_attribute": "Attribut de catégorie",
       "organization": "Organisation",
+      "supplier": "Fiche fournisseur",
       "product": "Produit",
       "rfq": "Demande de devis",
       "conversation": "Conversation",

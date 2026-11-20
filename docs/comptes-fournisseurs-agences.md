@@ -66,6 +66,35 @@ sinon les contacts qui couvrent le pays de l'organisation courante du visiteur
 jamais envoyés au navigateur. Les demandes de devis partent toujours à l'adresse
 de réception générale du fournisseur, pas au commercial.
 
+### Rattachement d'une fiche importée (#231)
+
+Une fiche `suppliers` créée par un connecteur de flux (#211) n'a pas
+d'organisation. Le fournisseur n'a ses produits sur le site que s'il a donné son
+accord, et il a alors un compte : le **rattachement** de la fiche à son
+organisation, validé par un admin, vaut cet accord.
+
+- Écran `/:locale/admin/supplier-links` (droit `organizations.manage`, admin
+  seul ; onglet « Rattachement fournisseurs ») : fiches **en attente d'accord**
+  (`organization_id` NULL) et fiches **rattachées**, avec le nombre de produits.
+- Organisation **proposée** automatiquement
+  (`shared/helpers/supplier_link.ts`, calcul pur) parmi les organisations
+  `supplier` non archivées : même email que l'organisation ou qu'un de ses
+  membres, sinon même domaine (email ou site web de la fiche, sous-domaines
+  compris). Un domaine de messagerie grand public (gmail.com…) ne compte jamais.
+- `POST /:locale/admin/supplier-links/:id/link` (`organizationId`) : une fiche
+  n'a **qu'une seule** organisation — une fiche déjà rattachée est refusée, il
+  faut la détacher d'abord ; l'organisation doit être un fournisseur actif.
+  L'accord est daté et signé sur la fiche (`suppliers.linked_at`,
+  `suppliers.linked_by_user_id`) et tracé dans le journal d'audit
+  (`supplier.linked`, cible `supplier`).
+- `DELETE /:locale/admin/supplier-links/:id/link` : détachement, efface
+  l'accord, tracé (`supplier.unlinked`, organisation précédente dans `before`).
+- Dans les deux cas, les produits de la fiche sont réindexés par la queue
+  (`IndexSupplierProductsJob`, après le commit) : les demandes de devis visent
+  l'organisation dès le rattachement (`suppliers.organization_id`).
+- Le masquage public des fiches sans organisation relève de #240 : tant qu'il
+  n'est pas livré, `Supplier.fromLiveOrganization` laisse ces fiches visibles.
+
 ### Agence
 
 `agency_profiles` (1 par organisation) : `activity` (+ `activity_other`),
