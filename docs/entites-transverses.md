@@ -71,7 +71,34 @@ et `OnQuoteSubmitted` envoient aussi le mail : deux canaux indépendants.
   (`notifications.types.<type>`) ; les autres langues retombent sur l'anglais
   (`ENGLISH_FALLBACK_NAMESPACES`).
 - Ajouter un type : une entrée dans `NOTIFICATION_TYPES`, un libellé fr/en, un cas dans
-  `NotificationTransformer#href`, et l'appel dans `InAppNotificationService`.
+  `notificationHref` (`app/transformers/notification_transformer.ts`), et l'appel dans
+  `InAppNotificationService`.
+
+### Rappel par mail des notifications non lues (#243)
+
+Une alerte urgente ne doit pas rester invisible tant que son destinataire ne se connecte
+pas. Certains types sont donc « à rappeler » :
+
+- **Politique** : `NOTIFICATION_EMAIL_FALLBACK` (`shared/types/notification.ts`) associe un
+  type à son délai (`delayMinutes`). Premier type branché :
+  `subscription.duplicate_cancelled`, 30 minutes. Un type absent n'envoie jamais de mail.
+- **Job** : `SendNotificationRemindersJob`, toutes les 5 minutes (`start/scheduler.ts`,
+  planning `send-notification-reminders`, lançable depuis le back-office). Il appelle
+  `NotificationReminderService#sendDue`.
+- **Un seul mail par notification** : une notification non lue, plus vieille que le délai de
+  son type et sans rappel (`email_reminded_at` null) est réservée par un `UPDATE … SET
+email_reminded_at` sur une sélection `FOR UPDATE SKIP LOCKED`, puis le mail est mis en queue
+  dans la même transaction. Deux passes concurrentes ne prennent jamais la même ligne ; un
+  rejeu du mail est absorbé par sa clé d'idempotence (`notification-reminder:notification=<id>`).
+  Une notification lue avant le délai n'envoie rien.
+- **Mail** : `notification-reminder` (`NotificationReminderNotification`). Il reprend le texte
+  de la notification (`notifications.types.<type>`) dans la langue du destinataire et pointe
+  vers le même écran que la cloche (`notificationHref`, préfixé par `appUrl`). Le libellé du
+  type doit donc exister dans les 9 langues.
+- Brancher un type : une entrée dans `NOTIFICATION_EMAIL_FALLBACK` (et son libellé dans les
+  9 `notifications.json`). Ni réglage utilisateur, ni second rappel, ni regroupement.
+- **Index** : `notifications_pending_email_reminder_index`, partiel
+  (`read_at IS NULL AND email_reminded_at IS NULL`) sur `(type, created_at)`.
 
 ## Messagerie (#8)
 

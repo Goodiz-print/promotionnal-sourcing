@@ -20,6 +20,7 @@ import PurgeExpiredInvitationsJob from '#jobs/purge_expired_invitations_job'
 import RecoverStorageUploadsJob from '#jobs/recover_storage_uploads_job'
 import ExpireRfqsJob from '#jobs/expire_rfqs_job'
 import RemindRfqSuppliersJob from '#jobs/remind_rfq_suppliers_job'
+import SendNotificationRemindersJob from '#jobs/send_notification_reminders_job'
 import PurgeSearchEventsJob from '#jobs/purge_search_events_job'
 import PurgeAiCallsJob from '#jobs/purge_ai_calls_job'
 import PurgeActivityEventsJob from '#jobs/purge_activity_events_job'
@@ -126,3 +127,14 @@ await CheckPlatformHealthJob.schedule({}).id('check-platform-health').cron('*/5 
  * seraient perdus : le prestataire ne relance pas un webhook qui a répondu 200.
  */
 await RecoverInboundMailsJob.schedule({}).id('recover-inbound-mails').cron('*/15 * * * *').run()
+
+/**
+ * Rappel par mail des notifications importantes non lues, toutes les 5 minutes
+ * (#243) : un type de `NOTIFICATION_EMAIL_FALLBACK` resté non lu au-delà de son
+ * délai déclenche un seul mail vers son destinataire. Une passe toutes les
+ * 5 minutes fait partir le rappel au plus 5 minutes après l'échéance.
+ */
+await SendNotificationRemindersJob.schedule({})
+  .id('send-notification-reminders')
+  .cron('*/5 * * * *')
+  .run()

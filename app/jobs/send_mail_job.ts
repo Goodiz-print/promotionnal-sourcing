@@ -9,6 +9,7 @@ import MailDeliveryService from '#services/mail_delivery_service'
 import MailDeliveryFailed from '#events/mail_delivery_failed'
 import AgencyReviewDecisionNotification from '#mails/agency_review_decision_notification'
 import AnnouncementNotification from '#mails/announcement_notification'
+import NotificationReminderNotification from '#mails/notification_reminder_notification'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
 import ContactRequestNotification from '#mails/contact_request_notification'
 import EmailVerificationNotification from '#mails/email_verification_notification'
@@ -189,6 +190,14 @@ export default class SendMailJob extends Job<SendMailPayload> {
         )
       case MAIL_KINDS.announcement:
         return new AnnouncementNotification(to, data.title, data.body, locale)
+      case MAIL_KINDS.notificationReminder:
+        return new NotificationReminderNotification(
+          to,
+          data.notificationType,
+          data.notificationData,
+          data.path,
+          locale
+        )
       case MAIL_KINDS.contactRequest:
         return new ContactRequestNotification(to, data)
       default:

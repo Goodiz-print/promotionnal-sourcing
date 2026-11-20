@@ -78,5 +78,12 @@
   "announcement": {
     "footer": "You are receiving this message because you have an account on {brandName}.",
     "cta": "Open {brandName}"
+  },
+  "notificationReminder": {
+    "subject": "Action needed: an important notification is still unread",
+    "title": "An important notification is waiting for you",
+    "intro": "This notification was sent to you on {brandName} and has not been read yet:",
+    "cta": "Open the related page",
+    "footer": "You receive this reminder only once. It is not sent once the notification has been read."
   }
 }

@@ -1,0 +1,14 @@
+@let(title = t('emails.notificationReminder.title'))
+@component('emails/layout', {
+  title,
+  locale,
+  i18n,
+  footer: t('emails.notificationReminder.footer'),
+})
+  <p>{{ t('emails.notificationReminder.intro', { brandName }) }}</p>
+  <p><strong>{{ message }}</strong></p>
+
+  <p>
+    <a class="button" href="{{ appUrl }}{{ path }}">{{ t('emails.notificationReminder.cta') }}</a>
+  </p>
+@end

@@ -50,3 +50,20 @@ export type NotificationItemType = {
   createdAt: string
   href: string
 }
+
+/** Politique de rappel par mail d'un type de notification (#243). */
+export interface NotificationEmailFallbackPolicy {
+  /** Délai (minutes) après la création au-delà duquel une notification non lue déclenche le mail. */
+  delayMinutes: number
+}
+
+/**
+ * Types « à rappeler » : une notification de ces types encore non lue après
+ * `delayMinutes` déclenche **un seul** mail de rappel vers son destinataire.
+ * Un type absent de cette table n'envoie jamais de mail.
+ */
+export const NOTIFICATION_EMAIL_FALLBACK: Partial<
+  Record<NotificationType, NotificationEmailFallbackPolicy>
+> = {
+  'subscription.duplicate_cancelled': { delayMinutes: 30 },
+}
