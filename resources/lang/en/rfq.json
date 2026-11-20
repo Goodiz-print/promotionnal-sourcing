@@ -156,7 +156,8 @@
     },
     "errors": {
       "notDecidable": "This request no longer awaits a decision from you."
-    }
+    },
+    "anonymousBuyer": "Anonymous agency"
   },
   "product": {
     "label": "Add a product from the catalogue",

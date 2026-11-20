@@ -36,5 +36,13 @@
     "subscription": {
       "duplicate_cancelled": "{organizationName} pagou duas assinaturas em simultâneo: o duplicado {cancelledSubscriptionId} foi cancelado no Stripe. Reembolse o pagamento no painel do Stripe."
     }
+  },
+  "anonymous": {
+    "rfq": {
+      "received": "Uma agência enviou-lhe um pedido de orçamento: {rfqTitle}."
+    },
+    "quote": {
+      "rejected": "Uma agência rejeitou o seu orçamento para {rfqTitle}."
+    }
   }
 }

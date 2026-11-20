@@ -16,7 +16,12 @@
     "body": "{buyerName} bittet Sie um ein Angebot für die Anfrage „{rfqTitle}“ ({itemCount, plural, one {# Position} other {# Positionen}}).",
     "deadline": "Bitte antworten Sie bis zum {deadline}.",
     "cta": "Anfrage ansehen",
-    "footer": "Melden Sie sich in Ihrem Lieferantenbereich an, um die Anfrage anzusehen oder abzulehnen."
+    "footer": "Melden Sie sich in Ihrem Lieferantenbereich an, um die Anfrage anzusehen oder abzulehnen.",
+    "anonymous": {
+      "subject": "Neue Angebotsanfrage",
+      "title": "Eine Agentur fragt Sie auf {brandName} an",
+      "body": "Eine Agentur bittet Sie um ein Angebot für die Anfrage „{rfqTitle}“ ({itemCount, plural, one {# Position} other {# Positionen}})."
+    }
   },
   "passwordReset": {
     "subject": "Passwort zurücksetzen",
@@ -46,7 +51,10 @@
     "body": "{buyerName} hat Ihnen die Anfrage „{rfqTitle}“ gesendet, und Sie haben sie noch nicht geöffnet.",
     "deadline": "Bitte antworten Sie bis zum {deadline}.",
     "cta": "Anfrage ansehen",
-    "footer": "Dies ist die einzige Erinnerung zu dieser Anfrage. Sie können sie auch in Ihrem Lieferantenbereich ablehnen."
+    "footer": "Dies ist die einzige Erinnerung zu dieser Anfrage. Sie können sie auch in Ihrem Lieferantenbereich ablehnen.",
+    "anonymous": {
+      "body": "Eine Agentur hat Ihnen die Anfrage „{rfqTitle}“ gesendet, und Sie haben sie noch nicht geöffnet."
+    }
   },
   "rfqDetails": {
     "description": "Beschreibung der Anfrage",
@@ -131,5 +139,10 @@
     "cta": "Adresse bestätigen",
     "validity": "Dieser Link ist {days, plural, one {# Tag} other {# Tage}} gültig.",
     "ignore": "Wenn Sie nicht für {organizationName} arbeiten, ignorieren Sie diese Nachricht: Ihnen wird keine Anfrage gesendet."
+  },
+  "subscriptionUpsell": {
+    "title": "Abonnieren Sie, um die Agentur kennenzulernen",
+    "body": "Abonnieren Sie, um zu erfahren, welche Agentur Sie anfragt, und sie direkt zu kontaktieren.",
+    "cta": "Abonnements ansehen"
   }
 }

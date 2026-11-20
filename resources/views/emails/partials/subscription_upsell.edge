@@ -1,0 +1,12 @@
+{{-- Encart d'abonnement d'une demande anonyme (#222) : seulement pour un fournisseur non abonné. --}}
+@if(subscribePath)
+  <div
+    style="margin:24px 0;padding:16px;border:1px solid #c7d2fe;border-radius:8px;background:#eef2ff"
+  >
+    <p style="margin:0 0 8px;font-weight:600;color:#111827">
+      {{ t('emails.subscriptionUpsell.title') }}
+    </p>
+    <p style="margin:0 0 12px">{{ t('emails.subscriptionUpsell.body') }}</p>
+    <a href="{{ appUrl }}{{ subscribePath }}">{{ t('emails.subscriptionUpsell.cta') }}</a>
+  </div>
+@end

@@ -16,7 +16,12 @@
     "body": "{buyerName} invites you to quote on the request “{rfqTitle}” ({itemCount, plural, one {# line} other {# lines}}).",
     "deadline": "Please reply before {deadline}.",
     "cta": "View the request",
-    "footer": "Sign in to your supplier area to view the request or decline it."
+    "footer": "Sign in to your supplier area to view the request or decline it.",
+    "anonymous": {
+      "subject": "New request for quotation",
+      "title": "An agency is consulting you on {brandName}",
+      "body": "An agency invites you to quote on the request “{rfqTitle}” ({itemCount, plural, one {# line} other {# lines}})."
+    }
   },
   "passwordReset": {
     "subject": "Reset your password",
@@ -46,7 +51,10 @@
     "body": "{buyerName} sent you the request “{rfqTitle}” and you have not opened it yet.",
     "deadline": "Please reply before {deadline}.",
     "cta": "View the request",
-    "footer": "This is the only reminder for this request. You can also decline it from your supplier area."
+    "footer": "This is the only reminder for this request. You can also decline it from your supplier area.",
+    "anonymous": {
+      "body": "An agency sent you the request “{rfqTitle}” and you have not opened it yet."
+    }
   },
   "rfqDetails": {
     "description": "Request description",
@@ -131,5 +139,10 @@
     "cta": "Confirm the address",
     "validity": "This link is valid for {days, plural, one {# day} other {# days}}.",
     "ignore": "If you do not work for {organizationName}, ignore this message: no request will be sent to you."
+  },
+  "subscriptionUpsell": {
+    "title": "Subscribe to find out who the agency is",
+    "body": "Subscribe to find out which agency is consulting you and contact it directly.",
+    "cta": "See subscription plans"
   }
 }

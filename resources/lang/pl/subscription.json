@@ -87,5 +87,11 @@
     "alreadySubscribed": "Masz już aktywną subskrypcję: zmień plan w portalu rozliczeń.",
     "noBillingAccount": "Twoja organizacja nie ma konta rozliczeń online.",
     "paymentPending": "Płatność za subskrypcję jest wciąż potwierdzana: dokończ ją w portalu rozliczeń lub spróbuj ponownie później."
+  },
+  "upsell": {
+    "title": "Wykup subskrypcję, aby poznać agencję",
+    "body": "Wykup subskrypcję, aby dowiedzieć się, która agencja wysyła Ci zapytanie, i skontaktować się z nią bezpośrednio.",
+    "askAdmin": "Właściciel lub administrator Twojej organizacji może wykupić subskrypcję, aby poznać agencję i skontaktować się z nią bezpośrednio.",
+    "cta": "Zobacz subskrypcje"
   }
 }

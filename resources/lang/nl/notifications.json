@@ -36,5 +36,13 @@
     "subscription": {
       "duplicate_cancelled": "{organizationName} heeft twee abonnementen tegelijk betaald: het dubbele abonnement {cancelledSubscriptionId} is in Stripe opgezegd. Betaal de betaling terug via het Stripe-dashboard."
     }
+  },
+  "anonymous": {
+    "rfq": {
+      "received": "Een bureau heeft u een offerteaanvraag gestuurd: {rfqTitle}."
+    },
+    "quote": {
+      "rejected": "Een bureau heeft uw offerte voor {rfqTitle} afgewezen."
+    }
   }
 }

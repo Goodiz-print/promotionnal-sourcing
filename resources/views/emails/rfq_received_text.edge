@@ -1,11 +1,12 @@
-{{{ t('emails.rfqReceived.title', { buyerName, brandName }) }}}
+{{{ title }}}
 
-{{{ t('emails.rfqReceived.body', { buyerName, rfqTitle, itemCount }) }}}
+{{{ intro }}}
 @if(deadline)
 {{{ t('emails.rfqReceived.deadline', { deadline }) }}}
 @end
 
 @include('emails/partials/rfq_details_text')
+@include('emails/partials/subscription_upsell_text')
 @if(canReply)
 {{{ t('emails.rfqDetails.replyHint') }}}
 

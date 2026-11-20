@@ -87,5 +87,11 @@
     "alreadySubscribed": "Hai già un abbonamento in corso: cambia piano dal portale di fatturazione.",
     "noBillingAccount": "La tua organizzazione non ha un account di fatturazione online.",
     "paymentPending": "Un pagamento dell’abbonamento è in fase di conferma: completalo dal portale di fatturazione o riprova più tardi."
+  },
+  "upsell": {
+    "title": "Abbonatevi per conoscere l'agenzia",
+    "body": "Abbonatevi per sapere quale agenzia vi consulta e contattarla direttamente.",
+    "askAdmin": "Un proprietario o un amministratore della vostra organizzazione può sottoscrivere un abbonamento per conoscere l'agenzia e contattarla direttamente.",
+    "cta": "Scopri gli abbonamenti"
   }
 }

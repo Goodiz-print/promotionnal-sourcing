@@ -3,6 +3,7 @@ import { inject } from '@adonisjs/core'
 import OrganizationContextService from '#services/organization_context_service'
 import QuoteService from '#services/quote_service'
 import RfqService from '#services/rfq_service'
+import SubscriptionService from '#services/subscription_service'
 import QuoteTransformer from '#transformers/quote_transformer'
 import SupplierRfqDetailTransformer from '#transformers/supplier_rfq_detail_transformer'
 import { quoteValidator } from '#validators/quote'
@@ -34,14 +35,16 @@ const QUOTE_ERRORS = [
  * Devis rédigés par l'organisation fournisseuse. Controller fin :
  * organisation courante → autorisation (`canRespondToRfq`) → `QuoteService`.
  * Le cloisonnement est porté par le service (un devis d'une autre organisation
- * est un 404).
+ * est un 404). La demande rappelée sur le formulaire masque l'agence à un
+ * fournisseur non abonné (#220), comme l'écran « Demandes reçues ».
  */
 @inject()
 export default class SupplierQuotesController {
   constructor(
     private service: QuoteService,
     private rfqs: RfqService,
-    private organizations: OrganizationContextService
+    private organizations: OrganizationContextService,
+    private subscriptions: SubscriptionService
   ) {}
 
   /**
@@ -64,7 +67,10 @@ export default class SupplierQuotesController {
     const org = await this.currentOrganization({ auth, bouncer })
     const rfq = await this.rfqs.findForSupplier(Number(params.rfqId), org.id)
 
-    const live = await this.service.findLiveForRfq(rfq.id, org.id)
+    const [live, revealBuyer] = await Promise.all([
+      this.service.findLiveForRfq(rfq.id, org.id),
+      this.subscriptions.isSubscribed(org.id),
+    ])
     if (live) {
       return response.redirect().toRoute('supplier.quotes.show', {
         locale: i18n.locale,
@@ -73,7 +79,7 @@ export default class SupplierQuotesController {
     }
 
     return inertia.render('supplier/quotes/edit', {
-      rfq: new SupplierRfqDetailTransformer(rfq, i18n.locale as Locale).toObject(),
+      rfq: new SupplierRfqDetailTransformer(rfq, revealBuyer, i18n.locale as Locale).toObject(),
       quote: null,
       canEdit: this.rfqs.acceptsResponses(rfq),
     })
@@ -86,10 +92,13 @@ export default class SupplierQuotesController {
   async show({ auth, bouncer, inertia, params, i18n }: HttpContext) {
     const org = await this.currentOrganization({ auth, bouncer })
     const quote = await this.service.findForSupplier(Number(params.id), org.id)
-    const rfq = await this.rfqs.findForSupplier(quote.rfqId, org.id)
+    const [rfq, revealBuyer] = await Promise.all([
+      this.rfqs.findForSupplier(quote.rfqId, org.id),
+      this.subscriptions.isSubscribed(org.id),
+    ])
 
     return inertia.render('supplier/quotes/edit', {
-      rfq: new SupplierRfqDetailTransformer(rfq, i18n.locale as Locale).toObject(),
+      rfq: new SupplierRfqDetailTransformer(rfq, revealBuyer, i18n.locale as Locale).toObject(),
       quote: new QuoteTransformer(quote).toObject(),
       canEdit: quote.status === 'draft' && this.rfqs.acceptsResponses(rfq),
     })

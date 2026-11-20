@@ -279,7 +279,35 @@ seul domaine, vu des deux côtés.
   dire qu'il accepte de l'afficher à ceux qui la chiffrent ;
 - **pas de liste des destinataires** — un fournisseur consulté n'a pas à savoir
   qui d'autre l'est, ni qui a déjà répondu. Seule _sa_ ligne `rfq_suppliers`
-  est exposée, sous le nom `myStatus`.
+  est exposée, sous le nom `myStatus` ;
+- **pas d'agence pour un fournisseur non abonné** (#220) — voir ci-dessous.
+
+### Anonymat de l'agence pour un fournisseur non abonné (#220, #222)
+
+Sans abonnement, la demande est **anonyme** : le fournisseur ne sait pas quelle
+agence le consulte et n'a pas ses coordonnées. La règle est celle de
+`SubscriptionService#isSubscribed` (cf. `docs/abonnements.md`), jamais recalculée
+ailleurs.
+
+| Canal                                                             | Ce que voit un non abonné                                                                                        | Quand la règle est lue |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| Écrans « Demandes reçues » (liste, détail) et formulaire de devis | `buyerName` et `buyerLogoUrl` à `null`, mention « Agence anonyme », encart d'abonnement (prop `upsell`)          | à chaque lecture       |
+| Mail de demande et relance                                        | objet, titre et introduction sans le nom de l'agence ; encart « abonnez-vous » vers `supplier.subscription.show` | à la mise en queue     |
+| Notifications `rfq.received`, `quote.rejected`                    | `buyerName` absent des données ; libellé `notifications.anonymous.*` (`notificationMessageKey`)                  | à la création          |
+
+- La décision se prend **côté serveur** : `SupplierRfqTransformer` reçoit
+  `revealBuyer` (faux par défaut) et n'envoie pas la donnée au navigateur.
+- Les écrans suivent l'abonnement : s'abonner révèle l'agence sur les demandes
+  déjà reçues, l'expiration la masque de nouveau. Un mail ou une notification
+  déjà partis restent tels qu'ils ont été écrits.
+- L'encart (`SubscriptionUpsell`) propose de souscrire à un propriétaire ou un
+  administrateur (`canManageSubscription`) ; il invite les autres à passer par
+  eux.
+- `quote.accepted` et les notifications de commande nomment l'agence : elle passe
+  commande et se fait donc connaître.
+- **Limite acceptée** (décision client du 16/11/2026) : le titre, la description
+  ou une signature saisis par l'agence peuvent la nommer. Ni filtrage, ni
+  avertissement.
 
 Le cloisonnement lui-même est porté par le service : `listForSupplier` et
 `findForSupplier` filtrent sur l'organisation destinataire **et** excluent les

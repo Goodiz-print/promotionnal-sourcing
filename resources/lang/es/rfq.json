@@ -156,7 +156,8 @@
     },
     "errors": {
       "notDecidable": "Esta solicitud ya no espera una decisión por su parte."
-    }
+    },
+    "anonymousBuyer": "Agencia anónima"
   },
   "product": {
     "label": "Añadir un producto del catálogo",

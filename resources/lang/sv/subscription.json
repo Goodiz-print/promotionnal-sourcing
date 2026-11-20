@@ -87,5 +87,11 @@
     "alreadySubscribed": "Du har redan ett pågående abonnemang: byt plan i faktureringsportalen.",
     "noBillingAccount": "Din organisation har inget faktureringskonto online.",
     "paymentPending": "En prenumerationsbetalning bekräftas fortfarande: slutför den i faktureringsportalen eller försök igen senare."
+  },
+  "upsell": {
+    "title": "Prenumerera för att se vilken byrå det är",
+    "body": "Prenumerera för att se vilken byrå som kontaktar dig och kontakta den direkt.",
+    "askAdmin": "En ägare eller administratör i din organisation kan teckna en prenumeration för att se vilken byrå det är och kontakta den direkt.",
+    "cta": "Se prenumerationerna"
   }
 }

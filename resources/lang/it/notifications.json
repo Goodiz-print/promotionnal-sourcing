@@ -36,5 +36,13 @@
     "subscription": {
       "duplicate_cancelled": "{organizationName} ha pagato due abbonamenti contemporaneamente: il duplicato {cancelledSubscriptionId} è stato annullato su Stripe. Rimborsa il pagamento dalla dashboard di Stripe."
     }
+  },
+  "anonymous": {
+    "rfq": {
+      "received": "Un'agenzia vi ha inviato una richiesta di preventivo: {rfqTitle}."
+    },
+    "quote": {
+      "rejected": "Un'agenzia ha rifiutato il vostro preventivo per {rfqTitle}."
+    }
   }
 }

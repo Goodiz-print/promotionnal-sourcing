@@ -6,7 +6,7 @@ import { RfqItemFactory } from '#database/factories/rfq_item_factory'
 import { RfqSupplierFactory } from '#database/factories/rfq_supplier_factory'
 import type Rfq from '#models/rfq'
 import RfqSupplier from '#models/rfq_supplier'
-import { createMember } from '#tests/utils/organizations'
+import { createMember, subscribeOrganization } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
 import type Organization from '#models/organization'
 import type { RfqSupplierStatus } from '#shared/types/rfq'
@@ -54,6 +54,7 @@ test.group('Écrans RFQ — fournisseur', (group) => {
     const owner = await createMember(supplier, 'owner')
     const buyer = await OrganizationFactory.create()
     const other = await OrganizationFactory.apply('supplier').create()
+    await subscribeOrganization(supplier)
 
     await publishedRfq(buyer, supplier)
     await publishedRfq(buyer, other)

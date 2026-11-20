@@ -11,15 +11,19 @@ import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import RfqItemList from '~/components/rfqs/rfq_item_list.vue'
 import SupplierRfqMetaPills from '~/components/rfqs/supplier_rfq_meta_pills.vue'
+import SubscriptionUpsell from '~/components/subscription/subscription_upsell.vue'
 import { RFQ_SUPPLIER_STATUS_TONES } from '~/components/rfqs/types'
 import { QUOTE_STATUS_TONES } from '~/components/quotes/types'
 import type { RfqQuoteSummaryType } from '#shared/types/quote'
 import type { SupplierRfqDetailType } from '#shared/types/rfq'
+import type { SubscriptionUpsellType } from '#shared/types/subscription'
 
 const props = defineProps<{
   rfq: SupplierRfqDetailType
   quote: RfqQuoteSummaryType | null
   canQuote: boolean
+  /** Encart d'abonnement à la place de l'agence, masquée à un non abonné (#220, #222). */
+  upsell: SubscriptionUpsellType | null
 }>()
 
 const { t, locale } = useI18n()
@@ -77,6 +81,8 @@ function decline() {
         </BaseLinkButton>
       </template>
     </BasePageHeader>
+
+    <SubscriptionUpsell v-if="upsell" :upsell="upsell" />
 
     <BaseAlert v-if="rfq.myStatus === 'declined'" tone="danger">
       {{ t('rfq.supplier.show.declinedNotice') }}

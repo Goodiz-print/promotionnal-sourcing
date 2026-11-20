@@ -1,4 +1,3 @@
-@let(title = t('emails.rfqReceived.title', { buyerName, brandName }))
 @component('emails/layout', {
   title,
   locale,
@@ -6,11 +5,12 @@
   replyable: canReply,
   footer: t('emails.rfqReceived.footer'),
 })
-  <p>{{ t('emails.rfqReceived.body', { buyerName, rfqTitle, itemCount }) }}</p>
+  <p>{{ intro }}</p>
   @if(deadline)
     <p>{{ t('emails.rfqReceived.deadline', { deadline }) }}</p>
   @end
   @include('emails/partials/rfq_details')
+  @include('emails/partials/subscription_upsell')
   @if(canReply)
     <p><strong>{{ t('emails.rfqDetails.replyHint') }}</strong></p>
   @end

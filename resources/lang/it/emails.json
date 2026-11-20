@@ -16,7 +16,12 @@
     "body": "{buyerName} ti invita a quotare la richiesta «{rfqTitle}» ({itemCount, plural, one {# riga} other {# righe}}).",
     "deadline": "Risposta attesa entro il {deadline}.",
     "cta": "Consulta la richiesta",
-    "footer": "Accedi alla tua area fornitore per consultare la richiesta o rifiutarla."
+    "footer": "Accedi alla tua area fornitore per consultare la richiesta o rifiutarla.",
+    "anonymous": {
+      "subject": "Nuova richiesta di preventivo",
+      "title": "Un'agenzia vi consulta su {brandName}",
+      "body": "Un'agenzia vi invita a quotare la richiesta «{rfqTitle}» ({itemCount, plural, one {# riga} other {# righe}})."
+    }
   },
   "passwordReset": {
     "subject": "Reimposta la tua password",
@@ -46,7 +51,10 @@
     "body": "{buyerName} ti ha inviato la richiesta «{rfqTitle}» e non l'hai ancora consultata.",
     "deadline": "Risposta attesa entro il {deadline}.",
     "cta": "Consulta la richiesta",
-    "footer": "Questo è l'unico promemoria per questa richiesta. Puoi anche rifiutarla dalla tua area fornitore."
+    "footer": "Questo è l'unico promemoria per questa richiesta. Puoi anche rifiutarla dalla tua area fornitore.",
+    "anonymous": {
+      "body": "Un'agenzia vi ha inviato la richiesta «{rfqTitle}» e non l'avete ancora consultata."
+    }
   },
   "rfqDetails": {
     "description": "Descrizione della richiesta",
@@ -131,5 +139,10 @@
     "cta": "Conferma l'indirizzo",
     "validity": "Questo link è valido {days, plural, one {# giorno} other {# giorni}}.",
     "ignore": "Se non lavorate per {organizationName}, ignorate questo messaggio: non vi verrà inviata alcuna richiesta."
+  },
+  "subscriptionUpsell": {
+    "title": "Abbonatevi per conoscere l'agenzia",
+    "body": "Abbonatevi per sapere quale agenzia vi consulta e contattarla direttamente.",
+    "cta": "Scopri gli abbonamenti"
   }
 }

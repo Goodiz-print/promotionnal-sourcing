@@ -87,5 +87,11 @@
     "alreadySubscribed": "Já tem uma assinatura em curso: mude de plano no portal de faturação.",
     "noBillingAccount": "A sua organização não tem conta de faturação online.",
     "paymentPending": "Um pagamento de assinatura ainda está a ser confirmado: conclua-o no portal de faturação ou tente mais tarde."
+  },
+  "upsell": {
+    "title": "Subscreva para conhecer a agência",
+    "body": "Subscreva para saber que agência o consulta e contactá-la diretamente.",
+    "askAdmin": "Um proprietário ou administrador da sua organização pode subscrever para conhecer a agência e contactá-la diretamente.",
+    "cta": "Ver as assinaturas"
   }
 }

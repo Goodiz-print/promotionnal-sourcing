@@ -16,7 +16,12 @@
     "body": "{buyerName} ber dig lämna offert på förfrågan ”{rfqTitle}” ({itemCount, plural, one {# rad} other {# rader}}).",
     "deadline": "Svar önskas senast {deadline}.",
     "cta": "Visa förfrågan",
-    "footer": "Logga in i ditt leverantörsområde för att visa förfrågan eller avböja den."
+    "footer": "Logga in i ditt leverantörsområde för att visa förfrågan eller avböja den.",
+    "anonymous": {
+      "subject": "Ny offertförfrågan",
+      "title": "En byrå kontaktar dig på {brandName}",
+      "body": "En byrå bjuder in dig att lämna offert på förfrågan ”{rfqTitle}” ({itemCount, plural, one {# rad} other {# rader}})."
+    }
   },
   "passwordReset": {
     "subject": "Återställ ditt lösenord",
@@ -46,7 +51,10 @@
     "body": "{buyerName} har skickat förfrågan ”{rfqTitle}” till dig och du har inte öppnat den än.",
     "deadline": "Svar önskas senast {deadline}.",
     "cta": "Visa förfrågan",
-    "footer": "Detta är den enda påminnelsen för den här förfrågan. Du kan också avböja den i ditt leverantörsområde."
+    "footer": "Detta är den enda påminnelsen för den här förfrågan. Du kan också avböja den i ditt leverantörsområde.",
+    "anonymous": {
+      "body": "En byrå har skickat förfrågan ”{rfqTitle}” till dig och du har ännu inte öppnat den."
+    }
   },
   "rfqDetails": {
     "description": "Beskrivning av förfrågan",
@@ -131,5 +139,10 @@
     "cta": "Bekräfta adressen",
     "validity": "Länken är giltig i {days, plural, one {# dag} other {# dagar}}.",
     "ignore": "Om ni inte arbetar för {organizationName} kan ni ignorera meddelandet: inga förfrågningar skickas till er."
+  },
+  "subscriptionUpsell": {
+    "title": "Prenumerera för att se vilken byrå det är",
+    "body": "Prenumerera för att se vilken byrå som kontaktar dig och kontakta den direkt.",
+    "cta": "Se prenumerationerna"
   }
 }

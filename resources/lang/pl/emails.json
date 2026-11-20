@@ -16,7 +16,12 @@
     "body": "{buyerName} prosi o wycenę zapytania „{rfqTitle}” ({itemCount, plural, one {# pozycja} few {# pozycje} many {# pozycji} other {# pozycji}}).",
     "deadline": "Odpowiedź oczekiwana do {deadline}.",
     "cta": "Zobacz zapytanie",
-    "footer": "Zaloguj się do panelu dostawcy, aby zobaczyć zapytanie lub je odrzucić."
+    "footer": "Zaloguj się do panelu dostawcy, aby zobaczyć zapytanie lub je odrzucić.",
+    "anonymous": {
+      "subject": "Nowe zapytanie ofertowe",
+      "title": "Agencja wysyła Ci zapytanie w {brandName}",
+      "body": "Agencja zaprasza Cię do wyceny zapytania „{rfqTitle}” ({itemCount, plural, one {# pozycja} few {# pozycje} many {# pozycji} other {# pozycji}})."
+    }
   },
   "passwordReset": {
     "subject": "Zresetuj hasło",
@@ -46,7 +51,10 @@
     "body": "{buyerName} wysłał(a) do Ciebie zapytanie „{rfqTitle}”, którego jeszcze nie otworzyłeś(-aś).",
     "deadline": "Odpowiedź oczekiwana do {deadline}.",
     "cta": "Zobacz zapytanie",
-    "footer": "To jedyne przypomnienie dotyczące tego zapytania. Możesz je także odrzucić w panelu dostawcy."
+    "footer": "To jedyne przypomnienie dotyczące tego zapytania. Możesz je także odrzucić w panelu dostawcy.",
+    "anonymous": {
+      "body": "Agencja wysłała Ci zapytanie „{rfqTitle}”, a Ty jeszcze go nie otworzyłeś."
+    }
   },
   "rfqDetails": {
     "description": "Opis zapytania",
@@ -131,5 +139,10 @@
     "cta": "Potwierdź adres",
     "validity": "Ten link jest ważny przez {days, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}.",
     "ignore": "Jeśli nie pracujesz dla {organizationName}, zignoruj tę wiadomość: nie otrzymasz żadnych zapytań."
+  },
+  "subscriptionUpsell": {
+    "title": "Wykup subskrypcję, aby poznać agencję",
+    "body": "Wykup subskrypcję, aby dowiedzieć się, która agencja wysyła Ci zapytanie, i skontaktować się z nią bezpośrednio.",
+    "cta": "Zobacz subskrypcje"
   }
 }

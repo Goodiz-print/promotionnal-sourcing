@@ -16,7 +16,12 @@
     "body": "{buyerName} convida-o a orçamentar o pedido «{rfqTitle}» ({itemCount, plural, one {# linha} other {# linhas}}).",
     "deadline": "Resposta esperada até {deadline}.",
     "cta": "Consultar o pedido",
-    "footer": "Inicie sessão na sua área de fornecedor para consultar o pedido ou recusá-lo."
+    "footer": "Inicie sessão na sua área de fornecedor para consultar o pedido ou recusá-lo.",
+    "anonymous": {
+      "subject": "Novo pedido de orçamento",
+      "title": "Uma agência consulta-o em {brandName}",
+      "body": "Uma agência convida-o a orçamentar o pedido «{rfqTitle}» ({itemCount, plural, one {# linha} other {# linhas}})."
+    }
   },
   "passwordReset": {
     "subject": "Redefinição da sua palavra-passe",
@@ -46,7 +51,10 @@
     "body": "{buyerName} enviou-lhe o pedido «{rfqTitle}» e ainda não o consultou.",
     "deadline": "Resposta esperada até {deadline}.",
     "cta": "Consultar o pedido",
-    "footer": "Este é o único lembrete para este pedido. Pode também recusá-lo na sua área de fornecedor."
+    "footer": "Este é o único lembrete para este pedido. Pode também recusá-lo na sua área de fornecedor.",
+    "anonymous": {
+      "body": "Uma agência enviou-lhe o pedido «{rfqTitle}» e ainda não o consultou."
+    }
   },
   "rfqDetails": {
     "description": "Descrição do pedido",
@@ -131,5 +139,10 @@
     "cta": "Confirmar o endereço",
     "validity": "Este link é válido durante {days, plural, one {# dia} other {# dias}}.",
     "ignore": "Se não trabalha para {organizationName}, ignore esta mensagem: não lhe será enviado nenhum pedido."
+  },
+  "subscriptionUpsell": {
+    "title": "Subscreva para conhecer a agência",
+    "body": "Subscreva para saber que agência o consulta e contactá-la diretamente.",
+    "cta": "Ver as assinaturas"
   }
 }

@@ -16,7 +16,12 @@
     "body": "{buyerName} nodigt u uit een offerte uit te brengen voor de aanvraag “{rfqTitle}” ({itemCount, plural, one {# regel} other {# regels}}).",
     "deadline": "Antwoord verwacht vóór {deadline}.",
     "cta": "Aanvraag bekijken",
-    "footer": "Meld u aan in uw leveranciersomgeving om de aanvraag te bekijken of af te wijzen."
+    "footer": "Meld u aan in uw leveranciersomgeving om de aanvraag te bekijken of af te wijzen.",
+    "anonymous": {
+      "subject": "Nieuwe offerteaanvraag",
+      "title": "Een bureau raadpleegt u op {brandName}",
+      "body": "Een bureau nodigt u uit een offerte te maken voor de aanvraag „{rfqTitle}” ({itemCount, plural, one {# regel} other {# regels}})."
+    }
   },
   "passwordReset": {
     "subject": "Uw wachtwoord opnieuw instellen",
@@ -46,7 +51,10 @@
     "body": "{buyerName} heeft u de aanvraag “{rfqTitle}” gestuurd en u hebt die nog niet geopend.",
     "deadline": "Antwoord verwacht vóór {deadline}.",
     "cta": "Aanvraag bekijken",
-    "footer": "Dit is de enige herinnering voor deze aanvraag. U kunt haar ook afwijzen in uw leveranciersomgeving."
+    "footer": "Dit is de enige herinnering voor deze aanvraag. U kunt haar ook afwijzen in uw leveranciersomgeving.",
+    "anonymous": {
+      "body": "Een bureau heeft u de aanvraag „{rfqTitle}” gestuurd en u hebt deze nog niet bekeken."
+    }
   },
   "rfqDetails": {
     "description": "Beschrijving van de aanvraag",
@@ -131,5 +139,10 @@
     "cta": "Adres bevestigen",
     "validity": "Deze link is {days, plural, one {# dag} other {# dagen}} geldig.",
     "ignore": "Als u niet voor {organizationName} werkt, negeer dit bericht dan: u ontvangt geen aanvragen."
+  },
+  "subscriptionUpsell": {
+    "title": "Neem een abonnement om het bureau te kennen",
+    "body": "Neem een abonnement om te weten welk bureau u raadpleegt en het rechtstreeks te contacteren.",
+    "cta": "Abonnementen bekijken"
   }
 }

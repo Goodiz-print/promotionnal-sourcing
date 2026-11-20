@@ -87,5 +87,11 @@
     "alreadySubscribed": "Sie haben bereits ein laufendes Abonnement: Wechseln Sie den Tarif über das Abrechnungsportal.",
     "noBillingAccount": "Für Ihre Organisation besteht kein Online-Abrechnungskonto.",
     "paymentPending": "Eine Abonnementzahlung wird noch bestätigt: Schließen Sie sie im Abrechnungsportal ab oder versuchen Sie es später erneut."
+  },
+  "upsell": {
+    "title": "Abonnieren Sie, um die Agentur kennenzulernen",
+    "body": "Abonnieren Sie, um zu erfahren, welche Agentur Sie anfragt, und sie direkt zu kontaktieren.",
+    "askAdmin": "Ein Inhaber oder Administrator Ihrer Organisation kann ein Abonnement abschließen, damit Sie die Agentur erfahren und direkt kontaktieren können.",
+    "cta": "Abonnements ansehen"
   }
 }

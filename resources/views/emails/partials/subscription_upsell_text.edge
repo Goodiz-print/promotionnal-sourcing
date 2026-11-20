@@ -1,0 +1,7 @@
+{{-- Version texte de subscription_upsell.edge. --}}
+@if(subscribePath)
+{{{ t('emails.subscriptionUpsell.title') }}}
+{{{ t('emails.subscriptionUpsell.body') }}}
+{{{ t('emails.subscriptionUpsell.cta') }}} : {{{ appUrl }}}{{{ subscribePath }}}
+
+@end

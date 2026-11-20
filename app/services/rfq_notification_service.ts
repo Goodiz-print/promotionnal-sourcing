@@ -6,10 +6,12 @@ import RfqItem from '#models/rfq_item'
 import SupplierProfile from '#models/supplier_profile'
 import SendMailJob from '#jobs/send_mail_job'
 import InboundAddressService from '#services/inbound_address_service'
+import SubscriptionService from '#services/subscription_service'
 import { mailIdempotencyKey } from '#shared/helpers/mail'
 import {
   MAIL_KINDS,
   type RfqMailLine,
+  type RfqReceivedMailData,
   type SendMailContent,
   type SendMailPayload,
 } from '#shared/types/mail'
@@ -24,6 +26,9 @@ import type RfqSupplier from '#models/rfq_supplier'
 /** Les mails de demande de devis envoyés aux fournisseurs. */
 type QueuedKind = typeof MAIL_KINDS.rfqReceived | typeof MAIL_KINDS.rfqReminder
 
+/** Ce que le mail dit de l'agence, selon l'abonnement du fournisseur (#220, #222). */
+type BuyerMailFields = Pick<RfqReceivedMailData, 'buyerName' | 'subscribePath'>
+
 /**
  * Notification des destinataires d'une demande de devis, au moment où
  * l'acheteur la diffuse (`RfqService#send`).
@@ -35,10 +40,17 @@ type QueuedKind = typeof MAIL_KINDS.rfqReceived | typeof MAIL_KINDS.rfqReminder
  * Pas de risque de relance en boucle : `send()` ne bascule que les `pending`,
  * et ne renvoie que les lignes réellement basculées. Un second clic sur
  * « envoyer » est refusé par la machine à états, pas rattrapé ici.
+ *
+ * Un fournisseur **non abonné** reçoit un mail anonyme (#220) : ni le nom de
+ * l'agence, objet compris, mais un encart qui l'invite à s'abonner (#222).
+ * L'abonnement est lu au moment de la mise en queue.
  */
 @inject()
 export default class RfqNotificationService {
-  constructor(private inboundAddresses: InboundAddressService) {}
+  constructor(
+    private inboundAddresses: InboundAddressService,
+    private subscriptions: SubscriptionService
+  ) {}
 
   /**
    * Met en queue un mail par adresse destinataire, **dans la langue de chaque
@@ -60,6 +72,7 @@ export default class RfqNotificationService {
     if (recipients.length === 0) return 0
 
     const lines = await this.linesOf(rfq)
+    const subscribed = await this.subscribedAmong(recipients)
     let queued = 0
 
     for (const recipient of recipients) {
@@ -69,7 +82,7 @@ export default class RfqNotificationService {
         MAIL_KINDS.rfqReceived,
         'failed to queue rfq notification',
         ({ locale }) => ({
-          buyerName: buyer.name,
+          ...this.buyerFields(buyer.name, subscribed.has(recipient.supplierOrganizationId), locale),
           rfqTitle: rfq.title,
           itemCount: lines.length,
           description: rfq.description,
@@ -99,6 +112,7 @@ export default class RfqNotificationService {
    */
   async remind(recipients: RfqSupplier[]): Promise<RfqSupplier[]> {
     const reminded: RfqSupplier[] = []
+    const subscribed = await this.subscribedAmong(recipients)
 
     for (const recipient of recipients) {
       const { rfq } = recipient
@@ -109,7 +123,11 @@ export default class RfqNotificationService {
         MAIL_KINDS.rfqReminder,
         'failed to queue rfq reminder',
         ({ locale }) => ({
-          buyerName: rfq.buyerOrganization.name,
+          ...this.buyerFields(
+            rfq.buyerOrganization.name,
+            subscribed.has(recipient.supplierOrganizationId),
+            locale
+          ),
           rfqTitle: rfq.title,
           description: rfq.description,
           lines,
@@ -123,6 +141,22 @@ export default class RfqNotificationService {
     }
 
     return reminded
+  }
+
+  /** Organisations destinataires abonnées, en une requête. */
+  private subscribedAmong(recipients: RfqSupplier[]): Promise<Set<number>> {
+    return this.subscriptions.subscribedAmong([
+      ...new Set(recipients.map(({ supplierOrganizationId }) => supplierOrganizationId)),
+    ])
+  }
+
+  /**
+   * L'agence nommée pour un abonné ; pour un non abonné, aucune trace d'elle et
+   * le lien vers la page d'abonnement (chemin relatif, comme `rfqPath`).
+   */
+  private buyerFields(buyerName: string, subscribed: boolean, locale: Locale): BuyerMailFields {
+    if (subscribed) return { buyerName, subscribePath: null }
+    return { buyerName: null, subscribePath: urlFor('supplier.subscription.show', { locale }) }
   }
 
   /**

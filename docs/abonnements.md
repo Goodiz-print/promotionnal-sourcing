@@ -46,6 +46,9 @@ avec activation et expiration automatiques (#214) et la **souscription en ligne*
 - `subscribedAmong(organizationIds)` : la même règle pour plusieurs organisations, en une requête ;
 - `refreshPlan(organizationId, trx)` : recalcule `organizations.subscription_plan`.
 
+Elle lève l'anonymat de l'agence dans le parcours devis (#220, cf. `docs/rfq.md`) :
+écrans « Demandes reçues », mails de demande et de relance, notifications.
+
 La règle elle-même est **une seule fonction**, `whereCurrentSubscription`
 (`app/services/subscription_plan_service.ts`), appliquée aux requêtes Lucid comme
 aux requêtes `db`. `SubscriptionPlanService` (lecture en masse, seule écriture de

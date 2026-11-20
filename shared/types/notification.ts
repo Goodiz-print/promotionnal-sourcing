@@ -30,6 +30,16 @@ export type NotificationType = (typeof NOTIFICATION_TYPES)[number]
 /** Types liés aux commandes (#6) : `order.created`, `order.shipped`… */
 export type OrderNotificationType = Extract<NotificationType, `order.${string}`>
 
+/**
+ * Types dont le texte nomme l'agence et qui partent chez un fournisseur : pour
+ * un fournisseur non abonné, `buyerName` est absent des données (#220) et le
+ * texte vient de `notifications.anonymous.<type>` (cf. `notificationMessageKey`).
+ */
+export const BUYER_ANONYMIZED_NOTIFICATION_TYPES = [
+  'rfq.received',
+  'quote.rejected',
+] as const satisfies readonly NotificationType[]
+
 export interface NotificationData {
   [key: string]: string | number | boolean | null
 }

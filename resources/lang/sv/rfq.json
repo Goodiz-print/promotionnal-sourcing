@@ -156,7 +156,8 @@
     },
     "errors": {
       "notDecidable": "Den här förfrågan väntar inte längre på något beslut från dig."
-    }
+    },
+    "anonymousBuyer": "Anonym byrå"
   },
   "product": {
     "label": "Lägg till en produkt från katalogen",
