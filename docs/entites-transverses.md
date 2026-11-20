@@ -81,9 +81,17 @@ pas. Certains types sont donc « à rappeler » :
 
 - **Politique** : `NOTIFICATION_EMAIL_FALLBACK` (`shared/types/notification.ts`) associe un
   type à son délai (`delayMinutes`) et, au besoin, au rôle plateforme que le destinataire doit
-  encore avoir (`recipientPlatformRole`). Premier type branché :
-  `subscription.duplicate_cancelled`, 30 minutes, administrateurs uniquement. Un type absent
-  n'envoie jamais de mail.
+  encore avoir (`recipientPlatformRole`). Types branchés :
+  - `subscription.duplicate_cancelled` : 30 minutes, administrateurs uniquement ;
+  - 24 heures pour les notifications des acheteurs et fournisseurs : `order.created`,
+    `order.confirmed`, `order.in_production`, `order.shipped`, `order.cancelled`,
+    `quote.accepted`, `quote.rejected`, `rfq.declined`, `message.warned`.
+
+  Un type absent n'envoie jamais de mail. Les types qui ont déjà leur mail à la création
+  (`rfq.received`, `quote.received`, `announcement`, invitation) restent hors de la table,
+  pour ne pas envoyer deux mails. `order.delivered` et `organization.member_joined` n'y
+  figurent pas non plus : ils sont informatifs.
+
 - **Âge maximal** : une notification plus vieille que `NOTIFICATION_REMINDER_MAX_AGE_HOURS`
   (7 jours) n'est plus rappelée. Brancher un type n'envoie donc pas de rafale pour un vieil
   historique.

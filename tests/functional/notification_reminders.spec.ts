@@ -125,6 +125,26 @@ test.group('Notifications — rappel par mail des notifications non lues (#243)'
     assert.lengthOf(reminders(), 0)
   })
 
+  test('une notification de commande est rappelée au bout de 24 h, sans rôle plateforme requis', async ({
+    assert,
+  }) => {
+    const supplier = await UserFactory.merge({ locale: 'fr' }).create()
+    await NotificationFactory.merge({
+      userId: supplier.id,
+      type: 'order.created',
+      data: { orderId: 7, side: 'supplier' },
+    }).create()
+    const service = await app.container.make(NotificationReminderService)
+
+    assert.equal(await service.sendDue(DateTime.now().plus({ hours: 23 })), 0)
+    assert.equal(await service.sendDue(DateTime.now().plus({ hours: 25 })), 1)
+
+    const sent = reminders()
+    assert.lengthOf(sent, 1)
+    assert.equal(sent[0].email, supplier.email)
+    assert.equal(sent[0].path, '/fr/supplier/orders/7')
+  })
+
   test('un rappel ne part qu’une fois, même si les passes se répètent', async ({ assert }) => {
     const admin = await adminWith()
     await notificationFor(admin)
