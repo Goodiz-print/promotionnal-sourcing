@@ -39,7 +39,9 @@
     "addSuppliers": "Ajouter des destinataires",
     "removeSupplier": "Retirer",
     "sentAt": "Envoyée le {date}",
-    "viewProduct": "Voir la fiche produit"
+    "viewProduct": "Voir la fiche produit",
+    "salesContactsTitle": "Contacts commerciaux",
+    "salesContactsHint": "Les demandes partent à l'adresse de réception du fournisseur ; ces commerciaux suivent votre pays."
   },
   "status": {
     "draft": "Brouillon",

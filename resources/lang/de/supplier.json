@@ -45,5 +45,53 @@
     "europe": "Europa",
     "outside_europe": "Außerhalb Europas",
     "per_product": "Je nach Produkt"
+  },
+  "contacts": {
+    "title": "Vertriebsteam",
+    "subtitle": "Die Vertriebsmitarbeiter, die Agenturen je nach Land direkt kontaktieren können.",
+    "add": "Kontakt hinzufügen",
+    "newTitle": "Neuer Kontakt",
+    "teamTitle": "Kontakte",
+    "teamHint": "Jede Agentur sieht die Kontakte für ihr Land; gibt es keinen, sieht sie das ganze Team.",
+    "empty": "Keine Vertriebskontakte",
+    "emptyHint": "Fügen Sie die Vertriebsmitarbeiter hinzu, die Agenturen erreichen können.",
+    "settingsTitle": "Anzeige",
+    "showAll": "Das ganze Team allen Agenturen zeigen",
+    "showAllHint": "Agenturen sehen alle Ihre Kontakte, unabhängig von ihrem Land.",
+    "allCountries": "Alle Länder",
+    "remove": "{label} entfernen",
+    "linkedMember": "Kontomitglied: {name}",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "confirmDelete": "Kontakt {name} löschen?",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "upsell": {
+      "title": "Kontakte nur für abonnierte Lieferanten",
+      "body": "Sie können Ihr Team schon jetzt vorbereiten: Es wird den Agenturen ab Ihrem Abonnement angezeigt.",
+      "cta": "Abonnements ansehen"
+    },
+    "fields": {
+      "name": "Name",
+      "jobTitle": "Funktion",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "countries": "Betreute Länder",
+      "countriesHint": "Kein Land gewählt: Der Kontakt betreut alle Länder.",
+      "addCountry": "Land hinzufügen…",
+      "languages": "Gesprochene Sprachen",
+      "addLanguage": "Sprache hinzufügen…",
+      "member": "Kontomitglied",
+      "memberHint": "Optional: Verknüpfen Sie den Kontakt mit einem Benutzer des Kontos.",
+      "noMember": "Keines (nur Kontakt)"
+    },
+    "flash": {
+      "created": "Kontakt hinzugefügt.",
+      "updated": "Kontakt aktualisiert.",
+      "deleted": "Kontakt gelöscht.",
+      "settingsUpdated": "Einstellung gespeichert."
+    }
   }
 }

@@ -39,7 +39,9 @@
     "addSuppliers": "Empfänger hinzufügen",
     "removeSupplier": "Entfernen",
     "sentAt": "Gesendet am {date}",
-    "viewProduct": "Produktseite ansehen"
+    "viewProduct": "Produktseite ansehen",
+    "salesContactsTitle": "Vertriebskontakte",
+    "salesContactsHint": "Anfragen gehen an die allgemeine Empfangsadresse des Lieferanten; diese Mitarbeiter betreuen Ihr Land."
   },
   "status": {
     "draft": "Entwurf",

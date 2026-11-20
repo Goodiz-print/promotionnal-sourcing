@@ -39,7 +39,9 @@
     "addSuppliers": "Dodaj odbiorców",
     "removeSupplier": "Usuń",
     "sentAt": "Wysłano {date}",
-    "viewProduct": "Zobacz kartę produktu"
+    "viewProduct": "Zobacz kartę produktu",
+    "salesContactsTitle": "Kontakty handlowe",
+    "salesContactsHint": "Zapytania trafiają na ogólny adres dostawcy; ci handlowcy obsługują Twój kraj."
   },
   "status": {
     "draft": "Wersja robocza",

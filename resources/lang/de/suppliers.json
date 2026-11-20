@@ -23,6 +23,8 @@
     "backToDirectory": "Zurück zum Verzeichnis",
     "foundingPartner": "Gründungspartner",
     "contact": "Kontakt",
-    "websiteLabel": "Website"
+    "websiteLabel": "Website",
+    "salesTeam": "Vertriebsteam",
+    "salesTeamHint": "Die Vertriebsmitarbeiter, die Ihr Land betreuen."
   }
 }

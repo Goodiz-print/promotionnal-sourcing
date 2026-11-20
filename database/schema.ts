@@ -2685,7 +2685,7 @@ export class StripeWebhookEventSchema extends BaseModel {
 
 export class SupplierContactSchema extends BaseModel {
   static $columns = [
-    'coverage',
+    'countries',
     'createdAt',
     'email',
     'id',
@@ -2696,10 +2696,11 @@ export class SupplierContactSchema extends BaseModel {
     'phone',
     'position',
     'updatedAt',
+    'userId',
   ] as const
   $columns = SupplierContactSchema.$columns
   @column()
-  declare coverage: string | null
+  declare countries: any
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
@@ -2720,6 +2721,8 @@ export class SupplierContactSchema extends BaseModel {
   declare position: number
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
+  @column()
+  declare userId: number | null
 }
 
 export class SupplierNewSchema extends BaseModel {
@@ -2778,6 +2781,7 @@ export class SupplierProfileSchema extends BaseModel {
     'quoteEmail',
     'reportFrequency',
     'responseTimeDays',
+    'showAllContacts',
     'spokenLanguages',
     'updatedAt',
   ] as const
@@ -2830,6 +2834,8 @@ export class SupplierProfileSchema extends BaseModel {
   declare reportFrequency: string
   @column()
   declare responseTimeDays: number | null
+  @column()
+  declare showAllContacts: boolean
   @column()
   declare spokenLanguages: any | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })

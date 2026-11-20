@@ -45,5 +45,53 @@
     "europe": "Europa",
     "outside_europe": "Utanför Europa",
     "per_product": "Per produkt"
+  },
+  "contacts": {
+    "title": "Säljteam",
+    "subtitle": "Säljarna som byråer kan kontakta direkt, beroende på land.",
+    "add": "Lägg till kontakt",
+    "newTitle": "Ny kontakt",
+    "teamTitle": "Kontakter",
+    "teamHint": "Varje byrå ser kontakterna för sitt land; finns ingen ser den hela teamet.",
+    "empty": "Inga säljkontakter",
+    "emptyHint": "Lägg till säljarna som byråer kan nå.",
+    "settingsTitle": "Visning",
+    "showAll": "Visa hela teamet för alla byråer",
+    "showAllHint": "Byråer ser alla dina kontakter, oavsett land.",
+    "allCountries": "Alla länder",
+    "remove": "Ta bort {label}",
+    "linkedMember": "Kontomedlem: {name}",
+    "moveUp": "Flytta upp",
+    "moveDown": "Flytta ner",
+    "edit": "Redigera",
+    "delete": "Ta bort",
+    "confirmDelete": "Ta bort kontakten {name}?",
+    "cancel": "Avbryt",
+    "save": "Spara",
+    "upsell": {
+      "title": "Kontakter endast för leverantörer med abonnemang",
+      "body": "Du kan förbereda ditt team redan nu: det visas för byråer så snart du tecknar abonnemang.",
+      "cta": "Se abonnemang"
+    },
+    "fields": {
+      "name": "Namn",
+      "jobTitle": "Befattning",
+      "email": "E-post",
+      "phone": "Telefon",
+      "countries": "Länder",
+      "countriesHint": "Inget land valt: kontakten täcker alla länder.",
+      "addCountry": "Lägg till land…",
+      "languages": "Språk",
+      "addLanguage": "Lägg till språk…",
+      "member": "Kontomedlem",
+      "memberHint": "Valfritt: koppla kontakten till en användare som loggar in på kontot.",
+      "noMember": "Ingen (endast kontakt)"
+    },
+    "flash": {
+      "created": "Kontakt tillagd.",
+      "updated": "Kontakt uppdaterad.",
+      "deleted": "Kontakt borttagen.",
+      "settingsUpdated": "Inställning sparad."
+    }
   }
 }

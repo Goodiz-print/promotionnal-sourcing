@@ -135,6 +135,12 @@ export type ScannedRoutes = {
     'supplier.subscription.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.subscription.checkout': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.subscription.portal': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.settings': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.contacts.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.contacts.move': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.ads.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.ads.wallets.adjust': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -311,6 +317,7 @@ export type ScannedRoutes = {
     'supplier.ads.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.ads.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.subscription.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.ads.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -418,6 +425,7 @@ export type ScannedRoutes = {
     'supplier.ads.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.ads.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.subscription.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.ads.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -517,6 +525,8 @@ export type ScannedRoutes = {
     'supplier.ads.wallet.top_up': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.subscription.checkout': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.subscription.portal': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.move': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.ads.wallets.adjust': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.ads.suspend': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.ads.restore': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -586,6 +596,8 @@ export type ScannedRoutes = {
     'notifications.read': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.ads.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.ads.status': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.contacts.settings': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.change_type': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.member_role': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'membershipId': ParamValue} }
@@ -614,6 +626,7 @@ export type ScannedRoutes = {
     'supplier.quotes.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quote_cart.items.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.ads.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.contacts.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.remove_member': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'membershipId': ParamValue} }
     'admin.organizations.revoke_invitation': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'invitationId': ParamValue} }
     'admin.users.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }

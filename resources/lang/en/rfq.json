@@ -39,7 +39,9 @@
     "addSuppliers": "Add recipients",
     "removeSupplier": "Remove",
     "sentAt": "Sent on {date}",
-    "viewProduct": "View product page"
+    "viewProduct": "View product page",
+    "salesContactsTitle": "Sales contacts",
+    "salesContactsHint": "Requests go to the supplier's general inbox; these representatives cover your country."
   },
   "status": {
     "draft": "Draft",

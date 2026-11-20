@@ -14,10 +14,12 @@ import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import ProductCard from '~/components/product_card.vue'
 import DocumentList from '~/components/documents/document_list.vue'
-import type { SupplierDetailType } from '#shared/types/supplier'
+import SupplierContactCards from '~/components/supplier/contacts/supplier_contact_cards.vue'
+import type { SupplierContactType, SupplierDetailType } from '#shared/types/supplier'
 import type { OrganizationDocumentType } from '#shared/types/document'
 
-const props = defineProps<{ supplier: SupplierDetailType }>()
+/** `contacts` : équipe commerciale déjà filtrée par le serveur (abonnement, pays du visiteur). */
+const props = defineProps<{ supplier: SupplierDetailType; contacts: SupplierContactType[] }>()
 
 const { t, locale } = useI18n()
 const profile = props.supplier.supplierProfile
@@ -123,6 +125,14 @@ function documentLabel(document: OrganizationDocumentType) {
         </BaseDescriptionList>
       </BaseSection>
     </div>
+
+    <BaseSection
+      v-if="contacts.length > 0"
+      :title="t('suppliers.show.salesTeam')"
+      :description="t('suppliers.show.salesTeamHint')"
+    >
+      <SupplierContactCards :contacts="contacts" />
+    </BaseSection>
 
     <BaseSection v-if="supplier.documents.length > 0" :title="t('documents.title')">
       <DocumentList :documents="supplier.documents" :label-for="documentLabel" />

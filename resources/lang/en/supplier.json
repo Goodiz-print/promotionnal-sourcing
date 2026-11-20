@@ -45,5 +45,53 @@
     "europe": "Europe",
     "outside_europe": "Outside Europe",
     "per_product": "Per product"
+  },
+  "contacts": {
+    "title": "Sales team",
+    "subtitle": "The sales representatives agencies can contact directly, based on their country.",
+    "add": "Add a contact",
+    "newTitle": "New contact",
+    "teamTitle": "Contacts",
+    "teamHint": "Each agency sees the contacts covering its country; with none for its country, it sees the whole team.",
+    "empty": "No sales contacts",
+    "emptyHint": "Add the sales representatives agencies can reach.",
+    "settingsTitle": "Display",
+    "showAll": "Show the whole team to every agency",
+    "showAllHint": "Agencies see all your contacts, whatever their country.",
+    "allCountries": "All countries",
+    "remove": "Remove {label}",
+    "linkedMember": "Account member: {name}",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete the contact {name}?",
+    "cancel": "Cancel",
+    "save": "Save",
+    "upsell": {
+      "title": "Contacts are shown for subscribed suppliers only",
+      "body": "You can prepare your team now: it will be shown to agencies as soon as you subscribe.",
+      "cta": "See subscriptions"
+    },
+    "fields": {
+      "name": "Name",
+      "jobTitle": "Job title",
+      "email": "Email",
+      "phone": "Phone",
+      "countries": "Countries covered",
+      "countriesHint": "No country selected: the contact covers all countries.",
+      "addCountry": "Add a country…",
+      "languages": "Languages spoken",
+      "addLanguage": "Add a language…",
+      "member": "Account member",
+      "memberHint": "Optional: link the contact to a user who signs in to the account.",
+      "noMember": "None (contact only)"
+    },
+    "flash": {
+      "created": "Contact added.",
+      "updated": "Contact updated.",
+      "deleted": "Contact deleted.",
+      "settingsUpdated": "Setting saved."
+    }
   }
 }

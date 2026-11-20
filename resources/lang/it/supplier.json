@@ -45,5 +45,53 @@
     "europe": "Europa",
     "outside_europe": "Extra Europa",
     "per_product": "Caso per caso"
+  },
+  "contacts": {
+    "title": "Team commerciale",
+    "subtitle": "I commerciali che le agenzie possono contattare direttamente, in base al loro paese.",
+    "add": "Aggiungi un contatto",
+    "newTitle": "Nuovo contatto",
+    "teamTitle": "Contatti",
+    "teamHint": "Ogni agenzia vede i contatti che coprono il suo paese; se non ce ne sono, vede tutto il team.",
+    "empty": "Nessun contatto commerciale",
+    "emptyHint": "Aggiungete i commerciali che le agenzie possono raggiungere.",
+    "settingsTitle": "Visualizzazione",
+    "showAll": "Mostra tutto il team a tutte le agenzie",
+    "showAllHint": "Le agenzie vedono tutti i vostri contatti, qualunque sia il loro paese.",
+    "allCountries": "Tutti i paesi",
+    "remove": "Rimuovi {label}",
+    "linkedMember": "Membro dell'account: {name}",
+    "moveUp": "Sposta su",
+    "moveDown": "Sposta giù",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "confirmDelete": "Eliminare il contatto {name}?",
+    "cancel": "Annulla",
+    "save": "Salva",
+    "upsell": {
+      "title": "Contatti riservati ai fornitori abbonati",
+      "body": "Potete preparare il vostro team fin da ora: sarà mostrato alle agenzie appena vi abbonerete.",
+      "cta": "Vedi gli abbonamenti"
+    },
+    "fields": {
+      "name": "Nome",
+      "jobTitle": "Ruolo",
+      "email": "E-mail",
+      "phone": "Telefono",
+      "countries": "Paesi coperti",
+      "countriesHint": "Nessun paese scelto: il contatto copre tutti i paesi.",
+      "addCountry": "Aggiungi un paese…",
+      "languages": "Lingue parlate",
+      "addLanguage": "Aggiungi una lingua…",
+      "member": "Membro dell'account",
+      "memberHint": "Facoltativo: collegate il contatto a un utente che accede all'account.",
+      "noMember": "Nessuno (solo contatto)"
+    },
+    "flash": {
+      "created": "Contatto aggiunto.",
+      "updated": "Contatto aggiornato.",
+      "deleted": "Contatto eliminato.",
+      "settingsUpdated": "Impostazione salvata."
+    }
   }
 }

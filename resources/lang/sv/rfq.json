@@ -39,7 +39,9 @@
     "addSuppliers": "Lägg till mottagare",
     "removeSupplier": "Ta bort",
     "sentAt": "Skickad {date}",
-    "viewProduct": "Visa produktsidan"
+    "viewProduct": "Visa produktsidan",
+    "salesContactsTitle": "Säljkontakter",
+    "salesContactsHint": "Förfrågningar skickas till leverantörens allmänna adress; dessa säljare ansvarar för ditt land."
   },
   "status": {
     "draft": "Utkast",

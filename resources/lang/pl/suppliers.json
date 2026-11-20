@@ -23,6 +23,8 @@
     "backToDirectory": "Wróć do katalogu",
     "foundingPartner": "Partner założyciel",
     "contact": "Kontakt",
-    "websiteLabel": "Strona internet"
+    "websiteLabel": "Strona internet",
+    "salesTeam": "Zespół handlowy",
+    "salesTeamHint": "Handlowcy obsługujący Twój kraj."
   }
 }

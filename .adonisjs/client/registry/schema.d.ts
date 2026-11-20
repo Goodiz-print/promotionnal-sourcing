@@ -1710,6 +1710,84 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['portal']>>>
     }
   }
+  'supplier.contacts.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/contacts'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['index']>>>
+    }
+  }
+  'supplier.contacts.store': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/contacts'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/supplier_contact').supplierContactValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/supplier_contact').supplierContactValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.contacts.settings': {
+    methods: ["PATCH"]
+    pattern: '/:locale/supplier/contacts/settings'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/supplier_contact').supplierContactSettingsValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/supplier_contact').supplierContactSettingsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['settings']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['settings']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['settings']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.contacts.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/supplier/contacts/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/supplier_contact').supplierContactValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/supplier_contact').supplierContactValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.contacts.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/supplier/contacts/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['destroy']>>>
+    }
+  }
+  'supplier.contacts.move': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/contacts/:id/move'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/supplier_contact').supplierContactMoveValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/supplier_contact').supplierContactMoveValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['move']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['move']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['move']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'admin.dashboard': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin'

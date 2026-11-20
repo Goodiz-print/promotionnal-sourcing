@@ -47,6 +47,19 @@ export default class SubscriptionService {
   }
 
   /**
+   * `isSubscribed` pour plusieurs organisations en une requête : les
+   * identifiants de celles qui ont un abonnement payant en cours.
+   */
+  async subscribedAmong(organizationIds: number[]): Promise<Set<number>> {
+    if (organizationIds.length === 0) return new Set()
+    const rows = await OrganizationSubscription.query()
+      .whereIn('organizationId', organizationIds)
+      .whereIn('status', [...CURRENT_SUBSCRIPTION_STATUSES])
+      .select('organizationId')
+    return new Set(rows.map((row) => row.organizationId))
+  }
+
+  /**
    * Aligne l'abonnement local sur l'état relu chez le prestataire, puis la
    * formule courante de l'organisation. **Idempotent** : la ligne est retrouvée
    * par `stripe_subscription_id`, un état rejoué ne change rien.

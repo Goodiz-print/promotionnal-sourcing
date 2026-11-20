@@ -23,6 +23,8 @@
     "backToDirectory": "Torna alla rubrica",
     "foundingPartner": "Partner fondatore",
     "contact": "Contatto",
-    "websiteLabel": "Sito web"
+    "websiteLabel": "Sito web",
+    "salesTeam": "Team commerciale",
+    "salesTeamHint": "I commerciali che seguono il vostro paese."
   }
 }
