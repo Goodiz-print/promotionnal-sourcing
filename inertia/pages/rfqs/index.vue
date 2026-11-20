@@ -13,7 +13,7 @@ import BaseTable from '~/components/base/base_table.vue'
 import { RFQ_STATUS_TONES } from '~/components/rfqs/types'
 import type { RfqType } from '#shared/types/rfq'
 
-defineProps<{ rfqs: RfqType[]; canManageRfq: boolean }>()
+defineProps<{ rfqs: RfqType[]; canSendRfq: boolean; canManageRfq: boolean }>()
 
 const { t, locale } = useI18n()
 

@@ -222,7 +222,7 @@ test.group('Écrans RFQ — acheteur', (group) => {
     assert.equal(rfq.status, 'draft')
   })
 
-  test('un membre simple rédige mais ne publie pas (403)', async ({ client, assert }) => {
+  test('un membre simple publie, mais ne clôture pas (#216)', async ({ client, assert }) => {
     const org = await OrganizationFactory.create()
     const member = await createMember(org, 'member')
     const rfq = await RfqFactory.merge({
@@ -234,20 +234,28 @@ test.group('Écrans RFQ — acheteur', (group) => {
 
     const list = await client.get('/fr/rfqs').withInertia().loginAs(member)
     list.assertStatus(200)
+    assert.isTrue(list.inertiaProps.canSendRfq)
     assert.isFalse(list.inertiaProps.canManageRfq)
 
-    // Sur une soumission de formulaire, Bouncer renvoie l'utilisateur d'où il
-    // vient avec un message plutôt qu'une page 403 (cf. `AuthorizationException`).
-    const publish = await client
-      .post(`/fr/rfqs/${rfq.id}/publish`)
-      .withInertia()
-      .withCsrfToken()
-      .redirects(0)
-      .loginAs(member)
-    publish.assertStatus(302)
+    const post = (action: string) =>
+      client
+        .post(`/fr/rfqs/${rfq.id}/${action}`)
+        .withInertia()
+        .withCsrfToken()
+        .redirects(0)
+        .loginAs(member)
 
+    const publish = await post('publish')
+    publish.assertStatus(302)
     await rfq.refresh()
-    assert.equal(rfq.status, 'draft')
+    assert.equal(rfq.status, 'published')
+
+    // Clôturer reste une décision de responsable : Bouncer renvoie l'utilisateur
+    // d'où il vient avec un message plutôt qu'une page 403.
+    const close = await post('close')
+    close.assertStatus(302)
+    await rfq.refresh()
+    assert.equal(rfq.status, 'published')
   })
 
   test('une organisation fournisseuse n’accède pas aux écrans acheteur (403)', async ({

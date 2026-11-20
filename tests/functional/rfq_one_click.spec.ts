@@ -395,7 +395,7 @@ test.group('RFQ en un clic — suppression d’un brouillon', (group) => {
     assert.isNotNull(await Rfq.find(rfq.id))
   })
 
-  test('un simple membre ne peut pas supprimer', async ({ client, assert }) => {
+  test('un simple membre supprime un brouillon (#216)', async ({ client, assert }) => {
     const { org } = await buyerWithOwner()
     const member = await createMember(org, 'member')
     const rfq = await RfqFactory.merge({ buyerOrganizationId: org.id }).create()
@@ -407,10 +407,9 @@ test.group('RFQ en un clic — suppression d’un brouillon', (group) => {
       .redirects(0)
       .loginAs(member)
 
-    // Inertia convertit la redirection d'un DELETE en 303. Sur une soumission de formulaire, Bouncer renvoie l'utilisateur d'où il
-    // vient avec un message plutôt qu'une page 403.
+    // Inertia convertit la redirection d'un DELETE en 303.
     response.assertStatus(303)
-    assert.isNotNull(await Rfq.find(rfq.id))
+    assert.isNull(await Rfq.find(rfq.id))
   })
 
   test("une demande d'une autre organisation est introuvable", async ({ client, assert }) => {

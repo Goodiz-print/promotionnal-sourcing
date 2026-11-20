@@ -110,6 +110,7 @@ describe('rfqs/index.vue', () => {
     const wrapper = mount(RfqsIndex, {
       props: {
         rfqs: [rfq(), rfq({ id: 2, title: 'Gourdes inox', status: 'published' })],
+        canSendRfq: true,
         canManageRfq: true,
       },
     })
@@ -121,7 +122,7 @@ describe('rfqs/index.vue', () => {
   })
 
   it('affiche un message quand il n’y a aucune demande', () => {
-    const wrapper = mount(RfqsIndex, { props: { rfqs: [], canManageRfq: true } })
+    const wrapper = mount(RfqsIndex, { props: { rfqs: [], canSendRfq: true, canManageRfq: true } })
 
     expect(wrapper.text()).toContain('Aucune demande pour le moment.')
     expect(wrapper.findAll('tbody tr')).toHaveLength(0)
@@ -132,6 +133,7 @@ describe('rfqs/show.vue', () => {
   const baseProps = {
     categories: [],
     supplierOptions: [],
+    canSendRfq: true,
     canManageRfq: true,
     quotes: [],
     supplierContacts: {},
@@ -177,9 +179,31 @@ describe('rfqs/show.vue', () => {
     expect(wrapper.text()).not.toContain('Envoyer aux destinataires')
   })
 
-  it('masque toutes les actions à un membre sans droit de gestion', () => {
+  it('un membre publie et envoie, mais ne clôture pas (#216)', () => {
+    const draft = mount(RfqShow, {
+      props: { ...baseProps, canManageRfq: false, rfq: detail() },
+    })
+    const published = mount(RfqShow, {
+      props: {
+        ...baseProps,
+        canManageRfq: false,
+        rfq: detail({ status: 'published', suppliers: [supplier()] }),
+      },
+    })
+
+    expect(draft.text()).toContain('Publier')
+    expect(published.text()).toContain('Envoyer aux destinataires')
+    expect(published.text()).not.toContain('Clôturer')
+  })
+
+  it('masque toutes les actions sans droit d’envoi', () => {
     const wrapper = mount(RfqShow, {
-      props: { ...baseProps, canManageRfq: false, rfq: detail({ status: 'published' }) },
+      props: {
+        ...baseProps,
+        canSendRfq: false,
+        canManageRfq: false,
+        rfq: detail({ status: 'published' }),
+      },
     })
 
     expect(wrapper.text()).not.toContain('Publier')

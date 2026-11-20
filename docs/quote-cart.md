@@ -90,14 +90,12 @@ Chaque demande reçoit :
   affiche aux deux parties, libellées par `rfq.specs.<clé>` ;
 - son fournisseur pour unique destinataire.
 
-Selon le rôle :
-
-- `canManageRfq` (owner/admin/manager) : chaque demande est **publiée puis
-  envoyée** ; après commit, `RfqSent` est émis par demande (mail + notification
-  in-app, comme un envoi depuis l'écran de détail) et `rfq_sent` journalisé ;
-- `member` (`canCreateRfq` seulement) : les demandes sont créées **en
-  brouillon**, un responsable les enverra — même règle qu'aujourd'hui où un
-  membre rédige sans envoyer.
+Avec `canSendRfq` — tout membre de l'agence, `member` compris depuis #216 —
+chaque demande est **publiée puis envoyée** ; après commit, `RfqSent` est émis
+par demande (mail + notification in-app, comme un envoi depuis l'écran de
+détail) et `rfq_sent` journalisé. Sans ce droit, les demandes seraient créées
+en brouillon : le chemin reste dans `QuoteCartService#checkout` (`send: false`),
+mais aucun rôle d'agence n'y mène plus.
 
 `RfqService#create`, `#publish` et `#send` acceptent pour cela un client de
 transaction optionnel.
@@ -150,7 +148,7 @@ i18n : `resources/lang/<langue>/quote_cart.json`, 9 langues.
   fiche produit, groupe non joignable, édition/retrait, cloisonnement (404),
   organisation fournisseuse refusée ; validation multi-fournisseurs (une RFQ
   publiée et envoyée par fournisseur, lignes et destinataire propres, `RfqSent`
-  émis deux fois, panier vidé), `member` → brouillons sans envoi, groupe non
+  émis deux fois, panier vidé), `member` → demandes envoyées (#216), groupe non
   joignable conservé, panier vide et titre manquant refusés.
 - `tests/inertia/quote_cart.spec.ts`, `quote_cart_buttons.spec.ts`,
   `product_quote_actions.spec.ts`.

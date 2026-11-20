@@ -67,9 +67,10 @@ type RfqContext = Pick<HttpContext, 'auth' | 'bouncer' | 'params'>
  * courante + autorisation + validation → `RfqService`, qui porte seul les
  * transitions et leurs règles.
  *
- * Deux niveaux d'autorisation, alignés sur les permissions `sourcing:*` :
- * `canCreateRfq` pour consulter et rédiger (jusqu'au rôle `member`),
- * `canManageRfq` pour publier, envoyer et clôturer (owner/admin/manager).
+ * Trois niveaux d'autorisation : `canCreateRfq` pour consulter et rédiger,
+ * `canSendRfq` pour modifier un brouillon, gérer les destinataires, publier et
+ * envoyer (tous deux jusqu'au rôle `member`, #216), `canManageRfq` pour
+ * clôturer et prolonger l'échéance (owner/admin/manager).
  */
 @inject()
 export default class RfqsController {
@@ -96,6 +97,7 @@ export default class RfqsController {
 
     return inertia.render('rfqs/index', {
       rfqs: rfqs.map((rfq) => new RfqTransformer(rfq).toObject()),
+      canSendRfq: await bouncer.allows('canSendRfq', org),
       canManageRfq: await bouncer.allows('canManageRfq', org),
     })
   }
@@ -174,6 +176,7 @@ export default class RfqsController {
       rfq: new RfqDetailTransformer(rfq, locale).toObject(),
       quotes: quotes.map((quote) => new QuoteTransformer(quote).toObject()),
       supplierContacts: new SupplierContactsByOrganizationTransformer(contacts).toObject(),
+      canSendRfq: await bouncer.allows('canSendRfq', org),
       canManageRfq: await bouncer.allows('canManageRfq', org),
       ...(await this.formData(locale)),
       ...this.productLookup(inertia, productSearch, locale, auth.getUserOrFail()),
@@ -184,7 +187,7 @@ export default class RfqsController {
    * Met à jour l'en-tête et remplace les lignes d'un brouillon.
    */
   async update(ctx: HttpContext) {
-    const { rfq } = await this.loadManageable(ctx)
+    const { rfq } = await this.loadSendable(ctx)
     const payload = await ctx.request.validateUsing(rfqValidator)
 
     return this.runTransition(ctx, rfq, async () => {
@@ -200,7 +203,7 @@ export default class RfqsController {
    * l'acheteur ajuste la quantité avant de publier.
    */
   async addProduct(ctx: HttpContext) {
-    const { rfq, org } = await this.loadManageable(ctx)
+    const { rfq, org } = await this.loadSendable(ctx)
     const { productId } = await ctx.request.validateUsing(rfqProductValidator)
     const product = await this.findProduct(productId, ctx.i18n.locale as Locale)
     if (!product) throw new ProductNotFoundException()
@@ -225,7 +228,7 @@ export default class RfqsController {
    * autres transitions.
    */
   async destroy(ctx: HttpContext) {
-    const { rfq } = await this.loadManageable(ctx)
+    const { rfq } = await this.loadSendable(ctx)
 
     try {
       await this.service.delete(rfq)
@@ -244,7 +247,7 @@ export default class RfqsController {
    * publiée).
    */
   async addSuppliers(ctx: HttpContext) {
-    const { rfq } = await this.loadManageable(ctx)
+    const { rfq } = await this.loadSendable(ctx)
     const { supplierOrganizationIds } = await ctx.request.validateUsing(rfqSuppliersValidator)
 
     return this.runTransition(ctx, rfq, async () => {
@@ -257,7 +260,7 @@ export default class RfqsController {
    * Retire un destinataire non encore notifié.
    */
   async removeSupplier(ctx: HttpContext) {
-    const { rfq } = await this.loadManageable(ctx)
+    const { rfq } = await this.loadSendable(ctx)
 
     return this.runTransition(ctx, rfq, async () => {
       await this.service.removeSupplier(rfq, Number(ctx.params.supplierId))
@@ -269,7 +272,7 @@ export default class RfqsController {
    * Fige le besoin : la demande devient diffusable.
    */
   async publish(ctx: HttpContext) {
-    const { rfq } = await this.loadManageable(ctx)
+    const { rfq } = await this.loadSendable(ctx)
 
     return this.runTransition(ctx, rfq, async () => {
       await this.service.publish(rfq)
@@ -284,7 +287,7 @@ export default class RfqsController {
    * n'est pas relancé.
    */
   async send(ctx: HttpContext) {
-    const { rfq, org } = await this.loadManageable(ctx)
+    const { rfq, org } = await this.loadSendable(ctx)
 
     return this.runTransition(ctx, rfq, async () => {
       const sent = await this.service.send(rfq)
@@ -333,18 +336,27 @@ export default class RfqsController {
   }
 
   /**
-   * Charge la demande de l'organisation courante (404 si elle appartient à une
-   * autre) et vérifie le droit de la piloter. L'organisation est renvoyée avec
-   * la demande : `send` en a besoin pour nommer l'acheteur dans le mail, sans
-   * la résoudre une seconde fois.
+   * Charge une demande de l'organisation courante pour la préparer ou l'envoyer
+   * (`canSendRfq`, jusqu'au rôle `member`).
    */
-  private async loadManageable({
-    auth,
-    bouncer,
-    params,
-  }: RfqContext): Promise<{ rfq: Rfq; org: Organization }> {
+  private loadSendable(ctx: RfqContext): Promise<{ rfq: Rfq; org: Organization }> {
+    return this.loadAuthorized(ctx, 'canSendRfq')
+  }
+
+  /**
+   * Charge une demande de l'organisation courante pour une décision (clôture,
+   * échéance) : `canManageRfq`, responsables seulement.
+   */
+  private loadManageable(ctx: RfqContext): Promise<{ rfq: Rfq; org: Organization }> {
+    return this.loadAuthorized(ctx, 'canManageRfq')
+  }
+
+  private async loadAuthorized(
+    { auth, bouncer, params }: RfqContext,
+    ability: 'canSendRfq' | 'canManageRfq'
+  ): Promise<{ rfq: Rfq; org: Organization }> {
     const org = await this.organizations.currentFor(auth.getUserOrFail())
-    await bouncer.authorize('canManageRfq', org)
+    await bouncer.authorize(ability, org)
 
     return { rfq: await this.service.findForBuyer(Number(params.id), org.id), org }
   }

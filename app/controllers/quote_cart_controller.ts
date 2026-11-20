@@ -23,7 +23,8 @@ import type { Locale } from '#shared/types/i18n'
  * fin : organisation courante + `canCreateRfq` → `QuoteCartService`.
  *
  * La validation crée une demande par fournisseur : envoyées si l'utilisateur
- * peut piloter les demandes (`canManageRfq`), en brouillon sinon.
+ * peut envoyer des demandes (`canSendRfq`, jusqu'au rôle `member`, #216),
+ * en brouillon sinon.
  */
 @inject()
 export default class QuoteCartController {
@@ -38,7 +39,7 @@ export default class QuoteCartController {
 
     return inertia.render('quote_cart/show', {
       groups: await this.service.list(user, org, i18n.locale as Locale),
-      canSend: await bouncer.allows('canManageRfq', org),
+      canSend: await bouncer.allows('canSendRfq', org),
     })
   }
 
@@ -111,7 +112,7 @@ export default class QuoteCartController {
   async checkout({ auth, bouncer, request, response, session, i18n }: HttpContext) {
     const { user, org } = await this.context({ auth, bouncer })
     const payload = await request.validateUsing(quoteCartCheckoutValidator)
-    const send = await bouncer.allows('canManageRfq', org)
+    const send = await bouncer.allows('canSendRfq', org)
 
     let outcomes
     try {
