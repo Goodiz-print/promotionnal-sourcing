@@ -45,6 +45,13 @@ Les documents PDF des fournisseurs (catalogue, certificat, fiche technique) sont
 - Pas de `any` — utiliser `unknown` si nécessaire
 - Nommage : `camelCase` pour variables/fonctions, `PascalCase` pour classes/interfaces
 - **Fonctions de tableau plutôt que boucles** : privilégier `map` / `filter` / `reduce` / `flatMap` / `some` / `every` / `find`, et `Map.groupBy` / `Object.fromEntries` / `new Set(...)` pour regrouper ou indexer, plutôt que des boucles `for` / `for…of` / `for…in` qui mutent un accumulateur — code plus lisible et plus testable. Une boucle reste acceptable seulement si elle est réellement plus claire : `await` qui doivent s'exécuter **séquentiellement**, sortie anticipée (`break`) sur un gros volume. Pour des écritures indépendantes, `Promise.all(items.map(...))`.
+- **Fonctions simples et courtes** : une fonction fait **une seule chose**, nommée par ce qu'elle fait. Dès qu'une fonction devient complexe, la découper en fonctions (ou méthodes `private`) nommées et testables :
+  - **~30 lignes** au plus ; au-delà, extraire des étapes nommées ;
+  - **2 niveaux d'imbrication** au plus (`if` / boucle / callback) : préférer les **retours anticipés** (guard clauses) aux `if` imbriqués et aux `else` après un `return` ;
+  - **3 paramètres** au plus ; au-delà, un objet typé (dans `shared/types/`) ;
+  - pas de **ternaires imbriqués** ni de longues chaînes `if / else if` : une table de correspondance (`Record<Clé, Valeur>`) ou des fonctions dédiées ;
+  - conditions longues extraites dans une **variable ou fonction au nom explicite** (`const isEligible = …`) ;
+  - séparer le **calcul pur** (testable sans base ni HTTP) des **effets** (requêtes, écritures, appels externes) : la règle métier vit dans une fonction pure, le service orchestre.
 
 ### AdonisJS
 
