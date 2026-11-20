@@ -32,21 +32,28 @@ Relançable sans risque : un second import met les fiches à jour, sans doublon.
 
 ## Configuration (`.env`)
 
-| Variable                   | Fournisseur | Rôle                                                                                                  |
-| -------------------------- | ----------- | ----------------------------------------------------------------------------------------------------- |
-| `PFCONCEPT_FEED_CODE`      | PF Concept  | Code distributeur dans les URLs des flux prix / stock / prix de marquage (`pricefeed_<code>_v3.json`) |
-| `PASSOT_API_KEY`           | Passot      | En-tête `PI-API-KEY` de l'API PiDesign                                                                |
-| `INSPIRION_API_KEY`        | Inspirion   | En-tête `X-Gateway-API-Key` de la LEO API (clé **client**)                                            |
-| `MAKITO_EMAIL`             | Makito      | Identifiant du compte client (`POST /api/login`)                                                      |
-| `MAKITO_PASSWORD`          | Makito      | Mot de passe du compte client ; le jeton renvoyé par le login n'est jamais stocké                     |
-| `SUPPLIER_FEED_TIMEOUT_MS` | tous        | Timeout HTTP, 300 s par défaut (flux PF Concept ~200 Mo, API Makito jusqu'à 2 min par appel)          |
-| `SUPPLIER_FEED_USER_AGENT` | tous        | User-Agent annoncé, `GoodizprintSourcing/1.0` par défaut                                              |
+| Variable                   | Fournisseur | Rôle                                                                                                                        |
+| -------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `PFCONCEPT_FEED_CODE`      | PF Concept  | Code distributeur dans les URLs des flux prix / stock / prix de marquage (`pricefeed_<code>_v3.json`)                       |
+| `PASSOT_API_KEY`           | Passot      | En-tête `PI-API-KEY` de l'API PiDesign                                                                                      |
+| `INSPIRION_API_KEY`        | Inspirion   | En-tête `X-Gateway-API-Key` de la LEO API (clé **client**)                                                                  |
+| `MAKITO_EMAIL`             | Makito      | Identifiant du compte client (`POST /api/login`)                                                                            |
+| `MAKITO_PASSWORD`          | Makito      | Mot de passe du compte client ; le jeton renvoyé par le login n'est jamais stocké                                           |
+| `SUPPLIER_FEED_TIMEOUT_MS` | tous        | Timeout HTTP des flux (images : 30 s fixes), 300 s par défaut (flux PF Concept ~200 Mo, API Makito jusqu'à 2 min par appel) |
+| `SUPPLIER_FEED_USER_AGENT` | tous        | User-Agent annoncé, `GoodizprintSourcing/1.0` par défaut                                                                    |
 
 Les URLs journalisées passent par `redactUrl` : tout segment `feed_<…>_v3` hors code langue est masqué, quel que soit le format du code, ainsi que les valeurs exactes des secrets configurés et la query string.
 
+### Flux annexes indisponibles
+
+Chaque connecteur lit d'abord le flux produits (obligatoire), puis des flux annexes : prix, stock, marquage, catégories… Un flux annexe en échec (pas encore activé côté fournisseur, timeout) est journalisé et listé au bilan (`missingFeeds`), et le catalogue est normalisé sans ces données.
+
+- **Import intégral (`--full`)** : l'import est **annulé avant toute écriture** (`SupplierFeedIncompleteException`, code de sortie 1). Variantes, paliers et marquages sont écrits en « remplace l'ensemble » : écrire un catalogue sans son flux prix effacerait tous les prix existants du fournisseur.
+- **Import limité (`--limit`)** et `--dry-run` : l'import continue, le bilan avertit des flux manquants. Les fiches réimportées perdent alors les données du flux manquant jusqu'au prochain import réussi.
+
 ### Cache des flux
 
-Les connecteurs lisent leurs flux par `SupplierHttpClient.getJson(url, headers, cache)` : la réponse est écrite en flux dans `tmp/supplier_feeds/<sha256>.json` (dossier ignoré par git) puis relue. Une copie de moins de 12 h (`http.cacheTtlMs`) est réutilisée : enchaîner `--dry-run` puis l'import réel ne retélécharge rien. `--refresh` force le téléchargement. Le nom de fichier est une empreinte de l'URL et du compte, sans secret en clair, mais **le contenu porte les prix nets** : ne pas partager ce dossier. Stock et prix peuvent donc dater de 12 h au plus sans `--refresh`. Le login Makito (`postJson`) et les images ne passent jamais par le cache.
+Les connecteurs lisent leurs flux par `SupplierHttpClient.getJson(url, headers, cache)` : la réponse est écrite en flux dans `tmp/supplier_feeds/<sha256>.json` (dossier ignoré par git) puis relue. Une copie de moins de 12 h (`http.cacheTtlMs`) est réutilisée : enchaîner `--dry-run` puis l'import réel ne retélécharge rien. `--refresh` force le téléchargement. Le nom de fichier est une empreinte de l'URL et du compte, sans secret en clair, mais **le contenu porte les prix nets** : ne pas partager ce dossier. Stock et prix peuvent donc dater de 12 h au plus sans `--refresh`. Le login Makito (`postJson`) et les images ne passent jamais par le cache. Une coupure pendant le téléchargement est retentée (2 nouveaux essais) et ne laisse jamais de copie tronquée.
 
 Toutes sont optionnelles (`Env.schema.secret.optional()`) : sans elles l'application démarre, et le connecteur concerné lève `SupplierConnectorNotConfiguredException` à l'usage.
 
@@ -111,7 +118,6 @@ Manuel « Data feeds » v3.6.5. Base `https://www.pfconcept.com/portal/datafeed/
 
 - Images : `https://images.pfconcept.com/ProductImages_All/JPG/1600x1600/<fichier>`. `imageMain` → principale, `imageMood*` / `imageModel` / `imageGroup` → ambiance, `imageLogo*` → marquée.
 - `--limit` s'applique aux _models_ **avant** la jointure avec les autres flux.
-- Un flux annexe en échec (prix, stock, marquage) est journalisé et l'import continue sans ces données.
 - Pays d'origine `PRC` → `CN`. Le code douane est conservé tel quel (chiffres seulement, 10 au plus) : retirer les zéros de fin corromprait les codes significatifs (`8471300000` → `84713`).
 - Prix de la fiche : la grille **entière** de l'article le moins cher (prix d'appel, puis prix au plus grand palier). Les grilles ne sont jamais mélangées palier par palier ; un article à grille différente garde ses propres paliers.
 
@@ -156,28 +162,31 @@ Doc en ligne `https://leoapi.inspirion.eu/documentation`. Base `https://leoapi.i
 
 Langues : `fr` → 4, `en` → 2, `de` → 6, `es` → 1. Seul `/products` est paginé (1 000 fiches par page) ; les autres routes renvoient le catalogue entier, **lentement** (jusqu'à 2 min par appel, ~15 min pour tout le catalogue) : elles sont appelées l'une après l'autre et mises en cache.
 
-| Route                                       | Usage                                                                                                              |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `products?page=&per_page=`                  | `ref` = fiche ; `intrastat`, `country_of_origin`, `brand`, poids (g), carton maître `ptc_*` (cm, kg)               |
-| `descriptionslang/<langue>`                 | `type` (« Foulard ») préfixe le nom de modèle (« Betty ») ; `comp` = matière ; `info` complète la description      |
-| `descriptionextlang/<langue>`               | `desc` + `commercial_desc` → description                                                                           |
-| `keywords/<langue>`, `categories/<langue>`  | Mots-clés ; rubriques → catégorie brute (« Nouveautés » → nouveauté, « Destockage » / « Outlet » → fin de série)   |
-| `variants`, `colors/<langue>`               | `matnr` = SKU de déclinaison ; libellé couleur + taille (sauf `S/T`, sans taille) ; `img100`                       |
-| `stockVariants`                             | Une ligne par date : seul `stock_availability = immediately` compte ; `"24.000"` = 24 000 (points de milliers)     |
-| `prices`                                    | `section_n` / `price_n` : seuils **bas** (`-500, 500, 2000` = dès 1, 500, 2 000 pièces)                            |
-| `imgResources`                              | Dossier `principal` → principale, `bodegones` → ambiance, `detalles` → vue ; `variantes`, `areas`, `cajas` ignorés |
-| `markings`, `markingsTranslations/<langue>` | `print_area_id` = position (libellé traduit, sinon « Zone <id> ») ; `width` / `height` en cm                       |
-| `markingTechniques/<langue>`                | Libellé de la technique par `technique_ref` (balises HTML retirées)                                                |
-| `markingTechniquesPrices`                   | `cliche` = frais fixes ; `section_n` = bornes **hautes** (`250, 500, 2000` = dès 1, 251, 501) ; prix 1 couleur     |
-| `leadtimes`                                 | Délai de marquage zone export (`EXP`, jours) le plus court des techniques de la fiche                              |
+| Route                                       | Usage                                                                                                                       |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `products?page=&per_page=`                  | `ref` = fiche ; `intrastat`, `country_of_origin`, `brand`, poids (g), carton maître `ptc_*` (cm, kg)                        |
+| `descriptionslang/<langue>`                 | `type` (« Foulard ») préfixe le nom de modèle (« Betty ») ; `comp` = matière ; `info` complète la description               |
+| `descriptionextlang/<langue>`               | `desc` + `commercial_desc` → description                                                                                    |
+| `keywords/<langue>`, `categories/<langue>`  | Mots-clés ; rubriques → catégorie brute (« Nouveautés » → nouveauté, « Destockage » / « Outlet » → fin de série)            |
+| `variants`, `colors/<langue>`               | `matnr` = SKU de déclinaison ; libellé couleur + taille (sauf `S/T`, sans taille) ; `img100`                                |
+| `stockVariants`                             | Une ligne par date : seul `stock_availability = immediately` compte ; `"24.000"` = 24 000 (points de milliers)              |
+| `prices`                                    | `section_n` / `price_n` : seuils **bas** (`-500, 500, 2000` = dès 1, 500, 2 000 pièces)                                     |
+| `imgResources`                              | Dossier `principal` → principale, `bodegones` → ambiance, `detalles` → vue ; `variantes`, `areas`, `cajas` ignorés          |
+| `markings`, `markingsTranslations/<langue>` | `print_area_id` = position (libellé traduit, sinon « Zone <id> ») ; `width` / `height` en cm                                |
+| `markingTechniques/<langue>`                | Libellé de la technique par `technique_ref` (balises HTML retirées)                                                         |
+| `markingTechniquesPrices`                   | `cliche` = frais fixes ; `section_n` lues comme des bornes **hautes** (`250, 500, 2000` = dès 1, 251, 501) ; prix 1 couleur |
+| `leadtimes`                                 | Délai de marquage zone export (`EXP`, jours) le plus court des techniques de la fiche                                       |
 
 - L'API ne fournit pas de code EAN : `gtin` reste vide.
-- Un flux annexe en échec est journalisé et l'import continue sans ces données ; un login refusé arrête l'import avant tout autre appel.
+- Un login refusé arrête l'import avant tout autre appel. Un catalogue entier (`--full`) doit compter autant de fiches que le `total` annoncé par `page_info` : sinon (page vide, pagination absente) l'import échoue, pour ne pas désactiver les fiches « absentes ».
+- Plusieurs images `main = 1` pour une fiche : la première seule est principale, les suivantes sont des vues.
+- **Hypothèse à confirmer avec Makito** : la doc ne décrit pas le sens de `section_n` pour les prix de marquage. La lecture « bornes hautes » est déduite des données (grilles `250, 500, 2000…`, grille unique `100000`) ; si ce sont des seuils bas comme pour `prices`, les paliers de marquage sont décalés d'un cran.
 - La doc ne précise pas si `prices` renvoie le tarif catalogue ou le prix net du compte : à confirmer avec Makito avant d'utiliser ces prix pour un chiffrage.
 
 ## Tests
 
 Sans réseau, sur des fixtures **anonymisées à prix fictifs** (`tests/fixtures/supplier_feed/`) qui reproduisent la structure réelle des flux. Le faux client HTTP et le connecteur en mémoire sont dans `tests/utils/supplier_feed.ts`.
 
-- `tests/unit/supplier_feed_connectors.spec.ts` : utilitaires, rapprochement, paliers numérotés et points de milliers, normalisation PF Concept, Passot, Inspirion et Makito (login, pagination, flux annexe en échec), connecteur non configuré.
-- `tests/functional/supplier_feed_import.spec.ts` : création, idempotence, couleurs (nuance + famille), techniques, catégorie de repli, dry-run sans écriture, échec isolé, activation et désactivation (flux complet, import intégral, flux tronqué), slug unique, label éco conservé, images copiées (réutilisation, échec de téléchargement), registre.
+- `tests/unit/supplier_feed_connectors.spec.ts` : utilitaires, rapprochement, paliers numérotés et points de milliers, normalisation PF Concept, Passot, Inspirion et Makito (login, pagination, catalogue incomplet, flux annexes manquants signalés), connecteur non configuré.
+- `tests/unit/supplier_http_client.spec.ts` : cache disque du client réel (`fetch` simulé, dossier temporaire) : réutilisation, `--refresh`, péremption, rattachement au compte, téléchargement coupé puis retenté, réponse illisible.
+- `tests/functional/supplier_feed_import.spec.ts` : création, idempotence, couleurs (nuance + famille), techniques, catégorie de repli, dry-run sans écriture, échec isolé, activation et désactivation (flux complet, import intégral, flux tronqué), import intégral annulé si un flux annexe manque, slug unique, label éco conservé, images copiées (réutilisation, échec de téléchargement), registre.

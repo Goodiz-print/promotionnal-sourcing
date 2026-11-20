@@ -10,18 +10,21 @@
 - `--refresh` : retélécharge les flux au lieu de réutiliser le cache disque.
 - Nouveau connecteur accepté : `makito`.
 - Un point d'avancement est journalisé toutes les 500 fiches.
+- Flux annexe indisponible (prix, stock, marquage…) : listé au bilan ; sur un import intégral, l'import est annulé avant toute écriture (`SupplierFeedIncompleteException`) pour ne pas remplacer les données existantes par du vide.
+- La désactivation des fiches absentes filtre en mémoire au lieu d'un `NOT IN` de tout le catalogue (limite de paramètres PostgreSQL).
 
 ## Cache disque des flux
 
 - `SupplierHttpClient.getJson(url, headers, cache)` écrit la réponse en flux dans `tmp/supplier_feeds/` (ignoré par git, contient des prix nets) et la réutilise pendant 12 h. Enchaîner `--dry-run` puis l'import réel ne retélécharge rien.
 - `SupplierHttpClient.postJson` (login par identifiants), jamais mis en cache, corps jamais journalisé.
-- Timeout HTTP par défaut porté de 120 s à 300 s (`SUPPLIER_FEED_TIMEOUT_MS`).
+- Timeout HTTP des flux porté de 120 s à 300 s (`SUPPLIER_FEED_TIMEOUT_MS`) ; les images gardent un timeout court (30 s). Un téléchargement coupé en cours de route est retenté.
 
 ## Connecteur Makito (nouveau fournisseur)
 
 - Variables `MAKITO_EMAIL` et `MAKITO_PASSWORD` (optionnelles, secret). `POST /api/login` renvoie le jeton (lu dans `token` ou, comme le fait l'API réelle, dans `msg`), puis `Authorization: Bearer`.
 - Fiche = `ref`, déclinaisons = `matnr` (couleur × taille), stock immédiat, paliers de prix, images par rôle, zones et techniques de marquage avec frais de cliché et paliers, délai de marquage export, carton maître, code douane, pays d'origine.
 - Le nom de modèle (« Betty ») est préfixé du type d'article (« Foulard ») pour être lisible et classable.
+- Un catalogue entier plus court que le `total` annoncé fait échouer l'import. Une seule image principale par fiche.
 - Validé sur le catalogue réel : 4 519 fiches, 16 939 déclinaisons ; fiches sans catégorie reconnue ramenées de 534 à 381 (8 %) par l'enrichissement des synonymes. Second import : 0 création.
 
 ## Connecteur Inspirion (LEO API)
@@ -33,6 +36,6 @@
 ## Divers
 
 - Connecteur Axpol retiré : squelette `axpol_connector.ts`, clé `axpol` de la commande, variable `AXPOL_API_KEY` et exception `SupplierConnectorNotImplementedException` (plus aucun connecteur en attente).
-- Synonymes enrichis d'après le bilan du catalogue Makito (`database/data/catalogue/`) : catégories (gamelle, glacière, banane, canif, bidon, foulard…), techniques (libellés espagnols, « DTF1 », « DIGITAL W1 », quadrichromie) et couleur « fucsia ». Rejouer `category_seeder`, `marking_technique_seeder` et `attribute_seeder` pour les appliquer à une base existante.
+- Synonymes enrichis d'après le bilan du catalogue Makito (`database/data/catalogue/`) : catégories (gamelle, glacière, banane, canif, bidon, foulard…), techniques (libellés espagnols, « DTF1 », « DIGITAL W1 ») et couleur « fucsia ». Rejouer `category_seeder`, `marking_technique_seeder` et `attribute_seeder` pour les appliquer à une base existante.
 - `normalizeCountry` reconnaît les noms de pays espagnols et anglais courants (« España », « Bangladesh », « Polonia »…).
 - Helpers `sectionPriceTiers` (colonnes `section_n` / `price_n`) et `parseGroupedInt` (`"24.000"` = 24 000).

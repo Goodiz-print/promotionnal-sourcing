@@ -1,3 +1,4 @@
+import app from '@adonisjs/core/services/app'
 import env from '#start/env'
 
 /**
@@ -13,6 +14,10 @@ const supplierFeedsConfig = {
     retries: 2,
     /** Durée de vie du cache disque des flux (`tmp/supplier_feeds/`, `--refresh` pour forcer). */
     cacheTtlMs: 12 * 60 * 60 * 1000,
+    /** Dossier du cache disque (ignoré par git : les flux portent des prix nets). */
+    cacheDirectory: app.tmpPath('supplier_feeds'),
+    /** Timeout d'un téléchargement d'image (`--store-images`), bien plus court que celui des flux. */
+    imageTimeoutMs: 30_000,
     /**
      * User-Agent annoncé aux fournisseurs. Celui de Node par défaut est refusé
      * par certains pare-feu (Passot : HTTP 426) ; surcharger via

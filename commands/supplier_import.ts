@@ -6,6 +6,7 @@ import SupplierCatalogueImporter from '#services/supplier_feed/supplier_catalogu
 import {
   SupplierConnectorNotConfiguredException,
   SupplierFeedHttpException,
+  SupplierFeedIncompleteException,
   UnknownSupplierConnectorException,
 } from '#exceptions/supplier_feed_errors'
 import { SUPPLIER_FEED_LOCALES, type SupplierFeedLocale } from '#shared/types/supplier_feed'
@@ -13,7 +14,11 @@ import type SupplierConnector from '#services/supplier_feed/supplier_connector'
 import type { SupplierImportSummary } from '#shared/types/supplier_feed'
 
 /** Erreurs attendues d'un connecteur : affichées proprement, sans pile. */
-const EXPECTED_ERRORS = [SupplierConnectorNotConfiguredException, SupplierFeedHttpException]
+const EXPECTED_ERRORS = [
+  SupplierConnectorNotConfiguredException,
+  SupplierFeedHttpException,
+  SupplierFeedIncompleteException,
+]
 
 /**
  * Importe le catalogue réel d'un fournisseur (ou de tous) dans la base courante,
@@ -133,6 +138,11 @@ export default class SupplierImport extends BaseCommand {
     if (summary.deactivated > 0) {
       this.logger.warning(
         `${summary.deactivated} fiche(s) absente(s) du flux complet désactivée(s)`
+      )
+    }
+    if (summary.missingFeeds.length > 0) {
+      this.logger.warning(
+        `Flux annexes indisponibles (données correspondantes absentes) : ${summary.missingFeeds.join(', ')}`
       )
     }
     if (summary.unmatchedCategories.length > 0) {

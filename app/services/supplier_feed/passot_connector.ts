@@ -1,5 +1,4 @@
 import { inject } from '@adonisjs/core'
-import logger from '@adonisjs/core/services/logger'
 import supplierFeedsConfig from '#config/supplier_feeds'
 import SupplierConnector from '#services/supplier_feed/supplier_connector'
 import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
@@ -16,8 +15,8 @@ import {
   parsePositiveInt,
 } from '#shared/helpers/supplier_feed'
 import type {
-  FeedCacheOptions,
   FeedNode,
+  FeedRequestContext,
   FetchCatalogueOptions,
   NormalizedImage,
   NormalizedMarkingPosition,
@@ -82,6 +81,7 @@ export default class PassotConnector extends SupplierConnector {
     limit,
     locale,
     refresh,
+    onMissingFeed,
   }: FetchCatalogueOptions): Promise<NormalizedProduct[]> {
     const apiKey = supplierFeedsConfig.passot.apiKey
     if (!apiKey) {
@@ -90,17 +90,17 @@ export default class PassotConnector extends SupplierConnector {
     const headers = { 'PI-API-KEY': apiKey }
     const base = `${supplierFeedsConfig.passot.baseUrl}/${locale}/rest/V1`
 
-    const cache = { refresh: refresh ?? false }
-    const productsFeed = await this.http.getJson(`${base}/catalog/products`, headers, cache)
+    const context: FeedRequestContext = { cache: { refresh: refresh ?? false }, onMissingFeed }
+    const productsFeed = await this.http.getJson(`${base}/catalog/products`, headers, context.cache)
     const groups = this.group(collect(productsFeed, ['sku', 'type_id'])).slice(
       0,
       limit ?? undefined
     )
 
     const [prices, stock, zones] = await Promise.all([
-      this.optionalFeed(`${base}/catalog/prices`, headers, cache),
-      this.optionalFeed(`${base}/catalog/stock`, headers, cache),
-      this.optionalFeed(`${base}/customization/zones`, headers, cache),
+      this.optionalFeed('prix', `${base}/catalog/prices`, headers, context),
+      this.optionalFeed('stock', `${base}/catalog/stock`, headers, context),
+      this.optionalFeed('marquage', `${base}/customization/zones`, headers, context),
     ])
 
     const tiersBySku = new Map<string, NormalizedPriceTier[]>()
@@ -150,17 +150,13 @@ export default class PassotConnector extends SupplierConnector {
     return [...groups.values()]
   }
 
-  private async optionalFeed(
+  private optionalFeed(
+    feed: string,
     url: string,
     headers: Record<string, string>,
-    cache: FeedCacheOptions
+    context: FeedRequestContext
   ): Promise<unknown> {
-    try {
-      return await this.http.getJson(url, headers, cache)
-    } catch (error) {
-      logger.warn({ err: error }, 'passot optional feed unavailable, continuing without it')
-      return null
-    }
+    return this.optional(feed, context, () => this.http.getJson(url, headers, context.cache))
   }
 
   private images(item: FeedNode | undefined): NormalizedImage[] {

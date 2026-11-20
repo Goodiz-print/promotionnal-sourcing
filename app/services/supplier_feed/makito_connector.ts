@@ -1,5 +1,4 @@
 import { inject } from '@adonisjs/core'
-import logger from '@adonisjs/core/services/logger'
 import supplierFeedsConfig from '#config/supplier_feeds'
 import SupplierConnector from '#services/supplier_feed/supplier_connector'
 import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
@@ -7,6 +6,7 @@ import { collect, field } from '#services/supplier_feed/feed_tree'
 import {
   SupplierConnectorNotConfiguredException,
   SupplierFeedHttpException,
+  SupplierFeedIncompleteException,
 } from '#exceptions/supplier_feed_errors'
 import {
   cleanString,
@@ -21,6 +21,7 @@ import {
 import type {
   FeedCacheOptions,
   FeedNode,
+  FeedRequestContext,
   FetchCatalogueOptions,
   MakitoCatalogueIndex,
   MakitoMarkingRow,
@@ -95,6 +96,7 @@ export default class MakitoConnector extends SupplierConnector {
     limit,
     locale,
     refresh,
+    onMissingFeed,
   }: FetchCatalogueOptions): Promise<NormalizedProduct[]> {
     const { baseUrl, email, password } = supplierFeedsConfig.makito
     if (!email || !password) {
@@ -104,12 +106,18 @@ export default class MakitoConnector extends SupplierConnector {
     }
     const headers = { Authorization: `Bearer ${await this.login(baseUrl, email, password)}` }
     // Le jeton change à chaque login : le cache est rattaché au compte, pas au jeton.
-    const cache = { refresh: refresh ?? false, scope: email }
+    const context: FeedRequestContext = {
+      cache: { refresh: refresh ?? false, scope: email },
+      onMissingFeed,
+    }
     const lang = LANGUAGE_IDS[locale]
 
-    const products = await this.products(baseUrl, headers, cache, limit)
+    const products = await this.products(baseUrl, headers, context.cache, limit)
     const refs = new Set(products.map((product) => cleanString(field(product, 'ref')) ?? ''))
-    const feed = (path: string) => this.optionalFeed(`${baseUrl}/${path}`, headers, cache)
+    const feed = (path: string) =>
+      this.optional(path, context, () =>
+        this.http.getJson(`${baseUrl}/${path}`, headers, context.cache)
+      )
 
     // Séquentiel : l'API sert mal les gros flux en parallèle.
     const index = this.index(refs, {
@@ -146,7 +154,12 @@ export default class MakitoConnector extends SupplierConnector {
     return token
   }
 
-  /** Pages de `/products` jusqu'à `limit` fiches ou la dernière page. */
+  /**
+   * Pages de `/products` jusqu'à `limit` fiches ou la dernière page. Un
+   * catalogue **entier** doit être complet : s'il manque des fiches par rapport
+   * au `total` annoncé (page vide, pagination absente), on échoue plutôt que de
+   * laisser l'importeur désactiver les fiches « absentes ».
+   */
   private async products(
     baseUrl: string,
     headers: Record<string, string>,
@@ -155,6 +168,7 @@ export default class MakitoConnector extends SupplierConnector {
   ): Promise<FeedNode[]> {
     const perPage = Math.min(limit ?? PAGE_SIZE, PAGE_SIZE)
     const products: FeedNode[] = []
+    let total: number | null = null
     for (let page = 1; ; page++) {
       const response = await this.http.getJson<FeedNode>(
         `${baseUrl}/products?page=${page}&per_page=${perPage}`,
@@ -163,26 +177,19 @@ export default class MakitoConnector extends SupplierConnector {
       )
       const rows = collect(field(response, 'products'), ['ref', 'name'])
       products.push(...rows)
-      const lastPage = parsePositiveInt(
-        field((field(response, 'page_info') ?? {}) as FeedNode, 'last_page')
-      )
+      const pageInfo = (field(response, 'page_info') ?? {}) as FeedNode
+      const lastPage = parsePositiveInt(field(pageInfo, 'last_page'))
+      total = parsePositiveInt(field(pageInfo, 'total')) ?? total
       const complete = limit !== null && products.length >= limit
       if (rows.length === 0 || complete || lastPage === null || page >= lastPage) break
     }
-    return limit === null ? products : products.slice(0, limit)
-  }
-
-  private async optionalFeed(
-    url: string,
-    headers: Record<string, string>,
-    cache: FeedCacheOptions
-  ): Promise<unknown> {
-    try {
-      return await this.http.getJson(url, headers, cache)
-    } catch (error) {
-      logger.warn({ err: error }, 'makito optional feed unavailable, continuing without it')
-      return null
+    if (limit !== null) return products.slice(0, limit)
+    if (total === null || products.length < total) {
+      throw new SupplierFeedIncompleteException(
+        `Makito : catalogue incomplet (${products.length} fiche(s) reçue(s) sur ${total ?? 'un total inconnu'})`
+      )
     }
+    return products
   }
 
   /** Indexe les flux annexes, restreints aux `refs` retenues. */
@@ -266,8 +273,11 @@ export default class MakitoConnector extends SupplierConnector {
       const ref = kept(row)
       const url = cleanString(field(row, 'url'))
       if (!ref || !url?.startsWith('http')) continue
-      const role =
-        Number(field(row, 'main')) === 1 ? 'primary' : IMAGE_ROLES[url.split('/').at(-2) ?? '']
+      const folder = IMAGE_ROLES[url.split('/').at(-2) ?? '']
+      const main = Number(field(row, 'main')) === 1 || folder === 'primary'
+      // Une seule image principale par fiche : les suivantes deviennent des vues.
+      const hasPrimary = index.images.get(ref)?.some((image) => image.role === 'primary')
+      const role = main ? (hasPrimary ? 'view' : 'primary') : folder
       if (role) push(index.images, ref, { url, role })
     }
     for (const row of collect(feeds.markings, ['ref', 'technique_ref', 'print_area_id'])) {

@@ -1,5 +1,4 @@
 import { inject } from '@adonisjs/core'
-import logger from '@adonisjs/core/services/logger'
 import supplierFeedsConfig from '#config/supplier_feeds'
 import SupplierConnector from '#services/supplier_feed/supplier_connector'
 import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
@@ -15,8 +14,8 @@ import {
   parsePositiveInt,
 } from '#shared/helpers/supplier_feed'
 import type {
-  FeedCacheOptions,
   FeedNode,
+  FeedRequestContext,
   FetchCatalogueOptions,
   NormalizedImage,
   NormalizedMarkingPosition,
@@ -83,9 +82,6 @@ export default class PfConceptConnector extends SupplierConnector {
     website: 'https://www.pfconcept.com',
   }
 
-  /** Options de cache des flux, fixées à chaque `fetchCatalogue`. */
-  private cache: FeedCacheOptions = { refresh: false }
-
   constructor(protected http: SupplierHttpClient) {
     super()
   }
@@ -98,6 +94,7 @@ export default class PfConceptConnector extends SupplierConnector {
     limit,
     locale,
     refresh,
+    onMissingFeed,
   }: FetchCatalogueOptions): Promise<NormalizedProduct[]> {
     const code = supplierFeedsConfig.pfconcept.feedCode
     if (!code) {
@@ -105,11 +102,11 @@ export default class PfConceptConnector extends SupplierConnector {
     }
 
     const base = supplierFeedsConfig.pfconcept.baseUrl
-    this.cache = { refresh: refresh ?? false }
+    const context: FeedRequestContext = { cache: { refresh: refresh ?? false }, onMissingFeed }
     const productFeed = await this.http.getJson(
       `${base}/${PRODUCT_FEED_FILES[locale]}`,
       {},
-      this.cache
+      context.cache
     )
     const models = collect(productFeed, ['modelCode', 'items'], limit ?? undefined)
 
@@ -117,10 +114,10 @@ export default class PfConceptConnector extends SupplierConnector {
     const itemCodes = new Set(models.flatMap((model) => this.itemCodes(model)))
 
     const [prices, stock, printRows, printPrices] = await Promise.all([
-      this.loadPrices(`${base}/pricefeed_${code}_v3.json`, itemCodes),
-      this.loadStock(`${base}/stockfeed_${code}_v3.json`, itemCodes),
-      this.loadPrintRows(`${base}/${PRINT_DATA_FILES[locale]}`, itemCodes),
-      this.loadPrintPrices(`${base}/printpricefeed_${code}_v3.json`),
+      this.loadPrices(`${base}/pricefeed_${code}_v3.json`, itemCodes, context),
+      this.loadStock(`${base}/stockfeed_${code}_v3.json`, itemCodes, context),
+      this.loadPrintRows(`${base}/${PRINT_DATA_FILES[locale]}`, itemCodes, context),
+      this.loadPrintPrices(`${base}/printpricefeed_${code}_v3.json`, context),
     ])
 
     return models.map((model) => this.normalize(model, prices, stock, printRows, printPrices))
@@ -133,8 +130,12 @@ export default class PfConceptConnector extends SupplierConnector {
   }
 
   /** Prix nets par article (`scales[].priceBar` / `nettPrice`) + devise. */
-  async loadPrices(url: string, itemCodes: Set<string>): Promise<Map<string, PfConceptItemPrices>> {
-    const feed = await this.optionalFeed(url)
+  async loadPrices(
+    url: string,
+    itemCodes: Set<string>,
+    context: FeedRequestContext
+  ): Promise<Map<string, PfConceptItemPrices>> {
+    const feed = await this.optionalFeed('prix', url, context)
     const result = new Map<string, PfConceptItemPrices>()
     for (const item of collect(feed, ['itemcode', 'scales'])) {
       const code = cleanString(field(item, 'itemcode'))
@@ -158,8 +159,12 @@ export default class PfConceptConnector extends SupplierConnector {
   }
 
   /** Stock disponible par article (`stockDirect`). */
-  async loadStock(url: string, itemCodes: Set<string>): Promise<Map<string, number>> {
-    const feed = await this.optionalFeed(url)
+  async loadStock(
+    url: string,
+    itemCodes: Set<string>,
+    context: FeedRequestContext
+  ): Promise<Map<string, number>> {
+    const feed = await this.optionalFeed('stock', url, context)
     const result = new Map<string, number>()
     for (const item of collect(feed, ['itemCode', 'stockDirect'])) {
       const code = cleanString(field(item, 'itemCode'))
@@ -172,9 +177,10 @@ export default class PfConceptConnector extends SupplierConnector {
   /** Options de marquage par article : `printfeedrefs` → `printFeedRows` (par `ref`). */
   async loadPrintRows(
     url: string,
-    itemCodes: Set<string>
+    itemCodes: Set<string>,
+    context: FeedRequestContext
   ): Promise<Map<string, PfConceptPrintRow[]>> {
-    const feed = await this.optionalFeed(url)
+    const feed = await this.optionalFeed('marquage', url, context)
     const rowsByRef = new Map<string, PfConceptPrintRow>()
     for (const row of collect(feed, ['ref', 'printCode', 'impMethod'])) {
       const ref = cleanString(field(row, 'ref'))
@@ -207,8 +213,11 @@ export default class PfConceptConnector extends SupplierConnector {
    * Prix de marquage par code d'impression. On retient la première taille de
    * logo, une couleur, un passage : c'est le prix « d'appel » affichable.
    */
-  async loadPrintPrices(url: string): Promise<Map<string, PfConceptPrintPrice>> {
-    const feed = await this.optionalFeed(url)
+  async loadPrintPrices(
+    url: string,
+    context: FeedRequestContext
+  ): Promise<Map<string, PfConceptPrintPrice>> {
+    const feed = await this.optionalFeed('prix de marquage', url, context)
     const result = new Map<string, PfConceptPrintPrice>()
     for (const charge of collect(feed, ['printCode', 'logoSizes'])) {
       const printCode = cleanString(field(charge, 'printCode'))
@@ -237,13 +246,8 @@ export default class PfConceptConnector extends SupplierConnector {
    * week-end…) n'empêche pas l'import du catalogue : on journalise et on
    * continue sans ces données.
    */
-  private async optionalFeed(url: string): Promise<unknown> {
-    try {
-      return await this.http.getJson(url, {}, this.cache)
-    } catch (error) {
-      logger.warn({ err: error }, 'pfconcept optional feed unavailable, continuing without it')
-      return null
-    }
+  private optionalFeed(feed: string, url: string, context: FeedRequestContext): Promise<unknown> {
+    return this.optional(feed, context, () => this.http.getJson(url, {}, context.cache))
   }
 
   normalize(

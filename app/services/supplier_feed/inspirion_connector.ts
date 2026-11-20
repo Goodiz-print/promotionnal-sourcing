@@ -1,5 +1,4 @@
 import { inject } from '@adonisjs/core'
-import logger from '@adonisjs/core/services/logger'
 import supplierFeedsConfig from '#config/supplier_feeds'
 import SupplierConnector from '#services/supplier_feed/supplier_connector'
 import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
@@ -14,8 +13,8 @@ import {
   parsePositiveInt,
 } from '#shared/helpers/supplier_feed'
 import type {
-  FeedCacheOptions,
   FeedNode,
+  FeedRequestContext,
   FetchCatalogueOptions,
   InspirionCatalogueIndex,
   NormalizedImage,
@@ -92,45 +91,52 @@ export default class InspirionConnector extends SupplierConnector {
     limit,
     locale,
     refresh,
+    onMissingFeed,
   }: FetchCatalogueOptions): Promise<NormalizedProduct[]> {
     const { apiKey, baseUrl } = supplierFeedsConfig.inspirion
     if (!apiKey) {
       throw new SupplierConnectorNotConfiguredException('INSPIRION_API_KEY manquant dans .env')
     }
     const headers = { 'X-Gateway-API-Key': apiKey }
-    const cache = { refresh: refresh ?? false }
+    const context: FeedRequestContext = { cache: { refresh: refresh ?? false }, onMissingFeed }
 
     const productsFeed = await this.http.getJson(
       `${baseUrl}/api/v2/products?language=${locale}`,
       headers,
-      cache
+      context.cache
     )
     const products = collect(productsFeed, ['sku', 'variants']).slice(0, limit ?? undefined)
 
     const [prices, stock, categories, printData, printPrices, deliveryTimes] = await Promise.all([
-      this.optionalFeed(`${baseUrl}/api/v2/pricelist`, headers, cache),
-      this.optionalFeed(`${baseUrl}/api/v1/stock`, headers, cache),
-      this.optionalFeed(`${baseUrl}/api/v1/products/categories?language=${locale}`, headers, cache),
-      this.optionalFeed(`${baseUrl}/api/v1/printdata?language=${locale}`, headers, cache),
-      this.optionalFeed(`${baseUrl}/api/v2/print-prices`, headers, cache),
-      this.optionalFeed(`${baseUrl}/api/v2/delivery-time`, headers, cache),
+      this.optionalFeed('prix', `${baseUrl}/api/v2/pricelist`, headers, context),
+      this.optionalFeed('stock', `${baseUrl}/api/v1/stock`, headers, context),
+      this.optionalFeed(
+        'catégories',
+        `${baseUrl}/api/v1/products/categories?language=${locale}`,
+        headers,
+        context
+      ),
+      this.optionalFeed(
+        'marquage',
+        `${baseUrl}/api/v1/printdata?language=${locale}`,
+        headers,
+        context
+      ),
+      this.optionalFeed('prix de marquage', `${baseUrl}/api/v2/print-prices`, headers, context),
+      this.optionalFeed('délais', `${baseUrl}/api/v2/delivery-time`, headers, context),
     ])
     const index = this.index({ prices, stock, categories, printData, printPrices, deliveryTimes })
 
     return products.map((product) => this.normalize(product, index))
   }
 
-  private async optionalFeed(
+  private optionalFeed(
+    feed: string,
     url: string,
     headers: Record<string, string>,
-    cache: FeedCacheOptions
+    context: FeedRequestContext
   ): Promise<unknown> {
-    try {
-      return await this.http.getJson(url, headers, cache)
-    } catch (error) {
-      logger.warn({ err: error }, 'inspirion optional feed unavailable, continuing without it')
-      return null
-    }
+    return this.optional(feed, context, () => this.http.getJson(url, headers, context.cache))
   }
 
   /** Indexe les flux annexes par `article_id` (ou code d'impression). */
@@ -195,7 +201,7 @@ export default class InspirionConnector extends SupplierConnector {
       for (const scale of collect(field(item, 'pricelist'), ['quantity', 'price'])) {
         const minQuantity = parsePositiveInt(field(scale, 'quantity'))
         const unitPrice = parseDecimal(field(scale, 'price'))
-        if (minQuantity !== null && unitPrice !== null && unitPrice >= 0) {
+        if (minQuantity !== null && unitPrice !== null && unitPrice > 0) {
           byQuantity.set(minQuantity, unitPrice)
         }
       }
@@ -222,8 +228,14 @@ export default class InspirionConnector extends SupplierConnector {
   }
 
   /** Images d'une liste `[{ image_url }]`, la première en `primary`. */
-  private images(list: unknown, firstRole: NormalizedImage['role']): NormalizedImage[] {
-    return collect(list, ['image_url'])
+  private images(
+    preferred: unknown,
+    fallback: unknown,
+    firstRole: NormalizedImage['role']
+  ): NormalizedImage[] {
+    // `images_300` peut être un tableau vide alors que `images` est renseigné.
+    const list = collect(preferred, ['image_url'])
+    return (list.length > 0 ? list : collect(fallback, ['image_url']))
       .map((image) => cleanString(field(image, 'image_url')))
       .filter((url): url is string => url !== null && url.startsWith('http'))
       .map((url, position) => ({ url, role: position === 0 ? firstRole : ('view' as const) }))
@@ -239,7 +251,7 @@ export default class InspirionConnector extends SupplierConnector {
 
     const variants: NormalizedVariant[] = articles.map((article) => {
       const articleId = cleanString(field(article, 'article_id')) ?? sku
-      const images = this.images(field(article, 'images_300') ?? field(article, 'images'), 'view')
+      const images = this.images(field(article, 'images_300'), field(article, 'images'), 'view')
       return {
         sku: articleId,
         colorLabel: cleanString(field(article, 'colour')),
@@ -251,9 +263,10 @@ export default class InspirionConnector extends SupplierConnector {
     })
 
     const gallery = [
-      ...this.images(field(first, 'images_300') ?? field(first, 'images'), 'primary'),
+      ...this.images(field(first, 'images_300'), field(first, 'images'), 'primary'),
       ...this.images(
-        field(product, 'details_images_300') ?? field(product, 'details_images'),
+        field(product, 'details_images_300'),
+        field(product, 'details_images'),
         'view'
       ),
     ]

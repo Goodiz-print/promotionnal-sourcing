@@ -19,6 +19,7 @@ import ProductStockService from '#services/product_stock_service'
 import StorageService from '#services/storage/storage_service'
 import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
 import SupplierReferenceService from '#services/supplier_feed/supplier_reference_service'
+import { SupplierFeedIncompleteException } from '#exceptions/supplier_feed_errors'
 import { isEuEeaCountry } from '#shared/types/country'
 import type Supplier from '#models/supplier'
 import type SupplierConnector from '#services/supplier_feed/supplier_connector'
@@ -85,10 +86,12 @@ export default class SupplierCatalogueImporter {
     connector: SupplierConnector,
     options: SupplierImportOptions
   ): Promise<SupplierImportSummary> {
+    const missingFeeds = new Set<string>()
     const products = await connector.fetchCatalogue({
       limit: options.limit,
       locale: options.locale,
       refresh: options.refresh,
+      onMissingFeed: (feed) => missingFeeds.add(feed),
     })
     const summary: SupplierImportSummary = {
       supplier: connector.key,
@@ -99,6 +102,7 @@ export default class SupplierCatalogueImporter {
       deactivated: 0,
       unmatchedCategories: [],
       unmatchedTechniques: [],
+      missingFeeds: [...missingFeeds].sort(),
       errors: [],
     }
 
@@ -119,6 +123,14 @@ export default class SupplierCatalogueImporter {
     summary.unmatchedTechniques = [...unmatchedTechniques].sort()
 
     if (options.dryRun) return summary
+
+    // Import intégral amputé d'un flux annexe : l'écrire remplacerait prix,
+    // déclinaisons ou marquages existants par du vide sur tout le catalogue.
+    if (options.limit === null && summary.missingFeeds.length > 0) {
+      throw new SupplierFeedIncompleteException(
+        `Import intégral annulé, flux indisponible(s) : ${summary.missingFeeds.join(', ')}`
+      )
+    }
 
     const supplier = await this.references.upsertSupplier(connector.identity, options.locale)
     for (const [index, product] of products.entries()) {
@@ -166,14 +178,14 @@ export default class SupplierCatalogueImporter {
     limit: number | null
   ): Promise<number> {
     if (products.length === 0 || (limit !== null && products.length >= limit)) return 0
-    const missing = await Product.query()
+    // Filtrage en mémoire : un `NOT IN` de tout le catalogue dépasserait la
+    // limite de paramètres de PostgreSQL (65 535) sur un gros fournisseur.
+    const present = new Set(products.map((product) => product.externalId))
+    const active = await Product.query()
       .where('supplierId', supplier.id)
       .whereNotNull('externalId')
-      .whereNotIn(
-        'externalId',
-        products.map((product) => product.externalId)
-      )
       .where('isActive', true)
+    const missing = active.filter((product) => !present.has(product.externalId!))
     for (const product of missing) {
       await product.merge({ isActive: false }).save()
       await emitter.emit(ProductChanged, new ProductChanged(product.id))

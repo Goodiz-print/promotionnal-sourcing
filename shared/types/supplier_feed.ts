@@ -38,6 +38,17 @@ export interface FetchCatalogueOptions {
   locale: SupplierFeedLocale
   /** Retélécharge les flux au lieu de réutiliser le cache disque (`--refresh`). */
   refresh?: boolean
+  /**
+   * Appelé pour chaque flux annexe (prix, stock, marquage…) indisponible : le
+   * catalogue est renvoyé sans ces données, à l'appelant de décider s'il l'écrit.
+   */
+  onMissingFeed?: (feed: string) => void
+}
+
+/** Contexte d'une lecture de flux annexe : cache et signalement d'un flux manquant. */
+export interface FeedRequestContext {
+  cache: FeedCacheOptions
+  onMissingFeed?: (feed: string) => void
 }
 
 export interface NormalizedPriceTier {
@@ -126,6 +137,11 @@ export interface SupplierImportSummary {
   deactivated: number
   unmatchedCategories: string[]
   unmatchedTechniques: string[]
+  /**
+   * Flux annexes indisponibles (prix, stock, marquage…). Non vide sur un import
+   * intégral = import annulé avant toute écriture.
+   */
+  missingFeeds: string[]
   errors: { externalId: string; message: string }[]
 }
 

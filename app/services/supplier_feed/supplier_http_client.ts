@@ -4,7 +4,6 @@ import { mkdir, readFile, rename, rm, stat } from 'node:fs/promises'
 import { join } from 'node:path'
 import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
-import app from '@adonisjs/core/services/app'
 import logger from '@adonisjs/core/services/logger'
 import supplierFeedsConfig from '#config/supplier_feeds'
 import { SupplierFeedHttpException } from '#exceptions/supplier_feed_errors'
@@ -70,7 +69,10 @@ export default class SupplierHttpClient {
   }
 
   async getBuffer(url: string): Promise<{ content: Buffer; mimeType: string }> {
-    const response = await this.request(url, { headers: {} })
+    const response = await this.request(url, {
+      headers: {},
+      timeoutMs: supplierFeedsConfig.http.imageTimeoutMs,
+    })
     return {
       content: Buffer.from(await response.arrayBuffer()),
       mimeType: response.headers.get('content-type') ?? 'application/octet-stream',
@@ -82,7 +84,7 @@ export default class SupplierHttpClient {
     headers: Record<string, string>,
     { refresh, scope }: FeedCacheOptions
   ): Promise<T> {
-    const directory = app.makePath('tmp', 'supplier_feeds')
+    const { cacheDirectory: directory, cacheTtlMs, retries } = supplierFeedsConfig.http
     // Nom de fichier = empreinte de l'URL et du compte (en-têtes, ou `scope` si
     // le jeton change à chaque exécution) : aucun secret en clair.
     const key = createHash('sha256')
@@ -93,27 +95,34 @@ export default class SupplierHttpClient {
     const fresh =
       !refresh &&
       (await stat(path).then(
-        (file) => Date.now() - file.mtimeMs < supplierFeedsConfig.http.cacheTtlMs,
+        (file) => Date.now() - file.mtimeMs < cacheTtlMs,
         () => false
       ))
     if (!fresh) {
-      const response = await this.request(url, { headers })
-      if (!response.body) {
-        throw new SupplierFeedHttpException(`Réponse vide pour ${redact(url)}`)
-      }
       await mkdir(directory, { recursive: true })
       // Fichier partiel puis renommage : un téléchargement interrompu ne laisse
-      // jamais un cache tronqué.
+      // jamais un cache tronqué. Une coupure en cours de corps est retentée
+      // comme une erreur réseau (`request` ne couvre que l'ouverture).
       const partial = `${path}.${process.pid}.part`
-      try {
-        await pipeline(
-          Readable.fromWeb(response.body as unknown as NodeReadableStream),
-          createWriteStream(partial)
-        )
-        await rename(partial, path)
-      } catch {
-        await rm(partial, { force: true })
-        throw new SupplierFeedHttpException(`Téléchargement interrompu pour ${redact(url)}`)
+      for (let attempt = 0; ; attempt++) {
+        const response = await this.request(url, { headers })
+        if (!response.body) {
+          throw new SupplierFeedHttpException(`Réponse vide pour ${redact(url)}`)
+        }
+        try {
+          await pipeline(
+            Readable.fromWeb(response.body as unknown as NodeReadableStream),
+            createWriteStream(partial)
+          )
+          await rename(partial, path)
+          break
+        } catch {
+          await rm(partial, { force: true })
+          if (attempt >= retries) {
+            throw new SupplierFeedHttpException(`Téléchargement interrompu pour ${redact(url)}`)
+          }
+          logger.warn({ url: redact(url), attempt }, 'supplier feed download interrupted, retrying')
+        }
       }
     }
 
@@ -127,9 +136,10 @@ export default class SupplierHttpClient {
 
   private async request(
     url: string,
-    init: { method?: string; headers: Record<string, string>; body?: string }
+    init: { method?: string; headers: Record<string, string>; body?: string; timeoutMs?: number }
   ): Promise<Response> {
-    const { timeoutMs, retries, userAgent } = supplierFeedsConfig.http
+    const { retries, userAgent } = supplierFeedsConfig.http
+    const timeoutMs = init.timeoutMs ?? supplierFeedsConfig.http.timeoutMs
     let failure = `Flux injoignable : ${redact(url)}`
 
     for (let attempt = 0; attempt <= retries; attempt++) {

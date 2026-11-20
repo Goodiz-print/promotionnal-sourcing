@@ -7,6 +7,7 @@ import ReferenceMatcher from '#shared/helpers/reference_matcher'
 import {
   SupplierConnectorNotConfiguredException,
   SupplierFeedHttpException,
+  SupplierFeedIncompleteException,
 } from '#exceptions/supplier_feed_errors'
 import {
   cheapestPriceGrid,
@@ -489,13 +490,52 @@ test.group('Connecteur Inspirion', (group) => {
     assert.equal(pen.leadTimeDays, 3)
   })
 
-  test('un flux annexe en échec n’empêche pas l’import', async ({ assert }) => {
+  test('flux annexes en échec : catalogue renvoyé, flux manquants signalés', async ({ assert }) => {
     const feeds = supplierFixture('inspirion', 'feeds') as Record<string, unknown>
     const client = new FakeSupplierHttpClient({ '/api/v2/products': feeds['/api/v2/products'] })
-    const [cup] = await new InspirionConnector(client).fetchCatalogue({ limit: 1, locale: 'fr' })
+    const missing: string[] = []
+    const [cup] = await new InspirionConnector(client).fetchCatalogue({
+      limit: 1,
+      locale: 'fr',
+      onMissingFeed: (feed) => missing.push(feed),
+    })
     assert.equal(cup.externalId, '9990001')
     assert.deepEqual(cup.priceTiers, [])
     assert.deepEqual(cup.markingPositions, [])
+    assert.sameMembers(missing, [
+      'prix',
+      'stock',
+      'catégories',
+      'marquage',
+      'prix de marquage',
+      'délais',
+    ])
+  })
+
+  test('images_300 vide : repli sur images', async ({ assert }) => {
+    const client = new FakeSupplierHttpClient({
+      '/api/v2/products': [
+        {
+          sku: '9990020',
+          name: 'Fixture',
+          variants: [
+            {
+              article_id: '56-9990020',
+              images: [{ image_url: 'https://media.fixture.example/72/56-9990020_01.jpg' }],
+              images_300: [],
+            },
+          ],
+        },
+      ],
+    })
+    const [product] = await new InspirionConnector(client).fetchCatalogue({
+      limit: 1,
+      locale: 'fr',
+    })
+    assert.deepEqual(product.images, [
+      { url: 'https://media.fixture.example/72/56-9990020_01.jpg', role: 'primary' },
+    ])
+    assert.lengthOf(product.variants[0].images, 1)
   })
 
   test('sans INSPIRION_API_KEY : erreur explicite, aucun appel', async ({ assert }) => {
@@ -654,16 +694,87 @@ test.group('Connecteur Makito', (group) => {
     assert.include(client.requests[0].url, '/products?page=1&per_page=1')
   })
 
-  test('un flux annexe en échec n’empêche pas l’import', async ({ assert }) => {
+  test('flux annexes en échec : catalogue renvoyé, flux manquants signalés', async ({ assert }) => {
     const feeds = supplierFixture('makito', 'feeds') as Record<string, unknown>
     const client = new FakeSupplierHttpClient({
       '/login': { status: 200, msg: '', token: '7|doc-token' },
       '/products': feeds['/products'],
     })
-    const [scarf] = await new MakitoConnector(client).fetchCatalogue({ limit: 1, locale: 'fr' })
+    const missing: string[] = []
+    const [scarf] = await new MakitoConnector(client).fetchCatalogue({
+      limit: 1,
+      locale: 'fr',
+      onMissingFeed: (feed) => missing.push(feed),
+    })
     assert.equal(scarf.name, 'Fixy')
     assert.deepEqual(scarf.priceTiers, [])
     assert.equal(client.requests[0].headers.Authorization, 'Bearer 7|doc-token')
+    assert.lengthOf(missing, 14)
+    assert.includeMembers(missing, ['prices', 'variants', 'stockVariants', 'markings'])
+  })
+
+  const page = (current: number, last: number, total: number, refs: string[]) => ({
+    status_code: 200,
+    page_info: { current_page: current, last_page: last, total },
+    products: refs.map((ref) => ({ ref, name: `Fixture ${ref}` })),
+  })
+
+  test('catalogue entier : toutes les pages de /products sont lues', async ({ assert }) => {
+    const client = new FakeSupplierHttpClient({
+      '/login': { status: 1, msg: '42|fake-token' },
+      'page=1&': page(1, 2, 3, ['9001', '9002']),
+      'page=2&': page(2, 2, 3, ['9003']),
+    })
+    const products = await new MakitoConnector(client).fetchCatalogue({ limit: null, locale: 'fr' })
+    assert.deepEqual(
+      products.map((product) => product.externalId),
+      ['9001', '9002', '9003']
+    )
+  })
+
+  test('catalogue entier incomplet (page vide, pagination absente) : erreur', async ({
+    assert,
+  }) => {
+    const truncated = new FakeSupplierHttpClient({
+      '/login': { status: 1, msg: '42|fake-token' },
+      'page=1&': page(1, 2, 3, ['9001', '9002']),
+      'page=2&': page(2, 2, 3, []),
+    })
+    await assert.rejects(
+      () => new MakitoConnector(truncated).fetchCatalogue({ limit: null, locale: 'fr' }),
+      SupplierFeedIncompleteException
+    )
+
+    const unpaginated = new FakeSupplierHttpClient({
+      '/login': { status: 1, msg: '42|fake-token' },
+      '/products': { status_code: 200, products: [{ ref: '9001', name: 'Fixture' }] },
+    })
+    await assert.rejects(
+      () => new MakitoConnector(unpaginated).fetchCatalogue({ limit: null, locale: 'fr' }),
+      SupplierFeedIncompleteException
+    )
+    // Un échantillon (--limit) n'a pas à être complet.
+    const sample = await new MakitoConnector(unpaginated).fetchCatalogue({ limit: 5, locale: 'fr' })
+    assert.lengthOf(sample, 1)
+  })
+
+  test('plusieurs images « main » : une seule principale', async ({ assert }) => {
+    const feeds = supplierFixture('makito', 'feeds') as Record<string, unknown>
+    const client = new FakeSupplierHttpClient({
+      '/login': { status: 1, msg: '42|fake-token' },
+      ...feeds,
+      '/imgResources': {
+        images: [
+          { ref: '9001', url: 'https://img.fixture.example/9001/principal/a.jpg', main: 1 },
+          { ref: '9001', url: 'https://img.fixture.example/9001/principal/b.jpg', main: 1 },
+        ],
+      },
+    })
+    const [scarf] = await new MakitoConnector(client).fetchCatalogue({ limit: 1, locale: 'fr' })
+    assert.deepEqual(
+      scarf.images.map((image) => image.role),
+      ['primary', 'view']
+    )
   })
 
   test('identifiants refusés : erreur explicite, aucun flux demandé', async ({ assert }) => {

@@ -4,7 +4,11 @@ import supplierFeedsConfig from '#config/supplier_feeds'
 import SupplierConnector from '#services/supplier_feed/supplier_connector'
 import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
 import { SupplierFeedHttpException } from '#exceptions/supplier_feed_errors'
-import type { NormalizedProduct, SupplierFeedKey } from '#shared/types/supplier_feed'
+import type {
+  FetchCatalogueOptions,
+  NormalizedProduct,
+  SupplierFeedKey,
+} from '#shared/types/supplier_feed'
 
 /** Fixture JSON anonymisée (`tests/fixtures/supplier_feed/<fournisseur>/<nom>.json`). */
 export function supplierFixture(supplier: string, name: string): unknown {
@@ -103,6 +107,9 @@ export class InMemorySupplierConnector extends SupplierConnector {
     website: 'https://fixture.example',
   }
 
+  /** Flux annexes signalés indisponibles à chaque lecture. */
+  missingFeeds: string[] = []
+
   constructor(public products: NormalizedProduct[]) {
     super()
   }
@@ -111,7 +118,11 @@ export class InMemorySupplierConnector extends SupplierConnector {
     return true
   }
 
-  async fetchCatalogue({ limit }: { limit: number | null }): Promise<NormalizedProduct[]> {
+  async fetchCatalogue({
+    limit,
+    onMissingFeed,
+  }: FetchCatalogueOptions): Promise<NormalizedProduct[]> {
+    for (const feed of this.missingFeeds) onMissingFeed?.(feed)
     return this.products.slice(0, limit ?? undefined)
   }
 }

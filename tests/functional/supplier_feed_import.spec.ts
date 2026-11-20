@@ -14,7 +14,10 @@ import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
 import SupplierCatalogueImporter from '#services/supplier_feed/supplier_catalogue_importer'
 import SupplierConnectorRegistry from '#services/supplier_feed/supplier_connector_registry'
 import { FALLBACK_CATEGORY_SLUG } from '#services/supplier_feed/supplier_reference_service'
-import { UnknownSupplierConnectorException } from '#exceptions/supplier_feed_errors'
+import {
+  SupplierFeedIncompleteException,
+  UnknownSupplierConnectorException,
+} from '#exceptions/supplier_feed_errors'
 import { CertificationFactory } from '#database/factories/certification_factory'
 import { useDatabase } from '#tests/utils/setup'
 import { useFakeStorage } from '#tests/utils/storage'
@@ -236,6 +239,39 @@ test.group('Import de catalogue fournisseur', (group) => {
     assert.equal(summary.deactivated, 1)
     const missing = await Product.findByOrFail('externalId', 'EXT-OTHER')
     assert.isFalse(missing.isActive)
+  })
+
+  test('import intégral amputé d’un flux annexe : annulé, rien d’écrit ni désactivé', async ({
+    assert,
+  }) => {
+    const other = normalizedProduct({ externalId: 'EXT-OTHER' })
+    await runImport(new InMemorySupplierConnector([MARKED, other]))
+    const tiersBefore = await ProductPriceTier.query().count('* as total')
+
+    // Flux prix indisponible : la fiche arrive sans palier.
+    const connector = new InMemorySupplierConnector([{ ...MARKED, priceTiers: [] }])
+    connector.missingFeeds = ['prix']
+    await assert.rejects(
+      () => runImport(connector, { ...OPTIONS, limit: null }),
+      SupplierFeedIncompleteException
+    )
+
+    const tiersAfter = await ProductPriceTier.query().count('* as total')
+    assert.deepEqual(tiersAfter[0].$extras, tiersBefore[0].$extras)
+    const stillActive = await Product.findByOrFail('externalId', 'EXT-OTHER')
+    assert.isTrue(stillActive.isActive)
+  })
+
+  test('flux annexe manquant : signalé au bilan (dry-run et import limité)', async ({ assert }) => {
+    const connector = new InMemorySupplierConnector([MARKED])
+    connector.missingFeeds = ['stock', 'prix']
+
+    const dryRun = await runImport(connector, { ...OPTIONS, limit: null, dryRun: true })
+    assert.deepEqual(dryRun.missingFeeds, ['prix', 'stock'])
+
+    const limited = await runImport(connector)
+    assert.deepEqual(limited.missingFeeds, ['prix', 'stock'])
+    assert.equal(limited.created, 1)
   })
 
   test('flux tronqué par --limit : rien n’est désactivé', async ({ assert }) => {

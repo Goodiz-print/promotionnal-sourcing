@@ -26,14 +26,7 @@ export const MARKING_TECHNIQUES: MarkingTechniqueSeed[] = [
     slug: 'digital-printing',
     family: 'print',
     names: { fr: 'Impression numérique', en: 'Digital printing' },
-    synonyms: [
-      'impression numérique',
-      'digital print',
-      'inkjet',
-      'digital',
-      'digitalw2',
-      'quadrichromie',
-    ],
+    synonyms: ['impression numérique', 'digital print', 'inkjet', 'digital', 'digitalw2'],
   },
   {
     slug: 'uv-printing',

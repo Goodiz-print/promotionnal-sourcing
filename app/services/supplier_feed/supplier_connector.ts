@@ -1,4 +1,6 @@
+import logger from '@adonisjs/core/services/logger'
 import type {
+  FeedRequestContext,
   FetchCatalogueOptions,
   NormalizedProduct,
   SupplierFeedIdentity,
@@ -25,4 +27,25 @@ export default abstract class SupplierConnector {
    * `SupplierConnectorNotConfiguredException` sans identifiants.
    */
   abstract fetchCatalogue(options: FetchCatalogueOptions): Promise<NormalizedProduct[]>
+
+  /**
+   * Lit un flux annexe (prix, stock, marquage…). En échec (pas encore activé
+   * côté fournisseur, timeout…), il est journalisé, signalé par
+   * `onMissingFeed` et remplacé par `null` : le catalogue reste lisible, mais
+   * l'importeur refuse d'écrire un import intégral amputé d'un flux (il
+   * écraserait prix, déclinaisons ou marquages existants par du vide).
+   */
+  protected async optional(
+    feed: string,
+    context: FeedRequestContext,
+    load: () => Promise<unknown>
+  ): Promise<unknown> {
+    try {
+      return await load()
+    } catch (error) {
+      logger.warn({ supplier: this.key, feed, err: error }, 'supplier optional feed unavailable')
+      context.onMissingFeed?.(feed)
+      return null
+    }
+  }
 }
