@@ -48,6 +48,26 @@
     "cta": "Ver la solicitud",
     "footer": "Este es el único recordatorio de esta solicitud. También puede rechazarla desde su espacio de proveedor."
   },
+  "rfqDetails": {
+    "description": "Descripción de la solicitud",
+    "linesTitle": "{count, plural, one {# línea que presupuestar} other {# líneas que presupuestar}}",
+    "reference": "Referencia",
+    "variant": "Variante",
+    "quantity": "Cantidad",
+    "marking": "Marcaje",
+    "markingColors": "{count, plural, one {# color} other {# colores}}",
+    "noMarking": "Sin marcaje",
+    "note": "Nota de la agencia",
+    "unitPrice": "Precio unitario orientativo",
+    "markingUnitPrice": "Marcaje por pieza orientativo",
+    "setupCharge": "Gastos técnicos orientativos",
+    "total": "Total orientativo",
+    "price": "Precio orientativo",
+    "noPrice": "Sin precio de catálogo: por presupuestar",
+    "indicativeNotice": "Los precios indicados son los precios orientativos mostrados en {brandName}, calculados a partir de su catálogo. No son precios acordados: puede proponer una tarifa mejor o mantenerlos.",
+    "replyHint": "Para responder, conteste a este correo adjuntando su presupuesto (PDF).",
+    "platformLink": "También puede consultar la solicitud en la plataforma:"
+  },
   "quoteReceived": {
     "subject": "Nuevo presupuesto de {supplierName} para «{rfqTitle}»",
     "title": "{supplierName} ha enviado un presupuesto",

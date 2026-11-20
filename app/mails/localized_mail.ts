@@ -59,4 +59,18 @@ export default abstract class LocalizedMail extends BaseMail {
       brandName: this.brandName,
     })
   }
+
+  /**
+   * Version texte du mail, rendue dans la même langue que le HTML. Les
+   * gabarits texte écrivent les valeurs sans échappement HTML (`{{{ }}}`) :
+   * rien n'y est interprété.
+   */
+  protected textViewIn(template: string, state: Record<string, unknown> = {}) {
+    return this.message.textView(template, {
+      ...state,
+      i18n: this.i18n,
+      locale: this.locale,
+      brandName: this.brandName,
+    })
+  }
 }

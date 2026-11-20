@@ -3,12 +3,20 @@
   title,
   locale,
   i18n,
+  replyable: canReply,
   footer: t('emails.rfqReminder.footer'),
 })
   <p>{{ t('emails.rfqReminder.body', { buyerName, rfqTitle }) }}</p>
   @if(deadline)
     <p>{{ t('emails.rfqReminder.deadline', { deadline }) }}</p>
   @end
+  @include('emails/partials/rfq_details')
+  @if(canReply)
+    <p><strong>{{ t('emails.rfqDetails.replyHint') }}</strong></p>
+  @end
 
-  <p><a class="button" href="{{ appUrl }}{{ rfqPath }}">{{ t('emails.rfqReminder.cta') }}</a></p>
+  <p style="font-size:13px;color:#6b7280">
+    {{ t('emails.rfqDetails.platformLink') }}
+    <a href="{{ appUrl }}{{ rfqPath }}">{{ t('emails.rfqReminder.cta') }}</a>
+  </p>
 @end

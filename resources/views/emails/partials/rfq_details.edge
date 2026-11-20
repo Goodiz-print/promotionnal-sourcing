@@ -1,0 +1,81 @@
+{{-- Description et lignes d'une demande de devis (#219), communes à la demande et à la relance. --}}
+@if(description)
+  <p>
+    <strong>{{ t('emails.rfqDetails.description') }}</strong>
+    <br />
+    {{ description }}
+  </p>
+@end
+@if(lines.length)
+  <p><strong>{{ t('emails.rfqDetails.linesTitle', { count: lines.length }) }}</strong></p>
+  @each(line in lines)
+    <table
+      role="presentation"
+      style="width:100%;border-collapse:collapse;margin:0 0 16px;border:1px solid #e5e7eb"
+    >
+      <tr>
+        <td colspan="2" style="padding:10px 12px;background:#f9fafb;font-weight:600;color:#111827">
+          {{ line.name }}
+        </td>
+      </tr>
+      @if(line.reference)
+        @!component('emails/partials/rfq_row', {
+          label: t('emails.rfqDetails.reference'),
+          value: line.reference,
+        })
+      @end
+      @if(line.variant)
+        @!component('emails/partials/rfq_row', {
+          label: t('emails.rfqDetails.variant'),
+          value: line.variant,
+        })
+      @end
+      @!component('emails/partials/rfq_row', {
+        label: t('emails.rfqDetails.quantity'),
+        value: line.unit ? `${line.quantity} ${line.unit}` : line.quantity,
+      })
+      @!component('emails/partials/rfq_row', {
+        label: t('emails.rfqDetails.marking'),
+        value: line.marking
+          ? [
+              line.marking.position,
+              line.marking.technique,
+              line.marking.colors
+                ? t('emails.rfqDetails.markingColors', {
+                    count: Number(line.marking.colors),
+                  })
+                : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')
+          : t('emails.rfqDetails.noMarking'),
+      })
+      @if(line.note)
+        @!component('emails/partials/rfq_row', {
+          label: t('emails.rfqDetails.note'),
+          value: line.note,
+        })
+      @end
+      @if(line.prices)
+        @each(key in
+        ['unitPrice', 'markingUnitPrice', 'setupCharge', 'total'].filter(
+          (name) => line.prices[name],
+        ))
+          @!component('emails/partials/rfq_row', {
+            label: t(`emails.rfqDetails.${key}`),
+            value: line.prices[key],
+          })
+        @end
+      @else
+        @!component('emails/partials/rfq_row', {
+          label: t('emails.rfqDetails.price'),
+          value: t('emails.rfqDetails.noPrice'),
+        })
+      @end
+    </table>
+  @end
+
+  <p style="font-size:13px;color:#6b7280">
+    {{ t('emails.rfqDetails.indicativeNotice', { brandName }) }}
+  </p>
+@end

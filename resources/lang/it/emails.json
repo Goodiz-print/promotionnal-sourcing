@@ -48,6 +48,26 @@
     "cta": "Consulta la richiesta",
     "footer": "Questo è l'unico promemoria per questa richiesta. Puoi anche rifiutarla dalla tua area fornitore."
   },
+  "rfqDetails": {
+    "description": "Descrizione della richiesta",
+    "linesTitle": "{count, plural, one {# riga da quotare} other {# righe da quotare}}",
+    "reference": "Codice",
+    "variant": "Variante",
+    "quantity": "Quantità",
+    "marking": "Personalizzazione",
+    "markingColors": "{count, plural, one {# colore} other {# colori}}",
+    "noMarking": "Senza personalizzazione",
+    "note": "Nota dell'agenzia",
+    "unitPrice": "Prezzo unitario indicativo",
+    "markingUnitPrice": "Personalizzazione per pezzo indicativa",
+    "setupCharge": "Costi tecnici indicativi",
+    "total": "Totale indicativo",
+    "price": "Prezzo indicativo",
+    "noPrice": "Nessun prezzo di catalogo: da quotare",
+    "indicativeNotice": "I prezzi indicati sono i prezzi indicativi mostrati su {brandName}, calcolati dal vostro catalogo. Non sono prezzi concordati: potete proporre una tariffa migliore o mantenerli.",
+    "replyHint": "Per rispondere, rispondete a questa e-mail allegando il vostro preventivo (PDF).",
+    "platformLink": "Potete anche consultare la richiesta sulla piattaforma:"
+  },
   "quoteReceived": {
     "subject": "Nuovo preventivo di {supplierName} per «{rfqTitle}»",
     "title": "{supplierName} ha inviato un preventivo",

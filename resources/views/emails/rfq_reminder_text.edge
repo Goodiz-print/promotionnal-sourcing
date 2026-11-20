@@ -1,0 +1,19 @@
+{{{ t('emails.rfqReminder.title', { rfqTitle }) }}}
+
+{{{ t('emails.rfqReminder.body', { buyerName, rfqTitle }) }}}
+@if(deadline)
+{{{ t('emails.rfqReminder.deadline', { deadline }) }}}
+@end
+
+@include('emails/partials/rfq_details_text')
+@if(canReply)
+{{{ t('emails.rfqDetails.replyHint') }}}
+
+@end
+{{{ t('emails.rfqDetails.platformLink') }}} {{{ appUrl }}}{{{ rfqPath }}}
+
+--
+@if(!canReply)
+{{{ t('emails.layout.automatic') }}}
+@end
+{{{ t('emails.rfqReminder.footer') }}}

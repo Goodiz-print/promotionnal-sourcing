@@ -48,6 +48,26 @@
     "cta": "View the request",
     "footer": "This is the only reminder for this request. You can also decline it from your supplier area."
   },
+  "rfqDetails": {
+    "description": "Request description",
+    "linesTitle": "{count, plural, one {# line to quote} other {# lines to quote}}",
+    "reference": "Reference",
+    "variant": "Variant",
+    "quantity": "Quantity",
+    "marking": "Marking",
+    "markingColors": "{count, plural, one {# colour} other {# colours}}",
+    "noMarking": "No marking",
+    "note": "Agency note",
+    "unitPrice": "Indicative unit price",
+    "markingUnitPrice": "Indicative marking per piece",
+    "setupCharge": "Indicative setup charge",
+    "total": "Indicative total",
+    "price": "Indicative price",
+    "noPrice": "No catalogue price: to be quoted",
+    "indicativeNotice": "Prices shown are the indicative prices displayed on {brandName}, calculated from your catalogue. They are not agreed prices: you may offer a better rate or stick to them.",
+    "replyHint": "To reply, simply answer this email with your quote attached (PDF).",
+    "platformLink": "You can also view the request on the platform:"
+  },
   "quoteReceived": {
     "subject": "New quote from {supplierName} for “{rfqTitle}”",
     "title": "{supplierName} submitted a quote",

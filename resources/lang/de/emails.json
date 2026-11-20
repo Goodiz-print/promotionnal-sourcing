@@ -48,6 +48,26 @@
     "cta": "Anfrage ansehen",
     "footer": "Dies ist die einzige Erinnerung zu dieser Anfrage. Sie können sie auch in Ihrem Lieferantenbereich ablehnen."
   },
+  "rfqDetails": {
+    "description": "Beschreibung der Anfrage",
+    "linesTitle": "{count, plural, one {# Position zu kalkulieren} other {# Positionen zu kalkulieren}}",
+    "reference": "Artikelnummer",
+    "variant": "Variante",
+    "quantity": "Menge",
+    "marking": "Veredelung",
+    "markingColors": "{count, plural, one {# Farbe} other {# Farben}}",
+    "noMarking": "Ohne Veredelung",
+    "note": "Hinweis der Agentur",
+    "unitPrice": "Unverbindlicher Stückpreis",
+    "markingUnitPrice": "Unverbindliche Veredelung pro Stück",
+    "setupCharge": "Unverbindliche Einrichtungskosten",
+    "total": "Unverbindliche Summe",
+    "price": "Unverbindlicher Preis",
+    "noPrice": "Kein Katalogpreis: bitte kalkulieren",
+    "indicativeNotice": "Die angegebenen Preise sind die auf {brandName} angezeigten Richtpreise, berechnet aus Ihrem Katalog. Es sind keine vereinbarten Preise: Sie können einen besseren Preis anbieten oder dabei bleiben.",
+    "replyHint": "Antworten Sie einfach auf diese E-Mail und hängen Sie Ihr Angebot (PDF) an.",
+    "platformLink": "Sie können die Anfrage auch auf der Plattform ansehen:"
+  },
   "quoteReceived": {
     "subject": "Neues Angebot von {supplierName} für „{rfqTitle}“",
     "title": "{supplierName} hat ein Angebot eingereicht",

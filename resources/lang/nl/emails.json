@@ -48,6 +48,26 @@
     "cta": "Aanvraag bekijken",
     "footer": "Dit is de enige herinnering voor deze aanvraag. U kunt haar ook afwijzen in uw leveranciersomgeving."
   },
+  "rfqDetails": {
+    "description": "Beschrijving van de aanvraag",
+    "linesTitle": "{count, plural, one {# regel te calculeren} other {# regels te calculeren}}",
+    "reference": "Referentie",
+    "variant": "Variant",
+    "quantity": "Aantal",
+    "marking": "Bedrukking",
+    "markingColors": "{count, plural, one {# kleur} other {# kleuren}}",
+    "noMarking": "Zonder bedrukking",
+    "note": "Opmerking van het bureau",
+    "unitPrice": "Indicatieve stukprijs",
+    "markingUnitPrice": "Indicatieve bedrukking per stuk",
+    "setupCharge": "Indicatieve opstartkosten",
+    "total": "Indicatief totaal",
+    "price": "Indicatieve prijs",
+    "noPrice": "Geen catalogusprijs: te calculeren",
+    "indicativeNotice": "De vermelde prijzen zijn de indicatieve prijzen op {brandName}, berekend op basis van uw catalogus. Het zijn geen afgesproken prijzen: u kunt een beter tarief voorstellen of ze aanhouden.",
+    "replyHint": "Om te antwoorden, beantwoordt u deze e-mail met uw offerte als bijlage (pdf).",
+    "platformLink": "U kunt de aanvraag ook op het platform bekijken:"
+  },
   "quoteReceived": {
     "subject": "Nieuwe offerte van {supplierName} voor “{rfqTitle}”",
     "title": "{supplierName} heeft een offerte ingediend",

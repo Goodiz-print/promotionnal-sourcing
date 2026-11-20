@@ -1,0 +1,33 @@
+{{-- Version texte de rfq_details.edge : valeurs écrites sans échappement HTML. --}}
+@if(description)
+{{{ t('emails.rfqDetails.description') }}} :
+{{{ description }}}
+
+@end
+@if(lines.length)
+{{{ t('emails.rfqDetails.linesTitle', { count: lines.length }) }}}
+
+@each((line, index) in lines)
+{{ index + 1 }}. {{{ line.name }}}
+@if(line.reference)
+   {{{ t('emails.rfqDetails.reference') }}} : {{{ line.reference }}}
+@end
+@if(line.variant)
+   {{{ t('emails.rfqDetails.variant') }}} : {{{ line.variant }}}
+@end
+   {{{ t('emails.rfqDetails.quantity') }}} : {{ line.quantity }}{{{ line.unit ? ` ${line.unit}` : '' }}}
+   {{{ t('emails.rfqDetails.marking') }}} : {{{ line.marking ? [line.marking.position, line.marking.technique, line.marking.colors ? t('emails.rfqDetails.markingColors', { count: Number(line.marking.colors) }) : null].filter(Boolean).join(' · ') : t('emails.rfqDetails.noMarking') }}}
+@if(line.note)
+   {{{ t('emails.rfqDetails.note') }}} : {{{ line.note }}}
+@end
+@if(line.prices)
+@each(key in ['unitPrice', 'markingUnitPrice', 'setupCharge', 'total'].filter((name) => line.prices[name]))
+   {{{ t(`emails.rfqDetails.${key}`) }}} : {{{ line.prices[key] }}}
+@end
+@else
+   {{{ t('emails.rfqDetails.price') }}} : {{{ t('emails.rfqDetails.noPrice') }}}
+@end
+
+@end
+{{{ t('emails.rfqDetails.indicativeNotice', { brandName }) }}}
+@end

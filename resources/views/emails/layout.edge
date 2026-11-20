@@ -48,7 +48,10 @@
       <h1>{{ title }}</h1>
       {{{ await $slots.main() }}}
       <div class="footer">
-        {{ t('emails.layout.automatic') }}
+        {{-- Un mail qui invite à répondre (relais #223) ne dit pas le contraire. --}}
+        @if(!replyable)
+          {{ t('emails.layout.automatic') }}
+        @end
         @if(footer)
           {{ footer }}
         @end
