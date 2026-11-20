@@ -8,7 +8,9 @@
       "terms": "Geschäftsbedingungen",
       "termsHint": "Mindestbestellwert, Lieferzeiten und Liefergebiet, die den Käufern angezeigt werden.",
       "certificationsHint": "Normen und Siegel, die Sie besitzen (ISO, FSC, OEKO-TEX …).",
-      "presentation": "Unternehmensvorstellung"
+      "presentation": "Unternehmensvorstellung",
+      "quoteReception": "Empfang von Angebotsanfragen",
+      "quoteReceptionHint": "Agenturen senden Ihnen ihre Anfragen per E-Mail: Geben Sie die Adresse an, die sie empfangen soll."
     },
     "moderation": {
       "pending": "Profil wird geprüft",
@@ -31,7 +33,9 @@
     "certificationRemove": "Entfernen",
     "bio": "Vorstellung",
     "defaultOriginScope": "Standardherkunft",
-    "certificationsEmpty": "Keine Zertifizierung angegeben."
+    "certificationsEmpty": "Keine Zertifizierung angegeben.",
+    "quoteEmail": "Empfangsadresse für Anfragen",
+    "quoteEmailHint": "Bleibt das Feld leer, geht die Anfrage an die Kontaktadresse der Organisation, ersatzweise an die Verantwortlichen des Kontos."
   },
   "deliveryScope": {
     "none": "Nicht angegeben",

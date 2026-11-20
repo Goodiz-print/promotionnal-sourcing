@@ -31,6 +31,7 @@ function items(prefix: string, record: Record<string, Value>, keys: readonly str
 }
 
 const SUPPLIER_KEYS = [
+  'quoteEmail',
   'companyType',
   'commercialStatus',
   'minOrderQuantity',

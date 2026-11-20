@@ -57,6 +57,14 @@ function formatDate(value: string): string {
           >
             {{ organization.name }}
           </Link>
+          <BaseBadge
+            v-if="organization.quoteAddressSource === 'members'"
+            tone="warning"
+            class="ml-2"
+            :title="t('admin.organizations.quoteAddress.missingHint')"
+          >
+            {{ t('admin.organizations.quoteAddress.missing') }}
+          </BaseBadge>
         </td>
         <td class="text-text-secondary">
           {{ t(`admin.organizations.types.${organization.organizationType}`) }}

@@ -117,7 +117,9 @@
       "search": "Rechercher",
       "searchPlaceholder": "Nom, slug, SIRET ou TVA",
       "country": "Pays",
-      "allCountries": "Tous les pays"
+      "allCountries": "Tous les pays",
+      "missingQuoteAddress": "Sans adresse de réception",
+      "missingQuoteAddressHint": "Fournisseurs dont les demandes partent aux responsables du compte, faute d'adresse de réception ou de contact."
     },
     "types": {
       "buyer": "Acheteur",
@@ -196,6 +198,7 @@
         "no": "Non",
         "supplier": {
           "title": "Profil fournisseur",
+          "quoteEmail": "Adresse de réception des demandes",
           "companyType": "Type d'entreprise",
           "commercialStatus": "Statut commercial",
           "minOrderQuantity": "Quantité minimale de commande",
@@ -305,6 +308,10 @@
         "notEditable": "Cet abonnement ne peut plus être modifié ici.",
         "notSupplier": "Seule une organisation fournisseur peut s'abonner."
       }
+    },
+    "quoteAddress": {
+      "missing": "Sans adresse de réception",
+      "missingHint": "Les demandes de devis partent aux responsables du compte."
     }
   },
   "supplierLinks": {

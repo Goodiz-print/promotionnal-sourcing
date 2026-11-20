@@ -10,6 +10,9 @@ import type {
   AdminOrganizationSubscription,
 } from '#shared/types/admin_organization'
 import type { RoleSlug } from '#shared/types/role'
+import { SUPPLIER_ORGANIZATION_KINDS } from '#shared/types/organization'
+import { quoteAddressSource } from '#shared/helpers/quote_address'
+import type { QuoteAddressSource } from '#shared/types/rfq'
 
 interface TransformOptions {
   canManage: boolean
@@ -51,6 +54,7 @@ export default class AdminOrganizationDetailTransformer extends BaseTransformer<
       archivedAt: organization.archivedAt?.toISO() ?? null,
       createdAt: organization.createdAt.toISO()!,
       lastActivity: lastActivity?.toISOString() ?? null,
+      quoteAddressSource: this.quoteAddressSource(),
       email: organization.email,
       phone: organization.phone,
       website: organization.website,
@@ -96,11 +100,22 @@ export default class AdminOrganizationDetailTransformer extends BaseTransformer<
     }
   }
 
+  /** Adresse qui reçoit les demandes de devis (#217) ; `null` hors fournisseur. */
+  private quoteAddressSource(): QuoteAddressSource | null {
+    const { organization, supplierProfile } = this.resource
+    if (!SUPPLIER_ORGANIZATION_KINDS.includes(organization.organizationType)) return null
+    return quoteAddressSource({
+      quoteEmail: supplierProfile?.quoteEmail ?? null,
+      organizationEmail: organization.email,
+    })
+  }
+
   private transformSupplierProfile(
     profile: NonNullable<AdminOrganizationDetails['supplierProfile']>
   ): AdminOrganizationSupplierProfile {
     return {
       id: profile.id,
+      quoteEmail: profile.quoteEmail,
       minOrderQuantity: profile.minOrderQuantity,
       deliveryDays: profile.deliveryDays,
       deliveryScope: profile.deliveryScope,

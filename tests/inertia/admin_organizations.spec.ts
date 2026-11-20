@@ -20,6 +20,8 @@ const translations: Record<string, string> = {
   'admin.organizations.filters.status': 'Statut',
   'admin.organizations.filters.country': 'Pays',
   'admin.organizations.filters.allCountries': 'Tous les pays',
+  'admin.organizations.filters.missingQuoteAddress': 'Sans adresse de réception',
+  'admin.organizations.quoteAddress.missing': 'Sans adresse de réception',
   'admin.organizations.types.buyer': 'Acheteur',
   'admin.organizations.types.supplier': 'Fournisseur',
   'admin.organizations.types.both': 'Les deux',
@@ -139,6 +141,7 @@ const NO_FILTERS: AdminOrganizationIndexFilters = {
   type: null,
   status: 'active',
   country: null,
+  missingQuoteAddress: false,
 }
 
 function item(
@@ -155,6 +158,7 @@ function item(
     archivedAt: null,
     createdAt: '2026-10-17T10:00:00.000Z',
     lastActivity: null,
+    quoteAddressSource: 'organization_email',
     ...extra,
   }
 }
@@ -192,6 +196,27 @@ describe('admin/organizations/index', () => {
     expect(rows[1].text()).toContain('Jamais')
     expect(rows[1].text()).toContain('Archivée')
     expect(rows[0].find('a').attributes('href')).toBe('/fr/admin.organizations.show/1')
+  })
+
+  it('signale le fournisseur qui se rabat sur ses membres responsables (#217)', () => {
+    const wrapper = renderIndex([item(1, { quoteAddressSource: 'members' }), item(2)])
+    const rows = wrapper.findAll('tbody tr')
+
+    expect(rows[0].text()).toContain('Sans adresse de réception')
+    expect(rows[1].text()).not.toContain('Sans adresse de réception')
+  })
+
+  it('le filtre « sans adresse de réception » passe dans la visite', async () => {
+    const wrapper = renderIndex([item(1)])
+
+    await wrapper.find('#organization-missing-quote-address').setValue(true)
+    await wrapper.find('form').trigger('submit')
+
+    expect(get).toHaveBeenCalledWith(
+      '/fr/admin.organizations.index',
+      { page: 1, status: 'active', missingQuoteAddress: true },
+      expect.anything()
+    )
   })
 
   it('affiche l’état vide', () => {

@@ -8,7 +8,9 @@
       "terms": "Condições comerciais",
       "termsHint": "Encomenda mínima, prazos e âmbito de entrega apresentados aos compradores.",
       "certificationsHint": "Normas e selos que possui (ISO, FSC, OEKO-TEX…).",
-      "presentation": "Apresentação da empresa"
+      "presentation": "Apresentação da empresa",
+      "quoteReception": "Receção de pedidos de orçamento",
+      "quoteReceptionHint": "As agências enviam-lhe os pedidos por e-mail: indique o endereço que os deve receber."
     },
     "moderation": {
       "pending": "Ficha em validação",
@@ -31,7 +33,9 @@
     "certificationRemove": "Remover",
     "bio": "Apresentação",
     "defaultOriginScope": "Proveniência por defeito",
-    "certificationsEmpty": "Nenhuma certificação indicada."
+    "certificationsEmpty": "Nenhuma certificação indicada.",
+    "quoteEmail": "Endereço de receção dos pedidos",
+    "quoteEmailHint": "Se ficar vazio, o pedido vai para o endereço de contacto da organização ou, na sua falta, para os responsáveis da conta."
   },
   "deliveryScope": {
     "none": "Não especificado",

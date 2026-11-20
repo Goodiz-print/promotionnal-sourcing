@@ -117,7 +117,9 @@
       "search": "Cerca",
       "searchPlaceholder": "Nome, slug, SIRET o IVA",
       "country": "Paese",
-      "allCountries": "Tutti i paesi"
+      "allCountries": "Tutti i paesi",
+      "missingQuoteAddress": "Senza indirizzo di ricezione",
+      "missingQuoteAddressHint": "Fornitori le cui richieste vanno ai responsabili dell'account, in mancanza di un indirizzo di ricezione o di contatto."
     },
     "types": {
       "buyer": "Acquirente",
@@ -196,6 +198,7 @@
         "no": "No",
         "supplier": {
           "title": "Profilo fornitore",
+          "quoteEmail": "Indirizzo di ricezione delle richieste",
           "companyType": "Tipo di azienda",
           "commercialStatus": "Stato commerciale",
           "minOrderQuantity": "Quantità minima d’ordine",
@@ -305,6 +308,10 @@
         "notEditable": "Questo abbonamento non può più essere modificato qui.",
         "notSupplier": "Solo un'organizzazione fornitore può abbonarsi."
       }
+    },
+    "quoteAddress": {
+      "missing": "Senza indirizzo di ricezione",
+      "missingHint": "Le richieste di preventivo vanno ai responsabili dell'account."
     }
   },
   "supplierLinks": {

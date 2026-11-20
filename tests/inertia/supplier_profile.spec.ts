@@ -19,6 +19,7 @@ const translations = {
   'supplier.fields.certificationAdd': 'Ajouter une certification',
   'supplier.fields.certificationRemove': 'Retirer',
   'supplier.fields.bio': 'Présentation',
+  'supplier.fields.quoteEmail': 'Adresse de réception des demandes',
   'supplier.deliveryScope.none': 'Non précisé',
   'supplier.deliveryScope.national': 'National',
   'supplier.deliveryScope.europe': 'Europe',
@@ -51,6 +52,7 @@ describe('supplier/profile.vue', () => {
     expect(wrapper.find('#minOrderQuantity').exists()).toBe(true)
     expect(wrapper.find('#deliveryScope').exists()).toBe(true)
     expect(wrapper.find('#bio').exists()).toBe(true)
+    expect(wrapper.find('#quoteEmail').attributes('type')).toBe('email')
   })
 
   it('affiche le motif quand l’organisation est rejetée', () => {
@@ -95,7 +97,7 @@ describe('supplier/profile.vue', () => {
       deliveryCountries: null,
       spokenLanguages: null,
       minOrderNote: null,
-      quoteEmail: null,
+      quoteEmail: 'devis@fournisseur.test',
       reportFrequency: 'none' as const,
       catalogueUpdateMode: null,
       catalogueUpdateFrequency: null,
@@ -112,6 +114,9 @@ describe('supplier/profile.vue', () => {
 
     expect(wrapper.findAll('input[type="text"]')).toHaveLength(profile.certifications.length)
     expect((wrapper.find('#bio').element as HTMLTextAreaElement).value).toBe('Un fournisseur')
+    expect((wrapper.find('#quoteEmail').element as HTMLInputElement).value).toBe(
+      'devis@fournisseur.test'
+    )
   })
 
   it('ajoute et retire une certification', async () => {

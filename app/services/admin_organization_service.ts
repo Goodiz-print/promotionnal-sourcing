@@ -9,8 +9,9 @@ import AgencyProfile from '#models/agency_profile'
 import BillingProfile from '#models/billing_profile'
 import OrganizationSubscription from '#models/organization_subscription'
 import { AdminOrganizationNotFoundException } from '#exceptions/admin_errors'
-import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
+import type { ModelPaginatorContract, ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
 import type { AdminOrganizationIndexFilters } from '#shared/types/admin_organization'
+import { SUPPLIER_ORGANIZATION_KINDS } from '#shared/types/organization'
 
 interface ListOptions extends AdminOrganizationIndexFilters {
   page: number
@@ -41,10 +42,11 @@ export default class AdminOrganizationService {
    * Les plus récentes d'abord.
    */
   list(options: ListOptions): Promise<ModelPaginatorContract<Organization>> {
-    const { page, perPage, type, status, country, search } = options
+    const { page, perPage, type, status, country, search, missingQuoteAddress } = options
 
     return Organization.query()
       .withCount('organizationUsers', (query) => query.as('members_count'))
+      .preload('supplierProfile', (profile) => profile.select('id', 'organizationId', 'quoteEmail'))
       .if(search, (query) => {
         const pattern = `%${escapeLike(search!)}%`
         query.where((sub) =>
@@ -59,6 +61,7 @@ export default class AdminOrganizationService {
       .if(status === 'active', (query) => query.whereNull('archivedAt'))
       .if(status === 'archived', (query) => query.whereNotNull('archivedAt'))
       .if(country, (query) => query.where('country', country!))
+      .if(missingQuoteAddress, (query) => withoutQuoteAddress(query))
       .orderBy('createdAt', 'desc')
       .orderBy('id', 'desc')
       .paginate(page, perPage)
@@ -174,4 +177,19 @@ export default class AdminOrganizationService {
  */
 function escapeLike(value: string): string {
   return value.replace(/[\\%_]/g, (char) => `\\${char}`)
+}
+
+/**
+ * Organisations fournisseurs dont les demandes de devis partent faute de mieux
+ * aux membres responsables (#217) : ni adresse de réception dans le profil, ni
+ * adresse de contact. Même règle que `quoteAddressSource`, une adresse vide
+ * comptant comme absente.
+ */
+function withoutQuoteAddress(query: ModelQueryBuilderContract<typeof Organization>) {
+  query
+    .whereIn('organizationType', [...SUPPLIER_ORGANIZATION_KINDS])
+    .where((email) => email.whereNull('email').orWhereRaw("trim(email) = ''"))
+    .whereDoesntHave('supplierProfile', (profile) =>
+      profile.whereNotNull('quoteEmail').whereRaw("trim(quote_email) <> ''")
+    )
 }

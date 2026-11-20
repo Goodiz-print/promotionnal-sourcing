@@ -163,7 +163,8 @@ liste de destinataires dans les props, le refus, et les deux portes fermées
 `tests/inertia/supplier_rfqs.spec.ts` (7) vérifie les écrans.
 L'envoi des mails est couvert par deux tests de `rfq_screens.spec.ts` (adresse
 de contact, puis repli sur les membres habilités — le `member` n'est pas
-notifié) et un test de reconstruction du `kind` dans
+notifié), un test par niveau de repli dans `tests/unit/quote_address.spec.ts` et
+`rfq_mail_locale.spec.ts` (#217), et un test de reconstruction du `kind` dans
 `tests/unit/send_mail_job.spec.ts`.
 
 > Sur une **soumission de formulaire**, ni un refus d'autorisation ni une erreur
@@ -303,13 +304,25 @@ Il est appelé par le listener `OnRfqSent` (l'événement `RfqSent` est publié 
 `RfqService#send` a basculées — élargir une demande déjà publiée puis relancer
 `send` ne relance donc pas ceux qui l'avaient déjà reçue.
 
-Destinataires du mail, par ordre de préférence :
+Destinataires du mail, par ordre de préférence (#217, règle unique
+`resolveQuoteAddresses` dans `shared/helpers/quote_address.ts`) :
 
-1. **l'adresse de contact de l'organisation** (`organizations.email`), celle que
-   le fournisseur a lui-même déclarée pour être joint ;
-2. à défaut, **les membres `owner`/`admin`/`manager`** — `RFQ_RESPONDER_ROLES`,
+1. **l'adresse de réception des demandes** (`supplier_profiles.quote_email`),
+   que le fournisseur saisit dans son profil (`/supplier/profile`, bloc
+   « Réception des demandes de devis ») ;
+2. à défaut, **l'adresse de contact de l'organisation** (`organizations.email`) ;
+3. à défaut, **les membres `owner`/`admin`/`manager`** — `RFQ_RESPONDER_ROLES`,
    la même constante que celle qu'applique `canRespondToRfq`. Notifier un
    `member`, qui n'a pas accès à l'écran de réponse, serait une impasse.
+
+Une adresse vide ou faite d'espaces compte comme absente. Une adresse explicite
+(niveaux 1 et 2) reçoit un seul mail, dans la langue du membre responsable le
+plus ancien ; au niveau 3, chaque membre reçoit le sien dans sa langue. La même
+règle alimente l'indicateur admin : la liste `/admin/organizations` signale par
+un badge « Sans adresse de réception » les fournisseurs qui tombent au niveau 3
+(`quoteAddressSource: 'members'`) et le filtre `missingQuoteAddress=true` ne
+montre qu'eux. Un mail entrant venant de l'adresse de réception est compté comme
+expéditeur connu (`inbound_mails.sender_known`).
 
 Un échec de **mise en queue** est loggué en `warn` sans faire échouer la
 requête : les statuts sont déjà basculés, la demande apparaît de toute façon

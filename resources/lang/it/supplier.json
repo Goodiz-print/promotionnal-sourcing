@@ -8,7 +8,9 @@
       "terms": "Condizioni commerciali",
       "termsHint": "Ordine minimo, tempi e area di consegna mostrati agli acquirenti.",
       "certificationsHint": "Norme e marchi che detiene (ISO, FSC, OEKO-TEX…).",
-      "presentation": "Presentazione dell'azienda"
+      "presentation": "Presentazione dell'azienda",
+      "quoteReception": "Ricezione delle richieste di preventivo",
+      "quoteReceptionHint": "Le agenzie vi inviano le loro richieste via e-mail: indicate l'indirizzo che deve riceverle."
     },
     "moderation": {
       "pending": "Scheda in fase di verifica",
@@ -31,7 +33,9 @@
     "certificationRemove": "Rimuovi",
     "bio": "Presentazione",
     "defaultOriginScope": "Provenienza predefinita",
-    "certificationsEmpty": "Nessuna certificazione indicata."
+    "certificationsEmpty": "Nessuna certificazione indicata.",
+    "quoteEmail": "Indirizzo di ricezione delle richieste",
+    "quoteEmailHint": "Se lasciato vuoto, la richiesta va all'indirizzo di contatto dell'organizzazione o, in mancanza, ai responsabili dell'account."
   },
   "deliveryScope": {
     "none": "Non specificata",

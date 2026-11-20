@@ -117,7 +117,9 @@
       "search": "Sök",
       "searchPlaceholder": "Namn, slug, SIRET eller moms",
       "country": "Land",
-      "allCountries": "Alla länder"
+      "allCountries": "Alla länder",
+      "missingQuoteAddress": "Utan mottagaradress",
+      "missingQuoteAddressHint": "Leverantörer vars förfrågningar går till kontots ansvariga i brist på mottagar- eller kontaktadress."
     },
     "types": {
       "buyer": "Köpare",
@@ -196,6 +198,7 @@
         "no": "Nej",
         "supplier": {
           "title": "Leverantörsprofil",
+          "quoteEmail": "Mottagaradress för förfrågningar",
           "companyType": "Företagstyp",
           "commercialStatus": "Kommersiell status",
           "minOrderQuantity": "Minsta orderkvantitet",
@@ -305,6 +308,10 @@
         "notEditable": "Det här abonnemanget kan inte längre ändras här.",
         "notSupplier": "Endast en leverantörsorganisation kan teckna abonnemang."
       }
+    },
+    "quoteAddress": {
+      "missing": "Utan mottagaradress",
+      "missingHint": "Offertförfrågningar går till kontots ansvariga."
     }
   },
   "supplierLinks": {

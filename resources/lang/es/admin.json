@@ -117,7 +117,9 @@
       "search": "Buscar",
       "searchPlaceholder": "Nombre, slug, SIRET o IVA",
       "country": "País",
-      "allCountries": "Todos los países"
+      "allCountries": "Todos los países",
+      "missingQuoteAddress": "Sin dirección de recepción",
+      "missingQuoteAddressHint": "Proveedores cuyas solicitudes se envían a los responsables de la cuenta, a falta de dirección de recepción o de contacto."
     },
     "types": {
       "buyer": "Comprador",
@@ -196,6 +198,7 @@
         "no": "No",
         "supplier": {
           "title": "Perfil de proveedor",
+          "quoteEmail": "Dirección de recepción de solicitudes",
           "companyType": "Tipo de empresa",
           "commercialStatus": "Estado comercial",
           "minOrderQuantity": "Cantidad mínima de pedido",
@@ -305,6 +308,10 @@
         "notEditable": "Esta suscripción ya no se puede modificar aquí.",
         "notSupplier": "Solo una organización proveedora puede suscribirse."
       }
+    },
+    "quoteAddress": {
+      "missing": "Sin dirección de recepción",
+      "missingHint": "Las solicitudes de presupuesto se envían a los responsables de la cuenta."
     }
   },
   "supplierLinks": {

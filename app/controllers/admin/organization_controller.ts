@@ -35,6 +35,7 @@ export default class OrganizationController {
       type: query.type ?? null,
       status: query.status ?? 'active',
       country: query.country ?? null,
+      missingQuoteAddress: query.missingQuoteAddress ?? false,
     }
 
     const paginator = await this.service.list({

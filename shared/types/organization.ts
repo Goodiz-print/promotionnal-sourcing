@@ -12,6 +12,9 @@ export const ORGANIZATION_TYPES = ['buyer', 'supplier', 'both'] as const
 
 export type OrganizationKind = (typeof ORGANIZATION_TYPES)[number]
 
+/** Types d'organisation qui vendent, et reçoivent donc des demandes de devis. */
+export const SUPPLIER_ORGANIZATION_KINDS: readonly OrganizationKind[] = ['supplier', 'both']
+
 export const DEFAULT_ORGANIZATION_KIND: OrganizationKind = 'buyer'
 
 /**

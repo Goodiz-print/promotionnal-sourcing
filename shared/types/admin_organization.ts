@@ -1,5 +1,6 @@
 import type { AgencyReviewReason } from './agency_signup.js'
 import type { OrganizationKind, OrganizationSize, SubscriptionPlan } from './organization.js'
+import type { QuoteAddressSource } from './rfq.js'
 import type { RoleSlug } from './role.js'
 import type { PaidSubscriptionPlan, SubscriptionStatus } from './subscription.js'
 
@@ -18,6 +19,11 @@ export type AdminOrganizationIndexFilters = {
   status: AdminOrganizationStatusFilter
   /** Code pays ISO 2 lettres. `null` = tous. */
   country: string | null
+  /**
+   * Seulement les organisations fournisseurs sans adresse de réception
+   * explicite, qui se rabattent sur leurs membres responsables (#217).
+   */
+  missingQuoteAddress: boolean
 }
 
 export const ADMIN_ORGANIZATION_STATUS_FILTERS = ['active', 'archived', 'all'] as const
@@ -42,6 +48,11 @@ export type AdminOrganizationListItem = {
   createdAt: string
   /** Derniere activite (derniere connexion d'un membre). */
   lastActivity: string | null
+  /**
+   * Adresse qui reçoit les demandes de devis (#217) ; `null` pour une
+   * organisation qui n'est pas fournisseur.
+   */
+  quoteAddressSource: QuoteAddressSource | null
 }
 
 /** Membre d'une organisation (fiche organisation). */
@@ -67,6 +78,8 @@ export type AdminOrganizationInvitation = {
 /** Profil fournisseur (fiche organisation). */
 export type AdminOrganizationSupplierProfile = {
   id: number
+  /** Adresse de réception des demandes de devis (#217). */
+  quoteEmail: string | null
   minOrderQuantity: number | null
   deliveryDays: number | null
   deliveryScope: string | null

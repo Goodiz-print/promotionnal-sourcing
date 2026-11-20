@@ -8,7 +8,9 @@
       "terms": "Conditions commerciales",
       "termsHint": "Minimum de commande, délais et périmètre de livraison affichés aux acheteurs.",
       "certificationsHint": "Normes et labels que vous détenez (ISO, FSC, OEKO-TEX…).",
-      "presentation": "Présentation de l'entreprise"
+      "presentation": "Présentation de l'entreprise",
+      "quoteReception": "Réception des demandes de devis",
+      "quoteReceptionHint": "Les agences vous envoient leurs demandes par mail : indiquez l'adresse qui doit les recevoir."
     },
     "moderation": {
       "pending": "Fiche en cours de validation",
@@ -31,7 +33,9 @@
     "certificationRemove": "Retirer",
     "bio": "Présentation",
     "defaultOriginScope": "Provenance par défaut",
-    "certificationsEmpty": "Aucune certification renseignée."
+    "certificationsEmpty": "Aucune certification renseignée.",
+    "quoteEmail": "Adresse de réception des demandes",
+    "quoteEmailHint": "Laissée vide, la demande part à l'adresse de contact de l'organisation, à défaut aux responsables du compte."
   },
   "deliveryScope": {
     "none": "Non précisé",

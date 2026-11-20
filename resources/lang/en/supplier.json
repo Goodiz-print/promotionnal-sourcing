@@ -8,7 +8,9 @@
       "terms": "Commercial terms",
       "termsHint": "Minimum order, lead times and delivery scope shown to buyers.",
       "certificationsHint": "Standards and labels you hold (ISO, FSC, OEKO-TEX…).",
-      "presentation": "Company presentation"
+      "presentation": "Company presentation",
+      "quoteReception": "Receiving quote requests",
+      "quoteReceptionHint": "Agencies send you their requests by email: enter the address that should receive them."
     },
     "moderation": {
       "pending": "Profile under review",
@@ -31,7 +33,9 @@
     "certificationRemove": "Remove",
     "bio": "About",
     "defaultOriginScope": "Default origin",
-    "certificationsEmpty": "No certification yet."
+    "certificationsEmpty": "No certification yet.",
+    "quoteEmail": "Quote request address",
+    "quoteEmailHint": "If left empty, requests go to the organisation's contact address, or failing that to the account managers."
   },
   "deliveryScope": {
     "none": "Not specified",

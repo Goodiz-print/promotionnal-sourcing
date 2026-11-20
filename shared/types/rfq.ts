@@ -1,4 +1,5 @@
 import type { RoleSlug } from '#shared/types/role'
+import type { Locale } from '#shared/types/i18n'
 
 /**
  * Statuts d'une demande de devis (RFQ), côté acheteur.
@@ -65,6 +66,30 @@ export const TERMINAL_RFQ_SUPPLIER_STATUSES: readonly RfqSupplierStatus[] = [
  * pas accès à l'écran serait une impasse.
  */
 export const RFQ_RESPONDER_ROLES: readonly RoleSlug[] = ['owner', 'admin', 'manager']
+
+/**
+ * D'où vient l'adresse qui reçoit les demandes de devis d'un fournisseur
+ * (#217), par ordre de priorité :
+ * - `quote_email` : l'adresse de réception saisie dans le profil fournisseur ;
+ * - `organization_email` : l'adresse de contact de l'organisation ;
+ * - `members` : à défaut, les membres responsables (`RFQ_RESPONDER_ROLES`).
+ */
+export const QUOTE_ADDRESS_SOURCES = ['quote_email', 'organization_email', 'members'] as const
+export type QuoteAddressSource = (typeof QUOTE_ADDRESS_SOURCES)[number]
+
+/** Adresse à prévenir et langue dans laquelle lui écrire. */
+export interface RfqMailAddress {
+  email: string
+  locale: Locale
+}
+
+/** Données nécessaires pour résoudre les adresses de réception d'un fournisseur. */
+export interface QuoteAddressCandidates {
+  quoteEmail: string | null
+  organizationEmail: string | null
+  /** Membres responsables, du plus ancien au plus récent. */
+  members: RfqMailAddress[]
+}
 
 /**
  * Rôles de l'organisation acheteuse qui pilotent une demande (publier, clore,

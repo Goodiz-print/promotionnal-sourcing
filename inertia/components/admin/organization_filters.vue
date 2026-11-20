@@ -4,6 +4,7 @@ import { Search } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseCard from '~/components/base/base_card.vue'
+import BaseCheckbox from '~/components/base/base_checkbox.vue'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseSelect from '~/components/base/base_select.vue'
 import type {
@@ -29,6 +30,7 @@ const fromProps = () => ({
   type: props.filters.type ?? '',
   status: props.filters.status,
   country: props.filters.country ?? '',
+  missingQuoteAddress: props.filters.missingQuoteAddress,
 })
 
 const model = reactive(fromProps())
@@ -47,11 +49,18 @@ function submit() {
     type: (model.type || null) as AdminOrganizationIndexFilters['type'],
     status: model.status,
     country: model.country || null,
+    missingQuoteAddress: model.missingQuoteAddress,
   })
 }
 
 function reset() {
-  Object.assign(model, { search: '', type: '', status: 'active', country: '' })
+  Object.assign(model, {
+    search: '',
+    type: '',
+    status: 'active',
+    country: '',
+    missingQuoteAddress: false,
+  })
   submit()
 }
 </script>
@@ -99,6 +108,12 @@ function reset() {
           </option>
         </BaseSelect>
       </div>
+      <BaseCheckbox
+        id="organization-missing-quote-address"
+        v-model="model.missingQuoteAddress"
+        :label="t('admin.organizations.filters.missingQuoteAddress')"
+        :description="t('admin.organizations.filters.missingQuoteAddressHint')"
+      />
       <div class="flex justify-end gap-3">
         <BaseButton variant="secondary" size="sm" @click="reset">
           {{ t('admin.trade.filters.reset') }}

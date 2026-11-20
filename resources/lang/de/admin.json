@@ -117,7 +117,9 @@
       "search": "Suchen",
       "searchPlaceholder": "Name, Slug, SIRET oder USt-IdNr.",
       "country": "Land",
-      "allCountries": "Alle Länder"
+      "allCountries": "Alle Länder",
+      "missingQuoteAddress": "Ohne Empfangsadresse",
+      "missingQuoteAddressHint": "Lieferanten, deren Anfragen mangels Empfangs- oder Kontaktadresse an die Verantwortlichen des Kontos gehen."
     },
     "types": {
       "buyer": "Käufer",
@@ -196,6 +198,7 @@
         "no": "Nein",
         "supplier": {
           "title": "Lieferantenprofil",
+          "quoteEmail": "Empfangsadresse für Anfragen",
           "companyType": "Unternehmenstyp",
           "commercialStatus": "Geschäftsstatus",
           "minOrderQuantity": "Mindestbestellmenge",
@@ -305,6 +308,10 @@
         "notEditable": "Dieses Abonnement kann hier nicht mehr geändert werden.",
         "notSupplier": "Nur eine Lieferantenorganisation kann ein Abonnement abschließen."
       }
+    },
+    "quoteAddress": {
+      "missing": "Ohne Empfangsadresse",
+      "missingHint": "Angebotsanfragen gehen an die Verantwortlichen des Kontos."
     }
   },
   "supplierLinks": {

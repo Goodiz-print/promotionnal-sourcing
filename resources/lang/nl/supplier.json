@@ -8,7 +8,9 @@
       "terms": "Commerciële voorwaarden",
       "termsHint": "Minimumbestelling, levertijden en leveringsgebied zoals getoond aan kopers.",
       "certificationsHint": "Normen en labels waarover u beschikt (ISO, FSC, OEKO-TEX…).",
-      "presentation": "Bedrijfspresentatie"
+      "presentation": "Bedrijfspresentatie",
+      "quoteReception": "Ontvangst van offerteaanvragen",
+      "quoteReceptionHint": "Bureaus sturen u hun aanvragen per e-mail: geef het adres op dat ze moet ontvangen."
     },
     "moderation": {
       "pending": "Profiel wordt beoordeeld",
@@ -31,7 +33,9 @@
     "certificationRemove": "Verwijderen",
     "bio": "Presentatie",
     "defaultOriginScope": "Standaardherkomst",
-    "certificationsEmpty": "Nog geen certificering opgegeven."
+    "certificationsEmpty": "Nog geen certificering opgegeven.",
+    "quoteEmail": "Ontvangstadres voor aanvragen",
+    "quoteEmailHint": "Leeg gelaten gaat de aanvraag naar het contactadres van de organisatie, anders naar de verantwoordelijken van het account."
   },
   "deliveryScope": {
     "none": "Niet opgegeven",

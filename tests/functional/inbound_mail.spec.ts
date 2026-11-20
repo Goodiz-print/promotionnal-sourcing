@@ -14,6 +14,7 @@ import InboundMail from '#models/inbound_mail'
 import InboundMailService from '#services/inbound_mail_service'
 import RfqSupplier from '#models/rfq_supplier'
 import StorageObject from '#models/storage_object'
+import SupplierProfile from '#models/supplier_profile'
 import { TEST_RELAY_DOMAIN, deliver, sentRfq, useFakeInboundMail } from '#tests/utils/inbound_mail'
 import { useFakeGhostscript } from '#tests/utils/pdf'
 import { createMember } from '#tests/utils/organizations'
@@ -326,6 +327,23 @@ test.group('Mails entrants — webhook de réception', (group) => {
     assert.equal(await statusOf(exhausted.id), 'processed')
     assert.equal(await statusOf(running.id), 'processing')
     assert.equal(await statusOf(tooOld.id), 'failed')
+  })
+
+  test('l’adresse de réception du profil est un expéditeur connu (#217)', async ({
+    client,
+    assert,
+  }) => {
+    const { supplier, address } = await sentRfq()
+    await SupplierProfile.create({
+      organizationId: supplier.id,
+      quoteEmail: 'devis@fournisseur.test',
+    })
+    inbound.provider.add('mail-1', { to: address, from: 'Devis@Fournisseur.test' })
+
+    await deliver(client, 'mail-1')
+
+    const journal = await InboundMail.firstOrFail()
+    assert.isTrue(journal.senderKnown)
   })
 })
 
