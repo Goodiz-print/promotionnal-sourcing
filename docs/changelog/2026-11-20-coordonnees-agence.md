@@ -29,6 +29,14 @@ abonné n'en reçoit aucune : l'anonymat de #220 reste intact.
     téléphone était déjà demandé.
   - Paramètres de l'organisation : l'email se modifiait déjà. Pour une agence, un
     texte d'aide précise qu'il est transmis aux fournisseurs abonnés.
+  - Paramètres : vider l'email, le téléphone ou un champ d'adresse efface
+    désormais la valeur. Avant, un champ vide n'était pas envoyé et l'ancienne
+    valeur restait.
+- **Requêtes** : l'auteur de la demande n'est relu que si un destinataire est
+  abonné.
+- **Données personnelles** : sans email de contact, c'est l'email de l'auteur
+  qui est transmis. Les coordonnées figurent aussi dans la charge des jobs de
+  mail (`queue_jobs`) le temps de l'envoi.
 - **Traductions** dans les 9 langues : `emails.buyerContact.*`,
   `rfq.supplier.show.contact.*`, `agency_signup.fields.contactEmail`,
   `agency_signup.contactEmailHelp`, `organization.fields.emailBuyerHint`.
@@ -39,6 +47,7 @@ abonné n'en reçoit aucune : l'anonymat de #220 reste intact.
     abonnement après coup, demande sans auteur, mails d'une demande saisie au
     formulaire et d'une demande du panier, relance ;
   - `agency_signup.spec.ts` : email de contact enregistré, absent, invalide ;
+  - `organization_settings.spec.ts` (Japa) : un champ vidé efface la valeur ;
   - `mail_templates.spec.ts` : bloc en HTML et en texte, lignes omises, jamais
     dans un mail anonyme ;
   - Vitest : `supplier_rfqs.spec.ts`, `signup_agency.spec.ts`,

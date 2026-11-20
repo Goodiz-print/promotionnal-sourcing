@@ -81,7 +81,8 @@ export default class RfqNotificationService {
 
     const lines = await this.linesOf(rfq)
     const subscribed = await this.subscribedAmong(recipients)
-    const contact = await this.contactSourceOf(rfq, buyer)
+    // L'auteur n'est relu que si au moins un destinataire verra les coordonnées.
+    const contact = await this.contactSourceOf(rfq, buyer, subscribed.size > 0)
     let queued = 0
 
     for (const recipient of recipients) {
@@ -91,7 +92,7 @@ export default class RfqNotificationService {
         MAIL_KINDS.rfqReceived,
         'failed to queue rfq notification',
         ({ locale }) => ({
-          ...this.buyerFields(contact, subscribed.has(recipient.supplierOrganizationId), locale),
+          ...this.buyerFields(subscribed.has(recipient.supplierOrganizationId) && contact, locale),
           rfqTitle: rfq.title,
           itemCount: lines.length,
           description: rfq.description,
@@ -125,14 +126,15 @@ export default class RfqNotificationService {
     for (const recipient of recipients) {
       const { rfq } = recipient
       const lines = await this.linesOf(rfq)
-      const contact = await this.contactSourceOf(rfq, rfq.buyerOrganization)
+      const isSubscribed = subscribed.has(recipient.supplierOrganizationId)
+      const contact = await this.contactSourceOf(rfq, rfq.buyerOrganization, isSubscribed)
       const { queued, total } = await this.queueMails(
         rfq,
         recipient,
         MAIL_KINDS.rfqReminder,
         'failed to queue rfq reminder',
         ({ locale }) => ({
-          ...this.buyerFields(contact, subscribed.has(recipient.supplierOrganizationId), locale),
+          ...this.buyerFields(contact, locale),
           rfqTitle: rfq.title,
           description: rfq.description,
           lines,
@@ -160,16 +162,12 @@ export default class RfqNotificationService {
   }
 
   /**
-   * L'agence nommée, avec ses coordonnées (#221), pour un abonné ; pour un non
-   * abonné, aucune trace d'elle et le lien vers la page d'abonnement (chemin
-   * relatif, comme `rfqPath`).
+   * L'agence nommée, avec ses coordonnées (#221), pour un abonné (`contact`
+   * fourni) ; pour un non abonné (`contact` absent), aucune trace d'elle et le
+   * lien vers la page d'abonnement (chemin relatif, comme `rfqPath`).
    */
-  private buyerFields(
-    contact: BuyerContactSource,
-    subscribed: boolean,
-    locale: Locale
-  ): BuyerMailFields {
-    if (subscribed) {
+  private buyerFields(contact: BuyerContactSource | null | false, locale: Locale): BuyerMailFields {
+    if (contact) {
       return {
         buyerName: contact.organization.name,
         subscribePath: null,
@@ -184,11 +182,17 @@ export default class RfqNotificationService {
   }
 
   /**
-   * Agence et auteur de la demande, source des coordonnées (#221). L'auteur est
-   * relu plutôt que pris sur `rfq.createdBy`, comme les lignes : le service ne
-   * suppose rien des relations préchargées.
+   * Agence et auteur de la demande, source des coordonnées (#221) ; `null` sans
+   * destinataire abonné (`forSubscriber` faux), pour ne pas lire l'auteur pour
+   * rien. L'auteur est relu plutôt que pris sur `rfq.createdBy`, comme les
+   * lignes : le service ne suppose rien des relations préchargées.
    */
-  private async contactSourceOf(rfq: Rfq, buyer: Organization): Promise<BuyerContactSource> {
+  private async contactSourceOf(
+    rfq: Rfq,
+    buyer: Organization,
+    forSubscriber: boolean
+  ): Promise<BuyerContactSource | null> {
+    if (!forSubscriber) return null
     const author = rfq.createdByUserId
       ? await User.query()
           .select('id', 'firstName', 'lastName', 'email')

@@ -340,6 +340,15 @@ mails :
   (champ facultatif `contactEmail` → `organizations.email`, le téléphone l'était
   déjà) et se modifie dans les paramètres de l'organisation, où une agence est
   prévenue qu'il est transmis aux fournisseurs abonnés.
+- **Données personnelles** : faute d'email de contact de l'agence, c'est
+  l'email **personnel** de l'auteur qui part chez le fournisseur abonné. Les
+  coordonnées sont aussi écrites dans la charge des jobs de mail
+  (`queue_jobs.payload`) le temps de l'envoi. Les agences doivent en être
+  informées dans les mentions légales (#233), avant la mise en production.
+- **Effacer** : dans les paramètres, vider l'email, le téléphone ou un champ
+  d'adresse efface la valeur (le formulaire envoie toujours ces champs ; un
+  champ vide arrive en `null`). Une agence peut ainsi retirer son email de
+  contact pour revenir au repli sur l'auteur.
 
 Le cloisonnement lui-même est porté par le service : `listForSupplier` et
 `findForSupplier` filtrent sur l'organisation destinataire **et** excluent les
