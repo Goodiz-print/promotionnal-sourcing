@@ -13,11 +13,12 @@ import { useDatabase } from '#tests/utils/setup'
 import type Rfq from '#models/rfq'
 import type User from '#models/user'
 import type { Locale } from '#shared/types/i18n'
+import type { RfqReceivedMailData } from '#shared/types/mail'
 
 interface Sent {
   email: string
   locale: string
-  rfqPath: string
+  data: RfqReceivedMailData
 }
 
 /**
@@ -76,9 +77,9 @@ test.group('Mail RFQ — langue du destinataire', (group) => {
     const toEnglish = sent.find((row) => row.email === english.email)!
     const toGerman = sent.find((row) => row.email === german.email)!
     assert.equal(toEnglish.locale, 'en')
-    assert.equal(toEnglish.rfqPath, `/en/supplier/rfqs/${rfq.id}`)
+    assert.equal(toEnglish.data.rfqPath, `/en/supplier/rfqs/${rfq.id}`)
     assert.equal(toGerman.locale, 'de')
-    assert.equal(toGerman.rfqPath, `/de/supplier/rfqs/${rfq.id}`)
+    assert.equal(toGerman.data.rfqPath, `/de/supplier/rfqs/${rfq.id}`)
   })
 
   test('une adresse de contact prend la langue du premier membre habilité', async ({
@@ -98,7 +99,7 @@ test.group('Mail RFQ — langue du destinataire', (group) => {
     assert.lengthOf(sent, 1)
     assert.equal(sent[0].email, 'contact@fournisseur.test')
     assert.equal(sent[0].locale, 'it')
-    assert.equal(sent[0].rfqPath, `/it/supplier/rfqs/${rfq.id}`)
+    assert.equal(sent[0].data.rfqPath, `/it/supplier/rfqs/${rfq.id}`)
   })
 
   test('sans membre habilité, la langue par défaut s’applique', async ({ client, assert }) => {
@@ -112,7 +113,7 @@ test.group('Mail RFQ — langue du destinataire', (group) => {
     const sent = await sendAs(client, rfq, buyerOwner)
 
     assert.equal(sent[0].locale, 'fr')
-    assert.equal(sent[0].rfqPath, `/fr/supplier/rfqs/${rfq.id}`)
+    assert.equal(sent[0].data.rfqPath, `/fr/supplier/rfqs/${rfq.id}`)
   })
 })
 

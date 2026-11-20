@@ -153,26 +153,9 @@ export default class SendMailJob extends Job<SendMailPayload> {
           locale
         )
       case MAIL_KINDS.rfqReceived:
-        return new RfqReceivedNotification(
-          to,
-          data.buyerName,
-          data.rfqTitle,
-          data.itemCount,
-          data.deadline,
-          data.rfqPath,
-          locale,
-          data.replyTo
-        )
+        return new RfqReceivedNotification(to, data, locale)
       case MAIL_KINDS.rfqReminder:
-        return new RfqReminderNotification(
-          to,
-          data.buyerName,
-          data.rfqTitle,
-          data.deadline,
-          data.rfqPath,
-          locale,
-          data.replyTo
-        )
+        return new RfqReminderNotification(to, data, locale)
       case MAIL_KINDS.quoteReceived:
         return new QuoteReceivedNotification(
           to,

@@ -56,6 +56,12 @@ export interface RfqReceivedMailData {
   deadline: string | null
   rfqPath: string
   /**
+   * Description de la demande et détail des lignes (#219) : le mail suffit à
+   * chiffrer. Absents d'un job mis en queue avant #219 : le gabarit s'en passe.
+   */
+  description?: string | null
+  lines?: RfqMailLine[]
+  /**
    * Adresse relais du couple demande / fournisseur, posée en `Reply-To` (#223).
    * Absente si la réception est désactivée ou sur un job antérieur à #223.
    */
@@ -72,8 +78,57 @@ export interface RfqReminderMailData {
   rfqTitle: string
   deadline: string | null
   rfqPath: string
+  /** Mêmes description et lignes que le mail de demande (#219). */
+  description?: string | null
+  lines?: RfqMailLine[]
   /** Même adresse relais que le mail de demande. */
   replyTo?: string | null
+}
+
+/**
+ * Ligne d'une demande de devis reprise dans le mail (#219) : de quoi chiffrer
+ * sans ouvrir la plateforme. Les valeurs viennent de `rfq_items` et de leurs
+ * `specs` (posées par le panier, `QuoteCartService#specsFor`) ; les prix sont
+ * les **prix indicatifs** du site, déjà suffixés de leur devise, identiques à
+ * ceux de l'écran « Demandes reçues ».
+ */
+export interface RfqMailLine {
+  name: string
+  /** Référence de la variante, à défaut celle du produit. */
+  reference: string | null
+  variant: string | null
+  quantity: number
+  unit: string | null
+  marking: RfqMailMarking | null
+  /** Note saisie par l'agence sur la ligne (`rfq_items.description`). */
+  note: string | null
+  /** `null` : aucun prix catalogue pour cette ligne. */
+  prices: RfqMailPrices | null
+}
+
+/** Marquage demandé sur une ligne. */
+export interface RfqMailMarking {
+  position: string | null
+  technique: string | null
+  colors: string | null
+}
+
+/** Prix indicatifs d'une ligne ; une valeur inconnue vaut `null`. */
+export interface RfqMailPrices {
+  unitPrice: string | null
+  markingUnitPrice: string | null
+  setupCharge: string | null
+  total: string | null
+}
+
+/** Ce qu'il faut d'un `rfq_item` pour construire sa ligne de mail. */
+export interface RfqMailItemSource {
+  name: string
+  description: string | null
+  quantity: number
+  unit: string | null
+  specs: Record<string, string> | null
+  productReference: string | null
 }
 
 /**

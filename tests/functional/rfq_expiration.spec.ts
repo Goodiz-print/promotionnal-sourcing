@@ -401,10 +401,14 @@ test.group('RFQ — relance des fournisseurs silencieux', (group) => {
 
       const sent = mails.sent((mailer) => mailer instanceof RfqReminderNotification)
       assert.lengthOf(sent, 1)
-      const fields = sent[0] as unknown as { email: string; locale: string; rfqPath: string }
+      const fields = sent[0] as unknown as {
+        email: string
+        locale: string
+        data: { rfqPath: string }
+      }
       assert.equal(fields.email, user.email)
       assert.equal(fields.locale, 'en')
-      assert.equal(fields.rfqPath, `/en/supplier/rfqs/${rfq.id}`)
+      assert.equal(fields.data.rfqPath, `/en/supplier/rfqs/${rfq.id}`)
     } finally {
       mail.restore()
     }

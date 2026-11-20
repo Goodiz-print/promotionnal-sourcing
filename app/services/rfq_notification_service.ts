@@ -1,13 +1,19 @@
 import { inject } from '@adonisjs/core'
 import { urlFor } from '@adonisjs/core/services/url_builder'
 import logger from '@adonisjs/core/services/logger'
-import db from '@adonisjs/lucid/services/db'
 import OrganizationUser from '#models/organization_user'
+import RfqItem from '#models/rfq_item'
 import SupplierProfile from '#models/supplier_profile'
 import SendMailJob from '#jobs/send_mail_job'
 import InboundAddressService from '#services/inbound_address_service'
 import { mailIdempotencyKey } from '#shared/helpers/mail'
-import { MAIL_KINDS, type SendMailContent, type SendMailPayload } from '#shared/types/mail'
+import {
+  MAIL_KINDS,
+  type RfqMailLine,
+  type SendMailContent,
+  type SendMailPayload,
+} from '#shared/types/mail'
+import { rfqMailLine } from '#shared/helpers/rfq_mail'
 import { RFQ_DEADLINE_TIMEZONE, RFQ_RESPONDER_ROLES, type RfqMailAddress } from '#shared/types/rfq'
 import { resolveQuoteAddresses } from '#shared/helpers/quote_address'
 import type Organization from '#models/organization'
@@ -53,7 +59,7 @@ export default class RfqNotificationService {
   ): Promise<number> {
     if (recipients.length === 0) return 0
 
-    const itemCount = await this.countItems(rfq)
+    const lines = await this.linesOf(rfq)
     let queued = 0
 
     for (const recipient of recipients) {
@@ -65,7 +71,9 @@ export default class RfqNotificationService {
         ({ locale }) => ({
           buyerName: buyer.name,
           rfqTitle: rfq.title,
-          itemCount,
+          itemCount: lines.length,
+          description: rfq.description,
+          lines,
           deadline:
             rfq.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).setLocale(locale).toLocaleString() ?? null,
           rfqPath: urlFor('supplier.rfqs.show', { locale, id: rfq.id }),
@@ -94,6 +102,7 @@ export default class RfqNotificationService {
 
     for (const recipient of recipients) {
       const { rfq } = recipient
+      const lines = await this.linesOf(rfq)
       const { queued, total } = await this.queueMails(
         rfq,
         recipient,
@@ -102,6 +111,8 @@ export default class RfqNotificationService {
         ({ locale }) => ({
           buyerName: rfq.buyerOrganization.name,
           rfqTitle: rfq.title,
+          description: rfq.description,
+          lines,
           deadline:
             rfq.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).setLocale(locale).toLocaleString() ?? null,
           rfqPath: urlFor('supplier.rfqs.show', { locale, id: rfq.id }),
@@ -160,12 +171,27 @@ export default class RfqNotificationService {
   }
 
   /**
-   * Compté plutôt que lu sur `rfq.items` : le service ne suppose rien des
-   * relations préchargées par l'appelant.
+   * Lignes de la demande telles que reprises dans le mail (#219), dans l'ordre
+   * de saisie. Relues plutôt que prises sur `rfq.items` : le service ne suppose
+   * rien des relations préchargées par l'appelant.
    */
-  private async countItems(rfq: Rfq): Promise<number> {
-    const [{ total }] = await db.from('rfq_items').where('rfq_id', rfq.id).count('* as total')
-    return Number(total)
+  private async linesOf(rfq: Rfq): Promise<RfqMailLine[]> {
+    const items = await RfqItem.query()
+      .select('id', 'name', 'description', 'quantity', 'unit', 'specs', 'productId')
+      .where('rfqId', rfq.id)
+      .preload('product', (product) => product.select('id', 'reference'))
+      .orderBy('id', 'asc')
+
+    return items.map((item) =>
+      rfqMailLine({
+        name: item.name,
+        description: item.description,
+        quantity: item.quantity,
+        unit: item.unit,
+        specs: item.specs,
+        productReference: item.product?.reference ?? null,
+      })
+    )
   }
 
   /**

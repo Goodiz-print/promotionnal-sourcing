@@ -1,0 +1,19 @@
+{{{ t('emails.rfqReceived.title', { buyerName, brandName }) }}}
+
+{{{ t('emails.rfqReceived.body', { buyerName, rfqTitle, itemCount }) }}}
+@if(deadline)
+{{{ t('emails.rfqReceived.deadline', { deadline }) }}}
+@end
+
+@include('emails/partials/rfq_details_text')
+@if(canReply)
+{{{ t('emails.rfqDetails.replyHint') }}}
+
+@end
+{{{ t('emails.rfqDetails.platformLink') }}} {{{ appUrl }}}{{{ rfqPath }}}
+
+--
+@if(!canReply)
+{{{ t('emails.layout.automatic') }}}
+@end
+{{{ t('emails.rfqReceived.footer') }}}

@@ -1,12 +1,15 @@
 import LocalizedMail from '#mails/localized_mail'
 import type { Locale } from '#shared/types/i18n'
+import type { RfqReceivedMailData } from '#shared/types/mail'
 
 /**
  * Mail « nouvelle demande de devis », envoyé à un destinataire au moment où
  * l'acheteur diffuse sa demande (`RfqService#send`), dans **sa** langue.
  *
- * Le sujet porte le nom de l'acheteur, connu seulement à l'instanciation :
- * il est donc posé dans `prepare()`.
+ * Depuis #219, il reprend la description et chaque ligne avec son prix
+ * indicatif : le fournisseur peut chiffrer sans ouvrir la plateforme, dont le
+ * lien passe au second plan. Une version texte accompagne le HTML (certains
+ * logiciels de devis repartent du texte).
  *
  * `rfqPath` est relatif — le template le préfixe avec le global `appUrl`
  * (cf. `shared/types/mail.ts`) ; il porte la langue du destinataire.
@@ -17,28 +20,25 @@ import type { Locale } from '#shared/types/i18n'
 export default class RfqReceivedNotification extends LocalizedMail {
   constructor(
     private email: string,
-    private buyerName: string,
-    private rfqTitle: string,
-    private itemCount: number,
-    private deadline: string | null,
-    private rfqPath: string,
-    locale: Locale,
-    private relayAddress: string | null = null
+    private data: RfqReceivedMailData,
+    locale: Locale
   ) {
     super(locale)
   }
 
   prepare() {
-    this.message
-      .to(this.email)
-      .subject(this.t('emails.rfqReceived.subject', { buyerName: this.buyerName }))
-    this.relayRepliesTo(this.relayAddress)
-    this.htmlViewIn('emails/rfq_received', {
-      buyerName: this.buyerName,
-      rfqTitle: this.rfqTitle,
-      itemCount: this.itemCount,
-      deadline: this.deadline,
-      rfqPath: this.rfqPath,
-    })
+    const { buyerName, replyTo, ...rest } = this.data
+    this.message.to(this.email).subject(this.t('emails.rfqReceived.subject', { buyerName }))
+    this.relayRepliesTo(replyTo)
+
+    const state = {
+      ...rest,
+      buyerName,
+      description: rest.description ?? null,
+      lines: rest.lines ?? [],
+      canReply: Boolean(replyTo),
+    }
+    this.htmlViewIn('emails/rfq_received', state)
+    this.textViewIn('emails/rfq_received_text', state)
   }
 }

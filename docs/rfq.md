@@ -343,6 +343,16 @@ SQL (`withoutQuoteAddress`) traduit la même règle que `quoteAddressSource` : u
 test vérifie que les deux désignent exactement les mêmes organisations. Un mail entrant venant de l'adresse de réception est compté comme
 expéditeur connu (`inbound_mails.sender_known`).
 
+Le mail suffit à chiffrer (#219) : il reprend la description de la demande et
+chaque ligne (produit, référence, variante, quantité, marquage, note de l'agence)
+avec ses **prix indicatifs** — unitaire, marquage par pièce, frais techniques,
+total — tels que le panier les a figés dans `rfq_items.specs`. Ce sont donc les
+mêmes valeurs que celles de l'écran « Demandes reçues » et du panier de l'agence.
+Ils sont présentés comme indicatifs : le fournisseur peut proposer mieux. Une
+ligne saisie sans prix catalogue l'indique. Le lien vers la plateforme passe en
+second, après l'invitation à répondre au mail. La relance reprend le même
+contenu, et chaque mail a une version texte (voir `docs/mail.md`).
+
 Un échec de **mise en queue** est loggué en `warn` sans faire échouer la
 requête : les statuts sont déjà basculés, la demande apparaît de toute façon
 dans l'écran du fournisseur, et faire échouer l'envoi laisserait un état

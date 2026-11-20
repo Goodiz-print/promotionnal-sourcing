@@ -119,6 +119,21 @@ SELECT idempotency_key, kind, "to", attempts, error FROM mail_deliveries WHERE s
 | `subscription-expiring`    | `SubscriptionExpiringNotification`   | `emails/subscription_expiring`    | Rappel avant la fin d'un abonnement manuel : 30 jours (annuel) puis 7 jours (`SyncSubscriptionsJob`, #237)                    |
 | `quote-email-verification` | `QuoteEmailVerificationNotification` | `emails/quote_email_verification` | Confirmation de l'adresse de réception des demandes de devis, envoyée à cette adresse (`QuoteEmailVerificationService`, #217) |
 
+**Contenu de la demande (#219)** : `rfq-received` et `rfq-reminder` portent la
+description et les lignes de la demande (`description`, `lines: RfqMailLine[]`,
+construites par `rfqMailLine` dans `shared/helpers/rfq_mail.ts`) : produit,
+référence, variante, quantité, marquage, note et **prix indicatifs** lus dans
+`rfq_items.specs`. Le partiel `emails/partials/rfq_details` les affiche, une ligne
+sans prix catalogue indique « à chiffrer ». Ces deux mails ont aussi une
+**version texte** (`emails/rfq_received_text`, `emails/rfq_reminder_text`, via
+`LocalizedMail#textViewIn`) : ses gabarits écrivent les valeurs sans échappement
+(`{{{ }}}`) et sont exclus de Prettier (`.prettierignore`), qui en casserait les
+sauts de ligne. Un mail qui porte une adresse relais passe `replyable` au
+gabarit `emails/layout`, qui retire alors la mention « merci de ne pas y
+répondre ». Les deux classes prennent la charge entière
+(`new RfqReceivedNotification(to, data, locale)`) ; un job mis en queue avant
+#219, sans lignes, se rend toujours.
+
 `rfq-received` porte un chemin **relatif** (`rfqPath`) et non une URL absolue :
 la charge est persistée et peut être rejouée bien plus tard, éventuellement sous
 un autre domaine. Le template la préfixe avec le global `appUrl`. Le mail

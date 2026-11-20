@@ -12,6 +12,7 @@ import { createMember } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
 import type Organization from '#models/organization'
 import type User from '#models/user'
+import type { RfqReceivedMailData } from '#shared/types/mail'
 
 /**
  * Écrans acheteur des demandes de devis : rendu Inertia, autorisations et
@@ -326,11 +327,11 @@ test.group('Écrans RFQ — acheteur', (group) => {
 
       mails.assertSentCount(RfqReceivedNotification, 1)
       mails.assertSent(RfqReceivedNotification, (sent) => {
-        const fields = sent as unknown as { email: string; buyerName: string; rfqPath: string }
+        const fields = sent as unknown as { email: string; data: RfqReceivedMailData }
         return (
           fields.email === 'contact@fournisseur.test' &&
-          fields.buyerName === org.name &&
-          fields.rfqPath === `/fr/supplier/rfqs/${rfq.id}`
+          fields.data.buyerName === org.name &&
+          fields.data.rfqPath === `/fr/supplier/rfqs/${rfq.id}`
         )
       })
     } finally {

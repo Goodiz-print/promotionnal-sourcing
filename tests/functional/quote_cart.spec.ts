@@ -1,5 +1,8 @@
 import { test } from '@japa/runner'
 import emitter from '@adonisjs/core/services/emitter'
+import mail from '@adonisjs/mail/services/main'
+import RfqReceivedNotification from '#mails/rfq_received_notification'
+import type { RfqReceivedMailData } from '#shared/types/mail'
 import { OrganizationFactory } from '#database/factories/organization_factory'
 import RfqSent from '#events/rfq_sent'
 import { ProductFactory } from '#database/factories/product_factory'
@@ -14,6 +17,7 @@ import Organization from '#models/organization'
 import type Product from '#models/product'
 import QuoteCartItem from '#models/quote_cart_item'
 import Rfq from '#models/rfq'
+import RfqItem from '#models/rfq_item'
 import { createMember } from '#tests/utils/organizations'
 import { RFQ_DEADLINE_TIMEZONE } from '#shared/types/rfq'
 import { useDatabase } from '#tests/utils/setup'
@@ -629,6 +633,52 @@ test.group('Panier de devis — options et prix dégressifs', (optionsGroup) => 
       // 100 × (2,50 + 0,40) + 45
       estimatedTotal: '335.00 EUR',
     })
+  })
+
+  test('le mail au fournisseur reprend la ligne et le prix indicatif du panier (#219)', async ({
+    client,
+    assert,
+  }) => {
+    const { owner } = await buyerWithOwner()
+    const { product, blue, marking, technique } = await pricedProduct()
+    await product.supplier.organization.merge({ email: 'devis@fournisseur.test' }).save()
+    await addToCart(client, owner, product.id, 100, blue.id)
+    const item = await QuoteCartItem.query().where('userId', owner.id).firstOrFail()
+    await updateLine(client, owner, item.id, {
+      markingPositionTechniqueId: marking.id,
+      markingColors: 2,
+    })
+
+    const { mails } = mail.fake()
+    let sent: unknown[]
+    try {
+      await checkout(client, owner, { title: 'Salon 2027', description: 'Livraison à Lyon' })
+      sent = mails.sent((mailer) => mailer instanceof RfqReceivedNotification)
+    } finally {
+      mail.restore()
+    }
+
+    assert.lengthOf(sent, 1)
+    const { data } = sent[0] as { data: RfqReceivedMailData }
+    const rfqItem = await RfqItem.query().where('productId', product.id).firstOrFail()
+    assert.equal(data.description, 'Livraison à Lyon')
+    assert.deepEqual(data.lines, [
+      {
+        name: rfqItem.name,
+        reference: blue.sku,
+        variant: blue.sku,
+        quantity: 100,
+        unit: null,
+        marking: { position: 'Face', technique: technique.slug, colors: '2' },
+        note: null,
+        prices: {
+          unitPrice: '2.50 EUR',
+          markingUnitPrice: '0.40 EUR',
+          setupCharge: '45.00 EUR',
+          total: '335.00 EUR',
+        },
+      },
+    ])
   })
 
   test('une ligne sans option ni grille ne porte pas de specs', async ({ client, assert }) => {

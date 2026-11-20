@@ -48,6 +48,26 @@
     "cta": "Zobacz zapytanie",
     "footer": "To jedyne przypomnienie dotyczące tego zapytania. Możesz je także odrzucić w panelu dostawcy."
   },
+  "rfqDetails": {
+    "description": "Opis zapytania",
+    "linesTitle": "{count, plural, one {# pozycja do wyceny} few {# pozycje do wyceny} many {# pozycji do wyceny} other {# pozycji do wyceny}}",
+    "reference": "Numer referencyjny",
+    "variant": "Wariant",
+    "quantity": "Ilość",
+    "marking": "Znakowanie",
+    "markingColors": "{count, plural, one {# kolor} few {# kolory} many {# kolorów} other {# koloru}}",
+    "noMarking": "Bez znakowania",
+    "note": "Uwagi agencji",
+    "unitPrice": "Orientacyjna cena jednostkowa",
+    "markingUnitPrice": "Orientacyjne znakowanie za sztukę",
+    "setupCharge": "Orientacyjne koszty przygotowania",
+    "total": "Orientacyjna suma",
+    "price": "Cena orientacyjna",
+    "noPrice": "Brak ceny katalogowej: do wyceny",
+    "indicativeNotice": "Podane ceny to ceny orientacyjne wyświetlane w {brandName}, obliczone na podstawie Państwa katalogu. Nie są to ceny uzgodnione: mogą Państwo zaproponować lepszą stawkę lub ich się trzymać.",
+    "replyHint": "Aby odpowiedzieć, wystarczy odpisać na tę wiadomość, załączając ofertę (PDF).",
+    "platformLink": "Zapytanie można też zobaczyć na platformie:"
+  },
   "quoteReceived": {
     "subject": "Nowa oferta od {supplierName} na „{rfqTitle}”",
     "title": "{supplierName} złożył ofertę",

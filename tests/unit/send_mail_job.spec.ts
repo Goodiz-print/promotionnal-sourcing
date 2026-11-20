@@ -112,19 +112,18 @@ test.group('SendMailJob', (group) => {
         itemCount: 2,
         deadline: '30/09/2026',
         rfqPath: '/fr/supplier/rfqs/12',
+        description: 'Salon de mars',
+        lines: [],
       },
     } satisfies SendMailPayload
 
     await runJob(payload)
 
     fakeMailer.mails.assertSent(RfqReceivedNotification, (sent) => {
-      const fields = sent as unknown as Record<string, unknown>
+      const fields = sent as unknown as { email: string; data: unknown }
       return (
         fields.email === 'contact@fournisseur.test' &&
-        fields.buyerName === 'Acme' &&
-        fields.rfqTitle === 'Tote bags coton bio' &&
-        fields.itemCount === 2 &&
-        fields.rfqPath === '/fr/supplier/rfqs/12'
+        JSON.stringify(fields.data) === JSON.stringify(payload.data)
       )
     })
   })

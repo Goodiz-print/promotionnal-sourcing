@@ -17,6 +17,7 @@ import WelcomeNotification from '#mails/welcome_notification'
 import { SUPPORTED_LOCALES, type Locale } from '#shared/types/i18n'
 import { NOTIFICATION_EMAIL_FALLBACK } from '#shared/types/notification'
 import type User from '#models/user'
+import type { RfqMailLine, RfqReceivedMailData } from '#shared/types/mail'
 
 /**
  * Rendu des mails dans la langue du destinataire (#58). Aucune base : on
@@ -28,7 +29,51 @@ async function render(mailer: {
 }) {
   await mailer.buildWithContents()
   const { message } = mailer.message.toJSON()
-  return { subject: message.subject as string, html: message.html as string }
+  return {
+    subject: message.subject as string,
+    html: message.html as string,
+    text: (message.text ?? '') as string,
+  }
+}
+
+/** Demande à plusieurs lignes : avec et sans marquage, avec et sans prix indicatif (#219). */
+const RFQ_LINES: RfqMailLine[] = [
+  {
+    name: 'Tote bag coton',
+    reference: 'TB-01-NAT',
+    variant: 'Naturel',
+    quantity: 500,
+    unit: 'pcs',
+    marking: { position: 'Face avant', technique: 'Sérigraphie', colors: '2' },
+    note: 'Logo centré',
+    prices: {
+      unitPrice: '1.20 EUR',
+      markingUnitPrice: '0.45 EUR',
+      setupCharge: '60.00 EUR',
+      total: '885.00 EUR',
+    },
+  },
+  {
+    name: 'Mug céramique',
+    reference: null,
+    variant: null,
+    quantity: 200,
+    unit: null,
+    marking: null,
+    note: null,
+    prices: null,
+  },
+]
+
+const RFQ_DATA: RfqReceivedMailData = {
+  buyerName: 'Acme',
+  rfqTitle: 'Tote bags',
+  itemCount: RFQ_LINES.length,
+  deadline: '30/10/2026',
+  rfqPath: '/x/supplier/rfqs/1',
+  description: 'Salon de mars, livraison à Lyon',
+  lines: RFQ_LINES,
+  replyTo: 'rfq-abc@relay.test',
 }
 
 const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> = {
@@ -44,20 +89,18 @@ const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> 
   rfqReceived: (locale) =>
     new RfqReceivedNotification(
       'supplier@example.com',
-      'Acme',
-      'Tote bags',
-      3,
-      '30/10/2026',
-      '/x/supplier/rfqs/1',
+      { ...RFQ_DATA, itemCount: 3, lines: [] },
       locale
     ) as never,
   rfqReminder: (locale) =>
     new RfqReminderNotification(
       'supplier@example.com',
-      'Acme',
-      'Tote bags',
-      '30/10/2026',
-      '/x/supplier/rfqs/1',
+      {
+        buyerName: 'Acme',
+        rfqTitle: 'Tote bags',
+        deadline: '30/10/2026',
+        rfqPath: '/x/supplier/rfqs/1',
+      },
       locale
     ) as never,
   quoteReceived: (locale) =>
@@ -265,11 +308,13 @@ test.group('Mails — rendu dans la langue du destinataire', () => {
   test('une valeur saisie par un utilisateur reste échappée', async ({ assert }) => {
     const mailer = new RfqReceivedNotification(
       'supplier@example.com',
-      '<script>alert(1)</script>',
-      'Tote',
-      1,
-      null,
-      '/x',
+      {
+        buyerName: '<script>alert(1)</script>',
+        rfqTitle: 'Tote',
+        itemCount: 1,
+        deadline: null,
+        rfqPath: '/x',
+      },
       'en'
     )
     const { html } = await render(mailer as never)
@@ -348,5 +393,91 @@ test.group('Mails — confirmation de l’adresse de réception (#217)', () => {
     assert.include(subject, 'Textiles SA')
     assert.include(html, 'https://example.test/v')
     assert.include(html, '7 jours')
+  })
+})
+
+test.group('Mails — demande de devis complète (#219)', () => {
+  test('chaque ligne porte produit, référence, variante, quantité, marquage et note', async ({
+    assert,
+  }) => {
+    const { html } = await render(new RfqReceivedNotification('s@x.test', RFQ_DATA, 'fr') as never)
+
+    assert.include(html, 'Salon de mars, livraison à Lyon')
+    assert.include(html, '2 lignes à chiffrer')
+    ;['Tote bag coton', 'TB-01-NAT', 'Naturel', '500 pcs', 'Logo centré'].forEach((value) =>
+      assert.include(html, value)
+    )
+    assert.include(html, 'Face avant · Sérigraphie · 2 couleurs')
+    assert.include(html, 'Mug céramique')
+    assert.include(html, 'Sans marquage')
+  })
+
+  test('le prix indicatif figure par ligne, et une ligne sans prix l’indique', async ({
+    assert,
+  }) => {
+    const { html } = await render(new RfqReceivedNotification('s@x.test', RFQ_DATA, 'fr') as never)
+
+    ;['1.20 EUR', '0.45 EUR', '60.00 EUR', '885.00 EUR'].forEach((price) =>
+      assert.include(html, price)
+    )
+    assert.include(html, 'Prix unitaire indicatif')
+    assert.include(html, 'Pas de prix catalogue : à chiffrer')
+    assert.include(html, 'Ce ne sont pas des prix convenus')
+  })
+
+  test('la version texte reprend les lignes, sans échappement HTML', async ({ assert }) => {
+    const data = { ...RFQ_DATA, description: 'Logos « A & B »' }
+    const { text } = await render(new RfqReceivedNotification('s@x.test', data, 'fr') as never)
+
+    assert.include(text, 'Logos « A & B »')
+    assert.include(text, '1. Tote bag coton')
+    assert.include(text, 'Référence : TB-01-NAT')
+    assert.include(text, 'Total indicatif : 885.00 EUR')
+    assert.include(text, '2. Mug céramique')
+    assert.include(text, 'Prix indicatif : Pas de prix catalogue : à chiffrer')
+    assert.include(text, '/x/supplier/rfqs/1')
+    assert.notInclude(text, '<')
+    assert.notInclude(text, '&amp;')
+  })
+
+  test('avec une adresse relais, le mail invite à répondre au lieu de l’interdire', async ({
+    assert,
+  }) => {
+    const relayed = await render(new RfqReceivedNotification('s@x.test', RFQ_DATA, 'fr') as never)
+    const plain = await render(
+      new RfqReceivedNotification('s@x.test', { ...RFQ_DATA, replyTo: null }, 'fr') as never
+    )
+
+    assert.include(relayed.html, 'répondez simplement à ce mail')
+    assert.notInclude(relayed.html, 'merci de ne pas y répondre')
+    assert.notInclude(plain.html, 'répondez simplement à ce mail')
+    assert.include(plain.html, 'merci de ne pas y répondre')
+  })
+
+  test('la relance reprend les mêmes lignes', async ({ assert }) => {
+    const { html, text } = await render(
+      new RfqReminderNotification('s@x.test', RFQ_DATA, 'en') as never
+    )
+
+    assert.include(html, 'Tote bag coton')
+    assert.include(html, 'No catalogue price: to be quoted')
+    assert.include(text, '2 lines to quote')
+  })
+
+  test('un job mis en queue avant #219, sans lignes, se rend toujours', async ({ assert }) => {
+    const legacy: RfqReceivedMailData = {
+      buyerName: 'Acme',
+      rfqTitle: 'Tote bags',
+      itemCount: 2,
+      deadline: null,
+      rfqPath: '/x/supplier/rfqs/1',
+    }
+    const { html, text } = await render(
+      new RfqReceivedNotification('s@x.test', legacy, 'fr') as never
+    )
+
+    assert.include(html, 'Tote bags')
+    assert.notInclude(html, 'Prix unitaire indicatif')
+    assert.include(text, '/x/supplier/rfqs/1')
   })
 })

@@ -48,6 +48,26 @@
     "cta": "Consulter la demande",
     "footer": "Ceci est l'unique rappel pour cette demande. Vous pouvez aussi la décliner depuis votre espace fournisseur."
   },
+  "rfqDetails": {
+    "description": "Description de la demande",
+    "linesTitle": "{count, plural, one {# ligne à chiffrer} other {# lignes à chiffrer}}",
+    "reference": "Référence",
+    "variant": "Variante",
+    "quantity": "Quantité",
+    "marking": "Marquage",
+    "markingColors": "{count, plural, one {# couleur} other {# couleurs}}",
+    "noMarking": "Sans marquage",
+    "note": "Note de l'agence",
+    "unitPrice": "Prix unitaire indicatif",
+    "markingUnitPrice": "Marquage / pièce indicatif",
+    "setupCharge": "Frais techniques indicatifs",
+    "total": "Total indicatif",
+    "price": "Prix indicatif",
+    "noPrice": "Pas de prix catalogue : à chiffrer",
+    "indicativeNotice": "Les prix indiqués sont les prix indicatifs affichés sur {brandName}, calculés à partir de votre catalogue. Ce ne sont pas des prix convenus : vous pouvez proposer un meilleur tarif ou vous y tenir.",
+    "replyHint": "Pour répondre, répondez simplement à ce mail en joignant votre devis (PDF).",
+    "platformLink": "Vous pouvez aussi consulter la demande sur la plateforme :"
+  },
   "quoteReceived": {
     "subject": "Nouveau devis de {supplierName} pour « {rfqTitle} »",
     "title": "{supplierName} a remis un devis",

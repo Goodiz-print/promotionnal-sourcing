@@ -48,6 +48,26 @@
     "cta": "Consultar o pedido",
     "footer": "Este é o único lembrete para este pedido. Pode também recusá-lo na sua área de fornecedor."
   },
+  "rfqDetails": {
+    "description": "Descrição do pedido",
+    "linesTitle": "{count, plural, one {# linha a orçamentar} other {# linhas a orçamentar}}",
+    "reference": "Referência",
+    "variant": "Variante",
+    "quantity": "Quantidade",
+    "marking": "Marcação",
+    "markingColors": "{count, plural, one {# cor} other {# cores}}",
+    "noMarking": "Sem marcação",
+    "note": "Nota da agência",
+    "unitPrice": "Preço unitário indicativo",
+    "markingUnitPrice": "Marcação por peça indicativa",
+    "setupCharge": "Custos técnicos indicativos",
+    "total": "Total indicativo",
+    "price": "Preço indicativo",
+    "noPrice": "Sem preço de catálogo: a orçamentar",
+    "indicativeNotice": "Os preços indicados são os preços indicativos apresentados em {brandName}, calculados a partir do seu catálogo. Não são preços acordados: pode propor uma tarifa melhor ou mantê-los.",
+    "replyHint": "Para responder, basta responder a este e-mail anexando o seu orçamento (PDF).",
+    "platformLink": "Também pode consultar o pedido na plataforma:"
+  },
   "quoteReceived": {
     "subject": "Novo orçamento de {supplierName} para «{rfqTitle}»",
     "title": "{supplierName} enviou um orçamento",
