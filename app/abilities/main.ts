@@ -128,6 +128,21 @@ export const canManageSubscription = Bouncer.ability(async (user: User, org: Org
 })
 
 /**
+ * Ability to check if a user belongs to a supplier organization **without** the
+ * right to manage its subscription (any role but owner/admin). Such a member,
+ * coming from the subscription upsell of an anonymous request mail (#222), is
+ * sent back with an explanation instead of a 403. Mirror of
+ * `canManageSubscription` for supplier members.
+ */
+export const isSupplierMemberWithoutSubscriptionRights = Bouncer.ability(
+  async (user: User, org: Organization) => {
+    if (!['supplier', 'both'].includes(org.organizationType)) return false
+    const m = await getMembership(user, org)
+    return m ? !['owner', 'admin'].includes(m.role.slug) : false
+  }
+)
+
+/**
  * Ability to check if a user is a **full** platform admin (`users.platform_role
  * = 'admin'`). Orthogonal to organization roles: an `owner` of an ordinary
  * organization is not a platform admin, and a platform admin needs no

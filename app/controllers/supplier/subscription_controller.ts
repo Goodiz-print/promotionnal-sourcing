@@ -13,7 +13,6 @@ import {
 } from '#exceptions/subscription_errors'
 import { subscriptionCheckoutValidator } from '#validators/subscription'
 import type Organization from '#models/organization'
-import { SUPPLIER_ORGANIZATION_KINDS } from '#shared/types/organization'
 import type { SupplierSubscriptionPageProps } from '#shared/types/subscription'
 
 /**
@@ -38,7 +37,7 @@ export default class SubscriptionController {
    */
   async show(ctx: HttpContext) {
     const org = await this.organizations.currentFor(ctx.auth.getUserOrFail())
-    if (await this.isSupplierMemberWithoutRights(ctx, org)) {
+    if (await ctx.bouncer.allows('isSupplierMemberWithoutSubscriptionRights', org)) {
       ctx.session.flash('error', ctx.i18n.t('subscription.flash.adminOnly'))
       return ctx.response.redirect().toRoute('dashboard.show', { locale: ctx.i18n.locale })
     }
@@ -112,15 +111,6 @@ export default class SubscriptionController {
     const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageSubscription', org)
     return org
-  }
-
-  /** Membre d'une organisation fournisseuse qui ne peut pas gérer l'abonnement. */
-  private async isSupplierMemberWithoutRights(
-    { bouncer }: HttpContext,
-    org: Organization
-  ): Promise<boolean> {
-    const isSupplier = SUPPLIER_ORGANIZATION_KINDS.includes(org.organizationType)
-    return isSupplier && (await bouncer.denies('canManageSubscription', org))
   }
 
   /** URL absolue de la page abonnement (retour des pages Stripe). */
