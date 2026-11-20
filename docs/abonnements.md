@@ -5,9 +5,9 @@ Formules (`SUBSCRIPTION_PLANS`, `shared/types/organization.ts`) : **Gratuit**
 500 € HT / mois). La grille des droits vient de l'issue #214 ; elle est affichée
 sur la page tarifs (`SUBSCRIPTION_FEATURES`, `shared/types/subscription.ts`).
 
-Ce document couvre la **donnée d'abonnement** et la **souscription en ligne**
-(issue #215). La saisie manuelle par l'admin, le job d'expiration et les
-mails relèvent de #214 et #237 et viendront se brancher sur le même service.
+Ce document couvre la **donnée d'abonnement**, la **saisie manuelle par l'admin**
+avec activation et expiration automatiques (#214) et la **souscription en ligne**
+(#215). Les mails d'activation et de rappel relèvent de #237.
 
 ## Donnée
 
@@ -24,6 +24,8 @@ mails relèvent de #214 et #237 et viendront se brancher sur le même service.
 - **Un seul abonnement en cours** par organisation : index unique partiel
   `organization_subscriptions_one_current_idx` sur `organization_id` pour
   `status IN ('active', 'past_due')`.
+- **Un seul abonnement programmé** par organisation : index unique partiel
+  `organization_subscriptions_one_scheduled_idx` pour `status = 'scheduled'`.
 - **Origine** (`manual`, `stripe`) : colonne texte, validée côté application ;
   une nouvelle origine ne demande pas de migration.
 - **Formule** : `business` ou `premium` (contrainte `CHECK`). `free` n'est jamais
@@ -33,11 +35,58 @@ mails relèvent de #214 et #237 et viendront se brancher sur le même service.
 
 `SubscriptionService` est le seul point du code qui répond à « abonné ou non » :
 
-- `current(organizationId)` : abonnement en cours (`active` ou `past_due`) ;
+- `current(organizationId)` : abonnement en cours (`active` ou `past_due`) ; pour
+  un abonnement **manuel**, la date de fin doit aussi être à venir — un abonnement
+  échu ne compte plus, même avant le passage du job qui l'expire. La date de fin
+  d'un abonnement en ligne (fin de période facturée) n'est pas lue : Stripe reste
+  juge pendant les relances d'impayé ;
 - `blocking(organizationId)` : abonnement en cours **ou** premier paiement en
   validation (`pending`) — ce qui interdit une nouvelle souscription ;
 - `isSubscribed(organizationId)` : la règle, évaluée **à la lecture** ;
+- `subscribedAmong(organizationIds)` : la même règle pour plusieurs organisations, en une requête ;
 - `refreshPlan(organizationId, trx)` : recalcule `organizations.subscription_plan`.
+
+La règle elle-même est **une seule fonction**, `whereCurrentSubscription`
+(`app/services/subscription_plan_service.ts`), appliquée aux requêtes Lucid comme
+aux requêtes `db`. `SubscriptionPlanService` (lecture en masse, seule écriture de
+`organizations.subscription_plan`) n'utilise aucun modèle Lucid : les jobs peuvent
+l'injecter par leur constructeur (la queue charge les jobs au boot, cf. `CLAUDE.md`).
+
+## Saisie manuelle par l'admin (#214)
+
+Bloc « Abonnement » de la fiche admin d'une organisation fournisseur
+(`/admin/organizations/:id`, organisations `supplier` et `both`) : historique de
+toutes les périodes (formule, statut, période, origine, auteur), et pour
+l'abonnement manuel ouvert : nouvelle date de fin et résiliation immédiate. Le
+formulaire de saisie n'apparaît que lorsqu'aucun abonnement n'est ouvert. Droit
+`organizations.manage` ; chaque action est tracée dans le journal d'audit
+(`subscription.created`, `subscription.extended`, `subscription.cancelled`).
+
+| Route                                                             | Nom                                        |
+| ----------------------------------------------------------------- | ------------------------------------------ |
+| `POST /:locale/admin/organizations/:id/subscriptions`             | `admin.organizations.subscriptions.store`  |
+| `PATCH /:locale/admin/organizations/:id/subscriptions/:sid`       | `admin.organizations.subscriptions.extend` |
+| `POST /:locale/admin/organizations/:id/subscriptions/:sid/cancel` | `admin.organizations.subscriptions.cancel` |
+
+- **Dates** (`shared/helpers/subscription_period.ts`, testé dans
+  `tests/unit/subscription_period.spec.ts`) : l'admin saisit un premier et un dernier jour (`AAAA-MM-JJ`, heure de
+  Paris, `SUBSCRIPTION_TIMEZONE`). `starts_at` est le début du premier jour,
+  `ends_at` le début du jour qui suit le dernier (fin **exclusive**).
+- **Création** (`ManualSubscriptionService#create`) : `active` si le premier jour
+  est atteint, `scheduled` sinon. Refusée si un abonnement est déjà ouvert
+  (`scheduled`, `pending`, `active` ou `past_due`), si le dernier jour précède le
+  premier ou est passé, ou si l'organisation est uniquement acheteuse.
+- **Prolongation** : change la date de fin d'un abonnement manuel `scheduled` ou
+  `active`. **Résiliation** : `cancelled` immédiat, retour en `free`.
+- Un abonnement **en ligne** ne se modifie pas depuis le back-office : il se gère
+  dans Stripe.
+- **Passage planifié** `SyncSubscriptionsJob` → `SubscriptionScheduleService#syncDue` (accès `db` seul) (planning `sync-subscriptions`, toutes
+  les heures à la minute 5, lançable depuis l'admin de la queue) : expire les
+  abonnements manuels échus, **puis** active les abonnements programmés arrivés à
+  leur premier jour — un renouvellement programmé prend donc le relais de
+  l'abonnement qui se termine. Si l'organisation a souscrit en ligne entre-temps,
+  l'abonnement programmé reste en attente (log `warn`) et l'admin arbitre.
+  Idempotent ; les abonnements en ligne ne sont jamais touchés.
 
 ## Souscription en ligne (Stripe Billing)
 
@@ -154,6 +203,12 @@ Côté tableau de bord Stripe :
 
 ## Tests
 
+- `tests/functional/manual_subscriptions.spec.ts` : saisie admin (active,
+  programmée, refus d'un second abonnement, dates incohérentes, organisation
+  acheteuse, 403 sans droit), prolongation, résiliation, abonnement en ligne non
+  modifiable, historique de la fiche ; règle « abonné » (actif, impayé, programmé,
+  expiré, résilié, échu), contraintes en base, passage planifié (expiration,
+  activation, idempotence, renouvellement enchaîné).
 - `tests/unit/subscription_status.spec.ts` : correspondance des statuts, types
   de notification, prestataire inerte.
 - `tests/functional/subscriptions.spec.ts` : page tarifs, droits, création et

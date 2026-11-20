@@ -7,6 +7,7 @@ import Rfq from '#models/rfq'
 import SupplierProfile from '#models/supplier_profile'
 import AgencyProfile from '#models/agency_profile'
 import BillingProfile from '#models/billing_profile'
+import OrganizationSubscription from '#models/organization_subscription'
 import { AdminOrganizationNotFoundException } from '#exceptions/admin_errors'
 import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
 import type { AdminOrganizationIndexFilters } from '#shared/types/admin_organization'
@@ -25,6 +26,7 @@ export interface AdminOrganizationDetails {
   supplierProfile: SupplierProfile | null
   agencyProfile: AgencyProfile | null
   billingProfile: BillingProfile | null
+  subscriptions: OrganizationSubscription[]
   lastActivity: Date | null
 }
 
@@ -89,6 +91,7 @@ export default class AdminOrganizationService {
       supplierProfile,
       agencyProfile,
       billingProfile,
+      subscriptions,
     ] = await Promise.all([
       OrganizationUser.query()
         .where('organizationId', id)
@@ -109,6 +112,11 @@ export default class AdminOrganizationService {
       SupplierProfile.query().where('organizationId', id).first(),
       AgencyProfile.query().where('organizationId', id).first(),
       BillingProfile.query().where('organizationId', id).first(),
+      OrganizationSubscription.query()
+        .where('organizationId', id)
+        .preload('createdBy')
+        .orderBy('startsAt', 'desc')
+        .orderBy('id', 'desc'),
     ])
 
     // Dernière activité = dernière connexion d'un membre
@@ -123,6 +131,7 @@ export default class AdminOrganizationService {
       supplierProfile,
       agencyProfile,
       billingProfile,
+      subscriptions,
       lastActivity,
     }
   }

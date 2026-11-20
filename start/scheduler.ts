@@ -27,6 +27,7 @@ import PurgeActivityEventsJob from '#jobs/purge_activity_events_job'
 import CheckPlatformHealthJob from '#jobs/check_platform_health_job'
 import RecoverInboundMailsJob from '#jobs/recover_inbound_mails_job'
 import PurgeStripeWebhookEventsJob from '#jobs/purge_stripe_webhook_events_job'
+import SyncSubscriptionsJob from '#jobs/sync_subscriptions_job'
 
 /**
  * Purge quotidienne des invitations d'organisation (bascule `pending` échues en
@@ -138,3 +139,11 @@ await SendNotificationRemindersJob.schedule({})
   .id('send-notification-reminders')
   .cron('*/5 * * * *')
   .run()
+
+/**
+ * Abonnements manuels, toutes les heures (#214) : expiration des abonnements
+ * échus (retour en gratuit), activation des abonnements programmés. Les dates
+ * sont des jours (heure de Paris) ; la règle « abonné » ignore déjà un
+ * abonnement échu, le passage horaire aligne statut et formule courante.
+ */
+await SyncSubscriptionsJob.schedule({}).id('sync-subscriptions').cron('5 * * * *').run()

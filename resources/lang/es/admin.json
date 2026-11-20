@@ -273,6 +273,38 @@
         "revoked": "Invitación revocada.",
         "resent": "Invitación reenviada."
       }
+    },
+    "subscription": {
+      "title": "Suscripción",
+      "empty": "Sin suscripción: plan gratuito.",
+      "create": "Crear la suscripción",
+      "extend": "Cambiar la fecha de fin",
+      "cancel": "Cancelar",
+      "cancelConfirm": "¿Cancelar esta suscripción ahora? La organización vuelve al plan gratuito.",
+      "fields": {
+        "plan": "Plan",
+        "status": "Estado",
+        "period": "Periodo",
+        "origin": "Origen",
+        "author": "Registrado por",
+        "startsOn": "Primer día",
+        "endsOn": "Último día"
+      },
+      "origins": {
+        "manual": "Manual",
+        "stripe": "En línea"
+      },
+      "done": {
+        "created": "Suscripción registrada.",
+        "extended": "Fecha de fin cambiada.",
+        "cancelled": "Suscripción cancelada."
+      },
+      "errors": {
+        "alreadyOpen": "Ya hay una suscripción en curso o programada: prolóngala o cancélala.",
+        "invalidPeriod": "Fechas no válidas: el último día debe seguir al primero y no estar en el pasado.",
+        "notEditable": "Esta suscripción ya no se puede modificar aquí.",
+        "notSupplier": "Solo una organización proveedora puede suscribirse."
+      }
     }
   },
   "supplierLinks": {
@@ -533,7 +565,10 @@
       "storage.recovery_requested": "Storage recovery requested",
       "ad_campaign.suspended": "Campaña patrocinada suspendida",
       "ad_campaign.restored": "Suspensión de campaña levantada",
-      "ad_wallet.adjusted": "Monedero publicitario ajustado"
+      "ad_wallet.adjusted": "Monedero publicitario ajustado",
+      "subscription.created": "Suscripción creada",
+      "subscription.extended": "Fin de suscripción cambiado",
+      "subscription.cancelled": "Suscripción cancelada"
     },
     "targets": {
       "user": "Usuario",

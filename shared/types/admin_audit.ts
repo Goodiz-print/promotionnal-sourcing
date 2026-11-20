@@ -78,6 +78,9 @@ export const ADMIN_AUDIT_ACTIONS = [
   'ad_campaign.suspended',
   'ad_campaign.restored',
   'ad_wallet.adjusted',
+  'subscription.created',
+  'subscription.extended',
+  'subscription.cancelled',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]

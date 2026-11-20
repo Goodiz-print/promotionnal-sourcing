@@ -1,6 +1,7 @@
 import type { AgencyReviewReason } from './agency_signup.js'
 import type { OrganizationKind, OrganizationSize, SubscriptionPlan } from './organization.js'
 import type { RoleSlug } from './role.js'
+import type { PaidSubscriptionPlan, SubscriptionStatus } from './subscription.js'
 
 /**
  * Gestion des organisations par la plateforme (#161).
@@ -129,6 +130,8 @@ export type AdminOrganizationDetail = AdminOrganizationListItem & {
   postalCode: string | null
   logoUrl: string | null
   subscriptionPlan: SubscriptionPlan
+  /** Abonnements, du plus récent au plus ancien (#214) : le premier ouvert est l'abonnement en cours ou programmé. */
+  subscriptions: AdminOrganizationSubscription[]
   locale: string
   updatedAt: string | null
   /** Agence: motifs de revue renseignes a l'inscription. */
@@ -164,4 +167,22 @@ export type AdminOrganizationUpdateData = {
   city?: string | null
   postalCode?: string | null
   country?: string
+}
+
+/**
+ * Période d'abonnement affichée dans la fiche admin (#214). `editable` : abonnement
+ * manuel encore ouvert, que l'admin peut prolonger ou résilier.
+ */
+export type AdminOrganizationSubscription = {
+  id: number
+  plan: PaidSubscriptionPlan
+  status: SubscriptionStatus
+  origin: string
+  startsAt: string
+  /** Fin exclusive (début du jour qui suit le dernier jour couvert). */
+  endsAt: string | null
+  cancelledAt: string | null
+  createdByEmail: string | null
+  createdAt: string
+  editable: boolean
 }

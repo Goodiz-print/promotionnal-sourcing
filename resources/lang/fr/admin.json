@@ -273,6 +273,38 @@
         "revoked": "Invitation révoquée.",
         "resent": "Invitation renvoyée."
       }
+    },
+    "subscription": {
+      "title": "Abonnement",
+      "empty": "Aucun abonnement : formule gratuite.",
+      "create": "Créer l'abonnement",
+      "extend": "Modifier la fin",
+      "cancel": "Résilier",
+      "cancelConfirm": "Résilier cet abonnement maintenant ? L'organisation repasse en formule gratuite.",
+      "fields": {
+        "plan": "Formule",
+        "status": "Statut",
+        "period": "Période",
+        "origin": "Origine",
+        "author": "Saisi par",
+        "startsOn": "Premier jour",
+        "endsOn": "Dernier jour"
+      },
+      "origins": {
+        "manual": "Manuel",
+        "stripe": "En ligne"
+      },
+      "done": {
+        "created": "Abonnement enregistré.",
+        "extended": "Date de fin modifiée.",
+        "cancelled": "Abonnement résilié."
+      },
+      "errors": {
+        "alreadyOpen": "Un abonnement est déjà en cours ou programmé : prolongez-le ou résiliez-le.",
+        "invalidPeriod": "Dates invalides : le dernier jour doit suivre le premier et ne pas être passé.",
+        "notEditable": "Cet abonnement ne peut plus être modifié ici.",
+        "notSupplier": "Seule une organisation fournisseur peut s'abonner."
+      }
     }
   },
   "supplierLinks": {
@@ -533,7 +565,10 @@
       "storage.recovery_requested": "Reprise du stockage demandée",
       "ad_campaign.suspended": "Campagne sponsorisée suspendue",
       "ad_campaign.restored": "Suspension de campagne levée",
-      "ad_wallet.adjusted": "Portefeuille publicitaire ajusté"
+      "ad_wallet.adjusted": "Portefeuille publicitaire ajusté",
+      "subscription.created": "Abonnement créé",
+      "subscription.extended": "Fin d'abonnement modifiée",
+      "subscription.cancelled": "Abonnement résilié"
     },
     "targets": {
       "user": "Utilisateur",

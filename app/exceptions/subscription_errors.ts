@@ -45,3 +45,37 @@ export class SubscriptionSyncConflictException extends Exception {
   static code = 'E_SUBSCRIPTION_SYNC_CONFLICT'
   static message = 'Conflicting online subscriptions for this organization'
 }
+
+/**
+ * Saisie admin d'un abonnement alors qu'un autre est en cours, programmé ou en
+ * attente de paiement : un seul à la fois (le prolonger ou le résilier d'abord).
+ */
+export class SubscriptionAlreadyOpenException extends Exception {
+  static status = 409
+  static code = 'E_SUBSCRIPTION_ALREADY_OPEN'
+  static message = 'This organization already has an open subscription'
+}
+
+/** Dates d'abonnement incohérentes : fin avant le début, ou fin déjà passée. */
+export class InvalidSubscriptionPeriodException extends Exception {
+  static status = 422
+  static code = 'E_INVALID_SUBSCRIPTION_PERIOD'
+  static message = 'Invalid subscription period'
+}
+
+/**
+ * Action admin réservée aux abonnements manuels encore ouverts : un abonnement
+ * en ligne se gère dans Stripe, un abonnement terminé ne se modifie plus.
+ */
+export class SubscriptionNotEditableException extends Exception {
+  static status = 409
+  static code = 'E_SUBSCRIPTION_NOT_EDITABLE'
+  static message = 'This subscription cannot be changed here'
+}
+
+/** Abonnement manuel demandé pour une organisation qui ne vend pas (type `buyer`). */
+export class SubscriptionNotSupplierException extends Exception {
+  static status = 422
+  static code = 'E_SUBSCRIPTION_NOT_SUPPLIER'
+  static message = 'Only supplier organizations can subscribe'
+}

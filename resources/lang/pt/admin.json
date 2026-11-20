@@ -273,6 +273,38 @@
         "revoked": "Convite revogado.",
         "resent": "Convite reenviado."
       }
+    },
+    "subscription": {
+      "title": "Assinatura",
+      "empty": "Sem assinatura: plano gratuito.",
+      "create": "Criar a assinatura",
+      "extend": "Alterar a data de fim",
+      "cancel": "Cancelar",
+      "cancelConfirm": "Cancelar esta assinatura agora? A organização volta ao plano gratuito.",
+      "fields": {
+        "plan": "Plano",
+        "status": "Estado",
+        "period": "Período",
+        "origin": "Origem",
+        "author": "Registado por",
+        "startsOn": "Primeiro dia",
+        "endsOn": "Último dia"
+      },
+      "origins": {
+        "manual": "Manual",
+        "stripe": "Online"
+      },
+      "done": {
+        "created": "Assinatura registada.",
+        "extended": "Data de fim alterada.",
+        "cancelled": "Assinatura cancelada."
+      },
+      "errors": {
+        "alreadyOpen": "Já existe uma assinatura em curso ou programada: prolongue-a ou cancele-a.",
+        "invalidPeriod": "Datas inválidas: o último dia deve seguir o primeiro e não estar no passado.",
+        "notEditable": "Esta assinatura já não pode ser alterada aqui.",
+        "notSupplier": "Só uma organização fornecedora pode subscrever."
+      }
     }
   },
   "supplierLinks": {
@@ -533,7 +565,10 @@
       "storage.recovery_requested": "Storage recovery requested",
       "ad_campaign.suspended": "Campanha patrocinada suspensa",
       "ad_campaign.restored": "Suspensão da campanha levantada",
-      "ad_wallet.adjusted": "Carteira publicitária ajustada"
+      "ad_wallet.adjusted": "Carteira publicitária ajustada",
+      "subscription.created": "Assinatura criada",
+      "subscription.extended": "Fim da assinatura alterado",
+      "subscription.cancelled": "Assinatura cancelada"
     },
     "targets": {
       "user": "Utilizador",

@@ -12,6 +12,7 @@ import OrganizationLifecycleActions from '~/components/admin/organization/organi
 import OrganizationMembersSection from '~/components/admin/organization/organization_members_section.vue'
 import OrganizationOverview from '~/components/admin/organization/organization_overview.vue'
 import OrganizationProfilesSection from '~/components/admin/organization/organization_profiles_section.vue'
+import OrganizationSubscriptionSection from '~/components/admin/organization/organization_subscription_section.vue'
 import OrganizationTypeForm from '~/components/admin/organization/organization_type_form.vue'
 import BaseAlert from '~/components/base/base_alert.vue'
 import BaseBadge from '~/components/base/base_badge.vue'
@@ -35,6 +36,7 @@ const { can } = usePlatformPermissions()
 
 const indexUrl = computed(() => urlFor('admin.organizations.index', { locale: locale.value }))
 const archived = computed(() => props.organization.archivedAt !== null)
+const sells = computed(() => props.organization.organizationType !== 'buyer')
 </script>
 
 <template>
@@ -106,6 +108,13 @@ const archived = computed(() => props.organization.archivedAt !== null)
     <OrganizationInvitationsSection
       :organization-id="organization.id"
       :invitations="organization.pendingInvitations"
+      :can-manage="organization.canManage"
+    />
+
+    <OrganizationSubscriptionSection
+      v-if="sells"
+      :organization-id="organization.id"
+      :subscriptions="organization.subscriptions"
       :can-manage="organization.canManage"
     />
 

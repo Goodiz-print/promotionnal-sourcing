@@ -273,6 +273,38 @@
         "revoked": "Uitnodiging ingetrokken.",
         "resent": "Uitnodiging opnieuw verzonden."
       }
+    },
+    "subscription": {
+      "title": "Abonnement",
+      "empty": "Geen abonnement: gratis formule.",
+      "create": "Abonnement aanmaken",
+      "extend": "Einddatum wijzigen",
+      "cancel": "Opzeggen",
+      "cancelConfirm": "Dit abonnement nu opzeggen? De organisatie gaat terug naar de gratis formule.",
+      "fields": {
+        "plan": "Formule",
+        "status": "Status",
+        "period": "Periode",
+        "origin": "Herkomst",
+        "author": "Ingevoerd door",
+        "startsOn": "Eerste dag",
+        "endsOn": "Laatste dag"
+      },
+      "origins": {
+        "manual": "Handmatig",
+        "stripe": "Online"
+      },
+      "done": {
+        "created": "Abonnement opgeslagen.",
+        "extended": "Einddatum gewijzigd.",
+        "cancelled": "Abonnement opgezegd."
+      },
+      "errors": {
+        "alreadyOpen": "Er loopt al een abonnement of er is er een gepland: verleng of zeg het op.",
+        "invalidPeriod": "Ongeldige data: de laatste dag moet na de eerste liggen en niet in het verleden.",
+        "notEditable": "Dit abonnement kan hier niet meer worden gewijzigd.",
+        "notSupplier": "Alleen een leveranciersorganisatie kan een abonnement nemen."
+      }
     }
   },
   "supplierLinks": {
@@ -533,7 +565,10 @@
       "storage.recovery_requested": "Storage recovery requested",
       "ad_campaign.suspended": "Gesponsorde campagne geschorst",
       "ad_campaign.restored": "Schorsing van campagne opgeheven",
-      "ad_wallet.adjusted": "Advertentietegoed aangepast"
+      "ad_wallet.adjusted": "Advertentietegoed aangepast",
+      "subscription.created": "Abonnement aangemaakt",
+      "subscription.extended": "Einde abonnement gewijzigd",
+      "subscription.cancelled": "Abonnement opgezegd"
     },
     "targets": {
       "user": "Gebruiker",

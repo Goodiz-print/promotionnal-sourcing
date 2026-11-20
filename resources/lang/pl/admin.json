@@ -273,6 +273,38 @@
         "revoked": "Zaproszenie anulowane.",
         "resent": "Zaproszenie wysłane ponownie."
       }
+    },
+    "subscription": {
+      "title": "Subskrypcja",
+      "empty": "Brak subskrypcji: plan bezpłatny.",
+      "create": "Utwórz subskrypcję",
+      "extend": "Zmień datę końca",
+      "cancel": "Anuluj",
+      "cancelConfirm": "Anulować tę subskrypcję teraz? Organizacja wraca do planu bezpłatnego.",
+      "fields": {
+        "plan": "Plan",
+        "status": "Status",
+        "period": "Okres",
+        "origin": "Pochodzenie",
+        "author": "Wprowadził(a)",
+        "startsOn": "Pierwszy dzień",
+        "endsOn": "Ostatni dzień"
+      },
+      "origins": {
+        "manual": "Ręczna",
+        "stripe": "Online"
+      },
+      "done": {
+        "created": "Subskrypcja zapisana.",
+        "extended": "Data końca zmieniona.",
+        "cancelled": "Subskrypcja anulowana."
+      },
+      "errors": {
+        "alreadyOpen": "Istnieje już trwająca lub zaplanowana subskrypcja: przedłuż ją lub anuluj.",
+        "invalidPeriod": "Nieprawidłowe daty: ostatni dzień musi następować po pierwszym i nie może być w przeszłości.",
+        "notEditable": "Tej subskrypcji nie można już tu zmienić.",
+        "notSupplier": "Tylko organizacja dostawcy może wykupić subskrypcję."
+      }
     }
   },
   "supplierLinks": {
@@ -533,7 +565,10 @@
       "storage.recovery_requested": "Storage recovery requested",
       "ad_campaign.suspended": "Kampania sponsorowana zawieszona",
       "ad_campaign.restored": "Zniesiono zawieszenie kampanii",
-      "ad_wallet.adjusted": "Portfel reklamowy skorygowany"
+      "ad_wallet.adjusted": "Portfel reklamowy skorygowany",
+      "subscription.created": "Subskrypcja utworzona",
+      "subscription.extended": "Zmieniono koniec subskrypcji",
+      "subscription.cancelled": "Subskrypcja anulowana"
     },
     "targets": {
       "user": "Użytkownik",
