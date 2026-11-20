@@ -44,6 +44,7 @@ Les documents PDF des fournisseurs (catalogue, certificat, fiche technique) sont
 - Interfaces préférées aux types pour les objets
 - Pas de `any` — utiliser `unknown` si nécessaire
 - Nommage : `camelCase` pour variables/fonctions, `PascalCase` pour classes/interfaces
+- **Fonctions de tableau plutôt que boucles** : privilégier `map` / `filter` / `reduce` / `flatMap` / `some` / `every` / `find`, et `Map.groupBy` / `Object.fromEntries` / `new Set(...)` pour regrouper ou indexer, plutôt que des boucles `for` / `for…of` / `for…in` qui mutent un accumulateur — code plus lisible et plus testable. Une boucle reste acceptable seulement si elle est réellement plus claire : `await` qui doivent s'exécuter **séquentiellement**, sortie anticipée (`break`) sur un gros volume. Pour des écritures indépendantes, `Promise.all(items.map(...))`.
 
 ### AdonisJS
 
