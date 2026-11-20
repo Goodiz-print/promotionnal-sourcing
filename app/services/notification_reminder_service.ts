@@ -100,8 +100,9 @@ export default class NotificationReminderService {
     policy: NotificationEmailFallbackPolicy,
     now: DateTime
   ): Promise<DueReminderRow[]> {
-    const role = policy.recipientPlatformRole
-    const roleClause = role ? 'AND uu.platform_role = :role' : ''
+    // Requête au texte fixe : toutes les valeurs passent par des bindings nommés
+    // (paramètres `$n` côté `pg`). Sans rôle requis, `:role` vaut '' (aucun rôle
+    // plateforme n'est vide) et la condition est neutre.
     const result = await trx.rawQuery<{ rows: DueReminderRow[] }>(
       `UPDATE notifications AS n
           SET email_reminded_at = :now
@@ -115,7 +116,7 @@ export default class NotificationReminderService {
                AND nn.email_reminded_at IS NULL
                AND nn.created_at <= :cutoff
                AND nn.created_at > :oldest
-               ${roleClause}
+               AND (:role = '' OR uu.platform_role = :role)
              ORDER BY nn.id
              LIMIT :limit
                FOR UPDATE OF nn SKIP LOCKED
@@ -127,7 +128,7 @@ export default class NotificationReminderService {
         cutoff: now.minus({ minutes: policy.delayMinutes }).toJSDate(),
         oldest: now.minus({ hours: NOTIFICATION_REMINDER_MAX_AGE_HOURS }).toJSDate(),
         limit: BATCH_SIZE,
-        ...(role ? { role } : {}),
+        role: policy.recipientPlatformRole ?? '',
       }
     )
     return result.rows
