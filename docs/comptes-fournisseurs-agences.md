@@ -57,7 +57,8 @@ l'équipe à toutes les agences.
 
 `SupplierContactService.visibleFor` est la **seule** règle d'affichage, évaluée
 à la lecture : visiteur non connecté, dont l'organisation courante n'est pas
-une agence (`buyer` ou `both` — un fournisseur concurrent ne voit rien), ou
+une agence **validée** (`buyer` ou `both`, non archivée, `review_reasons` vide —
+un fournisseur concurrent ou une agence en cours de validation ne voit rien), ou
 fournisseur non abonné
 (`SubscriptionService.isSubscribed`) → aucun contact ; option activée → tous ;
 sinon les contacts qui couvrent le pays de l'organisation courante du visiteur

@@ -167,7 +167,7 @@ export default class RfqsController {
     // Équipe commerciale des destinataires (#241), filtrée selon le pays de l'agence.
     const contacts = await this.supplierContacts.visibleForMany(
       rfq.suppliers.map((row) => row.supplierOrganizationId),
-      { organizationId: org.id, country: org.country || null }
+      this.supplierContacts.viewerForOrganization(org)
     )
 
     return inertia.render('rfqs/show', {

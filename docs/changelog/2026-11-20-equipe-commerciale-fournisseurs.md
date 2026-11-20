@@ -36,8 +36,9 @@ contacts ne sont montrés qu'aux abonnés, avec un lien vers la page abonnement.
 la lecture :
 
 1. visiteur non connecté, visiteur dont l'organisation courante n'est pas une
-   agence (`buyer`/`both` : un fournisseur concurrent ne reçoit rien), ou
-   fournisseur non abonné : aucun contact ;
+   agence validée (`buyer`/`both`, non archivée, `review_reasons` vide : un
+   fournisseur concurrent ou une agence en cours de validation ne reçoit rien),
+   ou fournisseur non abonné : aucun contact ;
 2. option « toute l'équipe » activée : tous les contacts ;
 3. sinon les contacts qui couvrent le pays de l'organisation courante (ou tous les pays) ;
 4. si aucun ne correspond : toute l'équipe (repli).

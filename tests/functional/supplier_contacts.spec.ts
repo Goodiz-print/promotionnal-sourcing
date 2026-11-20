@@ -170,6 +170,23 @@ test.group('Contacts commerciaux — règle d’affichage', (group) => {
     const bothViewer = await service.viewerFor(await createMember(both, 'owner'))
     assert.equal(bothViewer?.organizationId, both.id)
   })
+
+  test('une agence en cours de validation ne reçoit rien, puis tout une fois validée', async ({
+    assert,
+  }) => {
+    const service = await app.container.make(SupplierContactService)
+    const pending = await OrganizationFactory.merge({
+      country: 'FR',
+      reviewReasons: ['vat_unverified', 'free_email_domain'],
+    }).create()
+    const user = await createMember(pending, 'owner')
+
+    assert.isNull(await service.viewerFor(user))
+
+    // Décision `approved` : `review_reasons` est vidé.
+    await pending.merge({ reviewReasons: [] }).save()
+    assert.deepEqual(await service.viewerFor(user), { organizationId: pending.id, country: 'FR' })
+  })
 })
 
 test.group('Contacts commerciaux — espace fournisseur', (group) => {
@@ -437,6 +454,32 @@ test.group('Contacts commerciaux — props envoyées à l’agence', (group) => 
       .loginAs(competitor)
 
     assert.deepEqual(response.inertiaProps.contacts, [])
+  })
+
+  test('page fournisseur et détail de demande : rien pour une agence en cours de validation', async ({
+    client,
+    assert,
+  }) => {
+    const { org, supplier } = await publicSupplier()
+    await subscribe(org)
+    const pending = await OrganizationFactory.merge({
+      country: 'FR',
+      reviewReasons: ['domain_mismatch'],
+    }).create()
+    const buyer = await createMember(pending, 'owner')
+    const rfq = await RfqFactory.apply('published')
+      .merge({ buyerOrganizationId: pending.id })
+      .create()
+    await RfqSupplierFactory.apply('sent')
+      .merge({ rfqId: rfq.id, supplierOrganizationId: org.id })
+      .create()
+
+    const page = await client.get(`/fr/suppliers/${supplier.slug}`).withInertia().loginAs(buyer)
+    assert.deepEqual(page.inertiaProps.contacts, [])
+
+    const detail = await client.get(`/fr/rfqs/${rfq.id}`).withInertia().loginAs(buyer)
+    detail.assertStatus(200)
+    assert.deepEqual(detail.inertiaProps.supplierContacts, {})
   })
 
   test('page fournisseur : rien pour un fournisseur gratuit', async ({ client, assert }) => {

@@ -128,17 +128,27 @@ export default class SupplierContactService {
   }
 
   /**
-   * Visiteur à partir de l'utilisateur connecté : son organisation courante
-   * (non archivée), si c'est une **agence** (`buyer` ou `both`), et le pays de
-   * celle-ci. `null` sinon — visiteur anonyme, utilisateur sans organisation
-   * utilisable, ou fournisseur pur (un concurrent ne reçoit pas l'équipe
-   * commerciale des autres).
+   * Visiteur à partir de l'utilisateur connecté : son organisation courante,
+   * si elle peut recevoir des contacts (`viewerForOrganization`). `null` pour
+   * un visiteur anonyme ou sans organisation.
    */
   async viewerFor(user: User | null | undefined): Promise<SupplierContactViewer | null> {
     if (!user?.currentOrganizationId) return null
     const organization = await Organization.find(user.currentOrganizationId)
-    if (!organization || organization.archivedAt) return null
+    return organization ? this.viewerForOrganization(organization) : null
+  }
+
+  /**
+   * L'organisation reçoit-elle des contacts commerciaux ? Seulement une
+   * **agence** (`buyer` ou `both`) **validée** : pas un fournisseur pur (un
+   * concurrent ne reçoit pas l'équipe des autres), pas une organisation
+   * archivée (agence refusée comprise), pas une agence en cours de validation
+   * (`review_reasons` non vide : en attente ou complément demandé).
+   */
+  viewerForOrganization(organization: Organization): SupplierContactViewer | null {
+    if (organization.archivedAt) return null
     if (!AGENCY_KINDS.includes(organization.organizationType)) return null
+    if ((organization.reviewReasons ?? []).length > 0) return null
     return { organizationId: organization.id, country: organization.country || null }
   }
 
