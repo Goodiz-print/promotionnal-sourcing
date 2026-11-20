@@ -1,3 +1,4 @@
+import type { Locale } from './i18n.js'
 import type { SubscriptionPlan } from './organization.js'
 
 /**
@@ -221,4 +222,55 @@ export interface ManualSubscriptionExtension extends ManualSubscriptionTarget {
 export interface SubscriptionSyncDueResult {
   activated: number[]
   expired: number[]
+}
+
+/**
+ * Rappels avant la fin d'un abonnement manuel (#237), en jours : 7 jours pour
+ * tout abonnement, 30 jours en plus pour un abonnement annuel. Du plus tôt au
+ * plus tard.
+ */
+export const SUBSCRIPTION_REMINDER_DAYS = { monthly: [7], annual: [30, 7] } as const
+
+/**
+ * Durée minimale, en mois, d'un abonnement considéré comme annuel. Saisi à la
+ * main, un abonnement n'a pas de périodicité de facturation : on la déduit de
+ * sa durée.
+ */
+export const ANNUAL_SUBSCRIPTION_MIN_MONTHS = 12
+
+/**
+ * Abonnement lu par `SubscriptionMailService` (#237), en colonnes brutes : le
+ * service passe par `db` (sans modèle Lucid) pour être injectable dans un job.
+ */
+export interface SubscriptionMailRow {
+  id: number
+  organization_id: number
+  organization_name: string
+  plan: PaidSubscriptionPlan
+  starts_at: Date
+  ends_at: Date | null
+  reminded_ends_at: Date | null
+  reminded_days: number | null
+}
+
+/** Rappel d'échéance dû : l'abonnement et le délai (jours avant la fin). */
+export interface DueSubscriptionReminder {
+  subscription: SubscriptionMailRow
+  days: number
+}
+
+/** Destinataire d'un mail d'abonnement : un responsable de l'organisation. */
+export interface SubscriptionMailRecipient {
+  email: string
+  locale: Locale
+}
+
+/** État d'un abonnement utile au calcul du rappel dû (instants en ISO). */
+export interface SubscriptionReminderState {
+  startsAt: string
+  endsAt: string
+  /** Date de fin pour laquelle le dernier rappel a été envoyé. */
+  remindedEndsAt: string | null
+  /** Délai (en jours) du dernier rappel envoyé pour `remindedEndsAt`. */
+  remindedDays: number | null
 }

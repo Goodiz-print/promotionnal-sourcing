@@ -85,5 +85,23 @@
     "intro": "Deze melding is naar u verstuurd op {brandName} en is nog niet gelezen:",
     "cta": "De betreffende pagina openen",
     "footer": "U ontvangt deze herinnering maar één keer. Ze wordt niet meer verstuurd zodra de melding is gelezen."
+  },
+  "subscriptionActivated": {
+    "subject": "Uw {planName}-abonnement is actief",
+    "title": "{planName}-abonnement geactiveerd",
+    "intro": "Het {planName}-abonnement van {organizationName} is actief op {brandName}.",
+    "period": "Het loopt van {startsOn} tot en met {endsOn}.",
+    "since": "Het is actief sinds {startsOn}.",
+    "features": "Uw formule omvat:",
+    "cta": "Mijn abonnement bekijken",
+    "footer": "U ontvangt deze e-mail als verantwoordelijke van de organisatie."
+  },
+  "subscriptionExpiring": {
+    "subject": "Uw {planName}-abonnement eindigt op {endsOn}",
+    "title": "Uw {planName}-abonnement eindigt over {daysLeft, plural, one {# dag} other {# dagen}}",
+    "intro": "Het {planName}-abonnement van {organizationName} eindigt op {endsOn}.",
+    "after": "Zonder verlenging gaat uw organisatie terug naar de gratis formule: de identiteit van de bureaus is dan niet meer zichtbaar in uw offerteaanvragen en statistieken.",
+    "cta": "Mijn abonnement verlengen",
+    "footer": "U ontvangt deze herinnering als verantwoordelijke van de organisatie."
   }
 }

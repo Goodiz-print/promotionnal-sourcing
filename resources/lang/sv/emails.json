@@ -85,5 +85,23 @@
     "intro": "Den här aviseringen skickades till dig på {brandName} och har inte lästs än:",
     "cta": "Öppna den berörda sidan",
     "footer": "Du får den här påminnelsen bara en gång. Den skickas inte när aviseringen har lästs."
+  },
+  "subscriptionActivated": {
+    "subject": "Ditt {planName}-abonnemang är aktivt",
+    "title": "{planName}-abonnemang aktiverat",
+    "intro": "{organizationName}s {planName}-abonnemang är aktivt på {brandName}.",
+    "period": "Det gäller från {startsOn} till och med {endsOn}.",
+    "since": "Det är aktivt sedan {startsOn}.",
+    "features": "Din plan omfattar:",
+    "cta": "Visa mitt abonnemang",
+    "footer": "Du får det här mejlet som ansvarig för organisationen."
+  },
+  "subscriptionExpiring": {
+    "subject": "Ditt {planName}-abonnemang upphör {endsOn}",
+    "title": "Ditt {planName}-abonnemang upphör om {daysLeft, plural, one {# dag} other {# dagar}}",
+    "intro": "{organizationName}s {planName}-abonnemang upphör {endsOn}.",
+    "after": "Utan förnyelse går organisationen tillbaka till gratisplanen: byråernas identitet syns inte längre i offertförfrågningar eller statistik.",
+    "cta": "Förnya mitt abonnemang",
+    "footer": "Du får den här påminnelsen som ansvarig för organisationen."
   }
 }

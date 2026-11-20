@@ -1439,6 +1439,7 @@ export class OrganizationInvitationSchema extends BaseModel {
 
 export class OrganizationSubscriptionSchema extends BaseModel {
   static $columns = [
+    'activationNotifiedAt',
     'cancelAtPeriodEnd',
     'cancelledAt',
     'createdAt',
@@ -1448,6 +1449,8 @@ export class OrganizationSubscriptionSchema extends BaseModel {
     'organizationId',
     'origin',
     'plan',
+    'remindedDays',
+    'remindedEndsAt',
     'startsAt',
     'status',
     'stripeStatus',
@@ -1455,6 +1458,8 @@ export class OrganizationSubscriptionSchema extends BaseModel {
     'updatedAt',
   ] as const
   $columns = OrganizationSubscriptionSchema.$columns
+  @column.dateTime()
+  declare activationNotifiedAt: DateTime | null
   @column()
   declare cancelAtPeriodEnd: boolean
   @column.dateTime()
@@ -1473,6 +1478,10 @@ export class OrganizationSubscriptionSchema extends BaseModel {
   declare origin: string
   @column()
   declare plan: string
+  @column()
+  declare remindedDays: number | null
+  @column.dateTime()
+  declare remindedEndsAt: DateTime | null
   @column.dateTime()
   declare startsAt: DateTime
   @column()

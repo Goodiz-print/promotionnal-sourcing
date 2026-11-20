@@ -85,5 +85,23 @@
     "intro": "Diese Benachrichtigung wurde Ihnen auf {brandName} gesendet und ist noch ungelesen:",
     "cta": "Zugehörige Seite öffnen",
     "footer": "Sie erhalten diese Erinnerung nur einmal. Sie wird nicht mehr gesendet, sobald die Benachrichtigung gelesen wurde."
+  },
+  "subscriptionActivated": {
+    "subject": "Ihr {planName}-Abonnement ist aktiv",
+    "title": "{planName}-Abonnement aktiviert",
+    "intro": "Das {planName}-Abonnement von {organizationName} ist auf {brandName} aktiv.",
+    "period": "Es gilt vom {startsOn} bis einschließlich {endsOn}.",
+    "since": "Es ist seit dem {startsOn} aktiv.",
+    "features": "Ihr Tarif umfasst:",
+    "cta": "Mein Abonnement ansehen",
+    "footer": "Sie erhalten diese E-Mail als Verantwortliche(r) der Organisation."
+  },
+  "subscriptionExpiring": {
+    "subject": "Ihr {planName}-Abonnement endet am {endsOn}",
+    "title": "Ihr {planName}-Abonnement endet in {daysLeft, plural, one {# Tag} other {# Tagen}}",
+    "intro": "Das {planName}-Abonnement von {organizationName} endet am {endsOn}.",
+    "after": "Ohne Verlängerung wechselt Ihre Organisation in den kostenlosen Tarif: Die Identität der Agenturen ist dann weder in Ihren Angebotsanfragen noch in Ihren Statistiken sichtbar.",
+    "cta": "Abonnement verlängern",
+    "footer": "Sie erhalten diese Erinnerung als Verantwortliche(r) der Organisation."
   }
 }

@@ -1,0 +1,22 @@
+@let(title = t('emails.subscriptionExpiring.title', { planName, daysLeft }))
+@component('emails/layout', {
+  title,
+  locale,
+  i18n,
+  footer: t('emails.subscriptionExpiring.footer'),
+})
+  <p>
+    {{
+      t('emails.subscriptionExpiring.intro', {
+        organizationName,
+        planName,
+        endsOn,
+      })
+    }}
+  </p>
+  <p>{{ t('emails.subscriptionExpiring.after') }}</p>
+
+  <p>
+    <a class="button" href="{{ appUrl }}{{ path }}">{{ t('emails.subscriptionExpiring.cta') }}</a>
+  </p>
+@end
