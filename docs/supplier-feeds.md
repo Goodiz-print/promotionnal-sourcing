@@ -66,8 +66,12 @@ app/services/supplier_feed/
   supplier_connector.ts                 classe abstraite : key, identity, isConfigured(), fetchCatalogue()
   pfconcept_connector.ts                PF Concept (flux JSON v3)
   passot_connector.ts                   Passot / PiDesign (API REST Magento)
-  inspirion_connector.ts                Inspirion (LEO API)
-  makito_connector.ts                   Makito (Products API, login par identifiants)
+  inspirion_connector.ts                Inspirion (LEO API) : lecture des flux seulement
+  inspirion_feed_index.ts               … index des flux annexes (fonctions pures, une par flux)
+  inspirion_feed_mapper.ts              … fiche → NormalizedProduct (fonctions pures)
+  makito_connector.ts                   Makito (Products API, login par identifiants) : lecture des flux seulement
+  makito_feed_index.ts                  … index des flux annexes (fonctions pures, une par flux)
+  makito_feed_mapper.ts                 … fiche → NormalizedProduct (fonctions pures)
   supplier_connector_registry.ts        résolution par clé
   supplier_http_client.ts               GET / POST JSON, cache disque, timeout, nouvel essai sur 5xx ; URLs masquées dans les logs
   feed_tree.ts                          parcours tolérant des JSON (nœuds trouvés par leurs clés)
@@ -184,10 +188,21 @@ Langues : `fr` → 4, `en` → 2, `de` → 6, `es` → 1. Seul `/products` est p
 - **Hypothèse à confirmer avec Makito** : la doc ne décrit pas le sens de `section_n` pour les prix de marquage. La lecture « bornes hautes » est déduite des données (grilles `250, 500, 2000…`, grille unique `100000`) ; si ce sont des seuils bas comme pour `prices`, les paliers de marquage sont décalés d'un cran.
 - La doc ne précise pas si `prices` renvoie le tarif catalogue ou le prix net du compte : à confirmer avec Makito avant d'utiliser ces prix pour un chiffrage.
 
+## Écrire un connecteur
+
+Un connecteur ne fait que **lire** les flux (authentification, pagination, flux annexes facultatifs). La logique de données vit à côté, en **fonctions pures exportées et testées une à une**, sans boucle imbriquée :
+
+- `<fournisseur>_feed_index.ts` : une fonction par flux annexe (`indexMakitoStock`, `indexInspirionPrices`…), assemblées par `build<Fournisseur>Index` ;
+- `<fournisseur>_feed_mapper.ts` : une fonction par morceau de fiche (déclinaison, conditionnement, marquage…), assemblées par `normalize<Fournisseur>Product`.
+
+Ce qui sert à plusieurs fournisseurs va dans `shared/helpers/supplier_feed.ts` (parsing, conversions d'unités, `sortedPriceTiers`, `indexBy`, `groupBy`, `lowestByKey`, `sumByKey`) ou `feed_tree.ts` (parcours des nœuds) ; ce qui encode le format d'un seul fournisseur reste dans ses modules.
+
 ## Tests
 
 Sans réseau, sur des fixtures **anonymisées à prix fictifs** (`tests/fixtures/supplier_feed/`) qui reproduisent la structure réelle des flux. Le faux client HTTP et le connecteur en mémoire sont dans `tests/utils/supplier_feed.ts`.
 
 - `tests/unit/supplier_feed_connectors.spec.ts` : utilitaires, rapprochement, paliers numérotés et points de milliers, normalisation PF Concept, Passot, Inspirion et Makito (login, pagination, catalogue incomplet, flux annexes manquants signalés), connecteur non configuré.
-- `tests/unit/supplier_http_client.spec.ts` : cache disque du client réel (`fetch` simulé, dossier temporaire) : réutilisation, `--refresh`, péremption, rattachement au compte, téléchargement coupé puis retenté, réponse illisible.
+- `tests/unit/supplier_feed_helpers.spec.ts` : utilitaires communs (`stripHtml`, conversions d'unités, `sortedPriceTiers`, `indexBy`, `groupBy`, agrégats par clé).
+- `tests/unit/supplier_feed_inspirion.spec.ts`, `tests/unit/supplier_feed_makito.spec.ts` : chaque fonction d'index et de traduction, une à une (cas nominal et valeurs de repli).
+- `tests/unit/supplier_http_client.spec.ts` : client réel (`fetch` simulé, dossier temporaire). Requêtes : en-têtes, nouvel essai sur 5xx et panne réseau, arrêt immédiat sur 4xx, réponse illisible, secrets masqués dans les messages, `postJson`, `getBuffer`. Cache disque : réutilisation, `--refresh`, péremption, rattachement au compte, téléchargement coupé puis retenté, réponse illisible.
 - `tests/functional/supplier_feed_import.spec.ts` : création, idempotence, couleurs (nuance + famille), techniques, catégorie de repli, dry-run sans écriture, échec isolé, activation et désactivation (flux complet, import intégral, flux tronqué), import intégral annulé si un flux annexe manque, slug unique, label éco conservé, images copiées (réutilisation, échec de téléchargement), registre.

@@ -13,6 +13,7 @@
 - Flux annexe indisponible (prix, stock, marquage…) : listé au bilan ; sur un import intégral, l'import est annulé avant toute écriture (`SupplierFeedIncompleteException`) pour ne pas remplacer les données existantes par du vide.
 - Garde-fou de désactivation en masse : si plus de 10 fiches et plus de 20 % des fiches actives d'un fournisseur sont absentes du flux, rien n'est désactivé (flux probablement amputé) ; `--allow-mass-deactivation` pour passer outre.
 - La désactivation des fiches absentes filtre en mémoire au lieu d'un `NOT IN` de tout le catalogue (limite de paramètres PostgreSQL).
+- Les fiches absentes sont dépubliées en une seule requête (`id = ANY(?)`) au lieu d'une écriture par fiche ; leur réindexation est mise en queue ensuite.
 
 ## Cache disque des flux
 
@@ -40,3 +41,4 @@
 - Synonymes enrichis d'après le bilan du catalogue Makito (`database/data/catalogue/`) : catégories (gamelle, glacière, banane, canif, bidon, foulard…), techniques (libellés espagnols, « DTF1 », « DIGITAL W1 ») et couleur « fucsia ». Rejouer `category_seeder`, `marking_technique_seeder` et `attribute_seeder` pour les appliquer à une base existante.
 - `normalizeCountry` reconnaît les noms de pays espagnols et anglais courants (« España », « Bangladesh », « Polonia »…).
 - Helpers `sectionPriceTiers` (colonnes `section_n` / `price_n`) et `parseGroupedInt` (`"24.000"` = 24 000).
+- Connecteurs Makito et Inspirion découpés : le connecteur lit les flux, `*_feed_index.ts` indexe les flux annexes et `*_feed_mapper.ts` traduit les fiches, en fonctions pures testées une à une. Utilitaires communs ajoutés (`stripHtml`, `lengthToMm`, `weightToGrams`, `sortedPriceTiers`, `indexBy`, `groupBy`, `lowestByKey`, `sumByKey`), réutilisés par PF Concept et Passot.

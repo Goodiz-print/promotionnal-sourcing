@@ -197,6 +197,20 @@ export interface InspirionCatalogueIndex {
   deliveryTimes: Map<string, number>
 }
 
+/** Inspirion : méthode d'impression d'une position — sa technique et les surfaces de ses codes. */
+export interface InspirionPrintMethod {
+  technique: NormalizedMarkingTechnique
+  /** Nœuds `print_area` de tous les codes d'impression de la méthode. */
+  areas: FeedNode[]
+}
+
+/** Makito : page de `/products` et pagination annoncée (`page_info`). */
+export interface MakitoProductsPage {
+  products: FeedNode[]
+  lastPage: number | null
+  total: number | null
+}
+
 /** Makito : technique d'une zone de marquage (`/markings`), jointe par `technique_ref`. */
 export interface MakitoMarkingRow {
   areaId: string

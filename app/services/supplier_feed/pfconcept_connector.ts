@@ -12,6 +12,7 @@ import {
   normalizeCountry,
   parseDecimal,
   parsePositiveInt,
+  sortedPriceTiers,
 } from '#shared/helpers/supplier_feed'
 import type {
   FeedNode,
@@ -51,15 +52,6 @@ function imageRole(key: string): NormalizedImage['role'] {
   }
   if (key.startsWith('imageLogo')) return 'marked'
   return 'view'
-}
-
-/** Paliers triés, dédoublonnés par quantité de départ. */
-function sortTiers(tiers: NormalizedPriceTier[]): NormalizedPriceTier[] {
-  const byQuantity = new Map<number, number>()
-  for (const tier of tiers) byQuantity.set(tier.minQuantity, tier.unitPrice)
-  return [...byQuantity.entries()]
-    .sort(([a], [b]) => a - b)
-    .map(([minQuantity, unitPrice]) => ({ minQuantity, unitPrice }))
 }
 
 /**
@@ -152,7 +144,7 @@ export default class PfConceptConnector extends SupplierConnector {
         )
       result.set(code, {
         currency: cleanString(field(item, 'currency')) ?? 'EUR',
-        tiers: sortTiers(tiers),
+        tiers: sortedPriceTiers(tiers),
       })
     }
     return result
@@ -235,7 +227,7 @@ export default class PfConceptConnector extends SupplierConnector {
         )
       result.set(printCode, {
         setupCharge: parseDecimal(field(setup, 'SetupCharge')),
-        tiers: sortTiers(tiers),
+        tiers: sortedPriceTiers(tiers),
       })
     }
     return result

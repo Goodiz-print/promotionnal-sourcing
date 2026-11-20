@@ -109,19 +109,8 @@ export default class SupplierCatalogueImporter {
 
     // En dry-run, rien n'est écrit : la catégorie de repli n'est pas créée.
     const refs = await this.references.load({ createFallback: !options.dryRun })
-    const unmatchedCategories = new Set<string>()
-    const unmatchedTechniques = new Set<string>()
-    for (const product of products) {
-      if (this.categoryFor(product, refs) === refs.fallbackCategoryId) {
-        unmatchedCategories.add(product.categoryRaw ?? product.name)
-      }
-      for (const position of product.markingPositions)
-        for (const technique of position.techniques)
-          if (refs.techniques.match(technique.label) === null)
-            unmatchedTechniques.add(technique.label)
-    }
-    summary.unmatchedCategories = [...unmatchedCategories].sort()
-    summary.unmatchedTechniques = [...unmatchedTechniques].sort()
+    summary.unmatchedCategories = this.unmatchedCategories(products, refs)
+    summary.unmatchedTechniques = this.unmatchedTechniques(products, refs)
 
     if (options.dryRun) return summary
 
@@ -177,12 +166,42 @@ export default class SupplierCatalogueImporter {
       )
       return summary
     }
-    for (const product of missing.products) {
-      await product.merge({ isActive: false }).save()
-      await emitter.emit(ProductChanged, new ProductChanged(product.id))
-    }
+    await this.deactivate(missing.products.map((product) => product.id))
     summary.deactivated = missing.products.length
     return summary
+  }
+
+  /** Catégories fournisseur (ou noms de fiche) tombées dans « Non classé », triées. */
+  private unmatchedCategories(products: NormalizedProduct[], refs: SupplierReferences): string[] {
+    const labels = products
+      .filter((product) => this.categoryFor(product, refs) === refs.fallbackCategoryId)
+      .map((product) => product.categoryRaw ?? product.name)
+    return [...new Set(labels)].sort()
+  }
+
+  /**
+   * Libellés de technique de marquage sans correspondance, triés. Dédoublonnés
+   * avant le rapprochement : chaque libellé n'est rapproché qu'une fois.
+   */
+  private unmatchedTechniques(products: NormalizedProduct[], refs: SupplierReferences): string[] {
+    const labels = products
+      .flatMap((product) => product.markingPositions)
+      .flatMap((position) => position.techniques)
+      .map((technique) => technique.label)
+    return [...new Set(labels)].filter((label) => refs.techniques.match(label) === null).sort()
+  }
+
+  /**
+   * Dépublie les fiches en **une requête** (tableau passé en un seul paramètre :
+   * pas de limite de paramètres PostgreSQL), puis met en queue leur
+   * réindexation.
+   */
+  private async deactivate(productIds: number[]): Promise<void> {
+    if (productIds.length === 0) return
+    await Product.query()
+      .whereRaw('id = ANY(?)', [productIds])
+      .update({ isActive: false, updatedAt: DateTime.now() })
+    await Promise.all(productIds.map((id) => emitter.emit(ProductChanged, new ProductChanged(id))))
   }
 
   /**

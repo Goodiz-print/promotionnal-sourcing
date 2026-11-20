@@ -86,6 +86,94 @@ export function kgToG(value: unknown): number | null {
   return kg === null || kg <= 0 ? null : Math.round(kg * 1000)
 }
 
+/** Texte sans balise HTML (`cm<sup>2</sup>` → `cm2`), `null` si vide. */
+export function stripHtml(value: unknown): string | null {
+  return cleanString(cleanString(value)?.replace(/<[^>]+>/g, '') ?? null)
+}
+
+/** Longueur → millimètres arrondis selon l'unité annoncée (`mm`, sinon centimètres). */
+export function lengthToMm(value: unknown, unit: unknown): number | null {
+  const length = parseDecimal(value)
+  if (length === null || length <= 0) return null
+  return Math.round(cleanString(unit)?.toLowerCase() === 'mm' ? length : length * 10)
+}
+
+/** Poids → grammes arrondis selon l'unité annoncée (`kg`, sinon grammes). */
+export function weightToGrams(value: unknown, unit: unknown): number | null {
+  const weight = parseDecimal(value)
+  if (weight === null || weight <= 0) return null
+  return Math.round(cleanString(unit)?.toLowerCase() === 'kg' ? weight * 1000 : weight)
+}
+
+/** Filtre de valeurs renseignées (`.filter(isPresent)` affine le type). */
+export function isPresent<T>(value: T | null | undefined): value is T {
+  return value !== null && value !== undefined
+}
+
+/**
+ * Paliers triés par quantité de départ, dédoublonnés : pour une même quantité,
+ * le dernier prix l'emporte.
+ */
+export function sortedPriceTiers(tiers: NormalizedPriceTier[]): NormalizedPriceTier[] {
+  return [...new Map(tiers.map((tier) => [tier.minQuantity, tier.unitPrice]))]
+    .sort(([a], [b]) => a - b)
+    .map(([minQuantity, unitPrice]) => ({ minQuantity, unitPrice }))
+}
+
+/**
+ * Index `clé → valeur` d'une liste. Les éléments sans clé ou sans valeur
+ * (`null`) sont écartés ; pour une même clé, le dernier élément l'emporte.
+ */
+export function indexBy<T, V>(
+  items: T[],
+  keyOf: (item: T) => string | null,
+  valueOf: (item: T) => V | null
+): Map<string, V> {
+  return new Map(
+    items.flatMap((item): Array<[string, V]> => {
+      const key = keyOf(item)
+      const value = key === null ? null : valueOf(item)
+      return key === null || value === null ? [] : [[key, value]]
+    })
+  )
+}
+
+/**
+ * Regroupe les valeurs d'une liste par clé, dans l'ordre de la liste. Les
+ * éléments sans clé ou sans valeur (`null`) sont écartés.
+ */
+export function groupBy<T, V>(
+  items: T[],
+  keyOf: (item: T) => string | null,
+  valueOf: (item: T) => V | null
+): Map<string, V[]> {
+  return items.reduce((groups, item) => {
+    const key = keyOf(item)
+    const value = key === null ? null : valueOf(item)
+    if (key === null || value === null) return groups
+    const group = groups.get(key)
+    if (group) group.push(value)
+    else groups.set(key, [value])
+    return groups
+  }, new Map<string, V[]>())
+}
+
+/** Plus petite valeur par clé (`[clé, valeur]`). */
+export function lowestByKey(entries: Array<readonly [string, number]>): Map<string, number> {
+  return entries.reduce(
+    (lowest, [key, value]) => lowest.set(key, Math.min(value, lowest.get(key) ?? value)),
+    new Map<string, number>()
+  )
+}
+
+/** Somme des valeurs par clé (`[clé, valeur]`). */
+export function sumByKey(entries: Array<readonly [string, number]>): Map<string, number> {
+  return entries.reduce(
+    (sums, [key, value]) => sums.set(key, (sums.get(key) ?? 0) + value),
+    new Map<string, number>()
+  )
+}
+
 /** Garantit un tableau (les flux renvoient parfois un objet seul au lieu d'une liste). */
 export function asArray<T>(value: T | T[] | null | undefined): T[] {
   if (value === null || value === undefined) return []

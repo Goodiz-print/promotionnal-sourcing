@@ -13,6 +13,7 @@ import {
   normalizeCountry,
   parseDecimal,
   parsePositiveInt,
+  sortedPriceTiers,
 } from '#shared/helpers/supplier_feed'
 import type {
   FeedNode,
@@ -27,17 +28,15 @@ import type {
 } from '#shared/types/supplier_feed'
 
 function tiersFrom(nodes: unknown, priceKey: string): NormalizedPriceTier[] {
-  const byQuantity = new Map<number, number>()
-  for (const node of collect(nodes, ['qty', priceKey])) {
-    const minQuantity = parsePositiveInt(field(node, 'qty'))
-    const unitPrice = parseDecimal(field(node, priceKey))
-    if (minQuantity !== null && unitPrice !== null && unitPrice >= 0) {
-      byQuantity.set(minQuantity, unitPrice)
-    }
-  }
-  return [...byQuantity.entries()]
-    .sort(([a], [b]) => a - b)
-    .map(([minQuantity, unitPrice]) => ({ minQuantity, unitPrice }))
+  return sortedPriceTiers(
+    collect(nodes, ['qty', priceKey]).flatMap((node) => {
+      const minQuantity = parsePositiveInt(field(node, 'qty'))
+      const unitPrice = parseDecimal(field(node, priceKey))
+      return minQuantity !== null && unitPrice !== null && unitPrice >= 0
+        ? [{ minQuantity, unitPrice }]
+        : []
+    })
+  )
 }
 
 /** Liste de libellés depuis une valeur chaîne (`"a, b"`) ou tableau. */
