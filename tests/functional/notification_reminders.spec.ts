@@ -167,8 +167,10 @@ test.group('Notifications — rappel par mail des notifications non lues (#243)'
       .where('id', notification.id)
       .update({ createdAt: DateTime.now().minus({ minutes: 45 }).toSQL() })
 
-    await new SendNotificationRemindersJob().execute()
-    await new SendNotificationRemindersJob().execute()
+    for (let pass = 0; pass < 2; pass++) {
+      const job = await app.container.make(SendNotificationRemindersJob)
+      await job.execute()
+    }
 
     assert.lengthOf(reminders(), 1)
   })

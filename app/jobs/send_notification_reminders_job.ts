@@ -1,7 +1,7 @@
+import { inject } from '@adonisjs/core'
 import { Job } from '@adonisjs/queue'
 import type { JobOptions } from '@adonisjs/queue/types'
 import logger from '@adonisjs/core/services/logger'
-import app from '@adonisjs/core/services/app'
 import NotificationReminderService from '#services/notification_reminder_service'
 
 /**
@@ -9,15 +9,19 @@ import NotificationReminderService from '#services/notification_reminder_service
  * `start/scheduler.ts`). Import statique du service possible : il n'accède à la
  * base que par `db`, sans modèle Lucid (contrainte de chargement des jobs au boot).
  */
+@inject()
 export default class SendNotificationRemindersJob extends Job {
   static options: JobOptions = {
     queue: 'default',
     maxRetries: 3,
   }
 
+  constructor(private reminders: NotificationReminderService) {
+    super()
+  }
+
   async execute() {
-    const reminders = await app.container.make(NotificationReminderService)
-    const sent = await reminders.sendDue()
+    const sent = await this.reminders.sendDue()
 
     if (sent > 0) {
       logger.info({ count: sent }, 'notification reminders queued')
