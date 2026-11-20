@@ -13,6 +13,7 @@
     "build": "node ace build",
     "dev": "node ace serve --hmr",
     "dev:all": "bash scripts/dev.sh",
+    "db:populate": "node ace supplier:import all --full",
     "test": "node ace test",
     "test:db": "docker compose --profile test up -d postgres_test",
     "lint": "eslint .",

@@ -15,6 +15,7 @@ import {
   parsePositiveInt,
 } from '#shared/helpers/supplier_feed'
 import type {
+  FeedCacheOptions,
   FeedNode,
   FetchCatalogueOptions,
   NormalizedImage,
@@ -82,6 +83,9 @@ export default class PfConceptConnector extends SupplierConnector {
     website: 'https://www.pfconcept.com',
   }
 
+  /** Options de cache des flux, fixées à chaque `fetchCatalogue`. */
+  private cache: FeedCacheOptions = { refresh: false }
+
   constructor(protected http: SupplierHttpClient) {
     super()
   }
@@ -90,15 +94,24 @@ export default class PfConceptConnector extends SupplierConnector {
     return Boolean(supplierFeedsConfig.pfconcept.feedCode)
   }
 
-  async fetchCatalogue({ limit, locale }: FetchCatalogueOptions): Promise<NormalizedProduct[]> {
+  async fetchCatalogue({
+    limit,
+    locale,
+    refresh,
+  }: FetchCatalogueOptions): Promise<NormalizedProduct[]> {
     const code = supplierFeedsConfig.pfconcept.feedCode
     if (!code) {
       throw new SupplierConnectorNotConfiguredException('PFCONCEPT_FEED_CODE manquant dans .env')
     }
 
     const base = supplierFeedsConfig.pfconcept.baseUrl
-    const productFeed = await this.http.getJson(`${base}/${PRODUCT_FEED_FILES[locale]}`)
-    const models = collect(productFeed, ['modelCode', 'items'], limit)
+    this.cache = { refresh: refresh ?? false }
+    const productFeed = await this.http.getJson(
+      `${base}/${PRODUCT_FEED_FILES[locale]}`,
+      {},
+      this.cache
+    )
+    const models = collect(productFeed, ['modelCode', 'items'], limit ?? undefined)
 
     // Les autres flux sont joints par code article ; on ne garde que les articles retenus.
     const itemCodes = new Set(models.flatMap((model) => this.itemCodes(model)))
@@ -226,7 +239,7 @@ export default class PfConceptConnector extends SupplierConnector {
    */
   private async optionalFeed(url: string): Promise<unknown> {
     try {
-      return await this.http.getJson(url)
+      return await this.http.getJson(url, {}, this.cache)
     } catch (error) {
       logger.warn({ err: error }, 'pfconcept optional feed unavailable, continuing without it')
       return null

@@ -221,6 +221,23 @@ test.group('Import de catalogue fournisseur', (group) => {
     assert.isTrue(kept.isActive)
   })
 
+  test('import intégral (--full) : désactive même à volume égal ou supérieur', async ({
+    assert,
+  }) => {
+    const other = normalizedProduct({ externalId: 'EXT-OTHER' })
+    await runImport(new InMemorySupplierConnector([MARKED, other]))
+
+    // Sans limite, le flux est complet par définition.
+    const summary = await runImport(new InMemorySupplierConnector([MARKED]), {
+      ...OPTIONS,
+      limit: null,
+    })
+    assert.equal(summary.fetched, 1)
+    assert.equal(summary.deactivated, 1)
+    const missing = await Product.findByOrFail('externalId', 'EXT-OTHER')
+    assert.isFalse(missing.isActive)
+  })
+
   test('flux tronqué par --limit : rien n’est désactivé', async ({ assert }) => {
     const other = normalizedProduct({ externalId: 'EXT-OTHER' })
     await runImport(new InMemorySupplierConnector([MARKED, other]))
@@ -282,7 +299,7 @@ test.group('Import de catalogue fournisseur', (group) => {
     const registry = await app.container.make(SupplierConnectorRegistry)
     assert.deepEqual(
       registry.all().map((connector) => connector.key),
-      ['pfconcept', 'passot', 'inspirion', 'axpol']
+      ['pfconcept', 'passot', 'inspirion', 'makito']
     )
     assert.throws(() => registry.get('acme'), UnknownSupplierConnectorException)
   })

@@ -2,16 +2,19 @@ import { test } from '@japa/runner'
 import PfConceptConnector from '#services/supplier_feed/pfconcept_connector'
 import PassotConnector from '#services/supplier_feed/passot_connector'
 import InspirionConnector from '#services/supplier_feed/inspirion_connector'
+import MakitoConnector from '#services/supplier_feed/makito_connector'
 import ReferenceMatcher from '#shared/helpers/reference_matcher'
 import {
   SupplierConnectorNotConfiguredException,
-  SupplierConnectorNotImplementedException,
+  SupplierFeedHttpException,
 } from '#exceptions/supplier_feed_errors'
 import {
   cheapestPriceGrid,
   normalizeCountry,
   parseDecimal,
+  parseGroupedInt,
   redactUrl,
+  sectionPriceTiers,
 } from '#shared/helpers/supplier_feed'
 import {
   FakeSupplierHttpClient,
@@ -30,6 +33,33 @@ test.group('Flux fournisseurs — utilitaires', () => {
     assert.isNull(parseDecimal(''))
     assert.isNull(parseDecimal('n/a'))
     assert.isNull(parseDecimal(null))
+  })
+
+  test('parseGroupedInt lit les points de milliers', ({ assert }) => {
+    assert.equal(parseGroupedInt('24.000'), 24000)
+    assert.equal(parseGroupedInt('1.234.567'), 1234567)
+    assert.equal(parseGroupedInt('26'), 26)
+    assert.equal(parseGroupedInt(12), 12)
+    assert.isNull(parseGroupedInt(''))
+    assert.isNull(parseGroupedInt('n/a'))
+  })
+
+  test('sectionPriceTiers : seuils bas ou bornes hautes, colonnes vides ignorées', ({ assert }) => {
+    const row = { section_1: 500, price_1: 0.8, section_2: 500, price_2: 0.7, section_3: 2000 }
+    assert.deepEqual(
+      sectionPriceTiers({ ...row, price_3: 0.6, section_4: 0, price_4: 0 }, 'from'),
+      [
+        { minQuantity: 1, unitPrice: 0.8 },
+        { minQuantity: 500, unitPrice: 0.7 },
+        { minQuantity: 2000, unitPrice: 0.6 },
+      ]
+    )
+    // Borne haute répétée (500, 500) : le palier en double est écarté.
+    assert.deepEqual(sectionPriceTiers({ ...row, price_3: '0,6' }, 'upTo'), [
+      { minQuantity: 1, unitPrice: 0.8 },
+      { minQuantity: 501, unitPrice: 0.6 },
+    ])
+    assert.deepEqual(sectionPriceTiers({ section_1: 100000, price_1: 0 }, 'upTo'), [])
   })
 
   test('redactUrl masque le code distributeur et la query string', ({ assert }) => {
@@ -367,16 +397,295 @@ test.group('Connecteur Passot', (group) => {
   })
 })
 
-test.group('Connecteurs en attente de documentation', () => {
-  test('Inspirion : non implémenté (ou non configuré)', async ({ assert }) => {
-    try {
-      await new InspirionConnector().fetchCatalogue()
-      assert.fail('should throw')
-    } catch (error) {
-      assert.isTrue(
-        error instanceof SupplierConnectorNotImplementedException ||
-          error instanceof SupplierConnectorNotConfiguredException
+test.group('Connecteur Inspirion', (group) => {
+  group.each.setup(() => withSupplierCredentials({ inspirionApiKey: 'fake-inspirion-key' }))
+
+  const http = () =>
+    new FakeSupplierHttpClient(supplierFixture('inspirion', 'feeds') as Record<string, unknown>)
+
+  test('un sku devient une fiche, ses article_id des déclinaisons', async ({ assert }) => {
+    const client = http()
+    const products = await new InspirionConnector(client).fetchCatalogue({
+      limit: 10,
+      locale: 'fr',
+    })
+
+    assert.deepEqual(
+      products.map((product) => product.externalId),
+      ['9990001', '9990010']
+    )
+    const [cup, pen] = products
+    assert.equal(cup.description, 'Mug émaillé FIXTURE CUP : avec anse, contenance env. 350 ml')
+    assert.equal(cup.hsCode, '7323940000')
+    assert.equal(cup.originCountry, 'CN')
+    assert.deepEqual(cup.materialLabels, ['Métal', 'Émail'])
+    assert.equal(cup.categoryRaw, 'Cuisine et maison > Mugs et tasses')
+    assert.deepEqual(
+      cup.variants.map((variant) => [variant.sku, variant.colorLabel, variant.stockQuantity]),
+      [
+        ['56-9990001', 'noir, blanc', 640],
+        ['56-9990002', 'rouge, blanc', 0],
+      ]
+    )
+    // Galerie : images 300 px de la première déclinaison, puis images de détail.
+    assert.deepEqual(cup.images, [
+      { url: 'https://media.fixture.example/300/56-9990001_01.jpg', role: 'primary' },
+      { url: 'https://media.fixture.example/300/9990001_detail.jpg', role: 'view' },
+    ])
+    assert.equal(cup.packaging?.unitGrossWeightG, 98)
+    assert.equal(cup.packaging?.outerCartonQty, 60)
+    assert.equal(cup.packaging?.outerCartonLengthMm, 375)
+    assert.equal(cup.packaging?.outerCartonGrossWeightG, 5900)
+    assert.equal(pen.brand, 'FixBrand')
+    assert.deepEqual(pen.priceTiers, [])
+
+    // Clé d'API en en-tête, langue en paramètre.
+    assert.isTrue(
+      client.requests.every(
+        (request) => request.headers['X-Gateway-API-Key'] === 'fake-inspirion-key'
       )
+    )
+    assert.include(client.requests[0].url, '/api/v2/products?language=fr')
+  })
+
+  test('prix du compte par déclinaison, fiche = grille la moins chère', async ({ assert }) => {
+    const [cup] = await new InspirionConnector(http()).fetchCatalogue({ limit: 1, locale: 'fr' })
+    assert.deepEqual(cup.variants[0].priceTiers, [
+      { minQuantity: 1, unitPrice: 5.4 },
+      { minQuantity: 100, unitPrice: 5.1 },
+    ])
+    assert.deepEqual(cup.priceTiers, [
+      { minQuantity: 1, unitPrice: 5 },
+      { minQuantity: 100, unitPrice: 4.8 },
+    ])
+  })
+
+  test('printdata → positions, prix du code d’impression par défaut', async ({ assert }) => {
+    const [cup, pen] = await new InspirionConnector(http()).fetchCatalogue({
+      limit: 10,
+      locale: 'fr',
+    })
+    assert.deepEqual(cup.markingPositions, [
+      {
+        name: 'Sur le côté',
+        // Plus grande surface parmi les codes (6 × 4 cm).
+        maxWidthMm: 60,
+        maxHeightMm: 40,
+        techniques: [
+          {
+            label: 'Gravure laser',
+            maxColors: 1,
+            setupCharge: 30,
+            priceTiers: [
+              { minQuantity: 100, unitPrice: 1.98 },
+              { minQuantity: 500, unitPrice: 1.5 },
+            ],
+          },
+        ],
+      },
+    ])
+    // Délai avec marquage quand il existe, sinon sans marquage.
+    assert.equal(cup.leadTimeDays, 10)
+    assert.equal(pen.leadTimeDays, 3)
+  })
+
+  test('un flux annexe en échec n’empêche pas l’import', async ({ assert }) => {
+    const feeds = supplierFixture('inspirion', 'feeds') as Record<string, unknown>
+    const client = new FakeSupplierHttpClient({ '/api/v2/products': feeds['/api/v2/products'] })
+    const [cup] = await new InspirionConnector(client).fetchCatalogue({ limit: 1, locale: 'fr' })
+    assert.equal(cup.externalId, '9990001')
+    assert.deepEqual(cup.priceTiers, [])
+    assert.deepEqual(cup.markingPositions, [])
+  })
+
+  test('sans INSPIRION_API_KEY : erreur explicite, aucun appel', async ({ assert }) => {
+    const restore = withSupplierCredentials({ inspirionApiKey: null })
+    const client = http()
+    try {
+      await assert.rejects(
+        () => new InspirionConnector(client).fetchCatalogue({ limit: 1, locale: 'fr' }),
+        SupplierConnectorNotConfiguredException
+      )
+      assert.lengthOf(client.requests, 0)
+    } finally {
+      restore()
+    }
+  })
+})
+
+test.group('Connecteur Makito', (group) => {
+  group.each.setup(() =>
+    withSupplierCredentials({ makitoEmail: 'fixture@example.com', makitoPassword: 'fake-password' })
+  )
+
+  const http = (login: unknown = { status: 1, msg: '42|fake-token' }) =>
+    new FakeSupplierHttpClient({
+      '/login': login,
+      ...(supplierFixture('makito', 'feeds') as Record<string, unknown>),
+    })
+
+  test('login puis Bearer ; une ref devient une fiche, ses matnr des déclinaisons', async ({
+    assert,
+  }) => {
+    const client = http()
+    const products = await new MakitoConnector(client).fetchCatalogue({ limit: null, locale: 'fr' })
+
+    assert.deepEqual(client.posts, [
+      {
+        url: 'https://data.makito.es/api/login',
+        body: { email: 'fixture@example.com', password: 'fake-password' },
+      },
+    ])
+    assert.isTrue(
+      client.requests.every((request) => request.headers.Authorization === 'Bearer 42|fake-token')
+    )
+    // Langue française = identifiant 4.
+    assert.isTrue(client.requests.some((request) => request.url.endsWith('/categories/4')))
+
+    assert.deepEqual(
+      products.map((product) => product.externalId),
+      ['9001', '9002']
+    )
+    const [scarf, pen] = products
+    // Nom de modèle préfixé du type d'article, sauf s'il le contient déjà.
+    assert.equal(scarf.name, 'Foulard Fixy')
+    assert.equal(pen.name, 'Stylo Fixpen')
+    assert.equal(scarf.description, 'Foulard en coton organique.\n\nÉtui coton organique')
+    assert.deepEqual(scarf.keywords, ['Foulard', 'Développement Durable', 'Pluie et hiver'])
+    assert.equal(scarf.categoryRaw, 'Développement Durable | Nouveautés')
+    assert.equal(scarf.lifecycleStatus, 'new')
+    assert.equal(pen.lifecycleStatus, 'end_of_series')
+    assert.equal(scarf.hsCode, '6117100000')
+    assert.equal(scarf.originCountry, 'IN')
+    assert.equal(pen.brand, 'FIXBRAND')
+    assert.deepEqual(scarf.materialLabels, ['Coton Organique 70 g/ m2'])
+    assert.deepEqual(scarf.packaging, {
+      packageType: null,
+      unitGrossWeightG: 78,
+      outerCartonQty: 100,
+      outerCartonLengthMm: 700,
+      outerCartonWidthMm: 340,
+      outerCartonHeightMm: 200,
+      outerCartonGrossWeightG: 9600,
+    })
+
+    // Stock immédiat seulement, points de milliers (« 24.000 » = 24 000) ;
+    // la taille « S/T » (sans taille) n'apparaît pas dans le libellé.
+    assert.deepEqual(
+      scarf.variants.map((variant) => [variant.sku, variant.colorLabel, variant.stockQuantity]),
+      [
+        ['19001008000', 'GRIS', 24000],
+        ['19001002004', 'NOIR / XL', 0],
+      ]
+    )
+    // Sans déclinaison dans le flux : la fiche seule.
+    assert.deepEqual(
+      pen.variants.map((variant) => variant.sku),
+      ['9002']
+    )
+  })
+
+  test('prix : « -500, 500, 2000 » = dès 1, 500, 2000 pièces', async ({ assert }) => {
+    const [scarf, pen] = await new MakitoConnector(http()).fetchCatalogue({
+      limit: null,
+      locale: 'fr',
+    })
+    assert.deepEqual(scarf.priceTiers, [
+      { minQuantity: 1, unitPrice: 4.4 },
+      { minQuantity: 500, unitPrice: 4.2 },
+      { minQuantity: 2000, unitPrice: 4.1 },
+      { minQuantity: 5000, unitPrice: 3.9 },
+    ])
+    assert.deepEqual(pen.priceTiers, [])
+  })
+
+  test('images : principale d’abord, variantes et zones écartées', async ({ assert }) => {
+    const [scarf] = await new MakitoConnector(http()).fetchCatalogue({ limit: 1, locale: 'fr' })
+    assert.deepEqual(scarf.images, [
+      { url: 'https://img.fixture.example/1000/9001/principal/9001-W.jpg', role: 'primary' },
+      { url: 'https://img.fixture.example/1000/9001/bodegones/9001-B1.jpg', role: 'lifestyle' },
+      { url: 'https://img.fixture.example/1000/9001/detalles/9001-D1.jpg', role: 'view' },
+    ])
+    assert.deepEqual(scarf.variants[0].images, [
+      { url: 'https://img.fixture.example/9001-008-P.jpg', role: 'view' },
+    ])
+  })
+
+  test('marquage : zones en cm, techniques jointes par technique_ref', async ({ assert }) => {
+    const [scarf] = await new MakitoConnector(http()).fetchCatalogue({ limit: 1, locale: 'fr' })
+    const transfer = {
+      label: 'TRANSFERT SÉRIGRAPHIQUE',
+      maxColors: 8,
+      setupCharge: 30,
+      // Bornes hautes « 250, 500, 2000 » → dès 1, 251, 501.
+      priceTiers: [
+        { minQuantity: 1, unitPrice: 0.5 },
+        { minQuantity: 251, unitPrice: 0.4 },
+        { minQuantity: 501, unitPrice: 0.3 },
+      ],
+    }
+    assert.deepEqual(scarf.markingPositions, [
+      {
+        name: 'Sur le devant',
+        maxWidthMm: 80,
+        maxHeightMm: 50,
+        techniques: [
+          transfer,
+          // Balises HTML retirées ; technique sans grille de prix conservée.
+          {
+            label: 'DIGITAL W1 (-5  cm2) (FULLCOLOR)',
+            maxColors: 1,
+            setupCharge: null,
+            priceTiers: [],
+          },
+        ],
+      },
+      // Zone sans traduction : libellé de repli.
+      { name: 'Zone 777', maxWidthMm: 280, maxHeightMm: 400, techniques: [transfer] },
+    ])
+    // Délai export le plus court des techniques de la fiche.
+    assert.equal(scarf.leadTimeDays, 5)
+  })
+
+  test('--limit borne la page demandée et les fiches renvoyées', async ({ assert }) => {
+    const client = http()
+    const products = await new MakitoConnector(client).fetchCatalogue({ limit: 1, locale: 'fr' })
+    assert.lengthOf(products, 1)
+    assert.include(client.requests[0].url, '/products?page=1&per_page=1')
+  })
+
+  test('un flux annexe en échec n’empêche pas l’import', async ({ assert }) => {
+    const feeds = supplierFixture('makito', 'feeds') as Record<string, unknown>
+    const client = new FakeSupplierHttpClient({
+      '/login': { status: 200, msg: '', token: '7|doc-token' },
+      '/products': feeds['/products'],
+    })
+    const [scarf] = await new MakitoConnector(client).fetchCatalogue({ limit: 1, locale: 'fr' })
+    assert.equal(scarf.name, 'Fixy')
+    assert.deepEqual(scarf.priceTiers, [])
+    assert.equal(client.requests[0].headers.Authorization, 'Bearer 7|doc-token')
+  })
+
+  test('identifiants refusés : erreur explicite, aucun flux demandé', async ({ assert }) => {
+    const client = http({ status: 0, msg: 'Invalid credentials' })
+    await assert.rejects(
+      () => new MakitoConnector(client).fetchCatalogue({ limit: 1, locale: 'fr' }),
+      SupplierFeedHttpException
+    )
+    assert.lengthOf(client.requests, 0)
+  })
+
+  test('sans identifiants : erreur explicite, aucun appel', async ({ assert }) => {
+    const restore = withSupplierCredentials({ makitoPassword: null })
+    const client = http()
+    try {
+      await assert.rejects(
+        () => new MakitoConnector(client).fetchCatalogue({ limit: 1, locale: 'fr' }),
+        SupplierConnectorNotConfiguredException
+      )
+      assert.lengthOf(client.posts, 0)
+    } finally {
+      restore()
     }
   })
 })

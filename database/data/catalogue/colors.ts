@@ -145,7 +145,7 @@ export const COLOR_SHADES: ColorShadeSeed[] = [
     slug: 'fuchsia',
     hex: '#E0218A',
     familySlug: 'pink',
-    synonyms: ['fuchsia', 'magenta', 'hot pink', 'pink neon'],
+    synonyms: ['fuchsia', 'fucsia', 'magenta', 'hot pink', 'pink neon'],
     label: 'Fuchsia',
   },
   {

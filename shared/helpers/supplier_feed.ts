@@ -23,6 +23,47 @@ export function parsePositiveInt(value: unknown): number | null {
   return Math.round(parsed)
 }
 
+/**
+ * Entier écrit avec des points de milliers (`"24.000"` = 24 000, format
+ * espagnol des stocks Makito). `null` si vide ou non numérique.
+ */
+export function parseGroupedInt(value: unknown): number | null {
+  if (typeof value === 'number') return Number.isFinite(value) ? Math.round(value) : null
+  if (typeof value !== 'string') return null
+  const cleaned = value.trim().replace(/[\s.]/g, '')
+  return /^\d+$/.test(cleaned) ? Number(cleaned) : null
+}
+
+/**
+ * Paliers depuis des colonnes numérotées `section_n` / `price_n` (Makito). Le
+ * premier palier part toujours de 1 pièce ; les colonnes à prix nul sont vides.
+ * - `from` (prix produit) : `section_n` est le **seuil bas** du palier n
+ *   (`-500, 500, 2000` = moins de 500, dès 500, dès 2000) ;
+ * - `upTo` (prix de marquage) : `section_n` est la **borne haute** du palier n
+ *   (`250, 500, 2000` = jusqu'à 250, 251-500, 501-2000).
+ */
+export function sectionPriceTiers(
+  row: Record<string, unknown>,
+  mode: 'from' | 'upTo',
+  sections = 10
+): NormalizedPriceTier[] {
+  const tiers: NormalizedPriceTier[] = []
+  let previousBound = 0
+  for (let index = 1; index <= sections; index++) {
+    const section = parseDecimal(row[`section_${index}`])
+    const unitPrice = parseDecimal(row[`price_${index}`])
+    if (section === null || unitPrice === null || unitPrice <= 0) continue
+    const bound = Math.round(Math.abs(section))
+    // Borne haute répétée (`500, 500`) : tranche vide, colonne ignorée.
+    if (mode === 'upTo' && tiers.length > 0 && bound <= previousBound) continue
+    const minQuantity = tiers.length === 0 ? 1 : mode === 'from' ? bound : previousBound + 1
+    previousBound = bound
+    if (tiers.some((tier) => tier.minQuantity >= minQuantity)) continue
+    tiers.push({ minQuantity, unitPrice })
+  }
+  return tiers
+}
+
 /** Chaîne nettoyée, `null` si vide. */
 export function cleanString(value: unknown): string | null {
   if (typeof value !== 'string' && typeof value !== 'number') return null
@@ -144,6 +185,29 @@ const COUNTRY_ALIASES: Record<string, string> = {
   TWN: 'TW',
   HKG: 'HK',
   USA: 'US',
+  ESPANA: 'ES',
+  ITALIA: 'IT',
+  ALEMANIA: 'DE',
+  FRANCIA: 'FR',
+  POLONIA: 'PL',
+  TURQUIA: 'TR',
+  TURKEY: 'TR',
+  BANGLADESH: 'BD',
+  PAKISTAN: 'PK',
+  VIETNAM: 'VN',
+  INDONESIA: 'ID',
+  MONGOLIA: 'MN',
+  TAIWAN: 'TW',
+  THAILAND: 'TH',
+  TAILANDIA: 'TH',
+  CAMBODIA: 'KH',
+  CAMBOYA: 'KH',
+  MALAYSIA: 'MY',
+  MALASIA: 'MY',
+  NETHERLANDS: 'NL',
+  BELGIUM: 'BE',
+  AUSTRIA: 'AT',
+  CZECHREPUBLIC: 'CZ',
 }
 
 export function normalizeCountry(value: unknown): string | null {

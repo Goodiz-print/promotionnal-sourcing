@@ -4,7 +4,7 @@ import type ReferenceMatcher from '#shared/helpers/reference_matcher'
  * Connecteurs de flux fournisseurs (catalogues réels importés par API / flux).
  * Voir `docs/supplier-feeds.md`.
  */
-export const SUPPLIER_FEED_KEYS = ['pfconcept', 'passot', 'inspirion', 'axpol'] as const
+export const SUPPLIER_FEED_KEYS = ['pfconcept', 'passot', 'inspirion', 'makito'] as const
 
 export type SupplierFeedKey = (typeof SUPPLIER_FEED_KEYS)[number]
 
@@ -21,10 +21,23 @@ export interface SupplierFeedIdentity {
   website: string
 }
 
+/** Cache disque d'un flux (`tmp/supplier_feeds/`), voir `SupplierHttpClient.getJson`. */
+export interface FeedCacheOptions {
+  /** Ignore la copie locale et retélécharge le flux. */
+  refresh: boolean
+  /**
+   * Identité du compte quand les en-têtes changent à chaque exécution (jeton de
+   * session) : remplace les en-têtes dans la clé de cache.
+   */
+  scope?: string
+}
+
 export interface FetchCatalogueOptions {
-  /** Nombre maximal de produits (modèles) renvoyés. */
-  limit: number
+  /** Nombre maximal de produits (modèles) renvoyés ; `null` = catalogue entier. */
+  limit: number | null
   locale: SupplierFeedLocale
+  /** Retélécharge les flux au lieu de réutiliser le cache disque (`--refresh`). */
+  refresh?: boolean
 }
 
 export interface NormalizedPriceTier {
@@ -107,8 +120,8 @@ export interface SupplierImportSummary {
   updated: number
   failed: number
   /**
-   * Fiches du fournisseur absentes d'un flux **complet** (moins de `--limit`
-   * produits récupérés), désactivées. Toujours 0 sur un flux tronqué.
+   * Fiches du fournisseur absentes d'un flux **complet** (`--full`, ou moins de
+   * `--limit` produits récupérés), désactivées. Toujours 0 sur un flux tronqué.
    */
   deactivated: number
   unmatchedCategories: string[]
@@ -135,7 +148,7 @@ export interface PfConceptPrintPrice {
   tiers: NormalizedPriceTier[]
 }
 
-/** PF Concept : prix nets d'un article. */
+/** Prix nets d'un article et leur devise (PF Concept, Inspirion). */
 export interface PfConceptItemPrices {
   currency: string
   tiers: NormalizedPriceTier[]
@@ -146,6 +159,59 @@ export interface PassotProductGroup {
   parentSku: string
   parent: FeedNode | null
   children: FeedNode[]
+}
+
+/** Inspirion : flux annexes indexés par `article_id` (déclinaison), sauf mention contraire. */
+export interface InspirionCatalogueIndex {
+  prices: Map<string, PfConceptItemPrices>
+  /** Stock disponible pour la France (`stock_france`). */
+  stock: Map<string, number>
+  /** Rubriques traduites (« parent > rubrique »). */
+  categories: Map<string, string[]>
+  /** Nœud `printdata` de l'article (positions, méthodes, codes d'impression). */
+  printData: Map<string, FeedNode>
+  /** Prix d'un code d'impression (`printcode`). */
+  printPrices: Map<string, { setupCharge: number | null; tiers: NormalizedPriceTier[] }>
+  /** Délai d'expédition en jours ouvrés (avec marquage si connu). */
+  deliveryTimes: Map<string, number>
+}
+
+/** Makito : technique d'une zone de marquage (`/markings`), jointe par `technique_ref`. */
+export interface MakitoMarkingRow {
+  areaId: string
+  techniqueRef: string
+  maxColors: number | null
+  widthMm: number | null
+  heightMm: number | null
+}
+
+/**
+ * Makito : flux annexes indexés une fois par import. Clé = `ref` produit, sauf
+ * mention contraire.
+ */
+export interface MakitoCatalogueIndex {
+  /** `/descriptionslang` : type d'article (« Foulard »), composition, infos. */
+  sheets: Map<string, FeedNode>
+  /** `/descriptionextlang` : description rédigée. */
+  descriptions: Map<string, string>
+  keywords: Map<string, string[]>
+  categories: Map<string, string[]>
+  variants: Map<string, FeedNode[]>
+  /** Libellé couleur par `color_code`. */
+  colors: Map<string, string>
+  /** Stock disponible immédiatement, par `matnr`. */
+  stock: Map<string, number>
+  prices: Map<string, NormalizedPriceTier[]>
+  images: Map<string, NormalizedImage[]>
+  markings: Map<string, MakitoMarkingRow[]>
+  /** Libellé de zone par `print_area_id`. */
+  areaLabels: Map<string, string>
+  /** Technique (`ref` produit + `technique_ref`) : libellé traduit. */
+  techniqueLabels: Map<string, string>
+  /** Prix d'une technique par `technique_ref`. */
+  techniquePrices: Map<string, { setupCharge: number | null; tiers: NormalizedPriceTier[] }>
+  /** Délai de marquage export le plus court (jours) par `technique_ref`. */
+  leadTimes: Map<string, number>
 }
 
 /**
@@ -162,8 +228,11 @@ export interface ReferenceEntry {
 
 /** Options d'import passées par la commande `supplier:import`. */
 export interface SupplierImportOptions {
-  limit: number
+  /** `null` = catalogue entier (`--full`). */
+  limit: number | null
   locale: SupplierFeedLocale
+  /** Retélécharge les flux au lieu de réutiliser le cache disque. */
+  refresh?: boolean
   dryRun: boolean
   /** Copie les images dans Cellar (sinon l'URL fournisseur est conservée). */
   storeImages: boolean

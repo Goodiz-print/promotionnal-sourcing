@@ -6,12 +6,6 @@ export class SupplierConnectorNotConfiguredException extends Exception {
   static code = 'E_SUPPLIER_CONNECTOR_NOT_CONFIGURED'
 }
 
-/** Le connecteur existe mais son mapping n'est pas encore écrit (doc fournisseur manquante). */
-export class SupplierConnectorNotImplementedException extends Exception {
-  static status = 501
-  static code = 'E_SUPPLIER_CONNECTOR_NOT_IMPLEMENTED'
-}
-
 /** Réponse HTTP en erreur ou illisible d'un flux fournisseur. L'URL est toujours masquée. */
 export class SupplierFeedHttpException extends Exception {
   static status = 502

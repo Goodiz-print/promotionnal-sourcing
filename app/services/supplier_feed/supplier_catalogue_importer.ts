@@ -44,6 +44,9 @@ const IMAGE_EXTENSIONS: Record<string, string> = {
   'image/gif': 'gif',
 }
 
+/** Un point d'avancement est journalisé toutes les N fiches (imports complets). */
+const PROGRESS_EVERY = 500
+
 function sameTiers(a: NormalizedPriceTier[], b: NormalizedPriceTier[]): boolean {
   return (
     a.length === b.length &&
@@ -85,6 +88,7 @@ export default class SupplierCatalogueImporter {
     const products = await connector.fetchCatalogue({
       limit: options.limit,
       locale: options.locale,
+      refresh: options.refresh,
     })
     const summary: SupplierImportSummary = {
       supplier: connector.key,
@@ -117,7 +121,13 @@ export default class SupplierCatalogueImporter {
     if (options.dryRun) return summary
 
     const supplier = await this.references.upsertSupplier(connector.identity, options.locale)
-    for (const product of products) {
+    for (const [index, product] of products.entries()) {
+      if (index > 0 && index % PROGRESS_EVERY === 0) {
+        logger.info(
+          { supplier: connector.key, done: index, total: products.length, failed: summary.failed },
+          'supplier import progress'
+        )
+      }
       try {
         const created = await this.persist(
           supplier,
@@ -144,18 +154,18 @@ export default class SupplierCatalogueImporter {
 
   /**
    * Désactive les fiches du fournisseur **absentes du flux**, seulement si le
-   * flux est complet : les connecteurs tronquent à `limit`, donc moins de
-   * `limit` produits récupérés = catalogue entier ; à `limit` pile il peut être
-   * tronqué et rien n'est désactivé. Un flux vide est traité comme une panne
+   * flux est complet : sans limite (`--full`), ou moins de `limit` produits
+   * récupérés (les connecteurs tronquent à `limit`) ; à `limit` pile il peut
+   * être tronqué et rien n'est désactivé. Un flux vide est traité comme une panne
    * fournisseur (rien n'est désactivé). Les fiches en échec d'import restent
    * dans le flux : elles ne sont pas désactivées.
    */
   private async deactivateMissing(
     supplier: Supplier,
     products: NormalizedProduct[],
-    limit: number
+    limit: number | null
   ): Promise<number> {
-    if (products.length === 0 || products.length >= limit) return 0
+    if (products.length === 0 || (limit !== null && products.length >= limit)) return 0
     const missing = await Product.query()
       .where('supplierId', supplier.id)
       .whereNotNull('externalId')

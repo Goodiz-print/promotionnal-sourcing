@@ -21,7 +21,7 @@ export default abstract class SupplierConnector {
   abstract isConfigured(): boolean
 
   /**
-   * Catalogue normalisé, au plus `limit` produits. Lève
+   * Catalogue normalisé, au plus `limit` produits (`null` = catalogue entier). Lève
    * `SupplierConnectorNotConfiguredException` sans identifiants.
    */
   abstract fetchCatalogue(options: FetchCatalogueOptions): Promise<NormalizedProduct[]>

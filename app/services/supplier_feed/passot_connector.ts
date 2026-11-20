@@ -16,6 +16,7 @@ import {
   parsePositiveInt,
 } from '#shared/helpers/supplier_feed'
 import type {
+  FeedCacheOptions,
   FeedNode,
   FetchCatalogueOptions,
   NormalizedImage,
@@ -77,7 +78,11 @@ export default class PassotConnector extends SupplierConnector {
     return Boolean(supplierFeedsConfig.passot.apiKey)
   }
 
-  async fetchCatalogue({ limit, locale }: FetchCatalogueOptions): Promise<NormalizedProduct[]> {
+  async fetchCatalogue({
+    limit,
+    locale,
+    refresh,
+  }: FetchCatalogueOptions): Promise<NormalizedProduct[]> {
     const apiKey = supplierFeedsConfig.passot.apiKey
     if (!apiKey) {
       throw new SupplierConnectorNotConfiguredException('PASSOT_API_KEY manquant dans .env')
@@ -85,13 +90,17 @@ export default class PassotConnector extends SupplierConnector {
     const headers = { 'PI-API-KEY': apiKey }
     const base = `${supplierFeedsConfig.passot.baseUrl}/${locale}/rest/V1`
 
-    const productsFeed = await this.http.getJson(`${base}/catalog/products`, headers)
-    const groups = this.group(collect(productsFeed, ['sku', 'type_id'])).slice(0, limit)
+    const cache = { refresh: refresh ?? false }
+    const productsFeed = await this.http.getJson(`${base}/catalog/products`, headers, cache)
+    const groups = this.group(collect(productsFeed, ['sku', 'type_id'])).slice(
+      0,
+      limit ?? undefined
+    )
 
     const [prices, stock, zones] = await Promise.all([
-      this.optionalFeed(`${base}/catalog/prices`, headers),
-      this.optionalFeed(`${base}/catalog/stock`, headers),
-      this.optionalFeed(`${base}/customization/zones`, headers),
+      this.optionalFeed(`${base}/catalog/prices`, headers, cache),
+      this.optionalFeed(`${base}/catalog/stock`, headers, cache),
+      this.optionalFeed(`${base}/customization/zones`, headers, cache),
     ])
 
     const tiersBySku = new Map<string, NormalizedPriceTier[]>()
@@ -141,9 +150,13 @@ export default class PassotConnector extends SupplierConnector {
     return [...groups.values()]
   }
 
-  private async optionalFeed(url: string, headers: Record<string, string>): Promise<unknown> {
+  private async optionalFeed(
+    url: string,
+    headers: Record<string, string>,
+    cache: FeedCacheOptions
+  ): Promise<unknown> {
     try {
-      return await this.http.getJson(url, headers)
+      return await this.http.getJson(url, headers, cache)
     } catch (error) {
       logger.warn({ err: error }, 'passot optional feed unavailable, continuing without it')
       return null

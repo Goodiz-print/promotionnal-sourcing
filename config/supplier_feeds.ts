@@ -9,8 +9,10 @@ import env from '#start/env'
  */
 const supplierFeedsConfig = {
   http: {
-    timeoutMs: env.get('SUPPLIER_FEED_TIMEOUT_MS') ?? 120_000,
+    timeoutMs: env.get('SUPPLIER_FEED_TIMEOUT_MS') ?? 300_000,
     retries: 2,
+    /** Durée de vie du cache disque des flux (`tmp/supplier_feeds/`, `--refresh` pour forcer). */
+    cacheTtlMs: 12 * 60 * 60 * 1000,
     /**
      * User-Agent annoncé aux fournisseurs. Celui de Node par défaut est refusé
      * par certains pare-feu (Passot : HTTP 426) ; surcharger via
@@ -34,10 +36,14 @@ const supplierFeedsConfig = {
     apiKey: env.get('PASSOT_API_KEY')?.release() ?? null,
   },
   inspirion: {
+    baseUrl: 'https://leoapi.inspirion.eu',
     apiKey: env.get('INSPIRION_API_KEY')?.release() ?? null,
   },
-  axpol: {
-    apiKey: env.get('AXPOL_API_KEY')?.release() ?? null,
+  makito: {
+    baseUrl: 'https://data.makito.es/api',
+    /** Identifiants du compte client : `POST /login` renvoie le jeton d'accès. */
+    email: env.get('MAKITO_EMAIL') ?? null,
+    password: env.get('MAKITO_PASSWORD')?.release() ?? null,
   },
 }
 
