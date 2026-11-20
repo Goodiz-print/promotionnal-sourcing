@@ -194,6 +194,11 @@ export type ScannedRoutes = {
     'admin.mail.retryAll': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.mail.retry': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.inbound_mail.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.attach': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.replay': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.dismiss': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.storage.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.storage.recover': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.health.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -345,6 +350,8 @@ export type ScannedRoutes = {
     'admin.search.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.inbound_mail.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.storage.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.health.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -454,6 +461,8 @@ export type ScannedRoutes = {
     'admin.search.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.inbound_mail.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.storage.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.health.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -558,6 +567,9 @@ export type ScannedRoutes = {
     'admin.search.evaluate': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.retryAll': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.retry': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.attach': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.replay': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.dismiss': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.storage.recover': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.hide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.products.unhide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }

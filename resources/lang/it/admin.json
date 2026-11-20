@@ -25,6 +25,7 @@
     "queue": "Queue",
     "search": "Search",
     "mail": "Emails",
+    "inboundMail": "Inbound emails",
     "storage": "Storage",
     "health": "Health",
     "ads": "Prodotti sponsorizzati"
@@ -562,6 +563,9 @@
       "search.evaluation_requested": "Search evaluation requested",
       "mail.retried": "Email retried",
       "mail.bulk_retried": "Failed emails retried",
+      "inbound_mail.attached": "Inbound email attached to a request",
+      "inbound_mail.replayed": "Inbound email processing replayed",
+      "inbound_mail.dismissed": "Inbound email dismissed",
       "storage.recovery_requested": "Storage recovery requested",
       "ad_campaign.suspended": "Campagna sponsorizzata sospesa",
       "ad_campaign.restored": "Sospensione della campagna revocata",
@@ -593,6 +597,7 @@
       "queue_schedule": "Scheduled job",
       "search_run": "Search operation",
       "mail_delivery": "Email delivery",
+      "inbound_mail": "Inbound email",
       "storage": "Storage",
       "ad_campaign": "Campagna sponsorizzata"
     }
@@ -1654,6 +1659,107 @@
       "nothingToRetry": "No failed mail to retry.",
       "queueFailed": "Queuing failed: the mail is still to be retried.",
       "bulkPartial": "{count} mail(s) put back in the queue; {failed} could not be queued and remain to be retried."
+    }
+  },
+  "inboundMail": {
+    "title": "Inbound emails",
+    "subtitle": "Supplier replies received at the relay address: attach, replay or dismiss emails that did not go through.",
+    "resultsCount": "{count, plural, =0 {No email} one {# email} other {# emails}}",
+    "empty": "No email matches.",
+    "emptyDescription": "Emails appear here as soon as the inbound provider announces them.",
+    "back": "Back to inbound emails",
+    "noSubject": "(no subject)",
+    "unattached": "Not attached",
+    "statuses": {
+      "received": "Pending",
+      "processing": "Processing",
+      "processed": "Processed",
+      "rejected": "Dismissed",
+      "failed": "Failed"
+    },
+    "rejections": {
+      "too_large": "Too large",
+      "loop": "Mail loop",
+      "auto_reply": "Automatic reply",
+      "unknown_address": "Unknown address",
+      "expired_address": "Expired address",
+      "dismissed": "Dismissed by an admin"
+    },
+    "filters": {
+      "status": "Status",
+      "rejection": "Rejection reason",
+      "all": "All"
+    },
+    "columns": {
+      "sender": "Sender",
+      "subject": "Subject",
+      "target": "Request / supplier",
+      "status": "Status",
+      "receivedAt": "Received",
+      "actions": "Actions"
+    },
+    "actions": {
+      "attach": "Attach",
+      "replay": "Replay",
+      "dismiss": "Dismiss",
+      "attachConfirm": "Attach this email to this request and process it?",
+      "replayConfirm": "Replay the processing of this email? An already processed email creates no duplicate.",
+      "dismissConfirm": "Dismiss this email? It will no longer be processed."
+    },
+    "attach": {
+      "title": "Attach to a request",
+      "description": "Suppliers from the sender’s domain, or recipients of a request looked up by its number. The email is then processed as a reply to that request.",
+      "rfqLabel": "Request number",
+      "rfqHint": "Empty: suggestions based on the sender.",
+      "search": "Search",
+      "empty": "No request to suggest.",
+      "emptyDescription": "Enter the number of the intended request.",
+      "columns": {
+        "rfq": "Request",
+        "supplier": "Supplier",
+        "sentAt": "Sent"
+      }
+    },
+    "detail": {
+      "summary": "Summary",
+      "recipient": "Target address",
+      "attachedManually": "Attached manually on",
+      "processedAt": "Processed",
+      "senderKnownLabel": "Sender known to the supplier",
+      "senderKnown": {
+        "yes": "Yes",
+        "no": "No"
+      },
+      "provider": "Provider",
+      "messageId": "Message-ID",
+      "error": "Error",
+      "body": "Content (text)",
+      "noBody": "No content kept: a dismissed email is only logged."
+    },
+    "attachments": {
+      "title": "Attachments",
+      "empty": "No attachment logged.",
+      "columns": {
+        "filename": "File",
+        "type": "Type",
+        "size": "Size",
+        "status": "Outcome"
+      },
+      "statuses": {
+        "stored": "Stored",
+        "rejected_type": "Type refused",
+        "rejected_size": "Too large",
+        "ignored_inline": "Inline image"
+      }
+    },
+    "flash": {
+      "processed": "The email is processed and attached to the request.",
+      "republished": "Recording of the reply replayed, without duplicates.",
+      "pending": "The email is being processed.",
+      "rejected": "The email was dismissed again by a safeguard.",
+      "failed": "Processing failed: the email stays failed and will be retried automatically.",
+      "dismissed": "The email is dismissed.",
+      "notAllowed": "This action is not possible in the email’s current state."
     }
   },
   "storage": {

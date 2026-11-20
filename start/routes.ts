@@ -521,6 +521,29 @@ router
                   .post('admin/mail/:id/retry', [controllers.admin.Mail, 'retry'])
                   .where('id', router.matchers.number())
                   .as('admin.mail.retry')
+                // Supervision des mails entrants (#227) : rattachement, rejeu, rejet.
+                router
+                  .get('admin/inbound-mail', [controllers.admin.InboundMail, 'index'])
+                  .as('admin.inbound_mail.index')
+                router
+                  .get('admin/inbound-mail/:id', [controllers.admin.InboundMail, 'show'])
+                  .where('id', router.matchers.number())
+                  .as('admin.inbound_mail.show')
+                router
+                  .post('admin/inbound-mail/:id/attach', [controllers.admin.InboundMail, 'attach'])
+                  .where('id', router.matchers.number())
+                  .as('admin.inbound_mail.attach')
+                router
+                  .post('admin/inbound-mail/:id/replay', [controllers.admin.InboundMail, 'replay'])
+                  .where('id', router.matchers.number())
+                  .as('admin.inbound_mail.replay')
+                router
+                  .post('admin/inbound-mail/:id/dismiss', [
+                    controllers.admin.InboundMail,
+                    'dismiss',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.inbound_mail.dismiss')
                 router
                   .get('admin/storage', [controllers.admin.Storage, 'index'])
                   .as('admin.storage.index')

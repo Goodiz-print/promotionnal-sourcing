@@ -902,8 +902,10 @@ export class InboundMailAttachmentSchema extends BaseModel {
 
 export class InboundMailSchema extends BaseModel {
   static $columns = [
+    'attachedManuallyAt',
     'createdAt',
     'error',
+    'failureAlertedAt',
     'headers',
     'htmlBody',
     'id',
@@ -925,10 +927,14 @@ export class InboundMailSchema extends BaseModel {
     'updatedAt',
   ] as const
   $columns = InboundMailSchema.$columns
+  @column.dateTime()
+  declare attachedManuallyAt: DateTime | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
   declare error: string | null
+  @column.dateTime()
+  declare failureAlertedAt: DateTime | null
   @column()
   declare headers: any | null
   @column()

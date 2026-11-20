@@ -1146,6 +1146,36 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"mail"],[1,"id"],[0,"retry"]],
     types: placeholder as Registry['admin.mail.retry']['types'],
   },
+  'admin.inbound_mail.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/inbound-mail',
+    tokens: [[1,"locale"],[0,"admin"],[0,"inbound-mail"]],
+    types: placeholder as Registry['admin.inbound_mail.index']['types'],
+  },
+  'admin.inbound_mail.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/inbound-mail/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"inbound-mail"],[1,"id"]],
+    types: placeholder as Registry['admin.inbound_mail.show']['types'],
+  },
+  'admin.inbound_mail.attach': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/inbound-mail/:id/attach',
+    tokens: [[1,"locale"],[0,"admin"],[0,"inbound-mail"],[1,"id"],[0,"attach"]],
+    types: placeholder as Registry['admin.inbound_mail.attach']['types'],
+  },
+  'admin.inbound_mail.replay': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/inbound-mail/:id/replay',
+    tokens: [[1,"locale"],[0,"admin"],[0,"inbound-mail"],[1,"id"],[0,"replay"]],
+    types: placeholder as Registry['admin.inbound_mail.replay']['types'],
+  },
+  'admin.inbound_mail.dismiss': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/inbound-mail/:id/dismiss',
+    tokens: [[1,"locale"],[0,"admin"],[0,"inbound-mail"],[1,"id"],[0,"dismiss"]],
+    types: placeholder as Registry['admin.inbound_mail.dismiss']['types'],
+  },
   'admin.storage.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/storage',
