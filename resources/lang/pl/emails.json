@@ -18,7 +18,7 @@
     "cta": "Zobacz zapytanie",
     "footer": "Zaloguj się do panelu dostawcy, aby zobaczyć zapytanie lub je odrzucić.",
     "anonymous": {
-      "subject": "Nowe zapytanie ofertowe",
+      "subject": "Nowe zapytanie ofertowe: „{rfqTitle}”",
       "title": "Agencja wysyła Ci zapytanie w {brandName}",
       "body": "Agencja zaprasza Cię do wyceny zapytania „{rfqTitle}” ({itemCount, plural, one {# pozycja} few {# pozycje} many {# pozycji} other {# pozycji}})."
     }
@@ -142,7 +142,7 @@
   },
   "subscriptionUpsell": {
     "title": "Wykup subskrypcję, aby poznać agencję",
-    "body": "Wykup subskrypcję, aby dowiedzieć się, która agencja wysyła Ci zapytanie, i skontaktować się z nią bezpośrednio.",
+    "body": "Wykup subskrypcję, aby dowiedzieć się, która agencja wysyła Ci zapytanie, i skontaktować się z nią bezpośrednio. Subskrypcję mogą wykupić właściciele i administratorzy Twojej organizacji.",
     "cta": "Zobacz subskrypcje"
   }
 }

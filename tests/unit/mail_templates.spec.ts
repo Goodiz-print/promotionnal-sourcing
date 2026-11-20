@@ -501,7 +501,8 @@ test.group('Mails — demande anonyme pour un fournisseur non abonné (#220, #22
       new RfqReceivedNotification('s@x.test', ANONYMOUS_RFQ_DATA, 'fr') as never
     )
 
-    assert.equal(subject, 'Nouvelle demande de devis')
+    // Le titre distingue les demandes : sans lui, la messagerie les regrouperait en un fil.
+    assert.equal(subject, 'Nouvelle demande de devis : « Tote bags »')
     assert.notInclude(html, 'Acme')
     assert.notInclude(text, 'Acme')
     assert.include(html, 'Une agence vous invite à chiffrer la demande')

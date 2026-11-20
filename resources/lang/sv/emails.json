@@ -18,7 +18,7 @@
     "cta": "Visa förfrågan",
     "footer": "Logga in i ditt leverantörsområde för att visa förfrågan eller avböja den.",
     "anonymous": {
-      "subject": "Ny offertförfrågan",
+      "subject": "Ny offertförfrågan: ”{rfqTitle}”",
       "title": "En byrå kontaktar dig på {brandName}",
       "body": "En byrå bjuder in dig att lämna offert på förfrågan ”{rfqTitle}” ({itemCount, plural, one {# rad} other {# rader}})."
     }
@@ -142,7 +142,7 @@
   },
   "subscriptionUpsell": {
     "title": "Prenumerera för att se vilken byrå det är",
-    "body": "Prenumerera för att se vilken byrå som kontaktar dig och kontakta den direkt.",
+    "body": "Prenumerera för att se vilken byrå som kontaktar dig och kontakta den direkt. Prenumerationen är förbehållen ägare och administratörer i din organisation.",
     "cta": "Se prenumerationerna"
   }
 }

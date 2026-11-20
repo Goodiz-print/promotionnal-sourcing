@@ -303,6 +303,8 @@ ailleurs.
 - L'encart (`SubscriptionUpsell`) propose de souscrire à un propriétaire ou un
   administrateur (`canManageSubscription`) ; il invite les autres à passer par
   eux.
+  Dans le mail, le lien mène à la page d'abonnement : un membre sans ce droit y
+  est ramené au tableau de bord avec une explication, pas un 403.
 - `quote.accepted` et les notifications de commande nomment l'agence : elle passe
   commande et se fait donc connaître.
 - **Limite acceptée** (décision client du 16/11/2026) : le titre, la description

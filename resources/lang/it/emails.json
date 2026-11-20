@@ -18,7 +18,7 @@
     "cta": "Consulta la richiesta",
     "footer": "Accedi alla tua area fornitore per consultare la richiesta o rifiutarla.",
     "anonymous": {
-      "subject": "Nuova richiesta di preventivo",
+      "subject": "Nuova richiesta di preventivo: «{rfqTitle}»",
       "title": "Un'agenzia vi consulta su {brandName}",
       "body": "Un'agenzia vi invita a quotare la richiesta «{rfqTitle}» ({itemCount, plural, one {# riga} other {# righe}})."
     }
@@ -142,7 +142,7 @@
   },
   "subscriptionUpsell": {
     "title": "Abbonatevi per conoscere l'agenzia",
-    "body": "Abbonatevi per sapere quale agenzia vi consulta e contattarla direttamente.",
+    "body": "Abbonatevi per sapere quale agenzia vi consulta e contattarla direttamente. L'abbonamento è riservato ai proprietari e agli amministratori della vostra organizzazione.",
     "cta": "Scopri gli abbonamenti"
   }
 }

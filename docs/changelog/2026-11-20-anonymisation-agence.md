@@ -22,10 +22,20 @@ s'abonner.
   - Il mène à la page d'abonnement pour un propriétaire ou un administrateur ;
     il invite les autres membres à passer par eux.
 - **Mails de demande et de relance** :
-  - L'objet, le titre et l'introduction ne nomment pas l'agence.
+  - L'objet, le titre et l'introduction ne nomment pas l'agence. L'objet
+    anonyme reprend le titre de la demande, pour que la messagerie ne regroupe
+    pas plusieurs demandes dans un même fil.
   - Un encart « abonnez-vous » mène à la page d'abonnement (HTML et texte).
   - Dans la charge du job, `buyerName` devient `string | null` et
     `subscribePath` est ajouté. Les jobs déjà en queue se rendent comme avant.
+  - Transition : une demande envoyée avant la mise en production a reçu un mail
+    au nom de l'agence, mais sa relance, envoyée après, sera anonyme si le
+    fournisseur n'est pas abonné.
+- **Page d'abonnement** : un membre d'une organisation fournisseuse qui n'a pas
+  le droit de souscrire (lien d'un mail anonyme) est ramené au tableau de bord
+  avec un message (`subscription.flash.adminOnly`) au lieu d'un 403. Une
+  organisation acheteuse reste refusée. L'encart du mail précise que la
+  souscription est réservée aux propriétaires et administrateurs.
 - **Notifications in-app** `rfq.received` et `quote.rejected` : pour un non
   abonné, `buyerName` est absent des données. La cloche et le mail de rappel
   prennent alors le libellé `notifications.anonymous.*` (helper partagé
@@ -36,10 +46,12 @@ s'abonner.
 - **Traductions** dans les 9 langues :
   - `emails.rfqReceived.anonymous.*`, `emails.rfqReminder.anonymous.body`,
     `emails.subscriptionUpsell.*` ;
+  - `subscription.flash.adminOnly` ;
   - `notifications.anonymous.*` ;
   - `rfq.supplier.anonymousBuyer` et `subscription.upsell.*`.
 - **Tests** :
   - `rfq_buyer_anonymity.spec.ts` : écrans, révélation puis masquage, mail,
-    notification ;
+    relance, notifications `rfq.received` et `quote.rejected` ;
+  - `subscriptions.spec.ts` : redirection d'un membre sans droit de souscrire ;
   - `mail_templates.spec.ts` : rendu anonyme dans les 9 langues ;
   - `notification_message_key.spec.ts` et `supplier_rfqs.spec.ts` (Vitest).

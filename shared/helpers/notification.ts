@@ -1,8 +1,16 @@
 import {
   BUYER_ANONYMIZED_NOTIFICATION_TYPES,
+  type BuyerAnonymizedNotificationType,
   type NotificationData,
   type NotificationType,
 } from '../types/notification.js'
+
+/** Le type de notification peut-il partir sans nom d'agence (#220) ? */
+export function isBuyerAnonymizedType(
+  type: NotificationType
+): type is BuyerAnonymizedNotificationType {
+  return BUYER_ANONYMIZED_NOTIFICATION_TYPES.some((anonymized) => anonymized === type)
+}
 
 /**
  * Clé du texte d'une notification, partagée par la cloche et le mail de rappel
@@ -10,7 +18,6 @@ import {
  * quand la notification ne nomme pas l'agence (fournisseur non abonné, #220).
  */
 export function notificationMessageKey(type: NotificationType, data: NotificationData): string {
-  const anonymizable = (BUYER_ANONYMIZED_NOTIFICATION_TYPES as readonly string[]).includes(type)
-  if (anonymizable && !data.buyerName) return `notifications.anonymous.${type}`
+  if (isBuyerAnonymizedType(type) && !data.buyerName) return `notifications.anonymous.${type}`
   return `notifications.types.${type}`
 }

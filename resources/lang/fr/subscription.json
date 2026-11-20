@@ -86,7 +86,8 @@
     "unavailable": "La souscription en ligne n’est pas disponible pour le moment.",
     "alreadySubscribed": "Vous avez déjà un abonnement en cours : changez de formule depuis le portail de facturation.",
     "noBillingAccount": "Aucun compte de facturation en ligne pour votre organisation.",
-    "paymentPending": "Un paiement d’abonnement est en cours de validation : finalisez-le depuis le portail de facturation ou réessayez plus tard."
+    "paymentPending": "Un paiement d’abonnement est en cours de validation : finalisez-le depuis le portail de facturation ou réessayez plus tard.",
+    "adminOnly": "Seuls les propriétaires et administrateurs de votre organisation peuvent gérer son abonnement."
   },
   "upsell": {
     "title": "Abonnez-vous pour connaître l'agence",

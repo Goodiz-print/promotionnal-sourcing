@@ -18,7 +18,7 @@
     "cta": "Consulter la demande",
     "footer": "Connectez-vous à votre espace fournisseur pour consulter la demande ou la décliner.",
     "anonymous": {
-      "subject": "Nouvelle demande de devis",
+      "subject": "Nouvelle demande de devis : « {rfqTitle} »",
       "title": "Une agence vous consulte sur {brandName}",
       "body": "Une agence vous invite à chiffrer la demande « {rfqTitle} » ({itemCount, plural, one {# ligne} other {# lignes}})."
     }
@@ -142,7 +142,7 @@
   },
   "subscriptionUpsell": {
     "title": "Abonnez-vous pour connaître l'agence",
-    "body": "Abonnez-vous pour connaître l'agence qui vous consulte et la contacter directement.",
+    "body": "Abonnez-vous pour connaître l'agence qui vous consulte et la contacter directement. La souscription est réservée aux propriétaires et administrateurs de votre organisation.",
     "cta": "Découvrir les abonnements"
   }
 }

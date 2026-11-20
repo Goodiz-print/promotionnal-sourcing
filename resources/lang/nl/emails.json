@@ -18,7 +18,7 @@
     "cta": "Aanvraag bekijken",
     "footer": "Meld u aan in uw leveranciersomgeving om de aanvraag te bekijken of af te wijzen.",
     "anonymous": {
-      "subject": "Nieuwe offerteaanvraag",
+      "subject": "Nieuwe offerteaanvraag: “{rfqTitle}”",
       "title": "Een bureau raadpleegt u op {brandName}",
       "body": "Een bureau nodigt u uit een offerte te maken voor de aanvraag „{rfqTitle}” ({itemCount, plural, one {# regel} other {# regels}})."
     }
@@ -142,7 +142,7 @@
   },
   "subscriptionUpsell": {
     "title": "Neem een abonnement om het bureau te kennen",
-    "body": "Neem een abonnement om te weten welk bureau u raadpleegt en het rechtstreeks te contacteren.",
+    "body": "Neem een abonnement om te weten welk bureau u raadpleegt en het rechtstreeks te contacteren. Een abonnement nemen is voorbehouden aan de eigenaars en beheerders van uw organisatie.",
     "cta": "Abonnementen bekijken"
   }
 }

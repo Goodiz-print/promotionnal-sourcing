@@ -1,5 +1,5 @@
 import { test } from '@japa/runner'
-import { notificationMessageKey } from '#shared/helpers/notification'
+import { isBuyerAnonymizedType, notificationMessageKey } from '#shared/helpers/notification'
 
 /** Texte d'une notification avec ou sans nom d'agence (#220). */
 test.group('notificationMessageKey', () => {
@@ -23,5 +23,14 @@ test.group('notificationMessageKey', () => {
       notificationMessageKey('rfq.declined', { supplierName: 'Textiles SA' }),
       'notifications.types.rfq.declined'
     )
+  })
+
+  test('seuls les types adressés au fournisseur et nommant l’agence sont anonymisables', ({
+    assert,
+  }) => {
+    assert.isTrue(isBuyerAnonymizedType('rfq.received'))
+    assert.isTrue(isBuyerAnonymizedType('quote.rejected'))
+    assert.isFalse(isBuyerAnonymizedType('quote.accepted'))
+    assert.isFalse(isBuyerAnonymizedType('order.created'))
   })
 })

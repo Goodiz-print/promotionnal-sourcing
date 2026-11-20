@@ -86,7 +86,8 @@
     "unavailable": "Att teckna abonnemang online är inte tillgängligt just nu.",
     "alreadySubscribed": "Du har redan ett pågående abonnemang: byt plan i faktureringsportalen.",
     "noBillingAccount": "Din organisation har inget faktureringskonto online.",
-    "paymentPending": "En prenumerationsbetalning bekräftas fortfarande: slutför den i faktureringsportalen eller försök igen senare."
+    "paymentPending": "En prenumerationsbetalning bekräftas fortfarande: slutför den i faktureringsportalen eller försök igen senare.",
+    "adminOnly": "Endast ägare och administratörer i din organisation kan hantera dess prenumeration."
   },
   "upsell": {
     "title": "Prenumerera för att se vilken byrå det är",

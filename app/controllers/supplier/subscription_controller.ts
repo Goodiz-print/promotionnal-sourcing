@@ -13,6 +13,7 @@ import {
 } from '#exceptions/subscription_errors'
 import { subscriptionCheckoutValidator } from '#validators/subscription'
 import type Organization from '#models/organization'
+import { SUPPLIER_ORGANIZATION_KINDS } from '#shared/types/organization'
 import type { SupplierSubscriptionPageProps } from '#shared/types/subscription'
 
 /**
@@ -28,9 +29,20 @@ export default class SubscriptionController {
     private organizations: OrganizationContextService
   ) {}
 
-  /** Page tarifs : formule courante, grille des formules, accès au portail. */
+  /**
+   * Page tarifs : formule courante, grille des formules, accès au portail.
+   *
+   * Un membre d'une organisation fournisseuse sans droit de souscrire (lien de
+   * l'encart d'abonnement d'un mail anonyme, #222) est ramené au tableau de bord
+   * avec une explication plutôt qu'un 403 ; les autres restent refusés.
+   */
   async show(ctx: HttpContext) {
-    const org = await this.authorize(ctx)
+    const org = await this.organizations.currentFor(ctx.auth.getUserOrFail())
+    if (await this.isSupplierMemberWithoutRights(ctx, org)) {
+      ctx.session.flash('error', ctx.i18n.t('subscription.flash.adminOnly'))
+      return ctx.response.redirect().toRoute('dashboard.show', { locale: ctx.i18n.locale })
+    }
+    await ctx.bouncer.authorize('canManageSubscription', org)
     const [current, portalAvailable] = await Promise.all([
       this.subscriptions.current(org.id),
       this.billing.hasBillingAccount(org.id),
@@ -100,6 +112,15 @@ export default class SubscriptionController {
     const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canManageSubscription', org)
     return org
+  }
+
+  /** Membre d'une organisation fournisseuse qui ne peut pas gérer l'abonnement. */
+  private async isSupplierMemberWithoutRights(
+    { bouncer }: HttpContext,
+    org: Organization
+  ): Promise<boolean> {
+    const isSupplier = SUPPLIER_ORGANIZATION_KINDS.includes(org.organizationType)
+    return isSupplier && (await bouncer.denies('canManageSubscription', org))
   }
 
   /** URL absolue de la page abonnement (retour des pages Stripe). */

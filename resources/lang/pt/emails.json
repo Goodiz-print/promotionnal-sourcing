@@ -18,7 +18,7 @@
     "cta": "Consultar o pedido",
     "footer": "Inicie sessão na sua área de fornecedor para consultar o pedido ou recusá-lo.",
     "anonymous": {
-      "subject": "Novo pedido de orçamento",
+      "subject": "Novo pedido de orçamento: «{rfqTitle}»",
       "title": "Uma agência consulta-o em {brandName}",
       "body": "Uma agência convida-o a orçamentar o pedido «{rfqTitle}» ({itemCount, plural, one {# linha} other {# linhas}})."
     }
@@ -141,8 +141,8 @@
     "ignore": "Se não trabalha para {organizationName}, ignore esta mensagem: não lhe será enviado nenhum pedido."
   },
   "subscriptionUpsell": {
-    "title": "Subscreva para conhecer a agência",
-    "body": "Subscreva para saber que agência o consulta e contactá-la diretamente.",
+    "title": "Assine para conhecer a agência",
+    "body": "Assine para saber que agência o consulta e contactá-la diretamente. A assinatura está reservada aos proprietários e administradores da sua organização.",
     "cta": "Ver as assinaturas"
   }
 }

@@ -40,6 +40,8 @@ export const BUYER_ANONYMIZED_NOTIFICATION_TYPES = [
   'quote.rejected',
 ] as const satisfies readonly NotificationType[]
 
+export type BuyerAnonymizedNotificationType = (typeof BUYER_ANONYMIZED_NOTIFICATION_TYPES)[number]
+
 export interface NotificationData {
   [key: string]: string | number | boolean | null
 }

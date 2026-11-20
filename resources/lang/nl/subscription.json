@@ -86,7 +86,8 @@
     "unavailable": "Online afsluiten is momenteel niet beschikbaar.",
     "alreadySubscribed": "U hebt al een lopend abonnement: wijzig het via het factureringsportaal.",
     "noBillingAccount": "Uw organisatie heeft geen online factureringsaccount.",
-    "paymentPending": "Een abonnementsbetaling wordt nog bevestigd: rond deze af via het factuurportaal of probeer het later opnieuw."
+    "paymentPending": "Een abonnementsbetaling wordt nog bevestigd: rond deze af via het factuurportaal of probeer het later opnieuw.",
+    "adminOnly": "Alleen de eigenaars en beheerders van uw organisatie kunnen het abonnement beheren."
   },
   "upsell": {
     "title": "Neem een abonnement om het bureau te kennen",

@@ -1,19 +1,24 @@
 import { test } from '@japa/runner'
 import { DateTime } from 'luxon'
 import type { ApiClient } from '@japa/api-client'
+import emitter from '@adonisjs/core/services/emitter'
 import mail from '@adonisjs/mail/services/main'
 import { OrganizationFactory } from '#database/factories/organization_factory'
+import { QuoteFactory } from '#database/factories/quote_factory'
 import { RfqFactory } from '#database/factories/rfq_factory'
 import { RfqItemFactory } from '#database/factories/rfq_item_factory'
 import { RfqSupplierFactory } from '#database/factories/rfq_supplier_factory'
+import QuoteRejected from '#events/quote_rejected'
+import RemindRfqSuppliersJob from '#jobs/remind_rfq_suppliers_job'
 import RfqReceivedNotification from '#mails/rfq_received_notification'
+import RfqReminderNotification from '#mails/rfq_reminder_notification'
 import Notification from '#models/notification'
 import { createMember, subscribeOrganization } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
 import type Organization from '#models/organization'
 import type Rfq from '#models/rfq'
 import type User from '#models/user'
-import type { RfqReceivedMailData } from '#shared/types/mail'
+import type { RfqReceivedMailData, RfqReminderMailData } from '#shared/types/mail'
 
 /**
  * Anonymat de l'agence pour un fournisseur non abonné (#220) et encart
@@ -45,14 +50,47 @@ async function scenario(): Promise<Scenario> {
   }
 }
 
-/** Demande déjà diffusée au fournisseur. */
-async function receivedRfq({ buyer, supplier }: Scenario): Promise<Rfq> {
+/** Demande diffusée au fournisseur, il y a `sentDaysAgo` jours (assez tôt pour une relance). */
+async function receivedRfq({ buyer, supplier }: Scenario, sentDaysAgo = 0): Promise<Rfq> {
   const rfq = await RfqFactory.apply('published').merge({ buyerOrganizationId: buyer.id }).create()
   await RfqItemFactory.merge({ rfqId: rfq.id }).create()
-  await RfqSupplierFactory.apply('sent')
-    .merge({ rfqId: rfq.id, supplierOrganizationId: supplier.id })
-    .create()
+  // `merge` plutôt que l'état `sent`, qui imposerait `sentAt` à maintenant.
+  await RfqSupplierFactory.merge({
+    rfqId: rfq.id,
+    supplierOrganizationId: supplier.id,
+    status: 'sent',
+    sentAt: DateTime.now().minus({ days: sentDaysAgo }),
+  }).create()
   return rfq
+}
+
+/** Relances envoyées par le job planifié. */
+async function reminders(): Promise<RfqReminderMailData[]> {
+  const { mails } = mail.fake()
+  try {
+    await new RemindRfqSuppliersJob().execute()
+    const sent = mails.sent((mailer) => mailer instanceof RfqReminderNotification)
+    return sent.map((mailer) => (mailer as unknown as { data: RfqReminderMailData }).data)
+  } finally {
+    mail.restore()
+  }
+}
+
+/** Notification `quote.rejected` reçue par le propriétaire du fournisseur. */
+async function rejectionNotified(ctx: Scenario, rfq: Rfq): Promise<Notification> {
+  const quote = await QuoteFactory.apply('submitted')
+    .merge({ rfqId: rfq.id, supplierOrganizationId: ctx.supplier.id })
+    .create()
+  mail.fake()
+  try {
+    await emitter.emit(QuoteRejected, new QuoteRejected(quote))
+  } finally {
+    mail.restore()
+  }
+  return Notification.query()
+    .where('userId', ctx.supplierOwner.id)
+    .where('type', 'quote.rejected')
+    .firstOrFail()
 }
 
 /** Demande prête à partir : l'acheteur la publie puis l'envoie. */
@@ -194,6 +232,45 @@ test.group('Anonymat de l’agence — mail et notification de demande', (group)
       .where('userId', ctx.supplierOwner.id)
       .where('type', 'rfq.received')
       .firstOrFail()
+    assert.equal(notification.data.buyerName, BUYER_NAME)
+  })
+
+  test('la relance d’un non abonné ne nomme pas l’agence ; celle d’un abonné, si', async ({
+    assert,
+  }) => {
+    const anonymous = await scenario()
+    await receivedRfq(anonymous, 4)
+    const subscribed = await scenario()
+    await receivedRfq(subscribed, 4)
+    await subscribeOrganization(subscribed.supplier)
+
+    const sent = await reminders()
+
+    assert.lengthOf(sent, 2)
+    const named = sent.filter((data) => data.buyerName === BUYER_NAME)
+    const hidden = sent.filter((data) => data.buyerName === null)
+    assert.lengthOf(named, 1)
+    assert.lengthOf(hidden, 1)
+    assert.equal(hidden[0].subscribePath, '/fr/supplier/subscription')
+    assert.notInclude(JSON.stringify(hidden[0]), BUYER_NAME)
+  })
+
+  test('un refus de devis reste anonyme pour un non abonné', async ({ assert }) => {
+    const ctx = await scenario()
+    const rfq = await receivedRfq(ctx)
+
+    const notification = await rejectionNotified(ctx, rfq)
+
+    assert.notProperty(notification.data, 'buyerName')
+  })
+
+  test('un refus de devis nomme l’agence pour un abonné', async ({ assert }) => {
+    const ctx = await scenario()
+    const rfq = await receivedRfq(ctx)
+    await subscribeOrganization(ctx.supplier)
+
+    const notification = await rejectionNotified(ctx, rfq)
+
     assert.equal(notification.data.buyerName, BUYER_NAME)
   })
 })

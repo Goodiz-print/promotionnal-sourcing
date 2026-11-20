@@ -18,7 +18,7 @@
     "cta": "Ver la solicitud",
     "footer": "Inicie sesión en su espacio de proveedor para consultar la solicitud o rechazarla.",
     "anonymous": {
-      "subject": "Nueva solicitud de presupuesto",
+      "subject": "Nueva solicitud de presupuesto: «{rfqTitle}»",
       "title": "Una agencia le consulta en {brandName}",
       "body": "Una agencia le invita a presupuestar la solicitud «{rfqTitle}» ({itemCount, plural, one {# línea} other {# líneas}})."
     }
@@ -142,7 +142,7 @@
   },
   "subscriptionUpsell": {
     "title": "Suscríbase para conocer la agencia",
-    "body": "Suscríbase para saber qué agencia le consulta y contactarla directamente.",
+    "body": "Suscríbase para saber qué agencia le consulta y contactarla directamente. La suscripción está reservada a los propietarios y administradores de su organización.",
     "cta": "Ver las suscripciones"
   }
 }
