@@ -12,12 +12,11 @@ export default class SupplierContactsByOrganizationTransformer extends BaseTrans
   Map<number, SupplierContact[]>
 > {
   toObject(): SupplierContactsByOrganization {
-    const result: SupplierContactsByOrganization = {}
-    for (const [organizationId, contacts] of this.resource) {
-      result[organizationId] = contacts.map((contact) =>
-        new SupplierContactTransformer(contact).toObject()
-      )
-    }
-    return result
+    return Object.fromEntries(
+      [...this.resource].map(([organizationId, contacts]) => [
+        organizationId,
+        contacts.map((contact) => new SupplierContactTransformer(contact).toObject()),
+      ])
+    )
   }
 }

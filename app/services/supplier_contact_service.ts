@@ -95,11 +95,12 @@ export default class SupplierContactService {
         ;[contacts[index], contacts[target]] = [contacts[target], contacts[index]]
       }
 
-      for (const [position, contact] of contacts.entries()) {
-        if (contact.position === position) continue
-        contact.position = position
-        await contact.useTransaction(trx).save()
-      }
+      const moved = contacts
+        .map((contact, position) => ({ contact, position }))
+        .filter(({ contact, position }) => contact.position !== position)
+      await Promise.all(
+        moved.map(({ contact, position }) => contact.merge({ position }).useTransaction(trx).save())
+      )
     })
   }
 
@@ -198,22 +199,16 @@ export default class SupplierContactService {
         .select('organizationId'),
     ])
     const showAll = new Set(profiles.map((profile) => profile.organizationId))
-
-    const byOrganization = new Map<number, SupplierContact[]>()
-    for (const contact of contacts) {
-      const team = byOrganization.get(contact.organizationId) ?? []
-      team.push(contact)
-      byOrganization.set(contact.organizationId, team)
-    }
-
     const country = viewer.country?.toUpperCase() ?? null
-    for (const [organizationId, team] of byOrganization) {
-      result.set(
-        organizationId,
-        showAll.has(organizationId) ? team : this.forCountry(team, country)
+
+    return new Map(
+      [...Map.groupBy(contacts, (contact) => contact.organizationId)].map(
+        ([organizationId, team]) => [
+          organizationId,
+          showAll.has(organizationId) ? team : this.forCountry(team, country),
+        ]
       )
-    }
-    return result
+    )
   }
 
   /** Contacts qui couvrent le pays (ou tous les pays) ; à défaut, toute l'équipe. */
