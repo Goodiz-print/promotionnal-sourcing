@@ -2,6 +2,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "organizations": "Organisaties",
+    "supplierLinks": "Leverancierskoppeling",
     "users": "Gebruikers",
     "products": "Producten",
     "categories": "Categorieën",
@@ -274,6 +275,49 @@
       }
     }
   },
+  "supplierLinks": {
+    "title": "Koppeling van leveranciersfiches",
+    "subtitle": "Geïmporteerde fiches die wachten op toestemming van de leverancier. Koppelen aan zijn organisatie legt die toestemming vast en publiceert de catalogus.",
+    "resultsCount": "{count, plural, =0 {Geen fiche} one {# fiche} other {# fiches}}",
+    "empty": {
+      "pending": "Geen fiche wacht op toestemming.",
+      "linked": "Geen gekoppelde fiche."
+    },
+    "emptyDescription": "Wijzig het filter of kom terug na de volgende import.",
+    "filters": {
+      "status": "Weergave",
+      "pending": "Wacht op toestemming",
+      "linked": "Gekoppeld"
+    },
+    "columns": {
+      "supplier": "Leveranciersfiche",
+      "products": "Producten",
+      "suggestion": "Voorstel",
+      "organization": "Organisatie",
+      "linkedTo": "Organisatie",
+      "agreement": "Toestemming",
+      "actions": "Acties"
+    },
+    "match": {
+      "email": "{name} (zelfde e-mail)",
+      "domain": "{name} (zelfde domein)"
+    },
+    "noSuggestion": "Geen overeenkomst",
+    "chooseOrganization": "Kies een organisatie",
+    "organizationLabel": "Organisatie om aan {name} te koppelen",
+    "link": "Koppelen",
+    "unlink": "Ontkoppelen",
+    "confirmUnlink": "{name} ontkoppelen? De producten worden van de site verwijderd.",
+    "by": "door {email}",
+    "noAgreementDate": "Eerder gekoppeld",
+    "linked": "Fiche gekoppeld: de catalogus is gepubliceerd.",
+    "unlinked": "Fiche ontkoppeld: de producten worden van de site verwijderd.",
+    "errors": {
+      "alreadyLinked": "Deze fiche is al aan een organisatie gekoppeld. Ontkoppel haar eerst.",
+      "invalidOrganization": "Kies een actieve leveranciersorganisatie.",
+      "notLinked": "Deze fiche is aan geen enkele organisatie gekoppeld."
+    }
+  },
   "users": {
     "title": "Gebruikers",
     "subtitle": "Alle accounts op het platform.",
@@ -447,6 +491,8 @@
       "organization.member_removed": "Lid verwijderd",
       "organization.invitation_revoked": "Uitnodiging ingetrokken",
       "organization.invitation_resent": "Uitnodiging opnieuw verzonden",
+      "supplier.linked": "Leveranciersfiche gekoppeld",
+      "supplier.unlinked": "Leveranciersfiche ontkoppeld",
       "product.hidden": "Product verborgen",
       "product.unhidden": "Product zichtbaar gemaakt",
       "product.unpublished": "Publicatie van product ingetrokken",
@@ -495,6 +541,7 @@
       "attribute": "Attribuut",
       "attribute_value": "Attribuutwaarde",
       "organization": "Organisatie",
+      "supplier": "Leveranciersfiche",
       "product": "Product",
       "rfq": "Offerteaanvraag",
       "certification": "Certificering",

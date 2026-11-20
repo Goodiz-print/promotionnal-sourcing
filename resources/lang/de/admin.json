@@ -2,6 +2,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "organizations": "Organisationen",
+    "supplierLinks": "Lieferantenzuordnung",
     "users": "Benutzer",
     "products": "Produkte",
     "categories": "Kategorien",
@@ -274,6 +275,49 @@
       }
     }
   },
+  "supplierLinks": {
+    "title": "Zuordnung der Lieferanteneinträge",
+    "subtitle": "Importierte Einträge, die auf die Zustimmung des Lieferanten warten. Die Zuordnung zu seiner Organisation gilt als Zustimmung und veröffentlicht den Katalog.",
+    "resultsCount": "{count, plural, =0 {Kein Eintrag} one {# Eintrag} other {# Einträge}}",
+    "empty": {
+      "pending": "Kein Eintrag wartet auf Zustimmung.",
+      "linked": "Kein zugeordneter Eintrag."
+    },
+    "emptyDescription": "Ändern Sie den Filter oder schauen Sie nach dem nächsten Import wieder vorbei.",
+    "filters": {
+      "status": "Anzeige",
+      "pending": "Zustimmung ausstehend",
+      "linked": "Zugeordnet"
+    },
+    "columns": {
+      "supplier": "Lieferanteneintrag",
+      "products": "Produkte",
+      "suggestion": "Vorschlag",
+      "organization": "Organisation",
+      "linkedTo": "Organisation",
+      "agreement": "Zustimmung",
+      "actions": "Aktionen"
+    },
+    "match": {
+      "email": "{name} (gleiche E-Mail)",
+      "domain": "{name} (gleiche Domain)"
+    },
+    "noSuggestion": "Keine Übereinstimmung",
+    "chooseOrganization": "Organisation wählen",
+    "organizationLabel": "Organisation für {name}",
+    "link": "Zuordnen",
+    "unlink": "Trennen",
+    "confirmUnlink": "{name} trennen? Die Produkte werden von der Website entfernt.",
+    "by": "von {email}",
+    "noAgreementDate": "Früher zugeordnet",
+    "linked": "Eintrag zugeordnet: der Katalog ist veröffentlicht.",
+    "unlinked": "Eintrag getrennt: die Produkte werden von der Website entfernt.",
+    "errors": {
+      "alreadyLinked": "Dieser Eintrag ist bereits einer Organisation zugeordnet. Trennen Sie ihn zuerst.",
+      "invalidOrganization": "Wählen Sie eine aktive Lieferantenorganisation.",
+      "notLinked": "Dieser Eintrag ist keiner Organisation zugeordnet."
+    }
+  },
   "users": {
     "title": "Benutzer",
     "subtitle": "Alle Konten der Plattform.",
@@ -456,6 +500,8 @@
       "organization.member_removed": "Mitglied entfernt",
       "organization.invitation_revoked": "Einladung widerrufen",
       "organization.invitation_resent": "Einladung erneut gesendet",
+      "supplier.linked": "Lieferanteneintrag zugeordnet",
+      "supplier.unlinked": "Lieferanteneintrag getrennt",
       "product.hidden": "Produkt ausgeblendet",
       "product.unhidden": "Produkt eingeblendet",
       "product.unpublished": "Veröffentlichung des Produkts aufgehoben",
@@ -498,6 +544,7 @@
       "marking_technique": "Markierungstechnik",
       "category_attribute": "Kategorie-Attribut",
       "organization": "Organisation",
+      "supplier": "Lieferanteneintrag",
       "product": "Produkt",
       "rfq": "Angebotsanfrage",
       "conversation": "Conversation",

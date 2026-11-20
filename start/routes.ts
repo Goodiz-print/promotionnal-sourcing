@@ -597,6 +597,23 @@ router
                   ])
                   .as('admin.moderation.decide')
 
+                // Rattachement des fiches fournisseur importées à l'organisation du
+                // fournisseur (#231) : le rattachement vaut accord et publie le catalogue.
+                router
+                  .get('admin/supplier-links', [controllers.admin.SupplierLink, 'index'])
+                  .as('admin.supplier_links.index')
+                router
+                  .post('admin/supplier-links/:id/link', [controllers.admin.SupplierLink, 'link'])
+                  .where('id', router.matchers.number())
+                  .as('admin.supplier_links.link')
+                router
+                  .delete('admin/supplier-links/:id/link', [
+                    controllers.admin.SupplierLink,
+                    'unlink',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.supplier_links.unlink')
+
                 // Revue des inscriptions agence : file, fiche, décision.
                 router
                   .get('admin/agency-reviews', [controllers.admin.AgencyReview, 'index'])

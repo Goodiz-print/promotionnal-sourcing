@@ -2,6 +2,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "organizations": "Organizations",
+    "supplierLinks": "Supplier linking",
     "users": "Users",
     "products": "Products",
     "categories": "Categories",
@@ -274,6 +275,49 @@
       }
     }
   },
+  "supplierLinks": {
+    "title": "Supplier listing linking",
+    "subtitle": "Imported listings awaiting the supplier's consent. Linking them to its organization records that consent and publishes their catalogue.",
+    "resultsCount": "{count, plural, =0 {No listing} one {# listing} other {# listings}}",
+    "empty": {
+      "pending": "No listing awaiting consent.",
+      "linked": "No linked listing."
+    },
+    "emptyDescription": "Change the filter or come back after the next import.",
+    "filters": {
+      "status": "Show",
+      "pending": "Awaiting consent",
+      "linked": "Linked"
+    },
+    "columns": {
+      "supplier": "Supplier listing",
+      "products": "Products",
+      "suggestion": "Suggestion",
+      "organization": "Organization",
+      "linkedTo": "Organization",
+      "agreement": "Consent",
+      "actions": "Actions"
+    },
+    "match": {
+      "email": "{name} (same email)",
+      "domain": "{name} (same domain)"
+    },
+    "noSuggestion": "No match",
+    "chooseOrganization": "Choose an organization",
+    "organizationLabel": "Organization to link to {name}",
+    "link": "Link",
+    "unlink": "Unlink",
+    "confirmUnlink": "Unlink {name}? Its products will be removed from the site.",
+    "by": "by {email}",
+    "noAgreementDate": "Linked earlier",
+    "linked": "Listing linked: its catalogue is published.",
+    "unlinked": "Listing unlinked: its products are removed from the site.",
+    "errors": {
+      "alreadyLinked": "This listing is already linked to an organization. Unlink it first.",
+      "invalidOrganization": "Choose an active supplier organization.",
+      "notLinked": "This listing is not linked to any organization."
+    }
+  },
   "users": {
     "title": "Users",
     "subtitle": "Every account on the platform.",
@@ -456,6 +500,8 @@
       "organization.member_removed": "Member removed",
       "organization.invitation_revoked": "Invitation revoked",
       "organization.invitation_resent": "Invitation resent",
+      "supplier.linked": "Supplier listing linked",
+      "supplier.unlinked": "Supplier listing unlinked",
       "product.hidden": "Product hidden",
       "product.unhidden": "Product unhidden",
       "product.unpublished": "Product unpublished",
@@ -498,6 +544,7 @@
       "marking_technique": "Marking technique",
       "category_attribute": "Category attribute",
       "organization": "Organization",
+      "supplier": "Supplier listing",
       "product": "Product",
       "rfq": "Quote request",
       "conversation": "Conversation",

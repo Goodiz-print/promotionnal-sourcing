@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */
+ 
 import type { routes } from './index.ts'
 
 export interface ApiDefinition {
@@ -330,6 +330,11 @@ export interface ApiDefinition {
       index: typeof routes['admin.moderation.index']
       show: typeof routes['admin.moderation.show']
       decide: typeof routes['admin.moderation.decide']
+    }
+    supplierLinks: {
+      index: typeof routes['admin.supplier_links.index']
+      link: typeof routes['admin.supplier_links.link']
+      unlink: typeof routes['admin.supplier_links.unlink']
     }
     agencyReviews: {
       index: typeof routes['admin.agency_reviews.index']
