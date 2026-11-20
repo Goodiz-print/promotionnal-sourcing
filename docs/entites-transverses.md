@@ -80,8 +80,13 @@ Une alerte urgente ne doit pas rester invisible tant que son destinataire ne se 
 pas. Certains types sont donc « à rappeler » :
 
 - **Politique** : `NOTIFICATION_EMAIL_FALLBACK` (`shared/types/notification.ts`) associe un
-  type à son délai (`delayMinutes`). Premier type branché :
-  `subscription.duplicate_cancelled`, 30 minutes. Un type absent n'envoie jamais de mail.
+  type à son délai (`delayMinutes`) et, au besoin, au rôle plateforme que le destinataire doit
+  encore avoir (`recipientPlatformRole`). Premier type branché :
+  `subscription.duplicate_cancelled`, 30 minutes, administrateurs uniquement. Un type absent
+  n'envoie jamais de mail.
+- **Âge maximal** : une notification plus vieille que `NOTIFICATION_REMINDER_MAX_AGE_HOURS`
+  (7 jours) n'est plus rappelée. Brancher un type n'envoie donc pas de rafale pour un vieil
+  historique.
 - **Job** : `SendNotificationRemindersJob`, toutes les 5 minutes (`start/scheduler.ts`,
   planning `send-notification-reminders`, lançable depuis le back-office). Il appelle
   `NotificationReminderService#sendDue`.
@@ -91,10 +96,15 @@ email_reminded_at` sur une sélection `FOR UPDATE SKIP LOCKED`, puis le mail est
   dans la même transaction. Deux passes concurrentes ne prennent jamais la même ligne ; un
   rejeu du mail est absorbé par sa clé d'idempotence (`notification-reminder:notification=<id>`).
   Une notification lue avant le délai n'envoie rien.
+- **Échec de mise en queue** : isolé ligne par ligne. Seule la notification en échec est
+  libérée (`email_reminded_at` remis à null, reprise à la passe suivante) ; les autres mails du
+  lot gardent leur réservation. Lots de 50 par type et par passe.
 - **Mail** : `notification-reminder` (`NotificationReminderNotification`). Il reprend le texte
   de la notification (`notifications.types.<type>`) dans la langue du destinataire et pointe
   vers le même écran que la cloche (`notificationHref`, préfixé par `appUrl`). Le libellé du
-  type doit donc exister dans les 9 langues.
+  type doit donc exister dans les 9 langues (vérifié par `tests/unit/mail_templates.spec.ts`).
+  Si le libellé manque ou ne peut pas être formaté (paramètre absent de `data`), le mail part
+  sans ce texte, avec son lien, plutôt que d'échouer.
 - Brancher un type : une entrée dans `NOTIFICATION_EMAIL_FALLBACK` (et son libellé dans les
   9 `notifications.json`). Ni réglage utilisateur, ni second rappel, ni regroupement.
 - **Index** : `notifications_pending_email_reminder_index`, partiel

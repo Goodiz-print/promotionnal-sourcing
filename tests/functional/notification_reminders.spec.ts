@@ -4,13 +4,17 @@ import app from '@adonisjs/core/services/app'
 import mail from '@adonisjs/mail/services/main'
 import { NotificationFactory } from '#database/factories/notification_factory'
 import { UserFactory } from '#database/factories/user_factory'
+import SendMailJob from '#jobs/send_mail_job'
 import SendNotificationRemindersJob from '#jobs/send_notification_reminders_job'
 import NotificationReminderNotification from '#mails/notification_reminder_notification'
 import Notification from '#models/notification'
 import type User from '#models/user'
 import NotificationReminderService from '#services/notification_reminder_service'
 import type { Locale } from '#shared/types/i18n'
-import type { NotificationType } from '#shared/types/notification'
+import {
+  NOTIFICATION_REMINDER_MAX_AGE_HOURS,
+  type NotificationType,
+} from '#shared/types/notification'
 import { useDatabase } from '#tests/utils/setup'
 
 interface SentReminder {
@@ -24,6 +28,24 @@ const DUPLICATE_DATA = {
   organizationId: 42,
   organizationName: 'Acme',
   cancelledSubscriptionId: 'sub_dup',
+}
+
+/**
+ * Fait échouer la mise en queue du `failOn`-ième mail (1-indexé) le temps de `run`.
+ */
+async function withFailingDispatch<T>(failOn: number, run: () => Promise<T>): Promise<T> {
+  const original = SendMailJob.dispatch
+  let calls = 0
+  SendMailJob.dispatch = ((...args: Parameters<typeof original>) => {
+    calls++
+    if (calls === failOn) throw new Error('queue unavailable')
+    return original.apply(SendMailJob, args)
+  }) as typeof original
+  try {
+    return await run()
+  } finally {
+    SendMailJob.dispatch = original
+  }
 }
 
 async function adminWith(locale: Locale = 'fr'): Promise<User> {
@@ -153,5 +175,99 @@ test.group('Notifications — rappel par mail des notifications non lues (#243)'
       message.build()
       return message.message.hasSubject('Action needed: an important notification is still unread')
     })
+  })
+
+  test('un échec de mise en queue ne libère que sa notification, les autres gardent leur rappel', async ({
+    assert,
+  }) => {
+    const admin = await adminWith()
+    const notifications = [
+      await notificationFor(admin),
+      await notificationFor(admin),
+      await notificationFor(admin),
+    ]
+    const service = await app.container.make(NotificationReminderService)
+    const later = DateTime.now().plus({ minutes: 31 })
+
+    assert.equal(await withFailingDispatch(2, () => service.sendDue(later)), 2)
+    assert.lengthOf(reminders(), 2)
+
+    for (const notification of notifications) await notification.refresh()
+    const released = notifications.filter((n) => n.emailRemindedAt === null)
+    assert.lengthOf(released, 1)
+
+    // La passe suivante reprend la seule notification libérée.
+    assert.equal(await service.sendDue(later), 1)
+    assert.lengthOf(reminders(), 3)
+    await released[0].refresh()
+    assert.isNotNull(released[0].emailRemindedAt)
+  })
+
+  test('un destinataire qui n’a plus le rôle requis ne reçoit pas de rappel', async ({
+    assert,
+  }) => {
+    const former = await adminWith()
+    await notificationFor(former)
+    former.platformRole = 'none'
+    await former.save()
+    const service = await app.container.make(NotificationReminderService)
+
+    assert.equal(await service.sendDue(DateTime.now().plus({ minutes: 31 })), 0)
+    assert.lengthOf(reminders(), 0)
+  })
+
+  test('une notification trop ancienne n’est plus rappelée', async ({ assert }) => {
+    const admin = await adminWith()
+    await notificationFor(admin)
+    const service = await app.container.make(NotificationReminderService)
+
+    assert.equal(
+      await service.sendDue(
+        DateTime.now().plus({ hours: NOTIFICATION_REMINDER_MAX_AGE_HOURS + 1 })
+      ),
+      0
+    )
+    assert.lengthOf(reminders(), 0)
+  })
+})
+
+/**
+ * Passes réellement concurrentes : sans transaction globale (`perTest: false`),
+ * chaque `sendDue` a sa propre connexion et sa propre transaction, et
+ * `FOR UPDATE SKIP LOCKED` départage les lignes. Les données restent en base
+ * jusqu'à la remise à zéro du groupe suivant.
+ */
+test.group('Notifications — rappels sur passes concurrentes (#243)', (group) => {
+  useDatabase(group, { perTest: false })
+
+  test('deux passes simultanées n’envoient chaque rappel qu’une fois', async ({ assert }) => {
+    const { mails } = mail.fake()
+    try {
+      const admin = await adminWith()
+      const created = await NotificationFactory.merge({
+        userId: admin.id,
+        type: 'subscription.duplicate_cancelled',
+        data: DUPLICATE_DATA,
+      }).createMany(12)
+      const service = await app.container.make(NotificationReminderService)
+      const later = DateTime.now().plus({ minutes: 31 })
+
+      const [first, second] = await Promise.all([service.sendDue(later), service.sendDue(later)])
+
+      assert.equal(first + second, created.length)
+      assert.lengthOf(
+        mails.sent((m) => m instanceof NotificationReminderNotification),
+        created.length
+      )
+      const pending = await Notification.query()
+        .whereIn(
+          'id',
+          created.map((n) => n.id)
+        )
+        .whereNull('emailRemindedAt')
+      assert.lengthOf(pending, 0)
+    } finally {
+      mail.restore()
+    }
   })
 })

@@ -6,14 +6,22 @@ import { notificationHref } from '#transformers/notification_transformer'
 import { mailIdempotencyKey } from '#shared/helpers/mail'
 import { DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
 import { MAIL_KINDS, type SendMailPayload } from '#shared/types/mail'
+import logger from '@adonisjs/core/services/logger'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import {
   NOTIFICATION_EMAIL_FALLBACK,
+  NOTIFICATION_REMINDER_MAX_AGE_HOURS,
+  type NotificationEmailFallbackPolicy,
   type NotificationData,
   type NotificationType,
 } from '#shared/types/notification'
 
-/** Nombre maximal de rappels réservés par type et par passe. */
-const BATCH_SIZE = 200
+/**
+ * Nombre maximal de rappels réservés par type et par passe. Petit : les lignes
+ * restent verrouillées le temps de leur mise en queue (un `markRead` simultané
+ * attend la fin de la transaction).
+ */
+const BATCH_SIZE = 50
 
 interface DueReminderRow {
   id: number
@@ -37,6 +45,15 @@ interface DueReminderRow {
  * échoue, la réservation est annulée et la passe suivante reprend la
  * notification. La clé d'idempotence par notification couvre les rejeux du mail.
  *
+ * Échec de mise en queue : il est isolé **ligne par ligne**. Seule la ligne en
+ * échec est libérée (`email_reminded_at` remis à null, reprise à la passe
+ * suivante) ; les mails déjà mis en queue du lot gardent leur réservation, ce qui
+ * empêche une seconde mise en queue pendant que le premier envoi est en retry.
+ *
+ * Bornes : une notification plus vieille que `NOTIFICATION_REMINDER_MAX_AGE_HOURS`
+ * n'est plus rappelée, et `recipientPlatformRole` exclut un destinataire qui n'a
+ * plus le rôle requis.
+ *
  * Accès par `db` uniquement (aucun modèle Lucid) : le service est importé
  * statiquement par `SendNotificationRemindersJob`, chargé au boot de la queue.
  */
@@ -47,42 +64,73 @@ export default class NotificationReminderService {
     let sent = 0
     for (const [type, policy] of Object.entries(NOTIFICATION_EMAIL_FALLBACK)) {
       if (!policy) continue
-      const cutoff = now.minus({ minutes: policy.delayMinutes })
-      sent += await this.sendForType(type as NotificationType, cutoff, now)
+      sent += await this.sendForType(type as NotificationType, policy, now)
     }
     return sent
   }
 
   private async sendForType(
     type: NotificationType,
-    cutoff: DateTime,
+    policy: NotificationEmailFallbackPolicy,
     now: DateTime
   ): Promise<number> {
     return db.transaction(async (trx) => {
-      const result = await trx.rawQuery<{ rows: DueReminderRow[] }>(
-        `UPDATE notifications AS n
-            SET email_reminded_at = :now
-           FROM users AS u
-          WHERE u.id = n.user_id
-            AND n.id IN (
-              SELECT id FROM notifications
-               WHERE type = :type
-                 AND read_at IS NULL
-                 AND email_reminded_at IS NULL
-                 AND created_at <= :cutoff
-               ORDER BY id
-               LIMIT :limit
-                 FOR UPDATE SKIP LOCKED
-            )
-        RETURNING n.id, n.type, n.data, u.email, u.locale`,
-        { now: now.toJSDate(), type, cutoff: cutoff.toJSDate(), limit: BATCH_SIZE }
-      )
-
-      for (const row of result.rows) {
-        await SendMailJob.dispatch(this.payloadFor(row))
+      const rows = await this.reserve(trx, type, policy, now)
+      let sent = 0
+      for (const row of rows) {
+        try {
+          await SendMailJob.dispatch(this.payloadFor(row))
+          sent++
+        } catch (error) {
+          logger.warn(
+            { err: error, notificationId: row.id },
+            'notification reminder not queued, released for the next run'
+          )
+          await trx.from('notifications').where('id', row.id).update({ email_reminded_at: null })
+        }
       }
-      return result.rows.length
+      return sent
     })
+  }
+
+  /** Réserve (verrouille et marque) les notifications dues du type. */
+  private async reserve(
+    trx: TransactionClientContract,
+    type: NotificationType,
+    policy: NotificationEmailFallbackPolicy,
+    now: DateTime
+  ): Promise<DueReminderRow[]> {
+    const role = policy.recipientPlatformRole
+    const roleClause = role ? 'AND uu.platform_role = :role' : ''
+    const result = await trx.rawQuery<{ rows: DueReminderRow[] }>(
+      `UPDATE notifications AS n
+          SET email_reminded_at = :now
+         FROM users AS u
+        WHERE u.id = n.user_id
+          AND n.id IN (
+            SELECT nn.id FROM notifications AS nn
+              JOIN users AS uu ON uu.id = nn.user_id
+             WHERE nn.type = :type
+               AND nn.read_at IS NULL
+               AND nn.email_reminded_at IS NULL
+               AND nn.created_at <= :cutoff
+               AND nn.created_at > :oldest
+               ${roleClause}
+             ORDER BY nn.id
+             LIMIT :limit
+               FOR UPDATE OF nn SKIP LOCKED
+          )
+      RETURNING n.id, n.type, n.data, u.email, u.locale`,
+      {
+        now: now.toJSDate(),
+        type,
+        cutoff: now.minus({ minutes: policy.delayMinutes }).toJSDate(),
+        oldest: now.minus({ hours: NOTIFICATION_REMINDER_MAX_AGE_HOURS }).toJSDate(),
+        limit: BATCH_SIZE,
+        ...(role ? { role } : {}),
+      }
+    )
+    return result.rows
   }
 
   private payloadFor(row: DueReminderRow): SendMailPayload {

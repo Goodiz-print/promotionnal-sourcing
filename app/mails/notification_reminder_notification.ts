@@ -1,3 +1,4 @@
+import logger from '@adonisjs/core/services/logger'
 import LocalizedMail from '#mails/localized_mail'
 import type { Locale } from '#shared/types/i18n'
 import type { NotificationData, NotificationType } from '#shared/types/notification'
@@ -19,9 +20,23 @@ export default class NotificationReminderNotification extends LocalizedMail {
     super(locale)
   }
 
-  /** Texte de la notification, tel que la cloche l'affiche. */
-  get notificationMessage(): string {
-    return this.i18n.t(`notifications.types.${this.notificationType}`, this.notificationData)
+  /**
+   * Texte de la notification, tel que la cloche l'affiche. `null` si le libellé
+   * manque ou ne peut pas être formaté (paramètre ICU absent de `data`) : le mail part
+   * alors sans ce texte, avec son lien, plutôt que d'échouer à chaque tentative.
+   */
+  get notificationMessage(): string | null {
+    const key = `notifications.types.${this.notificationType}`
+    if (!this.i18n.hasMessage(key) && !this.i18n.hasFallbackMessage(key)) return null
+    try {
+      return this.i18n.formatMessage(key, this.notificationData)
+    } catch (error) {
+      logger.warn(
+        { err: error, notificationType: this.notificationType },
+        'notification reminder message could not be formatted'
+      )
+      return null
+    }
   }
 
   prepare() {

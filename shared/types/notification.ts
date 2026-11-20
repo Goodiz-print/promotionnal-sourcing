@@ -1,3 +1,5 @@
+import type { PlatformRole } from './user.js'
+
 /**
  * Types de notification in-app. Le type est une chaîne en base (pas un enum
  * SQL) : ajouter un type = ajouter une entrée ici, sans migration. Le `data`
@@ -55,7 +57,20 @@ export type NotificationItemType = {
 export interface NotificationEmailFallbackPolicy {
   /** Délai (minutes) après la création au-delà duquel une notification non lue déclenche le mail. */
   delayMinutes: number
+  /**
+   * Rôle plateforme que le destinataire doit **encore** avoir au moment du rappel
+   * (alerte réservée à l'équipe plateforme). Un utilisateur rétrogradé entre-temps
+   * ne reçoit pas de mail menant à un écran qui lui est désormais refusé.
+   */
+  recipientPlatformRole?: PlatformRole
 }
+
+/**
+ * Âge maximal (heures) d'une notification pour son rappel : au-delà, plus aucun
+ * mail ne part. Évite, au déploiement d'une politique, une rafale de rappels pour
+ * des notifications anciennes, et borne la sélection du job.
+ */
+export const NOTIFICATION_REMINDER_MAX_AGE_HOURS = 7 * 24
 
 /**
  * Types « à rappeler » : une notification de ces types encore non lue après
@@ -65,5 +80,5 @@ export interface NotificationEmailFallbackPolicy {
 export const NOTIFICATION_EMAIL_FALLBACK: Partial<
   Record<NotificationType, NotificationEmailFallbackPolicy>
 > = {
-  'subscription.duplicate_cancelled': { delayMinutes: 30 },
+  'subscription.duplicate_cancelled': { delayMinutes: 30, recipientPlatformRole: 'admin' },
 }
