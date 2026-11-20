@@ -3,6 +3,7 @@ import db from '@adonisjs/lucid/services/db'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import AdminAuditService from '#services/admin_audit_service'
 import ManualSubscriptionService from '#services/manual_subscription_service'
+import SubscriptionMailService from '#services/subscription_mail_service'
 import type OrganizationSubscription from '#models/organization_subscription'
 import { SubscriptionNotEditableException } from '#exceptions/subscription_errors'
 import type {
@@ -31,18 +32,26 @@ interface ChangeOptions {
 export default class AdminSubscriptionService {
   constructor(
     private manual: ManualSubscriptionService,
-    private audit: AdminAuditService
+    private audit: AdminAuditService,
+    private mails: SubscriptionMailService
   ) {}
 
-  create(input: ManualSubscriptionInput, context: AdminActionContext) {
-    return db.transaction(async (trx) => {
-      const subscription = await this.manual.create(input, trx)
-      await this.audit.record(auditEntry('subscription.created', subscription), {
+  /**
+   * Crée l'abonnement et le trace. Actif tout de suite, il est annoncé au
+   * fournisseur **après** le commit (#237) ; programmé, le job l'annoncera à son
+   * activation.
+   */
+  async create(input: ManualSubscriptionInput, context: AdminActionContext) {
+    const subscription = await db.transaction(async (trx) => {
+      const created = await this.manual.create(input, trx)
+      await this.audit.record(auditEntry('subscription.created', created), {
         ...context,
         client: trx,
       })
-      return subscription
+      return created
     })
+    if (subscription.status === 'active') await this.mails.notifyActivations()
+    return subscription
   }
 
   extend(extension: ManualSubscriptionExtension, context: AdminActionContext) {

@@ -7,7 +7,7 @@ sur la page tarifs (`SUBSCRIPTION_FEATURES`, `shared/types/subscription.ts`).
 
 Ce document couvre la **donnée d'abonnement**, la **saisie manuelle par l'admin**
 avec activation et expiration automatiques (#214) et la **souscription en ligne**
-(#215). Les mails d'activation et de rappel relèvent de #237.
+(#215), ainsi que les **mails d'activation et de rappel** (#237).
 
 ## Donnée
 
@@ -87,6 +87,37 @@ formulaire de saisie n'apparaît que lorsqu'aucun abonnement n'est ouvert. Droit
   l'abonnement qui se termine. Si l'organisation a souscrit en ligne entre-temps,
   l'abonnement programmé reste en attente (log `warn`) et l'admin arbitre.
   Idempotent ; les abonnements en ligne ne sont jamais touchés.
+
+## Mails d'abonnement (#237)
+
+Abonnements **manuels** uniquement : un abonnement en ligne est renouvelé par
+Stripe, qui envoie ses propres reçus. Destinataires : owner et admin de
+l'organisation fournisseur, chacun dans sa langue (`users.locale`). Service
+`SubscriptionMailService` (accès `db` seul, injecté dans `SyncSubscriptionsJob`), appelé par le job après l'activation
+et l'expiration.
+
+- **Activation** (`subscription-activated`) : formule, période (dernier jour
+  inclus) et droits ouverts par la formule (lignes incluses de la grille
+  tarifaire). Part après le commit quand l'admin saisit un abonnement qui
+  commence aujourd'hui, sinon au passage du job qui l'active. Une seule fois par
+  abonnement (`activation_notified_at`).
+- **Rappels** (`subscription-expiring`) : 7 jours avant la fin pour tout
+  abonnement, et 30 jours avant en plus pour un abonnement **annuel** (au moins
+  12 mois entre début et fin, `ANNUAL_SUBSCRIPTION_MIN_MONTHS` ; saisi à la main,
+  un abonnement n'a pas de périodicité de facturation). Le lien mène à la page
+  tarifs pour renouveler. Règle pure `dueReminderDays` (`shared/helpers/subscription.ts`) :
+  - parmi les délais atteints, seul le plus proche de la fin part : un job qui a
+    manqué le rappel à 30 jours n'envoie que celui à 7 jours ;
+  - un délai plus long que l'abonnement lui-même est ignoré ;
+  - le dernier rappel est noté **pour une date de fin** (`reminded_ends_at`,
+    `reminded_days`) : une prolongation fait repartir les rappels pour la
+    nouvelle date et aucun ne part pour l'ancienne ; un abonnement résilié ou
+    expiré n'en reçoit plus.
+- **Une seule fois** : chaque envoi est réservé en base par une mise à jour
+  conditionnelle avant la mise en queue (deux passages concurrents ne réservent
+  pas le même mail), puis dédoublonné par la clé d'idempotence de `SendMailJob`
+  (`subscription-activated:subscription=<id>:to=…`,
+  `subscription-expiring:days=<n>:ends=<ms>:subscription=<id>:to=…`).
 
 ## Souscription en ligne (Stripe Billing)
 
@@ -203,6 +234,11 @@ Côté tableau de bord Stripe :
 
 ## Tests
 
+- `tests/functional/subscription_mails.spec.ts` : activation (une fois, responsables
+  seulement, immédiate à la saisie admin, ni programmé ni en ligne), rappels
+  mensuel et annuel, prolongation, résiliation, double passage.
+- `tests/unit/subscription_reminders.spec.ts` : jours à l'heure de Paris,
+  abonnement annuel, rappel dû.
 - `tests/functional/manual_subscriptions.spec.ts` : saisie admin (active,
   programmée, refus d'un second abonnement, dates incohérentes, organisation
   acheteuse, 403 sans droit), prolongation, résiliation, abonnement en ligne non

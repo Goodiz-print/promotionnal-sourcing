@@ -85,5 +85,23 @@
     "intro": "Esta notificación se te envió en {brandName} y aún no se ha leído:",
     "cta": "Abrir la página correspondiente",
     "footer": "Recibes este recordatorio una sola vez. Deja de enviarse en cuanto se lee la notificación."
+  },
+  "subscriptionActivated": {
+    "subject": "Tu suscripción {planName} está activa",
+    "title": "Suscripción {planName} activada",
+    "intro": "La suscripción {planName} de {organizationName} está activa en {brandName}.",
+    "period": "Cubre el periodo del {startsOn} al {endsOn}, ambos incluidos.",
+    "since": "Está activa desde el {startsOn}.",
+    "features": "Tu plan incluye:",
+    "cta": "Ver mi suscripción",
+    "footer": "Recibes este correo como responsable de la organización."
+  },
+  "subscriptionExpiring": {
+    "subject": "Tu suscripción {planName} termina el {endsOn}",
+    "title": "Tu suscripción {planName} termina en {daysLeft, plural, one {# día} other {# días}}",
+    "intro": "La suscripción {planName} de {organizationName} termina el {endsOn}.",
+    "after": "Si no la renuevas, tu organización volverá al plan gratuito: la identidad de las agencias dejará de verse en tus solicitudes de presupuesto y en tus estadísticas.",
+    "cta": "Renovar mi suscripción",
+    "footer": "Recibes este recordatorio como responsable de la organización."
   }
 }

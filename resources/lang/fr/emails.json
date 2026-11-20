@@ -85,5 +85,23 @@
     "intro": "Cette notification vous a été envoyée sur {brandName} et n'a pas encore été lue :",
     "cta": "Ouvrir l'écran concerné",
     "footer": "Vous recevez ce rappel une seule fois. Il n'est plus envoyé dès que la notification est lue."
+  },
+  "subscriptionActivated": {
+    "subject": "Votre abonnement {planName} est actif",
+    "title": "Abonnement {planName} activé",
+    "intro": "L'abonnement {planName} de {organizationName} est actif sur {brandName}.",
+    "period": "Il couvre la période du {startsOn} au {endsOn} inclus.",
+    "since": "Il est actif depuis le {startsOn}.",
+    "features": "Votre formule comprend :",
+    "cta": "Voir mon abonnement",
+    "footer": "Vous recevez ce mail en tant que responsable de l'organisation."
+  },
+  "subscriptionExpiring": {
+    "subject": "Votre abonnement {planName} se termine le {endsOn}",
+    "title": "Votre abonnement {planName} se termine dans {daysLeft, plural, one {# jour} other {# jours}}",
+    "intro": "L'abonnement {planName} de {organizationName} se termine le {endsOn}.",
+    "after": "Sans renouvellement, votre organisation repassera en formule gratuite : l'identité des agences ne sera plus visible sur vos demandes de devis ni dans vos statistiques.",
+    "cta": "Renouveler mon abonnement",
+    "footer": "Vous recevez ce rappel en tant que responsable de l'organisation."
   }
 }
