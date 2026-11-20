@@ -30,13 +30,11 @@ async function subscribe(org: Organization) {
   await OrganizationSubscriptionFactory.merge({ organizationId: org.id }).create()
 }
 
-async function contact(org: Organization, name: string, countries: string[], position = 0) {
-  return SupplierContactFactory.merge({
-    organizationId: org.id,
-    name,
-    countries,
-    position,
-  }).create()
+async function contact(
+  org: Organization,
+  fields: { name: string; countries: string[]; position?: number }
+) {
+  return SupplierContactFactory.merge({ position: 0, ...fields, organizationId: org.id }).create()
 }
 
 function names(contacts: { name: string }[]): string[] {
@@ -52,7 +50,7 @@ test.group('Contacts commerciaux — règle d’affichage', (group) => {
     const service = await app.container.make(SupplierContactService)
     const org = await supplierOrg()
     await subscribe(org)
-    await contact(org, 'Claire', ['FR'])
+    await contact(org, { name: 'Claire', countries: ['FR'] })
 
     assert.deepEqual(await service.visibleFor(org.id, null), [])
   })
@@ -62,7 +60,7 @@ test.group('Contacts commerciaux — règle d’affichage', (group) => {
   }) => {
     const service = await app.container.make(SupplierContactService)
     const org = await supplierOrg()
-    await contact(org, 'Claire', ['FR'])
+    await contact(org, { name: 'Claire', countries: ['FR'] })
 
     assert.deepEqual(await service.visibleFor(org.id, viewer('FR')), [])
 
@@ -81,9 +79,9 @@ test.group('Contacts commerciaux — règle d’affichage', (group) => {
     const service = await app.container.make(SupplierContactService)
     const org = await supplierOrg()
     await subscribe(org)
-    await contact(org, 'Claire', ['FR', 'BE'])
-    await contact(org, 'Ana', ['RO'])
-    await contact(org, 'Export', [])
+    await contact(org, { name: 'Claire', countries: ['FR', 'BE'] })
+    await contact(org, { name: 'Ana', countries: ['RO'] })
+    await contact(org, { name: 'Export', countries: [] })
 
     assert.deepEqual(names(await service.visibleFor(org.id, viewer('FR'))), ['Claire', 'Export'])
     // Le pays de l'agence est comparé sans tenir compte de la casse.
@@ -94,8 +92,8 @@ test.group('Contacts commerciaux — règle d’affichage', (group) => {
     const service = await app.container.make(SupplierContactService)
     const org = await supplierOrg()
     await subscribe(org)
-    await contact(org, 'Ana', ['RO'])
-    await contact(org, 'Hans', ['DE'])
+    await contact(org, { name: 'Ana', countries: ['RO'] })
+    await contact(org, { name: 'Hans', countries: ['DE'] })
 
     assert.deepEqual(names(await service.visibleFor(org.id, viewer('FR'))), ['Ana', 'Hans'])
     assert.deepEqual(names(await service.visibleFor(org.id, viewer(null))), ['Ana', 'Hans'])
@@ -105,8 +103,8 @@ test.group('Contacts commerciaux — règle d’affichage', (group) => {
     const service = await app.container.make(SupplierContactService)
     const org = await supplierOrg()
     await subscribe(org)
-    await contact(org, 'Claire', ['FR'])
-    await contact(org, 'Ana', ['RO'])
+    await contact(org, { name: 'Claire', countries: ['FR'] })
+    await contact(org, { name: 'Ana', countries: ['RO'] })
     await service.setShowAllContacts(org.id, true)
 
     assert.deepEqual(names(await service.visibleFor(org.id, viewer('FR'))), ['Ana', 'Claire'])
@@ -116,8 +114,8 @@ test.group('Contacts commerciaux — règle d’affichage', (group) => {
     const service = await app.container.make(SupplierContactService)
     const org = await supplierOrg()
     await subscribe(org)
-    await contact(org, 'Second', [], 1)
-    await contact(org, 'Premier', [], 0)
+    await contact(org, { name: 'Second', countries: [], position: 1 })
+    await contact(org, { name: 'Premier', countries: [], position: 0 })
 
     const visible = await service.visibleFor(org.id, viewer('FR'))
     assert.deepEqual(
@@ -130,15 +128,15 @@ test.group('Contacts commerciaux — règle d’affichage', (group) => {
     const service = await app.container.make(SupplierContactService)
     const filtered = await supplierOrg()
     await subscribe(filtered)
-    await contact(filtered, 'Claire', ['FR'])
-    await contact(filtered, 'Ana', ['RO'])
+    await contact(filtered, { name: 'Claire', countries: ['FR'] })
+    await contact(filtered, { name: 'Ana', countries: ['RO'] })
     const wholeTeam = await supplierOrg()
     await subscribe(wholeTeam)
-    await contact(wholeTeam, 'Hans', ['DE'])
-    await contact(wholeTeam, 'Export', ['IT'])
+    await contact(wholeTeam, { name: 'Hans', countries: ['DE'] })
+    await contact(wholeTeam, { name: 'Export', countries: ['IT'] })
     await service.setShowAllContacts(wholeTeam.id, true)
     const free = await supplierOrg()
-    await contact(free, 'Gratuit', [])
+    await contact(free, { name: 'Gratuit', countries: [] })
     const empty = await supplierOrg()
     await subscribe(empty)
 
@@ -197,19 +195,13 @@ test.group('Contacts commerciaux — espace fournisseur', (group) => {
     return { org, user: await createMember(org, 'owner') }
   }
 
-  function send(
-    client: ApiClient,
-    method: 'post' | 'patch' | 'delete',
-    url: string,
-    user: User,
-    payload: Record<string, unknown> = {}
-  ) {
-    return client[method](url)
-      .withInertia()
-      .withCsrfToken()
-      .redirects(0)
-      .loginAs(user)
-      .json(payload)
+  /** Requêtes Inertia (CSRF, sans suivre la redirection) au nom de `user`. */
+  function asUser(client: ApiClient, user: User) {
+    const call =
+      (method: 'post' | 'patch' | 'delete') =>
+      (url: string, payload: Record<string, unknown> = {}) =>
+        client[method](url).withInertia().withCsrfToken().redirects(0).loginAs(user).json(payload)
+    return { post: call('post'), patch: call('patch'), delete: call('delete') }
   }
 
   test('le fournisseur gratuit voit son équipe et le rappel abonnement', async ({
@@ -217,7 +209,7 @@ test.group('Contacts commerciaux — espace fournisseur', (group) => {
     assert,
   }) => {
     const { org, user } = await owner()
-    await contact(org, 'Claire', ['FR'])
+    await contact(org, { name: 'Claire', countries: ['FR'] })
 
     const response = await client.get('/fr/supplier/contacts').withInertia().loginAs(user)
 
@@ -249,9 +241,9 @@ test.group('Contacts commerciaux — espace fournisseur', (group) => {
     assert,
   }) => {
     const { org, user } = await owner()
-    await contact(org, 'Existant', [], 0)
+    await contact(org, { name: 'Existant', countries: [], position: 0 })
 
-    const response = await send(client, 'post', '/fr/supplier/contacts', user, {
+    const response = await asUser(client, user).post('/fr/supplier/contacts', {
       name: 'Claire Martin',
       jobTitle: 'Key account',
       email: 'claire@example.com',
@@ -275,11 +267,13 @@ test.group('Contacts commerciaux — espace fournisseur', (group) => {
   test('un contact peut exister sans compte utilisateur', async ({ client, assert }) => {
     const { org, user } = await owner()
 
-    await send(client, 'post', '/fr/supplier/contacts', user, {
-      name: 'Ana Pop',
-      email: 'ana@example.com',
-      countries: [],
-    }).then((response) => response.assertStatus(302))
+    await asUser(client, user)
+      .post('/fr/supplier/contacts', {
+        name: 'Ana Pop',
+        email: 'ana@example.com',
+        countries: [],
+      })
+      .then((response) => response.assertStatus(302))
 
     const created = await SupplierContact.findByOrFail('organizationId', org.id)
     assert.isNull(created.userId)
@@ -293,7 +287,7 @@ test.group('Contacts commerciaux — espace fournisseur', (group) => {
     const { org, user } = await owner()
     const stranger = await UserFactory.create()
 
-    await send(client, 'post', '/fr/supplier/contacts', user, {
+    await asUser(client, user).post('/fr/supplier/contacts', {
       name: 'Intrus',
       email: 'intrus@example.com',
       userId: stranger.id,
@@ -305,7 +299,7 @@ test.group('Contacts commerciaux — espace fournisseur', (group) => {
   test('refuse un code pays inconnu', async ({ client, assert }) => {
     const { org, user } = await owner()
 
-    await send(client, 'post', '/fr/supplier/contacts', user, {
+    await asUser(client, user).post('/fr/supplier/contacts', {
       name: 'Claire',
       email: 'claire@example.com',
       countries: ['XX'],
@@ -316,37 +310,41 @@ test.group('Contacts commerciaux — espace fournisseur', (group) => {
 
   test('modifie, déplace et supprime un contact', async ({ client, assert }) => {
     const { org, user } = await owner()
-    const first = await contact(org, 'Premier', [], 0)
-    const second = await contact(org, 'Second', [], 1)
+    const first = await contact(org, { name: 'Premier', countries: [], position: 0 })
+    const second = await contact(org, { name: 'Second', countries: [], position: 1 })
 
-    await send(client, 'patch', `/fr/supplier/contacts/${first.id}`, user, {
-      name: 'Premier modifié',
-      email: 'premier@example.com',
-      countries: ['de'],
-    }).then((response) => response.assertStatus(303))
+    await asUser(client, user)
+      .patch(`/fr/supplier/contacts/${first.id}`, {
+        name: 'Premier modifié',
+        email: 'premier@example.com',
+        countries: ['de'],
+      })
+      .then((response) => response.assertStatus(303))
     await first.refresh()
     assert.equal(first.name, 'Premier modifié')
     assert.deepEqual(first.countries, ['DE'])
 
-    await send(client, 'post', `/fr/supplier/contacts/${second.id}/move`, user, {
-      direction: 'up',
-    }).then((response) => response.assertStatus(302))
+    await asUser(client, user)
+      .post(`/fr/supplier/contacts/${second.id}/move`, {
+        direction: 'up',
+      })
+      .then((response) => response.assertStatus(302))
     await Promise.all([first.refresh(), second.refresh()])
     assert.equal(second.position, 0)
     assert.equal(first.position, 1)
 
-    await send(client, 'delete', `/fr/supplier/contacts/${first.id}`, user).then((response) =>
-      response.assertStatus(303)
-    )
+    await asUser(client, user)
+      .delete(`/fr/supplier/contacts/${first.id}`)
+      .then((response) => response.assertStatus(303))
     assert.isNull(await SupplierContact.find(first.id))
   })
 
   test("ne touche pas au contact d'un autre fournisseur", async ({ client, assert }) => {
     const { user } = await owner()
     const other = await supplierOrg()
-    const foreign = await contact(other, 'Autre', [])
+    const foreign = await contact(other, { name: 'Autre', countries: [] })
 
-    const response = await send(client, 'delete', `/fr/supplier/contacts/${foreign.id}`, user)
+    const response = await asUser(client, user).delete(`/fr/supplier/contacts/${foreign.id}`)
 
     response.assertStatus(404)
     assert.isNotNull(await SupplierContact.find(foreign.id))
@@ -367,9 +365,9 @@ test.group('Contacts commerciaux — espace fournisseur', (group) => {
       .where('userId', seller.id)
       .firstOrFail()
 
-    await send(client, 'delete', `/fr/organization/members/${membership.id}`, user).then(
-      (response) => response.assertStatus(303)
-    )
+    await asUser(client, user)
+      .delete(`/fr/organization/members/${membership.id}`)
+      .then((response) => response.assertStatus(303))
 
     await linked.refresh()
     assert.isNull(linked.userId)
@@ -389,9 +387,11 @@ test.group('Contacts commerciaux — espace fournisseur', (group) => {
   test("enregistre l'option « montrer toute l'équipe »", async ({ client, assert }) => {
     const { org, user } = await owner()
 
-    await send(client, 'patch', '/fr/supplier/contacts/settings', user, {
-      showAllContacts: true,
-    }).then((response) => response.assertStatus(303))
+    await asUser(client, user)
+      .patch('/fr/supplier/contacts/settings', {
+        showAllContacts: true,
+      })
+      .then((response) => response.assertStatus(303))
 
     const profile = await SupplierProfile.findByOrFail('organizationId', org.id)
     assert.isTrue(profile.showAllContacts)
@@ -404,8 +404,8 @@ test.group('Contacts commerciaux — props envoyées à l’agence', (group) => 
   async function publicSupplier() {
     const org = await supplierOrg()
     const supplier = await SupplierFactory.merge({ organizationId: org.id }).create()
-    await contact(org, 'Claire', ['FR'])
-    await contact(org, 'Ana', ['RO'])
+    await contact(org, { name: 'Claire', countries: ['FR'] })
+    await contact(org, { name: 'Ana', countries: ['RO'] })
     return { org, supplier }
   }
 
@@ -499,18 +499,20 @@ test.group('Contacts commerciaux — props envoyées à l’agence', (group) => 
     const { org: subscribed } = await publicSupplier()
     await subscribe(subscribed)
     const free = await supplierOrg()
-    await contact(free, 'Gratuit', [])
+    await contact(free, { name: 'Gratuit', countries: [] })
 
     const agency = await OrganizationFactory.merge({ country: 'RO' }).create()
     const buyer = await createMember(agency, 'owner')
     const rfq = await RfqFactory.apply('published')
       .merge({ buyerOrganizationId: agency.id })
       .create()
-    for (const supplier of [subscribed, free]) {
-      await RfqSupplierFactory.apply('sent')
-        .merge({ rfqId: rfq.id, supplierOrganizationId: supplier.id })
-        .create()
-    }
+    await Promise.all(
+      [subscribed, free].map((supplier) =>
+        RfqSupplierFactory.apply('sent')
+          .merge({ rfqId: rfq.id, supplierOrganizationId: supplier.id })
+          .create()
+      )
+    )
 
     const response = await client.get(`/fr/rfqs/${rfq.id}`).withInertia().loginAs(buyer)
 

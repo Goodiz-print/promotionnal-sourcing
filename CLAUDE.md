@@ -52,6 +52,7 @@ Les documents PDF des fournisseurs (catalogue, certificat, fiche technique) sont
   - pas de **ternaires imbriqués** ni de longues chaînes `if / else if` : une table de correspondance (`Record<Clé, Valeur>`) ou des fonctions dédiées ;
   - conditions longues extraites dans une **variable ou fonction au nom explicite** (`const isEligible = …`) ;
   - séparer le **calcul pur** (testable sans base ni HTTP) des **effets** (requêtes, écritures, appels externes) : la règle métier vit dans une fonction pure, le service orchestre.
+  - **Vérifié par ESLint** (`eslint.config.js`, bloc « readability ») en `warn` : boucles et plus de 3 paramètres (`no-restricted-syntax`, constructeurs exclus pour l'injection), `complexity` 10, `max-depth` 2, `max-lines-per-function` 30, `no-nested-ternary`, `no-else-return`. Le code existant n'est pas encore conforme : **tout fichier créé ou modifié ne doit ajouter aucun de ces warnings**.
 
 ### AdonisJS
 
