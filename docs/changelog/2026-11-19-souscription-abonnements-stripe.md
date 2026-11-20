@@ -28,8 +28,10 @@ Les fournisseurs souscrivent, changent de formule et résilient leur abonnement
   chez Stripe avant la transaction. Impayé : formule conservée pendant les
   relances (`past_due`), retirée quand Stripe abandonne. Un abonnement en ligne
   clôt un abonnement manuel en cours ; un **second abonnement en ligne** payé en
-  parallèle est résilié chez Stripe (log `error`, remboursement depuis le
-  tableau de bord) pour qu'un seul soit facturé.
+  parallèle est résilié chez Stripe pour qu'un seul soit facturé, et les
+  administrateurs de la plateforme reçoivent une notification in-app
+  (`subscription.duplicate_cancelled`) pour rembourser son paiement depuis le
+  tableau de bord Stripe.
 - **Rétention** : job `PurgeStripeWebhookEventsJob` (planning
   `purge-stripe-webhook-events`, chaque nuit) qui supprime les notifications
   traitées de plus de 30 jours.

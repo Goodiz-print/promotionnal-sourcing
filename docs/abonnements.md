@@ -87,9 +87,14 @@ fournisseuse) ; entrée de menu « Abonnement » pour ces rôles.
   - s'il n'y est plus en cours (résiliation dont la notification n'est pas
     encore arrivée), il est clos et le nouveau le remplace ;
   - sinon il est gardé, et le nouveau est **résilié immédiatement chez Stripe**
-    (sans proratisation) puis enregistré `cancelled`. Un log `error`
-    (`duplicate online subscription cancelled at Stripe`) signale le paiement du
-    doublon, à **rembourser depuis le tableau de bord Stripe**.
+    (sans proratisation) puis enregistré `cancelled`. Chaque **administrateur
+    de la plateforme** (`platform_role = 'admin'`) reçoit une notification in-app
+    (`subscription.duplicate_cancelled`, lien vers la fiche admin de
+    l'organisation) : le paiement du doublon est à **rembourser depuis le
+    tableau de bord Stripe**. Un log `error` (`duplicate online subscription
+cancelled at Stripe`) le trace aussi. La notification part dès la
+    résiliation faite (`SubscriptionAlertService`) ; son échec est loggé sans
+    rien annuler.
 
   Si la résiliation échoue, toute la transaction est annulée et Stripe renvoie
   la notification.

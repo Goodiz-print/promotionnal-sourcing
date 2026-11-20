@@ -32,6 +32,9 @@
     "message": {
       "warned": "Un message que vous avez écrit a fait l'objet d'un avertissement de la part de la plateforme. Merci de respecter les règles d'usage de la messagerie."
     },
-    "announcement": "{title} — {body}"
+    "announcement": "{title} — {body}",
+    "subscription": {
+      "duplicate_cancelled": "{organizationName} a payé deux abonnements en parallèle : le doublon {cancelledSubscriptionId} a été résilié chez Stripe. Remboursez son paiement depuis le tableau de bord Stripe."
+    }
   }
 }

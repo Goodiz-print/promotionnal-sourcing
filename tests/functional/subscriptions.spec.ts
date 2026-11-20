@@ -4,17 +4,21 @@ import db from '@adonisjs/lucid/services/db'
 import type { ApiClient } from '@japa/api-client'
 import { DateTime } from 'luxon'
 import { OrganizationFactory } from '#database/factories/organization_factory'
+import { UserFactory } from '#database/factories/user_factory'
 import BillingProfile from '#models/billing_profile'
+import Notification from '#models/notification'
 import type Organization from '#models/organization'
 import OrganizationSubscription from '#models/organization_subscription'
 import StripeWebhookEvent from '#models/stripe_webhook_event'
 import type User from '#models/user'
+import NotificationService from '#services/notification_service'
 import StripeWebhookEventService from '#services/stripe_webhook_event_service'
 import SubscriptionService from '#services/subscription_service'
 import type { BillingSubscriptionSnapshot } from '#shared/types/subscription'
 import { installFakeSubscriptionBillingGateway } from '#tests/utils/fake_subscription_billing_gateway'
 import { createMember } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
+import NotificationTransformer from '#transformers/notification_transformer'
 
 /**
  * Souscription en ligne des abonnements fournisseurs (#215, cf.
@@ -476,6 +480,8 @@ test.group('Abonnements — notifications Stripe', (group) => {
     assert,
   }) => {
     const { org } = await supplierOwner()
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const moderator = await UserFactory.apply('platformModerator').create()
     // Deux pages de souscription payées dans deux onglets : Business puis Premium.
     await notify(client, 'evt_1', snapshot(org), 'customer.subscription.created')
     const duplicate = await notify(
@@ -500,6 +506,24 @@ test.group('Abonnements — notifications Stripe', (group) => {
       ]
     )
 
+    // Les administrateurs de la plateforme sont notifiés du remboursement à faire.
+    const alerts = await Notification.query().where('type', 'subscription.duplicate_cancelled')
+    assert.deepEqual(
+      alerts.map((alert) => alert.userId),
+      [admin.id]
+    )
+    assert.notEqual(alerts[0].userId, moderator.id)
+    assert.deepInclude(alerts[0].data, {
+      organizationId: org.id,
+      organizationName: org.name,
+      keptSubscriptionId: 'sub_test_1',
+      cancelledSubscriptionId: 'sub_test_2',
+    })
+    assert.equal(
+      new NotificationTransformer(alerts[0], 'fr').toObject().href,
+      `/fr/admin/organizations/${org.id}`
+    )
+
     // Les échéances suivantes ne font plus basculer la formule.
     await notify(client, 'evt_3', snapshot(org), 'invoice.paid')
     await notify(
@@ -510,6 +534,7 @@ test.group('Abonnements — notifications Stripe', (group) => {
     )
     assert.equal(await planOf(org), 'business')
     assert.lengthOf(billing.gateway.cancellations, 1)
+    assert.lengthOf(await Notification.query().where('type', 'subscription.duplicate_cancelled'), 1)
   })
 
   test('un nouvel abonnement remplace l’ancien déjà résilié chez Stripe', async ({
@@ -532,6 +557,7 @@ test.group('Abonnements — notifications Stripe', (group) => {
     )
 
     assert.lengthOf(billing.gateway.cancellations, 0)
+    assert.lengthOf(await Notification.query().where('type', 'subscription.duplicate_cancelled'), 0)
     assert.equal(await planOf(org), 'premium')
     const rows = await OrganizationSubscription.query()
       .where('organizationId', org.id)
@@ -543,6 +569,41 @@ test.group('Abonnements — notifications Stripe', (group) => {
         ['sub_test_2', 'active'],
       ]
     )
+  })
+
+  test('une alerte en échec n’empêche pas d’enregistrer la résiliation du doublon', async ({
+    client,
+    assert,
+  }) => {
+    const { org } = await supplierOwner()
+    await UserFactory.apply('platformAdmin').create()
+    const notifications = await app.container.make(NotificationService)
+    app.container.swap(NotificationService, () => {
+      notifications.notify = async () => {
+        throw new Error('notifications down')
+      }
+      return notifications
+    })
+
+    try {
+      await notify(client, 'evt_1', snapshot(org), 'customer.subscription.created')
+      const response = await notify(
+        client,
+        'evt_2',
+        snapshot(org, { id: 'sub_test_2', plan: 'premium' }),
+        'customer.subscription.created'
+      )
+
+      response.assertStatus(200)
+      assert.deepEqual(billing.gateway.cancellations, ['sub_test_2'])
+      const duplicate = await OrganizationSubscription.findByOrFail(
+        'stripeSubscriptionId',
+        'sub_test_2'
+      )
+      assert.equal(duplicate.status, 'cancelled')
+    } finally {
+      app.container.restore(NotificationService)
+    }
   })
 
   test('une résiliation chez Stripe en échec laisse Stripe renvoyer la notification', async ({

@@ -6,6 +6,7 @@ import BillingProfile from '#models/billing_profile'
 import type Organization from '#models/organization'
 import type OrganizationSubscription from '#models/organization_subscription'
 import StripeWebhookEventService from '#services/stripe_webhook_event_service'
+import SubscriptionAlertService from '#services/subscription_alert_service'
 import SubscriptionService from '#services/subscription_service'
 import SubscriptionBillingGateway from '#services/subscriptions/subscription_billing_gateway'
 import {
@@ -32,7 +33,8 @@ export default class SubscriptionBillingService {
   constructor(
     private gateway: SubscriptionBillingGateway,
     private subscriptions: SubscriptionService,
-    private events: StripeWebhookEventService
+    private events: StripeWebhookEventService,
+    private alerts: SubscriptionAlertService
   ) {}
 
   /** La souscription en ligne est-elle proposée ? */
@@ -119,8 +121,13 @@ export default class SubscriptionBillingService {
    * s'il n'est plus en cours (résiliation dont la notification n'est pas encore
    * arrivée), il est clos et le nouveau prend sa place. Sinon l'abonnement déjà
    * en place est gardé et le nouveau est **résilié chez Stripe** — sans quoi les
-   * deux seraient facturés. Son remboursement reste à faire depuis le tableau
-   * de bord (log `error`).
+   * deux seraient facturés. Son paiement est à rembourser depuis le tableau de
+   * bord : les administrateurs de la plateforme en sont **notifiés** (in-app).
+   *
+   * La notification part dès la résiliation faite, hors transaction (connexion
+   * par défaut) : la résiliation est acquise chez Stripe même si la transaction
+   * échoue ensuite, et le renvoi de la notification, qui verra alors
+   * l'abonnement résilié, ne repasserait pas par ce chemin.
    *
    * Appels réseau dans la transaction : chemin rare, et un échec annule tout
    * pour que Stripe renvoie la notification.
@@ -144,14 +151,16 @@ export default class SubscriptionBillingService {
     }
 
     const cancelled = await this.gateway.cancelSubscription(snapshot.id)
+    const duplicate = {
+      organizationId: kept.organizationId,
+      keptSubscriptionId: kept.stripeSubscriptionId,
+      cancelledSubscriptionId: snapshot.id,
+    }
     logger.error(
-      {
-        organizationId: kept.organizationId,
-        keptSubscriptionId: kept.stripeSubscriptionId,
-        cancelledSubscriptionId: snapshot.id,
-      },
+      duplicate,
       'duplicate online subscription cancelled at Stripe: refund the payment from the dashboard'
     )
+    await this.alerts.duplicateCancelled(duplicate)
     return syncedRow(await this.resolved(cancelled, trx))
   }
 

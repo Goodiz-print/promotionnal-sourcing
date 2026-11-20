@@ -110,6 +110,16 @@ export type SubscriptionSyncResult<Row> =
   | { outcome: 'ignored' }
   | { outcome: 'conflict'; current: Row & { stripeSubscriptionId: string } }
 
+/**
+ * Doublon d'abonnement en ligne résilié chez Stripe : son paiement est à
+ * rembourser par l'équipe plateforme, prévenue par une notification.
+ */
+export interface DuplicateSubscriptionCancelled {
+  organizationId: number
+  keptSubscriptionId: string
+  cancelledSubscriptionId: string
+}
+
 /** Ouverture d'une page de souscription hébergée. */
 export interface SubscriptionCheckoutRequest {
   organizationId: number
