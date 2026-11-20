@@ -85,6 +85,7 @@
   "flash": {
     "unavailable": "A assinatura online não está disponível de momento.",
     "alreadySubscribed": "Já tem uma assinatura em curso: mude de plano no portal de faturação.",
-    "noBillingAccount": "A sua organização não tem conta de faturação online."
+    "noBillingAccount": "A sua organização não tem conta de faturação online.",
+    "paymentPending": "Um pagamento de assinatura ainda está a ser confirmado: conclua-o no portal de faturação ou tente mais tarde."
   }
 }

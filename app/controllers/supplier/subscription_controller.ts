@@ -9,6 +9,7 @@ import OrganizationSubscriptionTransformer from '#transformers/organization_subs
 import {
   BillingPortalUnavailableException,
   SubscriptionAlreadyActiveException,
+  SubscriptionPaymentPendingException,
 } from '#exceptions/subscription_errors'
 import { subscriptionCheckoutValidator } from '#validators/subscription'
 import type Organization from '#models/organization'
@@ -66,6 +67,10 @@ export default class SubscriptionController {
       // Page externe : visite complète du navigateur, pas une visite Inertia.
       return ctx.inertia.location(url)
     } catch (error) {
+      if (error instanceof SubscriptionPaymentPendingException) {
+        ctx.session.flash('error', ctx.i18n.t('subscription.flash.paymentPending'))
+        return ctx.response.redirect().back()
+      }
       if (!(error instanceof SubscriptionAlreadyActiveException)) throw error
       ctx.session.flash('error', ctx.i18n.t('subscription.flash.alreadySubscribed'))
       return ctx.response.redirect().back()

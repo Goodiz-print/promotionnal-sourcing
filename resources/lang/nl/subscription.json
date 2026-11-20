@@ -85,6 +85,7 @@
   "flash": {
     "unavailable": "Online afsluiten is momenteel niet beschikbaar.",
     "alreadySubscribed": "U hebt al een lopend abonnement: wijzig het via het factureringsportaal.",
-    "noBillingAccount": "Uw organisatie heeft geen online factureringsaccount."
+    "noBillingAccount": "Uw organisatie heeft geen online factureringsaccount.",
+    "paymentPending": "Een abonnementsbetaling wordt nog bevestigd: rond deze af via het factuurportaal of probeer het later opnieuw."
   }
 }

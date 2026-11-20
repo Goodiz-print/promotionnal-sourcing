@@ -9,6 +9,7 @@ import type Organization from '#models/organization'
 import OrganizationSubscription from '#models/organization_subscription'
 import StripeWebhookEvent from '#models/stripe_webhook_event'
 import type User from '#models/user'
+import StripeWebhookEventService from '#services/stripe_webhook_event_service'
 import SubscriptionService from '#services/subscription_service'
 import type { BillingSubscriptionSnapshot } from '#shared/types/subscription'
 import { installFakeSubscriptionBillingGateway } from '#tests/utils/fake_subscription_billing_gateway'
@@ -201,6 +202,31 @@ test.group('Abonnements — souscription et portail', (group) => {
     response.assertFlashMessage(
       'error',
       'Vous avez déjà un abonnement en cours : changez de formule depuis le portail de facturation.'
+    )
+    assert.lengthOf(billing.gateway.checkouts, 0)
+  })
+
+  test('refuse une seconde souscription pendant la validation du premier paiement', async ({
+    client,
+    assert,
+  }) => {
+    const { org, owner } = await supplierOwner()
+    billing.gateway.subscriptions.set('sub_test_1', snapshot(org, { providerStatus: 'incomplete' }))
+    billing.gateway.event = {
+      id: 'evt_1',
+      type: 'customer.subscription.created',
+      subscriptionId: 'sub_test_1',
+    }
+    await client.post('/webhooks/stripe').json({})
+
+    const response = await post(client, '/fr/supplier/subscription/checkout', owner, {
+      plan: 'premium',
+    })
+
+    response.assertStatus(302)
+    response.assertFlashMessage(
+      'error',
+      'Un paiement d’abonnement est en cours de validation : finalisez-le depuis le portail de facturation ou réessayez plus tard.'
     )
     assert.lengthOf(billing.gateway.checkouts, 0)
   })
@@ -445,6 +471,106 @@ test.group('Abonnements — notifications Stripe', (group) => {
     assert.equal(manual.status, 'cancelled')
   })
 
+  test('un second abonnement en ligne payé en parallèle est résilié chez Stripe', async ({
+    client,
+    assert,
+  }) => {
+    const { org } = await supplierOwner()
+    // Deux pages de souscription payées dans deux onglets : Business puis Premium.
+    await notify(client, 'evt_1', snapshot(org), 'customer.subscription.created')
+    const duplicate = await notify(
+      client,
+      'evt_2',
+      snapshot(org, { id: 'sub_test_2', plan: 'premium' }),
+      'customer.subscription.created'
+    )
+
+    duplicate.assertStatus(200)
+    // L'abonnement en place est gardé, le doublon résilié chez Stripe : un seul facturé.
+    assert.deepEqual(billing.gateway.cancellations, ['sub_test_2'])
+    assert.equal(await planOf(org), 'business')
+    const rows = await OrganizationSubscription.query()
+      .where('organizationId', org.id)
+      .orderBy('id')
+    assert.deepEqual(
+      rows.map((row) => [row.stripeSubscriptionId, row.status]),
+      [
+        ['sub_test_1', 'active'],
+        ['sub_test_2', 'cancelled'],
+      ]
+    )
+
+    // Les échéances suivantes ne font plus basculer la formule.
+    await notify(client, 'evt_3', snapshot(org), 'invoice.paid')
+    await notify(
+      client,
+      'evt_4',
+      billing.gateway.subscriptions.get('sub_test_2')!,
+      'customer.subscription.deleted'
+    )
+    assert.equal(await planOf(org), 'business')
+    assert.lengthOf(billing.gateway.cancellations, 1)
+  })
+
+  test('un nouvel abonnement remplace l’ancien déjà résilié chez Stripe', async ({
+    client,
+    assert,
+  }) => {
+    const { org } = await supplierOwner()
+    await notify(client, 'evt_1', snapshot(org), 'customer.subscription.created')
+    // Résilié dans le portail, mais sa notification n'est pas encore arrivée.
+    billing.gateway.subscriptions.set(
+      'sub_test_1',
+      snapshot(org, { providerStatus: 'canceled', canceledAt: new Date() })
+    )
+
+    await notify(
+      client,
+      'evt_2',
+      snapshot(org, { id: 'sub_test_2', plan: 'premium' }),
+      'customer.subscription.created'
+    )
+
+    assert.lengthOf(billing.gateway.cancellations, 0)
+    assert.equal(await planOf(org), 'premium')
+    const rows = await OrganizationSubscription.query()
+      .where('organizationId', org.id)
+      .orderBy('id')
+    assert.deepEqual(
+      rows.map((row) => [row.stripeSubscriptionId, row.status]),
+      [
+        ['sub_test_1', 'cancelled'],
+        ['sub_test_2', 'active'],
+      ]
+    )
+  })
+
+  test('une résiliation chez Stripe en échec laisse Stripe renvoyer la notification', async ({
+    client,
+    assert,
+  }) => {
+    const { org } = await supplierOwner()
+    await notify(client, 'evt_1', snapshot(org), 'customer.subscription.created')
+    billing.gateway.cancelSubscription = async () => {
+      throw new Error('stripe unavailable')
+    }
+
+    const response = await notify(
+      client,
+      'evt_2',
+      snapshot(org, { id: 'sub_test_2', plan: 'premium' }),
+      'customer.subscription.created'
+    )
+
+    response.assertStatus(400)
+    assert.lengthOf(await StripeWebhookEvent.query().where('eventId', 'evt_2'), 0)
+    assert.lengthOf(
+      await OrganizationSubscription.query().where('stripeSubscriptionId', 'sub_test_2'),
+      0
+    )
+    assert.equal(await planOf(org), 'business')
+  })
+
   test('deux abonnements en cours simultanés sont refusés par la base', async ({ assert }) => {
     const { org } = await supplierOwner()
     const row = {
@@ -495,5 +621,31 @@ test.group('Abonnements — notifications Stripe', (group) => {
     )
     retried.assertStatus(200)
     assert.equal(await planOf(org), 'business')
+  })
+})
+
+test.group('Abonnements — purge des notifications traitées', (group) => {
+  useDatabase(group)
+
+  test('supprime les notifications au-delà de 30 jours, garde les récentes', async ({ assert }) => {
+    const now = new Date('2026-11-20T00:00:00Z')
+    await db.table('stripe_webhook_events').multiInsert([
+      { event_id: 'evt_old', type: 'invoice.paid', created_at: new Date('2026-10-20T00:00:00Z') },
+      {
+        event_id: 'evt_recent',
+        type: 'invoice.paid',
+        created_at: new Date('2026-11-01T00:00:00Z'),
+      },
+    ])
+
+    const service = await app.container.make(StripeWebhookEventService)
+    const deleted = await service.purge(now)
+
+    assert.equal(deleted, 1)
+    const left = await db.from('stripe_webhook_events').select('event_id')
+    assert.deepEqual(
+      left.map((row) => row.event_id),
+      ['evt_recent']
+    )
   })
 })

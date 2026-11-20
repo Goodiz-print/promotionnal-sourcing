@@ -85,6 +85,7 @@
   "flash": {
     "unavailable": "Zakup subskrypcji online jest obecnie niedostępny.",
     "alreadySubscribed": "Masz już aktywną subskrypcję: zmień plan w portalu rozliczeń.",
-    "noBillingAccount": "Twoja organizacja nie ma konta rozliczeń online."
+    "noBillingAccount": "Twoja organizacja nie ma konta rozliczeń online.",
+    "paymentPending": "Płatność za subskrypcję jest wciąż potwierdzana: dokończ ją w portalu rozliczeń lub spróbuj ponownie później."
   }
 }

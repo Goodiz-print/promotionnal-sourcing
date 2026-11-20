@@ -85,6 +85,7 @@
   "flash": {
     "unavailable": "La sottoscrizione online non è al momento disponibile.",
     "alreadySubscribed": "Hai già un abbonamento in corso: cambia piano dal portale di fatturazione.",
-    "noBillingAccount": "La tua organizzazione non ha un account di fatturazione online."
+    "noBillingAccount": "La tua organizzazione non ha un account di fatturazione online.",
+    "paymentPending": "Un pagamento dell’abbonamento è in fase di conferma: completalo dal portale di fatturazione o riprova più tardi."
   }
 }

@@ -25,6 +25,7 @@ import PurgeAiCallsJob from '#jobs/purge_ai_calls_job'
 import PurgeActivityEventsJob from '#jobs/purge_activity_events_job'
 import CheckPlatformHealthJob from '#jobs/check_platform_health_job'
 import RecoverInboundMailsJob from '#jobs/recover_inbound_mails_job'
+import PurgeStripeWebhookEventsJob from '#jobs/purge_stripe_webhook_events_job'
 
 /**
  * Purge quotidienne des invitations d'organisation (bascule `pending` échues en
@@ -96,6 +97,17 @@ await PurgeActivityEventsJob.schedule({})
 await PurgeAiCallsJob.schedule({})
   .id('purge-ai-calls')
   .cron('20 4 * * *')
+  .timezone('Europe/Paris')
+  .run()
+
+/**
+ * Purge quotidienne des notifications Stripe d'abonnement traitées au-delà de
+ * 30 jours — cf. `StripeWebhookEventService#purge`. Stripe ne renvoie plus une
+ * notification après 3 jours : la ligne ne sert plus à l'idempotence.
+ */
+await PurgeStripeWebhookEventsJob.schedule({})
+  .id('purge-stripe-webhook-events')
+  .cron('35 4 * * *')
   .timezone('Europe/Paris')
   .run()
 

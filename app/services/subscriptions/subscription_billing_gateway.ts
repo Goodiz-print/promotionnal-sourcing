@@ -41,4 +41,11 @@ export default abstract class SubscriptionBillingGateway {
 
   /** État **actuel** d'un abonnement chez le prestataire. */
   abstract fetchSubscription(subscriptionId: string): Promise<BillingSubscriptionSnapshot>
+
+  /**
+   * Résilie immédiatement un abonnement chez le prestataire (doublon) et renvoie
+   * son nouvel état. Ne rembourse pas : le remboursement reste une décision de
+   * l'équipe plateforme.
+   */
+  abstract cancelSubscription(subscriptionId: string): Promise<BillingSubscriptionSnapshot>
 }

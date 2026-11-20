@@ -25,3 +25,11 @@ export function statusFromProvider(providerStatus: string): SubscriptionStatus {
       return 'cancelled'
   }
 }
+
+/**
+ * La notification concerne-t-elle un abonnement (`customer.subscription.*`,
+ * `invoice.*`) ? Les autres types (recharges publicitaires…) sont ignorés.
+ */
+export function isSubscriptionEventType(type: string): boolean {
+  return type.startsWith('customer.subscription.') || type.startsWith('invoice.')
+}

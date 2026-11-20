@@ -85,6 +85,7 @@
   "flash": {
     "unavailable": "Der Online-Abschluss ist derzeit nicht verfügbar.",
     "alreadySubscribed": "Sie haben bereits ein laufendes Abonnement: Wechseln Sie den Tarif über das Abrechnungsportal.",
-    "noBillingAccount": "Für Ihre Organisation besteht kein Online-Abrechnungskonto."
+    "noBillingAccount": "Für Ihre Organisation besteht kein Online-Abrechnungskonto.",
+    "paymentPending": "Eine Abonnementzahlung wird noch bestätigt: Schließen Sie sie im Abrechnungsportal ab oder versuchen Sie es später erneut."
   }
 }

@@ -85,6 +85,7 @@
   "flash": {
     "unavailable": "La suscripción en línea no está disponible por el momento.",
     "alreadySubscribed": "Ya tiene una suscripción en curso: cambie de plan desde el portal de facturación.",
-    "noBillingAccount": "Su organización no tiene cuenta de facturación en línea."
+    "noBillingAccount": "Su organización no tiene cuenta de facturación en línea.",
+    "paymentPending": "Un pago de suscripción se está validando: complétalo desde el portal de facturación o inténtalo más tarde."
   }
 }

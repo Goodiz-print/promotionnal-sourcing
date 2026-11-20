@@ -18,14 +18,21 @@ Les fournisseurs souscrivent, changent de formule et résilient leur abonnement
   (ability `canManageSubscription`).
 - **Souscription** `POST /:locale/supplier/subscription/checkout` : création du
   client Stripe à la première souscription (`billing_profiles.stripe_customer_id`),
-  puis Stripe Checkout en mode abonnement. Refusée si un abonnement est déjà en cours.
+  puis Stripe Checkout en mode abonnement. Refusée si un abonnement est déjà en
+  cours ou si un premier paiement est encore en validation.
 - **Portail de facturation** `POST /:locale/supplier/subscription/portal` :
   changement de formule, résiliation, moyen de paiement, factures.
 - **Notifications** sur `POST /webhooks/stripe` (partagée avec les recharges
   publicitaires) : `customer.subscription.*` et `invoice.*`. Traitement
   idempotent (table `stripe_webhook_events`, même transaction), abonnement relu
-  chez Stripe. Impayé : formule conservée pendant les relances (`past_due`),
-  retirée quand Stripe abandonne.
+  chez Stripe avant la transaction. Impayé : formule conservée pendant les
+  relances (`past_due`), retirée quand Stripe abandonne. Un abonnement en ligne
+  clôt un abonnement manuel en cours ; un **second abonnement en ligne** payé en
+  parallèle est résilié chez Stripe (log `error`, remboursement depuis le
+  tableau de bord) pour qu'un seul soit facturé.
+- **Rétention** : job `PurgeStripeWebhookEventsJob` (planning
+  `purge-stripe-webhook-events`, chaque nuit) qui supprime les notifications
+  traitées de plus de 30 jours.
 - **Configuration** : nouvelles variables optionnelles `STRIPE_PRICE_BUSINESS`,
   `STRIPE_PRICE_PREMIUM` ; sans elles, la souscription en ligne est désactivée.
 - **Traductions** : fichier `subscription.json` dans les 9 langues.

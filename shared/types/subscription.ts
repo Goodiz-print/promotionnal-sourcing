@@ -45,6 +45,23 @@ export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number]
 /** Statuts qui ouvrent les droits de la formule (un seul par organisation, contrainte en base). */
 export const CURRENT_SUBSCRIPTION_STATUSES: readonly SubscriptionStatus[] = ['active', 'past_due']
 
+/**
+ * Statuts qui bloquent une nouvelle souscription en ligne : un abonnement en
+ * cours, ou un premier paiement encore en validation (3-D Secure, prélèvement)
+ * qui peut aboutir — en ouvrir un second ferait payer deux abonnements.
+ */
+export const BLOCKING_SUBSCRIPTION_STATUSES: readonly SubscriptionStatus[] = [
+  ...CURRENT_SUBSCRIPTION_STATUSES,
+  'pending',
+]
+
+/**
+ * Durée de conservation des notifications Stripe traitées (idempotence). Stripe
+ * renvoie une notification pendant 3 jours au plus : 30 jours laissent une marge
+ * large, au-delà la ligne ne sert plus.
+ */
+export const STRIPE_WEBHOOK_EVENT_RETENTION_DAYS = 30
+
 /** Origine d'un abonnement. Colonne libre : en ajouter une ne demande pas de migration. */
 export const SUBSCRIPTION_ORIGINS = ['manual', 'stripe'] as const
 
@@ -79,6 +96,19 @@ export interface BillingWebhookEvent {
   type: string
   subscriptionId: string
 }
+
+/**
+ * Issue de l'alignement d'un abonnement sur l'état du prestataire :
+ * - `synced` : ligne locale à jour ;
+ * - `ignored` : organisation ou formule introuvable, rien n'est écrit ;
+ * - `conflict` : l'abonnement devient courant alors qu'un **autre abonnement en
+ *   ligne** est déjà en cours pour l'organisation — rien n'est écrit, l'appelant
+ *   arbitre (cf. `SubscriptionBillingService`).
+ */
+export type SubscriptionSyncResult<Row> =
+  | { outcome: 'synced'; subscription: Row }
+  | { outcome: 'ignored' }
+  | { outcome: 'conflict'; current: Row & { stripeSubscriptionId: string } }
 
 /** Ouverture d'une page de souscription hébergée. */
 export interface SubscriptionCheckoutRequest {

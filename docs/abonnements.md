@@ -16,7 +16,7 @@ mails relèvent de #214 et #237 et viendront se brancher sur le même service.
 | `organization_subscriptions`          | Une ligne par abonnement : formule, statut, origine, dates, identifiant Stripe. Historique conservé. |
 | `organizations.subscription_plan`     | Formule **courante** dénormalisée. Écrite **uniquement** par `SubscriptionService`.                  |
 | `billing_profiles.stripe_customer_id` | Client Stripe de l'organisation, créé à la première souscription.                                    |
-| `stripe_webhook_events`               | Identifiants des notifications Stripe d'abonnement déjà traitées (idempotence).                      |
+| `stripe_webhook_events`               | Identifiants des notifications Stripe d'abonnement déjà traitées (idempotence), purgés à 30 jours.   |
 
 - **Statuts** (`SUBSCRIPTION_STATUSES`) : `scheduled`, `pending`, `active`,
   `past_due`, `expired`, `cancelled`. Seuls `active` et `past_due` ouvrent les
@@ -34,6 +34,8 @@ mails relèvent de #214 et #237 et viendront se brancher sur le même service.
 `SubscriptionService` est le seul point du code qui répond à « abonné ou non » :
 
 - `current(organizationId)` : abonnement en cours (`active` ou `past_due`) ;
+- `blocking(organizationId)` : abonnement en cours **ou** premier paiement en
+  validation (`pending`) — ce qui interdit une nouvelle souscription ;
 - `isSubscribed(organizationId)` : la règle, évaluée **à la lecture** ;
 - `refreshPlan(organizationId, trx)` : recalcule `organizations.subscription_plan`.
 
@@ -48,7 +50,9 @@ quand la configuration est complète, `NullSubscriptionBillingGateway` sinon.
 2. **Souscrire** `POST /:locale/supplier/subscription/checkout` (`plan`) : crée le
    client Stripe s'il n'existe pas (profil de facturation verrouillé : jamais deux
    clients), puis ouvre Stripe Checkout en mode `subscription`. Refusé si un
-   abonnement est déjà en cours (le changement de formule passe par le portail).
+   abonnement est déjà en cours (le changement de formule passe par le portail)
+   ou si un premier paiement est encore en validation (`pending` : 3-D Secure,
+   prélèvement), qui pourrait encore aboutir.
 3. **Portail** `POST /:locale/supplier/subscription/portal` : portail de
    facturation Stripe (changement de formule, résiliation, moyen de paiement,
    factures). Retour sur la page tarifs.
@@ -62,17 +66,46 @@ fournisseuse) ; entrée de menu « Abonnement » pour ces rôles.
 ### Traitement d'une notification
 
 - Signature vérifiée sur le corps brut ; invalide → `400`.
-- L'identifiant de l'événement est inséré dans `stripe_webhook_events` **dans la
-  même transaction** que la mise à jour : une notification rejouée est ignorée ;
-  un traitement en échec annule l'insertion et Stripe renvoie la notification.
+- Une notification déjà présente dans `stripe_webhook_events` est ignorée sans
+  appel à Stripe. Sinon son identifiant est inséré **dans la même transaction**
+  que la mise à jour : un traitement en échec annule l'insertion et Stripe
+  renvoie la notification (`StripeWebhookEventService`).
 - L'abonnement est **relu** chez Stripe (`subscriptions.retrieve`) plutôt que
-  déduit du contenu de la notification : l'ordre d'arrivée n'importe pas.
+  déduit du contenu de la notification : l'ordre d'arrivée n'importe pas. La
+  relecture a lieu **avant** la transaction, qui ne reste pas ouverte pendant
+  l'appel réseau.
 - La ligne locale est retrouvée par `stripe_subscription_id` (unique) : mise à
   jour, jamais dupliquée. L'organisation vient de la métadonnée
   `organizationId` de l'abonnement, à défaut du profil de facturation qui porte
   le client.
 - Un abonnement en ligne qui devient courant clôt (`cancelled`) un éventuel
-  abonnement manuel encore en cours : un seul à la fois.
+  abonnement **manuel** encore en cours : un seul à la fois.
+- **Doublon en ligne** : si un autre abonnement **Stripe** est déjà en cours
+  (deux pages de souscription payées en parallèle), il n'est jamais clos
+  localement seulement — Stripe continuerait de le facturer. L'abonnement en
+  place est relu chez Stripe :
+  - s'il n'y est plus en cours (résiliation dont la notification n'est pas
+    encore arrivée), il est clos et le nouveau le remplace ;
+  - sinon il est gardé, et le nouveau est **résilié immédiatement chez Stripe**
+    (sans proratisation) puis enregistré `cancelled`. Un log `error`
+    (`duplicate online subscription cancelled at Stripe`) signale le paiement du
+    doublon, à **rembourser depuis le tableau de bord Stripe**.
+
+  Si la résiliation échoue, toute la transaction est annulée et Stripe renvoie
+  la notification.
+
+- **Souscription en ligne désactivée** (variables retirées alors que des
+  abonnements tournent encore chez Stripe) : les notifications d'abonnement sont
+  ignorées et un `warn` le signale — la formule ne suit plus Stripe tant que la
+  configuration n'est pas rétablie.
+
+### Rétention
+
+Le job `PurgeStripeWebhookEventsJob` (planning `purge-stripe-webhook-events`,
+chaque nuit à 4 h 35, heure de Paris, lançable depuis l'admin de la queue)
+supprime les lignes de `stripe_webhook_events` de plus de 30 jours
+(`STRIPE_WEBHOOK_EVENT_RETENTION_DAYS`). Stripe ne renvoie plus une
+notification après 3 jours : la ligne ne sert alors plus à l'idempotence.
 
 ### Statut Stripe → statut plateforme (`statusFromProvider`)
 
@@ -116,9 +149,11 @@ Côté tableau de bord Stripe :
 
 ## Tests
 
-- `tests/unit/subscription_status.spec.ts` : correspondance des statuts.
+- `tests/unit/subscription_status.spec.ts` : correspondance des statuts, types
+  de notification, prestataire inerte.
 - `tests/functional/subscriptions.spec.ts` : page tarifs, droits, création et
   réutilisation du client, page de souscription, portail, notifications
   (activation, changement de formule, impayé, résiliation, rejeu, signature
-  invalide, échec puis renvoi, contrainte d'unicité). Prestataire factice :
+  invalide, échec puis renvoi, contrainte d'unicité, paiement en validation,
+  doublon en ligne, remplacement d'un abonnement déjà résilié), purge. Prestataire factice :
   `tests/utils/fake_subscription_billing_gateway.ts`.

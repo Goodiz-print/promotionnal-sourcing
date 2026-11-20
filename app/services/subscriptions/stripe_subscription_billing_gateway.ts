@@ -2,6 +2,7 @@ import Stripe from 'stripe'
 import subscriptionsConfig from '#config/subscriptions'
 import SubscriptionBillingGateway from '#services/subscriptions/subscription_billing_gateway'
 import { SubscriptionBillingUnavailableException } from '#exceptions/subscription_errors'
+import { isSubscriptionEventType } from '#shared/helpers/subscription'
 import {
   PAID_SUBSCRIPTION_PLANS,
   type BillingCustomerRequest,
@@ -84,40 +85,48 @@ export default class StripeSubscriptionBillingGateway extends SubscriptionBillin
   }
 
   async fetchSubscription(subscriptionId: string): Promise<BillingSubscriptionSnapshot> {
-    const subscription = await this.client.subscriptions.retrieve(subscriptionId)
-    const item = subscription.items.data[0]
-    const organizationId = Number(subscription.metadata?.organizationId)
+    return toSnapshot(await this.client.subscriptions.retrieve(subscriptionId))
+  }
 
-    return {
-      id: subscription.id,
-      customerId:
-        typeof subscription.customer === 'string'
-          ? subscription.customer
-          : subscription.customer.id,
-      providerStatus: subscription.status,
-      plan: planOfPrice(item?.price.id),
-      organizationId: Number.isInteger(organizationId) ? organizationId : null,
-      currentPeriodStart: fromUnix(item?.current_period_start ?? subscription.start_date),
-      currentPeriodEnd: item ? fromUnix(item.current_period_end) : null,
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      canceledAt: subscription.canceled_at ? fromUnix(subscription.canceled_at) : null,
-    }
+  async cancelSubscription(subscriptionId: string): Promise<BillingSubscriptionSnapshot> {
+    // Résiliation immédiate, sans proratisation ni avoir : l'éventuel
+    // remboursement du doublon se fait depuis le tableau de bord.
+    return toSnapshot(
+      await this.client.subscriptions.cancel(subscriptionId, { prorate: false, invoice_now: false })
+    )
+  }
+}
+
+/** État d'un abonnement Stripe, réduit à ce que la plateforme en garde. */
+function toSnapshot(subscription: Stripe.Subscription): BillingSubscriptionSnapshot {
+  const item = subscription.items.data[0]
+  const organizationId = Number(subscription.metadata?.organizationId)
+
+  return {
+    id: subscription.id,
+    customerId:
+      typeof subscription.customer === 'string' ? subscription.customer : subscription.customer.id,
+    providerStatus: subscription.status,
+    plan: planOfPrice(item?.price.id),
+    organizationId: Number.isInteger(organizationId) ? organizationId : null,
+    currentPeriodStart: fromUnix(item?.current_period_start ?? subscription.start_date),
+    currentPeriodEnd: item ? fromUnix(item.current_period_end) : null,
+    cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    canceledAt: subscription.canceled_at ? fromUnix(subscription.canceled_at) : null,
   }
 }
 
 /** Abonnement concerné par une notification `customer.subscription.*` ou `invoice.*`. */
 function subscriptionIdOf(event: Stripe.Event): string | null {
+  if (!isSubscriptionEventType(event.type)) return null
   if (event.type.startsWith('customer.subscription.')) {
     const subscription = event.data.object as Stripe.Subscription
     return subscription.id
   }
-  if (event.type.startsWith('invoice.')) {
-    const invoice = event.data.object as Stripe.Invoice
-    const ref = invoice.parent?.subscription_details?.subscription
-    if (!ref) return null
-    return typeof ref === 'string' ? ref : ref.id
-  }
-  return null
+  const invoice = event.data.object as Stripe.Invoice
+  const ref = invoice.parent?.subscription_details?.subscription
+  if (!ref) return null
+  return typeof ref === 'string' ? ref : ref.id
 }
 
 /** Formule correspondant à un prix Stripe configuré. */

@@ -25,6 +25,8 @@ export default class FakeSubscriptionBillingGateway extends SubscriptionBillingG
   /** État renvoyé par `fetchSubscription`, par identifiant d'abonnement. */
   subscriptions = new Map<string, BillingSubscriptionSnapshot>()
   fetches = 0
+  /** Abonnements résiliés chez le prestataire (doublons). */
+  cancellations: string[] = []
 
   async createCustomer(request: BillingCustomerRequest): Promise<string> {
     this.customers.push(request)
@@ -51,6 +53,19 @@ export default class FakeSubscriptionBillingGateway extends SubscriptionBillingG
     const snapshot = this.subscriptions.get(subscriptionId)
     if (!snapshot) throw new Error(`unknown subscription ${subscriptionId}`)
     return snapshot
+  }
+
+  async cancelSubscription(subscriptionId: string): Promise<BillingSubscriptionSnapshot> {
+    const snapshot = await this.fetchSubscription(subscriptionId)
+    this.cancellations.push(subscriptionId)
+    const cancelled = {
+      ...snapshot,
+      providerStatus: 'canceled',
+      canceledAt: new Date(),
+      cancelAtPeriodEnd: false,
+    }
+    this.subscriptions.set(subscriptionId, cancelled)
+    return cancelled
   }
 }
 

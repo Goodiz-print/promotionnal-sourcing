@@ -7,8 +7,10 @@ import OrganizationSubscription from '#models/organization_subscription'
 import { statusFromProvider } from '#shared/helpers/subscription'
 import type { SubscriptionPlan } from '#shared/types/organization'
 import {
+  BLOCKING_SUBSCRIPTION_STATUSES,
   CURRENT_SUBSCRIPTION_STATUSES,
   type BillingSubscriptionSnapshot,
+  type SubscriptionSyncResult,
 } from '#shared/types/subscription'
 
 /**
@@ -28,6 +30,17 @@ export default class SubscriptionService {
       .first()
   }
 
+  /**
+   * Abonnement qui interdit d'en souscrire un autre : en cours, ou premier
+   * paiement encore en validation (`pending`).
+   */
+  blocking(organizationId: number): Promise<OrganizationSubscription | null> {
+    return OrganizationSubscription.query()
+      .where('organizationId', organizationId)
+      .whereIn('status', [...BLOCKING_SUBSCRIPTION_STATUSES])
+      .first()
+  }
+
   /** L'organisation a-t-elle un abonnement payant en cours, à l'instant de la lecture ? */
   async isSubscribed(organizationId: number): Promise<boolean> {
     return (await this.current(organizationId)) !== null
@@ -37,15 +50,20 @@ export default class SubscriptionService {
    * Aligne l'abonnement local sur l'état relu chez le prestataire, puis la
    * formule courante de l'organisation. **Idempotent** : la ligne est retrouvée
    * par `stripe_subscription_id`, un état rejoué ne change rien.
+   *
+   * Un abonnement qui devient courant clôt un abonnement **manuel** encore en
+   * cours (un seul à la fois). S'il en existe un autre **en ligne**, rien n'est
+   * écrit : `conflict` — clore localement un abonnement que Stripe continue de
+   * facturer ferait payer deux abonnements, l'appelant arbitre chez Stripe.
    */
   async syncFromBilling(
     snapshot: BillingSubscriptionSnapshot,
     trx: TransactionClientContract
-  ): Promise<OrganizationSubscription | null> {
+  ): Promise<SubscriptionSyncResult<OrganizationSubscription>> {
     const organizationId = await this.organizationOf(snapshot, trx)
     if (!organizationId) {
       logger.warn({ subscriptionId: snapshot.id }, 'billing subscription without organization')
-      return null
+      return { outcome: 'ignored' }
     }
 
     const existing = await OrganizationSubscription.query({ client: trx })
@@ -56,10 +74,16 @@ export default class SubscriptionService {
     const plan = snapshot.plan ?? existing?.plan
     if (!plan) {
       logger.warn({ subscriptionId: snapshot.id }, 'billing subscription with an unknown price')
-      return null
+      return { outcome: 'ignored' }
     }
 
     const status = statusFromProvider(snapshot.providerStatus)
+    const becomesCurrent = CURRENT_SUBSCRIPTION_STATUSES.includes(status)
+    if (becomesCurrent) {
+      const other = await this.otherCurrentOnline(organizationId, snapshot.id, trx)
+      if (other) return { outcome: 'conflict', current: other }
+    }
+
     const subscription = existing ?? new OrganizationSubscription()
     subscription.useTransaction(trx)
     subscription.merge({
@@ -76,12 +100,10 @@ export default class SubscriptionService {
         status === 'cancelled' ? DateTime.fromJSDate(snapshot.canceledAt ?? new Date()) : null,
     })
 
-    if (CURRENT_SUBSCRIPTION_STATUSES.includes(status)) {
-      await this.closeOtherCurrent(organizationId, snapshot.id, trx)
-    }
+    if (becomesCurrent) await this.closeCurrentManual(organizationId, trx)
     await subscription.save()
     await this.refreshPlan(organizationId, trx)
-    return subscription
+    return { outcome: 'synced', subscription }
   }
 
   /**
@@ -115,29 +137,46 @@ export default class SubscriptionService {
   }
 
   /**
-   * Un abonnement en ligne qui devient courant remplace tout autre abonnement
-   * en cours (saisi à la main, par exemple) : un seul à la fois.
+   * Autre abonnement **en ligne** en cours pour l'organisation (verrouillé
+   * jusqu'à la fin de la transaction), s'il existe.
    */
-  private async closeOtherCurrent(
+  private async otherCurrentOnline(
     organizationId: number,
     stripeSubscriptionId: string,
+    trx: TransactionClientContract
+  ): Promise<(OrganizationSubscription & { stripeSubscriptionId: string }) | null> {
+    const other = await OrganizationSubscription.query({ client: trx })
+      .where('organizationId', organizationId)
+      .whereIn('status', [...CURRENT_SUBSCRIPTION_STATUSES])
+      .whereNotNull('stripeSubscriptionId')
+      .whereNot('stripeSubscriptionId', stripeSubscriptionId)
+      .forUpdate()
+      .first()
+    return other?.stripeSubscriptionId
+      ? (other as OrganizationSubscription & { stripeSubscriptionId: string })
+      : null
+  }
+
+  /**
+   * Un abonnement en ligne qui devient courant remplace un abonnement **manuel**
+   * encore en cours : un seul à la fois. Rien n'est facturé pour un abonnement
+   * manuel, le clore ne laisse aucun paiement orphelin.
+   */
+  private async closeCurrentManual(
+    organizationId: number,
     trx: TransactionClientContract
   ): Promise<void> {
     const closed = await OrganizationSubscription.query({ client: trx })
       .where('organizationId', organizationId)
       .whereIn('status', [...CURRENT_SUBSCRIPTION_STATUSES])
-      .where((query) =>
-        query
-          .whereNull('stripeSubscriptionId')
-          .orWhereNot('stripeSubscriptionId', stripeSubscriptionId)
-      )
+      .whereNull('stripeSubscriptionId')
       .update({
         status: 'cancelled',
         cancelledAt: DateTime.now().toSQL(),
         updatedAt: DateTime.now().toSQL(),
       })
     if (Number(closed) > 0) {
-      logger.info({ organizationId }, 'previous current subscription replaced by an online one')
+      logger.info({ organizationId }, 'manual subscription replaced by an online one')
     }
   }
 }
