@@ -85,5 +85,23 @@
     "intro": "This notification was sent to you on {brandName} and has not been read yet:",
     "cta": "Open the related page",
     "footer": "You receive this reminder only once. It is not sent once the notification has been read."
+  },
+  "subscriptionActivated": {
+    "subject": "Your {planName} subscription is active",
+    "title": "{planName} subscription activated",
+    "intro": "{organizationName}'s {planName} subscription is active on {brandName}.",
+    "period": "It covers the period from {startsOn} to {endsOn} inclusive.",
+    "since": "It has been active since {startsOn}.",
+    "features": "Your plan includes:",
+    "cta": "View my subscription",
+    "footer": "You are receiving this email as a manager of the organization."
+  },
+  "subscriptionExpiring": {
+    "subject": "Your {planName} subscription ends on {endsOn}",
+    "title": "Your {planName} subscription ends in {daysLeft, plural, one {# day} other {# days}}",
+    "intro": "{organizationName}'s {planName} subscription ends on {endsOn}.",
+    "after": "Without renewal, your organization will go back to the free plan: agencies' identity will no longer be visible on your quote requests or in your statistics.",
+    "cta": "Renew my subscription",
+    "footer": "You are receiving this reminder as a manager of the organization."
   }
 }

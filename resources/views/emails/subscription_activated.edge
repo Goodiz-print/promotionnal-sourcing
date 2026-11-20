@@ -1,0 +1,34 @@
+@let(title = t('emails.subscriptionActivated.title', { planName }))
+@component('emails/layout', {
+  title,
+  locale,
+  i18n,
+  footer: t('emails.subscriptionActivated.footer'),
+})
+  <p>
+    {{
+      t('emails.subscriptionActivated.intro', {
+        organizationName,
+        planName,
+        brandName,
+      })
+    }}
+  </p>
+  @if(endsOn)
+    <p>{{ t('emails.subscriptionActivated.period', { startsOn, endsOn }) }}</p>
+  @else
+    <p>{{ t('emails.subscriptionActivated.since', { startsOn }) }}</p>
+  @end
+  @if(features.length)
+    <p>{{ t('emails.subscriptionActivated.features') }}</p>
+    <ul>
+      @each(feature in features)
+        <li>{{ feature }}</li>
+      @end
+    </ul>
+  @end
+
+  <p>
+    <a class="button" href="{{ appUrl }}{{ path }}">{{ t('emails.subscriptionActivated.cta') }}</a>
+  </p>
+@end

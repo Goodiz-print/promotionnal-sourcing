@@ -85,5 +85,23 @@
     "intro": "Questa notifica ti è stata inviata su {brandName} e non è ancora stata letta:",
     "cta": "Apri la pagina interessata",
     "footer": "Ricevi questo promemoria una sola volta. Non viene più inviato appena la notifica viene letta."
+  },
+  "subscriptionActivated": {
+    "subject": "Il tuo abbonamento {planName} è attivo",
+    "title": "Abbonamento {planName} attivato",
+    "intro": "L'abbonamento {planName} di {organizationName} è attivo su {brandName}.",
+    "period": "Copre il periodo dal {startsOn} al {endsOn} incluso.",
+    "since": "È attivo dal {startsOn}.",
+    "features": "Il tuo piano comprende:",
+    "cta": "Vedi il mio abbonamento",
+    "footer": "Ricevi questa email in quanto responsabile dell'organizzazione."
+  },
+  "subscriptionExpiring": {
+    "subject": "Il tuo abbonamento {planName} termina il {endsOn}",
+    "title": "Il tuo abbonamento {planName} termina tra {daysLeft, plural, one {# giorno} other {# giorni}}",
+    "intro": "L'abbonamento {planName} di {organizationName} termina il {endsOn}.",
+    "after": "Senza rinnovo, la tua organizzazione tornerà al piano gratuito: l'identità delle agenzie non sarà più visibile nelle richieste di preventivo né nelle statistiche.",
+    "cta": "Rinnova il mio abbonamento",
+    "footer": "Ricevi questo promemoria in quanto responsabile dell'organizzazione."
   }
 }

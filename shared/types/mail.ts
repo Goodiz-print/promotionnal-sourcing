@@ -1,6 +1,7 @@
 import type { Locale } from './i18n.js'
 import type { ContactRequestType } from './marketing.js'
 import type { NotificationData, NotificationType } from './notification.js'
+import type { PaidSubscriptionPlan } from './subscription.js'
 
 /**
  * Charges des mails transactionnels envoyés via la queue (`SendMailJob`).
@@ -23,6 +24,8 @@ export const MAIL_KINDS = {
   agencyReviewDecision: 'agency-review-decision',
   announcement: 'announcement',
   notificationReminder: 'notification-reminder',
+  subscriptionActivated: 'subscription-activated',
+  subscriptionExpiring: 'subscription-expiring',
 } as const
 
 export type MailKind = (typeof MAIL_KINDS)[keyof typeof MAIL_KINDS]
@@ -156,6 +159,31 @@ export interface NotificationReminderMailData {
 }
 
 /**
+ * Données du mail d'activation d'un abonnement manuel (#237). Dates déjà
+ * formatées dans la langue du destinataire (jour de fin **inclus**) ; `path`
+ * relatif vers la page tarifs, préfixé par `appUrl`.
+ */
+export interface SubscriptionActivatedMailData {
+  organizationName: string
+  plan: PaidSubscriptionPlan
+  startsOn: string
+  endsOn: string | null
+  path: string
+}
+
+/**
+ * Données du rappel avant la fin d'un abonnement manuel (#237) : 30 jours
+ * (abonnement annuel) puis 7 jours avant la fin. Invite à renouveler.
+ */
+export interface SubscriptionExpiringMailData {
+  organizationName: string
+  plan: PaidSubscriptionPlan
+  endsOn: string
+  daysLeft: number
+  path: string
+}
+
+/**
  * `to` est hissé hors de `data` : il est commun à tous les mails, ce qui permet
  * de loguer le destinataire dans `failed()` sans connaître le `kind`.
  *
@@ -227,6 +255,18 @@ export type SendMailContent =
       to: string
       locale: Locale
       data: NotificationReminderMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.subscriptionActivated
+      to: string
+      locale: Locale
+      data: SubscriptionActivatedMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.subscriptionExpiring
+      to: string
+      locale: Locale
+      data: SubscriptionExpiringMailData
     }
 
 /**

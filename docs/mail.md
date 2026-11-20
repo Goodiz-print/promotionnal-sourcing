@@ -105,16 +105,18 @@ SELECT idempotency_key, kind, "to", attempts, error FROM mail_deliveries WHERE s
 
 ### Types de mail existants
 
-| `kind`                    | Classe                               | Template Edge                    | Déclencheur                                                                                              |
-| ------------------------- | ------------------------------------ | -------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `organization-invitation` | `OrganizationInvitationNotification` | `emails/organization_invitation` | Invitation d'un membre (`OrganizationInvitationsController`)                                             |
-| `rfq-received`            | `RfqReceivedNotification`            | `emails/rfq_received`            | Envoi d'une demande de devis (`RfqNotificationService`)                                                  |
-| `rfq-reminder`            | `RfqReminderNotification`            | `emails/rfq_reminder`            | Relance unique d'un fournisseur qui n'a pas ouvert la demande (`RemindRfqSuppliersJob`)                  |
-| `quote-received`          | `QuoteReceivedNotification`          | `emails/quote_received`          | Un fournisseur remet un devis : prévient les responsables de l'acheteur (`OnQuoteSubmitted`)             |
-| `password-reset`          | `PasswordResetNotification`          | `emails/password_reset`          | Demande « mot de passe oublié » (`PasswordResetService`)                                                 |
-| `email-verification`      | `EmailVerificationNotification`      | `emails/email_verification`      | Inscription, renvoi (`EmailVerificationService`)                                                         |
-| `contact-request`         | `ContactRequestNotification`         | `emails/contact_request`         | Formulaire de contact de la landing (`ContactRequestService`) — mail interne, en français                |
-| `notification-reminder`   | `NotificationReminderNotification`   | `emails/notification_reminder`   | Rappel unique d'une notification in-app importante restée non lue (`SendNotificationRemindersJob`, #243) |
+| `kind`                    | Classe                               | Template Edge                    | Déclencheur                                                                                                |
+| ------------------------- | ------------------------------------ | -------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `organization-invitation` | `OrganizationInvitationNotification` | `emails/organization_invitation` | Invitation d'un membre (`OrganizationInvitationsController`)                                               |
+| `rfq-received`            | `RfqReceivedNotification`            | `emails/rfq_received`            | Envoi d'une demande de devis (`RfqNotificationService`)                                                    |
+| `rfq-reminder`            | `RfqReminderNotification`            | `emails/rfq_reminder`            | Relance unique d'un fournisseur qui n'a pas ouvert la demande (`RemindRfqSuppliersJob`)                    |
+| `quote-received`          | `QuoteReceivedNotification`          | `emails/quote_received`          | Un fournisseur remet un devis : prévient les responsables de l'acheteur (`OnQuoteSubmitted`)               |
+| `password-reset`          | `PasswordResetNotification`          | `emails/password_reset`          | Demande « mot de passe oublié » (`PasswordResetService`)                                                   |
+| `email-verification`      | `EmailVerificationNotification`      | `emails/email_verification`      | Inscription, renvoi (`EmailVerificationService`)                                                           |
+| `contact-request`         | `ContactRequestNotification`         | `emails/contact_request`         | Formulaire de contact de la landing (`ContactRequestService`) — mail interne, en français                  |
+| `notification-reminder`   | `NotificationReminderNotification`   | `emails/notification_reminder`   | Rappel unique d'une notification in-app importante restée non lue (`SendNotificationRemindersJob`, #243)   |
+| `subscription-activated`  | `SubscriptionActivatedNotification`  | `emails/subscription_activated`  | Abonnement manuel devenu actif : prévient owner et admin du fournisseur (`SubscriptionMailService`, #237)  |
+| `subscription-expiring`   | `SubscriptionExpiringNotification`   | `emails/subscription_expiring`   | Rappel avant la fin d'un abonnement manuel : 30 jours (annuel) puis 7 jours (`SyncSubscriptionsJob`, #237) |
 
 `rfq-received` porte un chemin **relatif** (`rfqPath`) et non une URL absolue :
 la charge est persistée et peut être rejouée bien plus tard, éventuellement sous
@@ -133,13 +135,14 @@ worker n'a ni requête HTTP ni utilisateur connecté, donc la langue voyage dans
 charge du job (`locale`, au même niveau que `to`) et est **résolue par l'appelant à
 la mise en queue** :
 
-| Mail                                   | Langue retenue                                                                                                                                                                                                                                        |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `rfq-received`                         | `users.locale` de chaque membre habilité (`RFQ_RESPONDER_ROLES`) ; pour une adresse de contact d'organisation, celle du premier membre habilité (le plus ancien), à défaut la langue par défaut — un même envoi peut donc partir en plusieurs langues |
-| `organization-invitation`              | celle de **l'inviteur** (l'invité n'a pas encore de compte) ; le lien d'acceptation pointe vers la même                                                                                                                                               |
-| `password-reset`, `email-verification` | celle de la page d'où la demande est faite                                                                                                                                                                                                            |
-| `welcome`                              | `users.locale` du compte                                                                                                                                                                                                                              |
-| `notification-reminder`                | `users.locale` du destinataire de la notification, à défaut la langue par défaut ; le lien est préfixé par la même                                                                                                                                    |
+| Mail                                              | Langue retenue                                                                                                                                                                                                                                        |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rfq-received`                                    | `users.locale` de chaque membre habilité (`RFQ_RESPONDER_ROLES`) ; pour une adresse de contact d'organisation, celle du premier membre habilité (le plus ancien), à défaut la langue par défaut — un même envoi peut donc partir en plusieurs langues |
+| `organization-invitation`                         | celle de **l'inviteur** (l'invité n'a pas encore de compte) ; le lien d'acceptation pointe vers la même                                                                                                                                               |
+| `password-reset`, `email-verification`            | celle de la page d'où la demande est faite                                                                                                                                                                                                            |
+| `welcome`                                         | `users.locale` du compte                                                                                                                                                                                                                              |
+| `notification-reminder`                           | `users.locale` du destinataire de la notification, à défaut la langue par défaut ; le lien est préfixé par la même                                                                                                                                    |
+| `subscription-activated`, `subscription-expiring` | `users.locale` de chaque responsable (owner, admin) de l'organisation ; dates et lien dans la même langue                                                                                                                                             |
 
 Une charge mise en queue avant #58 n'a pas de `locale` : `SendMailJob` retombe sur
 la langue par défaut (`fr`). La charge d'un mail en dead-letter conserve sa langue,
