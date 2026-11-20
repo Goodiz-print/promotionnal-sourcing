@@ -28,6 +28,11 @@ const translations = {
   'rfq.show.deadline': 'Échéance : {date}',
   'rfq.show.category': 'Catégorie',
   'rfq.show.product': 'Produit',
+  'rfq.supplier.anonymousBuyer': 'Agence anonyme',
+  'subscription.upsell.title': 'Abonnez-vous pour connaître l’agence',
+  'subscription.upsell.body': 'Abonnez-vous pour la contacter directement.',
+  'subscription.upsell.askAdmin': 'Un administrateur peut abonner votre organisation.',
+  'subscription.upsell.cta': 'Découvrir les abonnements',
 }
 
 vi.mock('@inertiajs/vue3', async () => {
@@ -92,6 +97,7 @@ describe('supplier/rfqs/index.vue', () => {
     const wrapper = mount(SupplierRfqsIndex, {
       props: {
         rfqs: [rfq(), rfq({ id: 2, title: 'Gourdes inox', myStatus: 'declined' })],
+        upsell: null,
       },
     })
 
@@ -100,10 +106,29 @@ describe('supplier/rfqs/index.vue', () => {
     expect(wrapper.text()).toContain('Acme')
     expect(wrapper.text()).toContain('À traiter')
     expect(wrapper.text()).toContain('Déclinée')
+    expect(wrapper.text()).not.toContain('Découvrir les abonnements')
+  })
+
+  it('masque l’agence et propose de s’abonner à un fournisseur non abonné', () => {
+    const wrapper = mount(SupplierRfqsIndex, {
+      props: { rfqs: [rfq({ buyerName: null })], upsell: { canSubscribe: true } },
+    })
+
+    expect(wrapper.text()).toContain('Agence anonyme')
+    expect(wrapper.text()).toContain('Découvrir les abonnements')
+  })
+
+  it('renvoie vers un administrateur un membre qui ne peut pas souscrire', () => {
+    const wrapper = mount(SupplierRfqsIndex, {
+      props: { rfqs: [rfq({ buyerName: null })], upsell: { canSubscribe: false } },
+    })
+
+    expect(wrapper.text()).toContain('Un administrateur peut abonner votre organisation.')
+    expect(wrapper.text()).not.toContain('Découvrir les abonnements')
   })
 
   it('affiche un message quand aucune demande n’a été reçue', () => {
-    const wrapper = mount(SupplierRfqsIndex, { props: { rfqs: [] } })
+    const wrapper = mount(SupplierRfqsIndex, { props: { rfqs: [], upsell: null } })
 
     expect(wrapper.text()).toContain('Aucune demande reçue pour le moment.')
     expect(wrapper.find('table').exists()).toBe(false)
@@ -112,7 +137,7 @@ describe('supplier/rfqs/index.vue', () => {
 
 describe('supplier/rfqs/show.vue', () => {
   // Demande ouverte, sans devis encore : le fournisseur peut y répondre.
-  const open = { quote: null, canQuote: true }
+  const open = { quote: null, canQuote: true, upsell: null }
 
   it('propose de décliner une demande reçue et non encore tranchée', () => {
     const wrapper = mount(SupplierRfqShow, { props: { ...open, rfq: detail() } })
@@ -129,13 +154,30 @@ describe('supplier/rfqs/show.vue', () => {
 
   it('renvoie vers le devis existant au lieu d’en proposer un second', () => {
     const wrapper = mount(SupplierRfqShow, {
-      props: { rfq: detail(), canQuote: true, quote: { id: 7, status: 'draft' } },
+      props: { rfq: detail(), canQuote: true, quote: { id: 7, status: 'draft' }, upsell: null },
     })
 
     expect(wrapper.text()).toContain('Voir mon devis')
     expect(wrapper.text()).not.toContain('Répondre par un devis')
     // Un devis en cours : décliner n'a plus de sens.
     expect(wrapper.text()).not.toContain('Décliner la demande')
+  })
+
+  it('montre l’agence à un fournisseur abonné', () => {
+    const wrapper = mount(SupplierRfqShow, { props: { ...open, rfq: detail() } })
+
+    expect(wrapper.text()).toContain('De Acme')
+    expect(wrapper.text()).not.toContain('Découvrir les abonnements')
+  })
+
+  it('remplace l’agence par l’encart d’abonnement pour un non abonné', () => {
+    const wrapper = mount(SupplierRfqShow, {
+      props: { ...open, upsell: { canSubscribe: true }, rfq: detail({ buyerName: null }) },
+    })
+
+    expect(wrapper.text()).toContain('Agence anonyme')
+    expect(wrapper.text()).toContain('Découvrir les abonnements')
+    expect(wrapper.text()).not.toContain('Acme')
   })
 
   it('n’expose pas le budget de l’acheteur', () => {

@@ -16,7 +16,12 @@
     "body": "{buyerName} vous invite à chiffrer la demande « {rfqTitle} » ({itemCount, plural, one {# ligne} other {# lignes}}).",
     "deadline": "Réponse attendue avant le {deadline}.",
     "cta": "Consulter la demande",
-    "footer": "Connectez-vous à votre espace fournisseur pour consulter la demande ou la décliner."
+    "footer": "Connectez-vous à votre espace fournisseur pour consulter la demande ou la décliner.",
+    "anonymous": {
+      "subject": "Nouvelle demande de devis : « {rfqTitle} »",
+      "title": "Une agence vous consulte sur {brandName}",
+      "body": "Une agence vous invite à chiffrer la demande « {rfqTitle} » ({itemCount, plural, one {# ligne} other {# lignes}})."
+    }
   },
   "passwordReset": {
     "subject": "Réinitialisation de votre mot de passe",
@@ -46,7 +51,10 @@
     "body": "{buyerName} vous a adressé la demande « {rfqTitle} » et vous n'avez pas encore pu la consulter.",
     "deadline": "Réponse attendue avant le {deadline}.",
     "cta": "Consulter la demande",
-    "footer": "Ceci est l'unique rappel pour cette demande. Vous pouvez aussi la décliner depuis votre espace fournisseur."
+    "footer": "Ceci est l'unique rappel pour cette demande. Vous pouvez aussi la décliner depuis votre espace fournisseur.",
+    "anonymous": {
+      "body": "Une agence vous a adressé la demande « {rfqTitle} » et vous n'avez pas encore pu la consulter."
+    }
   },
   "rfqDetails": {
     "description": "Description de la demande",
@@ -131,5 +139,10 @@
     "cta": "Confirmer l'adresse",
     "validity": "Ce lien est valable {days, plural, one {# jour} other {# jours}}.",
     "ignore": "Si vous ne travaillez pas pour {organizationName}, ignorez ce message : aucune demande ne vous sera envoyée."
+  },
+  "subscriptionUpsell": {
+    "title": "Abonnez-vous pour connaître l'agence",
+    "body": "Abonnez-vous pour connaître l'agence qui vous consulte et la contacter directement. La souscription est réservée aux propriétaires et administrateurs de votre organisation.",
+    "cta": "Découvrir les abonnements"
   }
 }

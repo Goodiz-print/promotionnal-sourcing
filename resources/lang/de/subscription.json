@@ -86,6 +86,13 @@
     "unavailable": "Der Online-Abschluss ist derzeit nicht verfügbar.",
     "alreadySubscribed": "Sie haben bereits ein laufendes Abonnement: Wechseln Sie den Tarif über das Abrechnungsportal.",
     "noBillingAccount": "Für Ihre Organisation besteht kein Online-Abrechnungskonto.",
-    "paymentPending": "Eine Abonnementzahlung wird noch bestätigt: Schließen Sie sie im Abrechnungsportal ab oder versuchen Sie es später erneut."
+    "paymentPending": "Eine Abonnementzahlung wird noch bestätigt: Schließen Sie sie im Abrechnungsportal ab oder versuchen Sie es später erneut.",
+    "adminOnly": "Nur die Inhaber und Administratoren Ihrer Organisation können ihr Abonnement verwalten."
+  },
+  "upsell": {
+    "title": "Abonnieren Sie, um die Agentur kennenzulernen",
+    "body": "Abonnieren Sie, um zu erfahren, welche Agentur Sie anfragt, und sie direkt zu kontaktieren.",
+    "askAdmin": "Ein Inhaber oder Administrator Ihrer Organisation kann ein Abonnement abschließen, damit Sie die Agentur erfahren und direkt kontaktieren können.",
+    "cta": "Abonnements ansehen"
   }
 }

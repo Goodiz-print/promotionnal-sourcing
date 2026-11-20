@@ -160,6 +160,17 @@ export type SupplierSubscriptionPageProps = {
 }
 
 /**
+ * Encart « abonnez-vous » d'un écran « Demandes reçues » vu par un fournisseur
+ * **non abonné** (#222) : il remplace le bloc agence, masqué (#220).
+ * `canSubscribe` dit si l'utilisateur peut souscrire lui-même
+ * (`canManageSubscription`) ; sinon l'encart l'invite à passer par un
+ * administrateur de son organisation. La prop vaut `null` pour un abonné.
+ */
+export type SubscriptionUpsellType = {
+  canSubscribe: boolean
+}
+
+/**
  * Grille des formules affichée sur la page tarifs (#214). Chaque ligne est
  * traduite par formule (`subscription.features.<clé>.<formule>`) ; `included`
  * coche ou barre la ligne.

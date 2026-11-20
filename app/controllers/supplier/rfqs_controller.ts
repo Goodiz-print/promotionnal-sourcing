@@ -5,10 +5,13 @@ import RfqDeclined from '#events/rfq_declined'
 import OrganizationContextService from '#services/organization_context_service'
 import QuoteService from '#services/quote_service'
 import RfqService from '#services/rfq_service'
+import SubscriptionService from '#services/subscription_service'
 import SupplierRfqDetailTransformer from '#transformers/supplier_rfq_detail_transformer'
 import SupplierRfqTransformer from '#transformers/supplier_rfq_transformer'
 import { RfqNotEditableException } from '#exceptions/rfq_errors'
 import type { Locale } from '#shared/types/i18n'
+import type Organization from '#models/organization'
+import type { SubscriptionUpsellType } from '#shared/types/subscription'
 
 /**
  * Demandes de devis **reçues**, côté fournisseur. Symétrique de
@@ -20,13 +23,19 @@ import type { Locale } from '#shared/types/i18n'
  * les lignes encore `pending`. Une demande qu'un acheteur a préparée sans
  * l'envoyer n'existe donc pas ici, et une demande adressée à quelqu'un d'autre
  * est un 404 — pas un 403, qui confirmerait son existence.
+ *
+ * Un fournisseur non abonné reçoit les demandes **sans l'agence** (#220) et un
+ * encart qui l'invite à s'abonner (#222). La règle s'évalue à chaque lecture :
+ * s'abonner révèle l'agence sur les demandes déjà reçues, l'expiration la
+ * masque de nouveau.
  */
 @inject()
 export default class SupplierRfqsController {
   constructor(
     private service: RfqService,
     private quotes: QuoteService,
-    private organizations: OrganizationContextService
+    private organizations: OrganizationContextService,
+    private subscriptions: SubscriptionService
   ) {}
 
   /**
@@ -36,10 +45,14 @@ export default class SupplierRfqsController {
     const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canRespondToRfq', org)
 
-    const rfqs = await this.service.listForSupplier(org.id)
+    const [rfqs, revealBuyer] = await Promise.all([
+      this.service.listForSupplier(org.id),
+      this.subscriptions.isSubscribed(org.id),
+    ])
 
     return inertia.render('supplier/rfqs/index', {
-      rfqs: rfqs.map((rfq) => new SupplierRfqTransformer(rfq).toObject()),
+      rfqs: rfqs.map((rfq) => new SupplierRfqTransformer(rfq, revealBuyer).toObject()),
+      upsell: await this.upsellFor(revealBuyer, org, bouncer),
     })
   }
 
@@ -56,11 +69,15 @@ export default class SupplierRfqsController {
 
     const rfq = await this.service.openForSupplier(Number(params.id), org.id)
 
-    const quote = await this.quotes.findLiveForRfq(rfq.id, org.id)
+    const [quote, revealBuyer] = await Promise.all([
+      this.quotes.findLiveForRfq(rfq.id, org.id),
+      this.subscriptions.isSubscribed(org.id),
+    ])
     const [recipient] = rfq.suppliers
 
     return inertia.render('supplier/rfqs/show', {
-      rfq: new SupplierRfqDetailTransformer(rfq, i18n.locale as Locale).toObject(),
+      rfq: new SupplierRfqDetailTransformer(rfq, revealBuyer, i18n.locale as Locale).toObject(),
+      upsell: await this.upsellFor(revealBuyer, org, bouncer),
       // Le devis vivant du fournisseur, s'il en a un : l'écran y renvoie.
       quote: quote ? { id: quote.id, status: quote.status } : null,
       // Chiffrer suppose une demande encore ouverte et non déclinée.
@@ -88,5 +105,15 @@ export default class SupplierRfqsController {
     }
 
     return response.redirect().toRoute('supplier.rfqs.show', { locale: i18n.locale, id: rfq.id })
+  }
+
+  /** Encart d'abonnement (#222), pour un fournisseur non abonné seulement. */
+  private async upsellFor(
+    subscribed: boolean,
+    org: Organization,
+    bouncer: HttpContext['bouncer']
+  ): Promise<SubscriptionUpsellType | null> {
+    if (subscribed) return null
+    return { canSubscribe: await bouncer.allows('canManageSubscription', org) }
   }
 }

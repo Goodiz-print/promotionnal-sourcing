@@ -87,10 +87,21 @@ test.group('Abonnements — page tarifs', (group) => {
     const buyerOrg = await OrganizationFactory.create()
     const buyer = await createMember(buyerOrg, 'owner')
 
-    const asMember = await client.get('/fr/supplier/subscription').withInertia().loginAs(member)
+    const asMember = await client
+      .get('/fr/supplier/subscription')
+      .withInertia()
+      .redirects(0)
+      .loginAs(member)
     const asBuyer = await client.get('/fr/supplier/subscription').withInertia().loginAs(buyer)
 
-    asMember.assertStatus(403)
+    // Un membre fournisseur (lien d'un mail anonyme, #222) est ramené au tableau
+    // de bord avec une explication ; une organisation acheteuse reste refusée.
+    asMember.assertStatus(302)
+    asMember.assertHeader('location', '/fr/dashboard')
+    asMember.assertFlashMessage(
+      'error',
+      'Seuls les propriétaires et administrateurs de votre organisation peuvent gérer son abonnement.'
+    )
     asBuyer.assertStatus(403)
   })
 

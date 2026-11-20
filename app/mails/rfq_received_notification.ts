@@ -16,6 +16,10 @@ import type { RfqReceivedMailData } from '#shared/types/mail'
  *
  * `replyTo` est l'adresse relais du couple demande / fournisseur (#223) : le
  * fournisseur répond depuis sa messagerie, la plateforme reçoit la réponse.
+ *
+ * `buyerName` à `null` (fournisseur non abonné, #220) : objet, titre et
+ * introduction ne nomment pas l'agence, et l'encart d'abonnement (#222) mène à
+ * `subscribePath`.
  */
 export default class RfqReceivedNotification extends LocalizedMail {
   constructor(
@@ -27,13 +31,17 @@ export default class RfqReceivedNotification extends LocalizedMail {
   }
 
   prepare() {
-    const { buyerName, replyTo, ...rest } = this.data
-    this.message.to(this.email).subject(this.t('emails.rfqReceived.subject', { buyerName }))
+    const { buyerName, replyTo, subscribePath, ...rest } = this.data
+    const copy = buyerName === null ? 'emails.rfqReceived.anonymous' : 'emails.rfqReceived'
+    const texts = { buyerName, rfqTitle: rest.rfqTitle, itemCount: rest.itemCount }
+    this.message.to(this.email).subject(this.t(`${copy}.subject`, texts))
     this.relayRepliesTo(replyTo)
 
     const state = {
       ...rest,
-      buyerName,
+      title: this.t(`${copy}.title`, texts),
+      intro: this.t(`${copy}.body`, texts),
+      subscribePath: buyerName === null ? (subscribePath ?? null) : null,
       description: rest.description ?? null,
       lines: rest.lines ?? [],
       canReply: Boolean(replyTo),

@@ -156,7 +156,8 @@
     },
     "errors": {
       "notDecidable": "Voor deze aanvraag wordt geen beslissing van u meer verwacht."
-    }
+    },
+    "anonymousBuyer": "Anoniem bureau"
   },
   "product": {
     "label": "Product uit de catalogus toevoegen",

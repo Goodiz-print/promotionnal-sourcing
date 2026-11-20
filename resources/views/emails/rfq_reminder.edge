@@ -6,11 +6,12 @@
   replyable: canReply,
   footer: t('emails.rfqReminder.footer'),
 })
-  <p>{{ t('emails.rfqReminder.body', { buyerName, rfqTitle }) }}</p>
+  <p>{{ intro }}</p>
   @if(deadline)
     <p>{{ t('emails.rfqReminder.deadline', { deadline }) }}</p>
   @end
   @include('emails/partials/rfq_details')
+  @include('emails/partials/subscription_upsell')
   @if(canReply)
     <p><strong>{{ t('emails.rfqDetails.replyHint') }}</strong></p>
   @end

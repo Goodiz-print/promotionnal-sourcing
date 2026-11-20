@@ -65,6 +65,7 @@ Les documents PDF des fournisseurs (catalogue, certificat, fiche technique) sont
 - Middleware dans `app/middleware/`
 - Events dans `app/events/` + Listeners dans `app/listeners/`
 - Abilities (Bouncer) dans `app/abilities/`
+- **Règles d'autorisation = abilities Bouncer (OBLIGATOIRE)** : toute décision « cet utilisateur peut-il… / est-il… » (rôle dans l'organisation, type d'organisation, appartenance, droit plateforme) s'écrit comme une **ability** dans `app/abilities/main.ts` et s'appelle par `bouncer.authorize` / `bouncer.allows` / `bouncer.denies`. Jamais de méthode privée de controller ni de condition inline qui combine type d'organisation, rôle et `bouncer.*` pour en déduire un droit : la règle doit être nommée, réutilisable et testable au même endroit que les autres.
 - Jobs de queue dans `app/jobs/`
 - **Types des controllers/services dans `shared/types/`** : tout type utilisé dans un controller ou service doit vivre dans `shared/types/<domaine>.ts` — jamais défini inline ou dans `app/`. Le frontend importe directement ces types quand pertinent (props, composables, stores).
 - **Classes d'erreur dans `app/exceptions/`** : toute classe d'erreur métier doit vivre dans `app/exceptions/<domaine>_errors.ts` — jamais définie inline dans un controller ou service.
@@ -165,6 +166,7 @@ tests/
 
 - Modifier `start/kernel.ts` sans vérifier les effets de bord
 - Utiliser `Model.query()` dans un Controller (→ déléguer au Service)
+- **Écrire une règle d'autorisation dans un controller** (méthode privée `isXxxWithoutRights`, test de rôle ou de type d'organisation combiné à `bouncer.*`) (→ ability Bouncer dans `app/abilities/main.ts`)
 - **Instancier un service / une classe injectable avec `new`** dans un controller / service / job / command (→ injection de dépendances via `@inject` + conteneur IoC ; abstraction = classe abstraite liée dans un service provider — voir la règle DI)
 - Committer des secrets ou `.env`
 - Supprimer des migrations existantes

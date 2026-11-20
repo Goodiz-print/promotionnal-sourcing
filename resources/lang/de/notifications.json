@@ -36,5 +36,13 @@
     "subscription": {
       "duplicate_cancelled": "{organizationName} hat zwei Abonnements gleichzeitig bezahlt: Das doppelte Abonnement {cancelledSubscriptionId} wurde in Stripe gekündigt. Erstatten Sie die Zahlung im Stripe-Dashboard."
     }
+  },
+  "anonymous": {
+    "rfq": {
+      "received": "Eine Agentur hat Ihnen eine Angebotsanfrage gesendet: {rfqTitle}."
+    },
+    "quote": {
+      "rejected": "Eine Agentur hat Ihr Angebot für {rfqTitle} abgelehnt."
+    }
   }
 }

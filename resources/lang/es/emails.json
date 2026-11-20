@@ -16,7 +16,12 @@
     "body": "{buyerName} le invita a presupuestar la solicitud «{rfqTitle}» ({itemCount, plural, one {# línea} other {# líneas}}).",
     "deadline": "Respuesta esperada antes del {deadline}.",
     "cta": "Ver la solicitud",
-    "footer": "Inicie sesión en su espacio de proveedor para consultar la solicitud o rechazarla."
+    "footer": "Inicie sesión en su espacio de proveedor para consultar la solicitud o rechazarla.",
+    "anonymous": {
+      "subject": "Nueva solicitud de presupuesto: «{rfqTitle}»",
+      "title": "Una agencia le consulta en {brandName}",
+      "body": "Una agencia le invita a presupuestar la solicitud «{rfqTitle}» ({itemCount, plural, one {# línea} other {# líneas}})."
+    }
   },
   "passwordReset": {
     "subject": "Restablecer su contraseña",
@@ -46,7 +51,10 @@
     "body": "{buyerName} le envió la solicitud «{rfqTitle}» y aún no la ha consultado.",
     "deadline": "Respuesta esperada antes del {deadline}.",
     "cta": "Ver la solicitud",
-    "footer": "Este es el único recordatorio de esta solicitud. También puede rechazarla desde su espacio de proveedor."
+    "footer": "Este es el único recordatorio de esta solicitud. También puede rechazarla desde su espacio de proveedor.",
+    "anonymous": {
+      "body": "Una agencia le envió la solicitud «{rfqTitle}» y aún no la ha consultado."
+    }
   },
   "rfqDetails": {
     "description": "Descripción de la solicitud",
@@ -131,5 +139,10 @@
     "cta": "Confirmar la dirección",
     "validity": "Este enlace es válido durante {days, plural, one {# día} other {# días}}.",
     "ignore": "Si no trabaja para {organizationName}, ignore este mensaje: no se le enviará ninguna solicitud."
+  },
+  "subscriptionUpsell": {
+    "title": "Suscríbase para conocer la agencia",
+    "body": "Suscríbase para saber qué agencia le consulta y contactarla directamente. La suscripción está reservada a los propietarios y administradores de su organización.",
+    "cta": "Ver las suscripciones"
   }
 }

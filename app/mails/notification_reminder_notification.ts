@@ -1,12 +1,13 @@
 import logger from '@adonisjs/core/services/logger'
 import LocalizedMail from '#mails/localized_mail'
+import { notificationMessageKey } from '#shared/helpers/notification'
 import type { Locale } from '#shared/types/i18n'
 import type { NotificationData, NotificationType } from '#shared/types/notification'
 
 /**
  * Rappel par mail d'une notification in-app importante restée non lue (#243,
  * `NotificationReminderService`). Générique : le message est celui de la
- * notification (`notifications.types.<type>`), rendu dans la langue du
+ * notification (`notificationMessageKey`), rendu dans la langue du
  * destinataire ; `path` (relatif) mène à l'écran concerné.
  */
 export default class NotificationReminderNotification extends LocalizedMail {
@@ -26,7 +27,7 @@ export default class NotificationReminderNotification extends LocalizedMail {
    * alors sans ce texte, avec son lien, plutôt que d'échouer à chaque tentative.
    */
   get notificationMessage(): string | null {
-    const key = `notifications.types.${this.notificationType}`
+    const key = notificationMessageKey(this.notificationType, this.notificationData)
     if (!this.i18n.hasMessage(key) && !this.i18n.hasFallbackMessage(key)) return null
     try {
       return this.i18n.formatMessage(key, this.notificationData)

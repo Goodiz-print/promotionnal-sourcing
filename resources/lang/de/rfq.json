@@ -156,7 +156,8 @@
     },
     "errors": {
       "notDecidable": "Für diese Anfrage wird keine Entscheidung mehr von Ihnen erwartet."
-    }
+    },
+    "anonymousBuyer": "Anonyme Agentur"
   },
   "product": {
     "label": "Produkt aus dem Katalog hinzufügen",

@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
-import { Inbox } from 'lucide-vue-next'
+import { EyeOff, Inbox } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import BaseAvatar from '~/components/base/base_avatar.vue'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseTable from '~/components/base/base_table.vue'
+import SubscriptionUpsell from '~/components/subscription/subscription_upsell.vue'
 import { RFQ_SUPPLIER_STATUS_TONES } from '~/components/rfqs/types'
 import type { SupplierRfqType } from '#shared/types/rfq'
+import type { SubscriptionUpsellType } from '#shared/types/subscription'
 
-defineProps<{ rfqs: SupplierRfqType[] }>()
+/** `upsell` : encart d'abonnement d'un fournisseur non abonné, qui ne voit pas l'agence (#220, #222). */
+defineProps<{ rfqs: SupplierRfqType[]; upsell: SubscriptionUpsellType | null }>()
 
 const { t, locale } = useI18n()
 
@@ -37,6 +40,8 @@ function initials(name: string): string {
       :title="t('rfq.supplier.index.title')"
       :description="t('rfq.supplier.index.subtitle')"
     />
+
+    <SubscriptionUpsell v-if="upsell && rfqs.length > 0" :upsell="upsell" />
 
     <BaseEmptyState
       v-if="rfqs.length === 0"
@@ -68,7 +73,14 @@ function initials(name: string): string {
           </Link>
         </td>
         <td>
-          <div class="flex items-center gap-2.5">
+          <span
+            v-if="rfq.buyerName === null"
+            class="inline-flex items-center gap-1.5 text-text-muted"
+          >
+            <EyeOff :size="14" aria-hidden="true" />
+            {{ t('rfq.supplier.anonymousBuyer') }}
+          </span>
+          <div v-else class="flex items-center gap-2.5">
             <img
               v-if="rfq.buyerLogoUrl"
               :src="rfq.buyerLogoUrl"

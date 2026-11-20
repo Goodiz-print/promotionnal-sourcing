@@ -12,9 +12,10 @@ import type { SupplierRfqDetailType } from '#shared/types/rfq'
 export default class SupplierRfqDetailTransformer extends SupplierRfqTransformer {
   constructor(
     resource: Rfq,
+    revealBuyer = false,
     protected locale: Locale = DEFAULT_LOCALE
   ) {
-    super(resource)
+    super(resource, revealBuyer)
   }
 
   toObject(): SupplierRfqDetailType {

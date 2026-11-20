@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import { OrganizationFactory } from '#database/factories/organization_factory'
+import { OrganizationSubscriptionFactory } from '#database/factories/organization_subscription_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import Organization from '#models/organization'
 import OrganizationUser from '#models/organization_user'
@@ -98,4 +99,12 @@ export async function createMemberOf(
 ): Promise<User> {
   const organization = await Organization.findByOrFail('slug', organizationSlug)
   return createMember(organization, roleSlug)
+}
+
+/**
+ * Abonne l'organisation : abonnement Business manuel **en cours** (cf.
+ * `OrganizationSubscriptionFactory`). Renvoyé pour le faire expirer ensuite.
+ */
+export function subscribeOrganization(organization: Organization) {
+  return OrganizationSubscriptionFactory.merge({ organizationId: organization.id }).create()
 }

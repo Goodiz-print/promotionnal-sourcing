@@ -86,6 +86,13 @@
     "unavailable": "Online subscription is not available at the moment.",
     "alreadySubscribed": "You already have a current subscription: switch plans from the billing portal.",
     "noBillingAccount": "Your organization has no online billing account.",
-    "paymentPending": "A subscription payment is still being confirmed: complete it from the billing portal or try again later."
+    "paymentPending": "A subscription payment is still being confirmed: complete it from the billing portal or try again later.",
+    "adminOnly": "Only the owners and administrators of your organization can manage its subscription."
+  },
+  "upsell": {
+    "title": "Subscribe to find out who the agency is",
+    "body": "Subscribe to find out which agency is consulting you and contact it directly.",
+    "askAdmin": "An owner or administrator of your organization can subscribe to find out who the agency is and contact it directly.",
+    "cta": "See subscription plans"
   }
 }

@@ -36,5 +36,13 @@
     "subscription": {
       "duplicate_cancelled": "{organizationName} a payé deux abonnements en parallèle : le doublon {cancelledSubscriptionId} a été résilié chez Stripe. Remboursez son paiement depuis le tableau de bord Stripe."
     }
+  },
+  "anonymous": {
+    "rfq": {
+      "received": "Une agence vous a envoyé une demande de devis : {rfqTitle}."
+    },
+    "quote": {
+      "rejected": "Une agence a rejeté votre devis pour {rfqTitle}."
+    }
   }
 }

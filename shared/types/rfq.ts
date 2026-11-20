@@ -232,7 +232,13 @@ export type SupplierRfqType = {
   status: RfqStatus
   deadline: string | null
   itemCount: number
-  buyerName: string
+  /**
+   * Agence acheteuse, **`null` pour un fournisseur non abonné** (#220) : la
+   * demande lui reste anonyme. La règle s'évalue à la lecture, côté serveur
+   * (`SubscriptionService#isSubscribed`) : la donnée n'atteint jamais le
+   * navigateur d'un non abonné.
+   */
+  buyerName: string | null
   buyerLogoUrl: string | null
   myStatus: RfqSupplierStatus
   sentAt: string | null

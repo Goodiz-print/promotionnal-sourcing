@@ -49,7 +49,16 @@ export interface OrganizationInvitationMailData {
  * la préfixe avec le global `appUrl` de `config/mail.ts`, résolu au rendu.
  */
 export interface RfqReceivedMailData {
-  buyerName: string
+  /**
+   * Nom de l'agence ; `null` pour un fournisseur non abonné (#220), à qui le
+   * mail reste anonyme, objet compris.
+   */
+  buyerName: string | null
+  /**
+   * Chemin relatif de la page d'abonnement, pour l'encart « abonnez-vous » d'un
+   * mail anonyme (#222) ; `null` ou absent pour un abonné.
+   */
+  subscribePath?: string | null
   rfqTitle: string
   itemCount: number
   /** Échéance déjà formatée par l'appelant (le worker n'a pas de locale). */
@@ -74,7 +83,9 @@ export interface RfqReceivedMailData {
  * `RfqReceivedMailData` (chemin relatif, échéance déjà formatée).
  */
 export interface RfqReminderMailData {
-  buyerName: string
+  /** Mêmes règles que le mail de demande (#220, #222). */
+  buyerName: string | null
+  subscribePath?: string | null
   rfqTitle: string
   deadline: string | null
   rfqPath: string

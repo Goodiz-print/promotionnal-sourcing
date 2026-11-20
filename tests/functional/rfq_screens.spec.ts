@@ -8,7 +8,7 @@ import RfqReceivedNotification from '#mails/rfq_received_notification'
 import Rfq from '#models/rfq'
 import RfqItem from '#models/rfq_item'
 import RfqSupplier from '#models/rfq_supplier'
-import { createMember } from '#tests/utils/organizations'
+import { createMember, subscribeOrganization } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
 import type Organization from '#models/organization'
 import type User from '#models/user'
@@ -306,6 +306,8 @@ test.group('Écrans RFQ — acheteur', (group) => {
     const supplier = await OrganizationFactory.apply('supplier')
       .merge({ email: 'contact@fournisseur.test' })
       .create()
+    // Abonné : le mail nomme l'agence (#220).
+    await subscribeOrganization(supplier)
     const rfq = await RfqFactory.merge({
       buyerOrganizationId: org.id,
       title: 'Tote bags',

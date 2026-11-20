@@ -28,9 +28,20 @@ export default class SubscriptionController {
     private organizations: OrganizationContextService
   ) {}
 
-  /** Page tarifs : formule courante, grille des formules, accès au portail. */
+  /**
+   * Page tarifs : formule courante, grille des formules, accès au portail.
+   *
+   * Un membre d'une organisation fournisseuse sans droit de souscrire (lien de
+   * l'encart d'abonnement d'un mail anonyme, #222) est ramené au tableau de bord
+   * avec une explication plutôt qu'un 403 ; les autres restent refusés.
+   */
   async show(ctx: HttpContext) {
-    const org = await this.authorize(ctx)
+    const org = await this.organizations.currentFor(ctx.auth.getUserOrFail())
+    if (await ctx.bouncer.allows('isSupplierMemberWithoutSubscriptionRights', org)) {
+      ctx.session.flash('error', ctx.i18n.t('subscription.flash.adminOnly'))
+      return ctx.response.redirect().toRoute('dashboard.show', { locale: ctx.i18n.locale })
+    }
+    await ctx.bouncer.authorize('canManageSubscription', org)
     const [current, portalAvailable] = await Promise.all([
       this.subscriptions.current(org.id),
       this.billing.hasBillingAccount(org.id),

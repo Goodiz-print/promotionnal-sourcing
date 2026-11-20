@@ -76,6 +76,13 @@ const RFQ_DATA: RfqReceivedMailData = {
   replyTo: 'rfq-abc@relay.test',
 }
 
+/** Même demande, vue par un fournisseur non abonné (#220, #222). */
+const ANONYMOUS_RFQ_DATA: RfqReceivedMailData = {
+  ...RFQ_DATA,
+  buyerName: null,
+  subscribePath: '/x/supplier/subscription',
+}
+
 const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> = {
   invitation: (locale) =>
     new OrganizationInvitationNotification(
@@ -103,6 +110,10 @@ const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> 
       },
       locale
     ) as never,
+  rfqReceivedAnonymous: (locale) =>
+    new RfqReceivedNotification('supplier@example.com', ANONYMOUS_RFQ_DATA, locale) as never,
+  rfqReminderAnonymous: (locale) =>
+    new RfqReminderNotification('supplier@example.com', ANONYMOUS_RFQ_DATA, locale) as never,
   quoteReceived: (locale) =>
     new QuoteReceivedNotification(
       'buyer@example.com',
@@ -479,5 +490,45 @@ test.group('Mails — demande de devis complète (#219)', () => {
     assert.include(html, 'Tote bags')
     assert.notInclude(html, 'Prix unitaire indicatif')
     assert.include(text, '/x/supplier/rfqs/1')
+  })
+})
+
+test.group('Mails — demande anonyme pour un fournisseur non abonné (#220, #222)', () => {
+  test('ni l’objet ni le corps ne nomment l’agence, l’encart mène à l’abonnement', async ({
+    assert,
+  }) => {
+    const { subject, html, text } = await render(
+      new RfqReceivedNotification('s@x.test', ANONYMOUS_RFQ_DATA, 'fr') as never
+    )
+
+    // Le titre distingue les demandes : sans lui, la messagerie les regrouperait en un fil.
+    assert.equal(subject, 'Nouvelle demande de devis : « Tote bags »')
+    assert.notInclude(html, 'Acme')
+    assert.notInclude(text, 'Acme')
+    assert.include(html, 'Une agence vous invite à chiffrer la demande')
+    assert.include(html, '/x/supplier/subscription')
+    assert.include(text, 'Découvrir les abonnements')
+    assert.include(text, '/x/supplier/subscription')
+  })
+
+  test('la relance anonyme ne nomme pas l’agence et porte l’encart', async ({ assert }) => {
+    const { html, text } = await render(
+      new RfqReminderNotification('s@x.test', ANONYMOUS_RFQ_DATA, 'en') as never
+    )
+
+    assert.notInclude(html, 'Acme')
+    assert.notInclude(text, 'Acme')
+    assert.include(html, 'An agency sent you the request')
+    assert.include(html, '/x/supplier/subscription')
+  })
+
+  test('un abonné voit l’agence, sans encart d’abonnement', async ({ assert }) => {
+    const { subject, html } = await render(
+      new RfqReceivedNotification('s@x.test', { ...RFQ_DATA, subscribePath: null }, 'fr') as never
+    )
+
+    assert.include(subject, 'Acme')
+    assert.include(html, 'Acme vous invite')
+    assert.notInclude(html, 'Découvrir les abonnements')
   })
 })
