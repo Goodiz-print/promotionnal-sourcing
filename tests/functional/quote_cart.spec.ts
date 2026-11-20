@@ -375,7 +375,7 @@ test.group('Panier de devis — validation', (checkoutGroup) => {
     assert.lengthOf(await QuoteCartItem.query().where('userId', owner.id), 0)
   })
 
-  test('un membre crée des brouillons, rien ne part', async ({ client, assert }) => {
+  test('un membre envoie ses demandes aux fournisseurs (#216)', async ({ client, assert }) => {
     const { org } = await buyerWithOwner()
     const member = await createMember(org, 'member')
     const [first, second] = await productsOfTwoSuppliers()
@@ -386,17 +386,15 @@ test.group('Panier de devis — validation', (checkoutGroup) => {
     try {
       const response = await checkout(client, member, { title: 'Kit onboarding' })
       response.assertStatus(302)
-      events.assertNoneEmitted()
+      events.assertEmitted(RfqSent)
     } finally {
       emitter.restore()
     }
 
     const rfqs = await Rfq.query().where('buyerOrganizationId', org.id).preload('suppliers')
     assert.lengthOf(rfqs, 2)
-    for (const rfq of rfqs) {
-      assert.equal(rfq.status, 'draft')
-      assert.equal(rfq.suppliers[0].status, 'pending')
-    }
+    assert.isTrue(rfqs.every((rfq) => rfq.status === 'published'))
+    assert.isTrue(rfqs.every((rfq) => rfq.suppliers[0].status === 'sent'))
     assert.lengthOf(await QuoteCartItem.query().where('userId', member.id), 0)
   })
 

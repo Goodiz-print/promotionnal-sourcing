@@ -29,6 +29,9 @@ const props = defineProps<{
   supplierContacts: SupplierContactsByOrganization
   categories: CategoryType[]
   supplierOptions: SupplierOptionType[]
+  /** Préparer et envoyer (jusqu'au rôle `member`, #216). */
+  canSendRfq: boolean
+  /** Décider : clôturer, prolonger l'échéance (responsables). */
   canManageRfq: boolean
   productResults?: RfqProductOptionType[]
   productSearchUnavailable?: boolean
@@ -95,14 +98,14 @@ function queueSupplier(product: RfqProductOptionType) {
         </BaseBadge>
         <RfqMetaPills :rfq="rfq" />
       </template>
-      <template v-if="canManageRfq" #actions>
-        <RfqActions :rfq="rfq" />
+      <template v-if="canSendRfq" #actions>
+        <RfqActions :rfq="rfq" :can-close="canManageRfq" />
       </template>
     </BasePageHeader>
 
     <RfqDeadlineExtension v-if="canManageRfq && canExtendDeadline" :rfq="rfq" />
 
-    <BaseSection v-if="isDraft && canManageRfq" :title="t('rfq.show.needTitle')">
+    <BaseSection v-if="isDraft && canSendRfq" :title="t('rfq.show.needTitle')">
       <RfqForm
         mode="edit"
         :rfq="rfq"
@@ -128,9 +131,9 @@ function queueSupplier(product: RfqProductOptionType) {
     </BaseSection>
 
     <BaseSection :title="t('rfq.show.suppliersTitle')">
-      <RfqSupplierList :rfq-id="rfq.id" :suppliers="rfq.suppliers" :can-manage="canManageRfq" />
+      <RfqSupplierList :rfq-id="rfq.id" :suppliers="rfq.suppliers" :can-manage="canSendRfq" />
 
-      <template v-if="canManageRfq && isOpen && addableSuppliers.length > 0" #footer>
+      <template v-if="canSendRfq && isOpen && addableSuppliers.length > 0" #footer>
         <div class="flex flex-col gap-4">
           <RfqSupplierPicker v-model="supplierIdsToAdd" :options="addableSuppliers" />
           <div>

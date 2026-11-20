@@ -125,9 +125,14 @@ passe par les abilities) :
 
 - **`canCreateRfq`** — organisation `buyer`/`both`, tous rôles jusqu'à `member`
   (miroir de `sourcing:create`) ;
-- **`canManageRfq`** — modifier, publier, envoyer, clôturer : `owner`, `admin`,
-  `manager` (miroir de `sourcing:manage`). Un `member` rédige un brouillon mais
-  ne l'envoie pas aux fournisseurs ;
+- **`canSendRfq`** — modifier un brouillon, ajouter ou retirer des
+  destinataires, publier, envoyer, supprimer un brouillon, valider le panier de
+  devis : tous rôles jusqu'à `member` (#216, décision client : « tout le monde
+  peut faire une demande de devis »). Les demandes appartiennent à l'agence :
+  tout membre voit et peut envoyer celles de ses collègues ;
+- **`canManageRfq`** — décider : clôturer, prolonger l'échéance, accepter ou
+  rejeter un devis, agir sur une commande : `owner`, `admin`, `manager` (miroir
+  de `sourcing:manage`) ;
 - **`canRespondToRfq`** — organisation `supplier`/`both`, `owner`/`admin`/
   `manager` : consulter une demande reçue, décliner, et (Phase 4) déposer un
   devis.
@@ -181,11 +186,11 @@ notifié) et un test de reconstruction du `kind` dans
 | GET     | `/rfqs/new`                       | `rfqs.create`            | `canCreateRfq` |
 | POST    | `/rfqs`                           | `rfqs.store`             | `canCreateRfq` |
 | GET     | `/rfqs/:id`                       | `rfqs.show`              | `canCreateRfq` |
-| PATCH   | `/rfqs/:id`                       | `rfqs.update`            | `canManageRfq` |
-| POST    | `/rfqs/:id/suppliers`             | `rfqs.suppliers.store`   | `canManageRfq` |
-| DELETE  | `/rfqs/:id/suppliers/:supplierId` | `rfqs.suppliers.destroy` | `canManageRfq` |
-| POST    | `/rfqs/:id/publish`               | `rfqs.publish`           | `canManageRfq` |
-| POST    | `/rfqs/:id/send`                  | `rfqs.send`              | `canManageRfq` |
+| PATCH   | `/rfqs/:id`                       | `rfqs.update`            | `canSendRfq`   |
+| POST    | `/rfqs/:id/suppliers`             | `rfqs.suppliers.store`   | `canSendRfq`   |
+| DELETE  | `/rfqs/:id/suppliers/:supplierId` | `rfqs.suppliers.destroy` | `canSendRfq`   |
+| POST    | `/rfqs/:id/publish`               | `rfqs.publish`           | `canSendRfq`   |
+| POST    | `/rfqs/:id/send`                  | `rfqs.send`              | `canSendRfq`   |
 | POST    | `/rfqs/:id/close`                 | `rfqs.close`             | `canManageRfq` |
 
 Toutes sont montées dans le groupe `:locale` + `auth` + `onboarded`. C'est le
@@ -388,11 +393,11 @@ formulaire déjà rempli, et le formulaire sait chercher dans le catalogue.
 
 ### Routes
 
-| Route                                       | Nom                       | Rôle                                                                                                                                                                                                                                                                   |
-| ------------------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET /:locale/rfqs/new?productId=`          | `rfqs.create`             | pré-remplit une ligne (désignation, catégorie, quantité = `min_quantity`, sinon 1) et coche le fournisseur du produit. Un produit inconnu, inactif, rejeté ou d'une organisation archivée ouvre un formulaire vide                                                     |
-| `POST /:locale/rfqs/:id/items/from-product` | `rfqs.items.from_product` | ajoute le produit comme **nouvelle ligne** d'un brouillon et son fournisseur aux destinataires. Corps : `{ productId }` seul — nom, catégorie, quantité et fournisseur sont relus côté serveur. Brouillon uniquement (`RfqNotEditableException` sinon), `canManageRfq` |
-| `DELETE /:locale/rfqs/:id`                  | `rfqs.destroy`            | supprime un brouillon (lignes et destinataires partent en `CASCADE`). Une demande publiée ou close n'est jamais supprimée — elle se clôture. `canManageRfq`                                                                                                            |
+| Route                                       | Nom                       | Rôle                                                                                                                                                                                                                                                                 |
+| ------------------------------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /:locale/rfqs/new?productId=`          | `rfqs.create`             | pré-remplit une ligne (désignation, catégorie, quantité = `min_quantity`, sinon 1) et coche le fournisseur du produit. Un produit inconnu, inactif, rejeté ou d'une organisation archivée ouvre un formulaire vide                                                   |
+| `POST /:locale/rfqs/:id/items/from-product` | `rfqs.items.from_product` | ajoute le produit comme **nouvelle ligne** d'un brouillon et son fournisseur aux destinataires. Corps : `{ productId }` seul — nom, catégorie, quantité et fournisseur sont relus côté serveur. Brouillon uniquement (`RfqNotEditableException` sinon), `canSendRfq` |
+| `DELETE /:locale/rfqs/:id`                  | `rfqs.destroy`            | supprime un brouillon (lignes et destinataires partent en `CASCADE`). Une demande publiée ou close n'est jamais supprimée — elle se clôture. `canSendRfq`                                                                                                            |
 
 `RfqService` gagne `addProductItem`, `delete` et `listDrafts`. Ajouter deux fois
 le même produit crée deux lignes (deux quantités, deux marquages) mais un seul

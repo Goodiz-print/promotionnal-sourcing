@@ -198,9 +198,22 @@ export const canCreateRfq = Bouncer.ability(async (user: User, org: Organization
 })
 
 /**
- * Ability to check if a user can drive an existing RFQ (edit, publish, send,
- * close). Aligned on the `sourcing:manage` permission: `member` may draft a
- * request, but not send it to suppliers.
+ * Ability to check if a user can prepare and send an RFQ: edit a draft, add or
+ * remove recipients, publish, send it to suppliers, check out the quote cart
+ * (#216). Every member of a buyer organization may request quotes, `member`
+ * included (client decision): aligned on `sourcing:create`, like `canCreateRfq`.
+ */
+export const canSendRfq = Bouncer.ability(async (user: User, org: Organization) => {
+  if (!['buyer', 'both'].includes(org.organizationType)) return false
+  const m = await getMembership(user, org)
+  return m ? ['owner', 'admin', 'manager', 'member'].includes(m.role.slug) : false
+})
+
+/**
+ * Ability to check if a user can take decisions on an RFQ: close it, extend its
+ * deadline, accept or reject a quote, act on an order. Aligned on the
+ * `sourcing:manage` permission: `member` may send requests (`canSendRfq`), but
+ * decisions stay with the organization's managers.
  */
 export const canManageRfq = Bouncer.ability(async (user: User, org: Organization) => {
   if (!['buyer', 'both'].includes(org.organizationType)) return false
