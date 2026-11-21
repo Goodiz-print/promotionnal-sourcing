@@ -8,6 +8,7 @@ import {
 } from '#shared/helpers/inbound_mail'
 import type Rfq from '#models/rfq'
 import type RfqSupplier from '#models/rfq_supplier'
+import type { RelayTokenField } from '#shared/types/inbound_mail'
 
 /**
  * Adresse relais d'un couple demande / fournisseur : `rfq-<jeton>@<domaine>`
@@ -26,20 +27,20 @@ export default class InboundAddressService {
 
   /**
    * Adresse relais du destinataire, ou `null` si la réception est désactivée.
-   * Le jeton est généré par la base : une ligne tout juste créée en mémoire ne
-   * le porte pas encore, elle est alors relue.
    */
   addressFor(recipient: RfqSupplier): Promise<string | null> {
-    return this.relayAddress(recipient, replyAddress)
+    return this.relayAddress(recipient, 'replyToken', replyAddress)
   }
 
   /**
    * Adresse relais côté agence du même couple (#225), posée en `Reply-To` du
    * mail qui transmet la réponse du fournisseur ; `null` si la réception est
-   * désactivée. Le relais vers le fournisseur viendra avec #226.
+   * désactivée. Son jeton (`agency_reply_token`) est **distinct** de celui du
+   * fournisseur : l'agence ne doit jamais lire `reply_token`, qui suffit à
+   * écrire au nom du fournisseur. Le relais vers le fournisseur viendra avec #226.
    */
   agencyAddressFor(recipient: RfqSupplier): Promise<string | null> {
-    return this.relayAddress(recipient, agencyReplyAddress)
+    return this.relayAddress(recipient, 'agencyReplyToken', agencyReplyAddress)
   }
 
   /** Jeton visé par un mail entrant, parmi toutes les adresses qu'il désigne. */
@@ -71,18 +72,20 @@ export default class InboundAddressService {
   }
 
   /**
-   * Adresse relais du couple, construite par `build` à partir du jeton. Le
-   * jeton est généré par la base : une ligne tout juste créée en mémoire ne le
-   * porte pas encore, elle est alors relue.
+   * Adresse relais du couple, construite par `build` à partir du jeton `field`,
+   * ou `null` si la réception est désactivée. Le jeton est généré par la base :
+   * une ligne tout juste créée en mémoire ne le porte pas encore, elle est
+   * alors relue.
    */
   private async relayAddress(
     recipient: RfqSupplier,
+    field: RelayTokenField,
     build: (token: string, domain: string) => string
   ): Promise<string | null> {
     const domain = inboundMailConfig.domain
     if (!this.enabled || !domain) return null
 
-    if (!recipient.replyToken) await recipient.refresh()
-    return build(recipient.replyToken, domain)
+    if (!recipient[field]) await recipient.refresh()
+    return build(recipient[field], domain)
   }
 }

@@ -144,25 +144,39 @@ export default class InAppNotificationService {
       messageId: notice.messageId,
     }
     try {
-      const notified = await this.alreadyNotified('rfq.responded', notice.messageId)
-      const pending = [...new Set(userIds)].filter((userId) => !notified.has(userId))
-      await Promise.all(
-        pending.map((userId) => this.notifications.notify({ id: userId }, 'rfq.responded', data))
-      )
-      return pending.length
+      const recipients = [...new Set(userIds)]
+      const notified = await this.alreadyNotified(recipients, notice.messageId)
+      const pending = recipients.filter((userId) => !notified.has(userId))
+      const created = await Promise.all(pending.map((userId) => this.notifyOnce(userId, data)))
+      return created.filter(Boolean).length
     } catch (error) {
       logger.warn({ err: error, rfqId: notice.rfqId }, 'failed to create in-app notifications')
       return 0
     }
   }
 
-  /** Utilisateurs déjà notifiés de ce type pour ce message du fil. */
-  private async alreadyNotified(type: NotificationType, messageId: number): Promise<Set<number>> {
+  /**
+   * Parmi `userIds`, ceux déjà notifiés d'une réponse pour ce message du fil.
+   * Bornée aux destinataires : l'index `(user_id, …)` sert la recherche.
+   */
+  private async alreadyNotified(userIds: number[], messageId: number): Promise<Set<number>> {
+    if (userIds.length === 0) return new Set()
     const rows = await Notification.query()
-      .where('type', type)
+      .whereIn('userId', userIds)
+      .where('type', 'rfq.responded')
       .whereRaw(`data->>'messageId' = ?`, [String(messageId)])
       .select('userId')
     return new Set(rows.map((row) => row.userId))
+  }
+
+  /**
+   * Crée la notification de réponse, sauf si un traitement concurrent vient de
+   * la créer : l'index unique `(user_id, type, data->>'messageId')` tranche
+   * (`NotificationService#notifyOnce`). Renvoie `true` si elle a été créée.
+   */
+  private async notifyOnce(userId: number, data: NotificationData): Promise<boolean> {
+    const id = await this.notifications.notifyOnce({ id: userId }, 'rfq.responded', data)
+    return id !== null
   }
 
   /** Les propriétaires et administrateurs voient arriver le nouveau membre. */

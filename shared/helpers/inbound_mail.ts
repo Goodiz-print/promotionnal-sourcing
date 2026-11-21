@@ -12,10 +12,11 @@ export function replyAddress(token: string, domain: string): string {
 
 /**
  * Adresse relais **côté agence** du même couple (#225) : `agency-<jeton>@<domaine>`,
- * même jeton que `replyAddress`. Posée en `Reply-To` des mails transmis à
- * l'agence ; le préfixe distinct dit dans quel sens va la réponse. Tant que #226
- * ne la reconnaît pas, `replyTokenFrom` l'ignore : une réponse de l'agence est
- * journalisée (`unknown_address`) au lieu d'être prise pour celle du fournisseur.
+ * avec le jeton propre à l'agence (`rfq_suppliers.agency_reply_token`), jamais
+ * celui du fournisseur. Posée en `Reply-To` des mails transmis à l'agence ; le
+ * préfixe dit dans quel sens va la réponse. Tant que #226 ne la reconnaît pas,
+ * `replyTokenFrom` l'ignore : une réponse de l'agence est journalisée
+ * (`unknown_address`) au lieu d'être prise pour celle du fournisseur.
  */
 export function agencyReplyAddress(token: string, domain: string): string {
   return `${AGENCY_REPLY_PREFIX}${token}@${domain}`

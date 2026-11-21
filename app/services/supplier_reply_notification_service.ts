@@ -86,8 +86,7 @@ export default class SupplierReplyNotificationService {
     recipient: RfqSupplier
   ): Promise<SupplierReplyNotice> {
     const message = await Message.findOrFail(reply.messageId)
-    const documents = await this.quotes.documentsFor(recipient.id)
-    const replied = new Set(reply.quoteDocumentIds)
+    const documents = await this.quotes.documentsOfReply(recipient.id, reply.quoteDocumentIds)
 
     return {
       rfqId: recipient.rfqId,
@@ -95,10 +94,7 @@ export default class SupplierReplyNotificationService {
       supplierName: recipient.supplierOrganization.name,
       messageId: message.id,
       body: message.body,
-      documents: documents
-        .filter((document) => replied.has(document.id))
-        .reverse()
-        .map((document) => ({ id: document.id, filename: document.attachment.filename })),
+      documents: documents.map(({ id, attachment }) => ({ id, filename: attachment.filename })),
       replyTo: await this.addresses.agencyAddressFor(recipient),
     }
   }

@@ -69,7 +69,7 @@ test.group('Rôle plateforme — accès à /admin/**', (group) => {
     for (const url of ADMIN_ROUTES) {
       const response = await client.get(url).redirects(0)
       response.assertStatus(302)
-      response.assertHeader('location', '/login')
+      response.assertHeader('location', `/fr/login?redirect=${encodeURIComponent(url)}`)
     }
   })
 

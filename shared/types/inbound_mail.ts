@@ -156,3 +156,9 @@ export interface MailAddressParts {
   address: string
   name: string | null
 }
+
+/**
+ * Jeton d'une adresse relais du couple demande / fournisseur : côté fournisseur
+ * (`rfq-`, `reply_token`) ou côté agence (`agency-`, `agency_reply_token`, #225).
+ */
+export type RelayTokenField = 'replyToken' | 'agencyReplyToken'

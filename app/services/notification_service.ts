@@ -1,5 +1,6 @@
 import { inject } from '@adonisjs/core'
 import { DateTime } from 'luxon'
+import db from '@adonisjs/lucid/services/db'
 import Notification from '#models/notification'
 import RealtimeService from '#services/realtime_service'
 import User from '#models/user'
@@ -38,16 +39,59 @@ export default class NotificationService {
     type: NotificationType,
     data: NotificationData = {}
   ): Promise<Notification> {
+    this.assertKnownType(type)
+    const notification = await Notification.create({ userId: user.id, type, data, readAt: null })
+    this.announce(user.id, notification.id, type)
+    return notification
+  }
+
+  /**
+   * Comme `notify`, mais **sans doublon** : une notification qu'un index unique
+   * interdit (ex. `(user_id, type, data->>'messageId')`, #225) n'est pas
+   * recréée. `INSERT … ON CONFLICT DO NOTHING` : un doublon, même concurrent,
+   * ne lève pas d'erreur — et n'avorte donc pas une transaction englobante.
+   * Renvoie l'id créé, ou `null` si la notification existait déjà.
+   */
+  async notifyOnce(
+    user: Pick<User, 'id'>,
+    type: NotificationType,
+    data: NotificationData
+  ): Promise<number | null> {
+    this.assertKnownType(type)
+    const now = new Date()
+    const inserted = await db
+      .table(Notification.table)
+      .insert({
+        user_id: user.id,
+        type,
+        data: JSON.stringify(data),
+        read_at: null,
+        created_at: now,
+        updated_at: now,
+      })
+      .onConflict()
+      .ignore()
+      .returning('id')
+    if (inserted.length === 0) return null
+
+    const id = Number(inserted[0].id)
+    this.announce(user.id, id, type)
+    return id
+  }
+
+  private assertKnownType(type: NotificationType): void {
     if (!(NOTIFICATION_TYPES as readonly string[]).includes(type)) {
       throw new UnknownNotificationTypeException()
     }
-    const notification = await Notification.create({ userId: user.id, type, data, readAt: null })
-    this.realtime.notifyUser(user.id, {
+  }
+
+  /** Pousse la nouvelle notification à l'utilisateur (Transmit). */
+  private announce(userId: number, notificationId: number, type: NotificationType): void {
+    this.realtime.notifyUser(userId, {
       type: 'notification.created',
-      notificationId: notification.id,
+      notificationId,
       notificationType: type,
     })
-    return notification
   }
 
   /** Notifications de l'utilisateur, les plus récentes d'abord. */
