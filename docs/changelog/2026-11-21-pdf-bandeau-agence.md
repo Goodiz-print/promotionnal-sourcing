@@ -12,8 +12,9 @@ destinataire** de chaque devis PDF, celle que recevra l'agence (#225).
   déplacé. **Page de garde** en repli si la première page est pivotée ou déjà à
   la taille maximale. `PdfService#stampRecipient`, nouvelle dépendance
   `pdf-lib` ; options typées `RecipientStampOptions` (`shared/types/pdf.ts`).
-- **Repli** : PDF chiffré, signé ou illisible → transmis tel quel, warning
-  loggé, jamais d'erreur.
+- **Repli** : PDF chiffré, signé ou illisible, ou nom d'agence hors de
+  l'alphabet latin de la police standard → transmis tel quel, warning loggé
+  avec la demande et la pièce jointe, jamais d'erreur.
 - **Abonnés** : leur devis n'est pas modifié (abonnement lu au moment de la
   réponse, `SubscriptionService#isSubscribed`).
 - **Migration** `1794000000034` : `quote_documents.recipient_storage_object_id`

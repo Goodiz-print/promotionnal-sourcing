@@ -8,7 +8,12 @@ export interface RecipientStampOptions {
   agencyName: string
   /** Référence de la demande de devis, telle que l'agence la connaît. */
   rfqRef: string
+  /** Identifiants joints aux warnings de repli, pour les retrouver (#227). */
+  logContext?: Record<string, number>
 }
+
+/** Raison pour laquelle un devis est transmis sans mention (repli). */
+export type RecipientStampRefusal = 'signed' | 'unencodable'
 
 /** Hauteur du bandeau ajouté en tête de la première page, en points PDF. */
 export const RECIPIENT_BANNER_HEIGHT = 28

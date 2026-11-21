@@ -62,11 +62,17 @@ export async function encryptedPdf(): Promise<Buffer> {
   return Buffer.from(await document.save())
 }
 
-/** PDF portant un champ de signature électronique. */
-export async function signedPdf(): Promise<Buffer> {
+/**
+ * PDF portant un champ de signature électronique : rempli (`/V`, signé) par
+ * défaut, vide (emplacement à signer) avec `filled: false`.
+ */
+export async function signedPdf({ filled = true } = {}): Promise<Buffer> {
   const document = await PDFDocument.load(await realPdf())
   const { context } = document
-  const field = context.register(context.obj({ FT: 'Sig', T: PDFString.of('Signature1') }))
+  const value = context.obj({ Type: 'Sig', Filter: 'Adobe.PPKLite' })
+  const field = context.register(
+    context.obj({ FT: 'Sig', T: PDFString.of('Signature1'), ...(filled && { V: value }) })
+  )
   document.catalog.set(PDFName.of('AcroForm'), context.obj({ Fields: [field], SigFlags: 3 }))
   return Buffer.from(await document.save())
 }

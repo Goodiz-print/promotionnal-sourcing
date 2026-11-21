@@ -1,8 +1,16 @@
-import { PDFAcroSignature, rgb, type PDFDocument, type PDFFont, type PDFPage } from 'pdf-lib'
+import {
+  PDFAcroSignature,
+  PDFName,
+  rgb,
+  type PDFDocument,
+  type PDFFont,
+  type PDFPage,
+} from 'pdf-lib'
 import {
   PDF_MAX_PAGE_SIZE,
   RECIPIENT_BANNER_HEIGHT,
   type RecipientStampOptions,
+  type RecipientStampRefusal,
 } from '#shared/types/pdf'
 
 /**
@@ -26,12 +34,33 @@ export function recipientLabel({ agencyName, rfqRef }: RecipientStampOptions): s
 }
 
 /**
- * Un PDF signé perd sa signature s'il est modifié : il est alors transmis tel
- * quel.
+ * Raison de transmettre le PDF tel quel, ou `null` s'il peut porter la mention :
+ *
+ *  - `signed` : il porte une signature, que la modification invaliderait ;
+ *  - `unencodable` : la police standard ne sait pas écrire toute la mention
+ *    (nom d'agence en cyrillique, en grec, en idéogrammes…). Un bandeau
+ *    amputé du nom laisserait croire l'agence nommée : le nom passe alors par
+ *    le mail de transmission (#225).
  */
-export function isSigned(document: PDFDocument): boolean {
+export function refusalOf(
+  document: PDFDocument,
+  label: string,
+  font: PDFFont
+): RecipientStampRefusal | null {
+  if (isSigned(document)) return 'signed'
+  if (!canEncode(label, font)) return 'unencodable'
+  return null
+}
+
+/**
+ * Un champ de signature **rempli** (`/V`) : un emplacement vide, prévu pour
+ * une signature à venir, n'empêche pas l'apposition.
+ */
+function isSigned(document: PDFDocument): boolean {
   const fields = document.catalog.getAcroForm()?.getAllFields() ?? []
-  return fields.some(([field]) => field instanceof PDFAcroSignature)
+  return fields.some(
+    ([field]) => field instanceof PDFAcroSignature && field.dict.has(PDFName.of('V'))
+  )
 }
 
 /**
@@ -44,14 +73,10 @@ export function canHoldBanner(page: PDFPage): boolean {
   return isUpright && fits
 }
 
-/** Retire les caractères que la police standard ne sait pas encoder. */
-export function encodable(text: string, font: PDFFont): string {
-  return [...text].filter((character) => isEncodable(character, font)).join('')
-}
-
-function isEncodable(character: string, font: PDFFont): boolean {
+/** La police standard (WinAnsi) sait-elle écrire tout le texte ? */
+function canEncode(text: string, font: PDFFont): boolean {
   try {
-    font.encodeText(character)
+    font.encodeText(text)
     return true
   } catch {
     return false

@@ -191,11 +191,14 @@ destinataire** qui l'ajoute :
   le contenu d'origine n'est ni déplacé ni masqué. Repli sur une **page de
   garde** A4 insérée avant le devis quand la première page est pivotée ou déjà
   à la taille maximale d'une page PDF. Un nom trop long est réduit puis
-  tronqué ; les caractères que la police standard ne sait pas écrire sont
-  retirés.
-- **Repli sans modification** : un PDF chiffré, signé (champ de signature :
-  la modifier l'invaliderait) ou illisible est transmis **tel quel**, avec un
-  warning loggé. Jamais d'erreur : `recipient_storage_object_id` reste nul.
+  tronqué.
+- **Repli sans modification** : un PDF chiffré, signé (champ de signature
+  rempli : la modifier l'invaliderait ; un emplacement de signature vide
+  n'empêche rien) ou illisible, ou un nom d'agence que la police standard
+  (Latin, WinAnsi) ne sait pas écrire — cyrillique, grec, idéogrammes… : un
+  bandeau amputé du nom laisserait croire l'agence nommée —, est transmis
+  **tel quel**, avec un warning loggé (`rfqId`, `rfqSupplierId`,
+  `inboundAttachmentId`, raison). Jamais d'erreur : `recipient_storage_object_id` reste nul.
   Le nom de l'agence figure alors dans le mail de transmission (#225).
 - **Stockage** : la copie est stockée par `StorageService.storeContent` avant
   la transaction, puis référencée par `quote_documents.recipient_storage_object_id`
@@ -206,6 +209,9 @@ destinataire** qui l'ajoute :
   `QuoteDocument#recipientFile` — la copie si elle existe, sinon l'original
   (relations chargées par `QuoteService#documentsFor`). C'est ce fichier que
   #225 transmet et que #228 propose au téléchargement.
+- **Coût** : `pdf-lib` analyse tout le fichier dans le worker. Les pièces
+  jointes sont bornées à 15 Mo (`INBOUND_MAIL_MAX_ATTACHMENT_SIZE_MB`) ; un
+  PDF malformé très lent ralentirait la file sans la bloquer en erreur.
 
 ## Tests
 

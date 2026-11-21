@@ -1,14 +1,13 @@
 import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
-import { PDFDocument, StandardFonts } from 'pdf-lib'
+import { PDFDocument, StandardFonts, type PDFFont } from 'pdf-lib'
 import GhostscriptRunner from '#services/pdf/ghostscript_runner'
 import {
   addBanner,
   addCoverPage,
   canHoldBanner,
-  encodable,
-  isSigned,
   recipientLabel,
+  refusalOf,
 } from '#services/pdf/recipient_stamp'
 import type { RecipientStampOptions } from '#shared/types/pdf'
 
@@ -52,27 +51,30 @@ export default class PdfService {
    * demande n° … » dans un bandeau ajouté en tête de la première page (la page
    * est agrandie, rien n'est masqué), à défaut sur une page de garde.
    *
-   * Un PDF chiffré, signé ou illisible est renvoyé **tel quel** — la même
-   * instance de `Buffer`, que l'appelant peut comparer à l'entrée.
+   * Un PDF chiffré, signé ou illisible, ou un nom d'agence que la police ne
+   * sait pas écrire, renvoie le PDF **tel quel** — la même instance de
+   * `Buffer`, que l'appelant peut comparer à l'entrée.
    */
   async stampRecipient(content: Buffer, options: RecipientStampOptions): Promise<Buffer> {
+    const context = options.logContext ?? {}
     try {
       const document = await PDFDocument.load(content, { updateMetadata: false })
-      if (isSigned(document)) {
-        logger.warn('signed PDF left as is, the recipient stamp would void its signature')
+      const font = await document.embedFont(StandardFonts.Helvetica)
+      const label = recipientLabel(options)
+      const refusal = refusalOf(document, label, font)
+      if (refusal) {
+        logger.warn({ ...context, refusal }, 'pdf recipient stamp skipped, keeping original')
         return content
       }
-      await this.stamp(document, options)
+      this.placeLabel(document, label, font)
       return Buffer.from(await document.save())
     } catch (error) {
-      logger.warn({ err: error }, 'pdf recipient stamp failed, keeping original')
+      logger.warn({ ...context, err: error }, 'pdf recipient stamp failed, keeping original')
       return content
     }
   }
 
-  private async stamp(document: PDFDocument, options: RecipientStampOptions): Promise<void> {
-    const font = await document.embedFont(StandardFonts.Helvetica)
-    const label = encodable(recipientLabel(options), font)
+  private placeLabel(document: PDFDocument, label: string, font: PDFFont): void {
     const [first] = document.getPages()
     if (first && canHoldBanner(first)) return addBanner(first, label, font)
     addCoverPage(document, label, font)

@@ -213,7 +213,7 @@ export default class SupplierReplyService {
     const { content, compressed } = await this.pdf.compress(await this.storage.read(received))
     const object = compressed ? await this.storeQuotePdf(content) : received
     try {
-      const recipientObjectId = await this.storeRecipientVersion(content, stamp)
+      const recipientObjectId = await this.storeRecipientVersion(content, stamp, attachment.id)
       return { ...base, storageObjectId: object.id, sizeBytes: object.size, recipientObjectId }
     } catch (error) {
       if (compressed) await this.storage.discard([object.id])
@@ -228,10 +228,12 @@ export default class SupplierReplyService {
    */
   private async storeRecipientVersion(
     content: Buffer,
-    stamp: RecipientStampOptions | null
+    stamp: RecipientStampOptions | null,
+    inboundAttachmentId: number
   ): Promise<number | null> {
     if (!stamp) return null
-    const stamped = await this.pdf.stampRecipient(content, stamp)
+    const logContext = { ...stamp.logContext, inboundAttachmentId }
+    const stamped = await this.pdf.stampRecipient(content, { ...stamp, logContext })
     if (stamped === content) return null
     const object = await this.storeQuotePdf(stamped)
     return object.id
@@ -249,23 +251,27 @@ export default class SupplierReplyService {
   private async recipientStampFor(recipient: RfqSupplier): Promise<RecipientStampOptions | null> {
     if (await this.subscriptions.isSubscribed(recipient.supplierOrganizationId)) return null
     const { rfq } = recipient
-    return { agencyName: rfq.buyerOrganization.name, rfqRef: String(rfq.id) }
+    return {
+      agencyName: rfq.buyerOrganization.name,
+      rfqRef: String(rfq.id),
+      logContext: { rfqId: rfq.id, rfqSupplierId: recipient.id },
+    }
   }
 
   /** Fichiers créés par la préparation : PDF compressés et versions destinataires. */
   private createdObjects(attachments: PreparedReplyAttachment[]): number[] {
-    return attachments.flatMap((attachment) => [
-      ...(attachment.storageObjectId === attachment.receivedObjectId
-        ? []
-        : [attachment.storageObjectId]),
-      ...(attachment.recipientObjectId === null ? [] : [attachment.recipientObjectId]),
-    ])
+    return attachments
+      .flatMap((attachment) => {
+        const isCompressed = attachment.storageObjectId !== attachment.receivedObjectId
+        return [isCompressed ? attachment.storageObjectId : null, attachment.recipientObjectId]
+      })
+      .filter((id): id is number => id !== null)
   }
 
   /**
-   * Devis PDF apportés par le message : ses pièces jointes PDF, avec leur
-   * version destinataire. Les pièces du message sont créées dans l'ordre des
-   * pièces préparées.
+   * Devis PDF apportés par le message : ses pièces jointes PDF, avec la version
+   * destinataire de leur fichier. Deux pièces au même fichier ont le même
+   * contenu, donc la même version destinataire.
    */
   private quoteDocumentsOf(
     message: Message,
@@ -273,13 +279,15 @@ export default class SupplierReplyService {
   ): Array<
     Pick<QuoteDocumentInput, 'messageId' | 'messageAttachmentId' | 'recipientStorageObjectId'>
   > {
+    const recipients = new Map<number | null, number | null>(
+      attachments.map((attachment) => [attachment.storageObjectId, attachment.recipientObjectId])
+    )
     return message.attachments
-      .map((attachment, index) => ({ attachment, prepared: attachments[index] }))
-      .filter(({ attachment }) => attachment.mimeType === QUOTE_DOCUMENT_MIME_TYPE)
-      .map(({ attachment, prepared }) => ({
+      .filter((attachment) => attachment.mimeType === QUOTE_DOCUMENT_MIME_TYPE)
+      .map((attachment) => ({
         messageId: message.id,
         messageAttachmentId: attachment.id,
-        recipientStorageObjectId: prepared.recipientObjectId,
+        recipientStorageObjectId: recipients.get(attachment.storageObjectId) ?? null,
       }))
   }
 

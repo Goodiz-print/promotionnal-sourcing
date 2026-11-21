@@ -145,13 +145,38 @@ test.group('PdfService — version destinataire d’un devis (#238)', () => {
     assert.closeTo(fromFull.getPage(1).getHeight(), PDF_MAX_PAGE_SIZE, 0.01)
   })
 
-  test('un nom trop long est tronqué et les caractères hors police retirés', async ({ assert }) => {
-    const long = { agencyName: `Agence 東京 ${'très longue '.repeat(30)}`, rfqRef: '7' }
+  test('un nom trop long est réduit puis tronqué, sans changer la mise en page', async ({
+    assert,
+  }) => {
+    const long = { agencyName: `Agence ${'très longue '.repeat(30)}`, rfqRef: '7' }
 
     const stamped = await service().stampRecipient(await realPdf(), long)
 
     const document = await PDFDocument.load(stamped)
     assert.equal(document.getPageCount(), 1)
+    assert.closeTo(document.getPage(0).getHeight(), 841.89 + RECIPIENT_BANNER_HEIGHT, 0.01)
+  })
+
+  test('un nom d’agence que la police ne sait pas écrire laisse le PDF tel quel', async ({
+    assert,
+  }) => {
+    const pdf = await realPdf()
+    const names = ['Агентство Свет', 'Agence 東京', 'Πρακτορείο']
+
+    const outputs = await Promise.all(
+      names.map((agencyName) => service().stampRecipient(pdf, { agencyName, rfqRef: '7' }))
+    )
+
+    outputs.forEach((output) => assert.strictEqual(output, pdf))
+  })
+
+  test('un emplacement de signature vide n’empêche pas l’apposition', async ({ assert }) => {
+    const placeholder = await signedPdf({ filled: false })
+
+    const stamped = await service().stampRecipient(placeholder, stamp)
+
+    assert.notStrictEqual(stamped, placeholder)
+    const document = await PDFDocument.load(stamped)
     assert.closeTo(document.getPage(0).getHeight(), 841.89 + RECIPIENT_BANNER_HEIGHT, 0.01)
   })
 
