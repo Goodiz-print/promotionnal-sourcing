@@ -6,12 +6,14 @@ import inboundMailConfig from '#config/inbound_mail'
 import { QuoteDocumentNotFoundException } from '#exceptions/quote_errors'
 import mail from '@adonisjs/mail/services/main'
 import { OrganizationFactory } from '#database/factories/organization_factory'
+import { RfqSupplierFactory } from '#database/factories/rfq_supplier_factory'
 import SupplierReplyRecorded from '#events/supplier_reply_recorded'
 import SupplierReplyReceivedNotification from '#mails/supplier_reply_received_notification'
 import InboundMail from '#models/inbound_mail'
 import Message from '#models/message'
 import Notification from '#models/notification'
 import QuoteDocument from '#models/quote_document'
+import RfqSupplier from '#models/rfq_supplier'
 import Organization from '#models/organization'
 import type User from '#models/user'
 import InAppNotificationService from '#services/in_app_notification_service'
@@ -469,6 +471,25 @@ test.group('Réponse par mail — services de la transmission (#225)', (group) =
     const quotes = await app.container.make(QuoteService)
 
     await assert.rejects(() => quotes.findDocument(999999), QuoteDocumentNotFoundException)
+  })
+
+  test('agencyAddressFor : une ligne tout juste créée est relue pour son jeton agence', async ({
+    assert,
+  }) => {
+    const { rfq } = await sentRfq()
+    const otherSupplier = await OrganizationFactory.apply('supplier').create()
+    const fresh = await RfqSupplierFactory.apply('sent')
+      .merge({ rfqId: rfq.id, supplierOrganizationId: otherSupplier.id })
+      .create()
+    // Généré par la base : absent de l'instance en mémoire.
+    assert.isUndefined(fresh.agencyReplyToken)
+    const addresses = await app.container.make(InboundAddressService)
+
+    const address = await addresses.agencyAddressFor(fresh)
+
+    const stored = await RfqSupplier.findOrFail(fresh.id)
+    assert.equal(address, `agency-${stored.agencyReplyToken}@${TEST_RELAY_DOMAIN}`)
+    assert.match(stored.agencyReplyToken, /^[0-9a-f]{32}$/)
   })
 
   test('agencyAddressFor : adresse agency- du couple, null si la réception est désactivée', async ({

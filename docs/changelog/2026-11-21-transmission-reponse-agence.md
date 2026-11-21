@@ -34,6 +34,9 @@ l'agence en est prévenue sans avoir à se connecter.
   Inertia ou page HTML ; un appel JSON n'est pas repris)
   (`loginPathFor`, `shared/helpers/safe_redirect.ts`) : le lien d'un devis reçu
   par mail mène au PDF une fois connecté. Vaut pour toutes les pages protégées.
+  La query string de la page n'est portée que par `redirect=` : le rendu de
+  `@adonisjs/auth` la recopiait aussi (`withQs()`), ce qui cassait l'URL de
+  connexion. Un appel JSON garde son 401 (`tests/functional/auth_redirect.spec.ts`).
 - **Téléchargement** : en-têtes `Cache-Control: private, no-store` et
   `X-Content-Type-Options: nosniff`. Utilitaire `isUniqueViolation`
   (`shared/helpers/database.ts`), désormais partagé par les services.
