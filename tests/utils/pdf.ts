@@ -1,6 +1,16 @@
 import app from '@adonisjs/core/services/app'
 import type { Group } from '@japa/runner/core'
-import { degrees, PDFDocument, PDFName, PDFString, StandardFonts } from 'pdf-lib'
+import {
+  decodePDFRawStream,
+  degrees,
+  PDFArray,
+  PDFDocument,
+  PDFName,
+  PDFRawStream,
+  PDFString,
+  StandardFonts,
+  type PDFPage,
+} from 'pdf-lib'
 import GhostscriptRunner from '#services/pdf/ghostscript_runner'
 
 /** Compresseur factice : divise la taille, ou ne fait rien si `available` est faux. */
@@ -75,4 +85,22 @@ export async function signedPdf({ filled = true } = {}): Promise<Buffer> {
   )
   document.catalog.set(PDFName.of('AcroForm'), context.obj({ Fields: [field], SigFlags: 3 }))
   return Buffer.from(await document.save())
+}
+
+/** Contenu décodé des flux d'une page (le texte `pdf-lib` y est en hexadécimal). */
+export function pageContent(page: PDFPage): string {
+  const contents = page.node.Contents()
+  const refs = contents instanceof PDFArray ? contents.asArray() : [contents]
+  return refs
+    .map((ref) => page.doc.context.lookup(ref))
+    .filter((stream): stream is PDFRawStream => stream instanceof PDFRawStream)
+    .map((stream) => Buffer.from(decodePDFRawStream(stream).decode()).toString('latin1'))
+    .join('\n')
+}
+
+/** Un texte tel que `drawText` l'écrit avec la police standard (à chercher dans `pageContent`). */
+export async function encoded(text: string): Promise<string> {
+  const document = await PDFDocument.create()
+  const font = await document.embedFont(StandardFonts.Helvetica)
+  return font.encodeText(text).toString()
 }

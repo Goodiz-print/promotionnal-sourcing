@@ -95,8 +95,14 @@ export function fitText(text: string, font: PDFFont, maxWidth: number) {
   return { text: characters.slice(0, Math.max(length, 0)).join('') + ELLIPSIS, size }
 }
 
+/**
+ * Taille qui fait tenir le texte dans `maxWidth`, arrondie au centième **par
+ * défaut** : la taille exacte peut déborder d'un epsilon flottant, et le texte
+ * serait alors tronqué alors qu'il tient.
+ */
 function fontSizeFor(text: string, font: PDFFont, maxWidth: number): number {
-  return (FONT_SIZE * maxWidth) / Math.max(font.widthOfTextAtSize(text, FONT_SIZE), 1)
+  const exact = (FONT_SIZE * maxWidth) / Math.max(font.widthOfTextAtSize(text, FONT_SIZE), 1)
+  return Math.floor(exact * 100) / 100
 }
 
 /**

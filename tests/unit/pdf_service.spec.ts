@@ -1,17 +1,10 @@
 import { test } from '@japa/runner'
-import {
-  decodePDFRawStream,
-  PDFArray,
-  PDFDocument,
-  PDFRawStream,
-  StandardFonts,
-  type PDFPage,
-} from 'pdf-lib'
+import { PDFDocument } from 'pdf-lib'
 import GhostscriptRunner from '#services/pdf/ghostscript_runner'
 import { recipientLabel } from '#services/pdf/recipient_stamp'
 import PdfService from '#services/pdf_service'
 import { PDF_MAX_PAGE_SIZE, RECIPIENT_BANNER_HEIGHT } from '#shared/types/pdf'
-import { encryptedPdf, realPdf, signedPdf } from '#tests/utils/pdf'
+import { encoded, encryptedPdf, pageContent, realPdf, signedPdf } from '#tests/utils/pdf'
 
 /** Faux binaire : disponibilité et résultat de compression pilotés par le test. */
 class FakeRunner extends GhostscriptRunner {
@@ -80,24 +73,6 @@ test.group('PdfService — compression avec repli', () => {
 
 const stamp = { agencyName: 'Agence Lumière', rfqRef: '42' }
 const service = () => new PdfService(new FakeRunner(false))
-
-/** Contenu décodé des flux de la page (le texte `pdf-lib` y est en hexadécimal). */
-function pageContent(page: PDFPage): string {
-  const contents = page.node.Contents()
-  const refs = contents instanceof PDFArray ? contents.asArray() : [contents]
-  return refs
-    .map((ref) => page.doc.context.lookup(ref))
-    .filter((stream): stream is PDFRawStream => stream instanceof PDFRawStream)
-    .map((stream) => Buffer.from(decodePDFRawStream(stream).decode()).toString('latin1'))
-    .join('\n')
-}
-
-/** Un texte tel que `drawText` l'écrit avec la police standard. */
-async function encoded(text: string): Promise<string> {
-  const document = await PDFDocument.create()
-  const font = await document.embedFont(StandardFonts.Helvetica)
-  return font.encodeText(text).toString()
-}
 
 const encodedLabel = () => encoded(recipientLabel(stamp))
 
