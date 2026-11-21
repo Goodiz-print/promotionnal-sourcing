@@ -93,6 +93,6 @@ export async function uploadedFile(
   } as MultipartFile
 }
 
-export function sha256(content: string): string {
+export function sha256(content: string | Buffer): string {
   return createHash('sha256').update(content).digest('hex')
 }

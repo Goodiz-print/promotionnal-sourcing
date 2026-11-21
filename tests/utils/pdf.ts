@@ -1,5 +1,6 @@
 import app from '@adonisjs/core/services/app'
 import type { Group } from '@japa/runner/core'
+import { degrees, PDFDocument, PDFName, PDFString, StandardFonts } from 'pdf-lib'
 import GhostscriptRunner from '#services/pdf/ghostscript_runner'
 
 /** Compresseur factice : divise la taille, ou ne fait rien si `available` est faux. */
@@ -30,4 +31,42 @@ export function useFakeGhostscript(group: Group, options: { available?: boolean 
     app.container.swap(GhostscriptRunner, () => new HalvingRunner(options.available ?? true))
     return () => app.container.restore(GhostscriptRunner)
   })
+}
+
+/** Options d'un vrai PDF de test (`realPdf`). */
+interface RealPdfOptions {
+  pages?: number
+  /** Rotation de la première page, en degrés. */
+  rotation?: number
+  /** Hauteur des pages, en points (A4 par défaut). */
+  height?: number
+}
+
+/** Vrai PDF lisible par `pdf-lib`, une ligne de texte par page. */
+export async function realPdf(options: RealPdfOptions = {}): Promise<Buffer> {
+  const document = await PDFDocument.create()
+  const font = await document.embedFont(StandardFonts.Helvetica)
+  Array.from({ length: options.pages ?? 1 }, (_, index) => {
+    const page = document.addPage([595.28, options.height ?? 841.89])
+    page.drawText(`Devis fournisseur, page ${index + 1}`, { x: 50, y: 50, size: 12, font })
+    return page
+  })
+  if (options.rotation) document.getPage(0).setRotation(degrees(options.rotation))
+  return Buffer.from(await document.save())
+}
+
+/** PDF dont la remorque déclare un chiffrement : `pdf-lib` refuse de le modifier. */
+export async function encryptedPdf(): Promise<Buffer> {
+  const document = await PDFDocument.load(await realPdf())
+  document.context.trailerInfo.Encrypt = document.context.obj({ Filter: 'Standard', V: 2 })
+  return Buffer.from(await document.save())
+}
+
+/** PDF portant un champ de signature électronique. */
+export async function signedPdf(): Promise<Buffer> {
+  const document = await PDFDocument.load(await realPdf())
+  const { context } = document
+  const field = context.register(context.obj({ FT: 'Sig', T: PDFString.of('Signature1') }))
+  document.catalog.set(PDFName.of('AcroForm'), context.obj({ Fields: [field], SigFlags: 3 }))
+  return Buffer.from(await document.save())
 }
