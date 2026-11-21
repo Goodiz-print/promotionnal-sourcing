@@ -73,6 +73,25 @@ test.group('Connexion requise — retour à la page demandée', (group) => {
     response.assertHeader('location', '/fr/login')
   })
 
+  test('un formulaire envoyé sans session ne laisse aucun mot de passe en session', async ({
+    client,
+    assert,
+  }) => {
+    const response = await client
+      .post('/fr/rfqs')
+      .header('accept', 'text/html')
+      .withCsrfToken()
+      .form({ email: 'agence@example.com', password: 'secret', password_confirmation: 'secret' })
+      .redirects(0)
+
+    response.assertStatus(302)
+    const flashed = response.flashMessages()
+    assert.equal(flashed.email, 'agence@example.com')
+    assert.isUndefined(flashed.password)
+    assert.isUndefined(flashed.password_confirmation)
+    assert.isDefined(flashed.error)
+  })
+
   test('une fois connecté, l’utilisateur revient à la page demandée', async ({ client }) => {
     const { owner } = await createOrganizationWithOwner()
     const refused = await client.get(PROTECTED_PATH).header('accept', 'text/html').redirects(0)

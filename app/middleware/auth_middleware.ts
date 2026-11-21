@@ -66,10 +66,17 @@ function isPageRefusal(
 }
 
 /**
+ * Champs jamais remis en session flash : un formulaire envoyé après
+ * l'expiration de la session ne doit pas y laisser de mot de passe.
+ */
+const UNFLASHED_FIELDS = ['_csrf', '_method', 'password', 'password_confirmation']
+
+/**
  * Même réponse que le rendu « session » de `@adonisjs/auth` (messages flash,
  * redirection), **sans** reporter la query string de la requête refusée : elle
  * est déjà dans `redirect=`, et l'ajouter à nouveau (`withQs()`, avec
- * `forwardQueryString` activé) casserait l'URL de connexion.
+ * `forwardQueryString` activé) casserait l'URL de connexion. Les mots de passe
+ * ne sont pas remis en session (`UNFLASHED_FIELDS`).
  */
 function redirectToLogin(
   ctx: HttpContext,
@@ -77,7 +84,7 @@ function redirectToLogin(
   loginRoute: string
 ) {
   const message = error.getResponseMessage(error, ctx)
-  ctx.session.flashExcept(['_csrf'])
+  ctx.session.flashExcept(UNFLASHED_FIELDS)
   ctx.session.flash('error', message)
   ctx.session.flashErrors({ [error.code ?? 'E_UNAUTHORIZED_ACCESS']: message })
   return ctx.response.redirect().withQs(false).toPath(loginRoute)

@@ -202,7 +202,7 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
   données `rfqId`, `rfqTitle`, `supplierName`, `messageId` ; elle mène à la demande.
 - **Idempotence** : la clé du mail porte le message du fil et le destinataire
   (`mail_deliveries`) ; la notification passe par
-  `NotificationService#notifyOnce` (`INSERT … ON CONFLICT DO NOTHING` sur
+  `NotificationService#notifyOncePerMessage` (`INSERT … ON CONFLICT DO NOTHING` sur
   l'index unique partiel `notifications (user_id, type, data->>'messageId')`).
   Un événement rejoué, même en concurrence, ne prévient personne deux fois, et
   un doublon ne lève jamais d'erreur.

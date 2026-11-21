@@ -46,6 +46,14 @@ export interface NotificationData {
   [key: string]: string | number | boolean | null
 }
 
+/**
+ * Données d'une notification liée à un message du fil : une seule par
+ * utilisateur, type et `messageId` (`NotificationService#notifyOncePerMessage`).
+ */
+export interface MessageNotificationData extends NotificationData {
+  messageId: number
+}
+
 /** Taille de page par défaut de la liste de notifications. */
 export const NOTIFICATION_PAGE_SIZE = 20
 

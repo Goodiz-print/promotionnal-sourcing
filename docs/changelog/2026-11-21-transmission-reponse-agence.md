@@ -24,10 +24,17 @@ l'agence en est prévenue sans avoir à se connecter.
   donc pas encore d'y répondre.
 - **Idempotence** : clé `supplier-reply-received:message=<id>:to=<email>`
   (`mail_deliveries`) pour le mail ; pour la notification in-app,
-  `NotificationService#notifyOnce` (`INSERT … ON CONFLICT DO NOTHING`) sur un
+  `NotificationService#notifyOncePerMessage` (`INSERT … ON CONFLICT DO NOTHING`) sur un
   index unique partiel `notifications (user_id, type, data->>'messageId')`
   (migration `1794000000036`, construite `CONCURRENTLY`, hors transaction), qui
-  tient aussi face à deux traitements concurrents.
+  tient aussi face à deux traitements concurrents. Le `ON CONFLICT` vise cet
+  index seul : tout autre conflit reste une erreur.
+- **Migrations sans verrou long** : `1794000000035` ajoute la colonne vide,
+  pose le défaut, remplit les lignes existantes, construit l'index unique
+  `CONCURRENTLY` et obtient le `NOT NULL` par une contrainte `CHECK` validée à
+  part. `createIndexConcurrently` (`database/concurrent_index.ts`, partagé avec
+  `1794000000036`) retire d'abord un index invalide laissé par un échec : la
+  migration se relance telle quelle.
 - **Connexion depuis un lien** : un visiteur sans session était renvoyé vers
   `/login`, qui n'existe pas (404). `AuthMiddleware` renvoie désormais vers
   `/<locale>/login?redirect=<page demandée>` pour une navigation `GET` (visite
@@ -37,6 +44,8 @@ l'agence en est prévenue sans avoir à se connecter.
   La query string de la page n'est portée que par `redirect=` : le rendu de
   `@adonisjs/auth` la recopiait aussi (`withQs()`), ce qui cassait l'URL de
   connexion. Un appel JSON garde son 401 (`tests/functional/auth_redirect.spec.ts`).
+  Un formulaire envoyé après l'expiration de la session ne laisse ni
+  `password` ni `password_confirmation` en session flash.
 - **Téléchargement** : en-têtes `Cache-Control: private, no-store` et
   `X-Content-Type-Options: nosniff`. Utilitaire `isUniqueViolation`
   (`shared/helpers/database.ts`), désormais partagé par les services.

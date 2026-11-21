@@ -11,9 +11,17 @@ import {
 import {
   NOTIFICATION_PAGE_SIZE,
   NOTIFICATION_TYPES,
+  type MessageNotificationData,
   type NotificationData,
   type NotificationType,
 } from '#shared/types/notification'
+
+/**
+ * Cible de `ON CONFLICT` de `notifyOncePerMessage` : la définition exacte de
+ * l'index unique partiel `notifications_user_type_message_unique` (migration
+ * 036), que PostgreSQL retrouve par inférence.
+ */
+const MESSAGE_NOTIFICATION_CONFLICT_TARGET = `(user_id, type, (data->>'messageId')) WHERE (data->>'messageId') IS NOT NULL`
 
 interface ListOptions {
   unreadOnly?: boolean
@@ -46,32 +54,26 @@ export default class NotificationService {
   }
 
   /**
-   * Comme `notify`, mais **sans doublon** : une notification qu'un index unique
-   * interdit (ex. `(user_id, type, data->>'messageId')`, #225) n'est pas
-   * recréée. `INSERT … ON CONFLICT DO NOTHING` : un doublon, même concurrent,
-   * ne lève pas d'erreur — et n'avorte donc pas une transaction englobante.
-   * Renvoie l'id créé, ou `null` si la notification existait déjà.
+   * Comme `notify`, mais **une seule fois par message du fil** : l'index unique
+   * `(user_id, type, data->>'messageId')` (migration 036, #225) est la cible
+   * de `INSERT … ON CONFLICT DO NOTHING`. Un doublon, même concurrent, ne lève
+   * pas d'erreur — et n'avorte donc pas une transaction englobante ; tout autre
+   * conflit reste une erreur. Renvoie l'id créé, ou `null` si la notification
+   * existait déjà.
    */
-  async notifyOnce(
+  async notifyOncePerMessage(
     user: Pick<User, 'id'>,
     type: NotificationType,
-    data: NotificationData
+    data: MessageNotificationData
   ): Promise<number | null> {
     this.assertKnownType(type)
-    const now = new Date()
-    const inserted = await db
-      .table(Notification.table)
-      .insert({
-        user_id: user.id,
-        type,
-        data: JSON.stringify(data),
-        read_at: null,
-        created_at: now,
-        updated_at: now,
-      })
-      .onConflict()
-      .ignore()
-      .returning('id')
+    const { rows: inserted } = await db.rawQuery<{ rows: { id: number }[] }>(
+      `INSERT INTO ${Notification.table} (user_id, type, data, read_at, created_at, updated_at)
+       VALUES (?, ?, ?, NULL, now(), now())
+       ON CONFLICT ${MESSAGE_NOTIFICATION_CONFLICT_TARGET} DO NOTHING
+       RETURNING id`,
+      [user.id, type, JSON.stringify(data)]
+    )
     if (inserted.length === 0) return null
 
     const id = Number(inserted[0].id)

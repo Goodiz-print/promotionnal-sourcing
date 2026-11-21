@@ -374,16 +374,16 @@ test.group('Réponse par mail — services de la transmission (#225)', (group) =
     assert.lengthOf(await quotes.documentsOfReply(recipient.id, []), 0)
   })
 
-  test('NotificationService#notifyOnce : un doublon n’est ni créé ni une erreur', async ({
+  test('NotificationService#notifyOncePerMessage : un doublon n’est ni créé ni une erreur', async ({
     assert,
   }) => {
     const { owner } = await agencyScenario()
     const notifications = await app.container.make(NotificationService)
     const data = { rfqId: 1, rfqTitle: 'Tote bags', supplierName: 'Textiles SA', messageId: 7 }
 
-    const first = await notifications.notifyOnce(owner, 'rfq.responded', data)
-    const again = await notifications.notifyOnce(owner, 'rfq.responded', data)
-    const otherMessage = await notifications.notifyOnce(owner, 'rfq.responded', {
+    const first = await notifications.notifyOncePerMessage(owner, 'rfq.responded', data)
+    const again = await notifications.notifyOncePerMessage(owner, 'rfq.responded', data)
+    const otherMessage = await notifications.notifyOncePerMessage(owner, 'rfq.responded', {
       ...data,
       messageId: 8,
     })

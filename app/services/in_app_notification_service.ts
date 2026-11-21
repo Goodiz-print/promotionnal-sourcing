@@ -15,6 +15,7 @@ import type { OrderSide } from '#shared/types/order'
 import type { RoleSlug } from '#shared/types/role'
 import type { SupplierReplyNotice } from '#shared/types/supplier_reply'
 import type {
+  MessageNotificationData,
   NotificationData,
   NotificationType,
   OrderNotificationType,
@@ -137,7 +138,7 @@ export default class InAppNotificationService {
    * crée pas de seconde notification pour qui l'a déjà.
    */
   async supplierReplied(userIds: number[], notice: SupplierReplyNotice): Promise<number> {
-    const data: NotificationData = {
+    const data: MessageNotificationData = {
       rfqId: notice.rfqId,
       rfqTitle: notice.rfqTitle,
       supplierName: notice.supplierName,
@@ -172,10 +173,10 @@ export default class InAppNotificationService {
   /**
    * Crée la notification de réponse, sauf si un traitement concurrent vient de
    * la créer : l'index unique `(user_id, type, data->>'messageId')` tranche
-   * (`NotificationService#notifyOnce`). Renvoie `true` si elle a été créée.
+   * (`NotificationService#notifyOncePerMessage`). Renvoie `true` si elle a été créée.
    */
-  private async notifyOnce(userId: number, data: NotificationData): Promise<boolean> {
-    const id = await this.notifications.notifyOnce({ id: userId }, 'rfq.responded', data)
+  private async notifyOnce(userId: number, data: MessageNotificationData): Promise<boolean> {
+    const id = await this.notifications.notifyOncePerMessage({ id: userId }, 'rfq.responded', data)
     return id !== null
   }
 
