@@ -99,7 +99,10 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
     const response = await client.get('/fr/admin/categories').redirects(0)
 
     response.assertStatus(302)
-    response.assertHeader('location', '/login')
+    response.assertHeader(
+      'location',
+      `/fr/login?redirect=${encodeURIComponent('/fr/admin/categories')}`
+    )
   })
 
   test('création d’une catégorie avec ses traductions', async ({ client, assert }) => {

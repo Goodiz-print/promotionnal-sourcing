@@ -8,11 +8,14 @@ import mail from '@adonisjs/mail/services/main'
 import { OrganizationFactory } from '#database/factories/organization_factory'
 import SupplierReplyRecorded from '#events/supplier_reply_recorded'
 import SupplierReplyReceivedNotification from '#mails/supplier_reply_received_notification'
+import InboundMail from '#models/inbound_mail'
 import Message from '#models/message'
 import Notification from '#models/notification'
 import QuoteDocument from '#models/quote_document'
 import Organization from '#models/organization'
 import type User from '#models/user'
+import InAppNotificationService from '#services/in_app_notification_service'
+import NotificationService from '#services/notification_service'
 import InboundAddressService from '#services/inbound_address_service'
 import QuoteService from '#services/quote_service'
 import SupplierReplyNotificationService from '#services/supplier_reply_notification_service'
@@ -172,10 +175,42 @@ test.group('Réponse par mail — transmission à l’agence (#225)', (group) =>
     const [sent] = sentReplies()
     assert.equal(sent.data.supplierName, supplier.name)
     assert.equal(sent.data.body, 'Prix ferme 30 jours.')
-    assert.deepEqual(sent.replyTo, [`agency-${recipient.replyToken}@${TEST_RELAY_DOMAIN}`])
+    assert.deepEqual(sent.replyTo, [`agency-${recipient.agencyReplyToken}@${TEST_RELAY_DOMAIN}`])
     assert.lengthOf(sent.data.documents, 1)
     assert.equal(sent.data.documents[0].filename, 'devis été.pdf')
     assert.match(sent.data.documents[0].downloadPath, /^\/fr\/quote-documents\/\d+\/download$/)
+  })
+
+  test('le mail transmis ne révèle jamais le jeton du fournisseur', async ({ client, assert }) => {
+    const { recipient, address } = await agencyScenario()
+
+    await replyWithPdf(client, inbound, { address })
+
+    sentReplies().forEach(({ replyTo, data }) => {
+      assert.notInclude(JSON.stringify({ replyTo, data }), recipient.replyToken)
+    })
+  })
+
+  test('un mail envoyé à l’adresse agence n’entre pas dans le fil (relais : #226)', async ({
+    client,
+    assert,
+  }) => {
+    const { recipient } = await agencyScenario()
+    inbound.provider.add('agency-reply', {
+      to: `agency-${recipient.agencyReplyToken}@${TEST_RELAY_DOMAIN}`,
+      from: 'Agence <owner@agence.test>',
+      attachments: [{ filename: 'faux-devis.pdf', content: await realPdf() }],
+    })
+
+    const response = await deliver(client, 'agency-reply')
+
+    response.assertStatus(200)
+    const journal = await InboundMail.query()
+      .where('providerMessageId', 'agency-reply')
+      .firstOrFail()
+    assert.equal(journal.rejectionReason, 'unknown_address')
+    assert.lengthOf(await Message.all(), 0)
+    assert.lengthOf(await QuoteDocument.all(), 0)
   })
 
   test('chaque destinataire reçoit le mail dans sa langue', async ({ client, assert }) => {
@@ -242,6 +277,7 @@ test.group('Réponse par mail — téléchargement du devis par l’agence (#225
     response.assertStatus(200)
     response.assertHeader('content-type', 'application/pdf')
     response.assertHeader('cache-control', 'private, no-store')
+    response.assertHeader('x-content-type-options', 'nosniff')
     assert.include(
       response.header('content-disposition'),
       "filename*=UTF-8''devis%20%C3%A9t%C3%A9.pdf"
@@ -278,13 +314,15 @@ test.group('Réponse par mail — téléchargement du devis par l’agence (#225
     response.assertStatus(403)
   })
 
-  test('un visiteur non connecté est renvoyé vers la connexion', async ({ client, assert }) => {
+  test('un visiteur non connecté passe par la connexion, puis revient au devis', async ({
+    client,
+  }) => {
     const { path } = await transmitted(client)
 
     const response = await download(client, path)
 
     response.assertStatus(302)
-    assert.notEqual(response.header('content-type'), 'application/pdf')
+    response.assertHeader('location', `/fr/login?redirect=${encodeURIComponent(path)}`)
   })
 
   test('un identifiant non numérique est un 404', async ({ client }) => {
@@ -306,7 +344,82 @@ test.group('Réponse par mail — téléchargement du devis par l’agence (#225
 
 test.group('Réponse par mail — services de la transmission (#225)', (group) => {
   useDatabase(group)
-  useFakeInboundMail(group)
+  const inbound = useFakeInboundMail(group)
+  useFakeStorage(group)
+  useFakeGhostscript(group, { available: false })
+  group.each.setup(() => {
+    mails = mail.fake().mails
+    return () => mail.restore()
+  })
+
+  test('documentsOfReply : les devis du destinataire, jamais ceux d’un autre', async ({
+    client,
+    assert,
+  }) => {
+    const { recipient, address } = await agencyScenario()
+    await replyWithPdf(client, inbound, { address })
+    const [document] = await QuoteDocument.all()
+    const quotes = await app.container.make(QuoteService)
+
+    const mine = await quotes.documentsOfReply(recipient.id, [document.id, 999999])
+    const elsewhere = await quotes.documentsOfReply(recipient.id + 1, [document.id])
+
+    assert.deepEqual(
+      mine.map(({ id, attachment }) => [id, attachment.filename]),
+      [[document.id, 'devis été.pdf']]
+    )
+    assert.lengthOf(elsewhere, 0)
+    assert.lengthOf(await quotes.documentsOfReply(recipient.id, []), 0)
+  })
+
+  test('NotificationService#notifyOnce : un doublon n’est ni créé ni une erreur', async ({
+    assert,
+  }) => {
+    const { owner } = await agencyScenario()
+    const notifications = await app.container.make(NotificationService)
+    const data = { rfqId: 1, rfqTitle: 'Tote bags', supplierName: 'Textiles SA', messageId: 7 }
+
+    const first = await notifications.notifyOnce(owner, 'rfq.responded', data)
+    const again = await notifications.notifyOnce(owner, 'rfq.responded', data)
+    const otherMessage = await notifications.notifyOnce(owner, 'rfq.responded', {
+      ...data,
+      messageId: 8,
+    })
+
+    assert.isNumber(first)
+    assert.isNull(again)
+    assert.isNumber(otherMessage)
+    const stored = await Notification.findOrFail(first!)
+    assert.deepEqual(stored.data, data)
+    assert.lengthOf(await Notification.query().where('userId', owner.id), 2)
+  })
+
+  test('supplierReplied : deux traitements concurrents ne créent qu’une notification par personne', async ({
+    assert,
+  }) => {
+    const { rfq, owner, manager } = await agencyScenario()
+    const inApp = await app.container.make(InAppNotificationService)
+    const notice = {
+      rfqId: rfq.id,
+      rfqTitle: rfq.title,
+      supplierName: 'Textiles SA',
+      messageId: 42,
+      body: '',
+      documents: [],
+      replyTo: null,
+    }
+    const userIds = [owner.id, manager.id, owner.id]
+
+    const created = await Promise.all([
+      inApp.supplierReplied(userIds, notice),
+      inApp.supplierReplied(userIds, notice),
+    ])
+
+    assert.equal(created[0] + created[1], 2)
+    assert.lengthOf(await Notification.query().where('userId', owner.id), 1)
+    assert.lengthOf(await Notification.query().where('userId', manager.id), 1)
+    assert.equal(await inApp.supplierReplied(userIds, notice), 0)
+  })
 
   test('recipientsFor : auteur et responsables, une fois chacun, dans leur langue', async ({
     assert,
@@ -366,8 +479,10 @@ test.group('Réponse par mail — services de la transmission (#225)', (group) =
 
     assert.equal(
       await addresses.agencyAddressFor(recipient),
-      `agency-${recipient.replyToken}@${TEST_RELAY_DOMAIN}`
+      `agency-${recipient.agencyReplyToken}@${TEST_RELAY_DOMAIN}`
     )
+    // Le jeton du fournisseur, qui suffit à écrire en son nom, n'y figure pas.
+    assert.notEqual(recipient.agencyReplyToken, recipient.replyToken)
 
     inboundMailConfig.enabled = false
     assert.isNull(await addresses.agencyAddressFor(recipient))

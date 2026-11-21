@@ -291,13 +291,20 @@ Cette brique s'arrête à la réception. La suite se branche sur l'événement `
 - Le mail `supplier-reply-received`, qui transmet la réponse du fournisseur à
   l'agence, part de la **plateforme** (`MAIL_FROM_ADDRESS`), jamais de l'adresse
   du fournisseur. Son `Reply-To` est l'adresse relais **côté agence** du même
-  couple : `agency-<jeton>@<INBOUND_MAIL_DOMAIN>` (`agencyReplyAddress`,
-  `InboundAddressService#agencyAddressFor`), même jeton que l'adresse `rfq-`.
+  couple : `agency-<jeton agence>@<INBOUND_MAIL_DOMAIN>` (`agencyReplyAddress`,
+  `InboundAddressService#agencyAddressFor`).
+- **Un jeton propre à l'agence** (`rfq_suppliers.agency_reply_token`, migration
+  `1794000000035`, généré par la base comme `reply_token`). L'adresse `rfq-`
+  n'authentifie que par son jeton : qui le connaît écrit **au nom du
+  fournisseur** dans le fil (message, devis PDF, statut « répondu »). L'agence,
+  et quiconque reçoit ses mails en transfert, ne doit donc jamais lire
+  `reply_token` ; elle n'en voit que l'autre jeton.
 - **Pourquoi une seconde adresse** : la même adresse dans les deux sens ferait
   prendre la réponse de l'agence pour celle du fournisseur (l'expéditeur
-  n'authentifie rien). Le préfixe dit le sens ; #226 n'aura qu'à reconnaître
-  `agency-` dans `replyTokenFrom` / `InboundMailService` pour relayer vers le
-  fournisseur, sans changer les mails déjà partis.
+  n'authentifie rien). Le préfixe et le jeton disent le sens ; #226 n'aura qu'à
+  reconnaître `agency-` et chercher le couple par `agency_reply_token` (jamais
+  par `reply_token`) pour relayer vers le fournisseur, sans changer les mails
+  déjà partis.
 - **D'ici #226** : `replyTokenFrom` ignore le préfixe `agency-`. Une réponse de
   l'agence est donc journalisée (`inbound_mails`, écartée en `unknown_address`,
   visible dans la supervision #227) au lieu d'entrer dans le fil. Le mail

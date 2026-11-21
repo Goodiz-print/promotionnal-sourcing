@@ -30,7 +30,7 @@ test.group('Mon compte — profil', (group) => {
   test('la page exige une connexion', async ({ client }) => {
     const response = await client.get('/fr/account').redirects(0)
     response.assertStatus(302)
-    response.assertHeader('location', '/login')
+    response.assertHeader('location', `/fr/login?redirect=${encodeURIComponent('/fr/account')}`)
   })
 
   test('la page est accessible à un compte non vérifié, sans exposer le mot de passe', async ({

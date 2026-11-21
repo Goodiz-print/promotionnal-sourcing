@@ -2469,6 +2469,7 @@ export class RfqItemSchema extends BaseModel {
 
 export class RfqSupplierSchema extends BaseModel {
   static $columns = [
+    'agencyReplyToken',
     'createdAt',
     'id',
     'remindedAt',
@@ -2480,6 +2481,8 @@ export class RfqSupplierSchema extends BaseModel {
     'updatedAt',
   ] as const
   $columns = RfqSupplierSchema.$columns
+  @column()
+  declare agencyReplyToken: string
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })

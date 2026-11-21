@@ -30,6 +30,8 @@ export default class QuoteDocumentsController {
       .header('Content-Type', file.mimeType)
       .header('Content-Disposition', attachmentDisposition(document.attachment.filename))
       .header('Cache-Control', 'private, no-store')
+      // Contenu fourni par un tiers : le navigateur s'en tient au type déclaré.
+      .header('X-Content-Type-Options', 'nosniff')
     return response.send(await this.storage.read(file))
   }
 }
