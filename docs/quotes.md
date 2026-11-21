@@ -74,7 +74,8 @@ Téléchargement d'un devis PDF reçu par mail (#225) :
 `QuoteDocumentsController#download`). Réservé aux **membres de l'agence**
 propriétaire de la demande, quel que soit leur rôle (ability
 `canDownloadQuoteDocument`) : un autre utilisateur — fournisseur compris — reçoit
-un **403**, un devis inconnu un 404, un visiteur est renvoyé vers la connexion.
+un **403**, un devis inconnu un 404, un visiteur est renvoyé vers la connexion
+puis ramené au devis (`?redirect=`).
 La route sert `QuoteDocument#recipientFile` (version au nom de l'agence pour un
 non-abonné, sinon l'original) en passant par l'application
 (`Cache-Control: private, no-store`) : l'URL de stockage n'est jamais exposée.
@@ -200,8 +201,13 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
 - **Notification in-app** `rfq.responded` (`InAppNotificationService#supplierReplied`),
   données `rfqId`, `rfqTitle`, `supplierName`, `messageId` ; elle mène à la demande.
 - **Idempotence** : la clé du mail porte le message du fil et le destinataire
-  (`mail_deliveries`) ; la notification n'est pas recréée pour qui l'a déjà pour
-  ce message. Un événement rejoué ne prévient personne deux fois.
+  (`mail_deliveries`) ; la notification passe par
+  `NotificationService#notifyOncePerMessage` (`INSERT … ON CONFLICT DO NOTHING` sur
+  l'index unique partiel `notifications (user_id, type, data->>'messageId')`).
+  Un événement rejoué, même en concurrence, ne prévient personne deux fois, et
+  un doublon ne lève jamais d'erreur.
+- **Devis cités** : `QuoteService#documentsOfReply`, limité aux devis de cette
+  réponse et de ce destinataire.
 - **Limite** : la transmission dépend de l'événement, dont l'émission n'est pas
   garantie (voir ci-dessus). La reprise des réponses non transmises reste à faire.
 

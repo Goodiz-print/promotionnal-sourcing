@@ -24,6 +24,7 @@ import {
   QuoteNotFoundException,
   QuoteNotSubmittableException,
 } from '#exceptions/quote_errors'
+import { isUniqueViolation } from '#shared/helpers/database'
 import { RFQ_DEADLINE_TIMEZONE } from '#shared/types/rfq'
 import {
   BUYER_VISIBLE_QUOTE_STATUSES,
@@ -31,9 +32,6 @@ import {
   LIVE_QUOTE_STATUSES,
 } from '#shared/types/quote'
 import type { QuoteData, QuoteDocumentInput, QuoteItemData } from '#shared/types/quote'
-
-/** Violation de contrainte d'unicité Postgres (`23505`). */
-const UNIQUE_VIOLATION = '23505'
 
 /** Prix unitaires en 1/10 000 (`decimal(12, 4)`), totaux en centimes. */
 const UNIT_PRICE_SCALE = 10_000
@@ -151,7 +149,7 @@ export default class QuoteService {
       })
     } catch (error) {
       // Deux créations simultanées : l'index unique partiel tranche.
-      if ((error as { code?: string }).code === UNIQUE_VIOLATION) {
+      if (isUniqueViolation(error)) {
         throw new QuoteAlreadyExistsException()
       }
       throw error
@@ -373,6 +371,21 @@ export default class QuoteService {
       .preload('recipientStorageObject')
       .orderBy('receivedAt', 'desc')
       .orderBy('id', 'desc')
+  }
+
+  /**
+   * Les devis PDF `ids` du destinataire `rfqSupplierId`, dans l'ordre de leurs
+   * identifiants (celui des pièces jointes du mail), avec leur pièce jointe :
+   * de quoi les citer dans le mail transmis à l'agence (#225) sans charger
+   * tout l'historique. Un identifiant d'un autre destinataire est ignoré.
+   */
+  documentsOfReply(rfqSupplierId: number, ids: number[]): Promise<QuoteDocument[]> {
+    if (ids.length === 0) return Promise.resolve([])
+    return QuoteDocument.query()
+      .where('rfqSupplierId', rfqSupplierId)
+      .whereIn('id', ids)
+      .preload('attachment')
+      .orderBy('id')
   }
 
   /**

@@ -16,12 +16,39 @@ l'agence en est prévenue sans avoir à se connecter.
   `emails.supplierReplyReceived.*` dans les 9 langues, envoyé dans la langue de
   chaque destinataire.
 - **En-têtes** : expéditeur = la plateforme. `Reply-To` = nouvelle adresse
-  relais côté agence `agency-<jeton>@<domaine>` (même jeton que l'adresse
-  `rfq-` du fournisseur). Tant que #226 ne la relaie pas, une réponse de
-  l'agence est journalisée (`unknown_address`) sans entrer dans le fil ; le mail
-  ne propose donc pas encore d'y répondre.
+  relais côté agence `agency-<jeton agence>@<domaine>`, avec un **jeton propre**
+  (`rfq_suppliers.agency_reply_token`, migration `1794000000035`) : l'agence ne
+  lit jamais le jeton du fournisseur, qui permettrait d'écrire en son nom dans
+  le fil. Tant que #226 ne la relaie pas, une réponse de l'agence est
+  journalisée (`unknown_address`) sans entrer dans le fil ; le mail ne propose
+  donc pas encore d'y répondre.
 - **Idempotence** : clé `supplier-reply-received:message=<id>:to=<email>`
-  (`mail_deliveries`), notification in-app non recréée pour un même message.
+  (`mail_deliveries`) pour le mail ; pour la notification in-app,
+  `NotificationService#notifyOncePerMessage` (`INSERT … ON CONFLICT DO NOTHING`) sur un
+  index unique partiel `notifications (user_id, type, data->>'messageId')`
+  (migration `1794000000036`, construite `CONCURRENTLY`, hors transaction), qui
+  tient aussi face à deux traitements concurrents. Le `ON CONFLICT` vise cet
+  index seul : tout autre conflit reste une erreur.
+- **Migrations sans verrou long** : `1794000000035` ajoute la colonne vide,
+  pose le défaut, remplit les lignes existantes, construit l'index unique
+  `CONCURRENTLY` et obtient le `NOT NULL` par une contrainte `CHECK` validée à
+  part. `createIndexConcurrently` (`database/concurrent_index.ts`, partagé avec
+  `1794000000036`) retire d'abord un index invalide laissé par un échec : la
+  migration se relance telle quelle.
+- **Connexion depuis un lien** : un visiteur sans session était renvoyé vers
+  `/login`, qui n'existe pas (404). `AuthMiddleware` renvoie désormais vers
+  `/<locale>/login?redirect=<page demandée>` pour une navigation `GET` (visite
+  Inertia ou page HTML ; un appel JSON n'est pas repris)
+  (`loginPathFor`, `shared/helpers/safe_redirect.ts`) : le lien d'un devis reçu
+  par mail mène au PDF une fois connecté. Vaut pour toutes les pages protégées.
+  La query string de la page n'est portée que par `redirect=` : le rendu de
+  `@adonisjs/auth` la recopiait aussi (`withQs()`), ce qui cassait l'URL de
+  connexion. Un appel JSON garde son 401 (`tests/functional/auth_redirect.spec.ts`).
+  Un formulaire envoyé après l'expiration de la session ne laisse ni
+  `password` ni `password_confirmation` en session flash.
+- **Téléchargement** : en-têtes `Cache-Control: private, no-store` et
+  `X-Content-Type-Options: nosniff`. Utilitaire `isUniqueViolation`
+  (`shared/helpers/database.ts`), désormais partagé par les services.
 - **Notification in-app** `rfq.responded` (type existant, désormais émis), qui
   nomme le fournisseur et mène à la demande ; texte mis à jour dans les 9 langues.
 - **Route** `GET /:locale/quote-documents/:id/download`

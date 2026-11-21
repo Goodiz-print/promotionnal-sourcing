@@ -92,7 +92,10 @@ test.group('Administration des techniques de marquage - ACL', (group) => {
     const response = await client.get('/fr/admin/marking-techniques').redirects(0)
 
     response.assertStatus(302)
-    response.assertHeader('location', '/login')
+    response.assertHeader(
+      'location',
+      `/fr/login?redirect=${encodeURIComponent('/fr/admin/marking-techniques')}`
+    )
   })
 })
 

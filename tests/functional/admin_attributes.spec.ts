@@ -103,7 +103,10 @@ test.group('Administration des attributs — ACL', (group) => {
     const response = await client.get('/fr/admin/attributes').redirects(0)
 
     response.assertStatus(302)
-    response.assertHeader('location', '/login')
+    response.assertHeader(
+      'location',
+      `/fr/login?redirect=${encodeURIComponent('/fr/admin/attributes')}`
+    )
   })
 })
 

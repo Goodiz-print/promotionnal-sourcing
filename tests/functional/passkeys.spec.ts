@@ -31,7 +31,10 @@ test.group('Passkeys — enregistrement', (group) => {
     const response = await client.get('/fr/account/passkeys/options').redirects(0)
 
     response.assertStatus(302)
-    response.assertHeader('location', '/login')
+    response.assertHeader(
+      'location',
+      `/fr/login?redirect=${encodeURIComponent('/fr/account/passkeys/options')}`
+    )
   })
 
   test('les options émettent un défi conservé en session et excluent les passkeys existantes', async ({
