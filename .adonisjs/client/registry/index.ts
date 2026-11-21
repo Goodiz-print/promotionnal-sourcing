@@ -582,6 +582,12 @@ const routes = {
     tokens: [[1,"locale"],[0,"quotes"],[1,"id"],[0,"reject"]],
     types: placeholder as Registry['quotes.reject']['types'],
   },
+  'quote_documents.download': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/quote-documents/:id/download',
+    tokens: [[1,"locale"],[0,"quote-documents"],[1,"id"],[0,"download"]],
+    types: placeholder as Registry['quote_documents.download']['types'],
+  },
   'supplier.quotes.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/supplier/quotes',

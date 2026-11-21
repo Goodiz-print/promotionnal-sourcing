@@ -152,5 +152,15 @@
     "email": "E-mail",
     "phone": "Telefon",
     "address": "Adres"
+  },
+  "supplierReplyReceived": {
+    "subject": "Odpowiedź od {supplierName} na „{rfqTitle}”",
+    "title": "{supplierName} odpowiedział na Twoje zapytanie",
+    "body": "{supplierName} odpowiedział e-mailem na Twoje zapytanie „{rfqTitle}”.",
+    "messageHeading": "Wiadomość:",
+    "documentsHeading": "Załączone oferty:",
+    "downloadHint": "Te linki wymagają zalogowania się na Twoje konto.",
+    "cta": "Otwórz zapytanie",
+    "footer": "Otrzymujesz tę wiadomość, ponieważ zarządzasz tym zapytaniem ofertowym."
   }
 }

@@ -152,5 +152,15 @@
     "email": "E-mail",
     "phone": "Téléphone",
     "address": "Adresse"
+  },
+  "supplierReplyReceived": {
+    "subject": "Réponse de {supplierName} à « {rfqTitle} »",
+    "title": "{supplierName} a répondu à votre demande",
+    "body": "{supplierName} a répondu par mail à votre demande « {rfqTitle} ».",
+    "messageHeading": "Son message :",
+    "documentsHeading": "Devis joints :",
+    "downloadHint": "Les liens demandent d'être connecté à votre compte.",
+    "cta": "Ouvrir la demande",
+    "footer": "Vous recevez ce message car vous pilotez cette demande de devis."
   }
 }

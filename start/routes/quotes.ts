@@ -13,6 +13,13 @@ export function registerQuoteRoutes(): void {
   router.patch('quotes/:id/accept', [controllers.Quotes, 'accept']).as('quotes.accept')
   router.patch('quotes/:id/reject', [controllers.Quotes, 'reject']).as('quotes.reject')
 
+  // Agence : télécharger un devis PDF reçu par mail (#225), version au nom de
+  // l'agence pour un fournisseur non abonné (#238). Lien des mails transmis.
+  router
+    .get('quote-documents/:id/download', [controllers.QuoteDocuments, 'download'])
+    .where('id', router.matchers.number())
+    .as('quote_documents.download')
+
   // Fournisseur : rédiger, remettre.
   router.get('supplier/quotes', [controllers.supplier.Quotes, 'index']).as('supplier.quotes.index')
   router

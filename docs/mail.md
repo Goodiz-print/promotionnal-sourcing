@@ -105,19 +105,20 @@ SELECT idempotency_key, kind, "to", attempts, error FROM mail_deliveries WHERE s
 
 ### Types de mail existants
 
-| `kind`                     | Classe                               | Template Edge                     | Déclencheur                                                                                                                   |
-| -------------------------- | ------------------------------------ | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `organization-invitation`  | `OrganizationInvitationNotification` | `emails/organization_invitation`  | Invitation d'un membre (`OrganizationInvitationsController`)                                                                  |
-| `rfq-received`             | `RfqReceivedNotification`            | `emails/rfq_received`             | Envoi d'une demande de devis (`RfqNotificationService`)                                                                       |
-| `rfq-reminder`             | `RfqReminderNotification`            | `emails/rfq_reminder`             | Relance unique d'un fournisseur qui n'a pas ouvert la demande (`RemindRfqSuppliersJob`)                                       |
-| `quote-received`           | `QuoteReceivedNotification`          | `emails/quote_received`           | Un fournisseur remet un devis : prévient les responsables de l'acheteur (`OnQuoteSubmitted`)                                  |
-| `password-reset`           | `PasswordResetNotification`          | `emails/password_reset`           | Demande « mot de passe oublié » (`PasswordResetService`)                                                                      |
-| `email-verification`       | `EmailVerificationNotification`      | `emails/email_verification`       | Inscription, renvoi (`EmailVerificationService`)                                                                              |
-| `contact-request`          | `ContactRequestNotification`         | `emails/contact_request`          | Formulaire de contact de la landing (`ContactRequestService`) — mail interne, en français                                     |
-| `notification-reminder`    | `NotificationReminderNotification`   | `emails/notification_reminder`    | Rappel unique d'une notification in-app importante restée non lue (`SendNotificationRemindersJob`, #243)                      |
-| `subscription-activated`   | `SubscriptionActivatedNotification`  | `emails/subscription_activated`   | Abonnement manuel devenu actif : prévient owner et admin du fournisseur (`SubscriptionMailService`, #237)                     |
-| `subscription-expiring`    | `SubscriptionExpiringNotification`   | `emails/subscription_expiring`    | Rappel avant la fin d'un abonnement manuel : 30 jours (annuel) puis 7 jours (`SyncSubscriptionsJob`, #237)                    |
-| `quote-email-verification` | `QuoteEmailVerificationNotification` | `emails/quote_email_verification` | Confirmation de l'adresse de réception des demandes de devis, envoyée à cette adresse (`QuoteEmailVerificationService`, #217) |
+| `kind`                     | Classe                               | Template Edge                     | Déclencheur                                                                                                                                   |
+| -------------------------- | ------------------------------------ | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `organization-invitation`  | `OrganizationInvitationNotification` | `emails/organization_invitation`  | Invitation d'un membre (`OrganizationInvitationsController`)                                                                                  |
+| `rfq-received`             | `RfqReceivedNotification`            | `emails/rfq_received`             | Envoi d'une demande de devis (`RfqNotificationService`)                                                                                       |
+| `rfq-reminder`             | `RfqReminderNotification`            | `emails/rfq_reminder`             | Relance unique d'un fournisseur qui n'a pas ouvert la demande (`RemindRfqSuppliersJob`)                                                       |
+| `quote-received`           | `QuoteReceivedNotification`          | `emails/quote_received`           | Un fournisseur remet un devis : prévient les responsables de l'acheteur (`OnQuoteSubmitted`)                                                  |
+| `password-reset`           | `PasswordResetNotification`          | `emails/password_reset`           | Demande « mot de passe oublié » (`PasswordResetService`)                                                                                      |
+| `email-verification`       | `EmailVerificationNotification`      | `emails/email_verification`       | Inscription, renvoi (`EmailVerificationService`)                                                                                              |
+| `contact-request`          | `ContactRequestNotification`         | `emails/contact_request`          | Formulaire de contact de la landing (`ContactRequestService`) — mail interne, en français                                                     |
+| `notification-reminder`    | `NotificationReminderNotification`   | `emails/notification_reminder`    | Rappel unique d'une notification in-app importante restée non lue (`SendNotificationRemindersJob`, #243)                                      |
+| `subscription-activated`   | `SubscriptionActivatedNotification`  | `emails/subscription_activated`   | Abonnement manuel devenu actif : prévient owner et admin du fournisseur (`SubscriptionMailService`, #237)                                     |
+| `subscription-expiring`    | `SubscriptionExpiringNotification`   | `emails/subscription_expiring`    | Rappel avant la fin d'un abonnement manuel : 30 jours (annuel) puis 7 jours (`SyncSubscriptionsJob`, #237)                                    |
+| `quote-email-verification` | `QuoteEmailVerificationNotification` | `emails/quote_email_verification` | Confirmation de l'adresse de réception des demandes de devis, envoyée à cette adresse (`QuoteEmailVerificationService`, #217)                 |
+| `supplier-reply-received`  | `SupplierReplyReceivedNotification`  | `emails/supplier_reply_received`  | Réponse d'un fournisseur reçue par mail, transmise à l'auteur de la demande et aux responsables de l'agence (`OnSupplierReplyRecorded`, #225) |
 
 **Contenu de la demande (#219)** : `rfq-received` et `rfq-reminder` portent la
 description et les lignes de la demande (`description`, `lines: RfqMailLine[]`,
@@ -284,6 +285,26 @@ Cette brique s'arrête à la réception. La suite se branche sur l'événement `
 - **L'expéditeur n'authentifie rien** : un fournisseur répond souvent depuis une autre boîte. Le jeton fait foi ; `inbound_mails.sender_known` indique seulement si l'expéditeur est l'adresse de contact du fournisseur ou celle d'un de ses membres.
 - L'adresse reste valide tant que la demande est publiée, puis `INBOUND_MAIL_GRACE_DAYS` jours (30 par défaut) après sa clôture ou son expiration.
 - Sans configuration (dev, test, CI), aucun `Reply-To` n'est posé : les mails partent comme avant.
+
+### Adresse relais côté agence (#225, branchée par #226)
+
+- Le mail `supplier-reply-received`, qui transmet la réponse du fournisseur à
+  l'agence, part de la **plateforme** (`MAIL_FROM_ADDRESS`), jamais de l'adresse
+  du fournisseur. Son `Reply-To` est l'adresse relais **côté agence** du même
+  couple : `agency-<jeton>@<INBOUND_MAIL_DOMAIN>` (`agencyReplyAddress`,
+  `InboundAddressService#agencyAddressFor`), même jeton que l'adresse `rfq-`.
+- **Pourquoi une seconde adresse** : la même adresse dans les deux sens ferait
+  prendre la réponse de l'agence pour celle du fournisseur (l'expéditeur
+  n'authentifie rien). Le préfixe dit le sens ; #226 n'aura qu'à reconnaître
+  `agency-` dans `replyTokenFrom` / `InboundMailService` pour relayer vers le
+  fournisseur, sans changer les mails déjà partis.
+- **D'ici #226** : `replyTokenFrom` ignore le préfixe `agency-`. Une réponse de
+  l'agence est donc journalisée (`inbound_mails`, écartée en `unknown_address`,
+  visible dans la supervision #227) au lieu d'entrer dans le fil. Le mail
+  n'invite pas à répondre : pied de page « automatique » (`canReply` à `false`
+  dans `SupplierReplyReceivedNotification`, à basculer avec #226).
+- L'adresse appartient au domaine relais : la détection des boucles
+  (`isRelayAddress`) la couvre déjà.
 
 ### Variables d'environnement
 

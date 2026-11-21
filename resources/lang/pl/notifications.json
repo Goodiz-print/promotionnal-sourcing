@@ -9,7 +9,7 @@
   "types": {
     "rfq": {
       "received": "{buyerName} przesłał(a) Państwu zapytanie ofertowe: {rfqTitle}.",
-      "responded": "Dostawca odpowiedział na zapytanie {rfqTitle}.",
+      "responded": "{supplierName} odpowiedział na zapytanie {rfqTitle}.",
       "declined": "{supplierName} odrzucił(a) zapytanie {rfqTitle}."
     },
     "quote": {

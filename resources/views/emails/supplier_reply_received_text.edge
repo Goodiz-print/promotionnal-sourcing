@@ -1,0 +1,24 @@
+{{{ title }}}
+
+{{{ intro }}}
+
+@if(body)
+{{{ t('emails.supplierReplyReceived.messageHeading') }}}
+{{{ body }}}
+
+@end
+@if(documents.length)
+{{{ t('emails.supplierReplyReceived.documentsHeading') }}}
+@each(document in documents)
+- {{{ document.filename }}} : {{{ appUrl }}}{{{ document.downloadPath }}}
+@end
+{{{ t('emails.supplierReplyReceived.downloadHint') }}}
+
+@end
+{{{ t('emails.supplierReplyReceived.cta') }}} : {{{ appUrl }}}{{{ rfqPath }}}
+
+--
+@if(!canReply)
+{{{ t('emails.layout.automatic') }}}
+@end
+{{{ t('emails.supplierReplyReceived.footer') }}}

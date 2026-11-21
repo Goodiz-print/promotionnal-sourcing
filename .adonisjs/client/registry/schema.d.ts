@@ -1255,6 +1255,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['reject']>>>
     }
   }
+  'quote_documents.download': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/quote-documents/:id/download'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_documents_controller').default['download']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_documents_controller').default['download']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_documents_controller').default['download']>>>
+    }
+  }
   'supplier.quotes.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/supplier/quotes'

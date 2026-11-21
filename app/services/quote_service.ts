@@ -15,6 +15,7 @@ import QuoteRejected from '#events/quote_rejected'
 import QuoteSubmitted from '#events/quote_submitted'
 import {
   QuoteAlreadyExistsException,
+  QuoteDocumentNotFoundException,
   QuoteInvalidItemsException,
   QuoteInvalidValidityException,
   QuoteNotAllowedException,
@@ -372,6 +373,22 @@ export default class QuoteService {
       .preload('recipientStorageObject')
       .orderBy('receivedAt', 'desc')
       .orderBy('id', 'desc')
+  }
+
+  /**
+   * Un devis PDF avec sa demande et ses fichiers, pour le servir à l'agence
+   * (`QuoteDocumentsController`). Le droit d'accès est vérifié par l'ability
+   * `canDownloadQuoteDocument`, sur la demande chargée ici.
+   */
+  async findDocument(id: number): Promise<QuoteDocument> {
+    const document = await QuoteDocument.query()
+      .where('id', id)
+      .preload('rfq')
+      .preload('attachment', (attachment) => attachment.preload('storageObject'))
+      .preload('recipientStorageObject')
+      .first()
+    if (!document) throw new QuoteDocumentNotFoundException()
+    return document
   }
 
   /**

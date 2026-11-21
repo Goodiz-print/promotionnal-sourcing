@@ -152,5 +152,15 @@
     "email": "E-mail",
     "phone": "Telefono",
     "address": "Indirizzo"
+  },
+  "supplierReplyReceived": {
+    "subject": "Risposta di {supplierName} a «{rfqTitle}»",
+    "title": "{supplierName} ha risposto alla sua richiesta",
+    "body": "{supplierName} ha risposto via email alla sua richiesta «{rfqTitle}».",
+    "messageHeading": "Il suo messaggio:",
+    "documentsHeading": "Preventivi allegati:",
+    "downloadHint": "Per aprire questi link è necessario aver effettuato l'accesso al proprio account.",
+    "cta": "Apri la richiesta",
+    "footer": "Riceve questo messaggio perché gestisce questa richiesta di preventivo."
   }
 }

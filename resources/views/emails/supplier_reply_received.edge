@@ -1,0 +1,32 @@
+@component('emails/layout', {
+  title,
+  locale,
+  i18n,
+  replyable: canReply,
+  footer: t('emails.supplierReplyReceived.footer'),
+})
+  <p>{{ intro }}</p>
+  @if(body)
+    <p><strong>{{ t('emails.supplierReplyReceived.messageHeading') }}</strong></p>
+    <blockquote
+      style="margin:0 0 16px;padding:8px 16px;border-left:3px solid #e5e7eb;color:#374151;white-space:pre-line"
+    >
+      {{ body }}
+    </blockquote>
+  @end
+  @if(documents.length)
+    <p><strong>{{ t('emails.supplierReplyReceived.documentsHeading') }}</strong></p>
+    <ul>
+      @each(document in documents)
+        <li><a href="{{ appUrl }}{{ document.downloadPath }}">{{ document.filename }}</a></li>
+      @end
+    </ul>
+    <p style="font-size:13px;color:#6b7280">{{ t('emails.supplierReplyReceived.downloadHint') }}</p>
+  @end
+
+  <p>
+    <a class="button" href="{{ appUrl }}{{ rfqPath }}">
+      {{ t('emails.supplierReplyReceived.cta') }}
+    </a>
+  </p>
+@end

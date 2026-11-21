@@ -100,6 +100,7 @@ export type ScannedRoutes = {
     'quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quotes.accept': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quotes.reject': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_documents.download': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.quotes.create': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
     'supplier.quotes.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
@@ -318,6 +319,7 @@ export type ScannedRoutes = {
     'supplier.rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_documents.download': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.quotes.create': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
     'supplier.quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -430,6 +432,7 @@ export type ScannedRoutes = {
     'supplier.rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_documents.download': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.quotes.create': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
     'supplier.quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }

@@ -10,6 +10,13 @@ export class QuoteNotFoundException extends Exception {
   static message = 'Quote not found'
 }
 
+/** Devis PDF reçu par mail (#224) introuvable. */
+export class QuoteDocumentNotFoundException extends Exception {
+  static status = 404
+  static code = 'E_QUOTE_DOCUMENT_NOT_FOUND'
+  static message = 'Quote document not found'
+}
+
 /**
  * Le fournisseur ne peut pas chiffrer cette demande : elle n'est plus ouverte
  * (close, échue, échéance passée) ou il l'a déclinée.

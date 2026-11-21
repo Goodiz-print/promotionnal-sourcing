@@ -69,6 +69,18 @@ deux requêtes concurrentes (deux accept, accept + reject) ne s'écrasent pas.
 | POST    | `/:locale/supplier/quotes/:id/submit`      | `supplier.quotes.submit`  | fournisseur                     |
 | DELETE  | `/:locale/supplier/quotes/:id`             | `supplier.quotes.destroy` | fournisseur (brouillon)         |
 
+Téléchargement d'un devis PDF reçu par mail (#225) :
+`GET /:locale/quote-documents/:id/download` (`quote_documents.download`,
+`QuoteDocumentsController#download`). Réservé aux **membres de l'agence**
+propriétaire de la demande, quel que soit leur rôle (ability
+`canDownloadQuoteDocument`) : un autre utilisateur — fournisseur compris — reçoit
+un **403**, un devis inconnu un 404, un visiteur est renvoyé vers la connexion.
+La route sert `QuoteDocument#recipientFile` (version au nom de l'agence pour un
+non-abonné, sinon l'original) en passant par l'application
+(`Cache-Control: private, no-store`) : l'URL de stockage n'est jamais exposée.
+C'est le lien des mails transmis à l'agence ; l'écran de la demande (#228) le
+réutilisera.
+
 Cloisonnement : le devis d'une autre organisation est un **404**, jamais un 403 ;
 un brouillon n'existe pas pour l'acheteur ; un fournisseur ne voit jamais les devis
 de ses concurrents (l'écran de la demande reçue ne porte que son propre devis). Les
@@ -172,8 +184,28 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
   transmettre la réponse : prévoir une reprise sur les messages portant
   `inbound_mail_id` sans envoi correspondant dans `mail_deliveries`.
 
-Aucun écran n'affiche encore ces devis : la transmission à l'agence relève de
-#225, le fil d'échanges de #226.
+### Transmission à l'agence (#225)
+
+`SupplierReplyRecorded` → `OnSupplierReplyRecorded` →
+`SupplierReplyNotificationService#notify` :
+
+- **Destinataires** : l'auteur de la demande (`rfqs.created_by_user_id`, s'il
+  est encore membre de l'agence) et les responsables de l'agence
+  (`RFQ_MANAGER_ROLES`), une seule fois chacun.
+- **Mail** `supplier-reply-received`, dans la langue de chacun : nom du
+  fournisseur (l'agence le connaît), texte de la réponse, un **lien de
+  téléchargement authentifié** par devis PDF (`quote_documents.download`), lien
+  vers la demande. Expéditeur : la plateforme ; `Reply-To` : l'adresse relais
+  côté agence (voir `docs/mail.md`, branchée par #226).
+- **Notification in-app** `rfq.responded` (`InAppNotificationService#supplierReplied`),
+  données `rfqId`, `rfqTitle`, `supplierName`, `messageId` ; elle mène à la demande.
+- **Idempotence** : la clé du mail porte le message du fil et le destinataire
+  (`mail_deliveries`) ; la notification n'est pas recréée pour qui l'a déjà pour
+  ce message. Un événement rejoué ne prévient personne deux fois.
+- **Limite** : la transmission dépend de l'événement, dont l'émission n'est pas
+  garantie (voir ci-dessus). La reprise des réponses non transmises reste à faire.
+
+Aucun écran n'affiche encore ces devis (#228) ; le fil d'échanges relève de #226.
 
 ### Version destinataire : le nom de l'agence sur le devis (#238)
 

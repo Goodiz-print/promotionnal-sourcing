@@ -1,5 +1,6 @@
 import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
+import Notification from '#models/notification'
 import OrganizationUser from '#models/organization_user'
 import NotificationService from '#services/notification_service'
 import SubscriptionService from '#services/subscription_service'
@@ -12,6 +13,7 @@ import type RfqSupplier from '#models/rfq_supplier'
 import type User from '#models/user'
 import type { OrderSide } from '#shared/types/order'
 import type { RoleSlug } from '#shared/types/role'
+import type { SupplierReplyNotice } from '#shared/types/supplier_reply'
 import type {
   NotificationData,
   NotificationType,
@@ -126,6 +128,41 @@ export default class InAppNotificationService {
         side: recipient,
       }
     )
+  }
+
+  /**
+   * Un fournisseur a répondu par mail (#225) : les destinataires de la
+   * transmission (auteur de la demande, responsables de l'agence) sont
+   * prévenus. Le message du fil part dans les données : un événement rejoué ne
+   * crée pas de seconde notification pour qui l'a déjà.
+   */
+  async supplierReplied(userIds: number[], notice: SupplierReplyNotice): Promise<number> {
+    const data: NotificationData = {
+      rfqId: notice.rfqId,
+      rfqTitle: notice.rfqTitle,
+      supplierName: notice.supplierName,
+      messageId: notice.messageId,
+    }
+    try {
+      const notified = await this.alreadyNotified('rfq.responded', notice.messageId)
+      const pending = [...new Set(userIds)].filter((userId) => !notified.has(userId))
+      await Promise.all(
+        pending.map((userId) => this.notifications.notify({ id: userId }, 'rfq.responded', data))
+      )
+      return pending.length
+    } catch (error) {
+      logger.warn({ err: error, rfqId: notice.rfqId }, 'failed to create in-app notifications')
+      return 0
+    }
+  }
+
+  /** Utilisateurs déjà notifiés de ce type pour ce message du fil. */
+  private async alreadyNotified(type: NotificationType, messageId: number): Promise<Set<number>> {
+    const rows = await Notification.query()
+      .where('type', type)
+      .whereRaw(`data->>'messageId' = ?`, [String(messageId)])
+      .select('userId')
+    return new Set(rows.map((row) => row.userId))
   }
 
   /** Les propriétaires et administrateurs voient arriver le nouveau membre. */

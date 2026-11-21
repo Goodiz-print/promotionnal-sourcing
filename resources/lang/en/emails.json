@@ -152,5 +152,15 @@
     "email": "Email",
     "phone": "Phone",
     "address": "Address"
+  },
+  "supplierReplyReceived": {
+    "subject": "Reply from {supplierName} to “{rfqTitle}”",
+    "title": "{supplierName} replied to your request",
+    "body": "{supplierName} replied by email to your request “{rfqTitle}”.",
+    "messageHeading": "Their message:",
+    "documentsHeading": "Attached quotes:",
+    "downloadHint": "These links require you to be signed in to your account.",
+    "cta": "Open the request",
+    "footer": "You are receiving this message because you manage this quote request."
   }
 }

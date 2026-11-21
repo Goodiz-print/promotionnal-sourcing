@@ -3,6 +3,8 @@
  * du fil de la demande, ses pièces jointes et, s'il y a un PDF, un devis.
  */
 
+import type { Locale } from './i18n.js'
+
 /** Type MIME d'un devis reçu par mail : seul un PDF est pris pour un devis. */
 export const QUOTE_DOCUMENT_MIME_TYPE = 'application/pdf'
 
@@ -35,4 +37,54 @@ export interface PreparedReplyAttachment {
   filename: string
   mimeType: string
   sizeBytes: number
+}
+
+/**
+ * Réponse d'un fournisseur prête à être transmise à l'agence (#225), résolue
+ * depuis `SupplierReplyRecordedData` par `SupplierReplyNotificationService`.
+ * Données seulement : le nom du fournisseur y figure, l'agence le connaît.
+ */
+export interface SupplierReplyNotice {
+  rfqId: number
+  rfqTitle: string
+  supplierName: string
+  /** Message du fil qui porte la réponse : clé d'idempotence des envois. */
+  messageId: number
+  body: string
+  /** Devis PDF de la réponse ; le fichier servi est `QuoteDocument#recipientFile`. */
+  documents: SupplierReplyNoticeDocument[]
+  /** Adresse relais côté agence, en `Reply-To` (#226 la branchera). */
+  replyTo: string | null
+}
+
+export interface SupplierReplyNoticeDocument {
+  id: number
+  filename: string
+}
+
+/** Destinataire de la transmission : l'auteur de la demande ou un responsable de l'agence. */
+export interface SupplierReplyRecipient {
+  userId: number
+  email: string
+  locale: Locale
+}
+
+/** Ce que la transmission a produit : mails mis en queue, notifications créées. */
+export interface SupplierReplyNotificationOutcome {
+  mails: number
+  notifications: number
+}
+
+/** Chemins relatifs du mail transmis, déjà dans la langue du destinataire. */
+export interface SupplierReplyMailPaths {
+  rfqPath: string
+  /** Lien de téléchargement de chaque devis, par identifiant de `quote_documents`. */
+  documentPaths: Record<number, string>
+}
+
+/** Ce qu'il faut pour construire la charge du mail transmis à un destinataire. */
+export interface SupplierReplyMailInput {
+  notice: SupplierReplyNotice
+  user: SupplierReplyRecipient
+  paths: SupplierReplyMailPaths
 }

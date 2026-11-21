@@ -211,6 +211,9 @@ export interface ApiDefinition {
     accept: typeof routes['quotes.accept']
     reject: typeof routes['quotes.reject']
   }
+  quoteDocuments: {
+    download: typeof routes['quote_documents.download']
+  }
   quoteCart: {
     show: typeof routes['quote_cart.show']
     items: {

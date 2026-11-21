@@ -9,7 +9,7 @@
   "types": {
     "rfq": {
       "received": "{buyerName} sent you a request for quotation: {rfqTitle}.",
-      "responded": "A supplier replied to the request {rfqTitle}.",
+      "responded": "{supplierName} replied to the request {rfqTitle}.",
       "declined": "{supplierName} declined the request {rfqTitle}."
     },
     "quote": {

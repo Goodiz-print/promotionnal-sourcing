@@ -13,11 +13,16 @@ import RfqReceivedNotification from '#mails/rfq_received_notification'
 import RfqReminderNotification from '#mails/rfq_reminder_notification'
 import SubscriptionActivatedNotification from '#mails/subscription_activated_notification'
 import SubscriptionExpiringNotification from '#mails/subscription_expiring_notification'
+import SupplierReplyReceivedNotification from '#mails/supplier_reply_received_notification'
 import WelcomeNotification from '#mails/welcome_notification'
 import { SUPPORTED_LOCALES, type Locale } from '#shared/types/i18n'
 import { NOTIFICATION_EMAIL_FALLBACK } from '#shared/types/notification'
 import type User from '#models/user'
-import type { RfqMailLine, RfqReceivedMailData } from '#shared/types/mail'
+import type {
+  RfqMailLine,
+  RfqReceivedMailData,
+  SupplierReplyReceivedMailData,
+} from '#shared/types/mail'
 
 /**
  * Rendu des mails dans la langue du destinataire (#58). Aucune base : on
@@ -94,6 +99,19 @@ const SUBSCRIBED_RFQ_DATA: RfqReceivedMailData = {
     phone: '+33 1 23 45 67 89',
     addressLines: ['12 rue des Lilas', '75011 Paris', 'France'],
   },
+}
+
+/** Réponse d'un fournisseur transmise à l'agence (#225). */
+const SUPPLIER_REPLY_DATA: SupplierReplyReceivedMailData = {
+  supplierName: 'Textiles SA',
+  rfqTitle: 'Tote bags',
+  body: 'Bonjour,\nvoici notre devis <b>ferme</b>.',
+  documents: [
+    { filename: 'devis.pdf', downloadPath: '/x/quote-documents/7/download' },
+    { filename: 'annexe.pdf', downloadPath: '/x/quote-documents/8/download' },
+  ],
+  rfqPath: '/x/rfqs/1',
+  replyTo: 'agency-abc@relay.test',
 }
 
 const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> = {
@@ -214,6 +232,12 @@ const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> 
         verifyUrl: 'https://example.test/verify',
         expiresInHours: 168,
       },
+      locale
+    ) as never,
+  supplierReplyReceived: (locale) =>
+    new SupplierReplyReceivedNotification(
+      'buyer@example.com',
+      SUPPLIER_REPLY_DATA,
       locale
     ) as never,
   welcome: (locale) =>
@@ -616,5 +640,59 @@ test.group('Mails — coordonnées de l’agence pour un fournisseur abonné (#2
     )
 
     assert.notInclude(html, 'Coordonnées de l')
+  })
+})
+
+test.group('Mails — réponse du fournisseur transmise à l’agence (#225)', () => {
+  test('le mail nomme le fournisseur, reprend son texte échappé et un lien par devis', async ({
+    assert,
+  }) => {
+    const { subject, html } = await render(
+      new SupplierReplyReceivedNotification('a@x.test', SUPPLIER_REPLY_DATA, 'fr') as never
+    )
+
+    assert.equal(subject, 'Réponse de Textiles SA à « Tote bags »')
+    assert.include(html, 'voici notre devis &lt;b&gt;ferme&lt;/b&gt;.')
+    assert.include(html, '/x/quote-documents/7/download">devis.pdf</a>')
+    assert.include(html, '/x/quote-documents/8/download">annexe.pdf</a>')
+    assert.include(html, '/x/rfqs/1')
+  })
+
+  test('la version texte reprend message et liens, sans HTML', async ({ assert }) => {
+    const { text } = await render(
+      new SupplierReplyReceivedNotification('a@x.test', SUPPLIER_REPLY_DATA, 'en') as never
+    )
+
+    assert.include(text, 'Textiles SA replied by email to your request “Tote bags”.')
+    assert.include(text, 'voici notre devis <b>ferme</b>.')
+    assert.include(text, '- devis.pdf : ')
+    assert.include(text, '/x/quote-documents/7/download')
+    assert.notInclude(text, '&lt;')
+  })
+
+  test('l’expéditeur est la plateforme, le Reply-To est l’adresse relais côté agence', async ({
+    assert,
+  }) => {
+    const mailer = new SupplierReplyReceivedNotification('a@x.test', SUPPLIER_REPLY_DATA, 'fr')
+    await mailer.buildWithContents()
+    const { message } = mailer.message.toJSON()
+
+    assert.deepEqual(message.replyTo, ['agency-abc@relay.test'])
+    assert.notInclude(JSON.stringify(message.from ?? ''), 'Textiles')
+    // Le relais vers le fournisseur vient avec #226 : le mail n'invite pas encore à répondre.
+    assert.include(message.html as string, 'merci de ne pas y répondre')
+  })
+
+  test('sans texte ni devis, ni bloc message ni liste de fichiers', async ({ assert }) => {
+    const { html } = await render(
+      new SupplierReplyReceivedNotification(
+        'a@x.test',
+        { ...SUPPLIER_REPLY_DATA, body: '', documents: [], replyTo: null },
+        'fr'
+      ) as never
+    )
+
+    assert.notInclude(html, 'Son message')
+    assert.notInclude(html, 'Devis joints')
   })
 })
