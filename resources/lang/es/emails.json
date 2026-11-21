@@ -152,5 +152,15 @@
     "email": "Correo electrónico",
     "phone": "Teléfono",
     "address": "Dirección"
+  },
+  "supplierReplyReceived": {
+    "subject": "Respuesta de {supplierName} a «{rfqTitle}»",
+    "title": "{supplierName} ha respondido a su solicitud",
+    "body": "{supplierName} ha respondido por correo a su solicitud «{rfqTitle}».",
+    "messageHeading": "Su mensaje:",
+    "documentsHeading": "Presupuestos adjuntos:",
+    "downloadHint": "Estos enlaces requieren haber iniciado sesión en su cuenta.",
+    "cta": "Abrir la solicitud",
+    "footer": "Recibe este mensaje porque gestiona esta solicitud de presupuesto."
   }
 }

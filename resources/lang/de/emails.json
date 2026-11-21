@@ -152,5 +152,15 @@
     "email": "E-Mail",
     "phone": "Telefon",
     "address": "Adresse"
+  },
+  "supplierReplyReceived": {
+    "subject": "Antwort von {supplierName} auf „{rfqTitle}“",
+    "title": "{supplierName} hat auf Ihre Anfrage geantwortet",
+    "body": "{supplierName} hat per E-Mail auf Ihre Anfrage „{rfqTitle}“ geantwortet.",
+    "messageHeading": "Nachricht:",
+    "documentsHeading": "Beigefügte Angebote:",
+    "downloadHint": "Für diese Links müssen Sie in Ihrem Konto angemeldet sein.",
+    "cta": "Anfrage öffnen",
+    "footer": "Sie erhalten diese Nachricht, weil Sie diese Angebotsanfrage verwalten."
   }
 }

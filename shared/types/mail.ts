@@ -28,6 +28,7 @@ export const MAIL_KINDS = {
   subscriptionActivated: 'subscription-activated',
   subscriptionExpiring: 'subscription-expiring',
   quoteEmailVerification: 'quote-email-verification',
+  supplierReplyReceived: 'supplier-reply-received',
 } as const
 
 export type MailKind = (typeof MAIL_KINDS)[keyof typeof MAIL_KINDS]
@@ -160,6 +161,36 @@ export interface QuoteReceivedMailData {
   rfqTitle: string
   total: string
   quotePath: string
+}
+
+/**
+ * Données du mail « réponse du fournisseur » (`SupplierReplyReceivedNotification`,
+ * #225) : la réponse reçue par mail (#224) transmise à l'agence, qui la lit sans
+ * se connecter. Le fournisseur y est nommé : c'est l'agence qui reçoit le mail.
+ *
+ * Chemins relatifs, préfixés par `appUrl` au rendu, comme `RfqReceivedMailData`.
+ */
+export interface SupplierReplyReceivedMailData {
+  supplierName: string
+  rfqTitle: string
+  /** Texte de la réponse, tel qu'enregistré dans le fil ; vide si le mail n'avait que des fichiers. */
+  body: string
+  /** Devis PDF de la réponse : lien de téléchargement authentifié de chacun. */
+  documents: SupplierReplyMailDocument[]
+  rfqPath: string
+  /**
+   * Adresse relais côté agence du couple demande / fournisseur, posée en
+   * `Reply-To` (`InboundAddressService#agencyAddressFor`). Le relais de la
+   * réponse de l'agence vers le fournisseur arrive avec #226 ; `null` si la
+   * réception est désactivée.
+   */
+  replyTo: string | null
+}
+
+/** Devis PDF cité dans le mail de réponse : nom du fichier et lien authentifié. */
+export interface SupplierReplyMailDocument {
+  filename: string
+  downloadPath: string
 }
 
 /**
@@ -358,6 +389,12 @@ export type SendMailContent =
       to: string
       locale: Locale
       data: QuoteEmailVerificationMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.supplierReplyReceived
+      to: string
+      locale: Locale
+      data: SupplierReplyReceivedMailData
     }
 
 /**

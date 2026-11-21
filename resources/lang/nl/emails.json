@@ -152,5 +152,15 @@
     "email": "E-mail",
     "phone": "Telefoon",
     "address": "Adres"
+  },
+  "supplierReplyReceived": {
+    "subject": "Antwoord van {supplierName} op ‘{rfqTitle}’",
+    "title": "{supplierName} heeft op uw aanvraag gereageerd",
+    "body": "{supplierName} heeft per e-mail gereageerd op uw aanvraag ‘{rfqTitle}’.",
+    "messageHeading": "Bericht:",
+    "documentsHeading": "Bijgevoegde offertes:",
+    "downloadHint": "Voor deze links moet u ingelogd zijn op uw account.",
+    "cta": "Aanvraag openen",
+    "footer": "U ontvangt dit bericht omdat u deze offerteaanvraag beheert."
   }
 }

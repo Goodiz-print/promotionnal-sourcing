@@ -9,7 +9,7 @@
   "types": {
     "rfq": {
       "received": "{buyerName} har skickat en offertförfrågan till dig: {rfqTitle}.",
-      "responded": "En leverantör har svarat på förfrågan {rfqTitle}.",
+      "responded": "{supplierName} har svarat på förfrågan {rfqTitle}.",
       "declined": "{supplierName} har avböjt förfrågan {rfqTitle}."
     },
     "quote": {

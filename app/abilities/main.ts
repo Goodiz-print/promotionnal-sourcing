@@ -15,6 +15,7 @@
 import { Bouncer } from '@adonisjs/bouncer'
 import type User from '#models/user'
 import type Organization from '#models/organization'
+import type QuoteDocument from '#models/quote_document'
 import OrganizationUser from '#models/organization_user'
 import { RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
 import type { RoleSlug } from '#shared/types/role'
@@ -235,6 +236,24 @@ export const canManageRfq = Bouncer.ability(async (user: User, org: Organization
   const m = await getMembership(user, org)
   return m ? ['owner', 'admin', 'manager'].includes(m.role.slug) : false
 })
+
+/**
+ * Ability to check if a user can download a quote PDF received by email (#225):
+ * any member of the agency that owns the request, whatever their role — the
+ * same people who can open the request (`canCreateRfq`). The supplier side and
+ * other organizations are refused. Expects `document.rfq` preloaded
+ * (`QuoteService#findDocument`).
+ */
+export const canDownloadQuoteDocument = Bouncer.ability(
+  async (user: User, document: QuoteDocument) => {
+    const membership = await OrganizationUser.query()
+      .where('user_id', user.id)
+      .where('organization_id', document.rfq.buyerOrganizationId)
+      .select('id')
+      .first()
+    return membership !== null
+  }
+)
 
 /**
  * Ability to check if a user can answer a received RFQ (view its detail,

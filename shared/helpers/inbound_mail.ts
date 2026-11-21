@@ -2,11 +2,23 @@ import { INBOUND_ATTACHMENT_TYPES, type MailAddressParts } from '../types/inboun
 
 /** Préfixe de la partie locale d'une adresse relais : `rfq-<jeton>@<domaine>`. */
 const REPLY_PREFIX = 'rfq-'
+const AGENCY_REPLY_PREFIX = 'agency-'
 const REPLY_TOKEN = /^[0-9a-f]{32}$/
 
 /** Adresse relais d'un couple demande / fournisseur. */
 export function replyAddress(token: string, domain: string): string {
   return `${REPLY_PREFIX}${token}@${domain}`
+}
+
+/**
+ * Adresse relais **côté agence** du même couple (#225) : `agency-<jeton>@<domaine>`,
+ * même jeton que `replyAddress`. Posée en `Reply-To` des mails transmis à
+ * l'agence ; le préfixe distinct dit dans quel sens va la réponse. Tant que #226
+ * ne la reconnaît pas, `replyTokenFrom` l'ignore : une réponse de l'agence est
+ * journalisée (`unknown_address`) au lieu d'être prise pour celle du fournisseur.
+ */
+export function agencyReplyAddress(token: string, domain: string): string {
+  return `${AGENCY_REPLY_PREFIX}${token}@${domain}`
 }
 
 /**

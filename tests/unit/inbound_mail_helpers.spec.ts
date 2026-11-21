@@ -4,6 +4,7 @@ import { InboundMailSignatureException } from '#exceptions/inbound_mail_errors'
 import {
   HTML_TEXT_SOURCE_MAX,
   acceptedAttachmentType,
+  agencyReplyAddress,
   htmlToText,
   isAutomaticReply,
   matchesFileSignature,
@@ -16,6 +17,17 @@ import {
 const TOKEN = '0123456789abcdef0123456789abcdef'
 
 test.group('Mails entrants — adresse relais', () => {
+  test('l’adresse côté agence (#225) porte le même jeton, sans être prise pour celle du fournisseur', ({
+    assert,
+  }) => {
+    const address = agencyReplyAddress(TOKEN, 'reply.test')
+
+    assert.equal(address, `agency-${TOKEN}@reply.test`)
+    // Tant que #226 ne la route pas, une réponse de l'agence n'entre pas dans le fil.
+    assert.isNull(replyTokenFrom([address], 'reply.test'))
+    assert.notEqual(address, replyAddress(TOKEN, 'reply.test'))
+  })
+
   test('retrouve le jeton, sans tenir compte de la casse ni du nom affiché', ({ assert }) => {
     const address = replyAddress(TOKEN, 'reply.test')
 

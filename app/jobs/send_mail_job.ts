@@ -20,6 +20,7 @@ import PasswordResetNotification from '#mails/password_reset_notification'
 import QuoteReceivedNotification from '#mails/quote_received_notification'
 import RfqReceivedNotification from '#mails/rfq_received_notification'
 import RfqReminderNotification from '#mails/rfq_reminder_notification'
+import SupplierReplyReceivedNotification from '#mails/supplier_reply_received_notification'
 import { UnknownMailKindException } from '#exceptions/mail_errors'
 import { DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
 import { MAIL_KINDS, type SendMailPayload } from '#shared/types/mail'
@@ -193,6 +194,8 @@ export default class SendMailJob extends Job<SendMailPayload> {
         return new SubscriptionExpiringNotification(to, data, locale)
       case MAIL_KINDS.quoteEmailVerification:
         return new QuoteEmailVerificationNotification(to, data, locale)
+      case MAIL_KINDS.supplierReplyReceived:
+        return new SupplierReplyReceivedNotification(to, data, locale)
       case MAIL_KINDS.contactRequest:
         return new ContactRequestNotification(to, data)
       default:

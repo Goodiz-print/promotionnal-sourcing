@@ -9,7 +9,7 @@
   "types": {
     "rfq": {
       "received": "{buyerName} heeft u een offerteaanvraag gestuurd: {rfqTitle}.",
-      "responded": "Een leverancier heeft gereageerd op de aanvraag {rfqTitle}.",
+      "responded": "{supplierName} heeft gereageerd op de aanvraag {rfqTitle}.",
       "declined": "{supplierName} heeft de aanvraag {rfqTitle} afgewezen."
     },
     "quote": {

@@ -1,6 +1,11 @@
 import { DateTime } from 'luxon'
 import inboundMailConfig from '#config/inbound_mail'
-import { parseMailAddress, replyAddress, replyTokenFrom } from '#shared/helpers/inbound_mail'
+import {
+  agencyReplyAddress,
+  parseMailAddress,
+  replyAddress,
+  replyTokenFrom,
+} from '#shared/helpers/inbound_mail'
 import type Rfq from '#models/rfq'
 import type RfqSupplier from '#models/rfq_supplier'
 
@@ -24,12 +29,17 @@ export default class InboundAddressService {
    * Le jeton est généré par la base : une ligne tout juste créée en mémoire ne
    * le porte pas encore, elle est alors relue.
    */
-  async addressFor(recipient: RfqSupplier): Promise<string | null> {
-    const domain = inboundMailConfig.domain
-    if (!this.enabled || !domain) return null
+  addressFor(recipient: RfqSupplier): Promise<string | null> {
+    return this.relayAddress(recipient, replyAddress)
+  }
 
-    if (!recipient.replyToken) await recipient.refresh()
-    return replyAddress(recipient.replyToken, domain)
+  /**
+   * Adresse relais côté agence du même couple (#225), posée en `Reply-To` du
+   * mail qui transmet la réponse du fournisseur ; `null` si la réception est
+   * désactivée. Le relais vers le fournisseur viendra avec #226.
+   */
+  agencyAddressFor(recipient: RfqSupplier): Promise<string | null> {
+    return this.relayAddress(recipient, agencyReplyAddress)
   }
 
   /** Jeton visé par un mail entrant, parmi toutes les adresses qu'il désigne. */
@@ -58,5 +68,21 @@ export default class InboundAddressService {
     const endedAt = rfq.closedAt ?? rfq.expiredAt
     if (!endedAt) return true
     return now > endedAt.plus({ days: inboundMailConfig.graceDays })
+  }
+
+  /**
+   * Adresse relais du couple, construite par `build` à partir du jeton. Le
+   * jeton est généré par la base : une ligne tout juste créée en mémoire ne le
+   * porte pas encore, elle est alors relue.
+   */
+  private async relayAddress(
+    recipient: RfqSupplier,
+    build: (token: string, domain: string) => string
+  ): Promise<string | null> {
+    const domain = inboundMailConfig.domain
+    if (!this.enabled || !domain) return null
+
+    if (!recipient.replyToken) await recipient.refresh()
+    return build(recipient.replyToken, domain)
   }
 }

@@ -152,5 +152,15 @@
     "email": "E-mail",
     "phone": "Telefone",
     "address": "Morada"
+  },
+  "supplierReplyReceived": {
+    "subject": "Resposta de {supplierName} a «{rfqTitle}»",
+    "title": "{supplierName} respondeu ao seu pedido",
+    "body": "{supplierName} respondeu por e-mail ao seu pedido «{rfqTitle}».",
+    "messageHeading": "A mensagem:",
+    "documentsHeading": "Orçamentos anexados:",
+    "downloadHint": "Estas ligações exigem que tenha sessão iniciada na sua conta.",
+    "cta": "Abrir o pedido",
+    "footer": "Recebe esta mensagem porque gere este pedido de orçamento."
   }
 }

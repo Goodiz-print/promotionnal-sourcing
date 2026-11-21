@@ -152,5 +152,15 @@
     "email": "E-post",
     "phone": "Telefon",
     "address": "Adress"
+  },
+  "supplierReplyReceived": {
+    "subject": "Svar från {supplierName} på ”{rfqTitle}”",
+    "title": "{supplierName} har svarat på din förfrågan",
+    "body": "{supplierName} har svarat via e-post på din förfrågan ”{rfqTitle}”.",
+    "messageHeading": "Meddelande:",
+    "documentsHeading": "Bifogade offerter:",
+    "downloadHint": "Länkarna kräver att du är inloggad på ditt konto.",
+    "cta": "Öppna förfrågan",
+    "footer": "Du får detta meddelande eftersom du hanterar denna offertförfrågan."
   }
 }
