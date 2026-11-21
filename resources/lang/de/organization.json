@@ -24,7 +24,8 @@
     "city": "Ort",
     "postalCode": "Postleitzahl",
     "country": "Land",
-    "logo": "Logo"
+    "logo": "Logo",
+    "emailBuyerHint": "Wird zusammen mit Telefonnummer und Adresse an die abonnierten Lieferanten übermittelt, die Sie anfragen. Andernfalls erhalten sie die E-Mail der anfragenden Person."
   },
   "size": {
     "none": "Nicht angegeben",

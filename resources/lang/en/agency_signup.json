@@ -22,7 +22,8 @@
     "phone": "Phone",
     "activity": "Activity",
     "activityOther": "Describe your activity",
-    "locale": "Language"
+    "locale": "Language",
+    "contactEmail": "Agency contact email"
   },
   "civility": {
     "none": "Not specified",
@@ -44,5 +45,6 @@
     "professional": "I certify that I am a professional in promotional products and custom textiles.",
     "terms": "I accept the terms of use.",
     "partners": "I agree to receive the newsletter and partner communications (optional)."
-  }
+  },
+  "contactEmailHelp": "Optional. Shared, along with your phone number and address, with the subscribed suppliers you consult. Otherwise, they receive the email of the person who made the request."
 }

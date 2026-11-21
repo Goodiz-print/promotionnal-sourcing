@@ -139,7 +139,15 @@
       "expiredNotice": "Den här förfrågan har gått ut: köparen väntar inte längre på något svar.",
       "responseTitle": "Ditt svar",
       "responseOpen": "Prissätt behovet genom att lämna en offert, eller avböj förfrågan om du inte kan gå vidare med den.",
-      "responseQuote": "Du har skrivit en offert för den här förfrågan."
+      "responseQuote": "Du har skrivit en offert för den här förfrågan.",
+      "contact": {
+        "title": "Byråns kontaktuppgifter",
+        "agency": "Byrå",
+        "requester": "Förfrågan från",
+        "email": "E-post",
+        "phone": "Telefon",
+        "address": "Adress"
+      }
     },
     "actions": {
       "decline": "Avböj förfrågan",

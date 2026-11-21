@@ -139,7 +139,15 @@
       "expiredNotice": "To zapytanie wygasło: kupujący nie oczekuje już odpowiedzi.",
       "responseTitle": "Państwa odpowiedź",
       "responseOpen": "Wycenią Państwo te potrzeby, składając ofertę, lub odrzucą zapytanie, jeśli nie mogą Państwo go zrealizować.",
-      "responseQuote": "Sporządzili Państwo ofertę dla tego zapytania."
+      "responseQuote": "Sporządzili Państwo ofertę dla tego zapytania.",
+      "contact": {
+        "title": "Dane kontaktowe agencji",
+        "agency": "Agencja",
+        "requester": "Zapytanie złożył(a)",
+        "email": "E-mail",
+        "phone": "Telefon",
+        "address": "Adres"
+      }
     },
     "actions": {
       "decline": "Odrzuć zapytanie",

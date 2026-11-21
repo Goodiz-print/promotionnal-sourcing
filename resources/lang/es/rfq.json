@@ -139,7 +139,15 @@
       "expiredNotice": "Esta solicitud ha vencido: el comprador ya no espera respuesta.",
       "responseTitle": "Su respuesta",
       "responseOpen": "Valore esta necesidad enviando un presupuesto, o decline la solicitud si no puede darle curso.",
-      "responseQuote": "Ha redactado un presupuesto para esta solicitud."
+      "responseQuote": "Ha redactado un presupuesto para esta solicitud.",
+      "contact": {
+        "title": "Datos de contacto de la agencia",
+        "agency": "Agencia",
+        "requester": "Solicitado por",
+        "email": "Correo electrónico",
+        "phone": "Teléfono",
+        "address": "Dirección"
+      }
     },
     "actions": {
       "decline": "Declinar la solicitud",

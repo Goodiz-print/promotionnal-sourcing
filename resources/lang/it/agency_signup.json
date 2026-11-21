@@ -22,7 +22,8 @@
     "phone": "Telefono",
     "activity": "Attività",
     "activityOther": "Descrivi la tua attività",
-    "locale": "Lingua"
+    "locale": "Lingua",
+    "contactEmail": "E-mail di contatto dell'agenzia"
   },
   "civility": {
     "none": "Non indicato",
@@ -44,5 +45,6 @@
     "professional": "Certifico di essere un professionista dell'oggettistica e del tessile personalizzato.",
     "terms": "Accetto le condizioni generali d'uso.",
     "partners": "Accetto di ricevere la newsletter e le comunicazioni dei partner (facoltativo)."
-  }
+  },
+  "contactEmailHelp": "Facoltativa. Viene trasmessa, con il telefono e l'indirizzo, ai fornitori abbonati che consultate. In mancanza, ricevono l'e-mail dell'autore della richiesta."
 }

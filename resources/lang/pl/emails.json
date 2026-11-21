@@ -144,5 +144,13 @@
     "title": "Wykup subskrypcję, aby poznać agencję",
     "body": "Wykup subskrypcję, aby dowiedzieć się, która agencja wysyła Ci zapytanie, i skontaktować się z nią bezpośrednio. Subskrypcję mogą wykupić właściciele i administratorzy Twojej organizacji.",
     "cta": "Zobacz subskrypcje"
+  },
+  "buyerContact": {
+    "title": "Dane kontaktowe agencji",
+    "agency": "Agencja",
+    "requester": "Zapytanie złożył(a)",
+    "email": "E-mail",
+    "phone": "Telefon",
+    "address": "Adres"
   }
 }

@@ -1,0 +1,18 @@
+{{-- Version texte de buyer_contact.edge. --}}
+@if(buyerContact)
+{{{ t('emails.buyerContact.title') }}}
+   {{{ t('emails.buyerContact.agency') }}} : {{{ buyerContact.agencyName }}}
+@if(buyerContact.requesterName)
+   {{{ t('emails.buyerContact.requester') }}} : {{{ buyerContact.requesterName }}}
+@end
+@if(buyerContact.email)
+   {{{ t('emails.buyerContact.email') }}} : {{{ buyerContact.email }}}
+@end
+@if(buyerContact.phone)
+   {{{ t('emails.buyerContact.phone') }}} : {{{ buyerContact.phone }}}
+@end
+@if(buyerContact.addressLines.length)
+   {{{ t('emails.buyerContact.address') }}} : {{{ buyerContact.addressLines.join(', ') }}}
+@end
+
+@end

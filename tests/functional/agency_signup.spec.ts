@@ -84,6 +84,33 @@ test.group('Inscription agence', (group) => {
     assert.deepEqual(vat.calls, [{ countryCode: 'FR', vatNumber: '40303265045' }])
   })
 
+  test('l’email de contact saisi devient celui de l’organisation (#221)', async ({
+    client,
+    assert,
+  }) => {
+    await post(client, { contactEmail: 'Contact@Agence.fr ' })
+
+    const user = await User.findByOrFail('email', 'marie@agence.fr')
+    const org = await Organization.findOrFail(user.currentOrganizationId)
+    assert.equal(org.email, 'Contact@Agence.fr')
+    assert.equal(org.phone, '+33 1 02 03 04 05')
+  })
+
+  test('sans email de contact, l’organisation n’en a pas', async ({ client, assert }) => {
+    await post(client)
+
+    const user = await User.findByOrFail('email', 'marie@agence.fr')
+    const org = await Organization.findOrFail(user.currentOrganizationId)
+    assert.isNull(org.email)
+  })
+
+  test('un email de contact invalide est refusé', async ({ client, assert }) => {
+    const response = await post(client, { contactEmail: 'pas-un-email' })
+
+    response.assertStatus(302)
+    assert.isNull(await User.findBy('email', 'marie@agence.fr'))
+  })
+
   test('les consentements sont journalisés avec version et IP, sans les communications refusées', async ({
     client,
     assert,

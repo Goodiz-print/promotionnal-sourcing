@@ -24,7 +24,8 @@
     "city": "Città",
     "postalCode": "CAP",
     "country": "Paese",
-    "logo": "Logo"
+    "logo": "Logo",
+    "emailBuyerHint": "Trasmessa ai fornitori abbonati che consultate, con il telefono e l'indirizzo. In mancanza, ricevono l'e-mail dell'autore della richiesta."
   },
   "size": {
     "none": "Non specificata",

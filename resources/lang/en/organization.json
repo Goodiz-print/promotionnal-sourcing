@@ -24,7 +24,8 @@
     "city": "City",
     "postalCode": "Postal code",
     "country": "Country",
-    "logo": "Logo"
+    "logo": "Logo",
+    "emailBuyerHint": "Shared with the subscribed suppliers you consult, along with the phone number and address. Otherwise, they receive the email of the person who made the request."
   },
   "size": {
     "none": "Not specified",

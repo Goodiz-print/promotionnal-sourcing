@@ -144,5 +144,13 @@
     "title": "Subscribe to find out who the agency is",
     "body": "Subscribe to find out which agency is consulting you and contact it directly. Subscribing is reserved for the owners and administrators of your organization.",
     "cta": "See subscription plans"
+  },
+  "buyerContact": {
+    "title": "Agency contact details",
+    "agency": "Agency",
+    "requester": "Requested by",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address"
   }
 }

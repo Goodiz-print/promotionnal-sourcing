@@ -8,7 +8,8 @@ import type { RfqReminderMailData } from '#shared/types/mail'
  * langue ; `rfqPath` est relatif, comme pour `RfqReceivedNotification`, et
  * `replyTo` est la même adresse relais que celle du mail de demande. Elle
  * reprend les mêmes lignes et prix indicatifs (#219), en HTML et en texte.
- * Comme lui, il reste anonyme pour un fournisseur non abonné (#220, #222).
+ * Comme lui, il reste anonyme pour un fournisseur non abonné (#220, #222) et
+ * porte les coordonnées de l'agence pour un abonné (#221).
  */
 export default class RfqReminderNotification extends LocalizedMail {
   constructor(
@@ -20,7 +21,7 @@ export default class RfqReminderNotification extends LocalizedMail {
   }
 
   prepare() {
-    const { rfqTitle, buyerName, replyTo, subscribePath, ...rest } = this.data
+    const { rfqTitle, buyerName, replyTo, subscribePath, buyerContact, ...rest } = this.data
     const introKey =
       buyerName === null ? 'emails.rfqReminder.anonymous.body' : 'emails.rfqReminder.body'
     this.message.to(this.email).subject(this.t('emails.rfqReminder.subject', { rfqTitle }))
@@ -31,6 +32,8 @@ export default class RfqReminderNotification extends LocalizedMail {
       rfqTitle,
       intro: this.t(introKey, { buyerName, rfqTitle }),
       subscribePath: buyerName === null ? (subscribePath ?? null) : null,
+      // Coordonnées de l'agence : jamais dans un mail anonyme (#220, #221).
+      buyerContact: buyerName === null ? null : (buyerContact ?? null),
       description: rest.description ?? null,
       lines: rest.lines ?? [],
       canReply: Boolean(replyTo),

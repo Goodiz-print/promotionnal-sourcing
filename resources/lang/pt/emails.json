@@ -144,5 +144,13 @@
     "title": "Assine para conhecer a agência",
     "body": "Assine para saber que agência o consulta e contactá-la diretamente. A assinatura está reservada aos proprietários e administradores da sua organização.",
     "cta": "Ver as assinaturas"
+  },
+  "buyerContact": {
+    "title": "Contactos da agência",
+    "agency": "Agência",
+    "requester": "Pedido feito por",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "address": "Morada"
   }
 }

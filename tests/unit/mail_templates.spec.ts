@@ -83,6 +83,19 @@ const ANONYMOUS_RFQ_DATA: RfqReceivedMailData = {
   subscribePath: '/x/supplier/subscription',
 }
 
+/** Coordonnées de l'agence, pour un fournisseur abonné (#221). */
+const SUBSCRIBED_RFQ_DATA: RfqReceivedMailData = {
+  ...RFQ_DATA,
+  subscribePath: null,
+  buyerContact: {
+    agencyName: 'Acme',
+    requesterName: 'Alice Martin',
+    email: 'contact@acme.test',
+    phone: '+33 1 23 45 67 89',
+    addressLines: ['12 rue des Lilas', '75011 Paris', 'France'],
+  },
+}
+
 const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> = {
   invitation: (locale) =>
     new OrganizationInvitationNotification(
@@ -530,5 +543,78 @@ test.group('Mails — demande anonyme pour un fournisseur non abonné (#220, #22
     assert.include(subject, 'Acme')
     assert.include(html, 'Acme vous invite')
     assert.notInclude(html, 'Découvrir les abonnements')
+  })
+})
+
+test.group('Mails — coordonnées de l’agence pour un fournisseur abonné (#221)', () => {
+  test('la demande donne l’auteur, l’email, le téléphone et l’adresse, en HTML et en texte', async ({
+    assert,
+  }) => {
+    const { html, text } = await render(
+      new RfqReceivedNotification('s@x.test', SUBSCRIBED_RFQ_DATA, 'fr') as never
+    )
+
+    const expected = [
+      'Coordonnées de l',
+      'Alice Martin',
+      'contact@acme.test',
+      '+33 1 23 45 67 89',
+      '12 rue des Lilas, 75011 Paris, France',
+    ]
+    expected.forEach((value) => {
+      assert.include(html, value)
+      assert.include(text, value)
+    })
+  })
+
+  test('la relance porte les mêmes coordonnées, dans la langue du destinataire', async ({
+    assert,
+  }) => {
+    const { html, text } = await render(
+      new RfqReminderNotification('s@x.test', SUBSCRIBED_RFQ_DATA, 'en') as never
+    )
+
+    assert.include(html, 'Agency contact details')
+    assert.include(html, 'contact@acme.test')
+    assert.include(text, 'Requested by : Alice Martin')
+  })
+
+  test('une coordonnée absente n’est pas affichée', async ({ assert }) => {
+    const { text } = await render(
+      new RfqReceivedNotification(
+        's@x.test',
+        {
+          ...SUBSCRIBED_RFQ_DATA,
+          buyerContact: { ...SUBSCRIBED_RFQ_DATA.buyerContact!, phone: null, addressLines: [] },
+        },
+        'fr'
+      ) as never
+    )
+
+    assert.include(text, 'contact@acme.test')
+    assert.notInclude(text, 'Téléphone')
+    assert.notInclude(text, 'Adresse')
+  })
+
+  test('un mail anonyme ne porte jamais de coordonnées, même fournies', async ({ assert }) => {
+    const data = { ...SUBSCRIBED_RFQ_DATA, buyerName: null, subscribePath: '/x/sub' }
+    const received = await render(new RfqReceivedNotification('s@x.test', data, 'fr') as never)
+    const reminder = await render(new RfqReminderNotification('s@x.test', data, 'fr') as never)
+
+    ;[received, reminder].forEach(({ html, text }) => {
+      assert.notInclude(html, 'contact@acme.test')
+      assert.notInclude(text, 'Alice Martin')
+      assert.notInclude(text, 'Coordonnées de l')
+    })
+  })
+
+  test('un job mis en queue avant #221, sans coordonnées, se rend sans le bloc', async ({
+    assert,
+  }) => {
+    const { html } = await render(
+      new RfqReceivedNotification('s@x.test', { ...RFQ_DATA, subscribePath: null }, 'fr') as never
+    )
+
+    assert.notInclude(html, 'Coordonnées de l')
   })
 })

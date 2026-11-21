@@ -134,6 +134,14 @@ répondre ». Les deux classes prennent la charge entière
 (`new RfqReceivedNotification(to, data, locale)`) ; un job mis en queue avant
 #219, sans lignes, se rend toujours.
 
+**Coordonnées de l'agence (#221)** : pour un fournisseur abonné, `rfq-received`
+et `rfq-reminder` portent `buyerContact` (`BuyerContactType` : agence, auteur de
+la demande, email avec repli sur celui de l'auteur, téléphone, adresse), rendu
+par les partiels `emails/partials/buyer_contact` et `buyer_contact_text`. Une
+ligne sans valeur est omise. Un mail anonyme (`buyerName` à `null`) n'affiche
+jamais ce bloc, même si la charge le contient ; un job mis en queue avant #221
+se rend sans lui.
+
 `rfq-received` porte un chemin **relatif** (`rfqPath`) et non une URL absolue :
 la charge est persistée et peut être rejouée bien plus tard, éventuellement sous
 un autre domaine. Le template la préfixe avec le global `appUrl`. Le mail

@@ -22,7 +22,8 @@
     "phone": "Téléphone",
     "activity": "Activité",
     "activityOther": "Précisez votre activité",
-    "locale": "Langue"
+    "locale": "Langue",
+    "contactEmail": "E-mail de contact de l'agence"
   },
   "civility": {
     "none": "Non précisée",
@@ -44,5 +45,6 @@
     "professional": "Je certifie être un professionnel de l'objet et du textile personnalisé.",
     "terms": "J'accepte les conditions générales d'utilisation.",
     "partners": "J'accepte de recevoir la newsletter et les communications des partenaires (facultatif)."
-  }
+  },
+  "contactEmailHelp": "Facultatif. Transmis, avec votre téléphone et votre adresse, aux fournisseurs abonnés que vous consultez. À défaut, ils reçoivent l'e-mail de l'auteur de la demande."
 }

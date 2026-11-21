@@ -24,7 +24,8 @@
     "city": "Ort",
     "postalCode": "Postnummer",
     "country": "Land",
-    "logo": "Logotyp"
+    "logo": "Logotyp",
+    "emailBuyerHint": "Delas med de prenumererande leverantörer du kontaktar, tillsammans med telefonnummer och adress. Annars får de e-postadressen till den som skickade förfrågan."
   },
   "size": {
     "none": "Ej angiven",

@@ -1,6 +1,7 @@
 import type { Locale } from './i18n.js'
 import type { ContactRequestType } from './marketing.js'
 import type { NotificationData, NotificationType } from './notification.js'
+import type { BuyerContactType } from './rfq.js'
 import type { PaidSubscriptionPlan } from './subscription.js'
 
 /**
@@ -59,6 +60,11 @@ export interface RfqReceivedMailData {
    * mail anonyme (#222) ; `null` ou absent pour un abonné.
    */
   subscribePath?: string | null
+  /**
+   * Coordonnées de l'agence pour un abonné (#221) ; `null` ou absent pour un
+   * non abonné, et sur un job mis en queue avant #221.
+   */
+  buyerContact?: BuyerContactType | null
   rfqTitle: string
   itemCount: number
   /** Échéance déjà formatée par l'appelant (le worker n'a pas de locale). */
@@ -86,6 +92,7 @@ export interface RfqReminderMailData {
   /** Mêmes règles que le mail de demande (#220, #222). */
   buyerName: string | null
   subscribePath?: string | null
+  buyerContact?: BuyerContactType | null
   rfqTitle: string
   deadline: string | null
   rfqPath: string

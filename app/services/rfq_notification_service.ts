@@ -4,6 +4,7 @@ import logger from '@adonisjs/core/services/logger'
 import OrganizationUser from '#models/organization_user'
 import RfqItem from '#models/rfq_item'
 import SupplierProfile from '#models/supplier_profile'
+import User from '#models/user'
 import SendMailJob from '#jobs/send_mail_job'
 import InboundAddressService from '#services/inbound_address_service'
 import SubscriptionService from '#services/subscription_service'
@@ -16,7 +17,13 @@ import {
   type SendMailPayload,
 } from '#shared/types/mail'
 import { rfqMailLine } from '#shared/helpers/rfq_mail'
-import { RFQ_DEADLINE_TIMEZONE, RFQ_RESPONDER_ROLES, type RfqMailAddress } from '#shared/types/rfq'
+import { buyerContactOf } from '#shared/helpers/buyer_contact'
+import {
+  RFQ_DEADLINE_TIMEZONE,
+  RFQ_RESPONDER_ROLES,
+  type BuyerContactSource,
+  type RfqMailAddress,
+} from '#shared/types/rfq'
 import { resolveQuoteAddresses } from '#shared/helpers/quote_address'
 import type Organization from '#models/organization'
 import type Rfq from '#models/rfq'
@@ -27,7 +34,7 @@ import type RfqSupplier from '#models/rfq_supplier'
 type QueuedKind = typeof MAIL_KINDS.rfqReceived | typeof MAIL_KINDS.rfqReminder
 
 /** Ce que le mail dit de l'agence, selon l'abonnement du fournisseur (#220, #222). */
-type BuyerMailFields = Pick<RfqReceivedMailData, 'buyerName' | 'subscribePath'>
+type BuyerMailFields = Pick<RfqReceivedMailData, 'buyerName' | 'subscribePath' | 'buyerContact'>
 
 /**
  * Notification des destinataires d'une demande de devis, au moment où
@@ -43,7 +50,8 @@ type BuyerMailFields = Pick<RfqReceivedMailData, 'buyerName' | 'subscribePath'>
  *
  * Un fournisseur **non abonné** reçoit un mail anonyme (#220) : ni le nom de
  * l'agence, objet compris, mais un encart qui l'invite à s'abonner (#222).
- * L'abonnement est lu au moment de la mise en queue.
+ * L'abonnement est lu au moment de la mise en queue. Un abonné reçoit en plus
+ * les coordonnées de l'agence (#221).
  */
 @inject()
 export default class RfqNotificationService {
@@ -73,6 +81,8 @@ export default class RfqNotificationService {
 
     const lines = await this.linesOf(rfq)
     const subscribed = await this.subscribedAmong(recipients)
+    // L'auteur n'est relu que si au moins un destinataire verra les coordonnées.
+    const contact = await this.contactSourceOf(rfq, buyer, subscribed.size > 0)
     let queued = 0
 
     for (const recipient of recipients) {
@@ -82,13 +92,12 @@ export default class RfqNotificationService {
         MAIL_KINDS.rfqReceived,
         'failed to queue rfq notification',
         ({ locale }) => ({
-          ...this.buyerFields(buyer.name, subscribed.has(recipient.supplierOrganizationId), locale),
+          ...this.buyerFields(subscribed.has(recipient.supplierOrganizationId) && contact, locale),
           rfqTitle: rfq.title,
           itemCount: lines.length,
           description: rfq.description,
           lines,
-          deadline:
-            rfq.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).setLocale(locale).toLocaleString() ?? null,
+          deadline: this.deadlineIn(rfq, locale),
           rfqPath: urlFor('supplier.rfqs.show', { locale, id: rfq.id }),
         })
       )
@@ -117,22 +126,19 @@ export default class RfqNotificationService {
     for (const recipient of recipients) {
       const { rfq } = recipient
       const lines = await this.linesOf(rfq)
+      const isSubscribed = subscribed.has(recipient.supplierOrganizationId)
+      const contact = await this.contactSourceOf(rfq, rfq.buyerOrganization, isSubscribed)
       const { queued, total } = await this.queueMails(
         rfq,
         recipient,
         MAIL_KINDS.rfqReminder,
         'failed to queue rfq reminder',
         ({ locale }) => ({
-          ...this.buyerFields(
-            rfq.buyerOrganization.name,
-            subscribed.has(recipient.supplierOrganizationId),
-            locale
-          ),
+          ...this.buyerFields(contact, locale),
           rfqTitle: rfq.title,
           description: rfq.description,
           lines,
-          deadline:
-            rfq.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).setLocale(locale).toLocaleString() ?? null,
+          deadline: this.deadlineIn(rfq, locale),
           rfqPath: urlFor('supplier.rfqs.show', { locale, id: rfq.id }),
         })
       )
@@ -143,6 +149,11 @@ export default class RfqNotificationService {
     return reminded
   }
 
+  /** Échéance formatée dans la langue du destinataire (le worker n'a pas de locale). */
+  private deadlineIn(rfq: Rfq, locale: Locale): string | null {
+    return rfq.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).setLocale(locale).toLocaleString() ?? null
+  }
+
   /** Organisations destinataires abonnées, en une requête. */
   private subscribedAmong(recipients: RfqSupplier[]): Promise<Set<number>> {
     return this.subscriptions.subscribedAmong([
@@ -151,12 +162,47 @@ export default class RfqNotificationService {
   }
 
   /**
-   * L'agence nommée pour un abonné ; pour un non abonné, aucune trace d'elle et
-   * le lien vers la page d'abonnement (chemin relatif, comme `rfqPath`).
+   * L'agence nommée, avec ses coordonnées (#221), pour un abonné (`contact`
+   * fourni) ; pour un non abonné (`contact` absent), aucune trace d'elle et le
+   * lien vers la page d'abonnement (chemin relatif, comme `rfqPath`).
    */
-  private buyerFields(buyerName: string, subscribed: boolean, locale: Locale): BuyerMailFields {
-    if (subscribed) return { buyerName, subscribePath: null }
-    return { buyerName: null, subscribePath: urlFor('supplier.subscription.show', { locale }) }
+  private buyerFields(contact: BuyerContactSource | null | false, locale: Locale): BuyerMailFields {
+    if (contact) {
+      return {
+        buyerName: contact.organization.name,
+        subscribePath: null,
+        buyerContact: buyerContactOf(contact, locale),
+      }
+    }
+    return {
+      buyerName: null,
+      subscribePath: urlFor('supplier.subscription.show', { locale }),
+      buyerContact: null,
+    }
+  }
+
+  /**
+   * Agence et auteur de la demande, source des coordonnées (#221) ; `null` sans
+   * destinataire abonné (`forSubscriber` faux), pour ne pas lire l'auteur pour
+   * rien. L'auteur est relu plutôt que pris sur `rfq.createdBy`, comme les
+   * lignes : le service ne suppose rien des relations préchargées.
+   */
+  private async contactSourceOf(
+    rfq: Rfq,
+    buyer: Organization,
+    forSubscriber: boolean
+  ): Promise<BuyerContactSource | null> {
+    if (!forSubscriber) return null
+    const author = rfq.createdByUserId
+      ? await User.query()
+          .select('id', 'firstName', 'lastName', 'email')
+          .where('id', rfq.createdByUserId)
+          .first()
+      : null
+    return {
+      organization: buyer,
+      requester: author ? { fullName: author.fullName, email: author.email } : null,
+    }
   }
 
   /**
