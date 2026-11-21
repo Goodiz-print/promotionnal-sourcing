@@ -137,6 +137,7 @@ describe('rfqs/show.vue', () => {
     canManageRfq: true,
     quotes: [],
     supplierContacts: {},
+    threads: [],
   }
 
   it('propose de publier un brouillon comportant des lignes', () => {

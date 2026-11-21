@@ -1,6 +1,44 @@
 {
   "flash": {
     "reported": "Thank you, your report has been sent to the moderation team.",
-    "alreadyHandled": "This message has already been reviewed by the moderation team."
+    "alreadyHandled": "This message has already been reviewed by the moderation team.",
+    "posted": "Ihre Nachricht wurde gesendet."
+  },
+  "errors": {
+    "blocked": "Dieser Verlauf wurde von der Plattform gesperrt: Sie können nicht mehr darin schreiben."
+  },
+  "thread": {
+    "titleWith": "Nachrichten mit {name}",
+    "titleAgency": "Nachrichten mit der Agentur",
+    "agencyHint": "Ihre Nachrichten werden von der Plattform per E-Mail an den Lieferanten weitergeleitet, ohne Ihre Adresse. Seine Antworten erscheinen hier.",
+    "supplierHint": "Ihre Nachrichten werden per E-Mail an die Agentur weitergeleitet. Ihre Antworten erscheinen hier und in Ihrem Postfach.",
+    "empty": "Noch keine Nachrichten.",
+    "emptyHint": "Schreiben Sie eine erste Nachricht: Sie wird per E-Mail weitergeleitet.",
+    "blocked": "Dieser Verlauf wurde von der Plattform gesperrt: Er bleibt lesbar, aber niemand kann mehr darin schreiben.",
+    "yourTeam": "Ihr Team",
+    "viaMail": "per E-Mail",
+    "attachments": "Anhänge",
+    "sides": {
+      "agency": "Die Agentur",
+      "supplier": "Der Lieferant"
+    },
+    "bodyLabel": "Ihre Nachricht",
+    "placeholder": "Schreiben Sie Ihre Nachricht…",
+    "maxLength": "Höchstens {max} Zeichen.",
+    "send": "Senden",
+    "report": {
+      "action": "Melden",
+      "reasonLabel": "Grund der Meldung",
+      "submit": "Diese Nachricht melden",
+      "cancel": "Abbrechen",
+      "reasons": {
+        "spam": "Spam",
+        "abuse": "Beleidigende Inhalte",
+        "off_platform": "Umgehung der Plattform",
+        "fraud": "Betrug",
+        "other": "Sonstiges"
+      }
+    },
+    "unknownSender": "unbekannte Adresse"
   }
 }

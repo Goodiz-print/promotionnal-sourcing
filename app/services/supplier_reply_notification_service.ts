@@ -17,12 +17,16 @@ import type {
   SupplierReplyNotice,
   SupplierReplyNotificationOutcome,
   SupplierReplyRecipient,
-  SupplierReplyRecordedData,
+  SupplierReplyToNotify,
 } from '#shared/types/supplier_reply'
 
 /**
  * Transmet à l'agence la réponse qu'un fournisseur a envoyée par mail (#225),
  * par mail et par notification in-app (listener de `SupplierReplyRecorded`).
+ * Sert aussi au relais d'un message que le fournisseur écrit dans
+ * l'application (#226, `MessageRelayService`) : même mail, sans devis. Le
+ * `Reply-To` est l'adresse relais côté agence : sa réponse revient dans le fil
+ * et part vers le fournisseur.
  *
  * Destinataires : l'**auteur** de la demande (`rfqs.created_by_user_id`, #221)
  * et les **responsables** de l'agence (`RFQ_MANAGER_ROLES`), une seule fois
@@ -40,7 +44,7 @@ export default class SupplierReplyNotificationService {
     private inApp: InAppNotificationService
   ) {}
 
-  async notify(reply: SupplierReplyRecordedData): Promise<SupplierReplyNotificationOutcome> {
+  async notify(reply: SupplierReplyToNotify): Promise<SupplierReplyNotificationOutcome> {
     const recipient = await RfqSupplier.query()
       .where('id', reply.rfqSupplierId)
       .preload('rfq')
@@ -82,7 +86,7 @@ export default class SupplierReplyNotificationService {
 
   /** Réponse résolue : message du fil, devis PDF de cette réponse, adresse relais. */
   private async noticeFor(
-    reply: SupplierReplyRecordedData,
+    reply: SupplierReplyToNotify,
     recipient: RfqSupplier
   ): Promise<SupplierReplyNotice> {
     const message = await Message.findOrFail(reply.messageId)

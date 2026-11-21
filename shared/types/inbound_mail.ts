@@ -1,3 +1,5 @@
+import type { ConversationSide } from './conversation.js'
+
 /**
  * Réception des mails entrants (#223, `docs/mail.md`, ADR 0005) : la réponse
  * d'un fournisseur à une demande de devis, envoyée à l'adresse relais du couple
@@ -139,6 +141,8 @@ export interface InboundMailFailureAlertData {
 export interface InboundMailReceivedData {
   inboundMailId: number
   rfqSupplierId: number
+  /** Côté qui a écrit (#226) : `rfq-` → fournisseur, `agency-` → agence. */
+  side: ConversationSide
 }
 
 /** Mail saisi à la main par `node ace inbound-mail:simulate` (développement). */
@@ -162,3 +166,18 @@ export interface MailAddressParts {
  * (`rfq-`, `reply_token`) ou côté agence (`agency-`, `agency_reply_token`, #225).
  */
 export type RelayTokenField = 'replyToken' | 'agencyReplyToken'
+
+/**
+ * Adresse relais reconnue parmi les destinataires d'un mail (#226) : le côté
+ * qui l'a reçue, donc qui écrit, et le jeton qui désigne le couple.
+ */
+export interface RelayTarget {
+  side: ConversationSide
+  token: string
+}
+
+/** Couple demande / fournisseur visé par un mail entrant, et le côté qui écrit. */
+export interface ResolvedInboundRecipient<T> {
+  recipient: T
+  side: ConversationSide
+}

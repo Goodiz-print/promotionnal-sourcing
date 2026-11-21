@@ -15,7 +15,16 @@ import {
   ConversationBlockedException,
   InvalidMessageBodyException,
 } from '#exceptions/messaging_errors'
-import { MESSAGE_MAX_LENGTH, type InboundMessageInput } from '#shared/types/conversation'
+import {
+  conversationSidesOf,
+  postedMessageFor,
+  type ConversationParties,
+} from '#shared/helpers/conversation'
+import {
+  MESSAGE_MAX_LENGTH,
+  type InboundMessageInput,
+  type PostedMessageInput,
+} from '#shared/types/conversation'
 
 /** Longueur de `conversations.subject`. */
 const SUBJECT_MAX = 180
@@ -46,10 +55,8 @@ export default class ConversationService {
    */
   async start(input: StartInput): Promise<Conversation> {
     const body = this.normalizeBody(input.body)
-    await this.assertMemberOf(input.author, [
-      input.buyerOrganizationId,
-      input.supplierOrganizationId,
-    ])
+    const [senderSide] = await this.sidesOfMember(input.author, input)
+    if (!senderSide) throw new ConversationAccessDeniedException()
 
     const conversation = await db.transaction(async (trx) => {
       const created = await Conversation.create(
@@ -63,7 +70,7 @@ export default class ConversationService {
         { client: trx }
       )
       const message = await Message.create(
-        { conversationId: created.id, authorUserId: input.author.id, body },
+        { conversationId: created.id, authorUserId: input.author.id, body, senderSide },
         { client: trx }
       )
       this.realtime.messagePosted(created.id, {
@@ -76,23 +83,35 @@ export default class ConversationService {
     return conversation
   }
 
-  /** Ajoute un message à un fil existant. L'auteur doit être participant. */
-  async post(conversation: Conversation, author: User, rawBody: string): Promise<Message> {
-    const body = this.normalizeBody(rawBody)
-    await this.assertParticipant(author, conversation)
+  /**
+   * Ajoute un message à un fil existant. L'auteur doit être participant.
+   * `message` est le texte seul — le côté se déduit alors de l'adhésion de
+   * l'auteur, l'agence d'abord — ou le texte et le côté au nom duquel il écrit
+   * (#226 : l'écran d'une demande sait de quel côté il est), qui doit être
+   * l'un des siens.
+   */
+  async post(
+    conversation: Conversation,
+    author: User,
+    message: string | PostedMessageInput
+  ): Promise<Message> {
+    const posted = postedMessageFor(message, await this.sidesOfMember(author, conversation))
+    if (!posted) throw new ConversationAccessDeniedException()
+    const body = this.normalizeBody(posted.body)
     // Fil bloqué par la plateforme (#167) : la lecture reste possible, l'écriture non.
     if (conversation.blockedAt) throw new ConversationBlockedException()
-    const message = await Message.create({
+    const created = await Message.create({
       conversationId: conversation.id,
       authorUserId: author.id,
       body,
+      senderSide: posted.side,
     })
     this.realtime.messagePosted(conversation.id, {
       type: 'message.posted',
-      messageId: message.id,
+      messageId: created.id,
       authorUserId: author.id,
     })
-    return message
+    return created
   }
 
   // ── Réponses reçues par mail (#224) ─────────────────────────────────────
@@ -143,6 +162,7 @@ export default class ConversationService {
         authorUserId: null,
         inboundMailId: input.inboundMailId,
         body: input.body,
+        senderSide: input.senderSide,
       },
       { client: trx }
     )
@@ -247,6 +267,18 @@ export default class ConversationService {
       .whereNull('hiddenAt')
       .orderBy('createdAt', 'asc')
       .orderBy('id', 'asc')
+  }
+
+  /** Côtés au nom desquels `user` peut écrire dans un fil entre ces deux organisations. */
+  private async sidesOfMember(user: User, parties: ConversationParties) {
+    const memberships = await OrganizationUser.query()
+      .where('userId', user.id)
+      .whereIn('organizationId', [parties.buyerOrganizationId, parties.supplierOrganizationId])
+      .select('organizationId')
+    return conversationSidesOf(
+      memberships.map(({ organizationId }) => organizationId),
+      parties
+    )
   }
 
   private async assertMemberOf(user: User, organizationIds: number[]): Promise<void> {

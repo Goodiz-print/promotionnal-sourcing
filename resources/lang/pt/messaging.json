@@ -1,6 +1,44 @@
 {
   "flash": {
     "reported": "Thank you, your report has been sent to the moderation team.",
-    "alreadyHandled": "This message has already been reviewed by the moderation team."
+    "alreadyHandled": "This message has already been reviewed by the moderation team.",
+    "posted": "A sua mensagem foi enviada."
+  },
+  "errors": {
+    "blocked": "Esta conversa foi bloqueada pela plataforma: já não pode escrever nela."
+  },
+  "thread": {
+    "titleWith": "Mensagens com {name}",
+    "titleAgency": "Mensagens com a agência",
+    "agencyHint": "A plataforma reencaminha as suas mensagens ao fornecedor por e-mail, sem o seu endereço. As respostas dele aparecem aqui.",
+    "supplierHint": "As suas mensagens são reencaminhadas à agência por e-mail. As respostas dela aparecem aqui e na sua caixa de correio.",
+    "empty": "Ainda não há mensagens.",
+    "emptyHint": "Escreva uma primeira mensagem: será reencaminhada por e-mail.",
+    "blocked": "Esta conversa foi bloqueada pela plataforma: continua consultável, mas já não é possível escrever nela.",
+    "yourTeam": "A sua equipa",
+    "viaMail": "por e-mail",
+    "attachments": "Anexos",
+    "sides": {
+      "agency": "A agência",
+      "supplier": "O fornecedor"
+    },
+    "bodyLabel": "A sua mensagem",
+    "placeholder": "Escreva a sua mensagem…",
+    "maxLength": "No máximo {max} caracteres.",
+    "send": "Enviar",
+    "report": {
+      "action": "Denunciar",
+      "reasonLabel": "Motivo da denúncia",
+      "submit": "Denunciar esta mensagem",
+      "cancel": "Cancelar",
+      "reasons": {
+        "spam": "Spam",
+        "abuse": "Conteúdo abusivo",
+        "off_platform": "Contornar a plataforma",
+        "fraud": "Fraude",
+        "other": "Outro"
+      }
+    },
+    "unknownSender": "endereço não reconhecido"
   }
 }

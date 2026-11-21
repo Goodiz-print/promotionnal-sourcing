@@ -1,6 +1,44 @@
 {
   "flash": {
     "reported": "Merci, votre signalement a été transmis à l'équipe de modération.",
-    "alreadyHandled": "Ce message a déjà été examiné par l'équipe de modération."
+    "alreadyHandled": "Ce message a déjà été examiné par l'équipe de modération.",
+    "posted": "Votre message a été envoyé."
+  },
+  "errors": {
+    "blocked": "Ce fil est bloqué par la plateforme : vous ne pouvez plus y écrire."
+  },
+  "thread": {
+    "titleWith": "Échanges avec {name}",
+    "titleAgency": "Échanges avec l'agence",
+    "agencyHint": "Vos messages sont relayés par mail au fournisseur par la plateforme, sans votre adresse. Ses réponses arrivent ici.",
+    "supplierHint": "Vos messages sont transmis à l'agence par mail. Ses réponses arrivent ici et dans votre messagerie.",
+    "empty": "Aucun échange pour l'instant.",
+    "emptyHint": "Écrivez un premier message : il sera relayé par mail.",
+    "blocked": "Ce fil a été bloqué par la plateforme : il reste consultable, mais on ne peut plus y écrire.",
+    "yourTeam": "Votre équipe",
+    "viaMail": "par mail",
+    "attachments": "Pièces jointes",
+    "sides": {
+      "agency": "L'agence",
+      "supplier": "Le fournisseur"
+    },
+    "bodyLabel": "Votre message",
+    "placeholder": "Écrivez votre message…",
+    "maxLength": "{max} caractères au plus.",
+    "send": "Envoyer",
+    "report": {
+      "action": "Signaler",
+      "reasonLabel": "Motif du signalement",
+      "submit": "Signaler ce message",
+      "cancel": "Annuler",
+      "reasons": {
+        "spam": "Spam",
+        "abuse": "Propos abusifs",
+        "off_platform": "Contournement de la plateforme",
+        "fraud": "Fraude",
+        "other": "Autre"
+      }
+    },
+    "unknownSender": "adresse non reconnue"
   }
 }

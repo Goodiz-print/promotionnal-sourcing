@@ -11,6 +11,7 @@ import QuoteService from '#services/quote_service'
 import emitter from '@adonisjs/core/services/emitter'
 import RfqSent from '#events/rfq_sent'
 import RfqService from '#services/rfq_service'
+import RfqThreadService from '#services/rfq_thread_service'
 import SupplierContactService from '#services/supplier_contact_service'
 import CategoryTransformer from '#transformers/category_transformer'
 import QuoteTransformer from '#transformers/quote_transformer'
@@ -18,6 +19,7 @@ import SupplierContactsByOrganizationTransformer from '#transformers/supplier_co
 import RfqDetailTransformer from '#transformers/rfq_detail_transformer'
 import RfqProductOptionTransformer from '#transformers/rfq_product_option_transformer'
 import RfqTransformer from '#transformers/rfq_transformer'
+import RfqThreadTransformer from '#transformers/rfq_thread_transformer'
 import {
   rfqDeadlineValidator,
   rfqLookupQueryValidator,
@@ -40,6 +42,7 @@ import type Rfq from '#models/rfq'
 import type User from '#models/user'
 import type { Locale } from '#shared/types/i18n'
 import type { RfqProductLookupType } from '#shared/types/rfq'
+import type { RfqThreadType } from '#shared/types/conversation'
 
 /**
  * Refus de transition → clé de traduction. Une exception absente de cette
@@ -83,7 +86,8 @@ export default class RfqsController {
     private activityEvents: ActivityEventService,
     private organizations: OrganizationContextService,
     private searchEvents: SearchEventService,
-    private supplierContacts: SupplierContactService
+    private supplierContacts: SupplierContactService,
+    private threads: RfqThreadService
   ) {}
 
   /**
@@ -176,6 +180,7 @@ export default class RfqsController {
       rfq: new RfqDetailTransformer(rfq, locale).toObject(),
       quotes: quotes.map((quote) => new QuoteTransformer(quote).toObject()),
       supplierContacts: new SupplierContactsByOrganizationTransformer(contacts).toObject(),
+      threads: await this.threadsFor(rfq, bouncer),
       canSendRfq: await bouncer.allows('canSendRfq', org),
       canManageRfq: await bouncer.allows('canManageRfq', org),
       ...(await this.formData(locale)),
@@ -339,6 +344,26 @@ export default class RfqsController {
    * Charge une demande de l'organisation courante pour la préparer ou l'envoyer
    * (`canSendRfq`, jusqu'au rôle `member`).
    */
+  /**
+   * Fil d'échanges de chaque destinataire déjà notifié (#226), le fournisseur
+   * nommé : l'agence le connaît. Reste ici : c'est l'orchestration de
+   * l'écran (lecture des fils, autorisation par destinataire).
+   */
+  private async threadsFor(rfq: Rfq, bouncer: HttpContext['bouncer']): Promise<RfqThreadType[]> {
+    const recipients = rfq.suppliers.filter(({ status }) => status !== 'pending')
+    const conversations = await this.threads.threadsFor(recipients.map(({ id }) => id))
+    return Promise.all(
+      recipients.map(async (recipient) =>
+        new RfqThreadTransformer(recipient, {
+          conversation: conversations.get(recipient.id) ?? null,
+          viewerSide: 'agency',
+          counterpartName: recipient.supplierOrganization.name,
+          canWrite: await bouncer.allows('canMessageRfqSupplier', rfq, recipient),
+        }).toObject()
+      )
+    )
+  }
+
   private loadSendable(ctx: RfqContext): Promise<{ rfq: Rfq; org: Organization }> {
     return this.loadAuthorized(ctx, 'canSendRfq')
   }

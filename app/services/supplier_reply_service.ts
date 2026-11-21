@@ -13,8 +13,7 @@ import QuoteService from '#services/quote_service'
 import RfqService from '#services/rfq_service'
 import StorageService from '#services/storage/storage_service'
 import SubscriptionService from '#services/subscription_service'
-import { htmlToText } from '#shared/helpers/inbound_mail'
-import { MESSAGE_MAX_LENGTH } from '#shared/types/conversation'
+import { inboundMailBody } from '#shared/helpers/inbound_mail'
 import { INBOUND_ATTACHMENT_STATUSES } from '#shared/types/inbound_mail'
 import type { RecipientStampOptions } from '#shared/types/pdf'
 import type { QuoteDocumentInput } from '#shared/types/quote'
@@ -73,7 +72,7 @@ export default class SupplierReplyService {
 
     // Ni texte ni fichier conservé (pièces refusées, mail vide) : il n'y a rien
     // à lire dans le fil, le mail reste dans le journal.
-    const body = this.bodyOf(mail)
+    const body = inboundMailBody(mail.textBody, mail.htmlBody)
     if (body === '' && !(await this.hasStoredAttachments(mail))) {
       logger.info({ inboundMailId }, 'empty supplier reply not recorded as a message')
       return null
@@ -94,7 +93,7 @@ export default class SupplierReplyService {
         const conversation = await this.conversations.threadForRecipient(recipient, trx)
         const message = await this.conversations.recordInbound(
           conversation,
-          { inboundMailId, body, attachments },
+          { inboundMailId, body, attachments, senderSide: 'supplier' },
           trx
         )
 
@@ -289,15 +288,6 @@ export default class SupplierReplyService {
         messageAttachmentId: attachment.id,
         recipientStorageObjectId: recipients.get(attachment.storageObjectId) ?? null,
       }))
-  }
-
-  /**
-   * Corps du message : la partie texte du mail, à défaut son HTML réduit à du
-   * texte. Borné comme tout message ; le mail complet reste dans `inbound_mails`.
-   */
-  private bodyOf(mail: InboundMail): string {
-    const text = mail.textBody?.trim() || (mail.htmlBody ? htmlToText(mail.htmlBody) : '')
-    return text.slice(0, MESSAGE_MAX_LENGTH)
   }
 
   /**

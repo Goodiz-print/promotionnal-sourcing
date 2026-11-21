@@ -5,6 +5,7 @@ import Conversation from '#models/conversation'
 import InboundMail from '#models/inbound_mail'
 import MessageAttachment from '#models/message_attachment'
 import User from '#models/user'
+import type { ConversationSide } from '#shared/types/conversation'
 
 /**
  * Message d'un fil de discussion. Écrit dans l'application (`authorUserId`) ou
@@ -13,6 +14,9 @@ import User from '#models/user'
  */
 export default class Message extends MessageSchema {
   static table = 'messages'
+
+  /** Côté qui a écrit (#226) : dit dans quel sens relayer le message. */
+  declare senderSide: ConversationSide
 
   @belongsTo(() => Conversation)
   declare conversation: BelongsTo<typeof Conversation>

@@ -161,6 +161,22 @@
     "documentsHeading": "Beigefügte Angebote:",
     "downloadHint": "Für diese Links müssen Sie in Ihrem Konto angemeldet sein.",
     "cta": "Anfrage öffnen",
-    "footer": "Sie erhalten diese Nachricht, weil Sie diese Angebotsanfrage verwalten."
+    "footer": "Sie erhalten diese Nachricht, weil Sie diese Angebotsanfrage verwalten.",
+    "replyHint": "Antworten Sie einfach auf diese E-Mail: Ihre Antwort wird an den Lieferanten weitergeleitet."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Nachricht von {agencyName} zu „{rfqTitle}“",
+      "anonymous": "Nachricht der Agentur zu „{rfqTitle}“"
+    },
+    "title": {
+      "named": "{agencyName} hat Ihnen geschrieben",
+      "anonymous": "Die Agentur hat Ihnen geschrieben"
+    },
+    "body": "Neue Nachricht zur Anfrage „{rfqTitle}“:",
+    "attachmentsHeading": "Anhänge, in der Anwendung einsehbar:",
+    "replyHint": "Antworten Sie einfach auf diese E-Mail: Ihre Antwort wird an die Agentur weitergeleitet.",
+    "cta": "Anfrage öffnen",
+    "footer": "Sie erhalten diese Nachricht, weil Ihr Unternehmen diese Angebotsanfrage erhalten hat."
   }
 }

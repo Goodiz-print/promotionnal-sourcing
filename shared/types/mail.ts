@@ -29,6 +29,7 @@ export const MAIL_KINDS = {
   subscriptionExpiring: 'subscription-expiring',
   quoteEmailVerification: 'quote-email-verification',
   supplierReplyReceived: 'supplier-reply-received',
+  agencyMessageRelayed: 'agency-message-relayed',
 } as const
 
 export type MailKind = (typeof MAIL_KINDS)[keyof typeof MAIL_KINDS]
@@ -180,11 +181,37 @@ export interface SupplierReplyReceivedMailData {
   rfqPath: string
   /**
    * Adresse relais côté agence du couple demande / fournisseur, posée en
-   * `Reply-To` (`InboundAddressService#agencyAddressFor`). Le relais de la
-   * réponse de l'agence vers le fournisseur arrive avec #226 ; `null` si la
-   * réception est désactivée.
+   * `Reply-To` (`InboundAddressService#agencyAddressFor`) : la réponse de
+   * l'agence entre dans le fil et est relayée au fournisseur (#226). `null` si
+   * la réception est désactivée.
    */
   replyTo: string | null
+}
+
+/**
+ * Données du mail « message de l'agence » (`AgencyMessageRelayedNotification`,
+ * #226) : le message de l'agence, écrit dans l'application ou envoyé par mail,
+ * relayé au fournisseur. L'expéditeur est la plateforme ; l'agence n'est nommée
+ * que pour un fournisseur abonné (`agencyName`), comme dans la demande (#220).
+ */
+export interface AgencyMessageRelayedMailData {
+  /** Nom de l'agence pour un fournisseur abonné ; `null` sinon. */
+  agencyName: string | null
+  rfqTitle: string
+  body: string
+  /** Noms des pièces jointes, consultables dans l'application. */
+  attachments: string[]
+  rfqPath: string
+  /**
+   * Adresse relais côté fournisseur (`rfq-`), posée en `Reply-To` : sa réponse
+   * revient dans le fil et part vers l'agence. `null` si la réception est désactivée.
+   */
+  replyTo: string | null
+  /**
+   * En-têtes repris du mail de l'agence, déjà nettoyés par `relayableHeaders` :
+   * des consignes de priorité, jamais rien qui la désigne.
+   */
+  headers: Record<string, string>
 }
 
 /** Devis PDF cité dans le mail de réponse : nom du fichier et lien authentifié. */
@@ -395,6 +422,12 @@ export type SendMailContent =
       to: string
       locale: Locale
       data: SupplierReplyReceivedMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.agencyMessageRelayed
+      to: string
+      locale: Locale
+      data: AgencyMessageRelayedMailData
     }
 
 /**

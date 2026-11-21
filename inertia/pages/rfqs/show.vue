@@ -16,8 +16,10 @@ import RfqSupplierContacts from '~/components/rfqs/rfq_supplier_contacts.vue'
 import RfqSupplierList from '~/components/rfqs/rfq_supplier_list.vue'
 import RfqSupplierPicker from '~/components/rfqs/rfq_supplier_picker.vue'
 import QuoteComparisonTable from '~/components/quotes/quote_comparison_table.vue'
+import ConversationThread from '~/components/messaging/conversation_thread.vue'
 import { RFQ_STATUS_TONES } from '~/components/rfqs/types'
 import type { CategoryType } from '#shared/types/category'
+import type { RfqThreadType } from '#shared/types/conversation'
 import type { QuoteType } from '#shared/types/quote'
 import type { RfqDetailType, RfqProductOptionType, SupplierOptionType } from '#shared/types/rfq'
 import type { SupplierContactsByOrganization } from '#shared/types/supplier'
@@ -27,6 +29,8 @@ const props = defineProps<{
   quotes: QuoteType[]
   /** Équipe commerciale des destinataires, filtrée par le serveur (#241). */
   supplierContacts: SupplierContactsByOrganization
+  /** Fil d'échanges de chaque destinataire notifié, relayé par mail (#226). */
+  threads: RfqThreadType[]
   categories: CategoryType[]
   supplierOptions: SupplierOptionType[]
   /** Préparer et envoyer (jusqu'au rôle `member`, #216). */
@@ -65,6 +69,14 @@ const hasSupplierContacts = computed(() =>
     (row) => (props.supplierContacts[row.supplierOrganizationId] ?? []).length > 0
   )
 )
+
+function threadUrl(thread: RfqThreadType) {
+  return urlFor('rfqs.messages.store', {
+    locale: locale.value,
+    id: props.rfq.id,
+    supplierId: thread.rfqSupplierId,
+  })
+}
 
 function addSuppliers() {
   router.post(
@@ -149,6 +161,16 @@ function queueSupplier(product: RfqProductOptionType) {
         </div>
       </template>
     </BaseSection>
+
+    <ConversationThread
+      v-for="thread in threads"
+      :key="thread.rfqSupplierId"
+      :thread="thread"
+      :title="t('messaging.thread.titleWith', { name: thread.counterpartName ?? '' })"
+      :description="t('messaging.thread.agencyHint')"
+      :fallback-counterpart="t('messaging.thread.sides.supplier')"
+      :post-url="threadUrl(thread)"
+    />
 
     <BaseSection
       v-if="hasSupplierContacts"

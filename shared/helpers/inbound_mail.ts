@@ -1,40 +1,115 @@
-import { INBOUND_ATTACHMENT_TYPES, type MailAddressParts } from '../types/inbound_mail.js'
+import {
+  CONVERSATION_SIDES,
+  MESSAGE_MAX_LENGTH,
+  type ConversationSide,
+} from '../types/conversation.js'
+import {
+  INBOUND_ATTACHMENT_TYPES,
+  type MailAddressParts,
+  type RelayTarget,
+  type RelayTokenField,
+} from '../types/inbound_mail.js'
 
-/** Préfixe de la partie locale d'une adresse relais : `rfq-<jeton>@<domaine>`. */
-const REPLY_PREFIX = 'rfq-'
-const AGENCY_REPLY_PREFIX = 'agency-'
+/** Préfixe de la partie locale d'une adresse relais, selon le côté qui l'utilise. */
+const RELAY_PREFIXES: Record<ConversationSide, string> = {
+  supplier: 'rfq-',
+  agency: 'agency-',
+}
 const REPLY_TOKEN = /^[0-9a-f]{32}$/
 
-/** Adresse relais d'un couple demande / fournisseur. */
+/** Colonne de `rfq_suppliers` qui porte le jeton de l'adresse relais de chaque côté. */
+export const RELAY_TOKEN_FIELDS: Record<ConversationSide, RelayTokenField> = {
+  supplier: 'replyToken',
+  agency: 'agencyReplyToken',
+}
+
+/**
+ * Adresse relais **côté fournisseur** d'un couple demande / fournisseur :
+ * `rfq-<jeton>@<domaine>`, posée en `Reply-To` des mails envoyés au fournisseur.
+ */
 export function replyAddress(token: string, domain: string): string {
-  return `${REPLY_PREFIX}${token}@${domain}`
+  return `${RELAY_PREFIXES.supplier}${token}@${domain}`
 }
 
 /**
  * Adresse relais **côté agence** du même couple (#225) : `agency-<jeton>@<domaine>`,
  * avec le jeton propre à l'agence (`rfq_suppliers.agency_reply_token`), jamais
- * celui du fournisseur. Posée en `Reply-To` des mails transmis à l'agence ; le
- * préfixe dit dans quel sens va la réponse. Tant que #226 ne la reconnaît pas,
- * `replyTokenFrom` l'ignore : une réponse de l'agence est journalisée
- * (`unknown_address`) au lieu d'être prise pour celle du fournisseur.
+ * celui du fournisseur. Posée en `Reply-To` des mails envoyés à l'agence.
  */
 export function agencyReplyAddress(token: string, domain: string): string {
-  return `${AGENCY_REPLY_PREFIX}${token}@${domain}`
+  return `${RELAY_PREFIXES.agency}${token}@${domain}`
+}
+
+/** Côté et jeton d'une adresse relais, ou `null` si ce n'en est pas une. */
+function relayTargetOf(raw: string, suffix: string): RelayTarget | null {
+  const { address } = parseMailAddress(raw)
+  if (!address.endsWith(suffix)) return null
+  const local = address.slice(0, -suffix.length)
+  const side = CONVERSATION_SIDES.find((candidate) => local.startsWith(RELAY_PREFIXES[candidate]))
+  if (!side) return null
+  const token = local.slice(RELAY_PREFIXES[side].length)
+  return REPLY_TOKEN.test(token) ? { side, token } : null
 }
 
 /**
- * Jeton porté par la première adresse relais trouvée parmi `addresses`, ou
- * `null`. Insensible à la casse : les messageries réécrivent la partie locale.
+ * Première adresse relais trouvée parmi `addresses` (#226) : le côté qui écrit
+ * (`rfq-` → le fournisseur, `agency-` → l'agence) et son jeton, ou `null`.
+ * Insensible à la casse : les messageries réécrivent la partie locale.
  */
-export function replyTokenFrom(addresses: string[], domain: string): string | null {
+export function relayTargetFrom(addresses: string[], domain: string): RelayTarget | null {
   const suffix = `@${domain.toLowerCase()}`
-  for (const raw of addresses) {
-    const { address } = parseMailAddress(raw)
-    if (!address.endsWith(suffix) || !address.startsWith(REPLY_PREFIX)) continue
-    const token = address.slice(REPLY_PREFIX.length, -suffix.length)
-    if (REPLY_TOKEN.test(token)) return token
-  }
-  return null
+  return addresses.reduce<RelayTarget | null>(
+    (found, raw) => found ?? relayTargetOf(raw, suffix),
+    null
+  )
+}
+
+/**
+ * En-têtes d'un mail reçu que le mail relayé peut reprendre (#226) : seulement
+ * des consignes de priorité, qui ne disent rien de l'expéditeur. Tout le reste
+ * est écarté — `From`, `Reply-To`, `Sender`, `Return-Path`, `Received`,
+ * `X-Originating-IP`, `Message-ID`, `References`, signatures DKIM, `X-Mailer`… —
+ * car ces en-têtes trahiraient l'agence (nom, domaine, adresse IP, logiciel).
+ * Liste blanche : un en-tête inconnu n'est jamais repris. Noms en minuscules.
+ */
+const RELAYABLE_HEADERS: Record<string, string> = {
+  'importance': 'Importance',
+  'priority': 'Priority',
+  'x-priority': 'X-Priority',
+}
+/** Longueur au-delà de laquelle une valeur n'est pas une simple consigne. */
+const RELAYABLE_HEADER_MAX = 32
+/** Valeur d'une consigne (`high`, `1 (Highest)`) : ni adresse, ni saut de ligne. */
+const RELAYABLE_HEADER_VALUE = /^[\w ,.()-]+$/
+
+/** La valeur est-elle une simple consigne, sans rien qui désigne l'expéditeur ? */
+function isRelayableValue(value: string): boolean {
+  return value.length <= RELAYABLE_HEADER_MAX && RELAYABLE_HEADER_VALUE.test(value)
+}
+
+/**
+ * En-têtes du mail d'origine que le mail relayé reprend (liste blanche
+ * ci-dessus), sous leur nom canonique. Fonction pure : `headers` a ses noms en
+ * minuscules ou non, le résultat ne contient jamais un en-tête hors liste.
+ */
+export function relayableHeaders(headers: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(headers)
+      .map(([name, value]) => [RELAYABLE_HEADERS[name.toLowerCase()], value.trim()] as const)
+      .filter(
+        (entry): entry is readonly [string, string] =>
+          Boolean(entry[0]) && isRelayableValue(entry[1])
+      )
+  )
+}
+
+/**
+ * Corps d'un message né d'un mail : la partie texte, à défaut le HTML réduit à
+ * du texte, borné comme tout message ; le mail complet reste dans `inbound_mails`.
+ */
+export function inboundMailBody(text: string | null, html: string | null): string {
+  const body = text?.trim() || (html ? htmlToText(html) : '')
+  return body.slice(0, MESSAGE_MAX_LENGTH)
 }
 
 /** Décompose `Nom <adresse>` (ou une adresse seule). L'adresse sort en minuscules. */

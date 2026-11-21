@@ -161,6 +161,22 @@
     "documentsHeading": "Preventivi allegati:",
     "downloadHint": "Per aprire questi link è necessario aver effettuato l'accesso al proprio account.",
     "cta": "Apri la richiesta",
-    "footer": "Riceve questo messaggio perché gestisce questa richiesta di preventivo."
+    "footer": "Riceve questo messaggio perché gestisce questa richiesta di preventivo.",
+    "replyHint": "Risponda semplicemente a questa e-mail: la sua risposta verrà inoltrata al fornitore."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Messaggio di {agencyName} su «{rfqTitle}»",
+      "anonymous": "Messaggio dell'agenzia su «{rfqTitle}»"
+    },
+    "title": {
+      "named": "{agencyName} le ha scritto",
+      "anonymous": "L'agenzia le ha scritto"
+    },
+    "body": "Nuovo messaggio sulla richiesta «{rfqTitle}»:",
+    "attachmentsHeading": "Allegati, consultabili nell'applicazione:",
+    "replyHint": "Risponda semplicemente a questa e-mail: la sua risposta verrà inoltrata all'agenzia.",
+    "cta": "Apri la richiesta",
+    "footer": "Riceve questo messaggio perché la sua azienda ha ricevuto questa richiesta di preventivo."
   }
 }

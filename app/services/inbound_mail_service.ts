@@ -22,6 +22,7 @@ import {
   isAutomaticReply,
   matchesFileSignature,
   parseMailAddress,
+  RELAY_TOKEN_FIELDS,
 } from '#shared/helpers/inbound_mail'
 import {
   INBOUND_ATTACHMENT_STATUSES,
@@ -34,6 +35,8 @@ import {
   type InboundMailReceipt,
   type InboundMailRejection,
   type InboundWebhookHeaders,
+  type RelayTarget,
+  type ResolvedInboundRecipient,
 } from '#shared/types/inbound_mail'
 
 /** Longueurs des colonnes de `inbound_mails` : une valeur trop longue est tronquée. */
@@ -141,7 +144,7 @@ export default class InboundMailService {
     notification: InboundMailNotification
   ): Promise<{ id: number; created: boolean }> {
     const sender = parseMailAddress(notification.from)
-    const token = this.addresses.tokenFrom(notification.recipients)
+    const target = this.addresses.targetFrom(notification.recipients)
     // L'adresse relais, où qu'elle soit parmi les destinataires et quelle que
     // soit sa forme (`Nom <adresse>`) : le traitement relit cette colonne.
     const recipient =
@@ -162,7 +165,7 @@ export default class InboundMailService {
         status: INBOUND_MAIL_STATUSES.received,
         // Résolu ici pour que le journal désigne le couple même si le
         // traitement échoue ; le worker le revérifie.
-        rfq_supplier_id: token ? await this.recipientIdFor(token) : null,
+        rfq_supplier_id: target ? await this.recipientIdFor(target) : null,
         received_at: receivedDate(notification.receivedAt),
         created_at: now,
         updated_at: now,
@@ -181,9 +184,17 @@ export default class InboundMailService {
     return { id: existing.id, created: false }
   }
 
-  private async recipientIdFor(token: string): Promise<number | null> {
-    const recipient = await RfqSupplier.query().where('replyToken', token).select('id').first()
+  private async recipientIdFor(target: RelayTarget): Promise<number | null> {
+    const recipient = await this.recipientQuery(target).select('id').first()
     return recipient?.id ?? null
+  }
+
+  /**
+   * Couple désigné par une adresse relais : par le jeton **du côté qui écrit**
+   * (#226). Une adresse `agency-` ne se résout jamais par `reply_token`.
+   */
+  private recipientQuery(target: RelayTarget) {
+    return RfqSupplier.query().where(RELAY_TOKEN_FIELDS[target.side], target.token)
   }
 
   /**
@@ -203,7 +214,8 @@ export default class InboundMailService {
 
     try {
       const content = await loadContent(mail)
-      const recipient = await this.resolveRecipient(mail)
+      const resolved = await this.resolveRecipient(mail)
+      const recipient = resolved?.recipient ?? null
       const rejection = this.rejectionFor(mail, content, recipient)
 
       mail.merge({
@@ -214,7 +226,7 @@ export default class InboundMailService {
         processedAt: DateTime.now(),
       })
 
-      if (rejection || !recipient) {
+      if (rejection || !resolved) {
         // Un mail écarté n'est que journalisé : ni corps, ni pièces jointes.
         await mail
           .merge({ status: INBOUND_MAIL_STATUSES.rejected, rejectionReason: rejection })
@@ -228,7 +240,7 @@ export default class InboundMailService {
         .merge({
           textBody: content.text,
           htmlBody: content.html,
-          senderKnown: await this.isKnownSender(mail.senderAddress, recipient),
+          senderKnown: await this.isKnownSender(mail.senderAddress, resolved),
           status: INBOUND_MAIL_STATUSES.processed,
           rejectionReason: null,
         })
@@ -236,7 +248,11 @@ export default class InboundMailService {
 
       await emitter.emit(
         InboundMailReceived,
-        new InboundMailReceived({ inboundMailId: mail.id, rfqSupplierId: recipient.id })
+        new InboundMailReceived({
+          inboundMailId: mail.id,
+          rfqSupplierId: resolved.recipient.id,
+          side: resolved.side,
+        })
       )
     } catch (error) {
       await InboundMail.query()
@@ -309,16 +325,28 @@ export default class InboundMailService {
   }
 
   /**
-   * Couple visé : celui qu'un admin a choisi (rattachement manuel, #227), sinon
-   * celui que désigne le jeton de l'adresse relais.
+   * Couple visé et côté qui écrit (#226) : le couple qu'un admin a choisi
+   * (rattachement manuel, #227), sinon celui que désigne le jeton de l'adresse
+   * relais. Le côté suit le préfixe de l'adresse (`rfq-` : le fournisseur,
+   * `agency-` : l'agence) ; un mail rattaché à la main vers une adresse
+   * inconnue vaut une réponse du fournisseur.
    */
-  private async resolveRecipient(mail: InboundMail): Promise<RfqSupplier | null> {
+  private async resolveRecipient(
+    mail: InboundMail
+  ): Promise<ResolvedInboundRecipient<RfqSupplier> | null> {
+    const side = this.addresses.sideOf(mail.recipient)
     if (mail.attachedManuallyAt && mail.rfqSupplierId) {
-      return RfqSupplier.query().where('id', mail.rfqSupplierId).preload('rfq').first()
+      const attached = await RfqSupplier.query()
+        .where('id', mail.rfqSupplierId)
+        .preload('rfq')
+        .first()
+      return attached ? { recipient: attached, side } : null
     }
-    const token = mail.recipient ? this.addresses.tokenFrom([mail.recipient]) : null
-    if (!token) return null
-    return RfqSupplier.query().where('replyToken', token).preload('rfq').first()
+
+    const target = mail.recipient ? this.addresses.targetFrom([mail.recipient]) : null
+    if (!target) return null
+    const recipient = await this.recipientQuery(target).preload('rfq').first()
+    return recipient ? { recipient, side: target.side } : null
   }
 
   /**
@@ -460,17 +488,28 @@ export default class InboundMailService {
   }
 
   /**
-   * L'expéditeur est-il l'adresse de réception (#217) ou de contact du
-   * fournisseur, ou celle d'un de ses membres ? Indicatif (affiché à l'équipe
-   * et à l'agence) : un fournisseur répond souvent depuis une autre boîte, ce
-   * n'est pas un motif de rejet.
+   * L'expéditeur est-il connu du côté qui écrit ? Côté fournisseur : son
+   * adresse de réception (#217) ou de contact, ou celle d'un de ses membres.
+   * Côté agence (#226) : l'adresse d'un membre de l'agence. Indicatif (affiché
+   * à l'équipe) : on répond souvent depuis une autre boîte, ce n'est pas un
+   * motif de rejet.
    */
-  private async isKnownSender(senderAddress: string, recipient: RfqSupplier): Promise<boolean> {
+  private async isKnownSender(
+    senderAddress: string,
+    { recipient, side }: ResolvedInboundRecipient<RfqSupplier>
+  ): Promise<boolean> {
+    if (side === 'agency') {
+      return this.isMemberAddress(senderAddress, recipient.rfq.buyerOrganizationId)
+    }
     if (await this.isDeclaredAddress(senderAddress, recipient)) return true
+    return this.isMemberAddress(senderAddress, recipient.supplierOrganizationId)
+  }
 
+  private async isMemberAddress(senderAddress: string, organizationId: number): Promise<boolean> {
     const member = await OrganizationUser.query()
-      .where('organizationId', recipient.supplierOrganizationId)
+      .where('organizationId', organizationId)
       .whereHas('user', (user) => user.whereRaw('lower(email) = ?', [senderAddress]))
+      .select('id')
       .first()
     return member !== null
   }

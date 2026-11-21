@@ -16,6 +16,8 @@ import { Bouncer } from '@adonisjs/bouncer'
 import type User from '#models/user'
 import type Organization from '#models/organization'
 import type QuoteDocument from '#models/quote_document'
+import type Rfq from '#models/rfq'
+import type RfqSupplier from '#models/rfq_supplier'
 import OrganizationUser from '#models/organization_user'
 import { RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
 import type { RoleSlug } from '#shared/types/role'
@@ -264,4 +266,39 @@ export const canRespondToRfq = Bouncer.ability(async (user: User, org: Organizat
   if (!['supplier', 'both'].includes(org.organizationType)) return false
   const m = await getMembership(user, org)
   return m ? RFQ_RESPONDER_ROLES.includes(m.role.slug as RoleSlug) : false
+})
+
+/**
+ * Ability to check if a user can write, as the agency, in the thread of an RFQ
+ * recipient (#226): any member of the agency that owns the request, whatever
+ * their role — the same people who can open it (`canCreateRfq`) — once the
+ * request was sent to this supplier (a `pending` recipient has no thread yet).
+ * The message is then relayed to the supplier by email.
+ */
+export const canMessageRfqSupplier = Bouncer.ability(
+  async (user: User, rfq: Rfq, recipient: RfqSupplier) => {
+    if (recipient.rfqId !== rfq.id || recipient.status === 'pending') return false
+    const membership = await OrganizationUser.query()
+      .where('user_id', user.id)
+      .where('organization_id', rfq.buyerOrganizationId)
+      .select('id')
+      .first()
+    return membership !== null
+  }
+)
+
+/**
+ * Ability to check if a user can write, as the supplier, in the thread of a
+ * received RFQ (#226): the members who can answer it (`RFQ_RESPONDER_ROLES`,
+ * like `canRespondToRfq`) of the recipient organization, once the request was
+ * sent. The message is then relayed to the agency by email.
+ */
+export const canMessageRfqBuyer = Bouncer.ability(async (user: User, recipient: RfqSupplier) => {
+  if (recipient.status === 'pending') return false
+  const membership = await OrganizationUser.query()
+    .where('user_id', user.id)
+    .where('organization_id', recipient.supplierOrganizationId)
+    .preload('role')
+    .first()
+  return membership ? RFQ_RESPONDER_ROLES.includes(membership.role.slug as RoleSlug) : false
 })

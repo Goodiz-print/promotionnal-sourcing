@@ -72,7 +72,11 @@ test.group('Mails entrants — webhook de réception', (group) => {
     assert.isTrue(storage.driver.objects.has(object.key))
 
     assert.lengthOf(events, 1)
-    assert.deepEqual(events[0].mail, { inboundMailId: journal.id, rfqSupplierId: recipient.id })
+    assert.deepEqual(events[0].mail, {
+      inboundMailId: journal.id,
+      rfqSupplierId: recipient.id,
+      side: 'supplier',
+    })
   })
 
   test('le même mail livré deux fois n’est traité qu’une fois', async ({ client, assert }) => {

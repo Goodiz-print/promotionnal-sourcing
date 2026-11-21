@@ -8,10 +8,9 @@ import type { SupplierReplyReceivedMailData } from '#shared/types/mail'
  * au nom de l'agence pour un fournisseur non abonné (#238), sinon l'original.
  *
  * L'expéditeur reste la plateforme (`From` du mailer), jamais l'adresse du
- * fournisseur. `replyTo` est l'adresse relais **côté agence** du fil : #226 y
- * branchera le relais vers le fournisseur. D'ici là, une réponse à ce mail est
- * journalisée sans être transmise : le mail n'invite donc pas encore à
- * répondre (`canReply` à `false`, pied de page « automatique »).
+ * fournisseur. `replyTo` est l'adresse relais **côté agence** du fil : une
+ * réponse à ce mail entre dans le fil et est relayée au fournisseur (#226). Le
+ * mail invite donc à répondre dès qu'une adresse relais est posée.
  */
 export default class SupplierReplyReceivedNotification extends LocalizedMail {
   constructor(
@@ -32,7 +31,7 @@ export default class SupplierReplyReceivedNotification extends LocalizedMail {
       ...rest,
       title: this.t('emails.supplierReplyReceived.title', texts),
       intro: this.t('emails.supplierReplyReceived.body', texts),
-      canReply: false,
+      canReply: Boolean(replyTo),
     }
     this.htmlViewIn('emails/supplier_reply_received', state)
     this.textViewIn('emails/supplier_reply_received_text', state)

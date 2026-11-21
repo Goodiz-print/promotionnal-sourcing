@@ -19,6 +19,7 @@ import MemberJoined from '#events/member_joined'
 import InboundMailReceived from '#events/inbound_mail_received'
 import InboundMailProcessingFailed from '#events/inbound_mail_processing_failed'
 import SupplierReplyRecorded from '#events/supplier_reply_recorded'
+import ConversationMessageRecorded from '#events/conversation_message_recorded'
 
 emitter.on(UserRegistered, [() => import('#listeners/on_user_registered'), 'handle'])
 emitter.on(UserLoggedIn, [() => import('#listeners/on_user_logged_in'), 'handle'])
@@ -51,3 +52,7 @@ emitter.on(InboundMailProcessingFailed, [
   'handle',
 ])
 emitter.on(SupplierReplyRecorded, [() => import('#listeners/on_supplier_reply_recorded'), 'handle'])
+emitter.on(ConversationMessageRecorded, [
+  () => import('#listeners/on_conversation_message_recorded'),
+  'handle',
+])

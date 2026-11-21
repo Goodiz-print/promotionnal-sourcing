@@ -3,18 +3,34 @@ import inboundMailConfig from '#config/inbound_mail'
 import {
   agencyReplyAddress,
   parseMailAddress,
+  RELAY_TOKEN_FIELDS,
+  relayTargetFrom,
   replyAddress,
-  replyTokenFrom,
 } from '#shared/helpers/inbound_mail'
 import type Rfq from '#models/rfq'
 import type RfqSupplier from '#models/rfq_supplier'
-import type { RelayTokenField } from '#shared/types/inbound_mail'
+import type { ConversationSide } from '#shared/types/conversation'
+import type { RelayTarget } from '#shared/types/inbound_mail'
+
+/** Construction de l'adresse relais de chaque côté, à partir de son jeton. */
+const RELAY_ADDRESS_BUILDERS: Record<ConversationSide, (token: string, domain: string) => string> =
+  {
+    supplier: replyAddress,
+    agency: agencyReplyAddress,
+  }
 
 /**
- * Adresse relais d'un couple demande / fournisseur : `rfq-<jeton>@<domaine>`
- * (#223). Une seule adresse par couple, posée en `Reply-To` sur les mails de
- * demande et de relance ; le jeton (`rfq_suppliers.reply_token`) identifie le
- * couple à la réception, l'expéditeur du mail n'authentifie rien.
+ * Adresses relais d'un couple demande / fournisseur, **une par côté** (#223,
+ * #225, #226) :
+ *
+ *  - `rfq-<reply_token>@<domaine>`, donnée au **fournisseur** (`Reply-To` des
+ *    mails de demande, de relance et des messages relayés de l'agence) ;
+ *  - `agency-<agency_reply_token>@<domaine>`, donnée à l'**agence** (`Reply-To`
+ *    des réponses du fournisseur qui lui sont transmises).
+ *
+ * Le préfixe dit donc qui écrit, le jeton désigne le couple ; l'expéditeur du
+ * mail n'authentifie rien. Les deux jetons sont distincts : un côté ne connaît
+ * jamais celui de l'autre, il ne peut pas écrire en son nom.
  *
  * N'importe les modèles qu'en `import type` : utilisable depuis un service
  * chargé par un job.
@@ -26,10 +42,10 @@ export default class InboundAddressService {
   }
 
   /**
-   * Adresse relais du destinataire, ou `null` si la réception est désactivée.
+   * Adresse relais côté fournisseur, ou `null` si la réception est désactivée.
    */
   addressFor(recipient: RfqSupplier): Promise<string | null> {
-    return this.relayAddress(recipient, 'replyToken', replyAddress)
+    return this.relayAddressFor(recipient, 'supplier')
   }
 
   /**
@@ -37,16 +53,42 @@ export default class InboundAddressService {
    * mail qui transmet la réponse du fournisseur ; `null` si la réception est
    * désactivée. Son jeton (`agency_reply_token`) est **distinct** de celui du
    * fournisseur : l'agence ne doit jamais lire `reply_token`, qui suffit à
-   * écrire au nom du fournisseur. Le relais vers le fournisseur viendra avec #226.
+   * écrire au nom du fournisseur.
    */
   agencyAddressFor(recipient: RfqSupplier): Promise<string | null> {
-    return this.relayAddress(recipient, 'agencyReplyToken', agencyReplyAddress)
+    return this.relayAddressFor(recipient, 'agency')
   }
 
-  /** Jeton visé par un mail entrant, parmi toutes les adresses qu'il désigne. */
-  tokenFrom(recipients: string[]): string | null {
+  /**
+   * Adresse relais par laquelle `side` écrit à l'autre côté, ou `null` si la
+   * réception est désactivée. Le jeton est généré par la base : une ligne tout
+   * juste créée en mémoire ne le porte pas encore, elle est alors relue.
+   */
+  async relayAddressFor(recipient: RfqSupplier, side: ConversationSide): Promise<string | null> {
     const domain = inboundMailConfig.domain
-    return domain ? replyTokenFrom(recipients, domain) : null
+    if (!this.enabled || !domain) return null
+
+    const field = RELAY_TOKEN_FIELDS[side]
+    if (!recipient[field]) await recipient.refresh()
+    return RELAY_ADDRESS_BUILDERS[side](recipient[field], domain)
+  }
+
+  /**
+   * Adresse relais visée par un mail entrant, parmi toutes celles qu'il
+   * désigne : le côté qui écrit et le jeton du couple (#226).
+   */
+  targetFrom(recipients: string[]): RelayTarget | null {
+    const domain = inboundMailConfig.domain
+    return domain ? relayTargetFrom(recipients, domain) : null
+  }
+
+  /**
+   * Côté qui a écrit un mail adressé à `recipient`. Une adresse qui n'est pas
+   * une adresse relais (mail rattaché à la main par un admin, #227) vaut une
+   * réponse du fournisseur, le cas d'origine.
+   */
+  sideOf(recipient: string | null): ConversationSide {
+    return (recipient && this.targetFrom([recipient])?.side) || 'supplier'
   }
 
   /**
@@ -69,23 +111,5 @@ export default class InboundAddressService {
     const endedAt = rfq.closedAt ?? rfq.expiredAt
     if (!endedAt) return true
     return now > endedAt.plus({ days: inboundMailConfig.graceDays })
-  }
-
-  /**
-   * Adresse relais du couple, construite par `build` à partir du jeton `field`,
-   * ou `null` si la réception est désactivée. Le jeton est généré par la base :
-   * une ligne tout juste créée en mémoire ne le porte pas encore, elle est
-   * alors relue.
-   */
-  private async relayAddress(
-    recipient: RfqSupplier,
-    field: RelayTokenField,
-    build: (token: string, domain: string) => string
-  ): Promise<string | null> {
-    const domain = inboundMailConfig.domain
-    if (!this.enabled || !domain) return null
-
-    if (!recipient[field]) await recipient.refresh()
-    return build(recipient[field], domain)
   }
 }

@@ -286,9 +286,10 @@ export default class RfqNotificationService {
    * serait une impasse.
    *
    * Suppose `supplierOrganization` préchargé, ce que garantit
-   * `RfqService#send` sur les lignes qu'il renvoie.
+   * `RfqService#send` sur les lignes qu'il renvoie. Public : les messages de
+   * l'agence relayés au fournisseur (#226) visent les mêmes adresses.
    */
-  private async addressesFor(recipient: RfqSupplier): Promise<RfqMailAddress[]> {
+  async addressesFor(recipient: RfqSupplier): Promise<RfqMailAddress[]> {
     const organizationId = recipient.supplierOrganizationId
     const [memberships, profile] = await Promise.all([
       OrganizationUser.query()

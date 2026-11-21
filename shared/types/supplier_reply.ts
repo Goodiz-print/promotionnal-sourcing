@@ -20,6 +20,12 @@ export interface SupplierReplyRecordedData {
   responded: boolean
 }
 
+/** Ce que la transmission à l'agence lit d'une réponse (#225), ou d'un message écrit dans l'application (#226). */
+export type SupplierReplyToNotify = Pick<
+  SupplierReplyRecordedData,
+  'rfqSupplierId' | 'messageId' | 'quoteDocumentIds'
+>
+
 /**
  * Pièce jointe d'un mail prête à être rattachée au message : `storageObjectId`
  * est le fichier à référencer (le PDF compressé, sinon le fichier reçu).
@@ -53,7 +59,7 @@ export interface SupplierReplyNotice {
   body: string
   /** Devis PDF de la réponse ; le fichier servi est `QuoteDocument#recipientFile`. */
   documents: SupplierReplyNoticeDocument[]
-  /** Adresse relais côté agence, en `Reply-To` (#226 la branchera). */
+  /** Adresse relais côté agence, en `Reply-To` : la réponse est relayée au fournisseur (#226). */
   replyTo: string | null
 }
 

@@ -1,0 +1,33 @@
+@component('emails/layout', {
+  title,
+  locale,
+  i18n,
+  replyable: canReply,
+  footer: t('emails.agencyMessageRelayed.footer'),
+})
+  <p>{{ intro }}</p>
+  @if(body)
+    <blockquote
+      style="margin:0 0 16px;padding:8px 16px;border-left:3px solid #e5e7eb;color:#374151;white-space:pre-line"
+    >
+      {{ body }}
+    </blockquote>
+  @end
+  @if(attachments.length)
+    <p><strong>{{ t('emails.agencyMessageRelayed.attachmentsHeading') }}</strong></p>
+    <ul>
+      @each(filename in attachments)
+        <li>{{ filename }}</li>
+      @end
+    </ul>
+  @end
+  @if(canReply)
+    <p>{{ t('emails.agencyMessageRelayed.replyHint') }}</p>
+  @end
+
+  <p>
+    <a class="button" href="{{ appUrl }}{{ rfqPath }}">
+      {{ t('emails.agencyMessageRelayed.cta') }}
+    </a>
+  </p>
+@end
