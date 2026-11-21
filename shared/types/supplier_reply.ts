@@ -27,6 +27,11 @@ export interface PreparedReplyAttachment {
   /** Fichier tel que reçu, référencé par le journal des mails. */
   receivedObjectId: number
   storageObjectId: number
+  /**
+   * Copie du PDF portant le nom de l'agence (#238), pour un fournisseur non
+   * abonné ; `null` sinon. L'agence la reçoit, le fournisseur garde l'original.
+   */
+  recipientObjectId: number | null
   filename: string
   mimeType: string
   sizeBytes: number

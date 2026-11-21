@@ -112,4 +112,9 @@ export interface QuoteDocumentInput {
   messageId: number
   messageAttachmentId: number
   receivedAt: Date
+  /**
+   * Version destinataire du PDF, portant le nom de l'agence (#238) : posée pour
+   * un fournisseur non abonné, `null` sinon ou si le PDF n'a pu être modifié.
+   */
+  recipientStorageObjectId: number | null
 }

@@ -5,15 +5,19 @@ import db from '@adonisjs/lucid/services/db'
 import SupplierReplyRecorded from '#events/supplier_reply_recorded'
 import InboundMail from '#models/inbound_mail'
 import InboundMailAttachment from '#models/inbound_mail_attachment'
+import type Message from '#models/message'
 import RfqSupplier from '#models/rfq_supplier'
 import ConversationService from '#services/conversation_service'
 import PdfService from '#services/pdf_service'
 import QuoteService from '#services/quote_service'
 import RfqService from '#services/rfq_service'
 import StorageService from '#services/storage/storage_service'
+import SubscriptionService from '#services/subscription_service'
 import { htmlToText } from '#shared/helpers/inbound_mail'
 import { MESSAGE_MAX_LENGTH } from '#shared/types/conversation'
 import { INBOUND_ATTACHMENT_STATUSES } from '#shared/types/inbound_mail'
+import type { RecipientStampOptions } from '#shared/types/pdf'
+import type { QuoteDocumentInput } from '#shared/types/quote'
 import {
   QUOTE_DOCUMENT_MIME_TYPE,
   type PreparedReplyAttachment,
@@ -27,14 +31,19 @@ import {
  *  - ses pièces jointes acceptées deviennent celles du message — un PDF est
  *    d'abord compressé (`PdfService`) ;
  *  - chaque PDF est enregistré comme **devis du fournisseur**, et le
- *    destinataire passe « répondu ».
+ *    destinataire passe « répondu » ;
+ *  - si le fournisseur n'est pas abonné au moment de la réponse, une copie du
+ *    PDF portant le nom de l'agence et la référence de la demande est stockée
+ *    à côté (#238) : c'est elle que reçoit l'agence, l'original reste celui
+ *    du fournisseur.
  *
  * Tout part du couple demande / fournisseur (`rfq_suppliers`) désigné par
  * l'adresse relais : ni compte ni membre côté fournisseur ne sont requis (#218).
  *
  * `InboundMailReceived` est émis au moins une fois : `record` est idempotent
  * (`messages.inbound_mail_id` unique). Les écritures tiennent en une
- * transaction ; si elle échoue, les fichiers compressés sont libérés.
+ * transaction ; si elle échoue, les fichiers créés ici (PDF compressés,
+ * versions destinataires) sont libérés.
  */
 @inject()
 export default class SupplierReplyService {
@@ -43,7 +52,8 @@ export default class SupplierReplyService {
     private pdf: PdfService,
     private conversations: ConversationService,
     private quotes: QuoteService,
-    private rfqs: RfqService
+    private rfqs: RfqService,
+    private subscriptions: SubscriptionService
   ) {}
 
   /**
@@ -57,7 +67,7 @@ export default class SupplierReplyService {
     if (!mail?.rfqSupplierId) return null
     const recipient = await RfqSupplier.query()
       .where('id', mail.rfqSupplierId)
-      .preload('rfq')
+      .preload('rfq', (rfq) => rfq.preload('buyerOrganization'))
       .first()
     if (!recipient) return null
 
@@ -69,11 +79,9 @@ export default class SupplierReplyService {
       return null
     }
 
-    const attachments = await this.prepareAttachments(mail)
-    // Fichiers créés ici (PDF compressés) : à libérer si rien ne les référence.
-    const compressed = attachments
-      .filter((attachment) => attachment.storageObjectId !== attachment.receivedObjectId)
-      .map((attachment) => attachment.storageObjectId)
+    const attachments = await this.prepareAttachments(mail, await this.recipientStampFor(recipient))
+    // Fichiers créés ici : à libérer si rien ne les référence.
+    const created = this.createdObjects(attachments)
 
     let outcome: { reply: SupplierReplyRecordedData; tombstones: Array<number | null> } | null
     try {
@@ -102,15 +110,12 @@ export default class SupplierReplyService {
         }
 
         const documents = await this.quotes.recordDocuments(
-          message.attachments
-            .filter((attachment) => attachment.mimeType === QUOTE_DOCUMENT_MIME_TYPE)
-            .map((attachment) => ({
-              rfqId: recipient.rfqId,
-              rfqSupplierId: recipient.id,
-              messageId: message.id,
-              messageAttachmentId: attachment.id,
-              receivedAt: mail.receivedAt.toJSDate(),
-            })),
+          this.quoteDocumentsOf(message, attachments).map((document) => ({
+            ...document,
+            rfqId: recipient.rfqId,
+            rfqSupplierId: recipient.id,
+            receivedAt: mail.receivedAt.toJSDate(),
+          })),
           trx
         )
         // Sans PDF, c'est un simple message : le statut ne bouge pas.
@@ -130,14 +135,14 @@ export default class SupplierReplyService {
         }
       })
     } catch (error) {
-      await this.storage.discard(compressed)
+      await this.storage.discard(created)
       throw error
     }
 
     if (!outcome) {
       // Enregistré entre-temps par un autre traitement : `discard` ne retire
       // que ce que rien ne référence.
-      await this.storage.discard(compressed)
+      await this.storage.discard(created)
       return null
     }
 
@@ -159,44 +164,131 @@ export default class SupplierReplyService {
   }
 
   /**
-   * Pièces jointes stockées du mail, prêtes pour le message. Un PDF est
-   * compressé et stocké sous sa propre clé ; si la compression n'apporte rien
-   * (`PdfService` ne lève jamais), le fichier reçu est gardé tel quel.
+   * Pièces jointes stockées du mail, prêtes pour le message. Traitées **une par
+   * une** : deux pièces identiques s'enverraient sinon en concurrence. Si l'une
+   * échoue, les fichiers déjà créés sont libérés.
    */
-  private async prepareAttachments(mail: InboundMail): Promise<PreparedReplyAttachment[]> {
+  private async prepareAttachments(
+    mail: InboundMail,
+    stamp: RecipientStampOptions | null
+  ): Promise<PreparedReplyAttachment[]> {
     const stored = await this.storedAttachments(mail).preload('storageObject').orderBy('id')
 
     const prepared: PreparedReplyAttachment[] = []
     try {
-      for (const attachment of stored) {
-        const received = attachment.storageObject
-        const base = {
-          inboundAttachmentId: attachment.id,
-          receivedObjectId: received.id,
-          filename: attachment.filename,
-          mimeType: attachment.mimeType ?? received.mimeType,
-        }
-
-        if (base.mimeType !== QUOTE_DOCUMENT_MIME_TYPE) {
-          prepared.push({ ...base, storageObjectId: received.id, sizeBytes: received.size })
-          continue
-        }
-
-        const { content, compressed } = await this.pdf.compress(await this.storage.read(received))
-        const object = compressed
-          ? await this.storage.storeContent(content, 'pdf', QUOTE_DOCUMENT_MIME_TYPE)
-          : received
-        prepared.push({ ...base, storageObjectId: object.id, sizeBytes: object.size })
-      }
+      for (const attachment of stored)
+        prepared.push(await this.prepareAttachment(attachment, stamp))
     } catch (error) {
-      await this.storage.discard(
-        prepared
-          .filter((attachment) => attachment.storageObjectId !== attachment.receivedObjectId)
-          .map((attachment) => attachment.storageObjectId)
-      )
+      await this.storage.discard(this.createdObjects(prepared))
       throw error
     }
     return prepared
+  }
+
+  /**
+   * Un PDF est compressé et stocké sous sa propre clé ; si la compression
+   * n'apporte rien (`PdfService` ne lève jamais), le fichier reçu est gardé tel
+   * quel. Avec `stamp`, sa version destinataire est stockée à côté.
+   */
+  private async prepareAttachment(
+    attachment: InboundMailAttachment,
+    stamp: RecipientStampOptions | null
+  ): Promise<PreparedReplyAttachment> {
+    const received = attachment.storageObject
+    const base = {
+      inboundAttachmentId: attachment.id,
+      receivedObjectId: received.id,
+      filename: attachment.filename,
+      mimeType: attachment.mimeType ?? received.mimeType,
+    }
+    if (base.mimeType !== QUOTE_DOCUMENT_MIME_TYPE) {
+      return {
+        ...base,
+        storageObjectId: received.id,
+        sizeBytes: received.size,
+        recipientObjectId: null,
+      }
+    }
+
+    const { content, compressed } = await this.pdf.compress(await this.storage.read(received))
+    const object = compressed ? await this.storeQuotePdf(content) : received
+    try {
+      const recipientObjectId = await this.storeRecipientVersion(content, stamp, attachment.id)
+      return { ...base, storageObjectId: object.id, sizeBytes: object.size, recipientObjectId }
+    } catch (error) {
+      if (compressed) await this.storage.discard([object.id])
+      throw error
+    }
+  }
+
+  /**
+   * Stocke la copie du PDF portant le nom de l'agence (#238). `null` sans
+   * apposition à faire (fournisseur abonné) ou si le PDF n'a pu être modifié :
+   * l'agence reçoit alors l'original.
+   */
+  private async storeRecipientVersion(
+    content: Buffer,
+    stamp: RecipientStampOptions | null,
+    inboundAttachmentId: number
+  ): Promise<number | null> {
+    if (!stamp) return null
+    const logContext = { ...stamp.logContext, inboundAttachmentId }
+    const stamped = await this.pdf.stampRecipient(content, { ...stamp, logContext })
+    if (stamped === content) return null
+    const object = await this.storeQuotePdf(stamped)
+    return object.id
+  }
+
+  private storeQuotePdf(content: Buffer) {
+    return this.storage.storeContent(content, 'pdf', QUOTE_DOCUMENT_MIME_TYPE)
+  }
+
+  /**
+   * Mention à apposer sur les devis de ce destinataire : aucune si son
+   * organisation est abonnée **au moment de la réponse** — elle connaît
+   * l'agence (#221).
+   */
+  private async recipientStampFor(recipient: RfqSupplier): Promise<RecipientStampOptions | null> {
+    if (await this.subscriptions.isSubscribed(recipient.supplierOrganizationId)) return null
+    const { rfq } = recipient
+    return {
+      agencyName: rfq.buyerOrganization.name,
+      rfqRef: String(rfq.id),
+      logContext: { rfqId: rfq.id, rfqSupplierId: recipient.id },
+    }
+  }
+
+  /** Fichiers créés par la préparation : PDF compressés et versions destinataires. */
+  private createdObjects(attachments: PreparedReplyAttachment[]): number[] {
+    return attachments
+      .flatMap((attachment) => {
+        const isCompressed = attachment.storageObjectId !== attachment.receivedObjectId
+        return [isCompressed ? attachment.storageObjectId : null, attachment.recipientObjectId]
+      })
+      .filter((id): id is number => id !== null)
+  }
+
+  /**
+   * Devis PDF apportés par le message : ses pièces jointes PDF, avec la version
+   * destinataire de leur fichier. Deux pièces au même fichier ont le même
+   * contenu, donc la même version destinataire.
+   */
+  private quoteDocumentsOf(
+    message: Message,
+    attachments: PreparedReplyAttachment[]
+  ): Array<
+    Pick<QuoteDocumentInput, 'messageId' | 'messageAttachmentId' | 'recipientStorageObjectId'>
+  > {
+    const recipients = new Map<number | null, number | null>(
+      attachments.map((attachment) => [attachment.storageObjectId, attachment.recipientObjectId])
+    )
+    return message.attachments
+      .filter((attachment) => attachment.mimeType === QUOTE_DOCUMENT_MIME_TYPE)
+      .map((attachment) => ({
+        messageId: message.id,
+        messageAttachmentId: attachment.id,
+        recipientStorageObjectId: recipients.get(attachment.storageObjectId) ?? null,
+      }))
   }
 
   /**

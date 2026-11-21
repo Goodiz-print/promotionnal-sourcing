@@ -2307,8 +2307,10 @@ export class QuoteDocumentSchema extends BaseModel {
     'messageAttachmentId',
     'messageId',
     'receivedAt',
+    'recipientStorageObjectId',
     'rfqId',
     'rfqSupplierId',
+    'stampedAt',
     'updatedAt',
   ] as const
   $columns = QuoteDocumentSchema.$columns
@@ -2323,9 +2325,13 @@ export class QuoteDocumentSchema extends BaseModel {
   @column.dateTime()
   declare receivedAt: DateTime
   @column()
+  declare recipientStorageObjectId: number | null
+  @column()
   declare rfqId: number
   @column()
   declare rfqSupplierId: number
+  @column.dateTime()
+  declare stampedAt: DateTime | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }

@@ -342,15 +342,20 @@ export default class QuoteService {
    * Enregistre les PDF d'une réponse reçue par mail comme devis du
    * fournisseur, dans la transaction qui écrit le message. Ils s'ajoutent aux
    * précédents sans les remplacer, et coexistent avec le devis structuré.
+   *
+   * La version destinataire (#238), déjà stockée par l'appelant, est référencée
+   * ici, dans la même transaction : si elle échoue, l'appelant la libère.
    */
   recordDocuments(
     documents: QuoteDocumentInput[],
     trx: TransactionClientContract
   ): Promise<QuoteDocument[]> {
+    const now = DateTime.now()
     return QuoteDocument.createMany(
       documents.map((document) => ({
         ...document,
         receivedAt: DateTime.fromJSDate(document.receivedAt),
+        stampedAt: document.recipientStorageObjectId ? now : null,
       })),
       { client: trx }
     )
@@ -358,12 +363,13 @@ export default class QuoteService {
 
   /**
    * Tous les devis PDF d'un destinataire, du plus récent au plus ancien, avec
-   * leur fichier.
+   * leur fichier et leur version destinataire (`QuoteDocument#recipientFile`).
    */
   documentsFor(rfqSupplierId: number): Promise<QuoteDocument[]> {
     return QuoteDocument.query()
       .where('rfqSupplierId', rfqSupplierId)
       .preload('attachment', (attachment) => attachment.preload('storageObject'))
+      .preload('recipientStorageObject')
       .orderBy('receivedAt', 'desc')
       .orderBy('id', 'desc')
   }

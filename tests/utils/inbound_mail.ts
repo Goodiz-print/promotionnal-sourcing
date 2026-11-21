@@ -33,7 +33,10 @@ export interface FakeInboundMail {
   html?: string
   headers?: Record<string, string>
   sizeBytes?: number | null
-  attachments?: Array<Partial<InboundAttachmentDescriptor> & { filename: string; content?: string }>
+  /** Contenu texte, ou binaire (`Buffer`) pour un vrai PDF. */
+  attachments?: Array<
+    Partial<InboundAttachmentDescriptor> & { filename: string; content?: string | Buffer }
+  >
 }
 
 /**
@@ -99,7 +102,8 @@ export class FakeInboundMailProvider extends InboundMailProvider {
     this.attachmentFetches += 1
     const attachments = this.mails.get(providerMessageId)?.attachments ?? []
     const index = attachments.findIndex((a, i) => (a.id ?? `att-${i}`) === attachmentId)
-    return Buffer.from(attachments[index]?.content ?? '')
+    const content = attachments[index]?.content ?? ''
+    return Buffer.isBuffer(content) ? content : Buffer.from(content)
   }
 }
 

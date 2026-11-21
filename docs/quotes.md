@@ -118,13 +118,14 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
    (`message_attachments`) ; un **PDF est compressé** par `PdfService` avant
    d'être rattaché ([`storage.md`](storage.md)) ;
 3. chaque PDF est enregistré comme **devis du fournisseur** (`quote_documents`,
-   `QuoteService#recordDocuments`) ;
+   `QuoteService#recordDocuments`), avec, pour un fournisseur non abonné, sa
+   **version destinataire** au nom de l'agence (#238, ci-dessous) ;
 4. s'il y a au moins un PDF, le destinataire passe `responded`
    (`RfqService#markRespondedByMail`).
 
-| Table             | Colonnes notables                                                                          |
-| ----------------- | ------------------------------------------------------------------------------------------ |
-| `quote_documents` | `rfq_id`, `rfq_supplier_id`, `message_id`, `message_attachment_id` (unique), `received_at` |
+| Table             | Colonnes notables                                                                                                                                  |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `quote_documents` | `rfq_id`, `rfq_supplier_id`, `message_id`, `message_attachment_id` (unique), `received_at`, `recipient_storage_object_id` (nullable), `stamped_at` |
 
 - **Rattaché au destinataire** (`rfq_suppliers`), pas à l'organisation ni à un
   utilisateur : le message n'a pas d'auteur (`author_user_id` nul), l'expéditeur
@@ -174,9 +175,50 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
 Aucun écran n'affiche encore ces devis : la transmission à l'agence relève de
 #225, le fil d'échanges de #226.
 
+### Version destinataire : le nom de l'agence sur le devis (#238)
+
+Un fournisseur non abonné établit son devis sans connaître l'agence (#220) :
+son PDF n'en porte pas le nom. La plateforme produit donc une **copie
+destinataire** qui l'ajoute :
+
+- **Quand** : à l'enregistrement de la réponse, si l'organisation du
+  fournisseur n'est **pas abonnée à ce moment-là**
+  (`SubscriptionService#isSubscribed`). Un abonné connaît l'agence (#221) : son
+  devis n'est pas modifié.
+- **Quoi** : « Devis établi pour : <nom de l'agence> — demande n° <id> »,
+  dans un **bandeau en tête de la première page** (`PdfService#stampRecipient`,
+  `pdf-lib`). La page est **agrandie** vers le haut de la hauteur du bandeau :
+  le contenu d'origine n'est ni déplacé ni masqué. Repli sur une **page de
+  garde** A4 insérée avant le devis quand la première page est pivotée ou déjà
+  à la taille maximale d'une page PDF. Un nom trop long est réduit puis
+  tronqué.
+- **Repli sans modification** : un PDF chiffré, signé (champ de signature
+  rempli : la modifier l'invaliderait ; un emplacement de signature vide
+  n'empêche rien) ou illisible, ou un nom d'agence que la police standard
+  (Latin, WinAnsi) ne sait pas écrire — cyrillique, grec, idéogrammes… : un
+  bandeau amputé du nom laisserait croire l'agence nommée —, est transmis
+  **tel quel**, avec un warning loggé (`rfqId`, `rfqSupplierId`,
+  `inboundAttachmentId`, raison). Jamais d'erreur : `recipient_storage_object_id` reste nul.
+  Le nom de l'agence figure alors dans le mail de transmission (#225).
+- **Stockage** : la copie est stockée par `StorageService.storeContent` avant
+  la transaction, puis référencée par `quote_documents.recipient_storage_object_id`
+  dans la transaction qui écrit le devis ; `stamped_at` date l'apposition. Si
+  la transaction échoue, la copie est libérée comme les PDF compressés.
+- **Qui voit quoi** : le message du fil (`message_attachments`) garde le PDF
+  d'origine, le seul que voit le fournisseur. L'agence reçoit
+  `QuoteDocument#recipientFile` — la copie si elle existe, sinon l'original
+  (relations chargées par `QuoteService#documentsFor`). C'est ce fichier que
+  #225 transmet et que #228 propose au téléchargement.
+- **Coût** : `pdf-lib` analyse tout le fichier dans le worker. Les pièces
+  jointes sont bornées à 15 Mo (`INBOUND_MAIL_MAX_ATTACHMENT_SIZE_MB`) ; un
+  PDF malformé très lent ralentirait la file sans la bloquer en erreur.
+
 ## Tests
 
 `tests/functional/supplier_replies.spec.ts` (réponse par mail : message, pièce
 jointe compressée, devis PDF, statut, devis successifs, rejeu, échec sans
-orphelin). `tests/functional/quotes.spec.ts` (service et écrans), `tests/inertia/*` pour les
+orphelin), `tests/functional/supplier_reply_recipient_version.spec.ts` (version
+destinataire : non abonné, abonné, PDF signé, échec sans orphelin),
+`tests/unit/pdf_service.spec.ts` (bandeau, multipages, page de garde, PDF
+chiffré, signé ou illisible). `tests/functional/quotes.spec.ts` (service et écrans), `tests/inertia/*` pour les
 props de `supplier/rfqs/show.vue` et `rfqs/show.vue`.

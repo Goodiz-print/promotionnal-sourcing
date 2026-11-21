@@ -71,6 +71,13 @@ const OWNER_SELECTS: Record<ReferenceKey, string> = {
     FROM message_attachments a
     JOIN messages m ON m.id = a.message_id
     JOIN conversations c ON c.id = m.conversation_id`,
+  // Version destinataire d'un devis PDF : la copie de l'agence (#238), que le
+  // fournisseur ne voit pas.
+  'quote_documents.recipient_storage_object_id': `
+    SELECT r.buyer_organization_id AS organization_id, d.recipient_storage_object_id AS object_id
+    FROM quote_documents d
+    JOIN rfqs r ON r.id = d.rfq_id
+    WHERE d.recipient_storage_object_id IS NOT NULL`,
 }
 
 /** Couples (organisation, objet) distincts : un objet référencé deux fois par la même organisation compte une fois. */
