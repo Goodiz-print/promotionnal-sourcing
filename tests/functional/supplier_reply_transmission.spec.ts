@@ -88,6 +88,7 @@ async function recordedReply(): Promise<SupplierReplyRecordedData> {
     messageId: message.id,
     quoteDocumentIds: documents.map((document) => document.id),
     responded: true,
+    late: false,
   }
 }
 
@@ -408,6 +409,7 @@ test.group('Réponse par mail — services de la transmission (#225)', (group) =
       body: '',
       documents: [],
       replyTo: null,
+      late: false,
     }
     const userIds = [owner.id, manager.id, owner.id]
 
@@ -458,6 +460,7 @@ test.group('Réponse par mail — services de la transmission (#225)', (group) =
       rfqSupplierId: 999999,
       messageId: 1,
       quoteDocumentIds: [],
+      late: false,
     })
 
     assert.deepEqual(outcome, { mails: 0, notifications: 0 })

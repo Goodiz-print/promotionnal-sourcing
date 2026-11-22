@@ -54,8 +54,10 @@
     "sent": "Verstuurd",
     "viewed": "Bekeken",
     "responded": "Heeft gereageerd",
-    "declined": "Heeft afgewezen"
+    "declined": "Heeft afgewezen",
+    "expired": "Verlopen zonder reactie"
   },
+  "lateReply": "Late reactie",
   "actions": {
     "publish": "Publiceren",
     "send": "Naar ontvangers versturen",
@@ -157,7 +159,8 @@
       "sent": "Te behandelen",
       "viewed": "In behandeling",
       "responded": "Offerte verstuurd",
-      "declined": "Afgewezen"
+      "declined": "Afgewezen",
+      "expired": "Verlopen"
     },
     "flash": {
       "declined": "Aanvraag afgewezen."

@@ -14,6 +14,7 @@ const INPUT: SupplierReplyMailInput = {
       { id: 8, filename: 'annexe.pdf' },
     ],
     replyTo: 'agency-abc@reply.test',
+    late: false,
   },
   user: { userId: 3, email: 'Alice@Agence.test', locale: 'en' },
   paths: {
@@ -39,7 +40,14 @@ test.group('Réponse fournisseur — charge du mail transmis à l’agence (#225
       ],
       rfqPath: '/en/rfqs/4',
       replyTo: 'agency-abc@reply.test',
+      late: false,
     })
+  })
+
+  test('une réponse tardive est signalée dans la charge (#232)', ({ assert }) => {
+    const payload = supplierReplyMail({ ...INPUT, notice: { ...INPUT.notice, late: true } })
+
+    assert.isTrue(payload.kind === 'supplier-reply-received' && payload.data.late)
   })
 
   test('la clé d’idempotence porte le message et le destinataire, insensible à la casse', ({

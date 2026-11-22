@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import { DateTime } from 'luxon'
 import app from '@adonisjs/core/services/app'
 import emitter from '@adonisjs/core/services/emitter'
 import { InboundMailFactory } from '#database/factories/inbound_mail_factory'
@@ -111,6 +112,7 @@ test.group('Réponse du fournisseur reçue par mail', (group) => {
       messageId: message.id,
       quoteDocumentIds: [document.id],
       responded: true,
+      late: false,
     })
   })
 
@@ -299,11 +301,11 @@ test.group('Réponse du fournisseur reçue par mail', (group) => {
     assert.equal(recipient.status, 'responded')
   })
 
-  test('une réponse à une demande échue est enregistrée, sans changer le statut', async ({
+  test('une réponse à une demande échue est enregistrée, répondue et marquée tardive (#232)', async ({
     client,
     assert,
   }) => {
-    // Adresse encore valide (délai de grâce), mais la demande n'attend plus de réponse.
+    // Adresse encore valide (délai de grâce) : la réponse arrive après l'échéance.
     const { recipient, address } = await sentRfq('expired')
     inbound.provider.add('mail-1', {
       to: address,
@@ -315,7 +317,27 @@ test.group('Réponse du fournisseur reçue par mail', (group) => {
     assert.lengthOf(await Message.all(), 1)
     assert.lengthOf(await QuoteDocument.all(), 1)
     await recipient.refresh()
+    assert.equal(recipient.status, 'responded')
+    assert.isNotNull(recipient.lateReplyAt)
+  })
+
+  test('une réponse à une demande close est enregistrée, sans changer le statut', async ({
+    client,
+    assert,
+  }) => {
+    const { rfq, recipient, address } = await sentRfq()
+    await rfq.merge({ status: 'closed', closedAt: DateTime.now() }).save()
+    inbound.provider.add('mail-1', {
+      to: address,
+      attachments: [{ filename: 'devis.pdf', content: QUOTE_PDF }],
+    })
+
+    await deliver(client, 'mail-1')
+
+    assert.lengthOf(await QuoteDocument.all(), 1)
+    await recipient.refresh()
     assert.equal(recipient.status, 'sent')
+    assert.isNull(recipient.lateReplyAt)
   })
 
   test('un mail sans texte ni fichier conservé ne crée pas de message vide', async ({

@@ -22,11 +22,14 @@ import {
   RfqSupplierNotFoundException,
 } from '#exceptions/rfq_errors'
 import {
+  AWAITING_REPLY_RFQ_SUPPLIER_STATUSES,
   DEFAULT_RFQ_ITEM_QUANTITY,
+  MAIL_REPLYABLE_RFQ_SUPPLIER_STATUSES,
   RFQ_DEADLINE_TIMEZONE,
   RFQ_REMINDER_AFTER_DAYS,
   TERMINAL_RFQ_SUPPLIER_STATUSES,
 } from '#shared/types/rfq'
+import { isLateReply } from '#shared/helpers/rfq_deadline'
 import type {
   CreateRfqData,
   ExtendRfqDeadlineData,
@@ -387,8 +390,9 @@ export default class RfqService {
   }
 
   /**
-   * Bascule une demande publiée en `expired`. Les destinataires gardent leur
-   * statut : c'est la trace de qui avait lu, répondu ou décliné.
+   * Bascule une demande publiée en `expired`. Les destinataires restés sans
+   * réponse passent `expired` (#232) ; ceux qui ont répondu ou décliné gardent
+   * leur statut.
    */
   async expire(
     rfq: Rfq,
@@ -431,7 +435,8 @@ export default class RfqService {
   /**
    * `UPDATE … WHERE status = 'published'` (et échéance dépassée si `onlyIfDue`) :
    * la garde est en base, pas sur l'instance chargée, donc une transition
-   * concurrente n'est jamais écrasée.
+   * concurrente n'est jamais écrasée. La demande et ses destinataires basculent
+   * dans la même transaction.
    */
   private async switchToExpired(
     rfq: Rfq,
@@ -439,14 +444,48 @@ export default class RfqService {
     onlyIfDue: boolean,
     client?: TransactionClientContract
   ): Promise<Rfq> {
-    const query = Rfq.query({ client }).where('id', rfq.id).where('status', 'published')
-    if (onlyIfDue) query.where('deadline', '<', this.startOfToday(now).toSQL()!)
+    const run = async (trx: TransactionClientContract) => {
+      const query = Rfq.query({ client: trx }).where('id', rfq.id).where('status', 'published')
+      if (onlyIfDue) query.where('deadline', '<', this.startOfToday(now).toSQL()!)
 
-    const [updated] = await query.update({ status: 'expired', expiredAt: now.toJSDate() })
-    if (!Number(updated)) throw new RfqNotExpirableException()
+      const [updated] = await query.update({ status: 'expired', expiredAt: now.toJSDate() })
+      if (!Number(updated)) throw new RfqNotExpirableException()
+      await this.expireRecipients(rfq.id, now, trx)
+    }
+    await (client ? run(client) : db.transaction(run))
 
     await rfq.refresh()
     return rfq
+  }
+
+  /**
+   * Destinataires sans réponse d'une demande qui expire : `sent` / `viewed` →
+   * `expired`, l'ancien statut gardé dans `expired_from` pour une réouverture.
+   */
+  private async expireRecipients(
+    rfqId: number,
+    now: DateTime,
+    trx: TransactionClientContract
+  ): Promise<void> {
+    await RfqSupplier.query({ client: trx })
+      .where('rfqId', rfqId)
+      .whereIn('status', [...AWAITING_REPLY_RFQ_SUPPLIER_STATUSES])
+      .update({ status: 'expired', expiredFrom: db.raw('status'), updatedAt: now.toJSDate() })
+  }
+
+  /**
+   * Réouverture (prolongation d'une demande échue) : chaque destinataire expiré
+   * retrouve le statut qu'il avait avant l'échéance.
+   */
+  private async restoreExpiredRecipients(rfqId: number, trx: TransactionClientContract) {
+    await RfqSupplier.query({ client: trx })
+      .where('rfqId', rfqId)
+      .where('status', 'expired')
+      .update({
+        status: db.raw("COALESCE(expired_from, 'sent')"),
+        expiredFrom: null,
+        updatedAt: DateTime.now().toJSDate(),
+      })
   }
 
   /**
@@ -471,36 +510,37 @@ export default class RfqService {
     if (deadline < this.startOfToday(now)) throw new RfqInvalidDeadlineException()
     if (rfq.deadline && deadline <= rfq.deadline) throw new RfqInvalidDeadlineException()
 
-    rfq.merge({
-      deadline,
-      ...(rfq.status === 'expired' ? { status: 'published' as const, expiredAt: null } : {}),
-    })
-    await rfq.save()
+    const wasExpired = rfq.status === 'expired'
+    await db.transaction(async (trx) => {
+      rfq.useTransaction(trx)
+      rfq.merge({
+        deadline,
+        ...(wasExpired ? { status: 'published' as const, expiredAt: null } : {}),
+      })
+      await rfq.save()
+      if (wasExpired) await this.restoreExpiredRecipients(rfq.id, trx)
 
-    // Nouvelle échéance, nouvelle chance : les destinataires qui n'avaient rien
-    // ouvert peuvent être relancés une fois de plus avant elle.
-    await RfqSupplier.query()
-      .where('rfqId', rfq.id)
-      .where('status', 'sent')
-      .update({ remindedAt: null })
+      // Nouvelle échéance, nouvelle chance : les destinataires toujours sans
+      // réponse peuvent être relancés une fois de plus avant elle.
+      await this.awaitingReply(trx).where('rfqId', rfq.id).update({ remindedAt: null })
+    })
     return rfq
   }
 
   /**
-   * Destinataires à relancer : ils ont reçu la demande (`sent`) mais ne l'ont
-   * **jamais ouverte** (`viewed` les exclut), il y a au moins
-   * `RFQ_REMINDER_AFTER_DAYS` jours, et ne l'ont pas déjà été (`reminded_at`).
-   * La demande doit encore être ouverte : publiée et non échue — relancer pour
-   * une échéance passée serait absurde. Préchargés : `rfq` (avec l'acheteur) et
-   * `supplierOrganization`, ce dont `RfqNotificationService#remind` a besoin.
+   * Destinataires à relancer (#232) : sans réponse (`remindableRecipients`)
+   * depuis au moins `RFQ_REMINDER_AFTER_DAYS` jours après l'envoi. Ouvrir la
+   * demande ne compte pas : seul un message du fournisseur ou une décision
+   * l'écarte. La demande doit encore être ouverte : publiée et non échue —
+   * relancer pour une échéance passée serait absurde. Préchargés : `rfq` (avec
+   * l'acheteur) et `supplierOrganization`, ce dont
+   * `RfqNotificationService#remind` a besoin.
    */
   dueForReminder(now: DateTime = DateTime.now()): Promise<RfqSupplier[]> {
     const sentBefore = now.minus({ days: RFQ_REMINDER_AFTER_DAYS })
     const today = this.startOfToday(now)
 
-    return RfqSupplier.query()
-      .where('status', 'sent')
-      .whereNull('remindedAt')
+    return this.remindableRecipients()
       .where('sentAt', '<=', sentBefore.toSQL()!)
       .whereHas('rfq', (rfq) =>
         rfq
@@ -513,15 +553,32 @@ export default class RfqService {
   }
 
   /**
-   * Destinataires qu'on peut relancer **à la main** (plateforme) : sans réponse
-   * (`sent` ou `viewed`) et jamais relancés. Prédicat unique : l'intervention et le
-   * compteur de la fiche admin lisent la même requête.
+   * Destinataires qu'on peut relancer (#232) : sans réponse — `sent` ou
+   * `viewed`, et aucun message de leur part dans le fil (une réponse par mail
+   * sans devis ne change pas le statut) — et jamais relancés. Prédicat unique :
+   * la relance planifiée, l'intervention manuelle et le compteur de la fiche
+   * admin lisent la même requête. Restreint à une demande si `rfqId` est fourni.
    */
-  remindableRecipients(rfqId: number, client?: TransactionClientContract) {
+  remindableRecipients(rfqId?: number, client?: TransactionClientContract) {
+    const query = this.awaitingReply(client).whereNull('remindedAt')
+    if (rfqId !== undefined) query.where('rfqId', rfqId)
+    return query
+  }
+
+  /**
+   * Destinataires qui n'ont **pas répondu** : statut `sent` / `viewed` et aucun
+   * message écrit côté fournisseur dans le fil de la demande.
+   */
+  private awaitingReply(client?: TransactionClientContract) {
     return RfqSupplier.query({ client })
-      .where('rfqId', rfqId)
-      .whereIn('status', ['sent', 'viewed'])
-      .whereNull('remindedAt')
+      .whereIn('status', [...AWAITING_REPLY_RFQ_SUPPLIER_STATUSES])
+      .whereNotExists((replies) =>
+        replies
+          .from('messages')
+          .join('conversations', 'conversations.id', 'messages.conversation_id')
+          .whereColumn('conversations.rfq_supplier_id', 'rfq_suppliers.id')
+          .where('messages.sender_side', 'supplier')
+      )
   }
 
   /**
@@ -573,22 +630,43 @@ export default class RfqService {
   /**
    * Le fournisseur a répondu par mail avec son devis en PDF (#224) :
    * `sent`/`viewed` → `responded`, dans la transaction qui enregistre la
-   * réponse. Désigné par la ligne destinataire, pas par l'organisation. Sans
-   * effet (`false`) si la demande n'attend plus de réponse ou si le
-   * destinataire a déjà répondu ou décliné — la garde est en base.
+   * réponse. Une réponse **tardive** (#232) est acceptée aussi, y compris d'un
+   * destinataire `expired`. Sans effet (`false`) si la demande est close ou si
+   * le destinataire a déjà répondu ou décliné — la garde est en base.
    * `recipient.rfq` doit être chargée.
    */
   async markRespondedByMail(
     recipient: RfqSupplier,
     trx: TransactionClientContract
   ): Promise<boolean> {
-    if (!this.acceptsResponses(recipient.rfq)) return false
+    const { status } = recipient.rfq
+    if (status !== 'published' && status !== 'expired') return false
 
     const [updated] = await RfqSupplier.query({ client: trx })
       .where('id', recipient.id)
-      .whereIn('status', ['sent', 'viewed'])
-      .update({ status: 'responded', updatedAt: DateTime.now().toJSDate() })
+      .whereIn('status', [...MAIL_REPLYABLE_RFQ_SUPPLIER_STATUSES])
+      .update({ status: 'responded', expiredFrom: null, updatedAt: DateTime.now().toJSDate() })
     return Number(updated) > 0
+  }
+
+  /**
+   * Une réponse reçue maintenant est-elle tardive (#232) ? Si oui, la première
+   * est datée sur le destinataire (`late_reply_at`), que les écrans signalent.
+   * Renvoie `true` pour toute réponse tardive, la première comme les suivantes.
+   * `recipient.rfq` doit être chargée.
+   */
+  async markLateReply(
+    recipient: RfqSupplier,
+    trx: TransactionClientContract,
+    now: DateTime = DateTime.now()
+  ): Promise<boolean> {
+    if (!isLateReply(recipient.rfq, this.startOfToday(now))) return false
+
+    await RfqSupplier.query({ client: trx })
+      .where('id', recipient.id)
+      .whereNull('lateReplyAt')
+      .update({ lateReplyAt: now.toJSDate() })
+    return true
   }
 
   /**

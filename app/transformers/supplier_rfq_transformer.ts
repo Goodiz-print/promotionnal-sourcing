@@ -28,6 +28,7 @@ export default class SupplierRfqTransformer extends BaseTransformer<Rfq> {
       itemCount: this.resource.items.length,
       ...this.buyer,
       myStatus: this.recipient.status,
+      myLateReply: this.recipient.lateReplyAt !== null,
       sentAt: this.recipient.sentAt?.toISO() ?? null,
       publishedAt: this.resource.publishedAt?.toISO() ?? null,
     }

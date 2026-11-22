@@ -56,7 +56,8 @@ export const RFQ_STATUS_TONES: Record<RfqStatus, BadgeTone> = {
 
 /**
  * Côté destinataire, seul « a répondu » est un succès ; « à envoyer » signale
- * une action en attente de l'acheteur, « a décliné » une impasse.
+ * une action en attente de l'acheteur, « a décliné » une impasse, « expiré »
+ * une échéance passée sans réponse (#232).
  */
 export const RFQ_SUPPLIER_STATUS_TONES: Record<RfqSupplierStatus, BadgeTone> = {
   pending: 'warning',
@@ -64,4 +65,5 @@ export const RFQ_SUPPLIER_STATUS_TONES: Record<RfqSupplierStatus, BadgeTone> = {
   viewed: 'info',
   responded: 'success',
   declined: 'danger',
+  expired: 'warning',
 }

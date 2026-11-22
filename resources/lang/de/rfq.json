@@ -54,8 +54,10 @@
     "sent": "Gesendet",
     "viewed": "Angesehen",
     "responded": "Hat geantwortet",
-    "declined": "Hat abgelehnt"
+    "declined": "Hat abgelehnt",
+    "expired": "Ohne Antwort abgelaufen"
   },
+  "lateReply": "Verspätete Antwort",
   "actions": {
     "publish": "Veröffentlichen",
     "send": "An Empfänger senden",
@@ -157,7 +159,8 @@
       "sent": "Zu bearbeiten",
       "viewed": "In Bearbeitung",
       "responded": "Angebot gesendet",
-      "declined": "Abgelehnt"
+      "declined": "Abgelehnt",
+      "expired": "Abgelaufen"
     },
     "flash": {
       "declined": "Anfrage abgelehnt."

@@ -186,6 +186,8 @@ export interface SupplierReplyReceivedMailData {
    * la réception est désactivée.
    */
   replyTo: string | null
+  /** Réponse arrivée après l'échéance : le mail porte la mention « réponse tardive » (#232). */
+  late: boolean
 }
 
 /**

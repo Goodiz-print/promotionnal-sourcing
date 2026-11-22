@@ -38,6 +38,11 @@
       "duplicate_cancelled": "{organizationName} betalade två prenumerationer samtidigt: dubbletten {cancelledSubscriptionId} har sagts upp i Stripe. Återbetala betalningen från Stripe-instrumentpanelen."
     }
   },
+  "late": {
+    "rfq": {
+      "responded": "Sent svar: {supplierName} svarade på förfrågan {rfqTitle} efter sista svarsdag."
+    }
+  },
   "anonymous": {
     "rfq": {
       "received": "En byrå har skickat en offertförfrågan till dig: {rfqTitle}."

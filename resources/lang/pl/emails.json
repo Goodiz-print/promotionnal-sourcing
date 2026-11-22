@@ -155,8 +155,10 @@
   },
   "supplierReplyReceived": {
     "subject": "Odpowiedź od {supplierName} na „{rfqTitle}”",
+    "subjectLate": "Spóźniona odpowiedź od {supplierName} na „{rfqTitle}”",
     "title": "{supplierName} odpowiedział na Twoje zapytanie",
     "body": "{supplierName} odpowiedział e-mailem na Twoje zapytanie „{rfqTitle}”.",
+    "lateNotice": "Spóźniona odpowiedź: dotarła po terminie zapytania.",
     "messageHeading": "Wiadomość:",
     "documentsHeading": "Załączone oferty:",
     "downloadHint": "Te linki wymagają zalogowania się na Twoje konto.",

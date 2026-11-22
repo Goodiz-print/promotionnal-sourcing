@@ -155,8 +155,10 @@
   },
   "supplierReplyReceived": {
     "subject": "Antwort von {supplierName} auf „{rfqTitle}“",
+    "subjectLate": "Verspätete Antwort von {supplierName} auf „{rfqTitle}“",
     "title": "{supplierName} hat auf Ihre Anfrage geantwortet",
     "body": "{supplierName} hat per E-Mail auf Ihre Anfrage „{rfqTitle}“ geantwortet.",
+    "lateNotice": "Verspätete Antwort: Sie ist nach der Frist der Anfrage eingegangen.",
     "messageHeading": "Nachricht:",
     "documentsHeading": "Beigefügte Angebote:",
     "downloadHint": "Für diese Links müssen Sie in Ihrem Konto angemeldet sein.",

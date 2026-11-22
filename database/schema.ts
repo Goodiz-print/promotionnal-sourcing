@@ -2474,7 +2474,9 @@ export class RfqSupplierSchema extends BaseModel {
   static $columns = [
     'agencyReplyToken',
     'createdAt',
+    'expiredFrom',
     'id',
+    'lateReplyAt',
     'remindedAt',
     'replyToken',
     'rfqId',
@@ -2488,8 +2490,12 @@ export class RfqSupplierSchema extends BaseModel {
   declare agencyReplyToken: string
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column()
+  declare expiredFrom: string | null
   @column({ isPrimary: true })
   declare id: number
+  @column.dateTime()
+  declare lateReplyAt: DateTime | null
   @column.dateTime()
   declare remindedAt: DateTime | null
   @column()

@@ -31,6 +31,8 @@ import {
  *    d'abord compressé (`PdfService`) ;
  *  - chaque PDF est enregistré comme **devis du fournisseur**, et le
  *    destinataire passe « répondu » ;
+ *  - après l'échéance, la réponse est enregistrée de la même façon, mais
+ *    marquée **tardive** (#232) : l'agence en est prévenue comme telle ;
  *  - si le fournisseur n'est pas abonné au moment de la réponse, une copie du
  *    PDF portant le nom de l'agence et la référence de la demande est stockée
  *    à côté (#238) : c'est elle que reçoit l'agence, l'original reste celui
@@ -117,7 +119,9 @@ export default class SupplierReplyService {
           })),
           trx
         )
-        // Sans PDF, c'est un simple message : le statut ne bouge pas.
+        // Après l'échéance, la réponse est enregistrée quand même, marquée
+        // tardive (#232). Sans PDF, c'est un simple message : le statut ne bouge pas.
+        const late = await this.rfqs.markLateReply(recipient, trx)
         const responded =
           documents.length > 0 && (await this.rfqs.markRespondedByMail(recipient, trx))
 
@@ -129,6 +133,7 @@ export default class SupplierReplyService {
             messageId: message.id,
             quoteDocumentIds: documents.map((document) => document.id),
             responded,
+            late,
           },
           tombstones,
         }

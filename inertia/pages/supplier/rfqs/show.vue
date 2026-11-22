@@ -14,7 +14,7 @@ import SupplierRfqMetaPills from '~/components/rfqs/supplier_rfq_meta_pills.vue'
 import SupplierBuyerContact from '~/components/rfqs/supplier_buyer_contact.vue'
 import SubscriptionUpsell from '~/components/subscription/subscription_upsell.vue'
 import ConversationThread from '~/components/messaging/conversation_thread.vue'
-import { RFQ_SUPPLIER_STATUS_TONES } from '~/components/rfqs/types'
+import RfqRecipientStatusBadges from '~/components/rfqs/rfq_recipient_status_badges.vue'
 import { QUOTE_STATUS_TONES } from '~/components/quotes/types'
 import type { RfqQuoteSummaryType } from '#shared/types/quote'
 import type { RfqThreadType } from '#shared/types/conversation'
@@ -81,9 +81,11 @@ function decline() {
       :back-label="t('rfq.supplier.show.backToList')"
     >
       <template #meta>
-        <BaseBadge dot :tone="RFQ_SUPPLIER_STATUS_TONES[rfq.myStatus]">
-          {{ t(`rfq.supplier.status.${rfq.myStatus}`) }}
-        </BaseBadge>
+        <RfqRecipientStatusBadges
+          :status="rfq.myStatus"
+          :late="rfq.myLateReply"
+          labels="rfq.supplier.status"
+        />
         <SupplierRfqMetaPills :rfq="rfq" />
       </template>
       <!-- Une seule action primaire : répondre ; un devis existant se consulte en secondaire. -->

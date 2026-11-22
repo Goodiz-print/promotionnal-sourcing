@@ -46,6 +46,9 @@ export default class MessageRelayService {
       rfqSupplierId: message.rfqSupplierId,
       messageId: message.messageId,
       quoteDocumentIds: [],
+      // Un message écrit dans l'application n'est pas une réponse à la demande
+      // par mail : la mention « réponse tardive » (#232) ne le concerne pas.
+      late: false,
     })
     return mails
   }

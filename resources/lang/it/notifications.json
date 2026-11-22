@@ -38,6 +38,11 @@
       "duplicate_cancelled": "{organizationName} ha pagato due abbonamenti contemporaneamente: il duplicato {cancelledSubscriptionId} è stato annullato su Stripe. Rimborsa il pagamento dalla dashboard di Stripe."
     }
   },
+  "late": {
+    "rfq": {
+      "responded": "Risposta tardiva: {supplierName} ha risposto alla richiesta {rfqTitle} dopo la scadenza."
+    }
+  },
   "anonymous": {
     "rfq": {
       "received": "Un'agenzia vi ha inviato una richiesta di preventivo: {rfqTitle}."

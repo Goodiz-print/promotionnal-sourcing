@@ -100,6 +100,7 @@ export default class SupplierReplyNotificationService {
       body: message.body,
       documents: documents.map(({ id, attachment }) => ({ id, filename: attachment.filename })),
       replyTo: await this.addresses.agencyAddressFor(recipient),
+      late: reply.late,
     }
   }
 

@@ -4,10 +4,9 @@ import { Users } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import BaseAvatar from '~/components/base/base_avatar.vue'
-import BaseBadge from '~/components/base/base_badge.vue'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
-import { RFQ_SUPPLIER_STATUS_TONES } from '~/components/rfqs/types'
+import RfqRecipientStatusBadges from '~/components/rfqs/rfq_recipient_status_badges.vue'
 import type { RfqSupplierType } from '#shared/types/rfq'
 
 /**
@@ -79,9 +78,11 @@ function initials(name: string): string {
           {{ t('rfq.show.sentAt', { date: formatDate(supplier.sentAt) }) }}
         </p>
       </div>
-      <BaseBadge dot :tone="RFQ_SUPPLIER_STATUS_TONES[supplier.status]">
-        {{ t(`rfq.supplierStatus.${supplier.status}`) }}
-      </BaseBadge>
+      <RfqRecipientStatusBadges
+        :status="supplier.status"
+        :late="supplier.lateReply"
+        labels="rfq.supplierStatus"
+      />
       <BaseButton
         v-if="canManage && supplier.status === 'pending'"
         variant="link"
