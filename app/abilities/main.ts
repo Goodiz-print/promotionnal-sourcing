@@ -13,6 +13,9 @@
 */
 
 import { Bouncer } from '@adonisjs/bouncer'
+import { DateTime } from 'luxon'
+import inboundMailConfig from '#config/inbound_mail'
+import { isRelayWindowClosed } from '#shared/helpers/inbound_mail'
 import type User from '#models/user'
 import type Organization from '#models/organization'
 import type QuoteDocument from '#models/quote_document'
@@ -269,36 +272,63 @@ export const canRespondToRfq = Bouncer.ability(async (user: User, org: Organizat
 })
 
 /**
+ * Membership of `user` in `organizationId`, with its role, read once per user
+ * instance: the RFQ screen checks `canMessageRfqSupplier` for each of its
+ * recipients, all of the same agency. The authenticated user is loaded anew
+ * on every request, so the cache lives for one request.
+ */
+const membershipsByUser = new WeakMap<User, Map<number, Promise<OrganizationUser | null>>>()
+
+function cachedMembership(user: User, organizationId: number): Promise<OrganizationUser | null> {
+  const memberships =
+    membershipsByUser.get(user) ?? new Map<number, Promise<OrganizationUser | null>>()
+  membershipsByUser.set(user, memberships)
+  const membership =
+    memberships.get(organizationId) ??
+    OrganizationUser.query()
+      .where('user_id', user.id)
+      .where('organization_id', organizationId)
+      .preload('role')
+      .first()
+  memberships.set(organizationId, membership)
+  return membership
+}
+
+/**
+ * Is the thread of an RFQ recipient open for writing (#226)? Once the request
+ * was sent to this supplier (a `pending` recipient has no thread yet), and
+ * until its relay address expires (`isRelayWindowClosed`): the same window as
+ * replies by email, so the screen and the mailbox never disagree.
+ */
+function isWritableThread(rfq: Rfq, recipient: RfqSupplier): boolean {
+  if (recipient.rfqId !== rfq.id || recipient.status === 'pending') return false
+  return !isRelayWindowClosed(rfq, inboundMailConfig.graceDays, DateTime.now())
+}
+
+/**
  * Ability to check if a user can write, as the agency, in the thread of an RFQ
  * recipient (#226): any member of the agency that owns the request, whatever
- * their role — the same people who can open it (`canCreateRfq`) — once the
- * request was sent to this supplier (a `pending` recipient has no thread yet).
- * The message is then relayed to the supplier by email.
+ * their role — the same people who can open it (`canCreateRfq`) — while the
+ * thread is open (`isWritableThread`). The message is then relayed to the
+ * supplier by email.
  */
 export const canMessageRfqSupplier = Bouncer.ability(
   async (user: User, rfq: Rfq, recipient: RfqSupplier) => {
-    if (recipient.rfqId !== rfq.id || recipient.status === 'pending') return false
-    const membership = await OrganizationUser.query()
-      .where('user_id', user.id)
-      .where('organization_id', rfq.buyerOrganizationId)
-      .select('id')
-      .first()
-    return membership !== null
+    if (!isWritableThread(rfq, recipient)) return false
+    return (await cachedMembership(user, rfq.buyerOrganizationId)) !== null
   }
 )
 
 /**
  * Ability to check if a user can write, as the supplier, in the thread of a
  * received RFQ (#226): the members who can answer it (`RFQ_RESPONDER_ROLES`,
- * like `canRespondToRfq`) of the recipient organization, once the request was
- * sent. The message is then relayed to the agency by email.
+ * like `canRespondToRfq`) of the recipient organization, while the thread is
+ * open (`isWritableThread`). The message is then relayed to the agency by email.
  */
-export const canMessageRfqBuyer = Bouncer.ability(async (user: User, recipient: RfqSupplier) => {
-  if (recipient.status === 'pending') return false
-  const membership = await OrganizationUser.query()
-    .where('user_id', user.id)
-    .where('organization_id', recipient.supplierOrganizationId)
-    .preload('role')
-    .first()
-  return membership ? RFQ_RESPONDER_ROLES.includes(membership.role.slug as RoleSlug) : false
-})
+export const canMessageRfqBuyer = Bouncer.ability(
+  async (user: User, rfq: Rfq, recipient: RfqSupplier) => {
+    if (!isWritableThread(rfq, recipient)) return false
+    const membership = await cachedMembership(user, recipient.supplierOrganizationId)
+    return membership ? RFQ_RESPONDER_ROLES.includes(membership.role.slug as RoleSlug) : false
+  }
+)

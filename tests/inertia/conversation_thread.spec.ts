@@ -6,6 +6,8 @@ const translations = {
   'messaging.thread.empty': "Aucun échange pour l'instant.",
   'messaging.thread.emptyHint': 'Écrivez un premier message : il sera relayé par mail.',
   'messaging.thread.blocked': 'Ce fil a été bloqué par la plateforme.',
+  'messaging.thread.closed': 'Les échanges de cette demande sont clos.',
+  'messaging.thread.hasOlder': 'Seuls les {count} derniers messages sont affichés.',
   'messaging.thread.yourTeam': 'Votre équipe',
   'messaging.thread.viaMail': 'par mail',
   'messaging.thread.unknownSender': 'adresse non reconnue',
@@ -56,7 +58,9 @@ function thread(overrides: Partial<RfqThreadType> = {}): RfqThreadType {
     rfqSupplierId: 3,
     counterpartName: null,
     blocked: false,
+    closed: false,
     canWrite: true,
+    hasOlder: false,
     messages: [],
     ...overrides,
   }
@@ -180,6 +184,21 @@ describe('conversation_thread.vue', () => {
     expect(blocked.find('form').exists()).toBe(false)
     expect(readOnly.find('form').exists()).toBe(false)
     expect(readOnly.text()).not.toContain('il sera relayé par mail')
+  })
+
+  it('un fil clos le dit et ne propose plus d’écrire', () => {
+    const wrapper = mountThread(thread({ closed: true, canWrite: false }))
+
+    expect(wrapper.text()).toContain('sont clos')
+    expect(wrapper.find('form').exists()).toBe(false)
+  })
+
+  it('signale que des messages plus anciens ne sont pas affichés', () => {
+    const shown = mountThread(thread({ hasOlder: true, messages: [message()] }))
+    const complete = mountThread(thread({ messages: [message()] }))
+
+    expect(shown.text()).toContain('Seuls les 100 derniers messages sont affichés.')
+    expect(complete.text()).not.toContain('derniers messages')
   })
 
   it('signale un message de l’autre côté avec le motif choisi', async () => {

@@ -8,6 +8,7 @@ import {
   htmlToText,
   inboundMailBody,
   isAutomaticReply,
+  isRelayWindowClosed,
   matchesFileSignature,
   parseMailAddress,
   parseRawHeaders,
@@ -15,7 +16,9 @@ import {
   relayableHeaders,
   relayTargetFrom,
   replyAddress,
+  stripQuotedReply,
 } from '#shared/helpers/inbound_mail'
+import { DateTime } from 'luxon'
 import { MESSAGE_MAX_LENGTH } from '#shared/types/conversation'
 
 const TOKEN = '0123456789abcdef0123456789abcdef'
@@ -276,5 +279,65 @@ test.group('Mails entrants — relais (#226)', () => {
     assert.equal(inboundMailBody('  ', '<p>Bonjour</p><p>Merci</p>'), 'Bonjour\nMerci')
     assert.equal(inboundMailBody(null, null), '')
     assert.lengthOf(inboundMailBody('a'.repeat(MESSAGE_MAX_LENGTH + 10), null), MESSAGE_MAX_LENGTH)
+  })
+
+  test('inboundMailBody : sans l’historique cité', ({ assert }) => {
+    assert.equal(inboundMailBody('Oui, ça marche.\n\n> Livraison le 15 ?', null), 'Oui, ça marche.')
+  })
+
+  test('stripQuotedReply : coupe à la première marque de citation', ({ assert }) => {
+    const cases: Array<[string, string]> = [
+      ['Merci.\n> ancien', 'Merci.'],
+      [
+        'Merci.\n\nLe 21 nov. 2026 à 10:02, Plateforme <noreply@x.test> a écrit :\n> ancien',
+        'Merci.',
+      ],
+      [
+        'Thanks.\nOn Fri, Nov 21, 2026 at 10:02 AM Platform <noreply@x.test> wrote:\nold',
+        'Thanks.',
+      ],
+      [
+        'Merci.\nLe ven. 21 nov. 2026 à 10:02, Plateforme\n<noreply@x.test> a écrit :\nancien',
+        'Merci.',
+      ],
+      ['Danke.\n-----Ursprüngliche Nachricht-----\nalt', 'Danke.'],
+      [
+        'Merci.\n\nDe : Plateforme <noreply@x.test>\nEnvoyé : vendredi 21 novembre 2026\nancien',
+        'Merci.',
+      ],
+    ]
+    cases.forEach(([text, expected]) => assert.equal(stripQuotedReply(text), expected, text))
+  })
+
+  test('stripQuotedReply : garde un texte sans citation, ou qui n’est qu’une citation', ({
+    assert,
+  }) => {
+    assert.equal(
+      stripQuotedReply('De : notre côté, tout va bien.\nMerci'),
+      'De : notre côté, tout va bien.\nMerci'
+    )
+    assert.equal(stripQuotedReply('> seulement cité'), '> seulement cité')
+    assert.equal(stripQuotedReply(''), '')
+  })
+
+  test('isRelayWindowClosed : ouverte publiée, puis graceDays après la fin', ({ assert }) => {
+    const now = DateTime.fromISO('2026-11-21T12:00:00Z')
+    const endedAt = (days: number) => now.minus({ days })
+
+    assert.isFalse(
+      isRelayWindowClosed({ status: 'published', closedAt: null, expiredAt: null }, 30, now)
+    )
+    assert.isFalse(
+      isRelayWindowClosed({ status: 'closed', closedAt: endedAt(29), expiredAt: null }, 30, now)
+    )
+    assert.isTrue(
+      isRelayWindowClosed({ status: 'closed', closedAt: endedAt(31), expiredAt: null }, 30, now)
+    )
+    assert.isTrue(
+      isRelayWindowClosed({ status: 'expired', closedAt: null, expiredAt: endedAt(31) }, 30, now)
+    )
+    assert.isTrue(
+      isRelayWindowClosed({ status: 'draft', closedAt: null, expiredAt: null }, 30, now)
+    )
   })
 })

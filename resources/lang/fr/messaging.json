@@ -15,6 +15,8 @@
     "empty": "Aucun échange pour l'instant.",
     "emptyHint": "Écrivez un premier message : il sera relayé par mail.",
     "blocked": "Ce fil a été bloqué par la plateforme : il reste consultable, mais on ne peut plus y écrire.",
+    "closed": "Les échanges de cette demande sont clos : sa clôture remonte à trop longtemps pour écrire, ici comme par mail.",
+    "hasOlder": "Seuls les {count} derniers messages sont affichés.",
     "yourTeam": "Votre équipe",
     "viaMail": "par mail",
     "attachments": "Pièces jointes",

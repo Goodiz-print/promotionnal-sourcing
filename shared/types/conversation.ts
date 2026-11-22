@@ -9,6 +9,12 @@ import type { RfqMailAddress } from './rfq.js'
 export const MESSAGE_MAX_LENGTH = 5000
 
 /**
+ * Messages d'un fil de demande montrés à l'écran (#226) : les plus récents. Les
+ * plus anciens restent en base ; l'écran signale qu'ils ne sont pas affichés.
+ */
+export const THREAD_MESSAGES_LIMIT = 100
+
+/**
  * Côté d'un fil qui a écrit un message (#226) : `agency`, l'organisation
  * acheteuse du fil, ou `supplier`. Dit dans quel sens relayer le message.
  */
@@ -104,20 +110,39 @@ export type RfqThreadType = {
   counterpartName: string | null
   /** Fil bloqué par la plateforme (#167) : lecture seule. */
   blocked: boolean
+  /**
+   * Fil clos : l'adresse relais de la demande a expiré (`graceDays` après sa
+   * clôture ou son expiration), on n'y écrit plus — ni par mail, ni ici.
+   */
+  closed: boolean
   canWrite: boolean
+  /** Des messages plus anciens que ceux affichés existent (`THREAD_MESSAGES_LIMIT`). */
+  hasOlder: boolean
   messages: ConversationMessageType[]
 }
 
+/** Derniers messages d'un fil, du plus ancien au plus récent, et s'il en existe d'autres. */
+export interface ThreadMessagesWindow<M> {
+  messages: M[]
+  hasOlder: boolean
+}
+
+/** Fil d'un destinataire chargé pour l'écran : le fil et ses derniers messages visibles. */
+export interface LoadedRfqThread<C, M> extends ThreadMessagesWindow<M> {
+  conversation: C
+}
+
 /**
- * Ce qu'il faut pour montrer le fil d'un destinataire d'un côté : le fil (le
- * modèle `Conversation`, messages chargés ; `null` s'il n'est pas encore
- * ouvert), le côté qui consulte, le nom de l'autre côté et le droit d'écrire.
+ * Ce qu'il faut pour montrer le fil d'un destinataire d'un côté : le fil chargé
+ * (`null` s'il n'est pas encore ouvert), le côté qui consulte, le nom de
+ * l'autre côté, le droit d'écrire et si le fil est clos.
  */
-export interface RfqThreadView<C> {
-  conversation: C | null
+export interface RfqThreadView<C, M> {
+  thread: LoadedRfqThread<C, M> | null
   viewerSide: ConversationSide
   counterpartName: string | null
   canWrite: boolean
+  closed: boolean
 }
 
 /**

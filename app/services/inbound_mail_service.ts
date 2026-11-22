@@ -216,7 +216,7 @@ export default class InboundMailService {
       const content = await loadContent(mail)
       const resolved = await this.resolveRecipient(mail)
       const recipient = resolved?.recipient ?? null
-      const rejection = this.rejectionFor(mail, content, recipient)
+      const { rejection, senderKnown } = await this.screen(mail, content, resolved)
 
       mail.merge({
         headers: content.headers,
@@ -240,7 +240,7 @@ export default class InboundMailService {
         .merge({
           textBody: content.text,
           htmlBody: content.html,
-          senderKnown: await this.isKnownSender(mail.senderAddress, resolved),
+          senderKnown,
           status: INBOUND_MAIL_STATUSES.processed,
           rejectionReason: null,
         })
@@ -374,6 +374,39 @@ export default class InboundMailService {
     if (!recipient) return INBOUND_MAIL_REJECTIONS.unknownAddress
     if (this.addresses.isExpired(recipient.rfq)) return INBOUND_MAIL_REJECTIONS.expiredAddress
     return null
+  }
+
+  /**
+   * Motif de rejet du mail, garde-fous puis expéditeur (`senderRejectionFor`),
+   * et si son expéditeur est connu du côté qui écrit.
+   */
+  private async screen(
+    mail: InboundMail,
+    content: InboundMailContent,
+    resolved: ResolvedInboundRecipient<RfqSupplier> | null
+  ): Promise<{ rejection: InboundMailRejection | null; senderKnown: boolean }> {
+    const senderKnown = resolved ? await this.isKnownSender(mail.senderAddress, resolved) : false
+    const rejection =
+      this.rejectionFor(mail, content, resolved?.recipient ?? null) ??
+      this.senderRejectionFor(mail, resolved, senderKnown)
+    return { rejection, senderKnown }
+  }
+
+  /**
+   * Un mail reçu à l'adresse relais de l'agence (`agency-`) n'est relayé au
+   * fournisseur que s'il vient d'un membre de l'agence (#226) : l'adresse
+   * peut fuiter (transfert, copie), et le fournisseur ne voit pas qui l'a
+   * écrit. Un admin peut toujours le rattacher à la main (#227). Côté
+   * fournisseur, un expéditeur inconnu reste indicatif.
+   */
+  private senderRejectionFor(
+    mail: InboundMail,
+    resolved: ResolvedInboundRecipient<RfqSupplier> | null,
+    senderKnown: boolean
+  ): InboundMailRejection | null {
+    const isForeignAgencyMail = resolved?.side === 'agency' && !senderKnown
+    if (!isForeignAgencyMail || mail.attachedManuallyAt) return null
+    return INBOUND_MAIL_REJECTIONS.unknownSender
   }
 
   private isTooLarge(content: InboundMailContent): boolean {

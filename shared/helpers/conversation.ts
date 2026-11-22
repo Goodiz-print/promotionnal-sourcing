@@ -1,4 +1,8 @@
-import type { ConversationSide, PostedMessageInput } from '../types/conversation.js'
+import type {
+  ConversationSide,
+  PostedMessageInput,
+  ThreadMessagesWindow,
+} from '../types/conversation.js'
 
 /** Organisations d'un fil : l'acheteuse (l'agence) et la fournisseuse. */
 export interface ConversationParties {
@@ -34,7 +38,15 @@ export function postedMessageFor(
   return posted.side && sides.includes(posted.side) ? posted : null
 }
 
-/** L'autre côté du fil : celui à qui relayer un message. */
-export function otherSide(side: ConversationSide): ConversationSide {
-  return side === 'agency' ? 'supplier' : 'agency'
+/**
+ * Derniers messages d'un fil à afficher (#226), à partir de messages lus **du
+ * plus récent au plus ancien** à raison de `limit + 1` au plus : remis dans
+ * l'ordre de lecture, avec `hasOlder` si le message en trop prouve qu'il en
+ * existe de plus anciens.
+ */
+export function latestMessages<M>(newestFirst: M[], limit: number): ThreadMessagesWindow<M> {
+  return {
+    messages: newestFirst.slice(0, limit).reverse(),
+    hasOlder: newestFirst.length > limit,
+  }
 }

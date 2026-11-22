@@ -10,7 +10,11 @@ import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import BaseTextarea from '~/components/base/base_textarea.vue'
 import ConversationMessage from '~/components/messaging/conversation_message.vue'
-import { MESSAGE_MAX_LENGTH, type RfqThreadType } from '#shared/types/conversation'
+import {
+  MESSAGE_MAX_LENGTH,
+  THREAD_MESSAGES_LIMIT,
+  type RfqThreadType,
+} from '#shared/types/conversation'
 
 /**
  * Fil d'échanges d'une demande avec un destinataire (#226), vu de l'agence ou
@@ -61,6 +65,13 @@ function send() {
       <BaseAlert v-if="thread.blocked" tone="warning">
         {{ t('messaging.thread.blocked') }}
       </BaseAlert>
+      <BaseAlert v-else-if="thread.closed" tone="neutral">
+        {{ t('messaging.thread.closed') }}
+      </BaseAlert>
+
+      <p v-if="thread.hasOlder" class="text-body-sm text-text-secondary">
+        {{ t('messaging.thread.hasOlder', { count: THREAD_MESSAGES_LIMIT }) }}
+      </p>
 
       <ol v-if="thread.messages.length" class="flex flex-col gap-4">
         <ConversationMessage

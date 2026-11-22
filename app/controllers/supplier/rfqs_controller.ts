@@ -13,7 +13,7 @@ import RfqThreadTransformer from '#transformers/rfq_thread_transformer'
 import { RfqNotEditableException } from '#exceptions/rfq_errors'
 import type { Locale } from '#shared/types/i18n'
 import type Organization from '#models/organization'
-import type RfqSupplier from '#models/rfq_supplier'
+import type Rfq from '#models/rfq'
 import type { RfqThreadType } from '#shared/types/conversation'
 import type { SubscriptionUpsellType } from '#shared/types/subscription'
 
@@ -80,7 +80,7 @@ export default class SupplierRfqsController {
     ])
     const [recipient] = rfq.suppliers
     const thread = await this.threadFor(
-      recipient,
+      rfq,
       revealBuyer ? rfq.buyerOrganization.name : null,
       bouncer
     )
@@ -124,16 +124,18 @@ export default class SupplierRfqsController {
    * l'écran (lecture du fil, autorisation) : reste dans le controller.
    */
   private async threadFor(
-    recipient: RfqSupplier,
+    rfq: Rfq,
     agencyName: string | null,
     bouncer: HttpContext['bouncer']
   ): Promise<RfqThreadType> {
-    const conversations = await this.threads.threadsFor([recipient.id])
+    const [recipient] = rfq.suppliers
+    const loaded = await this.threads.threadsFor([recipient.id])
     return new RfqThreadTransformer(recipient, {
-      conversation: conversations.get(recipient.id) ?? null,
+      thread: loaded.get(recipient.id) ?? null,
       viewerSide: 'supplier',
       counterpartName: agencyName,
-      canWrite: await bouncer.allows('canMessageRfqBuyer', recipient),
+      canWrite: await bouncer.allows('canMessageRfqBuyer', rfq, recipient),
+      closed: this.threads.isClosed(rfq),
     }).toObject()
   }
 

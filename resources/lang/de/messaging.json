@@ -15,6 +15,8 @@
     "empty": "Noch keine Nachrichten.",
     "emptyHint": "Schreiben Sie eine erste Nachricht: Sie wird per E-Mail weitergeleitet.",
     "blocked": "Dieser Verlauf wurde von der Plattform gesperrt: Er bleibt lesbar, aber niemand kann mehr darin schreiben.",
+    "closed": "Der Austausch zu dieser Anfrage ist geschlossen: Sie ist zu lange beendet, um hier oder per E-Mail zu schreiben.",
+    "hasOlder": "Nur die letzten {count} Nachrichten werden angezeigt.",
     "yourTeam": "Ihr Team",
     "viaMail": "per E-Mail",
     "attachments": "Anhänge",

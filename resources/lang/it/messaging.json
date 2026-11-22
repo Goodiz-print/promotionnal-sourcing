@@ -15,6 +15,8 @@
     "empty": "Ancora nessun messaggio.",
     "emptyHint": "Scriva un primo messaggio: verrà inoltrato via e-mail.",
     "blocked": "Questa conversazione è stata bloccata dalla piattaforma: resta consultabile, ma non è più possibile scrivervi.",
+    "closed": "Gli scambi di questa richiesta sono chiusi: è terminata da troppo tempo per scrivere, qui o via email.",
+    "hasOlder": "Sono mostrati solo gli ultimi {count} messaggi.",
     "yourTeam": "Il suo team",
     "viaMail": "via e-mail",
     "attachments": "Allegati",

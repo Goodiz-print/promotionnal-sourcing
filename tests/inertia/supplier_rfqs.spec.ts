@@ -156,7 +156,9 @@ describe('supplier/rfqs/show.vue', () => {
     rfqSupplierId: 1,
     counterpartName: null,
     blocked: false,
+    closed: false,
     canWrite: true,
+    hasOlder: false,
     messages: [],
   }
   const open = { quote: null, canQuote: true, upsell: null, thread }

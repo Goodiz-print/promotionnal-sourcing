@@ -17,6 +17,7 @@ import QuoteDocument from '#models/quote_document'
 import RfqSupplier from '#models/rfq_supplier'
 import InboundAddressService from '#services/inbound_address_service'
 import MessageRelayService from '#services/message_relay_service'
+import AdminInboundMailService from '#services/admin_inbound_mail_service'
 import AgencyReplyService from '#services/agency_reply_service'
 import ConversationService from '#services/conversation_service'
 import RfqThreadService from '#services/rfq_thread_service'
@@ -28,6 +29,8 @@ import { deliver, sentRfq, TEST_RELAY_DOMAIN, useFakeInboundMail } from '#tests/
 import { createMember, subscribeOrganization } from '#tests/utils/organizations'
 import { useFakeGhostscript } from '#tests/utils/pdf'
 import { useDatabase } from '#tests/utils/setup'
+import { MessageFactory } from '#database/factories/message_factory'
+import { THREAD_MESSAGES_LIMIT } from '#shared/types/conversation'
 import { useFakeStorage } from '#tests/utils/storage'
 import type User from '#models/user'
 import type {
@@ -109,17 +112,18 @@ async function mailFrom(
 interface MailTo {
   to: string
   text?: string
+  from?: string
 }
 
 function agencyMail(
   client: ApiClient,
   inbound: Inbound,
-  { to, text = 'Livraison avant le 15 ?' }: MailTo
+  { to, text = 'Livraison avant le 15 ?', from = 'Marie Dupont <marie@agence-dupont.test>' }: MailTo
 ) {
   return mailFrom(client, inbound, {
     id: `agency-${text.length}-${Math.random()}`,
     to,
-    from: 'Marie Dupont <marie@agence-dupont.test>',
+    from,
     text,
     headers: {
       'x-originating-ip': '[203.0.113.7]',
@@ -385,6 +389,52 @@ test.group('Relais des échanges — par mail (#226)', (group) => {
     assert.notInclude(JSON.stringify(supplierThread), 'agence-dupont')
   })
 
+  test('un mail à l’adresse `agency-` venu d’hors de l’agence est écarté, ni écrit ni relayé', async ({
+    client,
+    assert,
+  }) => {
+    const { agencyAddress } = await relayScenario()
+
+    await agencyMail(client, inbound, { to: agencyAddress, from: 'inconnu@ailleurs.test' })
+
+    const journal = await InboundMail.query().where('recipient', agencyAddress).firstOrFail()
+    assert.equal(journal.status, 'rejected')
+    assert.equal(journal.rejectionReason, 'unknown_sender')
+    assert.lengthOf(await Message.all(), 0)
+    assert.lengthOf(relayedToSupplier(), 0)
+  })
+
+  test('un admin peut rattacher à la main un mail de l’agence écarté : il est alors relayé', async ({
+    client,
+    assert,
+  }) => {
+    const { recipient, agencyAddress } = await relayScenario()
+    await agencyMail(client, inbound, { to: agencyAddress, from: 'assistante@gmail.test' })
+    const journal = await InboundMail.query().where('recipient', agencyAddress).firstOrFail()
+    const admin = await app.container.make(AdminInboundMailService)
+
+    const outcome = await admin.attach(journal.id, recipient.id, { actor: null, ip: null })
+
+    assert.equal(outcome, 'processed')
+    const [message] = await Message.all()
+    assert.equal(message.senderSide, 'agency')
+    assert.lengthOf(relayedToSupplier(), 1)
+  })
+
+  test('l’historique cité d’une réponse n’entre pas dans le fil et n’est pas relayé', async ({
+    client,
+    assert,
+  }) => {
+    const { agencyAddress } = await relayScenario()
+    const text = 'Oui, le 15 convient.\n\nLe 21 nov. 2026, Plateforme a écrit :\n> Livraison ?'
+
+    await agencyMail(client, inbound, { to: agencyAddress, text })
+
+    const [message] = await Message.all()
+    assert.equal(message.body, 'Oui, le 15 convient.')
+    assert.equal(relayedToSupplier()[0].data.body, 'Oui, le 15 convient.')
+  })
+
   test('AgencyReplyService#record : mail inconnu, sans destinataire ou vide', async ({
     client,
     assert,
@@ -556,6 +606,45 @@ test.group('Relais des échanges — depuis l’application (#226)', (group) => 
     assert.lengthOf(await Message.all(), 0)
   })
 
+  test('un fil clos (adresse relais expirée) refuse l’écriture des deux côtés (403)', async ({
+    client,
+    assert,
+  }) => {
+    const { rfq, recipient, author, supplierOwner } = await relayScenario()
+    const endedAt = DateTime.now().minus({ days: inboundMailConfig.graceDays + 1 })
+    await rfq.merge({ status: 'closed', closedAt: endedAt }).save()
+
+    const asAgency = await postAsJson(
+      client,
+      author,
+      `/fr/rfqs/${rfq.id}/suppliers/${recipient.id}/messages`
+    )
+    const asSupplier = await postAsJson(
+      client,
+      supplierOwner,
+      `/fr/supplier/rfqs/${rfq.id}/messages`
+    )
+
+    asAgency.assertStatus(403)
+    asSupplier.assertStatus(403)
+    assert.lengthOf(await Message.all(), 0)
+  })
+
+  test('une demande close depuis peu reste ouverte à l’écriture (délai de grâce)', async ({
+    client,
+    assert,
+  }) => {
+    const { rfq, recipient, author } = await relayScenario()
+    await rfq.merge({ status: 'closed', closedAt: DateTime.now().minus({ days: 1 }) }).save()
+
+    const response = await postMessage(client, author, {
+      path: `/fr/rfqs/${rfq.id}/suppliers/${recipient.id}/messages`,
+    })
+
+    response.assertStatus(302)
+    assert.lengthOf(await Message.all(), 1)
+  })
+
   test('une autre organisation ne trouve ni la demande ni le destinataire (404)', async ({
     client,
     assert,
@@ -659,6 +748,22 @@ test.group('Relais des échanges — écrans et signalement (#226)', (group) => 
       .loginAs(supplierOwner)
     assert.isTrue(blocked.inertiaProps.thread.blocked)
     assert.isFalse(blocked.inertiaProps.thread.canWrite)
+  })
+
+  test('un fil clos s’affiche clos, sans écriture, des deux côtés', async ({ client, assert }) => {
+    const { rfq, author, supplierOwner } = await relayScenario()
+    const endedAt = DateTime.now().minus({ days: inboundMailConfig.graceDays + 1 })
+    await rfq.merge({ status: 'expired', expiredAt: endedAt }).save()
+
+    const agency = await client.get(`/fr/rfqs/${rfq.id}`).withInertia().loginAs(author)
+    const supplierView = await client
+      .get(`/fr/supplier/rfqs/${rfq.id}`)
+      .withInertia()
+      .loginAs(supplierOwner)
+
+    const [agencyThread] = agency.inertiaProps.threads
+    assert.include(agencyThread, { closed: true, canWrite: false })
+    assert.include(supplierView.inertiaProps.thread, { closed: true, canWrite: false })
   })
 
   test('le signalement existant fonctionne sur un message relayé, des deux côtés', async ({
@@ -782,9 +887,41 @@ test.group('Relais des échanges — services (#226)', (group) => {
     const conversation = loaded.get(recipient.id)!
 
     assert.equal(none.size, 0)
+    assert.isFalse(conversation.hasOlder)
     assert.deepEqual(
       conversation.messages.map(({ body }) => body),
       ['Visible']
+    )
+  })
+
+  test('RfqThreadService#threadsFor : seuls les derniers messages, et s’il en reste', async ({
+    assert,
+  }) => {
+    const { recipient, rfq, author } = await relayScenario()
+    const threads = await app.container.make(RfqThreadService)
+    recipient.$setRelated('rfq', rfq)
+    const first = await threads.post(recipient, author, { body: 'Le plus ancien', side: 'agency' })
+    const start = DateTime.now().minus({ days: 1 })
+    await MessageFactory.merge({ conversationId: first.conversationId })
+      .tap((message, { faker }) => {
+        message.createdAt = start.plus({ seconds: faker.number.int({ min: 1, max: 3600 }) })
+      })
+      .createMany(THREAD_MESSAGES_LIMIT)
+    await Message.query().where('id', first.messageId).update({ createdAt: start.toJSDate() })
+
+    const threadsByRecipient = await threads.threadsFor([recipient.id])
+    const loaded = threadsByRecipient.get(recipient.id)!
+
+    assert.isTrue(loaded.hasOlder)
+    assert.lengthOf(loaded.messages, THREAD_MESSAGES_LIMIT)
+    assert.notInclude(
+      loaded.messages.map(({ body }) => body),
+      'Le plus ancien'
+    )
+    const times = loaded.messages.map(({ createdAt }) => createdAt.toMillis())
+    assert.deepEqual(
+      times,
+      [...times].sort((a, b) => a - b)
     )
   })
 })

@@ -239,6 +239,13 @@ des deux côtés par `inertia/components/messaging/conversation_thread.vue` :
   de chaque message, `mine`, « par mail », pièces jointes, expéditeur du mail.
   L'auteur n'est nommé que pour un message de son propre côté : un fournisseur
   non abonné ne lit ni le nom de l'agence ni celui de ses membres.
+- **Fil clos** : passé `INBOUND_MAIL_GRACE_DAYS` jours après la clôture ou
+  l'expiration de la demande (même délai que l'adresse relais), le fil est clos
+  (`closed`) : lisible, mais les abilities refusent l'écriture des deux côtés.
+  Un fournisseur qui a décliné peut encore échanger tant que le fil est ouvert.
+- **Derniers messages** : l'écran montre les `THREAD_MESSAGES_LIMIT` (100)
+  derniers messages visibles de chaque fil (`RfqThreadService#threadsFor`,
+  `groupLimit`) et signale qu'il en existe de plus anciens (`hasOlder`).
 - **Signalement** : un message de l'autre côté se signale
   (`POST messages/:id/report`, #167), qu'il vienne d'un mail ou de l'écran.
 - **Relais** : chaque message part par mail à l'autre côté, voir

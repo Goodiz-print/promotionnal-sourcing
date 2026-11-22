@@ -343,7 +343,24 @@ peut répondre depuis sa messagerie :
   écarte `From`, `Reply-To`, `Sender`, `Return-Path`, `Received`,
   `X-Originating-IP`, `Message-ID`, `References`, DKIM, `X-Mailer`…
 - **Corps non filtré** : décision du client, une signature ou un texte peut
-  révéler l'agence ; ni filtrage ni avertissement.
+  révéler l'agence ; ni filtrage ni avertissement. Seul l'**historique cité**
+  est retiré (`stripQuotedReply`, appelé par `inboundMailBody`) : tout ce qui
+  suit la première marque de citation (`>`, « Le … a écrit : », « On … wrote: »,
+  « -----Original Message----- », en-tête `De :` / `Envoyé :`, en 9 langues).
+  Sans cela, chaque réponse recopierait le fil entier, relayé à chaque
+  aller-retour, avec les noms et adresses que ces en-têtes cités portent. Un
+  mail qui n'est qu'une citation est gardé tel quel ; le mail complet reste dans
+  `inbound_mails`.
+- **Expéditeur de l'agence vérifié** : un mail reçu à `agency-…` n'est accepté
+  que s'il vient de l'adresse d'un membre de l'agence ; sinon il est écarté en
+  `unknown_sender` (l'adresse peut fuiter par un transfert, et le fournisseur ne
+  voit pas qui l'a écrit). Un admin peut le rattacher à la main depuis la
+  supervision (#227) : il est alors enregistré et relayé. Côté fournisseur, un
+  expéditeur inconnu reste indicatif (`sender_known`).
+- **Fil clos** : passé le délai de l'adresse relais (`INBOUND_MAIL_GRACE_DAYS`
+  après la clôture ou l'expiration de la demande, `isRelayWindowClosed`), on
+  n'écrit plus ni par mail (`expired_address`) ni depuis l'écran (abilities
+  `canMessageRfq*`) ; le fil reste lisible.
 - **Pièces jointes de l'agence** : rattachées au message (fichiers déjà sur
   Cellar, jamais pris pour des devis) et citées par leur nom dans le mail relayé.
 - **Idempotence** : `messages.inbound_mail_id` unique pour l'enregistrement ;
@@ -410,6 +427,7 @@ Appliqués dans cet ordre ; le premier qui s'applique écarte le mail (`status =
 | `auto_reply`      | `Auto-Submitted` autre que `no`, `X-Auto-Response-Suppress: All` (les autres valeurs, posées par des CRM et des ERP sur des mails écrits par une personne, ne comptent pas), `X-Autoreply`, `Precedence: bulk/junk/list`, `Return-Path: <>`, rapport de non-remise, expéditeur `mailer-daemon`, `postmaster`, `no-reply` |
 | `unknown_address` | Aucun couple ne porte ce jeton, ou l'adresse n'est pas une adresse relais                                                                                                                                                                                                                                                |
 | `expired_address` | Demande close ou expirée depuis plus de `INBOUND_MAIL_GRACE_DAYS` jours                                                                                                                                                                                                                                                  |
+| `unknown_sender`  | Mail reçu à l'adresse `agency-` d'un couple depuis une adresse qui n'est celle d'aucun membre de l'agence (#226) ; un rattachement manuel le fait passer                                                                                                                                                                 |
 | `dismissed`       | Écarté à la main par un admin depuis la supervision (voir plus bas)                                                                                                                                                                                                                                                      |
 
 Un mail écarté n'est que journalisé (expéditeur, adresse visée, objet, en-têtes) : son corps et ses pièces jointes ne sont pas conservés.

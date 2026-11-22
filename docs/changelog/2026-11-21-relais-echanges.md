@@ -34,11 +34,22 @@ visible des deux côtés.
   (`rfqs.messages.store`) et `POST /:locale/supplier/rfqs/:id/messages`
   (`supplier.rfqs.messages.store`), validator `rfqMessageValidator`, redirection
   et message flash. Abilities `canMessageRfqSupplier` (tout membre de l'agence,
-  destinataire notifié) et `canMessageRfqBuyer` (rôles qui répondent aux
-  demandes).
+  destinataire notifié, fil ouvert) et `canMessageRfqBuyer` (rôles qui
+  répondent aux demandes, fil ouvert), adhésion lue une fois par requête.
 - **Données** : `messages.sender_side` (`agency` | `supplier`, migration
   `1794000000037`, lignes existantes remplies). `ConversationService#post`
   accepte `{ body, side }` ; un côté qui n'est pas celui de l'auteur est refusé.
+- **Historique cité retiré** : `stripQuotedReply` coupe une réponse par mail à
+  la première marque de citation (`>`, « Le … a écrit : », « -----Original
+  Message----- », en-tête `De :` / `Envoyé :`), des deux côtés.
+- **Expéditeur de l'agence vérifié** : un mail à `agency-…` qui ne vient pas
+  d'un membre de l'agence est écarté (nouveau motif `unknown_sender`) ; un admin
+  peut le rattacher à la main.
+- **Fil clos** : passé `INBOUND_MAIL_GRACE_DAYS` après la clôture ou
+  l'expiration de la demande (`isRelayWindowClosed`, même règle que l'adresse
+  relais), on n'écrit plus depuis l'écran ; `RfqThreadType.closed`.
+- **Derniers messages** : 100 derniers messages par fil
+  (`THREAD_MESSAGES_LIMIT`), `RfqThreadType.hasOlder` signale les plus anciens.
 - **Signalement** : le signalement existant (`messages/:id/report`) fonctionne
   sur ces messages, depuis le fil.
 - **Tests** : `tests/functional/rfq_message_relay.spec.ts`,

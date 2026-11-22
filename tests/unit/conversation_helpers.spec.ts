@@ -1,6 +1,6 @@
 import { test } from '@japa/runner'
 import { agencyMessageMail } from '#shared/helpers/agency_message'
-import { conversationSidesOf, otherSide, postedMessageFor } from '#shared/helpers/conversation'
+import { conversationSidesOf, latestMessages, postedMessageFor } from '#shared/helpers/conversation'
 import type { AgencyMessageMailInput } from '#shared/types/conversation'
 
 const PARTIES = { buyerOrganizationId: 1, supplierOrganizationId: 2 }
@@ -28,9 +28,10 @@ test.group('Fil d’une demande — côtés (#226)', () => {
     assert.isNull(postedMessageFor(asSupplier, ['agency']))
   })
 
-  test('otherSide : le côté à qui relayer', ({ assert }) => {
-    assert.equal(otherSide('agency'), 'supplier')
-    assert.equal(otherSide('supplier'), 'agency')
+  test('latestMessages : derniers messages remis dans l’ordre, et s’il en reste', ({ assert }) => {
+    assert.deepEqual(latestMessages([5, 4, 3], 3), { messages: [3, 4, 5], hasOlder: false })
+    assert.deepEqual(latestMessages([5, 4, 3, 2], 3), { messages: [3, 4, 5], hasOlder: true })
+    assert.deepEqual(latestMessages([], 3), { messages: [], hasOlder: false })
   })
 })
 

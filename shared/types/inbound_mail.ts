@@ -1,4 +1,6 @@
+import type { DateTime } from 'luxon'
 import type { ConversationSide } from './conversation.js'
+import type { RfqStatus } from './rfq.js'
 
 /**
  * Réception des mails entrants (#223, `docs/mail.md`, ADR 0005) : la réponse
@@ -34,6 +36,13 @@ export const INBOUND_MAIL_REJECTIONS = {
   autoReply: 'auto_reply',
   unknownAddress: 'unknown_address',
   expiredAddress: 'expired_address',
+  /**
+   * Mail reçu à l'adresse relais de l'agence (`agency-`) depuis une adresse qui
+   * n'est pas celle d'un de ses membres (#226) : il n'est pas relayé au
+   * fournisseur, faute de quoi quiconque obtient l'adresse écrirait au nom de
+   * l'agence. Un admin peut le rattacher à la main (#227).
+   */
+  unknownSender: 'unknown_sender',
   /** Écarté à la main par un admin depuis la supervision (#227). */
   dismissed: 'dismissed',
 } as const
@@ -166,6 +175,16 @@ export interface MailAddressParts {
  * (`rfq-`, `reply_token`) ou côté agence (`agency-`, `agency_reply_token`, #225).
  */
 export type RelayTokenField = 'replyToken' | 'agencyReplyToken'
+
+/**
+ * Ce qui borne la validité de l'adresse relais d'une demande : son statut et
+ * la date à laquelle elle a pris fin (clôture ou expiration).
+ */
+export interface RelayWindow {
+  status: RfqStatus
+  closedAt: DateTime | null
+  expiredAt: DateTime | null
+}
 
 /**
  * Adresse relais reconnue parmi les destinataires d'un mail (#226) : le côté

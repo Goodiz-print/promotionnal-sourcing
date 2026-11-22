@@ -15,6 +15,8 @@
     "empty": "Brak wiadomości.",
     "emptyHint": "Napisz pierwszą wiadomość: zostanie przekazana e-mailem.",
     "blocked": "Ten wątek został zablokowany przez platformę: można go przeglądać, ale nie można już w nim pisać.",
+    "closed": "Wymiana dotycząca tego zapytania jest zamknięta: zakończyło się zbyt dawno, by pisać tutaj lub mailem.",
+    "hasOlder": "Wyświetlane są tylko ostatnie wiadomości ({count}).",
     "yourTeam": "Twój zespół",
     "viaMail": "e-mailem",
     "attachments": "Załączniki",

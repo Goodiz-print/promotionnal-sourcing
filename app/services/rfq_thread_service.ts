@@ -7,9 +7,15 @@ import { RfqSupplierNotFoundException } from '#exceptions/rfq_errors'
 import Conversation from '#models/conversation'
 import RfqSupplier from '#models/rfq_supplier'
 import ConversationService from '#services/conversation_service'
+import InboundAddressService from '#services/inbound_address_service'
+import { latestMessages } from '#shared/helpers/conversation'
+import { THREAD_MESSAGES_LIMIT } from '#shared/types/conversation'
+import type Message from '#models/message'
+import type Rfq from '#models/rfq'
 import type User from '#models/user'
 import type {
   ConversationMessageRecordedData,
+  LoadedRfqThread,
   PostedMessageInput,
 } from '#shared/types/conversation'
 
@@ -24,7 +30,10 @@ import type {
  */
 @inject()
 export default class RfqThreadService {
-  constructor(private conversations: ConversationService) {}
+  constructor(
+    private conversations: ConversationService,
+    private addresses: InboundAddressService
+  ) {}
 
   /**
    * Destinataire d'une demande, avec sa demande : celui de l'agence
@@ -58,26 +67,47 @@ export default class RfqThreadService {
   }
 
   /**
-   * Fils des destinataires, par identifiant de destinataire, messages visibles
-   * chargés du plus ancien au plus récent (pièces jointes, auteur). Un
-   * destinataire sans fil n'y figure pas.
+   * Fils des destinataires, par identifiant de destinataire : pour chacun, ses
+   * `THREAD_MESSAGES_LIMIT` derniers messages visibles du plus ancien au plus
+   * récent (pièces jointes, auteur, mail d'origine) et s'il en existe de plus
+   * anciens. Un destinataire sans fil n'y figure pas.
    */
-  async threadsFor(rfqSupplierIds: number[]): Promise<Map<number, Conversation>> {
+  async threadsFor(
+    rfqSupplierIds: number[]
+  ): Promise<Map<number, LoadedRfqThread<Conversation, Message>>> {
     if (rfqSupplierIds.length === 0) return new Map()
     const conversations = await Conversation.query()
       .whereIn('rfqSupplierId', rfqSupplierIds)
       .preload('messages', (messages) => {
         messages
           .whereNull('hiddenAt')
-          .orderBy('createdAt', 'asc')
-          .orderBy('id', 'asc')
+          // Un de plus que la limite : sa présence dit qu'il en reste d'autres.
+          .groupLimit(THREAD_MESSAGES_LIMIT + 1)
+          .groupOrderBy('created_at', 'desc')
+          .groupOrderBy('id', 'desc')
+          // L'ordre du groupe ne vaut que pour le classement : celui du résultat se redit.
+          .orderBy('createdAt', 'desc')
+          .orderBy('id', 'desc')
           .preload('attachments', (attachments) => attachments.orderBy('id'))
           .preload('author', (author) => author.select('id', 'firstName', 'lastName'))
           .preload('inboundMail', (mail) =>
             mail.select('id', 'senderName', 'senderAddress', 'senderKnown')
           )
       })
-    return new Map(conversations.map((conversation) => [conversation.rfqSupplierId!, conversation]))
+    return new Map(
+      conversations.map((conversation) => [
+        conversation.rfqSupplierId!,
+        { conversation, ...latestMessages(conversation.messages, THREAD_MESSAGES_LIMIT) },
+      ])
+    )
+  }
+
+  /**
+   * Le fil de la demande est-il clos ? Son adresse relais a expiré : on n'y
+   * écrit plus, ni par mail ni depuis l'application (`canMessageRfq*`).
+   */
+  isClosed(rfq: Rfq): boolean {
+    return this.addresses.isExpired(rfq)
   }
 
   /**

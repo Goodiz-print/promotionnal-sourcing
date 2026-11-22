@@ -1691,6 +1691,7 @@
       "auto_reply": "Automatic reply",
       "unknown_address": "Unknown address",
       "expired_address": "Expired address",
+      "unknown_sender": "Nadawca spoza agencji",
       "dismissed": "Dismissed by an admin"
     },
     "filters": {

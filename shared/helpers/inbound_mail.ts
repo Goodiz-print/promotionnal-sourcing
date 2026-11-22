@@ -8,7 +8,9 @@ import {
   type MailAddressParts,
   type RelayTarget,
   type RelayTokenField,
+  type RelayWindow,
 } from '../types/inbound_mail.js'
+import type { DateTime } from 'luxon'
 
 /** Préfixe de la partie locale d'une adresse relais, selon le côté qui l'utilise. */
 const RELAY_PREFIXES: Record<ConversationSide, string> = {
@@ -109,7 +111,61 @@ export function relayableHeaders(headers: Record<string, string>): Record<string
  */
 export function inboundMailBody(text: string | null, html: string | null): string {
   const body = text?.trim() || (html ? htmlToText(html) : '')
-  return body.slice(0, MESSAGE_MAX_LENGTH)
+  return stripQuotedReply(body).slice(0, MESSAGE_MAX_LENGTH)
+}
+
+/** Fin d'une ligne qui annonce une citation : « Le … a écrit : », « On … wrote: »… */
+const QUOTE_INTRO =
+  /(a écrit|wrote|schrieb|escribió|ha scritto|schreef|napisał\(a\)|napisał|skrev|escreveu)\s*:\s*$/i
+/** Début d'une telle annonce, quand la messagerie la coupe sur deux lignes. */
+const QUOTE_INTRO_START = /^(le|on|am|el|il|op|w dniu|den|em)\s/i
+/** Séparateur « message d'origine » d'Outlook et consorts. */
+const ORIGINAL_MESSAGE =
+  /^-{2,}\s*(original message|message d'origine|ursprüngliche nachricht|mensaje original|messaggio originale|oorspronkelijk bericht|wiadomość oryginalna|mensagem original|ursprungligt meddelande)/i
+/** En-tête cité à la Outlook : une ligne `De :` suivie d'une ligne `Envoyé :`. */
+const QUOTED_FROM = /^(from|de|von|da|van|od|från)\s?:/i
+const QUOTED_SENT = /^(sent|envoyé|gesendet|enviado|inviato|verzonden|wysłano|skickat|date)\s?:/i
+
+/** La ligne `index` ouvre-t-elle la citation d'un mail précédent ? */
+function isQuoteStart(lines: string[], index: number): boolean {
+  const line = lines[index].trim()
+  const next = lines[index + 1]?.trim() ?? ''
+  if (line.startsWith('>') || ORIGINAL_MESSAGE.test(line) || QUOTE_INTRO.test(line)) return true
+  if (QUOTE_INTRO_START.test(line) && QUOTE_INTRO.test(`${line} ${next}`)) return true
+  return QUOTED_FROM.test(line) && QUOTED_SENT.test(next)
+}
+
+/**
+ * Texte d'un mail sans l'historique qu'il cite (#226) : tout ce qui suit la
+ * première marque de citation (`>`, « Le … a écrit : », « -----Original
+ * Message----- », en-tête `De :` / `Envoyé :`). Sans cela, chaque réponse
+ * recopierait tout le fil, relayé à l'autre côté à chaque aller-retour. Un mail
+ * qui n'est qu'une citation est gardé tel quel ; le mail complet reste dans
+ * `inbound_mails`.
+ */
+export function stripQuotedReply(text: string): string {
+  const lines = text.split(/\r?\n/)
+  const quoteAt = lines.findIndex((_, index) => isQuoteStart(lines, index))
+  if (quoteAt <= 0) return text
+  return lines.slice(0, quoteAt).join('\n').trim() || text
+}
+
+/**
+ * L'adresse relais d'une demande a-t-elle expiré à `now` ? Elle reste valide
+ * tant que la demande est publiée, puis `graceDays` jours après sa clôture ou
+ * son expiration (une réponse tardive vaut mieux qu'une réponse perdue). Passé
+ * ce délai, le fil de la demande est clos (#226) : on n'y écrit plus, ni par
+ * mail, ni depuis l'application.
+ */
+export function isRelayWindowClosed(
+  window: RelayWindow,
+  graceDays: number,
+  now: DateTime
+): boolean {
+  if (window.status === 'published') return false
+  const endedAt = window.closedAt ?? window.expiredAt
+  if (!endedAt) return true
+  return now > endedAt.plus({ days: graceDays })
 }
 
 /** Décompose `Nom <adresse>` (ou une adresse seule). L'adresse sort en minuscules. */

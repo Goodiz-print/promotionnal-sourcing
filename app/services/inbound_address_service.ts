@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import inboundMailConfig from '#config/inbound_mail'
 import {
   agencyReplyAddress,
+  isRelayWindowClosed,
   parseMailAddress,
   RELAY_TOKEN_FIELDS,
   relayTargetFrom,
@@ -101,15 +102,11 @@ export default class InboundAddressService {
   }
 
   /**
-   * L'adresse relais d'une demande est-elle périmée ? Elle reste valide tant
-   * que la demande est publiée, puis pendant `graceDays` après sa clôture ou
-   * son expiration : une réponse tardive vaut mieux qu'une réponse perdue.
+   * L'adresse relais d'une demande est-elle périmée (`isRelayWindowClosed`) ?
+   * Le fil de la demande est alors clos, à l'écran comme par mail (#226).
    * (#232 adaptera cette règle au parcours par mail.)
    */
   isExpired(rfq: Rfq, now: DateTime = DateTime.now()): boolean {
-    if (rfq.status === 'published') return false
-    const endedAt = rfq.closedAt ?? rfq.expiredAt
-    if (!endedAt) return true
-    return now > endedAt.plus({ days: inboundMailConfig.graceDays })
+    return isRelayWindowClosed(rfq, inboundMailConfig.graceDays, now)
   }
 }

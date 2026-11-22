@@ -15,6 +15,8 @@
     "empty": "Ainda não há mensagens.",
     "emptyHint": "Escreva uma primeira mensagem: será reencaminhada por e-mail.",
     "blocked": "Esta conversa foi bloqueada pela plataforma: continua consultável, mas já não é possível escrever nela.",
+    "closed": "As trocas deste pedido estão encerradas: terminou há demasiado tempo para escrever, aqui ou por e-mail.",
+    "hasOlder": "Apenas as últimas {count} mensagens são mostradas.",
     "yourTeam": "A sua equipa",
     "viaMail": "por e-mail",
     "attachments": "Anexos",

@@ -15,6 +15,8 @@
     "empty": "Todavía no hay mensajes.",
     "emptyHint": "Escriba un primer mensaje: se reenviará por correo.",
     "blocked": "La plataforma ha bloqueado este hilo: sigue siendo consultable, pero ya no se puede escribir en él.",
+    "closed": "Los intercambios de esta solicitud están cerrados: terminó hace demasiado tiempo para escribir, aquí o por correo.",
+    "hasOlder": "Solo se muestran los últimos {count} mensajes.",
     "yourTeam": "Su equipo",
     "viaMail": "por correo",
     "attachments": "Archivos adjuntos",

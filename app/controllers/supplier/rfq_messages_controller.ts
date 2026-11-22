@@ -22,7 +22,7 @@ export default class SupplierRfqMessagesController {
     const user = auth.getUserOrFail()
     const org = await this.organizations.currentFor(user)
     const recipient = await this.threads.recipientForSupplier(Number(params.id), org.id)
-    await bouncer.authorize('canMessageRfqBuyer', recipient)
+    await bouncer.authorize('canMessageRfqBuyer', recipient.rfq, recipient)
 
     const { body } = await request.validateUsing(rfqMessageValidator)
     try {

@@ -351,14 +351,16 @@ export default class RfqsController {
    */
   private async threadsFor(rfq: Rfq, bouncer: HttpContext['bouncer']): Promise<RfqThreadType[]> {
     const recipients = rfq.suppliers.filter(({ status }) => status !== 'pending')
-    const conversations = await this.threads.threadsFor(recipients.map(({ id }) => id))
+    const loaded = await this.threads.threadsFor(recipients.map(({ id }) => id))
+    const closed = this.threads.isClosed(rfq)
     return Promise.all(
       recipients.map(async (recipient) =>
         new RfqThreadTransformer(recipient, {
-          conversation: conversations.get(recipient.id) ?? null,
+          thread: loaded.get(recipient.id) ?? null,
           viewerSide: 'agency',
           counterpartName: recipient.supplierOrganization.name,
           canWrite: await bouncer.allows('canMessageRfqSupplier', rfq, recipient),
+          closed,
         }).toObject()
       )
     )
