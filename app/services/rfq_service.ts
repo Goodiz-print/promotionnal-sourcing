@@ -477,14 +477,18 @@ export default class RfqService {
    * Réouverture (prolongation d'une demande échue) : chaque destinataire expiré
    * retrouve le statut qu'il avait avant l'échéance.
    */
-  private async restoreExpiredRecipients(rfqId: number, trx: TransactionClientContract) {
+  private async restoreExpiredRecipients(
+    rfqId: number,
+    now: DateTime,
+    trx: TransactionClientContract
+  ): Promise<void> {
     await RfqSupplier.query({ client: trx })
       .where('rfqId', rfqId)
       .where('status', 'expired')
       .update({
         status: db.raw("COALESCE(expired_from, 'sent')"),
         expiredFrom: null,
-        updatedAt: DateTime.now().toJSDate(),
+        updatedAt: now.toJSDate(),
       })
   }
 
@@ -518,7 +522,7 @@ export default class RfqService {
         ...(wasExpired ? { status: 'published' as const, expiredAt: null } : {}),
       })
       await rfq.save()
-      if (wasExpired) await this.restoreExpiredRecipients(rfq.id, trx)
+      if (wasExpired) await this.restoreExpiredRecipients(rfq.id, now, trx)
 
       // Nouvelle échéance, nouvelle chance : les destinataires toujours sans
       // réponse peuvent être relancés une fois de plus avant elle.
@@ -567,7 +571,9 @@ export default class RfqService {
 
   /**
    * Destinataires qui n'ont **pas répondu** : statut `sent` / `viewed` et aucun
-   * message écrit côté fournisseur dans le fil de la demande.
+   * message écrit côté fournisseur dans le fil de la demande. Un message masqué
+   * par la modération compte quand même : le fournisseur a bien répondu, le
+   * relancer serait faux (et le relancer après un avertissement, maladroit).
    */
   private awaitingReply(client?: TransactionClientContract) {
     return RfqSupplier.query({ client })
@@ -650,22 +656,24 @@ export default class RfqService {
   }
 
   /**
-   * Une réponse reçue maintenant est-elle tardive (#232) ? Si oui, la première
-   * est datée sur le destinataire (`late_reply_at`), que les écrans signalent.
-   * Renvoie `true` pour toute réponse tardive, la première comme les suivantes.
-   * `recipient.rfq` doit être chargée.
+   * Une réponse **reçue** à `receivedAt` est-elle tardive (#232) ? C'est
+   * l'heure de réception qui compte, pas celle du traitement (mail repris
+   * après minuit, rejeu admin) — cf. `isLateReply`. Si oui, la première est
+   * datée sur le destinataire (`late_reply_at`, heure de réception), que les
+   * écrans signalent. Renvoie `true` pour toute réponse tardive, la première
+   * comme les suivantes. `recipient.rfq` doit être chargée.
    */
   async markLateReply(
     recipient: RfqSupplier,
     trx: TransactionClientContract,
-    now: DateTime = DateTime.now()
+    receivedAt: DateTime = DateTime.now()
   ): Promise<boolean> {
-    if (!isLateReply(recipient.rfq, this.startOfToday(now))) return false
+    if (!isLateReply(recipient.rfq, this.startOfToday(receivedAt))) return false
 
     await RfqSupplier.query({ client: trx })
       .where('id', recipient.id)
       .whereNull('lateReplyAt')
-      .update({ lateReplyAt: now.toJSDate() })
+      .update({ lateReplyAt: receivedAt.toJSDate() })
     return true
   }
 

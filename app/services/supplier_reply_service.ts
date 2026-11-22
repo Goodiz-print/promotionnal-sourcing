@@ -120,8 +120,9 @@ export default class SupplierReplyService {
           trx
         )
         // Après l'échéance, la réponse est enregistrée quand même, marquée
-        // tardive (#232). Sans PDF, c'est un simple message : le statut ne bouge pas.
-        const late = await this.rfqs.markLateReply(recipient, trx)
+        // tardive (#232) — d'après l'heure de réception du mail, pas celle de
+        // son traitement. Sans PDF, c'est un simple message : le statut ne bouge pas.
+        const late = await this.rfqs.markLateReply(recipient, trx, mail.receivedAt)
         const responded =
           documents.length > 0 && (await this.rfqs.markRespondedByMail(recipient, trx))
 

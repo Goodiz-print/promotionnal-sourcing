@@ -752,6 +752,38 @@ test.group('RFQ — réponse tardive (#232)', (group) => {
     assert.isNotNull(recipient.lateReplyAt)
   })
 
+  test('un mail reçu avant minuit, traité après l’expiration, n’est pas tardif', async ({
+    client,
+    assert,
+  }) => {
+    // Échéance hier : le mail est arrivé hier à 23:55, mais n'est traité
+    // qu'aujourd'hui (reprise des mails, rejeu admin), après le job d'expiration.
+    const yesterday = DateTime.now().setZone(PARIS).minus({ days: 1 })
+    const sent = await sentRfq()
+    await sent.rfq.merge({ deadline: yesterday.startOf('day') }).save()
+    await new ExpireRfqsJob().execute()
+    await sent.recipient.refresh()
+    assert.equal(sent.recipient.status, 'expired')
+    inbound.provider.add('mail-night', {
+      to: sent.address,
+      receivedAt: yesterday.set({ hour: 23, minute: 55 }).toISO()!,
+      attachments: [{ filename: 'devis.pdf', content: await realPdf() }],
+    })
+
+    const { mails } = mail.fake()
+    try {
+      const response = await deliver(client, 'mail-night')
+      response.assertStatus(200)
+      agencyMails(mails).forEach(({ data }) => assert.isFalse(data.late))
+    } finally {
+      mail.restore()
+    }
+
+    await sent.recipient.refresh()
+    assert.equal(sent.recipient.status, 'responded')
+    assert.isNull(sent.recipient.lateReplyAt)
+  })
+
   test('une réponse dans les temps n’est pas tardive', async ({ client, assert }) => {
     const { recipient, address } = await sentRfq()
     inbound.provider.add('mail-1', {
@@ -773,7 +805,9 @@ test.group('RFQ — réponse tardive (#232)', (group) => {
     assert.isNull(recipient.lateReplyAt)
   })
 
-  test('markLateReply : date la première réponse tardive seulement', async ({ assert }) => {
+  test('markLateReply : date la première réponse tardive seulement, à son heure de réception', async ({
+    assert,
+  }) => {
     const service = await app.container.make(RfqService)
     const { recipient } = await expiredScenario()
     await recipient.load('rfq')

@@ -2,16 +2,22 @@ import type { DateTime } from 'luxon'
 import type { RfqDeadlineState } from '../types/rfq.js'
 
 /**
- * Une réponse reçue maintenant est-elle **tardive** (#232) ? Oui si la demande
- * a expiré, ou si elle est encore publiée mais que son échéance est passée — le
- * job d'expiration passe à 00:10, la demande est échue de fait dès minuit.
+ * Une réponse **reçue** le jour qui commence à `receptionDayStart` est-elle
+ * tardive (#232) ? C'est l'heure de réception du mail qui compte, pas celle
+ * de son traitement : un mail reçu à 23:55 la veille de l'échéance, repris
+ * après minuit (`RecoverInboundMailsJob`, rejeu admin), arrive dans les temps
+ * même si la demande a expiré entre-temps.
  *
- * `startOfToday` est le début du jour dans `RFQ_DEADLINE_TIMEZONE` : une
- * échéance au 30 laisse toute la journée du 30. Une demande close n'attend plus
- * rien : ce qui arrive après n'est pas une réponse tardive.
+ * - avec une échéance : tardive si elle est passée au jour de réception — une
+ *   échéance au 30 laisse toute la journée du 30 ;
+ * - sans échéance : tardive seulement si la demande a été expirée (à la main) ;
+ * - une demande close ou en brouillon n'attend rien : jamais tardive.
+ *
+ * `receptionDayStart` est le début du jour de réception dans
+ * `RFQ_DEADLINE_TIMEZONE`.
  */
-export function isLateReply(rfq: RfqDeadlineState, startOfToday: DateTime): boolean {
-  if (rfq.status === 'expired') return true
-  if (rfq.status !== 'published' || !rfq.deadline) return false
-  return rfq.deadline < startOfToday
+export function isLateReply(rfq: RfqDeadlineState, receptionDayStart: DateTime): boolean {
+  if (rfq.status !== 'published' && rfq.status !== 'expired') return false
+  if (!rfq.deadline) return rfq.status === 'expired'
+  return rfq.deadline < receptionDayStart
 }

@@ -666,7 +666,8 @@ prédicat sert à la relance manuelle de la plateforme et à son compteur — et
   **aucun message côté fournisseur** dans le fil de la demande (une réponse par
   mail sans devis ne change pas le statut, mais elle compte). Ouvrir la demande ne
   compte plus : un fournisseur qui travaille par mail, ou une fiche sans compte,
-  ne l'« ouvre » jamais. Répondus, déclinés et expirés ne sont jamais relancés ;
+  ne l'« ouvre » jamais. Un message masqué par la modération compte quand même :
+  le fournisseur a bien répondu. Répondus, déclinés et expirés ne sont jamais relancés ;
 - l'ont reçue il y a au moins `RFQ_REMINDER_AFTER_DAYS` jours (3, dans
   `shared/types/rfq.ts`) ;
 - n'ont pas déjà été relancés (`rfq_suppliers.reminded_at` nul) ;
@@ -689,13 +690,17 @@ fois, à l'adresse de l'organisation.
 
 Après l'échéance, l'adresse relais reste valide (`INBOUND_MAIL_GRACE_DAYS` jours
 après l'expiration, cf. `docs/mail.md`) : une réponse par mail est **enregistrée
-quand même** (message, pièces jointes, devis), mais marquée **tardive**. Elle l'est
-si la demande est `expired`, ou encore `published` avec une échéance passée (avant
-le passage du job) — règle pure `isLateReply` (`shared/helpers/rfq_deadline.ts`).
-Une demande close n'attend plus rien : ce qui arrive après n'est pas tardif.
+quand même** (message, pièces jointes, devis), mais marquée **tardive**. C'est
+l'**heure de réception** du mail (`inbound_mails.received_at`) qui compte, pas celle
+de son traitement : un mail reçu à 23:55 le jour de l'échéance et repris après
+minuit (`RecoverInboundMailsJob`, rejeu admin) arrive dans les temps, même si la
+demande a expiré entre-temps. Règle pure `isLateReply`
+(`shared/helpers/rfq_deadline.ts`) : avec une échéance, tardive si elle est passée
+au jour de réception ; sans échéance, seulement si la demande a été expirée à la
+main. Une demande close n'attend plus rien : ce qui arrive après n'est pas tardif.
 
 - `RfqService#markLateReply` date la **première** réponse tardive
-  (`rfq_suppliers.late_reply_at`) ;
+  (`rfq_suppliers.late_reply_at`, à son heure de réception) ;
 - avec un devis PDF, `markRespondedByMail` fait passer le destinataire
   `responded`, y compris depuis `expired` (refusé pour une demande close) ;
 - l'événement `SupplierReplyRecorded` porte `late` ; le listener

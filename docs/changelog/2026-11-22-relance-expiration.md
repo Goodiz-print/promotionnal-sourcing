@@ -9,7 +9,7 @@ fournisseurs qui répondent par mail, ou qui n'ont pas de compte.
   destinataires renvoyés par `RfqService#remindableRecipients` — statut `sent` ou
   `viewed`, **aucun message côté fournisseur** dans le fil, jamais relancés.
   Ouvrir la demande ne dispense plus de la relance ; avoir répondu par mail (même
-  sans devis), décliné ou expiré, si. Le même prédicat sert à la relance manuelle
+  sans devis, même masqué par la modération), décliné ou expiré, si. Le même prédicat sert à la relance manuelle
   de la plateforme et à son compteur. Une fiche sans compte est relancée une fois,
   à l'adresse de l'organisation, avec le même contenu, la même anonymisation et le
   même `Reply-To` relais que la demande.
@@ -19,8 +19,9 @@ fournisseurs qui répondent par mail, ou qui n'ont pas de compte.
   `rfq_suppliers.expired_from` et rendu si l'agence prolonge l'échéance.
 - **Réponse tardive** : une réponse par mail arrivée après l'échéance est
   enregistrée (message, devis), et le destinataire passe « répondu » s'il y a un
-  PDF, même depuis `expired`. La première est datée dans
-  `rfq_suppliers.late_reply_at`. L'événement `SupplierReplyRecorded` porte
+  PDF, même depuis `expired`. C'est l'heure de **réception** du mail qui compte,
+  pas celle de son traitement (mail repris après minuit, rejeu admin). La première
+  est datée dans `rfq_suppliers.late_reply_at`. L'événement `SupplierReplyRecorded` porte
   `late` : le mail `supplier-reply-received` à l'agence change d'objet (« Réponse
   tardive de … ») et porte une mention, la notification in-app prend le libellé
   `notifications.late.rfq.responded`, dans les 9 langues.
