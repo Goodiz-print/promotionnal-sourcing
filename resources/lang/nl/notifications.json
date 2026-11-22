@@ -10,7 +10,8 @@
     "rfq": {
       "received": "{buyerName} heeft u een offerteaanvraag gestuurd: {rfqTitle}.",
       "responded": "{supplierName} heeft gereageerd op de aanvraag {rfqTitle}.",
-      "declined": "{supplierName} heeft de aanvraag {rfqTitle} afgewezen."
+      "declined": "{supplierName} heeft de aanvraag {rfqTitle} afgewezen.",
+      "relay_refused": "Uw e-mail vanaf {senderAddress} over de aanvraag {rfqTitle} is niet doorgestuurd naar {supplierName}: dit adres is niet bekend voor uw bureau. Schrijf vanuit de aanvraag."
     },
     "quote": {
       "received": "{supplierName} heeft een offerte ingediend voor {rfqTitle}.",

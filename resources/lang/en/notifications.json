@@ -10,7 +10,8 @@
     "rfq": {
       "received": "{buyerName} sent you a request for quotation: {rfqTitle}.",
       "responded": "{supplierName} replied to the request {rfqTitle}.",
-      "declined": "{supplierName} declined the request {rfqTitle}."
+      "declined": "{supplierName} declined the request {rfqTitle}.",
+      "relay_refused": "Your email from {senderAddress} about {rfqTitle} was not passed on to {supplierName}: this address is not recognised for your agency. Write from the request instead."
     },
     "quote": {
       "received": "{supplierName} submitted a quote for {rfqTitle}.",

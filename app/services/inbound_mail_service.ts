@@ -5,6 +5,7 @@ import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 import inboundMailConfig from '#config/inbound_mail'
 import env from '#start/env'
+import AgencyMailRefused from '#events/agency_mail_refused'
 import InboundMailReceived from '#events/inbound_mail_received'
 import { InboundMailNotFoundException } from '#exceptions/inbound_mail_errors'
 import ProcessInboundMailJob from '#jobs/process_inbound_mail_job'
@@ -23,6 +24,7 @@ import {
   matchesFileSignature,
   parseMailAddress,
   RELAY_TOKEN_FIELDS,
+  senderAuthenticationFailed,
   senderRejection,
 } from '#shared/helpers/inbound_mail'
 import {
@@ -228,11 +230,7 @@ export default class InboundMailService {
       })
 
       if (rejection || !resolved) {
-        // Un mail écarté n'est que journalisé : ni corps, ni pièces jointes.
-        await mail
-          .merge({ status: INBOUND_MAIL_STATUSES.rejected, rejectionReason: rejection })
-          .save()
-        logger.info({ inboundMailId, rejection }, 'inbound mail rejected')
+        await this.reject(mail, rejection)
         return
       }
 
@@ -264,6 +262,26 @@ export default class InboundMailService {
           updated_at: new Date(),
         })
       throw error
+    }
+  }
+
+  /**
+   * Écarte le mail : il n'est que journalisé, ni corps ni pièces jointes. Un
+   * mail de l'agence écarté faute d'expéditeur reconnu est annoncé
+   * (`AgencyMailRefused`) pour que l'agence le sache ; un écouteur défaillant
+   * n'empêche pas le rejet (le mail ne repasse pas en échec).
+   */
+  private async reject(mail: InboundMail, rejection: InboundMailRejection | null): Promise<void> {
+    await mail.merge({ status: INBOUND_MAIL_STATUSES.rejected, rejectionReason: rejection }).save()
+    logger.info({ inboundMailId: mail.id, rejection }, 'inbound mail rejected')
+
+    const isRefusedAgencyMail = rejection === INBOUND_MAIL_REJECTIONS.unknownSender
+    if (!isRefusedAgencyMail || !mail.rfqSupplierId) return
+    const refused = { inboundMailId: mail.id, rfqSupplierId: mail.rfqSupplierId }
+    try {
+      await emitter.emit(AgencyMailRefused, new AgencyMailRefused(refused))
+    } catch (error) {
+      logger.error({ err: error, ...refused }, 'agency mail refusal listener failed')
     }
   }
 
@@ -386,14 +404,17 @@ export default class InboundMailService {
     content: InboundMailContent,
     resolved: ResolvedInboundRecipient<RfqSupplier> | null
   ): Promise<{ rejection: InboundMailRejection | null; senderKnown: boolean }> {
-    const senderKnown = resolved ? await this.isKnownSender(mail.senderAddress, resolved) : false
-    const rejection =
-      this.rejectionFor(mail, content, resolved?.recipient ?? null) ??
-      senderRejection({
-        side: resolved?.side ?? null,
-        senderKnown,
-        attachedManually: Boolean(mail.attachedManuallyAt),
-      })
+    const guarded = this.rejectionFor(mail, content, resolved?.recipient ?? null)
+    // Un mail déjà écarté (taille, boucle, adresse…) n'a pas d'expéditeur à vérifier.
+    if (guarded || !resolved) return { rejection: guarded, senderKnown: false }
+
+    const senderKnown = await this.isKnownSender(mail.senderAddress, resolved)
+    const rejection = senderRejection({
+      side: resolved.side,
+      senderKnown,
+      authenticationFailed: senderAuthenticationFailed(content.headers),
+      attachedManually: Boolean(mail.attachedManuallyAt),
+    })
     return { rejection, senderKnown }
   }
 

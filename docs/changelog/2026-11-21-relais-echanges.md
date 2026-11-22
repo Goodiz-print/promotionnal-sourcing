@@ -40,11 +40,16 @@ visible des deux côtés.
   `1794000000037`, lignes existantes remplies). `ConversationService#post`
   accepte `{ body, side }` ; un côté qui n'est pas celui de l'auteur est refusé.
 - **Historique cité retiré** : `stripQuotedReply` coupe une réponse par mail à
-  la première marque de citation (`>`, « Le … a écrit : », « -----Original
-  Message----- », en-tête `De :` / `Envoyé :`), des deux côtés.
+  la première marque sûre (annonce datée « Le … a écrit : », « -----Original
+  Message----- », en-tête cité complet `De :` / `Envoyé :` / `À :`, bloc `>` qui
+  termine le mail), des deux côtés ; dans le doute le texte est gardé.
 - **Expéditeur de l'agence vérifié** : un mail à `agency-…` qui ne vient pas
-  d'un membre de l'agence est écarté (nouveau motif `unknown_sender`) ; un admin
-  peut le rattacher à la main.
+  d'un membre de l'agence, ou dont le domaine échoue DMARC / SPF
+  (`senderAuthenticationFailed`), est écarté (nouveau motif `unknown_sender`) ;
+  un admin peut le rattacher à la main.
+- **Agence prévenue** : nouvelle notification `rfq.relay_refused` (9 langues)
+  pour l'auteur de la demande et ses responsables quand un de leurs mails n'a
+  pas été relayé (`AgencyMailRefused` → `AgencyReplyService#refuse`).
 - **Fil clos** : passé `INBOUND_MAIL_GRACE_DAYS` après la clôture ou
   l'expiration de la demande (`isRelayWindowClosed`, même règle que l'adresse
   relais), on n'écrit plus depuis l'écran ; `RfqThreadType.closed`.

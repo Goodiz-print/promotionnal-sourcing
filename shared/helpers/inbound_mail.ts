@@ -120,28 +120,67 @@ export function inboundMailBody(text: string | null, html: string | null): strin
 /** Fin d'une ligne qui annonce une citation : « Le … a écrit : », « On … wrote: »… */
 const QUOTE_INTRO =
   /(a écrit|wrote|schrieb|escribió|ha scritto|schreef|napisał\(a\)|napisał|skrev|escreveu)\s*:\s*$/i
+/**
+ * Une vraie annonce porte une date ou une adresse (« Le 21 nov. 2026, Paul
+ * <paul@…> a écrit : ») ; « Voici ce que Paul a écrit : » n'en est pas une.
+ */
+const QUOTE_INTRO_EVIDENCE = /\d|@/
 /** Début d'une telle annonce, quand la messagerie la coupe sur deux lignes. */
 const QUOTE_INTRO_START = /^(le|on|am|el|il|op|w dniu|den|em)\s/i
 /** Séparateur « message d'origine » d'Outlook et consorts. */
 const ORIGINAL_MESSAGE =
   /^-{2,}\s*(original message|message d'origine|ursprüngliche nachricht|mensaje original|messaggio originale|oorspronkelijk bericht|wiadomość oryginalna|mensagem original|ursprungligt meddelande)/i
-/** En-tête cité à la Outlook : une ligne `De :` suivie d'une ligne `Envoyé :`. */
+/** En-tête cité à la Outlook : `De :`, puis `Envoyé :`, puis `À :` ou `Objet :`. */
 const QUOTED_FROM = /^(from|de|von|da|van|od|från)\s?:/i
 const QUOTED_SENT = /^(sent|envoyé|gesendet|enviado|inviato|verzonden|wysłano|skickat|date)\s?:/i
+const QUOTED_OTHER =
+  /^(to|à|an|a|para|aan|do|till|cc|subject|objet|betreff|asunto|oggetto|onderwerp|temat|ämne|assunto)\s?:/i
+/** Lignes, après `Envoyé :`, où chercher le reste de l'en-tête cité. */
+const QUOTED_HEADER_SPAN = 3
+
+/** Annonce de citation, avec une date ou une adresse pour preuve. */
+function isQuoteIntro(text: string): boolean {
+  return QUOTE_INTRO.test(text) && QUOTE_INTRO_EVIDENCE.test(text)
+}
+
+/**
+ * Les lignes à partir de `index` ne sont-elles que du texte cité (`>`) ou des
+ * lignes vides ? Une ligne `> 500 pièces` au milieu du message n'est pas une
+ * citation : seul un bloc cité qui termine le mail en est une.
+ */
+function isTrailingQuoteBlock(lines: string[], index: number): boolean {
+  return lines.slice(index).every((line) => line.trim() === '' || line.trim().startsWith('>'))
+}
+
+/**
+ * En-tête cité à la ligne `index` : `De :` puis `Envoyé :`, suivis d'au moins
+ * un autre champ (`À :`, `Objet :`…). Deux lignes `De : 100 à 500 pièces` /
+ * `Date : 15 mars` ne suffisent pas.
+ */
+function isQuotedHeader(lines: string[], index: number): boolean {
+  const [from = '', sent = '', ...rest] = lines
+    .slice(index, index + 2 + QUOTED_HEADER_SPAN)
+    .map((line) => line.trim())
+  const hasOtherField = rest.some((line) => QUOTED_OTHER.test(line))
+  return QUOTED_FROM.test(from) && QUOTED_SENT.test(sent) && hasOtherField
+}
 
 /** La ligne `index` ouvre-t-elle la citation d'un mail précédent ? */
 function isQuoteStart(lines: string[], index: number): boolean {
   const line = lines[index].trim()
   const next = lines[index + 1]?.trim() ?? ''
-  if (line.startsWith('>') || ORIGINAL_MESSAGE.test(line) || QUOTE_INTRO.test(line)) return true
-  if (QUOTE_INTRO_START.test(line) && QUOTE_INTRO.test(`${line} ${next}`)) return true
-  return QUOTED_FROM.test(line) && QUOTED_SENT.test(next)
+  if (ORIGINAL_MESSAGE.test(line) || isQuoteIntro(line)) return true
+  if (line.startsWith('>')) return isTrailingQuoteBlock(lines, index)
+  if (QUOTE_INTRO_START.test(line) && isQuoteIntro(`${line} ${next}`)) return true
+  return isQuotedHeader(lines, index)
 }
 
 /**
  * Texte d'un mail sans l'historique qu'il cite (#226) : tout ce qui suit la
- * première marque de citation (`>`, « Le … a écrit : », « -----Original
- * Message----- », en-tête `De :` / `Envoyé :`). Sans cela, chaque réponse
+ * première marque de citation — annonce datée « Le … a écrit : », « -----Original
+ * Message----- », en-tête cité `De :` / `Envoyé :` / `À :`, ou bloc `>` qui
+ * termine le mail. Dans le doute, le texte est gardé : mieux vaut un historique
+ * de trop qu'une ligne du message perdue. Sans cela, chaque réponse
  * recopierait tout le fil, relayé à l'autre côté à chaque aller-retour. Un mail
  * qui n'est qu'une citation est gardé tel quel ; le mail complet reste dans
  * `inbound_mails`.
@@ -162,9 +201,33 @@ export function stripQuotedReply(text: string): string {
  * reste indicatif.
  */
 export function senderRejection(check: InboundSenderCheck): InboundMailRejection | null {
-  const isForeignAgencyMail = check.side === 'agency' && !check.senderKnown
+  const isTrustedSender = check.senderKnown && !check.authenticationFailed
+  const isForeignAgencyMail = check.side === 'agency' && !isTrustedSender
   if (!isForeignAgencyMail || check.attachedManually) return null
   return INBOUND_MAIL_REJECTIONS.unknownSender
+}
+
+/** Résultat d'échec dans `Authentication-Results` : `dmarc=fail`, `spf=softfail`… */
+const AUTH_RESULT = /\b(spf|dkim|dmarc)=(\w+)/gi
+const FAILED_AUTH = new Set(['fail', 'softfail', 'permerror'])
+
+/**
+ * L'expéditeur a-t-il échoué l'authentification de son domaine (#226) ? Lu dans
+ * le premier en-tête `Authentication-Results` (`parseRawHeaders` garde le plus
+ * haut, celui que pose le serveur de réception, pas l'expéditeur) : DMARC en
+ * échec, ou SPF en échec sans signature DKIM valide. `From` se falsifie : ce
+ * contrôle empêche un tiers d'écrire « au nom » d'un membre de l'agence dont le
+ * domaine publie SPF / DMARC. Sans en-tête, rien n'est conclu (`false`) : un
+ * en-tête ajouté par l'expéditeur ne peut donc qu'écarter son propre mail.
+ */
+export function senderAuthenticationFailed(headers: Record<string, string>): boolean {
+  const results = new Map(
+    [...(headers['authentication-results'] ?? '').matchAll(AUTH_RESULT)].map(
+      ([, method, result]) => [method.toLowerCase(), result.toLowerCase()] as const
+    )
+  )
+  const failed = (method: string) => FAILED_AUTH.has(results.get(method) ?? '')
+  return failed('dmarc') || (failed('spf') && results.get('dkim') !== 'pass')
 }
 
 /**

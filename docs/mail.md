@@ -344,19 +344,33 @@ peut répondre depuis sa messagerie :
   `X-Originating-IP`, `Message-ID`, `References`, DKIM, `X-Mailer`…
 - **Corps non filtré** : décision du client, une signature ou un texte peut
   révéler l'agence ; ni filtrage ni avertissement. Seul l'**historique cité**
-  est retiré (`stripQuotedReply`, appelé par `inboundMailBody`) : tout ce qui
-  suit la première marque de citation (`>`, « Le … a écrit : », « On … wrote: »,
-  « -----Original Message----- », en-tête `De :` / `Envoyé :`, en 9 langues).
-  Sans cela, chaque réponse recopierait le fil entier, relayé à chaque
-  aller-retour, avec les noms et adresses que ces en-têtes cités portent. Un
-  mail qui n'est qu'une citation est gardé tel quel ; le mail complet reste dans
+  est retiré (`stripQuotedReply`, appelé par `inboundMailBody`), à la première
+  marque sûre : annonce datée ou adressée (« Le 21 nov. 2026, … a écrit : »,
+  « On … wrote: »), « -----Original Message----- », en-tête cité complet
+  (`De :` puis `Envoyé :` puis `À :` ou `Objet :`), ou bloc `>` qui **termine**
+  le mail — en 9 langues. Dans le doute le texte est gardé : une ligne
+  `> 500 pièces` au milieu du message, deux lignes `De : …` / `Date : …` ou
+  « Voici ce que Paul a écrit : » ne coupent rien. Sans ce retrait, chaque
+  réponse recopierait le fil entier, relayé à chaque aller-retour, avec les noms
+  et adresses que ces en-têtes cités portent. Le mail complet reste dans
   `inbound_mails`.
 - **Expéditeur de l'agence vérifié** : un mail reçu à `agency-…` n'est accepté
-  que s'il vient de l'adresse d'un membre de l'agence ; sinon il est écarté en
-  `unknown_sender` (l'adresse peut fuiter par un transfert, et le fournisseur ne
-  voit pas qui l'a écrit). Un admin peut le rattacher à la main depuis la
-  supervision (#227) : il est alors enregistré et relayé. Côté fournisseur, un
-  expéditeur inconnu reste indicatif (`sender_known`).
+  que s'il vient de l'adresse d'un membre de l'agence **et** que son domaine
+  n'échoue pas l'authentification ; sinon il est écarté en `unknown_sender`
+  (l'adresse peut fuiter par un transfert, et le fournisseur ne voit pas qui l'a
+  écrit). `From` se falsifie : `senderAuthenticationFailed` lit le premier
+  en-tête `Authentication-Results` du mail brut (celui du serveur de réception)
+  et écarte un DMARC en échec, ou un SPF en échec sans DKIM valide. Sans cet
+  en-tête, rien n'est conclu : le contrôle ne vaut que pour les domaines qui
+  publient SPF / DMARC, ce n'est pas une authentification forte.
+- **Agence prévenue d'un refus** : un mail écarté en `unknown_sender` est
+  annoncé (`AgencyMailRefused` → `AgencyReplyService#refuse`) ; l'auteur de la
+  demande et ses responsables reçoivent la notification `rfq.relay_refused`
+  (une par mail), qui mène à la demande pour écrire depuis l'écran. Aucune
+  réponse n'est faite à l'expéditeur, qui peut être falsifié. Un admin peut
+  rattacher le mail à la main depuis la supervision (#227) : il est alors
+  enregistré et relayé. Côté fournisseur, un expéditeur inconnu ou non
+  authentifié reste indicatif (`sender_known`).
 - **Fil clos** : passé le délai de l'adresse relais (`INBOUND_MAIL_GRACE_DAYS`
   après la clôture ou l'expiration de la demande, `isRelayWindowClosed`), on
   n'écrit plus ni par mail (`expired_address`) ni depuis l'écran (abilities
@@ -427,7 +441,7 @@ Appliqués dans cet ordre ; le premier qui s'applique écarte le mail (`status =
 | `auto_reply`      | `Auto-Submitted` autre que `no`, `X-Auto-Response-Suppress: All` (les autres valeurs, posées par des CRM et des ERP sur des mails écrits par une personne, ne comptent pas), `X-Autoreply`, `Precedence: bulk/junk/list`, `Return-Path: <>`, rapport de non-remise, expéditeur `mailer-daemon`, `postmaster`, `no-reply` |
 | `unknown_address` | Aucun couple ne porte ce jeton, ou l'adresse n'est pas une adresse relais                                                                                                                                                                                                                                                |
 | `expired_address` | Demande close ou expirée depuis plus de `INBOUND_MAIL_GRACE_DAYS` jours                                                                                                                                                                                                                                                  |
-| `unknown_sender`  | Mail reçu à l'adresse `agency-` d'un couple depuis une adresse qui n'est celle d'aucun membre de l'agence (#226) ; un rattachement manuel le fait passer                                                                                                                                                                 |
+| `unknown_sender`  | Mail reçu à l'adresse `agency-` d'un couple depuis une adresse qui n'est celle d'aucun membre de l'agence, ou dont le domaine échoue DMARC / SPF (#226) ; l'agence est notifiée, un rattachement manuel le fait passer                                                                                                   |
 | `dismissed`       | Écarté à la main par un admin depuis la supervision (voir plus bas)                                                                                                                                                                                                                                                      |
 
 Un mail écarté n'est que journalisé (expéditeur, adresse visée, objet, en-têtes) : son corps et ses pièces jointes ne sont pas conservés.

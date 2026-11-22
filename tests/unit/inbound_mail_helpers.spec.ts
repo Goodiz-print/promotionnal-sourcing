@@ -16,6 +16,7 @@ import {
   relayableHeaders,
   relayTargetFrom,
   replyAddress,
+  senderAuthenticationFailed,
   senderRejection,
   stripQuotedReply,
 } from '#shared/helpers/inbound_mail'
@@ -303,11 +304,28 @@ test.group('Mails entrants — relais (#226)', () => {
       ],
       ['Danke.\n-----Ursprüngliche Nachricht-----\nalt', 'Danke.'],
       [
-        'Merci.\n\nDe : Plateforme <noreply@x.test>\nEnvoyé : vendredi 21 novembre 2026\nancien',
+        'Merci.\n\nDe : Plateforme <noreply@x.test>\nEnvoyé : vendredi 21 novembre 2026\nÀ : Marie\nObjet : Devis\nancien',
         'Merci.',
       ],
+      ['Merci.\n\n> ancien\n>\n> encore', 'Merci.'],
     ]
     cases.forEach(([text, expected]) => assert.equal(stripQuotedReply(text), expected, text))
+  })
+
+  test('stripQuotedReply : ne coupe jamais une ligne du message qui ressemble à une citation', ({
+    assert,
+  }) => {
+    const kept = [
+      'Bonjour,\n> 500 pièces : 2,10 €\nMerci',
+      'Bonjour,\nDe : 100 à 500 pièces\nDate : livraison le 15 mars\nMerci',
+      'Bonjour,\nVoici ce que Paul a écrit :\nlivrer avant le 15',
+    ]
+    kept.forEach((text) => assert.equal(stripQuotedReply(text), text, text))
+    // Réponse intercalée : seul le bloc cité final est retiré.
+    assert.equal(
+      stripQuotedReply('Merci.\n> ancien\nMa réponse en ligne\n> ancien encore'),
+      'Merci.\n> ancien\nMa réponse en ligne'
+    )
   })
 
   test('stripQuotedReply : garde un texte sans citation, ou qui n’est qu’une citation', ({
@@ -345,12 +363,42 @@ test.group('Mails entrants — relais (#226)', () => {
   test('senderRejection : un mail de l’agence d’un inconnu est écarté, sauf rattaché à la main', ({
     assert,
   }) => {
-    const agency = { side: 'agency' as const, senderKnown: false, attachedManually: false }
+    const agency = {
+      side: 'agency' as const,
+      senderKnown: false,
+      authenticationFailed: false,
+      attachedManually: false,
+    }
 
     assert.equal(senderRejection(agency), 'unknown_sender')
     assert.isNull(senderRejection({ ...agency, senderKnown: true }))
     assert.isNull(senderRejection({ ...agency, attachedManually: true }))
     assert.isNull(senderRejection({ ...agency, side: 'supplier' }))
     assert.isNull(senderRejection({ ...agency, side: null }))
+    // Membre connu, mais domaine non authentifié : `From` falsifié.
+    assert.equal(
+      senderRejection({ ...agency, senderKnown: true, authenticationFailed: true }),
+      'unknown_sender'
+    )
+    assert.isNull(
+      senderRejection({
+        ...agency,
+        side: 'supplier',
+        senderKnown: true,
+        authenticationFailed: true,
+      })
+    )
+  })
+
+  test('senderAuthenticationFailed : DMARC en échec, ou SPF sans DKIM valide', ({ assert }) => {
+    const results = (value: string) => ({ 'authentication-results': value })
+
+    assert.isTrue(senderAuthenticationFailed(results('mx.test; spf=pass; dkim=pass; dmarc=fail')))
+    assert.isTrue(senderAuthenticationFailed(results('mx.test; spf=softfail smtp.mailfrom=x')))
+    assert.isTrue(senderAuthenticationFailed(results('mx.test; SPF=Fail; dkim=none')))
+    assert.isFalse(senderAuthenticationFailed(results('mx.test; spf=fail; dkim=pass')))
+    assert.isFalse(senderAuthenticationFailed(results('mx.test; spf=pass; dkim=pass; dmarc=pass')))
+    assert.isFalse(senderAuthenticationFailed(results('mx.test; spf=none')))
+    assert.isFalse(senderAuthenticationFailed({}))
   })
 })

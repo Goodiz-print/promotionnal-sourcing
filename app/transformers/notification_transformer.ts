@@ -51,6 +51,7 @@ export function notificationHref(
       break
     case 'rfq.declined':
     case 'rfq.responded':
+    case 'rfq.relay_refused':
       if (typeof rfqId === 'number') return urlFor('rfqs.show', { locale, id: rfqId })
       break
     case 'quote.received':

@@ -11,6 +11,7 @@ import type Quote from '#models/quote'
 import type Rfq from '#models/rfq'
 import type RfqSupplier from '#models/rfq_supplier'
 import type User from '#models/user'
+import type { AgencyMailRefusedNotice } from '#shared/types/inbound_mail'
 import type { OrderSide } from '#shared/types/order'
 import type { RoleSlug } from '#shared/types/role'
 import type { SupplierReplyNotice } from '#shared/types/supplier_reply'
@@ -154,6 +155,41 @@ export default class InAppNotificationService {
       logger.warn({ err: error, rfqId: notice.rfqId }, 'failed to create in-app notifications')
       return 0
     }
+  }
+
+  /**
+   * Un mail de l'agence n'a pas été relayé, faute d'expéditeur reconnu (#226) :
+   * les destinataires (auteur de la demande, responsables de l'agence) en sont
+   * prévenus, une seule fois par mail — une reprise ou un rejeu par un admin ne
+   * crée pas de doublon. Renvoie le nombre de notifications créées.
+   */
+  async agencyMailRefused(userIds: number[], notice: AgencyMailRefusedNotice): Promise<number> {
+    const data: NotificationData = { ...notice }
+    try {
+      const recipients = [...new Set(userIds)]
+      const notified = await this.alreadyRefused(recipients, notice.inboundMailId)
+      const pending = recipients.filter((userId) => !notified.has(userId))
+      await Promise.all(
+        pending.map((userId) =>
+          this.notifications.notify({ id: userId }, 'rfq.relay_refused', data)
+        )
+      )
+      return pending.length
+    } catch (error) {
+      logger.warn({ err: error, rfqId: notice.rfqId }, 'failed to create in-app notifications')
+      return 0
+    }
+  }
+
+  /** Parmi `userIds`, ceux déjà prévenus que ce mail n'a pas été relayé. */
+  private async alreadyRefused(userIds: number[], inboundMailId: number): Promise<Set<number>> {
+    if (userIds.length === 0) return new Set()
+    const rows = await Notification.query()
+      .whereIn('userId', userIds)
+      .where('type', 'rfq.relay_refused')
+      .whereRaw(`data->>'inboundMailId' = ?`, [String(inboundMailId)])
+      .select('userId')
+    return new Set(rows.map((row) => row.userId))
   }
 
   /**

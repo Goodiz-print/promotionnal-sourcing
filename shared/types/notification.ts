@@ -9,6 +9,8 @@ export const NOTIFICATION_TYPES = [
   'rfq.received',
   'rfq.responded',
   'rfq.declined',
+  /** Un mail de l'agence n'a pas été relayé : expéditeur non reconnu (#226). */
+  'rfq.relay_refused',
   'quote.received',
   'quote.accepted',
   'quote.rejected',

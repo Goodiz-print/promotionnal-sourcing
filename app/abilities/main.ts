@@ -277,6 +277,11 @@ export const canRespondToRfq = Bouncer.ability(async (user: User, org: Organizat
  * recipients, all of the same agency. The authenticated user is loaded anew
  * on every request, so the cache lives for one request.
  *
+ * **HTTP requests only.** The cache lives as long as the `User` instance: a
+ * job, a command or a realtime channel that keeps a user around would read a
+ * stale membership. Only `canMessageRfqSupplier` / `canMessageRfqBuyer` use it,
+ * and they are only checked from HTTP controllers; do not reuse it elsewhere.
+ *
  * Stays here rather than in `shared/helpers/`: it is not a pure function but a
  * memoised database read, private to the abilities below (tested through them,
  * `tests/functional/rfq_message_abilities.spec.ts`).

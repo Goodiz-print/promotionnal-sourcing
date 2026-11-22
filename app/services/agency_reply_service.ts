@@ -5,9 +5,11 @@ import InboundMail from '#models/inbound_mail'
 import InboundMailAttachment from '#models/inbound_mail_attachment'
 import RfqSupplier from '#models/rfq_supplier'
 import ConversationService from '#services/conversation_service'
+import InAppNotificationService from '#services/in_app_notification_service'
 import RfqThreadService from '#services/rfq_thread_service'
+import SupplierReplyNotificationService from '#services/supplier_reply_notification_service'
 import { inboundMailBody } from '#shared/helpers/inbound_mail'
-import { INBOUND_ATTACHMENT_STATUSES } from '#shared/types/inbound_mail'
+import { INBOUND_ATTACHMENT_STATUSES, INBOUND_MAIL_REJECTIONS } from '#shared/types/inbound_mail'
 import type {
   ConversationMessageRecordedData,
   InboundMessageInput,
@@ -35,7 +37,9 @@ import type {
 export default class AgencyReplyService {
   constructor(
     private conversations: ConversationService,
-    private threads: RfqThreadService
+    private threads: RfqThreadService,
+    private supplierReplies: SupplierReplyNotificationService,
+    private inApp: InAppNotificationService
   ) {}
 
   /**
@@ -66,6 +70,40 @@ export default class AgencyReplyService {
     this.conversations.announce(recorded.conversationId, recorded.messageId)
     await this.threads.publish(recorded)
     return recorded
+  }
+
+  /**
+   * Prévient l'agence qu'un mail envoyé à son adresse relais n'a pas été
+   * relayé, faute d'expéditeur reconnu (`unknown_sender`) : l'auteur de la
+   * demande et ses responsables (les destinataires de #225) reçoivent une
+   * notification qui renvoie vers la demande. Jamais de réponse à l'expéditeur,
+   * qui peut être falsifié. Idempotent. Renvoie le nombre de notifications.
+   */
+  async refuse(inboundMailId: number): Promise<number> {
+    const mail = await InboundMail.query()
+      .where('id', inboundMailId)
+      .where('rejectionReason', INBOUND_MAIL_REJECTIONS.unknownSender)
+      .select('id', 'senderAddress', 'rfqSupplierId')
+      .first()
+    if (!mail?.rfqSupplierId) return 0
+    const recipient = await RfqSupplier.query()
+      .where('id', mail.rfqSupplierId)
+      .preload('rfq')
+      .preload('supplierOrganization')
+      .first()
+    if (!recipient) return 0
+
+    const users = await this.supplierReplies.recipientsFor(recipient.rfq)
+    return this.inApp.agencyMailRefused(
+      users.map(({ userId }) => userId),
+      {
+        inboundMailId: mail.id,
+        rfqId: recipient.rfq.id,
+        rfqTitle: recipient.rfq.title,
+        supplierName: recipient.supplierOrganization.name,
+        senderAddress: mail.senderAddress,
+      }
+    )
   }
 
   /**

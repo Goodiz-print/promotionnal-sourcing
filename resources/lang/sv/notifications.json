@@ -10,7 +10,8 @@
     "rfq": {
       "received": "{buyerName} har skickat en offertförfrågan till dig: {rfqTitle}.",
       "responded": "{supplierName} har svarat på förfrågan {rfqTitle}.",
-      "declined": "{supplierName} har avböjt förfrågan {rfqTitle}."
+      "declined": "{supplierName} har avböjt förfrågan {rfqTitle}.",
+      "relay_refused": "Ditt mejl från {senderAddress} om förfrågan {rfqTitle} vidarebefordrades inte till {supplierName}: adressen är inte känd för din byrå. Skriv direkt från förfrågan."
     },
     "quote": {
       "received": "{supplierName} har lämnat en offert för {rfqTitle}.",

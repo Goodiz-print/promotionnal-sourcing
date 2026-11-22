@@ -177,13 +177,38 @@ export interface MailAddressParts {
 export type RelayTokenField = 'replyToken' | 'agencyReplyToken'
 
 /**
+ * Mail reçu à l'adresse relais de l'agence et écarté faute d'expéditeur
+ * reconnu (`unknown_sender`, #226) : l'agence en est prévenue dans l'application.
+ */
+export interface AgencyMailRefusedData {
+  inboundMailId: number
+  rfqSupplierId: number
+}
+
+/**
+ * Données de la notification `rfq.relay_refused` : la demande, le fournisseur
+ * qui n'a rien reçu et l'adresse d'où le mail est parti. Une seule par
+ * utilisateur et par mail (`inboundMailId`).
+ */
+export interface AgencyMailRefusedNotice {
+  inboundMailId: number
+  rfqId: number
+  rfqTitle: string
+  supplierName: string
+  senderAddress: string
+}
+
+/**
  * Ce qui décide si l'expéditeur d'un mail reçu l'écarte (#226) : le côté qui
- * écrit (`null` sans couple résolu), si l'expéditeur est connu de ce côté, et
- * si un admin a rattaché le mail à la main (#227).
+ * écrit (`null` sans couple résolu), si l'expéditeur est connu de ce côté, s'il
+ * a échoué l'authentification de son domaine, et si un admin a rattaché le
+ * mail à la main (#227).
  */
 export interface InboundSenderCheck {
   side: ConversationSide | null
   senderKnown: boolean
+  /** L'expéditeur a échoué SPF / DKIM / DMARC (`senderAuthenticationFailed`). */
+  authenticationFailed: boolean
   attachedManually: boolean
 }
 

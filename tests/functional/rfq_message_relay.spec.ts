@@ -12,9 +12,11 @@ import Conversation from '#models/conversation'
 import InboundMail from '#models/inbound_mail'
 import Message from '#models/message'
 import MessageReport from '#models/message_report'
+import Notification from '#models/notification'
 import Organization from '#models/organization'
 import QuoteDocument from '#models/quote_document'
 import RfqSupplier from '#models/rfq_supplier'
+import InAppNotificationService from '#services/in_app_notification_service'
 import InboundAddressService from '#services/inbound_address_service'
 import MessageRelayService from '#services/message_relay_service'
 import AdminInboundMailService from '#services/admin_inbound_mail_service'
@@ -30,6 +32,7 @@ import { createMember, subscribeOrganization } from '#tests/utils/organizations'
 import { useFakeGhostscript } from '#tests/utils/pdf'
 import { useDatabase } from '#tests/utils/setup'
 import { MessageFactory } from '#database/factories/message_factory'
+import { InboundMailFactory } from '#database/factories/inbound_mail_factory'
 import { THREAD_MESSAGES_LIMIT } from '#shared/types/conversation'
 import { useFakeStorage } from '#tests/utils/storage'
 import type User from '#models/user'
@@ -402,6 +405,47 @@ test.group('Relais des échanges — par mail (#226)', (group) => {
     assert.equal(journal.rejectionReason, 'unknown_sender')
     assert.lengthOf(await Message.all(), 0)
     assert.lengthOf(relayedToSupplier(), 0)
+  })
+
+  test('l’agence est prévenue dans l’application qu’un mail n’a pas été relayé, une fois', async ({
+    client,
+    assert,
+  }) => {
+    const { rfq, author, supplier, agencyAddress } = await relayScenario()
+
+    await agencyMail(client, inbound, { to: agencyAddress, from: 'assistante@gmail.test' })
+    const journal = await InboundMail.query().where('recipient', agencyAddress).firstOrFail()
+    const agencyReplies = await app.container.make(AgencyReplyService)
+    const again = await agencyReplies.refuse(journal.id)
+
+    const notifications = await Notification.query().where('type', 'rfq.relay_refused')
+    assert.equal(again, 0)
+    assert.lengthOf(notifications, 1)
+    assert.equal(notifications[0].userId, author.id)
+    assert.deepEqual(notifications[0].data, {
+      inboundMailId: journal.id,
+      rfqId: rfq.id,
+      rfqTitle: rfq.title,
+      supplierName: supplier.name,
+      senderAddress: 'assistante@gmail.test',
+    })
+  })
+
+  test('AgencyReplyService#refuse : rien pour un mail inconnu ou écarté pour un autre motif', async ({
+    assert,
+  }) => {
+    const { recipient, agencyAddress } = await relayScenario()
+    const autoReply = await InboundMailFactory.merge({
+      recipient: agencyAddress,
+      rfqSupplierId: recipient.id,
+      status: 'rejected',
+      rejectionReason: 'auto_reply',
+    }).create()
+    const agencyReplies = await app.container.make(AgencyReplyService)
+
+    assert.equal(await agencyReplies.refuse(999_999), 0)
+    assert.equal(await agencyReplies.refuse(autoReply.id), 0)
+    assert.lengthOf(await Notification.all(), 0)
   })
 
   test('un admin peut rattacher à la main un mail de l’agence écarté : il est alors relayé', async ({
@@ -862,6 +906,28 @@ test.group('Relais des échanges — services (#226)', (group) => {
     } finally {
       emitter.restore()
     }
+  })
+
+  test('InAppNotificationService#agencyMailRefused : une fois par utilisateur et par mail', async ({
+    assert,
+  }) => {
+    const { rfq, author, supplier } = await relayScenario()
+    const inApp = await app.container.make(InAppNotificationService)
+    const notice = {
+      inboundMailId: 8,
+      rfqId: rfq.id,
+      rfqTitle: rfq.title,
+      supplierName: supplier.name,
+      senderAddress: 'assistante@gmail.test',
+    }
+
+    const first = await inApp.agencyMailRefused([author.id, author.id], notice)
+    const replayed = await inApp.agencyMailRefused([author.id], notice)
+    const otherMail = await inApp.agencyMailRefused([author.id], { ...notice, inboundMailId: 9 })
+    const nobody = await inApp.agencyMailRefused([], notice)
+
+    assert.deepEqual([first, replayed, otherMail, nobody], [1, 0, 1, 0])
+    assert.lengthOf(await Notification.query().where('userId', author.id), 2)
   })
 
   test('RfqThreadService#isClosed : clos passé le délai de grâce de l’adresse relais', async ({
