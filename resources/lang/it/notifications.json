@@ -10,7 +10,8 @@
     "rfq": {
       "received": "{buyerName} Le ha inviato una richiesta di preventivo: {rfqTitle}.",
       "responded": "{supplierName} ha risposto alla richiesta {rfqTitle}.",
-      "declined": "{supplierName} ha declinato la richiesta {rfqTitle}."
+      "declined": "{supplierName} ha declinato la richiesta {rfqTitle}.",
+      "relay_refused": "La sua email da {senderAddress} per la richiesta {rfqTitle} non è stata inoltrata a {supplierName}: questo indirizzo non è riconosciuto per la sua agenzia. Scriva dalla richiesta."
     },
     "quote": {
       "received": "{supplierName} ha presentato un preventivo per {rfqTitle}.",

@@ -1,6 +1,46 @@
 {
   "flash": {
     "reported": "Thank you, your report has been sent to the moderation team.",
-    "alreadyHandled": "This message has already been reviewed by the moderation team."
+    "alreadyHandled": "This message has already been reviewed by the moderation team.",
+    "posted": "Su mensaje se ha enviado."
+  },
+  "errors": {
+    "blocked": "La plataforma ha bloqueado este hilo: ya no puede escribir en él."
+  },
+  "thread": {
+    "titleWith": "Mensajes con {name}",
+    "titleAgency": "Mensajes con la agencia",
+    "agencyHint": "La plataforma reenvía sus mensajes al proveedor por correo, sin su dirección. Sus respuestas aparecen aquí.",
+    "supplierHint": "Sus mensajes se reenvían a la agencia por correo. Sus respuestas aparecen aquí y en su buzón.",
+    "empty": "Todavía no hay mensajes.",
+    "emptyHint": "Escriba un primer mensaje: se reenviará por correo.",
+    "blocked": "La plataforma ha bloqueado este hilo: sigue siendo consultable, pero ya no se puede escribir en él.",
+    "closed": "Los intercambios de esta solicitud están cerrados: terminó hace demasiado tiempo para escribir, aquí o por correo.",
+    "hasOlder": "Solo se muestran los últimos {count} mensajes.",
+    "yourTeam": "Su equipo",
+    "viaMail": "por correo",
+    "attachments": "Archivos adjuntos",
+    "sides": {
+      "agency": "La agencia",
+      "supplier": "El proveedor"
+    },
+    "bodyLabel": "Su mensaje",
+    "placeholder": "Escriba su mensaje…",
+    "maxLength": "{max} caracteres como máximo.",
+    "send": "Enviar",
+    "report": {
+      "action": "Denunciar",
+      "reasonLabel": "Motivo de la denuncia",
+      "submit": "Denunciar este mensaje",
+      "cancel": "Cancelar",
+      "reasons": {
+        "spam": "Spam",
+        "abuse": "Contenido abusivo",
+        "off_platform": "Eludir la plataforma",
+        "fraud": "Fraude",
+        "other": "Otro"
+      }
+    },
+    "unknownSender": "dirección no reconocida"
   }
 }

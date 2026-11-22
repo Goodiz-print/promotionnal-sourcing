@@ -152,7 +152,16 @@ describe('supplier/rfqs/index.vue', () => {
 
 describe('supplier/rfqs/show.vue', () => {
   // Demande ouverte, sans devis encore : le fournisseur peut y répondre.
-  const open = { quote: null, canQuote: true, upsell: null }
+  const thread = {
+    rfqSupplierId: 1,
+    counterpartName: null,
+    blocked: false,
+    closed: false,
+    canWrite: true,
+    hasOlder: false,
+    messages: [],
+  }
+  const open = { quote: null, canQuote: true, upsell: null, thread }
 
   it('propose de décliner une demande reçue et non encore tranchée', () => {
     const wrapper = mount(SupplierRfqShow, { props: { ...open, rfq: detail() } })
@@ -169,7 +178,13 @@ describe('supplier/rfqs/show.vue', () => {
 
   it('renvoie vers le devis existant au lieu d’en proposer un second', () => {
     const wrapper = mount(SupplierRfqShow, {
-      props: { rfq: detail(), canQuote: true, quote: { id: 7, status: 'draft' }, upsell: null },
+      props: {
+        rfq: detail(),
+        canQuote: true,
+        quote: { id: 7, status: 'draft' },
+        upsell: null,
+        thread,
+      },
     })
 
     expect(wrapper.text()).toContain('Voir mon devis')

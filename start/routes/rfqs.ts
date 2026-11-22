@@ -31,6 +31,11 @@ export function registerRfqRoutes(): void {
     .delete('rfqs/:id/suppliers/:supplierId', [controllers.Rfqs, 'removeSupplier'])
     .as('rfqs.suppliers.destroy')
 
+  // Fil d'échanges avec un destinataire (#226) : le message est relayé par mail.
+  router
+    .post('rfqs/:id/suppliers/:supplierId/messages', [controllers.RfqMessages, 'store'])
+    .as('rfqs.messages.store')
+
   // Transitions : publier fige le besoin, envoyer notifie les destinataires en
   // attente, clôturer arrête la consultation (cf. `RfqService`).
   router.post('rfqs/:id/publish', [controllers.Rfqs, 'publish']).as('rfqs.publish')
@@ -46,4 +51,8 @@ export function registerRfqRoutes(): void {
   router
     .post('supplier/rfqs/:id/decline', [controllers.supplier.Rfqs, 'decline'])
     .as('supplier.rfqs.decline')
+  // Écrire à l'agence dans le fil de la demande (#226), relayé par mail.
+  router
+    .post('supplier/rfqs/:id/messages', [controllers.supplier.RfqMessages, 'store'])
+    .as('supplier.rfqs.messages.store')
 }

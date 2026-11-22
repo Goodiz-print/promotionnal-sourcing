@@ -1691,6 +1691,7 @@
       "auto_reply": "Réponse automatique",
       "unknown_address": "Adresse inconnue",
       "expired_address": "Adresse expirée",
+      "unknown_sender": "Expéditeur hors de l'agence",
       "dismissed": "Écarté par un admin"
     },
     "filters": {

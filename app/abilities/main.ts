@@ -13,9 +13,14 @@
 */
 
 import { Bouncer } from '@adonisjs/bouncer'
+import { DateTime } from 'luxon'
+import inboundMailConfig from '#config/inbound_mail'
+import { isRfqThreadOpen } from '#shared/helpers/conversation'
 import type User from '#models/user'
 import type Organization from '#models/organization'
 import type QuoteDocument from '#models/quote_document'
+import type Rfq from '#models/rfq'
+import type RfqSupplier from '#models/rfq_supplier'
 import OrganizationUser from '#models/organization_user'
 import { RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
 import type { RoleSlug } from '#shared/types/role'
@@ -265,3 +270,71 @@ export const canRespondToRfq = Bouncer.ability(async (user: User, org: Organizat
   const m = await getMembership(user, org)
   return m ? RFQ_RESPONDER_ROLES.includes(m.role.slug as RoleSlug) : false
 })
+
+/**
+ * Membership of `user` in `organizationId`, with its role, read once per user
+ * instance: the RFQ screen checks `canMessageRfqSupplier` for each of its
+ * recipients, all of the same agency. The authenticated user is loaded anew
+ * on every request, so the cache lives for one request.
+ *
+ * **HTTP requests only.** The cache lives as long as the `User` instance: a
+ * job, a command or a realtime channel that keeps a user around would read a
+ * stale membership. Only `canMessageRfqSupplier` / `canMessageRfqBuyer` use it,
+ * and they are only checked from HTTP controllers; do not reuse it elsewhere.
+ *
+ * Stays here rather than in `shared/helpers/`: it is not a pure function but a
+ * memoised database read, private to the abilities below (tested through them,
+ * `tests/functional/rfq_message_abilities.spec.ts`).
+ */
+const membershipsByUser = new WeakMap<User, Map<number, Promise<OrganizationUser | null>>>()
+
+function cachedMembership(user: User, organizationId: number): Promise<OrganizationUser | null> {
+  const memberships =
+    membershipsByUser.get(user) ?? new Map<number, Promise<OrganizationUser | null>>()
+  membershipsByUser.set(user, memberships)
+  const membership =
+    memberships.get(organizationId) ??
+    OrganizationUser.query()
+      .where('user_id', user.id)
+      .where('organization_id', organizationId)
+      .preload('role')
+      .first()
+  memberships.set(organizationId, membership)
+  return membership
+}
+
+/**
+ * Is the thread open for writing? Binds the pure rule (`isRfqThreadOpen`,
+ * unit-tested) to the configured grace period and the current time.
+ */
+function isOpenThread(rfq: Rfq, recipient: RfqSupplier): boolean {
+  return isRfqThreadOpen({ rfq, recipient }, inboundMailConfig.graceDays, DateTime.now())
+}
+
+/**
+ * Ability to check if a user can write, as the agency, in the thread of an RFQ
+ * recipient (#226): any member of the agency that owns the request, whatever
+ * their role — the same people who can open it (`canCreateRfq`) — while the
+ * thread is open (`isRfqThreadOpen`). The message is then relayed to the
+ * supplier by email.
+ */
+export const canMessageRfqSupplier = Bouncer.ability(
+  async (user: User, rfq: Rfq, recipient: RfqSupplier) => {
+    if (!isOpenThread(rfq, recipient)) return false
+    return (await cachedMembership(user, rfq.buyerOrganizationId)) !== null
+  }
+)
+
+/**
+ * Ability to check if a user can write, as the supplier, in the thread of a
+ * received RFQ (#226): the members who can answer it (`RFQ_RESPONDER_ROLES`,
+ * like `canRespondToRfq`) of the recipient organization, while the thread is
+ * open (`isRfqThreadOpen`). The message is then relayed to the agency by email.
+ */
+export const canMessageRfqBuyer = Bouncer.ability(
+  async (user: User, rfq: Rfq, recipient: RfqSupplier) => {
+    if (!isOpenThread(rfq, recipient)) return false
+    const membership = await cachedMembership(user, recipient.supplierOrganizationId)
+    return membership ? RFQ_RESPONDER_ROLES.includes(membership.role.slug as RoleSlug) : false
+  }
+)

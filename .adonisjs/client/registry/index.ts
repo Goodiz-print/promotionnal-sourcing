@@ -522,6 +522,12 @@ const routes = {
     tokens: [[1,"locale"],[0,"rfqs"],[1,"id"],[0,"suppliers"],[1,"supplierId"]],
     types: placeholder as Registry['rfqs.suppliers.destroy']['types'],
   },
+  'rfqs.messages.store': {
+    methods: ["POST"],
+    pattern: '/:locale/rfqs/:id/suppliers/:supplierId/messages',
+    tokens: [[1,"locale"],[0,"rfqs"],[1,"id"],[0,"suppliers"],[1,"supplierId"],[0,"messages"]],
+    types: placeholder as Registry['rfqs.messages.store']['types'],
+  },
   'rfqs.publish': {
     methods: ["POST"],
     pattern: '/:locale/rfqs/:id/publish',
@@ -563,6 +569,12 @@ const routes = {
     pattern: '/:locale/supplier/rfqs/:id/decline',
     tokens: [[1,"locale"],[0,"supplier"],[0,"rfqs"],[1,"id"],[0,"decline"]],
     types: placeholder as Registry['supplier.rfqs.decline']['types'],
+  },
+  'supplier.rfqs.messages.store': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/rfqs/:id/messages',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"rfqs"],[1,"id"],[0,"messages"]],
+    types: placeholder as Registry['supplier.rfqs.messages.store']['types'],
   },
   'quotes.show': {
     methods: ["GET","HEAD"],

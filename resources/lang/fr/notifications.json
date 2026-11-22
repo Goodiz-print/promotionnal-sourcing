@@ -10,7 +10,8 @@
     "rfq": {
       "received": "{buyerName} vous a envoyé une demande de devis : {rfqTitle}.",
       "responded": "{supplierName} a répondu à la demande {rfqTitle}.",
-      "declined": "{supplierName} a décliné la demande {rfqTitle}."
+      "declined": "{supplierName} a décliné la demande {rfqTitle}.",
+      "relay_refused": "Votre mail depuis {senderAddress} pour la demande {rfqTitle} n'a pas été transmis à {supplierName} : cette adresse n'est pas reconnue pour votre agence. Écrivez depuis la demande."
     },
     "quote": {
       "received": "{supplierName} a remis un devis pour {rfqTitle}.",

@@ -161,6 +161,22 @@
     "documentsHeading": "Załączone oferty:",
     "downloadHint": "Te linki wymagają zalogowania się na Twoje konto.",
     "cta": "Otwórz zapytanie",
-    "footer": "Otrzymujesz tę wiadomość, ponieważ zarządzasz tym zapytaniem ofertowym."
+    "footer": "Otrzymujesz tę wiadomość, ponieważ zarządzasz tym zapytaniem ofertowym.",
+    "replyHint": "Po prostu odpowiedz na tę wiadomość: Twoja odpowiedź zostanie przekazana dostawcy."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Wiadomość od {agencyName} w sprawie „{rfqTitle}”",
+      "anonymous": "Wiadomość od agencji w sprawie „{rfqTitle}”"
+    },
+    "title": {
+      "named": "{agencyName} napisała do Ciebie",
+      "anonymous": "Agencja napisała do Ciebie"
+    },
+    "body": "Nowa wiadomość dotycząca zapytania „{rfqTitle}”:",
+    "attachmentsHeading": "Załączniki, dostępne w aplikacji:",
+    "replyHint": "Po prostu odpowiedz na tę wiadomość: Twoja odpowiedź zostanie przekazana agencji.",
+    "cta": "Otwórz zapytanie",
+    "footer": "Otrzymujesz tę wiadomość, ponieważ Twoja firma otrzymała to zapytanie ofertowe."
   }
 }

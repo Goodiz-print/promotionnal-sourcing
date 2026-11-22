@@ -1125,6 +1125,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['removeSupplier']>>>
     }
   }
+  'rfqs.messages.store': {
+    methods: ["POST"]
+    pattern: '/:locale/rfqs/:id/suppliers/:supplierId/messages'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/rfq_message').rfqMessageValidator)>>
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; supplierId: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/rfq_message').rfqMessageValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfq_messages_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfq_messages_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfq_messages_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'rfqs.publish': {
     methods: ["POST"]
     pattern: '/:locale/rfqs/:id/publish'
@@ -1214,6 +1227,19 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['decline']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['decline']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['decline']>>>
+    }
+  }
+  'supplier.rfqs.messages.store': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/rfqs/:id/messages'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/rfq_message').rfqMessageValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/rfq_message').rfqMessageValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/rfq_messages_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/rfq_messages_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/rfq_messages_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'quotes.show': {

@@ -10,7 +10,8 @@
     "rfq": {
       "received": "{buyerName} enviou-lhe um pedido de orçamento: {rfqTitle}.",
       "responded": "{supplierName} respondeu ao pedido {rfqTitle}.",
-      "declined": "{supplierName} recusou o pedido {rfqTitle}."
+      "declined": "{supplierName} recusou o pedido {rfqTitle}.",
+      "relay_refused": "O seu e-mail de {senderAddress} sobre o pedido {rfqTitle} não foi transmitido a {supplierName}: este endereço não é reconhecido para a sua agência. Escreva a partir do pedido."
     },
     "quote": {
       "received": "{supplierName} apresentou um orçamento para {rfqTitle}.",

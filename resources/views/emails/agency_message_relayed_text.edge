@@ -1,0 +1,26 @@
+{{{ title }}}
+
+{{{ intro }}}
+
+@if(body)
+{{{ body }}}
+
+@end
+@if(attachments.length)
+{{{ t('emails.agencyMessageRelayed.attachmentsHeading') }}}
+@each(filename in attachments)
+- {{{ filename }}}
+@end
+
+@end
+@if(canReply)
+{{{ t('emails.agencyMessageRelayed.replyHint') }}}
+
+@end
+{{{ t('emails.agencyMessageRelayed.cta') }}} : {{{ appUrl }}}{{{ rfqPath }}}
+
+--
+@if(!canReply)
+{{{ t('emails.layout.automatic') }}}
+@end
+{{{ t('emails.agencyMessageRelayed.footer') }}}

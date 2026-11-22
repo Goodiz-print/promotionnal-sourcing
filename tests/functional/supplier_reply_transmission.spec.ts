@@ -9,7 +9,6 @@ import { OrganizationFactory } from '#database/factories/organization_factory'
 import { RfqSupplierFactory } from '#database/factories/rfq_supplier_factory'
 import SupplierReplyRecorded from '#events/supplier_reply_recorded'
 import SupplierReplyReceivedNotification from '#mails/supplier_reply_received_notification'
-import InboundMail from '#models/inbound_mail'
 import Message from '#models/message'
 import Notification from '#models/notification'
 import QuoteDocument from '#models/quote_document'
@@ -193,7 +192,7 @@ test.group('Réponse par mail — transmission à l’agence (#225)', (group) =>
     })
   })
 
-  test('un mail envoyé à l’adresse agence n’entre pas dans le fil (relais : #226)', async ({
+  test('un mail envoyé à l’adresse agence est un message de l’agence, jamais un devis du fournisseur (#226)', async ({
     client,
     assert,
   }) => {
@@ -207,12 +206,12 @@ test.group('Réponse par mail — transmission à l’agence (#225)', (group) =>
     const response = await deliver(client, 'agency-reply')
 
     response.assertStatus(200)
-    const journal = await InboundMail.query()
-      .where('providerMessageId', 'agency-reply')
-      .firstOrFail()
-    assert.equal(journal.rejectionReason, 'unknown_address')
-    assert.lengthOf(await Message.all(), 0)
+    const [message] = await Message.all()
+    assert.equal(message.senderSide, 'agency')
     assert.lengthOf(await QuoteDocument.all(), 0)
+    const unchanged = await RfqSupplier.findOrFail(recipient.id)
+    assert.equal(unchanged.status, 'sent')
+    assert.lengthOf(sentReplies(), 0)
   })
 
   test('chaque destinataire reçoit le mail dans sa langue', async ({ client, assert }) => {
@@ -456,12 +455,9 @@ test.group('Réponse par mail — services de la transmission (#225)', (group) =
     const service = await app.container.make(SupplierReplyNotificationService)
 
     const outcome = await service.notify({
-      inboundMailId: 1,
       rfqSupplierId: 999999,
-      conversationId: 1,
       messageId: 1,
       quoteDocumentIds: [],
-      responded: false,
     })
 
     assert.deepEqual(outcome, { mails: 0, notifications: 0 })

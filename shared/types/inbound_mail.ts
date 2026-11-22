@@ -1,3 +1,7 @@
+import type { DateTime } from 'luxon'
+import type { ConversationSide } from './conversation.js'
+import type { RfqStatus } from './rfq.js'
+
 /**
  * Réception des mails entrants (#223, `docs/mail.md`, ADR 0005) : la réponse
  * d'un fournisseur à une demande de devis, envoyée à l'adresse relais du couple
@@ -32,6 +36,13 @@ export const INBOUND_MAIL_REJECTIONS = {
   autoReply: 'auto_reply',
   unknownAddress: 'unknown_address',
   expiredAddress: 'expired_address',
+  /**
+   * Mail reçu à l'adresse relais de l'agence (`agency-`) depuis une adresse qui
+   * n'est pas celle d'un de ses membres (#226) : il n'est pas relayé au
+   * fournisseur, faute de quoi quiconque obtient l'adresse écrirait au nom de
+   * l'agence. Un admin peut le rattacher à la main (#227).
+   */
+  unknownSender: 'unknown_sender',
   /** Écarté à la main par un admin depuis la supervision (#227). */
   dismissed: 'dismissed',
 } as const
@@ -139,6 +150,8 @@ export interface InboundMailFailureAlertData {
 export interface InboundMailReceivedData {
   inboundMailId: number
   rfqSupplierId: number
+  /** Côté qui a écrit (#226) : `rfq-` → fournisseur, `agency-` → agence. */
+  side: ConversationSide
 }
 
 /** Mail saisi à la main par `node ace inbound-mail:simulate` (développement). */
@@ -162,3 +175,64 @@ export interface MailAddressParts {
  * (`rfq-`, `reply_token`) ou côté agence (`agency-`, `agency_reply_token`, #225).
  */
 export type RelayTokenField = 'replyToken' | 'agencyReplyToken'
+
+/**
+ * Mail reçu à l'adresse relais de l'agence et écarté faute d'expéditeur
+ * reconnu (`unknown_sender`, #226) : l'agence en est prévenue dans l'application.
+ */
+export interface AgencyMailRefusedData {
+  inboundMailId: number
+  rfqSupplierId: number
+}
+
+/**
+ * Données de la notification `rfq.relay_refused` : la demande, le fournisseur
+ * qui n'a rien reçu et l'adresse d'où le mail est parti. Une seule par
+ * utilisateur et par mail (`inboundMailId`).
+ */
+export interface AgencyMailRefusedNotice {
+  inboundMailId: number
+  rfqId: number
+  rfqTitle: string
+  supplierName: string
+  senderAddress: string
+}
+
+/**
+ * Ce qui décide si l'expéditeur d'un mail reçu l'écarte (#226) : le côté qui
+ * écrit (`null` sans couple résolu), si l'expéditeur est connu de ce côté, s'il
+ * a échoué l'authentification de son domaine, et si un admin a rattaché le
+ * mail à la main (#227).
+ */
+export interface InboundSenderCheck {
+  side: ConversationSide | null
+  senderKnown: boolean
+  /** L'expéditeur a échoué SPF / DKIM / DMARC (`senderAuthenticationFailed`). */
+  authenticationFailed: boolean
+  attachedManually: boolean
+}
+
+/**
+ * Ce qui borne la validité de l'adresse relais d'une demande : son statut et
+ * la date à laquelle elle a pris fin (clôture ou expiration).
+ */
+export interface RelayWindow {
+  status: RfqStatus
+  closedAt: DateTime | null
+  expiredAt: DateTime | null
+}
+
+/**
+ * Adresse relais reconnue parmi les destinataires d'un mail (#226) : le côté
+ * qui l'a reçue, donc qui écrit, et le jeton qui désigne le couple.
+ */
+export interface RelayTarget {
+  side: ConversationSide
+  token: string
+}
+
+/** Couple demande / fournisseur visé par un mail entrant, et le côté qui écrit. */
+export interface ResolvedInboundRecipient<T> {
+  recipient: T
+  side: ConversationSide
+}

@@ -1,40 +1,251 @@
-import { INBOUND_ATTACHMENT_TYPES, type MailAddressParts } from '../types/inbound_mail.js'
+import {
+  CONVERSATION_SIDES,
+  MESSAGE_MAX_LENGTH,
+  type ConversationSide,
+} from '../types/conversation.js'
+import {
+  INBOUND_ATTACHMENT_TYPES,
+  INBOUND_MAIL_REJECTIONS,
+  type InboundMailRejection,
+  type InboundSenderCheck,
+  type MailAddressParts,
+  type RelayTarget,
+  type RelayTokenField,
+  type RelayWindow,
+} from '../types/inbound_mail.js'
+import type { DateTime } from 'luxon'
 
-/** Préfixe de la partie locale d'une adresse relais : `rfq-<jeton>@<domaine>`. */
-const REPLY_PREFIX = 'rfq-'
-const AGENCY_REPLY_PREFIX = 'agency-'
+/** Préfixe de la partie locale d'une adresse relais, selon le côté qui l'utilise. */
+const RELAY_PREFIXES: Record<ConversationSide, string> = {
+  supplier: 'rfq-',
+  agency: 'agency-',
+}
 const REPLY_TOKEN = /^[0-9a-f]{32}$/
 
-/** Adresse relais d'un couple demande / fournisseur. */
+/** Colonne de `rfq_suppliers` qui porte le jeton de l'adresse relais de chaque côté. */
+export const RELAY_TOKEN_FIELDS: Record<ConversationSide, RelayTokenField> = {
+  supplier: 'replyToken',
+  agency: 'agencyReplyToken',
+}
+
+/**
+ * Adresse relais **côté fournisseur** d'un couple demande / fournisseur :
+ * `rfq-<jeton>@<domaine>`, posée en `Reply-To` des mails envoyés au fournisseur.
+ */
 export function replyAddress(token: string, domain: string): string {
-  return `${REPLY_PREFIX}${token}@${domain}`
+  return `${RELAY_PREFIXES.supplier}${token}@${domain}`
 }
 
 /**
  * Adresse relais **côté agence** du même couple (#225) : `agency-<jeton>@<domaine>`,
  * avec le jeton propre à l'agence (`rfq_suppliers.agency_reply_token`), jamais
- * celui du fournisseur. Posée en `Reply-To` des mails transmis à l'agence ; le
- * préfixe dit dans quel sens va la réponse. Tant que #226 ne la reconnaît pas,
- * `replyTokenFrom` l'ignore : une réponse de l'agence est journalisée
- * (`unknown_address`) au lieu d'être prise pour celle du fournisseur.
+ * celui du fournisseur. Posée en `Reply-To` des mails envoyés à l'agence.
  */
 export function agencyReplyAddress(token: string, domain: string): string {
-  return `${AGENCY_REPLY_PREFIX}${token}@${domain}`
+  return `${RELAY_PREFIXES.agency}${token}@${domain}`
+}
+
+/** Côté et jeton d'une adresse relais, ou `null` si ce n'en est pas une. */
+function relayTargetOf(raw: string, suffix: string): RelayTarget | null {
+  const { address } = parseMailAddress(raw)
+  if (!address.endsWith(suffix)) return null
+  const local = address.slice(0, -suffix.length)
+  const side = CONVERSATION_SIDES.find((candidate) => local.startsWith(RELAY_PREFIXES[candidate]))
+  if (!side) return null
+  const token = local.slice(RELAY_PREFIXES[side].length)
+  return REPLY_TOKEN.test(token) ? { side, token } : null
 }
 
 /**
- * Jeton porté par la première adresse relais trouvée parmi `addresses`, ou
- * `null`. Insensible à la casse : les messageries réécrivent la partie locale.
+ * Première adresse relais trouvée parmi `addresses` (#226) : le côté qui écrit
+ * (`rfq-` → le fournisseur, `agency-` → l'agence) et son jeton, ou `null`.
+ * Insensible à la casse : les messageries réécrivent la partie locale.
  */
-export function replyTokenFrom(addresses: string[], domain: string): string | null {
+export function relayTargetFrom(addresses: string[], domain: string): RelayTarget | null {
   const suffix = `@${domain.toLowerCase()}`
-  for (const raw of addresses) {
-    const { address } = parseMailAddress(raw)
-    if (!address.endsWith(suffix) || !address.startsWith(REPLY_PREFIX)) continue
-    const token = address.slice(REPLY_PREFIX.length, -suffix.length)
-    if (REPLY_TOKEN.test(token)) return token
-  }
-  return null
+  return addresses.reduce<RelayTarget | null>(
+    (found, raw) => found ?? relayTargetOf(raw, suffix),
+    null
+  )
+}
+
+/**
+ * En-têtes d'un mail reçu que le mail relayé peut reprendre (#226) : seulement
+ * des consignes de priorité, qui ne disent rien de l'expéditeur. Tout le reste
+ * est écarté — `From`, `Reply-To`, `Sender`, `Return-Path`, `Received`,
+ * `X-Originating-IP`, `Message-ID`, `References`, signatures DKIM, `X-Mailer`… —
+ * car ces en-têtes trahiraient l'agence (nom, domaine, adresse IP, logiciel).
+ * Liste blanche : un en-tête inconnu n'est jamais repris. Noms en minuscules.
+ */
+const RELAYABLE_HEADERS: Record<string, string> = {
+  'importance': 'Importance',
+  'priority': 'Priority',
+  'x-priority': 'X-Priority',
+}
+/** Longueur au-delà de laquelle une valeur n'est pas une simple consigne. */
+const RELAYABLE_HEADER_MAX = 32
+/** Valeur d'une consigne (`high`, `1 (Highest)`) : ni adresse, ni saut de ligne. */
+const RELAYABLE_HEADER_VALUE = /^[\w ,.()-]+$/
+
+/** La valeur est-elle une simple consigne, sans rien qui désigne l'expéditeur ? */
+function isRelayableValue(value: string): boolean {
+  return value.length <= RELAYABLE_HEADER_MAX && RELAYABLE_HEADER_VALUE.test(value)
+}
+
+/**
+ * En-têtes du mail d'origine que le mail relayé reprend (liste blanche
+ * ci-dessus), sous leur nom canonique. Fonction pure : `headers` a ses noms en
+ * minuscules ou non, le résultat ne contient jamais un en-tête hors liste.
+ */
+export function relayableHeaders(headers: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(headers)
+      .map(([name, value]) => [RELAYABLE_HEADERS[name.toLowerCase()], value.trim()] as const)
+      .filter(
+        (entry): entry is readonly [string, string] =>
+          Boolean(entry[0]) && isRelayableValue(entry[1])
+      )
+  )
+}
+
+/**
+ * Corps d'un message né d'un mail : la partie texte, à défaut le HTML réduit à
+ * du texte, borné comme tout message ; le mail complet reste dans `inbound_mails`.
+ */
+export function inboundMailBody(text: string | null, html: string | null): string {
+  const body = text?.trim() || (html ? htmlToText(html) : '')
+  return stripQuotedReply(body).slice(0, MESSAGE_MAX_LENGTH)
+}
+
+/** Fin d'une ligne qui annonce une citation : « Le … a écrit : », « On … wrote: »… */
+const QUOTE_INTRO =
+  /(a écrit|wrote|schrieb|escribió|ha scritto|schreef|napisał\(a\)|napisał|skrev|escreveu)\s*:\s*$/i
+/**
+ * Une vraie annonce porte une date ou une adresse (« Le 21 nov. 2026, Paul
+ * <paul@…> a écrit : ») ; « Voici ce que Paul a écrit : » n'en est pas une.
+ */
+const QUOTE_INTRO_EVIDENCE = /\d|@/
+/** Début d'une telle annonce, quand la messagerie la coupe sur deux lignes. */
+const QUOTE_INTRO_START = /^(le|on|am|el|il|op|w dniu|den|em)\s/i
+/** Séparateur « message d'origine » d'Outlook et consorts. */
+const ORIGINAL_MESSAGE =
+  /^-{2,}\s*(original message|message d'origine|ursprüngliche nachricht|mensaje original|messaggio originale|oorspronkelijk bericht|wiadomość oryginalna|mensagem original|ursprungligt meddelande)/i
+/** En-tête cité à la Outlook : `De :`, puis `Envoyé :`, puis `À :` ou `Objet :`. */
+const QUOTED_FROM = /^(from|de|von|da|van|od|från)\s?:/i
+const QUOTED_SENT = /^(sent|envoyé|gesendet|enviado|inviato|verzonden|wysłano|skickat|date)\s?:/i
+const QUOTED_OTHER =
+  /^(to|à|an|a|para|aan|do|till|cc|subject|objet|betreff|asunto|oggetto|onderwerp|temat|ämne|assunto)\s?:/i
+/** Lignes, après `Envoyé :`, où chercher le reste de l'en-tête cité. */
+const QUOTED_HEADER_SPAN = 3
+
+/** Annonce de citation, avec une date ou une adresse pour preuve. */
+function isQuoteIntro(text: string): boolean {
+  return QUOTE_INTRO.test(text) && QUOTE_INTRO_EVIDENCE.test(text)
+}
+
+/**
+ * Les lignes à partir de `index` ne sont-elles que du texte cité (`>`) ou des
+ * lignes vides ? Une ligne `> 500 pièces` au milieu du message n'est pas une
+ * citation : seul un bloc cité qui termine le mail en est une.
+ */
+function isTrailingQuoteBlock(lines: string[], index: number): boolean {
+  return lines.slice(index).every((line) => line.trim() === '' || line.trim().startsWith('>'))
+}
+
+/**
+ * En-tête cité à la ligne `index` : `De :` puis `Envoyé :`, suivis d'au moins
+ * un autre champ (`À :`, `Objet :`…). Deux lignes `De : 100 à 500 pièces` /
+ * `Date : 15 mars` ne suffisent pas.
+ */
+function isQuotedHeader(lines: string[], index: number): boolean {
+  const [from = '', sent = '', ...rest] = lines
+    .slice(index, index + 2 + QUOTED_HEADER_SPAN)
+    .map((line) => line.trim())
+  const hasOtherField = rest.some((line) => QUOTED_OTHER.test(line))
+  return QUOTED_FROM.test(from) && QUOTED_SENT.test(sent) && hasOtherField
+}
+
+/** La ligne `index` ouvre-t-elle la citation d'un mail précédent ? */
+function isQuoteStart(lines: string[], index: number): boolean {
+  const line = lines[index].trim()
+  const next = lines[index + 1]?.trim() ?? ''
+  if (ORIGINAL_MESSAGE.test(line) || isQuoteIntro(line)) return true
+  if (line.startsWith('>')) return isTrailingQuoteBlock(lines, index)
+  if (QUOTE_INTRO_START.test(line) && isQuoteIntro(`${line} ${next}`)) return true
+  return isQuotedHeader(lines, index)
+}
+
+/**
+ * Texte d'un mail sans l'historique qu'il cite (#226) : tout ce qui suit la
+ * première marque de citation — annonce datée « Le … a écrit : », « -----Original
+ * Message----- », en-tête cité `De :` / `Envoyé :` / `À :`, ou bloc `>` qui
+ * termine le mail. Dans le doute, le texte est gardé : mieux vaut un historique
+ * de trop qu'une ligne du message perdue. Sans cela, chaque réponse
+ * recopierait tout le fil, relayé à l'autre côté à chaque aller-retour. Un mail
+ * qui n'est qu'une citation est gardé tel quel ; le mail complet reste dans
+ * `inbound_mails`.
+ */
+export function stripQuotedReply(text: string): string {
+  const lines = text.split(/\r?\n/)
+  const quoteAt = lines.findIndex((_, index) => isQuoteStart(lines, index))
+  if (quoteAt <= 0) return text
+  return lines.slice(0, quoteAt).join('\n').trim() || text
+}
+
+/**
+ * Motif pour lequel l'expéditeur écarte un mail reçu, ou `null` (#226). Un mail
+ * reçu à l'adresse relais de l'agence (`agency-`) n'est relayé au fournisseur
+ * que s'il vient d'un membre de l'agence : l'adresse peut fuiter (transfert,
+ * copie), et le fournisseur ne voit pas qui l'a écrit. Un rattachement manuel
+ * par un admin (#227) le fait passer. Côté fournisseur, un expéditeur inconnu
+ * reste indicatif.
+ */
+export function senderRejection(check: InboundSenderCheck): InboundMailRejection | null {
+  const isTrustedSender = check.senderKnown && !check.authenticationFailed
+  const isForeignAgencyMail = check.side === 'agency' && !isTrustedSender
+  if (!isForeignAgencyMail || check.attachedManually) return null
+  return INBOUND_MAIL_REJECTIONS.unknownSender
+}
+
+/** Résultat d'échec dans `Authentication-Results` : `dmarc=fail`, `spf=softfail`… */
+const AUTH_RESULT = /\b(spf|dkim|dmarc)=(\w+)/gi
+const FAILED_AUTH = new Set(['fail', 'softfail', 'permerror'])
+
+/**
+ * L'expéditeur a-t-il échoué l'authentification de son domaine (#226) ? Lu dans
+ * le premier en-tête `Authentication-Results` (`parseRawHeaders` garde le plus
+ * haut, celui que pose le serveur de réception, pas l'expéditeur) : DMARC en
+ * échec, ou SPF en échec sans signature DKIM valide. `From` se falsifie : ce
+ * contrôle empêche un tiers d'écrire « au nom » d'un membre de l'agence dont le
+ * domaine publie SPF / DMARC. Sans en-tête, rien n'est conclu (`false`) : un
+ * en-tête ajouté par l'expéditeur ne peut donc qu'écarter son propre mail.
+ */
+export function senderAuthenticationFailed(headers: Record<string, string>): boolean {
+  const results = new Map(
+    [...(headers['authentication-results'] ?? '').matchAll(AUTH_RESULT)].map(
+      ([, method, result]) => [method.toLowerCase(), result.toLowerCase()] as const
+    )
+  )
+  const failed = (method: string) => FAILED_AUTH.has(results.get(method) ?? '')
+  return failed('dmarc') || (failed('spf') && results.get('dkim') !== 'pass')
+}
+
+/**
+ * L'adresse relais d'une demande a-t-elle expiré à `now` ? Elle reste valide
+ * tant que la demande est publiée, puis `graceDays` jours après sa clôture ou
+ * son expiration (une réponse tardive vaut mieux qu'une réponse perdue). Passé
+ * ce délai, le fil de la demande est clos (#226) : on n'y écrit plus, ni par
+ * mail, ni depuis l'application.
+ */
+export function isRelayWindowClosed(
+  window: RelayWindow,
+  graceDays: number,
+  now: DateTime
+): boolean {
+  if (window.status === 'published') return false
+  const endedAt = window.closedAt ?? window.expiredAt
+  if (!endedAt) return true
+  return now > endedAt.plus({ days: graceDays })
 }
 
 /** Décompose `Nom <adresse>` (ou une adresse seule). L'adresse sort en minuscules. */

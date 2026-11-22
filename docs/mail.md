@@ -105,20 +105,21 @@ SELECT idempotency_key, kind, "to", attempts, error FROM mail_deliveries WHERE s
 
 ### Types de mail existants
 
-| `kind`                     | Classe                               | Template Edge                     | Déclencheur                                                                                                                                   |
-| -------------------------- | ------------------------------------ | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `organization-invitation`  | `OrganizationInvitationNotification` | `emails/organization_invitation`  | Invitation d'un membre (`OrganizationInvitationsController`)                                                                                  |
-| `rfq-received`             | `RfqReceivedNotification`            | `emails/rfq_received`             | Envoi d'une demande de devis (`RfqNotificationService`)                                                                                       |
-| `rfq-reminder`             | `RfqReminderNotification`            | `emails/rfq_reminder`             | Relance unique d'un fournisseur qui n'a pas ouvert la demande (`RemindRfqSuppliersJob`)                                                       |
-| `quote-received`           | `QuoteReceivedNotification`          | `emails/quote_received`           | Un fournisseur remet un devis : prévient les responsables de l'acheteur (`OnQuoteSubmitted`)                                                  |
-| `password-reset`           | `PasswordResetNotification`          | `emails/password_reset`           | Demande « mot de passe oublié » (`PasswordResetService`)                                                                                      |
-| `email-verification`       | `EmailVerificationNotification`      | `emails/email_verification`       | Inscription, renvoi (`EmailVerificationService`)                                                                                              |
-| `contact-request`          | `ContactRequestNotification`         | `emails/contact_request`          | Formulaire de contact de la landing (`ContactRequestService`) — mail interne, en français                                                     |
-| `notification-reminder`    | `NotificationReminderNotification`   | `emails/notification_reminder`    | Rappel unique d'une notification in-app importante restée non lue (`SendNotificationRemindersJob`, #243)                                      |
-| `subscription-activated`   | `SubscriptionActivatedNotification`  | `emails/subscription_activated`   | Abonnement manuel devenu actif : prévient owner et admin du fournisseur (`SubscriptionMailService`, #237)                                     |
-| `subscription-expiring`    | `SubscriptionExpiringNotification`   | `emails/subscription_expiring`    | Rappel avant la fin d'un abonnement manuel : 30 jours (annuel) puis 7 jours (`SyncSubscriptionsJob`, #237)                                    |
-| `quote-email-verification` | `QuoteEmailVerificationNotification` | `emails/quote_email_verification` | Confirmation de l'adresse de réception des demandes de devis, envoyée à cette adresse (`QuoteEmailVerificationService`, #217)                 |
-| `supplier-reply-received`  | `SupplierReplyReceivedNotification`  | `emails/supplier_reply_received`  | Réponse d'un fournisseur reçue par mail, transmise à l'auteur de la demande et aux responsables de l'agence (`OnSupplierReplyRecorded`, #225) |
+| `kind`                     | Classe                               | Template Edge                     | Déclencheur                                                                                                                                                                                                         |
+| -------------------------- | ------------------------------------ | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `organization-invitation`  | `OrganizationInvitationNotification` | `emails/organization_invitation`  | Invitation d'un membre (`OrganizationInvitationsController`)                                                                                                                                                        |
+| `rfq-received`             | `RfqReceivedNotification`            | `emails/rfq_received`             | Envoi d'une demande de devis (`RfqNotificationService`)                                                                                                                                                             |
+| `rfq-reminder`             | `RfqReminderNotification`            | `emails/rfq_reminder`             | Relance unique d'un fournisseur qui n'a pas ouvert la demande (`RemindRfqSuppliersJob`)                                                                                                                             |
+| `quote-received`           | `QuoteReceivedNotification`          | `emails/quote_received`           | Un fournisseur remet un devis : prévient les responsables de l'acheteur (`OnQuoteSubmitted`)                                                                                                                        |
+| `password-reset`           | `PasswordResetNotification`          | `emails/password_reset`           | Demande « mot de passe oublié » (`PasswordResetService`)                                                                                                                                                            |
+| `email-verification`       | `EmailVerificationNotification`      | `emails/email_verification`       | Inscription, renvoi (`EmailVerificationService`)                                                                                                                                                                    |
+| `contact-request`          | `ContactRequestNotification`         | `emails/contact_request`          | Formulaire de contact de la landing (`ContactRequestService`) — mail interne, en français                                                                                                                           |
+| `notification-reminder`    | `NotificationReminderNotification`   | `emails/notification_reminder`    | Rappel unique d'une notification in-app importante restée non lue (`SendNotificationRemindersJob`, #243)                                                                                                            |
+| `subscription-activated`   | `SubscriptionActivatedNotification`  | `emails/subscription_activated`   | Abonnement manuel devenu actif : prévient owner et admin du fournisseur (`SubscriptionMailService`, #237)                                                                                                           |
+| `subscription-expiring`    | `SubscriptionExpiringNotification`   | `emails/subscription_expiring`    | Rappel avant la fin d'un abonnement manuel : 30 jours (annuel) puis 7 jours (`SyncSubscriptionsJob`, #237)                                                                                                          |
+| `quote-email-verification` | `QuoteEmailVerificationNotification` | `emails/quote_email_verification` | Confirmation de l'adresse de réception des demandes de devis, envoyée à cette adresse (`QuoteEmailVerificationService`, #217)                                                                                       |
+| `supplier-reply-received`  | `SupplierReplyReceivedNotification`  | `emails/supplier_reply_received`  | Réponse d'un fournisseur reçue par mail, transmise à l'auteur de la demande et aux responsables de l'agence (`OnSupplierReplyRecorded`, #225) ; aussi un message que le fournisseur écrit dans l'application (#226) |
+| `agency-message-relayed`   | `AgencyMessageRelayedNotification`   | `emails/agency_message_relayed`   | Message de l'agence (mail à son adresse relais ou écrit dans l'application) relayé au fournisseur (`OnConversationMessageRecorded`, #226)                                                                           |
 
 **Contenu de la demande (#219)** : `rfq-received` et `rfq-reminder` portent la
 description et les lignes de la demande (`description`, `lines: RfqMailLine[]`,
@@ -274,7 +275,7 @@ et HTML des 5 mails dans les 9 langues, pluriels, échappement, symétrie des
 
 Un fournisseur répond à une demande de devis depuis sa messagerie : la plateforme reçoit la réponse, l'authentifie, la rattache au couple demande / fournisseur et la journalise (#223). Le choix du prestataire, Resend, est motivé dans l'[ADR 0005](adr/0005-reception-mails-entrants.md).
 
-Cette brique s'arrête à la réception. La suite se branche sur l'événement `InboundMailReceived` : l'enregistrement de la réponse comme message du fil et comme devis PDF (#224, `OnInboundMailReceived` → `SupplierReplyService`, voir [`quotes.md`](quotes.md)), puis sa transmission à l'agence (#225) et la messagerie (#226).
+Cette brique s'arrête à la réception. La suite se branche sur l'événement `InboundMailReceived`, qui dit **quel côté a écrit** (`side`, #226) : la réponse du fournisseur devient un message du fil et un devis PDF (#224, `OnInboundMailReceived` → `SupplierReplyService`, voir [`quotes.md`](quotes.md)) puis est transmise à l'agence (#225) ; le mail de l'agence devient son message du fil et est relayé au fournisseur (#226, `AgencyReplyService`, voir [Relais des échanges](#relais-des-échanges-agence--fournisseur-226)).
 
 ### Adresse relais
 
@@ -286,7 +287,7 @@ Cette brique s'arrête à la réception. La suite se branche sur l'événement `
 - L'adresse reste valide tant que la demande est publiée, puis `INBOUND_MAIL_GRACE_DAYS` jours (30 par défaut) après sa clôture ou son expiration.
 - Sans configuration (dev, test, CI), aucun `Reply-To` n'est posé : les mails partent comme avant.
 
-### Adresse relais côté agence (#225, branchée par #226)
+### Adresse relais côté agence (#225, #226)
 
 - Le mail `supplier-reply-received`, qui transmet la réponse du fournisseur à
   l'agence, part de la **plateforme** (`MAIL_FROM_ADDRESS`), jamais de l'adresse
@@ -301,17 +302,88 @@ Cette brique s'arrête à la réception. La suite se branche sur l'événement `
   `reply_token` ; elle n'en voit que l'autre jeton.
 - **Pourquoi une seconde adresse** : la même adresse dans les deux sens ferait
   prendre la réponse de l'agence pour celle du fournisseur (l'expéditeur
-  n'authentifie rien). Le préfixe et le jeton disent le sens ; #226 n'aura qu'à
-  reconnaître `agency-` et chercher le couple par `agency_reply_token` (jamais
-  par `reply_token`) pour relayer vers le fournisseur, sans changer les mails
-  déjà partis.
-- **D'ici #226** : `replyTokenFrom` ignore le préfixe `agency-`. Une réponse de
-  l'agence est donc journalisée (`inbound_mails`, écartée en `unknown_address`,
-  visible dans la supervision #227) au lieu d'entrer dans le fil. Le mail
-  n'invite pas à répondre : pied de page « automatique » (`canReply` à `false`
-  dans `SupplierReplyReceivedNotification`, à basculer avec #226).
+  n'authentifie rien). Le préfixe dit **qui écrit**, le jeton désigne le couple.
+- **Résolution** (#226) : `relayTargetFrom` (`shared/helpers/inbound_mail.ts`)
+  rend `{ side, token }` — `rfq-` → `supplier`, `agency-` → `agency`. Le couple
+  est cherché par la colonne du côté qui écrit (`RELAY_TOKEN_FIELDS` :
+  `reply_token` ou `agency_reply_token`), **jamais l'autre** : `agency-<reply_token>`
+  ou `rfq-<agency_reply_token>` sont écartés en `unknown_address`.
+  `InboundAddressService#targetFrom` / `#sideOf` / `#relayAddressFor(recipient, side)`.
+- Le mail invite désormais à répondre (`canReply` dès qu'une adresse relais est
+  posée) : la réponse de l'agence entre dans le fil et part au fournisseur.
 - L'adresse appartient au domaine relais : la détection des boucles
-  (`isRelayAddress`) la couvre déjà.
+  (`isRelayAddress`) la couvre.
+
+### Relais des échanges agence ↔ fournisseur (#226)
+
+Le fournisseur gratuit n'échange avec l'agence que par les mails de la
+plateforme, et tout reste enregistré. Chaque message du fil d'une demande
+(`conversations.rfq_supplier_id`) est relayé par mail à **l'autre côté**, qui
+peut répondre depuis sa messagerie :
+
+| Qui écrit   | Par                       | Enregistré par                                       | Relayé par                                                                        |
+| ----------- | ------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Fournisseur | mail à `rfq-…`            | `SupplierReplyService` (#224)                        | `SupplierReplyRecorded` → `supplier-reply-received` à l'agence (#225)             |
+| Agence      | mail à `agency-…`         | `AgencyReplyService`                                 | `ConversationMessageRecorded` → `agency-message-relayed` au fournisseur           |
+| Agence      | écran de la demande       | `RfqThreadService#post` → `ConversationService#post` | `ConversationMessageRecorded` → `agency-message-relayed` au fournisseur           |
+| Fournisseur | écran de la demande reçue | `RfqThreadService#post` → `ConversationService#post` | `ConversationMessageRecorded` → `supplier-reply-received` à l'agence (sans devis) |
+
+- **Côté d'un message** : `messages.sender_side` (`agency` | `supplier`,
+  migration `1794000000037`), posé à l'écriture ; il dit dans quel sens relayer
+  et comment afficher. Les lignes existantes sont remplies par la migration.
+- **Destinataires** : vers le fournisseur, ses adresses de réception (#217,
+  `RfqNotificationService#addressesFor`, les mêmes que la demande) ; vers
+  l'agence, l'auteur de la demande et ses responsables (#225).
+- **Anonymat du fournisseur non abonné** : le mail relayé part de la
+  plateforme, son `Reply-To` est l'adresse `rfq-` du fournisseur, sujet et titre
+  ne nomment pas l'agence (« L'agence vous a écrit » ; un abonné lit son nom,
+  comme dans la demande, #220/#221). Aucun en-tête du mail de l'agence n'est
+  recopié, sauf les consignes de priorité : `relayableHeaders` (liste blanche
+  `Importance`, `Priority`, `X-Priority`, valeurs courtes et sans adresse)
+  écarte `From`, `Reply-To`, `Sender`, `Return-Path`, `Received`,
+  `X-Originating-IP`, `Message-ID`, `References`, DKIM, `X-Mailer`…
+- **Corps non filtré** : décision du client, une signature ou un texte peut
+  révéler l'agence ; ni filtrage ni avertissement. Seul l'**historique cité**
+  est retiré (`stripQuotedReply`, appelé par `inboundMailBody`), à la première
+  marque sûre : annonce datée ou adressée (« Le 21 nov. 2026, … a écrit : »,
+  « On … wrote: »), « -----Original Message----- », en-tête cité complet
+  (`De :` puis `Envoyé :` puis `À :` ou `Objet :`), ou bloc `>` qui **termine**
+  le mail — en 9 langues. Dans le doute le texte est gardé : une ligne
+  `> 500 pièces` au milieu du message, deux lignes `De : …` / `Date : …` ou
+  « Voici ce que Paul a écrit : » ne coupent rien. Sans ce retrait, chaque
+  réponse recopierait le fil entier, relayé à chaque aller-retour, avec les noms
+  et adresses que ces en-têtes cités portent. Le mail complet reste dans
+  `inbound_mails`.
+- **Expéditeur de l'agence vérifié** : un mail reçu à `agency-…` n'est accepté
+  que s'il vient de l'adresse d'un membre de l'agence **et** que son domaine
+  n'échoue pas l'authentification ; sinon il est écarté en `unknown_sender`
+  (l'adresse peut fuiter par un transfert, et le fournisseur ne voit pas qui l'a
+  écrit). `From` se falsifie : `senderAuthenticationFailed` lit le premier
+  en-tête `Authentication-Results` du mail brut (celui du serveur de réception)
+  et écarte un DMARC en échec, ou un SPF en échec sans DKIM valide. Sans cet
+  en-tête, rien n'est conclu : le contrôle ne vaut que pour les domaines qui
+  publient SPF / DMARC, ce n'est pas une authentification forte.
+- **Agence prévenue d'un refus** : un mail écarté en `unknown_sender` est
+  annoncé (`AgencyMailRefused` → `AgencyReplyService#refuse`) ; l'auteur de la
+  demande et ses responsables reçoivent la notification `rfq.relay_refused`
+  (une par mail), qui mène à la demande pour écrire depuis l'écran. Aucune
+  réponse n'est faite à l'expéditeur, qui peut être falsifié. Un admin peut
+  rattacher le mail à la main depuis la supervision (#227) : il est alors
+  enregistré et relayé. Côté fournisseur, un expéditeur inconnu ou non
+  authentifié reste indicatif (`sender_known`).
+- **Fil clos** : passé le délai de l'adresse relais (`INBOUND_MAIL_GRACE_DAYS`
+  après la clôture ou l'expiration de la demande, `isRelayWindowClosed`), on
+  n'écrit plus ni par mail (`expired_address`) ni depuis l'écran (abilities
+  `canMessageRfq*`) ; le fil reste lisible.
+- **Pièces jointes de l'agence** : rattachées au message (fichiers déjà sur
+  Cellar, jamais pris pour des devis) et citées par leur nom dans le mail relayé.
+- **Idempotence** : `messages.inbound_mail_id` unique pour l'enregistrement ;
+  clé `agency-message-relayed:message=<id>:to=<adresse>` pour le mail. Un
+  `InboundMailReceived` rejoué (worker, supervision #227) ne crée ni second
+  message ni second envoi.
+- **Échec** : un échec de mise en queue est loggué sans être propagé, le message
+  reste dans le fil. Comme pour #225, l'émission de l'événement après le commit
+  n'est pas garantie ; la reprise des messages non relayés reste à faire.
 
 ### Variables d'environnement
 
@@ -352,11 +424,11 @@ Réponses du webhook :
 
 ### Écouteurs de `InboundMailReceived`
 
-L'événement est émis **au moins une fois**, pas exactement une fois. Si un écouteur lève, le mail repasse `failed`, le job est rejoué et l'événement est réémis, y compris pour les écouteurs qui avaient abouti. Tout écouteur (#224 à #226) doit donc être idempotent : vérifier par `inboundMailId` que son effet n'existe pas déjà avant de créer un devis, un message ou un envoi de mail. Celui de #224 s'appuie sur l'unicité de `messages.inbound_mail_id`.
+L'événement est émis **au moins une fois**, pas exactement une fois. Si un écouteur lève, le mail repasse `failed`, le job est rejoué et l'événement est réémis, y compris pour les écouteurs qui avaient abouti. Tout écouteur (#224 à #226) doit donc être idempotent : vérifier par `inboundMailId` que son effet n'existe pas déjà avant de créer un devis, un message ou un envoi de mail. Ceux de #224 et #226 (`SupplierReplyService`, `AgencyReplyService`) s'appuient sur l'unicité de `messages.inbound_mail_id`. Le rejeu admin d'un mail traité (#227) relit le côté sur l'adresse relais visée (`InboundAddressService#sideOf`).
 
 ### Corps HTML
 
-`inbound_mails.html_body` est stocké tel que reçu, sans assainissement : il vient d'un tiers et peut contenir du script ou des images de pistage. Il ne doit jamais être rendu tel quel (`v-html`). Un écran qui l'affiche (#226, #227) l'assainit au rendu, ou affiche `text_body`.
+`inbound_mails.html_body` est stocké tel que reçu, sans assainissement : il vient d'un tiers et peut contenir du script ou des images de pistage. Il ne doit jamais être rendu tel quel (`v-html`). Un écran qui l'affiche (#227) l'assainit au rendu, ou affiche `text_body`. Le fil d'échanges (#226) n'affiche que `messages.body`, du texte brut (`inboundMailBody`).
 
 ### Garde-fous
 
@@ -369,6 +441,7 @@ Appliqués dans cet ordre ; le premier qui s'applique écarte le mail (`status =
 | `auto_reply`      | `Auto-Submitted` autre que `no`, `X-Auto-Response-Suppress: All` (les autres valeurs, posées par des CRM et des ERP sur des mails écrits par une personne, ne comptent pas), `X-Autoreply`, `Precedence: bulk/junk/list`, `Return-Path: <>`, rapport de non-remise, expéditeur `mailer-daemon`, `postmaster`, `no-reply` |
 | `unknown_address` | Aucun couple ne porte ce jeton, ou l'adresse n'est pas une adresse relais                                                                                                                                                                                                                                                |
 | `expired_address` | Demande close ou expirée depuis plus de `INBOUND_MAIL_GRACE_DAYS` jours                                                                                                                                                                                                                                                  |
+| `unknown_sender`  | Mail reçu à l'adresse `agency-` d'un couple depuis une adresse qui n'est celle d'aucun membre de l'agence, ou dont le domaine échoue DMARC / SPF (#226) ; l'agence est notifiée, un rattachement manuel le fait passer                                                                                                   |
 | `dismissed`       | Écarté à la main par un admin depuis la supervision (voir plus bas)                                                                                                                                                                                                                                                      |
 
 Un mail écarté n'est que journalisé (expéditeur, adresse visée, objet, en-têtes) : son corps et ses pièces jointes ne sont pas conservés.
@@ -446,7 +519,7 @@ node ace inbound-mail:simulate rfq-<jeton>@reply.localhost \
 
 ### Tests
 
-`tests/functional/inbound_mail.spec.ts` couvre le webhook (rattachement, doublon, réponse automatique, adresse inconnue ou expirée, signature invalide, pièces jointes, reprise après échec) et le `Reply-To`. `tests/unit/inbound_mail_helpers.spec.ts` couvre l'adresse relais, la détection des réponses automatiques et la signature Svix (vecteur de la documentation Svix). Le faux prestataire est dans `tests/utils/inbound_mail.ts` (`useFakeInboundMail(group)`).
+`tests/functional/inbound_mail.spec.ts` couvre le webhook (rattachement, doublon, réponse automatique, adresse inconnue ou expirée, signature invalide, pièces jointes, reprise après échec) et le `Reply-To`. `tests/unit/inbound_mail_helpers.spec.ts` couvre l'adresse relais, la détection des réponses automatiques et la signature Svix (vecteur de la documentation Svix). Le faux prestataire est dans `tests/utils/inbound_mail.ts` (`useFakeInboundMail(group)`). `tests/functional/rfq_message_relay.spec.ts` couvre le relais (#226) : résolution par côté, relais dans les deux sens par mail et depuis l'application, anonymat des en-têtes, rejeu, abilities (403), validation, fil bloqué, signalement et props des deux écrans ; `tests/unit/inbound_mail_helpers.spec.ts` couvre aussi `relayTargetFrom` et `relayableHeaders`, `tests/unit/conversation_helpers.spec.ts` les côtés et la charge du mail relayé.
 
 ## Références
 

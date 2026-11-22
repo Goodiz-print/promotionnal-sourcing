@@ -96,6 +96,9 @@ export interface ApiDefinition {
       index: typeof routes['supplier.rfqs.index']
       show: typeof routes['supplier.rfqs.show']
       decline: typeof routes['supplier.rfqs.decline']
+      messages: {
+        store: typeof routes['supplier.rfqs.messages.store']
+      }
     }
     quotes: {
       index: typeof routes['supplier.quotes.index']
@@ -198,6 +201,9 @@ export interface ApiDefinition {
     suppliers: {
       store: typeof routes['rfqs.suppliers.store']
       destroy: typeof routes['rfqs.suppliers.destroy']
+    }
+    messages: {
+      store: typeof routes['rfqs.messages.store']
     }
     publish: typeof routes['rfqs.publish']
     send: typeof routes['rfqs.send']

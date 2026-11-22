@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { test } from '@japa/runner'
 import app from '@adonisjs/core/services/app'
+import AgencyMessageRelayedNotification from '#mails/agency_message_relayed_notification'
 import AgencyReviewDecisionNotification from '#mails/agency_review_decision_notification'
 import AnnouncementNotification from '#mails/announcement_notification'
 import EmailVerificationNotification from '#mails/email_verification_notification'
@@ -19,6 +20,7 @@ import { SUPPORTED_LOCALES, type Locale } from '#shared/types/i18n'
 import { NOTIFICATION_EMAIL_FALLBACK } from '#shared/types/notification'
 import type User from '#models/user'
 import type {
+  AgencyMessageRelayedMailData,
   RfqMailLine,
   RfqReceivedMailData,
   SupplierReplyReceivedMailData,
@@ -112,6 +114,16 @@ const SUPPLIER_REPLY_DATA: SupplierReplyReceivedMailData = {
   ],
   rfqPath: '/x/rfqs/1',
   replyTo: 'agency-abc@relay.test',
+}
+
+const AGENCY_MESSAGE_DATA: AgencyMessageRelayedMailData = {
+  agencyName: null,
+  rfqTitle: 'Tote bags',
+  body: 'Bonjour,\nlivraison <b>avant</b> le 15 ?',
+  attachments: ['logo.png'],
+  rfqPath: '/x/supplier/rfqs/1',
+  replyTo: 'rfq-abc@relay.test',
+  headers: { Importance: 'high' },
 }
 
 const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> = {
@@ -238,6 +250,18 @@ const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> 
     new SupplierReplyReceivedNotification(
       'buyer@example.com',
       SUPPLIER_REPLY_DATA,
+      locale
+    ) as never,
+  agencyMessageRelayed: (locale) =>
+    new AgencyMessageRelayedNotification(
+      'supplier@example.com',
+      AGENCY_MESSAGE_DATA,
+      locale
+    ) as never,
+  agencyMessageRelayedNamed: (locale) =>
+    new AgencyMessageRelayedNotification(
+      'supplier@example.com',
+      { ...AGENCY_MESSAGE_DATA, agencyName: 'Agence Dupont' },
       locale
     ) as never,
   welcome: (locale) =>
@@ -679,8 +703,9 @@ test.group('Mails — réponse du fournisseur transmise à l’agence (#225)', (
 
     assert.deepEqual(message.replyTo, ['agency-abc@relay.test'])
     assert.notInclude(JSON.stringify(message.from ?? ''), 'Textiles')
-    // Le relais vers le fournisseur vient avec #226 : le mail n'invite pas encore à répondre.
-    assert.include(message.html as string, 'merci de ne pas y répondre')
+    // La réponse de l'agence est relayée au fournisseur (#226) : le mail y invite.
+    assert.include(message.html as string, 'votre réponse sera transmise au fournisseur')
+    assert.notInclude(message.html as string, 'merci de ne pas y répondre')
   })
 
   test('sans texte ni devis, ni bloc message ni liste de fichiers', async ({ assert }) => {
@@ -694,5 +719,66 @@ test.group('Mails — réponse du fournisseur transmise à l’agence (#225)', (
 
     assert.notInclude(html, 'Son message')
     assert.notInclude(html, 'Devis joints')
+  })
+})
+
+test.group('Mails — message de l’agence relayé au fournisseur (#226)', () => {
+  test('anonyme pour un non abonné : ni nom d’agence au sujet ni au titre', async ({ assert }) => {
+    const { subject, html } = await render(
+      new AgencyMessageRelayedNotification('s@x.test', AGENCY_MESSAGE_DATA, 'fr') as never
+    )
+
+    assert.equal(subject, "Message de l'agence sur « Tote bags »")
+    assert.include(html, 'livraison &lt;b&gt;avant&lt;/b&gt; le 15 ?')
+    assert.include(html, 'logo.png')
+    assert.include(html, '/x/supplier/rfqs/1')
+    assert.include(html, 'votre réponse sera transmise à l')
+  })
+
+  test('nommée pour un abonné', async ({ assert }) => {
+    const { subject } = await render(
+      new AgencyMessageRelayedNotification(
+        's@x.test',
+        { ...AGENCY_MESSAGE_DATA, agencyName: 'Agence Dupont' },
+        'en'
+      ) as never
+    )
+
+    assert.equal(subject, 'Message from Agence Dupont about “Tote bags”')
+  })
+
+  test('expéditeur plateforme, Reply-To `rfq-`, seuls les en-têtes nettoyés', async ({
+    assert,
+  }) => {
+    const mailer = new AgencyMessageRelayedNotification('s@x.test', AGENCY_MESSAGE_DATA, 'fr')
+    await mailer.buildWithContents()
+    const { message } = mailer.message.toJSON()
+
+    assert.deepEqual(message.replyTo, ['rfq-abc@relay.test'])
+    assert.equal((message.headers as Record<string, string>)['Importance'], 'high')
+    assert.equal(
+      (message.headers as Record<string, string>)['X-Auto-Response-Suppress'],
+      'OOF, AutoReply'
+    )
+  })
+
+  test('la version texte reprend le message sans HTML ; sans Reply-To, pas d’invitation', async ({
+    assert,
+  }) => {
+    const { text } = await render(
+      new AgencyMessageRelayedNotification('s@x.test', AGENCY_MESSAGE_DATA, 'fr') as never
+    )
+    const automatic = await render(
+      new AgencyMessageRelayedNotification(
+        's@x.test',
+        { ...AGENCY_MESSAGE_DATA, replyTo: null, attachments: [] },
+        'fr'
+      ) as never
+    )
+
+    assert.include(text, 'livraison <b>avant</b> le 15 ?')
+    assert.include(text, '- logo.png')
+    assert.notInclude(automatic.html, 'votre réponse sera transmise')
+    assert.notInclude(automatic.html, 'logo.png')
   })
 })

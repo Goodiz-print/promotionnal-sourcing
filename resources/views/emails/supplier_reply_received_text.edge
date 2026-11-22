@@ -15,6 +15,10 @@
 {{{ t('emails.supplierReplyReceived.downloadHint') }}}
 
 @end
+@if(canReply)
+{{{ t('emails.supplierReplyReceived.replyHint') }}}
+
+@end
 {{{ t('emails.supplierReplyReceived.cta') }}} : {{{ appUrl }}}{{{ rfqPath }}}
 
 --

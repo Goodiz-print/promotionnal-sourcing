@@ -161,6 +161,22 @@
     "documentsHeading": "Orçamentos anexados:",
     "downloadHint": "Estas ligações exigem que tenha sessão iniciada na sua conta.",
     "cta": "Abrir o pedido",
-    "footer": "Recebe esta mensagem porque gere este pedido de orçamento."
+    "footer": "Recebe esta mensagem porque gere este pedido de orçamento.",
+    "replyHint": "Basta responder a este e-mail: a sua resposta será reencaminhada ao fornecedor."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Mensagem de {agencyName} sobre «{rfqTitle}»",
+      "anonymous": "Mensagem da agência sobre «{rfqTitle}»"
+    },
+    "title": {
+      "named": "{agencyName} escreveu-lhe",
+      "anonymous": "A agência escreveu-lhe"
+    },
+    "body": "Nova mensagem sobre o pedido «{rfqTitle}»:",
+    "attachmentsHeading": "Anexos, disponíveis na aplicação:",
+    "replyHint": "Basta responder a este e-mail: a sua resposta será reencaminhada à agência.",
+    "cta": "Abrir o pedido",
+    "footer": "Recebe esta mensagem porque a sua empresa recebeu este pedido de orçamento."
   }
 }

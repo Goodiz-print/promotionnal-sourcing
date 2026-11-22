@@ -1,6 +1,46 @@
 {
   "flash": {
     "reported": "Thank you, your report has been sent to the moderation team.",
-    "alreadyHandled": "This message has already been reviewed by the moderation team."
+    "alreadyHandled": "This message has already been reviewed by the moderation team.",
+    "posted": "Uw bericht is verstuurd."
+  },
+  "errors": {
+    "blocked": "Dit gesprek is door het platform geblokkeerd: u kunt er niet meer in schrijven."
+  },
+  "thread": {
+    "titleWith": "Berichten met {name}",
+    "titleAgency": "Berichten met het bureau",
+    "agencyHint": "Het platform stuurt uw berichten per e-mail door naar de leverancier, zonder uw adres. Zijn antwoorden verschijnen hier.",
+    "supplierHint": "Uw berichten worden per e-mail doorgestuurd naar het bureau. De antwoorden verschijnen hier en in uw mailbox.",
+    "empty": "Nog geen berichten.",
+    "emptyHint": "Schrijf een eerste bericht: het wordt per e-mail doorgestuurd.",
+    "blocked": "Dit gesprek is door het platform geblokkeerd: het blijft leesbaar, maar er kan niet meer in geschreven worden.",
+    "closed": "De berichten over deze aanvraag zijn gesloten: ze is te lang geleden beëindigd om te schrijven, hier of per e-mail.",
+    "hasOlder": "Alleen de laatste {count} berichten worden getoond.",
+    "yourTeam": "Uw team",
+    "viaMail": "per e-mail",
+    "attachments": "Bijlagen",
+    "sides": {
+      "agency": "Het bureau",
+      "supplier": "De leverancier"
+    },
+    "bodyLabel": "Uw bericht",
+    "placeholder": "Schrijf uw bericht…",
+    "maxLength": "Maximaal {max} tekens.",
+    "send": "Versturen",
+    "report": {
+      "action": "Melden",
+      "reasonLabel": "Reden van de melding",
+      "submit": "Dit bericht melden",
+      "cancel": "Annuleren",
+      "reasons": {
+        "spam": "Spam",
+        "abuse": "Beledigende inhoud",
+        "off_platform": "Omzeilen van het platform",
+        "fraud": "Fraude",
+        "other": "Overig"
+      }
+    },
+    "unknownSender": "onbekend adres"
   }
 }

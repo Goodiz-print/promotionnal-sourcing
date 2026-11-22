@@ -161,6 +161,22 @@
     "documentsHeading": "Presupuestos adjuntos:",
     "downloadHint": "Estos enlaces requieren haber iniciado sesión en su cuenta.",
     "cta": "Abrir la solicitud",
-    "footer": "Recibe este mensaje porque gestiona esta solicitud de presupuesto."
+    "footer": "Recibe este mensaje porque gestiona esta solicitud de presupuesto.",
+    "replyHint": "Responda simplemente a este correo: su respuesta se reenviará al proveedor."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Mensaje de {agencyName} sobre «{rfqTitle}»",
+      "anonymous": "Mensaje de la agencia sobre «{rfqTitle}»"
+    },
+    "title": {
+      "named": "{agencyName} le ha escrito",
+      "anonymous": "La agencia le ha escrito"
+    },
+    "body": "Nuevo mensaje sobre la solicitud «{rfqTitle}»:",
+    "attachmentsHeading": "Archivos adjuntos, disponibles en la aplicación:",
+    "replyHint": "Responda simplemente a este correo: su respuesta se reenviará a la agencia.",
+    "cta": "Abrir la solicitud",
+    "footer": "Recibe este mensaje porque su empresa ha recibido esta solicitud de presupuesto."
   }
 }

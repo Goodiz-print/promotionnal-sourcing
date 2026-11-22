@@ -10,7 +10,8 @@
     "rfq": {
       "received": "{buyerName} hat Ihnen eine Angebotsanfrage gesendet: {rfqTitle}.",
       "responded": "{supplierName} hat auf die Anfrage {rfqTitle} geantwortet.",
-      "declined": "{supplierName} hat die Anfrage {rfqTitle} abgelehnt."
+      "declined": "{supplierName} hat die Anfrage {rfqTitle} abgelehnt.",
+      "relay_refused": "Ihre E-Mail von {senderAddress} zur Anfrage {rfqTitle} wurde nicht an {supplierName} weitergeleitet: Diese Adresse ist für Ihre Agentur nicht bekannt. Schreiben Sie direkt aus der Anfrage."
     },
     "quote": {
       "received": "{supplierName} hat ein Angebot für {rfqTitle} abgegeben.",

@@ -6,42 +6,69 @@ import {
   acceptedAttachmentType,
   agencyReplyAddress,
   htmlToText,
+  inboundMailBody,
   isAutomaticReply,
+  isRelayWindowClosed,
   matchesFileSignature,
   parseMailAddress,
   parseRawHeaders,
+  RELAY_TOKEN_FIELDS,
+  relayableHeaders,
+  relayTargetFrom,
   replyAddress,
-  replyTokenFrom,
+  senderAuthenticationFailed,
+  senderRejection,
+  stripQuotedReply,
 } from '#shared/helpers/inbound_mail'
+import { DateTime } from 'luxon'
+import { MESSAGE_MAX_LENGTH } from '#shared/types/conversation'
 
 const TOKEN = '0123456789abcdef0123456789abcdef'
 
 test.group('Mails entrants — adresse relais', () => {
-  test('l’adresse côté agence (#225) porte le même jeton, sans être prise pour celle du fournisseur', ({
+  test('une adresse par côté (#226) : `rfq-` pour le fournisseur, `agency-` pour l’agence', ({
     assert,
   }) => {
-    const address = agencyReplyAddress(TOKEN, 'reply.test')
-
-    assert.equal(address, `agency-${TOKEN}@reply.test`)
-    // Tant que #226 ne la route pas, une réponse de l'agence n'entre pas dans le fil.
-    assert.isNull(replyTokenFrom([address], 'reply.test'))
-    assert.notEqual(address, replyAddress(TOKEN, 'reply.test'))
+    assert.equal(replyAddress(TOKEN, 'reply.test'), `rfq-${TOKEN}@reply.test`)
+    assert.equal(agencyReplyAddress(TOKEN, 'reply.test'), `agency-${TOKEN}@reply.test`)
+    assert.deepEqual(RELAY_TOKEN_FIELDS, { supplier: 'replyToken', agency: 'agencyReplyToken' })
   })
 
-  test('retrouve le jeton, sans tenir compte de la casse ni du nom affiché', ({ assert }) => {
+  test('relayTargetFrom : le préfixe dit qui écrit, le jeton désigne le couple', ({ assert }) => {
+    assert.deepEqual(relayTargetFrom([replyAddress(TOKEN, 'reply.test')], 'reply.test'), {
+      side: 'supplier',
+      token: TOKEN,
+    })
+    assert.deepEqual(relayTargetFrom([agencyReplyAddress(TOKEN, 'reply.test')], 'reply.test'), {
+      side: 'agency',
+      token: TOKEN,
+    })
+  })
+
+  test('relayTargetFrom : sans tenir compte de la casse ni du nom affiché, première adresse relais', ({
+    assert,
+  }) => {
     const address = replyAddress(TOKEN, 'reply.test')
+    const agency = agencyReplyAddress(TOKEN.replace('0', 'f'), 'reply.test')
 
-    assert.equal(address, `rfq-${TOKEN}@reply.test`)
-    assert.equal(replyTokenFrom([address], 'reply.test'), TOKEN)
-    assert.equal(replyTokenFrom([`Devis <${address.toUpperCase()}>`], 'reply.test'), TOKEN)
-    assert.equal(replyTokenFrom(['autre@exemple.fr', address], 'reply.test'), TOKEN)
+    assert.equal(relayTargetFrom([`Devis <${address.toUpperCase()}>`], 'reply.test')?.token, TOKEN)
+    assert.equal(relayTargetFrom(['autre@exemple.fr', address], 'reply.test')?.side, 'supplier')
+    assert.equal(
+      relayTargetFrom(['autre@exemple.fr', agency, address], 'reply.test')?.side,
+      'agency'
+    )
   })
 
-  test('ignore un autre domaine, un autre préfixe ou un jeton mal formé', ({ assert }) => {
-    assert.isNull(replyTokenFrom([`rfq-${TOKEN}@autre.test`], 'reply.test'))
-    assert.isNull(replyTokenFrom([`devis-${TOKEN}@reply.test`], 'reply.test'))
-    assert.isNull(replyTokenFrom(['rfq-12@reply.test'], 'reply.test'))
-    assert.isNull(replyTokenFrom([`rfq-${TOKEN}x@reply.test`], 'reply.test'))
+  test('relayTargetFrom : ignore un autre domaine, un autre préfixe ou un jeton mal formé', ({
+    assert,
+  }) => {
+    assert.isNull(relayTargetFrom([`rfq-${TOKEN}@autre.test`], 'reply.test'))
+    assert.isNull(relayTargetFrom([`devis-${TOKEN}@reply.test`], 'reply.test'))
+    assert.isNull(relayTargetFrom(['rfq-12@reply.test'], 'reply.test'))
+    assert.isNull(relayTargetFrom([`rfq-${TOKEN}x@reply.test`], 'reply.test'))
+    assert.isNull(relayTargetFrom([`agency-${TOKEN}@autre.test`], 'reply.test'))
+    assert.isNull(relayTargetFrom([`agency-rfq-${TOKEN}@reply.test`], 'reply.test'))
+    assert.isNull(relayTargetFrom([], 'reply.test'))
   })
 
   test('décompose un expéditeur', ({ assert }) => {
@@ -209,5 +236,169 @@ test.group('Mails entrants — corps HTML réduit à du texte', () => {
 
   test('un HTML sans texte donne une chaîne vide', ({ assert }) => {
     assert.equal(htmlToText('<p><img src="cid:logo"></p>'), '')
+  })
+})
+
+test.group('Mails entrants — relais (#226)', () => {
+  test('relayableHeaders : écarte tout ce qui désigne l’expéditeur', ({ assert }) => {
+    const headers = {
+      'from': 'Agence Dupont <marie@agence-dupont.fr>',
+      'reply-to': 'marie@agence-dupont.fr',
+      'sender': 'marie@agence-dupont.fr',
+      'return-path': '<bounce@agence-dupont.fr>',
+      'received': 'from mail.agence-dupont.fr ([203.0.113.7])',
+      'x-originating-ip': '[203.0.113.7]',
+      'message-id': '<abc@agence-dupont.fr>',
+      'in-reply-to': '<def@reply.test>',
+      'references': '<abc@agence-dupont.fr>',
+      'dkim-signature': 'v=1; d=agence-dupont.fr',
+      'x-mailer': 'Outlook 16 — Agence Dupont',
+      'organization': 'Agence Dupont',
+      'subject': 'Re: devis Agence Dupont',
+      'x-ms-exchange-organization-authas': 'Internal',
+    }
+
+    assert.deepEqual(relayableHeaders(headers), {})
+  })
+
+  test('relayableHeaders : garde les consignes de priorité, nom canonique', ({ assert }) => {
+    assert.deepEqual(
+      relayableHeaders({ 'importance': 'high', 'x-priority': '1 (Highest)', 'Priority': 'urgent' }),
+      { 'Importance': 'high', 'X-Priority': '1 (Highest)', 'Priority': 'urgent' }
+    )
+  })
+
+  test('relayableHeaders : une valeur qui n’est pas une simple consigne est écartée', ({
+    assert,
+  }) => {
+    assert.deepEqual(relayableHeaders({ importance: 'high <marie@agence-dupont.fr>' }), {})
+    assert.deepEqual(relayableHeaders({ importance: 'h'.repeat(64) }), {})
+    assert.deepEqual(relayableHeaders({ 'x-priority': '1\r\nBcc: x@y.fr' }), {})
+  })
+
+  test('inboundMailBody : le texte, à défaut le HTML réduit, borné', ({ assert }) => {
+    assert.equal(inboundMailBody('  Bonjour  ', '<p>ignoré</p>'), 'Bonjour')
+    assert.equal(inboundMailBody('  ', '<p>Bonjour</p><p>Merci</p>'), 'Bonjour\nMerci')
+    assert.equal(inboundMailBody(null, null), '')
+    assert.lengthOf(inboundMailBody('a'.repeat(MESSAGE_MAX_LENGTH + 10), null), MESSAGE_MAX_LENGTH)
+  })
+
+  test('inboundMailBody : sans l’historique cité', ({ assert }) => {
+    assert.equal(inboundMailBody('Oui, ça marche.\n\n> Livraison le 15 ?', null), 'Oui, ça marche.')
+  })
+
+  test('stripQuotedReply : coupe à la première marque de citation', ({ assert }) => {
+    const cases: Array<[string, string]> = [
+      ['Merci.\n> ancien', 'Merci.'],
+      [
+        'Merci.\n\nLe 21 nov. 2026 à 10:02, Plateforme <noreply@x.test> a écrit :\n> ancien',
+        'Merci.',
+      ],
+      [
+        'Thanks.\nOn Fri, Nov 21, 2026 at 10:02 AM Platform <noreply@x.test> wrote:\nold',
+        'Thanks.',
+      ],
+      [
+        'Merci.\nLe ven. 21 nov. 2026 à 10:02, Plateforme\n<noreply@x.test> a écrit :\nancien',
+        'Merci.',
+      ],
+      ['Danke.\n-----Ursprüngliche Nachricht-----\nalt', 'Danke.'],
+      [
+        'Merci.\n\nDe : Plateforme <noreply@x.test>\nEnvoyé : vendredi 21 novembre 2026\nÀ : Marie\nObjet : Devis\nancien',
+        'Merci.',
+      ],
+      ['Merci.\n\n> ancien\n>\n> encore', 'Merci.'],
+    ]
+    cases.forEach(([text, expected]) => assert.equal(stripQuotedReply(text), expected, text))
+  })
+
+  test('stripQuotedReply : ne coupe jamais une ligne du message qui ressemble à une citation', ({
+    assert,
+  }) => {
+    const kept = [
+      'Bonjour,\n> 500 pièces : 2,10 €\nMerci',
+      'Bonjour,\nDe : 100 à 500 pièces\nDate : livraison le 15 mars\nMerci',
+      'Bonjour,\nVoici ce que Paul a écrit :\nlivrer avant le 15',
+    ]
+    kept.forEach((text) => assert.equal(stripQuotedReply(text), text, text))
+    // Réponse intercalée : seul le bloc cité final est retiré.
+    assert.equal(
+      stripQuotedReply('Merci.\n> ancien\nMa réponse en ligne\n> ancien encore'),
+      'Merci.\n> ancien\nMa réponse en ligne'
+    )
+  })
+
+  test('stripQuotedReply : garde un texte sans citation, ou qui n’est qu’une citation', ({
+    assert,
+  }) => {
+    assert.equal(
+      stripQuotedReply('De : notre côté, tout va bien.\nMerci'),
+      'De : notre côté, tout va bien.\nMerci'
+    )
+    assert.equal(stripQuotedReply('> seulement cité'), '> seulement cité')
+    assert.equal(stripQuotedReply(''), '')
+  })
+
+  test('isRelayWindowClosed : ouverte publiée, puis graceDays après la fin', ({ assert }) => {
+    const now = DateTime.fromISO('2026-11-21T12:00:00Z')
+    const endedAt = (days: number) => now.minus({ days })
+
+    assert.isFalse(
+      isRelayWindowClosed({ status: 'published', closedAt: null, expiredAt: null }, 30, now)
+    )
+    assert.isFalse(
+      isRelayWindowClosed({ status: 'closed', closedAt: endedAt(29), expiredAt: null }, 30, now)
+    )
+    assert.isTrue(
+      isRelayWindowClosed({ status: 'closed', closedAt: endedAt(31), expiredAt: null }, 30, now)
+    )
+    assert.isTrue(
+      isRelayWindowClosed({ status: 'expired', closedAt: null, expiredAt: endedAt(31) }, 30, now)
+    )
+    assert.isTrue(
+      isRelayWindowClosed({ status: 'draft', closedAt: null, expiredAt: null }, 30, now)
+    )
+  })
+
+  test('senderRejection : un mail de l’agence d’un inconnu est écarté, sauf rattaché à la main', ({
+    assert,
+  }) => {
+    const agency = {
+      side: 'agency' as const,
+      senderKnown: false,
+      authenticationFailed: false,
+      attachedManually: false,
+    }
+
+    assert.equal(senderRejection(agency), 'unknown_sender')
+    assert.isNull(senderRejection({ ...agency, senderKnown: true }))
+    assert.isNull(senderRejection({ ...agency, attachedManually: true }))
+    assert.isNull(senderRejection({ ...agency, side: 'supplier' }))
+    assert.isNull(senderRejection({ ...agency, side: null }))
+    // Membre connu, mais domaine non authentifié : `From` falsifié.
+    assert.equal(
+      senderRejection({ ...agency, senderKnown: true, authenticationFailed: true }),
+      'unknown_sender'
+    )
+    assert.isNull(
+      senderRejection({
+        ...agency,
+        side: 'supplier',
+        senderKnown: true,
+        authenticationFailed: true,
+      })
+    )
+  })
+
+  test('senderAuthenticationFailed : DMARC en échec, ou SPF sans DKIM valide', ({ assert }) => {
+    const results = (value: string) => ({ 'authentication-results': value })
+
+    assert.isTrue(senderAuthenticationFailed(results('mx.test; spf=pass; dkim=pass; dmarc=fail')))
+    assert.isTrue(senderAuthenticationFailed(results('mx.test; spf=softfail smtp.mailfrom=x')))
+    assert.isTrue(senderAuthenticationFailed(results('mx.test; SPF=Fail; dkim=none')))
+    assert.isFalse(senderAuthenticationFailed(results('mx.test; spf=fail; dkim=pass')))
+    assert.isFalse(senderAuthenticationFailed(results('mx.test; spf=pass; dkim=pass; dmarc=pass')))
+    assert.isFalse(senderAuthenticationFailed(results('mx.test; spf=none')))
+    assert.isFalse(senderAuthenticationFailed({}))
   })
 })

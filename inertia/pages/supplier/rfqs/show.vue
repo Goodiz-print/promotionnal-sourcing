@@ -13,9 +13,11 @@ import RfqItemList from '~/components/rfqs/rfq_item_list.vue'
 import SupplierRfqMetaPills from '~/components/rfqs/supplier_rfq_meta_pills.vue'
 import SupplierBuyerContact from '~/components/rfqs/supplier_buyer_contact.vue'
 import SubscriptionUpsell from '~/components/subscription/subscription_upsell.vue'
+import ConversationThread from '~/components/messaging/conversation_thread.vue'
 import { RFQ_SUPPLIER_STATUS_TONES } from '~/components/rfqs/types'
 import { QUOTE_STATUS_TONES } from '~/components/quotes/types'
 import type { RfqQuoteSummaryType } from '#shared/types/quote'
+import type { RfqThreadType } from '#shared/types/conversation'
 import type { SupplierRfqDetailType } from '#shared/types/rfq'
 import type { SubscriptionUpsellType } from '#shared/types/subscription'
 
@@ -25,11 +27,23 @@ const props = defineProps<{
   canQuote: boolean
   /** Encart d'abonnement à la place de l'agence, masquée à un non abonné (#220, #222). */
   upsell: SubscriptionUpsellType | null
+  /** Fil d'échanges avec l'agence, relayé par mail (#226) ; agence nommée pour un abonné. */
+  thread: RfqThreadType
 }>()
 
 const { t, locale } = useI18n()
 
 const indexUrl = computed(() => urlFor('supplier.rfqs.index', { locale: locale.value }))
+
+const threadUrl = computed(() =>
+  urlFor('supplier.rfqs.messages.store', { locale: locale.value, id: props.rfq.id })
+)
+
+const threadTitle = computed(() =>
+  props.thread.counterpartName
+    ? t('messaging.thread.titleWith', { name: props.thread.counterpartName })
+    : t('messaging.thread.titleAgency')
+)
 
 const quoteUrl = computed(() =>
   props.quote
@@ -127,5 +141,13 @@ function decline() {
         </BaseButton>
       </template>
     </BaseSection>
+
+    <ConversationThread
+      :thread="thread"
+      :title="threadTitle"
+      :description="t('messaging.thread.supplierHint')"
+      :fallback-counterpart="t('messaging.thread.sides.agency')"
+      :post-url="threadUrl"
+    />
   </div>
 </template>

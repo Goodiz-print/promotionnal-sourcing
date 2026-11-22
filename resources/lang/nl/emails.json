@@ -161,6 +161,22 @@
     "documentsHeading": "Bijgevoegde offertes:",
     "downloadHint": "Voor deze links moet u ingelogd zijn op uw account.",
     "cta": "Aanvraag openen",
-    "footer": "U ontvangt dit bericht omdat u deze offerteaanvraag beheert."
+    "footer": "U ontvangt dit bericht omdat u deze offerteaanvraag beheert.",
+    "replyHint": "Beantwoord deze e-mail gewoon: uw antwoord wordt doorgestuurd naar de leverancier."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Bericht van {agencyName} over ‘{rfqTitle}’",
+      "anonymous": "Bericht van het bureau over ‘{rfqTitle}’"
+    },
+    "title": {
+      "named": "{agencyName} heeft u geschreven",
+      "anonymous": "Het bureau heeft u geschreven"
+    },
+    "body": "Nieuw bericht over de aanvraag ‘{rfqTitle}’:",
+    "attachmentsHeading": "Bijlagen, te bekijken in de applicatie:",
+    "replyHint": "Beantwoord deze e-mail gewoon: uw antwoord wordt doorgestuurd naar het bureau.",
+    "cta": "Aanvraag openen",
+    "footer": "U ontvangt dit bericht omdat uw bedrijf deze offerteaanvraag heeft ontvangen."
   }
 }

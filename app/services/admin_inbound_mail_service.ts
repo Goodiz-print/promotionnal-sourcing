@@ -10,6 +10,7 @@ import { AdminInboundMailNotFoundException } from '#exceptions/admin_errors'
 import InboundMail from '#models/inbound_mail'
 import RfqSupplier from '#models/rfq_supplier'
 import AdminAuditService from '#services/admin_audit_service'
+import InboundAddressService from '#services/inbound_address_service'
 import InboundMailService from '#services/inbound_mail_service'
 import {
   ADMIN_INBOUND_MAIL_CANDIDATES_LIMIT,
@@ -89,7 +90,8 @@ function senderDomainPattern(address: string): string {
 export default class AdminInboundMailService {
   constructor(
     private audit: AdminAuditService,
-    private inboundMails: InboundMailService
+    private inboundMails: InboundMailService,
+    private addresses: InboundAddressService
   ) {}
 
   async overview(): Promise<AdminInboundMailOverview> {
@@ -194,7 +196,7 @@ export default class AdminInboundMailService {
     const previous = await db.transaction((trx) => this.reopen(trx, id, context))
     if (!previous) return 'refused'
     if (previous.status === INBOUND_MAIL_STATUSES.processed) {
-      return this.republish(id, previous.rfqSupplierId)
+      return this.republish(id, previous)
     }
     return this.process(id)
   }
@@ -232,11 +234,12 @@ export default class AdminInboundMailService {
     trx: TransactionClientContract,
     id: number,
     context: AdminActionContext
-  ): Promise<Pick<InboundMail, 'status' | 'rfqSupplierId'> | null> {
+  ): Promise<Pick<InboundMail, 'status' | 'rfqSupplierId' | 'recipient'> | null> {
     const mail = await this.lock(trx, id, INBOUND_MAIL_REPLAYABLE_STATUSES)
     if (!mail) return null
 
     const before = { status: mail.status, rfqSupplierId: mail.rfqSupplierId }
+    const { recipient } = mail
     if (mail.status !== INBOUND_MAIL_STATUSES.processed) {
       await mail.useTransaction(trx).merge({ status: INBOUND_MAIL_STATUSES.received }).save()
     }
@@ -246,7 +249,7 @@ export default class AdminInboundMailService {
       context,
       trx
     )
-    return before
+    return { ...before, recipient }
   }
 
   /** Le mail, verrouillé, s'il est dans l'un des états attendus. */
@@ -279,17 +282,20 @@ export default class AdminInboundMailService {
   /**
    * Mail déjà traité : seul l'enregistrement de la réponse est rejoué
    * (`InboundMailReceived`). `SupplierReplyService#record` est idempotent : un
-   * message et ses devis déjà enregistrés ne le sont pas une seconde fois.
+   * message et ses devis déjà enregistrés ne le sont pas une seconde fois, pas
+   * plus qu'un message de l'agence (`AgencyReplyService#record`, #226). Le côté
+   * qui écrit se relit sur l'adresse relais visée.
    */
   private async republish(
     id: number,
-    rfqSupplierId: number | null
+    { rfqSupplierId, recipient }: Pick<InboundMail, 'rfqSupplierId' | 'recipient'>
   ): Promise<AdminInboundMailOutcome> {
     if (!rfqSupplierId) return 'refused'
+    const side = this.addresses.sideOf(recipient)
     try {
       await emitter.emit(
         InboundMailReceived,
-        new InboundMailReceived({ inboundMailId: id, rfqSupplierId })
+        new InboundMailReceived({ inboundMailId: id, rfqSupplierId, side })
       )
     } catch (error) {
       logger.error({ err: error, inboundMailId: id }, 'admin inbound mail republish failed')

@@ -161,6 +161,22 @@
     "documentsHeading": "Bifogade offerter:",
     "downloadHint": "Länkarna kräver att du är inloggad på ditt konto.",
     "cta": "Öppna förfrågan",
-    "footer": "Du får detta meddelande eftersom du hanterar denna offertförfrågan."
+    "footer": "Du får detta meddelande eftersom du hanterar denna offertförfrågan.",
+    "replyHint": "Svara helt enkelt på det här mejlet: ditt svar vidarebefordras till leverantören."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Meddelande från {agencyName} om ”{rfqTitle}”",
+      "anonymous": "Meddelande från byrån om ”{rfqTitle}”"
+    },
+    "title": {
+      "named": "{agencyName} har skrivit till dig",
+      "anonymous": "Byrån har skrivit till dig"
+    },
+    "body": "Nytt meddelande om förfrågan ”{rfqTitle}”:",
+    "attachmentsHeading": "Bilagor, tillgängliga i applikationen:",
+    "replyHint": "Svara helt enkelt på det här mejlet: ditt svar vidarebefordras till byrån.",
+    "cta": "Öppna förfrågan",
+    "footer": "Du får det här meddelandet eftersom ditt företag har tagit emot den här offertförfrågan."
   }
 }

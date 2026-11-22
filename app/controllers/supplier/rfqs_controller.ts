@@ -5,12 +5,16 @@ import RfqDeclined from '#events/rfq_declined'
 import OrganizationContextService from '#services/organization_context_service'
 import QuoteService from '#services/quote_service'
 import RfqService from '#services/rfq_service'
+import RfqThreadService from '#services/rfq_thread_service'
 import SubscriptionService from '#services/subscription_service'
 import SupplierRfqDetailTransformer from '#transformers/supplier_rfq_detail_transformer'
 import SupplierRfqTransformer from '#transformers/supplier_rfq_transformer'
+import RfqThreadTransformer from '#transformers/rfq_thread_transformer'
 import { RfqNotEditableException } from '#exceptions/rfq_errors'
 import type { Locale } from '#shared/types/i18n'
 import type Organization from '#models/organization'
+import type Rfq from '#models/rfq'
+import type { RfqThreadType } from '#shared/types/conversation'
 import type { SubscriptionUpsellType } from '#shared/types/subscription'
 
 /**
@@ -35,7 +39,8 @@ export default class SupplierRfqsController {
     private service: RfqService,
     private quotes: QuoteService,
     private organizations: OrganizationContextService,
-    private subscriptions: SubscriptionService
+    private subscriptions: SubscriptionService,
+    private threads: RfqThreadService
   ) {}
 
   /**
@@ -74,6 +79,11 @@ export default class SupplierRfqsController {
       this.subscriptions.isSubscribed(org.id),
     ])
     const [recipient] = rfq.suppliers
+    const thread = await this.threadFor(
+      rfq,
+      revealBuyer ? rfq.buyerOrganization.name : null,
+      bouncer
+    )
 
     return inertia.render('supplier/rfqs/show', {
       rfq: new SupplierRfqDetailTransformer(rfq, revealBuyer, i18n.locale as Locale).toObject(),
@@ -82,6 +92,8 @@ export default class SupplierRfqsController {
       quote: quote ? { id: quote.id, status: quote.status } : null,
       // Chiffrer suppose une demande encore ouverte et non déclinée.
       canQuote: this.service.acceptsResponses(rfq) && recipient?.status !== 'declined',
+      // Fil d'échanges avec l'agence (#226), nommée pour un abonné seulement.
+      thread,
     })
   }
 
@@ -105,6 +117,26 @@ export default class SupplierRfqsController {
     }
 
     return response.redirect().toRoute('supplier.rfqs.show', { locale: i18n.locale, id: rfq.id })
+  }
+
+  /**
+   * Fil d'échanges du fournisseur avec l'agence (#226). Orchestration de
+   * l'écran (lecture du fil, autorisation) : reste dans le controller.
+   */
+  private async threadFor(
+    rfq: Rfq,
+    agencyName: string | null,
+    bouncer: HttpContext['bouncer']
+  ): Promise<RfqThreadType> {
+    const [recipient] = rfq.suppliers
+    const loaded = await this.threads.threadsFor([recipient.id])
+    return new RfqThreadTransformer(recipient, {
+      thread: loaded.get(recipient.id) ?? null,
+      viewerSide: 'supplier',
+      counterpartName: agencyName,
+      canWrite: await bouncer.allows('canMessageRfqBuyer', rfq, recipient),
+      closed: this.threads.isClosed(rfq),
+    }).toObject()
   }
 
   /** Encart d'abonnement (#222), pour un fournisseur non abonné seulement. */

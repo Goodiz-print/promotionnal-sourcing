@@ -165,9 +165,9 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
 - **Mail sans rien à lire** (ni texte, ni fichier conservé — pièces toutes
   refusées, par exemple) : aucun message n'est créé, le mail reste dans le journal.
 - **Expéditeur** : le jeton de l'adresse relais fait foi, pas l'expéditeur
-  ([`mail.md`](mail.md)). Un écran qui affiche ces messages (#226) doit montrer
-  l'expéditeur et s'il est connu : `message.inboundMail` (`senderName`,
-  `senderAddress`, `senderKnown`).
+  ([`mail.md`](mail.md)). Le fil d'échanges (#226) montre l'expéditeur et s'il
+  est connu (`ConversationMessageType#mailSender`, lu sur `message.inboundMail`),
+  sauf au fournisseur pour un mail de l'agence.
 - **Idempotence** : `messages.inbound_mail_id` est unique ; un mail rejoué ne
   crée ni second message ni second devis.
 - **Atomicité** : message, pièces jointes, devis et statut sont écrits dans une
@@ -197,7 +197,9 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
   fournisseur (l'agence le connaît), texte de la réponse, un **lien de
   téléchargement authentifié** par devis PDF (`quote_documents.download`), lien
   vers la demande. Expéditeur : la plateforme ; `Reply-To` : l'adresse relais
-  côté agence (voir `docs/mail.md`, branchée par #226).
+  côté agence (voir `docs/mail.md`) : la réponse de l'agence entre dans le fil
+  et part au fournisseur (#226). Le même mail, sans devis, transmet un message
+  que le fournisseur écrit dans l'application (`MessageRelayService`).
 - **Notification in-app** `rfq.responded` (`InAppNotificationService#supplierReplied`),
   données `rfqId`, `rfqTitle`, `supplierName`, `messageId` ; elle mène à la demande.
 - **Idempotence** : la clé du mail porte le message du fil et le destinataire
@@ -211,7 +213,43 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
 - **Limite** : la transmission dépend de l'événement, dont l'émission n'est pas
   garantie (voir ci-dessus). La reprise des réponses non transmises reste à faire.
 
-Aucun écran n'affiche encore ces devis (#228) ; le fil d'échanges relève de #226.
+Aucun écran n'affiche encore ces devis (#228).
+
+### Fil d'échanges de la demande (#226)
+
+Un fil par couple demande / fournisseur (`conversations.rfq_supplier_id`),
+ouvert au premier message, qu'il vienne d'un mail ou de l'écran. Il est montré
+des deux côtés par `inertia/components/messaging/conversation_thread.vue` :
+
+- **Agence** — `rfqs/show` reçoit `threads: RfqThreadType[]`, un fil par
+  destinataire déjà notifié, au nom du fournisseur. Écrire :
+  `POST /:locale/rfqs/:id/suppliers/:supplierId/messages`
+  (`rfqs.messages.store`, `RfqMessagesController`, ability
+  `canMessageRfqSupplier` : tout membre de l'agence, destinataire non `pending`).
+- **Fournisseur** — `supplier/rfqs/show` reçoit `thread: RfqThreadType`, l'agence
+  nommée pour un abonné seulement. Écrire :
+  `POST /:locale/supplier/rfqs/:id/messages` (`supplier.rfqs.messages.store`,
+  `supplier/RfqMessagesController`, ability `canMessageRfqBuyer` : rôles
+  `RFQ_RESPONDER_ROLES` du fournisseur). Une demande qui ne lui est pas adressée
+  est un 404.
+- **Corps** : `rfqMessageValidator` (1 à `MESSAGE_MAX_LENGTH` caractères, rogné).
+  Redirection Inertia et message flash ; un fil bloqué par la plateforme (#167)
+  reste lisible, l'écriture est refusée par un flash.
+- **Affichage** (`RfqThreadTransformer`, `ConversationMessageTransformer`) : côté
+  de chaque message, `mine`, « par mail », pièces jointes, expéditeur du mail.
+  L'auteur n'est nommé que pour un message de son propre côté : un fournisseur
+  non abonné ne lit ni le nom de l'agence ni celui de ses membres.
+- **Fil clos** : passé `INBOUND_MAIL_GRACE_DAYS` jours après la clôture ou
+  l'expiration de la demande (même délai que l'adresse relais), le fil est clos
+  (`closed`) : lisible, mais les abilities refusent l'écriture des deux côtés.
+  Un fournisseur qui a décliné peut encore échanger tant que le fil est ouvert.
+- **Derniers messages** : l'écran montre les `THREAD_MESSAGES_LIMIT` (100)
+  derniers messages visibles de chaque fil (`RfqThreadService#threadsFor`,
+  `groupLimit`) et signale qu'il en existe de plus anciens (`hasOlder`).
+- **Signalement** : un message de l'autre côté se signale
+  (`POST messages/:id/report`, #167), qu'il vienne d'un mail ou de l'écran.
+- **Relais** : chaque message part par mail à l'autre côté, voir
+  [`mail.md`](mail.md#relais-des-échanges-agence--fournisseur-226).
 
 ### Version destinataire : le nom de l'agence sur le devis (#238)
 
@@ -259,4 +297,5 @@ orphelin), `tests/functional/supplier_reply_recipient_version.spec.ts` (version
 destinataire : non abonné, abonné, PDF signé, échec sans orphelin),
 `tests/unit/pdf_service.spec.ts` (bandeau, multipages, page de garde, PDF
 chiffré, signé ou illisible). `tests/functional/quotes.spec.ts` (service et écrans), `tests/inertia/*` pour les
-props de `supplier/rfqs/show.vue` et `rfqs/show.vue`.
+props de `supplier/rfqs/show.vue` et `rfqs/show.vue`. Fil d'échanges (#226) :
+`tests/functional/rfq_message_relay.spec.ts`, `tests/inertia/conversation_thread.spec.ts`.

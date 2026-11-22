@@ -1183,6 +1183,7 @@ export class MessageSchema extends BaseModel {
     'hiddenByUserId',
     'id',
     'inboundMailId',
+    'senderSide',
     'updatedAt',
   ] as const
   $columns = MessageSchema.$columns
@@ -1202,6 +1203,8 @@ export class MessageSchema extends BaseModel {
   declare id: number
   @column()
   declare inboundMailId: number | null
+  @column()
+  declare senderSide: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }

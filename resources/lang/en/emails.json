@@ -161,6 +161,22 @@
     "documentsHeading": "Attached quotes:",
     "downloadHint": "These links require you to be signed in to your account.",
     "cta": "Open the request",
-    "footer": "You are receiving this message because you manage this quote request."
+    "footer": "You are receiving this message because you manage this quote request.",
+    "replyHint": "Simply reply to this email: your reply will be forwarded to the supplier."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Message from {agencyName} about “{rfqTitle}”",
+      "anonymous": "Message from the agency about “{rfqTitle}”"
+    },
+    "title": {
+      "named": "{agencyName} wrote to you",
+      "anonymous": "The agency wrote to you"
+    },
+    "body": "New message about the request “{rfqTitle}”:",
+    "attachmentsHeading": "Attachments, available in the application:",
+    "replyHint": "Simply reply to this email: your reply will be forwarded to the agency.",
+    "cta": "Open the request",
+    "footer": "You are receiving this message because your company received this quote request."
   }
 }

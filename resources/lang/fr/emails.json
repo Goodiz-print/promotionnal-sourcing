@@ -161,6 +161,22 @@
     "documentsHeading": "Devis joints :",
     "downloadHint": "Les liens demandent d'être connecté à votre compte.",
     "cta": "Ouvrir la demande",
-    "footer": "Vous recevez ce message car vous pilotez cette demande de devis."
+    "footer": "Vous recevez ce message car vous pilotez cette demande de devis.",
+    "replyHint": "Répondez simplement à ce mail : votre réponse sera transmise au fournisseur."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Message de {agencyName} sur « {rfqTitle} »",
+      "anonymous": "Message de l'agence sur « {rfqTitle} »"
+    },
+    "title": {
+      "named": "{agencyName} vous a écrit",
+      "anonymous": "L'agence vous a écrit"
+    },
+    "body": "Nouveau message à propos de la demande « {rfqTitle} » :",
+    "attachmentsHeading": "Pièces jointes, à consulter dans l'application :",
+    "replyHint": "Répondez simplement à ce mail : votre réponse sera transmise à l'agence.",
+    "cta": "Ouvrir la demande",
+    "footer": "Vous recevez ce message car votre entreprise a reçu cette demande de devis."
   }
 }

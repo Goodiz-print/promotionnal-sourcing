@@ -10,7 +10,8 @@
     "rfq": {
       "received": "{buyerName} le ha enviado una solicitud de presupuesto: {rfqTitle}.",
       "responded": "{supplierName} ha respondido a la solicitud {rfqTitle}.",
-      "declined": "{supplierName} ha declinado la solicitud {rfqTitle}."
+      "declined": "{supplierName} ha declinado la solicitud {rfqTitle}.",
+      "relay_refused": "Su correo desde {senderAddress} sobre la solicitud {rfqTitle} no se ha transmitido a {supplierName}: esta dirección no está reconocida para su agencia. Escriba desde la solicitud."
     },
     "quote": {
       "received": "{supplierName} ha enviado un presupuesto para {rfqTitle}.",

@@ -10,7 +10,8 @@
     "rfq": {
       "received": "{buyerName} przesłał(a) Państwu zapytanie ofertowe: {rfqTitle}.",
       "responded": "{supplierName} odpowiedział na zapytanie {rfqTitle}.",
-      "declined": "{supplierName} odrzucił(a) zapytanie {rfqTitle}."
+      "declined": "{supplierName} odrzucił(a) zapytanie {rfqTitle}.",
+      "relay_refused": "Twój e-mail z adresu {senderAddress} dotyczący zapytania {rfqTitle} nie został przekazany do {supplierName}: ten adres nie jest rozpoznany dla Twojej agencji. Napisz z poziomu zapytania."
     },
     "quote": {
       "received": "{supplierName} złożył(a) ofertę dla zapytania {rfqTitle}.",

@@ -7,6 +7,7 @@ import logger from '@adonisjs/core/services/logger'
 import emitter from '@adonisjs/core/services/emitter'
 import MailDeliveryService from '#services/mail_delivery_service'
 import MailDeliveryFailed from '#events/mail_delivery_failed'
+import AgencyMessageRelayedNotification from '#mails/agency_message_relayed_notification'
 import AgencyReviewDecisionNotification from '#mails/agency_review_decision_notification'
 import AnnouncementNotification from '#mails/announcement_notification'
 import NotificationReminderNotification from '#mails/notification_reminder_notification'
@@ -196,6 +197,8 @@ export default class SendMailJob extends Job<SendMailPayload> {
         return new QuoteEmailVerificationNotification(to, data, locale)
       case MAIL_KINDS.supplierReplyReceived:
         return new SupplierReplyReceivedNotification(to, data, locale)
+      case MAIL_KINDS.agencyMessageRelayed:
+        return new AgencyMessageRelayedNotification(to, data, locale)
       case MAIL_KINDS.contactRequest:
         return new ContactRequestNotification(to, data)
       default:
