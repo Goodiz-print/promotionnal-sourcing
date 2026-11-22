@@ -52,6 +52,12 @@ visible des deux côtés.
   (`THREAD_MESSAGES_LIMIT`), `RfqThreadType.hasOlder` signale les plus anciens.
 - **Signalement** : le signalement existant (`messages/:id/report`) fonctionne
   sur ces messages, depuis le fil.
-- **Tests** : `tests/functional/rfq_message_relay.spec.ts`,
-  `tests/unit/conversation_helpers.spec.ts`, `tests/unit/inbound_mail_helpers.spec.ts`,
-  `tests/unit/mail_templates.spec.ts`, `tests/inertia/conversation_thread.spec.ts`.
+- **Tests** : `tests/functional/rfq_message_relay.spec.ts` (parcours complet),
+  specs de service `inbound_mail_service`, `message_relay_service`,
+  `admin_inbound_mail_service`, abilities `rfq_message_abilities`, transformers
+  `tests/unit/transformers/conversation_message_transformer.spec.ts` et
+  `rfq_thread_transformer.spec.ts`, helpers `tests/unit/conversation_helpers.spec.ts`
+  et `tests/unit/inbound_mail_helpers.spec.ts` (règles pures sorties dans
+  `shared/helpers/` : `isRfqThreadOpen`, `senderRejection`, `mailSenderLabel`,
+  `messageSenderLabel`, `agencyMessageVariant`), `tests/unit/mail_templates.spec.ts`,
+  `tests/inertia/conversation_thread.spec.ts`.

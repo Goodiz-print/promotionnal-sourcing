@@ -1,6 +1,12 @@
+import type { DateTime } from 'luxon'
+import { isRelayWindowClosed } from './inbound_mail.js'
 import type {
+  ConversationMailSenderType,
+  ConversationMessageType,
   ConversationSide,
+  MessageSenderLabels,
   PostedMessageInput,
+  RfqThreadState,
   ThreadMessagesWindow,
 } from '../types/conversation.js'
 
@@ -49,4 +55,35 @@ export function latestMessages<M>(newestFirst: M[], limit: number): ThreadMessag
     messages: newestFirst.slice(0, limit).reverse(),
     hasOlder: newestFirst.length > limit,
   }
+}
+
+/**
+ * Le fil d'un destinataire est-il ouvert à l'écriture (#226) ? Le destinataire
+ * appartient à la demande, elle lui a été envoyée (un destinataire `pending`
+ * n'a pas encore de fil), et l'adresse relais n'a pas expiré
+ * (`isRelayWindowClosed`) : la même fenêtre que les réponses par mail, pour
+ * que l'écran et la messagerie ne se contredisent jamais.
+ */
+export function isRfqThreadOpen(state: RfqThreadState, graceDays: number, now: DateTime): boolean {
+  const { rfq, recipient } = state
+  if (recipient.rfqId !== rfq.id || recipient.status === 'pending') return false
+  return !isRelayWindowClosed(rfq, graceDays, now)
+}
+
+/** Expéditeur d'un mail affiché : `Nom <adresse>`, ou l'adresse seule. */
+export function mailSenderLabel(mail: ConversationMailSenderType): string {
+  return mail.name ? `${mail.name} <${mail.address}>` : mail.address
+}
+
+/**
+ * Qui a écrit un message, vu de celui qui le lit : l'autre côté par son
+ * libellé, son propre côté par le nom de l'auteur, à défaut « votre équipe »
+ * (un mail de son propre côté n'a pas d'auteur).
+ */
+export function messageSenderLabel(
+  message: Pick<ConversationMessageType, 'mine' | 'authorName'>,
+  labels: MessageSenderLabels
+): string {
+  if (!message.mine) return labels.counterpart
+  return message.authorName ?? labels.yourTeam
 }

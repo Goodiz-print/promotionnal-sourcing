@@ -5,6 +5,7 @@ import { useI18n } from '~/i18n'
 import BaseBadge from '~/components/base/base_badge.vue'
 import ConversationMessageReport from '~/components/messaging/conversation_message_report.vue'
 import { formatDateTime } from '~/components/orders/types'
+import { mailSenderLabel, messageSenderLabel } from '#shared/helpers/conversation'
 import type { ConversationMessageType } from '#shared/types/conversation'
 
 /**
@@ -19,17 +20,16 @@ const props = defineProps<{
 
 const { t, locale } = useI18n()
 
-const sender = computed(() => {
-  if (!props.message.mine) return props.counterpartLabel
-  return props.message.authorName ?? t('messaging.thread.yourTeam')
-})
+const sender = computed(() =>
+  messageSenderLabel(props.message, {
+    counterpart: props.counterpartLabel,
+    yourTeam: t('messaging.thread.yourTeam'),
+  })
+)
 
-/** `Nom <adresse>` du mail d'origine, ou l'adresse seule. */
-const mailSenderLabel = computed(() => {
-  const mail = props.message.mailSender
-  if (!mail) return ''
-  return mail.name ? `${mail.name} <${mail.address}>` : mail.address
-})
+const mailSender = computed(() =>
+  props.message.mailSender ? mailSenderLabel(props.message.mailSender) : ''
+)
 
 const sentAt = computed(() => formatDateTime(props.message.createdAt, locale.value))
 </script>
@@ -45,7 +45,7 @@ const sentAt = computed(() => formatDateTime(props.message.createdAt, locale.val
       </BaseBadge>
     </div>
     <p v-if="message.mailSender" class="text-caption text-text-muted" data-mail-sender>
-      {{ mailSenderLabel }}
+      {{ mailSender }}
       <span v-if="!message.mailSender.known" class="text-warning">
         · {{ t('messaging.thread.unknownSender') }}
       </span>

@@ -5,6 +5,9 @@ import {
 } from '../types/conversation.js'
 import {
   INBOUND_ATTACHMENT_TYPES,
+  INBOUND_MAIL_REJECTIONS,
+  type InboundMailRejection,
+  type InboundSenderCheck,
   type MailAddressParts,
   type RelayTarget,
   type RelayTokenField,
@@ -148,6 +151,20 @@ export function stripQuotedReply(text: string): string {
   const quoteAt = lines.findIndex((_, index) => isQuoteStart(lines, index))
   if (quoteAt <= 0) return text
   return lines.slice(0, quoteAt).join('\n').trim() || text
+}
+
+/**
+ * Motif pour lequel l'expéditeur écarte un mail reçu, ou `null` (#226). Un mail
+ * reçu à l'adresse relais de l'agence (`agency-`) n'est relayé au fournisseur
+ * que s'il vient d'un membre de l'agence : l'adresse peut fuiter (transfert,
+ * copie), et le fournisseur ne voit pas qui l'a écrit. Un rattachement manuel
+ * par un admin (#227) le fait passer. Côté fournisseur, un expéditeur inconnu
+ * reste indicatif.
+ */
+export function senderRejection(check: InboundSenderCheck): InboundMailRejection | null {
+  const isForeignAgencyMail = check.side === 'agency' && !check.senderKnown
+  if (!isForeignAgencyMail || check.attachedManually) return null
+  return INBOUND_MAIL_REJECTIONS.unknownSender
 }
 
 /**

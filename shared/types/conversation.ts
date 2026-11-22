@@ -1,4 +1,5 @@
-import type { RfqMailAddress } from './rfq.js'
+import type { RelayWindow } from './inbound_mail.js'
+import type { RfqMailAddress, RfqSupplierStatus } from './rfq.js'
 
 /**
  * Fil de discussion entre une organisation acheteuse et une organisation
@@ -121,6 +122,21 @@ export type RfqThreadType = {
   messages: ConversationMessageType[]
 }
 
+/**
+ * Ce qui décide si le fil d'un destinataire est ouvert à l'écriture (#226) : la
+ * demande (identifiant et fenêtre de son adresse relais) et le destinataire.
+ */
+export interface RfqThreadState {
+  rfq: RelayWindow & { id: number }
+  recipient: { rfqId: number; status: RfqSupplierStatus }
+}
+
+/** Libellés de l'expéditeur d'un message affiché : l'autre côté, ou son équipe. */
+export interface MessageSenderLabels {
+  counterpart: string
+  yourTeam: string
+}
+
 /** Derniers messages d'un fil, du plus ancien au plus récent, et s'il en existe d'autres. */
 export interface ThreadMessagesWindow<M> {
   messages: M[]
@@ -144,6 +160,9 @@ export interface RfqThreadView<C, M> {
   canWrite: boolean
   closed: boolean
 }
+
+/** Textes du mail relayé : l'agence nommée (abonné) ou anonyme. */
+export type AgencyMessageVariant = 'named' | 'anonymous'
 
 /**
  * Message de l'agence prêt à être relayé au fournisseur (#226), résolu par

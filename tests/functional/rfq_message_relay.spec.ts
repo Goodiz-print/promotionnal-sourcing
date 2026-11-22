@@ -435,6 +435,20 @@ test.group('Relais des échanges — par mail (#226)', (group) => {
     assert.equal(relayedToSupplier()[0].data.body, 'Oui, le 15 convient.')
   })
 
+  test('SupplierReplyService : la réponse du fournisseur, côté fournisseur, sans citation', async ({
+    client,
+    assert,
+  }) => {
+    const { supplierAddress } = await relayScenario()
+    const text = 'Devis en pièce jointe.\n\nOn Fri, Nov 21, 2026, Platform wrote:\n> Bonjour'
+
+    await supplierMail(client, inbound, { to: supplierAddress, text })
+
+    const [message] = await Message.all()
+    assert.equal(message.senderSide, 'supplier')
+    assert.equal(message.body, 'Devis en pièce jointe.')
+  })
+
   test('AgencyReplyService#record : mail inconnu, sans destinataire ou vide', async ({
     client,
     assert,
@@ -848,6 +862,19 @@ test.group('Relais des échanges — services (#226)', (group) => {
     } finally {
       emitter.restore()
     }
+  })
+
+  test('RfqThreadService#isClosed : clos passé le délai de grâce de l’adresse relais', async ({
+    assert,
+  }) => {
+    const { rfq } = await relayScenario()
+    const threads = await app.container.make(RfqThreadService)
+
+    assert.isFalse(threads.isClosed(rfq))
+    rfq.merge({ status: 'closed', closedAt: DateTime.now().minus({ days: 1 }) })
+    assert.isFalse(threads.isClosed(rfq))
+    rfq.merge({ closedAt: DateTime.now().minus({ days: inboundMailConfig.graceDays + 1 }) })
+    assert.isTrue(threads.isClosed(rfq))
   })
 
   test('RfqThreadService : destinataires introuvables (autre agence, encore en attente)', async ({

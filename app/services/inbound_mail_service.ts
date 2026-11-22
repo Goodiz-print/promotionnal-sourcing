@@ -23,6 +23,7 @@ import {
   matchesFileSignature,
   parseMailAddress,
   RELAY_TOKEN_FIELDS,
+  senderRejection,
 } from '#shared/helpers/inbound_mail'
 import {
   INBOUND_ATTACHMENT_STATUSES,
@@ -377,7 +378,7 @@ export default class InboundMailService {
   }
 
   /**
-   * Motif de rejet du mail, garde-fous puis expéditeur (`senderRejectionFor`),
+   * Motif de rejet du mail, garde-fous puis expéditeur (`senderRejection`),
    * et si son expéditeur est connu du côté qui écrit.
    */
   private async screen(
@@ -388,25 +389,12 @@ export default class InboundMailService {
     const senderKnown = resolved ? await this.isKnownSender(mail.senderAddress, resolved) : false
     const rejection =
       this.rejectionFor(mail, content, resolved?.recipient ?? null) ??
-      this.senderRejectionFor(mail, resolved, senderKnown)
+      senderRejection({
+        side: resolved?.side ?? null,
+        senderKnown,
+        attachedManually: Boolean(mail.attachedManuallyAt),
+      })
     return { rejection, senderKnown }
-  }
-
-  /**
-   * Un mail reçu à l'adresse relais de l'agence (`agency-`) n'est relayé au
-   * fournisseur que s'il vient d'un membre de l'agence (#226) : l'adresse
-   * peut fuiter (transfert, copie), et le fournisseur ne voit pas qui l'a
-   * écrit. Un admin peut toujours le rattacher à la main (#227). Côté
-   * fournisseur, un expéditeur inconnu reste indicatif.
-   */
-  private senderRejectionFor(
-    mail: InboundMail,
-    resolved: ResolvedInboundRecipient<RfqSupplier> | null,
-    senderKnown: boolean
-  ): InboundMailRejection | null {
-    const isForeignAgencyMail = resolved?.side === 'agency' && !senderKnown
-    if (!isForeignAgencyMail || mail.attachedManuallyAt) return null
-    return INBOUND_MAIL_REJECTIONS.unknownSender
   }
 
   private isTooLarge(content: InboundMailContent): boolean {

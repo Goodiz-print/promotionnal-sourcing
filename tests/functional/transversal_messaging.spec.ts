@@ -44,6 +44,8 @@ test.group('Messagerie acheteur ↔ fournisseur', (group) => {
     assert.equal(conversation.createdByUserId, buyerUser.id)
     assert.lengthOf(messages, 1)
     assert.equal(messages[0].body, 'Bonjour, avez-vous des stocks ?')
+    // Côté de l'auteur (#226) : membre de l'organisation acheteuse.
+    assert.equal(messages[0].senderSide, 'agency')
   })
 
   test('un membre de l’autre organisation peut répondre, un tiers ne peut pas', async ({

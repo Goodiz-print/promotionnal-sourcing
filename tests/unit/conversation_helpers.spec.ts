@@ -1,7 +1,15 @@
 import { test } from '@japa/runner'
-import { agencyMessageMail } from '#shared/helpers/agency_message'
-import { conversationSidesOf, latestMessages, postedMessageFor } from '#shared/helpers/conversation'
-import type { AgencyMessageMailInput } from '#shared/types/conversation'
+import { DateTime } from 'luxon'
+import { agencyMessageMail, agencyMessageVariant } from '#shared/helpers/agency_message'
+import {
+  conversationSidesOf,
+  isRfqThreadOpen,
+  latestMessages,
+  mailSenderLabel,
+  messageSenderLabel,
+  postedMessageFor,
+} from '#shared/helpers/conversation'
+import type { AgencyMessageMailInput, RfqThreadState } from '#shared/types/conversation'
 
 const PARTIES = { buyerOrganizationId: 1, supplierOrganizationId: 2 }
 
@@ -74,5 +82,63 @@ test.group('Message de l’agence — charge du mail relayé (#226)', () => {
 
     assert.equal(key, 'agency-message-relayed:message=12:to=devis@fournisseur.test')
     assert.notEqual(otherMessage.idempotencyKey, key)
+  })
+})
+
+test.group('Fil d’une demande — ouverture à l’écriture (#226)', () => {
+  const now = DateTime.fromISO('2026-11-22T12:00:00Z')
+  const open: RfqThreadState = {
+    rfq: { id: 7, status: 'published', closedAt: null, expiredAt: null },
+    recipient: { rfqId: 7, status: 'sent' },
+  }
+
+  test('ouvert : demande publiée, destinataire notifié (même décliné)', ({ assert }) => {
+    assert.isTrue(isRfqThreadOpen(open, 30, now))
+    assert.isTrue(
+      isRfqThreadOpen({ ...open, recipient: { rfqId: 7, status: 'declined' } }, 30, now)
+    )
+  })
+
+  test('fermé : destinataire en attente ou d’une autre demande', ({ assert }) => {
+    assert.isFalse(
+      isRfqThreadOpen({ ...open, recipient: { rfqId: 7, status: 'pending' } }, 30, now)
+    )
+    assert.isFalse(isRfqThreadOpen({ ...open, recipient: { rfqId: 8, status: 'sent' } }, 30, now))
+  })
+
+  test('fermé passé le délai de grâce après la clôture, ouvert pendant', ({ assert }) => {
+    const closedSince = (days: number): RfqThreadState => ({
+      ...open,
+      rfq: { id: 7, status: 'closed', closedAt: now.minus({ days }), expiredAt: null },
+    })
+
+    assert.isTrue(isRfqThreadOpen(closedSince(29), 30, now))
+    assert.isFalse(isRfqThreadOpen(closedSince(31), 30, now))
+  })
+})
+
+test.group('Fil d’une demande — libellés affichés (#226)', () => {
+  test('mailSenderLabel : nom et adresse, ou l’adresse seule', ({ assert }) => {
+    assert.equal(
+      mailSenderLabel({ name: 'Paul', address: 'paul@f.test', known: true }),
+      'Paul <paul@f.test>'
+    )
+    assert.equal(
+      mailSenderLabel({ name: null, address: 'paul@f.test', known: false }),
+      'paul@f.test'
+    )
+  })
+
+  test('messageSenderLabel : l’autre côté, l’auteur, sinon « votre équipe »', ({ assert }) => {
+    const labels = { counterpart: 'L’agence', yourTeam: 'Votre équipe' }
+
+    assert.equal(messageSenderLabel({ mine: false, authorName: 'Marie' }, labels), 'L’agence')
+    assert.equal(messageSenderLabel({ mine: true, authorName: 'Marie' }, labels), 'Marie')
+    assert.equal(messageSenderLabel({ mine: true, authorName: null }, labels), 'Votre équipe')
+  })
+
+  test('agencyMessageVariant : nommée pour un abonné, anonyme sinon', ({ assert }) => {
+    assert.equal(agencyMessageVariant('Agence Dupont'), 'named')
+    assert.equal(agencyMessageVariant(null), 'anonymous')
   })
 })

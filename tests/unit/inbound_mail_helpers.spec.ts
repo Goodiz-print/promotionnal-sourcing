@@ -16,6 +16,7 @@ import {
   relayableHeaders,
   relayTargetFrom,
   replyAddress,
+  senderRejection,
   stripQuotedReply,
 } from '#shared/helpers/inbound_mail'
 import { DateTime } from 'luxon'
@@ -339,5 +340,17 @@ test.group('Mails entrants — relais (#226)', () => {
     assert.isTrue(
       isRelayWindowClosed({ status: 'draft', closedAt: null, expiredAt: null }, 30, now)
     )
+  })
+
+  test('senderRejection : un mail de l’agence d’un inconnu est écarté, sauf rattaché à la main', ({
+    assert,
+  }) => {
+    const agency = { side: 'agency' as const, senderKnown: false, attachedManually: false }
+
+    assert.equal(senderRejection(agency), 'unknown_sender')
+    assert.isNull(senderRejection({ ...agency, senderKnown: true }))
+    assert.isNull(senderRejection({ ...agency, attachedManually: true }))
+    assert.isNull(senderRejection({ ...agency, side: 'supplier' }))
+    assert.isNull(senderRejection({ ...agency, side: null }))
   })
 })

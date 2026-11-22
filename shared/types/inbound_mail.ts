@@ -177,6 +177,17 @@ export interface MailAddressParts {
 export type RelayTokenField = 'replyToken' | 'agencyReplyToken'
 
 /**
+ * Ce qui décide si l'expéditeur d'un mail reçu l'écarte (#226) : le côté qui
+ * écrit (`null` sans couple résolu), si l'expéditeur est connu de ce côté, et
+ * si un admin a rattaché le mail à la main (#227).
+ */
+export interface InboundSenderCheck {
+  side: ConversationSide | null
+  senderKnown: boolean
+  attachedManually: boolean
+}
+
+/**
  * Ce qui borne la validité de l'adresse relais d'une demande : son statut et
  * la date à laquelle elle a pris fin (clôture ou expiration).
  */

@@ -1,6 +1,6 @@
 import { mailIdempotencyKey } from '#shared/helpers/mail'
 import { MAIL_KINDS, type SendMailPayload } from '#shared/types/mail'
-import type { AgencyMessageMailInput } from '#shared/types/conversation'
+import type { AgencyMessageMailInput, AgencyMessageVariant } from '#shared/types/conversation'
 
 /**
  * Charge du mail qui relaie un message de l'agence à une adresse du fournisseur
@@ -30,4 +30,12 @@ export function agencyMessageMail({
       headers: notice.headers,
     },
   }
+}
+
+/**
+ * Variante des textes du mail relayé : l'agence nommée (fournisseur abonné) ou
+ * anonyme (#220).
+ */
+export function agencyMessageVariant(agencyName: string | null): AgencyMessageVariant {
+  return agencyName ? 'named' : 'anonymous'
 }

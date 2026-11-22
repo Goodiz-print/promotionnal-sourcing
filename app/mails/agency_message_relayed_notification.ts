@@ -1,4 +1,6 @@
 import LocalizedMail from '#mails/localized_mail'
+import { agencyMessageVariant } from '#shared/helpers/agency_message'
+import type { AgencyMessageVariant } from '#shared/types/conversation'
 import type { Locale } from '#shared/types/i18n'
 import type { AgencyMessageRelayedMailData } from '#shared/types/mail'
 
@@ -22,19 +24,37 @@ export default class AgencyMessageRelayedNotification extends LocalizedMail {
   }
 
   prepare() {
-    const { replyTo, headers, ...rest } = this.data
-    const texts = { agencyName: rest.agencyName, rfqTitle: rest.rfqTitle }
-    const variant = rest.agencyName ? 'named' : 'anonymous'
+    const variant = agencyMessageVariant(this.data.agencyName)
+    this.addressMessage(variant)
+    this.renderViews(variant)
+  }
+
+  /** Valeurs reprises par les textes traduits. */
+  private get texts() {
+    return { agencyName: this.data.agencyName, rfqTitle: this.data.rfqTitle }
+  }
+
+  /** Destinataire, sujet, en-têtes de priorité repris et `Reply-To` relais. */
+  private addressMessage(variant: AgencyMessageVariant) {
+    const { headers, replyTo } = this.data
     this.message
       .to(this.email)
-      .subject(this.t(`emails.agencyMessageRelayed.subject.${variant}`, texts))
+      .subject(this.t(`emails.agencyMessageRelayed.subject.${variant}`, this.texts))
     Object.entries(headers).forEach(([name, value]) => this.message.header(name, value))
     this.relayRepliesTo(replyTo)
+  }
 
+  /** Gabarits HTML et texte, avec les textes de la variante. */
+  private renderViews(variant: AgencyMessageVariant) {
+    const { agencyName, rfqTitle, body, attachments, rfqPath, replyTo } = this.data
     const state = {
-      ...rest,
-      title: this.t(`emails.agencyMessageRelayed.title.${variant}`, texts),
-      intro: this.t('emails.agencyMessageRelayed.body', texts),
+      agencyName,
+      rfqTitle,
+      body,
+      attachments,
+      rfqPath,
+      title: this.t(`emails.agencyMessageRelayed.title.${variant}`, this.texts),
+      intro: this.t('emails.agencyMessageRelayed.body', this.texts),
       canReply: Boolean(replyTo),
     }
     this.htmlViewIn('emails/agency_message_relayed', state)
