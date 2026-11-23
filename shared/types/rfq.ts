@@ -176,6 +176,19 @@ export interface CreateRfqData {
 }
 
 /**
+ * Données de `RfqService#create` : celles du formulaire, plus ce que seul le
+ * code serveur pose. `CreateRfqData` reste la forme d'une requête HTTP.
+ */
+export interface NewRfqData extends CreateRfqData {
+  /**
+   * Lot de panier (#229) : posé par `QuoteCartService#checkout`, commun aux
+   * demandes d'une même validation. Absent (→ `null`) pour une demande créée
+   * seule.
+   */
+  batchId?: string | null
+}
+
+/**
  * Prolongation d'échéance (`RfqDeadlineService#extendDeadline`) : seule `deadline`
  * change, jamais le besoin — exception assumée à « seul un brouillon est
  * modifiable », cf. `docs/rfq.md`.
@@ -228,6 +241,8 @@ export type RfqSupplierType = {
  */
 export type RfqType = {
   id: number
+  /** Lot de panier partagé par les demandes d'une même validation, sinon `null` (#229). */
+  batchId: string | null
   title: string
   status: RfqStatus
   deadline: string | null

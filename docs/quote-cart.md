@@ -88,7 +88,12 @@ Chaque demande reçoit :
   `estimatedMarkingUnitPrice`, `estimatedSetupCharge`, `estimatedTotal` — seules
   les valeurs connues ; pas de total s'il est partiel). `rfq_item_list.vue` les
   affiche aux deux parties, libellées par `rfq.specs.<clé>` ;
-- son fournisseur pour unique destinataire.
+- son fournisseur pour unique destinataire ;
+- le **lot de panier** `batch_id` (#229) : un uuid tiré une fois par validation
+  et commun à toutes les demandes qu'elle crée, exposé en `batchId` dans
+  `RfqType` (liste « mes demandes ») et `RfqDetailType`. Deux validations donnent
+  deux lots ; une demande créée seule (`RfqService#create` hors panier) garde
+  `null`. « Mes demandes » (#228) regroupera les demandes par lot.
 
 Avec `canSendRfq` — tout membre de l'agence, `member` compris depuis #216 —
 chaque demande est **publiée puis envoyée** ; après commit, `RfqSent` est émis
@@ -160,5 +165,5 @@ i18n : `resources/lang/<langue>/quote_cart.json`, 9 langues.
 - La route `rfqs.items.from_product` et `RfqService#addProductItem` restent en
   place mais ne sont plus appelées par la fiche produit : à retirer si le panier
   est adopté.
-- Aucun lien « lot » n'est conservé entre les demandes issues d'une même
-  validation.
+- La vue groupée par lot dans « Mes demandes » arrive avec #228 : #229 ne pose
+  que la colonne `rfqs.batch_id` et l'expose.

@@ -2514,6 +2514,7 @@ export class RfqSupplierSchema extends BaseModel {
 
 export class RfqSchema extends BaseModel {
   static $columns = [
+    'batchId',
     'budgetMax',
     'buyerOrganizationId',
     'closedAt',
@@ -2529,6 +2530,8 @@ export class RfqSchema extends BaseModel {
     'updatedAt',
   ] as const
   $columns = RfqSchema.$columns
+  @column()
+  declare batchId: string | null
   @column()
   declare budgetMax: string | null
   @column()

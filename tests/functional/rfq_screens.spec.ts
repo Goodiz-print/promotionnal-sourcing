@@ -110,6 +110,28 @@ test.group('Écrans RFQ — acheteur', (group) => {
     assert.equal(target.status, 'pending')
   })
 
+  test('la création ignore un lot de panier envoyé par le client (#229)', async ({
+    client,
+    assert,
+  }) => {
+    const { owner } = await buyerWithOwner()
+
+    const response = await client
+      .post('/fr/rfqs')
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(owner)
+      .json({
+        title: 'Lot forgé',
+        items: [itemPayload()],
+        batchId: '3f2b8c1e-4a5d-4e6f-9a7b-8c9d0e1f2a3b',
+      })
+
+    response.assertStatus(200)
+    const rfq = await Rfq.findByOrFail('title', 'Lot forgé')
+    assert.isNull(rfq.batchId)
+  })
+
   test('la création refuse une demande sans ligne', async ({ client, assert }) => {
     const { owner } = await buyerWithOwner()
 
