@@ -107,5 +107,26 @@
       "respond": "Mit einem Angebot antworten",
       "viewQuote": "Mein Angebot ansehen"
     }
+  },
+  "documents": {
+    "title": "Erhaltene PDF-Angebote",
+    "description": "Von Lieferanten per E-Mail gesendete Angebote. Der Download ist den Mitgliedern Ihrer Agentur vorbehalten.",
+    "empty": "Noch kein PDF-Angebot erhalten.",
+    "columns": {
+      "supplier": "Lieferant",
+      "file": "Datei",
+      "receivedAt": "Erhalten am",
+      "decision": "Entscheidung"
+    },
+    "download": "{filename} herunterladen",
+    "select": "Auswählen",
+    "selected": "Ausgewählt",
+    "confirmSelect": "Mit der Auswahl dieses Angebots wird die Anfrage abgeschlossen. Die weiteren Schritte (Bestellung, Rechnung) erfolgen direkt mit dem Lieferanten. Fortfahren?",
+    "flash": {
+      "selected": "Angebot ausgewählt: Die Anfrage ist abgeschlossen."
+    },
+    "errors": {
+      "notSelectable": "Diese Anfrage ist nicht mehr offen: Dieses Angebot kann nicht ausgewählt werden."
+    }
   }
 }

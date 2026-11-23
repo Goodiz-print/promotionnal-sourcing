@@ -107,5 +107,26 @@
       "respond": "Rispondi con un preventivo",
       "viewQuote": "Vedi il mio preventivo"
     }
+  },
+  "documents": {
+    "title": "Preventivi PDF ricevuti",
+    "description": "Preventivi inviati via e-mail dai fornitori. Il download è riservato ai membri della tua agenzia.",
+    "empty": "Nessun preventivo PDF ricevuto per ora.",
+    "columns": {
+      "supplier": "Fornitore",
+      "file": "File",
+      "receivedAt": "Ricevuto il",
+      "decision": "Decisione"
+    },
+    "download": "Scarica {filename}",
+    "select": "Scegli",
+    "selected": "Scelto",
+    "confirmSelect": "Scegliere questo preventivo chiude la richiesta. I passi successivi (ordine, fatturazione) avvengono direttamente con il fornitore. Continuare?",
+    "flash": {
+      "selected": "Preventivo scelto: la richiesta è chiusa."
+    },
+    "errors": {
+      "notSelectable": "Questa richiesta non è più aperta: impossibile scegliere questo preventivo."
+    }
   }
 }

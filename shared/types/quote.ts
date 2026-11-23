@@ -118,3 +118,19 @@ export interface QuoteDocumentInput {
    */
   recipientStorageObjectId: number | null
 }
+
+/**
+ * Devis PDF reçu, tel que l'écran de la demande le liste (#228). Le fichier se
+ * télécharge par `quote_documents.download`, réservé aux membres de l'agence ;
+ * aucune clé ni URL de stockage n'est exposée.
+ */
+export type QuoteDocumentType = {
+  id: number
+  rfqSupplierId: number
+  supplierName: string
+  filename: string
+  sizeBytes: number
+  receivedAt: string
+  /** Devis retenu par l'agence : la demande a été clôturée à cette date. */
+  selectedAt: string | null
+}

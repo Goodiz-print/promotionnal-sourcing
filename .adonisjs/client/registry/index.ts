@@ -600,6 +600,12 @@ const routes = {
     tokens: [[1,"locale"],[0,"quote-documents"],[1,"id"],[0,"download"]],
     types: placeholder as Registry['quote_documents.download']['types'],
   },
+  'quote_documents.select': {
+    methods: ["POST"],
+    pattern: '/:locale/quote-documents/:id/select',
+    tokens: [[1,"locale"],[0,"quote-documents"],[1,"id"],[0,"select"]],
+    types: placeholder as Registry['quote_documents.select']['types'],
+  },
   'supplier.quotes.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/supplier/quotes',

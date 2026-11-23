@@ -1,6 +1,7 @@
 import { inject } from '@adonisjs/core'
 import { DateTime } from 'luxon'
 import type { HasManyQueryBuilderContract } from '@adonisjs/lucid/types/relations'
+import type { ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import db from '@adonisjs/lucid/services/db'
 import Organization from '#models/organization'
@@ -8,7 +9,7 @@ import Product from '#models/product'
 import Rfq from '#models/rfq'
 import RfqItem from '#models/rfq_item'
 import RfqSupplier from '#models/rfq_supplier'
-import type User from '#models/user'
+import User from '#models/user'
 import RfqRecipientService from '#services/rfq_recipient_service'
 import {
   NotASupplierOrganizationException,
@@ -20,13 +21,32 @@ import {
   RfqSupplierNotFoundException,
 } from '#exceptions/rfq_errors'
 import { DEFAULT_RFQ_ITEM_QUANTITY } from '#shared/types/rfq'
+import { BUYER_VISIBLE_QUOTE_STATUSES } from '#shared/types/quote'
 import { parseRfqDeadline } from '#shared/helpers/rfq_deadline'
 import type {
   NewRfqData,
+  RfqBuyerFilters,
   RfqItemData,
   RfqProductOptionType,
+  RfqProgress,
   UpdateRfqData,
 } from '#shared/types/rfq'
+
+/** Colonnes d'une ligne de « Mes demandes » (`RfqListItemTransformer`). */
+const RFQ_LIST_COLUMNS = [
+  'id',
+  'batchId',
+  'buyerOrganizationId',
+  'createdByUserId',
+  'title',
+  'status',
+  'deadline',
+  'budgetMax',
+  'publishedAt',
+  'closedAt',
+  'expiredAt',
+  'createdAt',
+]
 
 /**
  * Rédaction, lecture et diffusion d'une demande de devis (RFQ).
@@ -60,14 +80,49 @@ export default class RfqService {
   constructor(private recipients: RfqRecipientService) {}
 
   /**
-   * Demandes émises par l'organisation acheteuse, brouillons compris.
+   * « Mes demandes » (#228) : les demandes de l'organisation acheteuse,
+   * brouillons compris, la plus récente en tête, filtrées par avancement
+   * (`RfqProgress`) et par auteur. Une demande appartient à l'agence : tous ses
+   * membres voient toutes ses demandes.
+   *
+   * Colonnes explicites ; items et destinataires sont préchargés pour leurs
+   * compteurs (une requête par relation, pas de N+1), les devis remis et les
+   * devis PDF seulement comptés en sous-requête (`$extras.receivedQuotesCount`,
+   * `$extras.quoteDocumentsCount`).
    */
-  listForBuyer(organizationId: number): Promise<Rfq[]> {
-    return Rfq.query()
+  listForBuyer(organizationId: number, filters: RfqBuyerFilters = {}): Promise<Rfq[]> {
+    const query = Rfq.query()
+      .select(RFQ_LIST_COLUMNS)
       .where('buyerOrganizationId', organizationId)
-      .preload('items')
-      .preload('suppliers')
+      .preload('items', (items) => items.select('id', 'rfqId'))
+      .preload('suppliers', (suppliers) => suppliers.select('id', 'rfqId', 'status'))
+      .preload('createdBy', (author) => author.select('id', 'firstName', 'lastName'))
+      .withCount('quotes', (quotes) =>
+        quotes.whereIn('status', [...BUYER_VISIBLE_QUOTE_STATUSES]).as('receivedQuotesCount')
+      )
+      .withCount('quoteDocuments', (documents) => documents.as('quoteDocumentsCount'))
       .orderBy('createdAt', 'desc')
+      .orderBy('id', 'desc')
+
+    if (filters.authorId) query.where('createdByUserId', filters.authorId)
+    if (filters.status) this.whereProgress(query, filters.status)
+    return query
+  }
+
+  /**
+   * Auteurs des demandes de l'organisation, pour le filtre « auteur » de
+   * « Mes demandes » : seuls ceux qui ont écrit au moins une demande.
+   */
+  authorsForBuyer(organizationId: number): Promise<User[]> {
+    return User.query()
+      .select('id', 'firstName', 'lastName', 'email')
+      .whereIn(
+        'id',
+        db.from('rfqs').select('created_by_user_id').where('buyer_organization_id', organizationId)
+      )
+      .orderBy('firstName')
+      .orderBy('lastName')
+      .orderBy('id')
   }
 
   /**
@@ -378,12 +433,14 @@ export default class RfqService {
 
   /**
    * Clôture : l'acheteur a assez de réponses. Les devis déjà reçus restent
-   * consultables, aucun nouvel envoi n'est possible.
+   * consultables, aucun nouvel envoi n'est possible. Transaction de l'appelant
+   * si fournie (devis PDF retenu, `QuoteService#selectDocument`).
    */
-  async close(rfq: Rfq): Promise<Rfq> {
+  async close(rfq: Rfq, client?: TransactionClientContract): Promise<Rfq> {
     if (rfq.status !== 'published') throw new RfqNotClosableException()
 
     rfq.merge({ status: 'closed', closedAt: DateTime.now() })
+    if (client) rfq.useTransaction(client)
     await rfq.save()
     return rfq
   }
@@ -399,6 +456,29 @@ export default class RfqService {
       .whereIn('organizationType', ['supplier', 'both'])
       .whereNull('archivedAt')
       .orderBy('name')
+  }
+
+  /**
+   * Filtre SQL d'un avancement, miroir de `rfqProgress` : une demande publiée
+   * est « envoyée » dès qu'un destinataire est notifié, « répondue » dès qu'un
+   * destinataire a répondu.
+   */
+  private whereProgress(query: ModelQueryBuilderContract<typeof Rfq>, progress: RfqProgress) {
+    const responded = (suppliers: ModelQueryBuilderContract<typeof RfqSupplier>) =>
+      suppliers.where('status', 'responded')
+    const notified = (suppliers: ModelQueryBuilderContract<typeof RfqSupplier>) =>
+      suppliers.whereNot('status', 'pending')
+    const published = () => query.where('status', 'published')
+    const filters: Record<RfqProgress, () => void> = {
+      draft: () => query.where('status', 'draft'),
+      published: () => published().whereDoesntHave('suppliers', notified),
+      sent: () =>
+        published().whereHas('suppliers', notified).whereDoesntHave('suppliers', responded),
+      responded: () => published().whereHas('suppliers', responded),
+      expired: () => query.where('status', 'expired'),
+      closed: () => query.where('status', 'closed'),
+    }
+    filters[progress]()
   }
 
   /**

@@ -107,5 +107,26 @@
       "respond": "Odpowiedz ofertą",
       "viewQuote": "Zobacz moją ofertę"
     }
+  },
+  "documents": {
+    "title": "Otrzymane oferty PDF",
+    "description": "Oferty przesłane e-mailem przez dostawców. Pobieranie jest zastrzeżone dla członków Twojej agencji.",
+    "empty": "Nie otrzymano jeszcze żadnej oferty PDF.",
+    "columns": {
+      "supplier": "Dostawca",
+      "file": "Plik",
+      "receivedAt": "Otrzymano",
+      "decision": "Decyzja"
+    },
+    "download": "Pobierz {filename}",
+    "select": "Wybierz",
+    "selected": "Wybrana",
+    "confirmSelect": "Wybranie tej oferty zamyka zapytanie. Dalsze kroki (zamówienie, fakturowanie) odbywają się bezpośrednio z dostawcą. Kontynuować?",
+    "flash": {
+      "selected": "Oferta wybrana: zapytanie zostało zamknięte."
+    },
+    "errors": {
+      "notSelectable": "To zapytanie nie jest już otwarte: nie można wybrać tej oferty."
+    }
   }
 }

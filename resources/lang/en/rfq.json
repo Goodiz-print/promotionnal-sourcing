@@ -15,8 +15,31 @@
       "suppliers": "Recipients",
       "responses": "Answers",
       "status": "Status",
-      "deadline": "Deadline"
-    }
+      "deadline": "Deadline",
+      "author": "Author",
+      "quotes": "Quotes"
+    },
+    "progress": {
+      "draft": "Draft",
+      "published": "Published",
+      "sent": "Sent",
+      "responded": "Answered",
+      "expired": "Expired",
+      "closed": "Closed"
+    },
+    "filters": {
+      "label": "Filter requests",
+      "status": "Status",
+      "author": "Author",
+      "allStatuses": "All statuses",
+      "allAuthors": "All authors",
+      "reset": "Reset filters"
+    },
+    "noMatch": "No request matches these filters.",
+    "noMatchDescription": "Change or reset the filters to find your requests.",
+    "batch": "Cart of {date} · {count, plural, one {# request} other {# requests}}",
+    "quoteReceived": "Quote received",
+    "unknownAuthor": "Unknown author"
   },
   "create": {
     "title": "New request for quotation",

@@ -16,17 +16,20 @@ import RfqSupplierContacts from '~/components/rfqs/rfq_supplier_contacts.vue'
 import RfqSupplierList from '~/components/rfqs/rfq_supplier_list.vue'
 import RfqSupplierPicker from '~/components/rfqs/rfq_supplier_picker.vue'
 import QuoteComparisonTable from '~/components/quotes/quote_comparison_table.vue'
+import RfqQuoteDocuments from '~/components/rfqs/rfq_quote_documents.vue'
 import ConversationThread from '~/components/messaging/conversation_thread.vue'
 import { RFQ_STATUS_TONES } from '~/components/rfqs/types'
 import type { CategoryType } from '#shared/types/category'
 import type { RfqThreadType } from '#shared/types/conversation'
-import type { QuoteType } from '#shared/types/quote'
+import type { QuoteDocumentType, QuoteType } from '#shared/types/quote'
 import type { RfqDetailType, RfqProductOptionType, SupplierOptionType } from '#shared/types/rfq'
 import type { SupplierContactsByOrganization } from '#shared/types/supplier'
 
 const props = defineProps<{
   rfq: RfqDetailType
   quotes: QuoteType[]
+  /** Devis reçus en PDF par mail (#224), téléchargeables par l'agence (#228). */
+  quoteDocuments: QuoteDocumentType[]
   /** Équipe commerciale des destinataires, filtrée par le serveur (#241). */
   supplierContacts: SupplierContactsByOrganization
   /** Fil d'échanges de chaque destinataire notifié, relayé par mail (#226). */
@@ -61,6 +64,20 @@ const addableSuppliers = computed(() => {
   const targeted = new Set(props.rfq.suppliers.map((row) => row.supplierOrganizationId))
   return props.supplierOptions.filter((option) => !targeted.has(option.id))
 })
+
+/**
+ * Devis structurés : la section s'affiche dès la publication, sauf si seuls des
+ * PDF sont arrivés — son état vide (« aucun devis reçu ») les contredirait.
+ */
+const showStructuredQuotes = computed(
+  () =>
+    props.rfq.status !== 'draft' && (props.quotes.length > 0 || props.quoteDocuments.length === 0)
+)
+
+/** Retenir un devis PDF clôture la demande : décision de responsable, demande ouverte. */
+const canSelectQuoteDocument = computed(
+  () => props.canManageRfq && props.rfq.status === 'published'
+)
 
 const supplierIdsToAdd = ref<number[]>([])
 
@@ -138,8 +155,17 @@ function queueSupplier(product: RfqProductOptionType) {
       </div>
     </BaseSection>
 
-    <BaseSection v-if="rfq.status !== 'draft'" :title="t('quote.comparison.title')" flush>
+    <BaseSection v-if="showStructuredQuotes" :title="t('quote.comparison.title')" flush>
       <QuoteComparisonTable :quotes="quotes" :items="rfq.items" />
+    </BaseSection>
+
+    <BaseSection
+      v-if="rfq.status !== 'draft'"
+      :title="t('quote.documents.title')"
+      :description="t('quote.documents.description')"
+      flush
+    >
+      <RfqQuoteDocuments :documents="quoteDocuments" :can-select="canSelectQuoteDocument" />
     </BaseSection>
 
     <BaseSection :title="t('rfq.show.suppliersTitle')">

@@ -79,8 +79,13 @@ puis ramené au devis (`?redirect=`).
 La route sert `QuoteDocument#recipientFile` (version au nom de l'agence pour un
 non-abonné, sinon l'original) en passant par l'application
 (`Cache-Control: private, no-store`) : l'URL de stockage n'est jamais exposée.
-C'est le lien des mails transmis à l'agence ; l'écran de la demande (#228) le
-réutilisera.
+C'est le lien des mails transmis à l'agence, et celui de l'écran de la demande
+(#228).
+
+Devis PDF retenu (#228) : `POST /:locale/quote-documents/:id/select`
+(`quote_documents.select`, `QuoteDocumentsController#select`), réservé aux
+**responsables** de l'agence (ability `canSelectQuoteDocument`,
+`RFQ_MANAGER_ROLES`). Voir « Devis PDF retenu » ci-dessous.
 
 Cloisonnement : le devis d'une autre organisation est un **404**, jamais un 403 ;
 un brouillon n'existe pas pour l'acheteur ; un fournisseur ne voit jamais les devis
@@ -213,7 +218,7 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
 - **Limite** : la transmission dépend de l'événement, dont l'émission n'est pas
   garantie (voir ci-dessus). La reprise des réponses non transmises reste à faire.
 
-Aucun écran n'affiche encore ces devis (#228).
+L'écran de la demande liste ces devis depuis #228 (« Devis PDF reçus »).
 
 ### Fil d'échanges de la demande (#226)
 
@@ -288,6 +293,34 @@ destinataire** qui l'ajoute :
 - **Coût** : `pdf-lib` analyse tout le fichier dans le worker. Les pièces
   jointes sont bornées à 15 Mo (`INBOUND_MAIL_MAX_ATTACHMENT_SIZE_MB`) ; un
   PDF malformé très lent ralentirait la file sans la bloquer en erreur.
+
+### Devis PDF reçus sur l'écran de la demande (#228)
+
+`QuoteService#documentsForRfq(rfq)` : tous les devis PDF de la demande, le plus
+récent en tête, colonnes explicites, pièce jointe (nom, taille) préchargée. Le
+destinataire (et son fournisseur) est repris de `rfq.suppliers`, déjà chargés
+par `RfqService#findForBuyer` : aucune requête de plus. `QuoteDocumentTransformer` (`QuoteDocumentType`) n'expose que
+fournisseur, nom et taille du fichier, dates de réception et de sélection : ni
+clé de stockage, ni message, ni pièce jointe. Le lien de téléchargement est la
+route `quote_documents.download`.
+
+### Devis PDF retenu (#228)
+
+`quote_documents.selected_at` (migration `1794000000040`). L'agence **retient**
+un devis PDF : le controller le charge sans ses fichiers
+(`QuoteService#findDocumentForDecision`, devis et demande), puis
+`QuoteService#selectDocument` relit la demande sous verrou
+(`FOR UPDATE`), la clôture par `RfqService#close` dans la transaction et pose
+`selected_at`. Deux décisions concurrentes (retenir deux PDF, accepter un devis
+structuré) ne clôturent qu'une fois : la seconde lève `RfqNotClosableException`,
+que le controller transforme en message flash.
+
+- **Pas de commande**, pas d'événement : la suite (bon de commande,
+  facturation) se fait entre l'agence et le fournisseur, hors plateforme.
+- Les devis structurés remis gardent leur statut ; la demande étant close, ils
+  ne peuvent plus être acceptés.
+- Seule une demande `published` se retient : une demande échue se rouvre
+  d'abord en prolongeant l'échéance.
 
 ## Tests
 

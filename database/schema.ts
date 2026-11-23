@@ -2313,6 +2313,7 @@ export class QuoteDocumentSchema extends BaseModel {
     'recipientStorageObjectId',
     'rfqId',
     'rfqSupplierId',
+    'selectedAt',
     'stampedAt',
     'updatedAt',
   ] as const
@@ -2333,6 +2334,8 @@ export class QuoteDocumentSchema extends BaseModel {
   declare rfqId: number
   @column()
   declare rfqSupplierId: number
+  @column.dateTime()
+  declare selectedAt: DateTime | null
   @column.dateTime()
   declare stampedAt: DateTime | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })

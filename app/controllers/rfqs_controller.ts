@@ -15,14 +15,18 @@ import RfqDeadlineService from '#services/rfq_deadline_service'
 import RfqThreadService from '#services/rfq_thread_service'
 import SupplierContactService from '#services/supplier_contact_service'
 import CategoryTransformer from '#transformers/category_transformer'
+import QuoteDocumentTransformer from '#transformers/quote_document_transformer'
 import QuoteTransformer from '#transformers/quote_transformer'
 import SupplierContactsByOrganizationTransformer from '#transformers/supplier_contacts_by_organization_transformer'
 import RfqDetailTransformer from '#transformers/rfq_detail_transformer'
 import RfqProductOptionTransformer from '#transformers/rfq_product_option_transformer'
-import RfqTransformer from '#transformers/rfq_transformer'
+import RfqAuthorOptionTransformer from '#transformers/rfq_author_option_transformer'
+import RfqListItemTransformer from '#transformers/rfq_list_item_transformer'
 import RfqThreadTransformer from '#transformers/rfq_thread_transformer'
 import {
   rfqDeadlineValidator,
+  rfqListAuthorValidator,
+  rfqListStatusValidator,
   rfqLookupQueryValidator,
   rfqProductValidator,
   rfqSuppliersValidator,
@@ -42,7 +46,8 @@ import type Organization from '#models/organization'
 import type Rfq from '#models/rfq'
 import type User from '#models/user'
 import type { Locale } from '#shared/types/i18n'
-import type { RfqProductLookupType } from '#shared/types/rfq'
+import type { RfqBuyerFilters, RfqProductLookupType } from '#shared/types/rfq'
+import { groupRfqsByBatch, rfqFiltersForPage } from '#shared/helpers/rfq_list'
 import type { RfqThreadType } from '#shared/types/conversation'
 
 /**
@@ -93,16 +98,24 @@ export default class RfqsController {
   ) {}
 
   /**
-   * Liste des demandes de l'organisation acheteuse, brouillons compris.
+   * « Mes demandes » (#228) : les demandes de l'organisation acheteuse,
+   * brouillons compris, regroupées par lot de panier (#229) et filtrées par
+   * avancement et par auteur (`?status=&authorId=`, conservés dans l'URL).
    */
-  async index({ auth, bouncer, inertia }: HttpContext) {
+  async index({ auth, bouncer, inertia, request }: HttpContext) {
     const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canCreateRfq', org)
 
-    const rfqs = await this.service.listForBuyer(org.id)
+    const filters = await this.listFilters(request)
+    const [rfqs, authors] = await Promise.all([
+      this.service.listForBuyer(org.id, filters),
+      this.service.authorsForBuyer(org.id),
+    ])
 
     return inertia.render('rfqs/index', {
-      rfqs: rfqs.map((rfq) => new RfqTransformer(rfq).toObject()),
+      groups: groupRfqsByBatch(rfqs.map((rfq) => new RfqListItemTransformer(rfq).toObject())),
+      filters: rfqFiltersForPage(filters),
+      authors: authors.map((author) => new RfqAuthorOptionTransformer(author).toObject()),
       canSendRfq: await bouncer.allows('canSendRfq', org),
       canManageRfq: await bouncer.allows('canManageRfq', org),
     })
@@ -172,6 +185,8 @@ export default class RfqsController {
     const { productSearch } = await this.lookupParams(request)
     // Devis remis par les fournisseurs, du moins cher au plus cher.
     const quotes = await this.quotes.listForRfq(rfq.id)
+    // Devis reçus en PDF (#224), téléchargeables par les membres de l'agence.
+    const documents = await this.quotes.documentsForRfq(rfq)
     // Équipe commerciale des destinataires (#241), filtrée selon le pays de l'agence.
     const contacts = await this.supplierContacts.visibleForMany(
       rfq.suppliers.map((row) => row.supplierOrganizationId),
@@ -181,6 +196,9 @@ export default class RfqsController {
     return inertia.render('rfqs/show', {
       rfq: new RfqDetailTransformer(rfq, locale).toObject(),
       quotes: quotes.map((quote) => new QuoteTransformer(quote).toObject()),
+      quoteDocuments: documents.map((document) =>
+        new QuoteDocumentTransformer(document).toObject()
+      ),
       supplierContacts: new SupplierContactsByOrganizationTransformer(contacts).toObject(),
       threads: await this.threadsFor(rfq, bouncer),
       canSendRfq: await bouncer.allows('canSendRfq', org),
@@ -421,6 +439,37 @@ export default class RfqsController {
   ): Promise<{ productId?: number; productSearch?: string }> {
     try {
       return await rfqLookupQueryValidator.validate(request.qs())
+    } catch (error) {
+      if (error instanceof vineErrors.E_VALIDATION_ERROR) return {}
+      throw error
+    }
+  }
+
+  /**
+   * Filtres de « Mes demandes », validés **champ par champ** : une valeur
+   * invalide (`?status=bogus`) est ignorée sans faire tomber l'autre filtre
+   * (`?status=responded&authorId=abc` garde le statut). C'est une URL, pas une
+   * saisie : rien n'est refusé.
+   */
+  private async listFilters(request: HttpContext['request']): Promise<RfqBuyerFilters> {
+    const query = request.qs()
+    const [status, author] = await Promise.all([
+      this.validQueryOrEmpty(rfqListStatusValidator, query),
+      this.validQueryOrEmpty(rfqListAuthorValidator, query),
+    ])
+    return { ...status, ...author }
+  }
+
+  /**
+   * Valide une partie de la query string ; `{}` si elle est invalide. Reste
+   * ici : c'est l'orchestration d'un validateur VineJS, pas un calcul pur.
+   */
+  private async validQueryOrEmpty<T extends object>(
+    validator: { validate: (data: unknown) => Promise<T> },
+    query: unknown
+  ): Promise<Partial<T>> {
+    try {
+      return await validator.validate(query)
     } catch (error) {
       if (error instanceof vineErrors.E_VALIDATION_ERROR) return {}
       throw error

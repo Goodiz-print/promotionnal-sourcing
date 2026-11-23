@@ -1294,6 +1294,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_documents_controller').default['download']>>>
     }
   }
+  'quote_documents.select': {
+    methods: ["POST"]
+    pattern: '/:locale/quote-documents/:id/select'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_documents_controller').default['select']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_documents_controller').default['select']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_documents_controller').default['select']>>>
+    }
+  }
   'supplier.quotes.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/supplier/quotes'

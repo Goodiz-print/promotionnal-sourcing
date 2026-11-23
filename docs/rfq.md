@@ -252,7 +252,9 @@ propre `name`.
 
 ### Écrans
 
-- **`rfqs/index.vue`** — liste des demandes, statut en pastille, compteurs.
+- **`rfqs/index.vue`** — « Mes demandes » : liste des demandes, statut en pastille,
+  compteurs ; depuis #228, regroupée par lot de panier et filtrable (section
+  « Mes demandes (#228) » ci-dessous).
 - **`rfqs/create.vue`** — en-tête, lignes du besoin, sélection des destinataires
   en une passe. Enregistre un **brouillon** : rien n'est envoyé à ce stade.
 - **`rfqs/show.vue`** — un brouillon est éditable en place (le formulaire est
@@ -749,3 +751,58 @@ enregistrée et signalée), `tests/inertia/rfq_deadline_extension.spec.ts`,
 tardive), `tests/unit/rfq_deadline.spec.ts`, `tests/unit/notification_message_key.spec.ts`,
 `tests/unit/transformers/rfq_supplier_transformer.spec.ts` et
 `supplier_rfq_transformer.spec.ts`.
+
+## Mes demandes (#228)
+
+Les demandes appartiennent à l'**agence** : tous ses membres les voient
+(`canCreateRfq`), quel que soit l'auteur.
+
+### Liste
+
+`RfqsController#index` → `RfqService#listForBuyer(organizationId, filters)` :
+
+- **Avancement** (`RfqProgress`, `shared/types/rfq.ts`) : le statut de la
+  demande, `published` détaillé en `published` (aucun destinataire notifié,
+  tous `pending`), `sent` (au moins un notifié, aucun `responded`) et
+  `responded`. Libellés de `draft`, `published`, `expired` et `closed` repris de
+  `rfq.status.*`. Calculé pour l'affichage par `rfqProgress`
+  (`shared/helpers/rfq_list.ts`) et filtré en SQL par
+  `RfqService#whereProgress` (`whereHas` / `whereDoesntHave` sur les
+  destinataires) — les deux règles doivent concorder.
+- **Filtres** (`RfqBuyerFilters`) : `status` (un `RfqProgress`) et `authorId`
+  (`rfqs.created_by_user_id`), lus dans la query string par
+  `rfqListStatusValidator` et `rfqListAuthorValidator`, un par filtre : une
+  valeur invalide est ignorée sans faire tomber l'autre filtre. Le
+  composant `rfq_list_filters` relance une visite `router.get` avec
+  `preserveState` et `replace` ; seuls les filtres posés vont dans l'URL
+  (`rfqListQuery`). Les auteurs proposés : `RfqService#authorsForBuyer`.
+- **Lot de panier** : `groupRfqsByBatch` regroupe les lignes par `batchId`
+  (#229) dans l'ordre de la liste ; une demande sans lot forme un groupe seule.
+  Prop `groups: RfqBatchGroupType[]`.
+- **Requêtes** : colonnes explicites (`RFQ_LIST_COLUMNS`) ; items,
+  destinataires et auteur préchargés (une requête par relation) ; devis
+  structurés **remis** (`BUYER_VISIBLE_QUOTE_STATUSES`, jamais les brouillons)
+  et devis PDF seulement **comptés** en sous-requête (`withCount`,
+  `$extras.receivedQuotesCount` / `$extras.quoteDocumentsCount`).
+- **Ligne** : `RfqListItemTransformer` (`RfqListItemType`) ajoute
+  `createdByName`, `progress` et `hasReceivedQuote` (devis remis ou PDF).
+
+### Détail
+
+`rfqs/show.vue` réunit, pour une demande : les devis structurés
+(`QuoteComparisonTable`), les **devis PDF** (`rfq_quote_documents`, prop
+`quoteDocuments`, voir `docs/quotes.md`), les destinataires avec leurs statuts
+expiré / réponse tardive (#232) et le fil des échanges par destinataire (#226).
+
+### Devis PDF « retenu »
+
+Un responsable (`canSelectQuoteDocument`) retient un devis PDF : la demande est
+clôturée, **sans commande** (`QuoteService#selectDocument`, détail dans
+`docs/quotes.md`). Le devis structuré garde son parcours (accepter → commande).
+
+### Tests
+
+`tests/functional/rfq_my_requests.spec.ts`, `tests/unit/rfq_list.spec.ts`,
+`tests/unit/transformers/rfq_list_item_transformer.spec.ts`,
+`rfq_author_option_transformer.spec.ts`, `quote_document_transformer.spec.ts`,
+`tests/inertia/rfq_my_requests.spec.ts` et `rfqs.spec.ts`.

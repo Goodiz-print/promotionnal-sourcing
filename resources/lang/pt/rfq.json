@@ -15,8 +15,31 @@
       "suppliers": "Destinatários",
       "responses": "Respostas",
       "status": "Estado",
-      "deadline": "Prazo limite"
-    }
+      "deadline": "Prazo limite",
+      "author": "Autor",
+      "quotes": "Orçamentos"
+    },
+    "progress": {
+      "draft": "Rascunho",
+      "published": "Publicado",
+      "sent": "Enviado",
+      "responded": "Respondido",
+      "expired": "Expirada",
+      "closed": "Encerrado"
+    },
+    "filters": {
+      "label": "Filtrar os pedidos",
+      "status": "Estado",
+      "author": "Autor",
+      "allStatuses": "Todos os estados",
+      "allAuthors": "Todos os autores",
+      "reset": "Repor os filtros"
+    },
+    "noMatch": "Nenhum pedido corresponde a estes filtros.",
+    "noMatchDescription": "Altere ou reponha os filtros para encontrar os seus pedidos.",
+    "batch": "Carrinho de {date} · {count, plural, one {# pedido} other {# pedidos}}",
+    "quoteReceived": "Orçamento recebido",
+    "unknownAuthor": "Autor desconhecido"
   },
   "create": {
     "title": "Novo pedido de orçamento",

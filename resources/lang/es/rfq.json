@@ -15,8 +15,31 @@
       "suppliers": "Destinatarios",
       "responses": "Respuestas",
       "status": "Estado",
-      "deadline": "Fecha límite"
-    }
+      "deadline": "Fecha límite",
+      "author": "Autor",
+      "quotes": "Presupuestos"
+    },
+    "progress": {
+      "draft": "Borrador",
+      "published": "Publicada",
+      "sent": "Enviada",
+      "responded": "Respondida",
+      "expired": "Vencida",
+      "closed": "Cerrada"
+    },
+    "filters": {
+      "label": "Filtrar las solicitudes",
+      "status": "Estado",
+      "author": "Autor",
+      "allStatuses": "Todos los estados",
+      "allAuthors": "Todos los autores",
+      "reset": "Restablecer los filtros"
+    },
+    "noMatch": "Ninguna solicitud coincide con estos filtros.",
+    "noMatchDescription": "Modifique o restablezca los filtros para encontrar sus solicitudes.",
+    "batch": "Carrito del {date} · {count, plural, one {# solicitud} other {# solicitudes}}",
+    "quoteReceived": "Presupuesto recibido",
+    "unknownAuthor": "Autor desconocido"
   },
   "create": {
     "title": "Nueva solicitud de presupuesto",

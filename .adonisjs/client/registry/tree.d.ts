@@ -219,6 +219,7 @@ export interface ApiDefinition {
   }
   quoteDocuments: {
     download: typeof routes['quote_documents.download']
+    select: typeof routes['quote_documents.select']
   }
   quoteCart: {
     show: typeof routes['quote_cart.show']

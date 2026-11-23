@@ -107,5 +107,26 @@
       "respond": "Reageren met een offerte",
       "viewQuote": "Mijn offerte bekijken"
     }
+  },
+  "documents": {
+    "title": "Ontvangen pdf-offertes",
+    "description": "Offertes die leveranciers per e-mail hebben gestuurd. Downloaden is voorbehouden aan de leden van uw bureau.",
+    "empty": "Nog geen pdf-offerte ontvangen.",
+    "columns": {
+      "supplier": "Leverancier",
+      "file": "Bestand",
+      "receivedAt": "Ontvangen op",
+      "decision": "Beslissing"
+    },
+    "download": "{filename} downloaden",
+    "select": "Kiezen",
+    "selected": "Gekozen",
+    "confirmSelect": "Door deze offerte te kiezen wordt de aanvraag gesloten. De volgende stappen (bestelbon, facturatie) verlopen rechtstreeks met de leverancier. Doorgaan?",
+    "flash": {
+      "selected": "Offerte gekozen: de aanvraag is gesloten."
+    },
+    "errors": {
+      "notSelectable": "Deze aanvraag is niet meer open: deze offerte kan niet worden gekozen."
+    }
   }
 }

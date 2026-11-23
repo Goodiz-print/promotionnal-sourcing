@@ -1,5 +1,10 @@
 import { DEFAULT_RFQ_ITEM_QUANTITY } from '#shared/types/rfq'
-import type { RfqProductOptionType, RfqSupplierStatus, RfqStatus } from '#shared/types/rfq'
+import type {
+  RfqProductOptionType,
+  RfqProgress,
+  RfqSupplierStatus,
+  RfqStatus,
+} from '#shared/types/rfq'
 import type { BadgeTone } from '~/types/ui'
 
 /**
@@ -66,4 +71,18 @@ export const RFQ_SUPPLIER_STATUS_TONES: Record<RfqSupplierStatus, BadgeTone> = {
   responded: 'success',
   declined: 'danger',
   expired: 'warning',
+}
+
+/**
+ * Tonalité de l'avancement dans « Mes demandes » (#228) : une réponse reçue est
+ * un succès, une demande envoyée attend ; une demande publiée mais envoyée à
+ * personne (action en attente de l'agence) et une demande échue alertent.
+ */
+export const RFQ_PROGRESS_TONES: Record<RfqProgress, BadgeTone> = {
+  draft: 'neutral',
+  published: 'warning',
+  sent: 'info',
+  responded: 'success',
+  expired: 'warning',
+  closed: 'neutral',
 }

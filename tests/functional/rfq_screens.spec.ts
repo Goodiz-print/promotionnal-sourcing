@@ -50,8 +50,10 @@ test.group('Écrans RFQ — acheteur', (group) => {
 
     response.assertStatus(200)
     response.assertInertiaComponent('rfqs/index')
-    assert.lengthOf(response.inertiaProps.rfqs, 1)
-    assert.equal(response.inertiaProps.rfqs[0].title, 'Tote bags')
+    // Regroupée par lot de panier (#228) : une demande seule forme un groupe.
+    const [single] = response.inertiaProps.groups
+    assert.lengthOf(response.inertiaProps.groups, 1)
+    assert.equal(single.rfqs[0].title, 'Tote bags')
     assert.isTrue(response.inertiaProps.canManageRfq)
   })
 

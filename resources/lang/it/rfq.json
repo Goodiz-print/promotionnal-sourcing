@@ -15,8 +15,31 @@
       "suppliers": "Destinatari",
       "responses": "Risposte",
       "status": "Stato",
-      "deadline": "Scadenza"
-    }
+      "deadline": "Scadenza",
+      "author": "Autore",
+      "quotes": "Preventivi"
+    },
+    "progress": {
+      "draft": "Bozza",
+      "published": "Pubblicata",
+      "sent": "Inviata",
+      "responded": "Con risposta",
+      "expired": "Scaduta",
+      "closed": "Chiusa"
+    },
+    "filters": {
+      "label": "Filtra le richieste",
+      "status": "Stato",
+      "author": "Autore",
+      "allStatuses": "Tutti gli stati",
+      "allAuthors": "Tutti gli autori",
+      "reset": "Reimposta i filtri"
+    },
+    "noMatch": "Nessuna richiesta corrisponde a questi filtri.",
+    "noMatchDescription": "Modifica o reimposta i filtri per ritrovare le tue richieste.",
+    "batch": "Carrello del {date} · {count, plural, one {# richiesta} other {# richieste}}",
+    "quoteReceived": "Preventivo ricevuto",
+    "unknownAuthor": "Autore sconosciuto"
   },
   "create": {
     "title": "Nuova richiesta di offerta",
