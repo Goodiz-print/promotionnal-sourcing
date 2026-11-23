@@ -114,7 +114,11 @@ export default class RfqRecipientService {
    * Destinataires sans réponse d'une demande qui expire : `sent` / `viewed` →
    * `expired`, l'ancien statut gardé dans `expired_from` pour une réouverture.
    */
-  async expireAwaiting(rfqId: number, now: DateTime, trx: TransactionClientContract) {
+  async expireAwaiting(
+    rfqId: number,
+    now: DateTime,
+    trx: TransactionClientContract
+  ): Promise<void> {
     await RfqSupplier.query({ client: trx })
       .where('rfqId', rfqId)
       .whereIn('status', [...AWAITING_REPLY_RFQ_SUPPLIER_STATUSES])
@@ -125,7 +129,11 @@ export default class RfqRecipientService {
    * Réouverture d'une demande échue : chaque destinataire expiré retrouve le
    * statut qu'il avait avant l'échéance (à défaut `sent`).
    */
-  async restoreExpired(rfqId: number, now: DateTime, trx: TransactionClientContract) {
+  async restoreExpired(
+    rfqId: number,
+    now: DateTime,
+    trx: TransactionClientContract
+  ): Promise<void> {
     await RfqSupplier.query({ client: trx })
       .where('rfqId', rfqId)
       .where('status', 'expired')

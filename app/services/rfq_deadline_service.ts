@@ -55,7 +55,7 @@ export default class RfqDeadlineService {
    * Chaque bascule est conditionnelle (statut et échéance revérifiés en base) :
    * une demande close ou prolongée entre la lecture et l'écriture est laissée
    * telle quelle. Un échec isolé est loggué sans interrompre le lot : chaque
-   * demande a sa propre transaction, indépendante des autres.
+   * demande a sa propre transaction, et elles s'enchaînent une par une.
    */
   async expireDue(now: DateTime = DateTime.now()): Promise<Rfq[]> {
     const due = await Rfq.query()
@@ -63,8 +63,17 @@ export default class RfqDeadlineService {
       .whereNotNull('deadline')
       .where('deadline', '<', startOfDeadlineDay(now).toSQL()!)
 
-    const outcomes = await Promise.all(due.map((rfq) => this.tryExpireDue(rfq, now)))
-    return outcomes.filter((rfq): rfq is Rfq => rfq !== null)
+    const expired: Rfq[] = []
+    // Séquentiel volontairement : une transaction par demande, l'une après
+    // l'autre. En parallèle, un gros lot saturerait le pool de connexions
+    // (partagé avec les requêtes web) et des demandes resteraient non échues
+    // jusqu'au passage suivant du job.
+    // eslint-disable-next-line no-restricted-syntax
+    for (const rfq of due) {
+      const done = await this.tryExpireDue(rfq, now)
+      if (done) expired.push(done)
+    }
+    return expired
   }
 
   /**

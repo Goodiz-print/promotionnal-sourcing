@@ -2,6 +2,7 @@ import { test } from '@japa/runner'
 import { DateTime } from 'luxon'
 import app from '@adonisjs/core/services/app'
 import db from '@adonisjs/lucid/services/db'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import mail from '@adonisjs/mail/services/main'
 import { ConversationFactory } from '#database/factories/conversation_factory'
 import { MessageFactory } from '#database/factories/message_factory'
@@ -162,6 +163,36 @@ test.group('RFQ — expiration à l’échéance', (group) => {
     assert.equal(draft.status, 'draft')
     assert.equal(closed.status, 'closed')
     assert.equal(open.status, 'published')
+  })
+
+  test('un échec isolé n’interrompt pas le lot et annule la demande en échec', async ({
+    assert,
+  }) => {
+    const { org } = await buyer()
+    const failing = await publishedRfq(org.id, '2026-10-01')
+    const other = await publishedRfq(org.id, '2026-10-02')
+    await recipientWith(failing.id, 'sent')
+
+    /** Bascule des destinataires impossible pour une seule demande du lot. */
+    class FailingRecipients extends RfqRecipientService {
+      async expireAwaiting(rfqId: number, at: DateTime, trx: TransactionClientContract) {
+        if (rfqId === failing.id) throw new Error('base indisponible')
+        return super.expireAwaiting(rfqId, at, trx)
+      }
+    }
+    const deadlines = new RfqDeadlineService(new FailingRecipients())
+
+    const expired = await deadlines.expireDue(now)
+
+    assert.deepEqual(
+      expired.map(({ id }) => id),
+      [other.id]
+    )
+    // Transaction annulée : la demande en échec reste publiée, ses destinataires aussi.
+    await failing.refresh()
+    assert.equal(failing.status, 'published')
+    const [recipient] = await RfqSupplier.query().where('rfqId', failing.id)
+    assert.equal(recipient.status, 'sent')
   })
 
   test('expire refuse une demande qui n’est pas publiée', async ({ assert }) => {
