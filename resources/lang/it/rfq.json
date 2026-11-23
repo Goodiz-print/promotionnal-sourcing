@@ -54,8 +54,10 @@
     "sent": "Inviata",
     "viewed": "Visualizzata",
     "responded": "Ha risposto",
-    "declined": "Ha rifiutato"
+    "declined": "Ha rifiutato",
+    "expired": "Scaduta senza risposta"
   },
+  "lateReply": "Risposta tardiva",
   "actions": {
     "publish": "Pubblica",
     "send": "Invia ai destinatari",
@@ -157,7 +159,8 @@
       "sent": "Da gestire",
       "viewed": "In corso",
       "responded": "Offerta inviata",
-      "declined": "Rifiutata"
+      "declined": "Rifiutata",
+      "expired": "Scaduta"
     },
     "flash": {
       "declined": "Richiesta rifiutata."

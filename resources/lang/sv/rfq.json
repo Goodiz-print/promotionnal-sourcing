@@ -54,8 +54,10 @@
     "sent": "Skickad",
     "viewed": "Visad",
     "responded": "Har svarat",
-    "declined": "Har avböjt"
+    "declined": "Har avböjt",
+    "expired": "Utgången utan svar"
   },
+  "lateReply": "Sent svar",
   "actions": {
     "publish": "Publicera",
     "send": "Skicka till mottagarna",
@@ -157,7 +159,8 @@
       "sent": "Att hantera",
       "viewed": "Pågår",
       "responded": "Offert skickad",
-      "declined": "Avböjd"
+      "declined": "Avböjd",
+      "expired": "Utgången"
     },
     "flash": {
       "declined": "Förfrågan avböjd."

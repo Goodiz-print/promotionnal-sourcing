@@ -29,6 +29,7 @@ export function supplierReplyMail({
         .map(({ id, filename }) => ({ filename, downloadPath: paths.documentPaths[id] })),
       rfqPath: paths.rfqPath,
       replyTo: notice.replyTo,
+      late: notice.late,
     },
   }
 }

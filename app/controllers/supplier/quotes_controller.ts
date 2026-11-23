@@ -3,6 +3,7 @@ import { inject } from '@adonisjs/core'
 import OrganizationContextService from '#services/organization_context_service'
 import QuoteService from '#services/quote_service'
 import RfqService from '#services/rfq_service'
+import { acceptsResponses } from '#shared/helpers/rfq_deadline'
 import SubscriptionService from '#services/subscription_service'
 import QuoteTransformer from '#transformers/quote_transformer'
 import SupplierRfqDetailTransformer from '#transformers/supplier_rfq_detail_transformer'
@@ -81,7 +82,7 @@ export default class SupplierQuotesController {
     return inertia.render('supplier/quotes/edit', {
       rfq: new SupplierRfqDetailTransformer(rfq, revealBuyer, i18n.locale as Locale).toObject(),
       quote: null,
-      canEdit: this.rfqs.acceptsResponses(rfq),
+      canEdit: acceptsResponses(rfq),
     })
   }
 
@@ -100,7 +101,7 @@ export default class SupplierQuotesController {
     return inertia.render('supplier/quotes/edit', {
       rfq: new SupplierRfqDetailTransformer(rfq, revealBuyer, i18n.locale as Locale).toObject(),
       quote: new QuoteTransformer(quote).toObject(),
-      canEdit: quote.status === 'draft' && this.rfqs.acceptsResponses(rfq),
+      canEdit: quote.status === 'draft' && acceptsResponses(rfq),
     })
   }
 

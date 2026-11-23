@@ -1,7 +1,8 @@
 import { DateTime } from 'luxon'
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
-import RfqService from '#services/rfq_service'
+import RfqRecipientService from '#services/rfq_recipient_service'
+import { acceptsResponses, startOfDeadlineDay } from '#shared/helpers/rfq_deadline'
 import Rfq from '#models/rfq'
 import { AdminTradeNotFoundException } from '#exceptions/admin_trade_errors'
 import {
@@ -61,7 +62,7 @@ const contains = (term: string) => `%${term.replace(/[\\%_]/g, '\\$&')}%`
  */
 @inject()
 export default class AdminTradeService {
-  constructor(private rfqs: RfqService) {}
+  constructor(private recipients: RfqRecipientService) {}
 
   async listRfqs(options: AdminTradeListOptions<AdminRfqFilters>): Promise<Paginated<AdminRfqRow>> {
     const { page, perPage, status, attention } = options
@@ -277,16 +278,16 @@ export default class AdminTradeService {
   /** Même règle que l'intervention : la demande attend des réponses et des destinataires sont relançables. */
   private async remindableCount(rfqId: number): Promise<number> {
     const rfq = await Rfq.find(rfqId)
-    if (!rfq || !this.rfqs.acceptsResponses(rfq)) return 0
-    const row = await this.rfqs.remindableRecipients(rfqId).count('* as total').first()
+    if (!rfq || !acceptsResponses(rfq)) return 0
+    const row = await this.recipients.remindableRecipients(rfqId).count('* as total').first()
     return Number(row?.$extras.total ?? 0)
   }
 
-  /** Repères du repérage des demandes bloquées : même « aujourd'hui » (Paris) que `RfqService`. */
+  /** Repères du repérage des demandes bloquées : même « aujourd'hui » (Paris) que l'échéance (`startOfDeadlineDay`). */
   private reference() {
     const now = DateTime.now()
     return {
-      today: this.rfqs.startOfToday(now).toSQL()!,
+      today: startOfDeadlineDay(now).toSQL()!,
       sentBefore: now.minus({ days: RFQ_REMINDER_AFTER_DAYS }).toSQL()!,
     }
   }

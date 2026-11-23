@@ -4,12 +4,11 @@ import { Link } from '@adonisjs/inertia/vue'
 import { EyeOff, Inbox } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import BaseAvatar from '~/components/base/base_avatar.vue'
-import BaseBadge from '~/components/base/base_badge.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseTable from '~/components/base/base_table.vue'
 import SubscriptionUpsell from '~/components/subscription/subscription_upsell.vue'
-import { RFQ_SUPPLIER_STATUS_TONES } from '~/components/rfqs/types'
+import RfqRecipientStatusBadges from '~/components/rfqs/rfq_recipient_status_badges.vue'
 import type { SupplierRfqType } from '#shared/types/rfq'
 import type { SubscriptionUpsellType } from '#shared/types/subscription'
 
@@ -100,9 +99,11 @@ function initials(name: string): string {
           <span v-else class="text-text-muted">{{ t('rfq.supplier.show.noDeadline') }}</span>
         </td>
         <td>
-          <BaseBadge dot :tone="RFQ_SUPPLIER_STATUS_TONES[rfq.myStatus]">
-            {{ t(`rfq.supplier.status.${rfq.myStatus}`) }}
-          </BaseBadge>
+          <RfqRecipientStatusBadges
+            :status="rfq.myStatus"
+            :late="rfq.myLateReply"
+            labels="rfq.supplier.status"
+          />
         </td>
       </tr>
     </BaseTable>

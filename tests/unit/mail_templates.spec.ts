@@ -114,6 +114,7 @@ const SUPPLIER_REPLY_DATA: SupplierReplyReceivedMailData = {
   ],
   rfqPath: '/x/rfqs/1',
   replyTo: 'agency-abc@relay.test',
+  late: false,
 }
 
 const AGENCY_MESSAGE_DATA: AgencyMessageRelayedMailData = {
@@ -719,6 +720,31 @@ test.group('Mails — réponse du fournisseur transmise à l’agence (#225)', (
 
     assert.notInclude(html, 'Son message')
     assert.notInclude(html, 'Devis joints')
+  })
+
+  test('une réponse tardive le dit à l’objet et dans le corps, en HTML comme en texte (#232)', async ({
+    assert,
+  }) => {
+    const late = { ...SUPPLIER_REPLY_DATA, late: true }
+    const { subject, html } = await render(
+      new SupplierReplyReceivedNotification('a@x.test', late, 'fr') as never
+    )
+    const { text } = await render(
+      new SupplierReplyReceivedNotification('a@x.test', late, 'en') as never
+    )
+
+    assert.equal(subject, 'Réponse tardive de Textiles SA à « Tote bags »')
+    assert.include(html, 'Réponse tardive : elle est arrivée après l')
+    assert.include(text, "Late reply: it arrived after the request's deadline.")
+  })
+
+  test('une réponse dans les temps ne porte pas la mention tardive', async ({ assert }) => {
+    const { subject, html } = await render(
+      new SupplierReplyReceivedNotification('a@x.test', SUPPLIER_REPLY_DATA, 'fr') as never
+    )
+
+    assert.notInclude(subject, 'tardive')
+    assert.notInclude(html, 'Réponse tardive')
   })
 })
 

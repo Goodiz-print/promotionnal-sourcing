@@ -18,12 +18,14 @@ export interface SupplierReplyRecordedData {
   quoteDocumentIds: number[]
   /** Vrai si cette réponse a fait passer le destinataire à « répondu ». */
   responded: boolean
+  /** Vrai si la réponse est arrivée après l'échéance de la demande (#232). */
+  late: boolean
 }
 
 /** Ce que la transmission à l'agence lit d'une réponse (#225), ou d'un message écrit dans l'application (#226). */
 export type SupplierReplyToNotify = Pick<
   SupplierReplyRecordedData,
-  'rfqSupplierId' | 'messageId' | 'quoteDocumentIds'
+  'rfqSupplierId' | 'messageId' | 'quoteDocumentIds' | 'late'
 >
 
 /**
@@ -61,6 +63,8 @@ export interface SupplierReplyNotice {
   documents: SupplierReplyNoticeDocument[]
   /** Adresse relais côté agence, en `Reply-To` : la réponse est relayée au fournisseur (#226). */
   replyTo: string | null
+  /** Réponse arrivée après l'échéance : le mail et la notification le signalent (#232). */
+  late: boolean
 }
 
 export interface SupplierReplyNoticeDocument {

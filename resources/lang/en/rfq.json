@@ -54,8 +54,10 @@
     "sent": "Sent",
     "viewed": "Viewed",
     "responded": "Answered",
-    "declined": "Declined"
+    "declined": "Declined",
+    "expired": "Expired without reply"
   },
+  "lateReply": "Late reply",
   "actions": {
     "publish": "Publish",
     "send": "Send to recipients",
@@ -157,7 +159,8 @@
       "sent": "To handle",
       "viewed": "In progress",
       "responded": "Quote sent",
-      "declined": "Declined"
+      "declined": "Declined",
+      "expired": "Expired"
     },
     "flash": {
       "declined": "Request declined."

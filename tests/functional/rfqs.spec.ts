@@ -6,6 +6,7 @@ import Rfq from '#models/rfq'
 import RfqItem from '#models/rfq_item'
 import RfqSupplier from '#models/rfq_supplier'
 import RfqService from '#services/rfq_service'
+import RfqRecipientService from '#services/rfq_recipient_service'
 import {
   NotASupplierOrganizationException,
   RfqNotClosableException,
@@ -283,41 +284,44 @@ test.group('RFQ — côté fournisseur', (group) => {
 
   test('marque la demande comme consultée, sans régression de statut', async ({ assert }) => {
     const { service, supplier, rfq } = await sentRfq()
+    const recipients = await app.container.make(RfqRecipientService)
     await service.send(rfq)
 
-    const viewed = await service.markViewed(rfq, supplier.id)
+    const viewed = await recipients.markViewed(rfq, supplier.id)
     assert.equal(viewed.status, 'viewed')
     // Idempotent : rouvrir l'écran ne change plus rien.
-    const reviewed = await service.markViewed(rfq, supplier.id)
+    const reviewed = await recipients.markViewed(rfq, supplier.id)
     assert.equal(reviewed.status, 'viewed')
 
-    await service.markResponded(rfq, supplier.id)
-    const afterAnswer = await service.markViewed(rfq, supplier.id)
+    await recipients.markResponded(rfq, supplier.id)
+    const afterAnswer = await recipients.markViewed(rfq, supplier.id)
     assert.equal(afterAnswer.status, 'responded')
   })
 
   test('refuse une réponse avant réception ou après décision', async ({ assert }) => {
     const { service, supplier, rfq } = await sentRfq()
+    const recipients = await app.container.make(RfqRecipientService)
 
     await assert.rejects(
-      () => service.markResponded(rfq, supplier.id),
+      () => recipients.markResponded(rfq, supplier.id),
       RfqNotEditableException.message
     )
 
     await service.send(rfq)
-    await service.decline(rfq, supplier.id)
+    await recipients.decline(rfq, supplier.id)
     await assert.rejects(
-      () => service.markResponded(rfq, supplier.id),
+      () => recipients.markResponded(rfq, supplier.id),
       RfqNotEditableException.message
     )
   })
 
   test('refuse toute transition pour une organisation non destinataire', async ({ assert }) => {
-    const { service, rfq } = await sentRfq()
+    const { rfq } = await sentRfq()
+    const recipients = await app.container.make(RfqRecipientService)
     const outsider = await OrganizationFactory.apply('supplier').create()
 
     await assert.rejects(
-      () => service.markViewed(rfq, outsider.id),
+      () => recipients.markViewed(rfq, outsider.id),
       RfqSupplierNotFoundException.message
     )
   })

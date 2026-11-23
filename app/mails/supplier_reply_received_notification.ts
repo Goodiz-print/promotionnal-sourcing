@@ -24,13 +24,16 @@ export default class SupplierReplyReceivedNotification extends LocalizedMail {
   prepare() {
     const { replyTo, ...rest } = this.data
     const texts = { supplierName: rest.supplierName, rfqTitle: rest.rfqTitle }
-    this.message.to(this.email).subject(this.t('emails.supplierReplyReceived.subject', texts))
+    // Une réponse arrivée après l'échéance est signalée comme telle (#232).
+    const subjectKey = rest.late ? 'subjectLate' : 'subject'
+    this.message.to(this.email).subject(this.t(`emails.supplierReplyReceived.${subjectKey}`, texts))
     this.relayRepliesTo(replyTo)
 
     const state = {
       ...rest,
       title: this.t('emails.supplierReplyReceived.title', texts),
       intro: this.t('emails.supplierReplyReceived.body', texts),
+      lateNotice: rest.late ? this.t('emails.supplierReplyReceived.lateNotice') : null,
       canReply: Boolean(replyTo),
     }
     this.htmlViewIn('emails/supplier_reply_received', state)

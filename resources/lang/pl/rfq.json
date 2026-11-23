@@ -54,8 +54,10 @@
     "sent": "Wysłane",
     "viewed": "Wyświetlone",
     "responded": "Odpowiedział",
-    "declined": "Odrzucił"
+    "declined": "Odrzucił",
+    "expired": "Wygasło bez odpowiedzi"
   },
+  "lateReply": "Spóźniona odpowiedź",
   "actions": {
     "publish": "Opublikuj",
     "send": "Wyślij do odbiorców",
@@ -157,7 +159,8 @@
       "sent": "Do rozpatrzenia",
       "viewed": "W toku",
       "responded": "Oferta wysłana",
-      "declined": "Odrzucone"
+      "declined": "Odrzucone",
+      "expired": "Wygasło"
     },
     "flash": {
       "declined": "Zapytanie odrzucone."

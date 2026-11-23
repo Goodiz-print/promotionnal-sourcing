@@ -10,6 +10,8 @@ import QuoteItem from '#models/quote_item'
 import Rfq from '#models/rfq'
 import RfqSupplier from '#models/rfq_supplier'
 import RfqService from '#services/rfq_service'
+import RfqRecipientService from '#services/rfq_recipient_service'
+import { acceptsResponses } from '#shared/helpers/rfq_deadline'
 import QuoteAccepted from '#events/quote_accepted'
 import QuoteRejected from '#events/quote_rejected'
 import QuoteSubmitted from '#events/quote_submitted'
@@ -68,7 +70,10 @@ interface PricedItem {
  */
 @inject()
 export default class QuoteService {
-  constructor(private rfqs: RfqService) {}
+  constructor(
+    private rfqs: RfqService,
+    private recipients: RfqRecipientService
+  ) {}
 
   // ── Fournisseur ─────────────────────────────────────────────────────────
 
@@ -122,7 +127,7 @@ export default class QuoteService {
     const rfq = await this.rfqs.findForSupplier(rfqId, organizationId)
     const [recipient] = rfq.suppliers
 
-    if (!this.rfqs.acceptsResponses(rfq) || !recipient || recipient.status === 'declined') {
+    if (!acceptsResponses(rfq) || !recipient || recipient.status === 'declined') {
       throw new QuoteNotAllowedException()
     }
     if (await this.findLiveForRfq(rfq.id, organizationId)) throw new QuoteAlreadyExistsException()
@@ -162,7 +167,7 @@ export default class QuoteService {
    */
   async updateDraft(quote: Quote, data: QuoteData): Promise<Quote> {
     const rfq = await this.loadRfqForQuote(quote)
-    if (!this.rfqs.acceptsResponses(rfq)) throw new QuoteNotAllowedException()
+    if (!acceptsResponses(rfq)) throw new QuoteNotAllowedException()
 
     const validUntil = this.parseValidUntil(data.validUntil)
     const items = this.priceItems(rfq, data.items)
@@ -189,14 +194,14 @@ export default class QuoteService {
 
   /**
    * Remet le devis à l'acheteur : `draft` → `submitted`, et le destinataire
-   * passe `responded` (`RfqService#markResponded`). Refusé sans ligne, après la
+   * passe `responded` (`RfqRecipientService#markResponded`). Refusé sans ligne, après la
    * validité, ou si la demande n'attend plus de réponse.
    */
   async submit(quote: Quote, now: DateTime = DateTime.now()): Promise<Quote> {
     if (quote.status !== 'draft') throw new QuoteNotSubmittableException()
 
     const rfq = await this.loadRfqForQuote(quote)
-    if (!this.rfqs.acceptsResponses(rfq, now)) throw new QuoteNotAllowedException()
+    if (!acceptsResponses(rfq, now)) throw new QuoteNotAllowedException()
 
     const [{ total }] = await db.from('quote_items').where('quote_id', quote.id).count('* as total')
     if (Number(total) === 0) throw new QuoteNotSubmittableException()
@@ -211,7 +216,7 @@ export default class QuoteService {
     if (recipient.status === 'declined') throw new QuoteNotAllowedException()
     // Un fournisseur déjà `responded` (devis précédent rejeté) y reste.
     if (recipient.status !== 'responded') {
-      await this.rfqs.markResponded(rfq, quote.supplierOrganizationId)
+      await this.recipients.markResponded(rfq, quote.supplierOrganizationId)
     }
 
     const [updated] = await Quote.query()
@@ -277,7 +282,7 @@ export default class QuoteService {
    */
   async accept(quote: Quote, now: DateTime = DateTime.now()): Promise<Quote[]> {
     const rfq = await this.loadRfqForQuote(quote)
-    if (!this.rfqs.acceptsResponses(rfq, now)) throw new QuoteNotDecidableException()
+    if (!acceptsResponses(rfq, now)) throw new QuoteNotDecidableException()
 
     const losers = await db.transaction(async (trx) => {
       const [accepted] = await Quote.query({ client: trx })
@@ -322,7 +327,7 @@ export default class QuoteService {
    */
   async reject(quote: Quote, now: DateTime = DateTime.now()): Promise<Quote> {
     const rfq = await this.loadRfqForQuote(quote)
-    if (!this.rfqs.acceptsResponses(rfq, now)) throw new QuoteNotDecidableException()
+    if (!acceptsResponses(rfq, now)) throw new QuoteNotDecidableException()
 
     const [updated] = await Quote.query()
       .where('id', quote.id)
@@ -417,7 +422,7 @@ export default class QuoteService {
 
   /**
    * Fait expirer les brouillons et devis remis des demandes qui viennent
-   * d'expirer (`RfqService#expireDue`). Un devis déjà accepté ou rejeté garde
+   * d'expirer (`RfqDeadlineService#expireDue`). Un devis déjà accepté ou rejeté garde
    * son statut. Renvoie le nombre de devis basculés.
    */
   async expireForRfqs(rfqIds: number[], client?: TransactionClientContract): Promise<number> {

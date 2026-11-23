@@ -38,6 +38,11 @@
       "duplicate_cancelled": "{organizationName} opłaciła dwie subskrypcje jednocześnie: duplikat {cancelledSubscriptionId} został anulowany w Stripe. Zwróć płatność w panelu Stripe."
     }
   },
+  "late": {
+    "rfq": {
+      "responded": "Spóźniona odpowiedź: {supplierName} odpowiedział na zapytanie {rfqTitle} po terminie."
+    }
+  },
   "anonymous": {
     "rfq": {
       "received": "Agencja wysłała Ci zapytanie ofertowe: {rfqTitle}."

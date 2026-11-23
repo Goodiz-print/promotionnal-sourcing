@@ -54,8 +54,10 @@
     "sent": "Enviada",
     "viewed": "Vista",
     "responded": "Ha respondido",
-    "declined": "Ha declinado"
+    "declined": "Ha declinado",
+    "expired": "Vencida sin respuesta"
   },
+  "lateReply": "Respuesta tardía",
   "actions": {
     "publish": "Publicar",
     "send": "Enviar a los destinatarios",
@@ -157,7 +159,8 @@
       "sent": "Por tramitar",
       "viewed": "En curso",
       "responded": "Presupuesto enviado",
-      "declined": "Declinada"
+      "declined": "Declinada",
+      "expired": "Vencida"
     },
     "flash": {
       "declined": "Solicitud declinada."

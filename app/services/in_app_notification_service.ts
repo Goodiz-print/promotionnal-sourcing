@@ -144,6 +144,7 @@ export default class InAppNotificationService {
       rfqTitle: notice.rfqTitle,
       supplierName: notice.supplierName,
       messageId: notice.messageId,
+      late: notice.late,
     }
     try {
       const recipients = [...new Set(userIds)]

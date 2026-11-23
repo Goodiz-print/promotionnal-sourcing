@@ -58,7 +58,21 @@ Types et constantes de statuts dans `shared/types/rfq.ts` (`RFQ_STATUSES`,
 `UpdateRfqData`, `RfqItemData`) — les migrations en dérivent leurs `enum`, comme
 `DELIVERY_SCOPES` pour les profils fournisseurs.
 
-## Cycle de vie (`RfqService`)
+## Cycle de vie
+
+Trois services se partagent le cycle (découpage #232) :
+
+| Service               | Fichier                                 | Rôle                                                                                         |
+| --------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `RfqService`          | `app/services/rfq_service.ts`           | rédaction, lecture (agence et fournisseur), destinataires, `publish`, `send`, `close`        |
+| `RfqDeadlineService`  | `app/services/rfq_deadline_service.ts`  | échéance : `expire`, `expireDue` (job), `extendDeadline` (réouverture)                       |
+| `RfqRecipientService` | `app/services/rfq_recipient_service.ts` | avancement de chaque destinataire (lu, répondu, décliné, expiré, réponse tardive) et relance |
+
+Les règles pures liées à l'échéance — `acceptsResponses`, `isLateReply`,
+`startOfDeadlineDay`, `parseRfqDeadline` — vivent dans
+`shared/helpers/rfq_deadline.ts` : controllers et services les appellent sans
+dépendre d'un service, et les trois services n'ont pas de dépendance circulaire
+(`RfqDeadlineService` → `RfqRecipientService` ← `RfqService`).
 
 ```
 draft ──publish──▶ published ──close──▶ closed
@@ -76,25 +90,26 @@ exactement les lignes basculées (relation `supplierOrganization` préchargée) 
 c'est cette liste que `RfqNotificationService` utilise pour envoyer les mails,
 sans risque de doublon.
 
-Règles appliquées par le service :
+Règles appliquées par ces services :
 
-| Méthode                    | Autorisée si                                          | Exception sinon                                            |
-| -------------------------- | ----------------------------------------------------- | ---------------------------------------------------------- |
-| `update`, `replaceItems`   | `draft`                                               | `RfqNotEditableException`                                  |
-| `addSuppliers`             | statut ni `closed` ni `expired`                       | `RfqNotEditableException`                                  |
-| `removeSupplier`           | destinataire encore `pending`                         | `RfqNotEditableException`                                  |
-| `publish`                  | `draft` **et** au moins un item                       | `RfqNotPublishableException`                               |
-| `send`                     | `published` **et** au moins un destinataire `pending` | `RfqNotSendableException`                                  |
-| `close`                    | `published`                                           | `RfqNotClosableException`                                  |
-| `expire`                   | `published`                                           | `RfqNotExpirableException`                                 |
-| `extendDeadline`           | `published` ou `expired`, nouvelle date valide        | `RfqNotExtendableException`, `RfqInvalidDeadlineException` |
-| `markResponded`, `decline` | destinataire `sent`/`viewed`, demande non `expired`   | `RfqNotEditableException`                                  |
+| Méthode                    | Autorisée si                                                 | Exception sinon                                            |
+| -------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------- |
+| `update`, `replaceItems`   | `draft`                                                      | `RfqNotEditableException`                                  |
+| `addSuppliers`             | statut ni `closed` ni `expired`                              | `RfqNotEditableException`                                  |
+| `removeSupplier`           | destinataire encore `pending`                                | `RfqNotEditableException`                                  |
+| `publish`                  | `draft` **et** au moins un item                              | `RfqNotPublishableException`                               |
+| `send`                     | `published` **et** au moins un destinataire `pending`        | `RfqNotSendableException`                                  |
+| `close`                    | `published`                                                  | `RfqNotClosableException`                                  |
+| `expire`                   | `published`                                                  | `RfqNotExpirableException`                                 |
+| `extendDeadline`           | `published` ou `expired`, nouvelle date valide               | `RfqNotExtendableException`, `RfqInvalidDeadlineException` |
+| `markResponded`, `decline` | destinataire `sent`/`viewed`, demande non `expired`          | `RfqNotEditableException`                                  |
+| `markRespondedByMail`      | destinataire `sent`/`viewed`/`expired`, demande non `closed` | — (renvoie `false`)                                        |
 
 Autres invariants :
 
 - **Un brouillon seul est modifiable.** Une demande partie chez un fournisseur
   ne se réécrit pas silencieusement : les devis reçus porteraient sur un besoin
-  qui n'existe plus. **Une seule exception : l'échéance** (`extendDeadline`, voir
+  qui n'existe plus. **Une seule exception : l'échéance** (`RfqDeadlineService#extendDeadline`, voir
   ci-dessous) — elle ne change pas le besoin, seulement le temps laissé pour y répondre.
 - **On ne retire pas un destinataire déjà notifié** — cela effacerait la trace
   de l'envoi. L'acheteur clôture la demande à la place.
@@ -358,11 +373,12 @@ pas pour le fournisseur, et une demande adressée à une autre organisation est 
 
 ### Accusé de lecture
 
-`openForSupplier()` = chargement **et** `sent` → `viewed`, en une passe :
+`RfqService#openForSupplier()` = chargement **et** `sent` → `viewed`
+(`RfqRecipientService#applyViewed`), en une passe :
 ouvrir l'écran suffit, le fournisseur n'a rien à cliquer et l'acheteur voit
 l'avancement. La ligne préchargée est basculée sur place, pour que l'écran
 affiche déjà le nouveau statut plutôt que celui d'avant l'ouverture. Rien ne
-régresse : une demande `responded`/`declined` reste dans son état.
+régresse : une demande `responded`/`declined`/`expired` reste dans son état.
 
 ### Notification par mail
 
@@ -592,7 +608,9 @@ identifiant) reste sur PostgreSQL : ce n'est pas une recherche. Détail :
 ## Expiration, prolongation et relance (#56)
 
 `rfqs.deadline` n'est plus décorative : elle fait expirer la demande, et un
-fournisseur qui n'ouvre jamais le mail est relancé une fois.
+fournisseur qui n'a pas répondu est relancé une fois. Le parcours par mail
+(#232) a recentré la relance sur l'absence de **réponse** (plus d'ouverture),
+ajouté le statut `expired` par destinataire et la réponse tardive.
 
 ### Statut `expired`
 
@@ -600,16 +618,23 @@ fournisseur qui n'ouvre jamais le mail est relancé une fois.
 contrainte CHECK élargie, colonne `rfqs.expired_at`). Comme `closed`, une demande
 échue n'accepte plus d'envoi, de nouveau destinataire ni de réponse du
 fournisseur (`decline`, `markResponded`) ; contrairement à `closed`, l'acheteur
-peut la **rouvrir** en prolongeant l'échéance. Les destinataires **gardent leur
-statut** (`sent`, `viewed`, `responded`, `declined`) : c'est la trace de qui avait
-lu ou répondu. Côté fournisseur la demande reste consultable, avec la mention
-« échue » ; côté acheteur elle a sa pastille « Échue » et son compteur sur le
-tableau de bord. `close` reste possible avant l'échéance.
+peut la **rouvrir** en prolongeant l'échéance. Les destinataires restés **sans
+réponse** (`sent`, `viewed`) passent `expired` dans la même transaction (#232) ;
+leur statut d'avant est gardé dans `rfq_suppliers.expired_from`. Ceux qui ont
+répondu ou décliné gardent leur statut. Côté fournisseur la demande reste
+consultable, avec la mention « échue » et la pastille « Expirée » ; côté acheteur
+elle a sa pastille « Échue », ses destinataires « Expirée sans réponse », et son
+compteur sur le tableau de bord. `close` reste possible avant l'échéance.
+
+Migration `…038_add_expiration_to_rfq_suppliers` : contrainte CHECK de
+`rfq_suppliers.status` élargie à `expired`, colonnes `expired_from` et
+`late_reply_at`. Son `down()` rend aux destinataires expirés leur statut d'avant.
 
 **Quand une demande est-elle échue ?** L'échéance est une _date_ saisie par
 l'acheteur : « 30 octobre » laisse toute la journée du 30 aux fournisseurs, la
 demande est échue le **31 à 00:00, heure de Paris** (`RFQ_DEADLINE_TIMEZONE`).
-`RfqService#expireDue` compare l'échéance à minuit (Paris) du jour courant. Un
+`RfqDeadlineService#expireDue` compare l'échéance à minuit (Paris) du jour courant
+(`startOfDeadlineDay`). Un
 brouillon, une demande close ou sans échéance n'expirent jamais.
 
 `ExpireRfqsJob` (`app/jobs/expire_rfqs_job.ts`) appelle `expireDue` tous les jours
@@ -628,7 +653,7 @@ publiées.
 ### Prolonger l'échéance
 
 `PATCH /:locale/rfqs/:id/deadline` (`rfqs.deadline.update`, `canManageRfq`) →
-`RfqService#extendDeadline`. Corps : `{ deadline: 'AAAA-MM-JJ' }`. Seule
+`RfqDeadlineService#extendDeadline`. Corps : `{ deadline: 'AAAA-MM-JJ' }`. Seule
 `deadline` change — jamais le besoin : c'est l'exception à « seul un brouillon est
 modifiable », assumée parce qu'elle ne fausse aucun devis. Règles :
 
@@ -638,27 +663,34 @@ modifiable », assumée parce qu'elle ne fausse aucun devis. Règles :
   raccourcit jamais ;
 - sur une demande `expired`, la nouvelle date la **rouvre** : elle repasse
   `published`, `expired_at` est remis à `NULL`, les fournisseurs peuvent répondre de
-  nouveau. Dans tous les cas, `reminded_at` des destinataires encore à `sent` est
-  remis à `NULL` : la nouvelle échéance ouvre droit à une nouvelle relance.
+  nouveau, et chaque destinataire `expired` retrouve son statut d'avant
+  (`expired_from`, à défaut `sent`). Dans tous les cas, `reminded_at` des
+  destinataires toujours sans réponse est remis à `NULL` : la nouvelle échéance
+  ouvre droit à une nouvelle relance.
 
 UI : `components/rfqs/rfq_deadline_extension.vue` sur `rfqs/show.vue` (champ date +
 bouton « Prolonger l'échéance », avec une explication quand la demande est échue).
 Un refus revient en message flash, comme les autres transitions.
 
-### Relance des fournisseurs silencieux
+### Relance des fournisseurs sans réponse
 
 `RemindRfqSuppliersJob` (tous les jours à **09:00, Europe/Paris**) relance les
-destinataires qui :
+destinataires que renvoie `RfqRecipientService#remindableRecipients` (#232) — le même
+prédicat sert à la relance manuelle de la plateforme et à son compteur — et qui :
 
-- ont reçu la demande (`rfq_suppliers.status = 'sent'`) mais ne l'ont **jamais
-  ouverte** (`viewed` les exclut) ;
+- ont reçu la demande et **n'ont pas répondu** : statut `sent` ou `viewed`, et
+  **aucun message côté fournisseur** dans le fil de la demande (une réponse par
+  mail sans devis ne change pas le statut, mais elle compte). Ouvrir la demande ne
+  compte plus : un fournisseur qui travaille par mail, ou une fiche sans compte,
+  ne l'« ouvre » jamais. Un message masqué par la modération compte quand même :
+  le fournisseur a bien répondu. Répondus, déclinés et expirés ne sont jamais relancés ;
 - l'ont reçue il y a au moins `RFQ_REMINDER_AFTER_DAYS` jours (3, dans
   `shared/types/rfq.ts`) ;
 - n'ont pas déjà été relancés (`rfq_suppliers.reminded_at` nul) ;
 - sur une demande encore ouverte : publiée et dont l'échéance n'est pas passée.
 
 **Une seule relance** : `reminded_at` est posé après la mise en queue du mail
-(`RfqService#markReminded`, une seule requête pour le lot). Il n'est consigné que si
+(`RfqRecipientService#markReminded`, une seule requête pour le lot). Il n'est consigné que si
 **toutes** ses adresses sont parties en queue ; sinon il est reconsidéré le
 lendemain (les adresses déjà parties ne sont pas redoublées). Au déploiement, les
 destinataires déjà silencieux depuis plus de 3 jours sur une demande ouverte sont
@@ -666,7 +698,36 @@ relancés au premier passage. En plus, le mail porte une clé
 d'idempotence `rfq-reminder:rfq=…:org=…:to=…` : un rejeu de la queue ne le
 renvoie pas. Le mail (`kind: 'rfq-reminder'`, `RfqReminderNotification`,
 `emails/rfq_reminder`) part dans la langue de chaque destinataire, avec les mêmes
-règles que `rfq-received` (voir `docs/mail.md`).
+règles que `rfq-received` (voir `docs/mail.md`) : même contenu, même anonymisation
+pour un non abonné, même `Reply-To` relais. Une fiche sans compte est relancée une
+fois, à l'adresse de l'organisation.
+
+### Réponse tardive (#232)
+
+Après l'échéance, l'adresse relais reste valide (`INBOUND_MAIL_GRACE_DAYS` jours
+après l'expiration, cf. `docs/mail.md`) : une réponse par mail est **enregistrée
+quand même** (message, pièces jointes, devis), mais marquée **tardive**. C'est
+l'**heure de réception** du mail (`inbound_mails.received_at`) qui compte, pas celle
+de son traitement : un mail reçu à 23:55 le jour de l'échéance et repris après
+minuit (`RecoverInboundMailsJob`, rejeu admin) arrive dans les temps, même si la
+demande a expiré entre-temps. Règle pure `isLateReply`
+(`shared/helpers/rfq_deadline.ts`) : avec une échéance, tardive si elle est passée
+au jour de réception ; sans échéance, seulement si la demande a été expirée à la
+main. Une demande close n'attend plus rien : ce qui arrive après n'est pas tardif.
+
+- `RfqRecipientService#markLateReply` date la **première** réponse tardive
+  (`rfq_suppliers.late_reply_at`, à son heure de réception) ;
+- avec un devis PDF, `markRespondedByMail` fait passer le destinataire
+  `responded`, y compris depuis `expired` (refusé pour une demande close) ;
+- l'événement `SupplierReplyRecorded` porte `late` ; le listener
+  `on_supplier_reply_recorded` le transmet : le mail `supplier-reply-received`
+  change d'objet (« Réponse tardive de … ») et porte une mention dans son corps, la
+  notification in-app `rfq.responded` prend le libellé `notifications.late.rfq.responded`
+  (`notificationMessageKey`), dans les 9 langues ;
+- les écrans affichent la pastille « Réponse tardive » à côté du statut
+  (`components/rfqs/rfq_recipient_status_badges.vue`) : côté agence sur la liste
+  des destinataires (`RfqSupplierType.lateReply`), côté fournisseur sur la liste et
+  le détail des demandes reçues (`SupplierRfqType.myLateReply`).
 
 Pas de notification de l'acheteur à l'expiration : il voit le statut dans sa liste
 et son tableau de bord. Les notifications in-app (#57) ne couvrent pas non plus
@@ -675,6 +736,12 @@ l'expiration ni la relance : seulement l'envoi, le refus et les devis.
 ### Tests
 
 `tests/functional/rfq_expiration.spec.ts` (expiration à la date et à la limite du
-jour, demandes jamais expirées, job, prolongation et réouverture, droits, vue
-fournisseur, relance unique et langue), `tests/inertia/rfq_deadline_extension.spec.ts`,
-`tests/unit/mail_templates.spec.ts` (mail de relance dans les 9 langues).
+jour, demandes jamais expirées, job, destinataires expirés et restaurés à la
+réouverture, droits, vue fournisseur, relance unique et langue, ni répondus par
+mail ni expirés relancés, fiche sans compte relancée une fois, réponse tardive
+enregistrée et signalée), `tests/inertia/rfq_deadline_extension.spec.ts`,
+`tests/inertia/rfqs.spec.ts` et `supplier_rfqs.spec.ts` (pastilles),
+`tests/unit/mail_templates.spec.ts` (mail de relance dans les 9 langues, mention
+tardive), `tests/unit/rfq_deadline.spec.ts`, `tests/unit/notification_message_key.spec.ts`,
+`tests/unit/transformers/rfq_supplier_transformer.spec.ts` et
+`supplier_rfq_transformer.spec.ts`.

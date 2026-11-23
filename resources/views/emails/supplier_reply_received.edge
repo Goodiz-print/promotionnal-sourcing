@@ -6,6 +6,9 @@
   footer: t('emails.supplierReplyReceived.footer'),
 })
   <p>{{ intro }}</p>
+  @if(lateNotice)
+    <p><strong>{{ lateNotice }}</strong></p>
+  @end
   @if(body)
     <p><strong>{{ t('emails.supplierReplyReceived.messageHeading') }}</strong></p>
     <blockquote

@@ -155,8 +155,10 @@
   },
   "supplierReplyReceived": {
     "subject": "Risposta di {supplierName} a «{rfqTitle}»",
+    "subjectLate": "Risposta tardiva di {supplierName} a «{rfqTitle}»",
     "title": "{supplierName} ha risposto alla sua richiesta",
     "body": "{supplierName} ha risposto via email alla sua richiesta «{rfqTitle}».",
+    "lateNotice": "Risposta tardiva: è arrivata dopo la scadenza della richiesta.",
     "messageHeading": "Il suo messaggio:",
     "documentsHeading": "Preventivi allegati:",
     "downloadHint": "Per aprire questi link è necessario aver effettuato l'accesso al proprio account.",

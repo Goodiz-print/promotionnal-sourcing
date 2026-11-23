@@ -155,8 +155,10 @@
   },
   "supplierReplyReceived": {
     "subject": "Antwoord van {supplierName} op ‘{rfqTitle}’",
+    "subjectLate": "Late reactie van {supplierName} op ‘{rfqTitle}’",
     "title": "{supplierName} heeft op uw aanvraag gereageerd",
     "body": "{supplierName} heeft per e-mail gereageerd op uw aanvraag ‘{rfqTitle}’.",
+    "lateNotice": "Late reactie: deze is na de deadline van de aanvraag binnengekomen.",
     "messageHeading": "Bericht:",
     "documentsHeading": "Bijgevoegde offertes:",
     "downloadHint": "Voor deze links moet u ingelogd zijn op uw account.",

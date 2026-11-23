@@ -155,8 +155,10 @@
   },
   "supplierReplyReceived": {
     "subject": "Svar från {supplierName} på ”{rfqTitle}”",
+    "subjectLate": "Sent svar från {supplierName} på ”{rfqTitle}”",
     "title": "{supplierName} har svarat på din förfrågan",
     "body": "{supplierName} har svarat via e-post på din förfrågan ”{rfqTitle}”.",
+    "lateNotice": "Sent svar: det kom in efter förfrågans sista svarsdag.",
     "messageHeading": "Meddelande:",
     "documentsHeading": "Bifogade offerter:",
     "downloadHint": "Länkarna kräver att du är inloggad på ditt konto.",

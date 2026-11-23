@@ -16,6 +16,8 @@ const translations = {
   'rfq.supplierStatus.pending': 'À envoyer',
   'rfq.supplierStatus.sent': 'Envoyée',
   'rfq.supplierStatus.responded': 'A répondu',
+  'rfq.supplierStatus.expired': 'Expirée sans réponse',
+  'rfq.lateReply': 'Réponse tardive',
   'rfq.show.backToList': 'Retour aux demandes',
   'rfq.show.needTitle': 'Le besoin',
   'rfq.show.suppliersTitle': 'Destinataires',
@@ -76,6 +78,7 @@ function supplier(overrides: Partial<RfqSupplierType> = {}): RfqSupplierType {
     logoUrl: null,
     status: 'pending',
     sentAt: null,
+    lateReply: false,
     ...overrides,
   }
 }
@@ -227,5 +230,22 @@ describe('rfqs/show.vue', () => {
       props: { ...baseProps, rfq: detail({ suppliers: [supplier({ status: 'sent' })] }) },
     })
     expect(sent.text()).not.toContain('Retirer')
+  })
+  it('affiche un destinataire expiré et une réponse tardive (#232)', () => {
+    const wrapper = mount(RfqShow, {
+      props: {
+        ...baseProps,
+        rfq: detail({
+          status: 'expired',
+          suppliers: [
+            supplier({ id: 10, status: 'expired' }),
+            supplier({ id: 11, name: 'Fournisseur B', status: 'responded', lateReply: true }),
+          ],
+        }),
+      },
+    })
+
+    expect(wrapper.text()).toContain('Expirée sans réponse')
+    expect(wrapper.findAll('[data-test="late-reply"]')).toHaveLength(1)
   })
 })

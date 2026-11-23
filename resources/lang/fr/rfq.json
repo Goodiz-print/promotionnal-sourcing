@@ -54,8 +54,10 @@
     "sent": "Envoyée",
     "viewed": "Consultée",
     "responded": "A répondu",
-    "declined": "A décliné"
+    "declined": "A décliné",
+    "expired": "Expirée sans réponse"
   },
+  "lateReply": "Réponse tardive",
   "actions": {
     "publish": "Publier",
     "send": "Envoyer aux destinataires",
@@ -157,7 +159,8 @@
       "sent": "À traiter",
       "viewed": "En cours",
       "responded": "Devis envoyé",
-      "declined": "Déclinée"
+      "declined": "Déclinée",
+      "expired": "Expirée"
     },
     "flash": {
       "declined": "Demande déclinée."

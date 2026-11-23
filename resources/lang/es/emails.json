@@ -155,8 +155,10 @@
   },
   "supplierReplyReceived": {
     "subject": "Respuesta de {supplierName} a «{rfqTitle}»",
+    "subjectLate": "Respuesta tardía de {supplierName} a «{rfqTitle}»",
     "title": "{supplierName} ha respondido a su solicitud",
     "body": "{supplierName} ha respondido por correo a su solicitud «{rfqTitle}».",
+    "lateNotice": "Respuesta tardía: llegó después de la fecha límite de la solicitud.",
     "messageHeading": "Su mensaje:",
     "documentsHeading": "Presupuestos adjuntos:",
     "downloadHint": "Estos enlaces requieren haber iniciado sesión en su cuenta.",

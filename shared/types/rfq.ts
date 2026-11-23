@@ -1,5 +1,6 @@
 import type { RoleSlug } from '#shared/types/role'
 import type { Locale } from '#shared/types/i18n'
+import type { DateTime } from 'luxon'
 
 /**
  * Statuts d'une demande de devis (RFQ), côté acheteur.
@@ -31,8 +32,10 @@ export const RFQ_DEADLINE_TIMEZONE = 'Europe/Paris'
 
 /**
  * Délai, en jours après l'envoi, au bout duquel un fournisseur qui n'a pas
- * ouvert la demande (`sent`, jamais `viewed`) reçoit **une** relance
- * (`rfq_suppliers.reminded_at`).
+ * **répondu** (`sent` ou `viewed`, aucun message de sa part dans le fil)
+ * reçoit **une** relance (`rfq_suppliers.reminded_at`, #232). L'ouverture de la
+ * demande ne compte pas : un fournisseur qui travaille par mail, ou une fiche
+ * sans compte, ne l'« ouvre » jamais.
  */
 export const RFQ_REMINDER_AFTER_DAYS = 3
 
@@ -43,21 +46,58 @@ export const RFQ_REMINDER_AFTER_DAYS = 3
  * `sent` ou `viewed`.
  *
  * `pending` = fournisseur sélectionné dans le brouillon, pas encore notifié.
+ *
+ * `expired` (#232) = resté sans réponse (`sent` / `viewed`) quand la demande a
+ * expiré (`ExpireRfqsJob`). Le statut d'avant est gardé dans
+ * `rfq_suppliers.expired_from` et rendu si l'agence prolonge l'échéance. Une
+ * réponse reçue après coup le fait passer `responded`, marquée tardive.
  */
-export const RFQ_SUPPLIER_STATUSES = ['pending', 'sent', 'viewed', 'responded', 'declined'] as const
+export const RFQ_SUPPLIER_STATUSES = [
+  'pending',
+  'sent',
+  'viewed',
+  'responded',
+  'declined',
+  'expired',
+] as const
 
 export type RfqSupplierStatus = (typeof RFQ_SUPPLIER_STATUSES)[number]
 
 export const DEFAULT_RFQ_SUPPLIER_STATUS: RfqSupplierStatus = 'pending'
 
 /**
+ * Destinataires qui attendent encore une réponse : ils ont reçu la demande et
+ * n'ont ni répondu ni décliné. Seuls eux expirent à l'échéance et peuvent être
+ * relancés (s'ils n'ont, en plus, écrit aucun message dans le fil).
+ */
+export const AWAITING_REPLY_RFQ_SUPPLIER_STATUSES = ['sent', 'viewed'] as const
+
+export type AwaitingReplyRfqSupplierStatus = (typeof AWAITING_REPLY_RFQ_SUPPLIER_STATUSES)[number]
+
+/**
+ * Statuts depuis lesquels une réponse par mail avec devis fait passer le
+ * destinataire `responded` : `expired` compris, la réponse étant alors tardive.
+ */
+export const MAIL_REPLYABLE_RFQ_SUPPLIER_STATUSES = [
+  ...AWAITING_REPLY_RFQ_SUPPLIER_STATUSES,
+  'expired',
+] as const
+
+/**
  * Statuts terminaux côté fournisseur : ni un renvoi ni une consultation ne
- * doivent les faire régresser (cf. `RfqService#markViewed`).
+ * doivent les faire régresser (cf. `RfqRecipientService#markViewed`).
  */
 export const TERMINAL_RFQ_SUPPLIER_STATUSES: readonly RfqSupplierStatus[] = [
   'responded',
   'declined',
+  'expired',
 ]
+
+/** Ce que la règle « réponse tardive » lit d'une demande (`isLateReply`). */
+export interface RfqDeadlineState {
+  status: RfqStatus
+  deadline: DateTime | null
+}
 
 /**
  * Rôles autorisés à répondre à une demande reçue (consulter le détail,
@@ -136,7 +176,7 @@ export interface CreateRfqData {
 }
 
 /**
- * Prolongation d'échéance (`RfqService#extendDeadline`) : seule `deadline`
+ * Prolongation d'échéance (`RfqDeadlineService#extendDeadline`) : seule `deadline`
  * change, jamais le besoin — exception assumée à « seul un brouillon est
  * modifiable », cf. `docs/rfq.md`.
  */
@@ -178,6 +218,8 @@ export type RfqSupplierType = {
   logoUrl: string | null
   status: RfqSupplierStatus
   sentAt: string | null
+  /** Le fournisseur a répondu après l'échéance (#232). */
+  lateReply: boolean
 }
 
 /**
@@ -241,6 +283,8 @@ export type SupplierRfqType = {
   buyerName: string | null
   buyerLogoUrl: string | null
   myStatus: RfqSupplierStatus
+  /** Ce fournisseur a répondu après l'échéance (#232). */
+  myLateReply: boolean
   sentAt: string | null
   publishedAt: string | null
 }

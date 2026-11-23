@@ -10,7 +10,7 @@ import RfqSupplier from '#models/rfq_supplier'
 import ConversationService from '#services/conversation_service'
 import PdfService from '#services/pdf_service'
 import QuoteService from '#services/quote_service'
-import RfqService from '#services/rfq_service'
+import RfqRecipientService from '#services/rfq_recipient_service'
 import StorageService from '#services/storage/storage_service'
 import SubscriptionService from '#services/subscription_service'
 import { inboundMailBody } from '#shared/helpers/inbound_mail'
@@ -31,6 +31,8 @@ import {
  *    d'abord compressé (`PdfService`) ;
  *  - chaque PDF est enregistré comme **devis du fournisseur**, et le
  *    destinataire passe « répondu » ;
+ *  - après l'échéance, la réponse est enregistrée de la même façon, mais
+ *    marquée **tardive** (#232) : l'agence en est prévenue comme telle ;
  *  - si le fournisseur n'est pas abonné au moment de la réponse, une copie du
  *    PDF portant le nom de l'agence et la référence de la demande est stockée
  *    à côté (#238) : c'est elle que reçoit l'agence, l'original reste celui
@@ -51,7 +53,7 @@ export default class SupplierReplyService {
     private pdf: PdfService,
     private conversations: ConversationService,
     private quotes: QuoteService,
-    private rfqs: RfqService,
+    private recipients: RfqRecipientService,
     private subscriptions: SubscriptionService
   ) {}
 
@@ -117,9 +119,12 @@ export default class SupplierReplyService {
           })),
           trx
         )
-        // Sans PDF, c'est un simple message : le statut ne bouge pas.
+        // Après l'échéance, la réponse est enregistrée quand même, marquée
+        // tardive (#232) — d'après l'heure de réception du mail, pas celle de
+        // son traitement. Sans PDF, c'est un simple message : le statut ne bouge pas.
+        const late = await this.recipients.markLateReply(recipient, trx, mail.receivedAt)
         const responded =
-          documents.length > 0 && (await this.rfqs.markRespondedByMail(recipient, trx))
+          documents.length > 0 && (await this.recipients.markRespondedByMail(recipient, trx))
 
         return {
           reply: {
@@ -129,6 +134,7 @@ export default class SupplierReplyService {
             messageId: message.id,
             quoteDocumentIds: documents.map((document) => document.id),
             responded,
+            late,
           },
           tombstones,
         }

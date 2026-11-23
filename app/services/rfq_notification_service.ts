@@ -111,13 +111,13 @@ export default class RfqNotificationService {
    * Relance les destinataires silencieux : **un seul** mail par adresse, dans sa
    * langue. Renvoie les lignes **entièrement** relancées — celles dont toutes
    * les adresses ont été mises en queue. L'appelant (`RemindRfqSuppliersJob`) les
-   * consigne ensuite via `RfqService#markReminded`, ce qui rend la relance unique.
+   * consigne ensuite via `RfqRecipientService#markReminded`, ce qui rend la relance unique.
    *
    * Même politique d'échec que `notifyRecipients` : une mise en queue ratée est
    * loguée sans être propagée, et le destinataire, non consigné, est reconsidéré
    * au prochain passage — les adresses déjà parties ne sont pas redoublées
    * (clé d'idempotence). Suppose `rfq.buyerOrganization` et
-   * `supplierOrganization` préchargés (cf. `RfqService#dueForReminder`).
+   * `supplierOrganization` préchargés (cf. `RfqRecipientService#dueForReminder`).
    */
   async remind(recipients: RfqSupplier[]): Promise<RfqSupplier[]> {
     const reminded: RfqSupplier[] = []

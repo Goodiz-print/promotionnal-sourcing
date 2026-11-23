@@ -11,6 +11,7 @@ import QuoteService from '#services/quote_service'
 import emitter from '@adonisjs/core/services/emitter'
 import RfqSent from '#events/rfq_sent'
 import RfqService from '#services/rfq_service'
+import RfqDeadlineService from '#services/rfq_deadline_service'
 import RfqThreadService from '#services/rfq_thread_service'
 import SupplierContactService from '#services/supplier_contact_service'
 import CategoryTransformer from '#transformers/category_transformer'
@@ -79,6 +80,7 @@ type RfqContext = Pick<HttpContext, 'auth' | 'bouncer' | 'params'>
 export default class RfqsController {
   constructor(
     private service: RfqService,
+    private deadlines: RfqDeadlineService,
     private quotes: QuoteService,
     private categories: CategoryService,
     private catalogue: ProductCatalogueService,
@@ -320,7 +322,7 @@ export default class RfqsController {
 
     return this.runTransition(ctx, rfq, async () => {
       const wasExpired = rfq.status === 'expired'
-      await this.service.extendDeadline(rfq, payload)
+      await this.deadlines.extendDeadline(rfq, payload)
       ctx.session.flash(
         'success',
         ctx.i18n.t(wasExpired ? 'rfq.flash.reopened' : 'rfq.flash.deadlineExtended')

@@ -24,6 +24,8 @@ const translations = {
   'rfq.supplier.status.viewed': 'En cours',
   'rfq.supplier.status.responded': 'Devis envoyé',
   'rfq.supplier.status.declined': 'Déclinée',
+  'rfq.supplier.status.expired': 'Expirée',
+  'rfq.lateReply': 'Réponse tardive',
   'rfq.index.itemCount': '{count} lignes',
   'rfq.show.deadline': 'Échéance : {date}',
   'rfq.show.category': 'Catégorie',
@@ -69,6 +71,7 @@ function rfq(overrides: Partial<SupplierRfqType> = {}): SupplierRfqType {
     buyerName: 'Acme',
     buyerLogoUrl: null,
     myStatus: 'sent',
+    myLateReply: false,
     sentAt: '2026-08-20T00:00:00.000Z',
     publishedAt: '2026-08-20T00:00:00.000Z',
     ...overrides,
@@ -278,6 +281,26 @@ describe('supplier/rfqs/show.vue', () => {
 
     expect(wrapper.text()).toContain('Cette demande est échue.')
     expect(wrapper.text()).not.toContain('Décliner')
+  })
+
+  it('affiche le statut expiré du fournisseur (#232)', () => {
+    const wrapper = mount(SupplierRfqShow, {
+      props: { ...open, canQuote: false, rfq: detail({ status: 'expired', myStatus: 'expired' }) },
+    })
+
+    expect(wrapper.text()).toContain('Expirée')
+    expect(wrapper.find('[data-test="late-reply"]').exists()).toBe(false)
+  })
+
+  it('signale sa réponse tardive (#232)', () => {
+    const wrapper = mount(SupplierRfqShow, {
+      props: {
+        ...open,
+        rfq: detail({ status: 'expired', myStatus: 'responded', myLateReply: true }),
+      },
+    })
+
+    expect(wrapper.find('[data-test="late-reply"]').text()).toBe('Réponse tardive')
   })
 
   it('demande confirmation avant de décliner', async () => {

@@ -3,7 +3,8 @@ import type RfqSupplier from '#models/rfq_supplier'
 import type { RfqSupplierType } from '#shared/types/rfq'
 
 /**
- * Destinataire d'une demande, avec l'avancement le concernant. Suppose
+ * Destinataire d'une demande, avec l'avancement le concernant — dont la
+ * réponse tardive (#232), sans sa date. Suppose
  * `supplierOrganization` préchargé.
  */
 export default class RfqSupplierTransformer extends BaseTransformer<RfqSupplier> {
@@ -16,6 +17,7 @@ export default class RfqSupplierTransformer extends BaseTransformer<RfqSupplier>
       logoUrl: this.resource.supplierOrganization.logoUrl,
       status: this.resource.status,
       sentAt: this.resource.sentAt?.toISO() ?? null,
+      lateReply: this.resource.lateReplyAt !== null,
     }
   }
 }
