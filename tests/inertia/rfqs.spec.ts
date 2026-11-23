@@ -54,6 +54,7 @@ const { router } = await import('@inertiajs/vue3')
 function rfq(overrides: Partial<RfqType> = {}): RfqType {
   return {
     id: 1,
+    batchId: null,
     title: 'Tote bags coton bio',
     status: 'draft',
     deadline: null,

@@ -61,8 +61,11 @@ test.group('RFQ — cycle de vie', (group) => {
     assert.equal(rfq.createdByUserId, actors.owner.id)
     assert.isNull(rfq.publishedAt)
     assert.lengthOf(rfq.items, 2)
+    // Créée seule (hors panier) : pas de lot (#229).
+    assert.isNull(rfq.batchId)
     // `budget_max` est une colonne decimal : relue en chaîne à 2 décimales.
     const persisted = await Rfq.findOrFail(rfq.id)
+    assert.isNull(persisted.batchId)
     assert.equal(persisted.budgetMax, '4500.00')
 
     // `specs` (jsonb) doit revenir en objet quel que soit le driver.

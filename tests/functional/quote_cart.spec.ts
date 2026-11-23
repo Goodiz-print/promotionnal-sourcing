@@ -379,6 +379,36 @@ test.group('Panier de devis — validation', (checkoutGroup) => {
     assert.lengthOf(await QuoteCartItem.query().where('userId', owner.id), 0)
   })
 
+  test('les demandes d’une même validation partagent un lot (#229)', async ({ client, assert }) => {
+    const { org, owner } = await buyerWithOwner()
+    const [first, second] = await productsOfTwoSuppliers()
+    await addToCart(client, owner, first.id)
+    await addToCart(client, owner, second.id)
+
+    const response = await checkout(client, owner, { title: 'Salon 2027' })
+    response.assertStatus(302)
+
+    const rfqs = await Rfq.query().where('buyerOrganizationId', org.id)
+    assert.lengthOf(rfqs, 2)
+    assert.isString(rfqs[0].batchId)
+    assert.equal(rfqs[1].batchId, rfqs[0].batchId)
+  })
+
+  test('deux validations donnent deux lots distincts (#229)', async ({ client, assert }) => {
+    const { org, owner } = await buyerWithOwner()
+    const [first, second] = await productsOfTwoSuppliers()
+    await addToCart(client, owner, first.id)
+    await checkout(client, owner, { title: 'Salon 2027' }).then((r) => r.assertStatus(302))
+    await addToCart(client, owner, second.id)
+    await checkout(client, owner, { title: 'Séminaire' }).then((r) => r.assertStatus(302))
+
+    const rfqs = await Rfq.query().where('buyerOrganizationId', org.id).orderBy('id')
+    const batches = rfqs.map((rfq) => rfq.batchId)
+    assert.lengthOf(batches, 2)
+    assert.isTrue(batches.every((batchId) => typeof batchId === 'string'))
+    assert.notEqual(batches[0], batches[1])
+  })
+
   test('un membre envoie ses demandes aux fournisseurs (#216)', async ({ client, assert }) => {
     const { org } = await buyerWithOwner()
     const member = await createMember(org, 'member')

@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
 import Product from '#models/product'
@@ -224,7 +225,8 @@ export default class QuoteCartService {
    * pour unique destinataire. Avec `send`, elle est aussitôt publiée et
    * envoyée ; sans (un `member`, qui rédige mais n'envoie pas), elle reste en
    * brouillon. Les lignes validées quittent le panier ; le groupe non joignable
-   * y reste.
+   * y reste. Les demandes d'une même validation partagent un `batchId` (lot de
+   * panier, #229), tiré une fois par appel.
    *
    * Les notifications (`RfqSent`) sont à émettre par l'appelant **après** le
    * retour : la transaction est alors commitée.
@@ -240,6 +242,7 @@ export default class QuoteCartService {
     if (groups.length === 0) throw new QuoteCartEmptyException()
 
     const categories = await this.categoriesOf(groups)
+    const batchId = randomUUID()
 
     return db.transaction(async (trx) => {
       const outcomes: QuoteCartCheckoutOutcome[] = []
@@ -252,6 +255,7 @@ export default class QuoteCartService {
             title: this.titleFor(data.title, group.supplierName),
             description: data.description ?? null,
             deadline: data.deadline ?? null,
+            batchId,
             items: group.items.map((item) => ({
               name: item.productName,
               description: item.note,

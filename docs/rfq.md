@@ -23,6 +23,10 @@ d'une RFQ pointent donc vers `organizations` — `rfqs.buyer_organization_id` et
   l'organisation, pas à son auteur, qui peut la quitter), `published_at`,
   `closed_at`. Index `(buyer_organization_id, status)` pour l'écran « mes
   demandes ». Migration `…969_create_rfqs_table`.
+  `batch_id uuid` nullable, indexé (#229, migration `…039_add_batch_id_to_rfqs`) :
+  lot de panier commun aux demandes d'une même validation du panier
+  (`QuoteCartService#checkout`), `null` pour une demande créée seule ; exposé en
+  `batchId` côté agence uniquement (pas dans `SupplierRfqType`).
 - **`rfq_items`** — une ligne du besoin : `rfq_id` (`CASCADE`), `name`
   (obligatoire), `description`, `quantity`, `unit`, `specs jsonb`, plus
   `category_id` et `product_id` **tous deux nullables et indépendants**

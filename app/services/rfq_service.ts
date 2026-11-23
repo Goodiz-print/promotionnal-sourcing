@@ -22,7 +22,7 @@ import {
 import { DEFAULT_RFQ_ITEM_QUANTITY } from '#shared/types/rfq'
 import { parseRfqDeadline } from '#shared/helpers/rfq_deadline'
 import type {
-  CreateRfqData,
+  NewRfqData,
   RfqItemData,
   RfqProductOptionType,
   UpdateRfqData,
@@ -145,7 +145,7 @@ export default class RfqService {
   async create(
     organization: Organization,
     user: User,
-    data: CreateRfqData,
+    data: NewRfqData,
     client?: TransactionClientContract
   ): Promise<Rfq> {
     const requestable = await this.withRequestableProducts(data.items ?? [])
@@ -162,6 +162,7 @@ export default class RfqService {
           description: data.description ?? null,
           deadline: parseRfqDeadline(data.deadline),
           budgetMax: this.parseBudget(data.budgetMax),
+          batchId: data.batchId ?? null,
           // Explicites : sans elles, l'instance renvoyée porte `undefined`
           // plutôt que `null` sur ces colonnes (jamais lues depuis la base
           // après un insert) — les transformers exposeraient un trou.

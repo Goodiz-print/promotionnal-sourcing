@@ -11,6 +11,7 @@ export default class RfqTransformer extends BaseTransformer<Rfq> {
   toObject(): RfqType {
     return {
       ...this.pick(this.resource, ['id', 'title', 'status', 'budgetMax']),
+      batchId: this.resource.batchId ?? null,
       deadline: this.resource.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).toISO() ?? null,
       itemCount: this.resource.items.length,
       supplierCount: this.resource.suppliers.length,
