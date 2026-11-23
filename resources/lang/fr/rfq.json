@@ -15,8 +15,31 @@
       "suppliers": "Destinataires",
       "responses": "Réponses",
       "status": "Statut",
-      "deadline": "Échéance"
-    }
+      "deadline": "Échéance",
+      "author": "Auteur",
+      "quotes": "Devis"
+    },
+    "progress": {
+      "draft": "Brouillon",
+      "published": "Publiée",
+      "sent": "Envoyée",
+      "responded": "Répondue",
+      "expired": "Échue",
+      "closed": "Clôturée"
+    },
+    "filters": {
+      "label": "Filtrer les demandes",
+      "status": "Statut",
+      "author": "Auteur",
+      "allStatuses": "Tous les statuts",
+      "allAuthors": "Tous les auteurs",
+      "reset": "Réinitialiser les filtres"
+    },
+    "noMatch": "Aucune demande ne correspond à ces filtres.",
+    "noMatchDescription": "Modifiez ou réinitialisez les filtres pour retrouver vos demandes.",
+    "batch": "Panier du {date} · {count, plural, one {# demande} other {# demandes}}",
+    "quoteReceived": "Devis reçu",
+    "unknownAuthor": "Auteur inconnu"
   },
   "create": {
     "title": "Nouvelle demande de devis",

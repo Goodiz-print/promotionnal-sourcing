@@ -107,5 +107,26 @@
       "respond": "Svara med en offert",
       "viewQuote": "Visa min offert"
     }
+  },
+  "documents": {
+    "title": "Mottagna PDF-offerter",
+    "description": "Offerter som leverantörerna har skickat via e-post. Nedladdning är förbehållen medlemmarna i din byrå.",
+    "empty": "Ingen PDF-offert mottagen ännu.",
+    "columns": {
+      "supplier": "Leverantör",
+      "file": "Fil",
+      "receivedAt": "Mottagen",
+      "decision": "Beslut"
+    },
+    "download": "Ladda ner {filename}",
+    "select": "Välj",
+    "selected": "Vald",
+    "confirmSelect": "Om du väljer den här offerten stängs förfrågan. Nästa steg (beställning, fakturering) sker direkt med leverantören. Fortsätta?",
+    "flash": {
+      "selected": "Offert vald: förfrågan är stängd."
+    },
+    "errors": {
+      "notSelectable": "Förfrågan är inte längre öppen: offerten kan inte väljas."
+    }
   }
 }

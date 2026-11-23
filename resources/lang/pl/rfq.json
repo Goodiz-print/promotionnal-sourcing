@@ -15,8 +15,31 @@
       "suppliers": "Odbiorcy",
       "responses": "Odpowiedzi",
       "status": "Status",
-      "deadline": "Termin"
-    }
+      "deadline": "Termin",
+      "author": "Autor",
+      "quotes": "Oferty"
+    },
+    "progress": {
+      "draft": "Wersja robocza",
+      "published": "Opublikowane",
+      "sent": "Wysłane",
+      "responded": "Z odpowiedzią",
+      "expired": "Wygasłe",
+      "closed": "Zamknięte"
+    },
+    "filters": {
+      "label": "Filtruj zapytania",
+      "status": "Status",
+      "author": "Autor",
+      "allStatuses": "Wszystkie statusy",
+      "allAuthors": "Wszyscy autorzy",
+      "reset": "Wyczyść filtry"
+    },
+    "noMatch": "Żadne zapytanie nie pasuje do tych filtrów.",
+    "noMatchDescription": "Zmień lub wyczyść filtry, aby odnaleźć swoje zapytania.",
+    "batch": "Koszyk z {date} · {count, plural, one {# zapytanie} few {# zapytania} many {# zapytań} other {# zapytania}}",
+    "quoteReceived": "Otrzymano ofertę",
+    "unknownAuthor": "Nieznany autor"
   },
   "create": {
     "title": "Nowe zapytanie ofertowe",

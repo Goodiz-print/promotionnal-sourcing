@@ -22,7 +22,7 @@ import type QuoteDocument from '#models/quote_document'
 import type Rfq from '#models/rfq'
 import type RfqSupplier from '#models/rfq_supplier'
 import OrganizationUser from '#models/organization_user'
-import { RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
+import { RFQ_MANAGER_ROLES, RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
 import type { RoleSlug } from '#shared/types/role'
 import { platformRoleHasPermission } from '#shared/helpers/platform_permissions'
 import type { PlatformPermission } from '#shared/types/user'
@@ -257,6 +257,24 @@ export const canDownloadQuoteDocument = Bouncer.ability(
       .select('id')
       .first()
     return membership !== null
+  }
+)
+
+/**
+ * Ability to check if a user can mark a quote PDF as « retenu » (#228), which
+ * closes the request: a decision, so reserved to the managers of the agency
+ * that owns the request (`RFQ_MANAGER_ROLES`, like `canManageRfq`). A `member`
+ * downloads the PDF but does not decide. Expects `document.rfq` preloaded
+ * (`QuoteService#findDocument`).
+ */
+export const canSelectQuoteDocument = Bouncer.ability(
+  async (user: User, document: QuoteDocument) => {
+    const membership = await OrganizationUser.query()
+      .where('user_id', user.id)
+      .where('organization_id', document.rfq.buyerOrganizationId)
+      .preload('role')
+      .first()
+    return RFQ_MANAGER_ROLES.some((slug) => slug === membership?.role.slug)
   }
 )
 

@@ -15,8 +15,31 @@
       "suppliers": "Empfänger",
       "responses": "Antworten",
       "status": "Status",
-      "deadline": "Frist"
-    }
+      "deadline": "Frist",
+      "author": "Verfasser",
+      "quotes": "Angebote"
+    },
+    "progress": {
+      "draft": "Entwurf",
+      "published": "Veröffentlicht",
+      "sent": "Gesendet",
+      "responded": "Beantwortet",
+      "expired": "Abgelaufen",
+      "closed": "Abgeschlossen"
+    },
+    "filters": {
+      "label": "Anfragen filtern",
+      "status": "Status",
+      "author": "Verfasser",
+      "allStatuses": "Alle Status",
+      "allAuthors": "Alle Verfasser",
+      "reset": "Filter zurücksetzen"
+    },
+    "noMatch": "Keine Anfrage entspricht diesen Filtern.",
+    "noMatchDescription": "Ändern oder setzen Sie die Filter zurück, um Ihre Anfragen zu finden.",
+    "batch": "Warenkorb vom {date} · {count, plural, one {# Anfrage} other {# Anfragen}}",
+    "quoteReceived": "Angebot erhalten",
+    "unknownAuthor": "Unbekannter Verfasser"
   },
   "create": {
     "title": "Neue Angebotsanfrage",

@@ -379,6 +379,55 @@ export default class QuoteService {
   }
 
   /**
+   * Tous les devis PDF reçus pour une demande (#228), le plus récent en tête,
+   * avec le nom de leur fichier : l'écran de la demande les liste à côté des
+   * devis structurés. Colonnes explicites, pièce jointe préchargée en une
+   * requête.
+   *
+   * Le destinataire de chaque devis est repris de `rfq.suppliers` (préchargés
+   * avec leur organisation par `RfqService#findForBuyer`) plutôt que relu en
+   * base : aucune requête de plus pour le nom du fournisseur.
+   */
+  async documentsForRfq(rfq: Rfq): Promise<QuoteDocument[]> {
+    const recipients = new Map(rfq.suppliers.map((recipient) => [recipient.id, recipient]))
+    const documents = await QuoteDocument.query()
+      .select('id', 'rfqId', 'rfqSupplierId', 'messageAttachmentId', 'receivedAt', 'selectedAt')
+      .where('rfqId', rfq.id)
+      .whereIn('rfqSupplierId', [...recipients.keys()])
+      .preload('attachment', (attachment) => attachment.select('id', 'filename', 'sizeBytes'))
+      .orderBy('receivedAt', 'desc')
+      .orderBy('id', 'desc')
+    documents.forEach((document) =>
+      document.$setRelated('rfqSupplier', recipients.get(document.rfqSupplierId)!)
+    )
+    return documents
+  }
+
+  /**
+   * L'agence **retient** un devis PDF (#228) : il est marqué `selected_at` et
+   * la demande est clôturée (`RfqService#close`), dans une même transaction.
+   * La demande est relue sous verrou : deux décisions concurrentes (retenir
+   * deux devis, accepter un devis structuré) ne clôturent qu'une fois, la
+   * seconde est refusée (`RfqNotClosableException`).
+   *
+   * **Aucune commande** n'est créée et aucun événement n'est publié : la suite
+   * (bon de commande, facturation) se fait entre l'agence et le fournisseur,
+   * hors plateforme. Les devis structurés gardent leur statut.
+   */
+  async selectDocument(document: QuoteDocument, now: DateTime = DateTime.now()): Promise<void> {
+    await db.transaction(async (trx) => {
+      const rfq = await Rfq.query({ client: trx }).where('id', document.rfqId).forUpdate().first()
+      if (!rfq) throw new QuoteDocumentNotFoundException()
+
+      await this.rfqs.close(rfq, trx)
+      await QuoteDocument.query({ client: trx })
+        .where('id', document.id)
+        .update({ selectedAt: now.toJSDate() })
+    })
+    await document.refresh()
+  }
+
+  /**
    * Les devis PDF `ids` du destinataire `rfqSupplierId`, dans l'ordre de leurs
    * identifiants (celui des pièces jointes du mail), avec leur pièce jointe :
    * de quoi les citer dans le mail transmis à l'agence (#225) sans charger
@@ -404,6 +453,21 @@ export default class QuoteService {
       .preload('rfq')
       .preload('attachment', (attachment) => attachment.preload('storageObject'))
       .preload('recipientStorageObject')
+      .first()
+    if (!document) throw new QuoteDocumentNotFoundException()
+    return document
+  }
+
+  /**
+   * Un devis PDF et sa demande, sans ses fichiers : ce qu'il faut pour le
+   * retenir (`QuoteDocumentsController#select`) et vérifier l'ability
+   * `canSelectQuoteDocument`. Inconnu : 404.
+   */
+  async findDocumentForDecision(id: number): Promise<QuoteDocument> {
+    const document = await QuoteDocument.query()
+      .select('id', 'rfqId', 'selectedAt')
+      .where('id', id)
+      .preload('rfq', (rfq) => rfq.select('id', 'buyerOrganizationId', 'status'))
       .first()
     if (!document) throw new QuoteDocumentNotFoundException()
     return document

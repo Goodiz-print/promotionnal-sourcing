@@ -15,8 +15,31 @@
       "suppliers": "Ontvangers",
       "responses": "Reacties",
       "status": "Status",
-      "deadline": "Deadline"
-    }
+      "deadline": "Deadline",
+      "author": "Auteur",
+      "quotes": "Offertes"
+    },
+    "progress": {
+      "draft": "Concept",
+      "published": "Gepubliceerd",
+      "sent": "Verzonden",
+      "responded": "Beantwoord",
+      "expired": "Verlopen",
+      "closed": "Gesloten"
+    },
+    "filters": {
+      "label": "Aanvragen filteren",
+      "status": "Status",
+      "author": "Auteur",
+      "allStatuses": "Alle statussen",
+      "allAuthors": "Alle auteurs",
+      "reset": "Filters wissen"
+    },
+    "noMatch": "Geen aanvraag komt overeen met deze filters.",
+    "noMatchDescription": "Wijzig of wis de filters om uw aanvragen terug te vinden.",
+    "batch": "Winkelwagen van {date} · {count, plural, one {# aanvraag} other {# aanvragen}}",
+    "quoteReceived": "Offerte ontvangen",
+    "unknownAuthor": "Onbekende auteur"
   },
   "create": {
     "title": "Nieuwe offerteaanvraag",

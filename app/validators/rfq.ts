@@ -1,4 +1,5 @@
 import vine from '@vinejs/vine'
+import { RFQ_PROGRESSES } from '#shared/types/rfq'
 
 /**
  * Ligne de besoin (fabrique : un nœud VineJS neuf par appel, comme
@@ -61,6 +62,19 @@ export const rfqProductValidator = vine.create({
 export const rfqLookupQueryValidator = vine.create({
   productId: vine.number().positive().optional(),
   productSearch: vine.string().trim().maxLength(100).optional(),
+})
+
+/**
+ * Filtres de « Mes demandes » (#228), lus dans la query string. Un validateur
+ * par filtre : le controller ignore une valeur invalide sans perdre l'autre
+ * filtre, plutôt que de la refuser (c'est une URL, pas une saisie).
+ */
+export const rfqListStatusValidator = vine.create({
+  status: vine.enum(RFQ_PROGRESSES).optional(),
+})
+
+export const rfqListAuthorValidator = vine.create({
+  authorId: vine.number().positive().withoutDecimals().optional(),
 })
 
 /**

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import type { RfqDetailType, RfqSupplierType, RfqType } from '#shared/types/rfq'
+import type { RfqDetailType, RfqListItemType, RfqSupplierType, RfqType } from '#shared/types/rfq'
 
 const translations = {
   'rfq.index.title': 'Demandes de devis',
@@ -10,6 +10,9 @@ const translations = {
   'rfq.index.itemCount': '{count} lignes',
   'rfq.index.supplierCount': '{count} destinataires',
   'rfq.index.responded': '{responded} / {total} réponses',
+  'rfq.index.progress.draft': 'Brouillon',
+  'rfq.index.progress.sent': 'Envoyée',
+  'rfq.index.noMatch': 'Aucune demande ne correspond à ces filtres.',
   'rfq.status.draft': 'Brouillon',
   'rfq.status.published': 'Publiée',
   'rfq.status.closed': 'Clôturée',
@@ -36,7 +39,7 @@ vi.mock('@inertiajs/vue3', async () => {
   const m = await import('./support/inertia_mocks')
   return {
     usePage: () => m.inertiaPage(translations),
-    router: { post: vi.fn(), delete: vi.fn() },
+    router: { post: vi.fn(), delete: vi.fn(), get: vi.fn() },
     useForm: m.makeUseForm(),
     Head: m.HeadStub,
   }
@@ -110,10 +113,31 @@ function detail(overrides: Partial<RfqDetailType> = {}): RfqDetailType {
 }
 
 describe('rfqs/index.vue', () => {
-  it('liste les demandes avec leur statut', () => {
+  const noFilters = { status: null, authorId: null }
+
+  function listed(overrides: Partial<RfqListItemType> = {}): RfqListItemType {
+    return {
+      ...rfq(),
+      createdByName: null,
+      progress: 'draft',
+      hasReceivedQuote: false,
+      ...overrides,
+    }
+  }
+
+  it('liste les demandes avec leur avancement', () => {
     const wrapper = mount(RfqsIndex, {
       props: {
-        rfqs: [rfq(), rfq({ id: 2, title: 'Gourdes inox', status: 'published' })],
+        groups: [
+          { key: 'rfq-1', batchId: null, rfqs: [listed()] },
+          {
+            key: 'rfq-2',
+            batchId: null,
+            rfqs: [listed({ id: 2, title: 'Gourdes inox', status: 'published', progress: 'sent' })],
+          },
+        ],
+        filters: noFilters,
+        authors: [],
         canSendRfq: true,
         canManageRfq: true,
       },
@@ -122,14 +146,34 @@ describe('rfqs/index.vue', () => {
     expect(wrapper.findAll('tbody tr')).toHaveLength(2)
     expect(wrapper.text()).toContain('Tote bags coton bio')
     expect(wrapper.text()).toContain('Brouillon')
-    expect(wrapper.text()).toContain('Publiée')
+    expect(wrapper.text()).toContain('Envoyée')
   })
 
   it('affiche un message quand il n’y a aucune demande', () => {
-    const wrapper = mount(RfqsIndex, { props: { rfqs: [], canSendRfq: true, canManageRfq: true } })
+    const wrapper = mount(RfqsIndex, {
+      props: { groups: [], filters: noFilters, authors: [], canSendRfq: true, canManageRfq: true },
+    })
 
     expect(wrapper.text()).toContain('Aucune demande pour le moment.')
     expect(wrapper.findAll('tbody tr')).toHaveLength(0)
+    // Rien à filtrer : pas de filtres sur une agence sans demande.
+    expect(wrapper.find('[role="search"]').exists()).toBe(false)
+  })
+
+  it('distingue « aucun résultat pour ces filtres » de « aucune demande »', () => {
+    const wrapper = mount(RfqsIndex, {
+      props: {
+        groups: [],
+        filters: { status: 'responded', authorId: null },
+        authors: [],
+        canSendRfq: true,
+        canManageRfq: true,
+      },
+    })
+
+    expect(wrapper.text()).toContain('Aucune demande ne correspond à ces filtres.')
+    expect(wrapper.text()).not.toContain('Aucune demande pour le moment.')
+    expect(wrapper.find('[role="search"]').exists()).toBe(true)
   })
 })
 
@@ -140,6 +184,7 @@ describe('rfqs/show.vue', () => {
     canSendRfq: true,
     canManageRfq: true,
     quotes: [],
+    quoteDocuments: [],
     supplierContacts: {},
     threads: [],
   }

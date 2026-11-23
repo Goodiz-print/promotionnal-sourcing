@@ -107,5 +107,26 @@
       "respond": "Responder con un presupuesto",
       "viewQuote": "Ver mi presupuesto"
     }
+  },
+  "documents": {
+    "title": "Presupuestos PDF recibidos",
+    "description": "Presupuestos enviados por correo por los proveedores. La descarga está reservada a los miembros de su agencia.",
+    "empty": "Todavía no se ha recibido ningún presupuesto PDF.",
+    "columns": {
+      "supplier": "Proveedor",
+      "file": "Archivo",
+      "receivedAt": "Recibido el",
+      "decision": "Decisión"
+    },
+    "download": "Descargar {filename}",
+    "select": "Seleccionar",
+    "selected": "Seleccionado",
+    "confirmSelect": "Seleccionar este presupuesto cierra la solicitud. Los siguientes pasos (pedido, facturación) se realizan directamente con el proveedor. ¿Continuar?",
+    "flash": {
+      "selected": "Presupuesto seleccionado: la solicitud está cerrada."
+    },
+    "errors": {
+      "notSelectable": "Esta solicitud ya no está abierta: no se puede seleccionar este presupuesto."
+    }
   }
 }

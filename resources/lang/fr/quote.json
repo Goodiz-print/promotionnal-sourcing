@@ -107,5 +107,26 @@
       "respond": "Répondre par un devis",
       "viewQuote": "Voir mon devis"
     }
+  },
+  "documents": {
+    "title": "Devis PDF reçus",
+    "description": "Devis envoyés par mail par les fournisseurs. Le téléchargement est réservé aux membres de votre agence.",
+    "empty": "Aucun devis PDF reçu pour le moment.",
+    "columns": {
+      "supplier": "Fournisseur",
+      "file": "Fichier",
+      "receivedAt": "Reçu le",
+      "decision": "Décision"
+    },
+    "download": "Télécharger {filename}",
+    "select": "Retenir",
+    "selected": "Retenu",
+    "confirmSelect": "Retenir ce devis clôture la demande. La suite (bon de commande, facturation) se fait directement avec le fournisseur. Continuer ?",
+    "flash": {
+      "selected": "Devis retenu : la demande est clôturée."
+    },
+    "errors": {
+      "notSelectable": "Cette demande n’est plus ouverte : impossible de retenir ce devis."
+    }
   }
 }

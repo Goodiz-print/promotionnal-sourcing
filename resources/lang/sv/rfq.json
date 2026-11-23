@@ -15,8 +15,31 @@
       "suppliers": "Mottagare",
       "responses": "Svar",
       "status": "Status",
-      "deadline": "Svarsdatum"
-    }
+      "deadline": "Svarsdatum",
+      "author": "Författare",
+      "quotes": "Offerter"
+    },
+    "progress": {
+      "draft": "Utkast",
+      "published": "Publicerad",
+      "sent": "Skickad",
+      "responded": "Besvarad",
+      "expired": "Utgången",
+      "closed": "Stängd"
+    },
+    "filters": {
+      "label": "Filtrera förfrågningar",
+      "status": "Status",
+      "author": "Författare",
+      "allStatuses": "Alla statusar",
+      "allAuthors": "Alla författare",
+      "reset": "Återställ filter"
+    },
+    "noMatch": "Ingen förfrågan matchar dessa filter.",
+    "noMatchDescription": "Ändra eller återställ filtren för att hitta dina förfrågningar.",
+    "batch": "Varukorg från {date} · {count, plural, one {# förfrågan} other {# förfrågningar}}",
+    "quoteReceived": "Offert mottagen",
+    "unknownAuthor": "Okänd författare"
   },
   "create": {
     "title": "Ny offertförfrågan",

@@ -256,6 +256,81 @@ export type RfqType = {
   createdAt: string
 }
 
+/**
+ * Avancement d'une demande tel que « Mes demandes » l'affiche et le filtre
+ * (#228) : le statut de la demande, `published` détaillé selon que la demande
+ * est partie chez un destinataire et qu'au moins un a répondu. Calculé par
+ * `rfqProgress` (`shared/helpers/rfq_list.ts`), filtré en SQL par
+ * `RfqService#listForBuyer` — les deux doivent concorder.
+ *
+ * - `draft` — brouillon, jamais parti ;
+ * - `published` — publiée, mais encore envoyée à personne (destinataires `pending`) ;
+ * - `sent` — envoyée à au moins un destinataire, aucune réponse encore ;
+ * - `responded` — publiée, au moins un destinataire a répondu ;
+ * - `expired` — échéance passée sans clôture ;
+ * - `closed` — clôturée (par l'agence, ou par un devis retenu ou accepté).
+ */
+export const RFQ_PROGRESSES = [
+  'draft',
+  'published',
+  'sent',
+  'responded',
+  'expired',
+  'closed',
+] as const
+
+export type RfqProgress = (typeof RFQ_PROGRESSES)[number]
+
+/** Ce que `rfqProgress` lit d'une demande. */
+export interface RfqProgressSource {
+  status: RfqStatus
+  /** Destinataires notifiés (tout statut sauf `pending`). */
+  sentCount: number
+  respondedCount: number
+}
+
+/**
+ * Filtres de « Mes demandes » (#228), portés par la query string
+ * (`?status=responded&authorId=12`). Absents : toutes les demandes.
+ */
+export interface RfqBuyerFilters {
+  status?: RfqProgress
+  /** Auteur de la demande (`rfqs.created_by_user_id`). */
+  authorId?: number
+}
+
+/** Filtres tels que la page les reçoit : `null` plutôt qu'absent. */
+export type RfqBuyerFiltersType = {
+  status: RfqProgress | null
+  authorId: number | null
+}
+
+/**
+ * Ligne de « Mes demandes » (#228) : la ligne de liste, plus l'auteur,
+ * l'avancement lisible et l'indicateur « devis reçu » (PDF ou structuré).
+ */
+export type RfqListItemType = RfqType & {
+  createdByName: string | null
+  progress: RfqProgress
+  hasReceivedQuote: boolean
+}
+
+/**
+ * Groupe de « Mes demandes » : les demandes d'un même lot de panier (#229),
+ * ou une demande seule (`batchId` à `null`). `key` est stable pour le rendu.
+ */
+export type RfqBatchGroupType<T extends Pick<RfqType, 'id' | 'batchId'> = RfqListItemType> = {
+  key: string
+  batchId: string | null
+  rfqs: T[]
+}
+
+/** Auteur proposé par le filtre de « Mes demandes ». */
+export type RfqAuthorOptionType = {
+  id: number
+  name: string
+}
+
 export type RfqDetailType = RfqType & {
   description: string | null
   createdByName: string | null

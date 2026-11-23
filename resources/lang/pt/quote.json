@@ -107,5 +107,26 @@
       "respond": "Responder com um orçamento",
       "viewQuote": "Ver o meu orçamento"
     }
+  },
+  "documents": {
+    "title": "Orçamentos PDF recebidos",
+    "description": "Orçamentos enviados por e-mail pelos fornecedores. A transferência está reservada aos membros da sua agência.",
+    "empty": "Ainda não foi recebido nenhum orçamento PDF.",
+    "columns": {
+      "supplier": "Fornecedor",
+      "file": "Ficheiro",
+      "receivedAt": "Recebido em",
+      "decision": "Decisão"
+    },
+    "download": "Transferir {filename}",
+    "select": "Escolher",
+    "selected": "Escolhido",
+    "confirmSelect": "Escolher este orçamento encerra o pedido. Os passos seguintes (nota de encomenda, faturação) fazem-se diretamente com o fornecedor. Continuar?",
+    "flash": {
+      "selected": "Orçamento escolhido: o pedido está encerrado."
+    },
+    "errors": {
+      "notSelectable": "Este pedido já não está aberto: não é possível escolher este orçamento."
+    }
   }
 }

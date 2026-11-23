@@ -107,5 +107,26 @@
       "respond": "Respond with a quote",
       "viewQuote": "View my quote"
     }
+  },
+  "documents": {
+    "title": "PDF quotes received",
+    "description": "Quotes sent by email by suppliers. Downloading is restricted to members of your agency.",
+    "empty": "No PDF quote received yet.",
+    "columns": {
+      "supplier": "Supplier",
+      "file": "File",
+      "receivedAt": "Received on",
+      "decision": "Decision"
+    },
+    "download": "Download {filename}",
+    "select": "Select",
+    "selected": "Selected",
+    "confirmSelect": "Selecting this quote closes the request. The next steps (purchase order, invoicing) happen directly with the supplier. Continue?",
+    "flash": {
+      "selected": "Quote selected: the request is closed."
+    },
+    "errors": {
+      "notSelectable": "This request is no longer open: this quote cannot be selected."
+    }
   }
 }
