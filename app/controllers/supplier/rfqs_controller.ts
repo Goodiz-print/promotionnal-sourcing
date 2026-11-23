@@ -5,12 +5,14 @@ import RfqDeclined from '#events/rfq_declined'
 import OrganizationContextService from '#services/organization_context_service'
 import QuoteService from '#services/quote_service'
 import RfqService from '#services/rfq_service'
+import RfqRecipientService from '#services/rfq_recipient_service'
 import RfqThreadService from '#services/rfq_thread_service'
 import SubscriptionService from '#services/subscription_service'
 import SupplierRfqDetailTransformer from '#transformers/supplier_rfq_detail_transformer'
 import SupplierRfqTransformer from '#transformers/supplier_rfq_transformer'
 import RfqThreadTransformer from '#transformers/rfq_thread_transformer'
 import { RfqNotEditableException } from '#exceptions/rfq_errors'
+import { acceptsResponses } from '#shared/helpers/rfq_deadline'
 import type { Locale } from '#shared/types/i18n'
 import type Organization from '#models/organization'
 import type Rfq from '#models/rfq'
@@ -37,6 +39,7 @@ import type { SubscriptionUpsellType } from '#shared/types/subscription'
 export default class SupplierRfqsController {
   constructor(
     private service: RfqService,
+    private recipients: RfqRecipientService,
     private quotes: QuoteService,
     private organizations: OrganizationContextService,
     private subscriptions: SubscriptionService,
@@ -91,7 +94,7 @@ export default class SupplierRfqsController {
       // Le devis vivant du fournisseur, s'il en a un : l'écran y renvoie.
       quote: quote ? { id: quote.id, status: quote.status } : null,
       // Chiffrer suppose une demande encore ouverte et non déclinée.
-      canQuote: this.service.acceptsResponses(rfq) && recipient?.status !== 'declined',
+      canQuote: acceptsResponses(rfq) && recipient?.status !== 'declined',
       // Fil d'échanges avec l'agence (#226), nommée pour un abonné seulement.
       thread,
     })
@@ -108,7 +111,7 @@ export default class SupplierRfqsController {
     const rfq = await this.service.findForSupplier(Number(params.id), org.id)
 
     try {
-      await this.service.decline(rfq, org.id)
+      await this.recipients.decline(rfq, org.id)
       await emitter.emit(RfqDeclined, new RfqDeclined(rfq, org.id))
       session.flash('success', i18n.t('rfq.supplier.flash.declined'))
     } catch (error) {

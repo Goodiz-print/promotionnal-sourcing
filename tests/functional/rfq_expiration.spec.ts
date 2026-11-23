@@ -19,6 +19,8 @@ import Rfq from '#models/rfq'
 import RfqItem from '#models/rfq_item'
 import RfqSupplier from '#models/rfq_supplier'
 import RfqService from '#services/rfq_service'
+import RfqDeadlineService from '#services/rfq_deadline_service'
+import RfqRecipientService from '#services/rfq_recipient_service'
 import {
   RfqInvalidDeadlineException,
   RfqNotEditableException,
@@ -34,8 +36,8 @@ import type { SupplierReplyReceivedMailData } from '#shared/types/mail'
 import type { RfqSupplierStatus } from '#shared/types/rfq'
 
 /**
- * Expiration à l'échéance, prolongation, relance des fournisseurs sans réponse
- * et réponse tardive (#56, #232). Les dates sont posées par rapport à `now` pour ne jamais dépendre de
+ * Expiration à l'échéance et prolongation (`RfqDeadlineService`), relance des
+ * fournisseurs sans réponse et réponse tardive (`RfqRecipientService`) — #56, #232. Les dates sont posées par rapport à `now` pour ne jamais dépendre de
  * l'heure d'exécution du test.
  */
 const PARIS = 'Europe/Paris'
@@ -84,7 +86,7 @@ test.group('RFQ — expiration à l’échéance', (group) => {
     assert,
   }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const deadlines = await app.container.make(RfqDeadlineService)
     const rfq = await publishedRfq(org.id, '2026-10-29')
     const [sent, viewed, responded, declined] = await Promise.all(
       (['sent', 'viewed', 'responded', 'declined'] as const).map((status) =>
@@ -92,7 +94,7 @@ test.group('RFQ — expiration à l’échéance', (group) => {
       )
     )
 
-    const expired = await service.expireDue(now)
+    const expired = await deadlines.expireDue(now)
 
     assert.deepEqual(
       expired.map((row) => row.id),
@@ -115,13 +117,13 @@ test.group('RFQ — expiration à l’échéance', (group) => {
 
   test('les destinataires d’une autre demande ne sont pas touchés', async ({ assert }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const deadlines = await app.container.make(RfqDeadlineService)
     const due = await publishedRfq(org.id, '2026-10-29')
     const open = await publishedRfq(org.id, '2026-11-29')
     await recipientWith(due.id, 'sent')
     const untouched = await recipientWith(open.id, 'sent')
 
-    await service.expireDue(now)
+    await deadlines.expireDue(now)
 
     await untouched.refresh()
     assert.equal(untouched.status, 'sent')
@@ -130,21 +132,21 @@ test.group('RFQ — expiration à l’échéance', (group) => {
 
   test('l’échéance du jour laisse toute la journée aux fournisseurs', async ({ assert }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const deadlines = await app.container.make(RfqDeadlineService)
     const rfq = await publishedRfq(org.id, '2026-10-30')
 
     const lateEvening = DateTime.fromISO('2026-10-30T23:30:00', { zone: PARIS })
     const nextMorning = DateTime.fromISO('2026-10-31T00:10:00', { zone: PARIS })
 
-    assert.lengthOf(await service.expireDue(lateEvening), 0)
-    assert.lengthOf(await service.expireDue(nextMorning), 1)
+    assert.lengthOf(await deadlines.expireDue(lateEvening), 0)
+    assert.lengthOf(await deadlines.expireDue(nextMorning), 1)
     await rfq.refresh()
     assert.equal(rfq.status, 'expired')
   })
 
   test('un brouillon, une demande close ou sans échéance n’expirent jamais', async ({ assert }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const deadlines = await app.container.make(RfqDeadlineService)
     const draft = await RfqFactory.merge({
       buyerOrganizationId: org.id,
       deadline: DateTime.fromISO('2026-10-01'),
@@ -154,7 +156,7 @@ test.group('RFQ — expiration à l’échéance', (group) => {
     await closed.save()
     const open = await publishedRfq(org.id, null)
 
-    assert.lengthOf(await service.expireDue(now), 0)
+    assert.lengthOf(await deadlines.expireDue(now), 0)
 
     await Promise.all([draft.refresh(), closed.refresh(), open.refresh()])
     assert.equal(draft.status, 'draft')
@@ -164,22 +166,22 @@ test.group('RFQ — expiration à l’échéance', (group) => {
 
   test('expire refuse une demande qui n’est pas publiée', async ({ assert }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const deadlines = await app.container.make(RfqDeadlineService)
     const draft = await RfqFactory.merge({ buyerOrganizationId: org.id }).create()
 
-    await assert.rejects(() => service.expire(draft), RfqNotExpirableException)
+    await assert.rejects(() => deadlines.expire(draft), RfqNotExpirableException)
   })
 
   test('une transition concurrente n’est pas écrasée par l’expiration', async ({ assert }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const deadlines = await app.container.make(RfqDeadlineService)
     const rfq = await publishedRfq(org.id, '2020-01-01')
     const stale = await Rfq.findOrFail(rfq.id)
 
     // L'acheteur ferme la demande après la lecture du lot par le job.
     await Rfq.query().where('id', rfq.id).update({ status: 'closed' })
 
-    await assert.rejects(() => service.expire(stale), RfqNotExpirableException)
+    await assert.rejects(() => deadlines.expire(stale), RfqNotExpirableException)
     await rfq.refresh()
     assert.equal(rfq.status, 'closed')
     assert.isNull(rfq.expiredAt)
@@ -189,14 +191,14 @@ test.group('RFQ — expiration à l’échéance', (group) => {
     assert,
   }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const recipients = await app.container.make(RfqRecipientService)
     const supplier = await OrganizationFactory.apply('supplier').create()
     const rfq = await publishedRfq(org.id, '2020-01-01')
     await RfqSupplierFactory.apply('sent')
       .merge({ rfqId: rfq.id, supplierOrganizationId: supplier.id })
       .create()
 
-    await assert.rejects(() => service.decline(rfq, supplier.id), RfqNotEditableException)
+    await assert.rejects(() => recipients.decline(rfq, supplier.id), RfqNotEditableException)
   })
 
   test('le job planifié fait expirer les demandes échues et leurs destinataires sans réponse', async ({
@@ -217,11 +219,11 @@ test.group('RFQ — expiration à l’échéance', (group) => {
     assert,
   }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const deadlines = await app.container.make(RfqDeadlineService)
     const rfq = await publishedRfq(org.id, null)
     const recipient = await recipientWith(rfq.id, 'viewed')
 
-    await service.expire(rfq, now)
+    await deadlines.expire(rfq, now)
 
     await recipient.refresh()
     assert.equal(recipient.status, 'expired')
@@ -232,12 +234,12 @@ test.group('RFQ — expiration à l’échéance', (group) => {
     assert,
   }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const deadlines = await app.container.make(RfqDeadlineService)
     const rfq = await publishedRfq(org.id, null)
     const recipient = await recipientWith(rfq.id, 'sent')
 
     const trx = await db.transaction()
-    await service.expire(rfq, now, trx)
+    await deadlines.expire(rfq, now, trx)
     await trx.rollback()
 
     const [reloaded] = await Promise.all([Rfq.findOrFail(rfq.id), recipient.refresh()])
@@ -250,6 +252,7 @@ test.group('RFQ — expiration à l’échéance', (group) => {
   }) => {
     const { org } = await buyer()
     const service = await app.container.make(RfqService)
+    const recipients = await app.container.make(RfqRecipientService)
     const supplier = await OrganizationFactory.apply('supplier').create()
     const other = await OrganizationFactory.apply('supplier').create()
     const rfq = await RfqFactory.apply('expired').merge({ buyerOrganizationId: org.id }).create()
@@ -258,8 +261,8 @@ test.group('RFQ — expiration à l’échéance', (group) => {
       .create()
 
     await assert.rejects(() => service.addSuppliers(rfq, [other.id]), RfqNotEditableException)
-    await assert.rejects(() => service.decline(rfq, supplier.id), RfqNotEditableException)
-    await assert.rejects(() => service.markResponded(rfq, supplier.id), RfqNotEditableException)
+    await assert.rejects(() => recipients.decline(rfq, supplier.id), RfqNotEditableException)
+    await assert.rejects(() => recipients.markResponded(rfq, supplier.id), RfqNotEditableException)
   })
 })
 
@@ -268,11 +271,11 @@ test.group('RFQ — prolongation d’échéance', (group) => {
 
   test('prolonge une demande publiée sans toucher au besoin', async ({ assert }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const deadlines = await app.container.make(RfqDeadlineService)
     const rfq = await publishedRfq(org.id, '2026-11-05')
     await RfqItemFactory.merge({ rfqId: rfq.id, name: 'Tote bag', quantity: 100 }).create()
 
-    await service.extendDeadline(rfq, { deadline: '2026-11-20' }, now)
+    await deadlines.extendDeadline(rfq, { deadline: '2026-11-20' }, now)
 
     await rfq.refresh()
     assert.equal(rfq.status, 'published')
@@ -284,12 +287,12 @@ test.group('RFQ — prolongation d’échéance', (group) => {
 
   test('une demande échue est rouverte par la nouvelle échéance', async ({ assert }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const deadlines = await app.container.make(RfqDeadlineService)
     const rfq = await RfqFactory.apply('expired')
       .merge({ buyerOrganizationId: org.id, deadline: DateTime.fromISO('2026-10-20') })
       .create()
 
-    await service.extendDeadline(rfq, { deadline: '2026-11-15' }, now)
+    await deadlines.extendDeadline(rfq, { deadline: '2026-11-15' }, now)
 
     await rfq.refresh()
     assert.equal(rfq.status, 'published')
@@ -301,15 +304,15 @@ test.group('RFQ — prolongation d’échéance', (group) => {
     assert,
   }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const deadlines = await app.container.make(RfqDeadlineService)
     const rfq = await publishedRfq(org.id, '2026-10-29')
     const sent = await recipientWith(rfq.id, 'sent')
     const viewed = await recipientWith(rfq.id, 'viewed')
     const declined = await recipientWith(rfq.id, 'declined')
-    await service.expireDue(now)
+    await deadlines.expireDue(now)
     await rfq.refresh()
 
-    await service.extendDeadline(rfq, { deadline: '2026-11-15' }, now)
+    await deadlines.extendDeadline(rfq, { deadline: '2026-11-15' }, now)
 
     await Promise.all([sent.refresh(), viewed.refresh(), declined.refresh()])
     assert.deepEqual(
@@ -324,14 +327,14 @@ test.group('RFQ — prolongation d’échéance', (group) => {
 
   test('la prolongation permet une nouvelle relance des silencieux', async ({ assert }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const deadlines = await app.container.make(RfqDeadlineService)
     const supplier = await OrganizationFactory.apply('supplier').create()
     const rfq = await publishedRfq(org.id, '2026-11-05')
     const recipient = await RfqSupplierFactory.apply('sent')
       .merge({ rfqId: rfq.id, supplierOrganizationId: supplier.id, remindedAt: now })
       .create()
 
-    await service.extendDeadline(rfq, { deadline: '2026-11-20' }, now)
+    await deadlines.extendDeadline(rfq, { deadline: '2026-11-20' }, now)
 
     await recipient.refresh()
     assert.isNull(recipient.remindedAt)
@@ -339,12 +342,12 @@ test.group('RFQ — prolongation d’échéance', (group) => {
 
   test('refuse une date passée, ou pas postérieure à l’échéance actuelle', async ({ assert }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const deadlines = await app.container.make(RfqDeadlineService)
     const rfq = await publishedRfq(org.id, '2026-11-10')
 
     for (const deadline of ['2026-10-01', '2026-11-10', '2026-11-02']) {
       await assert.rejects(
-        () => service.extendDeadline(rfq, { deadline }, now),
+        () => deadlines.extendDeadline(rfq, { deadline }, now),
         RfqInvalidDeadlineException
       )
     }
@@ -354,7 +357,7 @@ test.group('RFQ — prolongation d’échéance', (group) => {
 
   test('refuse un brouillon et une demande close', async ({ assert }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const deadlines = await app.container.make(RfqDeadlineService)
     const draft = await RfqFactory.merge({ buyerOrganizationId: org.id }).create()
     const closed = await publishedRfq(org.id, '2026-11-10')
     closed.merge({ status: 'closed', closedAt: now })
@@ -362,7 +365,7 @@ test.group('RFQ — prolongation d’échéance', (group) => {
 
     for (const rfq of [draft, closed]) {
       await assert.rejects(
-        () => service.extendDeadline(rfq, { deadline: '2026-12-01' }, now),
+        () => deadlines.extendDeadline(rfq, { deadline: '2026-12-01' }, now),
         RfqNotExtendableException
       )
     }
@@ -446,6 +449,84 @@ test.group('RFQ — prolongation d’échéance', (group) => {
   })
 })
 
+test.group('RfqRecipientService — bascules d’échéance et relance', (group) => {
+  useDatabase(group)
+
+  test('expireAwaiting puis restoreExpired : aller-retour, répondus et déclinés intacts', async ({
+    assert,
+  }) => {
+    const { org } = await buyer()
+    const recipients = await app.container.make(RfqRecipientService)
+    const rfq = await publishedRfq(org.id, null)
+    const rows = await Promise.all(
+      (['sent', 'viewed', 'responded', 'declined'] as const).map((status) =>
+        recipientWith(rfq.id, status)
+      )
+    )
+    const statuses = async () => {
+      await Promise.all(rows.map((row) => row.refresh()))
+      return rows.map(({ status }) => status)
+    }
+
+    await db.transaction((trx) => recipients.expireAwaiting(rfq.id, now, trx))
+    const expired = await statuses()
+    await db.transaction((trx) => recipients.restoreExpired(rfq.id, now, trx))
+
+    assert.deepEqual(expired, ['expired', 'expired', 'responded', 'declined'])
+    assert.deepEqual(await statuses(), ['sent', 'viewed', 'responded', 'declined'])
+  })
+
+  test('resetReminders ne rouvre la relance que des destinataires sans réponse', async ({
+    assert,
+  }) => {
+    const { org } = await buyer()
+    const recipients = await app.container.make(RfqRecipientService)
+    const rfq = await publishedRfq(org.id, null)
+    const silent = await recipientWith(rfq.id, 'viewed')
+    const replied = await recipientWith(rfq.id, 'sent')
+    const responded = await recipientWith(rfq.id, 'responded')
+    await supplierWrote(replied, rfq)
+    await RfqSupplier.query().where('rfqId', rfq.id).update({ remindedAt: now.toJSDate() })
+
+    await db.transaction((trx) => recipients.resetReminders(rfq.id, trx))
+
+    await Promise.all([silent.refresh(), replied.refresh(), responded.refresh()])
+    assert.isNull(silent.remindedAt)
+    assert.isNotNull(replied.remindedAt)
+    assert.isNotNull(responded.remindedAt)
+  })
+
+  test('applyViewed : sent devient viewed, un expiré ne bouge pas', async ({ assert }) => {
+    const { org } = await buyer()
+    const recipients = await app.container.make(RfqRecipientService)
+    const rfq = await publishedRfq(org.id, null)
+    const sent = await recipientWith(rfq.id, 'sent')
+    const expired = await recipientWith(rfq.id, 'expired')
+
+    await recipients.applyViewed(sent)
+    await recipients.applyViewed(expired)
+
+    await Promise.all([sent.refresh(), expired.refresh()])
+    assert.equal(sent.status, 'viewed')
+    assert.equal(expired.status, 'expired')
+  })
+
+  test('markReminded consigne la relance des seules lignes données', async ({ assert }) => {
+    const { org } = await buyer()
+    const recipients = await app.container.make(RfqRecipientService)
+    const rfq = await publishedRfq(org.id, null)
+    const reminded = await recipientWith(rfq.id, 'sent')
+    const other = await recipientWith(rfq.id, 'sent')
+
+    await recipients.markReminded([reminded], now)
+    await recipients.markReminded([], now)
+
+    await Promise.all([reminded.refresh(), other.refresh()])
+    assert.equal(reminded.remindedAt!.toMillis(), now.toMillis())
+    assert.isNull(other.remindedAt)
+  })
+})
+
 test.group('RFQ — relance des fournisseurs sans réponse', (group) => {
   useDatabase(group)
   // Adresse relais active : la relance porte le même `Reply-To` que la demande.
@@ -470,13 +551,13 @@ test.group('RFQ — relance des fournisseurs sans réponse', (group) => {
     assert,
   }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const recipients = await app.container.make(RfqRecipientService)
     const rfq = await publishedRfq(org.id, null)
     const silent = await recipientOf(rfq.id, { sentDaysAgo: 4 })
     await recipientOf(rfq.id, { sentDaysAgo: 1 })
     const opened = await recipientOf(rfq.id, { status: 'viewed', sentDaysAgo: 10 })
 
-    const due = await service.dueForReminder()
+    const due = await recipients.dueForReminder()
 
     assert.sameMembers(
       due.map((row) => row.supplierOrganizationId),
@@ -486,7 +567,7 @@ test.group('RFQ — relance des fournisseurs sans réponse', (group) => {
 
   test('ne relance ni les répondus, ni les déclinés, ni les expirés', async ({ assert }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const recipients = await app.container.make(RfqRecipientService)
     const rfq = await publishedRfq(org.id, null)
     await Promise.all(
       (['pending', 'responded', 'declined', 'expired'] as const).map((status) =>
@@ -494,18 +575,18 @@ test.group('RFQ — relance des fournisseurs sans réponse', (group) => {
       )
     )
 
-    assert.lengthOf(await service.dueForReminder(), 0)
+    assert.lengthOf(await recipients.dueForReminder(), 0)
   })
 
   test('un fournisseur qui a répondu par mail sans devis n’est pas relancé', async ({ assert }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const recipients = await app.container.make(RfqRecipientService)
     const rfq = await publishedRfq(org.id, null)
     const replied = await recipientOf(rfq.id)
     const silent = await recipientOf(rfq.id)
     await supplierWrote(replied.recipient, rfq)
 
-    const due = await service.dueForReminder()
+    const due = await recipients.dueForReminder()
 
     assert.deepEqual(
       due.map(({ id }) => id),
@@ -515,7 +596,7 @@ test.group('RFQ — relance des fournisseurs sans réponse', (group) => {
 
   test('un message de l’agence seule ne compte pas comme une réponse', async ({ assert }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const recipients = await app.container.make(RfqRecipientService)
     const rfq = await publishedRfq(org.id, null)
     const { recipient } = await recipientOf(rfq.id)
     const conversation = await ConversationFactory.merge({
@@ -528,7 +609,7 @@ test.group('RFQ — relance des fournisseurs sans réponse', (group) => {
       .merge({ conversationId: conversation.id, authorUserId: null })
       .create()
 
-    const due = await service.dueForReminder()
+    const due = await recipients.dueForReminder()
 
     assert.deepEqual(
       due.map(({ id }) => id),
@@ -540,7 +621,7 @@ test.group('RFQ — relance des fournisseurs sans réponse', (group) => {
     assert,
   }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const recipients = await app.container.make(RfqRecipientService)
     const rfq = await publishedRfq(org.id, null)
     const other = await publishedRfq(org.id, null)
     const sent = await recipientOf(rfq.id)
@@ -552,8 +633,8 @@ test.group('RFQ — relance des fournisseurs sans réponse', (group) => {
     await recipientOf(rfq.id, { status: 'expired' })
     const elsewhere = await recipientOf(other.id)
 
-    const ofRfq = await service.remindableRecipients(rfq.id)
-    const all = await service.remindableRecipients()
+    const ofRfq = await recipients.remindableRecipients(rfq.id)
+    const all = await recipients.remindableRecipients()
 
     assert.sameMembers(
       ofRfq.map(({ id }) => id),
@@ -573,7 +654,7 @@ test.group('RFQ — relance des fournisseurs sans réponse', (group) => {
     assert,
   }) => {
     const { org } = await buyer()
-    const service = await app.container.make(RfqService)
+    const recipients = await app.container.make(RfqRecipientService)
     const closed = await publishedRfq(org.id, null)
     closed.merge({ status: 'closed', closedAt: DateTime.now() })
     await closed.save()
@@ -587,7 +668,7 @@ test.group('RFQ — relance des fournisseurs sans réponse', (group) => {
       .where('rfqId', alreadyReminded.id)
       .update({ reminded_at: DateTime.now().toSQL() })
 
-    assert.lengthOf(await service.dueForReminder(), 0)
+    assert.lengthOf(await recipients.dueForReminder(), 0)
   })
 
   test('une seule relance par destinataire, dans sa langue', async ({ assert }) => {
@@ -808,15 +889,15 @@ test.group('RFQ — réponse tardive (#232)', (group) => {
   test('markLateReply : date la première réponse tardive seulement, à son heure de réception', async ({
     assert,
   }) => {
-    const service = await app.container.make(RfqService)
+    const recipients = await app.container.make(RfqRecipientService)
     const { recipient } = await expiredScenario()
     await recipient.load('rfq')
     const first = DateTime.fromISO('2026-11-01T10:00:00', { zone: PARIS })
     const second = first.plus({ days: 2 })
 
     const results = await db.transaction(async (trx) => [
-      await service.markLateReply(recipient, trx, first),
-      await service.markLateReply(recipient, trx, second),
+      await recipients.markLateReply(recipient, trx, first),
+      await recipients.markLateReply(recipient, trx, second),
     ])
 
     assert.deepEqual(results, [true, true])
@@ -825,14 +906,16 @@ test.group('RFQ — réponse tardive (#232)', (group) => {
   })
 
   test('markLateReply : ni dans les temps, ni pour une demande close', async ({ assert }) => {
-    const service = await app.container.make(RfqService)
+    const recipients = await app.container.make(RfqRecipientService)
     const { recipient, rfq } = await sentRfq()
     await recipient.load('rfq')
 
-    const onTime = await db.transaction((trx) => service.markLateReply(recipient, trx, now))
+    const onTime = await db.transaction((trx) => recipients.markLateReply(recipient, trx, now))
     await rfq.merge({ status: 'closed', closedAt: now }).save()
     await recipient.load('rfq')
-    const afterClosing = await db.transaction((trx) => service.markLateReply(recipient, trx, now))
+    const afterClosing = await db.transaction((trx) =>
+      recipients.markLateReply(recipient, trx, now)
+    )
 
     assert.isFalse(onTime)
     assert.isFalse(afterClosing)
@@ -841,7 +924,7 @@ test.group('RFQ — réponse tardive (#232)', (group) => {
   })
 
   test('markRespondedByMail : accepte un expiré, refuse une demande close', async ({ assert }) => {
-    const service = await app.container.make(RfqService)
+    const recipients = await app.container.make(RfqRecipientService)
     const expired = await expiredScenario()
     await expired.recipient.load('rfq')
     const closed = await sentRfq()
@@ -849,8 +932,8 @@ test.group('RFQ — réponse tardive (#232)', (group) => {
     await closed.recipient.load('rfq')
 
     const [fromExpired, fromClosed] = await db.transaction(async (trx) => [
-      await service.markRespondedByMail(expired.recipient, trx),
-      await service.markRespondedByMail(closed.recipient, trx),
+      await recipients.markRespondedByMail(expired.recipient, trx),
+      await recipients.markRespondedByMail(closed.recipient, trx),
     ])
 
     assert.isTrue(fromExpired)

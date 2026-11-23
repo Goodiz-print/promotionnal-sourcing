@@ -14,6 +14,7 @@ import StorageObject from '#models/storage_object'
 import InboundMailService from '#services/inbound_mail_service'
 import QuoteService from '#services/quote_service'
 import RfqService from '#services/rfq_service'
+import RfqRecipientService from '#services/rfq_recipient_service'
 import SupplierReplyService from '#services/supplier_reply_service'
 import { MESSAGE_MAX_LENGTH } from '#shared/types/conversation'
 import { deliver, sentRfq, useFakeInboundMail } from '#tests/utils/inbound_mail'
@@ -244,7 +245,11 @@ test.group('Réponse du fournisseur reçue par mail', (group) => {
     const inboundMails = await app.container.make(InboundMailService)
     app.container.swap(
       QuoteService,
-      async (resolver) => new FailingQuoteService(await resolver.make(RfqService))
+      async (resolver) =>
+        new FailingQuoteService(
+          await resolver.make(RfqService),
+          await resolver.make(RfqRecipientService)
+        )
     )
 
     await assert.rejects(() => inboundMails.process(journal.id), 'écriture du devis impossible')

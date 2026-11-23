@@ -58,7 +58,21 @@ Types et constantes de statuts dans `shared/types/rfq.ts` (`RFQ_STATUSES`,
 `UpdateRfqData`, `RfqItemData`) — les migrations en dérivent leurs `enum`, comme
 `DELIVERY_SCOPES` pour les profils fournisseurs.
 
-## Cycle de vie (`RfqService`)
+## Cycle de vie
+
+Trois services se partagent le cycle (découpage #232) :
+
+| Service               | Fichier                                 | Rôle                                                                                         |
+| --------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `RfqService`          | `app/services/rfq_service.ts`           | rédaction, lecture (agence et fournisseur), destinataires, `publish`, `send`, `close`        |
+| `RfqDeadlineService`  | `app/services/rfq_deadline_service.ts`  | échéance : `expire`, `expireDue` (job), `extendDeadline` (réouverture)                       |
+| `RfqRecipientService` | `app/services/rfq_recipient_service.ts` | avancement de chaque destinataire (lu, répondu, décliné, expiré, réponse tardive) et relance |
+
+Les règles pures liées à l'échéance — `acceptsResponses`, `isLateReply`,
+`startOfDeadlineDay`, `parseRfqDeadline` — vivent dans
+`shared/helpers/rfq_deadline.ts` : controllers et services les appellent sans
+dépendre d'un service, et les trois services n'ont pas de dépendance circulaire
+(`RfqDeadlineService` → `RfqRecipientService` ← `RfqService`).
 
 ```
 draft ──publish──▶ published ──close──▶ closed
@@ -76,7 +90,7 @@ exactement les lignes basculées (relation `supplierOrganization` préchargée) 
 c'est cette liste que `RfqNotificationService` utilise pour envoyer les mails,
 sans risque de doublon.
 
-Règles appliquées par le service :
+Règles appliquées par ces services :
 
 | Méthode                    | Autorisée si                                                 | Exception sinon                                            |
 | -------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------- |
@@ -95,7 +109,7 @@ Autres invariants :
 
 - **Un brouillon seul est modifiable.** Une demande partie chez un fournisseur
   ne se réécrit pas silencieusement : les devis reçus porteraient sur un besoin
-  qui n'existe plus. **Une seule exception : l'échéance** (`extendDeadline`, voir
+  qui n'existe plus. **Une seule exception : l'échéance** (`RfqDeadlineService#extendDeadline`, voir
   ci-dessous) — elle ne change pas le besoin, seulement le temps laissé pour y répondre.
 - **On ne retire pas un destinataire déjà notifié** — cela effacerait la trace
   de l'envoi. L'acheteur clôture la demande à la place.
@@ -359,11 +373,12 @@ pas pour le fournisseur, et une demande adressée à une autre organisation est 
 
 ### Accusé de lecture
 
-`openForSupplier()` = chargement **et** `sent` → `viewed`, en une passe :
+`RfqService#openForSupplier()` = chargement **et** `sent` → `viewed`
+(`RfqRecipientService#applyViewed`), en une passe :
 ouvrir l'écran suffit, le fournisseur n'a rien à cliquer et l'acheteur voit
 l'avancement. La ligne préchargée est basculée sur place, pour que l'écran
 affiche déjà le nouveau statut plutôt que celui d'avant l'ouverture. Rien ne
-régresse : une demande `responded`/`declined` reste dans son état.
+régresse : une demande `responded`/`declined`/`expired` reste dans son état.
 
 ### Notification par mail
 
@@ -618,7 +633,8 @@ Migration `…038_add_expiration_to_rfq_suppliers` : contrainte CHECK de
 **Quand une demande est-elle échue ?** L'échéance est une _date_ saisie par
 l'acheteur : « 30 octobre » laisse toute la journée du 30 aux fournisseurs, la
 demande est échue le **31 à 00:00, heure de Paris** (`RFQ_DEADLINE_TIMEZONE`).
-`RfqService#expireDue` compare l'échéance à minuit (Paris) du jour courant. Un
+`RfqDeadlineService#expireDue` compare l'échéance à minuit (Paris) du jour courant
+(`startOfDeadlineDay`). Un
 brouillon, une demande close ou sans échéance n'expirent jamais.
 
 `ExpireRfqsJob` (`app/jobs/expire_rfqs_job.ts`) appelle `expireDue` tous les jours
@@ -637,7 +653,7 @@ publiées.
 ### Prolonger l'échéance
 
 `PATCH /:locale/rfqs/:id/deadline` (`rfqs.deadline.update`, `canManageRfq`) →
-`RfqService#extendDeadline`. Corps : `{ deadline: 'AAAA-MM-JJ' }`. Seule
+`RfqDeadlineService#extendDeadline`. Corps : `{ deadline: 'AAAA-MM-JJ' }`. Seule
 `deadline` change — jamais le besoin : c'est l'exception à « seul un brouillon est
 modifiable », assumée parce qu'elle ne fausse aucun devis. Règles :
 
@@ -659,7 +675,7 @@ Un refus revient en message flash, comme les autres transitions.
 ### Relance des fournisseurs sans réponse
 
 `RemindRfqSuppliersJob` (tous les jours à **09:00, Europe/Paris**) relance les
-destinataires que renvoie `RfqService#remindableRecipients` (#232) — le même
+destinataires que renvoie `RfqRecipientService#remindableRecipients` (#232) — le même
 prédicat sert à la relance manuelle de la plateforme et à son compteur — et qui :
 
 - ont reçu la demande et **n'ont pas répondu** : statut `sent` ou `viewed`, et
@@ -674,7 +690,7 @@ prédicat sert à la relance manuelle de la plateforme et à son compteur — et
 - sur une demande encore ouverte : publiée et dont l'échéance n'est pas passée.
 
 **Une seule relance** : `reminded_at` est posé après la mise en queue du mail
-(`RfqService#markReminded`, une seule requête pour le lot). Il n'est consigné que si
+(`RfqRecipientService#markReminded`, une seule requête pour le lot). Il n'est consigné que si
 **toutes** ses adresses sont parties en queue ; sinon il est reconsidéré le
 lendemain (les adresses déjà parties ne sont pas redoublées). Au déploiement, les
 destinataires déjà silencieux depuis plus de 3 jours sur une demande ouverte sont
@@ -699,7 +715,7 @@ demande a expiré entre-temps. Règle pure `isLateReply`
 au jour de réception ; sans échéance, seulement si la demande a été expirée à la
 main. Une demande close n'attend plus rien : ce qui arrive après n'est pas tardif.
 
-- `RfqService#markLateReply` date la **première** réponse tardive
+- `RfqRecipientService#markLateReply` date la **première** réponse tardive
   (`rfq_suppliers.late_reply_at`, à son heure de réception) ;
 - avec un devis PDF, `markRespondedByMail` fait passer le destinataire
   `responded`, y compris depuis `expired` (refusé pour une demande close) ;

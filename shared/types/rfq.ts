@@ -85,7 +85,7 @@ export const MAIL_REPLYABLE_RFQ_SUPPLIER_STATUSES = [
 
 /**
  * Statuts terminaux côté fournisseur : ni un renvoi ni une consultation ne
- * doivent les faire régresser (cf. `RfqService#markViewed`).
+ * doivent les faire régresser (cf. `RfqRecipientService#markViewed`).
  */
 export const TERMINAL_RFQ_SUPPLIER_STATUSES: readonly RfqSupplierStatus[] = [
   'responded',
@@ -176,7 +176,7 @@ export interface CreateRfqData {
 }
 
 /**
- * Prolongation d'échéance (`RfqService#extendDeadline`) : seule `deadline`
+ * Prolongation d'échéance (`RfqDeadlineService#extendDeadline`) : seule `deadline`
  * change, jamais le besoin — exception assumée à « seul un brouillon est
  * modifiable », cf. `docs/rfq.md`.
  */

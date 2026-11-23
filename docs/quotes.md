@@ -33,11 +33,11 @@ draft ──submit──▶ submitted ──accept──▶ accepted
 
 - **Créer / modifier** (`createDraft`, `updateDraft`) : le fournisseur doit être
   destinataire notifié (pas `pending`), ne pas avoir décliné, et la demande doit
-  attendre encore des réponses (`RfqService#acceptsResponses` : publiée et
+  attendre encore des réponses (`acceptsResponses`, `shared/helpers/rfq_deadline.ts` : publiée et
   échéance non passée). Les lignes sont validées contre la demande (item connu,
   une seule fois). `valid_until`, si renseignée, ne peut pas être passée.
 - **Remettre** (`submit`) : exige au moins une ligne et une validité non dépassée.
-  Le destinataire passe `responded` (`RfqService#markResponded`), le devis
+  Le destinataire passe `responded` (`RfqRecipientService#markResponded`), le devis
   `submitted` et devient **figé**. Émet `QuoteSubmitted`.
 - **Accepter** (`accept`) : en une transaction, le devis passe `accepted`, la
   demande est clôturée (`closed`) et tous les autres devis **remis** passent
@@ -134,7 +134,7 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
    `QuoteService#recordDocuments`), avec, pour un fournisseur non abonné, sa
    **version destinataire** au nom de l'agence (#238, ci-dessous) ;
 4. s'il y a au moins un PDF, le destinataire passe `responded`
-   (`RfqService#markRespondedByMail`).
+   (`RfqRecipientService#markRespondedByMail`).
 
 | Table             | Colonnes notables                                                                                                                                  |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |

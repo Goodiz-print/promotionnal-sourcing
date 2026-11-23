@@ -33,6 +33,15 @@ fournisseurs qui répondent par mail, ou qui n'ont pas de compte.
 - **Migration** `1794000000038_add_expiration_to_rfq_suppliers` : contrainte CHECK
   élargie à `expired`, colonnes `expired_from` et `late_reply_at` ; le `down()` rend
   aux destinataires expirés leur statut d'avant.
+- **Découpage de `RfqService`** (833 lignes) : l'échéance passe dans
+  `RfqDeadlineService` (`expire`, `expireDue`, `extendDeadline`), l'avancement des
+  destinataires et la relance dans `RfqRecipientService` (`markViewed`,
+  `markResponded`, `decline`, `markRespondedByMail`, `markLateReply`,
+  `dueForReminder`, `remindableRecipients`, `markReminded`…). Les règles pures
+  `acceptsResponses`, `startOfDeadlineDay` et `parseRfqDeadline` rejoignent
+  `isLateReply` dans `shared/helpers/rfq_deadline.ts`. Aucun changement de
+  comportement ; jobs, controllers et services appelants injectent le service
+  concerné.
 - **Indicateurs** : les destinataires expirés comptent parmi les demandes envoyées
   du tableau de bord admin.
 

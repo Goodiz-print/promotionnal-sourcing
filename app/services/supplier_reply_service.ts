@@ -10,7 +10,7 @@ import RfqSupplier from '#models/rfq_supplier'
 import ConversationService from '#services/conversation_service'
 import PdfService from '#services/pdf_service'
 import QuoteService from '#services/quote_service'
-import RfqService from '#services/rfq_service'
+import RfqRecipientService from '#services/rfq_recipient_service'
 import StorageService from '#services/storage/storage_service'
 import SubscriptionService from '#services/subscription_service'
 import { inboundMailBody } from '#shared/helpers/inbound_mail'
@@ -53,7 +53,7 @@ export default class SupplierReplyService {
     private pdf: PdfService,
     private conversations: ConversationService,
     private quotes: QuoteService,
-    private rfqs: RfqService,
+    private recipients: RfqRecipientService,
     private subscriptions: SubscriptionService
   ) {}
 
@@ -122,9 +122,9 @@ export default class SupplierReplyService {
         // Après l'échéance, la réponse est enregistrée quand même, marquée
         // tardive (#232) — d'après l'heure de réception du mail, pas celle de
         // son traitement. Sans PDF, c'est un simple message : le statut ne bouge pas.
-        const late = await this.rfqs.markLateReply(recipient, trx, mail.receivedAt)
+        const late = await this.recipients.markLateReply(recipient, trx, mail.receivedAt)
         const responded =
-          documents.length > 0 && (await this.rfqs.markRespondedByMail(recipient, trx))
+          documents.length > 0 && (await this.recipients.markRespondedByMail(recipient, trx))
 
         return {
           reply: {

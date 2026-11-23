@@ -4,8 +4,9 @@ import logger from '@adonisjs/core/services/logger'
 import app from '@adonisjs/core/services/app'
 
 /**
- * Relance planifiée des fournisseurs silencieux (cf. `start/scheduler.ts`) : ceux
- * qui n'ont pas ouvert une demande reçue depuis `RFQ_REMINDER_AFTER_DAYS` jours
+ * Relance planifiée des fournisseurs sans réponse (cf. `start/scheduler.ts`) : ceux
+ * qui n'ont pas répondu à une demande reçue depuis `RFQ_REMINDER_AFTER_DAYS` jours
+ * (`RfqRecipientService#dueForReminder`, #232)
  * reçoivent **une** relance, consignée dans `rfq_suppliers.reminded_at`.
  *
  * Même exception aux « imports en haut du fichier » que `ExpireRfqsJob` : les
@@ -18,9 +19,9 @@ export default class RemindRfqSuppliersJob extends Job {
   }
 
   async execute() {
-    const { default: RfqService } = await import('#services/rfq_service')
+    const { default: RfqRecipientService } = await import('#services/rfq_recipient_service')
     const { default: RfqNotificationService } = await import('#services/rfq_notification_service')
-    const rfqs = await app.container.make(RfqService)
+    const rfqs = await app.container.make(RfqRecipientService)
     const notifications = await app.container.make(RfqNotificationService)
 
     const reminded = await notifications.remind(await rfqs.dueForReminder())
