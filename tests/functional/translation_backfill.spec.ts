@@ -2,12 +2,15 @@ import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import Product from '#models/product'
 import Supplier from '#models/supplier'
+import app from '@adonisjs/core/services/app'
+import TranslationBackfillJob from '#jobs/translation_backfill_job'
+import { emptyBackfillCounts } from '#shared/helpers/translation_backfill'
 import { UserFactory } from '#database/factories/user_factory'
 import ModerationService from '#services/moderation_service'
 import TranslationBackfillService from '#services/translation_backfill_service'
 import type TranslationQueueService from '#services/translation_queue_service'
 import { useDatabase } from '#tests/utils/setup'
-import type { TranslatableEntity } from '#shared/types/ai'
+import type { TranslatableEntity, TranslationBackfillOptions } from '#shared/types/ai'
 
 interface QueuedCall {
   entity: TranslatableEntity
@@ -35,6 +38,13 @@ async function count(table: string): Promise<number> {
   return Number(row.total)
 }
 
+/** Exécute le job comme le worker : hydratation du payload, puis `execute()`. */
+async function runJob(payload: { entities: TranslatableEntity[]; supplierId?: number }) {
+  const job = new TranslationBackfillJob()
+  job.$hydrate(payload, {} as never)
+  await job.execute()
+}
+
 /** Produits actifs et visibles : mêmes règles que le rattrapage. */
 async function visibleProductIds(): Promise<number[]> {
   const products = await Product.query()
@@ -50,6 +60,11 @@ async function visibleProductIds(): Promise<number[]> {
 
 test.group('Rattrapage des traductions (#97)', (group) => {
   useDatabase(group, { seed: 'full' })
+
+  const batchSize = TranslationBackfillService.batchSize
+  group.each.teardown(() => {
+    TranslationBackfillService.batchSize = batchSize
+  })
 
   test('met en file les produits visibles, catégories, attributs et valeurs', async ({
     assert,
@@ -176,5 +191,132 @@ test.group('Rattrapage des traductions (#97)', (group) => {
     assert.isTrue(report.failed)
     assert.equal(report.queued.category, 1)
     assert.lengthOf(calls, 2)
+  })
+
+  test('traverse plusieurs lots sans doublon ni oubli, par identifiant croissant', async ({
+    assert,
+  }) => {
+    TranslationBackfillService.batchSize = 2
+    const { calls, queue } = fakeQueue()
+
+    const report = await new TranslationBackfillService(queue).backfill({
+      entities: ['product', 'category'],
+    })
+
+    const products = calls.filter((c) => c.entity === 'product').map((c) => c.entityId)
+    const categories = calls.filter((c) => c.entity === 'category').map((c) => c.entityId)
+    const categoryIds = await db.from('categories').orderBy('id').select('id')
+    assert.isAbove(products.length, 2)
+    assert.deepEqual(products, await visibleProductIds())
+    assert.deepEqual(
+      categories,
+      categoryIds.map((row: { id: number }) => row.id)
+    )
+    assert.deepEqual(report.queued.product, products.length)
+    assert.deepEqual(report.queued.category, categories.length)
+    assert.isFalse(report.failed)
+  })
+
+  test('une limite à cheval sur plusieurs lots retient les premiers identifiants', async ({
+    assert,
+  }) => {
+    TranslationBackfillService.batchSize = 2
+    const { calls, queue } = fakeQueue()
+
+    const report = await new TranslationBackfillService(queue).backfill({
+      entities: ['product'],
+      limit: 3,
+    })
+
+    const visible = await visibleProductIds()
+    assert.deepEqual(
+      calls.map((c) => c.entityId),
+      visible.slice(0, 3)
+    )
+    assert.equal(report.queued.product, 3)
+  })
+
+  test('un refus au milieu du deuxième lot arrête tout, les mises en file réussies comptées', async ({
+    assert,
+  }) => {
+    TranslationBackfillService.batchSize = 2
+    const { calls, queue } = fakeQueue(3)
+
+    const report = await new TranslationBackfillService(queue).backfill({
+      entities: ['product', 'category'],
+    })
+
+    assert.isTrue(report.failed)
+    assert.equal(report.queued.product, 3)
+    assert.equal(report.queued.category, 0)
+    assert.lengthOf(calls, 4)
+    assert.isTrue(calls.every((c) => c.entity === 'product'))
+  })
+
+  test('un refus sur le deuxième type garde le compte du premier', async ({ assert }) => {
+    const visible = await visibleProductIds()
+    const products = visible.length
+    const { calls, queue } = fakeQueue(products)
+
+    const report = await new TranslationBackfillService(queue).backfill({
+      entities: ['product', 'category', 'attribute'],
+    })
+
+    assert.isTrue(report.failed)
+    assert.equal(report.queued.product, products)
+    assert.equal(report.queued.category, 0)
+    assert.equal(report.queued.attribute, 0)
+    assert.equal(calls.at(-1)?.entity, 'category')
+  })
+
+  test('aucun type demandé ou une limite à zéro : rien en file', async ({ assert }) => {
+    const { calls, queue } = fakeQueue()
+    const service = new TranslationBackfillService(queue)
+
+    const none = await service.backfill({ entities: [] })
+    const zero = await service.backfill({ entities: ['category'], limit: 0 })
+
+    assert.lengthOf(calls, 0)
+    assert.isFalse(none.failed)
+    assert.isFalse(zero.failed)
+    assert.equal(zero.queued.category, 0)
+  })
+
+  test('supplierId ne restreint que les produits, pas les autres types', async ({ assert }) => {
+    const supplier = await Supplier.findByOrFail('slug', 'nordic-promo')
+    const { queue } = fakeQueue()
+
+    const report = await new TranslationBackfillService(queue).backfill({
+      entities: ['category'],
+      supplierId: supplier.id,
+    })
+
+    assert.equal(report.queued.category, await count('categories'))
+  })
+
+  test('le job transmet supplierId seulement quand il est fourni', async ({ assert }) => {
+    const received: TranslationBackfillOptions[] = []
+    app.container.swap(
+      TranslationBackfillService,
+      () =>
+        ({
+          backfill: async (options: TranslationBackfillOptions) => {
+            received.push(options)
+            return { queued: emptyBackfillCounts(), failed: false }
+          },
+        }) as unknown as TranslationBackfillService
+    )
+
+    try {
+      await runJob({ entities: ['product'], supplierId: 7 })
+      await runJob({ entities: ['category'] })
+    } finally {
+      app.container.restore(TranslationBackfillService)
+    }
+
+    assert.deepEqual(received, [
+      { entities: ['product'], supplierId: 7 },
+      { entities: ['category'] },
+    ])
   })
 })

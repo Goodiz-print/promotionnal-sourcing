@@ -3,20 +3,20 @@ import db from '@adonisjs/lucid/services/db'
 import Product from '#models/product'
 import TranslationQueueService from '#services/translation_queue_service'
 import {
-  TRANSLATABLE_ENTITIES,
-  type TranslatableEntity,
-  type TranslationBackfillBatch,
-  type TranslationBackfillOptions,
-  type TranslationBackfillReport,
+  emptyBackfillCounts,
+  nextBackfillBatchSize,
+  selectBackfillEntities,
+} from '#shared/helpers/translation_backfill'
+import type {
+  TranslatableEntity,
+  TranslationBackfillBatch,
+  TranslationBackfillEntityResult,
+  TranslationBackfillOptions,
+  TranslationBackfillProgress,
+  TranslationBackfillReport,
+  TranslationBackfillRow,
 } from '#shared/types/ai'
 import type { TranslationLocale } from '#shared/types/i18n'
-
-const BATCH_SIZE = 500
-
-interface SourceRow {
-  id: number
-  sourceLocale: string
-}
 
 /** Tables des entités traduisibles autres que les produits (aucune règle de visibilité). */
 const TABLES: Record<Exclude<TranslatableEntity, 'product'>, string> = {
@@ -38,69 +38,82 @@ const TABLES: Record<Exclude<TranslatableEntity, 'product'>, string> = {
  * Seuls les produits **visibles** sont traités (actifs, fiche rattachée à une
  * organisation ni archivée ni rejetée, non rejetés par la modération) : pas de
  * tokens dépensés sur du contenu jamais affiché. Une fiche qui vient d'être
- * rattachée est donc rattrapée à ce moment-là (`supplierId`, #240). Le rattrapage s'arrête au premier job que la file
- * refuse (file indisponible) : rien n'est compté à tort.
+ * rattachée est donc rattrapée à ce moment-là (`supplierId`, #240).
+ *
+ * Les mises en file sont **séquentielles** : le rattrapage s'arrête au premier
+ * job que la file refuse (file indisponible), sans le compter ni aller plus
+ * loin. D'où des parcours récursifs (types, lots, lignes) plutôt que des
+ * `Promise.all`.
  */
 @inject()
 export default class TranslationBackfillService {
+  /** Taille d'un lot lu en base ; modifiable par les tests pour traverser plusieurs lots. */
+  static batchSize = 500
+
   constructor(private queue: TranslationQueueService) {}
 
   async backfill(options: TranslationBackfillOptions = {}): Promise<TranslationBackfillReport> {
-    const report: TranslationBackfillReport = {
-      queued: {
-        product: 0,
-        category: 0,
-        attribute: 0,
-        attribute_value: 0,
-        certification: 0,
-        marking_technique: 0,
-      },
-      failed: false,
-    }
-    const entities = options.entities ?? TRANSLATABLE_ENTITIES
-
-    for (const entity of TRANSLATABLE_ENTITIES.filter((e) => entities.includes(e))) {
-      const { queued, failed } = await this.backfillEntity(entity, options)
-      report.queued[entity] = queued
-      if (failed) {
-        report.failed = true
-        break
-      }
-    }
-    return report
+    const entities = selectBackfillEntities(options.entities)
+    const report: TranslationBackfillReport = { queued: emptyBackfillCounts(), failed: false }
+    return this.backfillEntities(entities, options, report)
   }
 
-  /** Parcourt les entités par lots d'identifiants croissants, jusqu'à `limit` mises en file. */
+  /** Rattrape les types un par un ; un refus de la file arrête tout. */
+  private async backfillEntities(
+    entities: TranslatableEntity[],
+    options: TranslationBackfillOptions,
+    report: TranslationBackfillReport
+  ): Promise<TranslationBackfillReport> {
+    const [entity, ...rest] = entities
+    if (!entity) return report
+
+    const { queued, failed } = await this.backfillEntity(entity, options, {
+      queued: 0,
+      afterId: 0,
+    })
+    const next = { queued: { ...report.queued, [entity]: queued }, failed }
+    return failed ? next : this.backfillEntities(rest, options, next)
+  }
+
+  /** Parcourt un type par lots d'identifiants croissants, jusqu'à `limit` mises en file. */
   private async backfillEntity(
     entity: TranslatableEntity,
-    { limit, supplierId }: TranslationBackfillOptions
-  ): Promise<{ queued: number; failed: boolean }> {
-    let queued = 0
-    let lastId = 0
+    { limit, supplierId }: TranslationBackfillOptions,
+    { queued, afterId }: TranslationBackfillProgress
+  ): Promise<TranslationBackfillEntityResult> {
+    const size = nextBackfillBatchSize(TranslationBackfillService.batchSize, queued, limit)
+    if (size === 0) return { queued, failed: false }
+    const rows = await this.nextBatch(entity, { afterId, size, supplierId })
+    if (rows.length === 0) return { queued, failed: false }
 
-    while (limit === undefined || queued < limit) {
-      const size = limit === undefined ? BATCH_SIZE : Math.min(BATCH_SIZE, limit - queued)
-      const rows = await this.nextBatch(entity, { afterId: lastId, size, supplierId })
-      if (rows.length === 0) break
+    const dispatched = await this.queueRows(entity, rows, 0)
+    const total = queued + dispatched
+    if (dispatched < rows.length) return { queued: total, failed: true }
+    return this.backfillEntity(
+      entity,
+      { limit, supplierId },
+      { queued: total, afterId: rows[rows.length - 1].id }
+    )
+  }
 
-      for (const row of rows) {
-        const dispatched = await this.queue.queue(
-          entity,
-          row.id,
-          row.sourceLocale as TranslationLocale
-        )
-        if (!dispatched) return { queued, failed: true }
-        queued++
-      }
-      lastId = rows[rows.length - 1].id
-    }
-    return { queued, failed: false }
+  /** Met en file les lignes à partir de `index` ; renvoie le nombre de mises en file réussies. */
+  private async queueRows(
+    entity: TranslatableEntity,
+    rows: TranslationBackfillRow[],
+    index: number
+  ): Promise<number> {
+    const row = rows[index]
+    if (!row) return 0
+    const sourceLocale = row.sourceLocale as TranslationLocale
+    const dispatched = await this.queue.queue(entity, row.id, sourceLocale)
+    if (!dispatched) return 0
+    return 1 + (await this.queueRows(entity, rows, index + 1))
   }
 
   private async nextBatch(
     entity: TranslatableEntity,
     { afterId, size, supplierId }: TranslationBackfillBatch
-  ): Promise<SourceRow[]> {
+  ): Promise<TranslationBackfillRow[]> {
     if (entity === 'product') return this.nextProducts({ afterId, size, supplierId })
 
     const rows: { id: number; source_locale: string }[] = await db
@@ -117,7 +130,7 @@ export default class TranslationBackfillService {
     afterId,
     size,
     supplierId,
-  }: TranslationBackfillBatch): Promise<SourceRow[]> {
+  }: TranslationBackfillBatch): Promise<TranslationBackfillRow[]> {
     const products = await Product.query()
       .select('id', 'sourceLocale')
       .where('isActive', true)

@@ -49,26 +49,33 @@ const SUPPLIERS: SupplierSeed[] = [
 ]
 
 export default class SupplierSeeder extends BaseSeeder {
+  /** Fiches indépendantes les unes des autres : écrites en parallèle. */
   async run() {
-    for (const seed of SUPPLIERS) {
-      const organization = await this.organizationFor(seed)
-      const supplier = await Supplier.updateOrCreate(
-        { slug: seed.slug },
-        {
-          country: seed.country,
-          website: seed.website,
-          isActive: true,
-          organizationId: organization.id,
-        }
-      )
+    await Promise.all(SUPPLIERS.map((seed) => this.seedSupplier(seed)))
+  }
 
-      for (const locale of Object.keys(seed.translations) as SeedLocale[]) {
-        await SupplierTranslation.updateOrCreate(
+  /** Une fiche, rattachée à son organisation, et ses traductions. */
+  private async seedSupplier(seed: SupplierSeed): Promise<void> {
+    const organization = await this.organizationFor(seed)
+    const supplier = await Supplier.updateOrCreate(
+      { slug: seed.slug },
+      {
+        country: seed.country,
+        website: seed.website,
+        isActive: true,
+        organizationId: organization.id,
+      }
+    )
+
+    const locales = Object.keys(seed.translations) as SeedLocale[]
+    await Promise.all(
+      locales.map((locale) =>
+        SupplierTranslation.updateOrCreate(
           { supplierId: supplier.id, locale },
           seed.translations[locale]
         )
-      }
-    }
+      )
+    )
   }
 
   /**

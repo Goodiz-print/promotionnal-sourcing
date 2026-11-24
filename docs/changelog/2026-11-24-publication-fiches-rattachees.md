@@ -31,6 +31,9 @@ organisation** ni archivée ni rejetée par la modération. Remplace #218.
   (`TranslationQueueService#queueSupplier` → `TranslationBackfillJob` avec
   `supplierId`, nouvelle option `TranslationBackfillOptions.supplierId`), après
   le commit. Un échec de la file est loggué sans faire échouer le rattachement.
+  `TranslationBackfillService` est réécrit sans boucle (parcours récursifs :
+  les mises en file restent séquentielles pour s'arrêter au premier refus de la
+  file) ; calculs purs dans `shared/helpers/translation_backfill.ts`.
 - **Panier de devis** : le groupe « Fournisseurs non joignables » disparaît.
   Seules les lignes dont le produit est publié sont listées, comptées dans la
   pastille et validées ; chaque groupe a une organisation destinataire
@@ -55,7 +58,9 @@ organisation** ni archivée ni rejetée par la modération. Remplace #218.
   `removeUnlinkedProducts`, commande, compteur, traduction au rattachement),
   `quote_cart.spec.ts` (ligne masquée puis rétablie, fiche détachée pendant la
   validation), `admin_supplier_links.spec.ts`, `translation_backfill.spec.ts`
-  (`supplierId`), `organization_lifecycle.spec.ts` (annuaire),
+  (`supplierId`, plusieurs lots, limite à cheval sur deux lots, refus en
+  cours de lot ou sur le deuxième type, demande vide, payload du job),
+  `tests/unit/translation_backfill.spec.ts`, `organization_lifecycle.spec.ts` (annuaire),
   `tests/inertia/admin_supplier_links.spec.ts` et `quote_cart.spec.ts`.
 - Docs : `docs/search.md` (« Fiches non rattachées »), `docs/quote-cart.md`,
   `docs/comptes-fournisseurs-agences.md`, `docs/organisations.md`.

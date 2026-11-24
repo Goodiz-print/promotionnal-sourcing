@@ -118,6 +118,24 @@ export interface TranslationBackfillBatch {
   supplierId?: number
 }
 
+/** Une entité à traduire : identifiant et langue source. */
+export interface TranslationBackfillRow {
+  id: number
+  sourceLocale: string
+}
+
+/** Avancement du rattrapage d'un type : mises en file réussies, dernier identifiant traité. */
+export interface TranslationBackfillProgress {
+  queued: number
+  afterId: number
+}
+
+/** Résultat du rattrapage d'un type : mises en file réussies, et arrêt sur refus de la file. */
+export interface TranslationBackfillEntityResult {
+  queued: number
+  failed: boolean
+}
+
 /**
  * Résultat du rattrapage : entités réellement mises en file, par type, et
  * `failed` si la file a refusé un job (le rattrapage s'arrête alors, il est
