@@ -16,6 +16,7 @@ import { Bouncer } from '@adonisjs/bouncer'
 import { DateTime } from 'luxon'
 import inboundMailConfig from '#config/inbound_mail'
 import { isRfqThreadOpen } from '#shared/helpers/conversation'
+import { acceptsQuoteUpload } from '#shared/helpers/supplier_rfq'
 import type User from '#models/user'
 import type Organization from '#models/organization'
 import type QuoteDocument from '#models/quote_document'
@@ -297,8 +298,9 @@ export const canRespondToRfq = Bouncer.ability(async (user: User, org: Organizat
  *
  * **HTTP requests only.** The cache lives as long as the `User` instance: a
  * job, a command or a realtime channel that keeps a user around would read a
- * stale membership. Only `canMessageRfqSupplier` / `canMessageRfqBuyer` use it,
- * and they are only checked from HTTP controllers; do not reuse it elsewhere.
+ * stale membership. Only `canMessageRfqSupplier` / `canMessageRfqBuyer` /
+ * `canUploadRfqQuoteDocument` use it, and they are only checked from HTTP
+ * controllers; do not reuse it elsewhere.
  *
  * Stays here rather than in `shared/helpers/`: it is not a pure function but a
  * memoised database read, private to the abilities below (tested through them,
@@ -355,4 +357,40 @@ export const canMessageRfqBuyer = Bouncer.ability(
     const membership = await cachedMembership(user, recipient.supplierOrganizationId)
     return membership ? RFQ_RESPONDER_ROLES.includes(membership.role.slug as RoleSlug) : false
   }
+)
+
+/**
+ * Membres d'une organisation fournisseuse qui répondent aux demandes reçues
+ * (`RFQ_RESPONDER_ROLES`, comme `canRespondToRfq`).
+ */
+async function isRfqResponder(user: User, supplierOrganizationId: number): Promise<boolean> {
+  const membership = await cachedMembership(user, supplierOrganizationId)
+  return membership ? RFQ_RESPONDER_ROLES.includes(membership.role.slug as RoleSlug) : false
+}
+
+/**
+ * Ability to check if a user can upload a quote PDF from a received RFQ (#230),
+ * as an alternative to replying by email: the members who can answer it
+ * (`RFQ_RESPONDER_ROLES`) of the recipient organization, while the thread
+ * accepts replies (`isRfqThreadOpen`, the same window as a reply by email),
+ * unless the supplier declined the request. Expects `rfq` loaded.
+ */
+export const canUploadRfqQuoteDocument = Bouncer.ability(
+  async (user: User, rfq: Rfq, recipient: RfqSupplier) => {
+    if (!acceptsQuoteUpload(recipient.status)) return false
+    if (!isOpenThread(rfq, recipient)) return false
+    return isRfqResponder(user, recipient.supplierOrganizationId)
+  }
+)
+
+/**
+ * Ability to check if a user can download a quote PDF **their organization
+ * sent** (#230): the members who answer the RFQs (`RFQ_RESPONDER_ROLES`) of the
+ * recipient organization. They get the original file only, never the copy
+ * stamped for the agency (#238). Expects `document.rfqSupplier` preloaded
+ * (`QuoteService#findDocumentForSupplier`).
+ */
+export const canDownloadSentQuoteDocument = Bouncer.ability(
+  async (user: User, document: QuoteDocument) =>
+    isRfqResponder(user, document.rfqSupplier.supplierOrganizationId)
 )

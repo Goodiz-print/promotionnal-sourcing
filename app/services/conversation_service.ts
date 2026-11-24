@@ -23,7 +23,9 @@ import {
 import {
   MESSAGE_MAX_LENGTH,
   type InboundMessageInput,
+  type MessageAttachmentInput,
   type PostedMessageInput,
+  type UploadedMessageInput,
 } from '#shared/types/conversation'
 
 /** Longueur de `conversations.subject`. */
@@ -166,18 +168,33 @@ export default class ConversationService {
       },
       { client: trx }
     )
-    const attachments = await MessageAttachment.createMany(
-      input.attachments.map(({ storageObjectId, filename, mimeType, sizeBytes }) => ({
-        messageId: message.id,
-        storageObjectId,
-        filename,
-        mimeType,
-        sizeBytes,
-      })),
+    return this.attach(message, input.attachments, trx)
+  }
+
+  /**
+   * Écrit le message d'un participant qui joint des fichiers depuis
+   * l'application — le devis PDF qu'un fournisseur dépose depuis une demande
+   * reçue (#230). Fichiers déjà sur Cellar, écriture dans la transaction de
+   * l'appelant. Contrairement à `recordInbound`, c'est l'écriture d'un
+   * participant : un fil bloqué par la plateforme (#167) la refuse. Renvoie le
+   * message, `attachments` chargées.
+   */
+  async recordUploaded(
+    conversation: Conversation,
+    input: UploadedMessageInput,
+    trx: TransactionClientContract
+  ): Promise<Message> {
+    if (conversation.blockedAt) throw new ConversationBlockedException()
+    const message = await Message.create(
+      {
+        conversationId: conversation.id,
+        authorUserId: input.authorUserId,
+        body: input.body,
+        senderSide: input.senderSide,
+      },
       { client: trx }
     )
-    message.$setRelated('attachments', attachments)
-    return message
+    return this.attach(message, input.attachments, trx)
   }
 
   /** Message déjà né de ce mail, s'il existe (garde d'idempotence). */
@@ -287,6 +304,26 @@ export default class ConversationService {
       .whereIn('organizationId', organizationIds)
       .first()
     if (!membership) throw new ConversationAccessDeniedException()
+  }
+
+  /** Rattache au message ses pièces jointes (fichiers déjà sur Cellar) et les charge. */
+  private async attach(
+    message: Message,
+    inputs: MessageAttachmentInput[],
+    trx: TransactionClientContract
+  ): Promise<Message> {
+    const attachments = await MessageAttachment.createMany(
+      inputs.map(({ storageObjectId, filename, mimeType, sizeBytes }) => ({
+        messageId: message.id,
+        storageObjectId,
+        filename,
+        mimeType,
+        sizeBytes,
+      })),
+      { client: trx }
+    )
+    message.$setRelated('attachments', attachments)
+    return message
   }
 
   private normalizeBody(raw: string): string {

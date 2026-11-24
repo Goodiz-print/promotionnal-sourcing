@@ -3,22 +3,32 @@ import { Head } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { EyeOff, Inbox } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { formatShortDate } from '#shared/helpers/date'
 import BaseAvatar from '~/components/base/base_avatar.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseTable from '~/components/base/base_table.vue'
 import SubscriptionUpsell from '~/components/subscription/subscription_upsell.vue'
-import RfqRecipientStatusBadges from '~/components/rfqs/rfq_recipient_status_badges.vue'
-import type { SupplierRfqType } from '#shared/types/rfq'
+import SupplierRfqFilters from '~/components/rfqs/supplier_rfq_filters.vue'
+import SupplierRfqStateBadges from '~/components/rfqs/supplier_rfq_state_badges.vue'
+import type { SupplierRfqFiltersType, SupplierRfqType } from '#shared/types/rfq'
 import type { SubscriptionUpsellType } from '#shared/types/subscription'
 
-/** `upsell` : encart d'abonnement d'un fournisseur non abonné, qui ne voit pas l'agence (#220, #222). */
-defineProps<{ rfqs: SupplierRfqType[]; upsell: SubscriptionUpsellType | null }>()
+/**
+ * `filters` : statut lisible filtré (#230), porté par l'URL. `upsell` : encart
+ * d'abonnement d'un fournisseur non abonné, qui ne voit pas l'agence (#220, #222).
+ */
+defineProps<{
+  rfqs: SupplierRfqType[]
+  filters: SupplierRfqFiltersType
+  upsell: SubscriptionUpsellType | null
+}>()
 
 const { t, locale } = useI18n()
 
+/** Date courte dans la langue de l'interface (lie `formatShortDate` à la locale courante). */
 function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(locale.value)
+  return formatShortDate(value, locale.value)
 }
 
 /** Deux premières initiales de l'acheteur, pour les organisations sans logo. */
@@ -42,8 +52,16 @@ function initials(name: string): string {
 
     <SubscriptionUpsell v-if="upsell && rfqs.length > 0" :upsell="upsell" />
 
+    <SupplierRfqFilters v-if="rfqs.length > 0 || filters.status" :filters="filters" />
+
     <BaseEmptyState
-      v-if="rfqs.length === 0"
+      v-if="rfqs.length === 0 && filters.status"
+      :title="t('rfq.supplier.index.emptyFiltered')"
+      :description="t('rfq.supplier.index.emptyFilteredDescription')"
+      :icon="Inbox"
+    />
+    <BaseEmptyState
+      v-else-if="rfqs.length === 0"
       :title="t('rfq.supplier.index.empty')"
       :description="t('rfq.supplier.index.emptyDescription')"
       :icon="Inbox"
@@ -99,11 +117,7 @@ function initials(name: string): string {
           <span v-else class="text-text-muted">{{ t('rfq.supplier.show.noDeadline') }}</span>
         </td>
         <td>
-          <RfqRecipientStatusBadges
-            :status="rfq.myStatus"
-            :late="rfq.myLateReply"
-            labels="rfq.supplier.status"
-          />
+          <SupplierRfqStateBadges :state="rfq.myState" :late="rfq.myLateReply" />
         </td>
       </tr>
     </BaseTable>

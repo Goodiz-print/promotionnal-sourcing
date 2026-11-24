@@ -2,6 +2,7 @@
 import { router } from '@inertiajs/vue3'
 import { CircleCheck, Download, FileText } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { formatShortDate } from '#shared/helpers/date'
 import { urlFor } from '~/client'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseButton from '~/components/base/base_button.vue'
@@ -26,8 +27,9 @@ function downloadUrl(document: QuoteDocumentType): string {
   return urlFor('quote_documents.download', { locale: locale.value, id: document.id })
 }
 
+/** Date courte dans la langue de l'interface (lie `formatShortDate` à la locale courante). */
 function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(locale.value)
+  return formatShortDate(value, locale.value)
 }
 
 function select(document: QuoteDocumentType) {

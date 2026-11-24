@@ -152,7 +152,15 @@
         "deadline": "Frist",
         "status": "Status"
       },
-      "emptyDescription": "Käufer, die Sie anfragen, erscheinen hier mit den Details ihres Bedarfs."
+      "emptyDescription": "Käufer, die Sie anfragen, erscheinen hier mit den Details ihres Bedarfs.",
+      "filters": {
+        "label": "Erhaltene Anfragen filtern",
+        "status": "Status",
+        "allStatuses": "Alle Status",
+        "reset": "Filter zurücksetzen"
+      },
+      "emptyFiltered": "Keine Anfrage mit diesem Status.",
+      "emptyFilteredDescription": "Ändern Sie den Filter, um Ihre anderen Anfragen zu sehen."
     },
     "show": {
       "backToList": "Zurück zu den eingegangenen Anfragen",
@@ -165,6 +173,7 @@
       "responseTitle": "Ihre Antwort",
       "responseOpen": "Kalkulieren Sie diesen Bedarf, indem Sie ein Angebot abgeben, oder lehnen Sie die Anfrage ab, wenn Sie ihr nicht nachkommen können.",
       "responseQuote": "Sie haben ein Angebot für diese Anfrage erstellt.",
+      "responseDocument": "Sie haben für diese Anfrage ein PDF-Angebot gesendet. Unten können Sie eine neue Version hochladen.",
       "contact": {
         "title": "Kontaktdaten der Agentur",
         "agency": "Agentur",
@@ -191,7 +200,13 @@
     "errors": {
       "notDecidable": "Für diese Anfrage wird keine Entscheidung mehr von Ihnen erwartet."
     },
-    "anonymousBuyer": "Anonyme Agentur"
+    "anonymousBuyer": "Anonyme Agentur",
+    "state": {
+      "to_process": "Zu bearbeiten",
+      "responded": "Beantwortet",
+      "expired": "Abgelaufen",
+      "declined": "Abgelehnt"
+    }
   },
   "product": {
     "label": "Produkt aus dem Katalog hinzufügen",

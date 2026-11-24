@@ -2,6 +2,7 @@
 import { Link } from '@adonisjs/inertia/vue'
 import { FileCheck, ShoppingCart } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { formatShortDate } from '#shared/helpers/date'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseTable from '~/components/base/base_table.vue'
 import { RFQ_PROGRESS_TONES } from '~/components/rfqs/types'
@@ -16,8 +17,9 @@ defineProps<{ groups: RfqBatchGroupType[] }>()
 
 const { t, locale } = useI18n()
 
+/** Date courte dans la langue de l'interface (lie `formatShortDate` à la locale courante). */
 function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(locale.value)
+  return formatShortDate(value, locale.value)
 }
 </script>
 

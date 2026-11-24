@@ -52,6 +52,18 @@ export interface InboundMessageInput {
   senderSide: ConversationSide
 }
 
+/**
+ * Message d'un participant qui joint des fichiers depuis l'application : le
+ * devis PDF déposé par un fournisseur depuis une demande reçue (#230). `body`
+ * peut être vide, le fichier faisant le message.
+ */
+export interface UploadedMessageInput {
+  authorUserId: number
+  body: string
+  attachments: MessageAttachmentInput[]
+  senderSide: ConversationSide
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Fil d'échanges d'une demande et relais par mail (#226)
 // ─────────────────────────────────────────────────────────────────────────────

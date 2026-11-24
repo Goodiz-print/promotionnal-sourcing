@@ -87,6 +87,17 @@ Devis PDF retenu (#228) : `POST /:locale/quote-documents/:id/select`
 **responsables** de l'agence (ability `canSelectQuoteDocument`,
 `RFQ_MANAGER_ROLES`). Voir « Devis PDF retenu » ci-dessous.
 
+Devis PDF du fournisseur (#230) :
+
+| Méthode | Chemin                                           | Nom                                 | Qui                                                       |
+| ------- | ------------------------------------------------ | ----------------------------------- | --------------------------------------------------------- |
+| POST    | `/:locale/supplier/rfqs/:id/quote-documents`     | `supplier.quote_documents.store`    | fournisseur destinataire (`canUploadRfqQuoteDocument`)    |
+| GET     | `/:locale/supplier/quote-documents/:id/download` | `supplier.quote_documents.download` | fournisseur destinataire (`canDownloadSentQuoteDocument`) |
+
+Le téléchargement côté fournisseur sert toujours le **fichier d'origine**
+(`attachment.storageObject`), jamais `recipientFile` : la copie au nom de l'agence
+(#238) n'est servie qu'à l'agence.
+
 Cloisonnement : le devis d'une autre organisation est un **404**, jamais un 403 ;
 un brouillon n'existe pas pour l'acheteur ; un fournisseur ne voit jamais les devis
 de ses concurrents (l'écran de la demande reçue ne porte que son propre devis). Les
@@ -139,7 +150,7 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
    `QuoteService#recordDocuments`), avec, pour un fournisseur non abonné, sa
    **version destinataire** au nom de l'agence (#238, ci-dessous) ;
 4. s'il y a au moins un PDF, le destinataire passe `responded`
-   (`RfqRecipientService#markRespondedByMail`).
+   (`RfqRecipientService#markRespondedWithQuote`).
 
 | Table             | Colonnes notables                                                                                                                                  |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -322,8 +333,43 @@ que le controller transforme en message flash.
 - Seule une demande `published` se retient : une demande échue se rouvre
   d'abord en prolongeant l'échéance.
 
+### Dépôt du devis PDF depuis l'écran (#230)
+
+Alternative à la réponse par mail pour un fournisseur connecté : le formulaire
+de la section « Devis envoyé » (`supplier/rfqs/show.vue`) poste le PDF en
+multipart (`supplierQuoteDocumentValidator` : PDF, 20 Mo, mot d'accompagnement
+facultatif). `SupplierReplyService#recordUpload(recipient, author, upload)` suit
+**le même chemin qu'un PDF reçu par mail** :
+
+1. en-tête `%PDF-` vérifié (`hasPdfHeader`, sinon `InvalidDocumentException`) ;
+2. compression (`PdfService`) et stockage, copie au nom de l'agence si le
+   fournisseur n'est pas abonné (#238) ;
+3. sous le verrou du destinataire, statut relu (`acceptsQuoteUpload` : un refus
+   arrivé depuis l'ability lève `RfqSupplierNotReplyableException`), puis
+   message du fil **écrit par le membre**
+   (`ConversationService#recordUploaded`, refusé si le fil est bloqué),
+   `quote_documents`, destinataire `responded` et réponse tardive après
+   l'échéance (`recordQuoteReply`, partagé avec la réponse par mail) ;
+4. après le commit, `SupplierReplyRecorded` (`inboundMailId: null`) : la
+   transmission à l'agence (#225) part comme pour un mail.
+
+En cas d'échec, les fichiers créés sont libérés (`StorageService#discard`).
+L'ability `canUploadRfqQuoteDocument` reprend la fenêtre de la réponse par mail
+(`isRfqThreadOpen`) et refuse un destinataire qui a décliné.
+Un refus attendu (pas un PDF, fil bloqué, demande déclinée entre-temps) revient
+en **erreur du champ `file`** (`session.flashErrors`), comme une erreur de
+validation : le formulaire garde le mot d'accompagnement saisi. Après un dépôt,
+« Votre réponse » rappelle le devis PDF envoyé (`rfq.supplier.show.responseDocument`).
+
+`QuoteService#documentsSentBy(rfqSupplierId)` liste les devis envoyés (nom,
+taille, date, message d'origine pour distinguer mail et dépôt) ;
+`SupplierQuoteDocumentTransformer` n'expose ni la version agence, ni la clé de
+stockage, ni la décision de l'agence.
+
 ## Tests
 
+`tests/functional/supplier_received_requests.spec.ts` (#230 : statuts lisibles,
+filtres, devis envoyé, téléchargement réservé, dépôt depuis l'écran),
 `tests/functional/supplier_replies.spec.ts` (réponse par mail : message, pièce
 jointe compressée, devis PDF, statut, devis successifs, rejeu, échec sans
 orphelin), `tests/functional/supplier_reply_recipient_version.spec.ts` (version

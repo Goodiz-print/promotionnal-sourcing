@@ -474,6 +474,40 @@ export default class QuoteService {
   }
 
   /**
+   * Devis PDF **envoyés** par un destinataire, vus de son écran (#230), le plus
+   * récent en tête : nom et taille du fichier, date, et s'il est arrivé par
+   * mail (message né d'un mail entrant) ou déposé depuis l'écran. Colonnes
+   * explicites ; ni la version au nom de l'agence (#238) ni sa clé de stockage.
+   */
+  documentsSentBy(rfqSupplierId: number): Promise<QuoteDocument[]> {
+    return QuoteDocument.query()
+      .select('id', 'rfqSupplierId', 'messageId', 'messageAttachmentId', 'receivedAt')
+      .where('rfqSupplierId', rfqSupplierId)
+      .preload('attachment', (attachment) => attachment.select('id', 'filename', 'sizeBytes'))
+      .preload('message', (message) => message.select('id', 'inboundMailId'))
+      .orderBy('receivedAt', 'desc')
+      .orderBy('id', 'desc')
+  }
+
+  /**
+   * Un devis PDF avec son destinataire et son fichier **d'origine**, pour le
+   * servir au fournisseur qui l'a envoyé (#230). Le droit d'accès est vérifié
+   * par l'ability `canDownloadSentQuoteDocument`, sur le destinataire chargé ici.
+   * La version au nom de l'agence (#238) n'est pas chargée : elle ne lui est
+   * jamais servie.
+   */
+  async findDocumentForSupplier(id: number): Promise<QuoteDocument> {
+    const document = await QuoteDocument.query()
+      .select('id', 'rfqSupplierId', 'messageAttachmentId')
+      .where('id', id)
+      .preload('rfqSupplier', (recipient) => recipient.select('id', 'supplierOrganizationId'))
+      .preload('attachment', (attachment) => attachment.preload('storageObject'))
+      .first()
+    if (!document) throw new QuoteDocumentNotFoundException()
+    return document
+  }
+
+  /**
    * Les devis PDF **qui font foi** pour un destinataire : ceux de sa dernière
    * réponse (un mail peut en porter plusieurs). Vide s'il n'en a envoyé aucun.
    */

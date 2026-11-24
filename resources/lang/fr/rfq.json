@@ -152,7 +152,15 @@
         "deadline": "Échéance",
         "status": "Statut"
       },
-      "emptyDescription": "Les acheteurs qui vous consultent apparaîtront ici avec le détail de leur besoin."
+      "emptyDescription": "Les acheteurs qui vous consultent apparaîtront ici avec le détail de leur besoin.",
+      "filters": {
+        "label": "Filtrer les demandes reçues",
+        "status": "Statut",
+        "allStatuses": "Tous les statuts",
+        "reset": "Réinitialiser le filtre"
+      },
+      "emptyFiltered": "Aucune demande pour ce statut.",
+      "emptyFilteredDescription": "Changez de filtre pour retrouver vos autres demandes."
     },
     "show": {
       "backToList": "Retour aux demandes reçues",
@@ -165,6 +173,7 @@
       "responseTitle": "Votre réponse",
       "responseOpen": "Chiffrez ce besoin en remettant un devis, ou déclinez la demande si vous ne pouvez pas y donner suite.",
       "responseQuote": "Vous avez rédigé un devis pour cette demande.",
+      "responseDocument": "Vous avez envoyé un devis PDF pour cette demande. Vous pouvez en déposer une nouvelle version ci-dessous.",
       "contact": {
         "title": "Coordonnées de l'agence",
         "agency": "Agence",
@@ -191,7 +200,13 @@
     "errors": {
       "notDecidable": "Cette demande n'attend plus de décision de votre part."
     },
-    "anonymousBuyer": "Agence anonyme"
+    "anonymousBuyer": "Agence anonyme",
+    "state": {
+      "to_process": "À traiter",
+      "responded": "Répondu",
+      "expired": "Expiré",
+      "declined": "Décliné"
+    }
   },
   "product": {
     "label": "Ajouter un produit du catalogue",

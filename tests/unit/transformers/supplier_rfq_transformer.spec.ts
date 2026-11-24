@@ -53,6 +53,7 @@ test.group('SupplierRfqTransformer', () => {
       buyerName: null,
       buyerLogoUrl: null,
       myStatus: 'expired',
+      myState: 'expired',
       myLateReply: false,
       sentAt: '2026-10-02T08:00:00.000Z',
       publishedAt: '2026-10-01T08:00:00.000Z',
@@ -68,6 +69,22 @@ test.group('SupplierRfqTransformer', () => {
     assert.isTrue(output.myLateReply)
     assert.equal(output.buyerName, 'Acme')
     assert.notProperty(output, 'lateReplyAt')
+  })
+
+  test('statut lisible (#230) et lignes comptées en sous-requête par la liste', async ({
+    assert,
+  }) => {
+    const recipient = await expiredRecipient(null)
+    recipient.status = 'viewed'
+    const rfq = await rfqFor([recipient])
+    // `RfqService#listForSupplier` compte les items sans les charger.
+    rfq.$extras.itemsCount = '3'
+
+    const output = new SupplierRfqTransformer(rfq).toObject()
+
+    assert.equal(output.myStatus, 'viewed')
+    assert.equal(output.myState, 'to_process')
+    assert.strictEqual(output.itemCount, 3)
   })
 
   test('sans la ligne du fournisseur courant, un 404 plutôt qu’une demande anonyme', async ({

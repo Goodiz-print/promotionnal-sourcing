@@ -106,6 +106,35 @@
     "rfq": {
       "respond": "Rispondi con un preventivo",
       "viewQuote": "Vedi il mio preventivo"
+    },
+    "documents": {
+      "title": "Preventivo inviato",
+      "description": "Il tuo preventivo PDF, inviato per e-mail o da questa pagina. Vedi sempre il tuo file originale.",
+      "empty": "Nessun preventivo PDF inviato per ora.",
+      "columns": {
+        "file": "File",
+        "sentAt": "Inviato il",
+        "channel": "Invio"
+      },
+      "channel": {
+        "mail": "Per e-mail",
+        "upload": "Dalla piattaforma"
+      },
+      "download": "Scarica {filename}",
+      "upload": {
+        "file": "Il tuo preventivo (PDF)",
+        "prompt": "Scegli o trascina un PDF",
+        "hint": "PDF, max 20 MB. Viene trasmesso all'agenzia come una risposta per e-mail.",
+        "body": "Messaggio all'agenzia (facoltativo)",
+        "submit": "Invia il preventivo"
+      },
+      "flash": {
+        "uploaded": "Preventivo inviato: l'agenzia è stata informata."
+      },
+      "errors": {
+        "notPdf": "Questo file non è un PDF valido.",
+        "notReplyable": "Hai rifiutato questa richiesta: non puoi più inviare un preventivo."
+      }
     }
   },
   "documents": {

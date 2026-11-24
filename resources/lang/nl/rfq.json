@@ -152,7 +152,15 @@
         "deadline": "Deadline",
         "status": "Status"
       },
-      "emptyDescription": "Kopers die u raadplegen verschijnen hier, met de details van hun behoefte."
+      "emptyDescription": "Kopers die u raadplegen verschijnen hier, met de details van hun behoefte.",
+      "filters": {
+        "label": "Ontvangen aanvragen filteren",
+        "status": "Status",
+        "allStatuses": "Alle statussen",
+        "reset": "Filter wissen"
+      },
+      "emptyFiltered": "Geen aanvraag met deze status.",
+      "emptyFilteredDescription": "Wijzig het filter om uw andere aanvragen te zien."
     },
     "show": {
       "backToList": "Terug naar de ontvangen aanvragen",
@@ -165,6 +173,7 @@
       "responseTitle": "Uw reactie",
       "responseOpen": "Maak een prijsopgave voor deze behoefte door een offerte in te dienen, of wijs de aanvraag af als u er geen gevolg aan kunt geven.",
       "responseQuote": "U hebt een offerte voor deze aanvraag opgesteld.",
+      "responseDocument": "U hebt een PDF-offerte voor deze aanvraag gestuurd. Hieronder kunt u een nieuwe versie uploaden.",
       "contact": {
         "title": "Contactgegevens van het bureau",
         "agency": "Bureau",
@@ -191,7 +200,13 @@
     "errors": {
       "notDecidable": "Voor deze aanvraag wordt geen beslissing van u meer verwacht."
     },
-    "anonymousBuyer": "Anoniem bureau"
+    "anonymousBuyer": "Anoniem bureau",
+    "state": {
+      "to_process": "Te behandelen",
+      "responded": "Beantwoord",
+      "expired": "Verlopen",
+      "declined": "Afgewezen"
+    }
   },
   "product": {
     "label": "Product uit de catalogus toevoegen",

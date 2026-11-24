@@ -106,6 +106,35 @@
     "rfq": {
       "respond": "Reageren met een offerte",
       "viewQuote": "Mijn offerte bekijken"
+    },
+    "documents": {
+      "title": "Verzonden offerte",
+      "description": "Uw pdf-offerte, verzonden per e-mail of via deze pagina. U ziet altijd uw originele bestand.",
+      "empty": "Nog geen pdf-offerte verzonden.",
+      "columns": {
+        "file": "Bestand",
+        "sentAt": "Verzonden op",
+        "channel": "Verzending"
+      },
+      "channel": {
+        "mail": "Per e-mail",
+        "upload": "Via het platform"
+      },
+      "download": "{filename} downloaden",
+      "upload": {
+        "file": "Uw offerte (pdf)",
+        "prompt": "Kies of sleep een pdf",
+        "hint": "Pdf, max. 20 MB. Wordt aan het bureau doorgestuurd zoals een antwoord per e-mail.",
+        "body": "Bericht aan het bureau (optioneel)",
+        "submit": "Offerte verzenden"
+      },
+      "flash": {
+        "uploaded": "Offerte verzonden: het bureau is op de hoogte gebracht."
+      },
+      "errors": {
+        "notPdf": "Dit bestand is geen geldige pdf.",
+        "notReplyable": "U hebt deze aanvraag afgewezen: u kunt er geen offerte meer voor sturen."
+      }
     }
   },
   "documents": {

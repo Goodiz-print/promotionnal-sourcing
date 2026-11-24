@@ -106,6 +106,35 @@
     "rfq": {
       "respond": "Odpowiedz ofertą",
       "viewQuote": "Zobacz moją ofertę"
+    },
+    "documents": {
+      "title": "Wysłana oferta",
+      "description": "Twoja oferta PDF wysłana e-mailem lub z tej strony. Zawsze widzisz swój oryginalny plik.",
+      "empty": "Nie wysłano jeszcze żadnej oferty PDF.",
+      "columns": {
+        "file": "Plik",
+        "sentAt": "Wysłano",
+        "channel": "Sposób wysyłki"
+      },
+      "channel": {
+        "mail": "E-mailem",
+        "upload": "Z platformy"
+      },
+      "download": "Pobierz {filename}",
+      "upload": {
+        "file": "Twoja oferta (PDF)",
+        "prompt": "Wybierz lub upuść plik PDF",
+        "hint": "PDF, maks. 20 MB. Zostanie przekazany agencji jak odpowiedź e-mailowa.",
+        "body": "Wiadomość do agencji (opcjonalnie)",
+        "submit": "Wyślij ofertę"
+      },
+      "flash": {
+        "uploaded": "Oferta wysłana: agencja została powiadomiona."
+      },
+      "errors": {
+        "notPdf": "Ten plik nie jest prawidłowym PDF.",
+        "notReplyable": "Odrzucono to zapytanie: nie można już wysłać do niego oferty."
+      }
     }
   },
   "documents": {

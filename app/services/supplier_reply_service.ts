@@ -1,12 +1,18 @@
+import { readFile } from 'node:fs/promises'
 import { inject } from '@adonisjs/core'
 import emitter from '@adonisjs/core/services/emitter'
 import logger from '@adonisjs/core/services/logger'
 import db from '@adonisjs/lucid/services/db'
+import { DateTime } from 'luxon'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import SupplierReplyRecorded from '#events/supplier_reply_recorded'
+import { InvalidDocumentException } from '#exceptions/document_errors'
+import { RfqSupplierNotReplyableException } from '#exceptions/rfq_errors'
 import InboundMail from '#models/inbound_mail'
 import InboundMailAttachment from '#models/inbound_mail_attachment'
 import type Message from '#models/message'
 import RfqSupplier from '#models/rfq_supplier'
+import type User from '#models/user'
 import ConversationService from '#services/conversation_service'
 import PdfService from '#services/pdf_service'
 import QuoteService from '#services/quote_service'
@@ -14,17 +20,23 @@ import RfqRecipientService from '#services/rfq_recipient_service'
 import StorageService from '#services/storage/storage_service'
 import SubscriptionService from '#services/subscription_service'
 import { inboundMailBody } from '#shared/helpers/inbound_mail'
+import { hasPdfHeader } from '#shared/helpers/pdf'
+import { acceptsQuoteUpload } from '#shared/helpers/supplier_rfq'
 import { INBOUND_ATTACHMENT_STATUSES } from '#shared/types/inbound_mail'
 import type { RecipientStampOptions } from '#shared/types/pdf'
-import type { QuoteDocumentInput } from '#shared/types/quote'
+import type { QuoteDocumentInput, UploadedQuoteDocumentInput } from '#shared/types/quote'
 import {
   QUOTE_DOCUMENT_MIME_TYPE,
   type PreparedReplyAttachment,
+  type PreparedUpload,
+  type QuoteReplyToRecord,
   type SupplierReplyRecordedData,
+  type UploadToWrite,
 } from '#shared/types/supplier_reply'
 
 /**
- * Enregistre la réponse d'un fournisseur reçue par mail (#224, `docs/quotes.md`) :
+ * Enregistre la réponse d’un fournisseur reçue par mail (#224, `docs/quotes.md`) — ou
+ * son devis PDF déposé depuis l’écran de la demande (#230, `recordUpload`) :
  *
  *  - le mail devient un **message** du fil de la demande pour ce destinataire ;
  *  - ses pièces jointes acceptées deviennent celles du message — un PDF est
@@ -58,7 +70,7 @@ export default class SupplierReplyService {
   ) {}
 
   /**
-   * Renvoie ce qui a été enregistré, ou `null` si ce mail l'était déjà, n'est
+   * Réponse reçue par mail. Renvoie ce qui a été enregistré, ou `null` si ce mail l'était déjà, n'est
    * rattaché à aucun destinataire, ou n'a ni texte ni fichier à enregistrer.
    */
   async record(inboundMailId: number): Promise<SupplierReplyRecordedData | null> {
@@ -110,32 +122,14 @@ export default class SupplierReplyService {
           tombstones.push(await this.storage.release(trx, attachment.receivedObjectId))
         }
 
-        const documents = await this.quotes.recordDocuments(
-          this.quoteDocumentsOf(message, attachments).map((document) => ({
-            ...document,
-            rfqId: recipient.rfqId,
-            rfqSupplierId: recipient.id,
-            receivedAt: mail.receivedAt.toJSDate(),
-          })),
+        // D'après l'heure de réception du mail, pas celle de son traitement.
+        const recorded = await this.recordQuoteReply(
+          { recipient, message, attachments, receivedAt: mail.receivedAt },
           trx
         )
-        // Après l'échéance, la réponse est enregistrée quand même, marquée
-        // tardive (#232) — d'après l'heure de réception du mail, pas celle de
-        // son traitement. Sans PDF, c'est un simple message : le statut ne bouge pas.
-        const late = await this.recipients.markLateReply(recipient, trx, mail.receivedAt)
-        const responded =
-          documents.length > 0 && (await this.recipients.markRespondedByMail(recipient, trx))
 
         return {
-          reply: {
-            inboundMailId,
-            rfqSupplierId: recipient.id,
-            conversationId: conversation.id,
-            messageId: message.id,
-            quoteDocumentIds: documents.map((document) => document.id),
-            responded,
-            late,
-          },
+          reply: { inboundMailId, conversationId: conversation.id, ...recorded },
           tombstones,
         }
       })
@@ -155,6 +149,140 @@ export default class SupplierReplyService {
     this.conversations.announce(outcome.reply.conversationId, outcome.reply.messageId)
     await this.publish(outcome.reply)
     return outcome.reply
+  }
+
+  /**
+   * Devis PDF **déposé depuis l'écran** d'une demande reçue (#230), en
+   * alternative à la réponse par mail : même traitement qu'un PDF reçu par
+   * mail — compression, copie au nom de l'agence pour un non abonné (#238),
+   * message du fil (écrit par `author`), devis enregistré, destinataire
+   * « répondu » (tardif après l'échéance, #232), puis `SupplierReplyRecorded`
+   * pour la transmission à l'agence (#225).
+   *
+   * `recipient.rfq` doit être chargée ; le droit de déposer est vérifié avant
+   * (ability `canUploadRfqQuoteDocument`). Lève `InvalidDocumentException` si
+   * le fichier n'est pas un PDF, `ConversationBlockedException` si le fil est
+   * bloqué, `RfqSupplierNotReplyableException` si le destinataire a décliné
+   * entre-temps (statut relu sous verrou). En cas d'échec, les fichiers créés ici sont libérés.
+   */
+  async recordUpload(
+    recipient: RfqSupplier,
+    author: User,
+    upload: UploadedQuoteDocumentInput
+  ): Promise<SupplierReplyRecordedData> {
+    const content = await this.readUploadedPdf(upload)
+    await recipient.rfq.load('buyerOrganization')
+    const prepared = await this.prepareUpload(content, upload, recipient)
+    const created = [prepared.storageObjectId, prepared.recipientObjectId].filter(
+      (id): id is number => id !== null
+    )
+
+    let reply: SupplierReplyRecordedData
+    try {
+      reply = await db.transaction((trx) =>
+        this.writeUpload({ recipient, author, prepared, body: upload.body }, trx)
+      )
+    } catch (error) {
+      await this.storage.discard(created)
+      throw error
+    }
+
+    this.conversations.announce(reply.conversationId, reply.messageId)
+    await this.publish(reply)
+    return reply
+  }
+
+  /** Contenu du fichier déposé ; l'extension ne prouve rien, l'en-tête `%PDF-` si. */
+  private async readUploadedPdf(upload: UploadedQuoteDocumentInput): Promise<Buffer> {
+    const content = await readFile(upload.tmpPath)
+    if (!hasPdfHeader(content)) throw new InvalidDocumentException()
+    return content
+  }
+
+  /**
+   * PDF déposé, compressé (repli sur l'original, `PdfService` ne lève jamais)
+   * et stocké, avec sa version destinataire pour un non abonné (#238).
+   */
+  private async prepareUpload(
+    content: Buffer,
+    upload: UploadedQuoteDocumentInput,
+    recipient: RfqSupplier
+  ): Promise<PreparedUpload> {
+    const { content: kept } = await this.pdf.compress(content)
+    const object = await this.storeQuotePdf(kept)
+    try {
+      const stamp = await this.recipientStampFor(recipient)
+      return {
+        storageObjectId: object.id,
+        recipientObjectId: await this.storeRecipientVersion(kept, stamp),
+        filename: upload.filename,
+        mimeType: QUOTE_DOCUMENT_MIME_TYPE,
+        sizeBytes: object.size,
+      }
+    } catch (error) {
+      await this.storage.discard([object.id])
+      throw error
+    }
+  }
+
+  /**
+   * Écritures du dépôt, sous le verrou du destinataire (comme une réponse par
+   * mail) : message du fil avec le PDF, devis, statut du destinataire.
+   */
+  private async writeUpload(
+    { recipient, author, prepared, body }: UploadToWrite<RfqSupplier, User>,
+    trx: TransactionClientContract
+  ): Promise<SupplierReplyRecordedData> {
+    // Statut relu sous verrou : un refus arrivé depuis l'ability l'emporte.
+    const locked = await RfqSupplier.query({ client: trx })
+      .select('id', 'status')
+      .where('id', recipient.id)
+      .forUpdate()
+      .firstOrFail()
+    if (!acceptsQuoteUpload(locked.status)) throw new RfqSupplierNotReplyableException()
+    const conversation = await this.conversations.threadForRecipient(recipient, trx)
+    const { recipientObjectId, ...attachment } = prepared
+    const message = await this.conversations.recordUploaded(
+      conversation,
+      { authorUserId: author.id, body, attachments: [attachment], senderSide: 'supplier' },
+      trx
+    )
+    const outcome = await this.recordQuoteReply(
+      { recipient, message, attachments: [prepared], receivedAt: DateTime.now() },
+      trx
+    )
+    return { inboundMailId: null, conversationId: conversation.id, ...outcome }
+  }
+
+  /**
+   * Devis PDF d'une réponse (mail ou dépôt) et avancement du destinataire,
+   * dans la transaction qui écrit le message. Après l'échéance, la réponse est
+   * enregistrée quand même, marquée tardive (#232). Sans PDF, c'est un simple
+   * message : le statut ne bouge pas.
+   */
+  private async recordQuoteReply(
+    { recipient, message, attachments, receivedAt }: QuoteReplyToRecord<RfqSupplier, Message>,
+    trx: TransactionClientContract
+  ): Promise<Omit<SupplierReplyRecordedData, 'inboundMailId' | 'conversationId'>> {
+    const documents = await this.quotes.recordDocuments(
+      this.quoteDocumentsOf(message, attachments).map((document) => ({
+        ...document,
+        rfqId: recipient.rfqId,
+        rfqSupplierId: recipient.id,
+        receivedAt: receivedAt.toJSDate(),
+      })),
+      trx
+    )
+    const late = await this.recipients.markLateReply(recipient, trx, receivedAt)
+    const responded =
+      documents.length > 0 && (await this.recipients.markRespondedWithQuote(recipient, trx))
+    return {
+      rfqSupplierId: recipient.id,
+      messageId: message.id,
+      quoteDocumentIds: documents.map((document) => document.id),
+      responded,
+      late,
+    }
   }
 
   private storedAttachments(mail: InboundMail) {
@@ -234,10 +362,13 @@ export default class SupplierReplyService {
   private async storeRecipientVersion(
     content: Buffer,
     stamp: RecipientStampOptions | null,
-    inboundAttachmentId: number
+    inboundAttachmentId: number | null = null
   ): Promise<number | null> {
     if (!stamp) return null
-    const logContext = { ...stamp.logContext, inboundAttachmentId }
+    // Pièce jointe du mail dans les logs ; aucune pour un PDF déposé depuis l'écran (#230).
+    const logContext = inboundAttachmentId
+      ? { ...stamp.logContext, inboundAttachmentId }
+      : stamp.logContext
     const stamped = await this.pdf.stampRecipient(content, { ...stamp, logContext })
     if (stamped === content) return null
     const object = await this.storeQuotePdf(stamped)
@@ -280,7 +411,7 @@ export default class SupplierReplyService {
    */
   private quoteDocumentsOf(
     message: Message,
-    attachments: PreparedReplyAttachment[]
+    attachments: Array<Pick<PreparedReplyAttachment, 'storageObjectId' | 'recipientObjectId'>>
   ): Array<
     Pick<QuoteDocumentInput, 'messageId' | 'messageAttachmentId' | 'recipientStorageObjectId'>
   > {

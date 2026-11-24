@@ -106,6 +106,35 @@
     "rfq": {
       "respond": "Responder con un presupuesto",
       "viewQuote": "Ver mi presupuesto"
+    },
+    "documents": {
+      "title": "Presupuesto enviado",
+      "description": "Su presupuesto en PDF, enviado por correo o desde esta página. Siempre ve su archivo original.",
+      "empty": "Aún no ha enviado ningún presupuesto en PDF.",
+      "columns": {
+        "file": "Archivo",
+        "sentAt": "Enviado el",
+        "channel": "Envío"
+      },
+      "channel": {
+        "mail": "Por correo",
+        "upload": "Desde la plataforma"
+      },
+      "download": "Descargar {filename}",
+      "upload": {
+        "file": "Su presupuesto (PDF)",
+        "prompt": "Elija o suelte un PDF",
+        "hint": "PDF, 20 MB como máximo. Se transmite a la agencia como una respuesta por correo.",
+        "body": "Mensaje a la agencia (opcional)",
+        "submit": "Enviar el presupuesto"
+      },
+      "flash": {
+        "uploaded": "Presupuesto enviado: la agencia ha sido informada."
+      },
+      "errors": {
+        "notPdf": "Este archivo no es un PDF válido.",
+        "notReplyable": "Ha rechazado esta solicitud: ya no puede enviar un presupuesto para ella."
+      }
     }
   },
   "documents": {

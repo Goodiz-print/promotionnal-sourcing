@@ -152,7 +152,15 @@
         "deadline": "Deadline",
         "status": "Status"
       },
-      "emptyDescription": "Buyers who consult you will show up here with the details of their needs."
+      "emptyDescription": "Buyers who consult you will show up here with the details of their needs.",
+      "filters": {
+        "label": "Filter received requests",
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "reset": "Reset filter"
+      },
+      "emptyFiltered": "No request with this status.",
+      "emptyFilteredDescription": "Change the filter to find your other requests."
     },
     "show": {
       "backToList": "Back to received requests",
@@ -165,6 +173,7 @@
       "responseTitle": "Your response",
       "responseOpen": "Price this need by submitting a quote, or decline the request if you cannot follow up on it.",
       "responseQuote": "You have written a quote for this request.",
+      "responseDocument": "You sent a PDF quote for this request. You can upload a new version below.",
       "contact": {
         "title": "Agency contact details",
         "agency": "Agency",
@@ -191,7 +200,13 @@
     "errors": {
       "notDecidable": "This request no longer awaits a decision from you."
     },
-    "anonymousBuyer": "Anonymous agency"
+    "anonymousBuyer": "Anonymous agency",
+    "state": {
+      "to_process": "To handle",
+      "responded": "Replied",
+      "expired": "Expired",
+      "declined": "Declined"
+    }
   },
   "product": {
     "label": "Add a product from the catalogue",

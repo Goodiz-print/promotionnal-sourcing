@@ -66,6 +66,16 @@ export type RfqSupplierStatus = (typeof RFQ_SUPPLIER_STATUSES)[number]
 export const DEFAULT_RFQ_SUPPLIER_STATUS: RfqSupplierStatus = 'pending'
 
 /**
+ * Destinataires qui ne peuvent pas déposer de devis PDF depuis l'écran (#230) :
+ * une demande non envoyée n'existe pas pour eux, une demande déclinée est close
+ * de leur côté.
+ */
+export const QUOTE_UPLOAD_REFUSED_RFQ_SUPPLIER_STATUSES: readonly RfqSupplierStatus[] = [
+  'pending',
+  'declined',
+]
+
+/**
  * Destinataires qui attendent encore une réponse : ils ont reçu la demande et
  * n'ont ni répondu ni décliné. Seuls eux expirent à l'échéance et peuvent être
  * relancés (s'ils n'ont, en plus, écrit aucun message dans le fil).
@@ -92,6 +102,44 @@ export const TERMINAL_RFQ_SUPPLIER_STATUSES: readonly RfqSupplierStatus[] = [
   'declined',
   'expired',
 ]
+
+/**
+ * Statut lisible d'une demande reçue, côté fournisseur (#230) : ce que l'écran
+ * « Demandes reçues » affiche et filtre, à la place des statuts techniques du
+ * destinataire (`rfq_suppliers.status`).
+ *
+ * - `to_process` — reçue (envoyée ou lue), sans réponse ni refus ;
+ * - `responded` — devis envoyé (par mail, dépôt du PDF ou devis structuré),
+ *   éventuellement tardif (`late_reply_at`, #232) ;
+ * - `expired` — échéance passée sans réponse (`ExpireRfqsJob`, #232) ;
+ * - `declined` — le fournisseur a décliné.
+ */
+export const SUPPLIER_RFQ_STATES = ['to_process', 'responded', 'expired', 'declined'] as const
+
+export type SupplierRfqState = (typeof SUPPLIER_RFQ_STATES)[number]
+
+/**
+ * Statuts techniques du destinataire derrière chaque statut lisible : seule
+ * source de la correspondance, lue par `supplierRfqState` (affichage) **et** par
+ * le filtre SQL de `RfqService#listForSupplier`. `pending` n'y figure pas : une
+ * demande non envoyée n'existe pas pour le fournisseur.
+ */
+export const SUPPLIER_RFQ_STATE_STATUSES: Record<SupplierRfqState, readonly RfqSupplierStatus[]> = {
+  to_process: AWAITING_REPLY_RFQ_SUPPLIER_STATUSES,
+  responded: ['responded'],
+  expired: ['expired'],
+  declined: ['declined'],
+}
+
+/** Filtres de « Demandes reçues » (#230), portés par la query string (`?status=expired`). */
+export interface SupplierRfqFilters {
+  status?: SupplierRfqState
+}
+
+/** Filtres tels que la page les reçoit : `null` plutôt qu'absent. */
+export type SupplierRfqFiltersType = {
+  status: SupplierRfqState | null
+}
 
 /** Ce que la règle « réponse tardive » lit d'une demande (`isLateReply`). */
 export interface RfqDeadlineState {
@@ -373,6 +421,8 @@ export type SupplierRfqType = {
   buyerName: string | null
   buyerLogoUrl: string | null
   myStatus: RfqSupplierStatus
+  /** Statut lisible (#230) : à traiter, répondu, expiré ou décliné. */
+  myState: SupplierRfqState
   /** Ce fournisseur a répondu après l'échéance (#232). */
   myLateReply: boolean
   sentAt: string | null

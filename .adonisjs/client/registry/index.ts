@@ -606,6 +606,18 @@ const routes = {
     tokens: [[1,"locale"],[0,"quote-documents"],[1,"id"],[0,"select"]],
     types: placeholder as Registry['quote_documents.select']['types'],
   },
+  'supplier.quote_documents.store': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/rfqs/:id/quote-documents',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"rfqs"],[1,"id"],[0,"quote-documents"]],
+    types: placeholder as Registry['supplier.quote_documents.store']['types'],
+  },
+  'supplier.quote_documents.download': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/quote-documents/:id/download',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"quote-documents"],[1,"id"],[0,"download"]],
+    types: placeholder as Registry['supplier.quote_documents.download']['types'],
+  },
   'supplier.quotes.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/supplier/quotes',
