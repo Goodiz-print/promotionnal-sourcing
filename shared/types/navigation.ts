@@ -13,6 +13,7 @@ export const NAVIGATION_ROUTES = [
   'supplier.rfqs.index',
   'supplier.quotes.index',
   'supplier.orders.index',
+  'supplier.insights.index',
   'supplier.ads.index',
   'supplier.subscription.show',
   'supplier.profile',

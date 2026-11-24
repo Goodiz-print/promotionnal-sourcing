@@ -107,5 +107,42 @@
       "deleted": "Kontakt usunięty.",
       "settingsUpdated": "Ustawienie zapisane."
     }
+  },
+  "insights": {
+    "title": "Wyświetlenia",
+    "subtitle": "Ile razy agencje wyświetliły Twoje produkty i Twoją stronę dostawcy.",
+    "period": "Okres",
+    "periodOption": "Ostatnie {days} dni",
+    "summary": {
+      "productViews": "Wyświetlenia produktów",
+      "viewedProducts": "Wyświetlone produkty",
+      "supplierViews": "Wyświetlenia strony dostawcy",
+      "rfqAdditions": "Dodane do zapytania ofertowego"
+    },
+    "products": {
+      "title": "Wyświetlenia według produktu",
+      "columns": {
+        "product": "Produkt",
+        "views": "Wyświetlenia",
+        "rfqAdditions": "Dodane do zapytania"
+      },
+      "emptyTitle": "Brak produktów",
+      "emptyBody": "Dodaj produkty do katalogu, aby śledzić ich wyświetlenia.",
+      "previous": "Poprzednia",
+      "next": "Następna"
+    },
+    "agencies": {
+      "title": "Agencje, które Cię wyświetliły",
+      "hint": "Wyświetlenia z ostatnich 90 dni: starsze są nadal liczone, ale nie wskazują już agencji.",
+      "columns": {
+        "agency": "Agencja",
+        "views": "Wyświetlenia",
+        "products": "Wyświetlone produkty",
+        "lastViewedAt": "Ostatnie wyświetlenie"
+      },
+      "emptyTitle": "Brak agencji w tym okresie",
+      "emptyBody": "Tutaj pojawią się agencje, które wyświetlają Twoje produkty lub Twoją stronę.",
+      "limited": "Wyświetlane są tylko {count} najnowsze agencje."
+    }
   }
 }

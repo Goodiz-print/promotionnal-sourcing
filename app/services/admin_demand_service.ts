@@ -1,6 +1,8 @@
 import { DateTime } from 'luxon'
+import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
-import { resolveTranslation } from '#shared/helpers/translations'
+import ActivityAggregationService from '#services/activity_aggregation_service'
+import { dateRangeBounds, trailingDateRange } from '#shared/helpers/activity_event'
 import { latestDecisionIsRejectedSql } from '#shared/helpers/moderation'
 import {
   ADMIN_DEMAND_DEFAULT_DAYS,
@@ -19,7 +21,7 @@ import {
 } from '#shared/types/admin_demand'
 import type { SearchEventMode } from '#shared/types/search_event'
 
-/** Langue de repli des libellés (catégories, produits) quand la langue de l'écran manque. */
+/** Langue de repli des libellés de catégorie quand la langue de l'écran manque. */
 const FALLBACK_LOCALE = 'fr'
 
 type Query = ReturnType<typeof db.from>
@@ -27,14 +29,18 @@ type Query = ReturnType<typeof db.from>
 /**
  * Agrégations de l'écran « Ce que cherchent les clients » (#173). Lecture seule
  * sur `search_events` et `activity_events` ; toute la logique d'agrégation vit
- * ici, le contrôleur ne fait que transmettre les filtres.
+ * ici, le contrôleur ne fait que transmettre les filtres. Les briques de lecture
+ * des consultations sont partagées avec l'espace fournisseur
+ * (`ActivityAggregationService`, #239).
  */
+@inject()
 export default class AdminDemandService {
+  constructor(private activity: ActivityAggregationService) {}
+
   /** Filtres par défaut : les 30 derniers jours, tous écrans, langues et types d'organisation. */
   defaultFilters(now: DateTime = DateTime.now()): AdminDemandFilters {
     return {
-      from: now.minus({ days: ADMIN_DEMAND_DEFAULT_DAYS - 1 }).toISODate()!,
-      to: now.toISODate()!,
+      ...trailingDateRange(ADMIN_DEMAND_DEFAULT_DAYS, now),
       source: null,
       locale: null,
       organizationType: null,
@@ -136,10 +142,11 @@ export default class AdminDemandService {
   }
 
   private searches(filters: AdminDemandFilters): Query {
+    const { start, end } = dateRangeBounds(filters)
     const query = db
       .from('search_events as se')
-      .where('se.created_at', '>=', this.start(filters))
-      .where('se.created_at', '<', this.end(filters))
+      .where('se.created_at', '>=', start)
+      .where('se.created_at', '<', end)
     if (filters.source) query.where('se.source', filters.source)
     if (filters.locale) query.where('se.locale', filters.locale)
     this.byOrganizationType(query, filters, 'se.organization_id')
@@ -147,10 +154,7 @@ export default class AdminDemandService {
   }
 
   private events(filters: AdminDemandFilters): Query {
-    const query = db
-      .from('activity_events as ae')
-      .where('ae.created_at', '>=', this.start(filters))
-      .where('ae.created_at', '<', this.end(filters))
+    const query = this.activity.events(filters)
     this.byOrganizationType(query, filters, 'ae.organization_id')
     return query
   }
@@ -166,15 +170,6 @@ export default class AdminDemandService {
 
   private zone(): string {
     return DateTime.local().zoneName ?? 'UTC'
-  }
-
-  private start(filters: AdminDemandFilters): string {
-    return DateTime.fromISO(filters.from).startOf('day').toSQL()!
-  }
-
-  /** Borne haute exclusive : le lendemain de la date de fin. */
-  private end(filters: AdminDemandFilters): string {
-    return DateTime.fromISO(filters.to).plus({ days: 1 }).startOf('day').toSQL()!
   }
 
   private async summary(filters: AdminDemandFilters): Promise<DemandSummary> {
@@ -303,8 +298,12 @@ export default class AdminDemandService {
     type: 'product_viewed' | 'rfq_product_added',
     uiLocale: string
   ): Promise<DemandTargetRow[]> {
-    const rows = await this.topTargets(this.events(filters).where('ae.type', type), 'product')
-    return this.named(rows, 'product_translations', 'product_id', uiLocale)
+    const rows = await this.activity.countByTarget(
+      this.events(filters).where('ae.type', type),
+      'product',
+      ADMIN_DEMAND_TOP_LIMIT
+    )
+    return this.activity.named(rows, 'product', uiLocale)
   }
 
   /**
@@ -317,7 +316,7 @@ export default class AdminDemandService {
     filters: AdminDemandFilters,
     uiLocale: string
   ): Promise<DemandTargetRow[]> {
-    const rows = await this.topTargets(
+    const rows = await this.activity.countByTarget(
       this.events(filters)
         .where('ae.type', 'supplier_viewed')
         .join('suppliers as s', 's.id', 'ae.target_id')
@@ -331,48 +330,9 @@ export default class AdminDemandService {
                 .whereRaw(`NOT ${latestDecisionIsRejectedSql('organization', 'o.id')}`)
             )
         ),
-      'supplier'
+      'supplier',
+      ADMIN_DEMAND_TOP_LIMIT
     )
-    return this.named(rows, 'supplier_translations', 'supplier_id', uiLocale)
-  }
-
-  /** Les `ADMIN_DEMAND_TOP_LIMIT` cibles les plus fréquentes d'un type, avec leur nombre d'événements. */
-  private async topTargets(
-    query: Query,
-    targetType: 'product' | 'supplier'
-  ): Promise<{ targetId: number; count: number }[]> {
-    const rows = await query
-      .where('ae.target_type', targetType)
-      .select('ae.target_id', db.raw('count(*)::int as total'))
-      .groupBy('ae.target_id')
-      .orderBy('total', 'desc')
-      .orderBy('ae.target_id', 'asc')
-      .limit(ADMIN_DEMAND_TOP_LIMIT)
-    return rows.map((row) => ({ targetId: Number(row.target_id), count: Number(row.total) }))
-  }
-
-  /**
-   * Ajoute le nom de chaque cible, résolu avec le repli habituel
-   * (`resolveTranslation`) ; `#<id>` quand la cible n'a aucune traduction.
-   */
-  private async named(
-    rows: { targetId: number; count: number }[],
-    table: 'product_translations' | 'supplier_translations',
-    foreignKey: 'product_id' | 'supplier_id',
-    uiLocale: string
-  ): Promise<DemandTargetRow[]> {
-    if (rows.length === 0) return []
-    const translations = await db
-      .from(table)
-      .whereIn(
-        foreignKey,
-        rows.map((row) => row.targetId)
-      )
-      .select(foreignKey, 'locale', 'name')
-
-    return rows.map((row) => {
-      const own = translations.filter((t) => Number(t[foreignKey]) === row.targetId)
-      return { ...row, name: resolveTranslation(own, uiLocale)?.name ?? `#${row.targetId}` }
-    })
+    return this.activity.named(rows, 'supplier', uiLocale)
   }
 }

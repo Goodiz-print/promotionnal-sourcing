@@ -1,3 +1,4 @@
+import type { ActivityTargetCount } from '#shared/types/activity_event'
 import type { OrganizationKind } from '#shared/types/organization'
 import type { SearchEventMode, SearchEventSource } from '#shared/types/search_event'
 
@@ -72,10 +73,8 @@ export type DemandCategoryRow = {
   searches: number
 }
 
-export type DemandTargetRow = {
-  targetId: number
+export type DemandTargetRow = ActivityTargetCount & {
   name: string
-  count: number
 }
 
 export type AdminDemandReport = {

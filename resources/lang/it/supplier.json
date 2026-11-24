@@ -107,5 +107,42 @@
       "deleted": "Contatto eliminato.",
       "settingsUpdated": "Impostazione salvata."
     }
+  },
+  "insights": {
+    "title": "Visualizzazioni",
+    "subtitle": "Quante volte le agenzie hanno visualizzato i tuoi prodotti e la tua scheda fornitore.",
+    "period": "Periodo",
+    "periodOption": "Ultimi {days} giorni",
+    "summary": {
+      "productViews": "Visualizzazioni dei prodotti",
+      "viewedProducts": "Prodotti visualizzati",
+      "supplierViews": "Visualizzazioni della scheda",
+      "rfqAdditions": "Aggiunte a una richiesta di preventivo"
+    },
+    "products": {
+      "title": "Visualizzazioni per prodotto",
+      "columns": {
+        "product": "Prodotto",
+        "views": "Visualizzazioni",
+        "rfqAdditions": "Aggiunte a una richiesta"
+      },
+      "emptyTitle": "Nessun prodotto",
+      "emptyBody": "Aggiungi prodotti al tuo catalogo per seguirne le visualizzazioni.",
+      "previous": "Precedente",
+      "next": "Successivo"
+    },
+    "agencies": {
+      "title": "Agenzie che ti hanno visualizzato",
+      "hint": "Visualizzazioni degli ultimi 90 giorni: oltre, restano conteggiate ma non indicano più l'agenzia.",
+      "columns": {
+        "agency": "Agenzia",
+        "views": "Visualizzazioni",
+        "products": "Prodotti visualizzati",
+        "lastViewedAt": "Ultima visualizzazione"
+      },
+      "emptyTitle": "Nessuna agenzia nel periodo",
+      "emptyBody": "Le agenzie che visualizzano i tuoi prodotti o la tua scheda appariranno qui.",
+      "limited": "Sono mostrate solo le {count} agenzie più recenti."
+    }
   }
 }

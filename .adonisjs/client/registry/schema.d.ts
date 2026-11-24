@@ -1892,6 +1892,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['move']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'supplier.insights.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/insights'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/insights_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/insights_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/insights_controller').default['index']>>>
+    }
+  }
   'admin.dashboard': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin'

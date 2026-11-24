@@ -4,6 +4,7 @@ import {
   SUBSCRIPTION_TIMEZONE,
   type SubscriptionReminderState,
   type SubscriptionStatus,
+  type SubscriptionUpsellType,
 } from '../types/subscription.js'
 
 /**
@@ -95,4 +96,17 @@ export function dueReminderDays(state: SubscriptionReminderState, now: Date): nu
   const sameEnd = state.remindedEndsAt !== null && Date.parse(state.remindedEndsAt) === endsAt
   const alreadySent = sameEnd && state.remindedDays !== null && state.remindedDays <= days
   return alreadySent ? null : days
+}
+
+/**
+ * Encart « abonnez-vous » (#222) d'un écran fournisseur : `null` pour un abonné,
+ * sinon le droit de souscrire (`canSubscribe`, l'ability `canManageSubscription`),
+ * évalué seulement pour un non abonné.
+ */
+export async function subscriptionUpsell(
+  subscribed: boolean,
+  canSubscribe: () => Promise<boolean>
+): Promise<SubscriptionUpsellType | null> {
+  if (subscribed) return null
+  return { canSubscribe: await canSubscribe() }
 }

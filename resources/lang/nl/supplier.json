@@ -107,5 +107,42 @@
       "deleted": "Contact verwijderd.",
       "settingsUpdated": "Instelling opgeslagen."
     }
+  },
+  "insights": {
+    "title": "Weergaven",
+    "subtitle": "Hoe vaak bureaus uw producten en uw leverancierspagina hebben bekeken.",
+    "period": "Periode",
+    "periodOption": "Laatste {days} dagen",
+    "summary": {
+      "productViews": "Productweergaven",
+      "viewedProducts": "Bekeken producten",
+      "supplierViews": "Weergaven van de leverancierspagina",
+      "rfqAdditions": "Toegevoegd aan een offerteaanvraag"
+    },
+    "products": {
+      "title": "Weergaven per product",
+      "columns": {
+        "product": "Product",
+        "views": "Weergaven",
+        "rfqAdditions": "Toegevoegd aan een aanvraag"
+      },
+      "emptyTitle": "Geen producten",
+      "emptyBody": "Voeg producten toe aan uw catalogus om hun weergaven te volgen.",
+      "previous": "Vorige",
+      "next": "Volgende"
+    },
+    "agencies": {
+      "title": "Bureaus die u hebben bekeken",
+      "hint": "Weergaven van de laatste 90 dagen: oudere weergaven tellen nog mee maar noemen het bureau niet meer.",
+      "columns": {
+        "agency": "Bureau",
+        "views": "Weergaven",
+        "products": "Bekeken producten",
+        "lastViewedAt": "Laatste weergave"
+      },
+      "emptyTitle": "Geen bureau in deze periode",
+      "emptyBody": "Bureaus die uw producten of uw pagina bekijken, verschijnen hier.",
+      "limited": "Alleen de {count} meest recente bureaus worden getoond."
+    }
   }
 }

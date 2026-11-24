@@ -876,6 +876,12 @@ const routes = {
     tokens: [[1,"locale"],[0,"supplier"],[0,"contacts"],[1,"id"],[0,"move"]],
     types: placeholder as Registry['supplier.contacts.move']['types'],
   },
+  'supplier.insights.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/insights',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"insights"]],
+    types: placeholder as Registry['supplier.insights.index']['types'],
+  },
   'admin.dashboard': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin',

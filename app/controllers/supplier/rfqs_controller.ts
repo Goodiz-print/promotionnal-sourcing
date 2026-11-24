@@ -15,13 +15,12 @@ import RfqThreadTransformer from '#transformers/rfq_thread_transformer'
 import { RfqNotEditableException } from '#exceptions/rfq_errors'
 import { acceptsResponses } from '#shared/helpers/rfq_deadline'
 import { supplierRfqFiltersForPage } from '#shared/helpers/supplier_rfq'
+import { subscriptionUpsell } from '#shared/helpers/subscription'
 import { supplierRfqListStatusValidator } from '#validators/rfq'
 import type { SupplierSentQuotesType } from '#shared/types/quote'
 import type { Locale } from '#shared/types/i18n'
-import type Organization from '#models/organization'
 import type Rfq from '#models/rfq'
 import type { RfqThreadType } from '#shared/types/conversation'
-import type { SubscriptionUpsellType } from '#shared/types/subscription'
 
 /**
  * Demandes de devis **reçues**, côté fournisseur. Symétrique de
@@ -69,7 +68,9 @@ export default class SupplierRfqsController {
     return inertia.render('supplier/rfqs/index', {
       rfqs: rfqs.map((rfq) => new SupplierRfqTransformer(rfq, revealBuyer).toObject()),
       filters: supplierRfqFiltersForPage(filters),
-      upsell: await this.upsellFor(revealBuyer, org, bouncer),
+      upsell: await subscriptionUpsell(revealBuyer, () =>
+        bouncer.allows('canManageSubscription', org)
+      ),
     })
   }
 
@@ -99,7 +100,9 @@ export default class SupplierRfqsController {
 
     return inertia.render('supplier/rfqs/show', {
       rfq: new SupplierRfqDetailTransformer(rfq, revealBuyer, i18n.locale as Locale).toObject(),
-      upsell: await this.upsellFor(revealBuyer, org, bouncer),
+      upsell: await subscriptionUpsell(revealBuyer, () =>
+        bouncer.allows('canManageSubscription', org)
+      ),
       // Le devis vivant du fournisseur, s'il en a un : l'écran y renvoie.
       quote: quote ? { id: quote.id, status: quote.status } : null,
       // Chiffrer suppose une demande encore ouverte et non déclinée.
@@ -171,15 +174,5 @@ export default class SupplierRfqsController {
       ),
       canUploadQuote,
     }
-  }
-
-  /** Encart d'abonnement (#222), pour un fournisseur non abonné seulement. */
-  private async upsellFor(
-    subscribed: boolean,
-    org: Organization,
-    bouncer: HttpContext['bouncer']
-  ): Promise<SubscriptionUpsellType | null> {
-    if (subscribed) return null
-    return { canSubscribe: await bouncer.allows('canManageSubscription', org) }
   }
 }

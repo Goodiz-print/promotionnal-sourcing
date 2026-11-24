@@ -146,6 +146,9 @@ export interface ApiDefinition {
       destroy: typeof routes['supplier.contacts.destroy']
       move: typeof routes['supplier.contacts.move']
     }
+    insights: {
+      index: typeof routes['supplier.insights.index']
+    }
   }
   newAccount: {
     create: typeof routes['new_account.create']

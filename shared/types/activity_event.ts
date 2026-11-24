@@ -43,3 +43,25 @@ export interface ActivityEventPurgeResult {
   pseudonymized: number
   deleted: number
 }
+
+/**
+ * Période d'agrégation des événements : dates `AAAA-MM-JJ`, bornes incluses.
+ * Déclarée en `type` pour rester assignable aux props Inertia.
+ */
+export type ActivityDateRange = {
+  from: string
+  to: string
+}
+
+/** Nombre d'événements d'une cible (produit, fiche fournisseur). */
+export type ActivityTargetCount = {
+  targetId: number
+  count: number
+}
+
+/** Une ligne de traduction d'une cible, telle que lue pour la nommer. */
+export interface ActivityTargetTranslation {
+  targetId: number
+  locale: string
+  name: string
+}
