@@ -44,6 +44,11 @@ const period = (subscription: AdminOrganizationSubscription) => ({
   start: formatDay(dayInSubscriptionZone(new Date(subscription.startsAt))),
   end: subscription.endsAt ? formatDay(lastCoveredDay(subscription.endsAt)) : null,
 })
+
+/** Lignes du tableau avec leur période déjà formatée (une fois par ligne). */
+const rows = computed(() =>
+  props.subscriptions.map((subscription) => ({ subscription, period: period(subscription) }))
+)
 </script>
 
 <template>
@@ -70,7 +75,7 @@ const period = (subscription: AdminOrganizationSubscription) => ({
         </tr>
       </template>
 
-      <tr v-for="subscription in subscriptions" :key="subscription.id">
+      <tr v-for="{ subscription, period: range } in rows" :key="subscription.id">
         <td class="font-semibold text-text-primary">
           {{ t(`subscription.plans.${subscription.plan}.name`) }}
         </td>
@@ -81,10 +86,11 @@ const period = (subscription: AdminOrganizationSubscription) => ({
         </td>
         <td class="text-tabular whitespace-nowrap">
           <span class="inline-flex items-center gap-1">
-            {{ period(subscription).start }}
-            <template v-if="period(subscription).end">
+            {{ range.start }}
+            <template v-if="range.end">
               <ArrowRight :size="14" aria-hidden="true" />
-              {{ period(subscription).end }}
+              <span class="sr-only">{{ t('admin.organizations.subscription.periodUntil') }}</span>
+              {{ range.end }}
             </template>
           </span>
         </td>

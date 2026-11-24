@@ -287,6 +287,7 @@
       "extend": "Modifica la fine",
       "cancel": "Disdici",
       "cancelConfirm": "Disdire subito questo abbonamento? L'organizzazione torna al piano gratuito.",
+      "periodUntil": "al",
       "fields": {
         "plan": "Piano",
         "status": "Stato",

@@ -287,6 +287,7 @@
       "extend": "Ändra slutdatum",
       "cancel": "Säg upp",
       "cancelConfirm": "Säga upp abonnemanget nu? Organisationen går tillbaka till gratisplanen.",
+      "periodUntil": "till",
       "fields": {
         "plan": "Plan",
         "status": "Status",

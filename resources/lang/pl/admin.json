@@ -287,6 +287,7 @@
       "extend": "Zmień datę końca",
       "cancel": "Anuluj",
       "cancelConfirm": "Anulować tę subskrypcję teraz? Organizacja wraca do planu bezpłatnego.",
+      "periodUntil": "do",
       "fields": {
         "plan": "Plan",
         "status": "Status",

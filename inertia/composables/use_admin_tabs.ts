@@ -14,7 +14,11 @@ import type { PlatformPermission } from '#shared/types/user'
  * l'URL de la page (`isActivePath`) ; `/admin` étant le parent de toutes les
  * autres sections, il n'est actif que si aucun onglet plus précis ne l'est.
  */
-export const ADMIN_SECTIONS: { key: string; route: string; permission: PlatformPermission }[] = [
+export const ADMIN_SECTIONS: readonly {
+  key: string
+  route: string
+  permission: PlatformPermission
+}[] = [
   { key: 'dashboard', route: 'admin.dashboard', permission: 'backoffice.access' },
   { key: 'organizations', route: 'admin.organizations.index', permission: 'organizations.view' },
   {

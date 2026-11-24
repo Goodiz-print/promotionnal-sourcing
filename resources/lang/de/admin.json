@@ -287,6 +287,7 @@
       "extend": "Enddatum ändern",
       "cancel": "Kündigen",
       "cancelConfirm": "Dieses Abonnement jetzt kündigen? Die Organisation wechselt zurück in den kostenlosen Tarif.",
+      "periodUntil": "bis",
       "fields": {
         "plan": "Tarif",
         "status": "Status",
