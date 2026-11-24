@@ -34,9 +34,9 @@ le chemin pour un besoin hors catalogue ou une demande multi-destinataires
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `add`                     | relit le produit (`ProductCatalogueService#findForRfq`), 404 s'il n'est pas demandable. `variantId` facultatif, variante active du produit. Quantité par défaut : `min_quantity`, sinon 1. Couple (produit, variante) déjà présent : rien n'est modifié, message « déjà dans votre panier » |
 | `updateItem`/`removeItem` | filtrés sur `(user_id, organization_id)` : la ligne d'un autre panier est un **404**. Options contrôlées contre le produit (cf. ci-dessous)                                                                                                                                                 |
-| `list`                    | lignes groupées par organisation fournisseuse, dans l'ordre d'ajout                                                                                                                                                                                                                         |
-| `checkout`                | une RFQ par groupe joignable, **en une transaction** ; les lignes validées quittent le panier                                                                                                                                                                                               |
-| `count`/`cartVariantIds`  | pastille du bandeau, variantes déjà au panier pour la fiche produit                                                                                                                                                                                                                         |
+| `list`                    | lignes des produits **publiés**, groupées par organisation fournisseuse, dans l'ordre d'ajout                                                                                                                                                                                               |
+| `checkout`                | une RFQ par groupe, **en une transaction** ; les lignes validées quittent le panier                                                                                                                                                                                                         |
+| `count`/`cartVariantIds`  | pastille du bandeau (lignes publiées seulement), variantes déjà au panier pour la fiche produit                                                                                                                                                                                             |
 
 ### Options et estimation
 
@@ -66,13 +66,27 @@ Chaque groupe porte un sous-total par devise et `estimateComplete` (faux dès
 qu'une ligne n'est pas entièrement chiffrée). L'écran rappelle que le devis
 du fournisseur fait foi.
 
-### Groupe « non joignable »
+### Produits dépubliés (#240)
 
-Un produit devenu indemandable (désactivé, rejeté, organisation archivée) ou
-dont l'organisation fournisseuse n'est plus éligible (`supplier`/`both`, non
-archivée) est rangé dans un groupe `supplierOrganizationId: null`, affiché en
-dernier. Il est exclu de la validation et **reste au panier**. Un panier qui
-n'a que ce groupe ne peut pas être validé (`QuoteCartEmptyException`).
+Un produit publié a toujours un fournisseur destinataire : seules les fiches
+rattachées à une organisation sont publiées (#240). Le panier ne liste donc que
+les lignes dont le produit est publié (actif, non rejeté, fiche rattachée à une
+organisation vivante `supplier`/`both`) : chaque groupe a un
+`supplierOrganizationId`, il n'y a plus de groupe « non joignable ».
+
+Une ligne dont le produit est dépublié après l'ajout (désactivé, rejeté, fiche
+détachée, organisation archivée ou devenue inéligible) est **masquée** : ni
+listée, ni comptée dans la pastille, ni validée. Elle reste en base et
+réapparaît si le produit est republié (fiche rattachée de nouveau, par
+exemple). Un panier sans ligne publiée ne peut pas être validé
+(`QuoteCartEmptyException`).
+
+Dans sa transaction, la validation verrouille (`FOR SHARE`) les fiches
+fournisseur des lignes envoyées et vérifie qu'elles sont toujours rattachées à
+l'organisation de leur groupe. Un détachement concurrent (verrou `FOR UPDATE`)
+attend la fin de la validation ; s'il l'a précédée, rien n'est créé
+(`QuoteCartChangedException`, message `quote_cart.errors.supplierUnavailable`)
+et le panier reste intact.
 
 ### Validation
 
@@ -150,11 +164,13 @@ i18n : `resources/lang/<langue>/quote_cart.json`, 9 langues.
 
 - `tests/functional/quote_cart.spec.ts` : ajout (quantité minimale, quantité
   saisie, sans doublon, produit masqué), groupement et pastille, état de la
-  fiche produit, groupe non joignable, édition/retrait, cloisonnement (404),
+  fiche produit, produit dépublié masqué (fournisseur inéligible, fiche
+  détachée puis rattachée), édition/retrait, cloisonnement (404),
   organisation fournisseuse refusée ; validation multi-fournisseurs (une RFQ
   publiée et envoyée par fournisseur, lignes et destinataire propres, `RfqSent`
-  émis deux fois, panier vidé), `member` → demandes envoyées (#216), groupe non
-  joignable conservé, panier vide et titre manquant refusés.
+  émis deux fois, panier vidé), `member` → demandes envoyées (#216), ligne
+  dépubliée ni envoyée ni supprimée, fiche détachée pendant la validation
+  (rien créé), panier vide et titre manquant refusés.
 - `tests/inertia/quote_cart.spec.ts`, `quote_cart_buttons.spec.ts`,
   `product_quote_actions.spec.ts`.
 

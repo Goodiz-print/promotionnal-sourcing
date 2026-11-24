@@ -11,9 +11,7 @@
     "browse": "Przeglądaj katalog"
   },
   "group": {
-    "items": "{count, plural, one {# produkt} few {# produkty} many {# produktów} other {# produktu}} · osobne zapytanie",
-    "unreachable": "Niedostępni dostawcy",
-    "unreachableDescription": "Tych produktów nie można obecnie zamówić do wyceny na platformie. Pozostają w koszyku."
+    "items": "{count, plural, one {# produkt} few {# produkty} many {# produktów} other {# produktu}} · osobne zapytanie"
   },
   "line": {
     "quantity": "Ilość",

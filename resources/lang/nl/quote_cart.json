@@ -11,9 +11,7 @@
     "browse": "Catalogus bekijken"
   },
   "group": {
-    "items": "{count, plural, one {# product} other {# producten}} · een eigen aanvraag",
-    "unreachable": "Onbereikbare leveranciers",
-    "unreachableDescription": "Deze producten kunnen momenteel niet via het platform worden aangevraagd. Ze blijven in uw mand."
+    "items": "{count, plural, one {# product} other {# producten}} · een eigen aanvraag"
   },
   "line": {
     "quantity": "Aantal",

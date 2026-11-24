@@ -43,7 +43,8 @@
       "products": "Produtos",
       "rfqs": "Pedidos de orçamento",
       "pendingModeration": "A moderar",
-      "pendingAgencyReviews": "Agências a rever"
+      "pendingAgencyReviews": "Agências a rever",
+      "pendingSupplierLinks": "Fichas por associar"
     },
     "archived": "{count, plural, =0 {Nenhum arquivado} one {# arquivado} other {# arquivados}}",
     "kpi": {
@@ -320,6 +321,7 @@
   "supplierLinks": {
     "title": "Associação das fichas de fornecedor",
     "subtitle": "Fichas importadas a aguardar o acordo do fornecedor. Associá-las à sua organização regista esse acordo e publica o catálogo.",
+    "unpublishedNotice": "Estas fichas e os seus produtos não estão publicados: nem no catálogo, nem na pesquisa, nem nas páginas públicas. Associá-las à organização do fornecedor publica-as; desassociá-las retira-as.",
     "resultsCount": "{count, plural, =0 {Nenhuma ficha} one {# ficha} other {# fichas}}",
     "empty": {
       "pending": "Nenhuma ficha a aguardar acordo.",

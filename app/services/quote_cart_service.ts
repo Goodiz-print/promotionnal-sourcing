@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import Product from '#models/product'
 import ProductMarkingPositionTechnique from '#models/product_marking_position_technique'
 import ProductVariant from '#models/product_variant'
@@ -11,10 +12,10 @@ import type RfqSupplier from '#models/rfq_supplier'
 import type User from '#models/user'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import RfqService from '#services/rfq_service'
-import RfqProductOptionTransformer from '#transformers/rfq_product_option_transformer'
 import QuoteCartItemTransformer from '#transformers/quote_cart_item_transformer'
 import { ProductNotFoundException } from '#exceptions/catalogue_errors'
 import {
+  QuoteCartChangedException,
   QuoteCartDuplicateLineException,
   QuoteCartEmptyException,
   QuoteCartInvalidOptionException,
@@ -62,15 +63,10 @@ export default class QuoteCartService {
     private catalogue: ProductCatalogueService
   ) {}
 
-  /** Nombre de lignes — la pastille du bandeau. */
+  /** Nombre de lignes affichées au panier — la pastille du bandeau. */
   async count(user: User, organization: Organization): Promise<number> {
-    const [{ total }] = await db
-      .from('quote_cart_items')
-      .where('user_id', user.id)
-      .where('organization_id', organization.id)
-      .count('* as total')
-      .exec()
-    return Number(total)
+    const row = await this.publishedItemsOf(user, organization).count('* as total').firstOrFail()
+    return Number(row.$extras.total)
   }
 
   /**
@@ -180,9 +176,10 @@ export default class QuoteCartService {
 
   /**
    * Lignes du panier groupées par organisation fournisseuse, dans l'ordre
-   * d'ajout. Les produits devenus indemandables (désactivés, rejetés) ou dont
-   * le fournisseur n'a pas de compte éligible forment le groupe
-   * `supplierOrganizationId: null`, toujours placé en dernier.
+   * d'ajout. Seules les lignes dont le produit est **publié** sont listées
+   * (#240) : chaque groupe a donc un fournisseur destinataire. Une ligne dont le
+   * produit a été dépublié (désactivé, rejeté, fiche détachée de son
+   * organisation) est masquée, et réapparaît si le produit est republié.
    */
   async list(
     user: User,
@@ -190,32 +187,8 @@ export default class QuoteCartService {
     locale: Locale
   ): Promise<QuoteCartGroupType[]> {
     const items = await this.loadItems(user, organization)
-    const reachable = await this.reachableProductIds(items)
-    const groups = new Map<number | null, QuoteCartGroupType>()
-
-    for (const item of items) {
-      const option = new RfqProductOptionTransformer(item.product, locale).toObject()
-      const supplierId = reachable.has(item.productId) ? option.supplierOrganizationId : null
-      const group = groups.get(supplierId) ?? {
-        supplierOrganizationId: supplierId,
-        supplierName: supplierId === null ? null : option.supplierName,
-        items: [],
-        subtotals: [],
-        estimateComplete: true,
-      }
-      group.items.push(new QuoteCartItemTransformer(item, locale).toObject())
-      groups.set(supplierId, group)
-    }
-
-    for (const group of groups.values()) {
-      const { subtotals, complete } = sumEstimates(group.items.map((line) => line.estimate))
-      group.subtotals = subtotals
-      group.estimateComplete = complete
-    }
-
-    const unreachable = groups.get(null)
-    groups.delete(null)
-    return [...groups.values(), ...(unreachable ? [unreachable] : [])]
+    const groups = Map.groupBy(items, (item) => item.product.supplier.organization.id)
+    return [...groups.values()].map((lines) => this.groupOf(lines, locale))
   }
 
   /**
@@ -224,9 +197,9 @@ export default class QuoteCartService {
    * fournisseur, description, échéance), ses seules lignes, et ce fournisseur
    * pour unique destinataire. Avec `send`, elle est aussitôt publiée et
    * envoyée ; sans (un `member`, qui rédige mais n'envoie pas), elle reste en
-   * brouillon. Les lignes validées quittent le panier ; le groupe non joignable
-   * y reste. Les demandes d'une même validation partagent un `batchId` (lot de
-   * panier, #229), tiré une fois par appel.
+   * brouillon. Les lignes validées quittent le panier. Les demandes d'une même
+   * validation partagent un `batchId` (lot de panier, #229), tiré une fois par
+   * appel.
    *
    * Les notifications (`RfqSent`) sont à émettre par l'appelant **après** le
    * retour : la transaction est alors commitée.
@@ -237,14 +210,14 @@ export default class QuoteCartService {
     data: QuoteCartCheckoutData,
     options: { send: boolean; locale: Locale }
   ): Promise<QuoteCartCheckoutOutcome[]> {
-    const cart = await this.list(user, organization, options.locale)
-    const groups = cart.filter((group) => group.supplierOrganizationId !== null)
+    const groups = await this.list(user, organization, options.locale)
     if (groups.length === 0) throw new QuoteCartEmptyException()
 
     const categories = await this.categoriesOf(groups)
     const batchId = randomUUID()
 
     return db.transaction(async (trx) => {
+      await this.assertRecipientsUnchanged(groups, trx)
       const outcomes: QuoteCartCheckoutOutcome[] = []
 
       for (const group of groups) {
@@ -267,7 +240,7 @@ export default class QuoteCartService {
           },
           trx
         )
-        await this.rfqs.addSuppliers(rfq, [group.supplierOrganizationId!], trx)
+        await this.rfqs.addSuppliers(rfq, [group.supplierOrganizationId], trx)
 
         let recipients: RfqSupplier[] = []
         if (options.send) {
@@ -286,6 +259,69 @@ export default class QuoteCartService {
 
   private itemsOf(user: User, organization: Organization) {
     return QuoteCartItem.query().where('userId', user.id).where('organizationId', organization.id)
+  }
+
+  /**
+   * Lignes dont le produit est publié (actif, non rejeté, fiche rattachée à une
+   * organisation vivante) et dont l'organisation peut recevoir une demande.
+   */
+  private publishedItemsOf(user: User, organization: Organization) {
+    return this.itemsOf(user, organization).whereHas('product', (product) =>
+      product
+        .where('isActive', true)
+        .withScopes((scopes) => {
+          scopes.fromLiveOrganization()
+          scopes.notRejected()
+        })
+        .whereHas('supplier', (supplier) =>
+          supplier.whereHas('organization', (org) =>
+            org.whereIn('organizationType', SUPPLIER_ORGANIZATION_TYPES)
+          )
+        )
+    )
+  }
+
+  /**
+   * Verrouille (`FOR SHARE`) les fiches fournisseur des lignes validées et
+   * vérifie qu'elles sont toujours rattachées à l'organisation de leur groupe.
+   * Un détachement concurrent (`AdminSupplierLinkService#unlink`, `FOR UPDATE`)
+   * attend donc la fin de la validation ; s'il l'a précédée, la validation est
+   * refusée plutôt que d'envoyer la demande à une organisation qui n'a plus la
+   * fiche.
+   */
+  private async assertRecipientsUnchanged(
+    groups: QuoteCartGroupType[],
+    trx: TransactionClientContract
+  ): Promise<void> {
+    const expected = new Map(
+      groups.flatMap((group) =>
+        group.items.map((item) => [item.productId, group.supplierOrganizationId] as const)
+      )
+    )
+    const rows: { id: number; organization_id: number | null }[] = await trx
+      .from('products')
+      .join('suppliers', 'suppliers.id', 'products.supplier_id')
+      .whereIn('products.id', [...expected.keys()])
+      .select('products.id', 'suppliers.organization_id')
+      .forShare('suppliers')
+    const changed =
+      rows.length !== expected.size ||
+      rows.some((row) => row.organization_id !== expected.get(row.id))
+    if (changed) throw new QuoteCartChangedException()
+  }
+
+  /** Groupe d'un fournisseur : ses lignes et leurs sous-totaux estimés. */
+  private groupOf(lines: QuoteCartItem[], locale: Locale): QuoteCartGroupType {
+    const supplier = lines[0].product.supplier.organization
+    const items = lines.map((item) => new QuoteCartItemTransformer(item, locale).toObject())
+    const { subtotals, complete } = sumEstimates(items.map((line) => line.estimate))
+    return {
+      supplierOrganizationId: supplier.id,
+      supplierName: supplier.name,
+      items,
+      subtotals,
+      estimateComplete: complete,
+    }
   }
 
   private async findItem(user: User, organization: Organization, id: number) {
@@ -332,7 +368,7 @@ export default class QuoteCartService {
   }
 
   private loadItems(user: User, organization: Organization): Promise<QuoteCartItem[]> {
-    return this.itemsOf(user, organization)
+    return this.publishedItemsOf(user, organization)
       .preload('product', (product) =>
         product
           .preload('translations')
@@ -361,30 +397,6 @@ export default class QuoteCartService {
       )
       .orderBy('createdAt', 'asc')
       .orderBy('id', 'asc')
-  }
-
-  /**
-   * Produits encore demandables (actifs, non rejetés, organisation vivante) et
-   * dont l'organisation fournisseuse est éligible comme destinataire.
-   */
-  private async reachableProductIds(items: QuoteCartItem[]): Promise<Set<number>> {
-    const ids = items.map((item) => item.productId)
-    if (ids.length === 0) return new Set()
-
-    const visible = await Product.query()
-      .select('products.id')
-      .whereIn('products.id', ids)
-      .where('isActive', true)
-      .withScopes((scopes) => {
-        scopes.fromLiveOrganization()
-        scopes.notRejected()
-      })
-      .whereHas('supplier', (supplier) =>
-        supplier.whereHas('organization', (org) =>
-          org.whereIn('organizationType', SUPPLIER_ORGANIZATION_TYPES).whereNull('archivedAt')
-        )
-      )
-    return new Set(visible.map((product) => product.id))
   }
 
   /** Catégorie de chaque produit validé, pour cadrer les lignes de la demande. */

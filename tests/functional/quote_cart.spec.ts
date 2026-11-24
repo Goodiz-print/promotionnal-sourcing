@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import app from '@adonisjs/core/services/app'
 import emitter from '@adonisjs/core/services/emitter'
 import mail from '@adonisjs/mail/services/main'
 import RfqReceivedNotification from '#mails/rfq_received_notification'
@@ -14,12 +15,15 @@ import { ProductPriceTierFactory } from '#database/factories/product_price_tier_
 import { ProductVariantFactory } from '#database/factories/product_variant_factory'
 import { SupplierFactory } from '#database/factories/supplier_factory'
 import Organization from '#models/organization'
+import Supplier from '#models/supplier'
 import type Product from '#models/product'
 import QuoteCartItem from '#models/quote_cart_item'
+import QuoteCartService from '#services/quote_cart_service'
 import Rfq from '#models/rfq'
 import RfqItem from '#models/rfq_item'
 import { createMember } from '#tests/utils/organizations'
 import { RFQ_DEADLINE_TIMEZONE } from '#shared/types/rfq'
+import type { QuoteCartGroupType } from '#shared/types/quote_cart'
 import { useDatabase } from '#tests/utils/setup'
 import type User from '#models/user'
 import type { ApiClient } from '@japa/api-client'
@@ -206,7 +210,7 @@ test.group('Panier de devis — contenu', (cartGroup) => {
 
     response.assertStatus(200)
     const groups = response.inertiaProps.groups as Array<{
-      supplierOrganizationId: number | null
+      supplierOrganizationId: number
       items: Array<{ productId: number }>
     }>
     assert.deepEqual(
@@ -234,22 +238,47 @@ test.group('Panier de devis — contenu', (cartGroup) => {
     })
   })
 
-  test("un produit d'un fournisseur devenu inéligible passe en « non joignable »", async ({
+  test("un produit d'un fournisseur devenu inéligible est masqué du panier", async ({
     client,
     assert,
   }) => {
     const { owner } = await buyerWithOwner()
-    const [product] = await productsOfTwoSuppliers()
+    const [product, other] = await productsOfTwoSuppliers()
     await addToCart(client, owner, product.id)
+    await addToCart(client, owner, other.id)
     await Organization.query()
       .where('id', product.supplier.organizationId!)
       .update({ organizationType: 'buyer' })
 
     const response = await client.get('/fr/quote-cart').withInertia().loginAs(owner)
 
-    const [unreachable] = response.inertiaProps.groups
-    assert.isNull(unreachable.supplierOrganizationId)
-    assert.equal(unreachable.items[0].productId, product.id)
+    const groups = response.inertiaProps.groups as QuoteCartGroupType[]
+    assert.deepEqual(
+      groups.map((entry) => entry.supplierOrganizationId),
+      [other.supplier.organizationId]
+    )
+    assert.equal(response.inertiaProps.quoteCartCount, 1)
+  })
+
+  test('une fiche détachée de son organisation sort du panier, et y revient rattachée (#240)', async ({
+    client,
+    assert,
+  }) => {
+    const { owner } = await buyerWithOwner()
+    const [product] = await productsOfTwoSuppliers()
+    await addToCart(client, owner, product.id)
+    const organizationId = product.supplier.organizationId!
+    await Supplier.query().where('id', product.supplierId).update({ organizationId: null })
+
+    const hidden = await client.get('/fr/quote-cart').withInertia().loginAs(owner)
+    assert.deepEqual(hidden.inertiaProps.groups, [])
+    assert.equal(hidden.inertiaProps.quoteCartCount, 0)
+
+    await Supplier.query().where('id', product.supplierId).update({ organizationId })
+    const back = await client.get('/fr/quote-cart').withInertia().loginAs(owner)
+    const [group] = back.inertiaProps.groups as QuoteCartGroupType[]
+    assert.equal(group.supplierOrganizationId, organizationId)
+    assert.equal(group.items[0].productId, product.id)
   })
 
   test('modifie et retire une ligne', async ({ client, assert }) => {
@@ -432,7 +461,10 @@ test.group('Panier de devis — validation', (checkoutGroup) => {
     assert.lengthOf(await QuoteCartItem.query().where('userId', member.id), 0)
   })
 
-  test('le groupe non joignable reste au panier', async ({ client, assert }) => {
+  test('une ligne dont le produit est dépublié n’est pas envoyée et reste en base', async ({
+    client,
+    assert,
+  }) => {
     const { org, owner } = await buyerWithOwner()
     const [first, second] = await productsOfTwoSuppliers()
     await addToCart(client, owner, first.id)
@@ -452,6 +484,41 @@ test.group('Panier de devis — validation', (checkoutGroup) => {
       left.map((item) => item.productId),
       [second.id]
     )
+  })
+
+  test('une fiche détachée pendant la validation : rien n’est envoyé, le panier reste (#240)', async ({
+    client,
+    assert,
+  }) => {
+    const { org, owner } = await buyerWithOwner()
+    const [first, second] = await productsOfTwoSuppliers()
+    await addToCart(client, owner, first.id)
+    await addToCart(client, owner, second.id)
+
+    // Détachement concurrent : il est commité après la lecture du panier,
+    // avant la transaction de validation.
+    const service = await app.container.make(QuoteCartService)
+    const read = service.list.bind(service)
+    service.list = async (...args: Parameters<typeof read>) => {
+      const groups = await read(...args)
+      await Supplier.query().where('id', second.supplierId).update({ organizationId: null })
+      return groups
+    }
+    app.container.swap(QuoteCartService, () => service)
+
+    try {
+      const response = await checkout(client, owner, { title: 'Salon 2027' })
+      response.assertStatus(302)
+      assert.equal(
+        response.flashMessages().error,
+        "Un fournisseur n'est plus joignable. Rechargez le panier et réessayez."
+      )
+    } finally {
+      app.container.restore(QuoteCartService)
+    }
+
+    assert.lengthOf(await Rfq.query().where('buyerOrganizationId', org.id), 0)
+    assert.lengthOf(await QuoteCartItem.query().where('userId', owner.id), 2)
   })
 
   test('un panier sans rien à demander est refusé', async ({ client, assert }) => {

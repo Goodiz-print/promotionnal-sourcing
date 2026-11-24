@@ -2,7 +2,7 @@
 import { computed, type Component } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
-import { Building2, FileText, Package, ShieldCheck, UserCheck, Users } from 'lucide-vue-next'
+import { Building2, FileText, Link2, Package, ShieldCheck, UserCheck, Users } from 'lucide-vue-next'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
 import { usePlatformPermissions } from '~/composables/use_platform_permissions'
@@ -44,7 +44,13 @@ function visit(filters: AdminKpiFilters) {
 }
 
 type Counter =
-  'organizations' | 'users' | 'products' | 'rfqs' | 'pendingModeration' | 'pendingAgencyReviews'
+  | 'organizations'
+  | 'users'
+  | 'products'
+  | 'rfqs'
+  | 'pendingModeration'
+  | 'pendingAgencyReviews'
+  | 'pendingSupplierLinks'
 
 /**
  * Compteurs du back-office : icône, et liste cible quand une page admin existe
@@ -58,6 +64,7 @@ const COUNTERS: {
     | 'admin.users.index'
     | 'admin.moderation.index'
     | 'admin.agency_reviews.index'
+    | 'admin.supplier_links.index'
   permission?: PlatformPermission
   /** Compteur « à traiter » : montré seulement aux rôles qui ont `permission`. */
   gated?: boolean
@@ -85,9 +92,16 @@ const COUNTERS: {
     permission: 'moderation.manage',
     gated: true,
   },
+  {
+    key: 'pendingSupplierLinks',
+    icon: Link2,
+    route: 'admin.supplier_links.index',
+    permission: 'organizations.manage',
+    gated: true,
+  },
 ]
 
-/** Les compteurs « à traiter » (modération, revue des agences) ne sont montrés qu'aux rôles qui peuvent la traiter. */
+/** Les compteurs « à traiter » (modération, revue des agences, rattachements) ne sont montrés qu'aux rôles qui peuvent la traiter. */
 const counters = computed(() =>
   COUNTERS.filter((counter) => !counter.gated || (counter.permission && can(counter.permission)))
 )

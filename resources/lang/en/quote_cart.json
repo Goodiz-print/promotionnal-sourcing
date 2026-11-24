@@ -11,9 +11,7 @@
     "browse": "Browse the catalogue"
   },
   "group": {
-    "items": "{count, plural, one {# product} other {# products}} · one dedicated request",
-    "unreachable": "Unreachable suppliers",
-    "unreachableDescription": "These products cannot be requested on the platform for now. They stay in your cart."
+    "items": "{count, plural, one {# product} other {# products}} · one dedicated request"
   },
   "line": {
     "quantity": "Quantity",

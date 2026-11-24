@@ -7,6 +7,7 @@ import { UserFactory } from '#database/factories/user_factory'
 import AdminAuditLog from '#models/admin_audit_log'
 import type Supplier from '#models/supplier'
 import SearchSyncService from '#services/search_sync_service'
+import TranslationQueueService from '#services/translation_queue_service'
 import { createMember } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
 import type { AdminSupplierLinkItem } from '#shared/types/supplier_link'
@@ -46,6 +47,22 @@ function spySearchSync(): number[] {
   return queued
 }
 
+/** Espion de `TranslationQueueService` : fiches dont les produits ont été mis en traduction. */
+function spyTranslations(): number[] {
+  const queued: number[] = []
+  app.container.swap(
+    TranslationQueueService,
+    () =>
+      ({
+        queueSupplier: async (id: number) => {
+          queued.push(id)
+          return true
+        },
+      }) as unknown as TranslationQueueService
+  )
+  return queued
+}
+
 async function listed(client: any, user: unknown, qs = '') {
   const response = await client.get(`/fr/admin/supplier-links${qs}`).withInertia().loginAs(user)
   response.assertStatus(200)
@@ -58,7 +75,10 @@ async function listed(client: any, user: unknown, qs = '') {
 
 test.group('Back-office — rattachement des fiches fournisseur (#231)', (group) => {
   useDatabase(group)
-  group.each.teardown(() => app.container.restore(SearchSyncService))
+  group.each.teardown(() => {
+    app.container.restore(SearchSyncService)
+    app.container.restore(TranslationQueueService)
+  })
 
   test('liste les fiches en attente avec l’organisation proposée', async ({ client, assert }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
@@ -84,11 +104,12 @@ test.group('Back-office — rattachement des fiches fournisseur (#231)', (group)
     )
   })
 
-  test('rattache une fiche : accord daté et signé, tracé, produits réindexés', async ({
+  test('rattache une fiche : accord daté et signé, tracé, produits réindexés et traduits', async ({
     client,
     assert,
   }) => {
     const queued = spySearchSync()
+    const translated = spyTranslations()
     const admin = await UserFactory.apply('platformAdmin').create()
     const organization = await OrganizationFactory.apply('supplier').create()
     const supplier = await SupplierFactory.create()
@@ -101,6 +122,7 @@ test.group('Back-office — rattachement des fiches fournisseur (#231)', (group)
     assert.equal(supplier.linkedByUserId, admin.id)
     assert.isNotNull(supplier.linkedAt)
     assert.deepEqual(queued, [supplier.id])
+    assert.deepEqual(translated, [supplier.id])
 
     const log = await AdminAuditLog.query()
       .where('action', 'supplier.linked')
@@ -121,6 +143,7 @@ test.group('Back-office — rattachement des fiches fournisseur (#231)', (group)
     assert,
   }) => {
     const queued = spySearchSync()
+    const translated = spyTranslations()
     const admin = await UserFactory.apply('platformAdmin').create()
     const first = await OrganizationFactory.apply('supplier').create()
     const second = await OrganizationFactory.apply('supplier').create()
@@ -136,6 +159,7 @@ test.group('Back-office — rattachement des fiches fournisseur (#231)', (group)
     await supplier.refresh()
     assert.equal(supplier.organizationId, first.id)
     assert.isEmpty(queued)
+    assert.isEmpty(translated)
     assert.isNull(await AdminAuditLog.findBy('action', 'supplier.linked'))
   })
 
@@ -160,11 +184,12 @@ test.group('Back-office — rattachement des fiches fournisseur (#231)', (group)
     assert.isNull(supplier.organizationId)
   })
 
-  test('détache une fiche : accord effacé, tracé, produits réindexés', async ({
+  test('détache une fiche : accord effacé, tracé, produits réindexés, rien à traduire', async ({
     client,
     assert,
   }) => {
     const queued = spySearchSync()
+    const translated = spyTranslations()
     const admin = await UserFactory.apply('platformAdmin').create()
     const organization = await OrganizationFactory.apply('supplier').create()
     const supplier = await SupplierFactory.merge({ organizationId: organization.id }).create()
@@ -177,6 +202,7 @@ test.group('Back-office — rattachement des fiches fournisseur (#231)', (group)
     assert.isNull(supplier.linkedAt)
     assert.isNull(supplier.linkedByUserId)
     assert.deepEqual(queued, [supplier.id])
+    assert.isEmpty(translated)
 
     const log = await AdminAuditLog.query()
       .where('action', 'supplier.unlinked')

@@ -11,9 +11,7 @@
     "browse": "Explorar el catálogo"
   },
   "group": {
-    "items": "{count, plural, one {# producto} other {# productos}} · una solicitud propia",
-    "unreachable": "Proveedores no disponibles",
-    "unreachableDescription": "Estos productos no se pueden solicitar en la plataforma por ahora. Permanecen en su cesta."
+    "items": "{count, plural, one {# producto} other {# productos}} · una solicitud propia"
   },
   "line": {
     "quantity": "Cantidad",

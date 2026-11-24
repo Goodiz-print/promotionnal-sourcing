@@ -43,7 +43,8 @@
       "products": "Produits",
       "rfqs": "Demandes de devis",
       "pendingModeration": "À modérer",
-      "pendingAgencyReviews": "Agences à revoir"
+      "pendingAgencyReviews": "Agences à revoir",
+      "pendingSupplierLinks": "Fiches à rattacher"
     },
     "archived": "{count, plural, =0 {Aucune archivée} one {# archivée} other {# archivées}}",
     "kpi": {
@@ -320,6 +321,7 @@
   "supplierLinks": {
     "title": "Rattachement des fiches fournisseur",
     "subtitle": "Fiches importées en attente de l'accord du fournisseur. Les rattacher à son organisation vaut accord et publie leur catalogue.",
+    "unpublishedNotice": "Ces fiches et leurs produits ne sont pas publiés : ni catalogue, ni recherche, ni fiche publique. Les rattacher à l'organisation du fournisseur les publie ; les détacher les retire.",
     "resultsCount": "{count, plural, =0 {Aucune fiche} one {# fiche} other {# fiches}}",
     "empty": {
       "pending": "Aucune fiche en attente d'accord.",

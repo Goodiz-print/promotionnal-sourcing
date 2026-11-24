@@ -7,23 +7,16 @@ import type { QuoteCartGroupType } from '#shared/types/quote_cart'
 
 /**
  * Les produits d'un même fournisseur : ils partiront dans une seule demande.
- * Le groupe sans fournisseur joignable est signalé comme tel.
  */
-const props = defineProps<{ group: QuoteCartGroupType }>()
+defineProps<{ group: QuoteCartGroupType }>()
 
 const { t, locale } = useI18n()
-
-const reachable = props.group.supplierOrganizationId !== null
 </script>
 
 <template>
   <BaseSection
-    :title="reachable ? (group.supplierName ?? '') : t('quote_cart.group.unreachable')"
-    :description="
-      reachable
-        ? t('quote_cart.group.items', { count: group.items.length })
-        : t('quote_cart.group.unreachableDescription')
-    "
+    :title="group.supplierName"
+    :description="t('quote_cart.group.items', { count: group.items.length })"
     data-testid="quote-cart-group"
   >
     <ul class="-my-4 flex flex-col divide-y divide-hairline">
@@ -31,7 +24,7 @@ const reachable = props.group.supplierOrganizationId !== null
     </ul>
 
     <div
-      v-if="reachable && group.subtotals.length > 0"
+      v-if="group.subtotals.length > 0"
       class="mt-4 flex flex-col items-end gap-1 border-t border-hairline pt-4"
       data-testid="quote-cart-subtotal"
     >

@@ -24,7 +24,7 @@ Moteur de recherche hybride (mots-clés + vecteurs) des produits, décidé par l
 
 Réglages (`productIndexSettings(facetSlugs)`) : attributs cherchables `names`, `descriptions`, `reference` — un seul attribut par famille couvre toutes les langues, **ajouter une langue ne change aucun réglage** (les 32 langues de contenu sont actives, #97 ; la recherche reste multilingue sur toutes les sous-clés, la locale de l'utilisateur n'entre pas dans la requête) ; attributs filtrables `categoryId`, `supplierId`, `madeInEurope`, `originCountry`, `originZone`, `releasedAt`, `isEco`, `stockStatus`, `priceMin`, `moq`, `attributeValueIds`, `certificationIds`, **plus un champ `attributes.<slug>` par attribut filtrable** (`facetSlugs` dérivés de `category_attributes.is_filter`, via `FilterableFacetsService` — jamais une liste codée en dur) ; `faceting.maxValuesPerFacet` relevé à `1000` (comptage exact des buckets prix/MOQ transverses) ; embedder `default` (voir « Vectorisation »), retiré des réglages quand il est coupé. Les reglages sont reappliques au premier envoi d'un processus, a chaque `search:reindex`, et automatiquement quand `is_filter` d'un pivot categorie-attribut change (ajout/retrait/modification) via `SearchSyncService.queueSettings()`.
 
-Seuls les produits **visibles** sont indexés : actifs, organisation non archivée ni rejetée, non rejetés par la modération — les mêmes scopes que la fiche publique (`Product.fromLiveOrganization`, `Product.notRejected`).
+Seuls les produits **visibles** sont indexés : actifs, d'une fiche fournisseur **rattachée** à une organisation non archivée ni rejetée, non rejetés par la modération — les mêmes scopes que la fiche publique (`Product.fromLiveOrganization`, `Product.notRejected`). Une fiche importée **sans organisation** (en attente de l'accord du fournisseur) n'est pas publiée : ses produits ne sont ni dans l'index ni dans les résultats (#240, voir « Fiches non rattachées »).
 
 ### Facettes attributs (dont couleur N1/N2) — ÉTAPE 1 du modèle produit
 
@@ -271,6 +271,7 @@ multi-devises : hors périmètre.
 | Décision de modération sur un produit (`ModerationService`)                | `ProductChanged`               | `IndexProductJob`              |
 | Décision de modération sur une organisation                                | `OrganizationCatalogueChanged` | `IndexOrganizationProductsJob` |
 | Archivage d'une organisation (`OrganizationService#archive`)               | `OrganizationCatalogueChanged` | `IndexOrganizationProductsJob` |
+| Rattachement / détachement d'une fiche (`AdminSupplierLinkService`, #231)  | — (appel direct après commit)  | `IndexSupplierProductsJob`     |
 
 Les services émetteurs ne connaissent pas le moteur : ils émettent l'événement, `OnProductChanged` / `OnOrganizationCatalogueChanged` appellent `SearchSyncService`, qui met le job en queue (un échec de mise en queue est loggué sans être propagé : la base est à jour, la prochaine synchronisation ou `search:reindex` rattrape l'index). Les jobs importent `ProductIndexService` **dans `execute()`** (il charge le modèle `Product`) — voir la règle DI de `CLAUDE.md`.
 
@@ -281,6 +282,22 @@ node ace search:reindex
 ```
 
 Parcourt tous les produits par identifiant croissant, par lots (mémoire bornée), écrit dans un index temporaire `<index>_next` puis l'**échange atomiquement** avec l'index actif (`swap-indexes`) et supprime l'ancien. Les recherches ne voient jamais un index à moitié rempli ; un échec en route laisse l'ancien index en place et la commande peut être relancée. À lancer au premier déploiement de Meilisearch, après une perte de l'index, ou après une montée de version qui l'exige.
+
+## Fiches non rattachées (#240)
+
+Une fiche fournisseur n'est publiée — catalogue, recherche, fiche publique, annuaire, index — que **rattachée à une organisation** vivante : le rattachement vaut accord du fournisseur (#231). Les fiches importées sans organisation restent en base et sont listées dans le back-office (`/admin/supplier-links`, filtre « En attente d'accord », compteur « Fiches à rattacher » du tableau de bord).
+
+- **Rattacher** une fiche met ses produits en réindexation (`IndexSupplierProductsJob`) : ils entrent dans l'index. **La détacher** les en retire par le même job.
+- **Traductions** : le rattrapage des traductions ne traite que les produits publiés. Rattacher une fiche met donc aussi en file la traduction de ses produits (`TranslationQueueService#queueSupplier`, `TranslationBackfillJob` restreint à la fiche).
+- **Mise en place de la règle** : les fiches déjà indexées avant #240 doivent sortir de l'index. Une seule commande, sûre à relancer :
+
+```bash
+node ace search:remove-unlinked
+```
+
+`ProductIndexService#removeUnlinkedProducts` parcourt, par lots de `SEARCH_BATCH_SIZE`, les produits dont la fiche n'a pas d'organisation et les retire de l'index par identifiant (aucun document recalculé). Sans `MEILISEARCH_HOST`, la commande prévient et ne fait rien. `search:reindex` donne le même résultat, en reconstruisant tout l'index.
+
+> ⚠️ **Ne pas déployer avant que les fiches importées soient rattachées à leurs fournisseurs** : à la mise en production, tous les produits des fiches non rattachées sortent du site.
 
 ## Supervision depuis le back-office (#176)
 

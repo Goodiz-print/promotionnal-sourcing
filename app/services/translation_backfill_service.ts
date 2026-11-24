@@ -5,6 +5,7 @@ import TranslationQueueService from '#services/translation_queue_service'
 import {
   TRANSLATABLE_ENTITIES,
   type TranslatableEntity,
+  type TranslationBackfillBatch,
   type TranslationBackfillOptions,
   type TranslationBackfillReport,
 } from '#shared/types/ai'
@@ -34,9 +35,10 @@ const TABLES: Record<Exclude<TranslatableEntity, 'product'>, string> = {
  * traduction à jour (clé d'idempotence) et ne touche jamais une ligne saisie à
  * la main. Relancer la commande ne coûte donc rien pour ce qui est déjà traduit.
  *
- * Seuls les produits **visibles** sont traités (actifs, organisation non
- * archivée ni rejetée, non rejetés par la modération) : pas de tokens dépensés
- * sur du contenu jamais affiché. Le rattrapage s'arrête au premier job que la file
+ * Seuls les produits **visibles** sont traités (actifs, fiche rattachée à une
+ * organisation ni archivée ni rejetée, non rejetés par la modération) : pas de
+ * tokens dépensés sur du contenu jamais affiché. Une fiche qui vient d'être
+ * rattachée est donc rattrapée à ce moment-là (`supplierId`, #240). Le rattrapage s'arrête au premier job que la file
  * refuse (file indisponible) : rien n'est compté à tort.
  */
 @inject()
@@ -58,7 +60,7 @@ export default class TranslationBackfillService {
     const entities = options.entities ?? TRANSLATABLE_ENTITIES
 
     for (const entity of TRANSLATABLE_ENTITIES.filter((e) => entities.includes(e))) {
-      const { queued, failed } = await this.backfillEntity(entity, options.limit)
+      const { queued, failed } = await this.backfillEntity(entity, options)
       report.queued[entity] = queued
       if (failed) {
         report.failed = true
@@ -71,14 +73,14 @@ export default class TranslationBackfillService {
   /** Parcourt les entités par lots d'identifiants croissants, jusqu'à `limit` mises en file. */
   private async backfillEntity(
     entity: TranslatableEntity,
-    limit?: number
+    { limit, supplierId }: TranslationBackfillOptions
   ): Promise<{ queued: number; failed: boolean }> {
     let queued = 0
     let lastId = 0
 
     while (limit === undefined || queued < limit) {
       const size = limit === undefined ? BATCH_SIZE : Math.min(BATCH_SIZE, limit - queued)
-      const rows = await this.nextBatch(entity, lastId, size)
+      const rows = await this.nextBatch(entity, { afterId: lastId, size, supplierId })
       if (rows.length === 0) break
 
       for (const row of rows) {
@@ -97,22 +99,9 @@ export default class TranslationBackfillService {
 
   private async nextBatch(
     entity: TranslatableEntity,
-    afterId: number,
-    size: number
+    { afterId, size, supplierId }: TranslationBackfillBatch
   ): Promise<SourceRow[]> {
-    if (entity === 'product') {
-      const products = await Product.query()
-        .select('id', 'sourceLocale')
-        .where('isActive', true)
-        .withScopes((scopes) => {
-          scopes.fromLiveOrganization()
-          scopes.notRejected()
-        })
-        .where('id', '>', afterId)
-        .orderBy('id')
-        .limit(size)
-      return products.map((product) => ({ id: product.id, sourceLocale: product.sourceLocale }))
-    }
+    if (entity === 'product') return this.nextProducts({ afterId, size, supplierId })
 
     const rows: { id: number; source_locale: string }[] = await db
       .from(TABLES[entity])
@@ -121,5 +110,25 @@ export default class TranslationBackfillService {
       .orderBy('id')
       .limit(size)
     return rows.map((row) => ({ id: row.id, sourceLocale: row.source_locale }))
+  }
+
+  /** Produits visibles, éventuellement restreints à une fiche fournisseur. */
+  private async nextProducts({
+    afterId,
+    size,
+    supplierId,
+  }: TranslationBackfillBatch): Promise<SourceRow[]> {
+    const products = await Product.query()
+      .select('id', 'sourceLocale')
+      .where('isActive', true)
+      .withScopes((scopes) => {
+        scopes.fromLiveOrganization()
+        scopes.notRejected()
+      })
+      .if(supplierId !== undefined, (query) => query.where('supplierId', supplierId!))
+      .where('id', '>', afterId)
+      .orderBy('id')
+      .limit(size)
+    return products.map((product) => ({ id: product.id, sourceLocale: product.sourceLocale }))
   }
 }

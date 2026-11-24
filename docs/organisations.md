@@ -471,9 +471,9 @@ laquelle retomber :
 - **Catalogue public** — scopes Lucid `Supplier.fromLiveOrganization` et
   `Product.fromLiveOrganization`, appliqués dans `SupplierDirectoryService`
   (liste, fiche, pays disponibles) et `ProductCatalogueService` (liste, fiche,
-  catégories disponibles). `whereDoesntHave` et non une jointure : les fiches
-  **sans** organisation (≈300 imports non encore rattachés, cf. #21) doivent
-  rester visibles.
+  catégories disponibles). Depuis #240, une fiche **sans** organisation (import
+  non encore rattaché, cf. #21 et #231) n'est plus publiée : les scopes exigent
+  une organisation ni archivée ni rejetée (`whereHas`).
 - **Invitations** — celles en attente passent `revoked`, et
   `InvitationAcceptanceController` refuse en plus toute invitation vers une
   organisation archivée.

@@ -43,7 +43,8 @@
       "products": "Products",
       "rfqs": "Requests for quotation",
       "pendingModeration": "To moderate",
-      "pendingAgencyReviews": "Agencies to review"
+      "pendingAgencyReviews": "Agencies to review",
+      "pendingSupplierLinks": "Listings to link"
     },
     "archived": "{count, plural, =0 {None archived} one {# archived} other {# archived}}",
     "kpi": {
@@ -320,6 +321,7 @@
   "supplierLinks": {
     "title": "Supplier listing linking",
     "subtitle": "Imported listings awaiting the supplier's consent. Linking them to its organization records that consent and publishes their catalogue.",
+    "unpublishedNotice": "These listings and their products are not published: not in the catalogue, search or public pages. Linking them to the supplier's organization publishes them; unlinking removes them.",
     "resultsCount": "{count, plural, =0 {No listing} one {# listing} other {# listings}}",
     "empty": {
       "pending": "No listing awaiting consent.",

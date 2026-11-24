@@ -1,6 +1,7 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import Product from '#models/product'
+import Supplier from '#models/supplier'
 import { UserFactory } from '#database/factories/user_factory'
 import ModerationService from '#services/moderation_service'
 import TranslationBackfillService from '#services/translation_backfill_service'
@@ -99,6 +100,41 @@ test.group('Rattrapage des traductions (#97)', (group) => {
     assert.notInclude(queued, second.id)
     assert.isAbove(queued.length, 0)
     assert.deepEqual(queued, await visibleProductIds())
+  })
+
+  test('supplierId restreint les produits à cette fiche (rattachement, #240)', async ({
+    assert,
+  }) => {
+    const supplier = await Supplier.findByOrFail('slug', 'nordic-promo')
+    const rows = await Product.query().select('id').where('supplierId', supplier.id)
+    const fiche = new Set(rows.map((row) => row.id))
+    const visible = await visibleProductIds()
+    const ownIds = visible.filter((id) => fiche.has(id))
+    const { calls, queue } = fakeQueue()
+
+    const report = await new TranslationBackfillService(queue).backfill({
+      entities: ['product'],
+      supplierId: supplier.id,
+    })
+
+    const queued = calls.map((c) => c.entityId)
+    assert.isAbove(queued.length, 0)
+    assert.isTrue(queued.every((id) => fiche.has(id)))
+    assert.deepEqual(queued, ownIds)
+    assert.equal(report.queued.product, queued.length)
+  })
+
+  test('une fiche non rattachée n’est pas traduite, même ciblée (#240)', async ({ assert }) => {
+    const supplier = await Supplier.findByOrFail('slug', 'nordic-promo')
+    await Supplier.query().where('id', supplier.id).update({ organizationId: null })
+    const { calls, queue } = fakeQueue()
+
+    await new TranslationBackfillService(queue).backfill({
+      entities: ['product'],
+      supplierId: supplier.id,
+    })
+
+    assert.lengthOf(calls, 0)
   })
 
   test("transmet la langue source de l'entité", async ({ assert }) => {

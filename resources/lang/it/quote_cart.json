@@ -11,9 +11,7 @@
     "browse": "Sfoglia il catalogo"
   },
   "group": {
-    "items": "{count, plural, one {# prodotto} other {# prodotti}} · una richiesta dedicata",
-    "unreachable": "Fornitori non raggiungibili",
-    "unreachableDescription": "Questi prodotti non possono essere richiesti sulla piattaforma per ora. Restano nel tuo carrello."
+    "items": "{count, plural, one {# prodotto} other {# prodotti}} · una richiesta dedicata"
   },
   "line": {
     "quantity": "Quantità",
