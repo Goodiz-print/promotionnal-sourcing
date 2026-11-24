@@ -4,6 +4,7 @@ import db from '@adonisjs/lucid/services/db'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import AdminAuditService from '#services/admin_audit_service'
 import SearchSyncService from '#services/search_sync_service'
+import TranslationQueueService from '#services/translation_queue_service'
 import Organization from '#models/organization'
 import Supplier from '#models/supplier'
 import {
@@ -34,13 +35,16 @@ import type {
  * organisation : pour en changer, la détacher d'abord.
  *
  * Rattachement comme détachement changent l'organisation de tout le catalogue
- * de la fiche : ses produits sont réindexés par la queue, après le commit.
+ * de la fiche : ses produits sont réindexés par la queue, après le commit. Au
+ * rattachement, ils sont aussi mis en traduction : une fiche non rattachée n'est
+ * pas publiée, donc jamais traduite par le rattrapage (#240).
  */
 @inject()
 export default class AdminSupplierLinkService {
   constructor(
     private audit: AdminAuditService,
-    private search: SearchSyncService
+    private search: SearchSyncService,
+    private translations: TranslationQueueService
   ) {}
 
   async list(options: SupplierLinkListOptions): Promise<Paginated<AdminSupplierLinkItem>> {
@@ -63,6 +67,15 @@ export default class AdminSupplierLinkService {
       data: suppliers.map((supplier) => this.present(supplier, candidates, locale)),
       meta: { total, perPage: size, currentPage, lastPage },
     }
+  }
+
+  /**
+   * Nombre de fiches en attente de rattachement (sans organisation) : elles ne
+   * sont pas publiées tant qu'un admin ne les a pas rattachées (#240).
+   */
+  async pendingCount(): Promise<number> {
+    const row = await Supplier.query().whereNull('organizationId').count('* as total').firstOrFail()
+    return Number(row.$extras.total)
   }
 
   /**
@@ -114,6 +127,7 @@ export default class AdminSupplierLinkService {
     })
 
     await this.search.queueSupplier(supplier.id)
+    await this.translations.queueSupplier(supplier.id)
     return supplier
   }
 

@@ -13,17 +13,13 @@ import type { QuoteCartGroupType } from '#shared/types/quote_cart'
 
 /**
  * Panier de devis : les produits groupés par fournisseur, puis la validation,
- * qui crée une demande par fournisseur joignable.
+ * qui crée une demande par fournisseur.
  */
 const props = defineProps<{ groups: QuoteCartGroupType[]; canSend: boolean }>()
 
 const { t, locale } = useI18n()
 
-const supplierNames = computed(() =>
-  props.groups.flatMap((group) =>
-    group.supplierOrganizationId !== null ? [group.supplierName ?? ''] : []
-  )
-)
+const supplierNames = computed(() => props.groups.map((group) => group.supplierName))
 const catalogueUrl = computed(() => urlFor('products.index', { locale: locale.value }))
 </script>
 
@@ -45,16 +41,8 @@ const catalogueUrl = computed(() => urlFor('products.index', { locale: locale.va
     </BaseEmptyState>
 
     <template v-else>
-      <QuoteCartGroup
-        v-for="group in groups"
-        :key="group.supplierOrganizationId ?? 'unreachable'"
-        :group="group"
-      />
-      <QuoteCartCheckoutForm
-        v-if="supplierNames.length > 0"
-        :supplier-names="supplierNames"
-        :can-send="canSend"
-      />
+      <QuoteCartGroup v-for="group in groups" :key="group.supplierOrganizationId" :group="group" />
+      <QuoteCartCheckoutForm :supplier-names="supplierNames" :can-send="canSend" />
     </template>
   </div>
 </template>

@@ -11,8 +11,8 @@ export class QuoteCartItemNotFoundException extends Exception {
 }
 
 /**
- * Validation refusée : aucune ligne du panier n'a de fournisseur joignable
- * (panier vide, ou seulement des produits de fournisseurs sans compte).
+ * Validation refusée : aucune ligne du panier n'est demandable (panier vide, ou
+ * seulement des produits dépubliés).
  */
 export class QuoteCartEmptyException extends Exception {
   static status = 422
@@ -39,4 +39,15 @@ export class QuoteCartDuplicateLineException extends Exception {
   static status = 409
   static code = 'E_QUOTE_CART_DUPLICATE_LINE'
   static message = 'This product variant is already in the quote cart'
+}
+
+/**
+ * Validation refusée : entre la lecture du panier et son envoi, une fiche
+ * fournisseur a été détachée de l'organisation destinataire (#231, #240). Rien
+ * n'est créé ; recharger le panier montre son nouvel état.
+ */
+export class QuoteCartChangedException extends Exception {
+  static status = 409
+  static code = 'E_QUOTE_CART_CHANGED'
+  static message = 'The quote cart changed during checkout'
 }

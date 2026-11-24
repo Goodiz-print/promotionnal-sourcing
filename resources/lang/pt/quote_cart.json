@@ -11,9 +11,7 @@
     "browse": "Explorar o catálogo"
   },
   "group": {
-    "items": "{count, plural, one {# produto} other {# produtos}} · um pedido dedicado",
-    "unreachable": "Fornecedores indisponíveis",
-    "unreachableDescription": "Estes produtos não podem ser pedidos na plataforma por agora. Ficam no seu carrinho."
+    "items": "{count, plural, one {# produto} other {# produtos}} · um pedido dedicado"
   },
   "line": {
     "quantity": "Quantidade",

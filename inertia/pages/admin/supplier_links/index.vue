@@ -6,6 +6,7 @@ import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
 import SupplierLinkFilters from '~/components/admin/supplier_link_filters.vue'
 import SupplierLinkRow from '~/components/admin/supplier_link_row.vue'
+import BaseAlert from '~/components/base/base_alert.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BasePagination from '~/components/base/base_pagination.vue'
@@ -52,6 +53,10 @@ const columns = computed(() =>
     />
 
     <SupplierLinkFilters :filters="filters" @change="visit" />
+
+    <BaseAlert v-if="filters.status === 'pending'" tone="warning" data-testid="unpublished-notice">
+      {{ t('admin.supplierLinks.unpublishedNotice') }}
+    </BaseAlert>
 
     <div class="flex flex-col gap-4">
       <p class="text-tabular text-body-sm text-text-secondary">

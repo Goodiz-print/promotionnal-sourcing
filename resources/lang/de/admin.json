@@ -43,7 +43,8 @@
       "products": "Produkte",
       "rfqs": "Angebotsanfragen",
       "pendingModeration": "Zu moderieren",
-      "pendingAgencyReviews": "Zu prüfende Agenturen"
+      "pendingAgencyReviews": "Zu prüfende Agenturen",
+      "pendingSupplierLinks": "Zuzuordnende Lieferanteneinträge"
     },
     "archived": "{count, plural, =0 {Keine archiviert} one {# archiviert} other {# archiviert}}",
     "kpi": {
@@ -320,6 +321,7 @@
   "supplierLinks": {
     "title": "Zuordnung der Lieferanteneinträge",
     "subtitle": "Importierte Einträge, die auf die Zustimmung des Lieferanten warten. Die Zuordnung zu seiner Organisation gilt als Zustimmung und veröffentlicht den Katalog.",
+    "unpublishedNotice": "Diese Einträge und ihre Produkte sind nicht veröffentlicht: weder im Katalog noch in der Suche noch auf öffentlichen Seiten. Die Zuordnung zur Organisation des Lieferanten veröffentlicht sie, das Lösen entfernt sie.",
     "resultsCount": "{count, plural, =0 {Kein Eintrag} one {# Eintrag} other {# Einträge}}",
     "empty": {
       "pending": "Kein Eintrag wartet auf Zustimmung.",

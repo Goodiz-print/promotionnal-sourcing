@@ -11,9 +11,7 @@
     "browse": "Katalog durchsuchen"
   },
   "group": {
-    "items": "{count, plural, one {# Produkt} other {# Produkte}} · eine eigene Anfrage",
-    "unreachable": "Nicht erreichbare Lieferanten",
-    "unreachableDescription": "Diese Produkte können derzeit nicht über die Plattform angefragt werden. Sie bleiben in Ihrem Korb."
+    "items": "{count, plural, one {# Produkt} other {# Produkte}} · eine eigene Anfrage"
   },
   "line": {
     "quantity": "Menge",

@@ -81,13 +81,12 @@ export type QuoteCartSubtotalType = {
 
 /**
  * Lignes d'un même fournisseur : elles deviendront **une** demande à la
- * validation. `supplierOrganizationId` est `null` pour le groupe des produits
- * dont le fournisseur n'a pas (ou plus) de compte joignable sur la plateforme :
- * ce groupe n'est pas envoyable et reste au panier.
+ * validation. Seuls les produits publiés sont au panier (#240) : un groupe a
+ * toujours une organisation fournisseuse destinataire.
  */
 export type QuoteCartGroupType = {
-  supplierOrganizationId: number | null
-  supplierName: string | null
+  supplierOrganizationId: number
+  supplierName: string
   items: QuoteCartItemType[]
   /** Sous-totaux estimés, un par devise. */
   subtotals: QuoteCartSubtotalType[]

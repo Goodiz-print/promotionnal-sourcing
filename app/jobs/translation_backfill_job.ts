@@ -7,10 +7,13 @@ import type { TranslatableEntity } from '#shared/types/ai'
 interface TranslationBackfillPayload {
   /** Types à rattraper ; tous si absent. */
   entities?: TranslatableEntity[]
+  /** Produits d'une seule fiche fournisseur (rattachement, #240). */
+  supplierId?: number
 }
 
 /**
- * Rattrapage des traductions lancé depuis le back-office (#177) : met en file un
+ * Rattrapage des traductions lancé depuis le back-office (#177), ou au
+ * rattachement d'une fiche fournisseur pour ses seuls produits (#240) : met en file un
  * `TranslateEntityJob` par entité à traduire, comme `node ace translation:backfill`.
  * Idempotent (clé de traduction) : pas de nouvel essai automatique, l'admin relance.
  *
@@ -29,8 +32,14 @@ export default class TranslationBackfillJob extends Job<TranslationBackfillPaylo
       await import('#services/translation_backfill_service')
     const backfill = await app.container.make(TranslationBackfillService)
 
-    const report = await backfill.backfill({ entities: this.payload.entities })
-    logger.info({ queued: report.queued, failed: report.failed }, 'translation backfill')
+    const { entities, supplierId } = this.payload
+    // `supplierId` absent (rattrapage global) : l'option n'est pas transmise du tout.
+    const scope = supplierId === undefined ? {} : { supplierId }
+    const report = await backfill.backfill({ entities, ...scope })
+    logger.info(
+      { queued: report.queued, failed: report.failed, supplierId },
+      'translation backfill'
+    )
   }
 
   async failed(error: Error) {

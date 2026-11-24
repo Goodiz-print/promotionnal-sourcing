@@ -104,6 +104,36 @@ export interface TranslationBackfillOptions {
   entities?: readonly TranslatableEntity[]
   /** Nombre maximum d'entités mises en file **par type** (échantillon de mesure). */
   limit?: number
+  /**
+   * Restreint les produits à ceux d'une fiche fournisseur : traduction du
+   * catalogue d'une fiche qui vient d'être rattachée, donc publiée (#240).
+   */
+  supplierId?: number
+}
+
+/** Lot d'entités à rattraper : après `afterId`, au plus `size`, éventuellement d'une fiche. */
+export interface TranslationBackfillBatch {
+  afterId: number
+  size: number
+  supplierId?: number
+}
+
+/** Une entité à traduire : identifiant et langue source. */
+export interface TranslationBackfillRow {
+  id: number
+  sourceLocale: string
+}
+
+/** Avancement du rattrapage d'un type : mises en file réussies, dernier identifiant traité. */
+export interface TranslationBackfillProgress {
+  queued: number
+  afterId: number
+}
+
+/** Résultat du rattrapage d'un type : mises en file réussies, et arrêt sur refus de la file. */
+export interface TranslationBackfillEntityResult {
+  queued: number
+  failed: boolean
 }
 
 /**

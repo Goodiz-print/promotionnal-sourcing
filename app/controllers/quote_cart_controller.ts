@@ -11,6 +11,7 @@ import {
   quoteCartItemValidator,
 } from '#validators/quote_cart'
 import {
+  QuoteCartChangedException,
   QuoteCartDuplicateLineException,
   QuoteCartEmptyException,
   QuoteCartInvalidOptionException,
@@ -125,7 +126,10 @@ export default class QuoteCartController {
         session.flash('error', i18n.t('quote_cart.errors.empty'))
         return response.redirect().back()
       }
-      if (error instanceof NotASupplierOrganizationException) {
+      const recipientGone =
+        error instanceof NotASupplierOrganizationException ||
+        error instanceof QuoteCartChangedException
+      if (recipientGone) {
         session.flash('error', i18n.t('quote_cart.errors.supplierUnavailable'))
         return response.redirect().back()
       }

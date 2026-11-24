@@ -43,7 +43,8 @@
       "products": "Produkter",
       "rfqs": "Offertförfrågningar",
       "pendingModeration": "Att moderera",
-      "pendingAgencyReviews": "Byråer att granska"
+      "pendingAgencyReviews": "Byråer att granska",
+      "pendingSupplierLinks": "Leverantörsposter att koppla"
     },
     "archived": "{count, plural, =0 {Inga arkiverade} one {# arkiverad} other {# arkiverade}}",
     "kpi": {
@@ -320,6 +321,7 @@
   "supplierLinks": {
     "title": "Koppling av leverantörsposter",
     "subtitle": "Importerade poster som väntar på leverantörens samtycke. Att koppla dem till dess organisation registrerar samtycket och publicerar katalogen.",
+    "unpublishedNotice": "Dessa poster och deras produkter är inte publicerade: varken i katalogen, sökningen eller på offentliga sidor. Att koppla dem till leverantörens organisation publicerar dem; att koppla bort dem tar bort dem.",
     "resultsCount": "{count, plural, =0 {Ingen post} one {# post} other {# poster}}",
     "empty": {
       "pending": "Ingen post väntar på samtycke.",

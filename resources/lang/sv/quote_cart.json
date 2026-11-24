@@ -11,9 +11,7 @@
     "browse": "Bläddra i katalogen"
   },
   "group": {
-    "items": "{count, plural, one {# produkt} other {# produkter}} · en egen förfrågan",
-    "unreachable": "Leverantörer som inte kan nås",
-    "unreachableDescription": "Dessa produkter kan för närvarande inte efterfrågas på plattformen. De ligger kvar i din korg."
+    "items": "{count, plural, one {# produkt} other {# produkter}} · en egen förfrågan"
   },
   "line": {
     "quantity": "Antal",

@@ -9,8 +9,6 @@ const translations = {
   'quote_cart.empty.description': 'Ajoutez des produits',
   'quote_cart.empty.browse': 'Parcourir le catalogue',
   'quote_cart.group.items': '{count, plural, one {# produit} other {# produits}}',
-  'quote_cart.group.unreachable': 'Fournisseurs non joignables',
-  'quote_cart.group.unreachableDescription': 'Ces produits restent dans votre panier.',
   'quote_cart.line.quantity': 'Quantité',
   'quote_cart.line.note': 'Précisions',
   'quote_cart.line.remove': 'Retirer {name} du panier',
@@ -135,13 +133,6 @@ const groups: QuoteCartGroupType[] = [
     subtotals: [],
     estimateComplete: false,
   },
-  {
-    supplierOrganizationId: null,
-    supplierName: null,
-    items: [item(4, 'Casquette')],
-    subtotals: [],
-    estimateComplete: false,
-  },
 ]
 
 describe('quote_cart/show.vue', () => {
@@ -157,14 +148,14 @@ describe('quote_cart/show.vue', () => {
     expect(wrapper.find('form').exists()).toBe(false)
   })
 
-  it('groupe les produits par fournisseur et annonce une demande par fournisseur joignable', () => {
+  it('groupe les produits par fournisseur et annonce une demande par fournisseur', () => {
     const wrapper = mount(Show, { props: { groups, canSend: true } })
 
     const sections = wrapper.findAll('[data-testid="quote-cart-group"]')
-    expect(sections).toHaveLength(3)
+    expect(sections).toHaveLength(2)
     expect(sections[0].text()).toContain('Nordic Promo')
     expect(sections[0].text()).toContain('2 produits')
-    expect(sections[2].text()).toContain('Fournisseurs non joignables')
+    expect(sections[1].text()).toContain('Textile Co')
     expect(wrapper.find('[data-testid="quote-cart-summary"]').text()).toBe(
       '2 demandes seront envoyées à : Nordic Promo, Textile Co'
     )

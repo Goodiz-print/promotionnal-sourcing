@@ -14,6 +14,8 @@ export type AdminDashboardStats = {
   pendingModeration: number
   /** Inscriptions agence à revoir (motifs de revue non levés, agence non archivée). */
   pendingAgencyReviews: number
+  /** Fiches fournisseur importées en attente de rattachement, donc non publiées (#240). */
+  pendingSupplierLinks: number
 }
 
 // Extended AdminUserFilters with all index filters are in './admin_user.js'.

@@ -43,7 +43,8 @@
       "products": "Producten",
       "rfqs": "Offerteaanvragen",
       "pendingModeration": "Te modereren",
-      "pendingAgencyReviews": "Te beoordelen bureaus"
+      "pendingAgencyReviews": "Te beoordelen bureaus",
+      "pendingSupplierLinks": "Te koppelen leveranciersfiches"
     },
     "archived": "{count, plural, =0 {Geen gearchiveerd} one {# gearchiveerd} other {# gearchiveerd}}",
     "kpi": {
@@ -320,6 +321,7 @@
   "supplierLinks": {
     "title": "Koppeling van leveranciersfiches",
     "subtitle": "Geïmporteerde fiches die wachten op toestemming van de leverancier. Koppelen aan zijn organisatie legt die toestemming vast en publiceert de catalogus.",
+    "unpublishedNotice": "Deze fiches en hun producten zijn niet gepubliceerd: niet in de catalogus, de zoekfunctie of op openbare pagina's. Koppelen aan de organisatie van de leverancier publiceert ze; ontkoppelen haalt ze weg.",
     "resultsCount": "{count, plural, =0 {Geen fiche} one {# fiche} other {# fiches}}",
     "empty": {
       "pending": "Geen fiche wacht op toestemming.",

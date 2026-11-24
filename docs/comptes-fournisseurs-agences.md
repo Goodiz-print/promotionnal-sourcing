@@ -114,8 +114,15 @@ organisation, validé par un admin, vaut cet accord.
 - Dans les deux cas, les produits de la fiche sont réindexés par la queue
   (`IndexSupplierProductsJob`, après le commit) : les demandes de devis visent
   l'organisation dès le rattachement (`suppliers.organization_id`).
-- Le masquage public des fiches sans organisation relève de #240 : tant qu'il
-  n'est pas livré, `Supplier.fromLiveOrganization` laisse ces fiches visibles.
+- **Publication** (#240) : une fiche sans organisation et ses produits ne sont
+  pas publiés (catalogue, recherche, fiches publiques, index) —
+  `Supplier.fromLiveOrganization` / `Product.fromLiveOrganization` exigent une
+  organisation vivante. Rattacher publie (réindexation et traduction des
+  produits de la fiche), détacher retire. Le tableau de bord
+  admin compte les « Fiches à rattacher » (`AdminSupplierLinkService#pendingCount`,
+  même droit `organizations.manage`) et l'écran rappelle qu'elles ne sont pas
+  publiées. Mise en place : `node ace search:remove-unlinked` (voir
+  `docs/search.md`).
 
 ### Agence
 
