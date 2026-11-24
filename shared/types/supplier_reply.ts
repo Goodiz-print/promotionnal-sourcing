@@ -3,6 +3,7 @@
  * du fil de la demande, ses pièces jointes et, s'il y a un PDF, un devis.
  */
 
+import type { DateTime } from 'luxon'
 import type { Locale } from './i18n.js'
 
 /** Type MIME d'un devis reçu par mail : seul un PDF est pris pour un devis. */
@@ -10,7 +11,8 @@ export const QUOTE_DOCUMENT_MIME_TYPE = 'application/pdf'
 
 /** Fait annoncé par l'événement `SupplierReplyRecorded`. */
 export interface SupplierReplyRecordedData {
-  inboundMailId: number
+  /** Mail qui a apporté la réponse ; `null` pour un PDF déposé depuis l'écran (#230). */
+  inboundMailId: number | null
   rfqSupplierId: number
   conversationId: number
   messageId: number
@@ -45,6 +47,39 @@ export interface PreparedReplyAttachment {
   filename: string
   mimeType: string
   sizeBytes: number
+}
+
+/**
+ * Devis PDF déposé depuis l'écran (#230), compressé et stocké, prêt à être
+ * rattaché au message : `recipientObjectId` comme pour une pièce jointe de mail.
+ */
+export type PreparedUpload = Omit<
+  PreparedReplyAttachment,
+  'inboundAttachmentId' | 'receivedObjectId'
+>
+
+/**
+ * Ce qu'écrit un dépôt de devis (#230) sous le verrou du destinataire. Les
+ * modèles (`R` destinataire, `U` auteur) restent des paramètres : `shared/` ne
+ * connaît pas les modèles Lucid.
+ */
+export interface UploadToWrite<R, U> {
+  recipient: R
+  author: U
+  prepared: PreparedUpload
+  body: string
+}
+
+/**
+ * Devis d'une réponse à enregistrer (mail ou dépôt) : destinataire `R`, message
+ * `M` qui porte les pièces jointes, fichiers à citer et heure de réception, qui
+ * décide d'une réponse tardive (#232).
+ */
+export interface QuoteReplyToRecord<R, M> {
+  recipient: R
+  message: M
+  attachments: Array<Pick<PreparedReplyAttachment, 'storageObjectId' | 'recipientObjectId'>>
+  receivedAt: DateTime
 }
 
 /**

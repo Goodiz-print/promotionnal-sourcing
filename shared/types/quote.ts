@@ -134,3 +134,34 @@ export type QuoteDocumentType = {
   /** Devis retenu par l'agence : la demande a été clôturée à cette date. */
   selectedAt: string | null
 }
+
+/**
+ * Devis PDF **envoyé** par le fournisseur, vu de son écran (#230) : son fichier
+ * d'origine seulement (jamais la version au nom de l'agence, #238), qu'il
+ * télécharge par la route qui lui est réservée. `viaMail` : reçu en réponse à
+ * un mail, sinon déposé depuis l'écran.
+ */
+export type SupplierQuoteDocumentType = {
+  id: number
+  filename: string
+  sizeBytes: number
+  receivedAt: string
+  viaMail: boolean
+}
+
+/** Devis PDF envoyés, sur l'écran d'une demande reçue (#230), et le droit d'en déposer un. */
+export interface SupplierSentQuotesType {
+  documents: SupplierQuoteDocumentType[]
+  canUploadQuote: boolean
+}
+
+/**
+ * Devis PDF déposé depuis l'écran d'une demande reçue (#230), fichier de la
+ * requête déjà validé (PDF, `DOCUMENT_MAX_SIZE`). `body` : mot d'accompagnement,
+ * vide s'il n'y en a pas.
+ */
+export interface UploadedQuoteDocumentInput {
+  tmpPath: string
+  filename: string
+  body: string
+}

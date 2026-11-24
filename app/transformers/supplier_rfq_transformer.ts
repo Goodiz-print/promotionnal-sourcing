@@ -1,12 +1,13 @@
 import { BaseTransformer } from '@adonisjs/core/transformers'
 import { RfqNotFoundException } from '#exceptions/rfq_errors'
 import type Rfq from '#models/rfq'
+import { supplierRfqState } from '#shared/helpers/supplier_rfq'
 import { RFQ_DEADLINE_TIMEZONE, type SupplierRfqType } from '#shared/types/rfq'
 
 /**
  * Ligne « demandes reçues », vue du fournisseur. Suppose la demande chargée
- * par `RfqService#listForSupplier` / `findForSupplier` : `buyerOrganization` et
- * `items` préchargés, et `suppliers` **restreint au fournisseur courant** —
+ * par `RfqService#listForSupplier` / `findForSupplier` : `buyerOrganization`
+ * préchargée, `items` préchargés ou comptés (`$extras.itemsCount`), et `suppliers` **restreint au fournisseur courant** —
  * c'est cette unique ligne qui porte `myStatus`.
  *
  * Le budget plafond de l'acheteur n'est jamais exposé ici (cf.
@@ -25,13 +26,23 @@ export default class SupplierRfqTransformer extends BaseTransformer<Rfq> {
     return {
       ...this.pick(this.resource, ['id', 'title', 'status']),
       deadline: this.resource.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).toISO() ?? null,
-      itemCount: this.resource.items.length,
+      itemCount: this.itemCount,
       ...this.buyer,
       myStatus: this.recipient.status,
+      myState: supplierRfqState(this.recipient.status),
       myLateReply: this.recipient.lateReplyAt !== null,
       sentAt: this.recipient.sentAt?.toISO() ?? null,
       publishedAt: this.resource.publishedAt?.toISO() ?? null,
     }
+  }
+
+  /**
+   * Nombre de lignes : compté en sous-requête par la liste
+   * (`$extras.itemsCount`), sinon les items préchargés du détail.
+   */
+  protected get itemCount(): number {
+    const counted = this.resource.$extras.itemsCount
+    return counted === undefined ? this.resource.items.length : Number(counted)
   }
 
   /** Nom et logo de l'agence, ou rien pour un fournisseur non abonné. */

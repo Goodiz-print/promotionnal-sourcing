@@ -2,6 +2,7 @@
 import { computed, type Component } from 'vue'
 import { CalendarDays, EyeOff, Inbox, ListChecks, UserRound } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { formatShortDate } from '#shared/helpers/date'
 import type { SupplierRfqType } from '#shared/types/rfq'
 
 /**
@@ -21,8 +22,9 @@ interface MetaPill {
   label: string
 }
 
+/** Date courte dans la langue de l'interface (lie `formatShortDate` à la locale courante). */
 function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(locale.value)
+  return formatShortDate(value, locale.value)
 }
 
 /** L'acheteur, ou la mention « agence anonyme » pour un non abonné. */

@@ -106,6 +106,35 @@
     "rfq": {
       "respond": "Mit einem Angebot antworten",
       "viewQuote": "Mein Angebot ansehen"
+    },
+    "documents": {
+      "title": "Gesendetes Angebot",
+      "description": "Ihr PDF-Angebot, per E-Mail oder über diese Seite gesendet. Sie sehen immer Ihre Originaldatei.",
+      "empty": "Noch kein PDF-Angebot gesendet.",
+      "columns": {
+        "file": "Datei",
+        "sentAt": "Gesendet am",
+        "channel": "Versand"
+      },
+      "channel": {
+        "mail": "Per E-Mail",
+        "upload": "Über die Plattform"
+      },
+      "download": "{filename} herunterladen",
+      "upload": {
+        "file": "Ihr Angebot (PDF)",
+        "prompt": "PDF auswählen oder ablegen",
+        "hint": "PDF, max. 20 MB. Es wird wie eine E-Mail-Antwort an die Agentur weitergeleitet.",
+        "body": "Nachricht an die Agentur (optional)",
+        "submit": "Angebot senden"
+      },
+      "flash": {
+        "uploaded": "Angebot gesendet: Die Agentur wurde informiert."
+      },
+      "errors": {
+        "notPdf": "Diese Datei ist kein gültiges PDF.",
+        "notReplyable": "Sie haben diese Anfrage abgelehnt: Sie können dafür kein Angebot mehr senden."
+      }
     }
   },
   "documents": {

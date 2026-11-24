@@ -152,7 +152,15 @@
         "deadline": "Svarsdatum",
         "status": "Status"
       },
-      "emptyDescription": "Köpare som kontaktar dig visas här med information om deras behov."
+      "emptyDescription": "Köpare som kontaktar dig visas här med information om deras behov.",
+      "filters": {
+        "label": "Filtrera mottagna förfrågningar",
+        "status": "Status",
+        "allStatuses": "Alla statusar",
+        "reset": "Återställ filtret"
+      },
+      "emptyFiltered": "Ingen förfrågan med denna status.",
+      "emptyFilteredDescription": "Ändra filtret för att se dina andra förfrågningar."
     },
     "show": {
       "backToList": "Tillbaka till mottagna förfrågningar",
@@ -165,6 +173,7 @@
       "responseTitle": "Ditt svar",
       "responseOpen": "Prissätt behovet genom att lämna en offert, eller avböj förfrågan om du inte kan gå vidare med den.",
       "responseQuote": "Du har skrivit en offert för den här förfrågan.",
+      "responseDocument": "Du har skickat en PDF-offert för denna förfrågan. Du kan ladda upp en ny version nedan.",
       "contact": {
         "title": "Byråns kontaktuppgifter",
         "agency": "Byrå",
@@ -191,7 +200,13 @@
     "errors": {
       "notDecidable": "Den här förfrågan väntar inte längre på något beslut från dig."
     },
-    "anonymousBuyer": "Anonym byrå"
+    "anonymousBuyer": "Anonym byrå",
+    "state": {
+      "to_process": "Att hantera",
+      "responded": "Besvarad",
+      "expired": "Utgången",
+      "declined": "Avböjd"
+    }
   },
   "product": {
     "label": "Lägg till en produkt från katalogen",

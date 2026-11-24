@@ -106,6 +106,35 @@
     "rfq": {
       "respond": "Répondre par un devis",
       "viewQuote": "Voir mon devis"
+    },
+    "documents": {
+      "title": "Devis envoyé",
+      "description": "Votre devis PDF, envoyé par mail ou depuis cette page. Vous voyez toujours votre fichier d'origine.",
+      "empty": "Aucun devis PDF envoyé pour le moment.",
+      "columns": {
+        "file": "Fichier",
+        "sentAt": "Envoyé le",
+        "channel": "Envoi"
+      },
+      "channel": {
+        "mail": "Par mail",
+        "upload": "Depuis la plateforme"
+      },
+      "download": "Télécharger {filename}",
+      "upload": {
+        "file": "Votre devis (PDF)",
+        "prompt": "Choisissez ou déposez un PDF",
+        "hint": "PDF, 20 Mo maximum. Il est transmis à l'agence comme une réponse par mail.",
+        "body": "Message à l'agence (facultatif)",
+        "submit": "Envoyer le devis"
+      },
+      "flash": {
+        "uploaded": "Devis envoyé : l'agence en est informée."
+      },
+      "errors": {
+        "notPdf": "Ce fichier n'est pas un PDF valide.",
+        "notReplyable": "Vous avez décliné cette demande : vous ne pouvez plus y envoyer de devis."
+      }
     }
   },
   "documents": {

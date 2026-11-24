@@ -4,6 +4,7 @@ import type {
   RfqProgress,
   RfqSupplierStatus,
   RfqStatus,
+  SupplierRfqState,
 } from '#shared/types/rfq'
 import type { BadgeTone } from '~/types/ui'
 
@@ -85,4 +86,16 @@ export const RFQ_PROGRESS_TONES: Record<RfqProgress, BadgeTone> = {
   responded: 'success',
   expired: 'warning',
   closed: 'neutral',
+}
+
+/**
+ * Tonalité du statut lisible d'une demande reçue (#230), côté fournisseur : la
+ * demande « à traiter » attend une action de sa part, la réponse envoyée est un
+ * succès, l'échéance passée alerte, le refus est une impasse.
+ */
+export const SUPPLIER_RFQ_STATE_TONES: Record<SupplierRfqState, BadgeTone> = {
+  to_process: 'info',
+  responded: 'success',
+  expired: 'warning',
+  declined: 'danger',
 }

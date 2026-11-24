@@ -14,9 +14,11 @@ import SupplierRfqMetaPills from '~/components/rfqs/supplier_rfq_meta_pills.vue'
 import SupplierBuyerContact from '~/components/rfqs/supplier_buyer_contact.vue'
 import SubscriptionUpsell from '~/components/subscription/subscription_upsell.vue'
 import ConversationThread from '~/components/messaging/conversation_thread.vue'
-import RfqRecipientStatusBadges from '~/components/rfqs/rfq_recipient_status_badges.vue'
+import SupplierRfqStateBadges from '~/components/rfqs/supplier_rfq_state_badges.vue'
+import SupplierQuoteDocuments from '~/components/rfqs/supplier_quote_documents.vue'
+import SupplierQuoteDocumentUpload from '~/components/rfqs/supplier_quote_document_upload.vue'
 import { QUOTE_STATUS_TONES } from '~/components/quotes/types'
-import type { RfqQuoteSummaryType } from '#shared/types/quote'
+import type { RfqQuoteSummaryType, SupplierQuoteDocumentType } from '#shared/types/quote'
 import type { RfqThreadType } from '#shared/types/conversation'
 import type { SupplierRfqDetailType } from '#shared/types/rfq'
 import type { SubscriptionUpsellType } from '#shared/types/subscription'
@@ -29,6 +31,10 @@ const props = defineProps<{
   upsell: SubscriptionUpsellType | null
   /** Fil d'échanges avec l'agence, relayé par mail (#226) ; agence nommée pour un abonné. */
   thread: RfqThreadType
+  /** Devis PDF envoyés, par mail ou depuis l'écran (#230) : fichier d'origine seulement. */
+  documents: SupplierQuoteDocumentType[]
+  /** Déposer un devis PDF depuis l'écran (#230) : demande encore ouverte aux réponses. */
+  canUploadQuote: boolean
 }>()
 
 const { t, locale } = useI18n()
@@ -49,6 +55,13 @@ const quoteUrl = computed(() =>
   props.quote
     ? urlFor('supplier.quotes.show', { locale: locale.value, id: props.quote.id })
     : urlFor('supplier.quotes.create', { locale: locale.value, rfqId: props.rfq.id })
+)
+
+/** Sans devis en ligne : un devis PDF déjà envoyé (#230), ou l'invitation à répondre. */
+const responseTextKey = computed(() =>
+  props.documents.length > 0
+    ? 'rfq.supplier.show.responseDocument'
+    : 'rfq.supplier.show.responseOpen'
 )
 
 /**
@@ -81,11 +94,7 @@ function decline() {
       :back-label="t('rfq.supplier.show.backToList')"
     >
       <template #meta>
-        <RfqRecipientStatusBadges
-          :status="rfq.myStatus"
-          :late="rfq.myLateReply"
-          labels="rfq.supplier.status"
-        />
+        <SupplierRfqStateBadges :state="rfq.myState" :late="rfq.myLateReply" />
         <SupplierRfqMetaPills :rfq="rfq" />
       </template>
       <!-- Une seule action primaire : répondre ; un devis existant se consulte en secondaire. -->
@@ -133,8 +142,8 @@ function decline() {
           {{ t(`quote.status.${quote.status}`) }}
         </BaseBadge>
       </div>
-      <p v-else class="text-body-sm text-text-secondary">
-        {{ t('rfq.supplier.show.responseOpen') }}
+      <p v-else class="text-body-sm text-text-secondary" data-test="response-text">
+        {{ t(responseTextKey) }}
       </p>
 
       <template v-if="canDecline && !quote" #footer>
@@ -142,6 +151,16 @@ function decline() {
           {{ t('rfq.supplier.actions.decline') }}
         </BaseButton>
       </template>
+    </BaseSection>
+
+    <BaseSection
+      v-if="documents.length > 0 || canUploadQuote"
+      :title="t('quote.supplier.documents.title')"
+      :description="t('quote.supplier.documents.description')"
+      flush
+    >
+      <SupplierQuoteDocuments :documents="documents" />
+      <SupplierQuoteDocumentUpload v-if="canUploadQuote" :rfq-id="rfq.id" />
     </BaseSection>
 
     <ConversationThread

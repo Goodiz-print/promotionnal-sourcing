@@ -20,7 +20,7 @@ import {
   RfqNotSendableException,
   RfqSupplierNotFoundException,
 } from '#exceptions/rfq_errors'
-import { DEFAULT_RFQ_ITEM_QUANTITY } from '#shared/types/rfq'
+import { DEFAULT_RFQ_ITEM_QUANTITY, SUPPLIER_RFQ_STATE_STATUSES } from '#shared/types/rfq'
 import { BUYER_VISIBLE_QUOTE_STATUSES } from '#shared/types/quote'
 import { parseRfqDeadline } from '#shared/helpers/rfq_deadline'
 import type {
@@ -29,6 +29,7 @@ import type {
   RfqItemData,
   RfqProductOptionType,
   RfqProgress,
+  SupplierRfqFilters,
   UpdateRfqData,
 } from '#shared/types/rfq'
 
@@ -47,6 +48,19 @@ const RFQ_LIST_COLUMNS = [
   'expiredAt',
   'createdAt',
 ]
+
+/** Colonnes d'une ligne de « Demandes reçues » (`SupplierRfqTransformer`). */
+const SUPPLIER_RFQ_LIST_COLUMNS = [
+  'id',
+  'buyerOrganizationId',
+  'title',
+  'status',
+  'deadline',
+  'publishedAt',
+]
+
+/** Statuts d'un destinataire qui a reçu la demande : tous sauf `pending`. */
+const RECEIVED_RFQ_SUPPLIER_STATUSES = Object.values(SUPPLIER_RFQ_STATE_STATUSES).flat()
 
 /**
  * Rédaction, lecture et diffusion d'une demande de devis (RFQ).
@@ -144,21 +158,34 @@ export default class RfqService {
   }
 
   /**
-   * Demandes reçues par une organisation fournisseur. Les destinataires encore
-   * `pending` sont exclus : tant que l'acheteur n'a pas envoyé la demande,
-   * elle n'existe pas pour le fournisseur.
+   * « Demandes reçues » (#230) : les demandes reçues par une organisation
+   * fournisseur, la plus récemment publiée en tête, filtrées par statut lisible
+   * (`SupplierRfqState`, cf. `SUPPLIER_RFQ_STATE_STATUSES`). Les destinataires
+   * encore `pending` sont exclus : tant que l'acheteur n'a pas envoyé la
+   * demande, elle n'existe pas pour le fournisseur.
+   *
+   * Colonnes explicites ; l'agence et la ligne du fournisseur sont préchargées
+   * (une requête par relation, pas de N+1), les items seulement comptés en
+   * sous-requête (`$extras.itemsCount`).
    */
-  listForSupplier(organizationId: number): Promise<Rfq[]> {
+  listForSupplier(organizationId: number, filters: SupplierRfqFilters = {}): Promise<Rfq[]> {
+    const statuses = filters.status
+      ? SUPPLIER_RFQ_STATE_STATUSES[filters.status]
+      : RECEIVED_RFQ_SUPPLIER_STATUSES
     return Rfq.query()
+      .select(SUPPLIER_RFQ_LIST_COLUMNS)
       .whereHas('suppliers', (suppliers) =>
-        suppliers.where('supplierOrganizationId', organizationId).whereNot('status', 'pending')
+        suppliers.where('supplierOrganizationId', organizationId).whereIn('status', [...statuses])
       )
-      .preload('buyerOrganization')
-      .preload('items')
+      .preload('buyerOrganization', (buyer) => buyer.select('id', 'name', 'logoUrl'))
       .preload('suppliers', (suppliers) =>
-        suppliers.where('supplierOrganizationId', organizationId)
+        suppliers
+          .select('id', 'rfqId', 'supplierOrganizationId', 'status', 'sentAt', 'lateReplyAt')
+          .where('supplierOrganizationId', organizationId)
       )
+      .withCount('items', (items) => items.as('itemsCount'))
       .orderBy('publishedAt', 'desc')
+      .orderBy('id', 'desc')
   }
 
   async findForSupplier(id: number, organizationId: number): Promise<Rfq> {

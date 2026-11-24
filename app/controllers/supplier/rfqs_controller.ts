@@ -10,9 +10,13 @@ import RfqThreadService from '#services/rfq_thread_service'
 import SubscriptionService from '#services/subscription_service'
 import SupplierRfqDetailTransformer from '#transformers/supplier_rfq_detail_transformer'
 import SupplierRfqTransformer from '#transformers/supplier_rfq_transformer'
+import SupplierQuoteDocumentTransformer from '#transformers/supplier_quote_document_transformer'
 import RfqThreadTransformer from '#transformers/rfq_thread_transformer'
 import { RfqNotEditableException } from '#exceptions/rfq_errors'
 import { acceptsResponses } from '#shared/helpers/rfq_deadline'
+import { supplierRfqFiltersForPage } from '#shared/helpers/supplier_rfq'
+import { supplierRfqListStatusValidator } from '#validators/rfq'
+import type { SupplierSentQuotesType } from '#shared/types/quote'
 import type { Locale } from '#shared/types/i18n'
 import type Organization from '#models/organization'
 import type Rfq from '#models/rfq'
@@ -47,19 +51,24 @@ export default class SupplierRfqsController {
   ) {}
 
   /**
-   * Liste des demandes reçues, la plus récemment publiée en tête.
+   * Liste des demandes reçues, la plus récemment publiée en tête, filtrée par
+   * statut lisible (#230 : `?status=to_process|responded|expired|declined`). Un
+   * filtre invalide est ignoré : c'est une URL, pas une saisie.
    */
-  async index({ auth, bouncer, inertia }: HttpContext) {
+  async index({ auth, bouncer, inertia, request }: HttpContext) {
     const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canRespondToRfq', org)
 
+    const [, query] = await supplierRfqListStatusValidator.tryValidate(request.qs())
+    const filters = query ?? {}
     const [rfqs, revealBuyer] = await Promise.all([
-      this.service.listForSupplier(org.id),
+      this.service.listForSupplier(org.id, filters),
       this.subscriptions.isSubscribed(org.id),
     ])
 
     return inertia.render('supplier/rfqs/index', {
       rfqs: rfqs.map((rfq) => new SupplierRfqTransformer(rfq, revealBuyer).toObject()),
+      filters: supplierRfqFiltersForPage(filters),
       upsell: await this.upsellFor(revealBuyer, org, bouncer),
     })
   }
@@ -97,6 +106,7 @@ export default class SupplierRfqsController {
       canQuote: acceptsResponses(rfq) && recipient?.status !== 'declined',
       // Fil d'échanges avec l'agence (#226), nommée pour un abonné seulement.
       thread,
+      ...(await this.sentDocumentsFor(rfq, bouncer)),
     })
   }
 
@@ -140,6 +150,27 @@ export default class SupplierRfqsController {
       canWrite: await bouncer.allows('canMessageRfqBuyer', rfq, recipient),
       closed: this.threads.isClosed(rfq),
     }).toObject()
+  }
+
+  /**
+   * Devis PDF envoyés par le fournisseur (#230), par mail ou depuis l'écran —
+   * leur fichier d'origine seulement — et s'il peut en déposer un.
+   */
+  private async sentDocumentsFor(
+    rfq: Rfq,
+    bouncer: HttpContext['bouncer']
+  ): Promise<SupplierSentQuotesType> {
+    const [recipient] = rfq.suppliers
+    const [documents, canUploadQuote] = await Promise.all([
+      this.quotes.documentsSentBy(recipient.id),
+      bouncer.allows('canUploadRfqQuoteDocument', rfq, recipient),
+    ])
+    return {
+      documents: documents.map((document) =>
+        new SupplierQuoteDocumentTransformer(document).toObject()
+      ),
+      canUploadQuote,
+    }
   }
 
   /** Encart d'abonnement (#222), pour un fournisseur non abonné seulement. */

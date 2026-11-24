@@ -67,14 +67,15 @@ export default class RfqRecipientService {
   }
 
   /**
-   * Le fournisseur a répondu par mail avec son devis en PDF (#224) :
+   * Le fournisseur a répondu avec son devis en PDF, par mail (#224) ou déposé
+   * depuis l'écran de la demande (#230) :
    * `sent`/`viewed` → `responded`, dans la transaction qui enregistre la
    * réponse. Une réponse **tardive** (#232) est acceptée aussi, y compris d'un
    * destinataire `expired`. Sans effet (`false`) si la demande est close ou si
    * le destinataire a déjà répondu ou décliné — la garde est en base.
    * `recipient.rfq` doit être chargée.
    */
-  async markRespondedByMail(
+  async markRespondedWithQuote(
     recipient: RfqSupplier,
     trx: TransactionClientContract
   ): Promise<boolean> {

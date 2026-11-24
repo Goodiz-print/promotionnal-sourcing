@@ -954,7 +954,9 @@ test.group('RFQ — réponse tardive (#232)', (group) => {
     assert.isNull(recipient.lateReplyAt)
   })
 
-  test('markRespondedByMail : accepte un expiré, refuse une demande close', async ({ assert }) => {
+  test('markRespondedWithQuote : accepte un expiré, refuse une demande close', async ({
+    assert,
+  }) => {
     const recipients = await app.container.make(RfqRecipientService)
     const expired = await expiredScenario()
     await expired.recipient.load('rfq')
@@ -963,8 +965,8 @@ test.group('RFQ — réponse tardive (#232)', (group) => {
     await closed.recipient.load('rfq')
 
     const [fromExpired, fromClosed] = await db.transaction(async (trx) => [
-      await recipients.markRespondedByMail(expired.recipient, trx),
-      await recipients.markRespondedByMail(closed.recipient, trx),
+      await recipients.markRespondedWithQuote(expired.recipient, trx),
+      await recipients.markRespondedWithQuote(closed.recipient, trx),
     ])
 
     assert.isTrue(fromExpired)

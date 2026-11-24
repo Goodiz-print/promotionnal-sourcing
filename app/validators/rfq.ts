@@ -1,5 +1,5 @@
 import vine from '@vinejs/vine'
-import { RFQ_PROGRESSES } from '#shared/types/rfq'
+import { RFQ_PROGRESSES, SUPPLIER_RFQ_STATES } from '#shared/types/rfq'
 
 /**
  * Ligne de besoin (fabrique : un nœud VineJS neuf par appel, comme
@@ -83,4 +83,12 @@ export const rfqListAuthorValidator = vine.create({
  */
 export const rfqDeadlineValidator = vine.create({
   deadline: vine.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+})
+
+/**
+ * Filtre de « Demandes reçues » (#230), lu dans la query string : statut lisible
+ * du destinataire. Une valeur invalide est ignorée par le controller.
+ */
+export const supplierRfqListStatusValidator = vine.create({
+  status: vine.enum(SUPPLIER_RFQ_STATES).optional(),
 })

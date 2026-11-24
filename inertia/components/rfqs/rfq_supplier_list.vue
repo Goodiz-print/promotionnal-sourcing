@@ -2,6 +2,7 @@
 import { router } from '@inertiajs/vue3'
 import { Users } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { formatShortDate } from '#shared/helpers/date'
 import { urlFor } from '~/client'
 import BaseAvatar from '~/components/base/base_avatar.vue'
 import BaseButton from '~/components/base/base_button.vue'
@@ -37,8 +38,9 @@ function remove(supplier: RfqSupplierType) {
   )
 }
 
+/** Date courte dans la langue de l'interface (lie `formatShortDate` à la locale courante). */
 function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(locale.value)
+  return formatShortDate(value, locale.value)
 }
 
 /** Deux premières initiales du nom, pour l'avatar des fournisseurs sans logo. */

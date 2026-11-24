@@ -152,7 +152,15 @@
         "deadline": "Termin",
         "status": "Status"
       },
-      "emptyDescription": "Kupujący, którzy się z Państwem skontaktują, pojawią się tutaj wraz ze szczegółami swoich potrzeb."
+      "emptyDescription": "Kupujący, którzy się z Państwem skontaktują, pojawią się tutaj wraz ze szczegółami swoich potrzeb.",
+      "filters": {
+        "label": "Filtruj otrzymane zapytania",
+        "status": "Status",
+        "allStatuses": "Wszystkie statusy",
+        "reset": "Wyczyść filtr"
+      },
+      "emptyFiltered": "Brak zapytań o tym statusie.",
+      "emptyFilteredDescription": "Zmień filtr, aby zobaczyć pozostałe zapytania."
     },
     "show": {
       "backToList": "Powrót do otrzymanych zapytań",
@@ -165,6 +173,7 @@
       "responseTitle": "Państwa odpowiedź",
       "responseOpen": "Wycenią Państwo te potrzeby, składając ofertę, lub odrzucą zapytanie, jeśli nie mogą Państwo go zrealizować.",
       "responseQuote": "Sporządzili Państwo ofertę dla tego zapytania.",
+      "responseDocument": "Wysłano ofertę PDF do tego zapytania. Poniżej możesz przesłać nową wersję.",
       "contact": {
         "title": "Dane kontaktowe agencji",
         "agency": "Agencja",
@@ -191,7 +200,13 @@
     "errors": {
       "notDecidable": "To zapytanie nie oczekuje już na Państwa decyzję."
     },
-    "anonymousBuyer": "Anonimowa agencja"
+    "anonymousBuyer": "Anonimowa agencja",
+    "state": {
+      "to_process": "Do obsłużenia",
+      "responded": "Odpowiedziano",
+      "expired": "Wygasło",
+      "declined": "Odrzucono"
+    }
   },
   "product": {
     "label": "Dodaj produkt z katalogu",

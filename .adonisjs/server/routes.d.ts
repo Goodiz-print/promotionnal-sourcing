@@ -104,6 +104,8 @@ export type ScannedRoutes = {
     'quotes.reject': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quote_documents.download': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quote_documents.select': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.quote_documents.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.quote_documents.download': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.quotes.create': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
     'supplier.quotes.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
@@ -323,6 +325,7 @@ export type ScannedRoutes = {
     'supplier.rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quote_documents.download': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.quote_documents.download': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.quotes.create': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
     'supplier.quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -436,6 +439,7 @@ export type ScannedRoutes = {
     'supplier.rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quote_documents.download': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.quote_documents.download': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.quotes.create': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
     'supplier.quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -546,6 +550,7 @@ export type ScannedRoutes = {
     'supplier.rfqs.decline': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.rfqs.messages.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quote_documents.select': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.quote_documents.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
     'supplier.quotes.submit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quote_cart.items.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }

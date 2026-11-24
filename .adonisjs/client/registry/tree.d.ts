@@ -100,6 +100,10 @@ export interface ApiDefinition {
         store: typeof routes['supplier.rfqs.messages.store']
       }
     }
+    quoteDocuments: {
+      store: typeof routes['supplier.quote_documents.store']
+      download: typeof routes['supplier.quote_documents.download']
+    }
     quotes: {
       index: typeof routes['supplier.quotes.index']
       create: typeof routes['supplier.quotes.create']

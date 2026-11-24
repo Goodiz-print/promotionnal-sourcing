@@ -107,7 +107,7 @@ Règles appliquées par ces services :
 | `expire`                   | `published`                                                  | `RfqNotExpirableException`                                 |
 | `extendDeadline`           | `published` ou `expired`, nouvelle date valide               | `RfqNotExtendableException`, `RfqInvalidDeadlineException` |
 | `markResponded`, `decline` | destinataire `sent`/`viewed`, demande non `expired`          | `RfqNotEditableException`                                  |
-| `markRespondedByMail`      | destinataire `sent`/`viewed`/`expired`, demande non `closed` | — (renvoie `false`)                                        |
+| `markRespondedWithQuote`   | destinataire `sent`/`viewed`/`expired`, demande non `closed` | — (renvoie `false`)                                        |
 
 Autres invariants :
 
@@ -124,7 +124,7 @@ Autres invariants :
 - **`markViewed` ne régresse jamais** : une demande `responded`/`declined` ne
   redevient pas « consultée » parce que le fournisseur rouvre l'écran.
 - **`responded` par mail** (#224) : un destinataire passe aussi `responded` quand
-  il répond par mail en joignant un PDF (`markRespondedByMail`, voir
+  il répond par mail en joignant un PDF (`markRespondedWithQuote`, voir
   [`quotes.md`](quotes.md)), sans passer par l'application.
 - **Cloisonnement par organisation** : `findForBuyer` filtre sur
   `buyer_organization_id` dans la requête — une demande d'une autre
@@ -287,6 +287,11 @@ i18n : `resources/lang/{fr,en}/rfq.json` (66 clés, strictement symétriques).
 | GET     | `/supplier/rfqs`             | `supplier.rfqs.index`   | `canRespondToRfq` |
 | GET     | `/supplier/rfqs/:id`         | `supplier.rfqs.show`    | `canRespondToRfq` |
 | POST    | `/supplier/rfqs/:id/decline` | `supplier.rfqs.decline` | `canRespondToRfq` |
+
+Depuis #230, le devis PDF se dépose aussi depuis le détail
+(`POST /supplier/rfqs/:id/quote-documents`, `canUploadRfqQuoteDocument`) et se
+télécharge par `GET /supplier/quote-documents/:id/download`
+(`canDownloadSentQuoteDocument`) — voir `docs/quotes.md`.
 
 Déclarées dans le même `registerRfqRoutes()` que les routes acheteur : c'est un
 seul domaine, vu des deux côtés.
@@ -465,7 +470,7 @@ avec le global `appUrl` de `config/mail.ts`, résolu au rendu.
 ### Écrans
 
 - **`supplier/rfqs/index.vue`** — demandes reçues, acheteur, échéance et
-  avancement en pastille.
+  statut lisible en pastille, filtrable (voir « Statut lisible », ci-dessous).
 - **`supplier/rfqs/show.vue`** — le besoin, et l'action « décliner » tant que la
   demande est publiée et qu'aucune décision n'a été prise. Une demande déclinée
   ou clôturée par l'acheteur affiche un rappel à la place du bouton.
@@ -477,14 +482,37 @@ diffère.
 i18n : section `supplier` de `resources/lang/{fr,en}/rfq.json` (86 clés au
 total, strictement symétriques).
 
+### Statut lisible et « devis envoyé » (#230)
+
+L'écran ne montre plus les statuts techniques de `rfq_suppliers.status` mais un
+**statut lisible** (`SupplierRfqState`, `myState`) :
+
+| Statut lisible | Statuts du destinataire | Remarque                                        |
+| -------------- | ----------------------- | ----------------------------------------------- |
+| `to_process`   | `sent`, `viewed`        | reçue, lue ou non, sans réponse                 |
+| `responded`    | `responded`             | pastille « réponse tardive » si `late_reply_at` |
+| `expired`      | `expired`               | posé par `ExpireRfqsJob` à l'échéance (#232)    |
+| `declined`     | `declined`              | le fournisseur a décliné                        |
+
+La correspondance (`SUPPLIER_RFQ_STATE_STATUSES`, `shared/types/rfq.ts`) est la
+seule source : `supplierRfqState` (affichage) et le filtre SQL de
+`RfqService#listForSupplier` la lisent tous deux. Le filtre est dans la query
+string (`?status=expired`, `supplierRfqListStatusValidator`) ; une valeur
+invalide est ignorée.
+
+Le détail liste les **devis PDF envoyés** (par mail ou déposés depuis l'écran),
+toujours dans leur version d'origine, et propose le dépôt d'un PDF tant que le
+fil accepte des réponses (voir `docs/quotes.md`, « Dépôt du devis PDF depuis
+l'écran »).
+
 ### Connu, non traité en PR 3
 
 - ~~Aucune entrée de navigation vers `/supplier/rfqs`~~ : traité par le menu
   applicatif (voir `docs/changelog/2026-10-24-shell-applicatif.md`).
 - ~~**Le mail est en français seulement**~~ : traité par #58, chaque destinataire
   reçoit la demande dans sa langue (voir `docs/mail.md`, « Langue du destinataire »).
-- **Le dépôt de devis** est annoncé à l'écran mais n'existe pas : c'est la
-  Phase 4 (#5), `markResponded` en est le point d'accroche.
+- ~~**Le dépôt de devis** est annoncé à l'écran mais n'existe pas~~ : devis
+  structuré (Phase 4, #5) et dépôt du PDF depuis l'écran (#230).
 
 ## Roadmap
 
@@ -723,7 +751,7 @@ main. Une demande close n'attend plus rien : ce qui arrive après n'est pas tard
 
 - `RfqRecipientService#markLateReply` date la **première** réponse tardive
   (`rfq_suppliers.late_reply_at`, à son heure de réception) ;
-- avec un devis PDF, `markRespondedByMail` fait passer le destinataire
+- avec un devis PDF, `markRespondedWithQuote` fait passer le destinataire
   `responded`, y compris depuis `expired` (refusé pour une demande close) ;
 - l'événement `SupplierReplyRecorded` porte `late` ; le listener
   `on_supplier_reply_recorded` le transmet : le mail `supplier-reply-received`

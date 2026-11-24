@@ -1307,6 +1307,32 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_documents_controller').default['select']>>>
     }
   }
+  'supplier.quote_documents.store': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/rfqs/:id/quote-documents'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/supplier_quote_document').supplierQuoteDocumentValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/supplier_quote_document').supplierQuoteDocumentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quote_documents_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quote_documents_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/quote_documents_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.quote_documents.download': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/quote-documents/:id/download'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quote_documents_controller').default['download']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quote_documents_controller').default['download']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/quote_documents_controller').default['download']>>>
+    }
+  }
   'supplier.quotes.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/supplier/quotes'
