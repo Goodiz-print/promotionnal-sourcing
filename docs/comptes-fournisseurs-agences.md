@@ -67,6 +67,27 @@ sinon les contacts qui couvrent le pays de l'organisation courante du visiteur
 jamais envoyés au navigateur. Les demandes de devis partent toujours à l'adresse
 de réception générale du fournisseur, pas au commercial.
 
+### Consultations (#239)
+
+Page `GET /:locale/supplier/insights` (`supplier.insights.index`, ability
+`canViewSupplierInsights` : owner, admin, manager d'une organisation `supplier`
+ou `both`). Elle lit `activity_events` (#172, cf. `docs/admin.md`) via
+`SupplierInsightsService`, cloisonné aux produits et aux fiches de
+l'organisation.
+
+- **Pour tous** : sur la période choisie (`period` : 7, 30, 90 ou 365 jours),
+  consultations de produits, produits consultés, consultations de la fiche,
+  ajouts à une demande de devis, et tableau paginé (50) de tous les produits.
+- **Abonné** (`SubscriptionService.isSubscribed`) : agences **validées**
+  (`buyer`, `both`, non archivées, sans motif de revue) qui ont consulté, avec nombre de consultations, produits distincts et
+  dernière consultation. Seuls les événements de moins de 90 jours (non
+  pseudonymisés) nomment une agence ; ils comptent tous dans les totaux.
+- **Non abonné** : la liste n'est pas lue (`report.agencies = null`), aucun
+  nom ni identifiant d'agence n'est envoyé ; encart `subscription_upsell.vue`.
+- Index `activity_events (target_type, target_id, created_at)` (migration
+  `1794000000041`) : la lecture part des produits du fournisseur.
+- L'information des agences (CGU, politique de confidentialité) relève de #233.
+
 ### Rattachement d'une fiche importée (#231)
 
 Une fiche `suppliers` créée par un connecteur de flux (#211) n'a pas

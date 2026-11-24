@@ -107,5 +107,42 @@
       "deleted": "Contact deleted.",
       "settingsUpdated": "Setting saved."
     }
+  },
+  "insights": {
+    "title": "Views",
+    "subtitle": "How often agencies viewed your products and your supplier page.",
+    "period": "Period",
+    "periodOption": "Last {days} days",
+    "summary": {
+      "productViews": "Product views",
+      "viewedProducts": "Products viewed",
+      "supplierViews": "Supplier page views",
+      "rfqAdditions": "Added to a quote request"
+    },
+    "products": {
+      "title": "Views by product",
+      "columns": {
+        "product": "Product",
+        "views": "Views",
+        "rfqAdditions": "Added to a request"
+      },
+      "emptyTitle": "No products",
+      "emptyBody": "Add products to your catalogue to track their views.",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "agencies": {
+      "title": "Agencies that viewed you",
+      "hint": "Views from the last 90 days: older views are still counted but no longer name the agency.",
+      "columns": {
+        "agency": "Agency",
+        "views": "Views",
+        "products": "Products viewed",
+        "lastViewedAt": "Last view"
+      },
+      "emptyTitle": "No agency over this period",
+      "emptyBody": "Agencies viewing your products or your page will appear here.",
+      "limited": "Only the {count} most recent agencies are shown."
+    }
   }
 }

@@ -38,6 +38,7 @@ import {
   registerSupplierSubscriptionRoutes,
 } from '#start/routes/subscriptions'
 import { registerSupplierContactRoutes } from '#start/routes/supplier_contacts'
+import { registerSupplierInsightsRoutes } from '#start/routes/supplier_insights'
 import { LOCALE_ROUTE_PATTERN } from '#shared/types/i18n'
 import { controllers } from '#generated/controllers'
 import router from '@adonisjs/core/services/router'
@@ -310,6 +311,8 @@ router
                 registerSupplierSubscriptionRoutes()
                 // Équipe commerciale du fournisseur — cf. `start/routes/supplier_contacts.ts`.
                 registerSupplierContactRoutes()
+                // Consultations des produits et de la fiche — cf. `start/routes/supplier_insights.ts`.
+                registerSupplierInsightsRoutes()
               })
               .use(middleware.onboarded())
 

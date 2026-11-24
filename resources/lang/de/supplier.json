@@ -107,5 +107,42 @@
       "deleted": "Kontakt gelöscht.",
       "settingsUpdated": "Einstellung gespeichert."
     }
+  },
+  "insights": {
+    "title": "Aufrufe",
+    "subtitle": "Wie oft Agenturen Ihre Produkte und Ihre Lieferantenseite aufgerufen haben.",
+    "period": "Zeitraum",
+    "periodOption": "Letzte {days} Tage",
+    "summary": {
+      "productViews": "Produktaufrufe",
+      "viewedProducts": "Aufgerufene Produkte",
+      "supplierViews": "Aufrufe der Lieferantenseite",
+      "rfqAdditions": "Zu einer Angebotsanfrage hinzugefügt"
+    },
+    "products": {
+      "title": "Aufrufe nach Produkt",
+      "columns": {
+        "product": "Produkt",
+        "views": "Aufrufe",
+        "rfqAdditions": "Zu einer Anfrage hinzugefügt"
+      },
+      "emptyTitle": "Keine Produkte",
+      "emptyBody": "Fügen Sie Ihrem Katalog Produkte hinzu, um ihre Aufrufe zu verfolgen.",
+      "previous": "Zurück",
+      "next": "Weiter"
+    },
+    "agencies": {
+      "title": "Agenturen, die Sie aufgerufen haben",
+      "hint": "Aufrufe der letzten 90 Tage: ältere Aufrufe werden weiter gezählt, nennen die Agentur aber nicht mehr.",
+      "columns": {
+        "agency": "Agentur",
+        "views": "Aufrufe",
+        "products": "Aufgerufene Produkte",
+        "lastViewedAt": "Letzter Aufruf"
+      },
+      "emptyTitle": "Keine Agentur in diesem Zeitraum",
+      "emptyBody": "Agenturen, die Ihre Produkte oder Ihre Seite aufrufen, erscheinen hier.",
+      "limited": "Nur die {count} zuletzt aktiven Agenturen werden angezeigt."
+    }
   }
 }

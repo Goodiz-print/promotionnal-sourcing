@@ -24,6 +24,7 @@ import type Rfq from '#models/rfq'
 import type RfqSupplier from '#models/rfq_supplier'
 import OrganizationUser from '#models/organization_user'
 import { RFQ_MANAGER_ROLES, RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
+import { SUPPLIER_INSIGHTS_ROLES } from '#shared/types/supplier_insights'
 import type { RoleSlug } from '#shared/types/role'
 import { platformRoleHasPermission } from '#shared/helpers/platform_permissions'
 import type { PlatformPermission } from '#shared/types/user'
@@ -132,6 +133,19 @@ export const canManageSubscription = Bouncer.ability(async (user: User, org: Org
   if (!['supplier', 'both'].includes(org.organizationType)) return false
   const m = await getMembership(user, org)
   return m ? ['owner', 'admin'].includes(m.role.slug) : false
+})
+
+/**
+ * Ability to check if a user can read the views of the products and the supplier
+ * page of an organization (#239). The organization must be a supplier (or
+ * both), and the user one of the roles that already handle received RFQs
+ * (`SUPPLIER_INSIGHTS_ROLES`). Which agencies viewed is a matter of
+ * subscription, decided by `SupplierInsightsService`, not of this ability.
+ */
+export const canViewSupplierInsights = Bouncer.ability(async (user: User, org: Organization) => {
+  if (!['supplier', 'both'].includes(org.organizationType)) return false
+  const m = await getMembership(user, org)
+  return m ? SUPPLIER_INSIGHTS_ROLES.includes(m.role.slug as RoleSlug) : false
 })
 
 /**

@@ -107,5 +107,42 @@
       "deleted": "Contact supprimé.",
       "settingsUpdated": "Réglage enregistré."
     }
+  },
+  "insights": {
+    "title": "Consultations",
+    "subtitle": "Combien de fois les agences ont consulté vos produits et votre fiche fournisseur.",
+    "period": "Période",
+    "periodOption": "{days} derniers jours",
+    "summary": {
+      "productViews": "Consultations de produits",
+      "viewedProducts": "Produits consultés",
+      "supplierViews": "Consultations de la fiche",
+      "rfqAdditions": "Ajouts à une demande de devis"
+    },
+    "products": {
+      "title": "Consultations par produit",
+      "columns": {
+        "product": "Produit",
+        "views": "Consultations",
+        "rfqAdditions": "Ajouts à une demande"
+      },
+      "emptyTitle": "Aucun produit",
+      "emptyBody": "Ajoutez des produits à votre catalogue pour suivre leurs consultations.",
+      "previous": "Précédent",
+      "next": "Suivant"
+    },
+    "agencies": {
+      "title": "Agences qui vous ont consulté",
+      "hint": "Consultations de moins de 90 jours : au-delà, elles restent comptées mais ne nomment plus l'agence.",
+      "columns": {
+        "agency": "Agence",
+        "views": "Consultations",
+        "products": "Produits consultés",
+        "lastViewedAt": "Dernière consultation"
+      },
+      "emptyTitle": "Aucune agence sur la période",
+      "emptyBody": "Les agences qui consultent vos produits ou votre fiche apparaîtront ici.",
+      "limited": "Seules les {count} agences les plus récentes sont affichées."
+    }
   }
 }

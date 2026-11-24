@@ -107,5 +107,42 @@
       "deleted": "Kontakt borttagen.",
       "settingsUpdated": "Inställning sparad."
     }
+  },
+  "insights": {
+    "title": "Visningar",
+    "subtitle": "Hur ofta byråer har visat dina produkter och din leverantörssida.",
+    "period": "Period",
+    "periodOption": "Senaste {days} dagarna",
+    "summary": {
+      "productViews": "Produktvisningar",
+      "viewedProducts": "Visade produkter",
+      "supplierViews": "Visningar av leverantörssidan",
+      "rfqAdditions": "Tillagda i en offertförfrågan"
+    },
+    "products": {
+      "title": "Visningar per produkt",
+      "columns": {
+        "product": "Produkt",
+        "views": "Visningar",
+        "rfqAdditions": "Tillagda i en förfrågan"
+      },
+      "emptyTitle": "Inga produkter",
+      "emptyBody": "Lägg till produkter i din katalog för att följa deras visningar.",
+      "previous": "Föregående",
+      "next": "Nästa"
+    },
+    "agencies": {
+      "title": "Byråer som har visat dig",
+      "hint": "Visningar från de senaste 90 dagarna: äldre räknas fortfarande men anger inte längre byrån.",
+      "columns": {
+        "agency": "Byrå",
+        "views": "Visningar",
+        "products": "Visade produkter",
+        "lastViewedAt": "Senaste visning"
+      },
+      "emptyTitle": "Ingen byrå under perioden",
+      "emptyBody": "Byråer som visar dina produkter eller din sida visas här.",
+      "limited": "Endast de {count} senaste byråerna visas."
+    }
   }
 }

@@ -107,5 +107,42 @@
       "deleted": "Contacto eliminado.",
       "settingsUpdated": "Definição guardada."
     }
+  },
+  "insights": {
+    "title": "Visualizações",
+    "subtitle": "Quantas vezes as agências visualizaram os seus produtos e a sua ficha de fornecedor.",
+    "period": "Período",
+    "periodOption": "Últimos {days} dias",
+    "summary": {
+      "productViews": "Visualizações de produtos",
+      "viewedProducts": "Produtos visualizados",
+      "supplierViews": "Visualizações da ficha",
+      "rfqAdditions": "Adicionados a um pedido de orçamento"
+    },
+    "products": {
+      "title": "Visualizações por produto",
+      "columns": {
+        "product": "Produto",
+        "views": "Visualizações",
+        "rfqAdditions": "Adicionados a um pedido"
+      },
+      "emptyTitle": "Nenhum produto",
+      "emptyBody": "Adicione produtos ao seu catálogo para acompanhar as visualizações.",
+      "previous": "Anterior",
+      "next": "Seguinte"
+    },
+    "agencies": {
+      "title": "Agências que o visualizaram",
+      "hint": "Visualizações dos últimos 90 dias: as mais antigas continuam contadas mas já não indicam a agência.",
+      "columns": {
+        "agency": "Agência",
+        "views": "Visualizações",
+        "products": "Produtos visualizados",
+        "lastViewedAt": "Última visualização"
+      },
+      "emptyTitle": "Nenhuma agência no período",
+      "emptyBody": "As agências que visualizarem os seus produtos ou a sua ficha aparecerão aqui.",
+      "limited": "Apenas as {count} agências mais recentes são apresentadas."
+    }
   }
 }

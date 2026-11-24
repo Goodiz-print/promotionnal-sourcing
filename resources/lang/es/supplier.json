@@ -107,5 +107,42 @@
       "deleted": "Contacto eliminado.",
       "settingsUpdated": "Ajuste guardado."
     }
+  },
+  "insights": {
+    "title": "Consultas",
+    "subtitle": "Cuántas veces las agencias han consultado sus productos y su ficha de proveedor.",
+    "period": "Periodo",
+    "periodOption": "Últimos {days} días",
+    "summary": {
+      "productViews": "Consultas de productos",
+      "viewedProducts": "Productos consultados",
+      "supplierViews": "Consultas de la ficha",
+      "rfqAdditions": "Añadidos a una solicitud de presupuesto"
+    },
+    "products": {
+      "title": "Consultas por producto",
+      "columns": {
+        "product": "Producto",
+        "views": "Consultas",
+        "rfqAdditions": "Añadidos a una solicitud"
+      },
+      "emptyTitle": "Ningún producto",
+      "emptyBody": "Añada productos a su catálogo para seguir sus consultas.",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "agencies": {
+      "title": "Agencias que le han consultado",
+      "hint": "Consultas de menos de 90 días: más allá, siguen contando pero ya no nombran a la agencia.",
+      "columns": {
+        "agency": "Agencia",
+        "views": "Consultas",
+        "products": "Productos consultados",
+        "lastViewedAt": "Última consulta"
+      },
+      "emptyTitle": "Ninguna agencia en este periodo",
+      "emptyBody": "Las agencias que consulten sus productos o su ficha aparecerán aquí.",
+      "limited": "Solo se muestran las {count} agencias más recientes."
+    }
   }
 }

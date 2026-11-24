@@ -49,6 +49,12 @@ avec activation et expiration automatiques (#214) et la **souscription en ligne*
 Elle lève l'anonymat de l'agence dans le parcours devis (#220, cf. `docs/rfq.md`) :
 écrans « Demandes reçues », mails de demande et de relance, notifications.
 
+Elle ouvre aussi l'**identité des agences qui consultent** les produits et la
+fiche du fournisseur (#239, page « Consultations », `supplier.insights.index`,
+cf. `docs/comptes-fournisseurs-agences.md`) : les compteurs sont pour tous, la
+liste des agences n'est lue et envoyée qu'à un abonné ; un non abonné voit
+l'encart d'abonnement (#222).
+
 La règle elle-même est **une seule fonction**, `whereCurrentSubscription`
 (`app/services/subscription_plan_service.ts`), appliquée aux requêtes Lucid comme
 aux requêtes `db`. `SubscriptionPlanService` (lecture en masse, seule écriture de

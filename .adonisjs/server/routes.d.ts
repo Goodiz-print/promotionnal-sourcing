@@ -149,6 +149,7 @@ export type ScannedRoutes = {
     'supplier.contacts.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.contacts.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.contacts.move': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.insights.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.ads.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.ads.wallets.adjust': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -340,6 +341,7 @@ export type ScannedRoutes = {
     'supplier.ads.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.subscription.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.contacts.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.insights.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.ads.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -454,6 +456,7 @@ export type ScannedRoutes = {
     'supplier.ads.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.subscription.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.contacts.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.insights.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.ads.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
