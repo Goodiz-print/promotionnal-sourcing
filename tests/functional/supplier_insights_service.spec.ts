@@ -1,7 +1,10 @@
 import { test } from '@japa/runner'
 import app from '@adonisjs/core/services/app'
 import { DateTime } from 'luxon'
+import { CategoryFactory } from '#database/factories/category_factory'
 import { OrganizationFactory } from '#database/factories/organization_factory'
+import { ProductFactory } from '#database/factories/product_factory'
+import { ProductTranslationFactory } from '#database/factories/product_translation_factory'
 import ActivityAggregationService from '#services/activity_aggregation_service'
 import SupplierInsightsService from '#services/supplier_insights_service'
 import { trailingDateRange } from '#shared/helpers/activity_event'
@@ -56,6 +59,31 @@ test.group('ActivityAggregationService', (group) => {
       ]
     )
     assert.deepEqual(await service.named([], 'supplier', 'fr'), [])
+  })
+
+  test('named replie sur la langue source du produit avant l’anglais', async ({ assert }) => {
+    const service = await app.container.make(ActivityAggregationService)
+    const { supplier } = await createSupplierWithProducts([])
+    const category = await CategoryFactory.create()
+    const product = await ProductFactory.merge({
+      supplierId: supplier.id,
+      categoryId: category.id,
+      sourceLocale: 'de',
+    }).create()
+    await ProductTranslationFactory.merge({
+      productId: product.id,
+      locale: 'de',
+      name: 'Becher',
+    }).create()
+    await ProductTranslationFactory.merge({
+      productId: product.id,
+      locale: 'en',
+      name: 'Mug',
+    }).create()
+
+    const [named] = await service.named([{ targetId: product.id, count: 1 }], 'product', 'it')
+
+    assert.equal(named.name, 'Becher')
   })
 })
 

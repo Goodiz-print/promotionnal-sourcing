@@ -55,6 +55,7 @@ function props(overrides: Partial<SupplierInsightsPageProps['report']> = {}) {
       agencies: null,
       ...overrides,
     },
+    canEditProducts: true,
     upsell: { canSubscribe: true },
   } satisfies SupplierInsightsPageProps
 }
@@ -122,7 +123,7 @@ describe('supplier/insights/index.vue', () => {
 describe('composants « Consultations »', () => {
   it('le tableau des produits affiche un état vide sans produit', () => {
     const wrapper = mount(InsightsProductsTable, {
-      props: { products: { data: [], meta: { ...META, total: 0 } } },
+      props: { products: { data: [], meta: { ...META, total: 0 } }, canEdit: true },
     })
     expect(wrapper.text()).toContain('Aucun produit')
     expect(wrapper.find('table').exists()).toBe(false)
@@ -142,5 +143,18 @@ describe('composants « Consultations »', () => {
 
     expect(full.text()).toContain('Seules les 100 agences les plus récentes sont affichées.')
     expect(short.text()).not.toContain('Seules les')
+  })
+
+  it('sans droit de modification, les noms de produits ne sont pas des liens', () => {
+    const products = {
+      data: [{ productId: 7, name: 'Gourde inox', views: 1, rfqAdditions: 0 }],
+      meta: META,
+    }
+    const editable = mount(InsightsProductsTable, { props: { products, canEdit: true } })
+    const readOnly = mount(InsightsProductsTable, { props: { products, canEdit: false } })
+
+    expect(editable.find('tbody a').exists()).toBe(true)
+    expect(readOnly.find('tbody a').exists()).toBe(false)
+    expect(readOnly.text()).toContain('Gourde inox')
   })
 })

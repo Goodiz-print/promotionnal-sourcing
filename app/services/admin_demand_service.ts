@@ -20,11 +20,10 @@ import {
   type DemandTrendRow,
 } from '#shared/types/admin_demand'
 import type { SearchEventMode } from '#shared/types/search_event'
+import type { DbQuery } from '#shared/types/database'
 
 /** Langue de repli des libellés de catégorie quand la langue de l'écran manque. */
 const FALLBACK_LOCALE = 'fr'
-
-type Query = ReturnType<typeof db.from>
 
 /**
  * Agrégations de l'écran « Ce que cherchent les clients » (#173). Lecture seule
@@ -141,7 +140,7 @@ export default class AdminDemandService {
     return `\uFEFF${lines.map((line) => line.map(cell).join(';')).join('\r\n')}\r\n`
   }
 
-  private searches(filters: AdminDemandFilters): Query {
+  private searches(filters: AdminDemandFilters): DbQuery {
     const { start, end } = dateRangeBounds(filters)
     const query = db
       .from('search_events as se')
@@ -153,14 +152,14 @@ export default class AdminDemandService {
     return query
   }
 
-  private events(filters: AdminDemandFilters): Query {
+  private events(filters: AdminDemandFilters): DbQuery {
     const query = this.activity.events(filters)
     this.byOrganizationType(query, filters, 'ae.organization_id')
     return query
   }
 
   /** Le type d'organisation filtre sur l'organisation à l'origine de l'événement. */
-  private byOrganizationType(query: Query, filters: AdminDemandFilters, column: string): void {
+  private byOrganizationType(query: DbQuery, filters: AdminDemandFilters, column: string): void {
     if (!filters.organizationType) return
     query.whereIn(
       column,

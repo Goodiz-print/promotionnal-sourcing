@@ -13,7 +13,11 @@ import type { SupplierInsightsProductRow } from '#shared/types/supplier_insights
  * Consultations par produit (#239) : tous les produits du fournisseur, les plus
  * consultés en tête. Visible de tous les fournisseurs, abonnés ou non.
  */
-defineProps<{ products: Paginated<SupplierInsightsProductRow> }>()
+defineProps<{
+  products: Paginated<SupplierInsightsProductRow>
+  /** Nom cliquable vers l'édition, pour qui peut modifier les produits (owner, admin). */
+  canEdit: boolean
+}>()
 defineEmits<{ page: [page: number] }>()
 
 const { t, locale } = useI18n()
@@ -47,12 +51,14 @@ const { t, locale } = useI18n()
         <tr v-for="product in products.data" :key="product.productId">
           <td>
             <Link
+              v-if="canEdit"
               route="supplier.products.edit"
               :params="{ locale, id: product.productId }"
               class="font-semibold text-text-primary hover:text-indigo-600"
             >
               {{ product.name }}
             </Link>
+            <span v-else class="font-semibold text-text-primary">{{ product.name }}</span>
           </td>
           <td class="text-tabular text-right">{{ product.views }}</td>
           <td class="text-tabular text-right">{{ product.rfqAdditions }}</td>

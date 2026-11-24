@@ -46,7 +46,7 @@ export function identifiableSince(range: ActivityDateRange, now: DateTime): stri
 
 /**
  * Ajoute à chaque ligne le nom de sa cible, résolu avec le repli habituel
- * (`resolveTranslation`) ; `#<id>` quand la cible n'a aucune traduction.
+ * (`resolveTranslation` : langue source de la cible, puis anglais…) ; `#<id>` quand la cible n'a aucune traduction.
  */
 export function nameTargets<T extends Pick<ActivityTargetCount, 'targetId'>>(
   rows: readonly T[],
@@ -54,13 +54,29 @@ export function nameTargets<T extends Pick<ActivityTargetCount, 'targetId'>>(
   locale: string
 ): (T & { name: string })[] {
   const byTarget = Map.groupBy(translations, (translation) => translation.targetId)
-  return rows.map((row) => ({
-    ...row,
-    name: resolveTranslation(byTarget.get(row.targetId), locale)?.name ?? `#${row.targetId}`,
-  }))
+  return rows.map((row) => {
+    const own = byTarget.get(row.targetId)
+    const sourceLocale = own?.[0]?.sourceLocale ?? null
+    const name = resolveTranslation(own, locale, { sourceLocale })?.name
+    return { ...row, name: name ?? `#${row.targetId}` }
+  })
 }
 
-/** Ligne brute de `product_translations` / `supplier_translations` (clé aliasée `target_id`). */
+/**
+ * Ligne brute de `product_translations` / `supplier_translations` (clé aliasée
+ * `target_id`, langue source de la cible en `source_locale`).
+ */
 export function toTargetTranslation(row: Record<string, unknown>): ActivityTargetTranslation {
-  return { targetId: Number(row.target_id), locale: String(row.locale), name: String(row.name) }
+  return {
+    targetId: Number(row.target_id),
+    locale: String(row.locale),
+    name: String(row.name),
+    sourceLocale: row.source_locale ? String(row.source_locale) : null,
+  }
+}
+
+/** Horodatage brut du pilote (`Date`, ou texte selon la configuration) → ISO 8601 UTC. */
+export function toIsoTimestamp(value: unknown): string {
+  const date = value instanceof Date ? value : new Date(String(value))
+  return date.toISOString()
 }

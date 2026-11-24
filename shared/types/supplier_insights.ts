@@ -1,6 +1,7 @@
 import type { ActivityDateRange } from './activity_event.js'
 import type { Paginated } from './pagination.js'
 import type { RoleSlug } from './role.js'
+import { RFQ_RESPONDER_ROLES } from './rfq.js'
 import type { SubscriptionUpsellType } from './subscription.js'
 
 /**
@@ -21,14 +22,21 @@ export const SUPPLIER_INSIGHTS_DEFAULT_PERIOD: SupplierInsightsPeriod = 30
 /** Produits par page du tableau des consultations. */
 export const SUPPLIER_INSIGHTS_PER_PAGE = 50
 
+/**
+ * Page maximale acceptée dans l'URL : au-delà, la valeur est ignorée (un
+ * décalage démesuré ferait échouer la requête). 10 000 pages de 50 produits.
+ */
+export const SUPPLIER_INSIGHTS_MAX_PAGE = 10_000
+
 /** Nombre maximal d'agences listées (les plus récentes d'abord). */
 export const SUPPLIER_INSIGHTS_AGENCY_LIMIT = 100
 
 /**
- * Rôles qui voient l'écran : ceux qui traitent déjà les demandes reçues
- * (`RFQ_RESPONDER_ROLES`), et voient donc déjà le nom des agences abonné.
+ * Rôles qui voient l'écran : **les mêmes** que ceux qui traitent les demandes
+ * reçues (`RFQ_RESPONDER_ROLES`), qui voient déjà le nom des agences quand le
+ * fournisseur est abonné. Une seule liste : les deux droits ne divergent pas.
  */
-export const SUPPLIER_INSIGHTS_ROLES: readonly RoleSlug[] = ['owner', 'admin', 'manager']
+export const SUPPLIER_INSIGHTS_ROLES: readonly RoleSlug[] = RFQ_RESPONDER_ROLES
 
 /** Ce que l'écran demande au service. */
 export interface SupplierInsightsQuery {
@@ -79,6 +87,8 @@ export type SupplierInsightsReport = {
 export type SupplierInsightsPageProps = {
   period: SupplierInsightsPeriod
   report: SupplierInsightsReport
+  /** Le visiteur peut modifier les produits (`canManageProducts`) : noms cliquables. */
+  canEditProducts: boolean
   /** Encart d'abonnement (#222), pour un non abonné seulement. */
   upsell: SubscriptionUpsellType | null
 }

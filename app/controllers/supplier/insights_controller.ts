@@ -43,6 +43,7 @@ export default class SupplierInsightsController {
     const props: SupplierInsightsPageProps = {
       period,
       report,
+      canEditProducts: await bouncer.allows('canManageProducts', org),
       upsell: await subscriptionUpsell(subscribed, () =>
         bouncer.allows('canManageSubscription', org)
       ),

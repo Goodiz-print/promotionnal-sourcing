@@ -11,12 +11,14 @@ abonnés.
   Ability `canViewSupplierInsights` : organisation `supplier` ou `both`, rôles
   `owner`, `admin` et `manager` (ceux qui traitent déjà les demandes reçues).
 - **Filtres** (query string, optionnels) : `period` en jours (`7`, `30` par
-  défaut, `90`, `365`, aujourd'hui compris) et `page` du tableau des produits.
-  Une valeur invalide est ignorée.
+  défaut, `90`, `365`, aujourd'hui compris) et `page` du tableau des produits
+  (10 000 au plus). Une valeur invalide est ignorée.
 - **Pour tous** : consultations de produits, produits consultés, consultations
   de la fiche, ajouts à une demande de devis ; tableau de **tous** les produits
-  (même jamais consultés), les plus consultés en tête, 50 par page, avec lien
-  vers l'édition du produit. Une page au-delà de la dernière est ramenée à la
+  (même jamais consultés), les plus consultés en tête, 50 par page. Le nom
+  mène à l'édition du produit pour qui peut la faire (owner, admin :
+  `canEditProducts`) ; un manager le voit sans lien. Les noms suivent la langue
+  de l'écran, puis la langue source du produit. Une page au-delà de la dernière est ramenée à la
   dernière.
 - **Abonné** (`SubscriptionService.isSubscribed`, évalué à chaque lecture) :
   agences ayant consulté un produit ou la fiche, avec le nombre de consultations, de produits consultés et la date de
@@ -40,7 +42,8 @@ abonnés.
   helper, `subscriptionUpsell` (`shared/helpers/subscription.ts`), utilisé aussi
   par « Demandes reçues ».
 - **Migration** `1794000000041` : index `activity_events (target_type,
-target_id, created_at)`, qui remplace `(target_type, target_id)`. Les
+target_id, created_at)`, qui remplace `(target_type, target_id)`, construit et
+  retiré `CONCURRENTLY` (sans bloquer les écritures de la queue). Les
   compteurs partent ainsi des produits du fournisseur au lieu de parcourir par
   date les événements de toute la plateforme.
 - **Mention légale** : l'information des agences (CGU, politique de

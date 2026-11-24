@@ -64,4 +64,6 @@ export interface ActivityTargetTranslation {
   targetId: number
   locale: string
   name: string
+  /** Langue source de la cible (produit) : premier repli. `null` sans langue source. */
+  sourceLocale: string | null
 }

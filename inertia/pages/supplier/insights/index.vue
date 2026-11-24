@@ -80,6 +80,7 @@ function visit(period: SupplierInsightsPeriod, page = 1) {
 
     <InsightsProductsTable
       :products="report.products"
+      :can-edit="canEditProducts"
       @page="(page) => visit(props.period, page)"
     />
   </div>

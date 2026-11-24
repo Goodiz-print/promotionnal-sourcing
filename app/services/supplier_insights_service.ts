@@ -2,7 +2,11 @@ import { DateTime } from 'luxon'
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
 import ActivityAggregationService from '#services/activity_aggregation_service'
-import { identifiableSince, trailingDateRange } from '#shared/helpers/activity_event'
+import {
+  identifiableSince,
+  toIsoTimestamp,
+  trailingDateRange,
+} from '#shared/helpers/activity_event'
 import { clampPage, toPaginationMeta } from '#shared/helpers/pagination'
 import type { ActivityDateRange } from '#shared/types/activity_event'
 import {
@@ -15,8 +19,7 @@ import {
   type SupplierInsightsSummary,
 } from '#shared/types/supplier_insights'
 import type { Paginated } from '#shared/types/pagination'
-
-type Query = ReturnType<typeof db.from>
+import type { DbQuery } from '#shared/types/database'
 
 /** Événements comptés : consultations et ajouts à une demande de devis. */
 const COUNTED_TYPES = ['product_viewed', 'supplier_viewed', 'rfq_product_added'] as const
@@ -135,7 +138,7 @@ export default class SupplierInsightsService {
       name: String(row.name),
       views: Number(row.views),
       products: Number(row.products),
-      lastViewedAt: DateTime.fromJSDate(row.last_viewed_at).toISO()!,
+      lastViewedAt: toIsoTimestamp(row.last_viewed_at),
     }))
   }
 
@@ -152,7 +155,7 @@ export default class SupplierInsightsService {
   }
 
   /** Produits de l'organisation et leurs compteurs (CTE `counts`), les plus consultés en tête. */
-  private productsWithCounts(organizationId: number, range: ActivityDateRange): Query {
+  private productsWithCounts(organizationId: number, range: ActivityDateRange): DbQuery {
     return db
       .query()
       .with('counts', this.productCounts(organizationId, range))
@@ -171,7 +174,7 @@ export default class SupplierInsightsService {
   }
 
   /** Consultations et ajouts à une demande, par produit de l'organisation. */
-  private productCounts(organizationId: number, range: ActivityDateRange): Query {
+  private productCounts(organizationId: number, range: ActivityDateRange): DbQuery {
     return this.activity
       .events(range)
       .where('ae.target_type', 'product')
@@ -190,7 +193,7 @@ export default class SupplierInsightsService {
    * comme pour l'équipe commerciale (`SupplierContactService`) — ni archivée
    * (compte fermé, agence refusée), ni en cours de validation (`review_reasons`).
    */
-  private validatedAgency(query: Query): Query {
+  private validatedAgency(query: DbQuery): DbQuery {
     return query
       .whereIn('o.organization_type', [...AGENCY_TYPES])
       .whereNull('o.archived_at')
@@ -198,7 +201,7 @@ export default class SupplierInsightsService {
   }
 
   /** Événements de la période qui visent un produit ou la fiche de l'organisation. */
-  private ownEvents(organizationId: number, range: ActivityDateRange): Query {
+  private ownEvents(organizationId: number, range: ActivityDateRange): DbQuery {
     return this.activity
       .events(range)
       .where((own) =>
@@ -216,11 +219,11 @@ export default class SupplierInsightsService {
       )
   }
 
-  private ownSupplierIds(organizationId: number): Query {
+  private ownSupplierIds(organizationId: number): DbQuery {
     return db.from('suppliers').select('id').where('organization_id', organizationId)
   }
 
-  private ownProductIds(organizationId: number): Query {
+  private ownProductIds(organizationId: number): DbQuery {
     return db
       .from('products')
       .select('products.id')

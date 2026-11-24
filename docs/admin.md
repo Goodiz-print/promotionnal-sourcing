@@ -60,7 +60,7 @@ Types (`ActivityEventService`) : `product_viewed`, `supplier_viewed` (fiches pub
 
 ## Ce que cherchent les clients
 
-Écran `GET /admin/demand` (`admin.demand.index`, droit `monitoring.view` : rôles `admin` et `analyst`), issue #173 (epic #157). Il lit `search_events` (#171) et `activity_events` (#172) ; toute l'agrégation est dans `AdminDemandService`, le contrôleur ne fait que valider les filtres. Les briques de lecture de `activity_events` (période, comptage par cible, nom des cibles) sont dans `ActivityAggregationService`, partagé avec l'espace fournisseur (#239) ; les calculs purs dans `shared/helpers/activity_event.ts`.
+Écran `GET /admin/demand` (`admin.demand.index`, droit `monitoring.view` : rôles `admin` et `analyst`), issue #173 (epic #157). Il lit `search_events` (#171) et `activity_events` (#172) ; toute l'agrégation est dans `AdminDemandService`, le contrôleur ne fait que valider les filtres. Les briques de lecture de `activity_events` (période, comptage par cible, nom des cibles, avec repli sur la langue source du produit) sont dans `ActivityAggregationService`, partagé avec l'espace fournisseur (#239) ; les calculs purs dans `shared/helpers/activity_event.ts`.
 
 **Filtres** (query string, tous optionnels) : `from` / `to` (`AAAA-MM-JJ`, bornes incluses ; 30 derniers jours par défaut), `source` (`catalogue`, `suppliers`, `rfq_lookup`), `locale` (langue de l'interface au moment de la recherche), `organizationType` (`buyer`, `supplier`, `both`, d'après l'organisation de l'utilisateur ; les visiteurs anonymes sont exclus dès qu'on filtre). Une valeur invalide est refusée par la validation (`app/validators/admin_demand.ts`).
 

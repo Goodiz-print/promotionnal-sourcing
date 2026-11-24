@@ -110,6 +110,33 @@ test.group('Consultations fournisseur — données', (group) => {
     invalid.assertStatus(200)
     assert.equal(invalid.inertiaProps.period, 30)
   })
+
+  test('une page démesurée est ignorée au lieu de faire échouer la requête', async ({
+    client,
+    assert,
+  }) => {
+    const { owner } = await createSupplierWithProducts(['Stylo'])
+
+    const response = await client
+      .get(`${URL}?page=100000000000000000000`)
+      .withInertia()
+      .loginAs(owner)
+
+    response.assertStatus(200)
+    assert.equal(response.inertiaProps.report.products.meta.currentPage, 1)
+  })
+
+  test('seuls owner et admin ont les noms de produits cliquables', async ({ client, assert }) => {
+    const { organization, owner } = await createSupplierWithProducts(['Stylo'])
+    const manager = await createMember(organization, 'manager')
+
+    const [asOwner, asManager] = await Promise.all(
+      [owner, manager].map((user) => client.get(URL).withInertia().loginAs(user))
+    )
+
+    assert.isTrue(asOwner.inertiaProps.canEditProducts)
+    assert.isFalse(asManager.inertiaProps.canEditProducts)
+  })
 })
 
 test.group('Consultations fournisseur — identité des agences', (group) => {
@@ -137,7 +164,24 @@ test.group('Consultations fournisseur — identité des agences', (group) => {
     assert.equal(props.report.summary.productViews, 2)
     assert.notInclude(serialized, 'Agence Secrète Zorglub')
     assert.notInclude(serialized, agency.slug)
-    assert.notMatch(serialized, new RegExp(`"organizationId":${agency.id}\\b`))
+    // Forme exacte des props de la page : aucun champ (identifiant, nom, autre
+    // clé) ne peut y porter l'agence sans faire échouer ces assertions.
+    assert.sameMembers(Object.keys(props.report), ['range', 'summary', 'products', 'agencies'])
+    assert.sameMembers(Object.keys(props.report.summary), [
+      'productViews',
+      'supplierViews',
+      'rfqAdditions',
+      'viewedProducts',
+    ])
+    assert.deepEqual(props.report.products.data, [
+      { productId: products[0].id, name: 'Stylo', views: 2, rfqAdditions: 0 },
+    ])
+    assert.sameMembers(Object.keys(props.report.products.meta), [
+      'total',
+      'perPage',
+      'currentPage',
+      'lastPage',
+    ])
   })
 
   test('un manager non abonné voit l’encart sans bouton de souscription', async ({
