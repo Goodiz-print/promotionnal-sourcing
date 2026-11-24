@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { CreditCard } from 'lucide-vue-next'
+import { ArrowRight, CreditCard } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import OrganizationSubscriptionActions from '~/components/admin/organization/organization_subscription_actions.vue'
 import OrganizationSubscriptionForm from '~/components/admin/organization/organization_subscription_form.vue'
@@ -40,11 +40,15 @@ const hasOpen = computed(() => props.subscriptions.some((s) => OPEN.includes(s.s
 
 const formatDay = (day: string) => new Date(`${day}T12:00:00`).toLocaleDateString(locale.value)
 
-const period = (subscription: AdminOrganizationSubscription) => {
-  const start = formatDay(dayInSubscriptionZone(new Date(subscription.startsAt)))
-  if (!subscription.endsAt) return start
-  return `${start} → ${formatDay(lastCoveredDay(subscription.endsAt))}`
-}
+const period = (subscription: AdminOrganizationSubscription) => ({
+  start: formatDay(dayInSubscriptionZone(new Date(subscription.startsAt))),
+  end: subscription.endsAt ? formatDay(lastCoveredDay(subscription.endsAt)) : null,
+})
+
+/** Lignes du tableau avec leur période déjà formatée (une fois par ligne). */
+const rows = computed(() =>
+  props.subscriptions.map((subscription) => ({ subscription, period: period(subscription) }))
+)
 </script>
 
 <template>
@@ -71,7 +75,7 @@ const period = (subscription: AdminOrganizationSubscription) => {
         </tr>
       </template>
 
-      <tr v-for="subscription in subscriptions" :key="subscription.id">
+      <tr v-for="{ subscription, period: range } in rows" :key="subscription.id">
         <td class="font-semibold text-text-primary">
           {{ t(`subscription.plans.${subscription.plan}.name`) }}
         </td>
@@ -80,7 +84,16 @@ const period = (subscription: AdminOrganizationSubscription) => {
             {{ t(`subscription.status.${subscription.status}`) }}
           </BaseBadge>
         </td>
-        <td class="text-tabular whitespace-nowrap">{{ period(subscription) }}</td>
+        <td class="text-tabular whitespace-nowrap">
+          <span class="inline-flex items-center gap-1">
+            {{ range.start }}
+            <template v-if="range.end">
+              <ArrowRight :size="14" aria-hidden="true" />
+              <span class="sr-only">{{ t('admin.organizations.subscription.periodUntil') }}</span>
+              {{ range.end }}
+            </template>
+          </span>
+        </td>
         <td>{{ t(`admin.organizations.subscription.origins.${subscription.origin}`) }}</td>
         <td class="text-text-secondary">
           {{ subscription.createdByEmail ?? t('admin.organizations.detail.notProvided') }}

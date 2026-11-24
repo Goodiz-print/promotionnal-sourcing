@@ -14,7 +14,11 @@ import type { PlatformPermission } from '#shared/types/user'
  * l'URL de la page (`isActivePath`) ; `/admin` étant le parent de toutes les
  * autres sections, il n'est actif que si aucun onglet plus précis ne l'est.
  */
-const SECTIONS: { key: string; route: string; permission: PlatformPermission }[] = [
+export const ADMIN_SECTIONS: readonly {
+  key: string
+  route: string
+  permission: PlatformPermission
+}[] = [
   { key: 'dashboard', route: 'admin.dashboard', permission: 'backoffice.access' },
   { key: 'organizations', route: 'admin.organizations.index', permission: 'organizations.view' },
   {
@@ -60,7 +64,7 @@ export function useAdminTabs() {
 
   const items = computed(() => {
     const currentUrl = page.url ?? ''
-    const tabs = SECTIONS.filter((section) => can(section.permission)).map((section) => {
+    const tabs = ADMIN_SECTIONS.filter((section) => can(section.permission)).map((section) => {
       const href = urlFor(section.route as 'admin.dashboard', { locale: locale.value })
       return {
         key: section.key,

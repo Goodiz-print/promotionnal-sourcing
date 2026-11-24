@@ -287,6 +287,7 @@
       "extend": "Einddatum wijzigen",
       "cancel": "Opzeggen",
       "cancelConfirm": "Dit abonnement nu opzeggen? De organisatie gaat terug naar de gratis formule.",
+      "periodUntil": "tot",
       "fields": {
         "plan": "Formule",
         "status": "Status",

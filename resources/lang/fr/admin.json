@@ -287,6 +287,7 @@
       "extend": "Modifier la fin",
       "cancel": "Résilier",
       "cancelConfirm": "Résilier cet abonnement maintenant ? L'organisation repasse en formule gratuite.",
+      "periodUntil": "au",
       "fields": {
         "plan": "Formule",
         "status": "Statut",
