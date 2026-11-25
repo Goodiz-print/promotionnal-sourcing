@@ -20,8 +20,12 @@ pour vérifier le cas « Pas de prix catalogue : à chiffrer ». Chez EuroGoods
 chiffrée (`crayon-hb-bleu`, casquette) et une ligne sans prix
 (`crayon-hb-rouge`).
 
-Le seed reste idempotent : la grille d'un produit est remplacée d'un bloc à
-chaque exécution (aucun doublon), et un produit sans grille n'est pas touché.
+Le seed fait foi et reste idempotent : à chaque exécution, les paliers produit
+sont remplacés d'un bloc dans une transaction (aucun doublon, jamais de grille
+à moitié écrite). Un produit sans grille dans le seed perd ses paliers produit :
+il redevient « sans prix » même dans une base déjà seedée. Les paliers de
+variante ne sont pas touchés. `priceMin` / `priceMax` du seed sont les bornes
+de la grille, comme les recalcule `ProductVariantService`.
 
 Vérification de bout en bout : un panier validé crée des `rfq_items.specs` avec
 `estimatedUnitPrice` / `estimatedTotal`, et le mail reçu par le fournisseur
@@ -29,4 +33,5 @@ affiche « Prix unitaire indicatif » et « Total indicatif », ou « Pas de pri
 catalogue : à chiffrer » pour la ligne sans grille.
 
 Tests : `tests/functional/catalogue.spec.ts` (grille posée, produits sans prix,
-seed rejoué sans doublon).
+`priceMin` / `priceMax` alignés sur la grille, seed rejoué sans doublon, grille
+retirée quand elle disparaît du seed).

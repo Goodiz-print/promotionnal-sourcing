@@ -119,12 +119,42 @@ test.group('Catalogue — prix de démo (#293)', (group) => {
     assert.lengthOf(await tiersOf('stylo-bille-noir'), 0)
   })
 
-  test('rejouer le seed ne duplique pas les paliers', async ({ assert }) => {
-    const before = await ProductPriceTier.query().count('* as total').firstOrFail()
-    await new ProductSeeder(db.connection()).run()
-    const after = await ProductPriceTier.query().count('* as total').firstOrFail()
+  test('priceMin / priceMax du seed sont les bornes de la grille', async ({ assert }) => {
+    const ranges = await db
+      .from('product_price_tiers')
+      .join('products', 'products.id', 'product_price_tiers.product_id')
+      .whereNull('product_price_tiers.variant_id')
+      .groupBy('products.slug', 'products.price_min', 'products.price_max')
+      .select('products.slug', 'products.price_min', 'products.price_max')
+      .min('product_price_tiers.unit_price as tier_min')
+      .max('product_price_tiers.unit_price as tier_max')
 
-    assert.equal(Number(after.$extras.total), Number(before.$extras.total))
-    assert.equal(Number(after.$extras.total), 16)
+    assert.lengthOf(ranges, 5)
+    ranges.forEach((range) => {
+      assert.equal(Number(range.price_min), Number(range.tier_min), range.slug)
+      assert.equal(Number(range.price_max), Number(range.tier_max), range.slug)
+    })
+  })
+
+  test('rejouer le seed ne duplique pas les paliers', async ({ assert }) => {
+    await new ProductSeeder(db.connection()).run()
+
+    assert.lengthOf(await tiersOf('crayon-hb-bleu'), 4)
+    assert.lengthOf(await tiersOf('casquette-6-panneaux-marine'), 3)
+  })
+
+  test('rejouer le seed retire une grille absente du seed', async ({ assert }) => {
+    const product = await Product.findByOrFail('slug', 'crayon-hb-rouge')
+    await ProductPriceTier.create({
+      productId: product.id,
+      variantId: null,
+      minQuantity: 100,
+      unitPrice: '1.00',
+      currency: 'EUR',
+    })
+
+    await new ProductSeeder(db.connection()).run()
+
+    assert.lengthOf(await tiersOf('crayon-hb-rouge'), 0)
   })
 })

@@ -81,6 +81,8 @@ type ProductSeed = {
   markingPriceTiers?: { technique: string; minQuantity: number; unitPrice: number }[]
   // Grille de prix dégressive du produit (paliers `variantId` null), lue par le
   // panier de devis pour le prix indicatif. Absente = produit « sans prix ».
+  // `priceMin` / `priceMax` doivent en être le min / max (comme le recalcule
+  // `ProductVariantService`) : vérifié par `tests/functional/catalogue.spec.ts`.
   priceTiers?: { minQuantity: number; unitPrice: number }[]
 }
 
@@ -513,22 +515,29 @@ export default class ProductSeeder extends BaseSeeder {
   }
 
   /**
-   * Grille de prix du produit : remplacement d'ensemble des paliers produit
-   * (`variantId` null), donc idempotent. Sans grille, rien n'est touché : le
-   * produit reste volontairement « sans prix » dans le panier de devis.
+   * Grille de prix du produit : le seed fait foi. Les paliers produit
+   * (`variantId` null) sont remplacés d'un bloc dans une transaction, donc
+   * idempotent et jamais à moitié écrit. Sans grille, ils sont retirés : le
+   * produit redevient « sans prix » même dans une base déjà seedée.
    * (Étape d'orchestration à effets du seeder, d'où la méthode privée.)
    */
   private async seedPriceTiers(productId: number, tiers: ProductSeed['priceTiers']) {
-    if (tiers === undefined) return
-    await ProductPriceTier.query().where('productId', productId).whereNull('variantId').delete()
-    await ProductPriceTier.createMany(
-      tiers.map((tier) => ({
-        productId,
-        variantId: null,
-        minQuantity: tier.minQuantity,
-        unitPrice: String(tier.unitPrice),
-        currency: 'EUR',
-      }))
-    )
+    await this.client.transaction(async (trx) => {
+      await ProductPriceTier.query({ client: trx })
+        .where('productId', productId)
+        .whereNull('variantId')
+        .delete()
+      if (tiers === undefined) return
+      await ProductPriceTier.createMany(
+        tiers.map((tier) => ({
+          productId,
+          variantId: null,
+          minQuantity: tier.minQuantity,
+          unitPrice: String(tier.unitPrice),
+          currency: 'EUR',
+        })),
+        { client: trx }
+      )
+    })
   }
 }
