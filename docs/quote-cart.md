@@ -107,7 +107,8 @@ Chaque demande reçoit :
   et commun à toutes les demandes qu'elle crée, exposé en `batchId` dans
   `RfqType` (liste « mes demandes ») et `RfqDetailType`. Deux validations donnent
   deux lots ; une demande créée seule (`RfqService#create` hors panier) garde
-  `null`. « Mes demandes » (#228) regroupera les demandes par lot.
+  `null`. « Mes demandes » (#228) regroupe les demandes par lot (« Panier du …
+  · N demandes », voir `docs/rfq.md`).
 
 Avec `canSendRfq` — tout membre de l'agence, `member` compris depuis #216 —
 chaque demande est **publiée puis envoyée** ; après commit, `RfqSent` est émis
@@ -176,10 +177,18 @@ i18n : `resources/lang/<langue>/quote_cart.json`, 9 langues.
 
 ## Hors périmètre
 
-- Les `specs` ne figurent pas dans le mail `RfqSent` et ne pré-remplissent pas
-  le devis du fournisseur (`quote_items.customization_details`).
+- Les `specs` ne pré-remplissent pas le devis structuré du fournisseur
+  (`quote_items.customization_details`). Elles figurent en revanche dans le mail
+  de demande et sa relance depuis #219 (variante, référence, marquage, prix
+  indicatifs), et sur l'écran « Demandes reçues ».
 - La route `rfqs.items.from_product` et `RfqService#addProductItem` restent en
   place mais ne sont plus appelées par la fiche produit : à retirer si le panier
   est adopté.
-- La vue groupée par lot dans « Mes demandes » arrive avec #228 : #229 ne pose
-  que la colonne `rfqs.batch_id` et l'expose.
+
+## Après la validation
+
+Chaque demande suit le parcours devis par mail (#234, résumé en tête de
+`docs/rfq.md`) : mail complet au fournisseur à son adresse de réception confirmée (à défaut
+celle de son organisation ou ses responsables, #217),
+anonyme s'il n'est pas abonné, réponse par mail + PDF transmise à l'agence,
+puis suivi dans « Mes demandes » (regroupé par lot de panier).

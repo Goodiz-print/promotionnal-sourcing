@@ -158,9 +158,10 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
 
 - **Rattaché au destinataire** (`rfq_suppliers`), pas à l'organisation ni à un
   utilisateur : le message n'a pas d'auteur (`author_user_id` nul), l'expéditeur
-  est celui du mail. Rien ne suppose un compte ou un membre côté fournisseur
-  (#218). Reste à faire quand #218 rendra `rfq_suppliers.supplier_organization_id`
-  facultative : rendre `conversations.supplier_organization_id` facultative de même.
+  est celui du mail. Rien ne suppose un membre côté fournisseur : une
+  organisation sans membre répond par mail comme les autres. Le destinataire
+  reste toujours une organisation (#218, « fiche sans compte », est abandonnée :
+  un fournisseur n'a ses produits sur le site qu'avec un compte, #240).
 - **Plusieurs devis successifs** : chaque réponse ajoute ses PDF, rien n'est
   écrasé. `QuoteService#currentDocumentsFor(rfqSupplierId)` renvoie ceux qui
   **font foi** (les PDF de la dernière réponse qui en porte),
@@ -169,11 +170,12 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
   distingue pas un devis d'un catalogue joint au même mail.
 - **Sans PDF** (texte seul, ou pièce d'un autre format) : simple message, le
   statut ne change pas.
-- **Statut** : `sent`/`viewed` → `responded`, par un `UPDATE` conditionnel. Un
-  destinataire `declined` ou déjà `responded` le reste. Si la demande n'attend
-  plus de réponse (close, expirée, échéance passée) mais que l'adresse relais est
-  encore valide (délai de grâce), le message et le devis sont enregistrés sans
-  toucher au statut.
+- **Statut** : `sent`/`viewed`/`expired` → `responded`, par un `UPDATE`
+  conditionnel. Un destinataire `declined` ou déjà `responded` le reste. Tant
+  que l'adresse relais est valide (délai de grâce), une réponse arrivée après
+  l'échéance est enregistrée et marquée **tardive** (#232, `late_reply_at`,
+  voir [`rfq.md`](rfq.md#réponse-tardive-232)) ; sur une demande **close**, le
+  message et le devis sont enregistrés sans toucher au statut.
 - **Corps du message** : la partie texte du mail, à défaut son HTML réduit à du
   texte (`htmlToText`), borné à `MESSAGE_MAX_LENGTH`. Le mail complet reste dans
   `inbound_mails`. `htmlToText` ne lève jamais et travaille en temps linéaire sur
@@ -191,15 +193,16 @@ remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
   destinataire, même pour deux réponses simultanées). En cas d'échec rien n'est
   écrit, les PDF compressés sont libérés (`StorageService.discard`), le mail
   repasse `failed` et son traitement est rejoué.
-- **Événement** : `SupplierReplyRecorded` (`inboundMailId`, `rfqSupplierId`,
-  `conversationId`, `messageId`, `quoteDocumentIds`, `responded`), émis une fois
-  par mail après le commit — le point d'accroche de la transmission à l'agence
-  (#225). Un écouteur défaillant est loggué sans faire rejouer le mail.
+- **Événement** : `SupplierReplyRecorded` (`inboundMailId` — `null` pour un
+  dépôt depuis l'écran, #230 —, `rfqSupplierId`, `conversationId`, `messageId`,
+  `quoteDocumentIds`, `responded`, `late`), émis une fois par réponse après le
+  commit — le point d'accroche de la transmission à l'agence (#225). Un
+  écouteur défaillant est loggué sans faire rejouer le mail.
   **L'émission n'est pas garantie** : si le worker s'arrête entre le commit et
   l'émission, l'événement est perdu et rien ne le rejoue (le mail est déjà
-  enregistré). #225 ne doit donc pas dépendre de ce seul événement pour
-  transmettre la réponse : prévoir une reprise sur les messages portant
-  `inbound_mail_id` sans envoi correspondant dans `mail_deliveries`.
+  enregistré). Reprise à écrire : les messages portant `inbound_mail_id` sans
+  envoi correspondant dans `mail_deliveries` (limite connue, non traitée par
+  #225).
 
 ### Transmission à l'agence (#225)
 

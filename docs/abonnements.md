@@ -47,7 +47,9 @@ avec activation et expiration automatiques (#214) et la **souscription en ligne*
 - `refreshPlan(organizationId, trx)` : recalcule `organizations.subscription_plan`.
 
 Elle lève l'anonymat de l'agence dans le parcours devis (#220, cf. `docs/rfq.md`) :
-écrans « Demandes reçues », mails de demande et de relance, notifications.
+écrans « Demandes reçues », mails de demande et de relance, notifications ; le
+tableau « Ce que l'abonnement change dans le parcours devis », plus bas, en fait
+le tour.
 
 Elle ouvre aussi l'**identité des agences qui consultent** les produits et la
 fiche du fournisseur (#239, page « Consultations », `supplier.insights.index`,
@@ -60,6 +62,27 @@ La règle elle-même est **une seule fonction**, `whereCurrentSubscription`
 aux requêtes `db`. `SubscriptionPlanService` (lecture en masse, seule écriture de
 `organizations.subscription_plan`) n'utilise aucun modèle Lucid : les jobs peuvent
 l'injecter par leur constructeur (la queue charge les jobs au boot, cf. `CLAUDE.md`).
+
+## Ce que l'abonnement change dans le parcours devis
+
+Business et Premium lèvent l'anonymat **de la même façon** (décision client du
+16/11/2026). Tout est relu à chaque affichage, sauf ce qui est déjà parti par
+mail : s'abonner révèle l'agence sur les demandes déjà reçues, la fin de
+l'abonnement la masque de nouveau.
+
+| Sujet                                               | Fournisseur gratuit                                                                                           | Fournisseur abonné                                                    | Issues     |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ---------- |
+| Agence d'une demande (écrans, mails, notifications) | anonyme (« Agence anonyme »), encart d'incitation à s'abonner                                                 | nommée, avec son logo                                                 | #220, #222 |
+| Coordonnées de l'agence                             | aucune                                                                                                        | nom, auteur de la demande, email, téléphone, adresse (écran et mails) | #221       |
+| Échanges avec l'agence                              | uniquement par les mails relais de la plateforme et le fil de la demande                                      | idem, et contact direct possible grâce aux coordonnées                | #226       |
+| Devis PDF transmis à l'agence                       | copie avec bandeau « Devis établi pour : _nom de l'agence_ — demande n° _id_ » (abonnement lu à la réception) | PDF d'origine                                                         | #238       |
+| Consultations des produits et de la fiche           | compteurs seuls                                                                                               | compteurs et agences qui ont consulté (90 derniers jours)             | #239       |
+| Équipe commerciale sur la page publique             | non affichée                                                                                                  | affichée aux agences validées (contacts de leur pays)                 | #241       |
+
+Les demandes partent toujours à l'adresse de réception confirmée du fournisseur,
+à défaut à celle de son organisation ou à ses responsables (#217), abonné ou non. Les autres droits de la grille (classement, points de
+référencement, superboosts, suggestions de concurrents, support prioritaire)
+ne sont pas encore spécifiés.
 
 ## Saisie manuelle par l'admin (#214)
 

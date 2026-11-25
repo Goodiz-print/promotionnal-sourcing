@@ -18,6 +18,48 @@ Une plateforme unique qui agrège 300 fournisseurs européens et plus d'un milli
 
 Gratuit dans sa version light, réservé aux professionnels (fournisseurs et revendeurs).
 
+Les agences utilisent la plateforme gratuitement. Les fournisseurs ont trois
+formules : **Gratuit**, **Business** (250 € HT / mois) et **Premium**
+(500 € HT / mois). L'abonnement est aujourd'hui activé à la main par l'équipe
+(formule, premier et dernier jour, retour automatique en gratuit) ; la
+souscription en ligne existe aussi. Détail : [`abonnements.md`](abonnements.md).
+
+## Parcours devis
+
+Le parcours principal passe par le mail (#234, détail dans
+[`rfq.md`](rfq.md#parcours-devis-par-mail-234)) :
+
+1. L'agence ajoute des produits à son panier (variante, marquage, quantités) et
+   valide ; tout membre de l'agence peut envoyer. Une demande part à chaque
+   fournisseur et reste visible de toute l'agence dans « Mes demandes ».
+2. Le fournisseur reçoit par mail toutes les informations, prix indicatifs du
+   site compris, à son adresse de réception des demandes.
+3. Il répond depuis sa messagerie en joignant le PDF de son propre logiciel,
+   sans se connecter. La plateforme enregistre la réponse et la transmet à
+   l'agence par mail.
+4. Chacun garde une trace : « Mes demandes » côté agence (l'agence retient un
+   devis, la suite se fait hors plateforme), « Demandes reçues » côté
+   fournisseur (à traiter, répondu, expiré).
+
+Seuls les fournisseurs qui ont donné leur accord ont leurs produits sur le
+site : ils ont alors un compte, auquel l'équipe rattache leur catalogue
+importé (#231, #240).
+
+### Rôle de l'abonnement
+
+Il change ce que le fournisseur sait de l'agence, pas ce qu'il reçoit :
+
+- **Gratuit** : la demande est **anonyme** et le fournisseur n'échange avec
+  l'agence que par les mails de la plateforme. Son devis PDF est transmis à
+  l'agence avec un bandeau qui porte le nom de celle-ci. Il voit combien de fois
+  ses produits ont été consultés, sans savoir par qui.
+- **Business / Premium** : il voit le nom et les coordonnées de l'agence (même
+  sur les demandes reçues avant de s'abonner) et peut la contacter en direct ;
+  il voit quelles agences ont consulté ses produits ; son équipe commerciale
+  est affichée aux agences.
+
+Tableau complet : [`abonnements.md`](abonnements.md#ce-que-labonnement-change-dans-le-parcours-devis).
+
 ### Objectif
 
 Devenir le réflexe #1 des acheteurs européens d'objets publicitaires.
