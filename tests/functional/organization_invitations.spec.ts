@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import env from '#start/env'
 import { DateTime } from 'luxon'
 import mail from '@adonisjs/mail/services/main'
 import { OrganizationFactory } from '#database/factories/organization_factory'
@@ -46,6 +47,11 @@ test.group('Invitations de membres par email', (group) => {
       OrganizationInvitationNotification,
       (m) => (m as unknown as { email: string }).email === 'invited@example.com'
     )
+    // Lien absolu (#288) : ouvert depuis une messagerie, il doit porter le domaine.
+    const [sent] = fakeMailer.mails.sent((m) => m instanceof OrganizationInvitationNotification)
+    const { acceptUrl } = sent as unknown as { acceptUrl: string }
+    const appOrigin = new URL(env.get('APP_URL', 'http://localhost:5555')).origin
+    assert.isTrue(acceptUrl.startsWith(`${appOrigin}/fr/organization/invitations/`))
   })
 
   test('un manager peut inviter (canInviteMembers)', async ({ client, assert }) => {

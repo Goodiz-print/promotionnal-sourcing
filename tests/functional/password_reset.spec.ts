@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import env from '#start/env'
 import type { ApiClient } from '@japa/api-client'
 import mail from '@adonisjs/mail/services/main'
 import { UserFactory, TEST_PASSWORD } from '#database/factories/user_factory'
@@ -17,10 +18,14 @@ test.group('Mot de passe oublié', (group) => {
 
   /** Chemin + querystring du lien contenu dans le dernier mail envoyé. */
   function sentResetPath(): string {
-    const sent = fakeMailer.mails.sent((m) => m instanceof PasswordResetNotification)
-    const { resetUrl } = sent[sent.length - 1] as unknown as { resetUrl: string }
-    const url = new URL(resetUrl, 'http://localhost')
+    const url = new URL(sentResetUrl())
     return `${url.pathname}${url.search}`
+  }
+
+  /** Lien complet contenu dans le dernier mail envoyé. */
+  function sentResetUrl(): string {
+    const sent = fakeMailer.mails.sent((m) => m instanceof PasswordResetNotification)
+    return (sent[sent.length - 1] as unknown as { resetUrl: string }).resetUrl
   }
 
   async function canLogin(email: string, password: string) {
@@ -53,6 +58,18 @@ test.group('Mot de passe oublié', (group) => {
     response.assertStatus(302)
     fakeMailer.mails.assertSentCount(PasswordResetNotification, 1)
     assert.match(sentResetPath(), /^\/fr\/password\/reset\/\d+\?.*signature=/)
+  })
+
+  test('le lien du mail est absolu, sur le domaine de l’application (#288)', async ({
+    client,
+    assert,
+  }) => {
+    await UserFactory.merge({ email: 'membre@example.com' }).create()
+    await requestLink(client, 'membre@example.com')
+
+    const appOrigin = new URL(env.get('APP_URL', 'http://localhost:5555')).origin
+    assert.match(sentResetUrl(), /^https?:\/\//)
+    assert.isTrue(sentResetUrl().startsWith(`${appOrigin}/fr/password/reset/`))
   })
 
   test('un email inconnu reçoit la même réponse et aucun mail', async ({ client }) => {

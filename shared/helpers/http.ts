@@ -23,3 +23,13 @@ function encodeRFC5987(value: string): string {
     (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`
   )
 }
+
+/**
+ * URL absolue d'un chemin de l'application (`/fr/email/verify/1?signature=…`) :
+ * un lien envoyé par mail doit porter le domaine, sinon il ne mène nulle part
+ * depuis une messagerie. `baseUrl` est l'URL publique (`APP_URL`) ; un chemin
+ * déjà absolu est rendu tel quel.
+ */
+export function absoluteUrl(path: string, baseUrl: string): string {
+  return new URL(path, baseUrl).toString()
+}

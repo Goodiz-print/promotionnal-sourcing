@@ -1,5 +1,5 @@
 import { test } from '@japa/runner'
-import { attachmentDisposition } from '#shared/helpers/http'
+import { absoluteUrl, attachmentDisposition } from '#shared/helpers/http'
 
 test.group('HTTP — Content-Disposition d’un téléchargement', () => {
   test('un nom ASCII passe tel quel, en repli et en UTF-8', ({ assert }) => {
@@ -26,5 +26,28 @@ test.group('HTTP — Content-Disposition d’un téléchargement', () => {
 
   test('un nom vide retombe sur « document »', ({ assert }) => {
     assert.include(attachmentDisposition('"/"'), 'filename="document"')
+  })
+})
+
+test.group('HTTP — URL absolue d’un lien envoyé par mail', () => {
+  test('préfixe un chemin par le domaine, querystring conservée', ({ assert }) => {
+    assert.equal(
+      absoluteUrl('/fr/email/verify/12?v=ab&signature=xy', 'https://app.example.com'),
+      'https://app.example.com/fr/email/verify/12?v=ab&signature=xy'
+    )
+  })
+
+  test('ignore le chemin et la barre finale de l’URL de base', ({ assert }) => {
+    assert.equal(
+      absoluteUrl('/fr/login', 'https://app.example.com/ignored/'),
+      'https://app.example.com/fr/login'
+    )
+  })
+
+  test('rend tel quel un lien déjà absolu', ({ assert }) => {
+    assert.equal(
+      absoluteUrl('https://autre.example.com/x', 'https://app.example.com'),
+      'https://autre.example.com/x'
+    )
   })
 })
