@@ -1,6 +1,6 @@
 import { useI18n } from '~/i18n'
 import { formatMoney } from '~/components/quotes/types'
-import { formatDateTime } from '~/components/orders/types'
+import { formatDateTime } from '#shared/helpers/date'
 import { AD_CURRENCY } from '#shared/types/ads'
 
 /**
