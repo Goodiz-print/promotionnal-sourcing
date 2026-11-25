@@ -1,4 +1,4 @@
-import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { flushPromises, mount, type DOMWrapper, type VueWrapper } from '@vue/test-utils'
 
 /**
  * Hôte de `useConfirm` pour les specs d'écran : un composant qui demande une
@@ -17,9 +17,22 @@ export async function mountConfirmHost(): Promise<VueWrapper> {
   return mount(ConfirmDialogHost)
 }
 
+/** Parties de la fenêtre repérées par `data-confirm-dialog` (les ids, eux, viennent de `useId()`). */
+export type ConfirmDialogPart = 'title' | 'message' | 'cancel' | 'confirm'
+
+/** Élément d'une partie de la fenêtre : seul endroit qui connaît le sélecteur. */
+export function confirmPart(host: VueWrapper, part: ConfirmDialogPart): DOMWrapper<Element> {
+  return host.find(`[data-confirm-dialog="${part}"]`)
+}
+
+/** Texte d'une partie de la fenêtre, le message par défaut. */
+export function confirmText(host: VueWrapper, part: ConfirmDialogPart = 'message'): string {
+  return confirmPart(host, part).text()
+}
+
 /** Clique « Confirmer » ou « Annuler » dans la fenêtre puis laisse la visite partir. */
 export async function answerConfirm(host: VueWrapper, answer: 'confirm' | 'cancel') {
   await flushPromises()
-  await host.find(`[data-confirm-dialog="${answer}"]`).trigger('click')
+  await confirmPart(host, answer).trigger('click')
   await flushPromises()
 }

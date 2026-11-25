@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { DocumentType, OrganizationDocumentType } from '#shared/types/document'
 
 const translations = {
@@ -112,7 +112,7 @@ describe('documents/document_manager', () => {
       .findAll('button')
       .find((b) => b.text() === 'Retirer')!
       .trigger('click')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toContain('Retirer « ')
+    expect(confirmText(host)).toContain('Retirer « ')
     await answerConfirm(host, 'confirm')
 
     expect(destroy).toHaveBeenCalledWith('/fr/supplier/profile/documents/7', {

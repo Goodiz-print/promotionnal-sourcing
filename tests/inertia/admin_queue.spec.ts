@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { AdminQueueScheduleRow } from '#shared/types/admin_queue'
 import type { QueueHealthReport } from '#shared/types/health'
 
@@ -140,7 +140,7 @@ describe('Queue — jobs planifiés', () => {
       .findAll('button')
       .find((b) => b.text() === 'Lancer maintenant')!
       .trigger('click')
-    expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Lancer maintenant')
+    expect(confirmText(host, 'confirm')).toBe('Lancer maintenant')
     expect(post).not.toHaveBeenCalled()
     await answerConfirm(host, 'confirm')
 

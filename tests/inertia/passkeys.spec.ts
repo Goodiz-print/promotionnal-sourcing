@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { reactive, ref } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { PasskeyType } from '#shared/types/passkey'
 
 const translations = {
@@ -85,7 +85,7 @@ describe('account/passkeys_section', () => {
 
     const remove = wrapper.findAll('button').find((b) => b.text() === 'Supprimer')!
     await remove.trigger('click')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Supprimer « MacBook » ?')
+    expect(confirmText(host)).toBe('Supprimer « MacBook » ?')
     await answerConfirm(host, 'confirm')
 
     expect(destroy).toHaveBeenCalledWith('/fr/account.passkeys.destroy/7', { preserveScroll: true })

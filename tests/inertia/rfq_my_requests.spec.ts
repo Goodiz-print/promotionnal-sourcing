@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { QuoteDocumentType } from '#shared/types/quote'
 import type { RfqBatchGroupType, RfqListItemType } from '#shared/types/rfq'
 
@@ -198,10 +198,8 @@ describe('rfq_quote_documents.vue (#228)', () => {
       .find((b) => b.text() === 'Retenir')!
       .trigger('click')
 
-    expect(host.find('[data-confirm-dialog="title"]').text()).toBe('Retenir ce devis ?')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe(
-      'Retenir ce devis clôture la demande.'
-    )
+    expect(confirmText(host, 'title')).toBe('Retenir ce devis ?')
+    expect(confirmText(host)).toBe('Retenir ce devis clôture la demande.')
     expect(router.post).not.toHaveBeenCalled()
 
     await answerConfirm(host, 'confirm')

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmPart, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type {
   AdminOrderRow,
   AdminQuoteRow,
@@ -199,9 +199,9 @@ describe('admin/rfqs/show', () => {
 
     await wrapper.findAll('button')[2].trigger('click')
 
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Clôturer ?')
-    expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Clôturer')
-    expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
+    expect(confirmText(host)).toBe('Clôturer ?')
+    expect(confirmText(host, 'confirm')).toBe('Clôturer')
+    expect(confirmPart(host, 'confirm').classes()).toContain('text-danger')
     expect(post).not.toHaveBeenCalled()
     await answerConfirm(host, 'confirm')
     expect(post).toHaveBeenCalledWith(

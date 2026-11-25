@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { CategoryAttributeEditType, CategoryAttributeOption } from '#shared/types/category'
 
 const translations: Record<string, string> = {
@@ -178,7 +178,7 @@ describe('CategoryAttributesSection', () => {
     const wrapper = mountSection([pivot()])
 
     await wrapper.find('button[aria-label="Retirer l\'attribut"]').trigger('click')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Retirer cet attribut ?')
+    expect(confirmText(host)).toBe('Retirer cet attribut ?')
     await answerConfirm(host, 'confirm')
 
     expect(routerDelete).toHaveBeenCalledWith(

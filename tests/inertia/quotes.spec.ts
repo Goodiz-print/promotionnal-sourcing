@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmPart, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { QuoteType } from '#shared/types/quote'
 import type { RfqItemType } from '#shared/types/rfq'
 
@@ -159,7 +159,7 @@ describe('quotes/show.vue', () => {
     const button = wrapper.findAll('button').find((b) => b.text() === 'Accepter ce devis')!
 
     await button.trigger('click')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Accepter ?')
+    expect(confirmText(host)).toBe('Accepter ?')
     await answerConfirm(host, 'cancel')
     expect(router.patch).not.toHaveBeenCalled()
 
@@ -178,7 +178,7 @@ describe('quotes/show.vue', () => {
       .trigger('click')
     await flushPromises()
 
-    expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
-    expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Rejeter ce devis')
+    expect(confirmPart(host, 'confirm').classes()).toContain('text-danger')
+    expect(confirmText(host, 'confirm')).toBe('Rejeter ce devis')
   })
 })

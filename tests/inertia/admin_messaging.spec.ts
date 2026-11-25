@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type {
   AdminConversationDetail,
   AdminConversationRow,
@@ -135,8 +135,8 @@ describe('admin/messaging/show', () => {
 
     const hide = wrapper.findAll('button').find((button) => button.text() === 'Masquer')
     await hide!.trigger('click')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Masquer ?')
-    expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Masquer')
+    expect(confirmText(host)).toBe('Masquer ?')
+    expect(confirmText(host, 'confirm')).toBe('Masquer')
     await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledTimes(1)

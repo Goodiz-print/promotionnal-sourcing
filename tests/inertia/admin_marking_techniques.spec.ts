@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
 import type { MarkingTechniqueAdminType, MarkingTechniqueEditType } from '#shared/types/marking'
 
@@ -129,7 +129,7 @@ describe('admin/marking_techniques/index.vue', () => {
     const wrapper = mount(Index, { props: { techniques: [technique()] } })
 
     await wrapper.find('button[aria-label="Supprimer"]').trigger('click')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Supprimer cette technique ?')
+    expect(confirmText(host)).toBe('Supprimer cette technique ?')
     await answerConfirm(host, 'confirm')
 
     expect(del).toHaveBeenCalledWith(

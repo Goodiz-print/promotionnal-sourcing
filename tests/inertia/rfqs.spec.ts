@@ -1,6 +1,6 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmPart, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { RfqDetailType, RfqListItemType, RfqSupplierType, RfqType } from '#shared/types/rfq'
 
 const translations = {
@@ -317,8 +317,8 @@ describe('rfqs/show.vue', () => {
       const wrapper = mount(RfqShow, { props: { ...baseProps, rfq: detail() } })
 
       await clickAction(wrapper, 'Supprimer le brouillon')
-      expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Supprimer ce brouillon ?')
-      expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
+      expect(confirmText(host)).toBe('Supprimer ce brouillon ?')
+      expect(confirmPart(host, 'confirm').classes()).toContain('text-danger')
       await answerConfirm(host, 'cancel')
       expect(router.delete).not.toHaveBeenCalled()
 

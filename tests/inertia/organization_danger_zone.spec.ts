@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmPart, confirmText, mountConfirmHost } from './support/confirm_dialog'
 
 const translations = {
   'organization.danger.title': 'Zone de danger',
@@ -54,8 +54,8 @@ describe('DangerZone', () => {
     const wrapper = mount(DangerZone, { props: { organizationName: 'Acme', canLeave: true } })
 
     await button(wrapper, 'Quitter')!.trigger('click')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Quitter cette organisation ?')
-    expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
+    expect(confirmText(host)).toBe('Quitter cette organisation ?')
+    expect(confirmPart(host, 'confirm').classes()).toContain('text-danger')
     await answerConfirm(host, 'confirm')
 
     expect(destroy).toHaveBeenCalledWith('/fr/organization.leave', { preserveScroll: true })
@@ -79,7 +79,7 @@ describe('DangerZone', () => {
     const wrapper = mount(DangerZone, { props: { organizationName: 'Acme', canLeave: true } })
 
     await button(wrapper, 'Archiver')!.trigger('click')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Archiver Acme ?')
+    expect(confirmText(host)).toBe('Archiver Acme ?')
     await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith('/fr/organization.archive', {}, { preserveScroll: true })

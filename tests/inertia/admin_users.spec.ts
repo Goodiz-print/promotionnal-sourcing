@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmPart, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { AdminUserListItem } from '#shared/types/admin'
 import type { AdminUserDetail, AdminUserIndexFilters } from '#shared/types/admin_user'
 
@@ -361,8 +361,8 @@ describe('admin/users/show', () => {
       .findAll('button')
       .find((b) => b.text() === 'Suspendre')!
       .trigger('click')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Suspendre ?')
-    expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Suspendre')
+    expect(confirmText(host)).toBe('Suspendre ?')
+    expect(confirmText(host, 'confirm')).toBe('Suspendre')
     await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith(
@@ -380,8 +380,8 @@ describe('admin/users/show', () => {
       .findAll('button')
       .find((b) => b.text() === 'Supprimer le compte')!
       .trigger('click')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Supprimer ?')
-    expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
+    expect(confirmText(host)).toBe('Supprimer ?')
+    expect(confirmPart(host, 'confirm').classes()).toContain('text-danger')
     await answerConfirm(host, 'confirm')
 
     expect(del).toHaveBeenCalledWith(
