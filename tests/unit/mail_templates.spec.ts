@@ -820,7 +820,7 @@ test.group('Mails — abonnement, version texte (#292)', () => {
     assert.include(text, 'Il couvre la période du 20/11/2026 au 19/11/2027 inclus.')
     assert.include(text, 'Votre formule comprend :')
     assert.match(text, /^- \S/m)
-    assert.include(text, 'Voir mon abonnement : ')
+    assert.match(text, /^Voir mon abonnement\n.*\/x\/supplier\/subscription$/m)
     assert.include(text, '/x/supplier/subscription')
     assert.notInclude(text, '<')
   })
@@ -840,7 +840,7 @@ test.group('Mails — abonnement, version texte (#292)', () => {
       ) as never
     )
 
-    assert.include(text, '20/11/2026')
+    assert.include(text, 'It has been active since 20/11/2026.')
     assert.notInclude(text, '19/11/2027')
     assert.include(text, '/x/supplier/subscription')
   })
@@ -852,7 +852,7 @@ test.group('Mails — abonnement, version texte (#292)', () => {
 
     assert.include(text, 'se termine dans 7 jours')
     assert.include(text, 'se termine le 19/11/2027')
-    assert.include(text, 'Renouveler mon abonnement : ')
+    assert.match(text, /^Renouveler mon abonnement\n.*\/x\/supplier\/subscription$/m)
     assert.include(text, '/x/supplier/subscription')
     assert.notInclude(text, '<')
   })
@@ -869,6 +869,8 @@ test.group('Mails — abonnement, version texte (#292)', () => {
       assert.include(text, '19/11/2027')
       assert.include(text, '/x/supplier/subscription')
       assert.notInclude(text, 'emails.')
+      assert.notInclude(text, '<')
+      assert.notMatch(text, / : \S*\/x\/supplier/)
     })
   })
 })
