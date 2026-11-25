@@ -1,6 +1,46 @@
 {
   "flash": {
     "reported": "Thank you, your report has been sent to the moderation team.",
-    "alreadyHandled": "This message has already been reviewed by the moderation team."
+    "alreadyHandled": "This message has already been reviewed by the moderation team.",
+    "posted": "Il suo messaggio è stato inviato."
+  },
+  "errors": {
+    "blocked": "Questa conversazione è stata bloccata dalla piattaforma: non può più scrivervi."
+  },
+  "thread": {
+    "titleWith": "Messaggi con {name}",
+    "titleAgency": "Messaggi con l'agenzia",
+    "agencyHint": "La piattaforma inoltra i suoi messaggi al fornitore via e-mail, senza il suo indirizzo. Le sue risposte compaiono qui.",
+    "supplierHint": "I suoi messaggi vengono inoltrati all'agenzia via e-mail. Le sue risposte compaiono qui e nella sua casella di posta.",
+    "empty": "Ancora nessun messaggio.",
+    "emptyHint": "Scriva un primo messaggio: verrà inoltrato via e-mail.",
+    "blocked": "Questa conversazione è stata bloccata dalla piattaforma: resta consultabile, ma non è più possibile scrivervi.",
+    "closed": "Gli scambi di questa richiesta sono chiusi: è terminata da troppo tempo per scrivere, qui o via email.",
+    "hasOlder": "Sono mostrati solo gli ultimi {count} messaggi.",
+    "yourTeam": "Il suo team",
+    "viaMail": "via e-mail",
+    "attachments": "Allegati",
+    "sides": {
+      "agency": "L'agenzia",
+      "supplier": "Il fornitore"
+    },
+    "bodyLabel": "Il suo messaggio",
+    "placeholder": "Scriva il suo messaggio…",
+    "maxLength": "Al massimo {max} caratteri.",
+    "send": "Invia",
+    "report": {
+      "action": "Segnala",
+      "reasonLabel": "Motivo della segnalazione",
+      "submit": "Segnala questo messaggio",
+      "cancel": "Annulla",
+      "reasons": {
+        "spam": "Spam",
+        "abuse": "Contenuti offensivi",
+        "off_platform": "Aggiramento della piattaforma",
+        "fraud": "Frode",
+        "other": "Altro"
+      }
+    },
+    "unknownSender": "indirizzo non riconosciuto"
   }
 }

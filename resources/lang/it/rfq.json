@@ -15,8 +15,31 @@
       "suppliers": "Destinatari",
       "responses": "Risposte",
       "status": "Stato",
-      "deadline": "Scadenza"
-    }
+      "deadline": "Scadenza",
+      "author": "Autore",
+      "quotes": "Preventivi"
+    },
+    "progress": {
+      "draft": "Bozza",
+      "published": "Pubblicata",
+      "sent": "Inviata",
+      "responded": "Con risposta",
+      "expired": "Scaduta",
+      "closed": "Chiusa"
+    },
+    "filters": {
+      "label": "Filtra le richieste",
+      "status": "Stato",
+      "author": "Autore",
+      "allStatuses": "Tutti gli stati",
+      "allAuthors": "Tutti gli autori",
+      "reset": "Reimposta i filtri"
+    },
+    "noMatch": "Nessuna richiesta corrisponde a questi filtri.",
+    "noMatchDescription": "Modifica o reimposta i filtri per ritrovare le tue richieste.",
+    "batch": "Carrello del {date} · {count, plural, one {# richiesta} other {# richieste}}",
+    "quoteReceived": "Preventivo ricevuto",
+    "unknownAuthor": "Autore sconosciuto"
   },
   "create": {
     "title": "Nuova richiesta di offerta",
@@ -39,7 +62,9 @@
     "addSuppliers": "Aggiungi destinatari",
     "removeSupplier": "Rimuovi",
     "sentAt": "Inviata il {date}",
-    "viewProduct": "Vedi la scheda prodotto"
+    "viewProduct": "Vedi la scheda prodotto",
+    "salesContactsTitle": "Contatti commerciali",
+    "salesContactsHint": "Le richieste arrivano all'indirizzo generale del fornitore; questi commerciali seguono il vostro paese."
   },
   "status": {
     "draft": "Bozza",
@@ -52,8 +77,10 @@
     "sent": "Inviata",
     "viewed": "Visualizzata",
     "responded": "Ha risposto",
-    "declined": "Ha rifiutato"
+    "declined": "Ha rifiutato",
+    "expired": "Scaduta senza risposta"
   },
+  "lateReply": "Risposta tardiva",
   "actions": {
     "publish": "Pubblica",
     "send": "Invia ai destinatari",
@@ -125,7 +152,15 @@
         "deadline": "Scadenza",
         "status": "Stato"
       },
-      "emptyDescription": "Gli acquirenti che Vi consultano appariranno qui con il dettaglio della loro esigenza."
+      "emptyDescription": "Gli acquirenti che Vi consultano appariranno qui con il dettaglio della loro esigenza.",
+      "filters": {
+        "label": "Filtra le richieste ricevute",
+        "status": "Stato",
+        "allStatuses": "Tutti gli stati",
+        "reset": "Reimposta il filtro"
+      },
+      "emptyFiltered": "Nessuna richiesta con questo stato.",
+      "emptyFilteredDescription": "Cambia filtro per ritrovare le altre richieste."
     },
     "show": {
       "backToList": "Torna alle richieste ricevute",
@@ -137,7 +172,16 @@
       "expiredNotice": "Questa richiesta è scaduta: l'acquirente non attende più una risposta.",
       "responseTitle": "La Sua risposta",
       "responseOpen": "Quantifichi questa esigenza presentando un preventivo, oppure declini la richiesta se non può darvi seguito.",
-      "responseQuote": "Ha redatto un preventivo per questa richiesta."
+      "responseQuote": "Ha redatto un preventivo per questa richiesta.",
+      "responseDocument": "Hai inviato un preventivo PDF per questa richiesta. Puoi caricarne una nuova versione qui sotto.",
+      "contact": {
+        "title": "Recapiti dell'agenzia",
+        "agency": "Agenzia",
+        "requester": "Richiesta di",
+        "email": "E-mail",
+        "phone": "Telefono",
+        "address": "Indirizzo"
+      }
     },
     "actions": {
       "decline": "Rifiuta la richiesta",
@@ -147,13 +191,21 @@
       "sent": "Da gestire",
       "viewed": "In corso",
       "responded": "Offerta inviata",
-      "declined": "Rifiutata"
+      "declined": "Rifiutata",
+      "expired": "Scaduta"
     },
     "flash": {
       "declined": "Richiesta rifiutata."
     },
     "errors": {
       "notDecidable": "Questa richiesta non attende più una Sua decisione."
+    },
+    "anonymousBuyer": "Agenzia anonima",
+    "state": {
+      "to_process": "Da gestire",
+      "responded": "Risposta inviata",
+      "expired": "Scaduta",
+      "declined": "Rifiutata"
     }
   },
   "product": {
@@ -172,5 +224,16 @@
   },
   "form": {
     "general": "Informazioni generali"
+  },
+  "specs": {
+    "variant": "Variante",
+    "sku": "Codice articolo",
+    "markingPosition": "Posizione di personalizzazione",
+    "markingTechnique": "Tecnica di personalizzazione",
+    "markingColors": "Colori di personalizzazione",
+    "estimatedUnitPrice": "Prezzo unitario indicativo",
+    "estimatedMarkingUnitPrice": "Personalizzazione / pezzo indicativa",
+    "estimatedSetupCharge": "Costi di impianto indicativi",
+    "estimatedTotal": "Totale indicativo"
   }
 }

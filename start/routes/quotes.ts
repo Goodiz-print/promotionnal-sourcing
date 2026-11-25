@@ -13,6 +13,29 @@ export function registerQuoteRoutes(): void {
   router.patch('quotes/:id/accept', [controllers.Quotes, 'accept']).as('quotes.accept')
   router.patch('quotes/:id/reject', [controllers.Quotes, 'reject']).as('quotes.reject')
 
+  // Agence : télécharger un devis PDF reçu par mail (#225), version au nom de
+  // l'agence pour un fournisseur non abonné (#238). Lien des mails transmis.
+  router
+    .get('quote-documents/:id/download', [controllers.QuoteDocuments, 'download'])
+    .where('id', router.matchers.number())
+    .as('quote_documents.download')
+  // Agence : retenir un devis PDF (#228), ce qui clôture la demande — sans commande.
+  router
+    .post('quote-documents/:id/select', [controllers.QuoteDocuments, 'select'])
+    .where('id', router.matchers.number())
+    .as('quote_documents.select')
+
+  // Fournisseur : déposer son devis PDF depuis une demande reçue (#230), même
+  // traitement qu'une réponse par mail ; télécharger un devis envoyé (original).
+  router
+    .post('supplier/rfqs/:id/quote-documents', [controllers.supplier.QuoteDocuments, 'store'])
+    .where('id', router.matchers.number())
+    .as('supplier.quote_documents.store')
+  router
+    .get('supplier/quote-documents/:id/download', [controllers.supplier.QuoteDocuments, 'download'])
+    .where('id', router.matchers.number())
+    .as('supplier.quote_documents.download')
+
   // Fournisseur : rédiger, remettre.
   router.get('supplier/quotes', [controllers.supplier.Quotes, 'index']).as('supplier.quotes.index')
   router

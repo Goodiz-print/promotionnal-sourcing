@@ -1,0 +1,98 @@
+{
+  "page": {
+    "title": "Precios y suscripción",
+    "subtitle": "Elija el plan que se adapta a su actividad. La suscripción, el cambio de plan y la cancelación se realizan en línea.",
+    "checkoutSuccess": "Pago recibido. Su plan se activa en cuanto Stripe lo confirma, normalmente en pocos segundos: actualice la página si es necesario.",
+    "checkoutCancelled": "Suscripción cancelada: no se ha realizado ningún pago.",
+    "unavailable": "La suscripción en línea aún no está disponible. Contacte con el equipo para activar un plan.",
+    "taxNote": "Precios mensuales sin IVA, sin permanencia. Las facturas están disponibles en el portal de facturación."
+  },
+  "plans": {
+    "current": "Plan actual",
+    "perMonth": "sin IVA / mes",
+    "subscribe": "Suscribirse",
+    "change": "Cambiar de plan",
+    "free": {
+      "name": "Gratuito",
+      "tagline": "Su catálogo referenciado, sin coste."
+    },
+    "business": {
+      "name": "Business",
+      "tagline": "Identifique a sus clientes potenciales y gane visibilidad."
+    },
+    "premium": {
+      "name": "Premium",
+      "tagline": "Máxima visibilidad y asistencia prioritaria."
+    }
+  },
+  "current": {
+    "title": "Su suscripción",
+    "plan": "Plan",
+    "status": "Estado",
+    "since": "Desde el",
+    "renewsOn": "Renovación el",
+    "endsOn": "Finaliza el",
+    "manage": "Gestionar mi suscripción",
+    "manual": "Suscripción gestionada por el equipo de la plataforma. Contáctenos para modificarla.",
+    "pastDue": "El último pago ha fallado. Stripe volverá a intentarlo: actualice su método de pago para conservar su plan.",
+    "cancelScheduled": "Cancelación programada: su plan sigue activo hasta el final del periodo en curso."
+  },
+  "status": {
+    "scheduled": "Programada",
+    "pending": "Pago pendiente",
+    "active": "Activa",
+    "past_due": "Impagada",
+    "expired": "Caducada",
+    "cancelled": "Cancelada"
+  },
+  "features": {
+    "catalogue": {
+      "free": "Catálogo indexado en la búsqueda",
+      "business": "Catálogo indexado en la búsqueda",
+      "premium": "Catálogo indexado en la búsqueda"
+    },
+    "statistics": {
+      "free": "Estadísticas anónimas (número de visitas)",
+      "business": "Estadísticas detalladas, con la identidad de las agencias",
+      "premium": "Estadísticas detalladas, con la identidad de las agencias"
+    },
+    "quoteRequests": {
+      "free": "Solicitudes de presupuesto sin la identidad de la agencia",
+      "business": "Identidad y datos de contacto de las agencias en las solicitudes",
+      "premium": "Identidad y datos de contacto de las agencias en las solicitudes"
+    },
+    "competitors": {
+      "free": "Productos de la competencia en sus páginas",
+      "business": "Ningún producto de la competencia en sus páginas",
+      "premium": "Ningún producto de la competencia en sus páginas"
+    },
+    "ranking": {
+      "free": "Clasificación natural de los resultados",
+      "business": "250 puntos de posicionamiento al mes",
+      "premium": "600 puntos de posicionamiento al mes"
+    },
+    "superboost": {
+      "free": "Sin superboost",
+      "business": "Superboosts a la carta",
+      "premium": "3 superboosts incluidos al mes"
+    },
+    "support": {
+      "free": "Asistencia estándar",
+      "business": "Asistencia estándar",
+      "premium": "Asistencia e integración prioritarias"
+    }
+  },
+  "flash": {
+    "unavailable": "La suscripción en línea no está disponible por el momento.",
+    "alreadySubscribed": "Ya tiene una suscripción en curso: cambie de plan desde el portal de facturación.",
+    "noBillingAccount": "Su organización no tiene cuenta de facturación en línea.",
+    "paymentPending": "Un pago de suscripción se está validando: complétalo desde el portal de facturación o inténtalo más tarde.",
+    "adminOnly": "Solo los propietarios y administradores de su organización pueden gestionar su suscripción."
+  },
+  "upsell": {
+    "title": "Suscríbase para conocer la agencia",
+    "body": "Suscríbase para saber qué agencia le consulta y contactarla directamente.",
+    "askAdmin": "Un propietario o administrador de su organización puede suscribirse para conocer la agencia y contactarla directamente.",
+    "cta": "Ver las suscripciones"
+  }
+}

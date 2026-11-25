@@ -20,6 +20,9 @@ export const STORAGE_REFERENCES = [
   { table: 'supplier_news', column: 'image_storage_object_id' },
   { table: 'organization_documents', column: 'storage_object_id' },
   { table: 'product_documents', column: 'storage_object_id' },
+  { table: 'inbound_mail_attachments', column: 'storage_object_id' },
+  { table: 'message_attachments', column: 'storage_object_id' },
+  { table: 'quote_documents', column: 'recipient_storage_object_id' },
 ] as const
 
 /**

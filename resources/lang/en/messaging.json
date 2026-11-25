@@ -1,6 +1,46 @@
 {
   "flash": {
     "reported": "Thank you, your report has been sent to the moderation team.",
-    "alreadyHandled": "This message has already been reviewed by the moderation team."
+    "alreadyHandled": "This message has already been reviewed by the moderation team.",
+    "posted": "Your message has been sent."
+  },
+  "errors": {
+    "blocked": "This thread has been blocked by the platform: you can no longer write in it."
+  },
+  "thread": {
+    "titleWith": "Messages with {name}",
+    "titleAgency": "Messages with the agency",
+    "agencyHint": "Your messages are relayed to the supplier by email by the platform, without your address. Their replies appear here.",
+    "supplierHint": "Your messages are forwarded to the agency by email. Their replies appear here and in your inbox.",
+    "empty": "No messages yet.",
+    "emptyHint": "Write a first message: it will be relayed by email.",
+    "blocked": "This thread has been blocked by the platform: you can still read it, but no one can write in it.",
+    "closed": "This request's thread is closed: it ended too long ago to write, here or by email.",
+    "hasOlder": "Only the last {count} messages are shown.",
+    "yourTeam": "Your team",
+    "viaMail": "by email",
+    "attachments": "Attachments",
+    "sides": {
+      "agency": "The agency",
+      "supplier": "The supplier"
+    },
+    "bodyLabel": "Your message",
+    "placeholder": "Write your message…",
+    "maxLength": "{max} characters at most.",
+    "send": "Send",
+    "report": {
+      "action": "Report",
+      "reasonLabel": "Reason for reporting",
+      "submit": "Report this message",
+      "cancel": "Cancel",
+      "reasons": {
+        "spam": "Spam",
+        "abuse": "Abusive content",
+        "off_platform": "Bypassing the platform",
+        "fraud": "Fraud",
+        "other": "Other"
+      }
+    },
+    "unknownSender": "unrecognised address"
   }
 }

@@ -1,6 +1,7 @@
 import type { NavigationItemType, NavigationRoute } from '#shared/types/navigation'
 import type { OrganizationKind } from '#shared/types/organization'
 import type { RoleSlug } from '#shared/types/role'
+import { SUPPLIER_INSIGHTS_ROLES } from '#shared/types/supplier_insights'
 
 /**
  * Contexte de navigation : l'organisation courante de l'utilisateur et son rôle
@@ -10,6 +11,9 @@ export interface NavigationContext {
   organizationType: OrganizationKind
   roleSlug: RoleSlug
 }
+
+/** Ajoute une entrée au menu. */
+type AddItem = (key: string, route: NavigationRoute) => void
 
 /** Rôles autorisés à gérer l'organisation (membres, paramètres). */
 const MANAGEMENT_ROLES: readonly RoleSlug[] = ['owner', 'admin']
@@ -27,8 +31,7 @@ export default class NavigationService {
    */
   itemsFor(context: NavigationContext | null, hasBackOffice = false): NavigationItemType[] {
     const items: NavigationItemType[] = []
-    const add = (key: string, route: NavigationRoute) =>
-      items.push({ key, route, labelKey: `common.nav.${key}` })
+    const add: AddItem = (key, route) => items.push({ key, route, labelKey: `common.nav.${key}` })
 
     if (!context) {
       add('catalogue', 'products.index')
@@ -47,13 +50,7 @@ export default class NavigationService {
       add('rfqs', 'rfqs.index')
       add('orders', 'orders.index')
     }
-    if (isSupplier) {
-      add('supplierProducts', 'supplier.products.index')
-      add('supplierRfqs', 'supplier.rfqs.index')
-      add('supplierQuotes', 'supplier.quotes.index')
-      add('supplierOrders', 'supplier.orders.index')
-      add('supplierProfile', 'supplier.profile')
-    }
+    if (isSupplier) this.addSupplierItems(add, roleSlug)
     if (MANAGEMENT_ROLES.includes(roleSlug)) {
       add('members', 'organization.members')
       add('settings', 'organization.settings')
@@ -61,5 +58,26 @@ export default class NavigationService {
     if (hasBackOffice) add('admin', 'admin.dashboard')
 
     return items
+  }
+
+  /** Espace fournisseur : chaque entrée suit les droits de sa route. */
+  private addSupplierItems(add: AddItem, roleSlug: RoleSlug): void {
+    add('supplierProducts', 'supplier.products.index')
+    add('supplierRfqs', 'supplier.rfqs.index')
+    add('supplierQuotes', 'supplier.quotes.index')
+    add('supplierOrders', 'supplier.orders.index')
+    // Consultations : rôles qui traitent déjà les demandes reçues (#239).
+    if (SUPPLIER_INSIGHTS_ROLES.includes(roleSlug)) {
+      add('supplierInsights', 'supplier.insights.index')
+    }
+    // Produits sponsorisés : réservés aux rôles qui gèrent le catalogue.
+    if (MANAGEMENT_ROLES.includes(roleSlug)) add('supplierAds', 'supplier.ads.index')
+    // Tarifs et abonnement : engagent un paiement récurrent, mêmes rôles.
+    if (MANAGEMENT_ROLES.includes(roleSlug)) {
+      add('supplierSubscription', 'supplier.subscription.show')
+    }
+    add('supplierProfile', 'supplier.profile')
+    // Équipe commerciale : mêmes droits que l'édition du profil.
+    if (MANAGEMENT_ROLES.includes(roleSlug)) add('supplierContacts', 'supplier.contacts.index')
   }
 }

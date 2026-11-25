@@ -8,10 +8,11 @@ import RfqReceivedNotification from '#mails/rfq_received_notification'
 import Rfq from '#models/rfq'
 import RfqItem from '#models/rfq_item'
 import RfqSupplier from '#models/rfq_supplier'
-import { createMember } from '#tests/utils/organizations'
+import { createMember, subscribeOrganization } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
 import type Organization from '#models/organization'
 import type User from '#models/user'
+import type { RfqReceivedMailData } from '#shared/types/mail'
 
 /**
  * Écrans acheteur des demandes de devis : rendu Inertia, autorisations et
@@ -49,8 +50,10 @@ test.group('Écrans RFQ — acheteur', (group) => {
 
     response.assertStatus(200)
     response.assertInertiaComponent('rfqs/index')
-    assert.lengthOf(response.inertiaProps.rfqs, 1)
-    assert.equal(response.inertiaProps.rfqs[0].title, 'Tote bags')
+    // Regroupée par lot de panier (#228) : une demande seule forme un groupe.
+    const [single] = response.inertiaProps.groups
+    assert.lengthOf(response.inertiaProps.groups, 1)
+    assert.equal(single.rfqs[0].title, 'Tote bags')
     assert.isTrue(response.inertiaProps.canManageRfq)
   })
 
@@ -107,6 +110,28 @@ test.group('Écrans RFQ — acheteur', (group) => {
     const [target] = await RfqSupplier.query().where('rfqId', rfq.id)
     assert.equal(target.supplierOrganizationId, supplier.id)
     assert.equal(target.status, 'pending')
+  })
+
+  test('la création ignore un lot de panier envoyé par le client (#229)', async ({
+    client,
+    assert,
+  }) => {
+    const { owner } = await buyerWithOwner()
+
+    const response = await client
+      .post('/fr/rfqs')
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(owner)
+      .json({
+        title: 'Lot forgé',
+        items: [itemPayload()],
+        batchId: '3f2b8c1e-4a5d-4e6f-9a7b-8c9d0e1f2a3b',
+      })
+
+    response.assertStatus(200)
+    const rfq = await Rfq.findByOrFail('title', 'Lot forgé')
+    assert.isNull(rfq.batchId)
   })
 
   test('la création refuse une demande sans ligne', async ({ client, assert }) => {
@@ -222,7 +247,7 @@ test.group('Écrans RFQ — acheteur', (group) => {
     assert.equal(rfq.status, 'draft')
   })
 
-  test('un membre simple rédige mais ne publie pas (403)', async ({ client, assert }) => {
+  test('un membre simple publie, mais ne clôture pas (#216)', async ({ client, assert }) => {
     const org = await OrganizationFactory.create()
     const member = await createMember(org, 'member')
     const rfq = await RfqFactory.merge({
@@ -234,20 +259,28 @@ test.group('Écrans RFQ — acheteur', (group) => {
 
     const list = await client.get('/fr/rfqs').withInertia().loginAs(member)
     list.assertStatus(200)
+    assert.isTrue(list.inertiaProps.canSendRfq)
     assert.isFalse(list.inertiaProps.canManageRfq)
 
-    // Sur une soumission de formulaire, Bouncer renvoie l'utilisateur d'où il
-    // vient avec un message plutôt qu'une page 403 (cf. `AuthorizationException`).
-    const publish = await client
-      .post(`/fr/rfqs/${rfq.id}/publish`)
-      .withInertia()
-      .withCsrfToken()
-      .redirects(0)
-      .loginAs(member)
-    publish.assertStatus(302)
+    const post = (action: string) =>
+      client
+        .post(`/fr/rfqs/${rfq.id}/${action}`)
+        .withInertia()
+        .withCsrfToken()
+        .redirects(0)
+        .loginAs(member)
 
+    const publish = await post('publish')
+    publish.assertStatus(302)
     await rfq.refresh()
-    assert.equal(rfq.status, 'draft')
+    assert.equal(rfq.status, 'published')
+
+    // Clôturer reste une décision de responsable : Bouncer renvoie l'utilisateur
+    // d'où il vient avec un message plutôt qu'une page 403.
+    const close = await post('close')
+    close.assertStatus(302)
+    await rfq.refresh()
+    assert.equal(rfq.status, 'published')
   })
 
   test('une organisation fournisseuse n’accède pas aux écrans acheteur (403)', async ({
@@ -297,6 +330,8 @@ test.group('Écrans RFQ — acheteur', (group) => {
     const supplier = await OrganizationFactory.apply('supplier')
       .merge({ email: 'contact@fournisseur.test' })
       .create()
+    // Abonné : le mail nomme l'agence (#220).
+    await subscribeOrganization(supplier)
     const rfq = await RfqFactory.merge({
       buyerOrganizationId: org.id,
       title: 'Tote bags',
@@ -318,11 +353,11 @@ test.group('Écrans RFQ — acheteur', (group) => {
 
       mails.assertSentCount(RfqReceivedNotification, 1)
       mails.assertSent(RfqReceivedNotification, (sent) => {
-        const fields = sent as unknown as { email: string; buyerName: string; rfqPath: string }
+        const fields = sent as unknown as { email: string; data: RfqReceivedMailData }
         return (
           fields.email === 'contact@fournisseur.test' &&
-          fields.buyerName === org.name &&
-          fields.rfqPath === `/fr/supplier/rfqs/${rfq.id}`
+          fields.data.buyerName === org.name &&
+          fields.data.rfqPath === `/fr/supplier/rfqs/${rfq.id}`
         )
       })
     } finally {

@@ -1,0 +1,78 @@
+{
+  "title": "Offertkorg",
+  "subtitle": "Samla produkterna du vill ha prisuppgift på och skicka en förfrågan till varje leverantör på en gång.",
+  "nav": {
+    "label": "Offertkorg",
+    "count": "{count, plural, =0 {Offertkorgen är tom} one {# produkt i offertkorgen} other {# produkter i offertkorgen}}"
+  },
+  "empty": {
+    "title": "Din offertkorg är tom",
+    "description": "Lägg till produkter från katalogen för att fråga flera leverantörer samtidigt.",
+    "browse": "Bläddra i katalogen"
+  },
+  "group": {
+    "items": "{count, plural, one {# produkt} other {# produkter}} · en egen förfrågan"
+  },
+  "line": {
+    "quantity": "Antal",
+    "note": "Detaljer",
+    "remove": "Ta bort {name} från korgen",
+    "belowMinimum": "Minsta order: {count} st.",
+    "variant": "Variant",
+    "variantAny": "Anges senare",
+    "marking": "Märkning",
+    "markingNone": "Utan märkning",
+    "markingColors": "Färger",
+    "markingColorsMax": "{count, plural, one {max. # färg} other {max. # färger}}"
+  },
+  "checkout": {
+    "title": "Skicka förfrågningarna",
+    "titleDraft": "Skapa förfrågningarna",
+    "description": "Ett gemensamt huvud för alla förfrågningar: varje leverantör får bara sina egna produkter.",
+    "fieldTitle": "Förfrågans ämne",
+    "fieldTitleHint": "Leverantörens namn läggs till i varje förfrågan.",
+    "fieldDescription": "Sammanhang (evenemang, tidsramar, krav…)",
+    "fieldDeadline": "Svar önskas senast",
+    "summary": "{count, plural, one {En förfrågan skickas till: {suppliers}} other {# förfrågningar skickas till: {suppliers}}}",
+    "summaryDraft": "{count, plural, one {Ett utkast skapas för: {suppliers}} other {# utkast skapas för: {suppliers}}}",
+    "draftNotice": "Din roll låter dig förbereda förfrågningar: de skapas som utkast som en ansvarig kan skicka.",
+    "submit": "{count, plural, one {Skicka förfrågan} other {Skicka # förfrågningar}}",
+    "submitDraft": "{count, plural, one {Skapa utkastet} other {Skapa # utkast}}"
+  },
+  "flash": {
+    "added": "Produkten har lagts i offertkorgen.",
+    "alreadyInCart": "Produkten finns redan i din offertkorg.",
+    "removed": "Produkten har tagits bort från offertkorgen.",
+    "sent": "{count, plural, one {# förfrågan skickad} other {# förfrågningar skickade}}.",
+    "drafted": "{count, plural, one {# utkast skapat} other {# utkast skapade}}. En ansvarig kan skicka dem."
+  },
+  "errors": {
+    "empty": "Ingen av produkterna i din korg kan efterfrågas.",
+    "supplierUnavailable": "En leverantör kan inte längre nås. Ladda om korgen och försök igen.",
+    "invalidOption": "Det här alternativet finns inte för produkten.",
+    "duplicateLine": "Den här varianten finns redan i din offertkorg."
+  },
+  "product": {
+    "add": "Lägg i offertkorgen",
+    "inCart": "I din offertkorg",
+    "viewCart": "Visa korgen",
+    "detailedRequest": "Detaljerad förfrågan",
+    "quantity": "Antal"
+  },
+  "card": {
+    "add": "Lägg {name} i offertkorgen"
+  },
+  "estimate": {
+    "onRequest": "Pris på förfrågan",
+    "unitPrice": "Styckpris",
+    "markingUnitPrice": "Märkning / st.",
+    "setupCharge": "Startkostnad",
+    "total": "Uppskattad summa",
+    "totalPartial": "Uppskattad summa (exkl. märkning)",
+    "belowFirstTier": "Antal under första prisnivån.",
+    "nextTier": "Från {count} st.: {price} / st.",
+    "subtotal": "Uppskattad delsumma: {amount}",
+    "subtotalPartial": "Uppskattad delsumma (ofullständig): {amount}",
+    "disclaimer": "Vägledande uppskattning enligt leverantörens prislistor, exkl. frakt. Offerten gäller."
+  }
+}

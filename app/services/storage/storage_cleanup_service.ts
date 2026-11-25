@@ -64,7 +64,8 @@ export default class StorageCleanupService {
     let uploads = 0
     for (const stale of staleUploads) {
       try {
-        if (await this.recoverUpload(stale.id, threshold)) uploads += 1
+        const recovered = await this.recoverUpload(stale.id, threshold)
+        if (recovered) uploads += 1
       } catch (error) {
         logger.error({ err: error, key: stale.key }, 'storage upload recovery failed')
       }

@@ -1,0 +1,37 @@
+{{-- Coordonnées de l'agence (#221) : seulement pour un fournisseur abonné. --}}
+@if(buyerContact)
+  <p><strong>{{ t('emails.buyerContact.title') }}</strong></p>
+  <table
+    role="presentation"
+    style="width:100%;border-collapse:collapse;margin:0 0 16px;border:1px solid #e5e7eb"
+  >
+    @!component('emails/partials/rfq_row', {
+      label: t('emails.buyerContact.agency'),
+      value: buyerContact.agencyName,
+    })
+    @if(buyerContact.requesterName)
+      @!component('emails/partials/rfq_row', {
+        label: t('emails.buyerContact.requester'),
+        value: buyerContact.requesterName,
+      })
+    @end
+    @if(buyerContact.email)
+      @!component('emails/partials/rfq_row', {
+        label: t('emails.buyerContact.email'),
+        value: buyerContact.email,
+      })
+    @end
+    @if(buyerContact.phone)
+      @!component('emails/partials/rfq_row', {
+        label: t('emails.buyerContact.phone'),
+        value: buyerContact.phone,
+      })
+    @end
+    @if(buyerContact.addressLines.length)
+      @!component('emails/partials/rfq_row', {
+        label: t('emails.buyerContact.address'),
+        value: buyerContact.addressLines.join(', '),
+      })
+    @end
+  </table>
+@end

@@ -9,8 +9,9 @@
   "types": {
     "rfq": {
       "received": "{buyerName} vous a envoyé une demande de devis : {rfqTitle}.",
-      "responded": "Un fournisseur a répondu à la demande {rfqTitle}.",
-      "declined": "{supplierName} a décliné la demande {rfqTitle}."
+      "responded": "{supplierName} a répondu à la demande {rfqTitle}.",
+      "declined": "{supplierName} a décliné la demande {rfqTitle}.",
+      "relay_refused": "Votre mail depuis {senderAddress} pour la demande {rfqTitle} n'a pas été transmis à {supplierName} : cette adresse n'est pas reconnue pour votre agence. Écrivez depuis la demande."
     },
     "quote": {
       "received": "{supplierName} a remis un devis pour {rfqTitle}.",
@@ -32,6 +33,22 @@
     "message": {
       "warned": "Un message que vous avez écrit a fait l'objet d'un avertissement de la part de la plateforme. Merci de respecter les règles d'usage de la messagerie."
     },
-    "announcement": "{title} — {body}"
+    "announcement": "{title} — {body}",
+    "subscription": {
+      "duplicate_cancelled": "{organizationName} a payé deux abonnements en parallèle : le doublon {cancelledSubscriptionId} a été résilié chez Stripe. Remboursez son paiement depuis le tableau de bord Stripe."
+    }
+  },
+  "late": {
+    "rfq": {
+      "responded": "Réponse tardive : {supplierName} a répondu à la demande {rfqTitle} après l'échéance."
+    }
+  },
+  "anonymous": {
+    "rfq": {
+      "received": "Une agence vous a envoyé une demande de devis : {rfqTitle}."
+    },
+    "quote": {
+      "rejected": "Une agence a rejeté votre devis pour {rfqTitle}."
+    }
   }
 }

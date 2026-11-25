@@ -2,6 +2,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "organizations": "Organizations",
+    "supplierLinks": "Supplier linking",
     "users": "Users",
     "products": "Products",
     "categories": "Categories",
@@ -24,8 +25,10 @@
     "queue": "Queue",
     "search": "Search",
     "mail": "Emails",
+    "inboundMail": "Inbound emails",
     "storage": "Storage",
-    "health": "Health"
+    "health": "Health",
+    "ads": "Sponsored products"
   },
   "pagination": {
     "previous": "Previous",
@@ -40,7 +43,8 @@
       "products": "Products",
       "rfqs": "Requests for quotation",
       "pendingModeration": "To moderate",
-      "pendingAgencyReviews": "Agencies to review"
+      "pendingAgencyReviews": "Agencies to review",
+      "pendingSupplierLinks": "Listings to link"
     },
     "archived": "{count, plural, =0 {None archived} one {# archived} other {# archived}}",
     "kpi": {
@@ -115,7 +119,9 @@
       "search": "Search",
       "searchPlaceholder": "Name, slug, SIRET or VAT",
       "country": "Country",
-      "allCountries": "All countries"
+      "allCountries": "All countries",
+      "missingQuoteAddress": "No quote request address",
+      "missingQuoteAddressHint": "Suppliers whose requests go to the account managers, for lack of a quote request or contact address."
     },
     "types": {
       "buyer": "Buyer",
@@ -194,6 +200,9 @@
         "no": "No",
         "supplier": {
           "title": "Supplier profile",
+          "quoteEmail": "Quote request address",
+          "quoteEmailStatus": "Quote request address confirmation",
+          "quoteEmailPending": "Awaiting confirmation",
           "companyType": "Company type",
           "commercialStatus": "Commercial status",
           "minOrderQuantity": "Minimum order quantity",
@@ -271,6 +280,86 @@
         "revoked": "Invitation revoked.",
         "resent": "Invitation resent."
       }
+    },
+    "subscription": {
+      "title": "Subscription",
+      "empty": "No subscription: free plan.",
+      "create": "Create subscription",
+      "extend": "Change end date",
+      "cancel": "Cancel",
+      "cancelConfirm": "Cancel this subscription now? The organization goes back to the free plan.",
+      "periodUntil": "to",
+      "fields": {
+        "plan": "Plan",
+        "status": "Status",
+        "period": "Period",
+        "origin": "Origin",
+        "author": "Entered by",
+        "startsOn": "First day",
+        "endsOn": "Last day"
+      },
+      "origins": {
+        "manual": "Manual",
+        "stripe": "Online"
+      },
+      "done": {
+        "created": "Subscription saved.",
+        "extended": "End date changed.",
+        "cancelled": "Subscription cancelled."
+      },
+      "errors": {
+        "alreadyOpen": "A subscription is already current or scheduled: extend or cancel it.",
+        "invalidPeriod": "Invalid dates: the last day must follow the first one and not be in the past.",
+        "notEditable": "This subscription can no longer be changed here.",
+        "notSupplier": "Only a supplier organization can subscribe."
+      }
+    },
+    "quoteAddress": {
+      "missing": "No quote request address"
+    }
+  },
+  "supplierLinks": {
+    "title": "Supplier listing linking",
+    "subtitle": "Imported listings awaiting the supplier's consent. Linking them to its organization records that consent and publishes their catalogue.",
+    "unpublishedNotice": "These listings and their products are not published: not in the catalogue, search or public pages. Linking them to the supplier's organization publishes them; unlinking removes them.",
+    "resultsCount": "{count, plural, =0 {No listing} one {# listing} other {# listings}}",
+    "empty": {
+      "pending": "No listing awaiting consent.",
+      "linked": "No linked listing."
+    },
+    "emptyDescription": "Change the filter or come back after the next import.",
+    "filters": {
+      "status": "Show",
+      "pending": "Awaiting consent",
+      "linked": "Linked"
+    },
+    "columns": {
+      "supplier": "Supplier listing",
+      "products": "Products",
+      "suggestion": "Suggestion",
+      "organization": "Organization",
+      "linkedTo": "Organization",
+      "agreement": "Consent",
+      "actions": "Actions"
+    },
+    "match": {
+      "email": "{name} (same email)",
+      "domain": "{name} (same domain)"
+    },
+    "noSuggestion": "No match",
+    "chooseOrganization": "Choose an organization",
+    "organizationLabel": "Organization to link to {name}",
+    "link": "Link",
+    "unlink": "Unlink",
+    "confirmUnlink": "Unlink {name}? Its products will be removed from the site.",
+    "by": "by {email}",
+    "noAgreementDate": "Linked earlier",
+    "linked": "Listing linked: its catalogue is published.",
+    "unlinked": "Listing unlinked: its products are removed from the site.",
+    "errors": {
+      "alreadyLinked": "This listing is already linked to an organization. Unlink it first.",
+      "invalidOrganization": "Choose an active supplier organization.",
+      "notLinked": "This listing is not linked to any organization."
     }
   },
   "users": {
@@ -455,6 +544,8 @@
       "organization.member_removed": "Member removed",
       "organization.invitation_revoked": "Invitation revoked",
       "organization.invitation_resent": "Invitation resent",
+      "supplier.linked": "Supplier listing linked",
+      "supplier.unlinked": "Supplier listing unlinked",
       "product.hidden": "Product hidden",
       "product.unhidden": "Product unhidden",
       "product.unpublished": "Product unpublished",
@@ -483,7 +574,16 @@
       "search.evaluation_requested": "Search evaluation requested",
       "mail.retried": "Email retried",
       "mail.bulk_retried": "Failed emails retried",
-      "storage.recovery_requested": "Storage recovery requested"
+      "inbound_mail.attached": "Inbound email attached to a request",
+      "inbound_mail.replayed": "Inbound email processing replayed",
+      "inbound_mail.dismissed": "Inbound email dismissed",
+      "storage.recovery_requested": "Storage recovery requested",
+      "ad_campaign.suspended": "Sponsored campaign suspended",
+      "ad_campaign.restored": "Campaign suspension lifted",
+      "ad_wallet.adjusted": "Ad wallet adjusted",
+      "subscription.created": "Subscription created",
+      "subscription.extended": "Subscription end changed",
+      "subscription.cancelled": "Subscription cancelled"
     },
     "targets": {
       "user": "User",
@@ -494,6 +594,7 @@
       "marking_technique": "Marking technique",
       "category_attribute": "Category attribute",
       "organization": "Organization",
+      "supplier": "Supplier listing",
       "product": "Product",
       "rfq": "Quote request",
       "conversation": "Conversation",
@@ -507,7 +608,9 @@
       "queue_schedule": "Scheduled job",
       "search_run": "Search operation",
       "mail_delivery": "Email delivery",
-      "storage": "Storage"
+      "inbound_mail": "Inbound email",
+      "storage": "Storage",
+      "ad_campaign": "Sponsored campaign"
     }
   },
   "demand": {
@@ -1359,6 +1462,7 @@
       "retry": "Retry",
       "cancel": "Cancel",
       "retryConfirm": "Retry the {name} job?",
+      "cancelJob": "Cancel job",
       "cancelConfirm": "Permanently cancel the {name} job? It will be removed from the queue."
     },
     "detail": {
@@ -1569,6 +1673,108 @@
       "bulkPartial": "{count} mail(s) put back in the queue; {failed} could not be queued and remain to be retried."
     }
   },
+  "inboundMail": {
+    "title": "Inbound emails",
+    "subtitle": "Supplier replies received at the relay address: attach, replay or dismiss emails that did not go through.",
+    "resultsCount": "{count, plural, =0 {No email} one {# email} other {# emails}}",
+    "empty": "No email matches.",
+    "emptyDescription": "Emails appear here as soon as the inbound provider announces them.",
+    "back": "Back to inbound emails",
+    "noSubject": "(no subject)",
+    "unattached": "Not attached",
+    "statuses": {
+      "received": "Pending",
+      "processing": "Processing",
+      "processed": "Processed",
+      "rejected": "Dismissed",
+      "failed": "Failed"
+    },
+    "rejections": {
+      "too_large": "Too large",
+      "loop": "Mail loop",
+      "auto_reply": "Automatic reply",
+      "unknown_address": "Unknown address",
+      "expired_address": "Expired address",
+      "unknown_sender": "Sender outside the agency",
+      "dismissed": "Dismissed by an admin"
+    },
+    "filters": {
+      "status": "Status",
+      "rejection": "Rejection reason",
+      "all": "All"
+    },
+    "columns": {
+      "sender": "Sender",
+      "subject": "Subject",
+      "target": "Request / supplier",
+      "status": "Status",
+      "receivedAt": "Received",
+      "actions": "Actions"
+    },
+    "actions": {
+      "attach": "Attach",
+      "replay": "Replay",
+      "dismiss": "Dismiss",
+      "attachConfirm": "Attach this email to this request and process it?",
+      "replayConfirm": "Replay the processing of this email? An already processed email creates no duplicate.",
+      "dismissConfirm": "Dismiss this email? It will no longer be processed."
+    },
+    "attach": {
+      "title": "Attach to a request",
+      "description": "Suppliers from the sender’s domain, or recipients of a request looked up by its number. The email is then processed as a reply to that request.",
+      "rfqLabel": "Request number",
+      "rfqHint": "Empty: suggestions based on the sender.",
+      "search": "Search",
+      "empty": "No request to suggest.",
+      "emptyDescription": "Enter the number of the intended request.",
+      "columns": {
+        "rfq": "Request",
+        "supplier": "Supplier",
+        "sentAt": "Sent"
+      }
+    },
+    "detail": {
+      "summary": "Summary",
+      "recipient": "Target address",
+      "attachedManually": "Attached manually on",
+      "processedAt": "Processed",
+      "senderKnownLabel": "Sender known to the supplier",
+      "senderKnown": {
+        "yes": "Yes",
+        "no": "No"
+      },
+      "provider": "Provider",
+      "messageId": "Message-ID",
+      "error": "Error",
+      "body": "Content (text)",
+      "noBody": "No content kept: a dismissed email is only logged."
+    },
+    "attachments": {
+      "title": "Attachments",
+      "empty": "No attachment logged.",
+      "columns": {
+        "filename": "File",
+        "type": "Type",
+        "size": "Size",
+        "status": "Outcome"
+      },
+      "statuses": {
+        "stored": "Stored",
+        "rejected_type": "Type refused",
+        "rejected_size": "Too large",
+        "ignored_inline": "Inline image"
+      }
+    },
+    "flash": {
+      "processed": "The email is processed and attached to the request.",
+      "republished": "Recording of the reply replayed, without duplicates.",
+      "pending": "The email is being processed.",
+      "rejected": "The email was dismissed again by a safeguard.",
+      "failed": "Processing failed: the email stays failed and will be retried automatically.",
+      "dismissed": "The email is dismissed.",
+      "notAllowed": "This action is not possible in the email’s current state."
+    }
+  },
   "storage": {
     "title": "Storage",
     "subtitle": "Cellar file registry: recovery backlog and volume per organization.",
@@ -1665,6 +1871,37 @@
       "empty": "The monitoring job has not run yet.",
       "stale": "The states below are out of date: monitoring is no longer running (is the worker stopped?).",
       "details": "See details"
+    }
+  },
+  "ads": {
+    "title": "Sponsored products",
+    "subtitle": "Campaigns of all suppliers, suspension and crediting of ad wallets.",
+    "resultsCount": "{count, plural, =0 {No campaigns} one {# campaign} other {# campaigns}}",
+    "empty": "No campaigns",
+    "emptyDescription": "No supplier has sponsored a product yet.",
+    "columns": {
+      "organization": "Organization",
+      "wallet": "Wallet"
+    },
+    "actions": {
+      "suspend": "Suspend",
+      "restore": "Restore"
+    },
+    "adjust": {
+      "title": "Adjust a wallet",
+      "description": "Credit (positive amount) or debit (negative amount) an organization’s ad wallet. Recorded in the audit log.",
+      "organizationId": "Organization no.",
+      "amount": "Amount (€)",
+      "amountHint": "Negative to debit.",
+      "note": "Reason",
+      "submit": "Apply"
+    },
+    "flash": {
+      "suspended": "Campaign suspended",
+      "restored": "Suspension lifted: the campaign is paused",
+      "adjusted": "Wallet adjusted",
+      "insufficientFunds": "The debit exceeds the wallet balance.",
+      "organizationNotFound": "Organization not found."
     }
   }
 }

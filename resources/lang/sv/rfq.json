@@ -15,8 +15,31 @@
       "suppliers": "Mottagare",
       "responses": "Svar",
       "status": "Status",
-      "deadline": "Svarsdatum"
-    }
+      "deadline": "Svarsdatum",
+      "author": "Författare",
+      "quotes": "Offerter"
+    },
+    "progress": {
+      "draft": "Utkast",
+      "published": "Publicerad",
+      "sent": "Skickad",
+      "responded": "Besvarad",
+      "expired": "Utgången",
+      "closed": "Stängd"
+    },
+    "filters": {
+      "label": "Filtrera förfrågningar",
+      "status": "Status",
+      "author": "Författare",
+      "allStatuses": "Alla statusar",
+      "allAuthors": "Alla författare",
+      "reset": "Återställ filter"
+    },
+    "noMatch": "Ingen förfrågan matchar dessa filter.",
+    "noMatchDescription": "Ändra eller återställ filtren för att hitta dina förfrågningar.",
+    "batch": "Varukorg från {date} · {count, plural, one {# förfrågan} other {# förfrågningar}}",
+    "quoteReceived": "Offert mottagen",
+    "unknownAuthor": "Okänd författare"
   },
   "create": {
     "title": "Ny offertförfrågan",
@@ -39,7 +62,9 @@
     "addSuppliers": "Lägg till mottagare",
     "removeSupplier": "Ta bort",
     "sentAt": "Skickad {date}",
-    "viewProduct": "Visa produktsidan"
+    "viewProduct": "Visa produktsidan",
+    "salesContactsTitle": "Säljkontakter",
+    "salesContactsHint": "Förfrågningar skickas till leverantörens allmänna adress; dessa säljare ansvarar för ditt land."
   },
   "status": {
     "draft": "Utkast",
@@ -52,8 +77,10 @@
     "sent": "Skickad",
     "viewed": "Visad",
     "responded": "Har svarat",
-    "declined": "Har avböjt"
+    "declined": "Har avböjt",
+    "expired": "Utgången utan svar"
   },
+  "lateReply": "Sent svar",
   "actions": {
     "publish": "Publicera",
     "send": "Skicka till mottagarna",
@@ -125,7 +152,15 @@
         "deadline": "Svarsdatum",
         "status": "Status"
       },
-      "emptyDescription": "Köpare som kontaktar dig visas här med information om deras behov."
+      "emptyDescription": "Köpare som kontaktar dig visas här med information om deras behov.",
+      "filters": {
+        "label": "Filtrera mottagna förfrågningar",
+        "status": "Status",
+        "allStatuses": "Alla statusar",
+        "reset": "Återställ filtret"
+      },
+      "emptyFiltered": "Ingen förfrågan med denna status.",
+      "emptyFilteredDescription": "Ändra filtret för att se dina andra förfrågningar."
     },
     "show": {
       "backToList": "Tillbaka till mottagna förfrågningar",
@@ -137,7 +172,16 @@
       "expiredNotice": "Den här förfrågan har gått ut: köparen väntar inte längre på något svar.",
       "responseTitle": "Ditt svar",
       "responseOpen": "Prissätt behovet genom att lämna en offert, eller avböj förfrågan om du inte kan gå vidare med den.",
-      "responseQuote": "Du har skrivit en offert för den här förfrågan."
+      "responseQuote": "Du har skrivit en offert för den här förfrågan.",
+      "responseDocument": "Du har skickat en PDF-offert för denna förfrågan. Du kan ladda upp en ny version nedan.",
+      "contact": {
+        "title": "Byråns kontaktuppgifter",
+        "agency": "Byrå",
+        "requester": "Förfrågan från",
+        "email": "E-post",
+        "phone": "Telefon",
+        "address": "Adress"
+      }
     },
     "actions": {
       "decline": "Avböj förfrågan",
@@ -147,13 +191,21 @@
       "sent": "Att hantera",
       "viewed": "Pågår",
       "responded": "Offert skickad",
-      "declined": "Avböjd"
+      "declined": "Avböjd",
+      "expired": "Utgången"
     },
     "flash": {
       "declined": "Förfrågan avböjd."
     },
     "errors": {
       "notDecidable": "Den här förfrågan väntar inte längre på något beslut från dig."
+    },
+    "anonymousBuyer": "Anonym byrå",
+    "state": {
+      "to_process": "Att hantera",
+      "responded": "Besvarad",
+      "expired": "Utgången",
+      "declined": "Avböjd"
     }
   },
   "product": {
@@ -172,5 +224,16 @@
   },
   "form": {
     "general": "Allmän information"
+  },
+  "specs": {
+    "variant": "Variant",
+    "sku": "Artikelnummer",
+    "markingPosition": "Märkningsposition",
+    "markingTechnique": "Märkningsteknik",
+    "markingColors": "Märkningsfärger",
+    "estimatedUnitPrice": "Vägledande styckpris",
+    "estimatedMarkingUnitPrice": "Vägledande märkning / st.",
+    "estimatedSetupCharge": "Vägledande startkostnad",
+    "estimatedTotal": "Vägledande summa"
   }
 }

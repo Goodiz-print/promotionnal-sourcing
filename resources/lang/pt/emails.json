@@ -16,7 +16,12 @@
     "body": "{buyerName} convida-o a orçamentar o pedido «{rfqTitle}» ({itemCount, plural, one {# linha} other {# linhas}}).",
     "deadline": "Resposta esperada até {deadline}.",
     "cta": "Consultar o pedido",
-    "footer": "Inicie sessão na sua área de fornecedor para consultar o pedido ou recusá-lo."
+    "footer": "Inicie sessão na sua área de fornecedor para consultar o pedido ou recusá-lo.",
+    "anonymous": {
+      "subject": "Novo pedido de orçamento: «{rfqTitle}»",
+      "title": "Uma agência consulta-o em {brandName}",
+      "body": "Uma agência convida-o a orçamentar o pedido «{rfqTitle}» ({itemCount, plural, one {# linha} other {# linhas}})."
+    }
   },
   "passwordReset": {
     "subject": "Redefinição da sua palavra-passe",
@@ -46,7 +51,30 @@
     "body": "{buyerName} enviou-lhe o pedido «{rfqTitle}» e ainda não o consultou.",
     "deadline": "Resposta esperada até {deadline}.",
     "cta": "Consultar o pedido",
-    "footer": "Este é o único lembrete para este pedido. Pode também recusá-lo na sua área de fornecedor."
+    "footer": "Este é o único lembrete para este pedido. Pode também recusá-lo na sua área de fornecedor.",
+    "anonymous": {
+      "body": "Uma agência enviou-lhe o pedido «{rfqTitle}» e ainda não o consultou."
+    }
+  },
+  "rfqDetails": {
+    "description": "Descrição do pedido",
+    "linesTitle": "{count, plural, one {# linha a orçamentar} other {# linhas a orçamentar}}",
+    "reference": "Referência",
+    "variant": "Variante",
+    "quantity": "Quantidade",
+    "marking": "Marcação",
+    "markingColors": "{count, plural, one {# cor} other {# cores}}",
+    "noMarking": "Sem marcação",
+    "note": "Nota da agência",
+    "unitPrice": "Preço unitário indicativo",
+    "markingUnitPrice": "Marcação por peça indicativa",
+    "setupCharge": "Custos técnicos indicativos",
+    "total": "Total indicativo",
+    "price": "Preço indicativo",
+    "noPrice": "Sem preço de catálogo: a orçamentar",
+    "indicativeNotice": "Os preços indicados são os preços indicativos apresentados em {brandName}, calculados a partir do seu catálogo. Não são preços acordados: pode propor uma tarifa melhor ou mantê-los.",
+    "replyHint": "Para responder, basta responder a este e-mail anexando o seu orçamento (PDF).",
+    "platformLink": "Também pode consultar o pedido na plataforma:"
   },
   "quoteReceived": {
     "subject": "Novo orçamento de {supplierName} para «{rfqTitle}»",
@@ -78,5 +106,79 @@
   "announcement": {
     "footer": "Recebe esta mensagem porque tem uma conta em {brandName}.",
     "cta": "Abrir {brandName}"
+  },
+  "notificationReminder": {
+    "subject": "Ação necessária: uma notificação importante ainda não foi lida",
+    "title": "Uma notificação importante está à sua espera",
+    "intro": "Esta notificação foi-lhe enviada em {brandName} e ainda não foi lida:",
+    "cta": "Abrir a página correspondente",
+    "footer": "Recebe este lembrete apenas uma vez. Deixa de ser enviado assim que a notificação é lida."
+  },
+  "subscriptionActivated": {
+    "subject": "A sua assinatura {planName} está ativa",
+    "title": "Assinatura {planName} ativada",
+    "intro": "A assinatura {planName} de {organizationName} está ativa em {brandName}.",
+    "period": "Cobre o período de {startsOn} a {endsOn}, inclusive.",
+    "since": "Está ativa desde {startsOn}.",
+    "features": "O seu plano inclui:",
+    "cta": "Ver a minha assinatura",
+    "footer": "Recebe este email como responsável da organização."
+  },
+  "subscriptionExpiring": {
+    "subject": "A sua assinatura {planName} termina a {endsOn}",
+    "title": "A sua assinatura {planName} termina dentro de {daysLeft, plural, one {# dia} other {# dias}}",
+    "intro": "A assinatura {planName} de {organizationName} termina a {endsOn}.",
+    "after": "Sem renovação, a sua organização volta ao plano gratuito: a identidade das agências deixa de ser visível nos pedidos de orçamento e nas estatísticas.",
+    "cta": "Renovar a minha assinatura",
+    "footer": "Recebe este lembrete como responsável da organização."
+  },
+  "quoteEmailVerification": {
+    "subject": "Confirme o endereço de receção dos pedidos de orçamento de {organizationName}",
+    "title": "Confirme este endereço",
+    "body": "{organizationName} escolheu este endereço para receber os seus pedidos de orçamento em {brandName}. Confirme-o para que as agências o possam contactar aqui.",
+    "cta": "Confirmar o endereço",
+    "validity": "Este link é válido durante {days, plural, one {# dia} other {# dias}}.",
+    "ignore": "Se não trabalha para {organizationName}, ignore esta mensagem: não lhe será enviado nenhum pedido."
+  },
+  "subscriptionUpsell": {
+    "title": "Assine para conhecer a agência",
+    "body": "Assine para saber que agência o consulta e contactá-la diretamente. A assinatura está reservada aos proprietários e administradores da sua organização.",
+    "cta": "Ver as assinaturas"
+  },
+  "buyerContact": {
+    "title": "Contactos da agência",
+    "agency": "Agência",
+    "requester": "Pedido feito por",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "address": "Morada"
+  },
+  "supplierReplyReceived": {
+    "subject": "Resposta de {supplierName} a «{rfqTitle}»",
+    "subjectLate": "Resposta tardia de {supplierName} a «{rfqTitle}»",
+    "title": "{supplierName} respondeu ao seu pedido",
+    "body": "{supplierName} respondeu por e-mail ao seu pedido «{rfqTitle}».",
+    "lateNotice": "Resposta tardia: chegou depois do prazo do pedido.",
+    "messageHeading": "A mensagem:",
+    "documentsHeading": "Orçamentos anexados:",
+    "downloadHint": "Estas ligações exigem que tenha sessão iniciada na sua conta.",
+    "cta": "Abrir o pedido",
+    "footer": "Recebe esta mensagem porque gere este pedido de orçamento.",
+    "replyHint": "Basta responder a este e-mail: a sua resposta será reencaminhada ao fornecedor."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Mensagem de {agencyName} sobre «{rfqTitle}»",
+      "anonymous": "Mensagem da agência sobre «{rfqTitle}»"
+    },
+    "title": {
+      "named": "{agencyName} escreveu-lhe",
+      "anonymous": "A agência escreveu-lhe"
+    },
+    "body": "Nova mensagem sobre o pedido «{rfqTitle}»:",
+    "attachmentsHeading": "Anexos, disponíveis na aplicação:",
+    "replyHint": "Basta responder a este e-mail: a sua resposta será reencaminhada à agência.",
+    "cta": "Abrir o pedido",
+    "footer": "Recebe esta mensagem porque a sua empresa recebeu este pedido de orçamento."
   }
 }

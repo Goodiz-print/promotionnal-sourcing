@@ -32,6 +32,7 @@ const form = useForm<AgencySignupFormState>({
   taxId: '',
   website: '',
   phone: '',
+  contactEmail: '',
   activity: '',
   activityOther: '',
   locale: locale.value as Locale,
@@ -51,6 +52,7 @@ function submit() {
       civility: data.civility || null,
       website: data.website.trim() || null,
       phone: data.phone.trim() || null,
+      contactEmail: data.contactEmail.trim() || null,
       activityOther: data.activity === 'other' ? data.activityOther.trim() || null : null,
       locale: data.locale || defaultLocaleForCountry(data.country),
     }))

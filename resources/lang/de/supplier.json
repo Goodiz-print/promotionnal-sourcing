@@ -8,7 +8,9 @@
       "terms": "Geschäftsbedingungen",
       "termsHint": "Mindestbestellwert, Lieferzeiten und Liefergebiet, die den Käufern angezeigt werden.",
       "certificationsHint": "Normen und Siegel, die Sie besitzen (ISO, FSC, OEKO-TEX …).",
-      "presentation": "Unternehmensvorstellung"
+      "presentation": "Unternehmensvorstellung",
+      "quoteReception": "Empfang von Angebotsanfragen",
+      "quoteReceptionHint": "Agenturen senden Ihnen ihre Anfragen per E-Mail: Geben Sie die Adresse an, die sie empfangen soll."
     },
     "moderation": {
       "pending": "Profil wird geprüft",
@@ -18,6 +20,16 @@
       "rejected": "Profil abgelehnt",
       "rejectedHint": "Ihre Organisation wurde abgelehnt: Ihr Katalog ist für Käufer nicht mehr sichtbar.",
       "reason": "Begründung: {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Adresse wartet auf Bestätigung",
+      "pendingHint": "Ein Bestätigungslink wurde an {email} gesendet. Bis er angeklickt wird, gehen Angebotsanfragen an die Kontaktadresse der Organisation, ersatzweise an die Verantwortlichen des Kontos.",
+      "resend": "Link erneut senden",
+      "resent": "Der Bestätigungslink wurde erneut gesendet.",
+      "verified": "Angebotsanfragen werden an {email} gesendet.",
+      "willSend": "Beim Speichern wird ein Bestätigungslink an diese Adresse gesendet.",
+      "invalidLink": "Dieser Bestätigungslink ist nicht mehr gültig. Fordern Sie im Lieferantenprofil einen neuen an.",
+      "verifiedFlash": "Empfangsadresse bestätigt: Sie erhält ab jetzt die Angebotsanfragen."
     }
   },
   "fields": {
@@ -31,7 +43,9 @@
     "certificationRemove": "Entfernen",
     "bio": "Vorstellung",
     "defaultOriginScope": "Standardherkunft",
-    "certificationsEmpty": "Keine Zertifizierung angegeben."
+    "certificationsEmpty": "Keine Zertifizierung angegeben.",
+    "quoteEmail": "Empfangsadresse für Anfragen",
+    "quoteEmailHint": "Bleibt das Feld leer, geht die Anfrage an die Kontaktadresse der Organisation, ersatzweise an die Verantwortlichen des Kontos."
   },
   "deliveryScope": {
     "none": "Nicht angegeben",
@@ -45,5 +59,90 @@
     "europe": "Europa",
     "outside_europe": "Außerhalb Europas",
     "per_product": "Je nach Produkt"
+  },
+  "contacts": {
+    "title": "Vertriebsteam",
+    "subtitle": "Die Vertriebsmitarbeiter, die Agenturen je nach Land direkt kontaktieren können.",
+    "add": "Kontakt hinzufügen",
+    "newTitle": "Neuer Kontakt",
+    "teamTitle": "Kontakte",
+    "teamHint": "Jede Agentur sieht die Kontakte für ihr Land; gibt es keinen, sieht sie das ganze Team.",
+    "empty": "Keine Vertriebskontakte",
+    "emptyHint": "Fügen Sie die Vertriebsmitarbeiter hinzu, die Agenturen erreichen können.",
+    "settingsTitle": "Anzeige",
+    "showAll": "Das ganze Team allen Agenturen zeigen",
+    "showAllHint": "Agenturen sehen alle Ihre Kontakte, unabhängig von ihrem Land.",
+    "allCountries": "Alle Länder",
+    "remove": "{label} entfernen",
+    "linkedMember": "Kontomitglied: {name}",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "confirmDelete": "Kontakt {name} löschen?",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "upsell": {
+      "title": "Kontakte nur für abonnierte Lieferanten",
+      "body": "Sie können Ihr Team schon jetzt vorbereiten: Es wird den Agenturen ab Ihrem Abonnement angezeigt.",
+      "cta": "Abonnements ansehen"
+    },
+    "fields": {
+      "name": "Name",
+      "jobTitle": "Funktion",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "countries": "Betreute Länder",
+      "countriesHint": "Kein Land gewählt: Der Kontakt betreut alle Länder.",
+      "addCountry": "Land hinzufügen…",
+      "languages": "Gesprochene Sprachen",
+      "addLanguage": "Sprache hinzufügen…",
+      "member": "Kontomitglied",
+      "memberHint": "Optional: Verknüpfen Sie den Kontakt mit einem Benutzer des Kontos.",
+      "noMember": "Keines (nur Kontakt)"
+    },
+    "flash": {
+      "created": "Kontakt hinzugefügt.",
+      "updated": "Kontakt aktualisiert.",
+      "deleted": "Kontakt gelöscht.",
+      "settingsUpdated": "Einstellung gespeichert."
+    }
+  },
+  "insights": {
+    "title": "Aufrufe",
+    "subtitle": "Wie oft Agenturen Ihre Produkte und Ihre Lieferantenseite aufgerufen haben.",
+    "period": "Zeitraum",
+    "periodOption": "Letzte {days} Tage",
+    "summary": {
+      "productViews": "Produktaufrufe",
+      "viewedProducts": "Aufgerufene Produkte",
+      "supplierViews": "Aufrufe der Lieferantenseite",
+      "rfqAdditions": "Zu einer Angebotsanfrage hinzugefügt"
+    },
+    "products": {
+      "title": "Aufrufe nach Produkt",
+      "columns": {
+        "product": "Produkt",
+        "views": "Aufrufe",
+        "rfqAdditions": "Zu einer Anfrage hinzugefügt"
+      },
+      "emptyTitle": "Keine Produkte",
+      "emptyBody": "Fügen Sie Ihrem Katalog Produkte hinzu, um ihre Aufrufe zu verfolgen.",
+      "previous": "Zurück",
+      "next": "Weiter"
+    },
+    "agencies": {
+      "title": "Agenturen, die Sie aufgerufen haben",
+      "hint": "Aufrufe der letzten 90 Tage: ältere Aufrufe werden weiter gezählt, nennen die Agentur aber nicht mehr.",
+      "columns": {
+        "agency": "Agentur",
+        "views": "Aufrufe",
+        "products": "Aufgerufene Produkte",
+        "lastViewedAt": "Letzter Aufruf"
+      },
+      "emptyTitle": "Keine Agentur in diesem Zeitraum",
+      "emptyBody": "Agenturen, die Ihre Produkte oder Ihre Seite aufrufen, erscheinen hier.",
+      "limited": "Nur die {count} zuletzt aktiven Agenturen werden angezeigt."
+    }
   }
 }

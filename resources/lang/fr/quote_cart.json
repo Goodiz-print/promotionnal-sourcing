@@ -1,0 +1,78 @@
+{
+  "title": "Panier de devis",
+  "subtitle": "Rassemblez les produits à chiffrer, puis envoyez en une fois une demande à chaque fournisseur.",
+  "nav": {
+    "label": "Panier de devis",
+    "count": "{count, plural, =0 {Panier de devis vide} one {# produit dans le panier de devis} other {# produits dans le panier de devis}}"
+  },
+  "empty": {
+    "title": "Votre panier de devis est vide",
+    "description": "Ajoutez des produits depuis le catalogue pour interroger plusieurs fournisseurs en une seule fois.",
+    "browse": "Parcourir le catalogue"
+  },
+  "group": {
+    "items": "{count, plural, one {# produit} other {# produits}} · une demande dédiée"
+  },
+  "line": {
+    "quantity": "Quantité",
+    "note": "Précisions",
+    "remove": "Retirer {name} du panier",
+    "belowMinimum": "Minimum de commande : {count} pièces",
+    "variant": "Variante",
+    "variantAny": "À préciser",
+    "marking": "Marquage",
+    "markingNone": "Sans marquage",
+    "markingColors": "Couleurs",
+    "markingColorsMax": "{count, plural, one {# couleur max.} other {# couleurs max.}}"
+  },
+  "checkout": {
+    "title": "Envoyer les demandes",
+    "titleDraft": "Créer les demandes",
+    "description": "Un en-tête commun à toutes les demandes : chaque fournisseur ne reçoit que ses produits.",
+    "fieldTitle": "Objet de la demande",
+    "fieldTitleHint": "Le nom du fournisseur est ajouté à chaque demande.",
+    "fieldDescription": "Contexte (événement, délais, contraintes…)",
+    "fieldDeadline": "Réponse souhaitée avant le",
+    "summary": "{count, plural, one {Une demande sera envoyée à : {suppliers}} other {# demandes seront envoyées à : {suppliers}}}",
+    "summaryDraft": "{count, plural, one {Un brouillon sera créé pour : {suppliers}} other {# brouillons seront créés pour : {suppliers}}}",
+    "draftNotice": "Votre rôle permet de préparer les demandes : elles seront créées en brouillon, et un responsable pourra les envoyer.",
+    "submit": "{count, plural, one {Envoyer la demande} other {Envoyer les # demandes}}",
+    "submitDraft": "{count, plural, one {Créer le brouillon} other {Créer les # brouillons}}"
+  },
+  "flash": {
+    "added": "Produit ajouté au panier de devis.",
+    "alreadyInCart": "Ce produit est déjà dans votre panier de devis.",
+    "removed": "Produit retiré du panier de devis.",
+    "sent": "{count, plural, one {# demande envoyée} other {# demandes envoyées}}.",
+    "drafted": "{count, plural, one {# brouillon créé} other {# brouillons créés}}. Un responsable pourra les envoyer."
+  },
+  "errors": {
+    "empty": "Aucun produit de votre panier ne peut être demandé.",
+    "supplierUnavailable": "Un fournisseur n'est plus joignable. Rechargez le panier et réessayez.",
+    "invalidOption": "Cette option n'est pas disponible pour ce produit.",
+    "duplicateLine": "Cette variante est déjà dans votre panier de devis."
+  },
+  "product": {
+    "add": "Ajouter au panier de devis",
+    "inCart": "Dans votre panier de devis",
+    "viewCart": "Voir le panier",
+    "detailedRequest": "Demande détaillée",
+    "quantity": "Quantité"
+  },
+  "card": {
+    "add": "Ajouter {name} au panier de devis"
+  },
+  "estimate": {
+    "onRequest": "Prix sur devis",
+    "unitPrice": "Prix unitaire",
+    "markingUnitPrice": "Marquage / pièce",
+    "setupCharge": "Frais techniques",
+    "total": "Total estimé",
+    "totalPartial": "Total estimé (hors marquage)",
+    "belowFirstTier": "Quantité sous le premier palier de prix.",
+    "nextTier": "Dès {count} pièces : {price} / pièce",
+    "subtotal": "Sous-total estimé : {amount}",
+    "subtotalPartial": "Sous-total estimé (incomplet) : {amount}",
+    "disclaimer": "Estimation indicative d'après les grilles du fournisseur, hors frais de port. Le devis fait foi."
+  }
+}

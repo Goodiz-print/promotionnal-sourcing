@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, confirmPart, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { AdminUserListItem } from '#shared/types/admin'
 import type { AdminUserDetail, AdminUserIndexFilters } from '#shared/types/admin_user'
 
@@ -339,17 +340,20 @@ describe('admin/users/show', () => {
   })
 
   it('confirm refusé : aucune requête', async () => {
-    window.confirm = vi.fn(() => false)
+    const host = await mountConfirmHost()
     const wrapper = mountShow(detail())
 
-    for (const button of wrapper.findAll('button')) await button.trigger('click')
+    for (const button of wrapper.findAll('button')) {
+      await button.trigger('click')
+      await answerConfirm(host, 'cancel')
+    }
 
     expect(post).not.toHaveBeenCalled()
     expect(del).not.toHaveBeenCalled()
   })
 
   it('suspendre envoie le motif saisi', async () => {
-    window.confirm = vi.fn(() => true)
+    const host = await mountConfirmHost()
     const wrapper = mountShow(detail())
 
     await wrapper.find('#suspend-reason').setValue('  Fraude  ')
@@ -357,6 +361,9 @@ describe('admin/users/show', () => {
       .findAll('button')
       .find((b) => b.text() === 'Suspendre')!
       .trigger('click')
+    expect(confirmText(host)).toBe('Suspendre ?')
+    expect(confirmText(host, 'confirm')).toBe('Suspendre')
+    await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith(
       '/fr/admin.users.suspend/7',
@@ -366,13 +373,16 @@ describe('admin/users/show', () => {
   })
 
   it('supprimer confirmé envoie un DELETE', async () => {
-    window.confirm = vi.fn(() => true)
+    const host = await mountConfirmHost()
     const wrapper = mountShow(detail())
 
     await wrapper
       .findAll('button')
       .find((b) => b.text() === 'Supprimer le compte')!
       .trigger('click')
+    expect(confirmText(host)).toBe('Supprimer ?')
+    expect(confirmPart(host, 'confirm').classes()).toContain('text-danger')
+    await answerConfirm(host, 'confirm')
 
     expect(del).toHaveBeenCalledWith(
       '/fr/admin.users.destroy/7',

@@ -9,14 +9,23 @@ import type { PlatformPermission } from '#shared/types/user'
 
 /**
  * Onglets du back-office (`BaseTabs`) : tableau de bord, organisations,
- * utilisateurs, produits, catégories, attributs, certifications, techniques de marquage, modération, agences, demandes de devis, devis, commandes, demande des clients, consentements légaux, annonces, imports, IA et traductions, supervision de la queue, état de la recherche, emails, stockage, santé de la plateforme, journal d'audit. Seules les sections dont le rôle
+ * rattachement des fiches fournisseur, utilisateurs, produits, catégories, attributs, certifications, techniques de marquage, modération, agences, demandes de devis, devis, commandes, demande des clients, produits sponsorisés, consentements légaux, annonces, imports, IA et traductions, supervision de la queue, état de la recherche, emails, mails entrants, stockage, santé de la plateforme, journal d'audit. Seules les sections dont le rôle
  * plateforme porte le droit sont affichées. L'onglet courant est déduit de
  * l'URL de la page (`isActivePath`) ; `/admin` étant le parent de toutes les
  * autres sections, il n'est actif que si aucun onglet plus précis ne l'est.
  */
-const SECTIONS: { key: string; route: string; permission: PlatformPermission }[] = [
+export const ADMIN_SECTIONS: readonly {
+  key: string
+  route: string
+  permission: PlatformPermission
+}[] = [
   { key: 'dashboard', route: 'admin.dashboard', permission: 'backoffice.access' },
   { key: 'organizations', route: 'admin.organizations.index', permission: 'organizations.view' },
+  {
+    key: 'supplierLinks',
+    route: 'admin.supplier_links.index',
+    permission: 'organizations.manage',
+  },
   { key: 'users', route: 'admin.users.index', permission: 'users.view' },
   { key: 'products', route: 'admin.products.index', permission: 'products.view' },
   { key: 'categories', route: 'admin.categories.index', permission: 'catalogue.manage' },
@@ -34,12 +43,14 @@ const SECTIONS: { key: string; route: string; permission: PlatformPermission }[]
   { key: 'quotes', route: 'admin.quotes.index', permission: 'trade.view' },
   { key: 'orders', route: 'admin.orders.index', permission: 'trade.view' },
   { key: 'demand', route: 'admin.demand.index', permission: 'monitoring.view' },
+  { key: 'ads', route: 'admin.ads.index', permission: 'ads.manage' },
   { key: 'announcements', route: 'admin.announcements.index', permission: 'announcements.manage' },
   { key: 'ai', route: 'admin.ai.index', permission: 'ai.manage' },
   { key: 'imports', route: 'admin.imports.index', permission: 'imports.manage' },
   { key: 'queue', route: 'admin.queue.index', permission: 'queue.manage' },
   { key: 'search', route: 'admin.search.index', permission: 'search.manage' },
   { key: 'mail', route: 'admin.mail.index', permission: 'ops.manage' },
+  { key: 'inboundMail', route: 'admin.inbound_mail.index', permission: 'ops.manage' },
   { key: 'storage', route: 'admin.storage.index', permission: 'ops.manage' },
   { key: 'health', route: 'admin.health.index', permission: 'ops.manage' },
   { key: 'consents', route: 'admin.consents.index', permission: 'audit.view' },
@@ -53,7 +64,7 @@ export function useAdminTabs() {
 
   const items = computed(() => {
     const currentUrl = page.url ?? ''
-    const tabs = SECTIONS.filter((section) => can(section.permission)).map((section) => {
+    const tabs = ADMIN_SECTIONS.filter((section) => can(section.permission)).map((section) => {
       const href = urlFor(section.route as 'admin.dashboard', { locale: locale.value })
       return {
         key: section.key,

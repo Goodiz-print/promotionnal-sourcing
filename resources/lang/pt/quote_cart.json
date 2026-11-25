@@ -1,0 +1,78 @@
+{
+  "title": "Carrinho de orçamentos",
+  "subtitle": "Reúna os produtos a orçamentar e envie de uma só vez um pedido a cada fornecedor.",
+  "nav": {
+    "label": "Carrinho de orçamentos",
+    "count": "{count, plural, =0 {Carrinho de orçamentos vazio} one {# produto no carrinho de orçamentos} other {# produtos no carrinho de orçamentos}}"
+  },
+  "empty": {
+    "title": "O seu carrinho de orçamentos está vazio",
+    "description": "Adicione produtos do catálogo para consultar vários fornecedores de uma só vez.",
+    "browse": "Explorar o catálogo"
+  },
+  "group": {
+    "items": "{count, plural, one {# produto} other {# produtos}} · um pedido dedicado"
+  },
+  "line": {
+    "quantity": "Quantidade",
+    "note": "Detalhes",
+    "remove": "Remover {name} do carrinho",
+    "belowMinimum": "Encomenda mínima: {count} unidades",
+    "variant": "Variante",
+    "variantAny": "A definir",
+    "marking": "Personalização",
+    "markingNone": "Sem personalização",
+    "markingColors": "Cores",
+    "markingColorsMax": "{count, plural, one {máx. # cor} other {máx. # cores}}"
+  },
+  "checkout": {
+    "title": "Enviar os pedidos",
+    "titleDraft": "Criar os pedidos",
+    "description": "Um cabeçalho comum a todos os pedidos: cada fornecedor recebe apenas os seus produtos.",
+    "fieldTitle": "Assunto do pedido",
+    "fieldTitleHint": "O nome do fornecedor é acrescentado a cada pedido.",
+    "fieldDescription": "Contexto (evento, prazos, requisitos…)",
+    "fieldDeadline": "Resposta pretendida até",
+    "summary": "{count, plural, one {Um pedido será enviado a: {suppliers}} other {# pedidos serão enviados a: {suppliers}}}",
+    "summaryDraft": "{count, plural, one {Será criado um rascunho para: {suppliers}} other {Serão criados # rascunhos para: {suppliers}}}",
+    "draftNotice": "A sua função permite preparar pedidos: serão criados como rascunhos e um responsável poderá enviá-los.",
+    "submit": "{count, plural, one {Enviar o pedido} other {Enviar os # pedidos}}",
+    "submitDraft": "{count, plural, one {Criar o rascunho} other {Criar os # rascunhos}}"
+  },
+  "flash": {
+    "added": "Produto adicionado ao carrinho de orçamentos.",
+    "alreadyInCart": "Este produto já está no seu carrinho de orçamentos.",
+    "removed": "Produto removido do carrinho de orçamentos.",
+    "sent": "{count, plural, one {# pedido enviado} other {# pedidos enviados}}.",
+    "drafted": "{count, plural, one {# rascunho criado} other {# rascunhos criados}}. Um responsável poderá enviá-los."
+  },
+  "errors": {
+    "empty": "Nenhum produto do seu carrinho pode ser pedido.",
+    "supplierUnavailable": "Um fornecedor deixou de estar disponível. Recarregue o carrinho e tente novamente.",
+    "invalidOption": "Esta opção não está disponível para este produto.",
+    "duplicateLine": "Esta variante já está no seu carrinho de orçamentos."
+  },
+  "product": {
+    "add": "Adicionar ao carrinho de orçamentos",
+    "inCart": "No seu carrinho de orçamentos",
+    "viewCart": "Ver o carrinho",
+    "detailedRequest": "Pedido detalhado",
+    "quantity": "Quantidade"
+  },
+  "card": {
+    "add": "Adicionar {name} ao carrinho de orçamentos"
+  },
+  "estimate": {
+    "onRequest": "Preço sob orçamento",
+    "unitPrice": "Preço unitário",
+    "markingUnitPrice": "Personalização / unidade",
+    "setupCharge": "Custos técnicos",
+    "total": "Total estimado",
+    "totalPartial": "Total estimado (sem personalização)",
+    "belowFirstTier": "Quantidade abaixo do primeiro escalão de preço.",
+    "nextTier": "A partir de {count} unidades: {price} / unidade",
+    "subtotal": "Subtotal estimado: {amount}",
+    "subtotalPartial": "Subtotal estimado (incompleto): {amount}",
+    "disclaimer": "Estimativa indicativa com base nas tabelas do fornecedor, sem portes. Prevalece o orçamento."
+  }
+}

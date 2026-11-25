@@ -8,7 +8,9 @@
       "terms": "Kommersiella villkor",
       "termsHint": "Minsta order, ledtider och leveransområde som visas för köpare.",
       "certificationsHint": "Standarder och märkningar som du innehar (ISO, FSC, OEKO-TEX…).",
-      "presentation": "Presentation av företaget"
+      "presentation": "Presentation av företaget",
+      "quoteReception": "Mottagning av offertförfrågningar",
+      "quoteReceptionHint": "Byråer skickar sina förfrågningar via e-post: ange adressen som ska ta emot dem."
     },
     "moderation": {
       "pending": "Profilen granskas",
@@ -18,6 +20,16 @@
       "rejected": "Profilen avvisades",
       "rejectedHint": "Din organisation avvisades: din katalog är inte längre synlig för köpare.",
       "reason": "Anledning: {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Adressen väntar på bekräftelse",
+      "pendingHint": "En bekräftelselänk har skickats till {email}. Tills den har klickats går offertförfrågningar till organisationens kontaktadress, annars till kontots ansvariga.",
+      "resend": "Skicka länken igen",
+      "resent": "Bekräftelselänken har skickats igen.",
+      "verified": "Offertförfrågningar skickas till {email}.",
+      "willSend": "När ni sparar skickas en bekräftelselänk till den här adressen.",
+      "invalidLink": "Den här bekräftelselänken är inte längre giltig. Begär en ny från leverantörsprofilen.",
+      "verifiedFlash": "Mottagaradressen är bekräftad: den tar nu emot offertförfrågningar."
     }
   },
   "fields": {
@@ -31,7 +43,9 @@
     "certificationRemove": "Ta bort",
     "bio": "Presentation",
     "defaultOriginScope": "Standardursprung",
-    "certificationsEmpty": "Ingen certifiering angiven."
+    "certificationsEmpty": "Ingen certifiering angiven.",
+    "quoteEmail": "Mottagaradress för förfrågningar",
+    "quoteEmailHint": "Lämnas fältet tomt går förfrågan till organisationens kontaktadress, annars till kontots ansvariga."
   },
   "deliveryScope": {
     "none": "Ej angivet",
@@ -45,5 +59,90 @@
     "europe": "Europa",
     "outside_europe": "Utanför Europa",
     "per_product": "Per produkt"
+  },
+  "contacts": {
+    "title": "Säljteam",
+    "subtitle": "Säljarna som byråer kan kontakta direkt, beroende på land.",
+    "add": "Lägg till kontakt",
+    "newTitle": "Ny kontakt",
+    "teamTitle": "Kontakter",
+    "teamHint": "Varje byrå ser kontakterna för sitt land; finns ingen ser den hela teamet.",
+    "empty": "Inga säljkontakter",
+    "emptyHint": "Lägg till säljarna som byråer kan nå.",
+    "settingsTitle": "Visning",
+    "showAll": "Visa hela teamet för alla byråer",
+    "showAllHint": "Byråer ser alla dina kontakter, oavsett land.",
+    "allCountries": "Alla länder",
+    "remove": "Ta bort {label}",
+    "linkedMember": "Kontomedlem: {name}",
+    "moveUp": "Flytta upp",
+    "moveDown": "Flytta ner",
+    "edit": "Redigera",
+    "delete": "Ta bort",
+    "confirmDelete": "Ta bort kontakten {name}?",
+    "cancel": "Avbryt",
+    "save": "Spara",
+    "upsell": {
+      "title": "Kontakter endast för leverantörer med abonnemang",
+      "body": "Du kan förbereda ditt team redan nu: det visas för byråer så snart du tecknar abonnemang.",
+      "cta": "Se abonnemang"
+    },
+    "fields": {
+      "name": "Namn",
+      "jobTitle": "Befattning",
+      "email": "E-post",
+      "phone": "Telefon",
+      "countries": "Länder",
+      "countriesHint": "Inget land valt: kontakten täcker alla länder.",
+      "addCountry": "Lägg till land…",
+      "languages": "Språk",
+      "addLanguage": "Lägg till språk…",
+      "member": "Kontomedlem",
+      "memberHint": "Valfritt: koppla kontakten till en användare som loggar in på kontot.",
+      "noMember": "Ingen (endast kontakt)"
+    },
+    "flash": {
+      "created": "Kontakt tillagd.",
+      "updated": "Kontakt uppdaterad.",
+      "deleted": "Kontakt borttagen.",
+      "settingsUpdated": "Inställning sparad."
+    }
+  },
+  "insights": {
+    "title": "Visningar",
+    "subtitle": "Hur ofta byråer har visat dina produkter och din leverantörssida.",
+    "period": "Period",
+    "periodOption": "Senaste {days} dagarna",
+    "summary": {
+      "productViews": "Produktvisningar",
+      "viewedProducts": "Visade produkter",
+      "supplierViews": "Visningar av leverantörssidan",
+      "rfqAdditions": "Tillagda i en offertförfrågan"
+    },
+    "products": {
+      "title": "Visningar per produkt",
+      "columns": {
+        "product": "Produkt",
+        "views": "Visningar",
+        "rfqAdditions": "Tillagda i en förfrågan"
+      },
+      "emptyTitle": "Inga produkter",
+      "emptyBody": "Lägg till produkter i din katalog för att följa deras visningar.",
+      "previous": "Föregående",
+      "next": "Nästa"
+    },
+    "agencies": {
+      "title": "Byråer som har visat dig",
+      "hint": "Visningar från de senaste 90 dagarna: äldre räknas fortfarande men anger inte längre byrån.",
+      "columns": {
+        "agency": "Byrå",
+        "views": "Visningar",
+        "products": "Visade produkter",
+        "lastViewedAt": "Senaste visning"
+      },
+      "emptyTitle": "Ingen byrå under perioden",
+      "emptyBody": "Byråer som visar dina produkter eller din sida visas här.",
+      "limited": "Endast de {count} senaste byråerna visas."
+    }
   }
 }

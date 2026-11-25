@@ -49,23 +49,25 @@ provide(OrganizationSettingsFormKey, form)
 function submit() {
   form
     .transform((data) => {
+      // Coordonnées toujours envoyées : un champ vidé arrive en `null` (bodyparser)
+      // et efface la valeur — l'agence peut retirer son email de contact (#221).
       const payload: Record<string, unknown> = {
         name: data.name,
         country: data.country,
         removeLogo: data.removeLogo,
+        email: data.email,
+        phone: data.phone,
+        addressLine1: data.addressLine1,
+        addressLine2: data.addressLine2,
+        city: data.city,
+        postalCode: data.postalCode,
       }
       if (data.siret) payload.siret = data.siret
       if (data.vatNumber) payload.vatNumber = data.vatNumber
-      if (data.email) payload.email = data.email
-      if (data.phone) payload.phone = data.phone
       if (data.website) payload.website = data.website
       if (data.industry) payload.industry = data.industry
       if (data.size) payload.size = data.size
       if (data.description) payload.description = data.description
-      if (data.addressLine1) payload.addressLine1 = data.addressLine1
-      if (data.addressLine2) payload.addressLine2 = data.addressLine2
-      if (data.city) payload.city = data.city
-      if (data.postalCode) payload.postalCode = data.postalCode
       if (data.logo) payload.logo = data.logo
       return payload
     })
@@ -107,7 +109,7 @@ function submit() {
       </BaseSection>
 
       <BaseSection as="fieldset" :title="t('organization.settings.sections.general')">
-        <GeneralFields />
+        <GeneralFields :is-buyer="organization.organizationType === 'buyer'" />
       </BaseSection>
 
       <BaseSection as="fieldset" :title="t('organization.settings.sections.address')">

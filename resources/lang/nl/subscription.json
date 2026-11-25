@@ -1,0 +1,98 @@
+{
+  "page": {
+    "title": "Prijzen en abonnement",
+    "subtitle": "Kies het abonnement dat bij uw bedrijf past. Afsluiten, wijzigen en opzeggen gebeurt online.",
+    "checkoutSuccess": "Betaling ontvangen. Uw abonnement wordt geactiveerd zodra Stripe het bevestigt, meestal binnen enkele seconden: vernieuw de pagina indien nodig.",
+    "checkoutCancelled": "Afsluiten geannuleerd: er is geen betaling gedaan.",
+    "unavailable": "Online afsluiten is nog niet beschikbaar. Neem contact op met het team om een abonnement te activeren.",
+    "taxNote": "Maandprijzen exclusief btw, zonder verplichtingen. Facturen staan in het factureringsportaal."
+  },
+  "plans": {
+    "current": "Huidig abonnement",
+    "perMonth": "excl. btw / maand",
+    "subscribe": "Abonneren",
+    "change": "Abonnement wijzigen",
+    "free": {
+      "name": "Gratis",
+      "tagline": "Uw catalogus vermeld, kosteloos."
+    },
+    "business": {
+      "name": "Business",
+      "tagline": "Herken uw prospects en word beter zichtbaar."
+    },
+    "premium": {
+      "name": "Premium",
+      "tagline": "Maximale zichtbaarheid en voorrang bij ondersteuning."
+    }
+  },
+  "current": {
+    "title": "Uw abonnement",
+    "plan": "Abonnement",
+    "status": "Status",
+    "since": "Sinds",
+    "renewsOn": "Verlenging op",
+    "endsOn": "Eindigt op",
+    "manage": "Mijn abonnement beheren",
+    "manual": "Abonnement beheerd door het platformteam. Neem contact met ons op om het te wijzigen.",
+    "pastDue": "De laatste betaling is mislukt. Stripe probeert het opnieuw: werk uw betaalmethode bij om uw abonnement te behouden.",
+    "cancelScheduled": "Opzegging gepland: uw abonnement blijft actief tot het einde van de lopende periode."
+  },
+  "status": {
+    "scheduled": "Gepland",
+    "pending": "Betaling in behandeling",
+    "active": "Actief",
+    "past_due": "Achterstallig",
+    "expired": "Verlopen",
+    "cancelled": "Opgezegd"
+  },
+  "features": {
+    "catalogue": {
+      "free": "Catalogus geïndexeerd in de zoekfunctie",
+      "business": "Catalogus geïndexeerd in de zoekfunctie",
+      "premium": "Catalogus geïndexeerd in de zoekfunctie"
+    },
+    "statistics": {
+      "free": "Anonieme statistieken (aantal weergaven)",
+      "business": "Gedetailleerde statistieken, met de identiteit van de bureaus",
+      "premium": "Gedetailleerde statistieken, met de identiteit van de bureaus"
+    },
+    "quoteRequests": {
+      "free": "Offerteaanvragen zonder identiteit van het bureau",
+      "business": "Identiteit en contactgegevens van de bureaus bij aanvragen",
+      "premium": "Identiteit en contactgegevens van de bureaus bij aanvragen"
+    },
+    "competitors": {
+      "free": "Producten van concurrenten op uw pagina’s",
+      "business": "Geen producten van concurrenten op uw pagina’s",
+      "premium": "Geen producten van concurrenten op uw pagina’s"
+    },
+    "ranking": {
+      "free": "Natuurlijke rangschikking van resultaten",
+      "business": "250 rankingpunten per maand",
+      "premium": "600 rankingpunten per maand"
+    },
+    "superboost": {
+      "free": "Geen superboost",
+      "business": "Superboosts los te koop",
+      "premium": "3 superboosts per maand inbegrepen"
+    },
+    "support": {
+      "free": "Standaardondersteuning",
+      "business": "Standaardondersteuning",
+      "premium": "Voorrang bij ondersteuning en onboarding"
+    }
+  },
+  "flash": {
+    "unavailable": "Online afsluiten is momenteel niet beschikbaar.",
+    "alreadySubscribed": "U hebt al een lopend abonnement: wijzig het via het factureringsportaal.",
+    "noBillingAccount": "Uw organisatie heeft geen online factureringsaccount.",
+    "paymentPending": "Een abonnementsbetaling wordt nog bevestigd: rond deze af via het factuurportaal of probeer het later opnieuw.",
+    "adminOnly": "Alleen de eigenaars en beheerders van uw organisatie kunnen het abonnement beheren."
+  },
+  "upsell": {
+    "title": "Neem een abonnement om het bureau te kennen",
+    "body": "Neem een abonnement om te weten welk bureau u raadpleegt en het rechtstreeks te contacteren.",
+    "askAdmin": "Een eigenaar of beheerder van uw organisatie kan een abonnement nemen om het bureau te kennen en het rechtstreeks te contacteren.",
+    "cta": "Abonnementen bekijken"
+  }
+}

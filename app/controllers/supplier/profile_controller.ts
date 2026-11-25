@@ -8,6 +8,7 @@ import SupplierProfileTransformer from '#transformers/supplier_profile_transform
 import OrganizationContextService from '#services/organization_context_service'
 import ModerationService from '#services/moderation_service'
 import type { ModerationNotice } from '#shared/types/moderation'
+import type { Locale } from '#shared/types/i18n'
 
 @inject()
 export default class SupplierProfileController {
@@ -50,9 +51,23 @@ export default class SupplierProfileController {
     await bouncer.authorize('canManageSupplierProfile', org)
 
     const payload = await request.validateUsing(updateSupplierProfileValidator)
-    await this.service.upsertForOrganization(org.id, payload)
+    await this.service.upsertForOrganization(org.id, payload, i18n.locale as Locale)
 
     session.flash('success', i18n.t('supplier.profile.success'))
     return response.redirect().toRoute('supplier.profile', { locale: i18n.locale })
+  }
+
+  /**
+   * Renvoie le lien de confirmation de l'adresse de réception (#217), limité
+   * par `quoteEmailVerificationResendThrottle`.
+   */
+  async resendQuoteEmailVerification({ auth, bouncer, response, i18n, session }: HttpContext) {
+    const org = await this.organizations.currentFor(auth.getUserOrFail())
+    await bouncer.authorize('canManageSupplierProfile', org)
+
+    await this.service.resendQuoteEmailVerification(org.id, i18n.locale as Locale)
+
+    session.flash('success', i18n.t('supplier.profile.quoteEmail.resent'))
+    return response.redirect().back()
   }
 }

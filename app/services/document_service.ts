@@ -18,8 +18,7 @@ import {
 } from '#shared/types/document'
 import type { MultipartFile } from '@adonisjs/core/bodyparser'
 import type StorageObject from '#models/storage_object'
-
-const PDF_HEADER = Buffer.from('%PDF-')
+import { hasPdfHeader } from '#shared/helpers/pdf'
 
 interface StoredPdf {
   storageObject: StorageObject
@@ -136,7 +135,7 @@ export default class DocumentService {
     if (!file.tmpPath) throw new StorageSourceException()
     const original = await readFile(file.tmpPath)
     // L'extension ne prouve rien : un PDF commence par son en-tête `%PDF-`.
-    if (!original.subarray(0, PDF_HEADER.length).equals(PDF_HEADER)) {
+    if (!hasPdfHeader(original)) {
       throw new InvalidDocumentException()
     }
     const { content } = await this.pdf.compress(original)

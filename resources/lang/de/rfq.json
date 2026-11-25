@@ -15,8 +15,31 @@
       "suppliers": "Empfänger",
       "responses": "Antworten",
       "status": "Status",
-      "deadline": "Frist"
-    }
+      "deadline": "Frist",
+      "author": "Verfasser",
+      "quotes": "Angebote"
+    },
+    "progress": {
+      "draft": "Entwurf",
+      "published": "Veröffentlicht",
+      "sent": "Gesendet",
+      "responded": "Beantwortet",
+      "expired": "Abgelaufen",
+      "closed": "Abgeschlossen"
+    },
+    "filters": {
+      "label": "Anfragen filtern",
+      "status": "Status",
+      "author": "Verfasser",
+      "allStatuses": "Alle Status",
+      "allAuthors": "Alle Verfasser",
+      "reset": "Filter zurücksetzen"
+    },
+    "noMatch": "Keine Anfrage entspricht diesen Filtern.",
+    "noMatchDescription": "Ändern oder setzen Sie die Filter zurück, um Ihre Anfragen zu finden.",
+    "batch": "Warenkorb vom {date} · {count, plural, one {# Anfrage} other {# Anfragen}}",
+    "quoteReceived": "Angebot erhalten",
+    "unknownAuthor": "Unbekannter Verfasser"
   },
   "create": {
     "title": "Neue Angebotsanfrage",
@@ -39,7 +62,9 @@
     "addSuppliers": "Empfänger hinzufügen",
     "removeSupplier": "Entfernen",
     "sentAt": "Gesendet am {date}",
-    "viewProduct": "Produktseite ansehen"
+    "viewProduct": "Produktseite ansehen",
+    "salesContactsTitle": "Vertriebskontakte",
+    "salesContactsHint": "Anfragen gehen an die allgemeine Empfangsadresse des Lieferanten; diese Mitarbeiter betreuen Ihr Land."
   },
   "status": {
     "draft": "Entwurf",
@@ -52,8 +77,10 @@
     "sent": "Gesendet",
     "viewed": "Angesehen",
     "responded": "Hat geantwortet",
-    "declined": "Hat abgelehnt"
+    "declined": "Hat abgelehnt",
+    "expired": "Ohne Antwort abgelaufen"
   },
+  "lateReply": "Verspätete Antwort",
   "actions": {
     "publish": "Veröffentlichen",
     "send": "An Empfänger senden",
@@ -125,7 +152,15 @@
         "deadline": "Frist",
         "status": "Status"
       },
-      "emptyDescription": "Käufer, die Sie anfragen, erscheinen hier mit den Details ihres Bedarfs."
+      "emptyDescription": "Käufer, die Sie anfragen, erscheinen hier mit den Details ihres Bedarfs.",
+      "filters": {
+        "label": "Erhaltene Anfragen filtern",
+        "status": "Status",
+        "allStatuses": "Alle Status",
+        "reset": "Filter zurücksetzen"
+      },
+      "emptyFiltered": "Keine Anfrage mit diesem Status.",
+      "emptyFilteredDescription": "Ändern Sie den Filter, um Ihre anderen Anfragen zu sehen."
     },
     "show": {
       "backToList": "Zurück zu den eingegangenen Anfragen",
@@ -137,7 +172,16 @@
       "expiredNotice": "Diese Anfrage ist abgelaufen: Der Käufer erwartet keine Antwort mehr.",
       "responseTitle": "Ihre Antwort",
       "responseOpen": "Kalkulieren Sie diesen Bedarf, indem Sie ein Angebot abgeben, oder lehnen Sie die Anfrage ab, wenn Sie ihr nicht nachkommen können.",
-      "responseQuote": "Sie haben ein Angebot für diese Anfrage erstellt."
+      "responseQuote": "Sie haben ein Angebot für diese Anfrage erstellt.",
+      "responseDocument": "Sie haben für diese Anfrage ein PDF-Angebot gesendet. Unten können Sie eine neue Version hochladen.",
+      "contact": {
+        "title": "Kontaktdaten der Agentur",
+        "agency": "Agentur",
+        "requester": "Angefragt von",
+        "email": "E-Mail",
+        "phone": "Telefon",
+        "address": "Adresse"
+      }
     },
     "actions": {
       "decline": "Anfrage ablehnen",
@@ -147,13 +191,21 @@
       "sent": "Zu bearbeiten",
       "viewed": "In Bearbeitung",
       "responded": "Angebot gesendet",
-      "declined": "Abgelehnt"
+      "declined": "Abgelehnt",
+      "expired": "Abgelaufen"
     },
     "flash": {
       "declined": "Anfrage abgelehnt."
     },
     "errors": {
       "notDecidable": "Für diese Anfrage wird keine Entscheidung mehr von Ihnen erwartet."
+    },
+    "anonymousBuyer": "Anonyme Agentur",
+    "state": {
+      "to_process": "Zu bearbeiten",
+      "responded": "Beantwortet",
+      "expired": "Abgelaufen",
+      "declined": "Abgelehnt"
     }
   },
   "product": {
@@ -172,5 +224,16 @@
   },
   "form": {
     "general": "Allgemeine Informationen"
+  },
+  "specs": {
+    "variant": "Variante",
+    "sku": "Artikelnummer",
+    "markingPosition": "Veredelungsposition",
+    "markingTechnique": "Veredelungstechnik",
+    "markingColors": "Veredelungsfarben",
+    "estimatedUnitPrice": "Richtpreis pro Stück",
+    "estimatedMarkingUnitPrice": "Richtpreis Veredelung / Stück",
+    "estimatedSetupCharge": "Richtwert Einrichtungskosten",
+    "estimatedTotal": "Richtwert Summe"
   }
 }

@@ -1,5 +1,11 @@
 import { DEFAULT_RFQ_ITEM_QUANTITY } from '#shared/types/rfq'
-import type { RfqProductOptionType, RfqSupplierStatus, RfqStatus } from '#shared/types/rfq'
+import type {
+  RfqProductOptionType,
+  RfqProgress,
+  RfqSupplierStatus,
+  RfqStatus,
+  SupplierRfqState,
+} from '#shared/types/rfq'
 import type { BadgeTone } from '~/types/ui'
 
 /**
@@ -56,12 +62,40 @@ export const RFQ_STATUS_TONES: Record<RfqStatus, BadgeTone> = {
 
 /**
  * Côté destinataire, seul « a répondu » est un succès ; « à envoyer » signale
- * une action en attente de l'acheteur, « a décliné » une impasse.
+ * une action en attente de l'acheteur, « a décliné » une impasse, « expiré »
+ * une échéance passée sans réponse (#232).
  */
 export const RFQ_SUPPLIER_STATUS_TONES: Record<RfqSupplierStatus, BadgeTone> = {
   pending: 'warning',
   sent: 'info',
   viewed: 'info',
   responded: 'success',
+  declined: 'danger',
+  expired: 'warning',
+}
+
+/**
+ * Tonalité de l'avancement dans « Mes demandes » (#228) : une réponse reçue est
+ * un succès, une demande envoyée attend ; une demande publiée mais envoyée à
+ * personne (action en attente de l'agence) et une demande échue alertent.
+ */
+export const RFQ_PROGRESS_TONES: Record<RfqProgress, BadgeTone> = {
+  draft: 'neutral',
+  published: 'warning',
+  sent: 'info',
+  responded: 'success',
+  expired: 'warning',
+  closed: 'neutral',
+}
+
+/**
+ * Tonalité du statut lisible d'une demande reçue (#230), côté fournisseur : la
+ * demande « à traiter » attend une action de sa part, la réponse envoyée est un
+ * succès, l'échéance passée alerte, le refus est une impasse.
+ */
+export const SUPPLIER_RFQ_STATE_TONES: Record<SupplierRfqState, BadgeTone> = {
+  to_process: 'info',
+  responded: 'success',
+  expired: 'warning',
   declined: 'danger',
 }

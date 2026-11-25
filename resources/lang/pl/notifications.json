@@ -9,8 +9,9 @@
   "types": {
     "rfq": {
       "received": "{buyerName} przesłał(a) Państwu zapytanie ofertowe: {rfqTitle}.",
-      "responded": "Dostawca odpowiedział na zapytanie {rfqTitle}.",
-      "declined": "{supplierName} odrzucił(a) zapytanie {rfqTitle}."
+      "responded": "{supplierName} odpowiedział na zapytanie {rfqTitle}.",
+      "declined": "{supplierName} odrzucił(a) zapytanie {rfqTitle}.",
+      "relay_refused": "Twój e-mail z adresu {senderAddress} dotyczący zapytania {rfqTitle} nie został przekazany do {supplierName}: ten adres nie jest rozpoznany dla Twojej agencji. Napisz z poziomu zapytania."
     },
     "quote": {
       "received": "{supplierName} złożył(a) ofertę dla zapytania {rfqTitle}.",
@@ -32,6 +33,22 @@
     "message": {
       "warned": "A message you wrote received a warning from the platform. Please follow the messaging usage rules."
     },
-    "announcement": "{title} — {body}"
+    "announcement": "{title} — {body}",
+    "subscription": {
+      "duplicate_cancelled": "{organizationName} opłaciła dwie subskrypcje jednocześnie: duplikat {cancelledSubscriptionId} został anulowany w Stripe. Zwróć płatność w panelu Stripe."
+    }
+  },
+  "late": {
+    "rfq": {
+      "responded": "Spóźniona odpowiedź: {supplierName} odpowiedział na zapytanie {rfqTitle} po terminie."
+    }
+  },
+  "anonymous": {
+    "rfq": {
+      "received": "Agencja wysłała Ci zapytanie ofertowe: {rfqTitle}."
+    },
+    "quote": {
+      "rejected": "Agencja odrzuciła Twoją ofertę dla {rfqTitle}."
+    }
   }
 }

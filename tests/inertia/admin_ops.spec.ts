@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
 import type { AdminMailOverview, AdminStorageOverview } from '#shared/types/admin_ops'
 
 const translations = {
@@ -155,25 +156,28 @@ describe('Emails — taux d’échec', () => {
   })
 
   it('rejoue toute la dead-letter après confirmation', async () => {
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
+    const host = await mountConfirmHost()
     const wrapper = mount(MailRates, { props: { overview: mailOverview() } })
 
     await wrapper
       .findAll('button')
       .find((b) => b.text().includes('Rejouer tous les échecs'))!
       .trigger('click')
+    expect(post).not.toHaveBeenCalled()
+    await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith('/fr/admin.mail.retryAll', {}, { preserveScroll: true })
   })
 
   it('rejoue un seul type en le désignant', async () => {
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
+    const host = await mountConfirmHost()
     const wrapper = mount(MailRates, { props: { overview: mailOverview() } })
 
     await wrapper
       .findAll('button')
       .find((b) => b.text() === 'Rejouer ce type')!
       .trigger('click')
+    await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith(
       '/fr/admin.mail.retryAll',
@@ -183,12 +187,13 @@ describe('Emails — taux d’échec', () => {
   })
 
   it('ne rejoue rien si la confirmation est refusée, ni sans échec', async () => {
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(false))
+    const host = await mountConfirmHost()
     const wrapper = mount(MailRates, { props: { overview: mailOverview() } })
     await wrapper
       .findAll('button')
       .find((b) => b.text().includes('Rejouer tous les échecs'))!
       .trigger('click')
+    await answerConfirm(host, 'cancel')
     expect(post).not.toHaveBeenCalled()
 
     const empty = mount(MailRates, { props: { overview: mailOverview({ failedTotal: 0 }) } })
@@ -231,14 +236,15 @@ describe('Stockage', () => {
   })
 
   it('relance la reprise après confirmation seulement', async () => {
+    const host = await mountConfirmHost()
     const wrapper = mount(StorageTotals, { props: { overview: storageOverview() } })
 
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(false))
     await wrapper.find('button').trigger('click')
+    await answerConfirm(host, 'cancel')
     expect(post).not.toHaveBeenCalled()
 
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
     await wrapper.find('button').trigger('click')
+    await answerConfirm(host, 'confirm')
     expect(post).toHaveBeenCalledWith(
       '/fr/admin.storage.recover',
       {},

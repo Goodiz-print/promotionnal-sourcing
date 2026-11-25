@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */
+ 
 import type { AdonisEndpoint } from '@tuyau/core/types'
 import type { Registry } from './schema.d.ts'
 import type { ApiDefinition } from './tree.d.ts'
@@ -47,6 +47,18 @@ const routes = {
     pattern: '/health/details',
     tokens: [[0,"health"],[0,"details"]],
     types: placeholder as Registry['health.details']['types'],
+  },
+  'webhooks.stripe': {
+    methods: ["POST"],
+    pattern: '/webhooks/stripe',
+    tokens: [[0,"webhooks"],[0,"stripe"]],
+    types: placeholder as Registry['webhooks.stripe']['types'],
+  },
+  'webhooks.inbound_mail': {
+    methods: ["POST"],
+    pattern: '/webhooks/inbound-mail',
+    tokens: [[0,"webhooks"],[0,"inbound-mail"]],
+    types: placeholder as Registry['webhooks.inbound_mail']['types'],
   },
   'home': {
     methods: ["GET","HEAD"],
@@ -108,6 +120,12 @@ const routes = {
     tokens: [[1,"locale"],[0,"products"],[1,"slug"]],
     types: placeholder as Registry['products.show']['types'],
   },
+  'ads.click': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/ads/click/:id',
+    tokens: [[1,"locale"],[0,"ads"],[0,"click"],[1,"id"]],
+    types: placeholder as Registry['ads.click']['types'],
+  },
   'organization.invitations.show': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/organization/invitations/:id/accept',
@@ -119,6 +137,12 @@ const routes = {
     pattern: '/:locale/email/verify/:id',
     tokens: [[1,"locale"],[0,"email"],[0,"verify"],[1,"id"]],
     types: placeholder as Registry['email.verify']['types'],
+  },
+  'supplier.quoteEmail.verify': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/quote-email/verify/:id',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"quote-email"],[0,"verify"],[1,"id"]],
+    types: placeholder as Registry['supplier.quoteEmail.verify']['types'],
   },
   'new_account.create': {
     methods: ["GET","HEAD"],
@@ -378,6 +402,12 @@ const routes = {
     tokens: [[1,"locale"],[0,"supplier"],[0,"profile"]],
     types: placeholder as Registry['supplier.profile.update']['types'],
   },
+  'supplier.profile.quoteEmail.resend': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/profile/quote-email/resend',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"profile"],[0,"quote-email"],[0,"resend"]],
+    types: placeholder as Registry['supplier.profile.quoteEmail.resend']['types'],
+  },
   'supplier.products.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/supplier/products',
@@ -492,6 +522,12 @@ const routes = {
     tokens: [[1,"locale"],[0,"rfqs"],[1,"id"],[0,"suppliers"],[1,"supplierId"]],
     types: placeholder as Registry['rfqs.suppliers.destroy']['types'],
   },
+  'rfqs.messages.store': {
+    methods: ["POST"],
+    pattern: '/:locale/rfqs/:id/suppliers/:supplierId/messages',
+    tokens: [[1,"locale"],[0,"rfqs"],[1,"id"],[0,"suppliers"],[1,"supplierId"],[0,"messages"]],
+    types: placeholder as Registry['rfqs.messages.store']['types'],
+  },
   'rfqs.publish': {
     methods: ["POST"],
     pattern: '/:locale/rfqs/:id/publish',
@@ -534,6 +570,12 @@ const routes = {
     tokens: [[1,"locale"],[0,"supplier"],[0,"rfqs"],[1,"id"],[0,"decline"]],
     types: placeholder as Registry['supplier.rfqs.decline']['types'],
   },
+  'supplier.rfqs.messages.store': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/rfqs/:id/messages',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"rfqs"],[1,"id"],[0,"messages"]],
+    types: placeholder as Registry['supplier.rfqs.messages.store']['types'],
+  },
   'quotes.show': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/quotes/:id',
@@ -551,6 +593,30 @@ const routes = {
     pattern: '/:locale/quotes/:id/reject',
     tokens: [[1,"locale"],[0,"quotes"],[1,"id"],[0,"reject"]],
     types: placeholder as Registry['quotes.reject']['types'],
+  },
+  'quote_documents.download': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/quote-documents/:id/download',
+    tokens: [[1,"locale"],[0,"quote-documents"],[1,"id"],[0,"download"]],
+    types: placeholder as Registry['quote_documents.download']['types'],
+  },
+  'quote_documents.select': {
+    methods: ["POST"],
+    pattern: '/:locale/quote-documents/:id/select',
+    tokens: [[1,"locale"],[0,"quote-documents"],[1,"id"],[0,"select"]],
+    types: placeholder as Registry['quote_documents.select']['types'],
+  },
+  'supplier.quote_documents.store': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/rfqs/:id/quote-documents',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"rfqs"],[1,"id"],[0,"quote-documents"]],
+    types: placeholder as Registry['supplier.quote_documents.store']['types'],
+  },
+  'supplier.quote_documents.download': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/quote-documents/:id/download',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"quote-documents"],[1,"id"],[0,"download"]],
+    types: placeholder as Registry['supplier.quote_documents.download']['types'],
   },
   'supplier.quotes.index': {
     methods: ["GET","HEAD"],
@@ -593,6 +659,36 @@ const routes = {
     pattern: '/:locale/supplier/quotes/:id',
     tokens: [[1,"locale"],[0,"supplier"],[0,"quotes"],[1,"id"]],
     types: placeholder as Registry['supplier.quotes.destroy']['types'],
+  },
+  'quote_cart.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/quote-cart',
+    tokens: [[1,"locale"],[0,"quote-cart"]],
+    types: placeholder as Registry['quote_cart.show']['types'],
+  },
+  'quote_cart.items.store': {
+    methods: ["POST"],
+    pattern: '/:locale/quote-cart/items',
+    tokens: [[1,"locale"],[0,"quote-cart"],[0,"items"]],
+    types: placeholder as Registry['quote_cart.items.store']['types'],
+  },
+  'quote_cart.items.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/quote-cart/items/:id',
+    tokens: [[1,"locale"],[0,"quote-cart"],[0,"items"],[1,"id"]],
+    types: placeholder as Registry['quote_cart.items.update']['types'],
+  },
+  'quote_cart.items.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/quote-cart/items/:id',
+    tokens: [[1,"locale"],[0,"quote-cart"],[0,"items"],[1,"id"]],
+    types: placeholder as Registry['quote_cart.items.destroy']['types'],
+  },
+  'quote_cart.checkout': {
+    methods: ["POST"],
+    pattern: '/:locale/quote-cart/checkout',
+    tokens: [[1,"locale"],[0,"quote-cart"],[0,"checkout"]],
+    types: placeholder as Registry['quote_cart.checkout']['types'],
   },
   'orders.index': {
     methods: ["GET","HEAD"],
@@ -678,11 +774,143 @@ const routes = {
     tokens: [[1,"locale"],[0,"messages"],[1,"id"],[0,"report"]],
     types: placeholder as Registry['messages.report']['types'],
   },
+  'supplier.ads.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/ads',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"ads"]],
+    types: placeholder as Registry['supplier.ads.index']['types'],
+  },
+  'supplier.ads.create': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/ads/new',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"ads"],[0,"new"]],
+    types: placeholder as Registry['supplier.ads.create']['types'],
+  },
+  'supplier.ads.store': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/ads',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"ads"]],
+    types: placeholder as Registry['supplier.ads.store']['types'],
+  },
+  'supplier.ads.wallet.top_up': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/ads/wallet/top-up',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"ads"],[0,"wallet"],[0,"top-up"]],
+    types: placeholder as Registry['supplier.ads.wallet.top_up']['types'],
+  },
+  'supplier.ads.edit': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/ads/:id/edit',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"ads"],[1,"id"],[0,"edit"]],
+    types: placeholder as Registry['supplier.ads.edit']['types'],
+  },
+  'supplier.ads.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/supplier/ads/:id',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"ads"],[1,"id"]],
+    types: placeholder as Registry['supplier.ads.update']['types'],
+  },
+  'supplier.ads.status': {
+    methods: ["PATCH"],
+    pattern: '/:locale/supplier/ads/:id/status',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"ads"],[1,"id"],[0,"status"]],
+    types: placeholder as Registry['supplier.ads.status']['types'],
+  },
+  'supplier.ads.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/supplier/ads/:id',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"ads"],[1,"id"]],
+    types: placeholder as Registry['supplier.ads.destroy']['types'],
+  },
+  'supplier.subscription.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/subscription',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"subscription"]],
+    types: placeholder as Registry['supplier.subscription.show']['types'],
+  },
+  'supplier.subscription.checkout': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/subscription/checkout',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"subscription"],[0,"checkout"]],
+    types: placeholder as Registry['supplier.subscription.checkout']['types'],
+  },
+  'supplier.subscription.portal': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/subscription/portal',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"subscription"],[0,"portal"]],
+    types: placeholder as Registry['supplier.subscription.portal']['types'],
+  },
+  'supplier.contacts.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/contacts',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"contacts"]],
+    types: placeholder as Registry['supplier.contacts.index']['types'],
+  },
+  'supplier.contacts.store': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/contacts',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"contacts"]],
+    types: placeholder as Registry['supplier.contacts.store']['types'],
+  },
+  'supplier.contacts.settings': {
+    methods: ["PATCH"],
+    pattern: '/:locale/supplier/contacts/settings',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"contacts"],[0,"settings"]],
+    types: placeholder as Registry['supplier.contacts.settings']['types'],
+  },
+  'supplier.contacts.update': {
+    methods: ["PATCH"],
+    pattern: '/:locale/supplier/contacts/:id',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"contacts"],[1,"id"]],
+    types: placeholder as Registry['supplier.contacts.update']['types'],
+  },
+  'supplier.contacts.destroy': {
+    methods: ["DELETE"],
+    pattern: '/:locale/supplier/contacts/:id',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"contacts"],[1,"id"]],
+    types: placeholder as Registry['supplier.contacts.destroy']['types'],
+  },
+  'supplier.contacts.move': {
+    methods: ["POST"],
+    pattern: '/:locale/supplier/contacts/:id/move',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"contacts"],[1,"id"],[0,"move"]],
+    types: placeholder as Registry['supplier.contacts.move']['types'],
+  },
+  'supplier.insights.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/supplier/insights',
+    tokens: [[1,"locale"],[0,"supplier"],[0,"insights"]],
+    types: placeholder as Registry['supplier.insights.index']['types'],
+  },
   'admin.dashboard': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin',
     tokens: [[1,"locale"],[0,"admin"]],
     types: placeholder as Registry['admin.dashboard']['types'],
+  },
+  'admin.ads.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/ads',
+    tokens: [[1,"locale"],[0,"admin"],[0,"ads"]],
+    types: placeholder as Registry['admin.ads.index']['types'],
+  },
+  'admin.ads.wallets.adjust': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/ads/wallets/adjust',
+    tokens: [[1,"locale"],[0,"admin"],[0,"ads"],[0,"wallets"],[0,"adjust"]],
+    types: placeholder as Registry['admin.ads.wallets.adjust']['types'],
+  },
+  'admin.ads.suspend': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/ads/:id/suspend',
+    tokens: [[1,"locale"],[0,"admin"],[0,"ads"],[1,"id"],[0,"suspend"]],
+    types: placeholder as Registry['admin.ads.suspend']['types'],
+  },
+  'admin.ads.restore': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/ads/:id/restore',
+    tokens: [[1,"locale"],[0,"admin"],[0,"ads"],[1,"id"],[0,"restore"]],
+    types: placeholder as Registry['admin.ads.restore']['types'],
   },
   'admin.organizations.index': {
     methods: ["GET","HEAD"],
@@ -743,6 +971,24 @@ const routes = {
     pattern: '/:locale/admin/organizations/:id/invitations/:invitationId/resend',
     tokens: [[1,"locale"],[0,"admin"],[0,"organizations"],[1,"id"],[0,"invitations"],[1,"invitationId"],[0,"resend"]],
     types: placeholder as Registry['admin.organizations.resend_invitation']['types'],
+  },
+  'admin.organizations.subscriptions.store': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/organizations/:id/subscriptions',
+    tokens: [[1,"locale"],[0,"admin"],[0,"organizations"],[1,"id"],[0,"subscriptions"]],
+    types: placeholder as Registry['admin.organizations.subscriptions.store']['types'],
+  },
+  'admin.organizations.subscriptions.extend': {
+    methods: ["PATCH"],
+    pattern: '/:locale/admin/organizations/:id/subscriptions/:subscriptionId',
+    tokens: [[1,"locale"],[0,"admin"],[0,"organizations"],[1,"id"],[0,"subscriptions"],[1,"subscriptionId"]],
+    types: placeholder as Registry['admin.organizations.subscriptions.extend']['types'],
+  },
+  'admin.organizations.subscriptions.cancel': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/organizations/:id/subscriptions/:subscriptionId/cancel',
+    tokens: [[1,"locale"],[0,"admin"],[0,"organizations"],[1,"id"],[0,"subscriptions"],[1,"subscriptionId"],[0,"cancel"]],
+    types: placeholder as Registry['admin.organizations.subscriptions.cancel']['types'],
   },
   'admin.users.index': {
     methods: ["GET","HEAD"],
@@ -954,6 +1200,36 @@ const routes = {
     tokens: [[1,"locale"],[0,"admin"],[0,"mail"],[1,"id"],[0,"retry"]],
     types: placeholder as Registry['admin.mail.retry']['types'],
   },
+  'admin.inbound_mail.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/inbound-mail',
+    tokens: [[1,"locale"],[0,"admin"],[0,"inbound-mail"]],
+    types: placeholder as Registry['admin.inbound_mail.index']['types'],
+  },
+  'admin.inbound_mail.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/inbound-mail/:id',
+    tokens: [[1,"locale"],[0,"admin"],[0,"inbound-mail"],[1,"id"]],
+    types: placeholder as Registry['admin.inbound_mail.show']['types'],
+  },
+  'admin.inbound_mail.attach': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/inbound-mail/:id/attach',
+    tokens: [[1,"locale"],[0,"admin"],[0,"inbound-mail"],[1,"id"],[0,"attach"]],
+    types: placeholder as Registry['admin.inbound_mail.attach']['types'],
+  },
+  'admin.inbound_mail.replay': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/inbound-mail/:id/replay',
+    tokens: [[1,"locale"],[0,"admin"],[0,"inbound-mail"],[1,"id"],[0,"replay"]],
+    types: placeholder as Registry['admin.inbound_mail.replay']['types'],
+  },
+  'admin.inbound_mail.dismiss': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/inbound-mail/:id/dismiss',
+    tokens: [[1,"locale"],[0,"admin"],[0,"inbound-mail"],[1,"id"],[0,"dismiss"]],
+    types: placeholder as Registry['admin.inbound_mail.dismiss']['types'],
+  },
   'admin.storage.index': {
     methods: ["GET","HEAD"],
     pattern: '/:locale/admin/storage',
@@ -1043,6 +1319,24 @@ const routes = {
     pattern: '/:locale/admin/moderation/:type/:id/decision',
     tokens: [[1,"locale"],[0,"admin"],[0,"moderation"],[1,"type"],[1,"id"],[0,"decision"]],
     types: placeholder as Registry['admin.moderation.decide']['types'],
+  },
+  'admin.supplier_links.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/:locale/admin/supplier-links',
+    tokens: [[1,"locale"],[0,"admin"],[0,"supplier-links"]],
+    types: placeholder as Registry['admin.supplier_links.index']['types'],
+  },
+  'admin.supplier_links.link': {
+    methods: ["POST"],
+    pattern: '/:locale/admin/supplier-links/:id/link',
+    tokens: [[1,"locale"],[0,"admin"],[0,"supplier-links"],[1,"id"],[0,"link"]],
+    types: placeholder as Registry['admin.supplier_links.link']['types'],
+  },
+  'admin.supplier_links.unlink': {
+    methods: ["DELETE"],
+    pattern: '/:locale/admin/supplier-links/:id/link',
+    tokens: [[1,"locale"],[0,"admin"],[0,"supplier-links"],[1,"id"],[0,"link"]],
+    types: placeholder as Registry['admin.supplier_links.unlink']['types'],
   },
   'admin.agency_reviews.index': {
     methods: ["GET","HEAD"],

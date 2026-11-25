@@ -1,0 +1,78 @@
+{
+  "title": "Angebotskorb",
+  "subtitle": "Sammeln Sie die Produkte, für die Sie Preise möchten, und senden Sie jedem Lieferanten auf einmal eine Anfrage.",
+  "nav": {
+    "label": "Angebotskorb",
+    "count": "{count, plural, =0 {Angebotskorb ist leer} one {# Produkt im Angebotskorb} other {# Produkte im Angebotskorb}}"
+  },
+  "empty": {
+    "title": "Ihr Angebotskorb ist leer",
+    "description": "Fügen Sie Produkte aus dem Katalog hinzu, um mehrere Lieferanten gleichzeitig anzufragen.",
+    "browse": "Katalog durchsuchen"
+  },
+  "group": {
+    "items": "{count, plural, one {# Produkt} other {# Produkte}} · eine eigene Anfrage"
+  },
+  "line": {
+    "quantity": "Menge",
+    "note": "Angaben",
+    "remove": "{name} aus dem Korb entfernen",
+    "belowMinimum": "Mindestbestellmenge: {count} Stück",
+    "variant": "Variante",
+    "variantAny": "Noch offen",
+    "marking": "Veredelung",
+    "markingNone": "Ohne Veredelung",
+    "markingColors": "Farben",
+    "markingColorsMax": "{count, plural, one {max. # Farbe} other {max. # Farben}}"
+  },
+  "checkout": {
+    "title": "Anfragen senden",
+    "titleDraft": "Anfragen erstellen",
+    "description": "Ein gemeinsamer Kopf für alle Anfragen: Jeder Lieferant erhält nur seine eigenen Produkte.",
+    "fieldTitle": "Betreff der Anfrage",
+    "fieldTitleHint": "Der Name des Lieferanten wird jeder Anfrage angehängt.",
+    "fieldDescription": "Kontext (Anlass, Fristen, Vorgaben…)",
+    "fieldDeadline": "Antwort erwünscht bis",
+    "summary": "{count, plural, one {Eine Anfrage wird gesendet an: {suppliers}} other {# Anfragen werden gesendet an: {suppliers}}}",
+    "summaryDraft": "{count, plural, one {Ein Entwurf wird erstellt für: {suppliers}} other {# Entwürfe werden erstellt für: {suppliers}}}",
+    "draftNotice": "Mit Ihrer Rolle können Sie Anfragen vorbereiten: Sie werden als Entwürfe erstellt und von einer verantwortlichen Person gesendet.",
+    "submit": "{count, plural, one {Anfrage senden} other {# Anfragen senden}}",
+    "submitDraft": "{count, plural, one {Entwurf erstellen} other {# Entwürfe erstellen}}"
+  },
+  "flash": {
+    "added": "Produkt zum Angebotskorb hinzugefügt.",
+    "alreadyInCart": "Dieses Produkt ist bereits in Ihrem Angebotskorb.",
+    "removed": "Produkt aus dem Angebotskorb entfernt.",
+    "sent": "{count, plural, one {# Anfrage gesendet} other {# Anfragen gesendet}}.",
+    "drafted": "{count, plural, one {# Entwurf erstellt} other {# Entwürfe erstellt}}. Eine verantwortliche Person kann sie senden."
+  },
+  "errors": {
+    "empty": "Keines der Produkte in Ihrem Korb kann angefragt werden.",
+    "supplierUnavailable": "Ein Lieferant ist nicht mehr erreichbar. Laden Sie den Korb neu und versuchen Sie es erneut.",
+    "invalidOption": "Diese Option ist für dieses Produkt nicht verfügbar.",
+    "duplicateLine": "Diese Variante ist bereits in Ihrem Angebotskorb."
+  },
+  "product": {
+    "add": "In den Angebotskorb",
+    "inCart": "In Ihrem Angebotskorb",
+    "viewCart": "Korb ansehen",
+    "detailedRequest": "Detaillierte Anfrage",
+    "quantity": "Menge"
+  },
+  "card": {
+    "add": "{name} in den Angebotskorb legen"
+  },
+  "estimate": {
+    "onRequest": "Preis auf Anfrage",
+    "unitPrice": "Stückpreis",
+    "markingUnitPrice": "Veredelung / Stück",
+    "setupCharge": "Einrichtungskosten",
+    "total": "Geschätzte Summe",
+    "totalPartial": "Geschätzte Summe (ohne Veredelung)",
+    "belowFirstTier": "Menge unter der ersten Preisstaffel.",
+    "nextTier": "Ab {count} Stück: {price} / Stück",
+    "subtotal": "Geschätzte Zwischensumme: {amount}",
+    "subtotalPartial": "Geschätzte Zwischensumme (unvollständig): {amount}",
+    "disclaimer": "Unverbindliche Schätzung nach den Preislisten des Lieferanten, ohne Versand. Maßgeblich ist das Angebot."
+  }
+}

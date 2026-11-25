@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { CategoryAttributeEditType, CategoryAttributeOption } from '#shared/types/category'
 
 const translations: Record<string, string> = {
@@ -173,10 +174,12 @@ describe('CategoryAttributesSection', () => {
   })
 
   it('retire un attribut après confirmation', async () => {
-    window.confirm = vi.fn(() => true)
+    const host = await mountConfirmHost()
     const wrapper = mountSection([pivot()])
 
     await wrapper.find('button[aria-label="Retirer l\'attribut"]').trigger('click')
+    expect(confirmText(host)).toBe('Retirer cet attribut ?')
+    await answerConfirm(host, 'confirm')
 
     expect(routerDelete).toHaveBeenCalledWith(
       '/fr/admin.categories.attributes.destroy/4/11',
@@ -185,10 +188,11 @@ describe('CategoryAttributesSection', () => {
   })
 
   it('ne retire rien si la confirmation est refusée', async () => {
-    window.confirm = vi.fn(() => false)
+    const host = await mountConfirmHost()
     const wrapper = mountSection([pivot()])
 
     await wrapper.find('button[aria-label="Retirer l\'attribut"]').trigger('click')
+    await answerConfirm(host, 'cancel')
 
     expect(routerDelete).not.toHaveBeenCalled()
   })

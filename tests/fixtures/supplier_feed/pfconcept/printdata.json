@@ -1,0 +1,54 @@
+{
+  "PFCPrintFeed": {
+    "printfeed": [
+      {
+        "models": [
+          {
+            "model": [
+              {
+                "modelCode": "TEST100",
+                "items": [
+                  {
+                    "item": [
+                      {
+                        "itemCode": "TEST10001",
+                        "printfeedrefs": [
+                          { "count": 2, "printfeedref": [{ "ref": 11 }, { "ref": 12 }] }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "printFeedRows": [
+          {
+            "count": 2,
+            "printFeedRow": [
+              {
+                "ref": 11,
+                "impMethod": "Tampographie",
+                "printCode": "TP-TEST",
+                "impLocation": "Côté droit",
+                "maxColours": "4",
+                "impWidthMm": 50,
+                "impHeightMm": 30
+              },
+              {
+                "ref": 12,
+                "impMethod": "Gravure laser",
+                "printCode": "LA-TEST",
+                "impLocation": "Côté droit",
+                "maxColours": "1",
+                "impWidthMm": 60,
+                "impHeightMm": 20
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

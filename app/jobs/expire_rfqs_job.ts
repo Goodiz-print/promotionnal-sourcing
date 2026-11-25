@@ -6,11 +6,11 @@ import app from '@adonisjs/core/services/app'
 /**
  * Expiration planifiée des demandes de devis (cf. `start/scheduler.ts`) : bascule
  * en `expired` les demandes publiées dont l'échéance est dépassée
- * (`RfqService#expireDue`), puis les devis encore ouverts de ces demandes et
+ * (`RfqDeadlineService#expireDue`), puis les devis encore ouverts de ces demandes et
  * ceux dont la validité est passée (`QuoteService`).
  *
  * ⚠️ Exception à la règle « imports en haut du fichier » : la queue charge les
- * modules de job **au boot** (`loadJobs`), or `RfqService` importe des **modèles
+ * modules de job **au boot** (`loadJobs`), or `RfqDeadlineService` importe des **modèles
  * Lucid** — les évaluer à ce stade casse la résolution du service `hash`
  * (`@adonisjs/auth`). Le service est donc importé et résolu dans `execute()`, à
  * l'image de `PurgeExpiredInvitationsJob`. Voir la règle DI de `CLAUDE.md`.
@@ -22,9 +22,9 @@ export default class ExpireRfqsJob extends Job {
   }
 
   async execute() {
-    const { default: RfqService } = await import('#services/rfq_service')
+    const { default: RfqDeadlineService } = await import('#services/rfq_deadline_service')
     const { default: QuoteService } = await import('#services/quote_service')
-    const service = await app.container.make(RfqService)
+    const service = await app.container.make(RfqDeadlineService)
     const quotes = await app.container.make(QuoteService)
 
     const expired = await service.expireDue()

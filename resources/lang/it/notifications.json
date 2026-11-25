@@ -9,8 +9,9 @@
   "types": {
     "rfq": {
       "received": "{buyerName} Le ha inviato una richiesta di preventivo: {rfqTitle}.",
-      "responded": "Un fornitore ha risposto alla richiesta {rfqTitle}.",
-      "declined": "{supplierName} ha declinato la richiesta {rfqTitle}."
+      "responded": "{supplierName} ha risposto alla richiesta {rfqTitle}.",
+      "declined": "{supplierName} ha declinato la richiesta {rfqTitle}.",
+      "relay_refused": "La sua email da {senderAddress} per la richiesta {rfqTitle} non è stata inoltrata a {supplierName}: questo indirizzo non è riconosciuto per la sua agenzia. Scriva dalla richiesta."
     },
     "quote": {
       "received": "{supplierName} ha presentato un preventivo per {rfqTitle}.",
@@ -32,6 +33,22 @@
     "message": {
       "warned": "A message you wrote received a warning from the platform. Please follow the messaging usage rules."
     },
-    "announcement": "{title} — {body}"
+    "announcement": "{title} — {body}",
+    "subscription": {
+      "duplicate_cancelled": "{organizationName} ha pagato due abbonamenti contemporaneamente: il duplicato {cancelledSubscriptionId} è stato annullato su Stripe. Rimborsa il pagamento dalla dashboard di Stripe."
+    }
+  },
+  "late": {
+    "rfq": {
+      "responded": "Risposta tardiva: {supplierName} ha risposto alla richiesta {rfqTitle} dopo la scadenza."
+    }
+  },
+  "anonymous": {
+    "rfq": {
+      "received": "Un'agenzia vi ha inviato una richiesta di preventivo: {rfqTitle}."
+    },
+    "quote": {
+      "rejected": "Un'agenzia ha rifiutato il vostro preventivo per {rfqTitle}."
+    }
   }
 }

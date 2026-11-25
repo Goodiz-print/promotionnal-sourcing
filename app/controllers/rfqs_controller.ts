@@ -11,13 +11,22 @@ import QuoteService from '#services/quote_service'
 import emitter from '@adonisjs/core/services/emitter'
 import RfqSent from '#events/rfq_sent'
 import RfqService from '#services/rfq_service'
+import RfqDeadlineService from '#services/rfq_deadline_service'
+import RfqThreadService from '#services/rfq_thread_service'
+import SupplierContactService from '#services/supplier_contact_service'
 import CategoryTransformer from '#transformers/category_transformer'
+import QuoteDocumentTransformer from '#transformers/quote_document_transformer'
 import QuoteTransformer from '#transformers/quote_transformer'
+import SupplierContactsByOrganizationTransformer from '#transformers/supplier_contacts_by_organization_transformer'
 import RfqDetailTransformer from '#transformers/rfq_detail_transformer'
 import RfqProductOptionTransformer from '#transformers/rfq_product_option_transformer'
-import RfqTransformer from '#transformers/rfq_transformer'
+import RfqAuthorOptionTransformer from '#transformers/rfq_author_option_transformer'
+import RfqListItemTransformer from '#transformers/rfq_list_item_transformer'
+import RfqThreadTransformer from '#transformers/rfq_thread_transformer'
 import {
   rfqDeadlineValidator,
+  rfqListAuthorValidator,
+  rfqListStatusValidator,
   rfqLookupQueryValidator,
   rfqProductValidator,
   rfqSuppliersValidator,
@@ -37,7 +46,9 @@ import type Organization from '#models/organization'
 import type Rfq from '#models/rfq'
 import type User from '#models/user'
 import type { Locale } from '#shared/types/i18n'
-import type { RfqProductLookupType } from '#shared/types/rfq'
+import type { RfqBuyerFilters, RfqProductLookupType } from '#shared/types/rfq'
+import { groupRfqsByBatch, rfqFiltersForPage } from '#shared/helpers/rfq_list'
+import type { RfqThreadType } from '#shared/types/conversation'
 
 /**
  * Refus de transition → clé de traduction. Une exception absente de cette
@@ -65,34 +76,47 @@ type RfqContext = Pick<HttpContext, 'auth' | 'bouncer' | 'params'>
  * courante + autorisation + validation → `RfqService`, qui porte seul les
  * transitions et leurs règles.
  *
- * Deux niveaux d'autorisation, alignés sur les permissions `sourcing:*` :
- * `canCreateRfq` pour consulter et rédiger (jusqu'au rôle `member`),
- * `canManageRfq` pour publier, envoyer et clôturer (owner/admin/manager).
+ * Trois niveaux d'autorisation : `canCreateRfq` pour consulter et rédiger,
+ * `canSendRfq` pour modifier un brouillon, gérer les destinataires, publier et
+ * envoyer (tous deux jusqu'au rôle `member`, #216), `canManageRfq` pour
+ * clôturer et prolonger l'échéance (owner/admin/manager).
  */
 @inject()
 export default class RfqsController {
   constructor(
     private service: RfqService,
+    private deadlines: RfqDeadlineService,
     private quotes: QuoteService,
     private categories: CategoryService,
     private catalogue: ProductCatalogueService,
     private productSearch: ProductSearchService,
     private activityEvents: ActivityEventService,
     private organizations: OrganizationContextService,
-    private searchEvents: SearchEventService
+    private searchEvents: SearchEventService,
+    private supplierContacts: SupplierContactService,
+    private threads: RfqThreadService
   ) {}
 
   /**
-   * Liste des demandes de l'organisation acheteuse, brouillons compris.
+   * « Mes demandes » (#228) : les demandes de l'organisation acheteuse,
+   * brouillons compris, regroupées par lot de panier (#229) et filtrées par
+   * avancement et par auteur (`?status=&authorId=`, conservés dans l'URL).
    */
-  async index({ auth, bouncer, inertia }: HttpContext) {
+  async index({ auth, bouncer, inertia, request }: HttpContext) {
     const org = await this.organizations.currentFor(auth.getUserOrFail())
     await bouncer.authorize('canCreateRfq', org)
 
-    const rfqs = await this.service.listForBuyer(org.id)
+    const filters = await this.listFilters(request)
+    const [rfqs, authors] = await Promise.all([
+      this.service.listForBuyer(org.id, filters),
+      this.service.authorsForBuyer(org.id),
+    ])
 
     return inertia.render('rfqs/index', {
-      rfqs: rfqs.map((rfq) => new RfqTransformer(rfq).toObject()),
+      groups: groupRfqsByBatch(rfqs.map((rfq) => new RfqListItemTransformer(rfq).toObject())),
+      filters: rfqFiltersForPage(filters),
+      authors: authors.map((author) => new RfqAuthorOptionTransformer(author).toObject()),
+      canSendRfq: await bouncer.allows('canSendRfq', org),
       canManageRfq: await bouncer.allows('canManageRfq', org),
     })
   }
@@ -161,10 +185,23 @@ export default class RfqsController {
     const { productSearch } = await this.lookupParams(request)
     // Devis remis par les fournisseurs, du moins cher au plus cher.
     const quotes = await this.quotes.listForRfq(rfq.id)
+    // Devis reçus en PDF (#224), téléchargeables par les membres de l'agence.
+    const documents = await this.quotes.documentsForRfq(rfq)
+    // Équipe commerciale des destinataires (#241), filtrée selon le pays de l'agence.
+    const contacts = await this.supplierContacts.visibleForMany(
+      rfq.suppliers.map((row) => row.supplierOrganizationId),
+      this.supplierContacts.viewerForOrganization(org)
+    )
 
     return inertia.render('rfqs/show', {
       rfq: new RfqDetailTransformer(rfq, locale).toObject(),
       quotes: quotes.map((quote) => new QuoteTransformer(quote).toObject()),
+      quoteDocuments: documents.map((document) =>
+        new QuoteDocumentTransformer(document).toObject()
+      ),
+      supplierContacts: new SupplierContactsByOrganizationTransformer(contacts).toObject(),
+      threads: await this.threadsFor(rfq, bouncer),
+      canSendRfq: await bouncer.allows('canSendRfq', org),
       canManageRfq: await bouncer.allows('canManageRfq', org),
       ...(await this.formData(locale)),
       ...this.productLookup(inertia, productSearch, locale, auth.getUserOrFail()),
@@ -175,7 +212,7 @@ export default class RfqsController {
    * Met à jour l'en-tête et remplace les lignes d'un brouillon.
    */
   async update(ctx: HttpContext) {
-    const { rfq } = await this.loadManageable(ctx)
+    const { rfq } = await this.loadSendable(ctx)
     const payload = await ctx.request.validateUsing(rfqValidator)
 
     return this.runTransition(ctx, rfq, async () => {
@@ -191,7 +228,7 @@ export default class RfqsController {
    * l'acheteur ajuste la quantité avant de publier.
    */
   async addProduct(ctx: HttpContext) {
-    const { rfq, org } = await this.loadManageable(ctx)
+    const { rfq, org } = await this.loadSendable(ctx)
     const { productId } = await ctx.request.validateUsing(rfqProductValidator)
     const product = await this.findProduct(productId, ctx.i18n.locale as Locale)
     if (!product) throw new ProductNotFoundException()
@@ -216,7 +253,7 @@ export default class RfqsController {
    * autres transitions.
    */
   async destroy(ctx: HttpContext) {
-    const { rfq } = await this.loadManageable(ctx)
+    const { rfq } = await this.loadSendable(ctx)
 
     try {
       await this.service.delete(rfq)
@@ -235,7 +272,7 @@ export default class RfqsController {
    * publiée).
    */
   async addSuppliers(ctx: HttpContext) {
-    const { rfq } = await this.loadManageable(ctx)
+    const { rfq } = await this.loadSendable(ctx)
     const { supplierOrganizationIds } = await ctx.request.validateUsing(rfqSuppliersValidator)
 
     return this.runTransition(ctx, rfq, async () => {
@@ -248,7 +285,7 @@ export default class RfqsController {
    * Retire un destinataire non encore notifié.
    */
   async removeSupplier(ctx: HttpContext) {
-    const { rfq } = await this.loadManageable(ctx)
+    const { rfq } = await this.loadSendable(ctx)
 
     return this.runTransition(ctx, rfq, async () => {
       await this.service.removeSupplier(rfq, Number(ctx.params.supplierId))
@@ -260,7 +297,7 @@ export default class RfqsController {
    * Fige le besoin : la demande devient diffusable.
    */
   async publish(ctx: HttpContext) {
-    const { rfq } = await this.loadManageable(ctx)
+    const { rfq } = await this.loadSendable(ctx)
 
     return this.runTransition(ctx, rfq, async () => {
       await this.service.publish(rfq)
@@ -275,7 +312,7 @@ export default class RfqsController {
    * n'est pas relancé.
    */
   async send(ctx: HttpContext) {
-    const { rfq, org } = await this.loadManageable(ctx)
+    const { rfq, org } = await this.loadSendable(ctx)
 
     return this.runTransition(ctx, rfq, async () => {
       const sent = await this.service.send(rfq)
@@ -303,7 +340,7 @@ export default class RfqsController {
 
     return this.runTransition(ctx, rfq, async () => {
       const wasExpired = rfq.status === 'expired'
-      await this.service.extendDeadline(rfq, payload)
+      await this.deadlines.extendDeadline(rfq, payload)
       ctx.session.flash(
         'success',
         ctx.i18n.t(wasExpired ? 'rfq.flash.reopened' : 'rfq.flash.deadlineExtended')
@@ -324,18 +361,49 @@ export default class RfqsController {
   }
 
   /**
-   * Charge la demande de l'organisation courante (404 si elle appartient à une
-   * autre) et vérifie le droit de la piloter. L'organisation est renvoyée avec
-   * la demande : `send` en a besoin pour nommer l'acheteur dans le mail, sans
-   * la résoudre une seconde fois.
+   * Charge une demande de l'organisation courante pour la préparer ou l'envoyer
+   * (`canSendRfq`, jusqu'au rôle `member`).
    */
-  private async loadManageable({
-    auth,
-    bouncer,
-    params,
-  }: RfqContext): Promise<{ rfq: Rfq; org: Organization }> {
+  /**
+   * Fil d'échanges de chaque destinataire déjà notifié (#226), le fournisseur
+   * nommé : l'agence le connaît. Reste ici : c'est l'orchestration de
+   * l'écran (lecture des fils, autorisation par destinataire).
+   */
+  private async threadsFor(rfq: Rfq, bouncer: HttpContext['bouncer']): Promise<RfqThreadType[]> {
+    const recipients = rfq.suppliers.filter(({ status }) => status !== 'pending')
+    const loaded = await this.threads.threadsFor(recipients.map(({ id }) => id))
+    const closed = this.threads.isClosed(rfq)
+    return Promise.all(
+      recipients.map(async (recipient) =>
+        new RfqThreadTransformer(recipient, {
+          thread: loaded.get(recipient.id) ?? null,
+          viewerSide: 'agency',
+          counterpartName: recipient.supplierOrganization.name,
+          canWrite: await bouncer.allows('canMessageRfqSupplier', rfq, recipient),
+          closed,
+        }).toObject()
+      )
+    )
+  }
+
+  private loadSendable(ctx: RfqContext): Promise<{ rfq: Rfq; org: Organization }> {
+    return this.loadAuthorized(ctx, 'canSendRfq')
+  }
+
+  /**
+   * Charge une demande de l'organisation courante pour une décision (clôture,
+   * échéance) : `canManageRfq`, responsables seulement.
+   */
+  private loadManageable(ctx: RfqContext): Promise<{ rfq: Rfq; org: Organization }> {
+    return this.loadAuthorized(ctx, 'canManageRfq')
+  }
+
+  private async loadAuthorized(
+    { auth, bouncer, params }: RfqContext,
+    ability: 'canSendRfq' | 'canManageRfq'
+  ): Promise<{ rfq: Rfq; org: Organization }> {
     const org = await this.organizations.currentFor(auth.getUserOrFail())
-    await bouncer.authorize('canManageRfq', org)
+    await bouncer.authorize(ability, org)
 
     return { rfq: await this.service.findForBuyer(Number(params.id), org.id), org }
   }
@@ -371,6 +439,37 @@ export default class RfqsController {
   ): Promise<{ productId?: number; productSearch?: string }> {
     try {
       return await rfqLookupQueryValidator.validate(request.qs())
+    } catch (error) {
+      if (error instanceof vineErrors.E_VALIDATION_ERROR) return {}
+      throw error
+    }
+  }
+
+  /**
+   * Filtres de « Mes demandes », validés **champ par champ** : une valeur
+   * invalide (`?status=bogus`) est ignorée sans faire tomber l'autre filtre
+   * (`?status=responded&authorId=abc` garde le statut). C'est une URL, pas une
+   * saisie : rien n'est refusé.
+   */
+  private async listFilters(request: HttpContext['request']): Promise<RfqBuyerFilters> {
+    const query = request.qs()
+    const [status, author] = await Promise.all([
+      this.validQueryOrEmpty(rfqListStatusValidator, query),
+      this.validQueryOrEmpty(rfqListAuthorValidator, query),
+    ])
+    return { ...status, ...author }
+  }
+
+  /**
+   * Valide une partie de la query string ; `{}` si elle est invalide. Reste
+   * ici : c'est l'orchestration d'un validateur VineJS, pas un calcul pur.
+   */
+  private async validQueryOrEmpty<T extends object>(
+    validator: { validate: (data: unknown) => Promise<T> },
+    query: unknown
+  ): Promise<Partial<T>> {
+    try {
+      return await validator.validate(query)
     } catch (error) {
       if (error instanceof vineErrors.E_VALIDATION_ERROR) return {}
       throw error

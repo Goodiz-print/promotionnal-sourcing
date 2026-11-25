@@ -9,6 +9,7 @@ import BasePagination from '~/components/base/base_pagination.vue'
 import BaseTable from '~/components/base/base_table.vue'
 import type { AdminOrganizationListItem } from '#shared/types/admin_organization'
 import type { Paginated } from '#shared/types/pagination'
+import { formatShortDate } from '#shared/helpers/date'
 
 /** Tableau paginé des organisations : lien vers la fiche, type, pays, membres, activité. */
 defineProps<{ organizations: Paginated<AdminOrganizationListItem> }>()
@@ -20,7 +21,7 @@ const showUrl = (organization: AdminOrganizationListItem) =>
   urlFor('admin.organizations.show', { locale: locale.value, id: organization.id })
 
 function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(locale.value)
+  return formatShortDate(value, locale.value)
 }
 </script>
 
@@ -57,6 +58,13 @@ function formatDate(value: string): string {
           >
             {{ organization.name }}
           </Link>
+          <BaseBadge
+            v-if="organization.quoteAddressSource === 'members'"
+            tone="warning"
+            class="ml-2"
+          >
+            {{ t('admin.organizations.quoteAddress.missing') }}
+          </BaseBadge>
         </td>
         <td class="text-text-secondary">
           {{ t(`admin.organizations.types.${organization.organizationType}`) }}

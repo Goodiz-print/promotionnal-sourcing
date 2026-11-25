@@ -16,7 +16,12 @@
     "body": "{buyerName} vous invite à chiffrer la demande « {rfqTitle} » ({itemCount, plural, one {# ligne} other {# lignes}}).",
     "deadline": "Réponse attendue avant le {deadline}.",
     "cta": "Consulter la demande",
-    "footer": "Connectez-vous à votre espace fournisseur pour consulter la demande ou la décliner."
+    "footer": "Connectez-vous à votre espace fournisseur pour consulter la demande ou la décliner.",
+    "anonymous": {
+      "subject": "Nouvelle demande de devis : « {rfqTitle} »",
+      "title": "Une agence vous consulte sur {brandName}",
+      "body": "Une agence vous invite à chiffrer la demande « {rfqTitle} » ({itemCount, plural, one {# ligne} other {# lignes}})."
+    }
   },
   "passwordReset": {
     "subject": "Réinitialisation de votre mot de passe",
@@ -46,7 +51,30 @@
     "body": "{buyerName} vous a adressé la demande « {rfqTitle} » et vous n'avez pas encore pu la consulter.",
     "deadline": "Réponse attendue avant le {deadline}.",
     "cta": "Consulter la demande",
-    "footer": "Ceci est l'unique rappel pour cette demande. Vous pouvez aussi la décliner depuis votre espace fournisseur."
+    "footer": "Ceci est l'unique rappel pour cette demande. Vous pouvez aussi la décliner depuis votre espace fournisseur.",
+    "anonymous": {
+      "body": "Une agence vous a adressé la demande « {rfqTitle} » et vous n'avez pas encore pu la consulter."
+    }
+  },
+  "rfqDetails": {
+    "description": "Description de la demande",
+    "linesTitle": "{count, plural, one {# ligne à chiffrer} other {# lignes à chiffrer}}",
+    "reference": "Référence",
+    "variant": "Variante",
+    "quantity": "Quantité",
+    "marking": "Marquage",
+    "markingColors": "{count, plural, one {# couleur} other {# couleurs}}",
+    "noMarking": "Sans marquage",
+    "note": "Note de l'agence",
+    "unitPrice": "Prix unitaire indicatif",
+    "markingUnitPrice": "Marquage / pièce indicatif",
+    "setupCharge": "Frais techniques indicatifs",
+    "total": "Total indicatif",
+    "price": "Prix indicatif",
+    "noPrice": "Pas de prix catalogue : à chiffrer",
+    "indicativeNotice": "Les prix indiqués sont les prix indicatifs affichés sur {brandName}, calculés à partir de votre catalogue. Ce ne sont pas des prix convenus : vous pouvez proposer un meilleur tarif ou vous y tenir.",
+    "replyHint": "Pour répondre, répondez simplement à ce mail en joignant votre devis (PDF).",
+    "platformLink": "Vous pouvez aussi consulter la demande sur la plateforme :"
   },
   "quoteReceived": {
     "subject": "Nouveau devis de {supplierName} pour « {rfqTitle} »",
@@ -78,5 +106,79 @@
   "announcement": {
     "footer": "Vous recevez ce message car vous avez un compte {brandName}.",
     "cta": "Ouvrir {brandName}"
+  },
+  "notificationReminder": {
+    "subject": "Action attendue : une notification importante n'a pas été lue",
+    "title": "Une notification importante vous attend",
+    "intro": "Cette notification vous a été envoyée sur {brandName} et n'a pas encore été lue :",
+    "cta": "Ouvrir l'écran concerné",
+    "footer": "Vous recevez ce rappel une seule fois. Il n'est plus envoyé dès que la notification est lue."
+  },
+  "subscriptionActivated": {
+    "subject": "Votre abonnement {planName} est actif",
+    "title": "Abonnement {planName} activé",
+    "intro": "L'abonnement {planName} de {organizationName} est actif sur {brandName}.",
+    "period": "Il couvre la période du {startsOn} au {endsOn} inclus.",
+    "since": "Il est actif depuis le {startsOn}.",
+    "features": "Votre formule comprend :",
+    "cta": "Voir mon abonnement",
+    "footer": "Vous recevez ce mail en tant que responsable de l'organisation."
+  },
+  "subscriptionExpiring": {
+    "subject": "Votre abonnement {planName} se termine le {endsOn}",
+    "title": "Votre abonnement {planName} se termine dans {daysLeft, plural, one {# jour} other {# jours}}",
+    "intro": "L'abonnement {planName} de {organizationName} se termine le {endsOn}.",
+    "after": "Sans renouvellement, votre organisation repassera en formule gratuite : l'identité des agences ne sera plus visible sur vos demandes de devis ni dans vos statistiques.",
+    "cta": "Renouveler mon abonnement",
+    "footer": "Vous recevez ce rappel en tant que responsable de l'organisation."
+  },
+  "quoteEmailVerification": {
+    "subject": "Confirmez l'adresse de réception des demandes de devis de {organizationName}",
+    "title": "Confirmez cette adresse",
+    "body": "{organizationName} a choisi cette adresse pour recevoir ses demandes de devis sur {brandName}. Confirmez-la pour que les agences puissent vous joindre ici.",
+    "cta": "Confirmer l'adresse",
+    "validity": "Ce lien est valable {days, plural, one {# jour} other {# jours}}.",
+    "ignore": "Si vous ne travaillez pas pour {organizationName}, ignorez ce message : aucune demande ne vous sera envoyée."
+  },
+  "subscriptionUpsell": {
+    "title": "Abonnez-vous pour connaître l'agence",
+    "body": "Abonnez-vous pour connaître l'agence qui vous consulte et la contacter directement. La souscription est réservée aux propriétaires et administrateurs de votre organisation.",
+    "cta": "Découvrir les abonnements"
+  },
+  "buyerContact": {
+    "title": "Coordonnées de l'agence",
+    "agency": "Agence",
+    "requester": "Demande faite par",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "address": "Adresse"
+  },
+  "supplierReplyReceived": {
+    "subject": "Réponse de {supplierName} à « {rfqTitle} »",
+    "subjectLate": "Réponse tardive de {supplierName} à « {rfqTitle} »",
+    "title": "{supplierName} a répondu à votre demande",
+    "body": "{supplierName} a répondu par mail à votre demande « {rfqTitle} ».",
+    "lateNotice": "Réponse tardive : elle est arrivée après l'échéance de la demande.",
+    "messageHeading": "Son message :",
+    "documentsHeading": "Devis joints :",
+    "downloadHint": "Les liens demandent d'être connecté à votre compte.",
+    "cta": "Ouvrir la demande",
+    "footer": "Vous recevez ce message car vous pilotez cette demande de devis.",
+    "replyHint": "Répondez simplement à ce mail : votre réponse sera transmise au fournisseur."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Message de {agencyName} sur « {rfqTitle} »",
+      "anonymous": "Message de l'agence sur « {rfqTitle} »"
+    },
+    "title": {
+      "named": "{agencyName} vous a écrit",
+      "anonymous": "L'agence vous a écrit"
+    },
+    "body": "Nouveau message à propos de la demande « {rfqTitle} » :",
+    "attachmentsHeading": "Pièces jointes, à consulter dans l'application :",
+    "replyHint": "Répondez simplement à ce mail : votre réponse sera transmise à l'agence.",
+    "cta": "Ouvrir la demande",
+    "footer": "Vous recevez ce message car votre entreprise a reçu cette demande de devis."
   }
 }

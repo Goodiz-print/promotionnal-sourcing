@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */
+ 
 import type { routes } from './index.ts'
 
 export interface ApiDefinition {
@@ -21,6 +21,10 @@ export interface ApiDefinition {
     show: typeof routes['health.show']
     details: typeof routes['health.details']
   }
+  webhooks: {
+    stripe: typeof routes['webhooks.stripe']
+    inboundMail: typeof routes['webhooks.inbound_mail']
+  }
   home: typeof routes['home']
   suppliers: {
     index: typeof routes['suppliers.index']
@@ -30,6 +34,9 @@ export interface ApiDefinition {
     index: typeof routes['products.index']
     show: typeof routes['products.show']
     imageSearch: typeof routes['products.image_search']
+  }
+  ads: {
+    click: typeof routes['ads.click']
   }
   organization: {
     invitations: {
@@ -57,6 +64,90 @@ export interface ApiDefinition {
     notice: typeof routes['email.notice']
     verification: {
       resend: typeof routes['email.verification.resend']
+    }
+  }
+  supplier: {
+    quoteEmail: {
+      verify: typeof routes['supplier.quoteEmail.verify']
+    }
+    profile: typeof routes['supplier.profile'] & {
+      update: typeof routes['supplier.profile.update']
+      quoteEmail: {
+        resend: typeof routes['supplier.profile.quoteEmail.resend']
+      }
+    }
+    products: {
+      index: typeof routes['supplier.products.index']
+      create: typeof routes['supplier.products.create']
+      store: typeof routes['supplier.products.store']
+      edit: typeof routes['supplier.products.edit']
+      update: typeof routes['supplier.products.update']
+      destroy: typeof routes['supplier.products.destroy']
+      documents: {
+        store: typeof routes['supplier.products.documents.store']
+        destroy: typeof routes['supplier.products.documents.destroy']
+      }
+    }
+    documents: {
+      store: typeof routes['supplier.documents.store']
+      destroy: typeof routes['supplier.documents.destroy']
+    }
+    rfqs: {
+      index: typeof routes['supplier.rfqs.index']
+      show: typeof routes['supplier.rfqs.show']
+      decline: typeof routes['supplier.rfqs.decline']
+      messages: {
+        store: typeof routes['supplier.rfqs.messages.store']
+      }
+    }
+    quoteDocuments: {
+      store: typeof routes['supplier.quote_documents.store']
+      download: typeof routes['supplier.quote_documents.download']
+    }
+    quotes: {
+      index: typeof routes['supplier.quotes.index']
+      create: typeof routes['supplier.quotes.create']
+      store: typeof routes['supplier.quotes.store']
+      show: typeof routes['supplier.quotes.show']
+      update: typeof routes['supplier.quotes.update']
+      submit: typeof routes['supplier.quotes.submit']
+      destroy: typeof routes['supplier.quotes.destroy']
+    }
+    orders: {
+      index: typeof routes['supplier.orders.index']
+      show: typeof routes['supplier.orders.show']
+      confirm: typeof routes['supplier.orders.confirm']
+      produce: typeof routes['supplier.orders.produce']
+      ship: typeof routes['supplier.orders.ship']
+      cancel: typeof routes['supplier.orders.cancel']
+    }
+    ads: {
+      index: typeof routes['supplier.ads.index']
+      create: typeof routes['supplier.ads.create']
+      store: typeof routes['supplier.ads.store']
+      wallet: {
+        topUp: typeof routes['supplier.ads.wallet.top_up']
+      }
+      edit: typeof routes['supplier.ads.edit']
+      update: typeof routes['supplier.ads.update']
+      status: typeof routes['supplier.ads.status']
+      destroy: typeof routes['supplier.ads.destroy']
+    }
+    subscription: {
+      show: typeof routes['supplier.subscription.show']
+      checkout: typeof routes['supplier.subscription.checkout']
+      portal: typeof routes['supplier.subscription.portal']
+    }
+    contacts: {
+      index: typeof routes['supplier.contacts.index']
+      store: typeof routes['supplier.contacts.store']
+      settings: typeof routes['supplier.contacts.settings']
+      update: typeof routes['supplier.contacts.update']
+      destroy: typeof routes['supplier.contacts.destroy']
+      move: typeof routes['supplier.contacts.move']
+    }
+    insights: {
+      index: typeof routes['supplier.insights.index']
     }
   }
   newAccount: {
@@ -104,49 +195,6 @@ export interface ApiDefinition {
   dashboard: {
     show: typeof routes['dashboard.show']
   }
-  supplier: {
-    profile: typeof routes['supplier.profile'] & {
-      update: typeof routes['supplier.profile.update']
-    }
-    products: {
-      index: typeof routes['supplier.products.index']
-      create: typeof routes['supplier.products.create']
-      store: typeof routes['supplier.products.store']
-      edit: typeof routes['supplier.products.edit']
-      update: typeof routes['supplier.products.update']
-      destroy: typeof routes['supplier.products.destroy']
-      documents: {
-        store: typeof routes['supplier.products.documents.store']
-        destroy: typeof routes['supplier.products.documents.destroy']
-      }
-    }
-    documents: {
-      store: typeof routes['supplier.documents.store']
-      destroy: typeof routes['supplier.documents.destroy']
-    }
-    rfqs: {
-      index: typeof routes['supplier.rfqs.index']
-      show: typeof routes['supplier.rfqs.show']
-      decline: typeof routes['supplier.rfqs.decline']
-    }
-    quotes: {
-      index: typeof routes['supplier.quotes.index']
-      create: typeof routes['supplier.quotes.create']
-      store: typeof routes['supplier.quotes.store']
-      show: typeof routes['supplier.quotes.show']
-      update: typeof routes['supplier.quotes.update']
-      submit: typeof routes['supplier.quotes.submit']
-      destroy: typeof routes['supplier.quotes.destroy']
-    }
-    orders: {
-      index: typeof routes['supplier.orders.index']
-      show: typeof routes['supplier.orders.show']
-      confirm: typeof routes['supplier.orders.confirm']
-      produce: typeof routes['supplier.orders.produce']
-      ship: typeof routes['supplier.orders.ship']
-      cancel: typeof routes['supplier.orders.cancel']
-    }
-  }
   rfqs: {
     index: typeof routes['rfqs.index']
     create: typeof routes['rfqs.create']
@@ -161,6 +209,9 @@ export interface ApiDefinition {
       store: typeof routes['rfqs.suppliers.store']
       destroy: typeof routes['rfqs.suppliers.destroy']
     }
+    messages: {
+      store: typeof routes['rfqs.messages.store']
+    }
     publish: typeof routes['rfqs.publish']
     send: typeof routes['rfqs.send']
     close: typeof routes['rfqs.close']
@@ -172,6 +223,19 @@ export interface ApiDefinition {
     show: typeof routes['quotes.show']
     accept: typeof routes['quotes.accept']
     reject: typeof routes['quotes.reject']
+  }
+  quoteDocuments: {
+    download: typeof routes['quote_documents.download']
+    select: typeof routes['quote_documents.select']
+  }
+  quoteCart: {
+    show: typeof routes['quote_cart.show']
+    items: {
+      store: typeof routes['quote_cart.items.store']
+      update: typeof routes['quote_cart.items.update']
+      destroy: typeof routes['quote_cart.items.destroy']
+    }
+    checkout: typeof routes['quote_cart.checkout']
   }
   orders: {
     index: typeof routes['orders.index']
@@ -189,6 +253,14 @@ export interface ApiDefinition {
   }
   admin: {
     dashboard: typeof routes['admin.dashboard']
+    ads: {
+      index: typeof routes['admin.ads.index']
+      wallets: {
+        adjust: typeof routes['admin.ads.wallets.adjust']
+      }
+      suspend: typeof routes['admin.ads.suspend']
+      restore: typeof routes['admin.ads.restore']
+    }
     organizations: {
       index: typeof routes['admin.organizations.index']
       show: typeof routes['admin.organizations.show']
@@ -200,6 +272,11 @@ export interface ApiDefinition {
       removeMember: typeof routes['admin.organizations.remove_member']
       revokeInvitation: typeof routes['admin.organizations.revoke_invitation']
       resendInvitation: typeof routes['admin.organizations.resend_invitation']
+      subscriptions: {
+        store: typeof routes['admin.organizations.subscriptions.store']
+        extend: typeof routes['admin.organizations.subscriptions.extend']
+        cancel: typeof routes['admin.organizations.subscriptions.cancel']
+      }
     }
     users: {
       index: typeof routes['admin.users.index']
@@ -259,6 +336,13 @@ export interface ApiDefinition {
       show: typeof routes['admin.mail.show']
       retry: typeof routes['admin.mail.retry']
     }
+    inboundMail: {
+      index: typeof routes['admin.inbound_mail.index']
+      show: typeof routes['admin.inbound_mail.show']
+      attach: typeof routes['admin.inbound_mail.attach']
+      replay: typeof routes['admin.inbound_mail.replay']
+      dismiss: typeof routes['admin.inbound_mail.dismiss']
+    }
     storage: {
       index: typeof routes['admin.storage.index']
       recover: typeof routes['admin.storage.recover']
@@ -281,6 +365,11 @@ export interface ApiDefinition {
       index: typeof routes['admin.moderation.index']
       show: typeof routes['admin.moderation.show']
       decide: typeof routes['admin.moderation.decide']
+    }
+    supplierLinks: {
+      index: typeof routes['admin.supplier_links.index']
+      link: typeof routes['admin.supplier_links.link']
+      unlink: typeof routes['admin.supplier_links.unlink']
     }
     agencyReviews: {
       index: typeof routes['admin.agency_reviews.index']

@@ -2,6 +2,7 @@
   "nav": {
     "dashboard": "Översikt",
     "organizations": "Organisationer",
+    "supplierLinks": "Leverantörskoppling",
     "users": "Användare",
     "products": "Produkter",
     "categories": "Kategorier",
@@ -24,8 +25,10 @@
     "queue": "Queue",
     "search": "Search",
     "mail": "Emails",
+    "inboundMail": "Inbound emails",
     "storage": "Storage",
-    "health": "Health"
+    "health": "Health",
+    "ads": "Sponsrade produkter"
   },
   "pagination": {
     "previous": "Föregående",
@@ -40,7 +43,8 @@
       "products": "Produkter",
       "rfqs": "Offertförfrågningar",
       "pendingModeration": "Att moderera",
-      "pendingAgencyReviews": "Byråer att granska"
+      "pendingAgencyReviews": "Byråer att granska",
+      "pendingSupplierLinks": "Leverantörsposter att koppla"
     },
     "archived": "{count, plural, =0 {Inga arkiverade} one {# arkiverad} other {# arkiverade}}",
     "kpi": {
@@ -115,7 +119,9 @@
       "search": "Sök",
       "searchPlaceholder": "Namn, slug, SIRET eller moms",
       "country": "Land",
-      "allCountries": "Alla länder"
+      "allCountries": "Alla länder",
+      "missingQuoteAddress": "Utan mottagaradress",
+      "missingQuoteAddressHint": "Leverantörer vars förfrågningar går till kontots ansvariga i brist på mottagar- eller kontaktadress."
     },
     "types": {
       "buyer": "Köpare",
@@ -194,6 +200,9 @@
         "no": "Nej",
         "supplier": {
           "title": "Leverantörsprofil",
+          "quoteEmail": "Mottagaradress för förfrågningar",
+          "quoteEmailStatus": "Bekräftelse av mottagaradressen",
+          "quoteEmailPending": "Väntar på bekräftelse",
           "companyType": "Företagstyp",
           "commercialStatus": "Kommersiell status",
           "minOrderQuantity": "Minsta orderkvantitet",
@@ -271,6 +280,86 @@
         "revoked": "Inbjudan återkallad.",
         "resent": "Inbjudan skickad igen."
       }
+    },
+    "subscription": {
+      "title": "Abonnemang",
+      "empty": "Inget abonnemang: gratisplan.",
+      "create": "Skapa abonnemang",
+      "extend": "Ändra slutdatum",
+      "cancel": "Säg upp",
+      "cancelConfirm": "Säga upp abonnemanget nu? Organisationen går tillbaka till gratisplanen.",
+      "periodUntil": "till",
+      "fields": {
+        "plan": "Plan",
+        "status": "Status",
+        "period": "Period",
+        "origin": "Ursprung",
+        "author": "Registrerat av",
+        "startsOn": "Första dag",
+        "endsOn": "Sista dag"
+      },
+      "origins": {
+        "manual": "Manuellt",
+        "stripe": "Online"
+      },
+      "done": {
+        "created": "Abonnemanget har sparats.",
+        "extended": "Slutdatumet har ändrats.",
+        "cancelled": "Abonnemanget har sagts upp."
+      },
+      "errors": {
+        "alreadyOpen": "Det finns redan ett pågående eller planerat abonnemang: förläng eller säg upp det.",
+        "invalidPeriod": "Ogiltiga datum: sista dagen måste komma efter den första och får inte ha passerat.",
+        "notEditable": "Det här abonnemanget kan inte längre ändras här.",
+        "notSupplier": "Endast en leverantörsorganisation kan teckna abonnemang."
+      }
+    },
+    "quoteAddress": {
+      "missing": "Utan mottagaradress"
+    }
+  },
+  "supplierLinks": {
+    "title": "Koppling av leverantörsposter",
+    "subtitle": "Importerade poster som väntar på leverantörens samtycke. Att koppla dem till dess organisation registrerar samtycket och publicerar katalogen.",
+    "unpublishedNotice": "Dessa poster och deras produkter är inte publicerade: varken i katalogen, sökningen eller på offentliga sidor. Att koppla dem till leverantörens organisation publicerar dem; att koppla bort dem tar bort dem.",
+    "resultsCount": "{count, plural, =0 {Ingen post} one {# post} other {# poster}}",
+    "empty": {
+      "pending": "Ingen post väntar på samtycke.",
+      "linked": "Ingen kopplad post."
+    },
+    "emptyDescription": "Byt filter eller kom tillbaka efter nästa import.",
+    "filters": {
+      "status": "Visa",
+      "pending": "Väntar på samtycke",
+      "linked": "Kopplade"
+    },
+    "columns": {
+      "supplier": "Leverantörspost",
+      "products": "Produkter",
+      "suggestion": "Förslag",
+      "organization": "Organisation",
+      "linkedTo": "Organisation",
+      "agreement": "Samtycke",
+      "actions": "Åtgärder"
+    },
+    "match": {
+      "email": "{name} (samma e-post)",
+      "domain": "{name} (samma domän)"
+    },
+    "noSuggestion": "Ingen matchning",
+    "chooseOrganization": "Välj en organisation",
+    "organizationLabel": "Organisation att koppla till {name}",
+    "link": "Koppla",
+    "unlink": "Koppla från",
+    "confirmUnlink": "Koppla från {name}? Produkterna tas bort från webbplatsen.",
+    "by": "av {email}",
+    "noAgreementDate": "Kopplad tidigare",
+    "linked": "Posten är kopplad: katalogen är publicerad.",
+    "unlinked": "Posten är frånkopplad: produkterna tas bort från webbplatsen.",
+    "errors": {
+      "alreadyLinked": "Posten är redan kopplad till en organisation. Koppla från den först.",
+      "invalidOrganization": "Välj en aktiv leverantörsorganisation.",
+      "notLinked": "Posten är inte kopplad till någon organisation."
     }
   },
   "users": {
@@ -446,6 +535,8 @@
       "organization.member_removed": "Medlem borttagen",
       "organization.invitation_revoked": "Inbjudan återkallad",
       "organization.invitation_resent": "Inbjudan skickad igen",
+      "supplier.linked": "Leverantörspost kopplad",
+      "supplier.unlinked": "Leverantörspost frånkopplad",
       "product.hidden": "Produkt dold",
       "product.unhidden": "Produkt gjord synlig",
       "product.unpublished": "Produkt avpublicerad",
@@ -483,7 +574,16 @@
       "search.evaluation_requested": "Search evaluation requested",
       "mail.retried": "Email retried",
       "mail.bulk_retried": "Failed emails retried",
-      "storage.recovery_requested": "Storage recovery requested"
+      "inbound_mail.attached": "Inbound email attached to a request",
+      "inbound_mail.replayed": "Inbound email processing replayed",
+      "inbound_mail.dismissed": "Inbound email dismissed",
+      "storage.recovery_requested": "Storage recovery requested",
+      "ad_campaign.suspended": "Sponsrad kampanj avstängd",
+      "ad_campaign.restored": "Avstängning av kampanj hävd",
+      "ad_wallet.adjusted": "Annonsplånbok justerad",
+      "subscription.created": "Abonnemang skapat",
+      "subscription.extended": "Abonnemangets slut ändrat",
+      "subscription.cancelled": "Abonnemang uppsagt"
     },
     "targets": {
       "user": "Användare",
@@ -491,6 +591,7 @@
       "attribute": "Attribut",
       "attribute_value": "Attributvärde",
       "organization": "Organisation",
+      "supplier": "Leverantörspost",
       "product": "Produkt",
       "rfq": "Offertförfrågan",
       "certification": "Certifiering",
@@ -507,7 +608,9 @@
       "queue_schedule": "Scheduled job",
       "search_run": "Search operation",
       "mail_delivery": "Email delivery",
-      "storage": "Storage"
+      "inbound_mail": "Inbound email",
+      "storage": "Storage",
+      "ad_campaign": "Sponsrad kampanj"
     }
   },
   "demand": {
@@ -1359,6 +1462,7 @@
       "retry": "Retry",
       "cancel": "Cancel",
       "retryConfirm": "Retry the {name} job?",
+      "cancelJob": "Cancel job",
       "cancelConfirm": "Permanently cancel the {name} job? It will be removed from the queue."
     },
     "detail": {
@@ -1569,6 +1673,108 @@
       "bulkPartial": "{count} mail(s) put back in the queue; {failed} could not be queued and remain to be retried."
     }
   },
+  "inboundMail": {
+    "title": "Inbound emails",
+    "subtitle": "Supplier replies received at the relay address: attach, replay or dismiss emails that did not go through.",
+    "resultsCount": "{count, plural, =0 {No email} one {# email} other {# emails}}",
+    "empty": "No email matches.",
+    "emptyDescription": "Emails appear here as soon as the inbound provider announces them.",
+    "back": "Back to inbound emails",
+    "noSubject": "(no subject)",
+    "unattached": "Not attached",
+    "statuses": {
+      "received": "Pending",
+      "processing": "Processing",
+      "processed": "Processed",
+      "rejected": "Dismissed",
+      "failed": "Failed"
+    },
+    "rejections": {
+      "too_large": "Too large",
+      "loop": "Mail loop",
+      "auto_reply": "Automatic reply",
+      "unknown_address": "Unknown address",
+      "expired_address": "Expired address",
+      "unknown_sender": "Avsändare utanför byrån",
+      "dismissed": "Dismissed by an admin"
+    },
+    "filters": {
+      "status": "Status",
+      "rejection": "Rejection reason",
+      "all": "All"
+    },
+    "columns": {
+      "sender": "Sender",
+      "subject": "Subject",
+      "target": "Request / supplier",
+      "status": "Status",
+      "receivedAt": "Received",
+      "actions": "Actions"
+    },
+    "actions": {
+      "attach": "Attach",
+      "replay": "Replay",
+      "dismiss": "Dismiss",
+      "attachConfirm": "Attach this email to this request and process it?",
+      "replayConfirm": "Replay the processing of this email? An already processed email creates no duplicate.",
+      "dismissConfirm": "Dismiss this email? It will no longer be processed."
+    },
+    "attach": {
+      "title": "Attach to a request",
+      "description": "Suppliers from the sender’s domain, or recipients of a request looked up by its number. The email is then processed as a reply to that request.",
+      "rfqLabel": "Request number",
+      "rfqHint": "Empty: suggestions based on the sender.",
+      "search": "Search",
+      "empty": "No request to suggest.",
+      "emptyDescription": "Enter the number of the intended request.",
+      "columns": {
+        "rfq": "Request",
+        "supplier": "Supplier",
+        "sentAt": "Sent"
+      }
+    },
+    "detail": {
+      "summary": "Summary",
+      "recipient": "Target address",
+      "attachedManually": "Attached manually on",
+      "processedAt": "Processed",
+      "senderKnownLabel": "Sender known to the supplier",
+      "senderKnown": {
+        "yes": "Yes",
+        "no": "No"
+      },
+      "provider": "Provider",
+      "messageId": "Message-ID",
+      "error": "Error",
+      "body": "Content (text)",
+      "noBody": "No content kept: a dismissed email is only logged."
+    },
+    "attachments": {
+      "title": "Attachments",
+      "empty": "No attachment logged.",
+      "columns": {
+        "filename": "File",
+        "type": "Type",
+        "size": "Size",
+        "status": "Outcome"
+      },
+      "statuses": {
+        "stored": "Stored",
+        "rejected_type": "Type refused",
+        "rejected_size": "Too large",
+        "ignored_inline": "Inline image"
+      }
+    },
+    "flash": {
+      "processed": "The email is processed and attached to the request.",
+      "republished": "Recording of the reply replayed, without duplicates.",
+      "pending": "The email is being processed.",
+      "rejected": "The email was dismissed again by a safeguard.",
+      "failed": "Processing failed: the email stays failed and will be retried automatically.",
+      "dismissed": "The email is dismissed.",
+      "notAllowed": "This action is not possible in the email’s current state."
+    }
+  },
   "storage": {
     "title": "Storage",
     "subtitle": "Cellar file registry: recovery backlog and volume per organization.",
@@ -1665,6 +1871,37 @@
       "empty": "The monitoring job has not run yet.",
       "stale": "The states below are out of date: monitoring is no longer running (is the worker stopped?).",
       "details": "See details"
+    }
+  },
+  "ads": {
+    "title": "Sponsrade produkter",
+    "subtitle": "Alla leverantörers kampanjer, avstängning och påfyllning av annonsplånböcker.",
+    "resultsCount": "{count, plural, =0 {Inga kampanjer} one {# kampanj} other {# kampanjer}}",
+    "empty": "Inga kampanjer",
+    "emptyDescription": "Ingen leverantör har sponsrat en produkt ännu.",
+    "columns": {
+      "organization": "Organisation",
+      "wallet": "Plånbok"
+    },
+    "actions": {
+      "suspend": "Stäng av",
+      "restore": "Återställ"
+    },
+    "adjust": {
+      "title": "Justera en plånbok",
+      "description": "Kreditera (positivt belopp) eller debitera (negativt belopp) en organisations annonsplånbok. Registreras i granskningsloggen.",
+      "organizationId": "Organisationsnr",
+      "amount": "Belopp (€)",
+      "amountHint": "Negativt för att debitera.",
+      "note": "Orsak",
+      "submit": "Tillämpa"
+    },
+    "flash": {
+      "suspended": "Kampanj avstängd",
+      "restored": "Avstängningen hävd: kampanjen är pausad",
+      "adjusted": "Plånbok justerad",
+      "insufficientFunds": "Debiteringen överstiger plånbokens saldo.",
+      "organizationNotFound": "Organisationen hittades inte."
     }
   }
 }

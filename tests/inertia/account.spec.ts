@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, confirmPart, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { AccountType } from '#shared/types/account'
 
 const translations = {
@@ -52,7 +53,6 @@ const account: AccountType = {
 beforeEach(() => {
   patch.mockClear()
   destroy.mockClear()
-  vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
 })
 
 describe('account/profile_form', () => {
@@ -96,19 +96,23 @@ describe('account/danger_zone', () => {
     expect(wrapper.find('form').exists()).toBe(false)
   })
 
-  it('demande confirmation puis supprime avec le mot de passe', async () => {
+  it('demande confirmation (danger) puis supprime avec le mot de passe', async () => {
+    const host = await mountConfirmHost()
     const wrapper = mount(DangerZone, { props: { blockingOrganizations: [] } })
 
     await wrapper.find('form').trigger('submit')
-    expect(window.confirm).toHaveBeenCalled()
+    expect(confirmText(host)).toBe('Supprimer ?')
+    expect(confirmPart(host, 'confirm').classes()).toContain('text-danger')
+    await answerConfirm(host, 'confirm')
     expect(destroy).toHaveBeenCalledWith('/fr/account.destroy', { preserveScroll: true })
   })
 
   it("ne supprime rien si l'utilisateur annule", async () => {
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(false))
+    const host = await mountConfirmHost()
     const wrapper = mount(DangerZone, { props: { blockingOrganizations: [] } })
 
     await wrapper.find('form').trigger('submit')
+    await answerConfirm(host, 'cancel')
     expect(destroy).not.toHaveBeenCalled()
   })
 })

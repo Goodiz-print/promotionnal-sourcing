@@ -5,17 +5,26 @@ import { toast, Toaster } from 'vue-sonner'
 import type { Data } from '@generated/data'
 import AppSidebar from '~/components/app/app_sidebar.vue'
 import AppTopbar from '~/components/app/app_topbar.vue'
+import ConfirmDialogHost from '~/components/app/confirm_dialog_host.vue'
 import { useSidebarCollapsed } from '~/composables/use_sidebar_collapsed'
+import { useSidebarPeek } from '~/composables/use_sidebar_peek'
 
 /**
  * Shell applicatif : sidebar fixe (panneau coulissant sur mobile) + topbar +
  * contenu sur fond « sunken ». Les pages posent leurs cartes blanches dessus.
  * Le contenu occupe toute la largeur disponible. Dès md, la sidebar se réduit à un rail d'icônes (choix mémorisé).
+ * Réduite, elle se déplie au survol par-dessus le contenu (la grille garde la largeur du rail).
  */
 const page = usePage<Data.SharedProps>()
 
 const mobileMenuOpen = ref(false)
-const { collapsed, toggle: toggleCollapsed } = useSidebarCollapsed()
+const { collapsed, toggle } = useSidebarCollapsed()
+const { peeking, enter: startPeek, leave: stopPeek } = useSidebarPeek()
+
+function toggleCollapsed() {
+  stopPeek()
+  toggle()
+}
 
 watch(
   () => page.url,
@@ -52,10 +61,16 @@ watch(
     />
     <aside
       id="app-sidebar"
-      class="fixed inset-y-0 left-0 z-50 w-[272px] border-r border-hairline bg-card shadow-elevation-3 transition-transform duration-200 ease-out md:sticky md:top-0 md:h-screen md:w-auto md:translate-x-0 md:shadow-none"
-      :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
+      class="fixed inset-y-0 left-0 z-50 w-[272px] border-r border-hairline bg-card shadow-elevation-3 transition-[transform,width,box-shadow] duration-200 ease-out md:sticky md:top-0 md:h-screen md:translate-x-0"
+      :class="[
+        mobileMenuOpen ? 'translate-x-0' : '-translate-x-full',
+        collapsed && !peeking ? 'md:w-[72px]' : 'md:w-[264px]',
+        collapsed && peeking ? 'md:shadow-elevation-3' : 'md:shadow-none',
+      ]"
+      @mouseenter="collapsed && startPeek()"
+      @mouseleave="stopPeek"
     >
-      <AppSidebar :collapsed="collapsed" @toggle-collapse="toggleCollapsed" />
+      <AppSidebar :collapsed="collapsed" :peek="peeking" @toggle-collapse="toggleCollapsed" />
     </aside>
 
     <div class="flex min-h-screen min-w-0 flex-col">
@@ -67,4 +82,5 @@ watch(
   </div>
 
   <Toaster position="top-center" rich-colors />
+  <ConfirmDialogHost />
 </template>

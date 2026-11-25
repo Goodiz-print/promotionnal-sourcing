@@ -16,7 +16,12 @@
     "body": "{buyerName} prosi o wycenę zapytania „{rfqTitle}” ({itemCount, plural, one {# pozycja} few {# pozycje} many {# pozycji} other {# pozycji}}).",
     "deadline": "Odpowiedź oczekiwana do {deadline}.",
     "cta": "Zobacz zapytanie",
-    "footer": "Zaloguj się do panelu dostawcy, aby zobaczyć zapytanie lub je odrzucić."
+    "footer": "Zaloguj się do panelu dostawcy, aby zobaczyć zapytanie lub je odrzucić.",
+    "anonymous": {
+      "subject": "Nowe zapytanie ofertowe: „{rfqTitle}”",
+      "title": "Agencja wysyła Ci zapytanie w {brandName}",
+      "body": "Agencja zaprasza Cię do wyceny zapytania „{rfqTitle}” ({itemCount, plural, one {# pozycja} few {# pozycje} many {# pozycji} other {# pozycji}})."
+    }
   },
   "passwordReset": {
     "subject": "Zresetuj hasło",
@@ -46,7 +51,30 @@
     "body": "{buyerName} wysłał(a) do Ciebie zapytanie „{rfqTitle}”, którego jeszcze nie otworzyłeś(-aś).",
     "deadline": "Odpowiedź oczekiwana do {deadline}.",
     "cta": "Zobacz zapytanie",
-    "footer": "To jedyne przypomnienie dotyczące tego zapytania. Możesz je także odrzucić w panelu dostawcy."
+    "footer": "To jedyne przypomnienie dotyczące tego zapytania. Możesz je także odrzucić w panelu dostawcy.",
+    "anonymous": {
+      "body": "Agencja wysłała Ci zapytanie „{rfqTitle}”, a Ty jeszcze go nie otworzyłeś."
+    }
+  },
+  "rfqDetails": {
+    "description": "Opis zapytania",
+    "linesTitle": "{count, plural, one {# pozycja do wyceny} few {# pozycje do wyceny} many {# pozycji do wyceny} other {# pozycji do wyceny}}",
+    "reference": "Numer referencyjny",
+    "variant": "Wariant",
+    "quantity": "Ilość",
+    "marking": "Znakowanie",
+    "markingColors": "{count, plural, one {# kolor} few {# kolory} many {# kolorów} other {# koloru}}",
+    "noMarking": "Bez znakowania",
+    "note": "Uwagi agencji",
+    "unitPrice": "Orientacyjna cena jednostkowa",
+    "markingUnitPrice": "Orientacyjne znakowanie za sztukę",
+    "setupCharge": "Orientacyjne koszty przygotowania",
+    "total": "Orientacyjna suma",
+    "price": "Cena orientacyjna",
+    "noPrice": "Brak ceny katalogowej: do wyceny",
+    "indicativeNotice": "Podane ceny to ceny orientacyjne wyświetlane w {brandName}, obliczone na podstawie Państwa katalogu. Nie są to ceny uzgodnione: mogą Państwo zaproponować lepszą stawkę lub ich się trzymać.",
+    "replyHint": "Aby odpowiedzieć, wystarczy odpisać na tę wiadomość, załączając ofertę (PDF).",
+    "platformLink": "Zapytanie można też zobaczyć na platformie:"
   },
   "quoteReceived": {
     "subject": "Nowa oferta od {supplierName} na „{rfqTitle}”",
@@ -78,5 +106,79 @@
   "announcement": {
     "footer": "Otrzymujesz tę wiadomość, ponieważ masz konto w {brandName}.",
     "cta": "Otwórz {brandName}"
+  },
+  "notificationReminder": {
+    "subject": "Wymagane działanie: ważne powiadomienie nie zostało jeszcze przeczytane",
+    "title": "Czeka na Ciebie ważne powiadomienie",
+    "intro": "To powiadomienie zostało wysłane do Ciebie w {brandName} i nie zostało jeszcze przeczytane:",
+    "cta": "Otwórz powiązaną stronę",
+    "footer": "Otrzymujesz to przypomnienie tylko raz. Nie jest wysyłane, gdy powiadomienie zostanie przeczytane."
+  },
+  "subscriptionActivated": {
+    "subject": "Twoja subskrypcja {planName} jest aktywna",
+    "title": "Subskrypcja {planName} aktywowana",
+    "intro": "Subskrypcja {planName} organizacji {organizationName} jest aktywna w {brandName}.",
+    "period": "Obejmuje okres od {startsOn} do {endsOn} włącznie.",
+    "since": "Jest aktywna od {startsOn}.",
+    "features": "Twój plan obejmuje:",
+    "cta": "Zobacz moją subskrypcję",
+    "footer": "Otrzymujesz tę wiadomość jako osoba odpowiedzialna za organizację."
+  },
+  "subscriptionExpiring": {
+    "subject": "Twoja subskrypcja {planName} kończy się {endsOn}",
+    "title": "Twoja subskrypcja {planName} kończy się za {daysLeft, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}",
+    "intro": "Subskrypcja {planName} organizacji {organizationName} kończy się {endsOn}.",
+    "after": "Bez odnowienia Twoja organizacja wróci do planu bezpłatnego: tożsamość agencji nie będzie już widoczna w zapytaniach ofertowych ani w statystykach.",
+    "cta": "Odnów subskrypcję",
+    "footer": "Otrzymujesz to przypomnienie jako osoba odpowiedzialna za organizację."
+  },
+  "quoteEmailVerification": {
+    "subject": "Potwierdź adres odbioru zapytań ofertowych firmy {organizationName}",
+    "title": "Potwierdź ten adres",
+    "body": "Firma {organizationName} wybrała ten adres do otrzymywania zapytań ofertowych w {brandName}. Potwierdź go, aby agencje mogły się z Tobą tu kontaktować.",
+    "cta": "Potwierdź adres",
+    "validity": "Ten link jest ważny przez {days, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}.",
+    "ignore": "Jeśli nie pracujesz dla {organizationName}, zignoruj tę wiadomość: nie otrzymasz żadnych zapytań."
+  },
+  "subscriptionUpsell": {
+    "title": "Wykup subskrypcję, aby poznać agencję",
+    "body": "Wykup subskrypcję, aby dowiedzieć się, która agencja wysyła Ci zapytanie, i skontaktować się z nią bezpośrednio. Subskrypcję mogą wykupić właściciele i administratorzy Twojej organizacji.",
+    "cta": "Zobacz subskrypcje"
+  },
+  "buyerContact": {
+    "title": "Dane kontaktowe agencji",
+    "agency": "Agencja",
+    "requester": "Zapytanie złożył(a)",
+    "email": "E-mail",
+    "phone": "Telefon",
+    "address": "Adres"
+  },
+  "supplierReplyReceived": {
+    "subject": "Odpowiedź od {supplierName} na „{rfqTitle}”",
+    "subjectLate": "Spóźniona odpowiedź od {supplierName} na „{rfqTitle}”",
+    "title": "{supplierName} odpowiedział na Twoje zapytanie",
+    "body": "{supplierName} odpowiedział e-mailem na Twoje zapytanie „{rfqTitle}”.",
+    "lateNotice": "Spóźniona odpowiedź: dotarła po terminie zapytania.",
+    "messageHeading": "Wiadomość:",
+    "documentsHeading": "Załączone oferty:",
+    "downloadHint": "Te linki wymagają zalogowania się na Twoje konto.",
+    "cta": "Otwórz zapytanie",
+    "footer": "Otrzymujesz tę wiadomość, ponieważ zarządzasz tym zapytaniem ofertowym.",
+    "replyHint": "Po prostu odpowiedz na tę wiadomość: Twoja odpowiedź zostanie przekazana dostawcy."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Wiadomość od {agencyName} w sprawie „{rfqTitle}”",
+      "anonymous": "Wiadomość od agencji w sprawie „{rfqTitle}”"
+    },
+    "title": {
+      "named": "{agencyName} napisała do Ciebie",
+      "anonymous": "Agencja napisała do Ciebie"
+    },
+    "body": "Nowa wiadomość dotycząca zapytania „{rfqTitle}”:",
+    "attachmentsHeading": "Załączniki, dostępne w aplikacji:",
+    "replyHint": "Po prostu odpowiedz na tę wiadomość: Twoja odpowiedź zostanie przekazana agencji.",
+    "cta": "Otwórz zapytanie",
+    "footer": "Otrzymujesz tę wiadomość, ponieważ Twoja firma otrzymała to zapytanie ofertowe."
   }
 }

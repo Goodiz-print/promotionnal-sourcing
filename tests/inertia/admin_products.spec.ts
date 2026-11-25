@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { reactive } from 'vue'
+import { answerConfirm, confirmPart, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type {
   AdminProductDetail,
   AdminProductIndexFilters,
@@ -260,15 +261,19 @@ describe('admin/products/show', () => {
   })
 
   it('archiver confirmé envoie un POST ; refusé, rien', async () => {
+    const host = await mountConfirmHost()
     const wrapper = mountShow(detail())
     const archive = wrapper.findAll('button').find((b) => b.text() === 'Archiver')!
 
-    window.confirm = vi.fn(() => false)
     await archive.trigger('click')
+    expect(confirmText(host)).toBe('Archiver ?')
+    expect(confirmText(host, 'confirm')).toBe('Archiver')
+    expect(confirmPart(host, 'confirm').classes()).toContain('text-danger')
+    await answerConfirm(host, 'cancel')
     expect(post).not.toHaveBeenCalled()
 
-    window.confirm = vi.fn(() => true)
     await archive.trigger('click')
+    await answerConfirm(host, 'confirm')
     expect(post).toHaveBeenCalledWith(
       '/fr/admin.products.archive/5',
       {},
@@ -277,11 +282,17 @@ describe('admin/products/show', () => {
   })
 
   it('masquer envoie le formulaire de motif et affiche l’erreur', async () => {
-    window.confirm = vi.fn(() => true)
+    const host = await mountConfirmHost()
     const wrapper = mountShow(detail())
 
     expect(wrapper.text()).toContain('Motif requis')
     await wrapper.find('form').trigger('submit')
+    expect(confirmText(host)).toBe('Masquer ?')
+    await answerConfirm(host, 'cancel')
+    expect(formPost).not.toHaveBeenCalled()
+
+    await wrapper.find('form').trigger('submit')
+    await answerConfirm(host, 'confirm')
     expect(formPost).toHaveBeenCalledWith(
       '/fr/admin.products.hide/5',
       expect.objectContaining({ preserveScroll: true })

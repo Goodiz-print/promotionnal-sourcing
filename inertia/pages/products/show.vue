@@ -10,6 +10,7 @@ import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import DocumentList from '~/components/documents/document_list.vue'
 import PriceTierTable from '~/components/products/price_tier_table.vue'
+import { tiersForVariant } from '#shared/helpers/price_tiers'
 import ProductCompliance from '~/components/products/show/product_compliance.vue'
 import ProductMarking from '~/components/products/show/product_marking.vue'
 import ProductOverview from '~/components/products/show/product_overview.vue'
@@ -17,8 +18,15 @@ import ProductPackaging from '~/components/products/show/product_packaging.vue'
 import ProductSpecifications from '~/components/products/show/product_specifications.vue'
 import type { ProductDetailType } from '#shared/types/product'
 import type { ProductRfqContextType } from '#shared/types/rfq'
+import SponsoredProducts from '~/components/ads/sponsored_products.vue'
+import type { SponsoredProductType } from '#shared/types/ads'
 
-const props = defineProps<{ product: ProductDetailType; rfqContext: ProductRfqContextType }>()
+const props = defineProps<{
+  product: ProductDetailType
+  rfqContext: ProductRfqContextType
+  // Produits sponsorisés de la même catégorie.
+  sponsored?: SponsoredProductType[]
+}>()
 
 const { t, locale } = useI18n()
 
@@ -27,10 +35,7 @@ const catalogueUrl = computed(() => urlFor('products.index', { locale: locale.va
 const selectedVariantId = ref<number | null>(props.product.variants[0]?.id ?? null)
 
 // Grille de la variante choisie si elle a ses propres paliers, sinon celle du produit.
-const tiers = computed(() => {
-  const own = props.product.priceTiers.filter((tier) => tier.variantId === selectedVariantId.value)
-  return own.length > 0 ? own : props.product.priceTiers.filter((tier) => tier.variantId === null)
-})
+const tiers = computed(() => tiersForVariant(props.product.priceTiers, selectedVariantId.value))
 
 const isNew = computed(() => props.product.lifecycleStatus === 'new')
 </script>
@@ -87,6 +92,14 @@ const isNew = computed(() => props.product.lifecycleStatus === 'new')
         :documents="product.documents"
         :label-for="(document) => t(`documents.types.${document.type}`)"
       />
+    </BaseSection>
+
+    <BaseSection
+      v-if="sponsored && sponsored.length > 0"
+      :title="t('ads.sponsored.productTitle')"
+      :description="t('ads.sponsored.productHint')"
+    >
+      <SponsoredProducts :items="sponsored" :columns="4" />
     </BaseSection>
   </div>
 </template>

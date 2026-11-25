@@ -11,6 +11,8 @@ export type ScannedRoutes = {
     'locale.update': { paramsTuple?: []; params?: {} }
     'health.show': { paramsTuple?: []; params?: {} }
     'health.details': { paramsTuple?: []; params?: {} }
+    'webhooks.stripe': { paramsTuple?: []; params?: {} }
+    'webhooks.inbound_mail': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.contact': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'marketing.contact.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -21,8 +23,10 @@ export type ScannedRoutes = {
     'suppliers.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'slug': ParamValue} }
     'products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'slug': ParamValue} }
+    'ads.click': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'organization.invitations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'email.verify': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.quoteEmail.verify': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'new_account.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'agency_signup.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -66,6 +70,7 @@ export type ScannedRoutes = {
     'organization.invitations.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.profile': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.profile.update': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.profile.quoteEmail.resend': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.products.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.products.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -85,6 +90,7 @@ export type ScannedRoutes = {
     'rfqs.items.from_product': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.suppliers.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.suppliers.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'supplierId': ParamValue} }
+    'rfqs.messages.store': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'supplierId': ParamValue} }
     'rfqs.publish': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.send': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.close': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -92,9 +98,14 @@ export type ScannedRoutes = {
     'supplier.rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.rfqs.decline': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.rfqs.messages.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quotes.accept': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quotes.reject': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_documents.download': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_documents.select': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.quote_documents.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.quote_documents.download': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.quotes.create': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
     'supplier.quotes.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
@@ -102,6 +113,11 @@ export type ScannedRoutes = {
     'supplier.quotes.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.submit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_cart.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'quote_cart.items.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'quote_cart.items.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_cart.items.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_cart.checkout': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'orders.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'orders.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'orders.deliver': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -116,7 +132,29 @@ export type ScannedRoutes = {
     'notifications.read': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'notifications.readAll': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'messages.report': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.ads.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.ads.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.ads.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.ads.wallet.top_up': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.ads.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.ads.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.ads.status': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.ads.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.subscription.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.subscription.checkout': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.subscription.portal': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.settings': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.contacts.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.contacts.move': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.insights.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.ads.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.ads.wallets.adjust': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.ads.suspend': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.ads.restore': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.archive': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -127,6 +165,9 @@ export type ScannedRoutes = {
     'admin.organizations.remove_member': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'membershipId': ParamValue} }
     'admin.organizations.revoke_invitation': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'invitationId': ParamValue} }
     'admin.organizations.resend_invitation': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'invitationId': ParamValue} }
+    'admin.organizations.subscriptions.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.organizations.subscriptions.extend': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'subscriptionId': ParamValue} }
+    'admin.organizations.subscriptions.cancel': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'subscriptionId': ParamValue} }
     'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.users.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.platform_role.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -162,6 +203,11 @@ export type ScannedRoutes = {
     'admin.mail.retryAll': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.mail.retry': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.inbound_mail.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.attach': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.replay': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.dismiss': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.storage.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.storage.recover': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.health.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -177,6 +223,9 @@ export type ScannedRoutes = {
     'admin.moderation.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.moderation.show': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
     'admin.moderation.decide': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
+    'admin.supplier_links.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.supplier_links.link': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.supplier_links.unlink': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.agency_reviews.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.agency_reviews.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.agency_reviews.decide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -248,8 +297,10 @@ export type ScannedRoutes = {
     'suppliers.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'slug': ParamValue} }
     'products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'slug': ParamValue} }
+    'ads.click': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'organization.invitations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'email.verify': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.quoteEmail.verify': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'agency_signup.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -274,15 +325,25 @@ export type ScannedRoutes = {
     'supplier.rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_documents.download': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.quote_documents.download': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.quotes.create': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
     'supplier.quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_cart.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'orders.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'orders.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.orders.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.orders.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'notifications.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.ads.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.ads.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.ads.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.subscription.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.insights.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.ads.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -302,12 +363,15 @@ export type ScannedRoutes = {
     'admin.search.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.inbound_mail.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.storage.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.health.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.moderation.show': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
+    'admin.supplier_links.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.agency_reviews.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.agency_reviews.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -348,8 +412,10 @@ export type ScannedRoutes = {
     'suppliers.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'slug': ParamValue} }
     'products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'slug': ParamValue} }
+    'ads.click': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'organization.invitations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'email.verify': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.quoteEmail.verify': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'new_account.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'agency_signup.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'session.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -374,15 +440,25 @@ export type ScannedRoutes = {
     'supplier.rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.rfqs.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_documents.download': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.quote_documents.download': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.quotes.create': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
     'supplier.quotes.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_cart.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'orders.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'orders.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.orders.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.orders.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'notifications.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.ads.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.ads.create': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.ads.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.subscription.show': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.insights.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.dashboard': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.ads.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.organizations.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -402,12 +478,15 @@ export type ScannedRoutes = {
     'admin.search.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.inbound_mail.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.storage.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.health.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.moderation.show': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
+    'admin.supplier_links.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.agency_reviews.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.agency_reviews.show': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.rfqs.index': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -438,6 +517,8 @@ export type ScannedRoutes = {
     'subscribe': { paramsTuple?: []; params?: {} }
     'unsubscribe': { paramsTuple?: []; params?: {} }
     'locale.update': { paramsTuple?: []; params?: {} }
+    'webhooks.stripe': { paramsTuple?: []; params?: {} }
+    'webhooks.inbound_mail': { paramsTuple?: []; params?: {} }
     'marketing.contact.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'new_account.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'agency_signup.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -457,6 +538,7 @@ export type ScannedRoutes = {
     'organization.archive': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.invitations.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'organization.invitations.resend': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.profile.quoteEmail.resend': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.products.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'supplier.products.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.documents.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
@@ -464,17 +546,34 @@ export type ScannedRoutes = {
     'rfqs.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'rfqs.items.from_product': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.suppliers.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'rfqs.messages.store': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'supplierId': ParamValue} }
     'rfqs.publish': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.send': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.close': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.rfqs.decline': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.rfqs.messages.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_documents.select': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.quote_documents.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'rfqId': ParamValue} }
     'supplier.quotes.submit': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_cart.items.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'quote_cart.checkout': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'notifications.readAll': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'messages.report': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.ads.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.ads.wallet.top_up': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.subscription.checkout': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.subscription.portal': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.store': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.move': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.ads.wallets.adjust': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'admin.ads.suspend': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.ads.restore': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.archive': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.restore': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.resend_invitation': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'invitationId': ParamValue} }
+    'admin.organizations.subscriptions.store': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.organizations.subscriptions.cancel': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'subscriptionId': ParamValue} }
     'admin.users.suspend': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.reactivate': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.users.resend_verification': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -490,6 +589,9 @@ export type ScannedRoutes = {
     'admin.search.evaluate': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.retryAll': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.mail.retry': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.attach': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.replay': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.inbound_mail.dismiss': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.storage.recover': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
     'admin.products.hide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.products.unhide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -499,6 +601,7 @@ export type ScannedRoutes = {
     'admin.products.restore': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.products.reindex': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.moderation.decide': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'type': ParamValue,'id': ParamValue} }
+    'admin.supplier_links.link': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.agency_reviews.decide': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.rfqs.close': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.rfqs.expire': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -528,6 +631,7 @@ export type ScannedRoutes = {
     'quotes.accept': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'quotes.reject': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.quotes.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_cart.items.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'orders.deliver': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'orders.cancel': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.orders.confirm': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -535,9 +639,14 @@ export type ScannedRoutes = {
     'supplier.orders.ship': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'supplier.orders.cancel': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'notifications.read': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.ads.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.ads.status': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.contacts.settings': { paramsTuple: [ParamValue]; params: {'locale': ParamValue} }
+    'supplier.contacts.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.change_type': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.member_role': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'membershipId': ParamValue} }
+    'admin.organizations.subscriptions.extend': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'subscriptionId': ParamValue} }
     'admin.users.platform_role.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.ai.translations.correct': { paramsTuple: [ParamValue,ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'entity': ParamValue,'id': ParamValue,'translationLocale': ParamValue} }
     'admin.categories.update': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
@@ -561,9 +670,13 @@ export type ScannedRoutes = {
     'rfqs.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'rfqs.suppliers.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'supplierId': ParamValue} }
     'supplier.quotes.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'quote_cart.items.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.ads.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'supplier.contacts.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.organizations.remove_member': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'membershipId': ParamValue} }
     'admin.organizations.revoke_invitation': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'invitationId': ParamValue} }
     'admin.users.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
+    'admin.supplier_links.unlink': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.categories.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.attributes.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue} }
     'admin.attribute_values.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'locale': ParamValue,'id': ParamValue,'valueId': ParamValue} }

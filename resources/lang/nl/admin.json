@@ -2,6 +2,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "organizations": "Organisaties",
+    "supplierLinks": "Leverancierskoppeling",
     "users": "Gebruikers",
     "products": "Producten",
     "categories": "Categorieën",
@@ -24,8 +25,10 @@
     "queue": "Queue",
     "search": "Search",
     "mail": "Emails",
+    "inboundMail": "Inbound emails",
     "storage": "Storage",
-    "health": "Health"
+    "health": "Health",
+    "ads": "Gesponsorde producten"
   },
   "pagination": {
     "previous": "Vorige",
@@ -40,7 +43,8 @@
       "products": "Producten",
       "rfqs": "Offerteaanvragen",
       "pendingModeration": "Te modereren",
-      "pendingAgencyReviews": "Te beoordelen bureaus"
+      "pendingAgencyReviews": "Te beoordelen bureaus",
+      "pendingSupplierLinks": "Te koppelen leveranciersfiches"
     },
     "archived": "{count, plural, =0 {Geen gearchiveerd} one {# gearchiveerd} other {# gearchiveerd}}",
     "kpi": {
@@ -115,7 +119,9 @@
       "search": "Zoeken",
       "searchPlaceholder": "Naam, slug, SIRET of btw",
       "country": "Land",
-      "allCountries": "Alle landen"
+      "allCountries": "Alle landen",
+      "missingQuoteAddress": "Zonder ontvangstadres",
+      "missingQuoteAddressHint": "Leveranciers van wie de aanvragen bij gebrek aan ontvangst- of contactadres naar de verantwoordelijken van het account gaan."
     },
     "types": {
       "buyer": "Koper",
@@ -194,6 +200,9 @@
         "no": "Nee",
         "supplier": {
           "title": "Leveranciersprofiel",
+          "quoteEmail": "Ontvangstadres voor aanvragen",
+          "quoteEmailStatus": "Bevestiging van het ontvangstadres",
+          "quoteEmailPending": "Wacht op bevestiging",
           "companyType": "Type bedrijf",
           "commercialStatus": "Commerciële status",
           "minOrderQuantity": "Minimale bestelhoeveelheid",
@@ -271,6 +280,86 @@
         "revoked": "Uitnodiging ingetrokken.",
         "resent": "Uitnodiging opnieuw verzonden."
       }
+    },
+    "subscription": {
+      "title": "Abonnement",
+      "empty": "Geen abonnement: gratis formule.",
+      "create": "Abonnement aanmaken",
+      "extend": "Einddatum wijzigen",
+      "cancel": "Opzeggen",
+      "cancelConfirm": "Dit abonnement nu opzeggen? De organisatie gaat terug naar de gratis formule.",
+      "periodUntil": "tot",
+      "fields": {
+        "plan": "Formule",
+        "status": "Status",
+        "period": "Periode",
+        "origin": "Herkomst",
+        "author": "Ingevoerd door",
+        "startsOn": "Eerste dag",
+        "endsOn": "Laatste dag"
+      },
+      "origins": {
+        "manual": "Handmatig",
+        "stripe": "Online"
+      },
+      "done": {
+        "created": "Abonnement opgeslagen.",
+        "extended": "Einddatum gewijzigd.",
+        "cancelled": "Abonnement opgezegd."
+      },
+      "errors": {
+        "alreadyOpen": "Er loopt al een abonnement of er is er een gepland: verleng of zeg het op.",
+        "invalidPeriod": "Ongeldige data: de laatste dag moet na de eerste liggen en niet in het verleden.",
+        "notEditable": "Dit abonnement kan hier niet meer worden gewijzigd.",
+        "notSupplier": "Alleen een leveranciersorganisatie kan een abonnement nemen."
+      }
+    },
+    "quoteAddress": {
+      "missing": "Zonder ontvangstadres"
+    }
+  },
+  "supplierLinks": {
+    "title": "Koppeling van leveranciersfiches",
+    "subtitle": "Geïmporteerde fiches die wachten op toestemming van de leverancier. Koppelen aan zijn organisatie legt die toestemming vast en publiceert de catalogus.",
+    "unpublishedNotice": "Deze fiches en hun producten zijn niet gepubliceerd: niet in de catalogus, de zoekfunctie of op openbare pagina's. Koppelen aan de organisatie van de leverancier publiceert ze; ontkoppelen haalt ze weg.",
+    "resultsCount": "{count, plural, =0 {Geen fiche} one {# fiche} other {# fiches}}",
+    "empty": {
+      "pending": "Geen fiche wacht op toestemming.",
+      "linked": "Geen gekoppelde fiche."
+    },
+    "emptyDescription": "Wijzig het filter of kom terug na de volgende import.",
+    "filters": {
+      "status": "Weergave",
+      "pending": "Wacht op toestemming",
+      "linked": "Gekoppeld"
+    },
+    "columns": {
+      "supplier": "Leveranciersfiche",
+      "products": "Producten",
+      "suggestion": "Voorstel",
+      "organization": "Organisatie",
+      "linkedTo": "Organisatie",
+      "agreement": "Toestemming",
+      "actions": "Acties"
+    },
+    "match": {
+      "email": "{name} (zelfde e-mail)",
+      "domain": "{name} (zelfde domein)"
+    },
+    "noSuggestion": "Geen overeenkomst",
+    "chooseOrganization": "Kies een organisatie",
+    "organizationLabel": "Organisatie om aan {name} te koppelen",
+    "link": "Koppelen",
+    "unlink": "Ontkoppelen",
+    "confirmUnlink": "{name} ontkoppelen? De producten worden van de site verwijderd.",
+    "by": "door {email}",
+    "noAgreementDate": "Eerder gekoppeld",
+    "linked": "Fiche gekoppeld: de catalogus is gepubliceerd.",
+    "unlinked": "Fiche ontkoppeld: de producten worden van de site verwijderd.",
+    "errors": {
+      "alreadyLinked": "Deze fiche is al aan een organisatie gekoppeld. Ontkoppel haar eerst.",
+      "invalidOrganization": "Kies een actieve leveranciersorganisatie.",
+      "notLinked": "Deze fiche is aan geen enkele organisatie gekoppeld."
     }
   },
   "users": {
@@ -446,6 +535,8 @@
       "organization.member_removed": "Lid verwijderd",
       "organization.invitation_revoked": "Uitnodiging ingetrokken",
       "organization.invitation_resent": "Uitnodiging opnieuw verzonden",
+      "supplier.linked": "Leveranciersfiche gekoppeld",
+      "supplier.unlinked": "Leveranciersfiche ontkoppeld",
       "product.hidden": "Product verborgen",
       "product.unhidden": "Product zichtbaar gemaakt",
       "product.unpublished": "Publicatie van product ingetrokken",
@@ -483,7 +574,16 @@
       "search.evaluation_requested": "Search evaluation requested",
       "mail.retried": "Email retried",
       "mail.bulk_retried": "Failed emails retried",
-      "storage.recovery_requested": "Storage recovery requested"
+      "inbound_mail.attached": "Inbound email attached to a request",
+      "inbound_mail.replayed": "Inbound email processing replayed",
+      "inbound_mail.dismissed": "Inbound email dismissed",
+      "storage.recovery_requested": "Storage recovery requested",
+      "ad_campaign.suspended": "Gesponsorde campagne geschorst",
+      "ad_campaign.restored": "Schorsing van campagne opgeheven",
+      "ad_wallet.adjusted": "Advertentietegoed aangepast",
+      "subscription.created": "Abonnement aangemaakt",
+      "subscription.extended": "Einde abonnement gewijzigd",
+      "subscription.cancelled": "Abonnement opgezegd"
     },
     "targets": {
       "user": "Gebruiker",
@@ -491,6 +591,7 @@
       "attribute": "Attribuut",
       "attribute_value": "Attribuutwaarde",
       "organization": "Organisatie",
+      "supplier": "Leveranciersfiche",
       "product": "Product",
       "rfq": "Offerteaanvraag",
       "certification": "Certificering",
@@ -507,7 +608,9 @@
       "queue_schedule": "Scheduled job",
       "search_run": "Search operation",
       "mail_delivery": "Email delivery",
-      "storage": "Storage"
+      "inbound_mail": "Inbound email",
+      "storage": "Storage",
+      "ad_campaign": "Gesponsorde campagne"
     }
   },
   "demand": {
@@ -1359,6 +1462,7 @@
       "retry": "Retry",
       "cancel": "Cancel",
       "retryConfirm": "Retry the {name} job?",
+      "cancelJob": "Cancel job",
       "cancelConfirm": "Permanently cancel the {name} job? It will be removed from the queue."
     },
     "detail": {
@@ -1569,6 +1673,108 @@
       "bulkPartial": "{count} mail(s) put back in the queue; {failed} could not be queued and remain to be retried."
     }
   },
+  "inboundMail": {
+    "title": "Inbound emails",
+    "subtitle": "Supplier replies received at the relay address: attach, replay or dismiss emails that did not go through.",
+    "resultsCount": "{count, plural, =0 {No email} one {# email} other {# emails}}",
+    "empty": "No email matches.",
+    "emptyDescription": "Emails appear here as soon as the inbound provider announces them.",
+    "back": "Back to inbound emails",
+    "noSubject": "(no subject)",
+    "unattached": "Not attached",
+    "statuses": {
+      "received": "Pending",
+      "processing": "Processing",
+      "processed": "Processed",
+      "rejected": "Dismissed",
+      "failed": "Failed"
+    },
+    "rejections": {
+      "too_large": "Too large",
+      "loop": "Mail loop",
+      "auto_reply": "Automatic reply",
+      "unknown_address": "Unknown address",
+      "expired_address": "Expired address",
+      "unknown_sender": "Afzender buiten het bureau",
+      "dismissed": "Dismissed by an admin"
+    },
+    "filters": {
+      "status": "Status",
+      "rejection": "Rejection reason",
+      "all": "All"
+    },
+    "columns": {
+      "sender": "Sender",
+      "subject": "Subject",
+      "target": "Request / supplier",
+      "status": "Status",
+      "receivedAt": "Received",
+      "actions": "Actions"
+    },
+    "actions": {
+      "attach": "Attach",
+      "replay": "Replay",
+      "dismiss": "Dismiss",
+      "attachConfirm": "Attach this email to this request and process it?",
+      "replayConfirm": "Replay the processing of this email? An already processed email creates no duplicate.",
+      "dismissConfirm": "Dismiss this email? It will no longer be processed."
+    },
+    "attach": {
+      "title": "Attach to a request",
+      "description": "Suppliers from the sender’s domain, or recipients of a request looked up by its number. The email is then processed as a reply to that request.",
+      "rfqLabel": "Request number",
+      "rfqHint": "Empty: suggestions based on the sender.",
+      "search": "Search",
+      "empty": "No request to suggest.",
+      "emptyDescription": "Enter the number of the intended request.",
+      "columns": {
+        "rfq": "Request",
+        "supplier": "Supplier",
+        "sentAt": "Sent"
+      }
+    },
+    "detail": {
+      "summary": "Summary",
+      "recipient": "Target address",
+      "attachedManually": "Attached manually on",
+      "processedAt": "Processed",
+      "senderKnownLabel": "Sender known to the supplier",
+      "senderKnown": {
+        "yes": "Yes",
+        "no": "No"
+      },
+      "provider": "Provider",
+      "messageId": "Message-ID",
+      "error": "Error",
+      "body": "Content (text)",
+      "noBody": "No content kept: a dismissed email is only logged."
+    },
+    "attachments": {
+      "title": "Attachments",
+      "empty": "No attachment logged.",
+      "columns": {
+        "filename": "File",
+        "type": "Type",
+        "size": "Size",
+        "status": "Outcome"
+      },
+      "statuses": {
+        "stored": "Stored",
+        "rejected_type": "Type refused",
+        "rejected_size": "Too large",
+        "ignored_inline": "Inline image"
+      }
+    },
+    "flash": {
+      "processed": "The email is processed and attached to the request.",
+      "republished": "Recording of the reply replayed, without duplicates.",
+      "pending": "The email is being processed.",
+      "rejected": "The email was dismissed again by a safeguard.",
+      "failed": "Processing failed: the email stays failed and will be retried automatically.",
+      "dismissed": "The email is dismissed.",
+      "notAllowed": "This action is not possible in the email’s current state."
+    }
+  },
   "storage": {
     "title": "Storage",
     "subtitle": "Cellar file registry: recovery backlog and volume per organization.",
@@ -1665,6 +1871,37 @@
       "empty": "The monitoring job has not run yet.",
       "stale": "The states below are out of date: monitoring is no longer running (is the worker stopped?).",
       "details": "See details"
+    }
+  },
+  "ads": {
+    "title": "Gesponsorde producten",
+    "subtitle": "Campagnes van alle leveranciers, schorsing en opwaardering van advertentietegoeden.",
+    "resultsCount": "{count, plural, =0 {Geen campagnes} one {# campagne} other {# campagnes}}",
+    "empty": "Geen campagnes",
+    "emptyDescription": "Nog geen enkele leverancier heeft een product gesponsord.",
+    "columns": {
+      "organization": "Organisatie",
+      "wallet": "Tegoed"
+    },
+    "actions": {
+      "suspend": "Schorsen",
+      "restore": "Herstellen"
+    },
+    "adjust": {
+      "title": "Tegoed aanpassen",
+      "description": "Bijschrijving (positief bedrag) of afschrijving (negatief bedrag) op het advertentietegoed van een organisatie. Wordt vastgelegd in het auditlogboek.",
+      "organizationId": "Organisatienr.",
+      "amount": "Bedrag (€)",
+      "amountHint": "Negatief om af te schrijven.",
+      "note": "Reden",
+      "submit": "Toepassen"
+    },
+    "flash": {
+      "suspended": "Campagne geschorst",
+      "restored": "Schorsing opgeheven: de campagne is gepauzeerd",
+      "adjusted": "Tegoed aangepast",
+      "insufficientFunds": "De afschrijving overschrijdt het saldo.",
+      "organizationNotFound": "Organisatie niet gevonden."
     }
   }
 }

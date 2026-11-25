@@ -14,6 +14,7 @@
     "supplierRfqs": "Ontvangen aanvragen",
     "supplierQuotes": "Mijn offertes",
     "supplierOrders": "Ontvangen bestellingen",
+    "supplierInsights": "Weergaven",
     "supplierProfile": "Leveranciersprofiel",
     "members": "Leden",
     "settings": "Instellingen",
@@ -34,11 +35,19 @@
     "closeMenu": "Menu sluiten",
     "backToSite": "Terug naar de website",
     "noOrganization": "Geen organisatie",
-    "logoAlt": "Promotional Sourcing.eu"
+    "logoAlt": "Promotional Sourcing.eu",
+    "supplierAds": "Gesponsorde producten",
+    "supplierSubscription": "Abonnement",
+    "supplierContacts": "Verkoopteam"
   },
   "language": {
     "label": "Taal",
     "fr": "Français",
     "en": "English"
+  },
+  "confirmDialog": {
+    "title": "Actie bevestigen?",
+    "confirm": "Bevestigen",
+    "cancel": "Annuleren"
   }
 }

@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "sku": "FIXCUP#001",
+      "tier_prices": [
+        { "qty": 1, "value": 0.5 },
+        { "qty": 500, "value": 0.4 }
+      ]
+    },
+    {
+      "sku": "FIXCUP#002",
+      "tier_prices": [
+        { "qty": 1, "value": 0.45 },
+        { "qty": 500, "value": 0.42 }
+      ]
+    },
+    { "sku": "FIXPEN#010", "tier_prices": [{ "qty": 100, "value": 1.2 }] }
+  ]
+}

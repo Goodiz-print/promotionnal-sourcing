@@ -1,5 +1,8 @@
 import type { Locale } from './i18n.js'
 import type { ContactRequestType } from './marketing.js'
+import type { NotificationData, NotificationType } from './notification.js'
+import type { BuyerContactType } from './rfq.js'
+import type { PaidSubscriptionPlan } from './subscription.js'
 
 /**
  * Charges des mails transactionnels envoyés via la queue (`SendMailJob`).
@@ -21,6 +24,12 @@ export const MAIL_KINDS = {
   contactRequest: 'contact-request',
   agencyReviewDecision: 'agency-review-decision',
   announcement: 'announcement',
+  notificationReminder: 'notification-reminder',
+  subscriptionActivated: 'subscription-activated',
+  subscriptionExpiring: 'subscription-expiring',
+  quoteEmailVerification: 'quote-email-verification',
+  supplierReplyReceived: 'supplier-reply-received',
+  agencyMessageRelayed: 'agency-message-relayed',
 } as const
 
 export type MailKind = (typeof MAIL_KINDS)[keyof typeof MAIL_KINDS]
@@ -43,12 +52,37 @@ export interface OrganizationInvitationMailData {
  * la préfixe avec le global `appUrl` de `config/mail.ts`, résolu au rendu.
  */
 export interface RfqReceivedMailData {
-  buyerName: string
+  /**
+   * Nom de l'agence ; `null` pour un fournisseur non abonné (#220), à qui le
+   * mail reste anonyme, objet compris.
+   */
+  buyerName: string | null
+  /**
+   * Chemin relatif de la page d'abonnement, pour l'encart « abonnez-vous » d'un
+   * mail anonyme (#222) ; `null` ou absent pour un abonné.
+   */
+  subscribePath?: string | null
+  /**
+   * Coordonnées de l'agence pour un abonné (#221) ; `null` ou absent pour un
+   * non abonné, et sur un job mis en queue avant #221.
+   */
+  buyerContact?: BuyerContactType | null
   rfqTitle: string
   itemCount: number
   /** Échéance déjà formatée par l'appelant (le worker n'a pas de locale). */
   deadline: string | null
   rfqPath: string
+  /**
+   * Description de la demande et détail des lignes (#219) : le mail suffit à
+   * chiffrer. Absents d'un job mis en queue avant #219 : le gabarit s'en passe.
+   */
+  description?: string | null
+  lines?: RfqMailLine[]
+  /**
+   * Adresse relais du couple demande / fournisseur, posée en `Reply-To` (#223).
+   * Absente si la réception est désactivée ou sur un job antérieur à #223.
+   */
+  replyTo?: string | null
 }
 
 /**
@@ -57,10 +91,64 @@ export interface RfqReceivedMailData {
  * `RfqReceivedMailData` (chemin relatif, échéance déjà formatée).
  */
 export interface RfqReminderMailData {
-  buyerName: string
+  /** Mêmes règles que le mail de demande (#220, #222). */
+  buyerName: string | null
+  subscribePath?: string | null
+  buyerContact?: BuyerContactType | null
   rfqTitle: string
   deadline: string | null
   rfqPath: string
+  /** Mêmes description et lignes que le mail de demande (#219). */
+  description?: string | null
+  lines?: RfqMailLine[]
+  /** Même adresse relais que le mail de demande. */
+  replyTo?: string | null
+}
+
+/**
+ * Ligne d'une demande de devis reprise dans le mail (#219) : de quoi chiffrer
+ * sans ouvrir la plateforme. Les valeurs viennent de `rfq_items` et de leurs
+ * `specs` (posées par le panier, `QuoteCartService#specsFor`) ; les prix sont
+ * les **prix indicatifs** du site, déjà suffixés de leur devise, identiques à
+ * ceux de l'écran « Demandes reçues ».
+ */
+export interface RfqMailLine {
+  name: string
+  /** Référence de la variante, à défaut celle du produit. */
+  reference: string | null
+  variant: string | null
+  quantity: number
+  unit: string | null
+  marking: RfqMailMarking | null
+  /** Note saisie par l'agence sur la ligne (`rfq_items.description`). */
+  note: string | null
+  /** `null` : aucun prix catalogue pour cette ligne. */
+  prices: RfqMailPrices | null
+}
+
+/** Marquage demandé sur une ligne. */
+export interface RfqMailMarking {
+  position: string | null
+  technique: string | null
+  colors: string | null
+}
+
+/** Prix indicatifs d'une ligne ; une valeur inconnue vaut `null`. */
+export interface RfqMailPrices {
+  unitPrice: string | null
+  markingUnitPrice: string | null
+  setupCharge: string | null
+  total: string | null
+}
+
+/** Ce qu'il faut d'un `rfq_item` pour construire sa ligne de mail. */
+export interface RfqMailItemSource {
+  name: string
+  description: string | null
+  quantity: number
+  unit: string | null
+  specs: Record<string, string> | null
+  productReference: string | null
 }
 
 /**
@@ -74,6 +162,64 @@ export interface QuoteReceivedMailData {
   rfqTitle: string
   total: string
   quotePath: string
+}
+
+/**
+ * Données du mail « réponse du fournisseur » (`SupplierReplyReceivedNotification`,
+ * #225) : la réponse reçue par mail (#224) transmise à l'agence, qui la lit sans
+ * se connecter. Le fournisseur y est nommé : c'est l'agence qui reçoit le mail.
+ *
+ * Chemins relatifs, préfixés par `appUrl` au rendu, comme `RfqReceivedMailData`.
+ */
+export interface SupplierReplyReceivedMailData {
+  supplierName: string
+  rfqTitle: string
+  /** Texte de la réponse, tel qu'enregistré dans le fil ; vide si le mail n'avait que des fichiers. */
+  body: string
+  /** Devis PDF de la réponse : lien de téléchargement authentifié de chacun. */
+  documents: SupplierReplyMailDocument[]
+  rfqPath: string
+  /**
+   * Adresse relais côté agence du couple demande / fournisseur, posée en
+   * `Reply-To` (`InboundAddressService#agencyAddressFor`) : la réponse de
+   * l'agence entre dans le fil et est relayée au fournisseur (#226). `null` si
+   * la réception est désactivée.
+   */
+  replyTo: string | null
+  /** Réponse arrivée après l'échéance : le mail porte la mention « réponse tardive » (#232). */
+  late: boolean
+}
+
+/**
+ * Données du mail « message de l'agence » (`AgencyMessageRelayedNotification`,
+ * #226) : le message de l'agence, écrit dans l'application ou envoyé par mail,
+ * relayé au fournisseur. L'expéditeur est la plateforme ; l'agence n'est nommée
+ * que pour un fournisseur abonné (`agencyName`), comme dans la demande (#220).
+ */
+export interface AgencyMessageRelayedMailData {
+  /** Nom de l'agence pour un fournisseur abonné ; `null` sinon. */
+  agencyName: string | null
+  rfqTitle: string
+  body: string
+  /** Noms des pièces jointes, consultables dans l'application. */
+  attachments: string[]
+  rfqPath: string
+  /**
+   * Adresse relais côté fournisseur (`rfq-`), posée en `Reply-To` : sa réponse
+   * revient dans le fil et part vers l'agence. `null` si la réception est désactivée.
+   */
+  replyTo: string | null
+  /**
+   * En-têtes repris du mail de l'agence, déjà nettoyés par `relayableHeaders` :
+   * des consignes de priorité, jamais rien qui la désigne.
+   */
+  headers: Record<string, string>
+}
+
+/** Devis PDF cité dans le mail de réponse : nom du fichier et lien authentifié. */
+export interface SupplierReplyMailDocument {
+  filename: string
+  downloadPath: string
 }
 
 /**
@@ -93,6 +239,17 @@ export interface PasswordResetMailData {
  * `EmailVerificationService`.
  */
 export interface EmailVerificationMailData {
+  verifyUrl: string
+  expiresInHours: number
+}
+
+/**
+ * Confirmation de l'adresse de réception des demandes de devis (#217),
+ * envoyée **à cette adresse** quand le fournisseur la saisit ou la change.
+ * `verifyUrl` est une URL signée complète (`QuoteEmailVerificationService`).
+ */
+export interface QuoteEmailVerificationMailData {
+  organizationName: string
   verifyUrl: string
   expiresInHours: number
 }
@@ -132,6 +289,43 @@ export interface AgencyReviewDecisionMailData {
 export interface AnnouncementMailData {
   title: string
   body: string
+}
+
+/**
+ * Données du mail de rappel d'une notification in-app restée non lue
+ * (`NotificationReminderNotification`, #243). Le mail reprend le texte de la
+ * notification (`notifications.types.<type>`, paramètres `notificationData`),
+ * rendu dans la langue du destinataire. `path` est relatif, préfixé par `appUrl`.
+ */
+export interface NotificationReminderMailData {
+  notificationType: NotificationType
+  notificationData: NotificationData
+  path: string
+}
+
+/**
+ * Données du mail d'activation d'un abonnement manuel (#237). Dates déjà
+ * formatées dans la langue du destinataire (jour de fin **inclus**) ; `path`
+ * relatif vers la page tarifs, préfixé par `appUrl`.
+ */
+export interface SubscriptionActivatedMailData {
+  organizationName: string
+  plan: PaidSubscriptionPlan
+  startsOn: string
+  endsOn: string | null
+  path: string
+}
+
+/**
+ * Données du rappel avant la fin d'un abonnement manuel (#237) : 30 jours
+ * (abonnement annuel) puis 7 jours avant la fin. Invite à renouveler.
+ */
+export interface SubscriptionExpiringMailData {
+  organizationName: string
+  plan: PaidSubscriptionPlan
+  endsOn: string
+  daysLeft: number
+  path: string
 }
 
 /**
@@ -200,6 +394,42 @@ export type SendMailContent =
       to: string
       locale: Locale
       data: AnnouncementMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.notificationReminder
+      to: string
+      locale: Locale
+      data: NotificationReminderMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.subscriptionActivated
+      to: string
+      locale: Locale
+      data: SubscriptionActivatedMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.subscriptionExpiring
+      to: string
+      locale: Locale
+      data: SubscriptionExpiringMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.quoteEmailVerification
+      to: string
+      locale: Locale
+      data: QuoteEmailVerificationMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.supplierReplyReceived
+      to: string
+      locale: Locale
+      data: SupplierReplyReceivedMailData
+    }
+  | {
+      kind: typeof MAIL_KINDS.agencyMessageRelayed
+      to: string
+      locale: Locale
+      data: AgencyMessageRelayedMailData
     }
 
 /**

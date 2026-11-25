@@ -89,6 +89,15 @@ function pickLocale(value: string) {
       :label="t('agency_signup.fields.phone')"
       :error="form.errors.phone"
     />
+    <BaseInput
+      id="contactEmail"
+      v-model="form.contactEmail"
+      type="email"
+      autocomplete="email"
+      :label="t('agency_signup.fields.contactEmail')"
+      :hint="t('agency_signup.contactEmailHelp')"
+      :error="form.errors.contactEmail"
+    />
     <BaseSelect
       id="activity"
       v-model="form.activity"

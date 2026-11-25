@@ -3,6 +3,7 @@ import { router } from '@inertiajs/vue3'
 import { Lock, Megaphone, Send, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import { useConfirm } from '~/composables/use_confirm'
 import BaseButton from '~/components/base/base_button.vue'
 import { ICON_SIZE } from '~/types/ui'
 import type { RfqDetailType } from '#shared/types/rfq'
@@ -13,17 +14,22 @@ import type { RfqDetailType } from '#shared/types/rfq'
  * juge et répond par un message flash si l'état a changé entre-temps.
  * Publier et envoyer font avancer la demande : ce sont les actions primaires ;
  * clôturer et supprimer sont irréversibles, donc en `danger`.
+ *
+ * `canClose` : clôturer est une décision, réservée aux responsables
+ * (`canManageRfq`) ; publier, envoyer et supprimer un brouillon sont ouverts à
+ * tout membre qui peut envoyer une demande (`canSendRfq`, #216).
  */
-const props = defineProps<{ rfq: RfqDetailType }>()
+const props = defineProps<{ rfq: RfqDetailType; canClose: boolean }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 /** Publier n'a de sens qu'avec un besoin décrit. */
 const canPublish = () => props.rfq.status === 'draft' && props.rfq.itemCount > 0
 /** Envoyer suppose une demande publiée et au moins un destinataire à notifier. */
 const canSend = () =>
   props.rfq.status === 'published' && props.rfq.suppliers.some((row) => row.status === 'pending')
-const canClose = () => props.rfq.status === 'published'
+const isClosable = () => props.canClose && props.rfq.status === 'published'
 /** Seul un brouillon se supprime ; une demande publiée se clôture. */
 const canDelete = () => props.rfq.status === 'draft'
 
@@ -35,13 +41,23 @@ function post(route: 'rfqs.publish' | 'rfqs.send' | 'rfqs.close') {
   )
 }
 
-function destroy() {
-  if (!window.confirm(t('rfq.actions.confirmDelete'))) return
+async function destroy() {
+  const confirmed = await confirm({
+    message: t('rfq.actions.confirmDelete'),
+    confirmLabel: t('rfq.actions.delete'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.delete(urlFor('rfqs.destroy', { locale: locale.value, id: props.rfq.id }))
 }
 
-function close() {
-  if (!window.confirm(t('rfq.actions.confirmClose'))) return
+async function close() {
+  const confirmed = await confirm({
+    message: t('rfq.actions.confirmClose'),
+    confirmLabel: t('rfq.actions.close'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   post('rfqs.close')
 }
 </script>
@@ -52,7 +68,7 @@ function close() {
       <template #icon><Trash2 :size="ICON_SIZE" aria-hidden="true" /></template>
       {{ t('rfq.actions.delete') }}
     </BaseButton>
-    <BaseButton v-if="canClose()" variant="danger" @click="close()">
+    <BaseButton v-if="isClosable()" variant="danger" @click="close()">
       <template #icon><Lock :size="ICON_SIZE" aria-hidden="true" /></template>
       {{ t('rfq.actions.close') }}
     </BaseButton>

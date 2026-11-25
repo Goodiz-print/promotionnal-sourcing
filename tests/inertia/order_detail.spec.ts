@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, confirmPart, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { OrderAction, OrderTimelineType, OrderType } from '#shared/types/order'
 
 const translations = {
@@ -54,10 +55,6 @@ function order(actions: OrderAction[]): OrderType {
 
 beforeEach(() => {
   vi.mocked(router.patch).mockReset()
-  vi.stubGlobal(
-    'confirm',
-    vi.fn(() => true)
-  )
 })
 
 describe('order_actions.vue', () => {
@@ -79,9 +76,13 @@ describe('order_actions.vue', () => {
   })
 
   it('appelle la route du côté après confirmation', async () => {
+    const host = await mountConfirmHost()
     const wrapper = mount(OrderActions, { props: { order: order(['confirm']), side: 'supplier' } })
 
     await wrapper.find('button').trigger('click')
+    expect(confirmText(host)).toBe('Confirmer ?')
+    expect(confirmText(host, 'confirm')).toBe('Confirmer la commande')
+    await answerConfirm(host, 'confirm')
 
     expect(router.patch).toHaveBeenCalledWith(
       '/fr/supplier.orders.confirm/7',
@@ -91,21 +92,22 @@ describe('order_actions.vue', () => {
   })
 
   it('n’envoie rien si l’utilisateur refuse la confirmation', async () => {
-    vi.stubGlobal(
-      'confirm',
-      vi.fn(() => false)
-    )
+    const host = await mountConfirmHost()
     const wrapper = mount(OrderActions, { props: { order: order(['cancel']), side: 'buyer' } })
 
     await wrapper.find('button').trigger('click')
+    expect(confirmPart(host, 'confirm').classes()).toContain('text-danger')
+    await answerConfirm(host, 'cancel')
 
     expect(router.patch).not.toHaveBeenCalled()
   })
 
   it('utilise la route acheteur pour la réception', async () => {
+    const host = await mountConfirmHost()
     const wrapper = mount(OrderActions, { props: { order: order(['deliver']), side: 'buyer' } })
 
     await wrapper.find('button').trigger('click')
+    await answerConfirm(host, 'confirm')
 
     expect(router.patch).toHaveBeenCalledWith('/fr/orders.deliver/7', {}, { preserveScroll: true })
   })

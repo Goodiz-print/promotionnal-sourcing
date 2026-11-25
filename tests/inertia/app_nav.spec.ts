@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import type { NavigationItemType } from '#shared/types/navigation'
+import { platformRoleHasPermission } from '#shared/helpers/platform_permissions'
 
 const translations: Record<string, string> = {
   'common.nav.main': 'Navigation principale',
@@ -58,6 +59,7 @@ vi.mock('@adonisjs/inertia/vue', () => ({
 }))
 
 const { default: AppNav } = await import('~/components/app_nav.vue')
+const { ADMIN_SECTIONS } = await import('~/composables/use_admin_tabs')
 
 function item(key: string, route: NavigationItemType['route']): NavigationItemType {
   return { key, route, labelKey: `common.nav.${key}` }
@@ -81,8 +83,11 @@ describe('AppNav', () => {
     ]
 
     const links = mount(AppNav).findAll('a')
+    const adminSections = ADMIN_SECTIONS.filter((section) =>
+      platformRoleHasPermission('admin', section.permission)
+    )
 
-    expect(links).toHaveLength(25)
+    expect(links).toHaveLength(adminSections.length)
     expect(links.map((link) => link.text())).not.toContain('Mes demandes de devis')
   })
 

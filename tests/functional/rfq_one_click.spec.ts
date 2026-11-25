@@ -88,24 +88,13 @@ test.group('RFQ en un clic — pré-remplissage depuis un produit', (group) => {
     client,
     assert,
   }) => {
-    const { org, owner } = await buyerWithOwner()
+    const { owner } = await buyerWithOwner()
     const product = await requestableProduct()
-    const draft = await RfqFactory.merge({
-      buyerOrganizationId: org.id,
-      title: 'Brouillon',
-    }).create()
-    await RfqFactory.apply('published').merge({ buyerOrganizationId: org.id }).create()
-    // Brouillon d'une autre organisation : jamais proposé.
-    const other = await OrganizationFactory.create()
-    await RfqFactory.merge({ buyerOrganizationId: other.id }).create()
 
     const response = await client.get(`/fr/products/${product.slug}`).withInertia().loginAs(owner)
 
     response.assertStatus(200)
-    assert.deepEqual(response.inertiaProps.rfqContext, {
-      canCreateRfq: true,
-      drafts: [{ id: draft.id, title: 'Brouillon' }],
-    })
+    assert.deepEqual(response.inertiaProps.rfqContext, { canCreateRfq: true, inCartVariantIds: [] })
   })
 
   test('la fiche produit ne propose rien à un visiteur ni à un fournisseur', async ({
@@ -115,7 +104,7 @@ test.group('RFQ en un clic — pré-remplissage depuis un produit', (group) => {
     const product = await requestableProduct()
     const supplierOrg = await OrganizationFactory.apply('supplier').create()
     const supplierUser = await createMember(supplierOrg, 'owner')
-    const none = { canCreateRfq: false, drafts: [] }
+    const none = { canCreateRfq: false, inCartVariantIds: [] }
 
     const anonymous = await client.get(`/fr/products/${product.slug}`).withInertia()
     const supplier = await client
@@ -128,18 +117,14 @@ test.group('RFQ en un clic — pré-remplissage depuis un produit', (group) => {
     assert.deepEqual(supplier.inertiaProps.rfqContext, none)
   })
 
-  test('un simple membre peut demander un devis mais pas modifier un brouillon', async ({
-    client,
-    assert,
-  }) => {
+  test('un simple membre peut demander un devis', async ({ client, assert }) => {
     const { org } = await buyerWithOwner()
     const member = await createMember(org, 'member')
-    await RfqFactory.merge({ buyerOrganizationId: org.id }).create()
     const product = await requestableProduct()
 
     const response = await client.get(`/fr/products/${product.slug}`).withInertia().loginAs(member)
 
-    assert.deepEqual(response.inertiaProps.rfqContext, { canCreateRfq: true, drafts: [] })
+    assert.deepEqual(response.inertiaProps.rfqContext, { canCreateRfq: true, inCartVariantIds: [] })
   })
 })
 
@@ -410,7 +395,7 @@ test.group('RFQ en un clic — suppression d’un brouillon', (group) => {
     assert.isNotNull(await Rfq.find(rfq.id))
   })
 
-  test('un simple membre ne peut pas supprimer', async ({ client, assert }) => {
+  test('un simple membre supprime un brouillon (#216)', async ({ client, assert }) => {
     const { org } = await buyerWithOwner()
     const member = await createMember(org, 'member')
     const rfq = await RfqFactory.merge({ buyerOrganizationId: org.id }).create()
@@ -422,10 +407,9 @@ test.group('RFQ en un clic — suppression d’un brouillon', (group) => {
       .redirects(0)
       .loginAs(member)
 
-    // Inertia convertit la redirection d'un DELETE en 303. Sur une soumission de formulaire, Bouncer renvoie l'utilisateur d'où il
-    // vient avec un message plutôt qu'une page 403.
+    // Inertia convertit la redirection d'un DELETE en 303.
     response.assertStatus(303)
-    assert.isNotNull(await Rfq.find(rfq.id))
+    assert.isNull(await Rfq.find(rfq.id))
   })
 
   test("une demande d'une autre organisation est introuvable", async ({ client, assert }) => {

@@ -105,15 +105,52 @@ SELECT idempotency_key, kind, "to", attempts, error FROM mail_deliveries WHERE s
 
 ### Types de mail existants
 
-| `kind`                    | Classe                               | Template Edge                    | Déclencheur                                                                                  |
-| ------------------------- | ------------------------------------ | -------------------------------- | -------------------------------------------------------------------------------------------- |
-| `organization-invitation` | `OrganizationInvitationNotification` | `emails/organization_invitation` | Invitation d'un membre (`OrganizationInvitationsController`)                                 |
-| `rfq-received`            | `RfqReceivedNotification`            | `emails/rfq_received`            | Envoi d'une demande de devis (`RfqNotificationService`)                                      |
-| `rfq-reminder`            | `RfqReminderNotification`            | `emails/rfq_reminder`            | Relance unique d'un fournisseur qui n'a pas ouvert la demande (`RemindRfqSuppliersJob`)      |
-| `quote-received`          | `QuoteReceivedNotification`          | `emails/quote_received`          | Un fournisseur remet un devis : prévient les responsables de l'acheteur (`OnQuoteSubmitted`) |
-| `password-reset`          | `PasswordResetNotification`          | `emails/password_reset`          | Demande « mot de passe oublié » (`PasswordResetService`)                                     |
-| `email-verification`      | `EmailVerificationNotification`      | `emails/email_verification`      | Inscription, renvoi (`EmailVerificationService`)                                             |
-| `contact-request`         | `ContactRequestNotification`         | `emails/contact_request`         | Formulaire de contact de la landing (`ContactRequestService`) — mail interne, en français    |
+| `kind`                     | Classe                               | Template Edge                     | Déclencheur                                                                                                                                                                                                         |
+| -------------------------- | ------------------------------------ | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `organization-invitation`  | `OrganizationInvitationNotification` | `emails/organization_invitation`  | Invitation d'un membre (`OrganizationInvitationsController`)                                                                                                                                                        |
+| `rfq-received`             | `RfqReceivedNotification`            | `emails/rfq_received`             | Envoi d'une demande de devis (`RfqNotificationService`)                                                                                                                                                             |
+| `rfq-reminder`             | `RfqReminderNotification`            | `emails/rfq_reminder`             | Relance unique d'un fournisseur qui n'a pas répondu à la demande (`RemindRfqSuppliersJob`, #232)                                                                                                                    |
+| `quote-received`           | `QuoteReceivedNotification`          | `emails/quote_received`           | Un fournisseur remet un devis : prévient les responsables de l'acheteur (`OnQuoteSubmitted`)                                                                                                                        |
+| `password-reset`           | `PasswordResetNotification`          | `emails/password_reset`           | Demande « mot de passe oublié » (`PasswordResetService`)                                                                                                                                                            |
+| `email-verification`       | `EmailVerificationNotification`      | `emails/email_verification`       | Inscription, renvoi (`EmailVerificationService`)                                                                                                                                                                    |
+| `contact-request`          | `ContactRequestNotification`         | `emails/contact_request`          | Formulaire de contact de la landing (`ContactRequestService`) — mail interne, en français                                                                                                                           |
+| `notification-reminder`    | `NotificationReminderNotification`   | `emails/notification_reminder`    | Rappel unique d'une notification in-app importante restée non lue (`SendNotificationRemindersJob`, #243)                                                                                                            |
+| `subscription-activated`   | `SubscriptionActivatedNotification`  | `emails/subscription_activated`   | Abonnement manuel devenu actif : prévient owner et admin du fournisseur (`SubscriptionMailService`, #237)                                                                                                           |
+| `subscription-expiring`    | `SubscriptionExpiringNotification`   | `emails/subscription_expiring`    | Rappel avant la fin d'un abonnement manuel : 30 jours (annuel) puis 7 jours (`SyncSubscriptionsJob`, #237)                                                                                                          |
+| `quote-email-verification` | `QuoteEmailVerificationNotification` | `emails/quote_email_verification` | Confirmation de l'adresse de réception des demandes de devis, envoyée à cette adresse (`QuoteEmailVerificationService`, #217)                                                                                       |
+| `supplier-reply-received`  | `SupplierReplyReceivedNotification`  | `emails/supplier_reply_received`  | Réponse d'un fournisseur reçue par mail, transmise à l'auteur de la demande et aux responsables de l'agence (`OnSupplierReplyRecorded`, #225) ; aussi un message que le fournisseur écrit dans l'application (#226) |
+| `agency-message-relayed`   | `AgencyMessageRelayedNotification`   | `emails/agency_message_relayed`   | Message de l'agence (mail à son adresse relais ou écrit dans l'application) relayé au fournisseur (`OnConversationMessageRecorded`, #226)                                                                           |
+
+**Contenu de la demande (#219)** : `rfq-received` et `rfq-reminder` portent la
+description et les lignes de la demande (`description`, `lines: RfqMailLine[]`,
+construites par `rfqMailLine` dans `shared/helpers/rfq_mail.ts`) : produit,
+référence, variante, quantité, marquage, note et **prix indicatifs** lus dans
+`rfq_items.specs`. Le partiel `emails/partials/rfq_details` les affiche, une ligne
+sans prix catalogue indique « à chiffrer ». Ces deux mails ont aussi une
+**version texte** (`emails/rfq_received_text`, `emails/rfq_reminder_text`, via
+`LocalizedMail#textViewIn`) : ses gabarits écrivent les valeurs sans échappement
+(`{{{ }}}`) et sont exclus de Prettier (`.prettierignore`), qui en casserait les
+sauts de ligne. Un mail qui porte une adresse relais passe `replyable` au
+gabarit `emails/layout`, qui retire alors la mention « merci de ne pas y
+répondre ». Les deux classes prennent la charge entière
+(`new RfqReceivedNotification(to, data, locale)`) ; un job mis en queue avant
+#219, sans lignes, se rend toujours.
+
+**Anonymat (#220, #222)** : pour un fournisseur non abonné, `rfq-received`,
+`rfq-reminder` et `agency-message-relayed` ne nomment pas l'agence (objet, titre,
+introduction ; `buyerName` à `null`). Les deux premiers portent en plus un
+encart « abonnez-vous » vers la page d'abonnement
+(`emails/partials/subscription_upsell`). La règle
+(`SubscriptionService#isSubscribed`) est lue à la mise en queue : un mail parti
+reste tel qu'il a été écrit. Détail dans `docs/rfq.md`.
+
+**Coordonnées de l'agence (#221)** : pour un fournisseur abonné, `rfq-received`
+et `rfq-reminder` portent `buyerContact` (`BuyerContactType` : agence, auteur de
+la demande, email avec repli sur celui de l'auteur, téléphone, adresse), rendu
+par les partiels `emails/partials/buyer_contact` et `buyer_contact_text`. Une
+ligne sans valeur est omise. Un mail anonyme (`buyerName` à `null`) n'affiche
+jamais ce bloc, même si la charge le contient ; un job mis en queue avant #221
+se rend sans lui.
 
 `rfq-received` porte un chemin **relatif** (`rfqPath`) et non une URL absolue :
 la charge est persistée et peut être rejouée bien plus tard, éventuellement sous
@@ -132,12 +169,17 @@ worker n'a ni requête HTTP ni utilisateur connecté, donc la langue voyage dans
 charge du job (`locale`, au même niveau que `to`) et est **résolue par l'appelant à
 la mise en queue** :
 
-| Mail                                   | Langue retenue                                                                                                                                                                                                                                        |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `rfq-received`                         | `users.locale` de chaque membre habilité (`RFQ_RESPONDER_ROLES`) ; pour une adresse de contact d'organisation, celle du premier membre habilité (le plus ancien), à défaut la langue par défaut — un même envoi peut donc partir en plusieurs langues |
-| `organization-invitation`              | celle de **l'inviteur** (l'invité n'a pas encore de compte) ; le lien d'acceptation pointe vers la même                                                                                                                                               |
-| `password-reset`, `email-verification` | celle de la page d'où la demande est faite                                                                                                                                                                                                            |
-| `welcome`                              | `users.locale` du compte                                                                                                                                                                                                                              |
+| Mail                                              | Langue retenue                                                                                                                                                                                                                                                                                          |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rfq-received`                                    | `users.locale` de chaque membre habilité (`RFQ_RESPONDER_ROLES`) ; pour une adresse de réception (`supplier_profiles.quote_email`) ou de contact d'organisation, celle du premier membre habilité (le plus ancien), à défaut la langue par défaut — un même envoi peut donc partir en plusieurs langues |
+| `organization-invitation`                         | celle de **l'inviteur** (l'invité n'a pas encore de compte) ; le lien d'acceptation pointe vers la même                                                                                                                                                                                                 |
+| `password-reset`, `email-verification`            | celle de la page d'où la demande est faite                                                                                                                                                                                                                                                              |
+| `welcome`                                         | `users.locale` du compte                                                                                                                                                                                                                                                                                |
+| `notification-reminder`                           | `users.locale` du destinataire de la notification, à défaut la langue par défaut ; le lien est préfixé par la même                                                                                                                                                                                      |
+| `subscription-activated`, `subscription-expiring` | `users.locale` de chaque responsable (owner, admin) de l'organisation ; dates et lien dans la même langue                                                                                                                                                                                               |
+| `rfq-reminder`, `agency-message-relayed`          | mêmes adresses et même règle que `rfq-received`                                                                                                                                                                                                                                                         |
+| `supplier-reply-received`                         | `users.locale` de chaque destinataire de l'agence (auteur de la demande, responsables)                                                                                                                                                                                                                  |
+| `quote-email-verification`                        | langue de la page d'où le membre enregistre l'adresse de réception                                                                                                                                                                                                                                      |
 
 Une charge mise en queue avant #58 n'a pas de `locale` : `SendMailJob` retombe sur
 la langue par défaut (`fr`). La charge d'un mail en dead-letter conserve sa langue,
@@ -239,6 +281,275 @@ Le rendu par langue est couvert sans base par `tests/unit/mail_templates.spec.ts
 et HTML des 5 mails dans les 9 langues, pluriels, échappement, symétrie des
 `emails.json`), et la langue de chaque destinataire d'une demande de devis par
 `tests/functional/rfq_mail_locale.spec.ts`.
+
+## Mails entrants (réponses des fournisseurs)
+
+Un fournisseur répond à une demande de devis depuis sa messagerie : la plateforme reçoit la réponse, l'authentifie, la rattache au couple demande / fournisseur et la journalise (#223). Le choix du prestataire, Resend, est motivé dans l'[ADR 0005](adr/0005-reception-mails-entrants.md).
+
+Cette brique s'arrête à la réception. La suite se branche sur l'événement `InboundMailReceived`, qui dit **quel côté a écrit** (`side`, #226) : la réponse du fournisseur devient un message du fil et un devis PDF (#224, `OnInboundMailReceived` → `SupplierReplyService`, voir [`quotes.md`](quotes.md)) puis est transmise à l'agence (#225) ; le mail de l'agence devient son message du fil et est relayé au fournisseur (#226, `AgencyReplyService`, voir [Relais des échanges](#relais-des-échanges-agence--fournisseur-226)).
+
+### Adresse relais
+
+- Chaque couple demande / fournisseur a une adresse `rfq-<jeton>@<INBOUND_MAIL_DOMAIN>`.
+- Le jeton (`rfq_suppliers.reply_token`, 32 caractères hexadécimaux) est aléatoire et généré par la base à l'insertion de la ligne.
+- L'adresse est posée en `Reply-To` sur les mails `rfq-received` et `rfq-reminder` (`RfqNotificationService` → `InboundAddressService#addressFor`). Toutes les boîtes d'un même fournisseur reçoivent la même adresse.
+- Ces deux mails portent aussi `X-Auto-Response-Suppress: OOF, AutoReply`, qui demande à Outlook et Exchange de ne pas y répondre par un message d'absence.
+- **L'expéditeur n'authentifie rien** : un fournisseur répond souvent depuis une autre boîte. Le jeton fait foi ; `inbound_mails.sender_known` indique seulement si l'expéditeur est l'adresse de contact du fournisseur ou celle d'un de ses membres.
+- L'adresse reste valide tant que la demande est publiée, puis `INBOUND_MAIL_GRACE_DAYS` jours (30 par défaut) après sa clôture ou son expiration.
+- Sans configuration (dev, test, CI), aucun `Reply-To` n'est posé : les mails partent comme avant.
+
+### Adresse relais côté agence (#225, #226)
+
+- Le mail `supplier-reply-received`, qui transmet la réponse du fournisseur à
+  l'agence, part de la **plateforme** (`MAIL_FROM_ADDRESS`), jamais de l'adresse
+  du fournisseur. Son `Reply-To` est l'adresse relais **côté agence** du même
+  couple : `agency-<jeton agence>@<INBOUND_MAIL_DOMAIN>` (`agencyReplyAddress`,
+  `InboundAddressService#agencyAddressFor`).
+- **Un jeton propre à l'agence** (`rfq_suppliers.agency_reply_token`, migration
+  `1794000000035`, généré par la base comme `reply_token`). L'adresse `rfq-`
+  n'authentifie que par son jeton : qui le connaît écrit **au nom du
+  fournisseur** dans le fil (message, devis PDF, statut « répondu »). L'agence,
+  et quiconque reçoit ses mails en transfert, ne doit donc jamais lire
+  `reply_token` ; elle n'en voit que l'autre jeton.
+- **Pourquoi une seconde adresse** : la même adresse dans les deux sens ferait
+  prendre la réponse de l'agence pour celle du fournisseur (l'expéditeur
+  n'authentifie rien). Le préfixe dit **qui écrit**, le jeton désigne le couple.
+- **Résolution** (#226) : `relayTargetFrom` (`shared/helpers/inbound_mail.ts`)
+  rend `{ side, token }` — `rfq-` → `supplier`, `agency-` → `agency`. Le couple
+  est cherché par la colonne du côté qui écrit (`RELAY_TOKEN_FIELDS` :
+  `reply_token` ou `agency_reply_token`), **jamais l'autre** : `agency-<reply_token>`
+  ou `rfq-<agency_reply_token>` sont écartés en `unknown_address`.
+  `InboundAddressService#targetFrom` / `#sideOf` / `#relayAddressFor(recipient, side)`.
+- Le mail invite désormais à répondre (`canReply` dès qu'une adresse relais est
+  posée) : la réponse de l'agence entre dans le fil et part au fournisseur.
+- L'adresse appartient au domaine relais : la détection des boucles
+  (`isRelayAddress`) la couvre.
+
+### Relais des échanges agence ↔ fournisseur (#226)
+
+Le fournisseur gratuit n'échange avec l'agence que par les mails de la
+plateforme, et tout reste enregistré. Chaque message du fil d'une demande
+(`conversations.rfq_supplier_id`) est relayé par mail à **l'autre côté**, qui
+peut répondre depuis sa messagerie :
+
+| Qui écrit   | Par                       | Enregistré par                                       | Relayé par                                                                        |
+| ----------- | ------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Fournisseur | mail à `rfq-…`            | `SupplierReplyService` (#224)                        | `SupplierReplyRecorded` → `supplier-reply-received` à l'agence (#225)             |
+| Agence      | mail à `agency-…`         | `AgencyReplyService`                                 | `ConversationMessageRecorded` → `agency-message-relayed` au fournisseur           |
+| Agence      | écran de la demande       | `RfqThreadService#post` → `ConversationService#post` | `ConversationMessageRecorded` → `agency-message-relayed` au fournisseur           |
+| Fournisseur | écran de la demande reçue | `RfqThreadService#post` → `ConversationService#post` | `ConversationMessageRecorded` → `supplier-reply-received` à l'agence (sans devis) |
+
+- **Côté d'un message** : `messages.sender_side` (`agency` | `supplier`,
+  migration `1794000000037`), posé à l'écriture ; il dit dans quel sens relayer
+  et comment afficher. Les lignes existantes sont remplies par la migration.
+- **Destinataires** : vers le fournisseur, ses adresses de réception (#217,
+  `RfqNotificationService#addressesFor`, les mêmes que la demande) ; vers
+  l'agence, l'auteur de la demande et ses responsables (#225).
+- **Anonymat du fournisseur non abonné** : le mail relayé part de la
+  plateforme, son `Reply-To` est l'adresse `rfq-` du fournisseur, sujet et titre
+  ne nomment pas l'agence (« L'agence vous a écrit » ; un abonné lit son nom,
+  comme dans la demande, #220/#221). Aucun en-tête du mail de l'agence n'est
+  recopié, sauf les consignes de priorité : `relayableHeaders` (liste blanche
+  `Importance`, `Priority`, `X-Priority`, valeurs courtes et sans adresse)
+  écarte `From`, `Reply-To`, `Sender`, `Return-Path`, `Received`,
+  `X-Originating-IP`, `Message-ID`, `References`, DKIM, `X-Mailer`…
+- **Corps non filtré** : décision du client, une signature ou un texte peut
+  révéler l'agence ; ni filtrage ni avertissement. Seul l'**historique cité**
+  est retiré (`stripQuotedReply`, appelé par `inboundMailBody`), à la première
+  marque sûre : annonce datée ou adressée (« Le 21 nov. 2026, … a écrit : »,
+  « On … wrote: »), « -----Original Message----- », en-tête cité complet
+  (`De :` puis `Envoyé :` puis `À :` ou `Objet :`), ou bloc `>` qui **termine**
+  le mail — en 9 langues. Dans le doute le texte est gardé : une ligne
+  `> 500 pièces` au milieu du message, deux lignes `De : …` / `Date : …` ou
+  « Voici ce que Paul a écrit : » ne coupent rien. Sans ce retrait, chaque
+  réponse recopierait le fil entier, relayé à chaque aller-retour, avec les noms
+  et adresses que ces en-têtes cités portent. Le mail complet reste dans
+  `inbound_mails`.
+- **Expéditeur de l'agence vérifié** : un mail reçu à `agency-…` n'est accepté
+  que s'il vient de l'adresse d'un membre de l'agence **et** que son domaine
+  n'échoue pas l'authentification ; sinon il est écarté en `unknown_sender`
+  (l'adresse peut fuiter par un transfert, et le fournisseur ne voit pas qui l'a
+  écrit). `From` se falsifie : `senderAuthenticationFailed` lit le premier
+  en-tête `Authentication-Results` du mail brut (celui du serveur de réception)
+  et écarte un DMARC en échec, ou un SPF en échec sans DKIM valide. Sans cet
+  en-tête, rien n'est conclu : le contrôle ne vaut que pour les domaines qui
+  publient SPF / DMARC, ce n'est pas une authentification forte.
+- **Agence prévenue d'un refus** : un mail écarté en `unknown_sender` est
+  annoncé (`AgencyMailRefused` → `AgencyReplyService#refuse`) ; l'auteur de la
+  demande et ses responsables reçoivent la notification `rfq.relay_refused`
+  (une par mail), qui mène à la demande pour écrire depuis l'écran. Aucune
+  réponse n'est faite à l'expéditeur, qui peut être falsifié. Un admin peut
+  rattacher le mail à la main depuis la supervision (#227) : il est alors
+  enregistré et relayé. Côté fournisseur, un expéditeur inconnu ou non
+  authentifié reste indicatif (`sender_known`).
+- **Fil clos** : passé le délai de l'adresse relais (`INBOUND_MAIL_GRACE_DAYS`
+  après la clôture ou l'expiration de la demande, `isRelayWindowClosed`), on
+  n'écrit plus ni par mail (`expired_address`) ni depuis l'écran (abilities
+  `canMessageRfq*`) ; le fil reste lisible.
+- **Pièces jointes de l'agence** : rattachées au message (fichiers déjà sur
+  Cellar, jamais pris pour des devis) et citées par leur nom dans le mail relayé.
+- **Idempotence** : `messages.inbound_mail_id` unique pour l'enregistrement ;
+  clé `agency-message-relayed:message=<id>:to=<adresse>` pour le mail. Un
+  `InboundMailReceived` rejoué (worker, supervision #227) ne crée ni second
+  message ni second envoi.
+- **Échec** : un échec de mise en queue est loggué sans être propagé, le message
+  reste dans le fil. Comme pour #225, l'émission de l'événement après le commit
+  n'est pas garantie ; la reprise des messages non relayés reste à faire.
+
+### Variables d'environnement
+
+```env
+INBOUND_MAIL_PROVIDER=resend          # `none` ou absent : réception désactivée
+INBOUND_MAIL_DOMAIN=reply.example.com # sous-domaine dont les MX pointent vers Resend
+INBOUND_MAIL_SIGNING_KEY=whsec_…      # secret du webhook (signature)
+INBOUND_MAIL_API_KEY=re_…             # clé d'API : lecture du contenu des mails
+INBOUND_MAIL_MAX_SIZE_MB=25           # optionnel
+INBOUND_MAIL_MAX_ATTACHMENT_SIZE_MB=15 # optionnel
+INBOUND_MAIL_GRACE_DAYS=30            # optionnel
+```
+
+La réception n'est active que si le prestataire, le domaine et les deux clés sont renseignés. `INBOUND_MAIL_API_KEY` est lue par le **worker** : la définir sur les deux applications.
+
+### Parcours d'un mail
+
+1. Resend reçoit le mail sur le sous-domaine relais et appelle `POST /webhooks/inbound-mail` (`webhooks.inbound_mail`). La route est hors locale, hors session, exemptée de CSRF (`config/shield.ts`).
+2. `InboundMailService#receive` vérifie la signature Svix sur le **corps brut** (`svix-id`, `svix-timestamp`, `svix-signature`, écart d'horodatage de 5 minutes au plus), insère une ligne `inbound_mails` et met `ProcessInboundMailJob` en file.
+3. Le job (`InboundMailService#process`) lit le corps, les en-têtes et les pièces jointes par l'API Resend, applique les garde-fous, copie les pièces jointes acceptées sur Cellar, puis émet `InboundMailReceived`.
+
+Réponses du webhook :
+
+| Cas                                        | Code                      | Effet                                                                  |
+| ------------------------------------------ | ------------------------- | ---------------------------------------------------------------------- |
+| Mail journalisé                            | 200, `receipt: queued`    | Traitement mis en file                                                 |
+| Mail déjà journalisé                       | 200, `receipt: duplicate` | Rien, sauf s'il attendait encore son traitement : il est remis en file |
+| Événement autre que `email.received`       | 200, `receipt: ignored`   | Rien                                                                   |
+| Signature absente, fausse ou trop ancienne | 403                       | Rien n'est journalisé                                                  |
+| Réception non configurée                   | 503                       | Rien                                                                   |
+| Autre erreur                               | 500                       | Resend relance (8 tentatives sur environ 27 heures)                    |
+
+### Idempotence
+
+- `inbound_mails (provider, provider_message_id)` est unique, et l'insertion se fait en `ON CONFLICT DO NOTHING` : le même mail livré deux fois ne donne qu'une ligne.
+- Le job prend le mail par une bascule conditionnelle `received | failed → processing` : deux jobs concurrents n'en traitent qu'un, et un mail `processed` ou `rejected` n'est jamais repris. Un verrou `processing` sans mouvement depuis 15 minutes est celui d'un worker tué en plein traitement : il peut être repris.
+- `inbound_mail_attachments (inbound_mail_id, provider_attachment_id)` est unique : un job rejoué ne stocke pas deux fois la même pièce.
+
+### Écouteurs de `InboundMailReceived`
+
+L'événement est émis **au moins une fois**, pas exactement une fois. Si un écouteur lève, le mail repasse `failed`, le job est rejoué et l'événement est réémis, y compris pour les écouteurs qui avaient abouti. Tout écouteur (#224 à #226) doit donc être idempotent : vérifier par `inboundMailId` que son effet n'existe pas déjà avant de créer un devis, un message ou un envoi de mail. Ceux de #224 et #226 (`SupplierReplyService`, `AgencyReplyService`) s'appuient sur l'unicité de `messages.inbound_mail_id`. Le rejeu admin d'un mail traité (#227) relit le côté sur l'adresse relais visée (`InboundAddressService#sideOf`).
+
+### Corps HTML
+
+`inbound_mails.html_body` est stocké tel que reçu, sans assainissement : il vient d'un tiers et peut contenir du script ou des images de pistage. Il ne doit jamais être rendu tel quel (`v-html`). Un écran qui l'affiche (#227) l'assainit au rendu, ou affiche `text_body`. Le fil d'échanges (#226) n'affiche que `messages.body`, du texte brut (`inboundMailBody`).
+
+### Garde-fous
+
+Appliqués dans cet ordre ; le premier qui s'applique écarte le mail (`status = rejected`, motif dans `rejection_reason`) :
+
+| Motif             | Condition                                                                                                                                                                                                                                                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `too_large`       | Mail de plus de `INBOUND_MAIL_MAX_SIZE_MB`                                                                                                                                                                                                                                                                               |
+| `loop`            | Expéditeur = `MAIL_FROM_ADDRESS` ou une adresse du domaine relais                                                                                                                                                                                                                                                        |
+| `auto_reply`      | `Auto-Submitted` autre que `no`, `X-Auto-Response-Suppress: All` (les autres valeurs, posées par des CRM et des ERP sur des mails écrits par une personne, ne comptent pas), `X-Autoreply`, `Precedence: bulk/junk/list`, `Return-Path: <>`, rapport de non-remise, expéditeur `mailer-daemon`, `postmaster`, `no-reply` |
+| `unknown_address` | Aucun couple ne porte ce jeton, ou l'adresse n'est pas une adresse relais                                                                                                                                                                                                                                                |
+| `expired_address` | Demande close ou expirée depuis plus de `INBOUND_MAIL_GRACE_DAYS` jours                                                                                                                                                                                                                                                  |
+| `unknown_sender`  | Mail reçu à l'adresse `agency-` d'un couple depuis une adresse qui n'est celle d'aucun membre de l'agence, ou dont le domaine échoue DMARC / SPF (#226) ; l'agence est notifiée, un rattachement manuel le fait passer                                                                                                   |
+| `dismissed`       | Écarté à la main par un admin depuis la supervision (voir plus bas)                                                                                                                                                                                                                                                      |
+
+Un mail écarté n'est que journalisé (expéditeur, adresse visée, objet, en-têtes) : son corps et ses pièces jointes ne sont pas conservés.
+
+Pièces jointes d'un mail accepté, chacune journalisée dans `inbound_mail_attachments` :
+
+| Statut           | Condition                                                                                                                                                   |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `stored`         | Extension acceptée (`INBOUND_ATTACHMENT_TYPES` : PDF, PNG, JPEG, WebP, Word, Excel, OpenDocument, CSV), copiée sur Cellar par `StorageService#storeContent` |
+| `rejected_type`  | Autre extension, ou contenu qui n'est pas du format annoncé par l'extension (premiers octets du fichier, `matchesFileSignature`)                            |
+| `rejected_size`  | Plus de `INBOUND_MAIL_MAX_ATTACHMENT_SIZE_MB`                                                                                                               |
+| `ignored_inline` | Image intégrée au corps (logo de signature)                                                                                                                 |
+
+Une pièce refusée n'écarte pas le mail.
+
+### Journal
+
+`inbound_mails` : `provider`, `provider_message_id`, `message_id`, `rfq_supplier_id`, `recipient`, `sender_address`, `sender_name`, `sender_known`, `subject`, `text_body`, `html_body`, `headers`, `size_bytes`, `status` (`received`, `processing`, `processed`, `rejected`, `failed`), `rejection_reason`, `error`, `attached_manually_at`, `failure_alerted_at`, `received_at`, `processed_at`.
+
+Un mail `failed` porte l'erreur du dernier essai ; le job est rejoué 5 fois avec un backoff de 30 secondes à 15 minutes.
+
+### Reprise des mails non aboutis
+
+Resend ne relance pas un webhook auquel l'application a répondu 200 : un mail journalisé mais non traité ne reviendra pas de lui-même. `RecoverInboundMailsJob`, planifié toutes les 15 minutes (`start/scheduler.ts`), remet donc en file (`InboundMailService#recoverStale`) les mails sans mouvement depuis 15 minutes qui sont encore :
+
+- `processing` : le worker a été tué en plein traitement (déploiement, crash) ;
+- `failed` : le job a épuisé ses tentatives, par exemple pendant une panne de l'API du prestataire ;
+- `received` : la mise en file s'est perdue.
+
+La reprise dure 24 heures après la réception. Au-delà, le mail reste `failed` avec son erreur, pour la supervision (#227). Les deux durées sont dans `config/inbound_mail.ts` (`staleAfterMinutes`, `recoveryWindowHours`).
+
+### Supervision (`/admin/inbound-mail`)
+
+Écrans du back-office voisins de `/admin/mail` (#227), droit `ops.manage` (admin) : `AdminInboundMailService`, `InboundMailController`, `AdminInboundMailTransformer`, types dans `shared/types/admin_inbound_mail.ts`.
+
+- **Liste** (`admin.inbound_mail.index`) : nombre de mails par état (chaque tuile filtre la liste), filtres par état (`status`) et motif de rejet (`rejection`), 25 mails par page, les plus récents d'abord. Ni corps ni en-têtes ne sont lus pour la liste.
+- **Fiche** (`admin.inbound_mail.show`) : résumé, couple demande / fournisseur visé, erreur complète, corps **texte** (le HTML d'un tiers n'est jamais rendu), pièces jointes et leur sort.
+
+Trois actions, chacune tracée dans le journal d'audit (`inbound_mail.attached`, `inbound_mail.replayed`, `inbound_mail.dismissed`, cible `inbound_mail`). La ligne est verrouillée (`FOR UPDATE`) et son état vérifié dans la transaction qui écrit l'audit ; le traitement tourne après le commit.
+
+| Action    | Route                                  | États acceptés                                | Effet                                                                                                                                                                    |
+| --------- | -------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Rattacher | `POST /admin/inbound-mail/:id/attach`  | `received`, `failed`, `rejected`              | Pose `rfq_supplier_id` (champ `rfqSupplierId`) et `attached_manually_at`, repasse `received`, puis `InboundMailService#process`.                                         |
+| Rejouer   | `POST /admin/inbound-mail/:id/replay`  | `received`, `failed`, `rejected`, `processed` | Repasse `received` et relance `InboundMailService#process` ; un mail `processed` n'est pas retraité : seul `InboundMailReceived` est réémis (enregistrement idempotent). |
+| Écarter   | `POST /admin/inbound-mail/:id/dismiss` | `received`, `failed`                          | Passe `rejected`, motif `dismissed` : la reprise planifiée ne le reprend plus.                                                                                           |
+
+Un mail `processing` est entre les mains d'un worker : aucune action tant qu'il n'en est pas sorti.
+
+**Rattachement manuel.** La fiche propose les couples dont le fournisseur a une adresse (organisation ou membre) du domaine de l'expéditeur, ou, si l'admin saisit un numéro de demande (`?rfq=`), les destinataires de cette demande. Une fois rattaché, le traitement suit `rfq_supplier_id` au lieu du jeton de l'adresse relais, et n'écarte plus le mail pour adresse inconnue, adresse expirée ou réponse automatique : l'admin a jugé que c'est une réponse. `too_large` et `loop` s'appliquent toujours. Un mail déjà `processed` ne peut pas être rattaché ailleurs.
+
+**Pas de doublon au rejeu.** Le verrou de statut (`claim`) empêche deux traitements concurrents, les pièces jointes déjà journalisées ne sont pas recopiées, et `SupplierReplyService#record` ne crée ni message ni `quote_documents` pour un mail déjà enregistré (`messages.inbound_mail_id` unique). Rejouer un mail traité, même plusieurs fois, ne crée donc rien de plus.
+
+**Échec du traitement depuis l'écran.** L'erreur est loguée, le mail reste `failed` et la reprise planifiée le rejouera ; l'admin voit un message d'erreur.
+
+### Alerte sur les échecs répétés
+
+Quand `ProcessInboundMailJob` a épuisé ses tentatives, il émet `InboundMailProcessingFailed`. L'écouteur `OnInboundMailProcessingFailed`, calqué sur `OnMailDeliveryFailed`, logue en `error` puis envoie `InboundMailFailedAlert` (template `emails/inbound_mail_failed`) à `MAIL_ALERT_ADDRESS`, en direct, avec l'expéditeur, l'adresse visée, l'erreur, le nombre de mails entrants en échec sur 24 heures et le lien vers la fiche de supervision.
+
+Une seule alerte par mail : `failure_alerted_at` est posé par une bascule conditionnelle avant l'envoi. La reprise planifiée, qui rejoue le mail pendant 24 heures et épuise à chaque fois les tentatives du job, ne renvoie donc pas l'alerte. Si l'envoi échoue, l'erreur est loguée, jamais propagée, et `failure_alerted_at` est remis à `null` pour que l'alerte reparte au prochain échec.
+
+### Conservation des mails relayés
+
+État du code au 24/11/2026, repris dans le brouillon de politique de
+confidentialité ([`legal/`](legal/README.md)) :
+
+| Donnée                                                                                                                 | Conservation                                                                                               |
+| ---------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Mail accepté (`inbound_mails` : expéditeur, objet, corps texte et HTML, en-têtes)                                      | **Sans limite** : aucune purge n'existe                                                                    |
+| Pièces jointes acceptées (`inbound_mail_attachments`, fichiers sur Cellar)                                             | **Sans limite**, comme le mail                                                                             |
+| Message du fil (`messages`, `message_attachments`) et devis PDF (`quote_documents`, copie au nom de l'agence comprise) | **Sans limite**, rattachés à la demande et visibles des deux côtés du fil                                  |
+| Mail écarté (`rejected`)                                                                                               | métadonnées seulement (expéditeur, adresse visée, objet, en-têtes), sans limite ; ni corps ni pièce jointe |
+| Charge des jobs de mail (`queue_jobs.payload` : adresses, coordonnées de l'agence, texte relayé)                       | supprimée à la réussite ; gardée **30 jours** en cas d'échec définitif (`removeOnFail`)                    |
+| Journal d'envoi (`mail_deliveries` : clé, `kind`, destinataire, erreur)                                                | **Sans limite** : aucune purge n'existe                                                                    |
+| Copie chez le prestataire de réception (Resend)                                                                        | non maîtrisée par l'application : lieu et durée à obtenir par écrit (ADR 0005)                             |
+
+Une durée de conservation est à fixer avec le client ; elle demandera une purge
+planifiée (sur le modèle de `PurgeActivityEventsJob`) qui libère aussi les
+fichiers par `StorageService.release`.
+
+### Changer de prestataire
+
+Le code dépend de la classe abstraite `InboundMailProvider` (`app/services/inbound_mail/`), liée dans `providers/inbound_mail_provider.ts`. Un autre prestataire s'ajoute par une implémentation de ses trois méthodes : `parseWebhook`, `fetchContent`, `fetchAttachment`.
+
+### En local
+
+Il n'y a ni MX ni webhook en développement. La commande suivante fait passer un mail par les mêmes garde-fous, sans prestataire ni file :
+
+```bash
+node ace inbound-mail:simulate rfq-<jeton>@reply.localhost \
+  --from="Jean <jean@fournisseur.test>" --attachment=devis.pdf
+```
+
+`--auto-reply` simule un message d'absence. Les écouteurs (devis, transmission à l'agence, relais) tournent dans le processus de la commande : comme `queue:work`, elle fige les routes (`router.commit()`) pour que les liens des mails se construisent. Une adresse `agency-<jeton>@…` simule une réponse de l'agence (#226). Pour que les mails de demande portent un `Reply-To` en local, renseigner les quatre variables (des valeurs factices suffisent pour le domaine et les clés).
+
+### Tests
+
+`tests/functional/inbound_mail.spec.ts` couvre le webhook (rattachement, doublon, réponse automatique, adresse inconnue ou expirée, signature invalide, pièces jointes, reprise après échec) et le `Reply-To`. `tests/unit/inbound_mail_helpers.spec.ts` couvre l'adresse relais, la détection des réponses automatiques et la signature Svix (vecteur de la documentation Svix). Le faux prestataire est dans `tests/utils/inbound_mail.ts` (`useFakeInboundMail(group)`). `tests/functional/rfq_message_relay.spec.ts` couvre le relais (#226) : résolution par côté, relais dans les deux sens par mail et depuis l'application, anonymat des en-têtes, rejeu, abilities (403), validation, fil bloqué, signalement et props des deux écrans ; `tests/unit/inbound_mail_helpers.spec.ts` couvre aussi `relayTargetFrom` et `relayableHeaders`, `tests/unit/conversation_helpers.spec.ts` les côtés et la charge du mail relayé.
 
 ## Références
 

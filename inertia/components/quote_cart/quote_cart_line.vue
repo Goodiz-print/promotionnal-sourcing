@@ -1,0 +1,138 @@
+<script setup lang="ts">
+import { computed, onBeforeUnmount, ref } from 'vue'
+import { router } from '@inertiajs/vue3'
+import { Link } from '@adonisjs/inertia/vue'
+import { Image as ImageIcon, Trash2 } from 'lucide-vue-next'
+import { useI18n } from '~/i18n'
+import { urlFor } from '~/client'
+import BaseIconButton from '~/components/base/base_icon_button.vue'
+import BaseInput from '~/components/base/base_input.vue'
+import QuoteCartLineEstimate from '~/components/quote_cart/quote_cart_line_estimate.vue'
+import QuoteCartLineOptions from '~/components/quote_cart/quote_cart_line_options.vue'
+import { useQuoteCartLineSave } from '~/composables/use_quote_cart_line_save'
+import type { QuoteCartItemType, UpdateQuoteCartItemData } from '#shared/types/quote_cart'
+
+/**
+ * Une ligne du panier : produit, quantité, options (variante, marquage),
+ * précisions et estimation indicative. Les modifications sont enregistrées
+ * d'elles-mêmes (après une courte pause de saisie pour le texte, aussitôt pour
+ * un choix d'option), comme dans un panier marchand — pas de bouton
+ * « enregistrer ». L'estimation revient recalculée par le serveur.
+ */
+const props = defineProps<{ item: QuoteCartItemType }>()
+
+const { t, locale } = useI18n()
+
+const quantity = ref<number | null>(props.item.quantity)
+const note = ref(props.item.note ?? '')
+
+const belowMinimum = computed(
+  () =>
+    props.item.minQuantity !== null &&
+    quantity.value !== null &&
+    quantity.value < props.item.minQuantity
+)
+
+/**
+ * `async` : un enregistrement ne doit pas annuler celui d'un autre champ ou
+ * d'une autre ligne encore en vol (une visite Inertia annule la précédente).
+ */
+function save(changes: UpdateQuoteCartItemData) {
+  router.patch(
+    urlFor('quote_cart.items.update', { locale: locale.value, id: props.item.id }),
+    changes,
+    {
+      preserveScroll: true,
+      preserveState: true,
+      only: ['groups'],
+      async: true,
+    }
+  )
+}
+
+const { schedule, saveNow, flush, cancel } = useQuoteCartLineSave(save)
+
+function onQuantity(value: number | null) {
+  quantity.value = value
+  // Une saisie vide ou nulle n'est pas une quantité : on attend la suivante.
+  if (value !== null && Number.isInteger(value) && value > 0) schedule({ quantity: value })
+}
+
+function onNote(value: string) {
+  note.value = value
+  schedule({ note: value.trim() || null })
+}
+
+function remove() {
+  cancel()
+  router.delete(urlFor('quote_cart.items.destroy', { locale: locale.value, id: props.item.id }), {
+    preserveScroll: true,
+  })
+}
+
+// Une saisie en attente est enregistrée, pas perdue, si l'on quitte la page.
+onBeforeUnmount(flush)
+</script>
+
+<template>
+  <li class="flex flex-col gap-4 py-4 sm:flex-row sm:items-start" data-testid="quote-cart-line">
+    <img
+      v-if="item.imageUrl"
+      :src="item.imageUrl"
+      :alt="item.productName"
+      class="size-16 shrink-0 rounded-md bg-sunken object-cover"
+    />
+    <div
+      v-else
+      class="flex size-16 shrink-0 items-center justify-center rounded-md bg-sunken text-text-muted"
+      aria-hidden="true"
+    >
+      <ImageIcon :size="24" :stroke-width="1.5" />
+    </div>
+
+    <div class="flex min-w-0 flex-1 flex-col gap-3">
+      <div class="flex items-start justify-between gap-3">
+        <Link
+          route="products.show"
+          :params="{ locale, slug: item.productSlug }"
+          class="text-body-sm font-semibold text-text-primary hover:text-indigo-600"
+        >
+          {{ item.productName }}
+        </Link>
+        <BaseIconButton
+          :label="t('quote_cart.line.remove', { name: item.productName })"
+          @click="remove()"
+        >
+          <Trash2 :size="18" aria-hidden="true" />
+        </BaseIconButton>
+      </div>
+
+      <div class="grid gap-3 sm:grid-cols-[10rem_1fr]">
+        <BaseInput
+          :id="`quote-cart-quantity-${item.id}`"
+          :model-value="quantity"
+          type="number"
+          :min="1"
+          :step="1"
+          :label="t('quote_cart.line.quantity')"
+          :hint="
+            belowMinimum ? t('quote_cart.line.belowMinimum', { count: item.minQuantity! }) : ''
+          "
+          @update:model-value="onQuantity"
+        />
+        <BaseInput
+          :id="`quote-cart-note-${item.id}`"
+          :model-value="note"
+          :label="t('quote_cart.line.note')"
+          @update:model-value="onNote"
+        />
+      </div>
+
+      <QuoteCartLineOptions :item="item" @change="saveNow" />
+    </div>
+
+    <div class="sm:w-56 sm:shrink-0">
+      <QuoteCartLineEstimate :estimate="item.estimate" />
+    </div>
+  </li>
+</template>

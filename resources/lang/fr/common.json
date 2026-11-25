@@ -14,6 +14,7 @@
     "supplierRfqs": "Demandes reçues",
     "supplierQuotes": "Mes devis",
     "supplierOrders": "Commandes reçues",
+    "supplierInsights": "Consultations",
     "supplierProfile": "Profil fournisseur",
     "members": "Membres",
     "settings": "Paramètres",
@@ -34,11 +35,19 @@
     "closeMenu": "Fermer le menu",
     "backToSite": "Retour au site",
     "noOrganization": "Aucune organisation",
-    "logoAlt": "Promotional Sourcing.eu"
+    "logoAlt": "Promotional Sourcing.eu",
+    "supplierAds": "Produits sponsorisés",
+    "supplierSubscription": "Abonnement",
+    "supplierContacts": "Équipe commerciale"
   },
   "language": {
     "label": "Langue",
     "fr": "Français",
     "en": "English"
+  },
+  "confirmDialog": {
+    "title": "Confirmer l'action ?",
+    "confirm": "Confirmer",
+    "cancel": "Annuler"
   }
 }

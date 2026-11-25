@@ -1,6 +1,8 @@
 import type { AgencyReviewReason } from './agency_signup.js'
 import type { OrganizationKind, OrganizationSize, SubscriptionPlan } from './organization.js'
+import type { QuoteAddressSource } from './rfq.js'
 import type { RoleSlug } from './role.js'
+import type { PaidSubscriptionPlan, SubscriptionStatus } from './subscription.js'
 
 /**
  * Gestion des organisations par la plateforme (#161).
@@ -17,6 +19,11 @@ export type AdminOrganizationIndexFilters = {
   status: AdminOrganizationStatusFilter
   /** Code pays ISO 2 lettres. `null` = tous. */
   country: string | null
+  /**
+   * Seulement les organisations fournisseurs sans adresse de réception
+   * explicite, qui se rabattent sur leurs membres responsables (#217).
+   */
+  missingQuoteAddress: boolean
 }
 
 export const ADMIN_ORGANIZATION_STATUS_FILTERS = ['active', 'archived', 'all'] as const
@@ -41,6 +48,11 @@ export type AdminOrganizationListItem = {
   createdAt: string
   /** Derniere activite (derniere connexion d'un membre). */
   lastActivity: string | null
+  /**
+   * Adresse qui reçoit les demandes de devis (#217) ; `null` pour une
+   * organisation qui n'est pas fournisseur.
+   */
+  quoteAddressSource: QuoteAddressSource | null
 }
 
 /** Membre d'une organisation (fiche organisation). */
@@ -66,6 +78,10 @@ export type AdminOrganizationInvitation = {
 /** Profil fournisseur (fiche organisation). */
 export type AdminOrganizationSupplierProfile = {
   id: number
+  /** Adresse de réception des demandes de devis (#217). */
+  quoteEmail: string | null
+  /** Confirmation de `quoteEmail` par lien ; `null` : pas encore confirmée, donc pas utilisée. */
+  quoteEmailVerifiedAt: string | null
   minOrderQuantity: number | null
   deliveryDays: number | null
   deliveryScope: string | null
@@ -129,6 +145,8 @@ export type AdminOrganizationDetail = AdminOrganizationListItem & {
   postalCode: string | null
   logoUrl: string | null
   subscriptionPlan: SubscriptionPlan
+  /** Abonnements, du plus récent au plus ancien (#214) : le premier ouvert est l'abonnement en cours ou programmé. */
+  subscriptions: AdminOrganizationSubscription[]
   locale: string
   updatedAt: string | null
   /** Agence: motifs de revue renseignes a l'inscription. */
@@ -164,4 +182,22 @@ export type AdminOrganizationUpdateData = {
   city?: string | null
   postalCode?: string | null
   country?: string
+}
+
+/**
+ * Période d'abonnement affichée dans la fiche admin (#214). `editable` : abonnement
+ * manuel encore ouvert, que l'admin peut prolonger ou résilier.
+ */
+export type AdminOrganizationSubscription = {
+  id: number
+  plan: PaidSubscriptionPlan
+  status: SubscriptionStatus
+  origin: string
+  startsAt: string
+  /** Fin exclusive (début du jour qui suit le dernier jour couvert). */
+  endsAt: string | null
+  cancelledAt: string | null
+  createdByEmail: string | null
+  createdAt: string
+  editable: boolean
 }

@@ -7,8 +7,12 @@ import type {
   AdminOrganizationSupplierProfile,
   AdminOrganizationAgencyProfile,
   AdminOrganizationBillingProfile,
+  AdminOrganizationSubscription,
 } from '#shared/types/admin_organization'
 import type { RoleSlug } from '#shared/types/role'
+import { SUPPLIER_ORGANIZATION_KINDS } from '#shared/types/organization'
+import { quoteAddressSource } from '#shared/helpers/quote_address'
+import type { QuoteAddressSource } from '#shared/types/rfq'
 
 interface TransformOptions {
   canManage: boolean
@@ -36,6 +40,7 @@ export default class AdminOrganizationDetailTransformer extends BaseTransformer<
       supplierProfile,
       agencyProfile,
       billingProfile,
+      subscriptions,
       lastActivity,
     } = this.resource
 
@@ -49,6 +54,7 @@ export default class AdminOrganizationDetailTransformer extends BaseTransformer<
       archivedAt: organization.archivedAt?.toISO() ?? null,
       createdAt: organization.createdAt.toISO()!,
       lastActivity: lastActivity?.toISOString() ?? null,
+      quoteAddressSource: this.quoteAddressSource(),
       email: organization.email,
       phone: organization.phone,
       website: organization.website,
@@ -63,6 +69,7 @@ export default class AdminOrganizationDetailTransformer extends BaseTransformer<
       postalCode: organization.postalCode,
       logoUrl: organization.logoUrl,
       subscriptionPlan: organization.subscriptionPlan,
+      subscriptions: subscriptions.map((subscription) => this.transformSubscription(subscription)),
       locale: organization.locale,
       updatedAt: organization.updatedAt?.toISO() ?? null,
       reviewReasons: organization.reviewReasons?.length > 0 ? organization.reviewReasons : null,
@@ -93,11 +100,24 @@ export default class AdminOrganizationDetailTransformer extends BaseTransformer<
     }
   }
 
+  /** Adresse qui reçoit les demandes de devis (#217) ; `null` hors fournisseur. */
+  private quoteAddressSource(): QuoteAddressSource | null {
+    const { organization, supplierProfile } = this.resource
+    if (!SUPPLIER_ORGANIZATION_KINDS.includes(organization.organizationType)) return null
+    return quoteAddressSource({
+      quoteEmail: supplierProfile?.quoteEmail ?? null,
+      quoteEmailVerified: Boolean(supplierProfile?.quoteEmailVerifiedAt),
+      organizationEmail: organization.email,
+    })
+  }
+
   private transformSupplierProfile(
     profile: NonNullable<AdminOrganizationDetails['supplierProfile']>
   ): AdminOrganizationSupplierProfile {
     return {
       id: profile.id,
+      quoteEmail: profile.quoteEmail,
+      quoteEmailVerifiedAt: profile.quoteEmailVerifiedAt?.toISO() ?? null,
       minOrderQuantity: profile.minOrderQuantity,
       deliveryDays: profile.deliveryDays,
       deliveryScope: profile.deliveryScope,
@@ -131,6 +151,25 @@ export default class AdminOrganizationDetailTransformer extends BaseTransformer<
       defaultMarginPercent: profile.defaultMarginPercent,
       createdAt: profile.createdAt.toISO()!,
       updatedAt: profile.updatedAt?.toISO() ?? null,
+    }
+  }
+
+  private transformSubscription(
+    subscription: AdminOrganizationDetails['subscriptions'][number]
+  ): AdminOrganizationSubscription {
+    return {
+      id: subscription.id,
+      plan: subscription.plan,
+      status: subscription.status,
+      origin: subscription.origin,
+      startsAt: subscription.startsAt.toISO()!,
+      endsAt: subscription.endsAt?.toISO() ?? null,
+      cancelledAt: subscription.cancelledAt?.toISO() ?? null,
+      createdByEmail: subscription.createdBy?.email ?? null,
+      createdAt: subscription.createdAt.toISO()!,
+      editable:
+        subscription.stripeSubscriptionId === null &&
+        (subscription.status === 'active' || subscription.status === 'scheduled'),
     }
   }
 

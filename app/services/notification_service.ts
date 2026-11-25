@@ -1,5 +1,6 @@
 import { inject } from '@adonisjs/core'
 import { DateTime } from 'luxon'
+import db from '@adonisjs/lucid/services/db'
 import Notification from '#models/notification'
 import RealtimeService from '#services/realtime_service'
 import User from '#models/user'
@@ -10,9 +11,17 @@ import {
 import {
   NOTIFICATION_PAGE_SIZE,
   NOTIFICATION_TYPES,
+  type MessageNotificationData,
   type NotificationData,
   type NotificationType,
 } from '#shared/types/notification'
+
+/**
+ * Cible de `ON CONFLICT` de `notifyOncePerMessage` : la définition exacte de
+ * l'index unique partiel `notifications_user_type_message_unique` (migration
+ * 036), que PostgreSQL retrouve par inférence.
+ */
+const MESSAGE_NOTIFICATION_CONFLICT_TARGET = `(user_id, type, (data->>'messageId')) WHERE (data->>'messageId') IS NOT NULL`
 
 interface ListOptions {
   unreadOnly?: boolean
@@ -38,16 +47,53 @@ export default class NotificationService {
     type: NotificationType,
     data: NotificationData = {}
   ): Promise<Notification> {
+    this.assertKnownType(type)
+    const notification = await Notification.create({ userId: user.id, type, data, readAt: null })
+    this.announce(user.id, notification.id, type)
+    return notification
+  }
+
+  /**
+   * Comme `notify`, mais **une seule fois par message du fil** : l'index unique
+   * `(user_id, type, data->>'messageId')` (migration 036, #225) est la cible
+   * de `INSERT … ON CONFLICT DO NOTHING`. Un doublon, même concurrent, ne lève
+   * pas d'erreur — et n'avorte donc pas une transaction englobante ; tout autre
+   * conflit reste une erreur. Renvoie l'id créé, ou `null` si la notification
+   * existait déjà.
+   */
+  async notifyOncePerMessage(
+    user: Pick<User, 'id'>,
+    type: NotificationType,
+    data: MessageNotificationData
+  ): Promise<number | null> {
+    this.assertKnownType(type)
+    const { rows: inserted } = await db.rawQuery<{ rows: { id: number }[] }>(
+      `INSERT INTO ${Notification.table} (user_id, type, data, read_at, created_at, updated_at)
+       VALUES (?, ?, ?, NULL, now(), now())
+       ON CONFLICT ${MESSAGE_NOTIFICATION_CONFLICT_TARGET} DO NOTHING
+       RETURNING id`,
+      [user.id, type, JSON.stringify(data)]
+    )
+    if (inserted.length === 0) return null
+
+    const id = Number(inserted[0].id)
+    this.announce(user.id, id, type)
+    return id
+  }
+
+  private assertKnownType(type: NotificationType): void {
     if (!(NOTIFICATION_TYPES as readonly string[]).includes(type)) {
       throw new UnknownNotificationTypeException()
     }
-    const notification = await Notification.create({ userId: user.id, type, data, readAt: null })
-    this.realtime.notifyUser(user.id, {
+  }
+
+  /** Pousse la nouvelle notification à l'utilisateur (Transmit). */
+  private announce(userId: number, notificationId: number, type: NotificationType): void {
+    this.realtime.notifyUser(userId, {
       type: 'notification.created',
-      notificationId: notification.id,
+      notificationId,
       notificationType: type,
     })
-    return notification
   }
 
   /** Notifications de l'utilisateur, les plus récentes d'abord. */

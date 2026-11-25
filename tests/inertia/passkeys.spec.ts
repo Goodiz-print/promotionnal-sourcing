@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { reactive, ref } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
+import { answerConfirm, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { PasskeyType } from '#shared/types/passkey'
 
 const translations = {
@@ -66,7 +67,6 @@ const passkey: PasskeyType = {
 beforeEach(() => {
   vi.clearAllMocks()
   supported.value = true
-  vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
 })
 
 describe('account/passkeys_section', () => {
@@ -77,6 +77,7 @@ describe('account/passkeys_section', () => {
   })
 
   it('liste les passkeys et supprime après confirmation', async () => {
+    const host = await mountConfirmHost()
     const wrapper = mount(PasskeysSection, { props: { passkeys: [passkey] } })
 
     expect(wrapper.text()).toContain('MacBook')
@@ -84,19 +85,21 @@ describe('account/passkeys_section', () => {
 
     const remove = wrapper.findAll('button').find((b) => b.text() === 'Supprimer')!
     await remove.trigger('click')
+    expect(confirmText(host)).toBe('Supprimer « MacBook » ?')
+    await answerConfirm(host, 'confirm')
 
-    expect(window.confirm).toHaveBeenCalled()
     expect(destroy).toHaveBeenCalledWith('/fr/account.passkeys.destroy/7', { preserveScroll: true })
   })
 
   it("ne supprime rien si l'utilisateur annule", async () => {
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(false))
+    const host = await mountConfirmHost()
     const wrapper = mount(PasskeysSection, { props: { passkeys: [passkey] } })
 
     await wrapper
       .findAll('button')
       .find((b) => b.text() === 'Supprimer')!
       .trigger('click')
+    await answerConfirm(host, 'cancel')
 
     expect(destroy).not.toHaveBeenCalled()
   })

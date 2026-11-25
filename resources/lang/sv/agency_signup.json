@@ -22,7 +22,8 @@
     "phone": "Telefon",
     "activity": "Verksamhet",
     "activityOther": "Beskriv din verksamhet",
-    "locale": "Språk"
+    "locale": "Språk",
+    "contactEmail": "Byråns kontakt-e-post"
   },
   "civility": {
     "none": "Ej angivet",
@@ -44,5 +45,6 @@
     "professional": "Jag intygar att jag är yrkesverksam inom reklamprodukter och tryckta textilier.",
     "terms": "Jag godkänner användarvillkoren.",
     "partners": "Jag vill ta emot nyhetsbrev och meddelanden från partner (valfritt)."
-  }
+  },
+  "contactEmailHelp": "Valfritt. Delas, tillsammans med ditt telefonnummer och din adress, med de prenumererande leverantörer du kontaktar. Annars får de e-postadressen till den som skickade förfrågan."
 }

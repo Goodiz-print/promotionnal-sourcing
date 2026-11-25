@@ -16,7 +16,12 @@
     "body": "{buyerName} nodigt u uit een offerte uit te brengen voor de aanvraag “{rfqTitle}” ({itemCount, plural, one {# regel} other {# regels}}).",
     "deadline": "Antwoord verwacht vóór {deadline}.",
     "cta": "Aanvraag bekijken",
-    "footer": "Meld u aan in uw leveranciersomgeving om de aanvraag te bekijken of af te wijzen."
+    "footer": "Meld u aan in uw leveranciersomgeving om de aanvraag te bekijken of af te wijzen.",
+    "anonymous": {
+      "subject": "Nieuwe offerteaanvraag: “{rfqTitle}”",
+      "title": "Een bureau raadpleegt u op {brandName}",
+      "body": "Een bureau nodigt u uit een offerte te maken voor de aanvraag „{rfqTitle}” ({itemCount, plural, one {# regel} other {# regels}})."
+    }
   },
   "passwordReset": {
     "subject": "Uw wachtwoord opnieuw instellen",
@@ -46,7 +51,30 @@
     "body": "{buyerName} heeft u de aanvraag “{rfqTitle}” gestuurd en u hebt die nog niet geopend.",
     "deadline": "Antwoord verwacht vóór {deadline}.",
     "cta": "Aanvraag bekijken",
-    "footer": "Dit is de enige herinnering voor deze aanvraag. U kunt haar ook afwijzen in uw leveranciersomgeving."
+    "footer": "Dit is de enige herinnering voor deze aanvraag. U kunt haar ook afwijzen in uw leveranciersomgeving.",
+    "anonymous": {
+      "body": "Een bureau heeft u de aanvraag „{rfqTitle}” gestuurd en u hebt deze nog niet bekeken."
+    }
+  },
+  "rfqDetails": {
+    "description": "Beschrijving van de aanvraag",
+    "linesTitle": "{count, plural, one {# regel te calculeren} other {# regels te calculeren}}",
+    "reference": "Referentie",
+    "variant": "Variant",
+    "quantity": "Aantal",
+    "marking": "Bedrukking",
+    "markingColors": "{count, plural, one {# kleur} other {# kleuren}}",
+    "noMarking": "Zonder bedrukking",
+    "note": "Opmerking van het bureau",
+    "unitPrice": "Indicatieve stukprijs",
+    "markingUnitPrice": "Indicatieve bedrukking per stuk",
+    "setupCharge": "Indicatieve opstartkosten",
+    "total": "Indicatief totaal",
+    "price": "Indicatieve prijs",
+    "noPrice": "Geen catalogusprijs: te calculeren",
+    "indicativeNotice": "De vermelde prijzen zijn de indicatieve prijzen op {brandName}, berekend op basis van uw catalogus. Het zijn geen afgesproken prijzen: u kunt een beter tarief voorstellen of ze aanhouden.",
+    "replyHint": "Om te antwoorden, beantwoordt u deze e-mail met uw offerte als bijlage (pdf).",
+    "platformLink": "U kunt de aanvraag ook op het platform bekijken:"
   },
   "quoteReceived": {
     "subject": "Nieuwe offerte van {supplierName} voor “{rfqTitle}”",
@@ -78,5 +106,79 @@
   "announcement": {
     "footer": "Je ontvangt dit bericht omdat je een account hebt bij {brandName}.",
     "cta": "{brandName} openen"
+  },
+  "notificationReminder": {
+    "subject": "Actie vereist: een belangrijke melding is nog niet gelezen",
+    "title": "Er wacht een belangrijke melding op u",
+    "intro": "Deze melding is naar u verstuurd op {brandName} en is nog niet gelezen:",
+    "cta": "De betreffende pagina openen",
+    "footer": "U ontvangt deze herinnering maar één keer. Ze wordt niet meer verstuurd zodra de melding is gelezen."
+  },
+  "subscriptionActivated": {
+    "subject": "Uw {planName}-abonnement is actief",
+    "title": "{planName}-abonnement geactiveerd",
+    "intro": "Het {planName}-abonnement van {organizationName} is actief op {brandName}.",
+    "period": "Het loopt van {startsOn} tot en met {endsOn}.",
+    "since": "Het is actief sinds {startsOn}.",
+    "features": "Uw formule omvat:",
+    "cta": "Mijn abonnement bekijken",
+    "footer": "U ontvangt deze e-mail als verantwoordelijke van de organisatie."
+  },
+  "subscriptionExpiring": {
+    "subject": "Uw {planName}-abonnement eindigt op {endsOn}",
+    "title": "Uw {planName}-abonnement eindigt over {daysLeft, plural, one {# dag} other {# dagen}}",
+    "intro": "Het {planName}-abonnement van {organizationName} eindigt op {endsOn}.",
+    "after": "Zonder verlenging gaat uw organisatie terug naar de gratis formule: de identiteit van de bureaus is dan niet meer zichtbaar in uw offerteaanvragen en statistieken.",
+    "cta": "Mijn abonnement verlengen",
+    "footer": "U ontvangt deze herinnering als verantwoordelijke van de organisatie."
+  },
+  "quoteEmailVerification": {
+    "subject": "Bevestig het ontvangstadres voor offerteaanvragen van {organizationName}",
+    "title": "Bevestig dit adres",
+    "body": "{organizationName} heeft dit adres gekozen om offerteaanvragen op {brandName} te ontvangen. Bevestig het zodat bureaus u hier kunnen bereiken.",
+    "cta": "Adres bevestigen",
+    "validity": "Deze link is {days, plural, one {# dag} other {# dagen}} geldig.",
+    "ignore": "Als u niet voor {organizationName} werkt, negeer dit bericht dan: u ontvangt geen aanvragen."
+  },
+  "subscriptionUpsell": {
+    "title": "Neem een abonnement om het bureau te kennen",
+    "body": "Neem een abonnement om te weten welk bureau u raadpleegt en het rechtstreeks te contacteren. Een abonnement nemen is voorbehouden aan de eigenaars en beheerders van uw organisatie.",
+    "cta": "Abonnementen bekijken"
+  },
+  "buyerContact": {
+    "title": "Contactgegevens van het bureau",
+    "agency": "Bureau",
+    "requester": "Aangevraagd door",
+    "email": "E-mail",
+    "phone": "Telefoon",
+    "address": "Adres"
+  },
+  "supplierReplyReceived": {
+    "subject": "Antwoord van {supplierName} op ‘{rfqTitle}’",
+    "subjectLate": "Late reactie van {supplierName} op ‘{rfqTitle}’",
+    "title": "{supplierName} heeft op uw aanvraag gereageerd",
+    "body": "{supplierName} heeft per e-mail gereageerd op uw aanvraag ‘{rfqTitle}’.",
+    "lateNotice": "Late reactie: deze is na de deadline van de aanvraag binnengekomen.",
+    "messageHeading": "Bericht:",
+    "documentsHeading": "Bijgevoegde offertes:",
+    "downloadHint": "Voor deze links moet u ingelogd zijn op uw account.",
+    "cta": "Aanvraag openen",
+    "footer": "U ontvangt dit bericht omdat u deze offerteaanvraag beheert.",
+    "replyHint": "Beantwoord deze e-mail gewoon: uw antwoord wordt doorgestuurd naar de leverancier."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Bericht van {agencyName} over ‘{rfqTitle}’",
+      "anonymous": "Bericht van het bureau over ‘{rfqTitle}’"
+    },
+    "title": {
+      "named": "{agencyName} heeft u geschreven",
+      "anonymous": "Het bureau heeft u geschreven"
+    },
+    "body": "Nieuw bericht over de aanvraag ‘{rfqTitle}’:",
+    "attachmentsHeading": "Bijlagen, te bekijken in de applicatie:",
+    "replyHint": "Beantwoord deze e-mail gewoon: uw antwoord wordt doorgestuurd naar het bureau.",
+    "cta": "Aanvraag openen",
+    "footer": "U ontvangt dit bericht omdat uw bedrijf deze offerteaanvraag heeft ontvangen."
   }
 }

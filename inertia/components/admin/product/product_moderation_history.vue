@@ -4,13 +4,14 @@ import BaseSection from '~/components/base/base_section.vue'
 import BaseTable from '~/components/base/base_table.vue'
 import ModerationStatusBadge from '~/components/admin/moderation_status_badge.vue'
 import type { AdminProductModerationHistory } from '#shared/types/admin_product'
+import { formatDateTime } from '#shared/helpers/date'
 
 /** Décisions de modération successives (la plus récente fait foi pour le masquage). */
 defineProps<{ history: AdminProductModerationHistory[] }>()
 
 const { t, locale } = useI18n()
 
-const formatDate = (value: string) => new Date(value).toLocaleString(locale.value)
+const formatDate = (value: string) => formatDateTime(value, locale.value)
 </script>
 
 <template>

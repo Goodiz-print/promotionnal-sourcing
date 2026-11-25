@@ -22,7 +22,8 @@
     "phone": "Telefon",
     "activity": "Działalność",
     "activityOther": "Opisz swoją działalność",
-    "locale": "Język"
+    "locale": "Język",
+    "contactEmail": "E-mail kontaktowy agencji"
   },
   "civility": {
     "none": "Nie podano",
@@ -44,5 +45,6 @@
     "professional": "Oświadczam, że jestem profesjonalistą w branży gadżetów i tekstyliów personalizowanych.",
     "terms": "Akceptuję regulamin.",
     "partners": "Wyrażam zgodę na newsletter i komunikaty partnerów (opcjonalnie)."
-  }
+  },
+  "contactEmailHelp": "Opcjonalnie. Przekazywany wraz z telefonem i adresem subskrybującym dostawcom, do których kierujesz zapytania. W przeciwnym razie otrzymają e-mail autora zapytania."
 }

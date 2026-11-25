@@ -28,6 +28,7 @@ test.group('Menu applicatif — prop partagée `navigation`', (group) => {
       'supplier.products.index',
       'supplier.rfqs.index',
       'supplier.profile',
+      'supplier.contacts.index',
       'organization.members',
       'organization.settings',
     ])

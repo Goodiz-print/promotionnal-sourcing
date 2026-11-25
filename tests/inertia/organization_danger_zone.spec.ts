@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, confirmPart, confirmText, mountConfirmHost } from './support/confirm_dialog'
 
 const translations = {
   'organization.danger.title': 'Zone de danger',
@@ -37,7 +38,6 @@ describe('DangerZone', () => {
   beforeEach(() => {
     destroy.mockClear()
     post.mockClear()
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
   })
 
   it("masque le départ quand l'utilisateur ne peut pas quitter", () => {
@@ -50,28 +50,37 @@ describe('DangerZone', () => {
   })
 
   it('poste le départ après confirmation', async () => {
+    const host = await mountConfirmHost()
     const wrapper = mount(DangerZone, { props: { organizationName: 'Acme', canLeave: true } })
 
     await button(wrapper, 'Quitter')!.trigger('click')
+    expect(confirmText(host)).toBe('Quitter cette organisation ?')
+    expect(confirmPart(host, 'confirm').classes()).toContain('text-danger')
+    await answerConfirm(host, 'confirm')
 
     expect(destroy).toHaveBeenCalledWith('/fr/organization.leave', { preserveScroll: true })
   })
 
   it('ne fait rien si la confirmation est refusée', async () => {
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(false))
+    const host = await mountConfirmHost()
     const wrapper = mount(DangerZone, { props: { organizationName: 'Acme', canLeave: true } })
 
     await button(wrapper, 'Quitter')!.trigger('click')
+    await answerConfirm(host, 'cancel')
     await button(wrapper, 'Archiver')!.trigger('click')
+    await answerConfirm(host, 'cancel')
 
     expect(destroy).not.toHaveBeenCalled()
     expect(post).not.toHaveBeenCalled()
   })
 
   it("poste l'archivage après confirmation", async () => {
+    const host = await mountConfirmHost()
     const wrapper = mount(DangerZone, { props: { organizationName: 'Acme', canLeave: true } })
 
     await button(wrapper, 'Archiver')!.trigger('click')
+    expect(confirmText(host)).toBe('Archiver Acme ?')
+    await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith('/fr/organization.archive', {}, { preserveScroll: true })
   })

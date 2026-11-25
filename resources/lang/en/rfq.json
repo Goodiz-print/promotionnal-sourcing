@@ -15,8 +15,31 @@
       "suppliers": "Recipients",
       "responses": "Answers",
       "status": "Status",
-      "deadline": "Deadline"
-    }
+      "deadline": "Deadline",
+      "author": "Author",
+      "quotes": "Quotes"
+    },
+    "progress": {
+      "draft": "Draft",
+      "published": "Published",
+      "sent": "Sent",
+      "responded": "Answered",
+      "expired": "Expired",
+      "closed": "Closed"
+    },
+    "filters": {
+      "label": "Filter requests",
+      "status": "Status",
+      "author": "Author",
+      "allStatuses": "All statuses",
+      "allAuthors": "All authors",
+      "reset": "Reset filters"
+    },
+    "noMatch": "No request matches these filters.",
+    "noMatchDescription": "Change or reset the filters to find your requests.",
+    "batch": "Cart of {date} · {count, plural, one {# request} other {# requests}}",
+    "quoteReceived": "Quote received",
+    "unknownAuthor": "Unknown author"
   },
   "create": {
     "title": "New request for quotation",
@@ -39,7 +62,9 @@
     "addSuppliers": "Add recipients",
     "removeSupplier": "Remove",
     "sentAt": "Sent on {date}",
-    "viewProduct": "View product page"
+    "viewProduct": "View product page",
+    "salesContactsTitle": "Sales contacts",
+    "salesContactsHint": "Requests go to the supplier's general inbox; these representatives cover your country."
   },
   "status": {
     "draft": "Draft",
@@ -52,8 +77,10 @@
     "sent": "Sent",
     "viewed": "Viewed",
     "responded": "Answered",
-    "declined": "Declined"
+    "declined": "Declined",
+    "expired": "Expired without reply"
   },
+  "lateReply": "Late reply",
   "actions": {
     "publish": "Publish",
     "send": "Send to recipients",
@@ -125,7 +152,15 @@
         "deadline": "Deadline",
         "status": "Status"
       },
-      "emptyDescription": "Buyers who consult you will show up here with the details of their needs."
+      "emptyDescription": "Buyers who consult you will show up here with the details of their needs.",
+      "filters": {
+        "label": "Filter received requests",
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "reset": "Reset filter"
+      },
+      "emptyFiltered": "No request with this status.",
+      "emptyFilteredDescription": "Change the filter to find your other requests."
     },
     "show": {
       "backToList": "Back to received requests",
@@ -137,7 +172,16 @@
       "expiredNotice": "This request has expired: the buyer no longer expects a reply.",
       "responseTitle": "Your response",
       "responseOpen": "Price this need by submitting a quote, or decline the request if you cannot follow up on it.",
-      "responseQuote": "You have written a quote for this request."
+      "responseQuote": "You have written a quote for this request.",
+      "responseDocument": "You sent a PDF quote for this request. You can upload a new version below.",
+      "contact": {
+        "title": "Agency contact details",
+        "agency": "Agency",
+        "requester": "Requested by",
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address"
+      }
     },
     "actions": {
       "decline": "Decline the request",
@@ -147,13 +191,21 @@
       "sent": "To handle",
       "viewed": "In progress",
       "responded": "Quote sent",
-      "declined": "Declined"
+      "declined": "Declined",
+      "expired": "Expired"
     },
     "flash": {
       "declined": "Request declined."
     },
     "errors": {
       "notDecidable": "This request no longer awaits a decision from you."
+    },
+    "anonymousBuyer": "Anonymous agency",
+    "state": {
+      "to_process": "To handle",
+      "responded": "Replied",
+      "expired": "Expired",
+      "declined": "Declined"
     }
   },
   "product": {
@@ -172,5 +224,16 @@
   },
   "form": {
     "general": "General information"
+  },
+  "specs": {
+    "variant": "Variant",
+    "sku": "SKU",
+    "markingPosition": "Branding position",
+    "markingTechnique": "Branding technique",
+    "markingColors": "Branding colours",
+    "estimatedUnitPrice": "Indicative unit price",
+    "estimatedMarkingUnitPrice": "Indicative branding / piece",
+    "estimatedSetupCharge": "Indicative setup charge",
+    "estimatedTotal": "Indicative total"
   }
 }

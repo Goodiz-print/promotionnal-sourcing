@@ -10,12 +10,13 @@ import BaseCard from '~/components/base/base_card.vue'
 import BaseLinkButton from '~/components/base/base_link_button.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import type { AdminAgencyReviewDetail } from '#shared/types/agency_review'
+import { formatDateTime } from '#shared/helpers/date'
 
 const props = defineProps<{ detail: AdminAgencyReviewDetail }>()
 
 const { t, locale } = useI18n()
 
-const formatDate = (value: string) => new Date(value).toLocaleString(locale.value)
+const formatDate = (value: string) => formatDateTime(value, locale.value)
 
 /** Champs d'identité affichés ; une valeur absente s'affiche « — ». */
 const fields = computed(

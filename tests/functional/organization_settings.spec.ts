@@ -72,6 +72,25 @@ test.group('Paramètres généraux de l’organisation', (group) => {
     assert.equal(org.city, 'Bruxelles')
   })
 
+  test('un champ de coordonnées vidé efface la valeur (#221)', async ({ client, assert }) => {
+    const user = await seededDevUser('eurogoods-org')
+    const org = await Organization.findByOrFail('slug', 'eurogoods-org')
+    await org.merge({ email: 'contact@eurogoods.test', phone: '+33 1 00 00 00 00' }).save()
+
+    // Formulaire multipart, comme l'écran : un champ vide devient `null`.
+    const response = await client
+      .post('/fr/organization/settings')
+      .withInertia()
+      .withCsrfToken()
+      .loginAs(user)
+      .fields({ name: org.name, country: org.country, email: '', phone: '', removeLogo: '0' })
+
+    response.assertStatus(200)
+    await org.refresh()
+    assert.isNull(org.email)
+    assert.isNull(org.phone)
+  })
+
   test('OrganizationService.updateLogo stocke puis remplace le logo (ancien objet purgé)', async ({
     assert,
   }) => {

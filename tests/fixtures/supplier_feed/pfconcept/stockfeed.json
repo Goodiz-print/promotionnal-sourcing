@@ -1,0 +1,25 @@
+{
+  "PFCStockFeed": {
+    "stockFeed": [
+      {
+        "models": [
+          {
+            "model": [
+              {
+                "modelCode": "TEST100",
+                "items": [
+                  {
+                    "item": [
+                      { "itemCode": "TEST10001", "stockDirect": 1500 },
+                      { "itemCode": "TEST10002", "stockDirect": 0 }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

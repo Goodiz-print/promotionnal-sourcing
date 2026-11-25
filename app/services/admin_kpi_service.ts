@@ -200,7 +200,7 @@ export default class AdminKpiService {
         .select(hours('published_at - created_at'))
         .first(),
       this.between(db.from('rfq_suppliers'), 'sent_at', range)
-        .whereIn('status', ['sent', 'viewed', 'responded', 'declined'])
+        .whereIn('status', ['sent', 'viewed', 'responded', 'declined', 'expired'])
         .select(
           db.raw('count(*)::int as total'),
           db.raw("count(*) filter (where status = 'responded')::int as responded"),

@@ -4,6 +4,7 @@ import { useI18n } from '~/i18n'
 import BaseDescriptionList from '~/components/base/base_description_list.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import type { AdminOrganizationDetail } from '#shared/types/admin_organization'
+import { formatShortDate } from '#shared/helpers/date'
 
 /**
  * Synthèse en lecture seule : identité, dates, plan. Les coordonnées n'y figurent
@@ -13,7 +14,7 @@ const props = defineProps<{ organization: AdminOrganizationDetail; canManage: bo
 
 const { t, locale } = useI18n()
 
-const formatDate = (value: string) => new Date(value).toLocaleDateString(locale.value)
+const formatDate = (value: string) => formatShortDate(value, locale.value)
 
 const items = computed(() => {
   const org = props.organization

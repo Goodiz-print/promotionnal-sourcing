@@ -12,19 +12,33 @@ import RfqDeadlineExtension from '~/components/rfqs/rfq_deadline_extension.vue'
 import RfqForm from '~/components/rfqs/rfq_form.vue'
 import RfqItemList from '~/components/rfqs/rfq_item_list.vue'
 import RfqMetaPills from '~/components/rfqs/rfq_meta_pills.vue'
+import RfqSupplierContacts from '~/components/rfqs/rfq_supplier_contacts.vue'
 import RfqSupplierList from '~/components/rfqs/rfq_supplier_list.vue'
 import RfqSupplierPicker from '~/components/rfqs/rfq_supplier_picker.vue'
 import QuoteComparisonTable from '~/components/quotes/quote_comparison_table.vue'
+import RfqQuoteDocuments from '~/components/rfqs/rfq_quote_documents.vue'
+import ConversationThread from '~/components/messaging/conversation_thread.vue'
 import { RFQ_STATUS_TONES } from '~/components/rfqs/types'
 import type { CategoryType } from '#shared/types/category'
-import type { QuoteType } from '#shared/types/quote'
+import type { RfqThreadType } from '#shared/types/conversation'
+import type { QuoteDocumentType, QuoteType } from '#shared/types/quote'
 import type { RfqDetailType, RfqProductOptionType, SupplierOptionType } from '#shared/types/rfq'
+import type { SupplierContactsByOrganization } from '#shared/types/supplier'
 
 const props = defineProps<{
   rfq: RfqDetailType
   quotes: QuoteType[]
+  /** Devis reçus en PDF par mail (#224), téléchargeables par l'agence (#228). */
+  quoteDocuments: QuoteDocumentType[]
+  /** Équipe commerciale des destinataires, filtrée par le serveur (#241). */
+  supplierContacts: SupplierContactsByOrganization
+  /** Fil d'échanges de chaque destinataire notifié, relayé par mail (#226). */
+  threads: RfqThreadType[]
   categories: CategoryType[]
   supplierOptions: SupplierOptionType[]
+  /** Préparer et envoyer (jusqu'au rôle `member`, #216). */
+  canSendRfq: boolean
+  /** Décider : clôturer, prolonger l'échéance (responsables). */
   canManageRfq: boolean
   productResults?: RfqProductOptionType[]
   productSearchUnavailable?: boolean
@@ -51,7 +65,35 @@ const addableSuppliers = computed(() => {
   return props.supplierOptions.filter((option) => !targeted.has(option.id))
 })
 
+/**
+ * Devis structurés : la section s'affiche dès la publication, sauf si seuls des
+ * PDF sont arrivés — son état vide (« aucun devis reçu ») les contredirait.
+ */
+const showStructuredQuotes = computed(
+  () =>
+    props.rfq.status !== 'draft' && (props.quotes.length > 0 || props.quoteDocuments.length === 0)
+)
+
+/** Retenir un devis PDF clôture la demande : décision de responsable, demande ouverte. */
+const canSelectQuoteDocument = computed(
+  () => props.canManageRfq && props.rfq.status === 'published'
+)
+
 const supplierIdsToAdd = ref<number[]>([])
+
+const hasSupplierContacts = computed(() =>
+  props.rfq.suppliers.some(
+    (row) => (props.supplierContacts[row.supplierOrganizationId] ?? []).length > 0
+  )
+)
+
+function threadUrl(thread: RfqThreadType) {
+  return urlFor('rfqs.messages.store', {
+    locale: locale.value,
+    id: props.rfq.id,
+    supplierId: thread.rfqSupplierId,
+  })
+}
 
 function addSuppliers() {
   router.post(
@@ -85,14 +127,14 @@ function queueSupplier(product: RfqProductOptionType) {
         </BaseBadge>
         <RfqMetaPills :rfq="rfq" />
       </template>
-      <template v-if="canManageRfq" #actions>
-        <RfqActions :rfq="rfq" />
+      <template v-if="canSendRfq" #actions>
+        <RfqActions :rfq="rfq" :can-close="canManageRfq" />
       </template>
     </BasePageHeader>
 
     <RfqDeadlineExtension v-if="canManageRfq && canExtendDeadline" :rfq="rfq" />
 
-    <BaseSection v-if="isDraft && canManageRfq" :title="t('rfq.show.needTitle')">
+    <BaseSection v-if="isDraft && canSendRfq" :title="t('rfq.show.needTitle')">
       <RfqForm
         mode="edit"
         :rfq="rfq"
@@ -113,14 +155,23 @@ function queueSupplier(product: RfqProductOptionType) {
       </div>
     </BaseSection>
 
-    <BaseSection v-if="rfq.status !== 'draft'" :title="t('quote.comparison.title')" flush>
+    <BaseSection v-if="showStructuredQuotes" :title="t('quote.comparison.title')" flush>
       <QuoteComparisonTable :quotes="quotes" :items="rfq.items" />
     </BaseSection>
 
-    <BaseSection :title="t('rfq.show.suppliersTitle')">
-      <RfqSupplierList :rfq-id="rfq.id" :suppliers="rfq.suppliers" :can-manage="canManageRfq" />
+    <BaseSection
+      v-if="rfq.status !== 'draft'"
+      :title="t('quote.documents.title')"
+      :description="t('quote.documents.description')"
+      flush
+    >
+      <RfqQuoteDocuments :documents="quoteDocuments" :can-select="canSelectQuoteDocument" />
+    </BaseSection>
 
-      <template v-if="canManageRfq && isOpen && addableSuppliers.length > 0" #footer>
+    <BaseSection :title="t('rfq.show.suppliersTitle')">
+      <RfqSupplierList :rfq-id="rfq.id" :suppliers="rfq.suppliers" :can-manage="canSendRfq" />
+
+      <template v-if="canSendRfq && isOpen && addableSuppliers.length > 0" #footer>
         <div class="flex flex-col gap-4">
           <RfqSupplierPicker v-model="supplierIdsToAdd" :options="addableSuppliers" />
           <div>
@@ -135,6 +186,24 @@ function queueSupplier(product: RfqProductOptionType) {
           </div>
         </div>
       </template>
+    </BaseSection>
+
+    <ConversationThread
+      v-for="thread in threads"
+      :key="thread.rfqSupplierId"
+      :thread="thread"
+      :title="t('messaging.thread.titleWith', { name: thread.counterpartName ?? '' })"
+      :description="t('messaging.thread.agencyHint')"
+      :fallback-counterpart="t('messaging.thread.sides.supplier')"
+      :post-url="threadUrl(thread)"
+    />
+
+    <BaseSection
+      v-if="hasSupplierContacts"
+      :title="t('rfq.show.salesContactsTitle')"
+      :description="t('rfq.show.salesContactsHint')"
+    >
+      <RfqSupplierContacts :suppliers="rfq.suppliers" :contacts="supplierContacts" />
     </BaseSection>
   </div>
 </template>

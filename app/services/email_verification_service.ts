@@ -6,6 +6,7 @@ import env from '#start/env'
 import User from '#models/user'
 import SendMailJob from '#jobs/send_mail_job'
 import { mailSendKey } from '#shared/helpers/mail'
+import { absoluteUrl } from '#shared/helpers/http'
 import { MAIL_KINDS } from '#shared/types/mail'
 import {
   EMAIL_VERIFICATION_SIGNATURE_PURPOSE,
@@ -25,7 +26,7 @@ export default class EmailVerificationService {
   async send(user: User, locale: string): Promise<void> {
     if (user.emailVerifiedAt) return
 
-    const verifyUrl = signedUrlFor(
+    const verifyPath = signedUrlFor(
       'email.verify',
       { locale, id: user.id },
       {
@@ -34,6 +35,8 @@ export default class EmailVerificationService {
         qs: { v: this.fingerprint(user) },
       }
     )
+    // Le lien part par mail : il doit porter le domaine de l'application (#288).
+    const verifyUrl = absoluteUrl(verifyPath, env.get('APP_URL', 'http://localhost:5555'))
 
     await SendMailJob.dispatch({
       kind: MAIL_KINDS.emailVerification,

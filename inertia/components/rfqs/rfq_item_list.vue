@@ -13,6 +13,17 @@ import type { RfqItemType } from '#shared/types/rfq'
 defineProps<{ items: RfqItemType[] }>()
 
 const { t, locale } = useI18n()
+
+/**
+ * Libellé d'une précision (`specs`) : les clés posées par le panier de devis
+ * sont traduites (`rfq.specs.<clé>`), une clé inconnue s'affiche telle quelle.
+ */
+function specLabel(key: string): string {
+  const translationKey = `rfq.specs.${key}`
+  const label = t(translationKey)
+  // `t` renvoie la clé quand la traduction manque.
+  return label === translationKey ? key : label
+}
 </script>
 
 <template>
@@ -31,6 +42,16 @@ const { t, locale } = useI18n()
       <p v-if="item.description" class="text-body-sm text-text-secondary">
         {{ item.description }}
       </p>
+      <dl
+        v-if="item.specs && Object.keys(item.specs).length > 0"
+        class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-body-sm"
+        data-testid="rfq-item-specs"
+      >
+        <template v-for="(value, key) in item.specs" :key="key">
+          <dt class="text-text-muted">{{ specLabel(String(key)) }}</dt>
+          <dd class="text-tabular text-text-primary">{{ value }}</dd>
+        </template>
+      </dl>
       <p
         v-if="item.categoryName || item.productName"
         class="flex flex-wrap gap-x-3 text-caption text-text-muted"

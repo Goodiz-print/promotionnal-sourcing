@@ -106,6 +106,57 @@
     "rfq": {
       "respond": "Rispondi con un preventivo",
       "viewQuote": "Vedi il mio preventivo"
+    },
+    "documents": {
+      "title": "Preventivo inviato",
+      "description": "Il tuo preventivo PDF, inviato per e-mail o da questa pagina. Vedi sempre il tuo file originale.",
+      "empty": "Nessun preventivo PDF inviato per ora.",
+      "columns": {
+        "file": "File",
+        "sentAt": "Inviato il",
+        "channel": "Invio"
+      },
+      "channel": {
+        "mail": "Per e-mail",
+        "upload": "Dalla piattaforma"
+      },
+      "download": "Scarica {filename}",
+      "upload": {
+        "file": "Il tuo preventivo (PDF)",
+        "prompt": "Scegli o trascina un PDF",
+        "hint": "PDF, max 20 MB. Viene trasmesso all'agenzia come una risposta per e-mail.",
+        "body": "Messaggio all'agenzia (facoltativo)",
+        "submit": "Invia il preventivo"
+      },
+      "flash": {
+        "uploaded": "Preventivo inviato: l'agenzia è stata informata."
+      },
+      "errors": {
+        "notPdf": "Questo file non è un PDF valido.",
+        "notReplyable": "Hai rifiutato questa richiesta: non puoi più inviare un preventivo."
+      }
+    }
+  },
+  "documents": {
+    "title": "Preventivi PDF ricevuti",
+    "description": "Preventivi inviati via e-mail dai fornitori. Il download è riservato ai membri della tua agenzia.",
+    "empty": "Nessun preventivo PDF ricevuto per ora.",
+    "columns": {
+      "supplier": "Fornitore",
+      "file": "File",
+      "receivedAt": "Ricevuto il",
+      "decision": "Decisione"
+    },
+    "download": "Scarica {filename}",
+    "select": "Scegli",
+    "selected": "Scelto",
+    "confirmSelect": "Scegliere questo preventivo chiude la richiesta. I passi successivi (ordine, fatturazione) avvengono direttamente con il fornitore. Continuare?",
+    "confirmSelectTitle": "Scegliere questo preventivo?",
+    "flash": {
+      "selected": "Preventivo scelto: la richiesta è chiusa."
+    },
+    "errors": {
+      "notSelectable": "Questa richiesta non è più aperta: impossibile scegliere questo preventivo."
     }
   }
 }

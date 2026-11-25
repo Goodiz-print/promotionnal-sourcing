@@ -7,9 +7,11 @@ import Rfq from '#models/rfq'
 import SupplierProfile from '#models/supplier_profile'
 import AgencyProfile from '#models/agency_profile'
 import BillingProfile from '#models/billing_profile'
+import OrganizationSubscription from '#models/organization_subscription'
 import { AdminOrganizationNotFoundException } from '#exceptions/admin_errors'
-import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
+import type { ModelPaginatorContract, ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
 import type { AdminOrganizationIndexFilters } from '#shared/types/admin_organization'
+import { SUPPLIER_ORGANIZATION_KINDS } from '#shared/types/organization'
 
 interface ListOptions extends AdminOrganizationIndexFilters {
   page: number
@@ -25,6 +27,7 @@ export interface AdminOrganizationDetails {
   supplierProfile: SupplierProfile | null
   agencyProfile: AgencyProfile | null
   billingProfile: BillingProfile | null
+  subscriptions: OrganizationSubscription[]
   lastActivity: Date | null
 }
 
@@ -39,10 +42,13 @@ export default class AdminOrganizationService {
    * Les plus récentes d'abord.
    */
   list(options: ListOptions): Promise<ModelPaginatorContract<Organization>> {
-    const { page, perPage, type, status, country, search } = options
+    const { page, perPage, type, status, country, search, missingQuoteAddress } = options
 
     return Organization.query()
       .withCount('organizationUsers', (query) => query.as('members_count'))
+      .preload('supplierProfile', (profile) =>
+        profile.select('id', 'organizationId', 'quoteEmail', 'quoteEmailVerifiedAt')
+      )
       .if(search, (query) => {
         const pattern = `%${escapeLike(search!)}%`
         query.where((sub) =>
@@ -57,6 +63,7 @@ export default class AdminOrganizationService {
       .if(status === 'active', (query) => query.whereNull('archivedAt'))
       .if(status === 'archived', (query) => query.whereNotNull('archivedAt'))
       .if(country, (query) => query.where('country', country!))
+      .if(missingQuoteAddress, (query) => withoutQuoteAddress(query))
       .orderBy('createdAt', 'desc')
       .orderBy('id', 'desc')
       .paginate(page, perPage)
@@ -89,6 +96,7 @@ export default class AdminOrganizationService {
       supplierProfile,
       agencyProfile,
       billingProfile,
+      subscriptions,
     ] = await Promise.all([
       OrganizationUser.query()
         .where('organizationId', id)
@@ -109,6 +117,11 @@ export default class AdminOrganizationService {
       SupplierProfile.query().where('organizationId', id).first(),
       AgencyProfile.query().where('organizationId', id).first(),
       BillingProfile.query().where('organizationId', id).first(),
+      OrganizationSubscription.query()
+        .where('organizationId', id)
+        .preload('createdBy')
+        .orderBy('startsAt', 'desc')
+        .orderBy('id', 'desc'),
     ])
 
     // Dernière activité = dernière connexion d'un membre
@@ -123,6 +136,7 @@ export default class AdminOrganizationService {
       supplierProfile,
       agencyProfile,
       billingProfile,
+      subscriptions,
       lastActivity,
     }
   }
@@ -165,4 +179,26 @@ export default class AdminOrganizationService {
  */
 function escapeLike(value: string): string {
   return value.replace(/[\\%_]/g, (char) => `\\${char}`)
+}
+
+/**
+ * Organisations fournisseurs dont les demandes de devis partent faute de mieux
+ * aux membres responsables (#217) : ni adresse de réception confirmée dans le
+ * profil, ni adresse de contact, une adresse vide comptant comme absente.
+ *
+ * Traduction SQL de `quoteAddressSource(...) === 'members'`
+ * (`shared/helpers/quote_address.ts`) : modifier l'une impose de modifier
+ * l'autre. `admin_organizations.spec.ts` vérifie que le filtre et la liste
+ * désignent exactement les mêmes organisations.
+ */
+function withoutQuoteAddress(query: ModelQueryBuilderContract<typeof Organization>) {
+  query
+    .whereIn('organizationType', [...SUPPLIER_ORGANIZATION_KINDS])
+    .where((contact) => contact.whereNull('email').orWhereRaw("trim(email) = ''"))
+    .whereDoesntHave('supplierProfile', (profile) =>
+      profile
+        .whereNotNull('quoteEmailVerifiedAt')
+        .whereNotNull('quoteEmail')
+        .whereRaw("trim(quote_email) <> ''")
+    )
 }

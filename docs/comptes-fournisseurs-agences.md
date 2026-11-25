@@ -8,21 +8,21 @@ formulaires d'inscription, d'activation et de page fournisseur viennent ensuite.
 
 ## Correspondance classeur → base
 
-| Information du classeur                                                           | Colonne / table                                                         |
-| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Raison sociale, pays, site web, téléphone (standard), adresse du siège, logo      | `organizations` (existant)                                              |
-| Numéro de TVA / SIRET                                                             | `organizations.vat_number` / `siret` (existant)                         |
-| Vérification VIES automatique                                                     | `organizations.vat_verified_at`                                         |
-| Email au domaine du site = validation auto                                        | `organizations.domain_verified_at`                                      |
-| Langue de travail / langue                                                        | `organizations.locale` (défaut `fr`)                                    |
-| Niveau d'abonnement (gratuit · Business · Premium)                                | `organizations.subscription_plan`                                       |
-| Visuel de bannière                                                                | `organizations.banner_storage_object_id` (Cellar)                       |
-| Civilité (facultative)                                                            | `users.civility`                                                        |
-| Dernière connexion                                                                | `users.last_login_at` (date d'inscription = `created_at`)               |
-| Adresse / email de facturation, référence de commande                             | `billing_profiles` (1 par organisation)                                 |
-| Moyen de paiement                                                                 | **Jamais stocké** — Stripe ; seul `billing_profiles.stripe_customer_id` |
-| CGU, licence de données, marketing, certification pro, communications partenaires | `legal_consents` (journal : type, version, IP, date, retrait)           |
-| Utilisateurs supplémentaires / collaborateurs invités                             | `organization_users` + invitations (existant)                           |
+| Information du classeur                                                           | Colonne / table                                                                                                                               |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Raison sociale, pays, site web, téléphone (standard), adresse du siège, logo      | `organizations` (existant)                                                                                                                    |
+| Numéro de TVA / SIRET                                                             | `organizations.vat_number` / `siret` (existant)                                                                                               |
+| Vérification VIES automatique                                                     | `organizations.vat_verified_at`                                                                                                               |
+| Email au domaine du site = validation auto                                        | `organizations.domain_verified_at`                                                                                                            |
+| Langue de travail / langue                                                        | `organizations.locale` (défaut `fr`)                                                                                                          |
+| Niveau d'abonnement (gratuit · Business · Premium)                                | `organization_subscriptions` (périodes datées) ; formule courante dénormalisée dans `organizations.subscription_plan` — voir `abonnements.md` |
+| Visuel de bannière                                                                | `organizations.banner_storage_object_id` (Cellar)                                                                                             |
+| Civilité (facultative)                                                            | `users.civility`                                                                                                                              |
+| Dernière connexion                                                                | `users.last_login_at` (date d'inscription = `created_at`)                                                                                     |
+| Adresse / email de facturation, référence de commande                             | `billing_profiles` (1 par organisation)                                                                                                       |
+| Moyen de paiement                                                                 | **Jamais stocké** — Stripe ; seul `billing_profiles.stripe_customer_id`                                                                       |
+| CGU, licence de données, marketing, certification pro, communications partenaires | `legal_consents` (journal : type, version, IP, date, retrait)                                                                                 |
+| Utilisateurs supplémentaires / collaborateurs invités                             | `organization_users` + invitations (existant)                                                                                                 |
 
 ### Fournisseur
 
@@ -30,7 +30,8 @@ formulaires d'inscription, d'activation et de page fournisseur viennent ensuite.
 
 - **Saisi par le fournisseur** : `company_type`, `delivery_countries` (si périmètre
   « pays choisis »), `spoken_languages`, `min_order_note` (texte libre type
-  « 50 pièces ou 150 € HT »), `quote_email`, `report_frequency`,
+  « 50 pièces ou 150 € HT »), `quote_email` (adresse de réception des demandes de
+  devis, prioritaire sur `organizations.email` — #217, voir `docs/rfq.md`), `report_frequency`,
   `catalogue_update_mode`, `catalogue_update_frequency`. Existants réutilisés :
   `bio` (« Notre histoire »), `certifications`, `delivery_scope`, `min_order_quantity`.
 - **Suivi commercial interne** (jamais exposé : absent de `SupplierProfileType`
@@ -39,9 +40,99 @@ formulaires d'inscription, d'activation et de page fournisseur viennent ensuite.
   `internal_notes`.
 
 Nouvelles tables de la page publique : `supplier_contacts` (nom, fonction, email,
-téléphone, langues, zone), `supplier_news` (image dans `STORAGE_REFERENCES`),
+téléphone, langues, pays couverts, membre du compte relié — cf. « Équipe
+commerciale » ci-dessous), `supplier_news` (image dans `STORAGE_REFERENCES`),
 `supplier_trade_shows`, `organization_categories` (spécialités, pivot vers l'arbre
 de catégories). Catalogue PDF et justificatifs de certification : `organization_documents`.
+
+### Équipe commerciale (#241)
+
+Chaque contact de `supplier_contacts` porte `countries` (codes ISO alpha-2,
+liste vide = tous les pays) et, facultativement, `user_id` : le commercial est
+alors aussi un membre du compte fournisseur. La clé étrangère est composite,
+vers `organization_users (organization_id, user_id)` : on ne peut relier qu'un
+membre, et son départ (quel qu'en soit le chemin) délie le contact
+(`ON DELETE SET NULL (user_id)`) sans le supprimer. L'option
+`supplier_profiles.show_all_contacts` (désactivée par défaut) montre toute
+l'équipe à toutes les agences.
+
+`SupplierContactService.visibleFor` est la **seule** règle d'affichage, évaluée
+à la lecture : visiteur non connecté, dont l'organisation courante n'est pas
+une agence **validée** (`buyer` ou `both`, non archivée, `review_reasons` vide —
+un fournisseur concurrent ou une agence en cours de validation ne voit rien), ou
+fournisseur non abonné
+(`SubscriptionService.isSubscribed`) → aucun contact ; option activée → tous ;
+sinon les contacts qui couvrent le pays de l'organisation courante du visiteur
+(ou tous les pays) ; aucun → toute l'équipe (repli). Les contacts écartés ne sont
+jamais envoyés au navigateur. Les demandes de devis partent toujours à l'adresse
+de réception générale du fournisseur, pas au commercial.
+
+### Consultations (#239)
+
+Page `GET /:locale/supplier/insights` (`supplier.insights.index`, ability
+`canViewSupplierInsights` : owner, admin, manager d'une organisation `supplier`
+ou `both`). Elle lit `activity_events` (#172, cf. `docs/admin.md`) via
+`SupplierInsightsService`, cloisonné aux produits et aux fiches de
+l'organisation.
+
+- **Pour tous** : sur la période choisie (`period` : 7, 30, 90 ou 365 jours),
+  consultations de produits, produits consultés, consultations de la fiche,
+  ajouts à une demande de devis, et tableau paginé (50) de tous les produits.
+- **Abonné** (`SubscriptionService.isSubscribed`) : agences **validées**
+  (`buyer`, `both`, non archivées, sans motif de revue) qui ont consulté, avec nombre de consultations, produits distincts et
+  dernière consultation. Seuls les événements de moins de 90 jours (non
+  pseudonymisés) nomment une agence ; ils comptent tous dans les totaux.
+- **Non abonné** : la liste n'est pas lue (`report.agencies = null`), aucun
+  nom ni identifiant d'agence n'est envoyé ; encart `subscription_upsell.vue`.
+- Index `activity_events (target_type, target_id, created_at)` (migration
+  `1794000000041`) : la lecture part des produits du fournisseur.
+- **Conservation** (`PurgeActivityEventsJob`, chaque nuit) : utilisateur et
+  organisation détachés de l'événement après 90 jours
+  (`ACTIVITY_EVENT_PSEUDONYMIZE_AFTER_DAYS`), événement supprimé après 24 mois
+  (`ACTIVITY_EVENT_RETENTION_DAYS` = 730 jours). Les consultations des membres
+  de la plateforme (rôle staff) et d'un fournisseur sur ses propres produits ne
+  sont pas enregistrées.
+- **Information des agences** : passages des CGU et de la politique de
+  confidentialité en brouillon dans [`legal/`](legal/README.md) (#233), à valider
+  par le client **avant la mise en production** de cette page.
+
+### Rattachement d'une fiche importée (#231)
+
+Une fiche `suppliers` créée par un connecteur de flux (#211) n'a pas
+d'organisation. Le fournisseur n'a ses produits sur le site que s'il a donné son
+accord, et il a alors un compte : le **rattachement** de la fiche à son
+organisation, validé par un admin, vaut cet accord.
+
+- Écran `/:locale/admin/supplier-links` (droit `organizations.manage`, admin
+  seul ; onglet « Rattachement fournisseurs ») : fiches **en attente d'accord**
+  (`organization_id` NULL) et fiches **rattachées**, avec le nombre de produits.
+- Organisation **proposée** automatiquement
+  (`shared/helpers/supplier_link.ts`, calcul pur) parmi les organisations
+  `supplier` non archivées : même email que l'organisation ou qu'un de ses
+  membres, sinon même domaine (email ou site web de la fiche, sous-domaines
+  compris). Un domaine de messagerie grand public (gmail.com…) ne compte jamais.
+- `POST /:locale/admin/supplier-links/:id/link` (`organizationId`) : une fiche
+  n'a **qu'une seule** organisation — une fiche déjà rattachée est refusée, il
+  faut la détacher d'abord ; l'organisation doit être un fournisseur actif.
+  L'accord est daté et signé sur la fiche (`suppliers.linked_at`,
+  `suppliers.linked_by_user_id`) et tracé dans le journal d'audit
+  (`supplier.linked`, cible `supplier`).
+- `DELETE /:locale/admin/supplier-links/:id/link` : détachement, efface
+  l'accord, tracé (`supplier.unlinked`, organisation précédente dans `before`).
+- Dans les deux cas, les produits de la fiche sont réindexés par la queue
+  (`IndexSupplierProductsJob`, après le commit) : les demandes de devis visent
+  l'organisation dès le rattachement (`suppliers.organization_id`), et partent
+  à son adresse de réception confirmée, à défaut à celle de l'organisation
+  ou à ses responsables (#217).
+- **Publication** (#240) : une fiche sans organisation et ses produits ne sont
+  pas publiés (catalogue, recherche, fiches publiques, index) —
+  `Supplier.fromLiveOrganization` / `Product.fromLiveOrganization` exigent une
+  organisation vivante. Rattacher publie (réindexation et traduction des
+  produits de la fiche), détacher retire. Le tableau de bord
+  admin compte les « Fiches à rattacher » (`AdminSupplierLinkService#pendingCount`,
+  même droit `organizations.manage`) et l'écran rappelle qu'elles ne sont pas
+  publiées. Mise en place : `node ace search:remove-unlinked` (voir
+  `docs/search.md`).
 
 ### Agence
 
@@ -61,9 +152,10 @@ Toutes les listes vivent dans `shared/types/{organization,agency,legal}.ts`
 - **Prénom / nom** : `users.full_name` est remplacé par `first_name` / `last_name`
   (migration avec reprise des données : premier mot = prénom, reste = nom).
   `User#fullName` reste disponible en getter pour l'affichage.
-- **Événements d'usage** (recherches, fiches vues, devis envoyés, pour les
-  statistiques fournisseurs) : non modélisés ici, à traiter avec la politique de
-  confidentialité.
+- ~~**Événements d'usage**~~ : journal des recherches (`search_events`) et des
+  consultations (`activity_events`, #172), exploités par le back-office et, pour
+  les fournisseurs, par la page « Consultations » (#239, ci-dessus). Mention
+  légale : brouillon dans [`legal/`](legal/README.md).
 - **Limites par formule** (3 utilisateurs en gratuit, illimité en Premium) :
   règle métier, pas de colonne.
 - **Présentation traduite automatiquement** : `bio` reste monolingue pour l'instant.

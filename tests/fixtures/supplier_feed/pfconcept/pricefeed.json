@@ -1,0 +1,55 @@
+{
+  "PFCPriceFeed": {
+    "priceInfo": [
+      {
+        "models": [
+          {
+            "model": [
+              {
+                "modelcode": "TEST100",
+                "items": [
+                  {
+                    "item": [
+                      {
+                        "itemcode": "TEST10001",
+                        "currency": "EUR",
+                        "scales": [
+                          {
+                            "scale": [
+                              { "priceBar": 1, "nettPrice": 9.5, "type": "N" },
+                              { "priceBar": 100, "nettPrice": "8,25", "type": "N" }
+                            ]
+                          }
+                        ],
+                        "promotion": {
+                          "scales": [{ "scale": [{ "priceBar": 1, "nettPrice": 1.0 }] }]
+                        }
+                      },
+                      {
+                        "itemcode": "TEST10002",
+                        "currency": "EUR",
+                        "scales": [
+                          {
+                            "scale": [
+                              { "priceBar": 1, "nettPrice": 9.0, "type": "N" },
+                              { "priceBar": 100, "nettPrice": 8.5, "type": "N" }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "itemcode": "UNRELATED",
+                        "currency": "EUR",
+                        "scales": [{ "scale": [{ "priceBar": 1, "nettPrice": 1.0, "type": "N" }] }]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

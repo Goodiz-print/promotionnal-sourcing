@@ -14,6 +14,11 @@ export interface AgencySignupData {
   taxId: string
   website: string | null
   phone: string | null
+  /**
+   * Email de contact de l'agence (`organizations.email`), transmis aux
+   * fournisseurs abonnés (#221). `null` : ils reçoivent celui de l'auteur.
+   */
+  contactEmail: string | null
   activity: AgencyActivity
   activityOther: string | null
   locale: Locale

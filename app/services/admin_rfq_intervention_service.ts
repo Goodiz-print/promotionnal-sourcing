@@ -6,6 +6,9 @@ import AdminAuditService from '#services/admin_audit_service'
 import QuoteService from '#services/quote_service'
 import RfqNotificationService from '#services/rfq_notification_service'
 import RfqService from '#services/rfq_service'
+import RfqDeadlineService from '#services/rfq_deadline_service'
+import RfqRecipientService from '#services/rfq_recipient_service'
+import { acceptsResponses } from '#shared/helpers/rfq_deadline'
 import Rfq from '#models/rfq'
 import {
   AdminRfqNotRemindableException,
@@ -17,12 +20,14 @@ import type { AdminRfqInterventionOptions } from '#shared/types/admin_trade'
 /**
  * Interventions de la plateforme sur une demande de devis (#166) : clôturer,
  * faire expirer, relancer les fournisseurs. Chacune réutilise les transitions de
- * `RfqService` et écrit sa trace d'audit **dans la même transaction**.
+ * `RfqService`, `RfqDeadlineService` et `RfqRecipientService` et écrit sa trace d'audit **dans la même transaction**.
  */
 @inject()
 export default class AdminRfqInterventionService {
   constructor(
     private rfqs: RfqService,
+    private deadlines: RfqDeadlineService,
+    private recipients: RfqRecipientService,
     private quotes: QuoteService,
     private notifications: RfqNotificationService,
     private audit: AdminAuditService
@@ -53,7 +58,7 @@ export default class AdminRfqInterventionService {
       const locked = await this.find(rfqId, trx)
       if (locked.status !== 'published') throw new RfqNotExpirableException()
 
-      await this.rfqs.expire(locked, DateTime.now(), trx)
+      await this.deadlines.expire(locked, DateTime.now(), trx)
       await this.quotes.expireForRfqs([locked.id], trx)
       await this.audit.record(
         {
@@ -79,9 +84,9 @@ export default class AdminRfqInterventionService {
   async remind({ rfqId, context }: AdminRfqInterventionOptions): Promise<number> {
     return db.transaction(async (trx) => {
       const rfq = await this.find(rfqId, trx)
-      if (!this.rfqs.acceptsResponses(rfq)) throw new AdminRfqNotRemindableException()
+      if (!acceptsResponses(rfq)) throw new AdminRfqNotRemindableException()
 
-      const recipients = await this.rfqs
+      const recipients = await this.recipients
         .remindableRecipients(rfq.id, trx)
         .forUpdate()
         .preload('rfq', (query) => query.preload('buyerOrganization'))
@@ -94,7 +99,7 @@ export default class AdminRfqInterventionService {
       const reminded = await this.notifications.remind(recipients)
       if (reminded.length === 0) throw new AdminRfqNotRemindableException()
 
-      await this.rfqs.markReminded(reminded, DateTime.now(), trx)
+      await this.recipients.markReminded(reminded, DateTime.now(), trx)
       await this.audit.record(
         {
           action: 'rfq.reminded',

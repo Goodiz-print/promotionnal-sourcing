@@ -1,0 +1,106 @@
+{
+  "sponsored": {
+    "badge": "Sponsorowane",
+    "title": "Produkty sponsorowane",
+    "hint": "Wyróżnione przez dostawcę. Odpowiadają Państwa wyszukiwaniu i filtrom.",
+    "productTitle": "Produkty sponsorowane w tej kategorii",
+    "productHint": "Wyróżnione przez dostawcę.",
+    "homeTitle": "Wyróżnione produkty",
+    "homeSubtitle": "Wybór wyróżniony przez naszych dostawców."
+  },
+  "index": {
+    "title": "Produkty sponsorowane",
+    "subtitle": "Umieść swoje produkty na szczycie katalogu. Płacisz tylko za kliknięcie.",
+    "newCampaign": "Nowa kampania",
+    "campaigns": "Kampanie",
+    "empty": "Brak kampanii",
+    "emptyDescription": "Zasponsoruj produkt, aby znalazł się na szczycie pasujących wyników.",
+    "productHidden": "Produkt nieopublikowany: kampania nie jest wyświetlana",
+    "period": "Od {from} do {to}",
+    "periodOpen": "Od {from}",
+    "columns": {
+      "product": "Produkt",
+      "status": "Status",
+      "bid": "Maks. stawka",
+      "budget": "Budżet / dzień",
+      "impressions": "Wyświetlenia",
+      "clicks": "Kliknięcia",
+      "spent": "Wydano",
+      "actions": "Działania"
+    }
+  },
+  "status": {
+    "active": "Aktywna",
+    "paused": "Wstrzymana",
+    "suspended": "Zawieszona"
+  },
+  "actions": {
+    "pause": "Wstrzymaj",
+    "resume": "Wznów",
+    "edit": "Edytuj",
+    "delete": "Usuń",
+    "confirmDelete": "Usunąć tę kampanię i jej statystyki?"
+  },
+  "wallet": {
+    "title": "Portfel reklamowy",
+    "description": "Środki przedpłacone, pobierane przy każdym naliczonym kliknięciu.",
+    "balance": "Dostępne saldo",
+    "amount": "Kwota doładowania (€)",
+    "amountHint": "Od {min} do {max}.",
+    "topUp": "Doładuj",
+    "unavailable": "Doładowanie online nie jest jeszcze dostępne. Skontaktuj się z nami, aby zasilić portfel.",
+    "checkoutLabel": "Środki reklamowe — {organization}",
+    "topUpSuccess": "Płatność otrzymana. Saldo zostanie zaktualizowane za chwilę, po potwierdzeniu płatności.",
+    "topUpCancelled": "Płatność anulowana. Portfel nie został zasilony.",
+    "history": "Ostatnie operacje",
+    "columns": {
+      "date": "Data",
+      "type": "Operacja",
+      "amount": "Kwota",
+      "balance": "Saldo"
+    },
+    "types": {
+      "top_up": "Doładowanie",
+      "adjustment": "Korekta",
+      "click": "Naliczone kliknięcie"
+    }
+  },
+  "form": {
+    "createTitle": "Nowa kampania",
+    "createSubtitle": "Wybierz produkt, stawkę i budżet.",
+    "editTitle": "Kampania",
+    "back": "Wróć do kampanii",
+    "settings": "Ustawienia kampanii",
+    "settingsHint": "Możesz je zmienić lub wstrzymać kampanię w dowolnym momencie.",
+    "product": "Produkt do sponsorowania",
+    "productPlaceholder": "Wybierz produkt",
+    "noProducts": "Brak produktów do sponsorowania",
+    "noProductsDescription": "Wszystkie opublikowane produkty mają już kampanię albo nie masz jeszcze opublikowanego produktu.",
+    "maxCpc": "Maksymalna stawka za kliknięcie (€)",
+    "maxCpcHint": "Od {min} do {max}. Płacisz najwyżej tę kwotę, często mniej.",
+    "dailyBudget": "Budżet dzienny (€)",
+    "dailyBudgetHint": "Kampania zatrzymuje się na dany dzień po osiągnięciu tej kwoty.",
+    "startsOn": "Data rozpoczęcia",
+    "endsOn": "Data zakończenia",
+    "endsOnHint": "Pozostaw puste dla kampanii bez daty zakończenia.",
+    "cancel": "Anuluj",
+    "submitCreate": "Uruchom kampanię",
+    "submitUpdate": "Zapisz",
+    "howItWorksTitle": "Jak to działa",
+    "howItWorks": "Twój produkt pojawia się na górze z oznaczeniem „Sponsorowane” tylko wtedy, gdy odpowiada wyszukiwaniu i filtrom kupującego. Płacisz tylko wtedy, gdy kupujący kliknie, w cenie stawki tuż poniżej Twojej plus jeden cent."
+  },
+  "flash": {
+    "created": "Kampania uruchomiona",
+    "updated": "Kampania zaktualizowana",
+    "paused": "Kampania wstrzymana",
+    "resumed": "Kampania wznowiona",
+    "deleted": "Kampania usunięta",
+    "suspended": "Ta kampania została zawieszona przez zespół platformy. Skontaktuj się z nami, aby ją reaktywować.",
+    "topUpUnavailable": "Doładowanie online jest obecnie niedostępne."
+  },
+  "errors": {
+    "budgetBelowBid": "Budżet dzienny musi pokrywać co najmniej jedno kliknięcie po maksymalnej stawce.",
+    "endBeforeStart": "Data zakończenia nie może być wcześniejsza niż data rozpoczęcia.",
+    "productNotEligible": "Tego produktu nie można sponsorować (ma już kampanię lub nie jest opublikowany)."
+  }
+}

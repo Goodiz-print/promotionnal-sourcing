@@ -6,8 +6,11 @@ import PurgeActivityEventsJob from '#jobs/purge_activity_events_job'
 import PurgeAiCallsJob from '#jobs/purge_ai_calls_job'
 import PurgeExpiredInvitationsJob from '#jobs/purge_expired_invitations_job'
 import PurgeSearchEventsJob from '#jobs/purge_search_events_job'
+import PurgeStripeWebhookEventsJob from '#jobs/purge_stripe_webhook_events_job'
+import SyncSubscriptionsJob from '#jobs/sync_subscriptions_job'
 import RecoverStorageUploadsJob from '#jobs/recover_storage_uploads_job'
 import RemindRfqSuppliersJob from '#jobs/remind_rfq_suppliers_job'
+import SendNotificationRemindersJob from '#jobs/send_notification_reminders_job'
 import ExpireRfqsJob from '#jobs/expire_rfqs_job'
 import AdminAuditService from '#services/admin_audit_service'
 import HealthService from '#services/health_service'
@@ -48,7 +51,10 @@ const MANUAL_RUNS = new Map<string, () => PromiseLike<unknown>>([
   ['purge-search-events', () => PurgeSearchEventsJob.dispatch({})],
   ['purge-activity-events', () => PurgeActivityEventsJob.dispatch({})],
   ['purge-ai-calls', () => PurgeAiCallsJob.dispatch({})],
+  ['purge-stripe-webhook-events', () => PurgeStripeWebhookEventsJob.dispatch({})],
   ['check-platform-health', () => CheckPlatformHealthJob.dispatch({})],
+  ['send-notification-reminders', () => SendNotificationRemindersJob.dispatch({})],
+  ['sync-subscriptions', () => SyncSubscriptionsJob.dispatch({})],
 ])
 
 const contains = (term: string) => `%${term.replace(/[\\%_]/g, '\\$&')}%`

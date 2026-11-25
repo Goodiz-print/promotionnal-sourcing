@@ -2,6 +2,7 @@
 import { computed, type Component } from 'vue'
 import { CalendarDays, UserRound, Users, Wallet } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { formatShortDate } from '#shared/helpers/date'
 import type { RfqDetailType } from '#shared/types/rfq'
 
 /**
@@ -19,8 +20,9 @@ interface MetaPill {
   label: string
 }
 
+/** Date courte dans la langue de l'interface (lie `formatShortDate` à la locale courante). */
 function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(locale.value)
+  return formatShortDate(value, locale.value)
 }
 
 const pills = computed<MetaPill[]>(() => {

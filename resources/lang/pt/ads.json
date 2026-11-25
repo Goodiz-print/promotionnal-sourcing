@@ -1,0 +1,106 @@
+{
+  "sponsored": {
+    "badge": "Patrocinado",
+    "title": "Produtos patrocinados",
+    "hint": "Destacados pelo fornecedor. Correspondem à sua pesquisa e aos seus filtros.",
+    "productTitle": "Produtos patrocinados desta categoria",
+    "productHint": "Destacados pelo fornecedor.",
+    "homeTitle": "Produtos em destaque",
+    "homeSubtitle": "Uma seleção destacada pelos nossos fornecedores."
+  },
+  "index": {
+    "title": "Produtos patrocinados",
+    "subtitle": "Coloque os seus produtos no topo do catálogo. Só paga por clique.",
+    "newCampaign": "Nova campanha",
+    "campaigns": "Campanhas",
+    "empty": "Nenhuma campanha",
+    "emptyDescription": "Patrocine um produto para o fazer subir ao topo dos resultados correspondentes.",
+    "productHidden": "Produto não publicado: a campanha não é apresentada",
+    "period": "De {from} a {to}",
+    "periodOpen": "Desde {from}",
+    "columns": {
+      "product": "Produto",
+      "status": "Estado",
+      "bid": "Licitação máx.",
+      "budget": "Orçamento / dia",
+      "impressions": "Impressões",
+      "clicks": "Cliques",
+      "spent": "Gasto",
+      "actions": "Ações"
+    }
+  },
+  "status": {
+    "active": "Ativa",
+    "paused": "Em pausa",
+    "suspended": "Suspensa"
+  },
+  "actions": {
+    "pause": "Pausar",
+    "resume": "Retomar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "confirmDelete": "Eliminar esta campanha e as suas estatísticas?"
+  },
+  "wallet": {
+    "title": "Carteira publicitária",
+    "description": "Crédito pré-pago, debitado a cada clique faturado.",
+    "balance": "Saldo disponível",
+    "amount": "Montante a carregar (€)",
+    "amountHint": "Entre {min} e {max}.",
+    "topUp": "Carregar",
+    "unavailable": "O carregamento online ainda não está disponível. Contacte-nos para creditar a sua carteira.",
+    "checkoutLabel": "Crédito publicitário — {organization}",
+    "topUpSuccess": "Pagamento recebido. O seu saldo é atualizado dentro de instantes, logo que o pagamento seja confirmado.",
+    "topUpCancelled": "Pagamento cancelado. A sua carteira não foi creditada.",
+    "history": "Últimos movimentos",
+    "columns": {
+      "date": "Data",
+      "type": "Movimento",
+      "amount": "Montante",
+      "balance": "Saldo"
+    },
+    "types": {
+      "top_up": "Carregamento",
+      "adjustment": "Ajuste",
+      "click": "Clique faturado"
+    }
+  },
+  "form": {
+    "createTitle": "Nova campanha",
+    "createSubtitle": "Escolha um produto, uma licitação e um orçamento.",
+    "editTitle": "Campanha",
+    "back": "Voltar às campanhas",
+    "settings": "Definições da campanha",
+    "settingsHint": "Pode alterá-las ou pausar a campanha a qualquer momento.",
+    "product": "Produto a patrocinar",
+    "productPlaceholder": "Escolher um produto",
+    "noProducts": "Nenhum produto para patrocinar",
+    "noProductsDescription": "Todos os seus produtos publicados já têm uma campanha, ou ainda não tem nenhum produto publicado.",
+    "maxCpc": "Licitação máxima por clique (€)",
+    "maxCpcHint": "Entre {min} e {max}. Paga no máximo este montante, muitas vezes menos.",
+    "dailyBudget": "Orçamento diário (€)",
+    "dailyBudgetHint": "A campanha para durante o dia assim que este montante é atingido.",
+    "startsOn": "Data de início",
+    "endsOn": "Data de fim",
+    "endsOnHint": "Deixe vazio para uma campanha sem data de fim.",
+    "cancel": "Cancelar",
+    "submitCreate": "Lançar a campanha",
+    "submitUpdate": "Guardar",
+    "howItWorksTitle": "Como funciona",
+    "howItWorks": "O seu produto aparece no topo, com a menção «Patrocinado», apenas quando corresponde à pesquisa e aos filtros do comprador. Só paga quando um comprador clica, ao preço da licitação imediatamente abaixo da sua mais um cêntimo."
+  },
+  "flash": {
+    "created": "Campanha lançada",
+    "updated": "Campanha atualizada",
+    "paused": "Campanha em pausa",
+    "resumed": "Campanha retomada",
+    "deleted": "Campanha eliminada",
+    "suspended": "Esta campanha foi suspensa pela equipa da plataforma. Contacte-nos para a reativar.",
+    "topUpUnavailable": "O carregamento online não está disponível de momento."
+  },
+  "errors": {
+    "budgetBelowBid": "O orçamento diário deve cobrir pelo menos um clique à licitação máxima.",
+    "endBeforeStart": "A data de fim não pode ser anterior à data de início.",
+    "productNotEligible": "Este produto não pode ser patrocinado (já em campanha ou não publicado)."
+  }
+}

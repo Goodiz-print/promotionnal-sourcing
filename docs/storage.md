@@ -142,3 +142,13 @@ de purge s'est perdu. Ne touche **jamais** une ligne `ready`.
   - `POST /fr/supplier/products/:id/documents` (champ `file`) et `DELETE /fr/supplier/products/:id/documents/:documentId` — droits `canManageProducts`.
 - **Validation** : PDF uniquement, 20 Mo maximum (`app/validators/document.ts`), et en-tête `%PDF-` vérifié au contenu.
 - **Non couvert** : interfaces (profil, annuaire public, formulaire produit).
+
+## Pièces jointes des réponses reçues par mail (#223, #224)
+
+- **Réception** (#223) : une pièce jointe acceptée est copiée telle quelle par `StorageService.storeContent` et référencée par `inbound_mail_attachments.storage_object_id` (`docs/mail.md`).
+- **Enregistrement** (#224) : `SupplierReplyService` rattache ces fichiers au message du fil par `message_attachments.storage_object_id`, ajoutée à `STORAGE_REFERENCES` (et à `OWNER_SELECTS` d'`AdminStorageService` : le fichier compte pour le fournisseur du fil).
+  - Une pièce qui n'est pas un PDF garde son fichier : le journal et le message référencent le même objet, rien n'est envoyé une seconde fois.
+  - Un **PDF est compressé** par `PdfService` (lu par `StorageService.read`) et stocké sous sa propre clé. Dans la transaction qui écrit le message, `inbound_mail_attachments` est repointée vers le fichier compressé et l'original est libéré (`StorageService.release`), puis purgé après le commit. Si la compression n'apporte rien, le fichier reçu est gardé.
+  - Le devis PDF (`quote_documents`) désigne la pièce jointe du message. Pour un fournisseur non abonné, sa **version destinataire** au nom de l'agence (#238, `docs/quotes.md`) est stockée par `storeContent` et référencée par `quote_documents.recipient_storage_object_id`, ajoutée à `STORAGE_REFERENCES` (et à `OWNER_SELECTS` : la copie compte pour l'agence, pas pour le fournisseur).
+- **Zéro orphelin** : si la transaction échoue, les PDF compressés et les versions destinataires qui viennent d'être stockés sont libérés par `StorageService.discard` ; le fichier reçu reste référencé par le journal, et le traitement est rejoué.
+- **Suppression** : aucun chemin de l'application ne supprime aujourd'hui un fil, un message ou une organisation (une demande ne se supprime qu'en brouillon, avant tout envoi). Les lignes `message_attachments` et `quote_documents` ne partent donc jamais en cascade. Tout futur chemin de suppression ou de remplacement devra libérer leurs fichiers (y compris `recipient_storage_object_id`) par `StorageService.release` dans sa transaction : la reprise planifiée ne touche jamais une ligne `ready`, une cascade laisserait le fichier sur Cellar.

@@ -1,0 +1,98 @@
+{
+  "page": {
+    "title": "Pricing and subscription",
+    "subtitle": "Choose the plan that fits your business. Subscribe, switch plans and cancel online.",
+    "checkoutSuccess": "Payment received. Your plan is activated as soon as Stripe confirms it, usually within a few seconds: refresh the page if needed.",
+    "checkoutCancelled": "Subscription cancelled: no payment was made.",
+    "unavailable": "Online subscription is not available yet. Contact the team to activate a plan.",
+    "taxNote": "Monthly prices excluding VAT, no commitment. Invoices are available in the billing portal."
+  },
+  "plans": {
+    "current": "Current plan",
+    "perMonth": "excl. VAT / month",
+    "subscribe": "Subscribe",
+    "change": "Switch plan",
+    "free": {
+      "name": "Free",
+      "tagline": "Your catalogue listed, free of charge."
+    },
+    "business": {
+      "name": "Business",
+      "tagline": "Identify your prospects and gain visibility."
+    },
+    "premium": {
+      "name": "Premium",
+      "tagline": "Maximum visibility and priority support."
+    }
+  },
+  "current": {
+    "title": "Your subscription",
+    "plan": "Plan",
+    "status": "Status",
+    "since": "Since",
+    "renewsOn": "Renews on",
+    "endsOn": "Ends on",
+    "manage": "Manage my subscription",
+    "manual": "Subscription managed by the platform team. Contact us to change it.",
+    "pastDue": "The last payment failed. Stripe will retry: update your payment method to keep your plan.",
+    "cancelScheduled": "Cancellation scheduled: your plan stays active until the end of the current period."
+  },
+  "status": {
+    "scheduled": "Scheduled",
+    "pending": "Payment pending",
+    "active": "Active",
+    "past_due": "Past due",
+    "expired": "Expired",
+    "cancelled": "Cancelled"
+  },
+  "features": {
+    "catalogue": {
+      "free": "Catalogue indexed in search",
+      "business": "Catalogue indexed in search",
+      "premium": "Catalogue indexed in search"
+    },
+    "statistics": {
+      "free": "Anonymous statistics (view counts)",
+      "business": "Detailed statistics, with agency identities",
+      "premium": "Detailed statistics, with agency identities"
+    },
+    "quoteRequests": {
+      "free": "Quote requests without the agency’s identity",
+      "business": "Agency identity and contact details on requests",
+      "premium": "Agency identity and contact details on requests"
+    },
+    "competitors": {
+      "free": "Competitor products shown on your pages",
+      "business": "No competitor products on your pages",
+      "premium": "No competitor products on your pages"
+    },
+    "ranking": {
+      "free": "Natural ranking of results",
+      "business": "250 ranking points per month",
+      "premium": "600 ranking points per month"
+    },
+    "superboost": {
+      "free": "No superboost",
+      "business": "Superboosts à la carte",
+      "premium": "3 superboosts included per month"
+    },
+    "support": {
+      "free": "Standard support",
+      "business": "Standard support",
+      "premium": "Priority support and onboarding"
+    }
+  },
+  "flash": {
+    "unavailable": "Online subscription is not available at the moment.",
+    "alreadySubscribed": "You already have a current subscription: switch plans from the billing portal.",
+    "noBillingAccount": "Your organization has no online billing account.",
+    "paymentPending": "A subscription payment is still being confirmed: complete it from the billing portal or try again later.",
+    "adminOnly": "Only the owners and administrators of your organization can manage its subscription."
+  },
+  "upsell": {
+    "title": "Subscribe to find out who the agency is",
+    "body": "Subscribe to find out which agency is consulting you and contact it directly.",
+    "askAdmin": "An owner or administrator of your organization can subscribe to find out who the agency is and contact it directly.",
+    "cta": "See subscription plans"
+  }
+}

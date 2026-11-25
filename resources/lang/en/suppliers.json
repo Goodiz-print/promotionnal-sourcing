@@ -23,6 +23,8 @@
     "backToDirectory": "Back to directory",
     "foundingPartner": "Founding partner",
     "contact": "Contact",
-    "websiteLabel": "Website"
+    "websiteLabel": "Website",
+    "salesTeam": "Sales team",
+    "salesTeamHint": "The sales representatives who cover your country."
   }
 }

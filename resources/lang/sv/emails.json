@@ -16,7 +16,12 @@
     "body": "{buyerName} ber dig lämna offert på förfrågan ”{rfqTitle}” ({itemCount, plural, one {# rad} other {# rader}}).",
     "deadline": "Svar önskas senast {deadline}.",
     "cta": "Visa förfrågan",
-    "footer": "Logga in i ditt leverantörsområde för att visa förfrågan eller avböja den."
+    "footer": "Logga in i ditt leverantörsområde för att visa förfrågan eller avböja den.",
+    "anonymous": {
+      "subject": "Ny offertförfrågan: ”{rfqTitle}”",
+      "title": "En byrå kontaktar dig på {brandName}",
+      "body": "En byrå bjuder in dig att lämna offert på förfrågan ”{rfqTitle}” ({itemCount, plural, one {# rad} other {# rader}})."
+    }
   },
   "passwordReset": {
     "subject": "Återställ ditt lösenord",
@@ -46,7 +51,30 @@
     "body": "{buyerName} har skickat förfrågan ”{rfqTitle}” till dig och du har inte öppnat den än.",
     "deadline": "Svar önskas senast {deadline}.",
     "cta": "Visa förfrågan",
-    "footer": "Detta är den enda påminnelsen för den här förfrågan. Du kan också avböja den i ditt leverantörsområde."
+    "footer": "Detta är den enda påminnelsen för den här förfrågan. Du kan också avböja den i ditt leverantörsområde.",
+    "anonymous": {
+      "body": "En byrå har skickat förfrågan ”{rfqTitle}” till dig och du har ännu inte öppnat den."
+    }
+  },
+  "rfqDetails": {
+    "description": "Beskrivning av förfrågan",
+    "linesTitle": "{count, plural, one {# rad att offerera} other {# rader att offerera}}",
+    "reference": "Artikelnummer",
+    "variant": "Variant",
+    "quantity": "Antal",
+    "marking": "Märkning",
+    "markingColors": "{count, plural, one {# färg} other {# färger}}",
+    "noMarking": "Utan märkning",
+    "note": "Byråns kommentar",
+    "unitPrice": "Vägledande styckpris",
+    "markingUnitPrice": "Vägledande märkning per styck",
+    "setupCharge": "Vägledande startkostnad",
+    "total": "Vägledande totalt",
+    "price": "Vägledande pris",
+    "noPrice": "Inget katalogpris: att offerera",
+    "indicativeNotice": "Priserna är de vägledande priser som visas på {brandName}, beräknade utifrån er katalog. De är inte avtalade priser: ni kan erbjuda ett bättre pris eller hålla er till dem.",
+    "replyHint": "Svara helt enkelt på det här mejlet och bifoga er offert (PDF).",
+    "platformLink": "Ni kan också se förfrågan på plattformen:"
   },
   "quoteReceived": {
     "subject": "Ny offert från {supplierName} på ”{rfqTitle}”",
@@ -78,5 +106,79 @@
   "announcement": {
     "footer": "Du får det här meddelandet eftersom du har ett konto hos {brandName}.",
     "cta": "Öppna {brandName}"
+  },
+  "notificationReminder": {
+    "subject": "Åtgärd krävs: en viktig avisering är fortfarande oläst",
+    "title": "En viktig avisering väntar på dig",
+    "intro": "Den här aviseringen skickades till dig på {brandName} och har inte lästs än:",
+    "cta": "Öppna den berörda sidan",
+    "footer": "Du får den här påminnelsen bara en gång. Den skickas inte när aviseringen har lästs."
+  },
+  "subscriptionActivated": {
+    "subject": "Ditt {planName}-abonnemang är aktivt",
+    "title": "{planName}-abonnemang aktiverat",
+    "intro": "{organizationName}s {planName}-abonnemang är aktivt på {brandName}.",
+    "period": "Det gäller från {startsOn} till och med {endsOn}.",
+    "since": "Det är aktivt sedan {startsOn}.",
+    "features": "Din plan omfattar:",
+    "cta": "Visa mitt abonnemang",
+    "footer": "Du får det här mejlet som ansvarig för organisationen."
+  },
+  "subscriptionExpiring": {
+    "subject": "Ditt {planName}-abonnemang upphör {endsOn}",
+    "title": "Ditt {planName}-abonnemang upphör om {daysLeft, plural, one {# dag} other {# dagar}}",
+    "intro": "{organizationName}s {planName}-abonnemang upphör {endsOn}.",
+    "after": "Utan förnyelse går organisationen tillbaka till gratisplanen: byråernas identitet syns inte längre i offertförfrågningar eller statistik.",
+    "cta": "Förnya mitt abonnemang",
+    "footer": "Du får den här påminnelsen som ansvarig för organisationen."
+  },
+  "quoteEmailVerification": {
+    "subject": "Bekräfta mottagaradressen för offertförfrågningar till {organizationName}",
+    "title": "Bekräfta den här adressen",
+    "body": "{organizationName} har valt den här adressen för att ta emot offertförfrågningar på {brandName}. Bekräfta den så att byråer kan nå er här.",
+    "cta": "Bekräfta adressen",
+    "validity": "Länken är giltig i {days, plural, one {# dag} other {# dagar}}.",
+    "ignore": "Om ni inte arbetar för {organizationName} kan ni ignorera meddelandet: inga förfrågningar skickas till er."
+  },
+  "subscriptionUpsell": {
+    "title": "Prenumerera för att se vilken byrå det är",
+    "body": "Prenumerera för att se vilken byrå som kontaktar dig och kontakta den direkt. Prenumerationen är förbehållen ägare och administratörer i din organisation.",
+    "cta": "Se prenumerationerna"
+  },
+  "buyerContact": {
+    "title": "Byråns kontaktuppgifter",
+    "agency": "Byrå",
+    "requester": "Förfrågan från",
+    "email": "E-post",
+    "phone": "Telefon",
+    "address": "Adress"
+  },
+  "supplierReplyReceived": {
+    "subject": "Svar från {supplierName} på ”{rfqTitle}”",
+    "subjectLate": "Sent svar från {supplierName} på ”{rfqTitle}”",
+    "title": "{supplierName} har svarat på din förfrågan",
+    "body": "{supplierName} har svarat via e-post på din förfrågan ”{rfqTitle}”.",
+    "lateNotice": "Sent svar: det kom in efter förfrågans sista svarsdag.",
+    "messageHeading": "Meddelande:",
+    "documentsHeading": "Bifogade offerter:",
+    "downloadHint": "Länkarna kräver att du är inloggad på ditt konto.",
+    "cta": "Öppna förfrågan",
+    "footer": "Du får detta meddelande eftersom du hanterar denna offertförfrågan.",
+    "replyHint": "Svara helt enkelt på det här mejlet: ditt svar vidarebefordras till leverantören."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Meddelande från {agencyName} om ”{rfqTitle}”",
+      "anonymous": "Meddelande från byrån om ”{rfqTitle}”"
+    },
+    "title": {
+      "named": "{agencyName} har skrivit till dig",
+      "anonymous": "Byrån har skrivit till dig"
+    },
+    "body": "Nytt meddelande om förfrågan ”{rfqTitle}”:",
+    "attachmentsHeading": "Bilagor, tillgängliga i applikationen:",
+    "replyHint": "Svara helt enkelt på det här mejlet: ditt svar vidarebefordras till byrån.",
+    "cta": "Öppna förfrågan",
+    "footer": "Du får det här meddelandet eftersom ditt företag har tagit emot den här offertförfrågan."
   }
 }

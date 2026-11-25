@@ -1,6 +1,7 @@
 import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
 import TranslateEntityJob from '#jobs/translate_entity_job'
+import TranslationBackfillJob from '#jobs/translation_backfill_job'
 import { TRANSLATION_LOCALES, type TranslationLocale } from '#shared/types/i18n'
 import type { TranslatableEntity } from '#shared/types/ai'
 
@@ -29,6 +30,22 @@ export default class TranslationQueueService {
       return true
     } catch (error) {
       logger.warn({ err: error, entity, entityId }, 'failed to queue entity translation')
+      return false
+    }
+  }
+
+  /**
+   * Met en file la traduction des produits d'une fiche fournisseur qui vient
+   * d'être rattachée, donc publiée (#240). Un seul job, qui parcourt la fiche par
+   * lots : la requête HTTP ne dépend pas de la taille du catalogue. Même
+   * résilience que `queue()` : un échec est loggué, `translation:backfill` rattrape.
+   */
+  async queueSupplier(supplierId: number): Promise<boolean> {
+    try {
+      await TranslationBackfillJob.dispatch({ entities: ['product'], supplierId })
+      return true
+    } catch (error) {
+      logger.warn({ err: error, supplierId }, 'failed to queue supplier translation')
       return false
     }
   }

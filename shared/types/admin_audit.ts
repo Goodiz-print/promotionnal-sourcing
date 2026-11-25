@@ -44,6 +44,8 @@ export const ADMIN_AUDIT_ACTIONS = [
   'organization.member_removed',
   'organization.invitation_revoked',
   'organization.invitation_resent',
+  'supplier.linked',
+  'supplier.unlinked',
   'product.hidden',
   'product.unhidden',
   'product.unpublished',
@@ -72,7 +74,16 @@ export const ADMIN_AUDIT_ACTIONS = [
   'search.evaluation_requested',
   'mail.retried',
   'mail.bulk_retried',
+  'inbound_mail.attached',
+  'inbound_mail.replayed',
+  'inbound_mail.dismissed',
   'storage.recovery_requested',
+  'ad_campaign.suspended',
+  'ad_campaign.restored',
+  'ad_wallet.adjusted',
+  'subscription.created',
+  'subscription.extended',
+  'subscription.cancelled',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]
@@ -86,6 +97,7 @@ export const ADMIN_AUDIT_TARGET_TYPES = [
   'marking_technique',
   'category_attribute',
   'organization',
+  'supplier',
   'product',
   'rfq',
   'conversation',
@@ -99,7 +111,9 @@ export const ADMIN_AUDIT_TARGET_TYPES = [
   'queue_schedule',
   'search_run',
   'mail_delivery',
+  'inbound_mail',
   'storage',
+  'ad_campaign',
 ] as const
 
 export type AdminAuditTargetType = (typeof ADMIN_AUDIT_TARGET_TYPES)[number]

@@ -39,10 +39,12 @@ async function thread() {
     authorUserId: supplierUser.id,
     body: 'Contactez-moi hors plateforme',
   }).create()
-  const fromBuyer = await MessageFactory.merge({
-    conversationId: conversation.id,
-    authorUserId: buyerUser.id,
-  }).create()
+  const fromBuyer = await MessageFactory.apply('fromAgency')
+    .merge({
+      conversationId: conversation.id,
+      authorUserId: buyerUser.id,
+    })
+    .create()
   return { buyer, supplier, buyerUser, supplierUser, conversation, fromSupplier, fromBuyer }
 }
 

@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import { DateTime } from 'luxon'
 import mail from '@adonisjs/mail/services/main'
 import { OrganizationFactory } from '#database/factories/organization_factory'
 import { OrganizationInvitationFactory } from '#database/factories/organization_invitation_factory'
@@ -236,6 +237,47 @@ test.group('Gestion organisations - recherche et filtres (#161)', (group) => {
     assert.include(ids, fr.id)
     assert.notInclude(ids, de.id)
     assert.equal(response.inertiaProps.filters.country, 'FR')
+  })
+
+  test('repère les fournisseurs sans adresse de réception (#217)', async ({ client, assert }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    const fallback = await OrganizationFactory.apply('supplier').merge({ email: null }).create()
+    const withQuote = await OrganizationFactory.apply('supplier').merge({ email: null }).create()
+    await SupplierProfile.create({
+      organizationId: withQuote.id,
+      quoteEmail: 'devis@f.test',
+      quoteEmailVerifiedAt: DateTime.now(),
+    })
+    // Adresse saisie mais pas confirmée : pas utilisée, le fournisseur se rabat sur ses membres.
+    const pending = await OrganizationFactory.apply('supplier').merge({ email: null }).create()
+    await SupplierProfile.create({ organizationId: pending.id, quoteEmail: 'devis@p.test' })
+    const withContact = await OrganizationFactory.apply('supplier')
+      .merge({ email: 'contact@f.test' })
+      .create()
+    const buyer = await OrganizationFactory.merge({ email: null }).create()
+
+    const all = await client.get('/fr/admin/organizations?status=all').withInertia().loginAs(admin)
+    const missing = await client
+      .get('/fr/admin/organizations?status=all&missingQuoteAddress=true')
+      .withInertia()
+      .loginAs(admin)
+
+    const sourceOf = (id: number) =>
+      all.inertiaProps.organizationList.data.find((o: { id: number }) => o.id === id)
+        ?.quoteAddressSource
+    assert.equal(sourceOf(fallback.id), 'members')
+    assert.equal(sourceOf(pending.id), 'members')
+    assert.equal(sourceOf(withQuote.id), 'quote_email')
+    assert.equal(sourceOf(withContact.id), 'organization_email')
+    assert.isNull(sourceOf(buyer.id))
+    // Le filtre SQL et la règle de la liste désignent exactement les mêmes organisations.
+    const filtered = missing.inertiaProps.organizationList.data.map((o: { id: number }) => o.id)
+    const flagged = all.inertiaProps.organizationList.data
+      .filter((o: { quoteAddressSource: string | null }) => o.quoteAddressSource === 'members')
+      .map((o: { id: number }) => o.id)
+    assert.sameMembers(filtered, flagged)
+    assert.sameMembers(filtered, [fallback.id, pending.id])
+    assert.isTrue(missing.inertiaProps.filters.missingQuoteAddress)
   })
 
   test('une page invalide est refusee', async ({ client }) => {

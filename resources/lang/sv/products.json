@@ -67,8 +67,6 @@
     "tierQuantity": "Antal",
     "tierPrice": "Styckpris",
     "tierFrom": "Från {quantity} st",
-    "addToDraft": "Lägg till i ett förfrågningsutkast",
-    "chooseDraft": "Välj ett utkast …",
     "signInToRequest": "Logga in för att begära en offert",
     "compliance": "Efterlevnad",
     "eco": "Miljövänlig",

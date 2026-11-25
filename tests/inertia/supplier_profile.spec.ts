@@ -19,18 +19,27 @@ const translations = {
   'supplier.fields.certificationAdd': 'Ajouter une certification',
   'supplier.fields.certificationRemove': 'Retirer',
   'supplier.fields.bio': 'Présentation',
+  'supplier.fields.quoteEmail': 'Adresse de réception des demandes',
+  'supplier.fields.quoteEmailHint': 'Laissée vide…',
+  'supplier.profile.quoteEmail.pending': 'Adresse en attente de confirmation',
+  'supplier.profile.quoteEmail.pendingHint': 'Lien envoyé à {email}.',
+  'supplier.profile.quoteEmail.resend': 'Renvoyer le lien',
+  'supplier.profile.quoteEmail.verified': 'Demandes envoyées à {email}.',
+  'supplier.profile.quoteEmail.willSend': 'Un lien sera envoyé à l’enregistrement.',
   'supplier.deliveryScope.none': 'Non précisé',
   'supplier.deliveryScope.national': 'National',
   'supplier.deliveryScope.europe': 'Europe',
   'supplier.deliveryScope.worldwide': 'International',
 }
 
+const post = vi.fn()
+
 vi.mock('@inertiajs/vue3', async () => {
   const m = await import('./support/inertia_mocks')
   return {
     usePage: () => m.inertiaPage(translations),
     useForm: m.makeUseForm(),
-    router: { delete: vi.fn() },
+    router: { delete: vi.fn(), post },
     Head: m.HeadStub,
   }
 })
@@ -41,6 +50,30 @@ const { default: SupplierProfile } = await import('~/pages/supplier/profile.vue'
 
 const PENDING = { status: 'pending' as const, reason: null }
 
+const PROFILE = {
+  id: 1,
+  organizationId: 2,
+  minOrderQuantity: 50,
+  deliveryDays: 10,
+  deliveryScope: 'europe' as const,
+  certifications: ['ISO 9001', 'FSC'],
+  bio: 'Un fournisseur',
+  responseTimeDays: 2,
+  companyType: null,
+  deliveryCountries: null,
+  spokenLanguages: null,
+  minOrderNote: null,
+  quoteEmail: 'devis@fournisseur.test',
+  quoteEmailVerifiedAt: null,
+  reportFrequency: 'none' as const,
+  catalogueUpdateMode: null,
+  catalogueUpdateFrequency: null,
+  defaultOriginScope: null,
+  isFoundingPartner: false,
+  foundingPartnerUntil: null,
+  createdAt: '2026-07-10T00:00:00.000Z',
+  updatedAt: null,
+}
 describe('supplier/profile.vue', () => {
   it('affiche le formulaire avec les libellés traduits', () => {
     const wrapper = mount(SupplierProfile, {
@@ -51,6 +84,7 @@ describe('supplier/profile.vue', () => {
     expect(wrapper.find('#minOrderQuantity').exists()).toBe(true)
     expect(wrapper.find('#deliveryScope').exists()).toBe(true)
     expect(wrapper.find('#bio').exists()).toBe(true)
+    expect(wrapper.find('#quoteEmail').attributes('type')).toBe('email')
   })
 
   it('affiche le motif quand l’organisation est rejetée', () => {
@@ -82,29 +116,7 @@ describe('supplier/profile.vue', () => {
   })
 
   it('pré-remplit les champs depuis le profil existant', () => {
-    const profile = {
-      id: 1,
-      organizationId: 2,
-      minOrderQuantity: 50,
-      deliveryDays: 10,
-      deliveryScope: 'europe' as const,
-      certifications: ['ISO 9001', 'FSC'],
-      bio: 'Un fournisseur',
-      responseTimeDays: 2,
-      companyType: null,
-      deliveryCountries: null,
-      spokenLanguages: null,
-      minOrderNote: null,
-      quoteEmail: null,
-      reportFrequency: 'none' as const,
-      catalogueUpdateMode: null,
-      catalogueUpdateFrequency: null,
-      defaultOriginScope: null,
-      isFoundingPartner: false,
-      foundingPartnerUntil: null,
-      createdAt: '2026-07-10T00:00:00.000Z',
-      updatedAt: null,
-    }
+    const profile = PROFILE
 
     const wrapper = mount(SupplierProfile, {
       props: { profile, documents: [], moderation: PENDING },
@@ -112,6 +124,9 @@ describe('supplier/profile.vue', () => {
 
     expect(wrapper.findAll('input[type="text"]')).toHaveLength(profile.certifications.length)
     expect((wrapper.find('#bio').element as HTMLTextAreaElement).value).toBe('Un fournisseur')
+    expect((wrapper.find('#quoteEmail').element as HTMLInputElement).value).toBe(
+      'devis@fournisseur.test'
+    )
   })
 
   it('ajoute et retire une certification', async () => {
@@ -131,5 +146,49 @@ describe('supplier/profile.vue', () => {
       .find((b) => b.text() === 'Retirer')!
       .trigger('click')
     expect(wrapper.findAll('input[type="text"]')).toHaveLength(0)
+  })
+})
+
+describe('supplier/profile.vue — adresse de réception (#217)', () => {
+  const mountWith = (quoteEmailVerifiedAt: string | null) =>
+    mount(SupplierProfile, {
+      props: {
+        profile: { ...PROFILE, quoteEmailVerifiedAt },
+        documents: [],
+        moderation: PENDING,
+      },
+    })
+
+  it('signale une adresse non confirmée et renvoie le lien à la demande', async () => {
+    post.mockClear()
+    const wrapper = mountWith(null)
+
+    expect(wrapper.text()).toContain('Adresse en attente de confirmation')
+    expect(wrapper.text()).toContain('Lien envoyé à devis@fournisseur.test.')
+    await wrapper
+      .findAll('button')
+      .find((b) => b.text() === 'Renvoyer le lien')!
+      .trigger('click')
+    expect(post).toHaveBeenCalledWith(
+      '/fr/supplier/profile',
+      {},
+      expect.objectContaining({ preserveScroll: true })
+    )
+  })
+
+  it('affiche une adresse confirmée sans proposer de renvoi', () => {
+    const wrapper = mountWith('2026-11-20T10:00:00.000Z')
+
+    expect(wrapper.text()).toContain('Demandes envoyées à devis@fournisseur.test.')
+    expect(wrapper.text()).not.toContain('Renvoyer le lien')
+  })
+
+  it('annonce l’envoi d’un lien quand l’adresse est modifiée', async () => {
+    const wrapper = mountWith('2026-11-20T10:00:00.000Z')
+
+    await wrapper.find('#quoteEmail').setValue('autre@fournisseur.test')
+
+    expect(wrapper.text()).toContain('Un lien sera envoyé à l’enregistrement.')
+    expect(wrapper.text()).not.toContain('Demandes envoyées à')
   })
 })

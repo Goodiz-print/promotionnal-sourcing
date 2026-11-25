@@ -101,3 +101,14 @@ export class RfqInvalidDeadlineException extends Exception {
   static code = 'E_RFQ_INVALID_DEADLINE'
   static message = 'The new deadline must be in the future and later than the current one'
 }
+
+/**
+ * Dépôt d'un devis PDF (#230) par un destinataire qui ne peut plus répondre :
+ * il a décliné la demande entre l'affichage de l'écran et l'envoi du fichier
+ * (statut relu sous verrou par `SupplierReplyService#recordUpload`).
+ */
+export class RfqSupplierNotReplyableException extends Exception {
+  static status = 422
+  static code = 'E_RFQ_SUPPLIER_NOT_REPLYABLE'
+  static message = 'This recipient can no longer reply to the request for quotation'
+}

@@ -9,8 +9,9 @@
   "types": {
     "rfq": {
       "received": "{buyerName} har skickat en offertförfrågan till dig: {rfqTitle}.",
-      "responded": "En leverantör har svarat på förfrågan {rfqTitle}.",
-      "declined": "{supplierName} har avböjt förfrågan {rfqTitle}."
+      "responded": "{supplierName} har svarat på förfrågan {rfqTitle}.",
+      "declined": "{supplierName} har avböjt förfrågan {rfqTitle}.",
+      "relay_refused": "Ditt mejl från {senderAddress} om förfrågan {rfqTitle} vidarebefordrades inte till {supplierName}: adressen är inte känd för din byrå. Skriv direkt från förfrågan."
     },
     "quote": {
       "received": "{supplierName} har lämnat en offert för {rfqTitle}.",
@@ -32,6 +33,22 @@
     "message": {
       "warned": "A message you wrote received a warning from the platform. Please follow the messaging usage rules."
     },
-    "announcement": "{title} — {body}"
+    "announcement": "{title} — {body}",
+    "subscription": {
+      "duplicate_cancelled": "{organizationName} betalade två prenumerationer samtidigt: dubbletten {cancelledSubscriptionId} har sagts upp i Stripe. Återbetala betalningen från Stripe-instrumentpanelen."
+    }
+  },
+  "late": {
+    "rfq": {
+      "responded": "Sent svar: {supplierName} svarade på förfrågan {rfqTitle} efter sista svarsdag."
+    }
+  },
+  "anonymous": {
+    "rfq": {
+      "received": "En byrå har skickat en offertförfrågan till dig: {rfqTitle}."
+    },
+    "quote": {
+      "rejected": "En byrå har avvisat din offert för {rfqTitle}."
+    }
   }
 }

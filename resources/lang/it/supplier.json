@@ -8,7 +8,9 @@
       "terms": "Condizioni commerciali",
       "termsHint": "Ordine minimo, tempi e area di consegna mostrati agli acquirenti.",
       "certificationsHint": "Norme e marchi che detiene (ISO, FSC, OEKO-TEX…).",
-      "presentation": "Presentazione dell'azienda"
+      "presentation": "Presentazione dell'azienda",
+      "quoteReception": "Ricezione delle richieste di preventivo",
+      "quoteReceptionHint": "Le agenzie vi inviano le loro richieste via e-mail: indicate l'indirizzo che deve riceverle."
     },
     "moderation": {
       "pending": "Scheda in fase di verifica",
@@ -18,6 +20,16 @@
       "rejected": "Scheda rifiutata",
       "rejectedHint": "La tua organizzazione è stata rifiutata: il tuo catalogo non è più visibile agli acquirenti.",
       "reason": "Motivo: {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Indirizzo in attesa di conferma",
+      "pendingHint": "È stato inviato un link di conferma a {email}. Finché non viene cliccato, le richieste di preventivo vanno all'indirizzo di contatto dell'organizzazione o, in mancanza, ai responsabili dell'account.",
+      "resend": "Invia di nuovo il link",
+      "resent": "Il link di conferma è stato inviato di nuovo.",
+      "verified": "Le richieste di preventivo vengono inviate a {email}.",
+      "willSend": "Al salvataggio verrà inviato un link di conferma a questo indirizzo.",
+      "invalidLink": "Questo link di conferma non è più valido. Richiedetene uno nuovo dal profilo fornitore.",
+      "verifiedFlash": "Indirizzo di ricezione confermato: d'ora in poi riceverà le richieste di preventivo."
     }
   },
   "fields": {
@@ -31,7 +43,9 @@
     "certificationRemove": "Rimuovi",
     "bio": "Presentazione",
     "defaultOriginScope": "Provenienza predefinita",
-    "certificationsEmpty": "Nessuna certificazione indicata."
+    "certificationsEmpty": "Nessuna certificazione indicata.",
+    "quoteEmail": "Indirizzo di ricezione delle richieste",
+    "quoteEmailHint": "Se lasciato vuoto, la richiesta va all'indirizzo di contatto dell'organizzazione o, in mancanza, ai responsabili dell'account."
   },
   "deliveryScope": {
     "none": "Non specificata",
@@ -45,5 +59,90 @@
     "europe": "Europa",
     "outside_europe": "Extra Europa",
     "per_product": "Caso per caso"
+  },
+  "contacts": {
+    "title": "Team commerciale",
+    "subtitle": "I commerciali che le agenzie possono contattare direttamente, in base al loro paese.",
+    "add": "Aggiungi un contatto",
+    "newTitle": "Nuovo contatto",
+    "teamTitle": "Contatti",
+    "teamHint": "Ogni agenzia vede i contatti che coprono il suo paese; se non ce ne sono, vede tutto il team.",
+    "empty": "Nessun contatto commerciale",
+    "emptyHint": "Aggiungete i commerciali che le agenzie possono raggiungere.",
+    "settingsTitle": "Visualizzazione",
+    "showAll": "Mostra tutto il team a tutte le agenzie",
+    "showAllHint": "Le agenzie vedono tutti i vostri contatti, qualunque sia il loro paese.",
+    "allCountries": "Tutti i paesi",
+    "remove": "Rimuovi {label}",
+    "linkedMember": "Membro dell'account: {name}",
+    "moveUp": "Sposta su",
+    "moveDown": "Sposta giù",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "confirmDelete": "Eliminare il contatto {name}?",
+    "cancel": "Annulla",
+    "save": "Salva",
+    "upsell": {
+      "title": "Contatti riservati ai fornitori abbonati",
+      "body": "Potete preparare il vostro team fin da ora: sarà mostrato alle agenzie appena vi abbonerete.",
+      "cta": "Vedi gli abbonamenti"
+    },
+    "fields": {
+      "name": "Nome",
+      "jobTitle": "Ruolo",
+      "email": "E-mail",
+      "phone": "Telefono",
+      "countries": "Paesi coperti",
+      "countriesHint": "Nessun paese scelto: il contatto copre tutti i paesi.",
+      "addCountry": "Aggiungi un paese…",
+      "languages": "Lingue parlate",
+      "addLanguage": "Aggiungi una lingua…",
+      "member": "Membro dell'account",
+      "memberHint": "Facoltativo: collegate il contatto a un utente che accede all'account.",
+      "noMember": "Nessuno (solo contatto)"
+    },
+    "flash": {
+      "created": "Contatto aggiunto.",
+      "updated": "Contatto aggiornato.",
+      "deleted": "Contatto eliminato.",
+      "settingsUpdated": "Impostazione salvata."
+    }
+  },
+  "insights": {
+    "title": "Visualizzazioni",
+    "subtitle": "Quante volte le agenzie hanno visualizzato i tuoi prodotti e la tua scheda fornitore.",
+    "period": "Periodo",
+    "periodOption": "Ultimi {days} giorni",
+    "summary": {
+      "productViews": "Visualizzazioni dei prodotti",
+      "viewedProducts": "Prodotti visualizzati",
+      "supplierViews": "Visualizzazioni della scheda",
+      "rfqAdditions": "Aggiunte a una richiesta di preventivo"
+    },
+    "products": {
+      "title": "Visualizzazioni per prodotto",
+      "columns": {
+        "product": "Prodotto",
+        "views": "Visualizzazioni",
+        "rfqAdditions": "Aggiunte a una richiesta"
+      },
+      "emptyTitle": "Nessun prodotto",
+      "emptyBody": "Aggiungi prodotti al tuo catalogo per seguirne le visualizzazioni.",
+      "previous": "Precedente",
+      "next": "Successivo"
+    },
+    "agencies": {
+      "title": "Agenzie che ti hanno visualizzato",
+      "hint": "Visualizzazioni degli ultimi 90 giorni: oltre, restano conteggiate ma non indicano più l'agenzia.",
+      "columns": {
+        "agency": "Agenzia",
+        "views": "Visualizzazioni",
+        "products": "Prodotti visualizzati",
+        "lastViewedAt": "Ultima visualizzazione"
+      },
+      "emptyTitle": "Nessuna agenzia nel periodo",
+      "emptyBody": "Le agenzie che visualizzano i tuoi prodotti o la tua scheda appariranno qui.",
+      "limited": "Sono mostrate solo le {count} agenzie più recenti."
+    }
   }
 }

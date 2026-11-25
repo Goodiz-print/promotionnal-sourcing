@@ -24,7 +24,8 @@
     "city": "Plaats",
     "postalCode": "Postcode",
     "country": "Land",
-    "logo": "Logo"
+    "logo": "Logo",
+    "emailBuyerHint": "Wordt samen met het telefoonnummer en adres gedeeld met de geabonneerde leveranciers die u raadpleegt. Anders ontvangen zij het e-mailadres van de aanvrager."
   },
   "size": {
     "none": "Niet opgegeven",

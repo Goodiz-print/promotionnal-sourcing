@@ -106,6 +106,57 @@
     "rfq": {
       "respond": "Responder con un presupuesto",
       "viewQuote": "Ver mi presupuesto"
+    },
+    "documents": {
+      "title": "Presupuesto enviado",
+      "description": "Su presupuesto en PDF, enviado por correo o desde esta página. Siempre ve su archivo original.",
+      "empty": "Aún no ha enviado ningún presupuesto en PDF.",
+      "columns": {
+        "file": "Archivo",
+        "sentAt": "Enviado el",
+        "channel": "Envío"
+      },
+      "channel": {
+        "mail": "Por correo",
+        "upload": "Desde la plataforma"
+      },
+      "download": "Descargar {filename}",
+      "upload": {
+        "file": "Su presupuesto (PDF)",
+        "prompt": "Elija o suelte un PDF",
+        "hint": "PDF, 20 MB como máximo. Se transmite a la agencia como una respuesta por correo.",
+        "body": "Mensaje a la agencia (opcional)",
+        "submit": "Enviar el presupuesto"
+      },
+      "flash": {
+        "uploaded": "Presupuesto enviado: la agencia ha sido informada."
+      },
+      "errors": {
+        "notPdf": "Este archivo no es un PDF válido.",
+        "notReplyable": "Ha rechazado esta solicitud: ya no puede enviar un presupuesto para ella."
+      }
+    }
+  },
+  "documents": {
+    "title": "Presupuestos PDF recibidos",
+    "description": "Presupuestos enviados por correo por los proveedores. La descarga está reservada a los miembros de su agencia.",
+    "empty": "Todavía no se ha recibido ningún presupuesto PDF.",
+    "columns": {
+      "supplier": "Proveedor",
+      "file": "Archivo",
+      "receivedAt": "Recibido el",
+      "decision": "Decisión"
+    },
+    "download": "Descargar {filename}",
+    "select": "Seleccionar",
+    "selected": "Seleccionado",
+    "confirmSelect": "Seleccionar este presupuesto cierra la solicitud. Los siguientes pasos (pedido, facturación) se realizan directamente con el proveedor. ¿Continuar?",
+    "confirmSelectTitle": "¿Seleccionar este presupuesto?",
+    "flash": {
+      "selected": "Presupuesto seleccionado: la solicitud está cerrada."
+    },
+    "errors": {
+      "notSelectable": "Esta solicitud ya no está abierta: no se puede seleccionar este presupuesto."
     }
   }
 }

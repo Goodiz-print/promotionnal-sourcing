@@ -41,6 +41,8 @@ export const PLATFORM_PERMISSIONS = [
   'queue.manage',
   'search.manage',
   'ops.manage',
+  // Produits sponsorisés : supervision des campagnes, crédit des portefeuilles.
+  'ads.manage',
 ] as const
 
 export type PlatformPermission = (typeof PLATFORM_PERMISSIONS)[number]

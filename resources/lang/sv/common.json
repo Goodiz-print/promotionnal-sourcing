@@ -14,6 +14,7 @@
     "supplierRfqs": "Mottagna förfrågningar",
     "supplierQuotes": "Mina offerter",
     "supplierOrders": "Mottagna beställningar",
+    "supplierInsights": "Visningar",
     "supplierProfile": "Leverantörsprofil",
     "members": "Medlemmar",
     "settings": "Inställningar",
@@ -34,11 +35,19 @@
     "closeMenu": "Stäng menyn",
     "backToSite": "Tillbaka till webbplatsen",
     "noOrganization": "Ingen organisation",
-    "logoAlt": "Promotional Sourcing.eu"
+    "logoAlt": "Promotional Sourcing.eu",
+    "supplierAds": "Sponsrade produkter",
+    "supplierSubscription": "Abonnemang",
+    "supplierContacts": "Säljteam"
   },
   "language": {
     "label": "Språk",
     "fr": "Français",
     "en": "English"
+  },
+  "confirmDialog": {
+    "title": "Bekräfta åtgärden?",
+    "confirm": "Bekräfta",
+    "cancel": "Avbryt"
   }
 }

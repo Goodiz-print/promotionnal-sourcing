@@ -16,7 +16,12 @@
     "body": "{buyerName} bittet Sie um ein Angebot für die Anfrage „{rfqTitle}“ ({itemCount, plural, one {# Position} other {# Positionen}}).",
     "deadline": "Bitte antworten Sie bis zum {deadline}.",
     "cta": "Anfrage ansehen",
-    "footer": "Melden Sie sich in Ihrem Lieferantenbereich an, um die Anfrage anzusehen oder abzulehnen."
+    "footer": "Melden Sie sich in Ihrem Lieferantenbereich an, um die Anfrage anzusehen oder abzulehnen.",
+    "anonymous": {
+      "subject": "Neue Angebotsanfrage: „{rfqTitle}“",
+      "title": "Eine Agentur fragt Sie auf {brandName} an",
+      "body": "Eine Agentur bittet Sie um ein Angebot für die Anfrage „{rfqTitle}“ ({itemCount, plural, one {# Position} other {# Positionen}})."
+    }
   },
   "passwordReset": {
     "subject": "Passwort zurücksetzen",
@@ -46,7 +51,30 @@
     "body": "{buyerName} hat Ihnen die Anfrage „{rfqTitle}“ gesendet, und Sie haben sie noch nicht geöffnet.",
     "deadline": "Bitte antworten Sie bis zum {deadline}.",
     "cta": "Anfrage ansehen",
-    "footer": "Dies ist die einzige Erinnerung zu dieser Anfrage. Sie können sie auch in Ihrem Lieferantenbereich ablehnen."
+    "footer": "Dies ist die einzige Erinnerung zu dieser Anfrage. Sie können sie auch in Ihrem Lieferantenbereich ablehnen.",
+    "anonymous": {
+      "body": "Eine Agentur hat Ihnen die Anfrage „{rfqTitle}“ gesendet, und Sie haben sie noch nicht geöffnet."
+    }
+  },
+  "rfqDetails": {
+    "description": "Beschreibung der Anfrage",
+    "linesTitle": "{count, plural, one {# Position zu kalkulieren} other {# Positionen zu kalkulieren}}",
+    "reference": "Artikelnummer",
+    "variant": "Variante",
+    "quantity": "Menge",
+    "marking": "Veredelung",
+    "markingColors": "{count, plural, one {# Farbe} other {# Farben}}",
+    "noMarking": "Ohne Veredelung",
+    "note": "Hinweis der Agentur",
+    "unitPrice": "Unverbindlicher Stückpreis",
+    "markingUnitPrice": "Unverbindliche Veredelung pro Stück",
+    "setupCharge": "Unverbindliche Einrichtungskosten",
+    "total": "Unverbindliche Summe",
+    "price": "Unverbindlicher Preis",
+    "noPrice": "Kein Katalogpreis: bitte kalkulieren",
+    "indicativeNotice": "Die angegebenen Preise sind die auf {brandName} angezeigten Richtpreise, berechnet aus Ihrem Katalog. Es sind keine vereinbarten Preise: Sie können einen besseren Preis anbieten oder dabei bleiben.",
+    "replyHint": "Antworten Sie einfach auf diese E-Mail und hängen Sie Ihr Angebot (PDF) an.",
+    "platformLink": "Sie können die Anfrage auch auf der Plattform ansehen:"
   },
   "quoteReceived": {
     "subject": "Neues Angebot von {supplierName} für „{rfqTitle}“",
@@ -78,5 +106,79 @@
   "announcement": {
     "footer": "Sie erhalten diese Nachricht, weil Sie ein Konto bei {brandName} haben.",
     "cta": "{brandName} öffnen"
+  },
+  "notificationReminder": {
+    "subject": "Handlung erforderlich: Eine wichtige Benachrichtigung ist noch ungelesen",
+    "title": "Eine wichtige Benachrichtigung wartet auf Sie",
+    "intro": "Diese Benachrichtigung wurde Ihnen auf {brandName} gesendet und ist noch ungelesen:",
+    "cta": "Zugehörige Seite öffnen",
+    "footer": "Sie erhalten diese Erinnerung nur einmal. Sie wird nicht mehr gesendet, sobald die Benachrichtigung gelesen wurde."
+  },
+  "subscriptionActivated": {
+    "subject": "Ihr {planName}-Abonnement ist aktiv",
+    "title": "{planName}-Abonnement aktiviert",
+    "intro": "Das {planName}-Abonnement von {organizationName} ist auf {brandName} aktiv.",
+    "period": "Es gilt vom {startsOn} bis einschließlich {endsOn}.",
+    "since": "Es ist seit dem {startsOn} aktiv.",
+    "features": "Ihr Tarif umfasst:",
+    "cta": "Mein Abonnement ansehen",
+    "footer": "Sie erhalten diese E-Mail als Verantwortliche(r) der Organisation."
+  },
+  "subscriptionExpiring": {
+    "subject": "Ihr {planName}-Abonnement endet am {endsOn}",
+    "title": "Ihr {planName}-Abonnement endet in {daysLeft, plural, one {# Tag} other {# Tagen}}",
+    "intro": "Das {planName}-Abonnement von {organizationName} endet am {endsOn}.",
+    "after": "Ohne Verlängerung wechselt Ihre Organisation in den kostenlosen Tarif: Die Identität der Agenturen ist dann weder in Ihren Angebotsanfragen noch in Ihren Statistiken sichtbar.",
+    "cta": "Abonnement verlängern",
+    "footer": "Sie erhalten diese Erinnerung als Verantwortliche(r) der Organisation."
+  },
+  "quoteEmailVerification": {
+    "subject": "Bestätigen Sie die Empfangsadresse für Angebotsanfragen von {organizationName}",
+    "title": "Bestätigen Sie diese Adresse",
+    "body": "{organizationName} hat diese Adresse gewählt, um Angebotsanfragen auf {brandName} zu erhalten. Bestätigen Sie sie, damit Agenturen Sie hier erreichen.",
+    "cta": "Adresse bestätigen",
+    "validity": "Dieser Link ist {days, plural, one {# Tag} other {# Tage}} gültig.",
+    "ignore": "Wenn Sie nicht für {organizationName} arbeiten, ignorieren Sie diese Nachricht: Ihnen wird keine Anfrage gesendet."
+  },
+  "subscriptionUpsell": {
+    "title": "Abonnieren Sie, um die Agentur kennenzulernen",
+    "body": "Abonnieren Sie, um zu erfahren, welche Agentur Sie anfragt, und sie direkt zu kontaktieren. Das Abonnement ist den Inhabern und Administratoren Ihrer Organisation vorbehalten.",
+    "cta": "Abonnements ansehen"
+  },
+  "buyerContact": {
+    "title": "Kontaktdaten der Agentur",
+    "agency": "Agentur",
+    "requester": "Angefragt von",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "address": "Adresse"
+  },
+  "supplierReplyReceived": {
+    "subject": "Antwort von {supplierName} auf „{rfqTitle}“",
+    "subjectLate": "Verspätete Antwort von {supplierName} auf „{rfqTitle}“",
+    "title": "{supplierName} hat auf Ihre Anfrage geantwortet",
+    "body": "{supplierName} hat per E-Mail auf Ihre Anfrage „{rfqTitle}“ geantwortet.",
+    "lateNotice": "Verspätete Antwort: Sie ist nach der Frist der Anfrage eingegangen.",
+    "messageHeading": "Nachricht:",
+    "documentsHeading": "Beigefügte Angebote:",
+    "downloadHint": "Für diese Links müssen Sie in Ihrem Konto angemeldet sein.",
+    "cta": "Anfrage öffnen",
+    "footer": "Sie erhalten diese Nachricht, weil Sie diese Angebotsanfrage verwalten.",
+    "replyHint": "Antworten Sie einfach auf diese E-Mail: Ihre Antwort wird an den Lieferanten weitergeleitet."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Nachricht von {agencyName} zu „{rfqTitle}“",
+      "anonymous": "Nachricht der Agentur zu „{rfqTitle}“"
+    },
+    "title": {
+      "named": "{agencyName} hat Ihnen geschrieben",
+      "anonymous": "Die Agentur hat Ihnen geschrieben"
+    },
+    "body": "Neue Nachricht zur Anfrage „{rfqTitle}“:",
+    "attachmentsHeading": "Anhänge, in der Anwendung einsehbar:",
+    "replyHint": "Antworten Sie einfach auf diese E-Mail: Ihre Antwort wird an die Agentur weitergeleitet.",
+    "cta": "Anfrage öffnen",
+    "footer": "Sie erhalten diese Nachricht, weil Ihr Unternehmen diese Angebotsanfrage erhalten hat."
   }
 }

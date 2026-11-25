@@ -106,6 +106,57 @@
     "rfq": {
       "respond": "Respond with a quote",
       "viewQuote": "View my quote"
+    },
+    "documents": {
+      "title": "Quote sent",
+      "description": "Your PDF quote, sent by email or from this page. You always see your original file.",
+      "empty": "No PDF quote sent yet.",
+      "columns": {
+        "file": "File",
+        "sentAt": "Sent on",
+        "channel": "Sent via"
+      },
+      "channel": {
+        "mail": "By email",
+        "upload": "From the platform"
+      },
+      "download": "Download {filename}",
+      "upload": {
+        "file": "Your quote (PDF)",
+        "prompt": "Choose or drop a PDF",
+        "hint": "PDF, 20 MB max. It is forwarded to the agency like an email reply.",
+        "body": "Message to the agency (optional)",
+        "submit": "Send the quote"
+      },
+      "flash": {
+        "uploaded": "Quote sent: the agency has been notified."
+      },
+      "errors": {
+        "notPdf": "This file is not a valid PDF.",
+        "notReplyable": "You declined this request: you can no longer send a quote for it."
+      }
+    }
+  },
+  "documents": {
+    "title": "PDF quotes received",
+    "description": "Quotes sent by email by suppliers. Downloading is restricted to members of your agency.",
+    "empty": "No PDF quote received yet.",
+    "columns": {
+      "supplier": "Supplier",
+      "file": "File",
+      "receivedAt": "Received on",
+      "decision": "Decision"
+    },
+    "download": "Download {filename}",
+    "select": "Select",
+    "selected": "Selected",
+    "confirmSelect": "Selecting this quote closes the request. The next steps (purchase order, invoicing) happen directly with the supplier. Continue?",
+    "confirmSelectTitle": "Select this quote?",
+    "flash": {
+      "selected": "Quote selected: the request is closed."
+    },
+    "errors": {
+      "notSelectable": "This request is no longer open: this quote cannot be selected."
     }
   }
 }

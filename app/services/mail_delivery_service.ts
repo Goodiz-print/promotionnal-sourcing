@@ -20,8 +20,9 @@ interface DeliveryRow {
 /**
  * Registre `mail_deliveries` : idempotence des envois et dead-letter.
  *
- * Volontairement écrit avec `db` (pas de modèle Lucid) : `SendMailJob` le résout
- * depuis `execute()`, et un job ne doit pas évaluer de modèle au boot de la queue.
+ * Volontairement écrit avec `db` (pas de modèle Lucid) : `SendMailJob` l'importe
+ * statiquement pour l'injecter par constructeur, et un module de job ne doit pas
+ * évaluer de modèle au boot de la queue.
  */
 export default class MailDeliveryService {
   /**

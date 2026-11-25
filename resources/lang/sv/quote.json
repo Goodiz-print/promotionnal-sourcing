@@ -106,6 +106,57 @@
     "rfq": {
       "respond": "Svara med en offert",
       "viewQuote": "Visa min offert"
+    },
+    "documents": {
+      "title": "Skickad offert",
+      "description": "Din PDF-offert, skickad via e-post eller från den här sidan. Du ser alltid din originalfil.",
+      "empty": "Ingen PDF-offert skickad än.",
+      "columns": {
+        "file": "Fil",
+        "sentAt": "Skickad",
+        "channel": "Skickad via"
+      },
+      "channel": {
+        "mail": "Via e-post",
+        "upload": "Via plattformen"
+      },
+      "download": "Ladda ner {filename}",
+      "upload": {
+        "file": "Din offert (PDF)",
+        "prompt": "Välj eller släpp en PDF",
+        "hint": "PDF, högst 20 MB. Den vidarebefordras till byrån som ett e-postsvar.",
+        "body": "Meddelande till byrån (valfritt)",
+        "submit": "Skicka offerten"
+      },
+      "flash": {
+        "uploaded": "Offert skickad: byrån har informerats."
+      },
+      "errors": {
+        "notPdf": "Den här filen är inte en giltig PDF.",
+        "notReplyable": "Du har avböjt denna förfrågan: du kan inte längre skicka en offert för den."
+      }
+    }
+  },
+  "documents": {
+    "title": "Mottagna PDF-offerter",
+    "description": "Offerter som leverantörerna har skickat via e-post. Nedladdning är förbehållen medlemmarna i din byrå.",
+    "empty": "Ingen PDF-offert mottagen ännu.",
+    "columns": {
+      "supplier": "Leverantör",
+      "file": "Fil",
+      "receivedAt": "Mottagen",
+      "decision": "Beslut"
+    },
+    "download": "Ladda ner {filename}",
+    "select": "Välj",
+    "selected": "Vald",
+    "confirmSelect": "Om du väljer den här offerten stängs förfrågan. Nästa steg (beställning, fakturering) sker direkt med leverantören. Fortsätta?",
+    "confirmSelectTitle": "Välja den här offerten?",
+    "flash": {
+      "selected": "Offert vald: förfrågan är stängd."
+    },
+    "errors": {
+      "notSelectable": "Förfrågan är inte längre öppen: offerten kan inte väljas."
     }
   }
 }

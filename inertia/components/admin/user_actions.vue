@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { KeyRound, MailCheck, Pause, Play, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseTextarea from '~/components/base/base_textarea.vue'
@@ -19,6 +20,7 @@ import type { AdminUserDetail } from '#shared/types/admin_user'
 const props = defineProps<{ user: AdminUserDetail }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 const REASON_MAX_LENGTH = 500
 
@@ -44,14 +46,28 @@ const hasActions = computed(
 
 type PostAction = 'suspend' | 'reactivate' | 'resend_verification' | 'password_reset'
 
+/** Clé de traduction (`admin.users.actions.<clé>.confirm` / `.label`) de chaque action. */
+const POST_ACTION_KEYS: Record<PostAction, string> = {
+  suspend: 'suspend',
+  reactivate: 'reactivate',
+  resend_verification: 'resendVerification',
+  password_reset: 'passwordReset',
+}
+
 const visitOptions = {
   preserveScroll: true,
   onStart: () => (processing.value = true),
   onFinish: () => (processing.value = false),
 }
 
-function post(action: PostAction, confirmKey: string, data: Record<string, string> = {}) {
-  if (!window.confirm(t(confirmKey))) return
+async function post(action: PostAction, data: Record<string, string> = {}) {
+  const key = POST_ACTION_KEYS[action]
+  const confirmed = await confirm({
+    message: t(`admin.users.actions.${key}.confirm`),
+    confirmLabel: t(`admin.users.actions.${key}.label`),
+    tone: action === 'suspend' ? 'danger' : 'default',
+  })
+  if (!confirmed) return
   router.post(
     urlFor(`admin.users.${action}`, { locale: locale.value, id: props.user.id }),
     data,
@@ -61,11 +77,16 @@ function post(action: PostAction, confirmKey: string, data: Record<string, strin
 
 function suspend() {
   const trimmed = reason.value.trim().slice(0, REASON_MAX_LENGTH)
-  post('suspend', 'admin.users.actions.suspend.confirm', trimmed ? { reason: trimmed } : {})
+  post('suspend', trimmed ? { reason: trimmed } : {})
 }
 
-function destroy() {
-  if (!window.confirm(t('admin.users.actions.destroy.confirm'))) return
+async function destroy() {
+  const confirmed = await confirm({
+    message: t('admin.users.actions.destroy.confirm'),
+    confirmLabel: t('admin.users.actions.destroy.label'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.delete(
     urlFor('admin.users.destroy', { locale: locale.value, id: props.user.id }),
     visitOptions
@@ -94,7 +115,7 @@ function destroy() {
         v-if="canReactivate"
         variant="secondary"
         :disabled="processing"
-        @click="post('reactivate', 'admin.users.actions.reactivate.confirm')"
+        @click="post('reactivate')"
       >
         <template #icon><Play :size="ICON_SIZE" aria-hidden="true" /></template>
         {{ t('admin.users.actions.reactivate.label') }}
@@ -103,7 +124,7 @@ function destroy() {
         v-if="canResend"
         variant="secondary"
         :disabled="processing"
-        @click="post('resend_verification', 'admin.users.actions.resendVerification.confirm')"
+        @click="post('resend_verification')"
       >
         <template #icon><MailCheck :size="ICON_SIZE" aria-hidden="true" /></template>
         {{ t('admin.users.actions.resendVerification.label') }}
@@ -112,7 +133,7 @@ function destroy() {
         v-if="canReset"
         variant="secondary"
         :disabled="processing"
-        @click="post('password_reset', 'admin.users.actions.passwordReset.confirm')"
+        @click="post('password_reset')"
       >
         <template #icon><KeyRound :size="ICON_SIZE" aria-hidden="true" /></template>
         {{ t('admin.users.actions.passwordReset.label') }}

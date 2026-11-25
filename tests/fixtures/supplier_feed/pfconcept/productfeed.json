@@ -1,0 +1,66 @@
+{
+  "pfcProductfeed": {
+    "productfeed": {
+      "models": [
+        {
+          "model": {
+            "modelCode": "TEST100",
+            "description": "Mug isotherme Fixture 400ml",
+            "extDesc": "Mug à double paroi, fixture de test.",
+            "keywords": "mug, isotherme, café",
+            "items": [
+              {
+                "item": {
+                  "itemCode": "TEST10001",
+                  "measurements": { "weightGr": "250" },
+                  "qtyPerCarton": "48",
+                  "decorationSettings": {
+                    "decoDefault": { "method": "Tampographie", "leadTime": "6" },
+                    "packaging": { "decoPackaging": "Boîte individuelle" }
+                  },
+                  "grossWeightKg": "12,5",
+                  "exportLcm": "40",
+                  "exportWcm": "30",
+                  "exportHcm": "25,5",
+                  "countryOfOrigin": "PRC",
+                  "hsCode": "9617000000",
+                  "brand": "FixtureBrand",
+                  "categoryData": { "groupDesc": "Drinkware", "catDesc": "Mugs isothermes" },
+                  "colors": {
+                    "color": [
+                      { "colorCode": "BU", "colorDesc": "Bleu marine", "baseColor": "Bleu" }
+                    ]
+                  },
+                  "material": "Acier inoxydable",
+                  "eanCode": "1234567890123",
+                  "imageData": {
+                    "imageMain": "TEST10001.jpg",
+                    "imageMood1": "TEST10001_mood.jpg",
+                    "imageExtra1": ""
+                  },
+                  "videoUrl1": ""
+                }
+              },
+              {
+                "item": {
+                  "itemCode": "TEST10002",
+                  "colors": {
+                    "color": [{ "colorCode": "RD", "colorDesc": "Rouge", "baseColor": "Rouge" }]
+                  },
+                  "imageData": { "imageMain": "TEST10002.jpg" }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "model": {
+            "modelCode": "TEST200",
+            "description": "Objet hors limite",
+            "items": [{ "item": { "itemCode": "TEST20001" } }]
+          }
+        }
+      ]
+    }
+  }
+}

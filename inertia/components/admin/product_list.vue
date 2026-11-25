@@ -9,6 +9,7 @@ import BasePagination from '~/components/base/base_pagination.vue'
 import BaseTable from '~/components/base/base_table.vue'
 import type { AdminProductListItem } from '#shared/types/admin_product'
 import type { Paginated } from '#shared/types/pagination'
+import { formatShortDate } from '#shared/helpers/date'
 
 /** Tableau paginé des produits : lien vers la fiche, fournisseur, visibilité, stock. */
 defineProps<{ products: Paginated<AdminProductListItem> }>()
@@ -19,7 +20,7 @@ const { t, locale } = useI18n()
 const showUrl = (product: AdminProductListItem) =>
   urlFor('admin.products.show', { locale: locale.value, id: product.id })
 
-const formatDate = (value: string) => new Date(value).toLocaleDateString(locale.value)
+const formatDate = (value: string) => formatShortDate(value, locale.value)
 </script>
 
 <template>

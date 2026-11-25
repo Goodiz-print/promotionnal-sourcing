@@ -6,29 +6,11 @@ import OrganizationDocument from '#models/organization_document'
 import ProductDocument from '#models/product_document'
 import DocumentService from '#services/document_service'
 import GhostscriptRunner from '#services/pdf/ghostscript_runner'
+import { HalvingRunner, pdfBuffer } from '#tests/utils/pdf'
 import { uploadedFile, useFakeStorage } from '#tests/utils/storage'
 import { useDatabase } from '#tests/utils/setup'
 
-/** Compresseur factice : divise la taille, ou ne fait rien si `available` est faux. */
-class HalvingRunner extends GhostscriptRunner {
-  constructor(private isAvailable = true) {
-    super()
-  }
-
-  async available() {
-    return this.isAvailable
-  }
-
-  async compress(content: Buffer) {
-    return content.subarray(0, Math.ceil(content.length / 2))
-  }
-}
-
 const documents = () => app.container.make(DocumentService)
-
-/** Contenu commençant par l'en-tête PDF, de la taille demandée. */
-const pdfBuffer = (size: number) =>
-  Buffer.concat([Buffer.from('%PDF-1.4\n'), Buffer.alloc(size - 9, 'p')])
 
 test.group('Documents PDF des fournisseurs', (group) => {
   useDatabase(group, { seed: 'full' })

@@ -15,8 +15,31 @@
       "suppliers": "Ontvangers",
       "responses": "Reacties",
       "status": "Status",
-      "deadline": "Deadline"
-    }
+      "deadline": "Deadline",
+      "author": "Auteur",
+      "quotes": "Offertes"
+    },
+    "progress": {
+      "draft": "Concept",
+      "published": "Gepubliceerd",
+      "sent": "Verzonden",
+      "responded": "Beantwoord",
+      "expired": "Verlopen",
+      "closed": "Gesloten"
+    },
+    "filters": {
+      "label": "Aanvragen filteren",
+      "status": "Status",
+      "author": "Auteur",
+      "allStatuses": "Alle statussen",
+      "allAuthors": "Alle auteurs",
+      "reset": "Filters wissen"
+    },
+    "noMatch": "Geen aanvraag komt overeen met deze filters.",
+    "noMatchDescription": "Wijzig of wis de filters om uw aanvragen terug te vinden.",
+    "batch": "Winkelwagen van {date} · {count, plural, one {# aanvraag} other {# aanvragen}}",
+    "quoteReceived": "Offerte ontvangen",
+    "unknownAuthor": "Onbekende auteur"
   },
   "create": {
     "title": "Nieuwe offerteaanvraag",
@@ -39,7 +62,9 @@
     "addSuppliers": "Ontvangers toevoegen",
     "removeSupplier": "Verwijderen",
     "sentAt": "Verstuurd op {date}",
-    "viewProduct": "Productpagina bekijken"
+    "viewProduct": "Productpagina bekijken",
+    "salesContactsTitle": "Verkoopcontacten",
+    "salesContactsHint": "Aanvragen gaan naar het algemene adres van de leverancier; deze vertegenwoordigers bedienen uw land."
   },
   "status": {
     "draft": "Concept",
@@ -52,8 +77,10 @@
     "sent": "Verstuurd",
     "viewed": "Bekeken",
     "responded": "Heeft gereageerd",
-    "declined": "Heeft afgewezen"
+    "declined": "Heeft afgewezen",
+    "expired": "Verlopen zonder reactie"
   },
+  "lateReply": "Late reactie",
   "actions": {
     "publish": "Publiceren",
     "send": "Naar ontvangers versturen",
@@ -125,7 +152,15 @@
         "deadline": "Deadline",
         "status": "Status"
       },
-      "emptyDescription": "Kopers die u raadplegen verschijnen hier, met de details van hun behoefte."
+      "emptyDescription": "Kopers die u raadplegen verschijnen hier, met de details van hun behoefte.",
+      "filters": {
+        "label": "Ontvangen aanvragen filteren",
+        "status": "Status",
+        "allStatuses": "Alle statussen",
+        "reset": "Filter wissen"
+      },
+      "emptyFiltered": "Geen aanvraag met deze status.",
+      "emptyFilteredDescription": "Wijzig het filter om uw andere aanvragen te zien."
     },
     "show": {
       "backToList": "Terug naar de ontvangen aanvragen",
@@ -137,7 +172,16 @@
       "expiredNotice": "Deze aanvraag is verlopen: de koper verwacht geen antwoord meer.",
       "responseTitle": "Uw reactie",
       "responseOpen": "Maak een prijsopgave voor deze behoefte door een offerte in te dienen, of wijs de aanvraag af als u er geen gevolg aan kunt geven.",
-      "responseQuote": "U hebt een offerte voor deze aanvraag opgesteld."
+      "responseQuote": "U hebt een offerte voor deze aanvraag opgesteld.",
+      "responseDocument": "U hebt een PDF-offerte voor deze aanvraag gestuurd. Hieronder kunt u een nieuwe versie uploaden.",
+      "contact": {
+        "title": "Contactgegevens van het bureau",
+        "agency": "Bureau",
+        "requester": "Aangevraagd door",
+        "email": "E-mail",
+        "phone": "Telefoon",
+        "address": "Adres"
+      }
     },
     "actions": {
       "decline": "Aanvraag afwijzen",
@@ -147,13 +191,21 @@
       "sent": "Te behandelen",
       "viewed": "In behandeling",
       "responded": "Offerte verstuurd",
-      "declined": "Afgewezen"
+      "declined": "Afgewezen",
+      "expired": "Verlopen"
     },
     "flash": {
       "declined": "Aanvraag afgewezen."
     },
     "errors": {
       "notDecidable": "Voor deze aanvraag wordt geen beslissing van u meer verwacht."
+    },
+    "anonymousBuyer": "Anoniem bureau",
+    "state": {
+      "to_process": "Te behandelen",
+      "responded": "Beantwoord",
+      "expired": "Verlopen",
+      "declined": "Afgewezen"
     }
   },
   "product": {
@@ -172,5 +224,16 @@
   },
   "form": {
     "general": "Algemene informatie"
+  },
+  "specs": {
+    "variant": "Variant",
+    "sku": "Artikelnummer",
+    "markingPosition": "Bedrukkingspositie",
+    "markingTechnique": "Bedrukkingstechniek",
+    "markingColors": "Bedrukkingskleuren",
+    "estimatedUnitPrice": "Indicatieve stukprijs",
+    "estimatedMarkingUnitPrice": "Indicatieve bedrukking / stuk",
+    "estimatedSetupCharge": "Indicatieve instelkosten",
+    "estimatedTotal": "Indicatief totaal"
   }
 }

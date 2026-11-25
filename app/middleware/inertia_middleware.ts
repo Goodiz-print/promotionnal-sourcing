@@ -7,6 +7,7 @@ import OrganizationSummaryTransformer from '#transformers/organization_summary_t
 import OrganizationContextService from '#services/organization_context_service'
 import NavigationService from '#services/navigation_service'
 import NotificationService from '#services/notification_service'
+import QuoteCartService from '#services/quote_cart_service'
 import NotificationTransformer from '#transformers/notification_transformer'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
 import type { RoleSlug } from '#shared/types/role'
@@ -18,7 +19,8 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
   constructor(
     private organizations: OrganizationContextService,
     private navigation: NavigationService,
-    private notifications: NotificationService
+    private notifications: NotificationService,
+    private quoteCart: QuoteCartService
   ) {
     super()
   }
@@ -32,7 +34,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
      * In that case, we must always assume that HttpContext is not fully hydrated
      * with all the properties
      */
-    const { session, auth, i18n } = ctx as Partial<HttpContext>
+    const { session, auth, i18n, bouncer } = ctx as Partial<HttpContext>
 
     /**
      * Fetching the first error from the flash messages
@@ -76,6 +78,19 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
     )
 
     /**
+     * Panier de devis : pastille du bandeau, seulement pour qui peut demander
+     * un devis dans son organisation courante (`canCreateRfq`). `undefined`
+     * sinon — le bandeau masque alors l'icône, les cartes leur bouton d'ajout.
+     */
+    const quoteCartCount =
+      auth?.user &&
+      current &&
+      bouncer &&
+      (await bouncer.allows('canCreateRfq', current.organization))
+        ? await this.quoteCart.count(auth.user, current.organization)
+        : undefined
+
+    /**
      * Data shared with all Inertia pages. Make sure you are using
      * transformers for rich data-types like Models.
      */
@@ -102,6 +117,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       unreadNotificationsCount: ctx.inertia.always(
         auth?.user ? await this.notifications.unreadCount(auth.user) : undefined
       ),
+      quoteCartCount: ctx.inertia.always(quoteCartCount),
       recentNotifications: ctx.inertia.optional(async () => {
         if (!auth?.user) return []
         const recent = await this.notifications.listFor(auth.user, {

@@ -1,10 +1,13 @@
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import Conversation from '#models/conversation'
 import ConversationRead from '#models/conversation_read'
 import RealtimeService from '#services/realtime_service'
 import Message from '#models/message'
+import MessageAttachment from '#models/message_attachment'
+import type RfqSupplier from '#models/rfq_supplier'
 import OrganizationUser from '#models/organization_user'
 import User from '#models/user'
 import {
@@ -12,7 +15,21 @@ import {
   ConversationBlockedException,
   InvalidMessageBodyException,
 } from '#exceptions/messaging_errors'
-import { MESSAGE_MAX_LENGTH } from '#shared/types/conversation'
+import {
+  conversationSidesOf,
+  postedMessageFor,
+  type ConversationParties,
+} from '#shared/helpers/conversation'
+import {
+  MESSAGE_MAX_LENGTH,
+  type InboundMessageInput,
+  type MessageAttachmentInput,
+  type PostedMessageInput,
+  type UploadedMessageInput,
+} from '#shared/types/conversation'
+
+/** Longueur de `conversations.subject`. */
+const SUBJECT_MAX = 180
 
 interface StartInput {
   buyerOrganizationId: number
@@ -40,10 +57,8 @@ export default class ConversationService {
    */
   async start(input: StartInput): Promise<Conversation> {
     const body = this.normalizeBody(input.body)
-    await this.assertMemberOf(input.author, [
-      input.buyerOrganizationId,
-      input.supplierOrganizationId,
-    ])
+    const [senderSide] = await this.sidesOfMember(input.author, input)
+    if (!senderSide) throw new ConversationAccessDeniedException()
 
     const conversation = await db.transaction(async (trx) => {
       const created = await Conversation.create(
@@ -57,7 +72,7 @@ export default class ConversationService {
         { client: trx }
       )
       const message = await Message.create(
-        { conversationId: created.id, authorUserId: input.author.id, body },
+        { conversationId: created.id, authorUserId: input.author.id, body, senderSide },
         { client: trx }
       )
       this.realtime.messagePosted(created.id, {
@@ -70,23 +85,133 @@ export default class ConversationService {
     return conversation
   }
 
-  /** Ajoute un message à un fil existant. L'auteur doit être participant. */
-  async post(conversation: Conversation, author: User, rawBody: string): Promise<Message> {
-    const body = this.normalizeBody(rawBody)
-    await this.assertParticipant(author, conversation)
+  /**
+   * Ajoute un message à un fil existant. L'auteur doit être participant.
+   * `message` est le texte seul — le côté se déduit alors de l'adhésion de
+   * l'auteur, l'agence d'abord — ou le texte et le côté au nom duquel il écrit
+   * (#226 : l'écran d'une demande sait de quel côté il est), qui doit être
+   * l'un des siens.
+   */
+  async post(
+    conversation: Conversation,
+    author: User,
+    message: string | PostedMessageInput
+  ): Promise<Message> {
+    const posted = postedMessageFor(message, await this.sidesOfMember(author, conversation))
+    if (!posted) throw new ConversationAccessDeniedException()
+    const body = this.normalizeBody(posted.body)
     // Fil bloqué par la plateforme (#167) : la lecture reste possible, l'écriture non.
     if (conversation.blockedAt) throw new ConversationBlockedException()
-    const message = await Message.create({
+    const created = await Message.create({
       conversationId: conversation.id,
       authorUserId: author.id,
       body,
+      senderSide: posted.side,
     })
     this.realtime.messagePosted(conversation.id, {
       type: 'message.posted',
-      messageId: message.id,
+      messageId: created.id,
       authorUserId: author.id,
     })
-    return message
+    return created
+  }
+
+  // ── Réponses reçues par mail (#224) ─────────────────────────────────────
+
+  /**
+   * Fil d'une demande pour un destinataire : retrouvé par `rfq_supplier_id`,
+   * ouvert à la première réponse. À appeler dans une transaction qui tient le
+   * verrou du destinataire (un seul fil par destinataire). `recipient.rfq` doit
+   * être chargée.
+   */
+  async threadForRecipient(
+    recipient: RfqSupplier,
+    trx: TransactionClientContract
+  ): Promise<Conversation> {
+    const existing = await Conversation.query({ client: trx })
+      .where('rfqSupplierId', recipient.id)
+      .first()
+    if (existing) return existing
+
+    return Conversation.create(
+      {
+        buyerOrganizationId: recipient.rfq.buyerOrganizationId,
+        supplierOrganizationId: recipient.supplierOrganizationId,
+        rfqId: recipient.rfqId,
+        rfqSupplierId: recipient.id,
+        subject: recipient.rfq.title.slice(0, SUBJECT_MAX),
+        createdByUserId: null,
+      },
+      { client: trx }
+    )
+  }
+
+  /**
+   * Écrit le message né d'un mail entrant, avec ses pièces jointes (fichiers
+   * déjà sur Cellar). Sans auteur : l'expéditeur est celui du mail. Un fil
+   * bloqué par la plateforme le reçoit quand même — c'est une réception, pas
+   * une écriture d'un participant, et la réponse ne doit pas se perdre.
+   * Renvoie le message, `attachments` chargées.
+   */
+  async recordInbound(
+    conversation: Conversation,
+    input: InboundMessageInput,
+    trx: TransactionClientContract
+  ): Promise<Message> {
+    const message = await Message.create(
+      {
+        conversationId: conversation.id,
+        authorUserId: null,
+        inboundMailId: input.inboundMailId,
+        body: input.body,
+        senderSide: input.senderSide,
+      },
+      { client: trx }
+    )
+    return this.attach(message, input.attachments, trx)
+  }
+
+  /**
+   * Écrit le message d'un participant qui joint des fichiers depuis
+   * l'application — le devis PDF qu'un fournisseur dépose depuis une demande
+   * reçue (#230). Fichiers déjà sur Cellar, écriture dans la transaction de
+   * l'appelant. Contrairement à `recordInbound`, c'est l'écriture d'un
+   * participant : un fil bloqué par la plateforme (#167) la refuse. Renvoie le
+   * message, `attachments` chargées.
+   */
+  async recordUploaded(
+    conversation: Conversation,
+    input: UploadedMessageInput,
+    trx: TransactionClientContract
+  ): Promise<Message> {
+    if (conversation.blockedAt) throw new ConversationBlockedException()
+    const message = await Message.create(
+      {
+        conversationId: conversation.id,
+        authorUserId: input.authorUserId,
+        body: input.body,
+        senderSide: input.senderSide,
+      },
+      { client: trx }
+    )
+    return this.attach(message, input.attachments, trx)
+  }
+
+  /** Message déjà né de ce mail, s'il existe (garde d'idempotence). */
+  findInboundMessage(
+    inboundMailId: number,
+    trx?: TransactionClientContract
+  ): Promise<Message | null> {
+    return Message.query({ client: trx }).where('inboundMailId', inboundMailId).first()
+  }
+
+  /** Diffuse en temps réel un message né d'un mail — après le commit. */
+  announce(conversationId: number, messageId: number): void {
+    this.realtime.messagePosted(conversationId, {
+      type: 'message.posted',
+      messageId,
+      authorUserId: null,
+    })
   }
 
   /**
@@ -161,12 +286,44 @@ export default class ConversationService {
       .orderBy('id', 'asc')
   }
 
+  /** Côtés au nom desquels `user` peut écrire dans un fil entre ces deux organisations. */
+  private async sidesOfMember(user: User, parties: ConversationParties) {
+    const memberships = await OrganizationUser.query()
+      .where('userId', user.id)
+      .whereIn('organizationId', [parties.buyerOrganizationId, parties.supplierOrganizationId])
+      .select('organizationId')
+    return conversationSidesOf(
+      memberships.map(({ organizationId }) => organizationId),
+      parties
+    )
+  }
+
   private async assertMemberOf(user: User, organizationIds: number[]): Promise<void> {
     const membership = await OrganizationUser.query()
       .where('userId', user.id)
       .whereIn('organizationId', organizationIds)
       .first()
     if (!membership) throw new ConversationAccessDeniedException()
+  }
+
+  /** Rattache au message ses pièces jointes (fichiers déjà sur Cellar) et les charge. */
+  private async attach(
+    message: Message,
+    inputs: MessageAttachmentInput[],
+    trx: TransactionClientContract
+  ): Promise<Message> {
+    const attachments = await MessageAttachment.createMany(
+      inputs.map(({ storageObjectId, filename, mimeType, sizeBytes }) => ({
+        messageId: message.id,
+        storageObjectId,
+        filename,
+        mimeType,
+        sizeBytes,
+      })),
+      { client: trx }
+    )
+    message.$setRelated('attachments', attachments)
+    return message
   }
 
   private normalizeBody(raw: string): string {

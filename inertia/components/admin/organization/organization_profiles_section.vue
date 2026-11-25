@@ -6,6 +6,7 @@ import BaseDescriptionItem from '~/components/base/base_description_item.vue'
 import BaseDescriptionList from '~/components/base/base_description_list.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import type { AdminOrganizationDetail } from '#shared/types/admin_organization'
+import { formatShortDate } from '#shared/helpers/date'
 
 /**
  * Profils fournisseur, agence et facturation en lecture seule. Une section n'est
@@ -31,6 +32,7 @@ function items(prefix: string, record: Record<string, Value>, keys: readonly str
 }
 
 const SUPPLIER_KEYS = [
+  'quoteEmail',
   'companyType',
   'commercialStatus',
   'minOrderQuantity',
@@ -77,7 +79,7 @@ const billingItems = computed(() => {
   return profile ? items('billing', profile, BILLING_KEYS) : []
 })
 
-const formatDate = (value: string) => new Date(value).toLocaleDateString(locale.value)
+const formatDate = (value: string) => formatShortDate(value, locale.value)
 </script>
 
 <template>
@@ -86,6 +88,21 @@ const formatDate = (value: string) => new Date(value).toLocaleDateString(locale.
     :title="t('admin.organizations.detail.profile.supplier.title')"
   >
     <BaseDescriptionList :items="supplierItems">
+      <BaseDescriptionItem
+        v-if="organization.supplierProfile.quoteEmail"
+        :label="t('admin.organizations.detail.profile.supplier.quoteEmailStatus')"
+      >
+        <BaseBadge
+          dot
+          :tone="organization.supplierProfile.quoteEmailVerifiedAt ? 'success' : 'warning'"
+        >
+          {{
+            organization.supplierProfile.quoteEmailVerifiedAt
+              ? `${t('admin.agencyReviews.verified')} · ${formatDate(organization.supplierProfile.quoteEmailVerifiedAt)}`
+              : t('admin.organizations.detail.profile.supplier.quoteEmailPending')
+          }}
+        </BaseBadge>
+      </BaseDescriptionItem>
       <BaseDescriptionItem
         :label="t('admin.organizations.detail.profile.supplier.foundingPartner')"
       >

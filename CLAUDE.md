@@ -44,6 +44,15 @@ Les documents PDF des fournisseurs (catalogue, certificat, fiche technique) sont
 - Interfaces préférées aux types pour les objets
 - Pas de `any` — utiliser `unknown` si nécessaire
 - Nommage : `camelCase` pour variables/fonctions, `PascalCase` pour classes/interfaces
+- **Fonctions de tableau plutôt que boucles** : privilégier `map` / `filter` / `reduce` / `flatMap` / `some` / `every` / `find`, et `Map.groupBy` / `Object.fromEntries` / `new Set(...)` pour regrouper ou indexer, plutôt que des boucles `for` / `for…of` / `for…in` qui mutent un accumulateur — code plus lisible et plus testable. Une boucle reste acceptable seulement si elle est réellement plus claire : `await` qui doivent s'exécuter **séquentiellement**, sortie anticipée (`break`) sur un gros volume. Pour des écritures indépendantes, `Promise.all(items.map(...))`.
+- **Fonctions simples et courtes** : une fonction fait **une seule chose**, nommée par ce qu'elle fait. Dès qu'une fonction devient complexe, la découper en fonctions (ou méthodes `private`) nommées et testables :
+  - **~30 lignes** au plus ; au-delà, extraire des étapes nommées ;
+  - **2 niveaux d'imbrication** au plus (`if` / boucle / callback) : préférer les **retours anticipés** (guard clauses) aux `if` imbriqués et aux `else` après un `return` ;
+  - **3 paramètres** au plus ; au-delà, un objet typé (dans `shared/types/`) ;
+  - pas de **ternaires imbriqués** ni de longues chaînes `if / else if` : une table de correspondance (`Record<Clé, Valeur>`) ou des fonctions dédiées ;
+  - conditions longues extraites dans une **variable ou fonction au nom explicite** (`const isEligible = …`) ;
+  - séparer le **calcul pur** (testable sans base ni HTTP) des **effets** (requêtes, écritures, appels externes) : la règle métier vit dans une fonction pure, le service orchestre.
+  - **Vérifié par ESLint** (`eslint.config.js`, bloc « readability ») en `warn` : boucles et plus de 3 paramètres (`no-restricted-syntax`, constructeurs exclus pour l'injection), `complexity` 10, `max-depth` 2, `max-lines-per-function` 30, `no-nested-ternary`, `no-else-return`. Le code existant n'est pas encore conforme : **tout fichier créé ou modifié ne doit ajouter aucun de ces warnings**.
 
 ### AdonisJS
 
@@ -56,8 +65,12 @@ Les documents PDF des fournisseurs (catalogue, certificat, fiche technique) sont
 - Middleware dans `app/middleware/`
 - Events dans `app/events/` + Listeners dans `app/listeners/`
 - Abilities (Bouncer) dans `app/abilities/`
+- **Règles d'autorisation = abilities Bouncer (OBLIGATOIRE)** : toute décision « cet utilisateur peut-il… / est-il… » (rôle dans l'organisation, type d'organisation, appartenance, droit plateforme) s'écrit comme une **ability** dans `app/abilities/main.ts` et s'appelle par `bouncer.authorize` / `bouncer.allows` / `bouncer.denies`. Jamais de méthode privée de controller ni de condition inline qui combine type d'organisation, rôle et `bouncer.*` pour en déduire un droit : la règle doit être nommée, réutilisable et testable au même endroit que les autres.
 - Jobs de queue dans `app/jobs/`
 - **Types des controllers/services dans `shared/types/`** : tout type utilisé dans un controller ou service doit vivre dans `shared/types/<domaine>.ts` — jamais défini inline ou dans `app/`. Le frontend importe directement ces types quand pertinent (props, composables, stores).
+- **Toute fonction utilitaire vit dans un fichier utilitaire et est testée (OBLIGATOIRE)** : toute fonction utilitaire (calcul pur, formatage, parsing, normalisation, conversion, règle métier sans effet), **où qu'elle soit nécessaire** (controller, service, job, command, listener, validator, transformer, middleware, composant Vue, composable, page), vit dans `shared/helpers/<domaine>.ts`, exportée et **testée unitairement** (`tests/unit/`) dans la même modification. Jamais de fonction utilitaire définie en module-level ou en méthode `private` d'un autre fichier, ni dans le `<script setup>` d'un composant, sauf **très bonne raison** (elle dépend d'un état injecté de la classe, ou n'est qu'une étape d'orchestration à effets) — la justifier alors par un commentaire. Avant d'en créer une, chercher si un helper existant la couvre déjà. Le service orchestre (requêtes, écritures, appels externes), le helper calcule.
+- **Tout service créé ou modifié est testé (OBLIGATOIRE)** : un service nouveau a sa spec ; un service modifié voit sa spec mise à jour dans la même modification (nouvelle méthode → nouveaux tests, comportement changé → tests adaptés, cas limites et erreurs inclus). Chaque méthode publique est testée contre la base PostgreSQL avec les factories, les dépendances externes remplacées par `container.swap`. Aucune modification de service ne part sans test qui la couvre.
+- **Tout transformer créé ou modifié est testé (OBLIGATOIRE)** : chaque transformer de `app/transformers/` a sa spec unitaire (`tests/unit/transformers/<nom>.spec.ts`), ajoutée ou mise à jour dans la même modification. Elle vérifie la forme exacte de l'objet produit (champs exposés, valeurs calculées, `null` et relations absentes), et surtout que **les champs sensibles ne fuient pas** (hash, ids internes, jetons, données d'une autre organisation). Le modèle se construit avec les factories (`useDatabase(group)` si la persistance est nécessaire) ; une conversion pure appelée par le transformer va dans `shared/helpers/` avec son propre test.
 - **Classes d'erreur dans `app/exceptions/`** : toute classe d'erreur métier doit vivre dans `app/exceptions/<domaine>_errors.ts` — jamais définie inline dans un controller ou service.
 - **Injection de dépendances (OBLIGATOIRE)** : ne **jamais** instancier un service applicatif ou une classe injectable avec `new` dans un controller / service / job / command. Utiliser le **conteneur IoC** d'AdonisJS ([doc](https://docs.adonisjs.com/guides/concepts/dependency-injection)) :
   - Décorer la classe consommatrice avec `@inject()` (`import { inject } from '@adonisjs/core'`) et déclarer les dépendances **dans le constructeur** (typées par leur classe). Les **controllers** reçoivent ainsi leurs services par injection constructeur (le routeur les résout via le conteneur).
@@ -111,7 +124,7 @@ Références : [Inertia — Link and Form](https://docs.adonisjs.com/guides/fron
 
 1. **Toujours lire les fichiers existants** avant de modifier
 2. **Plan d'abord** : décrire ce qui va être fait avant de coder
-3. **Tests obligatoires** pour toute logique métier nouvelle. La suite tourne sous **PostgreSQL** (`pnpm test:db && pnpm test`) ; un groupe branche sa base avec `useDatabase(group)` (`tests/utils/setup.ts`) et crée ses entités socle avec les **factories** de `database/factories/` + les helpers de `tests/utils/organizations.ts` — jamais de `Model.create` inline pour un utilisateur, une organisation, une adhésion ou une invitation (voir `docs/tests.md`)
+3. **Tests obligatoires pour toute fonction ajoutée ou modifiée** — **tout controller et tout service est toujours testé** (functional pour chaque route/action du controller, cas nominal + refus d'autorisation + erreur de validation ; chaque méthode publique du service contre la base) ; et pas seulement la « logique métier » : services, helpers purs, abilities, transformers, jobs, commands, composables. Le test s'écrit **dans la même modification** que la fonction, en suivant la doc [Japa](https://japa.dev/docs) et [AdonisJS — Testing](https://docs.adonisjs.com/guides/testing/introduction) : unitaire pour le calcul pur, functional pour les routes, services testés contre la base avec les factories, dépendances externes remplacées par `container.swap`, composants/composables Vue via Vitest. Si une fonction ne peut vraiment pas être testée, le signaler explicitement. La suite tourne sous **PostgreSQL** (`pnpm test:db && pnpm test`) ; un groupe branche sa base avec `useDatabase(group)` (`tests/utils/setup.ts`) et crée ses entités socle avec les **factories** de `database/factories/` + les helpers de `tests/utils/organizations.ts` — jamais de `Model.create` inline pour un utilisateur, une organisation, une adhésion ou une invitation (voir `docs/tests.md`)
 4. **Pas de `console.log`** en commit — utiliser le logger Adonis
 5. **Migrations** : ne jamais modifier une migration déjà exécutée en production
 6. **Documentation obligatoire** : toute nouvelle feature doit être ajoutée dans un **nouveau fichier** `docs/changelog/AAAA-MM-JJ-slug.md` (un fichier par nouveauté, format dans `docs/changelog/README.md`) avec la date et une description en français (routes, champs, comportements notables)
@@ -156,11 +169,14 @@ tests/
 
 - Modifier `start/kernel.ts` sans vérifier les effets de bord
 - Utiliser `Model.query()` dans un Controller (→ déléguer au Service)
+- **Écrire une règle d'autorisation dans un controller** (méthode privée `isXxxWithoutRights`, test de rôle ou de type d'organisation combiné à `bouncer.*`) (→ ability Bouncer dans `app/abilities/main.ts`)
 - **Instancier un service / une classe injectable avec `new`** dans un controller / service / job / command (→ injection de dépendances via `@inject` + conteneur IoC ; abstraction = classe abstraite liée dans un service provider — voir la règle DI)
 - Committer des secrets ou `.env`
 - Supprimer des migrations existantes
 - Mettre de la logique de formatage dans les controllers (→ utiliser un transformer)
 - **Définir des types de controllers/services ailleurs que dans `shared/types/`** (→ un fichier par domaine dans `shared/types/`, réutilisé côté front)
+- **Créer ou modifier un service, un controller ou un transformer sans ajouter ou mettre à jour ses tests** dans la même modification
+- **Définir une fonction utilitaire ailleurs que dans un fichier utilitaire**, ou sans test unitaire (→ `shared/helpers/<domaine>.ts` + `tests/unit/`, sauf très bonne raison commentée)
 - **Définir des classes d'erreur inline dans un controller ou service** (→ `app/exceptions/<domaine>_errors.ts`)
 - **Écrire du texte visible en dur dans un template Vue** (→ utiliser `t('clé')`)
 - **Contourner le design system** : `<h1>`/`<table>`/`<details>` à la main, `text-[32px]`, `var(--gray-*)`, emoji en guise d'icône (→ composants `Base*`, utilitaires DS, lucide ; voir `docs/design-system.md`)

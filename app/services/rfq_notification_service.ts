@@ -1,24 +1,40 @@
+import { inject } from '@adonisjs/core'
 import { urlFor } from '@adonisjs/core/services/url_builder'
 import logger from '@adonisjs/core/services/logger'
-import db from '@adonisjs/lucid/services/db'
 import OrganizationUser from '#models/organization_user'
+import RfqItem from '#models/rfq_item'
+import SupplierProfile from '#models/supplier_profile'
+import User from '#models/user'
 import SendMailJob from '#jobs/send_mail_job'
+import InboundAddressService from '#services/inbound_address_service'
+import SubscriptionService from '#services/subscription_service'
 import { mailIdempotencyKey } from '#shared/helpers/mail'
-import { MAIL_KINDS, type SendMailContent, type SendMailPayload } from '#shared/types/mail'
-import { RFQ_DEADLINE_TIMEZONE, RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
+import {
+  MAIL_KINDS,
+  type RfqMailLine,
+  type RfqReceivedMailData,
+  type SendMailContent,
+  type SendMailPayload,
+} from '#shared/types/mail'
+import { rfqMailLine } from '#shared/helpers/rfq_mail'
+import { buyerContactOf } from '#shared/helpers/buyer_contact'
+import {
+  RFQ_DEADLINE_TIMEZONE,
+  RFQ_RESPONDER_ROLES,
+  type BuyerContactSource,
+  type RfqMailAddress,
+} from '#shared/types/rfq'
+import { resolveQuoteAddresses } from '#shared/helpers/quote_address'
 import type Organization from '#models/organization'
 import type Rfq from '#models/rfq'
-import { DEFAULT_LOCALE, type Locale } from '#shared/types/i18n'
+import type { Locale } from '#shared/types/i18n'
 import type RfqSupplier from '#models/rfq_supplier'
 
 /** Les mails de demande de devis envoyés aux fournisseurs. */
 type QueuedKind = typeof MAIL_KINDS.rfqReceived | typeof MAIL_KINDS.rfqReminder
 
-/** Adresse à prévenir et langue dans laquelle lui écrire. */
-interface MailAddress {
-  email: string
-  locale: Locale
-}
+/** Ce que le mail dit de l'agence, selon l'abonnement du fournisseur (#220, #222). */
+type BuyerMailFields = Pick<RfqReceivedMailData, 'buyerName' | 'subscribePath' | 'buyerContact'>
 
 /**
  * Notification des destinataires d'une demande de devis, au moment où
@@ -31,8 +47,19 @@ interface MailAddress {
  * Pas de risque de relance en boucle : `send()` ne bascule que les `pending`,
  * et ne renvoie que les lignes réellement basculées. Un second clic sur
  * « envoyer » est refusé par la machine à états, pas rattrapé ici.
+ *
+ * Un fournisseur **non abonné** reçoit un mail anonyme (#220) : ni le nom de
+ * l'agence, objet compris, mais un encart qui l'invite à s'abonner (#222).
+ * L'abonnement est lu au moment de la mise en queue. Un abonné reçoit en plus
+ * les coordonnées de l'agence (#221).
  */
+@inject()
 export default class RfqNotificationService {
+  constructor(
+    private inboundAddresses: InboundAddressService,
+    private subscriptions: SubscriptionService
+  ) {}
+
   /**
    * Met en queue un mail par adresse destinataire, **dans la langue de chaque
    * destinataire** (lien, échéance et texte). Renvoie le nombre de mails mis en
@@ -52,7 +79,10 @@ export default class RfqNotificationService {
   ): Promise<number> {
     if (recipients.length === 0) return 0
 
-    const itemCount = await this.countItems(rfq)
+    const lines = await this.linesOf(rfq)
+    const subscribed = await this.subscribedAmong(recipients)
+    // L'auteur n'est relu que si au moins un destinataire verra les coordonnées.
+    const contact = await this.contactSourceOf(rfq, buyer, subscribed.size > 0)
     let queued = 0
 
     for (const recipient of recipients) {
@@ -62,11 +92,12 @@ export default class RfqNotificationService {
         MAIL_KINDS.rfqReceived,
         'failed to queue rfq notification',
         ({ locale }) => ({
-          buyerName: buyer.name,
+          ...this.buyerFields(subscribed.has(recipient.supplierOrganizationId) && contact, locale),
           rfqTitle: rfq.title,
-          itemCount,
-          deadline:
-            rfq.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).setLocale(locale).toLocaleString() ?? null,
+          itemCount: lines.length,
+          description: rfq.description,
+          lines,
+          deadline: this.deadlineIn(rfq, locale),
           rfqPath: urlFor('supplier.rfqs.show', { locale, id: rfq.id }),
         })
       )
@@ -80,29 +111,34 @@ export default class RfqNotificationService {
    * Relance les destinataires silencieux : **un seul** mail par adresse, dans sa
    * langue. Renvoie les lignes **entièrement** relancées — celles dont toutes
    * les adresses ont été mises en queue. L'appelant (`RemindRfqSuppliersJob`) les
-   * consigne ensuite via `RfqService#markReminded`, ce qui rend la relance unique.
+   * consigne ensuite via `RfqRecipientService#markReminded`, ce qui rend la relance unique.
    *
    * Même politique d'échec que `notifyRecipients` : une mise en queue ratée est
    * loguée sans être propagée, et le destinataire, non consigné, est reconsidéré
    * au prochain passage — les adresses déjà parties ne sont pas redoublées
    * (clé d'idempotence). Suppose `rfq.buyerOrganization` et
-   * `supplierOrganization` préchargés (cf. `RfqService#dueForReminder`).
+   * `supplierOrganization` préchargés (cf. `RfqRecipientService#dueForReminder`).
    */
   async remind(recipients: RfqSupplier[]): Promise<RfqSupplier[]> {
     const reminded: RfqSupplier[] = []
+    const subscribed = await this.subscribedAmong(recipients)
 
     for (const recipient of recipients) {
       const { rfq } = recipient
+      const lines = await this.linesOf(rfq)
+      const isSubscribed = subscribed.has(recipient.supplierOrganizationId)
+      const contact = await this.contactSourceOf(rfq, rfq.buyerOrganization, isSubscribed)
       const { queued, total } = await this.queueMails(
         rfq,
         recipient,
         MAIL_KINDS.rfqReminder,
         'failed to queue rfq reminder',
         ({ locale }) => ({
-          buyerName: rfq.buyerOrganization.name,
+          ...this.buyerFields(contact, locale),
           rfqTitle: rfq.title,
-          deadline:
-            rfq.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).setLocale(locale).toLocaleString() ?? null,
+          description: rfq.description,
+          lines,
+          deadline: this.deadlineIn(rfq, locale),
           rfqPath: urlFor('supplier.rfqs.show', { locale, id: rfq.id }),
         })
       )
@@ -113,18 +149,80 @@ export default class RfqNotificationService {
     return reminded
   }
 
+  /** Échéance formatée dans la langue du destinataire (le worker n'a pas de locale). */
+  private deadlineIn(rfq: Rfq, locale: Locale): string | null {
+    return rfq.deadline?.setZone(RFQ_DEADLINE_TIMEZONE).setLocale(locale).toLocaleString() ?? null
+  }
+
+  /** Organisations destinataires abonnées, en une requête. */
+  private subscribedAmong(recipients: RfqSupplier[]): Promise<Set<number>> {
+    return this.subscriptions.subscribedAmong([
+      ...new Set(recipients.map(({ supplierOrganizationId }) => supplierOrganizationId)),
+    ])
+  }
+
+  /**
+   * L'agence nommée, avec ses coordonnées (#221), pour un abonné (`contact`
+   * fourni) ; pour un non abonné (`contact` absent), aucune trace d'elle et le
+   * lien vers la page d'abonnement (chemin relatif, comme `rfqPath`).
+   */
+  private buyerFields(contact: BuyerContactSource | null | false, locale: Locale): BuyerMailFields {
+    if (contact) {
+      return {
+        buyerName: contact.organization.name,
+        subscribePath: null,
+        buyerContact: buyerContactOf(contact, locale),
+      }
+    }
+    return {
+      buyerName: null,
+      subscribePath: urlFor('supplier.subscription.show', { locale }),
+      buyerContact: null,
+    }
+  }
+
+  /**
+   * Agence et auteur de la demande, source des coordonnées (#221) ; `null` sans
+   * destinataire abonné (`forSubscriber` faux), pour ne pas lire l'auteur pour
+   * rien. L'auteur est relu plutôt que pris sur `rfq.createdBy`, comme les
+   * lignes : le service ne suppose rien des relations préchargées.
+   */
+  private async contactSourceOf(
+    rfq: Rfq,
+    buyer: Organization,
+    forSubscriber: boolean
+  ): Promise<BuyerContactSource | null> {
+    if (!forSubscriber) return null
+    const author = rfq.createdByUserId
+      ? await User.query()
+          .select('id', 'firstName', 'lastName', 'email')
+          .where('id', rfq.createdByUserId)
+          .first()
+      : null
+    return {
+      organization: buyer,
+      requester: author ? { fullName: author.fullName, email: author.email } : null,
+    }
+  }
+
   /**
    * Met en queue le mail `kind` pour chaque adresse du destinataire, sans jamais
    * propager un échec. Renvoie le nombre d'adresses visées et mises en queue.
+   *
+   * Chaque mail porte en `Reply-To` l'adresse relais du couple demande /
+   * fournisseur (#223) — la même pour toutes les adresses du fournisseur.
    */
   private async queueMails<K extends QueuedKind>(
     rfq: Rfq,
     recipient: RfqSupplier,
     kind: K,
     failureMessage: string,
-    buildData: (address: MailAddress) => Extract<SendMailContent, { kind: K }>['data']
+    buildData: (
+      address: RfqMailAddress
+    ) => Omit<Extract<SendMailContent, { kind: K }>['data'], 'replyTo'>
   ): Promise<{ queued: number; total: number }> {
     const addresses = await this.addressesFor(recipient)
+    const replyTo = await this.inboundAddresses.addressFor(recipient)
     let queued = 0
 
     for (const address of addresses) {
@@ -138,7 +236,7 @@ export default class RfqNotificationService {
           }),
           to: address.email,
           locale: address.locale,
-          data: buildData(address),
+          data: { ...buildData(address), replyTo },
         } as SendMailPayload)
         queued += 1
       } catch (error) {
@@ -153,48 +251,66 @@ export default class RfqNotificationService {
   }
 
   /**
-   * Compté plutôt que lu sur `rfq.items` : le service ne suppose rien des
-   * relations préchargées par l'appelant.
+   * Lignes de la demande telles que reprises dans le mail (#219), dans l'ordre
+   * de saisie. Relues plutôt que prises sur `rfq.items` : le service ne suppose
+   * rien des relations préchargées par l'appelant.
    */
-  private async countItems(rfq: Rfq): Promise<number> {
-    const [{ total }] = await db.from('rfq_items').where('rfq_id', rfq.id).count('* as total')
-    return Number(total)
+  private async linesOf(rfq: Rfq): Promise<RfqMailLine[]> {
+    const items = await RfqItem.query()
+      .select('id', 'name', 'description', 'quantity', 'unit', 'specs', 'productId')
+      .where('rfqId', rfq.id)
+      .preload('product', (product) => product.select('id', 'reference'))
+      .orderBy('id', 'asc')
+
+    return items.map((item) =>
+      rfqMailLine({
+        name: item.name,
+        description: item.description,
+        quantity: item.quantity,
+        unit: item.unit,
+        specs: item.specs,
+        productReference: item.product?.reference ?? null,
+      })
+    )
   }
 
   /**
    * Adresses à prévenir pour un destinataire, chacune avec sa langue.
    *
-   * L'adresse de contact de l'organisation prime quand elle est renseignée :
-   * c'est celle que le fournisseur a lui-même déclarée pour être joint. À
-   * défaut, on prévient les membres qui peuvent effectivement répondre
-   * (`RFQ_RESPONDER_ROLES`, mêmes rôles que `canRespondToRfq`) — notifier un
-   * `member`, qui n'a pas accès à l'écran, serait une impasse.
-   *
-   * Langue : celle du compte (`users.locale`) pour un membre. Une adresse de
-   * contact n'appartient à aucun compte ; l'organisation n'a pas de langue
-   * propre, on prend celle du premier membre habilité (le plus ancien), à
-   * défaut la langue par défaut.
+   * Ordre de résolution (#217, `resolveQuoteAddresses`) : l'adresse de
+   * réception du profil fournisseur (`supplier_profiles.quote_email`), si elle
+   * a été confirmée par lien, puis
+   * l'adresse de contact de l'organisation, puis les membres qui peuvent
+   * effectivement répondre (`RFQ_RESPONDER_ROLES`, mêmes rôles que
+   * `canRespondToRfq`) — notifier un `member`, qui n'a pas accès à l'écran,
+   * serait une impasse.
    *
    * Suppose `supplierOrganization` préchargé, ce que garantit
-   * `RfqService#send` sur les lignes qu'il renvoie.
+   * `RfqService#send` sur les lignes qu'il renvoie. Public : les messages de
+   * l'agence relayés au fournisseur (#226) visent les mêmes adresses.
    */
-  private async addressesFor(recipient: RfqSupplier): Promise<MailAddress[]> {
-    const memberships = await OrganizationUser.query()
-      .where('organizationId', recipient.supplierOrganizationId)
-      .whereHas('role', (role) => role.whereIn('slug', [...RFQ_RESPONDER_ROLES]))
-      .preload('user')
-      .orderBy('joinedAt', 'asc')
+  async addressesFor(recipient: RfqSupplier): Promise<RfqMailAddress[]> {
+    const organizationId = recipient.supplierOrganizationId
+    const [memberships, profile] = await Promise.all([
+      OrganizationUser.query()
+        .where('organizationId', organizationId)
+        .whereHas('role', (role) => role.whereIn('slug', [...RFQ_RESPONDER_ROLES]))
+        .preload('user')
+        .orderBy('joinedAt', 'asc'),
+      SupplierProfile.query()
+        .select('id', 'quoteEmail', 'quoteEmailVerifiedAt')
+        .where('organizationId', organizationId)
+        .first(),
+    ])
 
-    const contactEmail = recipient.supplierOrganization.email
-    if (contactEmail) {
-      const locale = (memberships[0]?.user.locale as Locale | undefined) ?? DEFAULT_LOCALE
-      return [{ email: contactEmail, locale }]
-    }
-
-    const byEmail = new Map<string, MailAddress>()
-    for (const { user } of memberships) {
-      byEmail.set(user.email, { email: user.email, locale: user.locale as Locale })
-    }
-    return [...byEmail.values()]
+    return resolveQuoteAddresses({
+      quoteEmail: profile?.quoteEmail ?? null,
+      quoteEmailVerified: Boolean(profile?.quoteEmailVerifiedAt),
+      organizationEmail: recipient.supplierOrganization.email,
+      members: memberships.map(({ user }) => ({
+        email: user.email,
+        locale: user.locale as Locale,
+      })),
+    })
   }
 }

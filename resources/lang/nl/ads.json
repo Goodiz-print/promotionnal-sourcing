@@ -1,0 +1,106 @@
+{
+  "sponsored": {
+    "badge": "Gesponsord",
+    "title": "Gesponsorde producten",
+    "hint": "Uitgelicht door de leverancier. Ze passen bij uw zoekopdracht en uw filters.",
+    "productTitle": "Gesponsorde producten in deze categorie",
+    "productHint": "Uitgelicht door de leverancier.",
+    "homeTitle": "Uitgelichte producten",
+    "homeSubtitle": "Een selectie die onze leveranciers uitlichten."
+  },
+  "index": {
+    "title": "Gesponsorde producten",
+    "subtitle": "Zet uw producten bovenaan de catalogus. U betaalt alleen per klik.",
+    "newCampaign": "Nieuwe campagne",
+    "campaigns": "Campagnes",
+    "empty": "Geen campagnes",
+    "emptyDescription": "Sponsor een product om het bovenaan de passende resultaten te plaatsen.",
+    "productHidden": "Product niet gepubliceerd: de campagne wordt niet getoond",
+    "period": "Van {from} tot {to}",
+    "periodOpen": "Sinds {from}",
+    "columns": {
+      "product": "Product",
+      "status": "Status",
+      "bid": "Max. bod",
+      "budget": "Budget / dag",
+      "impressions": "Vertoningen",
+      "clicks": "Klikken",
+      "spent": "Uitgegeven",
+      "actions": "Acties"
+    }
+  },
+  "status": {
+    "active": "Actief",
+    "paused": "Gepauzeerd",
+    "suspended": "Geschorst"
+  },
+  "actions": {
+    "pause": "Pauzeren",
+    "resume": "Hervatten",
+    "edit": "Bewerken",
+    "delete": "Verwijderen",
+    "confirmDelete": "Deze campagne en haar statistieken verwijderen?"
+  },
+  "wallet": {
+    "title": "Advertentietegoed",
+    "description": "Vooruitbetaald tegoed, afgeschreven bij elke gefactureerde klik.",
+    "balance": "Beschikbaar saldo",
+    "amount": "Op te waarderen bedrag (€)",
+    "amountHint": "Tussen {min} en {max}.",
+    "topUp": "Opwaarderen",
+    "unavailable": "Online opwaarderen is nog niet beschikbaar. Neem contact met ons op om uw tegoed aan te vullen.",
+    "checkoutLabel": "Advertentietegoed — {organization}",
+    "topUpSuccess": "Betaling ontvangen. Uw saldo wordt binnen enkele ogenblikken bijgewerkt, zodra de betaling is bevestigd.",
+    "topUpCancelled": "Betaling geannuleerd. Uw tegoed is niet opgewaardeerd.",
+    "history": "Laatste mutaties",
+    "columns": {
+      "date": "Datum",
+      "type": "Mutatie",
+      "amount": "Bedrag",
+      "balance": "Saldo"
+    },
+    "types": {
+      "top_up": "Opwaardering",
+      "adjustment": "Correctie",
+      "click": "Gefactureerde klik"
+    }
+  },
+  "form": {
+    "createTitle": "Nieuwe campagne",
+    "createSubtitle": "Kies een product, een bod en een budget.",
+    "editTitle": "Campagne",
+    "back": "Terug naar campagnes",
+    "settings": "Campagne-instellingen",
+    "settingsHint": "U kunt ze op elk moment wijzigen of de campagne pauzeren.",
+    "product": "Te sponsoren product",
+    "productPlaceholder": "Kies een product",
+    "noProducts": "Geen product om te sponsoren",
+    "noProductsDescription": "Al uw gepubliceerde producten hebben al een campagne, of u hebt nog geen gepubliceerd product.",
+    "maxCpc": "Maximaal bod per klik (€)",
+    "maxCpcHint": "Tussen {min} en {max}. U betaalt hoogstens dit bedrag, vaak minder.",
+    "dailyBudget": "Dagbudget (€)",
+    "dailyBudgetHint": "De campagne stopt voor de dag zodra dit bedrag is bereikt.",
+    "startsOn": "Startdatum",
+    "endsOn": "Einddatum",
+    "endsOnHint": "Laat leeg voor een campagne zonder einddatum.",
+    "cancel": "Annuleren",
+    "submitCreate": "Campagne starten",
+    "submitUpdate": "Opslaan",
+    "howItWorksTitle": "Hoe het werkt",
+    "howItWorks": "Uw product verschijnt bovenaan, met de vermelding ‘Gesponsord’, alleen wanneer het past bij de zoekopdracht en de filters van de koper. U betaalt alleen wanneer een koper klikt, tegen de prijs van het bod net onder het uwe plus één cent."
+  },
+  "flash": {
+    "created": "Campagne gestart",
+    "updated": "Campagne bijgewerkt",
+    "paused": "Campagne gepauzeerd",
+    "resumed": "Campagne hervat",
+    "deleted": "Campagne verwijderd",
+    "suspended": "Deze campagne is geschorst door het platformteam. Neem contact met ons op om ze te heractiveren.",
+    "topUpUnavailable": "Online opwaarderen is momenteel niet beschikbaar."
+  },
+  "errors": {
+    "budgetBelowBid": "Het dagbudget moet minstens één klik tegen het maximale bod dekken.",
+    "endBeforeStart": "De einddatum mag niet vóór de startdatum liggen.",
+    "productNotEligible": "Dit product kan niet worden gesponsord (al in een campagne of niet gepubliceerd)."
+  }
+}

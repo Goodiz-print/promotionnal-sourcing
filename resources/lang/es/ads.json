@@ -1,0 +1,106 @@
+{
+  "sponsored": {
+    "badge": "Patrocinado",
+    "title": "Productos patrocinados",
+    "hint": "Destacados por su proveedor. Corresponden a su búsqueda y a sus filtros.",
+    "productTitle": "Productos patrocinados de esta categoría",
+    "productHint": "Destacados por su proveedor.",
+    "homeTitle": "Productos destacados",
+    "homeSubtitle": "Una selección destacada por nuestros proveedores."
+  },
+  "index": {
+    "title": "Productos patrocinados",
+    "subtitle": "Coloque sus productos en cabeza del catálogo. Solo paga por clic.",
+    "newCampaign": "Nueva campaña",
+    "campaigns": "Campañas",
+    "empty": "Ninguna campaña",
+    "emptyDescription": "Patrocine un producto para que suba a la cabeza de los resultados que le corresponden.",
+    "productHidden": "Producto no publicado: la campaña no se muestra",
+    "period": "Del {from} al {to}",
+    "periodOpen": "Desde el {from}",
+    "columns": {
+      "product": "Producto",
+      "status": "Estado",
+      "bid": "Puja máx.",
+      "budget": "Presupuesto / día",
+      "impressions": "Impresiones",
+      "clicks": "Clics",
+      "spent": "Gastado",
+      "actions": "Acciones"
+    }
+  },
+  "status": {
+    "active": "Activa",
+    "paused": "En pausa",
+    "suspended": "Suspendida"
+  },
+  "actions": {
+    "pause": "Pausar",
+    "resume": "Reanudar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "confirmDelete": "¿Eliminar esta campaña y sus estadísticas?"
+  },
+  "wallet": {
+    "title": "Monedero publicitario",
+    "description": "Crédito prepagado, cargado en cada clic facturado.",
+    "balance": "Saldo disponible",
+    "amount": "Importe a añadir (€)",
+    "amountHint": "Entre {min} y {max}.",
+    "topUp": "Recargar",
+    "unavailable": "La recarga en línea aún no está disponible. Contáctenos para acreditar su monedero.",
+    "checkoutLabel": "Crédito publicitario — {organization}",
+    "topUpSuccess": "Pago recibido. Su saldo se actualiza en unos instantes, en cuanto se confirme el pago.",
+    "topUpCancelled": "Pago cancelado. Su monedero no ha sido acreditado.",
+    "history": "Últimos movimientos",
+    "columns": {
+      "date": "Fecha",
+      "type": "Movimiento",
+      "amount": "Importe",
+      "balance": "Saldo"
+    },
+    "types": {
+      "top_up": "Recarga",
+      "adjustment": "Ajuste",
+      "click": "Clic facturado"
+    }
+  },
+  "form": {
+    "createTitle": "Nueva campaña",
+    "createSubtitle": "Elija un producto, una puja y un presupuesto.",
+    "editTitle": "Campaña",
+    "back": "Volver a las campañas",
+    "settings": "Ajustes de la campaña",
+    "settingsHint": "Puede modificarlos o pausar la campaña en cualquier momento.",
+    "product": "Producto a patrocinar",
+    "productPlaceholder": "Elegir un producto",
+    "noProducts": "Ningún producto para patrocinar",
+    "noProductsDescription": "Todos sus productos publicados ya tienen una campaña, o aún no tiene ningún producto publicado.",
+    "maxCpc": "Puja máxima por clic (€)",
+    "maxCpcHint": "Entre {min} y {max}. Paga como máximo este importe, a menudo menos.",
+    "dailyBudget": "Presupuesto diario (€)",
+    "dailyBudgetHint": "La campaña se detiene durante el día una vez alcanzado este importe.",
+    "startsOn": "Fecha de inicio",
+    "endsOn": "Fecha de fin",
+    "endsOnHint": "Déjelo vacío para una campaña sin fecha de fin.",
+    "cancel": "Cancelar",
+    "submitCreate": "Lanzar la campaña",
+    "submitUpdate": "Guardar",
+    "howItWorksTitle": "Cómo funciona",
+    "howItWorks": "Su producto aparece en cabeza, con la mención «Patrocinado», solo cuando corresponde a la búsqueda y a los filtros del comprador. Solo paga cuando un comprador hace clic, al precio de la puja inmediatamente inferior a la suya más un céntimo."
+  },
+  "flash": {
+    "created": "Campaña lanzada",
+    "updated": "Campaña actualizada",
+    "paused": "Campaña en pausa",
+    "resumed": "Campaña reanudada",
+    "deleted": "Campaña eliminada",
+    "suspended": "Esta campaña ha sido suspendida por el equipo de la plataforma. Contáctenos para reactivarla.",
+    "topUpUnavailable": "La recarga en línea no está disponible por el momento."
+  },
+  "errors": {
+    "budgetBelowBid": "El presupuesto diario debe cubrir al menos un clic a la puja máxima.",
+    "endBeforeStart": "La fecha de fin no puede ser anterior a la fecha de inicio.",
+    "productNotEligible": "Este producto no puede patrocinarse (ya está en campaña o no está publicado)."
+  }
+}

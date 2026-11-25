@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { reactive } from 'vue'
+import { answerConfirm, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type {
   AdminOrganizationDetail,
   AdminOrganizationIndexFilters,
@@ -20,6 +21,8 @@ const translations: Record<string, string> = {
   'admin.organizations.filters.status': 'Statut',
   'admin.organizations.filters.country': 'Pays',
   'admin.organizations.filters.allCountries': 'Tous les pays',
+  'admin.organizations.filters.missingQuoteAddress': 'Sans adresse de réception',
+  'admin.organizations.quoteAddress.missing': 'Sans adresse de réception',
   'admin.organizations.types.buyer': 'Acheteur',
   'admin.organizations.types.supplier': 'Fournisseur',
   'admin.organizations.types.both': 'Les deux',
@@ -139,6 +142,7 @@ const NO_FILTERS: AdminOrganizationIndexFilters = {
   type: null,
   status: 'active',
   country: null,
+  missingQuoteAddress: false,
 }
 
 function item(
@@ -155,6 +159,7 @@ function item(
     archivedAt: null,
     createdAt: '2026-10-17T10:00:00.000Z',
     lastActivity: null,
+    quoteAddressSource: 'organization_email',
     ...extra,
   }
 }
@@ -192,6 +197,27 @@ describe('admin/organizations/index', () => {
     expect(rows[1].text()).toContain('Jamais')
     expect(rows[1].text()).toContain('Archivée')
     expect(rows[0].find('a').attributes('href')).toBe('/fr/admin.organizations.show/1')
+  })
+
+  it('signale le fournisseur qui se rabat sur ses membres responsables (#217)', () => {
+    const wrapper = renderIndex([item(1, { quoteAddressSource: 'members' }), item(2)])
+    const rows = wrapper.findAll('tbody tr')
+
+    expect(rows[0].text()).toContain('Sans adresse de réception')
+    expect(rows[1].text()).not.toContain('Sans adresse de réception')
+  })
+
+  it('le filtre « sans adresse de réception » passe dans la visite', async () => {
+    const wrapper = renderIndex([item(1)])
+
+    await wrapper.find('#organization-missing-quote-address').setValue(true)
+    await wrapper.find('form').trigger('submit')
+
+    expect(get).toHaveBeenCalledWith(
+      '/fr/admin.organizations.index',
+      { page: 1, status: 'active', missingQuoteAddress: true },
+      expect.anything()
+    )
   })
 
   it('affiche l’état vide', () => {
@@ -264,6 +290,7 @@ function detail(extra: Partial<AdminOrganizationDetail> = {}): AdminOrganization
     postalCode: null,
     logoUrl: null,
     subscriptionPlan: 'free',
+    subscriptions: [],
     locale: 'fr',
     updatedAt: null,
     reviewReasons: null,
@@ -396,8 +423,10 @@ describe('admin/organizations/show', () => {
   })
 
   it('archiver confirmé envoie un POST', async () => {
-    window.confirm = vi.fn(() => true)
+    const host = await mountConfirmHost()
     await button(mountShow(detail()), 'Archiver').trigger('click')
+    expect(post).not.toHaveBeenCalled()
+    await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith(
       '/fr/admin.organizations.archive/5',
@@ -407,11 +436,12 @@ describe('admin/organizations/show', () => {
   })
 
   it('restaurer confirmé envoie un POST', async () => {
-    window.confirm = vi.fn(() => true)
+    const host = await mountConfirmHost()
     await button(
       mountShow(detail({ archivedAt: '2026-10-20T10:00:00.000Z' })),
       'Restaurer'
     ).trigger('click')
+    await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith(
       '/fr/admin.organizations.restore/5',
@@ -421,11 +451,13 @@ describe('admin/organizations/show', () => {
   })
 
   it('confirm refusé : aucune requête', async () => {
-    window.confirm = vi.fn(() => false)
+    const host = await mountConfirmHost()
     const wrapper = mountShow(detail())
 
     for (const b of wrapper.findAll('button')) {
-      if (b.attributes('type') !== 'submit') await b.trigger('click')
+      if (b.attributes('type') === 'submit') continue
+      await b.trigger('click')
+      await answerConfirm(host, 'cancel')
     }
 
     expect(post).not.toHaveBeenCalled()
@@ -487,12 +519,13 @@ describe('admin/organizations/show', () => {
   })
 
   it('retirer un membre confirmé envoie un DELETE', async () => {
-    window.confirm = vi.fn(() => true)
+    const host = await mountConfirmHost()
     const wrapper = mountShow(detail())
 
     await wrapper.findAll('button[aria-label="Retirer"]')[1].trigger('click')
 
-    expect(window.confirm).toHaveBeenCalledWith('Retirer jane@acme.test ?')
+    expect(confirmText(host)).toBe('Retirer jane@acme.test ?')
+    await answerConfirm(host, 'confirm')
     expect(del).toHaveBeenCalledWith(
       '/fr/admin.organizations.remove_member/5/102',
       expect.objectContaining({ preserveScroll: true })
@@ -500,8 +533,9 @@ describe('admin/organizations/show', () => {
   })
 
   it('révoquer une invitation envoie un DELETE', async () => {
-    window.confirm = vi.fn(() => true)
+    const host = await mountConfirmHost()
     await button(mountShow(detail()), 'Révoquer').trigger('click')
+    await answerConfirm(host, 'confirm')
 
     expect(del).toHaveBeenCalledWith(
       '/fr/admin.organizations.revoke_invitation/5/7',
@@ -510,8 +544,9 @@ describe('admin/organizations/show', () => {
   })
 
   it('renvoyer une invitation envoie un POST', async () => {
-    window.confirm = vi.fn(() => true)
+    const host = await mountConfirmHost()
     await button(mountShow(detail()), 'Renvoyer').trigger('click')
+    await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith(
       '/fr/admin.organizations.resend_invitation/5/7',

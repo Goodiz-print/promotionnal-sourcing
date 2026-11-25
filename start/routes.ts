@@ -10,6 +10,7 @@
 import { middleware } from '#start/kernel'
 import {
   emailVerificationResendThrottle,
+  quoteEmailVerificationResendThrottle,
   imageSearchThrottle,
   loginThrottle,
   passkeyLoginThrottle,
@@ -18,12 +19,26 @@ import {
 } from '#start/limiter'
 import { registerRfqRoutes } from '#start/routes/rfqs'
 import { registerQuoteRoutes } from '#start/routes/quotes'
+import { registerQuoteCartRoutes } from '#start/routes/quote_cart'
 import { registerOrderRoutes } from '#start/routes/orders'
 import { registerMessagingRoutes } from '#start/routes/messaging'
 import { registerNotificationRoutes } from '#start/routes/notifications'
 import { registerDocumentRoutes } from '#start/routes/documents'
 import { registerHealthRoutes } from '#start/routes/health'
+import { registerInboundMailWebhookRoutes } from '#start/routes/inbound_mail'
+import {
+  registerAdClickRoutes,
+  registerAdminAdRoutes,
+  registerAdWebhookRoutes,
+  registerSupplierAdRoutes,
+} from '#start/routes/ads'
 import { registerMarketingRoutes, registerMarketingLegacyRoutes } from '#start/routes/marketing'
+import {
+  registerAdminSubscriptionRoutes,
+  registerSupplierSubscriptionRoutes,
+} from '#start/routes/subscriptions'
+import { registerSupplierContactRoutes } from '#start/routes/supplier_contacts'
+import { registerSupplierInsightsRoutes } from '#start/routes/supplier_insights'
 import { LOCALE_ROUTE_PATTERN } from '#shared/types/i18n'
 import { controllers } from '#generated/controllers'
 import router from '@adonisjs/core/services/router'
@@ -48,6 +63,8 @@ router.get('/', ({ i18n, response }: HttpContext) => response.redirect(`/${i18n.
 router.post('locale', [controllers.Locale, 'update']).as('locale.update')
 
 registerHealthRoutes()
+registerAdWebhookRoutes()
+registerInboundMailWebhookRoutes()
 
 /**
  * Toutes les routes applicatives vivent sous un préfixe de locale
@@ -68,6 +85,9 @@ router
     router.get('products', [controllers.Products, 'index']).as('products.index')
     router.get('products/:slug', [controllers.Products, 'show']).as('products.show')
 
+    // Lien de clic d'un produit sponsorisé (URL signée, sans auth).
+    registerAdClickRoutes()
+
     // Aperçu public d'une invitation (URL signée, sans auth requise).
     router
       .get('organization/invitations/:id/accept', [
@@ -79,6 +99,11 @@ router
     // Lien de vérification d'email reçu par mail : URL signée, hors `auth` (peut
     // être ouvert depuis un autre navigateur que celui de l'inscription).
     router.get('email/verify/:id', [controllers.EmailVerification, 'verify']).as('email.verify')
+    // Confirmation de l'adresse de réception des demandes de devis (#217) : URL
+    // signée, hors `auth` (la boîte peut être partagée, sans compte).
+    router
+      .get('supplier/quote-email/verify/:id', [controllers.QuoteEmailVerification, 'verify'])
+      .as('supplier.quoteEmail.verify')
 
     router
       .group(() => {
@@ -241,6 +266,13 @@ router
                 router
                   .patch('supplier/profile', [controllers.supplier.Profile, 'update'])
                   .as('supplier.profile.update')
+                router
+                  .post('supplier/profile/quote-email/resend', [
+                    controllers.supplier.Profile,
+                    'resendQuoteEmailVerification',
+                  ])
+                  .use(quoteEmailVerificationResendThrottle)
+                  .as('supplier.profile.quoteEmail.resend')
 
                 // Gestion des produits par le fournisseur (CRUD + upload images).
                 router
@@ -269,9 +301,18 @@ router
                 // Demandes de devis, acheteur et fournisseur — cf. `start/routes/rfqs.ts`.
                 registerRfqRoutes()
                 registerQuoteRoutes()
+                registerQuoteCartRoutes()
                 registerOrderRoutes()
                 registerNotificationRoutes()
                 registerMessagingRoutes()
+                // Produits sponsorisés côté fournisseur — cf. `start/routes/ads.ts`.
+                registerSupplierAdRoutes()
+                // Tarifs et abonnement fournisseur — cf. `start/routes/subscriptions.ts`.
+                registerSupplierSubscriptionRoutes()
+                // Équipe commerciale du fournisseur — cf. `start/routes/supplier_contacts.ts`.
+                registerSupplierContactRoutes()
+                // Consultations des produits et de la fiche — cf. `start/routes/supplier_insights.ts`.
+                registerSupplierInsightsRoutes()
               })
               .use(middleware.onboarded())
 
@@ -281,6 +322,9 @@ router
             router
               .group(() => {
                 router.get('admin', [controllers.admin.Dashboard, 'index']).as('admin.dashboard')
+
+                // Supervision des produits sponsorisés — cf. `start/routes/ads.ts`.
+                registerAdminAdRoutes()
 
                 router
                   .get('admin/organizations', [controllers.admin.Organization, 'index'])
@@ -350,6 +394,8 @@ router
                   .where('id', router.matchers.number())
                   .where('invitationId', router.matchers.number())
                   .as('admin.organizations.resend_invitation')
+                // Abonnements manuels (#214) — cf. `start/routes/subscriptions.ts`.
+                registerAdminSubscriptionRoutes()
 
                 router.get('admin/users', [controllers.admin.User, 'index']).as('admin.users.index')
                 router
@@ -491,6 +537,29 @@ router
                   .post('admin/mail/:id/retry', [controllers.admin.Mail, 'retry'])
                   .where('id', router.matchers.number())
                   .as('admin.mail.retry')
+                // Supervision des mails entrants (#227) : rattachement, rejeu, rejet.
+                router
+                  .get('admin/inbound-mail', [controllers.admin.InboundMail, 'index'])
+                  .as('admin.inbound_mail.index')
+                router
+                  .get('admin/inbound-mail/:id', [controllers.admin.InboundMail, 'show'])
+                  .where('id', router.matchers.number())
+                  .as('admin.inbound_mail.show')
+                router
+                  .post('admin/inbound-mail/:id/attach', [controllers.admin.InboundMail, 'attach'])
+                  .where('id', router.matchers.number())
+                  .as('admin.inbound_mail.attach')
+                router
+                  .post('admin/inbound-mail/:id/replay', [controllers.admin.InboundMail, 'replay'])
+                  .where('id', router.matchers.number())
+                  .as('admin.inbound_mail.replay')
+                router
+                  .post('admin/inbound-mail/:id/dismiss', [
+                    controllers.admin.InboundMail,
+                    'dismiss',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.inbound_mail.dismiss')
                 router
                   .get('admin/storage', [controllers.admin.Storage, 'index'])
                   .as('admin.storage.index')
@@ -571,6 +640,23 @@ router
                     'decide',
                   ])
                   .as('admin.moderation.decide')
+
+                // Rattachement des fiches fournisseur importées à l'organisation du
+                // fournisseur (#231) : le rattachement vaut accord et publie le catalogue.
+                router
+                  .get('admin/supplier-links', [controllers.admin.SupplierLink, 'index'])
+                  .as('admin.supplier_links.index')
+                router
+                  .post('admin/supplier-links/:id/link', [controllers.admin.SupplierLink, 'link'])
+                  .where('id', router.matchers.number())
+                  .as('admin.supplier_links.link')
+                router
+                  .delete('admin/supplier-links/:id/link', [
+                    controllers.admin.SupplierLink,
+                    'unlink',
+                  ])
+                  .where('id', router.matchers.number())
+                  .as('admin.supplier_links.unlink')
 
                 // Revue des inscriptions agence : file, fiche, décision.
                 router

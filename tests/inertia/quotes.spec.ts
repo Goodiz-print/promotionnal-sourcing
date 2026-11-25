@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
+import { answerConfirm, confirmPart, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { QuoteType } from '#shared/types/quote'
 import type { RfqItemType } from '#shared/types/rfq'
 
@@ -153,19 +154,31 @@ describe('quotes/show.vue', () => {
   })
 
   it('demande confirmation avant d’accepter', async () => {
-    const confirm = vi.fn().mockReturnValue(false)
-    vi.stubGlobal('confirm', confirm)
+    const host = await mountConfirmHost()
     const wrapper = mount(QuoteShow, { props: { quote: quote(), canDecide: true } })
     const button = wrapper.findAll('button').find((b) => b.text() === 'Accepter ce devis')!
 
     await button.trigger('click')
-    expect(confirm).toHaveBeenCalled()
+    expect(confirmText(host)).toBe('Accepter ?')
+    await answerConfirm(host, 'cancel')
     expect(router.patch).not.toHaveBeenCalled()
 
-    confirm.mockReturnValue(true)
     await button.trigger('click')
+    await answerConfirm(host, 'confirm')
     expect(router.patch).toHaveBeenCalled()
+  })
 
-    vi.unstubAllGlobals()
+  it('rejeter passe par une confirmation « danger »', async () => {
+    const host = await mountConfirmHost()
+    const wrapper = mount(QuoteShow, { props: { quote: quote(), canDecide: true } })
+
+    await wrapper
+      .findAll('button')
+      .find((b) => b.text() === 'Rejeter ce devis')!
+      .trigger('click')
+    await flushPromises()
+
+    expect(confirmPart(host, 'confirm').classes()).toContain('text-danger')
+    expect(confirmText(host, 'confirm')).toBe('Rejeter ce devis')
   })
 })

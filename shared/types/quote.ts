@@ -101,3 +101,67 @@ export type RfqQuoteSummaryType = {
   id: number
   status: QuoteStatus
 }
+
+/**
+ * Devis du fournisseur reçu en PDF (#224), à enregistrer pour un destinataire.
+ * Son fichier est la pièce jointe du message qui l'a apporté.
+ */
+export interface QuoteDocumentInput {
+  rfqId: number
+  rfqSupplierId: number
+  messageId: number
+  messageAttachmentId: number
+  receivedAt: Date
+  /**
+   * Version destinataire du PDF, portant le nom de l'agence (#238) : posée pour
+   * un fournisseur non abonné, `null` sinon ou si le PDF n'a pu être modifié.
+   */
+  recipientStorageObjectId: number | null
+}
+
+/**
+ * Devis PDF reçu, tel que l'écran de la demande le liste (#228). Le fichier se
+ * télécharge par `quote_documents.download`, réservé aux membres de l'agence ;
+ * aucune clé ni URL de stockage n'est exposée.
+ */
+export type QuoteDocumentType = {
+  id: number
+  rfqSupplierId: number
+  supplierName: string
+  filename: string
+  sizeBytes: number
+  receivedAt: string
+  /** Devis retenu par l'agence : la demande a été clôturée à cette date. */
+  selectedAt: string | null
+}
+
+/**
+ * Devis PDF **envoyé** par le fournisseur, vu de son écran (#230) : son fichier
+ * d'origine seulement (jamais la version au nom de l'agence, #238), qu'il
+ * télécharge par la route qui lui est réservée. `viaMail` : reçu en réponse à
+ * un mail, sinon déposé depuis l'écran.
+ */
+export type SupplierQuoteDocumentType = {
+  id: number
+  filename: string
+  sizeBytes: number
+  receivedAt: string
+  viaMail: boolean
+}
+
+/** Devis PDF envoyés, sur l'écran d'une demande reçue (#230), et le droit d'en déposer un. */
+export interface SupplierSentQuotesType {
+  documents: SupplierQuoteDocumentType[]
+  canUploadQuote: boolean
+}
+
+/**
+ * Devis PDF déposé depuis l'écran d'une demande reçue (#230), fichier de la
+ * requête déjà validé (PDF, `DOCUMENT_MAX_SIZE`). `body` : mot d'accompagnement,
+ * vide s'il n'y en a pas.
+ */
+export interface UploadedQuoteDocumentInput {
+  tmpPath: string
+  filename: string
+  body: string
+}

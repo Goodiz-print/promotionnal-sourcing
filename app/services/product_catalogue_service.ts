@@ -33,63 +33,8 @@ export default class ProductCatalogueService {
    *   contrainte est combinée en `AND`, cf. `docs/catalogue.md`).
    */
   list(options: ListOptions): Promise<ModelPaginatorContract<Product>> {
-    const {
-      page,
-      perPage,
-      categoryId,
-      madeInEurope,
-      attributeValueIds,
-      certificationIds,
-      originZones,
-      stockStatuses,
-      priceBuckets,
-      moqBuckets,
-      attributeRanges,
-      newOnly,
-      ecoOnly,
-    } = options
-
-    // Nouveautés (écart 5) : début de la fenêtre récente.
-    const newThreshold = newOnly
-      ? DateTime.now().minus({ days: NEW_PRODUCT_WINDOW_DAYS }).startOf('day')
-      : null
-
-    const query = Product.query()
-      .where('isActive', true)
-      .withScopes((scopes) => {
-        scopes.fromLiveOrganization()
-        scopes.notRejected()
-      })
-      .if(categoryId, (q) => q.where('categoryId', categoryId!))
-      .if(madeInEurope, (q) => q.where('madeInEurope', true))
-      .if(attributeValueIds.length > 0, (q) => {
-        for (const valueId of attributeValueIds) {
-          q.whereHas('attributeValues', (av) => av.where('attribute_values.id', valueId))
-        }
-      })
-      // Labels de conformité (écart 4, ÉTAPE 6) : ET fiable, un `whereHas` par
-      // label → chaque contrainte combinée en AND (le produit porte *tous* les
-      // labels cochés). Mêmes résultats que le filtre du moteur.
-      .if(certificationIds.length > 0, (q) => {
-        for (const certificationId of certificationIds) {
-          q.whereHas('certifications', (c) => c.where('certifications.id', certificationId))
-        }
-      })
-      // Provenance à 3 états (écart 9) : OU entre les zones cochées.
-      .if(originZones.length > 0, (q) => q.whereIn('originZone', originZones))
-      // Statut de stock (plan L98) : OU entre les statuts cochés ; colonne dérivée
-      // agrégée au niveau produit. Mêmes résultats que le filtre du moteur.
-      .if(stockStatuses.length > 0, (q) => q.whereIn('stockStatus', stockStatuses))
-      // Tranches numériques (plan L125) : prix, MOQ et attributs EAV, `[min, max[`.
-      // Mêmes résultats que le filtre du moteur (`applyProductRangeFilters`).
-      .if(priceBuckets.length > 0 || moqBuckets.length > 0 || attributeRanges.length > 0, (q) =>
-        applyProductRangeFilters(q, { priceBuckets, moqBuckets, attributeRanges })
-      )
-      // Nouveautés (écart 5).
-      .if(newThreshold, (q) => q.where('releasedAt', '>=', newThreshold!.toSQLDate()!))
-      // Éco-responsable (écart 4) : filtre dérivé booléen.
-      .if(ecoOnly, (q) => q.where('isEco', true))
-      .preload('translations')
+    const { page, perPage } = options
+    const query = this.filtered(options).preload('translations')
 
     if (options.sort === 'price_asc') {
       // Premier palier = plus petite quantité ; produits sans palier en fin de liste.
@@ -103,6 +48,85 @@ export default class ProductCatalogueService {
     }
 
     return query.paginate(page, perPage)
+  }
+
+  /**
+   * Parmi `productIds`, les produits visibles qui respectent **tous** les filtres
+   * de navigation — pour les produits sponsorisés d'une navigation sans terme
+   * de recherche (cf. `docs/ads.md`). Mêmes règles que `list`.
+   */
+  async matching(filters: ProductDirectoryFilters, productIds: number[]): Promise<Product[]> {
+    if (productIds.length === 0) return []
+    return this.filtered(filters).whereIn('products.id', productIds).preload('translations')
+  }
+
+  /**
+   * Produits visibles par identifiant, traductions préchargées (blocs
+   * sponsorisés de l'accueil et de la fiche produit).
+   */
+  async visibleByIds(productIds: number[]): Promise<Product[]> {
+    if (productIds.length === 0) return []
+    return this.visibleForRfq().whereIn('products.id', productIds).preload('translations')
+  }
+
+  /** Requête des produits visibles respectant les filtres de navigation (ET fiable). */
+  private filtered(filters: ProductDirectoryFilters) {
+    const {
+      categoryId,
+      madeInEurope,
+      attributeValueIds,
+      certificationIds,
+      originZones,
+      stockStatuses,
+      priceBuckets,
+      moqBuckets,
+      attributeRanges,
+      newOnly,
+      ecoOnly,
+    } = filters
+
+    // Nouveautés (écart 5) : début de la fenêtre récente.
+    const newThreshold = newOnly
+      ? DateTime.now().minus({ days: NEW_PRODUCT_WINDOW_DAYS }).startOf('day')
+      : null
+
+    return (
+      Product.query()
+        .where('isActive', true)
+        .withScopes((scopes) => {
+          scopes.fromLiveOrganization()
+          scopes.notRejected()
+        })
+        .if(categoryId, (q) => q.where('categoryId', categoryId!))
+        .if(madeInEurope, (q) => q.where('madeInEurope', true))
+        .if(attributeValueIds.length > 0, (q) => {
+          for (const valueId of attributeValueIds) {
+            q.whereHas('attributeValues', (av) => av.where('attribute_values.id', valueId))
+          }
+        })
+        // Labels de conformité (écart 4, ÉTAPE 6) : ET fiable, un `whereHas` par
+        // label → chaque contrainte combinée en AND (le produit porte *tous* les
+        // labels cochés). Mêmes résultats que le filtre du moteur.
+        .if(certificationIds.length > 0, (q) => {
+          for (const certificationId of certificationIds) {
+            q.whereHas('certifications', (c) => c.where('certifications.id', certificationId))
+          }
+        })
+        // Provenance à 3 états (écart 9) : OU entre les zones cochées.
+        .if(originZones.length > 0, (q) => q.whereIn('originZone', originZones))
+        // Statut de stock (plan L98) : OU entre les statuts cochés ; colonne dérivée
+        // agrégée au niveau produit. Mêmes résultats que le filtre du moteur.
+        .if(stockStatuses.length > 0, (q) => q.whereIn('stockStatus', stockStatuses))
+        // Tranches numériques (plan L125) : prix, MOQ et attributs EAV, `[min, max[`.
+        // Mêmes résultats que le filtre du moteur (`applyProductRangeFilters`).
+        .if(priceBuckets.length > 0 || moqBuckets.length > 0 || attributeRanges.length > 0, (q) =>
+          applyProductRangeFilters(q, { priceBuckets, moqBuckets, attributeRanges })
+        )
+        // Nouveautés (écart 5).
+        .if(newThreshold, (q) => q.where('releasedAt', '>=', newThreshold!.toSQLDate()!))
+        // Éco-responsable (écart 4) : filtre dérivé booléen.
+        .if(ecoOnly, (q) => q.where('isEco', true))
+    )
   }
 
   /**

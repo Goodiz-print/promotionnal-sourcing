@@ -9,6 +9,7 @@ import {
   MessageNotFoundException,
   OwnMessageReportException,
 } from '#exceptions/messaging_errors'
+import { isUniqueViolation } from '#shared/helpers/database'
 import {
   MESSAGE_REPORT_NOTE_MAX_LENGTH,
   type MessageReportReason,
@@ -24,10 +25,6 @@ interface ReportInput {
  * signalant : signaler deux fois le même message met à jour le signalement
  * encore ouvert au lieu d'en créer un second.
  */
-/** Violation d'unicité PostgreSQL (SQLSTATE 23505). */
-const isUniqueViolation = (error: unknown): boolean =>
-  typeof error === 'object' && error !== null && (error as { code?: string }).code === '23505'
-
 @inject()
 export default class MessageReportService {
   constructor(private conversations: ConversationService) {}

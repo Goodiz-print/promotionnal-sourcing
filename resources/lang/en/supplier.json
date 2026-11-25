@@ -8,7 +8,9 @@
       "terms": "Commercial terms",
       "termsHint": "Minimum order, lead times and delivery scope shown to buyers.",
       "certificationsHint": "Standards and labels you hold (ISO, FSC, OEKO-TEX…).",
-      "presentation": "Company presentation"
+      "presentation": "Company presentation",
+      "quoteReception": "Receiving quote requests",
+      "quoteReceptionHint": "Agencies send you their requests by email: enter the address that should receive them."
     },
     "moderation": {
       "pending": "Profile under review",
@@ -18,6 +20,16 @@
       "rejected": "Profile rejected",
       "rejectedHint": "Your organization was rejected: your catalogue is no longer visible to buyers.",
       "reason": "Reason: {reason}"
+    },
+    "quoteEmail": {
+      "pending": "Address awaiting confirmation",
+      "pendingHint": "A confirmation link was sent to {email}. Until it is clicked, quote requests go to the organisation's contact address, or failing that to the account managers.",
+      "resend": "Resend the link",
+      "resent": "The confirmation link has been resent.",
+      "verified": "Quote requests are sent to {email}.",
+      "willSend": "A confirmation link will be sent to this address when you save.",
+      "invalidLink": "This confirmation link is no longer valid. Request a new one from the supplier profile.",
+      "verifiedFlash": "Quote request address confirmed: it will now receive quote requests."
     }
   },
   "fields": {
@@ -31,7 +43,9 @@
     "certificationRemove": "Remove",
     "bio": "About",
     "defaultOriginScope": "Default origin",
-    "certificationsEmpty": "No certification yet."
+    "certificationsEmpty": "No certification yet.",
+    "quoteEmail": "Quote request address",
+    "quoteEmailHint": "If left empty, requests go to the organisation's contact address, or failing that to the account managers."
   },
   "deliveryScope": {
     "none": "Not specified",
@@ -45,5 +59,90 @@
     "europe": "Europe",
     "outside_europe": "Outside Europe",
     "per_product": "Per product"
+  },
+  "contacts": {
+    "title": "Sales team",
+    "subtitle": "The sales representatives agencies can contact directly, based on their country.",
+    "add": "Add a contact",
+    "newTitle": "New contact",
+    "teamTitle": "Contacts",
+    "teamHint": "Each agency sees the contacts covering its country; with none for its country, it sees the whole team.",
+    "empty": "No sales contacts",
+    "emptyHint": "Add the sales representatives agencies can reach.",
+    "settingsTitle": "Display",
+    "showAll": "Show the whole team to every agency",
+    "showAllHint": "Agencies see all your contacts, whatever their country.",
+    "allCountries": "All countries",
+    "remove": "Remove {label}",
+    "linkedMember": "Account member: {name}",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete the contact {name}?",
+    "cancel": "Cancel",
+    "save": "Save",
+    "upsell": {
+      "title": "Contacts are shown for subscribed suppliers only",
+      "body": "You can prepare your team now: it will be shown to agencies as soon as you subscribe.",
+      "cta": "See subscriptions"
+    },
+    "fields": {
+      "name": "Name",
+      "jobTitle": "Job title",
+      "email": "Email",
+      "phone": "Phone",
+      "countries": "Countries covered",
+      "countriesHint": "No country selected: the contact covers all countries.",
+      "addCountry": "Add a country…",
+      "languages": "Languages spoken",
+      "addLanguage": "Add a language…",
+      "member": "Account member",
+      "memberHint": "Optional: link the contact to a user who signs in to the account.",
+      "noMember": "None (contact only)"
+    },
+    "flash": {
+      "created": "Contact added.",
+      "updated": "Contact updated.",
+      "deleted": "Contact deleted.",
+      "settingsUpdated": "Setting saved."
+    }
+  },
+  "insights": {
+    "title": "Views",
+    "subtitle": "How often agencies viewed your products and your supplier page.",
+    "period": "Period",
+    "periodOption": "Last {days} days",
+    "summary": {
+      "productViews": "Product views",
+      "viewedProducts": "Products viewed",
+      "supplierViews": "Supplier page views",
+      "rfqAdditions": "Added to a quote request"
+    },
+    "products": {
+      "title": "Views by product",
+      "columns": {
+        "product": "Product",
+        "views": "Views",
+        "rfqAdditions": "Added to a request"
+      },
+      "emptyTitle": "No products",
+      "emptyBody": "Add products to your catalogue to track their views.",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "agencies": {
+      "title": "Agencies that viewed you",
+      "hint": "Views from the last 90 days: older views are still counted but no longer name the agency.",
+      "columns": {
+        "agency": "Agency",
+        "views": "Views",
+        "products": "Products viewed",
+        "lastViewedAt": "Last view"
+      },
+      "emptyTitle": "No agency over this period",
+      "emptyBody": "Agencies viewing your products or your page will appear here.",
+      "limited": "Only the {count} most recent agencies are shown."
+    }
   }
 }

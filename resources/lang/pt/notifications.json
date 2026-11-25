@@ -9,8 +9,9 @@
   "types": {
     "rfq": {
       "received": "{buyerName} enviou-lhe um pedido de orçamento: {rfqTitle}.",
-      "responded": "Um fornecedor respondeu ao pedido {rfqTitle}.",
-      "declined": "{supplierName} recusou o pedido {rfqTitle}."
+      "responded": "{supplierName} respondeu ao pedido {rfqTitle}.",
+      "declined": "{supplierName} recusou o pedido {rfqTitle}.",
+      "relay_refused": "O seu e-mail de {senderAddress} sobre o pedido {rfqTitle} não foi transmitido a {supplierName}: este endereço não é reconhecido para a sua agência. Escreva a partir do pedido."
     },
     "quote": {
       "received": "{supplierName} apresentou um orçamento para {rfqTitle}.",
@@ -32,6 +33,22 @@
     "message": {
       "warned": "A message you wrote received a warning from the platform. Please follow the messaging usage rules."
     },
-    "announcement": "{title} — {body}"
+    "announcement": "{title} — {body}",
+    "subscription": {
+      "duplicate_cancelled": "{organizationName} pagou duas assinaturas em simultâneo: o duplicado {cancelledSubscriptionId} foi cancelado no Stripe. Reembolse o pagamento no painel do Stripe."
+    }
+  },
+  "late": {
+    "rfq": {
+      "responded": "Resposta tardia: {supplierName} respondeu ao pedido {rfqTitle} depois do prazo."
+    }
+  },
+  "anonymous": {
+    "rfq": {
+      "received": "Uma agência enviou-lhe um pedido de orçamento: {rfqTitle}."
+    },
+    "quote": {
+      "rejected": "Uma agência rejeitou o seu orçamento para {rfqTitle}."
+    }
   }
 }

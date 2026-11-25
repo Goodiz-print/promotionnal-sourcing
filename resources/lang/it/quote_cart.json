@@ -1,0 +1,78 @@
+{
+  "title": "Carrello preventivi",
+  "subtitle": "Raccogli i prodotti da quotare, poi invia in una volta una richiesta a ciascun fornitore.",
+  "nav": {
+    "label": "Carrello preventivi",
+    "count": "{count, plural, =0 {Carrello preventivi vuoto} one {# prodotto nel carrello preventivi} other {# prodotti nel carrello preventivi}}"
+  },
+  "empty": {
+    "title": "Il tuo carrello preventivi è vuoto",
+    "description": "Aggiungi prodotti dal catalogo per interpellare più fornitori in una volta sola.",
+    "browse": "Sfoglia il catalogo"
+  },
+  "group": {
+    "items": "{count, plural, one {# prodotto} other {# prodotti}} · una richiesta dedicata"
+  },
+  "line": {
+    "quantity": "Quantità",
+    "note": "Dettagli",
+    "remove": "Rimuovi {name} dal carrello",
+    "belowMinimum": "Ordine minimo: {count} pezzi",
+    "variant": "Variante",
+    "variantAny": "Da definire",
+    "marking": "Personalizzazione",
+    "markingNone": "Senza personalizzazione",
+    "markingColors": "Colori",
+    "markingColorsMax": "{count, plural, one {max. # colore} other {max. # colori}}"
+  },
+  "checkout": {
+    "title": "Invia le richieste",
+    "titleDraft": "Crea le richieste",
+    "description": "Un’intestazione comune a tutte le richieste: ogni fornitore riceve solo i propri prodotti.",
+    "fieldTitle": "Oggetto della richiesta",
+    "fieldTitleHint": "Il nome del fornitore viene aggiunto a ogni richiesta.",
+    "fieldDescription": "Contesto (evento, tempi, vincoli…)",
+    "fieldDeadline": "Risposta desiderata entro il",
+    "summary": "{count, plural, one {Una richiesta sarà inviata a: {suppliers}} other {# richieste saranno inviate a: {suppliers}}}",
+    "summaryDraft": "{count, plural, one {Sarà creata una bozza per: {suppliers}} other {Saranno create # bozze per: {suppliers}}}",
+    "draftNotice": "Il tuo ruolo consente di preparare le richieste: saranno create come bozze e un responsabile potrà inviarle.",
+    "submit": "{count, plural, one {Invia la richiesta} other {Invia le # richieste}}",
+    "submitDraft": "{count, plural, one {Crea la bozza} other {Crea le # bozze}}"
+  },
+  "flash": {
+    "added": "Prodotto aggiunto al carrello preventivi.",
+    "alreadyInCart": "Questo prodotto è già nel tuo carrello preventivi.",
+    "removed": "Prodotto rimosso dal carrello preventivi.",
+    "sent": "{count, plural, one {# richiesta inviata} other {# richieste inviate}}.",
+    "drafted": "{count, plural, one {# bozza creata} other {# bozze create}}. Un responsabile potrà inviarle."
+  },
+  "errors": {
+    "empty": "Nessun prodotto del tuo carrello può essere richiesto.",
+    "supplierUnavailable": "Un fornitore non è più raggiungibile. Ricarica il carrello e riprova.",
+    "invalidOption": "Questa opzione non è disponibile per questo prodotto.",
+    "duplicateLine": "Questa variante è già nel carrello preventivi."
+  },
+  "product": {
+    "add": "Aggiungi al carrello preventivi",
+    "inCart": "Nel tuo carrello preventivi",
+    "viewCart": "Vedi il carrello",
+    "detailedRequest": "Richiesta dettagliata",
+    "quantity": "Quantità"
+  },
+  "card": {
+    "add": "Aggiungi {name} al carrello preventivi"
+  },
+  "estimate": {
+    "onRequest": "Prezzo su preventivo",
+    "unitPrice": "Prezzo unitario",
+    "markingUnitPrice": "Personalizzazione / pezzo",
+    "setupCharge": "Costi di impianto",
+    "total": "Totale stimato",
+    "totalPartial": "Totale stimato (esclusa personalizzazione)",
+    "belowFirstTier": "Quantità inferiore alla prima fascia di prezzo.",
+    "nextTier": "Da {count} pezzi: {price} / pezzo",
+    "subtotal": "Subtotale stimato: {amount}",
+    "subtotalPartial": "Subtotale stimato (incompleto): {amount}",
+    "disclaimer": "Stima indicativa basata sui listini del fornitore, spedizione esclusa. Fa fede il preventivo."
+  }
+}

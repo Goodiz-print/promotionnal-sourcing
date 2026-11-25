@@ -106,6 +106,57 @@
     "rfq": {
       "respond": "Odpowiedz ofertą",
       "viewQuote": "Zobacz moją ofertę"
+    },
+    "documents": {
+      "title": "Wysłana oferta",
+      "description": "Twoja oferta PDF wysłana e-mailem lub z tej strony. Zawsze widzisz swój oryginalny plik.",
+      "empty": "Nie wysłano jeszcze żadnej oferty PDF.",
+      "columns": {
+        "file": "Plik",
+        "sentAt": "Wysłano",
+        "channel": "Sposób wysyłki"
+      },
+      "channel": {
+        "mail": "E-mailem",
+        "upload": "Z platformy"
+      },
+      "download": "Pobierz {filename}",
+      "upload": {
+        "file": "Twoja oferta (PDF)",
+        "prompt": "Wybierz lub upuść plik PDF",
+        "hint": "PDF, maks. 20 MB. Zostanie przekazany agencji jak odpowiedź e-mailowa.",
+        "body": "Wiadomość do agencji (opcjonalnie)",
+        "submit": "Wyślij ofertę"
+      },
+      "flash": {
+        "uploaded": "Oferta wysłana: agencja została powiadomiona."
+      },
+      "errors": {
+        "notPdf": "Ten plik nie jest prawidłowym PDF.",
+        "notReplyable": "Odrzucono to zapytanie: nie można już wysłać do niego oferty."
+      }
+    }
+  },
+  "documents": {
+    "title": "Otrzymane oferty PDF",
+    "description": "Oferty przesłane e-mailem przez dostawców. Pobieranie jest zastrzeżone dla członków Twojej agencji.",
+    "empty": "Nie otrzymano jeszcze żadnej oferty PDF.",
+    "columns": {
+      "supplier": "Dostawca",
+      "file": "Plik",
+      "receivedAt": "Otrzymano",
+      "decision": "Decyzja"
+    },
+    "download": "Pobierz {filename}",
+    "select": "Wybierz",
+    "selected": "Wybrana",
+    "confirmSelect": "Wybranie tej oferty zamyka zapytanie. Dalsze kroki (zamówienie, fakturowanie) odbywają się bezpośrednio z dostawcą. Kontynuować?",
+    "confirmSelectTitle": "Wybrać tę ofertę?",
+    "flash": {
+      "selected": "Oferta wybrana: zapytanie zostało zamknięte."
+    },
+    "errors": {
+      "notSelectable": "To zapytanie nie jest już otwarte: nie można wybrać tej oferty."
     }
   }
 }

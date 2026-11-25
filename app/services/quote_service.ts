@@ -5,15 +5,19 @@ import logger from '@adonisjs/core/services/logger'
 import db from '@adonisjs/lucid/services/db'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import Quote from '#models/quote'
+import QuoteDocument from '#models/quote_document'
 import QuoteItem from '#models/quote_item'
 import Rfq from '#models/rfq'
 import RfqSupplier from '#models/rfq_supplier'
 import RfqService from '#services/rfq_service'
+import RfqRecipientService from '#services/rfq_recipient_service'
+import { acceptsResponses } from '#shared/helpers/rfq_deadline'
 import QuoteAccepted from '#events/quote_accepted'
 import QuoteRejected from '#events/quote_rejected'
 import QuoteSubmitted from '#events/quote_submitted'
 import {
   QuoteAlreadyExistsException,
+  QuoteDocumentNotFoundException,
   QuoteInvalidItemsException,
   QuoteInvalidValidityException,
   QuoteNotAllowedException,
@@ -22,16 +26,14 @@ import {
   QuoteNotFoundException,
   QuoteNotSubmittableException,
 } from '#exceptions/quote_errors'
+import { isUniqueViolation } from '#shared/helpers/database'
 import { RFQ_DEADLINE_TIMEZONE } from '#shared/types/rfq'
 import {
   BUYER_VISIBLE_QUOTE_STATUSES,
   DEFAULT_QUOTE_CURRENCY,
   LIVE_QUOTE_STATUSES,
 } from '#shared/types/quote'
-import type { QuoteData, QuoteItemData } from '#shared/types/quote'
-
-/** Violation de contrainte d'unicité Postgres (`23505`). */
-const UNIQUE_VIOLATION = '23505'
+import type { QuoteData, QuoteDocumentInput, QuoteItemData } from '#shared/types/quote'
 
 /** Prix unitaires en 1/10 000 (`decimal(12, 4)`), totaux en centimes. */
 const UNIT_PRICE_SCALE = 10_000
@@ -68,7 +70,10 @@ interface PricedItem {
  */
 @inject()
 export default class QuoteService {
-  constructor(private rfqs: RfqService) {}
+  constructor(
+    private rfqs: RfqService,
+    private recipients: RfqRecipientService
+  ) {}
 
   // ── Fournisseur ─────────────────────────────────────────────────────────
 
@@ -122,7 +127,7 @@ export default class QuoteService {
     const rfq = await this.rfqs.findForSupplier(rfqId, organizationId)
     const [recipient] = rfq.suppliers
 
-    if (!this.rfqs.acceptsResponses(rfq) || !recipient || recipient.status === 'declined') {
+    if (!acceptsResponses(rfq) || !recipient || recipient.status === 'declined') {
       throw new QuoteNotAllowedException()
     }
     if (await this.findLiveForRfq(rfq.id, organizationId)) throw new QuoteAlreadyExistsException()
@@ -149,7 +154,7 @@ export default class QuoteService {
       })
     } catch (error) {
       // Deux créations simultanées : l'index unique partiel tranche.
-      if ((error as { code?: string }).code === UNIQUE_VIOLATION) {
+      if (isUniqueViolation(error)) {
         throw new QuoteAlreadyExistsException()
       }
       throw error
@@ -162,7 +167,7 @@ export default class QuoteService {
    */
   async updateDraft(quote: Quote, data: QuoteData): Promise<Quote> {
     const rfq = await this.loadRfqForQuote(quote)
-    if (!this.rfqs.acceptsResponses(rfq)) throw new QuoteNotAllowedException()
+    if (!acceptsResponses(rfq)) throw new QuoteNotAllowedException()
 
     const validUntil = this.parseValidUntil(data.validUntil)
     const items = this.priceItems(rfq, data.items)
@@ -189,14 +194,14 @@ export default class QuoteService {
 
   /**
    * Remet le devis à l'acheteur : `draft` → `submitted`, et le destinataire
-   * passe `responded` (`RfqService#markResponded`). Refusé sans ligne, après la
+   * passe `responded` (`RfqRecipientService#markResponded`). Refusé sans ligne, après la
    * validité, ou si la demande n'attend plus de réponse.
    */
   async submit(quote: Quote, now: DateTime = DateTime.now()): Promise<Quote> {
     if (quote.status !== 'draft') throw new QuoteNotSubmittableException()
 
     const rfq = await this.loadRfqForQuote(quote)
-    if (!this.rfqs.acceptsResponses(rfq, now)) throw new QuoteNotAllowedException()
+    if (!acceptsResponses(rfq, now)) throw new QuoteNotAllowedException()
 
     const [{ total }] = await db.from('quote_items').where('quote_id', quote.id).count('* as total')
     if (Number(total) === 0) throw new QuoteNotSubmittableException()
@@ -211,7 +216,7 @@ export default class QuoteService {
     if (recipient.status === 'declined') throw new QuoteNotAllowedException()
     // Un fournisseur déjà `responded` (devis précédent rejeté) y reste.
     if (recipient.status !== 'responded') {
-      await this.rfqs.markResponded(rfq, quote.supplierOrganizationId)
+      await this.recipients.markResponded(rfq, quote.supplierOrganizationId)
     }
 
     const [updated] = await Quote.query()
@@ -277,7 +282,7 @@ export default class QuoteService {
    */
   async accept(quote: Quote, now: DateTime = DateTime.now()): Promise<Quote[]> {
     const rfq = await this.loadRfqForQuote(quote)
-    if (!this.rfqs.acceptsResponses(rfq, now)) throw new QuoteNotDecidableException()
+    if (!acceptsResponses(rfq, now)) throw new QuoteNotDecidableException()
 
     const losers = await db.transaction(async (trx) => {
       const [accepted] = await Quote.query({ client: trx })
@@ -322,7 +327,7 @@ export default class QuoteService {
    */
   async reject(quote: Quote, now: DateTime = DateTime.now()): Promise<Quote> {
     const rfq = await this.loadRfqForQuote(quote)
-    if (!this.rfqs.acceptsResponses(rfq, now)) throw new QuoteNotDecidableException()
+    if (!acceptsResponses(rfq, now)) throw new QuoteNotDecidableException()
 
     const [updated] = await Quote.query()
       .where('id', quote.id)
@@ -335,11 +340,187 @@ export default class QuoteService {
     return quote
   }
 
+  // ── Devis reçus en PDF (#224) ───────────────────────────────────────────
+
+  /**
+   * Enregistre les PDF d'une réponse reçue par mail comme devis du
+   * fournisseur, dans la transaction qui écrit le message. Ils s'ajoutent aux
+   * précédents sans les remplacer, et coexistent avec le devis structuré.
+   *
+   * La version destinataire (#238), déjà stockée par l'appelant, est référencée
+   * ici, dans la même transaction : si elle échoue, l'appelant la libère.
+   */
+  recordDocuments(
+    documents: QuoteDocumentInput[],
+    trx: TransactionClientContract
+  ): Promise<QuoteDocument[]> {
+    const now = DateTime.now()
+    return QuoteDocument.createMany(
+      documents.map((document) => ({
+        ...document,
+        receivedAt: DateTime.fromJSDate(document.receivedAt),
+        stampedAt: document.recipientStorageObjectId ? now : null,
+      })),
+      { client: trx }
+    )
+  }
+
+  /**
+   * Tous les devis PDF d'un destinataire, du plus récent au plus ancien, avec
+   * leur fichier et leur version destinataire (`QuoteDocument#recipientFile`).
+   */
+  documentsFor(rfqSupplierId: number): Promise<QuoteDocument[]> {
+    return QuoteDocument.query()
+      .where('rfqSupplierId', rfqSupplierId)
+      .preload('attachment', (attachment) => attachment.preload('storageObject'))
+      .preload('recipientStorageObject')
+      .orderBy('receivedAt', 'desc')
+      .orderBy('id', 'desc')
+  }
+
+  /**
+   * Tous les devis PDF reçus pour une demande (#228), le plus récent en tête,
+   * avec le nom de leur fichier : l'écran de la demande les liste à côté des
+   * devis structurés. Colonnes explicites, pièce jointe préchargée en une
+   * requête.
+   *
+   * Le destinataire de chaque devis est repris de `rfq.suppliers` (préchargés
+   * avec leur organisation par `RfqService#findForBuyer`) plutôt que relu en
+   * base : aucune requête de plus pour le nom du fournisseur.
+   */
+  async documentsForRfq(rfq: Rfq): Promise<QuoteDocument[]> {
+    const recipients = new Map(rfq.suppliers.map((recipient) => [recipient.id, recipient]))
+    const documents = await QuoteDocument.query()
+      .select('id', 'rfqId', 'rfqSupplierId', 'messageAttachmentId', 'receivedAt', 'selectedAt')
+      .where('rfqId', rfq.id)
+      .whereIn('rfqSupplierId', [...recipients.keys()])
+      .preload('attachment', (attachment) => attachment.select('id', 'filename', 'sizeBytes'))
+      .orderBy('receivedAt', 'desc')
+      .orderBy('id', 'desc')
+    documents.forEach((document) =>
+      document.$setRelated('rfqSupplier', recipients.get(document.rfqSupplierId)!)
+    )
+    return documents
+  }
+
+  /**
+   * L'agence **retient** un devis PDF (#228) : il est marqué `selected_at` et
+   * la demande est clôturée (`RfqService#close`), dans une même transaction.
+   * La demande est relue sous verrou : deux décisions concurrentes (retenir
+   * deux devis, accepter un devis structuré) ne clôturent qu'une fois, la
+   * seconde est refusée (`RfqNotClosableException`).
+   *
+   * **Aucune commande** n'est créée et aucun événement n'est publié : la suite
+   * (bon de commande, facturation) se fait entre l'agence et le fournisseur,
+   * hors plateforme. Les devis structurés gardent leur statut.
+   */
+  async selectDocument(document: QuoteDocument, now: DateTime = DateTime.now()): Promise<void> {
+    await db.transaction(async (trx) => {
+      const rfq = await Rfq.query({ client: trx }).where('id', document.rfqId).forUpdate().first()
+      if (!rfq) throw new QuoteDocumentNotFoundException()
+
+      await this.rfqs.close(rfq, trx)
+      await QuoteDocument.query({ client: trx })
+        .where('id', document.id)
+        .update({ selectedAt: now.toJSDate() })
+    })
+    await document.refresh()
+  }
+
+  /**
+   * Les devis PDF `ids` du destinataire `rfqSupplierId`, dans l'ordre de leurs
+   * identifiants (celui des pièces jointes du mail), avec leur pièce jointe :
+   * de quoi les citer dans le mail transmis à l'agence (#225) sans charger
+   * tout l'historique. Un identifiant d'un autre destinataire est ignoré.
+   */
+  documentsOfReply(rfqSupplierId: number, ids: number[]): Promise<QuoteDocument[]> {
+    if (ids.length === 0) return Promise.resolve([])
+    return QuoteDocument.query()
+      .where('rfqSupplierId', rfqSupplierId)
+      .whereIn('id', ids)
+      .preload('attachment')
+      .orderBy('id')
+  }
+
+  /**
+   * Un devis PDF avec sa demande et ses fichiers, pour le servir à l'agence
+   * (`QuoteDocumentsController`). Le droit d'accès est vérifié par l'ability
+   * `canDownloadQuoteDocument`, sur la demande chargée ici.
+   */
+  async findDocument(id: number): Promise<QuoteDocument> {
+    const document = await QuoteDocument.query()
+      .where('id', id)
+      .preload('rfq')
+      .preload('attachment', (attachment) => attachment.preload('storageObject'))
+      .preload('recipientStorageObject')
+      .first()
+    if (!document) throw new QuoteDocumentNotFoundException()
+    return document
+  }
+
+  /**
+   * Un devis PDF et sa demande, sans ses fichiers : ce qu'il faut pour le
+   * retenir (`QuoteDocumentsController#select`) et vérifier l'ability
+   * `canSelectQuoteDocument`. Inconnu : 404.
+   */
+  async findDocumentForDecision(id: number): Promise<QuoteDocument> {
+    const document = await QuoteDocument.query()
+      .select('id', 'rfqId', 'selectedAt')
+      .where('id', id)
+      .preload('rfq', (rfq) => rfq.select('id', 'buyerOrganizationId', 'status'))
+      .first()
+    if (!document) throw new QuoteDocumentNotFoundException()
+    return document
+  }
+
+  /**
+   * Devis PDF **envoyés** par un destinataire, vus de son écran (#230), le plus
+   * récent en tête : nom et taille du fichier, date, et s'il est arrivé par
+   * mail (message né d'un mail entrant) ou déposé depuis l'écran. Colonnes
+   * explicites ; ni la version au nom de l'agence (#238) ni sa clé de stockage.
+   */
+  documentsSentBy(rfqSupplierId: number): Promise<QuoteDocument[]> {
+    return QuoteDocument.query()
+      .select('id', 'rfqSupplierId', 'messageId', 'messageAttachmentId', 'receivedAt')
+      .where('rfqSupplierId', rfqSupplierId)
+      .preload('attachment', (attachment) => attachment.select('id', 'filename', 'sizeBytes'))
+      .preload('message', (message) => message.select('id', 'inboundMailId'))
+      .orderBy('receivedAt', 'desc')
+      .orderBy('id', 'desc')
+  }
+
+  /**
+   * Un devis PDF avec son destinataire et son fichier **d'origine**, pour le
+   * servir au fournisseur qui l'a envoyé (#230). Le droit d'accès est vérifié
+   * par l'ability `canDownloadSentQuoteDocument`, sur le destinataire chargé ici.
+   * La version au nom de l'agence (#238) n'est pas chargée : elle ne lui est
+   * jamais servie.
+   */
+  async findDocumentForSupplier(id: number): Promise<QuoteDocument> {
+    const document = await QuoteDocument.query()
+      .select('id', 'rfqSupplierId', 'messageAttachmentId')
+      .where('id', id)
+      .preload('rfqSupplier', (recipient) => recipient.select('id', 'supplierOrganizationId'))
+      .preload('attachment', (attachment) => attachment.preload('storageObject'))
+      .first()
+    if (!document) throw new QuoteDocumentNotFoundException()
+    return document
+  }
+
+  /**
+   * Les devis PDF **qui font foi** pour un destinataire : ceux de sa dernière
+   * réponse (un mail peut en porter plusieurs). Vide s'il n'en a envoyé aucun.
+   */
+  async currentDocumentsFor(rfqSupplierId: number): Promise<QuoteDocument[]> {
+    const documents = await this.documentsFor(rfqSupplierId)
+    return documents.filter((document) => document.messageId === documents[0].messageId)
+  }
+
   // ── Expiration ──────────────────────────────────────────────────────────
 
   /**
    * Fait expirer les brouillons et devis remis des demandes qui viennent
-   * d'expirer (`RfqService#expireDue`). Un devis déjà accepté ou rejeté garde
+   * d'expirer (`RfqDeadlineService#expireDue`). Un devis déjà accepté ou rejeté garde
    * son statut. Renvoie le nombre de devis basculés.
    */
   async expireForRfqs(rfqIds: number[], client?: TransactionClientContract): Promise<number> {

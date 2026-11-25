@@ -106,6 +106,57 @@
     "rfq": {
       "respond": "Responder com um orçamento",
       "viewQuote": "Ver o meu orçamento"
+    },
+    "documents": {
+      "title": "Orçamento enviado",
+      "description": "O seu orçamento em PDF, enviado por e-mail ou a partir desta página. Vê sempre o seu ficheiro original.",
+      "empty": "Ainda não enviou nenhum orçamento em PDF.",
+      "columns": {
+        "file": "Ficheiro",
+        "sentAt": "Enviado em",
+        "channel": "Envio"
+      },
+      "channel": {
+        "mail": "Por e-mail",
+        "upload": "Pela plataforma"
+      },
+      "download": "Transferir {filename}",
+      "upload": {
+        "file": "O seu orçamento (PDF)",
+        "prompt": "Escolha ou largue um PDF",
+        "hint": "PDF, máximo 20 MB. É transmitido à agência como uma resposta por e-mail.",
+        "body": "Mensagem para a agência (opcional)",
+        "submit": "Enviar o orçamento"
+      },
+      "flash": {
+        "uploaded": "Orçamento enviado: a agência foi informada."
+      },
+      "errors": {
+        "notPdf": "Este ficheiro não é um PDF válido.",
+        "notReplyable": "Recusou este pedido: já não pode enviar um orçamento para ele."
+      }
+    }
+  },
+  "documents": {
+    "title": "Orçamentos PDF recebidos",
+    "description": "Orçamentos enviados por e-mail pelos fornecedores. A transferência está reservada aos membros da sua agência.",
+    "empty": "Ainda não foi recebido nenhum orçamento PDF.",
+    "columns": {
+      "supplier": "Fornecedor",
+      "file": "Ficheiro",
+      "receivedAt": "Recebido em",
+      "decision": "Decisão"
+    },
+    "download": "Transferir {filename}",
+    "select": "Escolher",
+    "selected": "Escolhido",
+    "confirmSelect": "Escolher este orçamento encerra o pedido. Os passos seguintes (nota de encomenda, faturação) fazem-se diretamente com o fornecedor. Continuar?",
+    "confirmSelectTitle": "Selecionar este orçamento?",
+    "flash": {
+      "selected": "Orçamento escolhido: o pedido está encerrado."
+    },
+    "errors": {
+      "notSelectable": "Este pedido já não está aberto: não é possível escolher este orçamento."
     }
   }
 }

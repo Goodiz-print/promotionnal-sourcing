@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, confirmPart, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type {
   AdminOrderRow,
   AdminQuoteRow,
@@ -178,7 +179,6 @@ describe('admin/rfqs/show', () => {
   beforeEach(() => {
     state.role = 'admin'
     post.mockClear()
-    window.confirm = vi.fn(() => true)
   })
 
   const show = (extra: Partial<AdminRfqDetail> = {}) =>
@@ -194,11 +194,16 @@ describe('admin/rfqs/show', () => {
   })
 
   it('clôturer confirme puis poste vers la route de clôture', async () => {
+    const host = await mountConfirmHost()
     const wrapper = show()
 
     await wrapper.findAll('button')[2].trigger('click')
 
-    expect(window.confirm).toHaveBeenCalled()
+    expect(confirmText(host)).toBe('Clôturer ?')
+    expect(confirmText(host, 'confirm')).toBe('Clôturer')
+    expect(confirmPart(host, 'confirm').classes()).toContain('text-danger')
+    expect(post).not.toHaveBeenCalled()
+    await answerConfirm(host, 'confirm')
     expect(post).toHaveBeenCalledWith(
       '/fr/admin.rfqs.close/5',
       {},
@@ -207,9 +212,11 @@ describe('admin/rfqs/show', () => {
   })
 
   it('désactive les boutons pendant l’envoi pour éviter un double clic', async () => {
+    const host = await mountConfirmHost()
     const wrapper = show()
 
     await wrapper.findAll('button')[2].trigger('click')
+    await answerConfirm(host, 'confirm')
     const options = post.mock.calls[0][2] as { onStart: () => void; onFinish: () => void }
     options.onStart()
     await wrapper.vm.$nextTick()
@@ -225,9 +232,10 @@ describe('admin/rfqs/show', () => {
   })
 
   it('ne poste rien si la confirmation est refusée', async () => {
-    window.confirm = vi.fn(() => false)
+    const host = await mountConfirmHost()
 
     await show().findAll('button')[2].trigger('click')
+    await answerConfirm(host, 'cancel')
 
     expect(post).not.toHaveBeenCalled()
   })

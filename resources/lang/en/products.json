@@ -67,8 +67,6 @@
     "tierQuantity": "Quantity",
     "tierPrice": "Unit price",
     "tierFrom": "From {quantity} pieces",
-    "addToDraft": "Add to a draft request",
-    "chooseDraft": "Choose a draft…",
     "signInToRequest": "Sign in to request a quote",
     "compliance": "Compliance",
     "eco": "Eco-friendly",

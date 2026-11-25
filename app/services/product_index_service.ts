@@ -23,8 +23,9 @@ export type IndexProgress = (scanned: number) => Promise<void> | void
  * doublon de job) donne le même index — et sûr dans le désordre : le dernier
  * passage reflète toujours l'état courant de la base.
  *
- * Un produit devenu invisible (inactif, rejeté, organisation archivée ou
- * rejetée) sort de l'index, mêmes règles que la fiche publique.
+ * Un produit devenu invisible (inactif, rejeté, fiche sans organisation,
+ * organisation archivée ou rejetée) sort de l'index, mêmes règles que la fiche
+ * publique.
  */
 /** Longueur maximale du début de description envoyé au modèle d'embeddings. */
 const DESCRIPTION_LENGTH = 300
@@ -105,6 +106,47 @@ export default class ProductIndexService {
       scanned += rows.length
       await onProgress?.(scanned)
     }
+  }
+
+  /**
+   * Retire de l'index tous les produits des fiches fournisseur **non
+   * rattachées** à une organisation (#240) : ils ne sont plus publiés. Retrait
+   * direct par identifiant, par lots, sans recalculer de document ; idempotent
+   * (retirer un document absent est sans effet). Renvoie le nombre de produits
+   * retirés.
+   */
+  async removeUnlinkedProducts(onProgress?: IndexProgress): Promise<number> {
+    return this.removeUnlinkedFrom(0, 0, onProgress)
+  }
+
+  /**
+   * Un lot après `afterId`, puis le suivant. Récursif plutôt qu'une boucle
+   * (règle « readability ») : la profondeur reste le nombre de lots.
+   */
+  private async removeUnlinkedFrom(
+    afterId: number,
+    removed: number,
+    onProgress?: IndexProgress
+  ): Promise<number> {
+    const ids = await this.unlinkedProductIds(afterId)
+    if (ids.length === 0) return removed
+
+    await this.engine.remove(ids)
+    await onProgress?.(removed + ids.length)
+    return this.removeUnlinkedFrom(ids[ids.length - 1], removed + ids.length, onProgress)
+  }
+
+  /** Lot de produits dont la fiche fournisseur n'a pas d'organisation. */
+  private async unlinkedProductIds(afterId: number): Promise<number[]> {
+    const rows: { id: number }[] = await db
+      .from('products')
+      .join('suppliers', 'suppliers.id', 'products.supplier_id')
+      .whereNull('suppliers.organization_id')
+      .where('products.id', '>', afterId)
+      .orderBy('products.id')
+      .limit(searchConfig.batchSize)
+      .select('products.id')
+    return rows.map((row) => row.id)
   }
 
   /** Nombre de produits à parcourir pour une réindexation (tous, ou ceux d'un fournisseur). */

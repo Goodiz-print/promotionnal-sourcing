@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import env from '#start/env'
 import mail from '@adonisjs/mail/services/main'
 import type { ApiClient } from '@japa/api-client'
 import { UserFactory } from '#database/factories/user_factory'
@@ -17,10 +18,14 @@ test.group('Vérification d’email', (group) => {
 
   /** Chemin + querystring du lien contenu dans le dernier mail de vérification. */
   function sentVerifyPath(): string {
-    const sent = fakeMailer.mails.sent((m) => m instanceof EmailVerificationNotification)
-    const { verifyUrl } = sent[sent.length - 1] as unknown as { verifyUrl: string }
-    const url = new URL(verifyUrl, 'http://localhost')
+    const url = new URL(sentVerifyUrl())
     return `${url.pathname}${url.search}`
+  }
+
+  /** Lien complet contenu dans le dernier mail de vérification. */
+  function sentVerifyUrl(): string {
+    const sent = fakeMailer.mails.sent((m) => m instanceof EmailVerificationNotification)
+    return (sent[sent.length - 1] as unknown as { verifyUrl: string }).verifyUrl
   }
 
   async function signUp(client: ApiClient, email = 'nouveau@example.com') {
@@ -38,6 +43,17 @@ test.group('Vérification d’email', (group) => {
 
     fakeMailer.mails.assertSentCount(EmailVerificationNotification, 1)
     assert.match(sentVerifyPath(), /^\/fr\/email\/verify\/\d+\?.*signature=/)
+  })
+
+  test('le lien du mail est absolu, sur le domaine de l’application (#288)', async ({
+    client,
+    assert,
+  }) => {
+    await signUp(client)
+
+    const appOrigin = new URL(env.get('APP_URL', 'http://localhost:5555')).origin
+    assert.match(sentVerifyUrl(), /^https?:\/\//)
+    assert.isTrue(sentVerifyUrl().startsWith(`${appOrigin}/fr/email/verify/`))
   })
 
   test('un compte non vérifié est renvoyé vers l’écran de vérification', async ({

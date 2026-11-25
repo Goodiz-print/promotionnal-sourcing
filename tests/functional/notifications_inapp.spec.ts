@@ -13,7 +13,7 @@ import QuoteSubmitted from '#events/quote_submitted'
 import RfqDeclined from '#events/rfq_declined'
 import RfqSent from '#events/rfq_sent'
 import Notification from '#models/notification'
-import { createMember } from '#tests/utils/organizations'
+import { createMember, subscribeOrganization } from '#tests/utils/organizations'
 import { useDatabase } from '#tests/utils/setup'
 import type User from '#models/user'
 
@@ -68,6 +68,8 @@ test.group('Notifications in-app — événements métier', (group) => {
   }) => {
     const { buyer, rfq, recipient, supplierOwner, supplierManager, supplierMember, buyerOwner } =
       await scenario()
+    // Abonné : la notification nomme l'agence (#220).
+    await subscribeOrganization(recipient.supplierOrganization)
 
     await emitter.emit(RfqSent, new RfqSent(rfq, buyer, [recipient]))
 

@@ -3,7 +3,9 @@ import type { HttpContext } from '@adonisjs/core/http'
 import env from '#start/env'
 import ContactRequestService from '#services/contact_request_service'
 import ProductCatalogueService from '#services/product_catalogue_service'
+import SponsoredProductService from '#services/sponsored_product_service'
 import CategoryTransformer from '#transformers/category_transformer'
+import SponsoredProductTransformer from '#transformers/sponsored_product_transformer'
 import { SUPPORTED_LOCALES, type Locale } from '#shared/types/i18n'
 import { contactRequestValidator } from '#validators/contact'
 import { CONTACT_HONEYPOT_FIELD, SITEMAP_PAGES } from '#shared/types/marketing'
@@ -19,16 +21,27 @@ const FEATURED_CATEGORIES_LIMIT = 6
 export default class MarketingController {
   constructor(
     private catalogue: ProductCatalogueService,
-    private contactRequests: ContactRequestService
+    private contactRequests: ContactRequestService,
+    private sponsoredProducts: SponsoredProductService
   ) {}
 
-  /** Accueil : le contenu est statique, hormis les catégories mises en avant. */
+  /**
+   * Accueil : le contenu est statique, hormis les catégories mises en avant et
+   * les produits sponsorisés (cf. `docs/ads.md`).
+   */
   async home({ inertia, i18n }: HttpContext) {
-    const categories = await this.catalogue.featuredCategories(FEATURED_CATEGORIES_LIMIT)
+    const locale = i18n.locale as Locale
+    const [categories, sponsored] = await Promise.all([
+      this.catalogue.featuredCategories(FEATURED_CATEGORIES_LIMIT),
+      this.sponsoredProducts.forHome(),
+    ])
     return inertia.render('marketing/home', {
       siteUrl: this.siteUrl(),
       featuredCategories: categories.map((category) =>
-        new CategoryTransformer(category, i18n.locale as Locale).toObject()
+        new CategoryTransformer(category, locale).toObject()
+      ),
+      sponsored: sponsored.map((selection) =>
+        new SponsoredProductTransformer(selection, locale).toObject()
       ),
     })
   }

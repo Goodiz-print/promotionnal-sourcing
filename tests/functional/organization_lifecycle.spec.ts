@@ -215,7 +215,7 @@ test.group("Cycle de vie de l'organisation", (group) => {
 
     await Supplier.create({ slug: 'acme-supplier', country: 'FR', organizationId: archived.id })
     await Supplier.create({ slug: 'beta-supplier', country: 'FR', organizationId: live.id })
-    // Fiche importée non encore rattachée : doit rester visible.
+    // Fiche importée non encore rattachée : pas publiée (#240).
     await Supplier.create({ slug: 'orphan-supplier', country: 'FR' })
 
     const service = await app.container.make(OrganizationService)
@@ -231,8 +231,10 @@ test.group("Cycle de vie de l'organisation", (group) => {
     const slugs = page.all().map((supplier) => supplier.slug)
 
     assert.notInclude(slugs, 'acme-supplier')
-    assert.includeMembers(slugs, ['beta-supplier', 'orphan-supplier'])
+    assert.notInclude(slugs, 'orphan-supplier')
+    assert.include(slugs, 'beta-supplier')
     assert.isNull(await directory.findBySlug('acme-supplier'))
+    assert.isNull(await directory.findBySlug('orphan-supplier'))
   })
 
   test("le sélecteur d'organisation est exposé aux pages Inertia", async ({ client, assert }) => {

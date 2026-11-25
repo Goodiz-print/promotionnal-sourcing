@@ -1,0 +1,98 @@
+{
+  "page": {
+    "title": "Preise und Abonnement",
+    "subtitle": "Wählen Sie den Tarif, der zu Ihrem Geschäft passt. Abschluss, Tarifwechsel und Kündigung erfolgen online.",
+    "checkoutSuccess": "Zahlung erhalten. Ihr Tarif wird aktiviert, sobald Stripe ihn bestätigt, meist innerhalb weniger Sekunden: Laden Sie die Seite bei Bedarf neu.",
+    "checkoutCancelled": "Abschluss abgebrochen: Es wurde keine Zahlung vorgenommen.",
+    "unavailable": "Der Online-Abschluss ist noch nicht verfügbar. Wenden Sie sich an das Team, um einen Tarif zu aktivieren.",
+    "taxNote": "Monatspreise zzgl. MwSt., ohne Mindestlaufzeit. Rechnungen finden Sie im Abrechnungsportal."
+  },
+  "plans": {
+    "current": "Aktueller Tarif",
+    "perMonth": "zzgl. MwSt. / Monat",
+    "subscribe": "Abonnieren",
+    "change": "Tarif wechseln",
+    "free": {
+      "name": "Kostenlos",
+      "tagline": "Ihr Katalog gelistet, ohne Kosten."
+    },
+    "business": {
+      "name": "Business",
+      "tagline": "Erkennen Sie Ihre Interessenten und gewinnen Sie an Sichtbarkeit."
+    },
+    "premium": {
+      "name": "Premium",
+      "tagline": "Maximale Sichtbarkeit und bevorzugte Betreuung."
+    }
+  },
+  "current": {
+    "title": "Ihr Abonnement",
+    "plan": "Tarif",
+    "status": "Status",
+    "since": "Seit",
+    "renewsOn": "Verlängerung am",
+    "endsOn": "Endet am",
+    "manage": "Abonnement verwalten",
+    "manual": "Abonnement wird vom Plattform-Team verwaltet. Kontaktieren Sie uns für Änderungen.",
+    "pastDue": "Die letzte Zahlung ist fehlgeschlagen. Stripe versucht es erneut: Aktualisieren Sie Ihre Zahlungsmethode, um Ihren Tarif zu behalten.",
+    "cancelScheduled": "Kündigung vorgemerkt: Ihr Tarif bleibt bis zum Ende des laufenden Zeitraums aktiv."
+  },
+  "status": {
+    "scheduled": "Geplant",
+    "pending": "Zahlung ausstehend",
+    "active": "Aktiv",
+    "past_due": "Überfällig",
+    "expired": "Abgelaufen",
+    "cancelled": "Gekündigt"
+  },
+  "features": {
+    "catalogue": {
+      "free": "Katalog in der Suche indexiert",
+      "business": "Katalog in der Suche indexiert",
+      "premium": "Katalog in der Suche indexiert"
+    },
+    "statistics": {
+      "free": "Anonyme Statistiken (Anzahl der Aufrufe)",
+      "business": "Detaillierte Statistiken mit der Identität der Agenturen",
+      "premium": "Detaillierte Statistiken mit der Identität der Agenturen"
+    },
+    "quoteRequests": {
+      "free": "Angebotsanfragen ohne Identität der Agentur",
+      "business": "Identität und Kontaktdaten der Agenturen in den Anfragen",
+      "premium": "Identität und Kontaktdaten der Agenturen in den Anfragen"
+    },
+    "competitors": {
+      "free": "Konkurrenzprodukte auf Ihren Seiten angezeigt",
+      "business": "Keine Konkurrenzprodukte auf Ihren Seiten",
+      "premium": "Keine Konkurrenzprodukte auf Ihren Seiten"
+    },
+    "ranking": {
+      "free": "Natürliches Ranking der Ergebnisse",
+      "business": "250 Ranking-Punkte pro Monat",
+      "premium": "600 Ranking-Punkte pro Monat"
+    },
+    "superboost": {
+      "free": "Kein Superboost",
+      "business": "Superboosts einzeln buchbar",
+      "premium": "3 Superboosts pro Monat inklusive"
+    },
+    "support": {
+      "free": "Standard-Support",
+      "business": "Standard-Support",
+      "premium": "Bevorzugter Support und Onboarding"
+    }
+  },
+  "flash": {
+    "unavailable": "Der Online-Abschluss ist derzeit nicht verfügbar.",
+    "alreadySubscribed": "Sie haben bereits ein laufendes Abonnement: Wechseln Sie den Tarif über das Abrechnungsportal.",
+    "noBillingAccount": "Für Ihre Organisation besteht kein Online-Abrechnungskonto.",
+    "paymentPending": "Eine Abonnementzahlung wird noch bestätigt: Schließen Sie sie im Abrechnungsportal ab oder versuchen Sie es später erneut.",
+    "adminOnly": "Nur die Inhaber und Administratoren Ihrer Organisation können ihr Abonnement verwalten."
+  },
+  "upsell": {
+    "title": "Abonnieren Sie, um die Agentur kennenzulernen",
+    "body": "Abonnieren Sie, um zu erfahren, welche Agentur Sie anfragt, und sie direkt zu kontaktieren.",
+    "askAdmin": "Ein Inhaber oder Administrator Ihrer Organisation kann ein Abonnement abschließen, damit Sie die Agentur erfahren und direkt kontaktieren können.",
+    "cta": "Abonnements ansehen"
+  }
+}

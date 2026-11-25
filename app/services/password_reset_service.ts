@@ -5,6 +5,7 @@ import env from '#start/env'
 import User from '#models/user'
 import SendMailJob from '#jobs/send_mail_job'
 import { mailSendKey } from '#shared/helpers/mail'
+import { absoluteUrl } from '#shared/helpers/http'
 import { MAIL_KINDS } from '#shared/types/mail'
 import { PASSWORD_RESET_SIGNATURE_PURPOSE, PASSWORD_RESET_TTL_MINUTES } from '#shared/types/auth'
 
@@ -31,7 +32,7 @@ export default class PasswordResetService {
       .first()
     if (!user) return
 
-    const resetUrl = signedUrlFor(
+    const resetPath = signedUrlFor(
       'password.reset',
       { locale, id: user.id },
       {
@@ -40,6 +41,8 @@ export default class PasswordResetService {
         qs: { v: this.fingerprint(user) },
       }
     )
+    // Le lien part par mail : il doit porter le domaine de l'application (#288).
+    const resetUrl = absoluteUrl(resetPath, env.get('APP_URL', 'http://localhost:5555'))
 
     await SendMailJob.dispatch({
       kind: MAIL_KINDS.passwordReset,

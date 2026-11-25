@@ -1,0 +1,62 @@
+{
+  "items": [
+    {
+      "sku": "FIXCUP",
+      "name": "GOBELET FIXTURE 22 cl",
+      "description": "Gobelet réutilisable, fixture de test.",
+      "categories": ["Gobelets", "Fabriqué en France"],
+      "material": ["PP"],
+      "catalogue_status": "ACT",
+      "product_options": ["Nouveautés", "Fabriqué en France"],
+      "status": 1,
+      "type_id": "configurable",
+      "custom_code": "3924100000",
+      "country_origin": "France",
+      "weight": 0.019,
+      "package_length": 60,
+      "package_width": 40,
+      "package_height": 30,
+      "package_weight": 9.8,
+      "qty_per_carton": 500,
+      "package_type": "carton",
+      "package_unit_type": "Sac / Bag",
+      "media_gallery_entries": [{ "media_type": "image", "file": "/f/i/fixcup_1.jpg" }]
+    },
+    {
+      "sku": "FIXCUP#001",
+      "main_sku": "FIXCUP",
+      "name": "GOBELET FIXTURE 22 cl",
+      "color": "Bleu marine 02",
+      "status": 1,
+      "type_id": "simple",
+      "media_gallery_entries": [{ "media_type": "image", "file": "/f/i/fixcup_001.jpg" }]
+    },
+    {
+      "sku": "FIXCUP#002",
+      "main_sku": "FIXCUP",
+      "name": "GOBELET FIXTURE 22 cl",
+      "color": "Blanc opaque 01",
+      "status": 1,
+      "type_id": "simple",
+      "media_gallery_entries": []
+    },
+    {
+      "sku": "FIXCUP#ECH",
+      "main_sku": "FIXCUP",
+      "name": "GOBELET FIXTURE 22 cl",
+      "color": "Echantillon",
+      "status": 1,
+      "type_id": "simple",
+      "media_gallery_entries": []
+    },
+    {
+      "sku": "FIXPEN#010",
+      "name": "STYLO FIXTURE SANS PARENT",
+      "color": "Noir",
+      "catalogue_status": "DES",
+      "status": 1,
+      "type_id": "simple",
+      "media_gallery_entries": []
+    }
+  ]
+}

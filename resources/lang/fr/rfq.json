@@ -15,8 +15,31 @@
       "suppliers": "Destinataires",
       "responses": "Réponses",
       "status": "Statut",
-      "deadline": "Échéance"
-    }
+      "deadline": "Échéance",
+      "author": "Auteur",
+      "quotes": "Devis"
+    },
+    "progress": {
+      "draft": "Brouillon",
+      "published": "Publiée",
+      "sent": "Envoyée",
+      "responded": "Répondue",
+      "expired": "Échue",
+      "closed": "Clôturée"
+    },
+    "filters": {
+      "label": "Filtrer les demandes",
+      "status": "Statut",
+      "author": "Auteur",
+      "allStatuses": "Tous les statuts",
+      "allAuthors": "Tous les auteurs",
+      "reset": "Réinitialiser les filtres"
+    },
+    "noMatch": "Aucune demande ne correspond à ces filtres.",
+    "noMatchDescription": "Modifiez ou réinitialisez les filtres pour retrouver vos demandes.",
+    "batch": "Panier du {date} · {count, plural, one {# demande} other {# demandes}}",
+    "quoteReceived": "Devis reçu",
+    "unknownAuthor": "Auteur inconnu"
   },
   "create": {
     "title": "Nouvelle demande de devis",
@@ -39,7 +62,9 @@
     "addSuppliers": "Ajouter des destinataires",
     "removeSupplier": "Retirer",
     "sentAt": "Envoyée le {date}",
-    "viewProduct": "Voir la fiche produit"
+    "viewProduct": "Voir la fiche produit",
+    "salesContactsTitle": "Contacts commerciaux",
+    "salesContactsHint": "Les demandes partent à l'adresse de réception du fournisseur ; ces commerciaux suivent votre pays."
   },
   "status": {
     "draft": "Brouillon",
@@ -52,8 +77,10 @@
     "sent": "Envoyée",
     "viewed": "Consultée",
     "responded": "A répondu",
-    "declined": "A décliné"
+    "declined": "A décliné",
+    "expired": "Expirée sans réponse"
   },
+  "lateReply": "Réponse tardive",
   "actions": {
     "publish": "Publier",
     "send": "Envoyer aux destinataires",
@@ -125,7 +152,15 @@
         "deadline": "Échéance",
         "status": "Statut"
       },
-      "emptyDescription": "Les acheteurs qui vous consultent apparaîtront ici avec le détail de leur besoin."
+      "emptyDescription": "Les acheteurs qui vous consultent apparaîtront ici avec le détail de leur besoin.",
+      "filters": {
+        "label": "Filtrer les demandes reçues",
+        "status": "Statut",
+        "allStatuses": "Tous les statuts",
+        "reset": "Réinitialiser le filtre"
+      },
+      "emptyFiltered": "Aucune demande pour ce statut.",
+      "emptyFilteredDescription": "Changez de filtre pour retrouver vos autres demandes."
     },
     "show": {
       "backToList": "Retour aux demandes reçues",
@@ -137,7 +172,16 @@
       "expiredNotice": "Cette demande est échue : l'acheteur n'attend plus de réponse.",
       "responseTitle": "Votre réponse",
       "responseOpen": "Chiffrez ce besoin en remettant un devis, ou déclinez la demande si vous ne pouvez pas y donner suite.",
-      "responseQuote": "Vous avez rédigé un devis pour cette demande."
+      "responseQuote": "Vous avez rédigé un devis pour cette demande.",
+      "responseDocument": "Vous avez envoyé un devis PDF pour cette demande. Vous pouvez en déposer une nouvelle version ci-dessous.",
+      "contact": {
+        "title": "Coordonnées de l'agence",
+        "agency": "Agence",
+        "requester": "Demande faite par",
+        "email": "E-mail",
+        "phone": "Téléphone",
+        "address": "Adresse"
+      }
     },
     "actions": {
       "decline": "Décliner la demande",
@@ -147,13 +191,21 @@
       "sent": "À traiter",
       "viewed": "En cours",
       "responded": "Devis envoyé",
-      "declined": "Déclinée"
+      "declined": "Déclinée",
+      "expired": "Expirée"
     },
     "flash": {
       "declined": "Demande déclinée."
     },
     "errors": {
       "notDecidable": "Cette demande n'attend plus de décision de votre part."
+    },
+    "anonymousBuyer": "Agence anonyme",
+    "state": {
+      "to_process": "À traiter",
+      "responded": "Répondu",
+      "expired": "Expiré",
+      "declined": "Décliné"
     }
   },
   "product": {
@@ -172,5 +224,16 @@
   },
   "form": {
     "general": "Informations générales"
+  },
+  "specs": {
+    "variant": "Variante",
+    "sku": "Référence",
+    "markingPosition": "Position de marquage",
+    "markingTechnique": "Technique de marquage",
+    "markingColors": "Couleurs de marquage",
+    "estimatedUnitPrice": "Prix unitaire indicatif",
+    "estimatedMarkingUnitPrice": "Marquage / pièce indicatif",
+    "estimatedSetupCharge": "Frais techniques indicatifs",
+    "estimatedTotal": "Total indicatif"
   }
 }

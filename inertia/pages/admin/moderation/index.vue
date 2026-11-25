@@ -12,6 +12,7 @@ import BasePagination from '~/components/base/base_pagination.vue'
 import BaseTable from '~/components/base/base_table.vue'
 import type { AdminModerationFilters, AdminModerationItem } from '#shared/types/admin_moderation'
 import type { Paginated } from '#shared/types/pagination'
+import { formatShortDate } from '#shared/helpers/date'
 
 const props = defineProps<{
   queue: Paginated<AdminModerationItem>
@@ -37,7 +38,7 @@ function visit(filters: AdminModerationFilters, page = 1) {
 }
 
 function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(locale.value)
+  return formatShortDate(value, locale.value)
 }
 
 function showUrl(item: AdminModerationItem): string {

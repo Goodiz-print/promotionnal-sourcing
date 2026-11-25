@@ -16,7 +16,12 @@
     "body": "{buyerName} ti invita a quotare la richiesta «{rfqTitle}» ({itemCount, plural, one {# riga} other {# righe}}).",
     "deadline": "Risposta attesa entro il {deadline}.",
     "cta": "Consulta la richiesta",
-    "footer": "Accedi alla tua area fornitore per consultare la richiesta o rifiutarla."
+    "footer": "Accedi alla tua area fornitore per consultare la richiesta o rifiutarla.",
+    "anonymous": {
+      "subject": "Nuova richiesta di preventivo: «{rfqTitle}»",
+      "title": "Un'agenzia vi consulta su {brandName}",
+      "body": "Un'agenzia vi invita a quotare la richiesta «{rfqTitle}» ({itemCount, plural, one {# riga} other {# righe}})."
+    }
   },
   "passwordReset": {
     "subject": "Reimposta la tua password",
@@ -46,7 +51,30 @@
     "body": "{buyerName} ti ha inviato la richiesta «{rfqTitle}» e non l'hai ancora consultata.",
     "deadline": "Risposta attesa entro il {deadline}.",
     "cta": "Consulta la richiesta",
-    "footer": "Questo è l'unico promemoria per questa richiesta. Puoi anche rifiutarla dalla tua area fornitore."
+    "footer": "Questo è l'unico promemoria per questa richiesta. Puoi anche rifiutarla dalla tua area fornitore.",
+    "anonymous": {
+      "body": "Un'agenzia vi ha inviato la richiesta «{rfqTitle}» e non l'avete ancora consultata."
+    }
+  },
+  "rfqDetails": {
+    "description": "Descrizione della richiesta",
+    "linesTitle": "{count, plural, one {# riga da quotare} other {# righe da quotare}}",
+    "reference": "Codice",
+    "variant": "Variante",
+    "quantity": "Quantità",
+    "marking": "Personalizzazione",
+    "markingColors": "{count, plural, one {# colore} other {# colori}}",
+    "noMarking": "Senza personalizzazione",
+    "note": "Nota dell'agenzia",
+    "unitPrice": "Prezzo unitario indicativo",
+    "markingUnitPrice": "Personalizzazione per pezzo indicativa",
+    "setupCharge": "Costi tecnici indicativi",
+    "total": "Totale indicativo",
+    "price": "Prezzo indicativo",
+    "noPrice": "Nessun prezzo di catalogo: da quotare",
+    "indicativeNotice": "I prezzi indicati sono i prezzi indicativi mostrati su {brandName}, calcolati dal vostro catalogo. Non sono prezzi concordati: potete proporre una tariffa migliore o mantenerli.",
+    "replyHint": "Per rispondere, rispondete a questa e-mail allegando il vostro preventivo (PDF).",
+    "platformLink": "Potete anche consultare la richiesta sulla piattaforma:"
   },
   "quoteReceived": {
     "subject": "Nuovo preventivo di {supplierName} per «{rfqTitle}»",
@@ -78,5 +106,79 @@
   "announcement": {
     "footer": "Ricevi questo messaggio perché hai un account su {brandName}.",
     "cta": "Apri {brandName}"
+  },
+  "notificationReminder": {
+    "subject": "Azione richiesta: una notifica importante non è ancora stata letta",
+    "title": "Una notifica importante ti aspetta",
+    "intro": "Questa notifica ti è stata inviata su {brandName} e non è ancora stata letta:",
+    "cta": "Apri la pagina interessata",
+    "footer": "Ricevi questo promemoria una sola volta. Non viene più inviato appena la notifica viene letta."
+  },
+  "subscriptionActivated": {
+    "subject": "Il tuo abbonamento {planName} è attivo",
+    "title": "Abbonamento {planName} attivato",
+    "intro": "L'abbonamento {planName} di {organizationName} è attivo su {brandName}.",
+    "period": "Copre il periodo dal {startsOn} al {endsOn} incluso.",
+    "since": "È attivo dal {startsOn}.",
+    "features": "Il tuo piano comprende:",
+    "cta": "Vedi il mio abbonamento",
+    "footer": "Ricevi questa email in quanto responsabile dell'organizzazione."
+  },
+  "subscriptionExpiring": {
+    "subject": "Il tuo abbonamento {planName} termina il {endsOn}",
+    "title": "Il tuo abbonamento {planName} termina tra {daysLeft, plural, one {# giorno} other {# giorni}}",
+    "intro": "L'abbonamento {planName} di {organizationName} termina il {endsOn}.",
+    "after": "Senza rinnovo, la tua organizzazione tornerà al piano gratuito: l'identità delle agenzie non sarà più visibile nelle richieste di preventivo né nelle statistiche.",
+    "cta": "Rinnova il mio abbonamento",
+    "footer": "Ricevi questo promemoria in quanto responsabile dell'organizzazione."
+  },
+  "quoteEmailVerification": {
+    "subject": "Confermate l'indirizzo di ricezione delle richieste di preventivo di {organizationName}",
+    "title": "Confermate questo indirizzo",
+    "body": "{organizationName} ha scelto questo indirizzo per ricevere le richieste di preventivo su {brandName}. Confermatelo perché le agenzie possano contattarvi qui.",
+    "cta": "Conferma l'indirizzo",
+    "validity": "Questo link è valido {days, plural, one {# giorno} other {# giorni}}.",
+    "ignore": "Se non lavorate per {organizationName}, ignorate questo messaggio: non vi verrà inviata alcuna richiesta."
+  },
+  "subscriptionUpsell": {
+    "title": "Abbonatevi per conoscere l'agenzia",
+    "body": "Abbonatevi per sapere quale agenzia vi consulta e contattarla direttamente. L'abbonamento è riservato ai proprietari e agli amministratori della vostra organizzazione.",
+    "cta": "Scopri gli abbonamenti"
+  },
+  "buyerContact": {
+    "title": "Recapiti dell'agenzia",
+    "agency": "Agenzia",
+    "requester": "Richiesta di",
+    "email": "E-mail",
+    "phone": "Telefono",
+    "address": "Indirizzo"
+  },
+  "supplierReplyReceived": {
+    "subject": "Risposta di {supplierName} a «{rfqTitle}»",
+    "subjectLate": "Risposta tardiva di {supplierName} a «{rfqTitle}»",
+    "title": "{supplierName} ha risposto alla sua richiesta",
+    "body": "{supplierName} ha risposto via email alla sua richiesta «{rfqTitle}».",
+    "lateNotice": "Risposta tardiva: è arrivata dopo la scadenza della richiesta.",
+    "messageHeading": "Il suo messaggio:",
+    "documentsHeading": "Preventivi allegati:",
+    "downloadHint": "Per aprire questi link è necessario aver effettuato l'accesso al proprio account.",
+    "cta": "Apri la richiesta",
+    "footer": "Riceve questo messaggio perché gestisce questa richiesta di preventivo.",
+    "replyHint": "Risponda semplicemente a questa e-mail: la sua risposta verrà inoltrata al fornitore."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Messaggio di {agencyName} su «{rfqTitle}»",
+      "anonymous": "Messaggio dell'agenzia su «{rfqTitle}»"
+    },
+    "title": {
+      "named": "{agencyName} le ha scritto",
+      "anonymous": "L'agenzia le ha scritto"
+    },
+    "body": "Nuovo messaggio sulla richiesta «{rfqTitle}»:",
+    "attachmentsHeading": "Allegati, consultabili nell'applicazione:",
+    "replyHint": "Risponda semplicemente a questa e-mail: la sua risposta verrà inoltrata all'agenzia.",
+    "cta": "Apri la richiesta",
+    "footer": "Riceve questo messaggio perché la sua azienda ha ricevuto questa richiesta di preventivo."
   }
 }

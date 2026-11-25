@@ -267,7 +267,7 @@ test.group('Produits — variantes et paliers de prix', (group) => {
     assert.isBelow(slugs.indexOf('beta-pas-cher'), slugs.indexOf('alpha-moyen'))
     assert.isBelow(slugs.indexOf('alpha-moyen'), slugs.indexOf('zeta-cher'))
     // Produits sans palier : après ceux qui en ont.
-    assert.isBelow(slugs.indexOf('zeta-cher'), slugs.indexOf('crayon-hb-bleu'))
+    assert.isBelow(slugs.indexOf('zeta-cher'), slugs.indexOf('crayon-hb-rouge'))
   })
 
   test('le SKU est unique par produit en base', async ({ assert }) => {

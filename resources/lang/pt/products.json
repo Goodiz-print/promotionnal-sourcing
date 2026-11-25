@@ -67,8 +67,6 @@
     "tierQuantity": "Quantidade",
     "tierPrice": "Preço unitário",
     "tierFrom": "A partir de {quantity} unidades",
-    "addToDraft": "Adicionar a um pedido em rascunho",
-    "chooseDraft": "Escolher um rascunho…",
     "signInToRequest": "Inicie sessão para pedir um orçamento",
     "compliance": "Conformidade",
     "eco": "Ecológico",

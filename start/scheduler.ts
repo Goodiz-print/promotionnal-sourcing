@@ -20,10 +20,14 @@ import PurgeExpiredInvitationsJob from '#jobs/purge_expired_invitations_job'
 import RecoverStorageUploadsJob from '#jobs/recover_storage_uploads_job'
 import ExpireRfqsJob from '#jobs/expire_rfqs_job'
 import RemindRfqSuppliersJob from '#jobs/remind_rfq_suppliers_job'
+import SendNotificationRemindersJob from '#jobs/send_notification_reminders_job'
 import PurgeSearchEventsJob from '#jobs/purge_search_events_job'
 import PurgeAiCallsJob from '#jobs/purge_ai_calls_job'
 import PurgeActivityEventsJob from '#jobs/purge_activity_events_job'
 import CheckPlatformHealthJob from '#jobs/check_platform_health_job'
+import RecoverInboundMailsJob from '#jobs/recover_inbound_mails_job'
+import PurgeStripeWebhookEventsJob from '#jobs/purge_stripe_webhook_events_job'
+import SyncSubscriptionsJob from '#jobs/sync_subscriptions_job'
 
 /**
  * Purge quotidienne des invitations d'organisation (bascule `pending` échues en
@@ -99,9 +103,47 @@ await PurgeAiCallsJob.schedule({})
   .run()
 
 /**
+ * Purge quotidienne des notifications Stripe d'abonnement traitées au-delà de
+ * 30 jours — cf. `StripeWebhookEventService#purge`. Stripe ne renvoie plus une
+ * notification après 3 jours : la ligne ne sert plus à l'idempotence.
+ */
+await PurgeStripeWebhookEventsJob.schedule({})
+  .id('purge-stripe-webhook-events')
+  .cron('35 4 * * *')
+  .timezone('Europe/Paris')
+  .run()
+
+/**
  * Surveillance de la plateforme toutes les 5 minutes (#179) : sonde les composants,
  * met à jour leur état et alerte à la dégradation. Le défaut d'`alertAfterFailures`
  * (2 passes) fait donc partir une alerte une dizaine de minutes après le début d'une
  * panne.
  */
 await CheckPlatformHealthJob.schedule({}).id('check-platform-health').cron('*/5 * * * *').run()
+
+/**
+ * Reprise des mails entrants non aboutis, toutes les 15 minutes (#223) : worker
+ * tué en plein traitement, tentatives du job épuisées pendant une panne du
+ * prestataire — cf. `InboundMailService#recoverStale`. Sans elle ces mails
+ * seraient perdus : le prestataire ne relance pas un webhook qui a répondu 200.
+ */
+await RecoverInboundMailsJob.schedule({}).id('recover-inbound-mails').cron('*/15 * * * *').run()
+
+/**
+ * Rappel par mail des notifications importantes non lues, toutes les 5 minutes
+ * (#243) : un type de `NOTIFICATION_EMAIL_FALLBACK` resté non lu au-delà de son
+ * délai déclenche un seul mail vers son destinataire. Une passe toutes les
+ * 5 minutes fait partir le rappel au plus 5 minutes après l'échéance.
+ */
+await SendNotificationRemindersJob.schedule({})
+  .id('send-notification-reminders')
+  .cron('*/5 * * * *')
+  .run()
+
+/**
+ * Abonnements manuels, toutes les heures (#214) : expiration des abonnements
+ * échus (retour en gratuit), activation des abonnements programmés. Les dates
+ * sont des jours (heure de Paris) ; la règle « abonné » ignore déjà un
+ * abonnement échu, le passage horaire aligne statut et formule courante.
+ */
+await SyncSubscriptionsJob.schedule({}).id('sync-subscriptions').cron('5 * * * *').run()

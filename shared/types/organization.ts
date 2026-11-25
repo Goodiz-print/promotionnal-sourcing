@@ -12,6 +12,9 @@ export const ORGANIZATION_TYPES = ['buyer', 'supplier', 'both'] as const
 
 export type OrganizationKind = (typeof ORGANIZATION_TYPES)[number]
 
+/** Types d'organisation qui vendent, et reçoivent donc des demandes de devis. */
+export const SUPPLIER_ORGANIZATION_KINDS: readonly OrganizationKind[] = ['supplier', 'both']
+
 export const DEFAULT_ORGANIZATION_KIND: OrganizationKind = 'buyer'
 
 /**
@@ -152,6 +155,8 @@ export type SupplierProfileType = {
   spokenLanguages: string[] | null
   minOrderNote: string | null
   quoteEmail: string | null
+  /** Date de confirmation de `quoteEmail` par lien (#217) ; `null` tant qu'elle ne l'est pas. */
+  quoteEmailVerifiedAt: string | null
   reportFrequency: ReportFrequency
   catalogueUpdateMode: CatalogueUpdateMode | null
   catalogueUpdateFrequency: CatalogueUpdateFrequency | null

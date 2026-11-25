@@ -130,6 +130,44 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Produits sponsorisés — recharge du portefeuille (Stripe)
+  |----------------------------------------------------------
+  | Optionnelles : sans `STRIPE_SECRET_KEY`, la recharge en ligne est
+  | désactivée (l'équipe crédite les portefeuilles depuis le back-office).
+  | `STRIPE_WEBHOOK_SECRET` signe les notifications de paiement.
+  */
+  STRIPE_SECRET_KEY: Env.schema.secret.optional(),
+  STRIPE_WEBHOOK_SECRET: Env.schema.secret.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Abonnements fournisseurs — souscription en ligne (Stripe)
+  |----------------------------------------------------------
+  | Identifiants des prix récurrents mensuels (`price_…`). Optionnels : sans
+  | eux (ou sans `STRIPE_SECRET_KEY`), la souscription en ligne est désactivée.
+  */
+  STRIPE_PRICE_BUSINESS: Env.schema.string.optional(),
+  STRIPE_PRICE_PREMIUM: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Réception des mails entrants (réponses des fournisseurs, ADR 0005)
+  |----------------------------------------------------------
+  | Toutes optionnelles : sans prestataire, domaine relais et clés, la
+  | réception est désactivée et les mails de demande partent sans `Reply-To`.
+  | `INBOUND_MAIL_SIGNING_KEY` vérifie la signature du webhook,
+  | `INBOUND_MAIL_API_KEY` lit le contenu des mails (web **et** worker).
+  */
+  INBOUND_MAIL_PROVIDER: Env.schema.enum.optional(['resend', 'none'] as const),
+  INBOUND_MAIL_DOMAIN: Env.schema.string.optional({ format: 'host' }),
+  INBOUND_MAIL_SIGNING_KEY: Env.schema.secret.optional(),
+  INBOUND_MAIL_API_KEY: Env.schema.secret.optional(),
+  INBOUND_MAIL_MAX_SIZE_MB: Env.schema.number.optional(),
+  INBOUND_MAIL_MAX_ATTACHMENT_SIZE_MB: Env.schema.number.optional(),
+  INBOUND_MAIL_GRACE_DAYS: Env.schema.number.optional(),
+
+  /*
+  |----------------------------------------------------------
   | Variables for configuring the limiter package
   |----------------------------------------------------------
   */
@@ -144,4 +182,22 @@ export default await Env.create(new URL('../', import.meta.url), {
   */
   PASSKEY_RP_ID: Env.schema.string.optional(),
   PASSKEY_ORIGIN: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Connecteurs de flux fournisseurs (`node ace supplier:import`)
+  |----------------------------------------------------------
+  | Accès RÉELS aux catalogues (prix nets du compte) : uniquement dans `.env`,
+  | jamais committés. Tous optionnels : un connecteur sans sa variable lève une
+  | erreur explicite à l'usage, sans empêcher l'application de démarrer.
+  | `PFCONCEPT_FEED_CODE` est le code distributeur présent dans les URLs des
+  | flux prix / stock / prix de marquage PF Concept.
+  */
+  PFCONCEPT_FEED_CODE: Env.schema.secret.optional(),
+  PASSOT_API_KEY: Env.schema.secret.optional(),
+  INSPIRION_API_KEY: Env.schema.secret.optional(),
+  MAKITO_EMAIL: Env.schema.string.optional(),
+  MAKITO_PASSWORD: Env.schema.secret.optional(),
+  SUPPLIER_FEED_TIMEOUT_MS: Env.schema.number.optional(),
+  SUPPLIER_FEED_USER_AGENT: Env.schema.string.optional(),
 })

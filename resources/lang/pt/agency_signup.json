@@ -22,7 +22,8 @@
     "phone": "Telefone",
     "activity": "Atividade",
     "activityOther": "Descreva a sua atividade",
-    "locale": "Idioma"
+    "locale": "Idioma",
+    "contactEmail": "E-mail de contacto da agência"
   },
   "civility": {
     "none": "Não indicado",
@@ -44,5 +45,6 @@
     "professional": "Certifico ser profissional do objeto e do têxtil personalizado.",
     "terms": "Aceito as condições gerais de utilização.",
     "partners": "Aceito receber a newsletter e as comunicações dos parceiros (facultativo)."
-  }
+  },
+  "contactEmailHelp": "Opcional. Partilhado, com o seu telefone e morada, com os fornecedores subscritores que consulta. Caso contrário, recebem o e-mail do autor do pedido."
 }

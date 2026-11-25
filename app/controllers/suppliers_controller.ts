@@ -5,6 +5,8 @@ import ActivityEventService from '#services/activity_event_service'
 import SupplierDirectoryService from '#services/supplier_directory_service'
 import DocumentService from '#services/document_service'
 import SearchEventService from '#services/search_event_service'
+import SupplierContactService from '#services/supplier_contact_service'
+import SupplierContactTransformer from '#transformers/supplier_contact_transformer'
 import SupplierTransformer from '#transformers/supplier_transformer'
 import SupplierDetailTransformer from '#transformers/supplier_detail_transformer'
 import type { Locale } from '#shared/types/i18n'
@@ -17,7 +19,8 @@ export default class SuppliersController {
     private service: SupplierDirectoryService,
     private documents: DocumentService,
     private searchEvents: SearchEventService,
-    private activityEvents: ActivityEventService
+    private activityEvents: ActivityEventService,
+    private contacts: SupplierContactService
   ) {}
 
   /**
@@ -63,7 +66,8 @@ export default class SuppliersController {
   }
 
   /**
-   * Fiche fournisseur publique : profil + catalogue produits.
+   * Fiche fournisseur publique : profil + catalogue produits + contacts
+   * commerciaux visibles par le visiteur.
    */
   async show({ inertia, params, i18n, auth }: HttpContext) {
     const locale = i18n.locale as Locale
@@ -82,8 +86,17 @@ export default class SuppliersController {
       isStaff: auth.user?.hasBackOffice ?? false,
     })
 
+    // Équipe commerciale (#241) : filtrée côté serveur selon le visiteur.
+    const contacts = supplier.organizationId
+      ? await this.contacts.visibleFor(
+          supplier.organizationId,
+          await this.contacts.viewerFor(auth.user)
+        )
+      : []
+
     return inertia.render('suppliers/show', {
       supplier: new SupplierDetailTransformer(supplier, locale, this.documents.urlFor).toObject(),
+      contacts: contacts.map((contact) => new SupplierContactTransformer(contact).toObject()),
     })
   }
 }

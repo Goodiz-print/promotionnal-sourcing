@@ -45,6 +45,17 @@ test.group('NavigationService', () => {
     assert.notInclude(routes, 'rfqs.index')
   })
 
+  test('les consultations : owner, admin et manager d’un fournisseur, pas un membre ni une agence', ({
+    assert,
+  }) => {
+    const allowed = (['owner', 'admin', 'manager'] as const).every((roleSlug) =>
+      routesFor('supplier', roleSlug).includes('supplier.insights.index')
+    )
+    assert.isTrue(allowed)
+    assert.notInclude(routesFor('supplier', 'member'), 'supplier.insights.index')
+    assert.notInclude(routesFor('buyer', 'owner'), 'supplier.insights.index')
+  })
+
   test('une organisation « both » cumule les entrées acheteur et fournisseur', ({ assert }) => {
     assert.includeMembers(routesFor('both', 'member'), ['rfqs.index', 'supplier.rfqs.index'])
   })

@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */
+ 
 /// <reference path="../manifest.d.ts" />
 
 import type { ExtractBody, ExtractErrorResponse, ExtractQuery, ExtractQueryForGet, ExtractRawResponse, ExtractResponse } from '@tuyau/core/types'
@@ -96,6 +96,32 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/health_details_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/health_details_controller').default['show']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/health_details_controller').default['show']>>>
+    }
+  }
+  'webhooks.stripe': {
+    methods: ["POST"]
+    pattern: '/webhooks/stripe'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/stripe_webhook_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/stripe_webhook_controller').default['store']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/stripe_webhook_controller').default['store']>>>
+    }
+  }
+  'webhooks.inbound_mail': {
+    methods: ["POST"]
+    pattern: '/webhooks/inbound-mail'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/inbound_mail_webhook_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/inbound_mail_webhook_controller').default['store']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/inbound_mail_webhook_controller').default['store']>>>
     }
   }
   'home': {
@@ -228,6 +254,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/products_controller').default['show']>>>
     }
   }
+  'ads.click': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/ads/click/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/ad_clicks_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/ad_clicks_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/ad_clicks_controller').default['show']>>>
+    }
+  }
   'organization.invitations.show': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/organization/invitations/:id/accept'
@@ -252,6 +291,19 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['verify']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['verify']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/email_verification_controller').default['verify']>>>
+    }
+  }
+  'supplier.quoteEmail.verify': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/quote-email/verify/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_email_verification_controller').default['verify']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_email_verification_controller').default['verify']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_email_verification_controller').default['verify']>>>
     }
   }
   'new_account.create': {
@@ -813,6 +865,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'supplier.profile.quoteEmail.resend': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/profile/quote-email/resend'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['resendQuoteEmailVerification']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['resendQuoteEmailVerification']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/profile_controller').default['resendQuoteEmailVerification']>>>
+    }
+  }
   'supplier.products.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/supplier/products'
@@ -1060,6 +1125,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfqs_controller').default['removeSupplier']>>>
     }
   }
+  'rfqs.messages.store': {
+    methods: ["POST"]
+    pattern: '/:locale/rfqs/:id/suppliers/:supplierId/messages'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/rfq_message').rfqMessageValidator)>>
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; supplierId: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/rfq_message').rfqMessageValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfq_messages_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfq_messages_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rfq_messages_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'rfqs.publish': {
     methods: ["POST"]
     pattern: '/:locale/rfqs/:id/publish'
@@ -1151,6 +1229,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/rfqs_controller').default['decline']>>>
     }
   }
+  'supplier.rfqs.messages.store': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/rfqs/:id/messages'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/rfq_message').rfqMessageValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/rfq_message').rfqMessageValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/rfq_messages_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/rfq_messages_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/rfq_messages_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'quotes.show': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/quotes/:id'
@@ -1188,6 +1279,58 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['reject']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['reject']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quotes_controller').default['reject']>>>
+    }
+  }
+  'quote_documents.download': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/quote-documents/:id/download'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_documents_controller').default['download']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_documents_controller').default['download']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_documents_controller').default['download']>>>
+    }
+  }
+  'quote_documents.select': {
+    methods: ["POST"]
+    pattern: '/:locale/quote-documents/:id/select'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_documents_controller').default['select']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_documents_controller').default['select']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_documents_controller').default['select']>>>
+    }
+  }
+  'supplier.quote_documents.store': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/rfqs/:id/quote-documents'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/supplier_quote_document').supplierQuoteDocumentValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/supplier_quote_document').supplierQuoteDocumentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quote_documents_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quote_documents_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/quote_documents_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.quote_documents.download': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/quote-documents/:id/download'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quote_documents_controller').default['download']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quote_documents_controller').default['download']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/quote_documents_controller').default['download']>>>
     }
   }
   'supplier.quotes.index': {
@@ -1279,6 +1422,71 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['destroy']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/quotes_controller').default['destroy']>>>
+    }
+  }
+  'quote_cart.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/quote-cart'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['show']>>>
+    }
+  }
+  'quote_cart.items.store': {
+    methods: ["POST"]
+    pattern: '/:locale/quote-cart/items'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/quote_cart').quoteCartItemValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/quote_cart').quoteCartItemValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'quote_cart.items.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/quote-cart/items/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/quote_cart').quoteCartItemUpdateValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/quote_cart').quoteCartItemUpdateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'quote_cart.items.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/quote-cart/items/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['destroy']>>>
+    }
+  }
+  'quote_cart.checkout': {
+    methods: ["POST"]
+    pattern: '/:locale/quote-cart/checkout'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/quote_cart').quoteCartCheckoutValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/quote_cart').quoteCartCheckoutValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['checkout']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['checkout']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/quote_cart_controller').default['checkout']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'orders.index': {
@@ -1463,6 +1671,240 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/message_report_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'supplier.ads.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/ads'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['index']>>>
+    }
+  }
+  'supplier.ads.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/ads/new'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['create']>>>
+    }
+  }
+  'supplier.ads.store': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/ads'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/ads').adCampaignValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/ads').adCampaignValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.ads.wallet.top_up': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/ads/wallet/top-up'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/ads').adTopUpValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/ads').adTopUpValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_wallet_controller').default['topUp']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_wallet_controller').default['topUp']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_wallet_controller').default['topUp']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.ads.edit': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/ads/:id/edit'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['edit']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['edit']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['edit']>>>
+    }
+  }
+  'supplier.ads.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/supplier/ads/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/ads').adCampaignUpdateValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/ads').adCampaignUpdateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.ads.status': {
+    methods: ["PATCH"]
+    pattern: '/:locale/supplier/ads/:id/status'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/ads').adCampaignStatusValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/ads').adCampaignStatusValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['updateStatus']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['updateStatus']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['updateStatus']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.ads.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/supplier/ads/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/ad_campaign_controller').default['destroy']>>>
+    }
+  }
+  'supplier.subscription.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/subscription'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['show']>>>
+    }
+  }
+  'supplier.subscription.checkout': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/subscription/checkout'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/subscription').subscriptionCheckoutValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/subscription').subscriptionCheckoutValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['checkout']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['checkout']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['checkout']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.subscription.portal': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/subscription/portal'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['portal']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['portal']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/subscription_controller').default['portal']>>>
+    }
+  }
+  'supplier.contacts.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/contacts'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['index']>>>
+    }
+  }
+  'supplier.contacts.store': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/contacts'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/supplier_contact').supplierContactValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/supplier_contact').supplierContactValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.contacts.settings': {
+    methods: ["PATCH"]
+    pattern: '/:locale/supplier/contacts/settings'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/supplier_contact').supplierContactSettingsValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/supplier_contact').supplierContactSettingsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['settings']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['settings']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['settings']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.contacts.update': {
+    methods: ["PATCH"]
+    pattern: '/:locale/supplier/contacts/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/supplier_contact').supplierContactValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/supplier_contact').supplierContactValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.contacts.destroy': {
+    methods: ["DELETE"]
+    pattern: '/:locale/supplier/contacts/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['destroy']>>>
+    }
+  }
+  'supplier.contacts.move': {
+    methods: ["POST"]
+    pattern: '/:locale/supplier/contacts/:id/move'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/supplier_contact').supplierContactMoveValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/supplier_contact').supplierContactMoveValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['move']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['move']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/contacts_controller').default['move']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'supplier.insights.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/supplier/insights'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/supplier/insights_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/supplier/insights_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/supplier/insights_controller').default['index']>>>
+    }
+  }
   'admin.dashboard': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin'
@@ -1474,6 +1916,58 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.ads.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/ads'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/ads').adminAdListValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.ads.wallets.adjust': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/ads/wallets/adjust'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/ads').adminAdWalletAdjustmentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/ads').adminAdWalletAdjustmentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['adjustWallet']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['adjustWallet']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['adjustWallet']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.ads.suspend': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/ads/:id/suspend'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['suspend']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['suspend']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['suspend']>>>
+    }
+  }
+  'admin.ads.restore': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/ads/:id/restore'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['restore']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['restore']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/ad_controller').default['restore']>>>
     }
   }
   'admin.organizations.index': {
@@ -1604,6 +2098,45 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['resendInvitation']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['resendInvitation']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_management_controller').default['resendInvitation']>>>
+    }
+  }
+  'admin.organizations.subscriptions.store': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/organizations/:id/subscriptions'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_subscription').adminSubscriptionCreateValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_subscription').adminSubscriptionCreateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.organizations.subscriptions.extend': {
+    methods: ["PATCH"]
+    pattern: '/:locale/admin/organizations/:id/subscriptions/:subscriptionId'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_subscription').adminSubscriptionExtendValidator)>>
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; subscriptionId: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_subscription').adminSubscriptionExtendValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['extend']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['extend']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['extend']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.organizations.subscriptions.cancel': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/organizations/:id/subscriptions/:subscriptionId/cancel'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue; subscriptionId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['cancel']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['cancel']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/organization_subscription_controller').default['cancel']>>>
     }
   }
   'admin.users.index': {
@@ -2061,6 +2594,71 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/mail_controller').default['retry']>>>
     }
   }
+  'admin.inbound_mail.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/inbound-mail'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_inbound_mail').adminInboundMailFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.inbound_mail.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/inbound-mail/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_inbound_mail').adminInboundMailShowValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['show']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['show']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.inbound_mail.attach': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/inbound-mail/:id/attach'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_inbound_mail').adminInboundMailAttachValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_inbound_mail').adminInboundMailAttachValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['attach']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['attach']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['attach']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.inbound_mail.replay': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/inbound-mail/:id/replay'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['replay']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['replay']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['replay']>>>
+    }
+  }
+  'admin.inbound_mail.dismiss': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/inbound-mail/:id/dismiss'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['dismiss']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['dismiss']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/inbound_mail_controller').default['dismiss']>>>
+    }
+  }
   'admin.storage.index': {
     methods: ["GET","HEAD"]
     pattern: '/:locale/admin/storage'
@@ -2254,6 +2852,45 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/moderation_controller').default['decide']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/moderation_controller').default['decide']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/moderation_controller').default['decide']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.supplier_links.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/:locale/admin/supplier-links'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { locale: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/admin_supplier_link').supplierLinkFiltersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.supplier_links.link': {
+    methods: ["POST"]
+    pattern: '/:locale/admin/supplier-links/:id/link'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_supplier_link').supplierLinkValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_supplier_link').supplierLinkValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['link']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['link']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['link']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.supplier_links.unlink': {
+    methods: ["DELETE"]
+    pattern: '/:locale/admin/supplier-links/:id/link'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { locale: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['unlink']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['unlink']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/supplier_link_controller').default['unlink']>>>
     }
   }
   'admin.agency_reviews.index': {

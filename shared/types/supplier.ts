@@ -60,18 +60,57 @@ export interface CreateSupplierData {
 
 export interface UpdateSupplierData extends Partial<CreateSupplierData> {}
 
-/** Contact commercial affiché sur la page fournisseur (visible des agences validées). */
+/**
+ * Contact de l'équipe commerciale d'un fournisseur (#241). `countries` : pays
+ * couverts (ISO alpha-2) ; vide = tous les pays. `userId` : membre du compte
+ * fournisseur relié, `null` pour une simple fiche de contact.
+ */
 export type SupplierContactType = {
   id: number
-  organizationId: number
   name: string
   jobTitle: string | null
   email: string
   phone: string | null
   languages: string[]
-  coverage: string | null
+  countries: string[]
   position: number
+  userId: number | null
 }
+
+/** Saisie d'un contact commercial par le fournisseur (création ou modification). */
+export interface SupplierContactData {
+  name: string
+  jobTitle?: string | null
+  email: string
+  phone?: string | null
+  languages?: string[]
+  countries?: string[]
+  userId?: number | null
+}
+
+/** Sens de déplacement d'un contact dans l'ordre d'affichage. */
+export const SUPPLIER_CONTACT_MOVES = ['up', 'down'] as const
+export type SupplierContactMove = (typeof SUPPLIER_CONTACT_MOVES)[number]
+
+/** Membre du compte fournisseur qu'un contact peut relier. */
+export type SupplierTeamMemberOptionType = {
+  id: number
+  name: string
+  email: string
+}
+
+/**
+ * Celui qui consulte les contacts d'un fournisseur : l'organisation courante
+ * de l'utilisateur connecté (son pays décide du filtre). `null` : visiteur non
+ * connecté ou sans organisation utilisable — il ne reçoit aucun contact.
+ */
+export interface SupplierContactViewer {
+  organizationId: number
+  country: string | null
+}
+
+/** Contacts visibles par l'agence, par organisation fournisseur destinataire d'une demande. */
+export type SupplierContactsByOrganization = Record<number, SupplierContactType[]>
 
 /** Actualité publiée sur la page fournisseur (nouveautés de l'accueil). */
 export type SupplierNewsType = {
@@ -102,4 +141,15 @@ export type BillingProfileType = {
   country: string | null
   email: string | null
   purchaseOrderReference: string | null
+}
+
+/**
+ * Props de l'écran « Équipe commerciale » de l'espace fournisseur.
+ * `isSubscribed` : sans abonnement, l'équipe se prépare mais n'est pas montrée.
+ */
+export type SupplierContactsPageProps = {
+  contacts: SupplierContactType[]
+  members: SupplierTeamMemberOptionType[]
+  showAllContacts: boolean
+  isSubscribed: boolean
 }

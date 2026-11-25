@@ -33,11 +33,11 @@ draft ──submit──▶ submitted ──accept──▶ accepted
 
 - **Créer / modifier** (`createDraft`, `updateDraft`) : le fournisseur doit être
   destinataire notifié (pas `pending`), ne pas avoir décliné, et la demande doit
-  attendre encore des réponses (`RfqService#acceptsResponses` : publiée et
+  attendre encore des réponses (`acceptsResponses`, `shared/helpers/rfq_deadline.ts` : publiée et
   échéance non passée). Les lignes sont validées contre la demande (item connu,
   une seule fois). `valid_until`, si renseignée, ne peut pas être passée.
 - **Remettre** (`submit`) : exige au moins une ligne et une validité non dépassée.
-  Le destinataire passe `responded` (`RfqService#markResponded`), le devis
+  Le destinataire passe `responded` (`RfqRecipientService#markResponded`), le devis
   `submitted` et devient **figé**. Émet `QuoteSubmitted`.
 - **Accepter** (`accept`) : en une transaction, le devis passe `accepted`, la
   demande est clôturée (`closed`) et tous les autres devis **remis** passent
@@ -68,6 +68,35 @@ deux requêtes concurrentes (deux accept, accept + reject) ne s'écrasent pas.
 | PATCH   | `/:locale/supplier/quotes/:id`             | `supplier.quotes.update`  | fournisseur                     |
 | POST    | `/:locale/supplier/quotes/:id/submit`      | `supplier.quotes.submit`  | fournisseur                     |
 | DELETE  | `/:locale/supplier/quotes/:id`             | `supplier.quotes.destroy` | fournisseur (brouillon)         |
+
+Téléchargement d'un devis PDF reçu par mail (#225) :
+`GET /:locale/quote-documents/:id/download` (`quote_documents.download`,
+`QuoteDocumentsController#download`). Réservé aux **membres de l'agence**
+propriétaire de la demande, quel que soit leur rôle (ability
+`canDownloadQuoteDocument`) : un autre utilisateur — fournisseur compris — reçoit
+un **403**, un devis inconnu un 404, un visiteur est renvoyé vers la connexion
+puis ramené au devis (`?redirect=`).
+La route sert `QuoteDocument#recipientFile` (version au nom de l'agence pour un
+non-abonné, sinon l'original) en passant par l'application
+(`Cache-Control: private, no-store`) : l'URL de stockage n'est jamais exposée.
+C'est le lien des mails transmis à l'agence, et celui de l'écran de la demande
+(#228).
+
+Devis PDF retenu (#228) : `POST /:locale/quote-documents/:id/select`
+(`quote_documents.select`, `QuoteDocumentsController#select`), réservé aux
+**responsables** de l'agence (ability `canSelectQuoteDocument`,
+`RFQ_MANAGER_ROLES`). Voir « Devis PDF retenu » ci-dessous.
+
+Devis PDF du fournisseur (#230) :
+
+| Méthode | Chemin                                           | Nom                                 | Qui                                                       |
+| ------- | ------------------------------------------------ | ----------------------------------- | --------------------------------------------------------- |
+| POST    | `/:locale/supplier/rfqs/:id/quote-documents`     | `supplier.quote_documents.store`    | fournisseur destinataire (`canUploadRfqQuoteDocument`)    |
+| GET     | `/:locale/supplier/quote-documents/:id/download` | `supplier.quote_documents.download` | fournisseur destinataire (`canDownloadSentQuoteDocument`) |
+
+Le téléchargement côté fournisseur sert toujours le **fichier d'origine**
+(`attachment.storageObject`), jamais `recipientFile` : la copie au nom de l'agence
+(#238) n'est servie qu'à l'agence.
 
 Cloisonnement : le devis d'une autre organisation est un **404**, jamais un 403 ;
 un brouillon n'existe pas pour l'acheteur ; un fournisseur ne voit jamais les devis
@@ -102,7 +131,253 @@ fournisseur (`RFQ_RESPONDER_ROLES`). Voir [`entites-transverses.md`](entites-tra
 `quotes.currency` existe (`EUR` par défaut) mais une seule devise est gérée : pas de
 conversion, pas de sélecteur.
 
+## Devis reçu par mail, en PDF (#224)
+
+Un fournisseur répond aussi à la demande **depuis sa messagerie**, en joignant le
+PDF produit par son propre logiciel ([`mail.md`](mail.md), « Mails entrants »). Ce
+devis PDF **coexiste** avec le devis structuré ci-dessus : aucun des deux ne
+remplace l'autre, et un devis PDF n'a ni lignes, ni montant, ni statut.
+
+`InboundMailReceived` → `OnInboundMailReceived` → `SupplierReplyService#record` :
+
+1. le mail devient un **message** du fil de la demande pour ce destinataire
+   (`ConversationService#threadForRecipient`, `#recordInbound`) — voir
+   [`entites-transverses.md`](entites-transverses.md) ;
+2. ses pièces jointes acceptées deviennent celles du message
+   (`message_attachments`) ; un **PDF est compressé** par `PdfService` avant
+   d'être rattaché ([`storage.md`](storage.md)) ;
+3. chaque PDF est enregistré comme **devis du fournisseur** (`quote_documents`,
+   `QuoteService#recordDocuments`), avec, pour un fournisseur non abonné, sa
+   **version destinataire** au nom de l'agence (#238, ci-dessous) ;
+4. s'il y a au moins un PDF, le destinataire passe `responded`
+   (`RfqRecipientService#markRespondedWithQuote`).
+
+| Table             | Colonnes notables                                                                                                                                  |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `quote_documents` | `rfq_id`, `rfq_supplier_id`, `message_id`, `message_attachment_id` (unique), `received_at`, `recipient_storage_object_id` (nullable), `stamped_at` |
+
+- **Rattaché au destinataire** (`rfq_suppliers`), pas à l'organisation ni à un
+  utilisateur : le message n'a pas d'auteur (`author_user_id` nul), l'expéditeur
+  est celui du mail. Rien ne suppose un membre côté fournisseur : une
+  organisation sans membre répond par mail comme les autres. Le destinataire
+  reste toujours une organisation (#218, « fiche sans compte », est abandonnée :
+  un fournisseur n'a ses produits sur le site qu'avec un compte, #240).
+- **Plusieurs devis successifs** : chaque réponse ajoute ses PDF, rien n'est
+  écrasé. `QuoteService#currentDocumentsFor(rfqSupplierId)` renvoie ceux qui
+  **font foi** (les PDF de la dernière réponse qui en porte),
+  `#documentsFor(rfqSupplierId)` tous, du plus récent au plus ancien.
+- **Tout PDF joint vaut devis** : la plateforme ne lit pas le contenu, elle ne
+  distingue pas un devis d'un catalogue joint au même mail.
+- **Sans PDF** (texte seul, ou pièce d'un autre format) : simple message, le
+  statut ne change pas.
+- **Statut** : `sent`/`viewed`/`expired` → `responded`, par un `UPDATE`
+  conditionnel. Un destinataire `declined` ou déjà `responded` le reste. Tant
+  que l'adresse relais est valide (délai de grâce), une réponse arrivée après
+  l'échéance est enregistrée et marquée **tardive** (#232, `late_reply_at`,
+  voir [`rfq.md`](rfq.md#réponse-tardive-232)) ; sur une demande **close**, le
+  message et le devis sont enregistrés sans toucher au statut.
+- **Corps du message** : la partie texte du mail, à défaut son HTML réduit à du
+  texte (`htmlToText`), borné à `MESSAGE_MAX_LENGTH`. Le mail complet reste dans
+  `inbound_mails`. `htmlToText` ne lève jamais et travaille en temps linéaire sur
+  au plus `HTML_TEXT_SOURCE_MAX` caractères : le HTML vient d'un tiers.
+- **Mail sans rien à lire** (ni texte, ni fichier conservé — pièces toutes
+  refusées, par exemple) : aucun message n'est créé, le mail reste dans le journal.
+- **Expéditeur** : le jeton de l'adresse relais fait foi, pas l'expéditeur
+  ([`mail.md`](mail.md)). Le fil d'échanges (#226) montre l'expéditeur et s'il
+  est connu (`ConversationMessageType#mailSender`, lu sur `message.inboundMail`),
+  sauf au fournisseur pour un mail de l'agence.
+- **Idempotence** : `messages.inbound_mail_id` est unique ; un mail rejoué ne
+  crée ni second message ni second devis.
+- **Atomicité** : message, pièces jointes, devis et statut sont écrits dans une
+  seule transaction, sous verrou de la ligne destinataire (un seul fil par
+  destinataire, même pour deux réponses simultanées). En cas d'échec rien n'est
+  écrit, les PDF compressés sont libérés (`StorageService.discard`), le mail
+  repasse `failed` et son traitement est rejoué.
+- **Événement** : `SupplierReplyRecorded` (`inboundMailId` — `null` pour un
+  dépôt depuis l'écran, #230 —, `rfqSupplierId`, `conversationId`, `messageId`,
+  `quoteDocumentIds`, `responded`, `late`), émis une fois par réponse après le
+  commit — le point d'accroche de la transmission à l'agence (#225). Un
+  écouteur défaillant est loggué sans faire rejouer le mail.
+  **L'émission n'est pas garantie** : si le worker s'arrête entre le commit et
+  l'émission, l'événement est perdu et rien ne le rejoue (le mail est déjà
+  enregistré). Reprise à écrire : les messages portant `inbound_mail_id` sans
+  envoi correspondant dans `mail_deliveries` (limite connue, non traitée par
+  #225).
+
+### Transmission à l'agence (#225)
+
+`SupplierReplyRecorded` → `OnSupplierReplyRecorded` →
+`SupplierReplyNotificationService#notify` :
+
+- **Destinataires** : l'auteur de la demande (`rfqs.created_by_user_id`, s'il
+  est encore membre de l'agence) et les responsables de l'agence
+  (`RFQ_MANAGER_ROLES`), une seule fois chacun.
+- **Mail** `supplier-reply-received`, dans la langue de chacun : nom du
+  fournisseur (l'agence le connaît), texte de la réponse, un **lien de
+  téléchargement authentifié** par devis PDF (`quote_documents.download`), lien
+  vers la demande. Expéditeur : la plateforme ; `Reply-To` : l'adresse relais
+  côté agence (voir `docs/mail.md`) : la réponse de l'agence entre dans le fil
+  et part au fournisseur (#226). Le même mail, sans devis, transmet un message
+  que le fournisseur écrit dans l'application (`MessageRelayService`).
+- **Notification in-app** `rfq.responded` (`InAppNotificationService#supplierReplied`),
+  données `rfqId`, `rfqTitle`, `supplierName`, `messageId` ; elle mène à la demande.
+- **Idempotence** : la clé du mail porte le message du fil et le destinataire
+  (`mail_deliveries`) ; la notification passe par
+  `NotificationService#notifyOncePerMessage` (`INSERT … ON CONFLICT DO NOTHING` sur
+  l'index unique partiel `notifications (user_id, type, data->>'messageId')`).
+  Un événement rejoué, même en concurrence, ne prévient personne deux fois, et
+  un doublon ne lève jamais d'erreur.
+- **Devis cités** : `QuoteService#documentsOfReply`, limité aux devis de cette
+  réponse et de ce destinataire.
+- **Limite** : la transmission dépend de l'événement, dont l'émission n'est pas
+  garantie (voir ci-dessus). La reprise des réponses non transmises reste à faire.
+
+L'écran de la demande liste ces devis depuis #228 (« Devis PDF reçus »).
+
+### Fil d'échanges de la demande (#226)
+
+Un fil par couple demande / fournisseur (`conversations.rfq_supplier_id`),
+ouvert au premier message, qu'il vienne d'un mail ou de l'écran. Il est montré
+des deux côtés par `inertia/components/messaging/conversation_thread.vue` :
+
+- **Agence** — `rfqs/show` reçoit `threads: RfqThreadType[]`, un fil par
+  destinataire déjà notifié, au nom du fournisseur. Écrire :
+  `POST /:locale/rfqs/:id/suppliers/:supplierId/messages`
+  (`rfqs.messages.store`, `RfqMessagesController`, ability
+  `canMessageRfqSupplier` : tout membre de l'agence, destinataire non `pending`).
+- **Fournisseur** — `supplier/rfqs/show` reçoit `thread: RfqThreadType`, l'agence
+  nommée pour un abonné seulement. Écrire :
+  `POST /:locale/supplier/rfqs/:id/messages` (`supplier.rfqs.messages.store`,
+  `supplier/RfqMessagesController`, ability `canMessageRfqBuyer` : rôles
+  `RFQ_RESPONDER_ROLES` du fournisseur). Une demande qui ne lui est pas adressée
+  est un 404.
+- **Corps** : `rfqMessageValidator` (1 à `MESSAGE_MAX_LENGTH` caractères, rogné).
+  Redirection Inertia et message flash ; un fil bloqué par la plateforme (#167)
+  reste lisible, l'écriture est refusée par un flash.
+- **Affichage** (`RfqThreadTransformer`, `ConversationMessageTransformer`) : côté
+  de chaque message, `mine`, « par mail », pièces jointes, expéditeur du mail.
+  L'auteur n'est nommé que pour un message de son propre côté : un fournisseur
+  non abonné ne lit ni le nom de l'agence ni celui de ses membres.
+- **Fil clos** : passé `INBOUND_MAIL_GRACE_DAYS` jours après la clôture ou
+  l'expiration de la demande (même délai que l'adresse relais), le fil est clos
+  (`closed`) : lisible, mais les abilities refusent l'écriture des deux côtés.
+  Un fournisseur qui a décliné peut encore échanger tant que le fil est ouvert.
+- **Derniers messages** : l'écran montre les `THREAD_MESSAGES_LIMIT` (100)
+  derniers messages visibles de chaque fil (`RfqThreadService#threadsFor`,
+  `groupLimit`) et signale qu'il en existe de plus anciens (`hasOlder`).
+- **Signalement** : un message de l'autre côté se signale
+  (`POST messages/:id/report`, #167), qu'il vienne d'un mail ou de l'écran.
+- **Relais** : chaque message part par mail à l'autre côté, voir
+  [`mail.md`](mail.md#relais-des-échanges-agence--fournisseur-226).
+
+### Version destinataire : le nom de l'agence sur le devis (#238)
+
+Un fournisseur non abonné établit son devis sans connaître l'agence (#220) :
+son PDF n'en porte pas le nom. La plateforme produit donc une **copie
+destinataire** qui l'ajoute :
+
+- **Quand** : à l'enregistrement de la réponse, si l'organisation du
+  fournisseur n'est **pas abonnée à ce moment-là**
+  (`SubscriptionService#isSubscribed`). Un abonné connaît l'agence (#221) : son
+  devis n'est pas modifié.
+- **Quoi** : « Devis établi pour : <nom de l'agence> — demande n° <id> »,
+  dans un **bandeau en tête de la première page** (`PdfService#stampRecipient`,
+  `pdf-lib`). La page est **agrandie** vers le haut de la hauteur du bandeau :
+  le contenu d'origine n'est ni déplacé ni masqué. Repli sur une **page de
+  garde** A4 insérée avant le devis quand la première page est pivotée ou déjà
+  à la taille maximale d'une page PDF. Un nom trop long est réduit puis
+  tronqué.
+- **Repli sans modification** : un PDF chiffré, signé (champ de signature
+  rempli : la modifier l'invaliderait ; un emplacement de signature vide
+  n'empêche rien) ou illisible, ou un nom d'agence que la police standard
+  (Latin, WinAnsi) ne sait pas écrire — cyrillique, grec, idéogrammes… : un
+  bandeau amputé du nom laisserait croire l'agence nommée —, est transmis
+  **tel quel**, avec un warning loggé (`rfqId`, `rfqSupplierId`,
+  `inboundAttachmentId`, raison). Jamais d'erreur : `recipient_storage_object_id` reste nul.
+  Le nom de l'agence figure alors dans le mail de transmission (#225).
+- **Stockage** : la copie est stockée par `StorageService.storeContent` avant
+  la transaction, puis référencée par `quote_documents.recipient_storage_object_id`
+  dans la transaction qui écrit le devis ; `stamped_at` date l'apposition. Si
+  la transaction échoue, la copie est libérée comme les PDF compressés.
+- **Qui voit quoi** : le message du fil (`message_attachments`) garde le PDF
+  d'origine, le seul que voit le fournisseur. L'agence reçoit
+  `QuoteDocument#recipientFile` — la copie si elle existe, sinon l'original
+  (relations chargées par `QuoteService#documentsFor`). C'est ce fichier que
+  #225 transmet et que #228 propose au téléchargement.
+- **Coût** : `pdf-lib` analyse tout le fichier dans le worker. Les pièces
+  jointes sont bornées à 15 Mo (`INBOUND_MAIL_MAX_ATTACHMENT_SIZE_MB`) ; un
+  PDF malformé très lent ralentirait la file sans la bloquer en erreur.
+
+### Devis PDF reçus sur l'écran de la demande (#228)
+
+`QuoteService#documentsForRfq(rfq)` : tous les devis PDF de la demande, le plus
+récent en tête, colonnes explicites, pièce jointe (nom, taille) préchargée. Le
+destinataire (et son fournisseur) est repris de `rfq.suppliers`, déjà chargés
+par `RfqService#findForBuyer` : aucune requête de plus. `QuoteDocumentTransformer` (`QuoteDocumentType`) n'expose que
+fournisseur, nom et taille du fichier, dates de réception et de sélection : ni
+clé de stockage, ni message, ni pièce jointe. Le lien de téléchargement est la
+route `quote_documents.download`.
+
+### Devis PDF retenu (#228)
+
+`quote_documents.selected_at` (migration `1794000000040`). L'agence **retient**
+un devis PDF : le controller le charge sans ses fichiers
+(`QuoteService#findDocumentForDecision`, devis et demande), puis
+`QuoteService#selectDocument` relit la demande sous verrou
+(`FOR UPDATE`), la clôture par `RfqService#close` dans la transaction et pose
+`selected_at`. Deux décisions concurrentes (retenir deux PDF, accepter un devis
+structuré) ne clôturent qu'une fois : la seconde lève `RfqNotClosableException`,
+que le controller transforme en message flash.
+
+- **Pas de commande**, pas d'événement : la suite (bon de commande,
+  facturation) se fait entre l'agence et le fournisseur, hors plateforme.
+- Les devis structurés remis gardent leur statut ; la demande étant close, ils
+  ne peuvent plus être acceptés.
+- Seule une demande `published` se retient : une demande échue se rouvre
+  d'abord en prolongeant l'échéance.
+
+### Dépôt du devis PDF depuis l'écran (#230)
+
+Alternative à la réponse par mail pour un fournisseur connecté : le formulaire
+de la section « Devis envoyé » (`supplier/rfqs/show.vue`) poste le PDF en
+multipart (`supplierQuoteDocumentValidator` : PDF, 20 Mo, mot d'accompagnement
+facultatif). `SupplierReplyService#recordUpload(recipient, author, upload)` suit
+**le même chemin qu'un PDF reçu par mail** :
+
+1. en-tête `%PDF-` vérifié (`hasPdfHeader`, sinon `InvalidDocumentException`) ;
+2. compression (`PdfService`) et stockage, copie au nom de l'agence si le
+   fournisseur n'est pas abonné (#238) ;
+3. sous le verrou du destinataire, statut relu (`acceptsQuoteUpload` : un refus
+   arrivé depuis l'ability lève `RfqSupplierNotReplyableException`), puis
+   message du fil **écrit par le membre**
+   (`ConversationService#recordUploaded`, refusé si le fil est bloqué),
+   `quote_documents`, destinataire `responded` et réponse tardive après
+   l'échéance (`recordQuoteReply`, partagé avec la réponse par mail) ;
+4. après le commit, `SupplierReplyRecorded` (`inboundMailId: null`) : la
+   transmission à l'agence (#225) part comme pour un mail.
+
+En cas d'échec, les fichiers créés sont libérés (`StorageService#discard`).
+L'ability `canUploadRfqQuoteDocument` reprend la fenêtre de la réponse par mail
+(`isRfqThreadOpen`) et refuse un destinataire qui a décliné.
+Un refus attendu (pas un PDF, fil bloqué, demande déclinée entre-temps) revient
+en **erreur du champ `file`** (`session.flashErrors`), comme une erreur de
+validation : le formulaire garde le mot d'accompagnement saisi. Après un dépôt,
+« Votre réponse » rappelle le devis PDF envoyé (`rfq.supplier.show.responseDocument`).
+
+`QuoteService#documentsSentBy(rfqSupplierId)` liste les devis envoyés (nom,
+taille, date, message d'origine pour distinguer mail et dépôt) ;
+`SupplierQuoteDocumentTransformer` n'expose ni la version agence, ni la clé de
+stockage, ni la décision de l'agence.
+
 ## Tests
 
-`tests/functional/quotes.spec.ts` (service et écrans), `tests/inertia/*` pour les
-props de `supplier/rfqs/show.vue` et `rfqs/show.vue`.
+`tests/functional/supplier_received_requests.spec.ts` (#230 : statuts lisibles,
+filtres, devis envoyé, téléchargement réservé, dépôt depuis l'écran),
+`tests/functional/supplier_replies.spec.ts` (réponse par mail : message, pièce
+jointe compressée, devis PDF, statut, devis successifs, rejeu, échec sans
+orphelin), `tests/functional/supplier_reply_recipient_version.spec.ts` (version
+destinataire : non abonné, abonné, PDF signé, échec sans orphelin),
+`tests/unit/pdf_service.spec.ts` (bandeau, multipages, page de garde, PDF
+chiffré, signé ou illisible). `tests/functional/quotes.spec.ts` (service et écrans), `tests/inertia/*` pour les
+props de `supplier/rfqs/show.vue` et `rfqs/show.vue`. Fil d'échanges (#226) :
+`tests/functional/rfq_message_relay.spec.ts`, `tests/inertia/conversation_thread.spec.ts`.

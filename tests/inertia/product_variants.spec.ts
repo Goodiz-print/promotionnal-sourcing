@@ -10,7 +10,7 @@ const translations = {
   'products.manage.variants.isActive': 'Proposée',
   'products.show.backToCatalogue': 'Retour au catalogue',
   'products.show.viewImage': "Voir l'image",
-  'products.show.requestQuote': 'Demander un devis',
+  'quote_cart.product.add': 'Ajouter au panier de devis',
   'products.show.variants': 'Variantes',
   'products.show.priceTiers': 'Prix selon la quantité',
   'products.show.tierQuantity': 'Quantité',
@@ -62,7 +62,7 @@ const tier = (id: number, variantId: number | null, minQuantity: number, unitPri
 function mountShow() {
   return mount(Show, {
     props: {
-      rfqContext: { canCreateRfq: false, drafts: [] },
+      rfqContext: { canCreateRfq: false, inCartVariantIds: [] },
       product: {
         id: 1,
         supplierId: 1,

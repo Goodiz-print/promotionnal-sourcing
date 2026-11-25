@@ -1,17 +1,30 @@
 import { readFileSync } from 'node:fs'
 import { test } from '@japa/runner'
 import app from '@adonisjs/core/services/app'
+import AgencyMessageRelayedNotification from '#mails/agency_message_relayed_notification'
 import AgencyReviewDecisionNotification from '#mails/agency_review_decision_notification'
 import AnnouncementNotification from '#mails/announcement_notification'
 import EmailVerificationNotification from '#mails/email_verification_notification'
+import NotificationReminderNotification from '#mails/notification_reminder_notification'
 import OrganizationInvitationNotification from '#mails/organization_invitation_notification'
 import PasswordResetNotification from '#mails/password_reset_notification'
 import QuoteReceivedNotification from '#mails/quote_received_notification'
+import QuoteEmailVerificationNotification from '#mails/quote_email_verification_notification'
 import RfqReceivedNotification from '#mails/rfq_received_notification'
 import RfqReminderNotification from '#mails/rfq_reminder_notification'
+import SubscriptionActivatedNotification from '#mails/subscription_activated_notification'
+import SubscriptionExpiringNotification from '#mails/subscription_expiring_notification'
+import SupplierReplyReceivedNotification from '#mails/supplier_reply_received_notification'
 import WelcomeNotification from '#mails/welcome_notification'
 import { SUPPORTED_LOCALES, type Locale } from '#shared/types/i18n'
+import { NOTIFICATION_EMAIL_FALLBACK } from '#shared/types/notification'
 import type User from '#models/user'
+import type {
+  AgencyMessageRelayedMailData,
+  RfqMailLine,
+  RfqReceivedMailData,
+  SupplierReplyReceivedMailData,
+} from '#shared/types/mail'
 
 /**
  * Rendu des mails dans la langue du destinataire (#58). Aucune base : on
@@ -23,7 +36,95 @@ async function render(mailer: {
 }) {
   await mailer.buildWithContents()
   const { message } = mailer.message.toJSON()
-  return { subject: message.subject as string, html: message.html as string }
+  return {
+    subject: message.subject as string,
+    html: message.html as string,
+    text: (message.text ?? '') as string,
+  }
+}
+
+/** Demande à plusieurs lignes : avec et sans marquage, avec et sans prix indicatif (#219). */
+const RFQ_LINES: RfqMailLine[] = [
+  {
+    name: 'Tote bag coton',
+    reference: 'TB-01-NAT',
+    variant: 'Naturel',
+    quantity: 500,
+    unit: 'pcs',
+    marking: { position: 'Face avant', technique: 'Sérigraphie', colors: '2' },
+    note: 'Logo centré',
+    prices: {
+      unitPrice: '1.20 EUR',
+      markingUnitPrice: '0.45 EUR',
+      setupCharge: '60.00 EUR',
+      total: '885.00 EUR',
+    },
+  },
+  {
+    name: 'Mug céramique',
+    reference: null,
+    variant: null,
+    quantity: 200,
+    unit: null,
+    marking: null,
+    note: null,
+    prices: null,
+  },
+]
+
+const RFQ_DATA: RfqReceivedMailData = {
+  buyerName: 'Acme',
+  rfqTitle: 'Tote bags',
+  itemCount: RFQ_LINES.length,
+  deadline: '30/10/2026',
+  rfqPath: '/x/supplier/rfqs/1',
+  description: 'Salon de mars, livraison à Lyon',
+  lines: RFQ_LINES,
+  replyTo: 'rfq-abc@relay.test',
+}
+
+/** Même demande, vue par un fournisseur non abonné (#220, #222). */
+const ANONYMOUS_RFQ_DATA: RfqReceivedMailData = {
+  ...RFQ_DATA,
+  buyerName: null,
+  subscribePath: '/x/supplier/subscription',
+}
+
+/** Coordonnées de l'agence, pour un fournisseur abonné (#221). */
+const SUBSCRIBED_RFQ_DATA: RfqReceivedMailData = {
+  ...RFQ_DATA,
+  subscribePath: null,
+  buyerContact: {
+    agencyName: 'Acme',
+    requesterName: 'Alice Martin',
+    email: 'contact@acme.test',
+    phone: '+33 1 23 45 67 89',
+    addressLines: ['12 rue des Lilas', '75011 Paris', 'France'],
+  },
+}
+
+/** Réponse d'un fournisseur transmise à l'agence (#225). */
+const SUPPLIER_REPLY_DATA: SupplierReplyReceivedMailData = {
+  supplierName: 'Textiles SA',
+  rfqTitle: 'Tote bags',
+  body: 'Bonjour,\nvoici notre devis <b>ferme</b>.',
+  documents: [
+    { filename: 'devis.pdf', downloadPath: '/x/quote-documents/7/download' },
+    { filename: 'annexe.pdf', downloadPath: '/x/quote-documents/8/download' },
+  ],
+  rfqPath: '/x/rfqs/1',
+  replyTo: 'agency-abc@relay.test',
+  late: false,
+}
+
+const AGENCY_MESSAGE_DATA: AgencyMessageRelayedMailData = {
+  agencyName: null,
+  rfqTitle: 'Tote bags',
+  body: 'Bonjour,\nlivraison <b>avant</b> le 15 ?',
+  attachments: ['logo.png'],
+  rfqPath: '/x/supplier/rfqs/1',
+  replyTo: 'rfq-abc@relay.test',
+  headers: { Importance: 'high' },
 }
 
 const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> = {
@@ -39,22 +140,24 @@ const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> 
   rfqReceived: (locale) =>
     new RfqReceivedNotification(
       'supplier@example.com',
-      'Acme',
-      'Tote bags',
-      3,
-      '30/10/2026',
-      '/x/supplier/rfqs/1',
+      { ...RFQ_DATA, itemCount: 3, lines: [] },
       locale
     ) as never,
   rfqReminder: (locale) =>
     new RfqReminderNotification(
       'supplier@example.com',
-      'Acme',
-      'Tote bags',
-      '30/10/2026',
-      '/x/supplier/rfqs/1',
+      {
+        buyerName: 'Acme',
+        rfqTitle: 'Tote bags',
+        deadline: '30/10/2026',
+        rfqPath: '/x/supplier/rfqs/1',
+      },
       locale
     ) as never,
+  rfqReceivedAnonymous: (locale) =>
+    new RfqReceivedNotification('supplier@example.com', ANONYMOUS_RFQ_DATA, locale) as never,
+  rfqReminderAnonymous: (locale) =>
+    new RfqReminderNotification('supplier@example.com', ANONYMOUS_RFQ_DATA, locale) as never,
   quoteReceived: (locale) =>
     new QuoteReceivedNotification(
       'buyer@example.com',
@@ -100,6 +203,66 @@ const mailers: Record<string, (locale: Locale) => Parameters<typeof render>[0]> 
       'Acme',
       'info_requested',
       'Merci de joindre un Kbis.',
+      locale
+    ) as never,
+  notificationReminder: (locale) =>
+    new NotificationReminderNotification(
+      'admin@example.com',
+      'subscription.duplicate_cancelled',
+      { organizationName: 'Acme', organizationId: 7, cancelledSubscriptionId: 'sub_123' },
+      '/x/admin/organizations/7',
+      locale
+    ) as never,
+  subscriptionActivated: (locale) =>
+    new SubscriptionActivatedNotification(
+      'owner@example.com',
+      {
+        organizationName: 'Acme',
+        plan: 'premium',
+        startsOn: '20/11/2026',
+        endsOn: '19/11/2027',
+        path: '/x/supplier/subscription',
+      },
+      locale
+    ) as never,
+  subscriptionExpiring: (locale) =>
+    new SubscriptionExpiringNotification(
+      'owner@example.com',
+      {
+        organizationName: 'Acme',
+        plan: 'business',
+        endsOn: '19/11/2027',
+        daysLeft: 7,
+        path: '/x/supplier/subscription',
+      },
+      locale
+    ) as never,
+  quoteEmailVerification: (locale) =>
+    new QuoteEmailVerificationNotification(
+      'devis@example.com',
+      {
+        organizationName: 'Textiles SA',
+        verifyUrl: 'https://example.test/verify',
+        expiresInHours: 168,
+      },
+      locale
+    ) as never,
+  supplierReplyReceived: (locale) =>
+    new SupplierReplyReceivedNotification(
+      'buyer@example.com',
+      SUPPLIER_REPLY_DATA,
+      locale
+    ) as never,
+  agencyMessageRelayed: (locale) =>
+    new AgencyMessageRelayedNotification(
+      'supplier@example.com',
+      AGENCY_MESSAGE_DATA,
+      locale
+    ) as never,
+  agencyMessageRelayedNamed: (locale) =>
+    new AgencyMessageRelayedNotification(
+      'supplier@example.com',
+      { ...AGENCY_MESSAGE_DATA, agencyName: 'Agence Dupont' },
       locale
     ) as never,
   welcome: (locale) =>
@@ -165,6 +328,48 @@ test.group('Mails — rendu dans la langue du destinataire', () => {
     assert.notInclude(html, '<script>alert(1)</script>')
   })
 
+  test('le rappel de notification reprend le texte de la notification et son lien', async ({
+    assert,
+  }) => {
+    const { html } = await render(mailers.notificationReminder('de'))
+
+    assert.include(html, 'Acme hat zwei Abonnements gleichzeitig bezahlt')
+    assert.include(html, 'sub_123')
+    assert.include(html, '/x/admin/organizations/7')
+    assert.notInclude(html, 'notifications.types')
+  })
+
+  test('un libellé non formatable n’empêche pas le rappel de partir, lien compris', async ({
+    assert,
+  }) => {
+    const mailer = new NotificationReminderNotification(
+      'admin@example.com',
+      'subscription.duplicate_cancelled',
+      {},
+      '/x/admin/organizations/7',
+      'fr'
+    )
+    const { subject, html } = await render(mailer as never)
+
+    assert.isNotEmpty(subject)
+    assert.include(html, '/x/admin/organizations/7')
+    assert.notInclude(html, 'notifications.types')
+    assert.notInclude(html, '{organizationName}')
+  })
+
+  test('chaque type à rappeler a son libellé dans les 9 langues', async ({ assert }) => {
+    for (const type of Object.keys(NOTIFICATION_EMAIL_FALLBACK)) {
+      const [group, name] = type.split('.')
+      for (const locale of SUPPORTED_LOCALES) {
+        const labels = JSON.parse(
+          readFileSync(app.languageFilesPath(`${locale}/notifications.json`), 'utf8')
+        )
+        const label = name ? labels.types?.[group]?.[name] : labels.types?.[group]
+        assert.isString(label, `${locale} : notifications.types.${type}`)
+      }
+    }
+  })
+
   test('le pluriel suit les règles de la langue (polonais : one / few / many)', async ({
     assert,
   }) => {
@@ -176,11 +381,13 @@ test.group('Mails — rendu dans la langue du destinataire', () => {
   test('une valeur saisie par un utilisateur reste échappée', async ({ assert }) => {
     const mailer = new RfqReceivedNotification(
       'supplier@example.com',
-      '<script>alert(1)</script>',
-      'Tote',
-      1,
-      null,
-      '/x',
+      {
+        buyerName: '<script>alert(1)</script>',
+        rfqTitle: 'Tote',
+        itemCount: 1,
+        deadline: null,
+        rfqPath: '/x',
+      },
       'en'
     )
     const { html } = await render(mailer as never)
@@ -237,5 +444,433 @@ test.group('Mails — annonce plateforme', () => {
     }
 
     assert.equal(footers.size, SUPPORTED_LOCALES.length)
+  })
+})
+
+test.group('Mails — confirmation de l’adresse de réception (#217)', () => {
+  test('le lien, la durée en jours et le nom du fournisseur figurent dans le mail', async ({
+    assert,
+  }) => {
+    const { subject, html } = await render(
+      new QuoteEmailVerificationNotification(
+        'devis@example.com',
+        {
+          organizationName: 'Textiles SA',
+          verifyUrl: 'https://example.test/v',
+          expiresInHours: 168,
+        },
+        'fr'
+      ) as never
+    )
+
+    assert.include(subject, 'Textiles SA')
+    assert.include(html, 'https://example.test/v')
+    assert.include(html, '7 jours')
+  })
+})
+
+test.group('Mails — demande de devis complète (#219)', () => {
+  test('chaque ligne porte produit, référence, variante, quantité, marquage et note', async ({
+    assert,
+  }) => {
+    const { html } = await render(new RfqReceivedNotification('s@x.test', RFQ_DATA, 'fr') as never)
+
+    assert.include(html, 'Salon de mars, livraison à Lyon')
+    assert.include(html, '2 lignes à chiffrer')
+    ;['Tote bag coton', 'TB-01-NAT', 'Naturel', '500 pcs', 'Logo centré'].forEach((value) =>
+      assert.include(html, value)
+    )
+    assert.include(html, 'Face avant · Sérigraphie · 2 couleurs')
+    assert.include(html, 'Mug céramique')
+    assert.include(html, 'Sans marquage')
+  })
+
+  test('le prix indicatif figure par ligne, et une ligne sans prix l’indique', async ({
+    assert,
+  }) => {
+    const { html } = await render(new RfqReceivedNotification('s@x.test', RFQ_DATA, 'fr') as never)
+
+    ;['1.20 EUR', '0.45 EUR', '60.00 EUR', '885.00 EUR'].forEach((price) =>
+      assert.include(html, price)
+    )
+    assert.include(html, 'Prix unitaire indicatif')
+    assert.include(html, 'Pas de prix catalogue : à chiffrer')
+    assert.include(html, 'Ce ne sont pas des prix convenus')
+  })
+
+  test('la version texte reprend les lignes, sans échappement HTML', async ({ assert }) => {
+    const data = { ...RFQ_DATA, description: 'Logos « A & B »' }
+    const { text } = await render(new RfqReceivedNotification('s@x.test', data, 'fr') as never)
+
+    assert.include(text, 'Logos « A & B »')
+    assert.include(text, '1. Tote bag coton')
+    assert.include(text, 'Référence : TB-01-NAT')
+    assert.include(text, 'Total indicatif : 885.00 EUR')
+    assert.include(text, '2. Mug céramique')
+    assert.include(text, 'Prix indicatif : Pas de prix catalogue : à chiffrer')
+    assert.include(text, '/x/supplier/rfqs/1')
+    assert.notInclude(text, '<')
+    assert.notInclude(text, '&amp;')
+  })
+
+  test('avec une adresse relais, le mail invite à répondre au lieu de l’interdire', async ({
+    assert,
+  }) => {
+    const relayed = await render(new RfqReceivedNotification('s@x.test', RFQ_DATA, 'fr') as never)
+    const plain = await render(
+      new RfqReceivedNotification('s@x.test', { ...RFQ_DATA, replyTo: null }, 'fr') as never
+    )
+
+    assert.include(relayed.html, 'répondez simplement à ce mail')
+    assert.notInclude(relayed.html, 'merci de ne pas y répondre')
+    assert.notInclude(plain.html, 'répondez simplement à ce mail')
+    assert.include(plain.html, 'merci de ne pas y répondre')
+  })
+
+  test('la relance reprend les mêmes lignes', async ({ assert }) => {
+    const { html, text } = await render(
+      new RfqReminderNotification('s@x.test', RFQ_DATA, 'en') as never
+    )
+
+    assert.include(html, 'Tote bag coton')
+    assert.include(html, 'No catalogue price: to be quoted')
+    assert.include(text, '2 lines to quote')
+  })
+
+  test('un job mis en queue avant #219, sans lignes, se rend toujours', async ({ assert }) => {
+    const legacy: RfqReceivedMailData = {
+      buyerName: 'Acme',
+      rfqTitle: 'Tote bags',
+      itemCount: 2,
+      deadline: null,
+      rfqPath: '/x/supplier/rfqs/1',
+    }
+    const { html, text } = await render(
+      new RfqReceivedNotification('s@x.test', legacy, 'fr') as never
+    )
+
+    assert.include(html, 'Tote bags')
+    assert.notInclude(html, 'Prix unitaire indicatif')
+    assert.include(text, '/x/supplier/rfqs/1')
+  })
+})
+
+test.group('Mails — demande anonyme pour un fournisseur non abonné (#220, #222)', () => {
+  test('ni l’objet ni le corps ne nomment l’agence, l’encart mène à l’abonnement', async ({
+    assert,
+  }) => {
+    const { subject, html, text } = await render(
+      new RfqReceivedNotification('s@x.test', ANONYMOUS_RFQ_DATA, 'fr') as never
+    )
+
+    // Le titre distingue les demandes : sans lui, la messagerie les regrouperait en un fil.
+    assert.equal(subject, 'Nouvelle demande de devis : « Tote bags »')
+    assert.notInclude(html, 'Acme')
+    assert.notInclude(text, 'Acme')
+    assert.include(html, 'Une agence vous invite à chiffrer la demande')
+    assert.include(html, '/x/supplier/subscription')
+    assert.include(text, 'Découvrir les abonnements')
+    assert.include(text, '/x/supplier/subscription')
+  })
+
+  test('la relance anonyme ne nomme pas l’agence et porte l’encart', async ({ assert }) => {
+    const { html, text } = await render(
+      new RfqReminderNotification('s@x.test', ANONYMOUS_RFQ_DATA, 'en') as never
+    )
+
+    assert.notInclude(html, 'Acme')
+    assert.notInclude(text, 'Acme')
+    assert.include(html, 'An agency sent you the request')
+    assert.include(html, '/x/supplier/subscription')
+  })
+
+  test('un abonné voit l’agence, sans encart d’abonnement', async ({ assert }) => {
+    const { subject, html } = await render(
+      new RfqReceivedNotification('s@x.test', { ...RFQ_DATA, subscribePath: null }, 'fr') as never
+    )
+
+    assert.include(subject, 'Acme')
+    assert.include(html, 'Acme vous invite')
+    assert.notInclude(html, 'Découvrir les abonnements')
+  })
+})
+
+test.group('Mails — coordonnées de l’agence pour un fournisseur abonné (#221)', () => {
+  test('la demande donne l’auteur, l’email, le téléphone et l’adresse, en HTML et en texte', async ({
+    assert,
+  }) => {
+    const { html, text } = await render(
+      new RfqReceivedNotification('s@x.test', SUBSCRIBED_RFQ_DATA, 'fr') as never
+    )
+
+    const expected = [
+      'Coordonnées de l',
+      'Alice Martin',
+      'contact@acme.test',
+      '+33 1 23 45 67 89',
+      '12 rue des Lilas, 75011 Paris, France',
+    ]
+    expected.forEach((value) => {
+      assert.include(html, value)
+      assert.include(text, value)
+    })
+  })
+
+  test('la relance porte les mêmes coordonnées, dans la langue du destinataire', async ({
+    assert,
+  }) => {
+    const { html, text } = await render(
+      new RfqReminderNotification('s@x.test', SUBSCRIBED_RFQ_DATA, 'en') as never
+    )
+
+    assert.include(html, 'Agency contact details')
+    assert.include(html, 'contact@acme.test')
+    assert.include(text, 'Requested by : Alice Martin')
+  })
+
+  test('une coordonnée absente n’est pas affichée', async ({ assert }) => {
+    const { text } = await render(
+      new RfqReceivedNotification(
+        's@x.test',
+        {
+          ...SUBSCRIBED_RFQ_DATA,
+          buyerContact: { ...SUBSCRIBED_RFQ_DATA.buyerContact!, phone: null, addressLines: [] },
+        },
+        'fr'
+      ) as never
+    )
+
+    assert.include(text, 'contact@acme.test')
+    assert.notInclude(text, 'Téléphone')
+    assert.notInclude(text, 'Adresse')
+  })
+
+  test('un mail anonyme ne porte jamais de coordonnées, même fournies', async ({ assert }) => {
+    const data = { ...SUBSCRIBED_RFQ_DATA, buyerName: null, subscribePath: '/x/sub' }
+    const received = await render(new RfqReceivedNotification('s@x.test', data, 'fr') as never)
+    const reminder = await render(new RfqReminderNotification('s@x.test', data, 'fr') as never)
+
+    ;[received, reminder].forEach(({ html, text }) => {
+      assert.notInclude(html, 'contact@acme.test')
+      assert.notInclude(text, 'Alice Martin')
+      assert.notInclude(text, 'Coordonnées de l')
+    })
+  })
+
+  test('un job mis en queue avant #221, sans coordonnées, se rend sans le bloc', async ({
+    assert,
+  }) => {
+    const { html } = await render(
+      new RfqReceivedNotification('s@x.test', { ...RFQ_DATA, subscribePath: null }, 'fr') as never
+    )
+
+    assert.notInclude(html, 'Coordonnées de l')
+  })
+})
+
+test.group('Mails — réponse du fournisseur transmise à l’agence (#225)', () => {
+  test('le mail nomme le fournisseur, reprend son texte échappé et un lien par devis', async ({
+    assert,
+  }) => {
+    const { subject, html } = await render(
+      new SupplierReplyReceivedNotification('a@x.test', SUPPLIER_REPLY_DATA, 'fr') as never
+    )
+
+    assert.equal(subject, 'Réponse de Textiles SA à « Tote bags »')
+    assert.include(html, 'voici notre devis &lt;b&gt;ferme&lt;/b&gt;.')
+    assert.include(html, '/x/quote-documents/7/download">devis.pdf</a>')
+    assert.include(html, '/x/quote-documents/8/download">annexe.pdf</a>')
+    assert.include(html, '/x/rfqs/1')
+  })
+
+  test('la version texte reprend message et liens, sans HTML', async ({ assert }) => {
+    const { text } = await render(
+      new SupplierReplyReceivedNotification('a@x.test', SUPPLIER_REPLY_DATA, 'en') as never
+    )
+
+    assert.include(text, 'Textiles SA replied by email to your request “Tote bags”.')
+    assert.include(text, 'voici notre devis <b>ferme</b>.')
+    assert.include(text, '- devis.pdf : ')
+    assert.include(text, '/x/quote-documents/7/download')
+    assert.notInclude(text, '&lt;')
+  })
+
+  test('l’expéditeur est la plateforme, le Reply-To est l’adresse relais côté agence', async ({
+    assert,
+  }) => {
+    const mailer = new SupplierReplyReceivedNotification('a@x.test', SUPPLIER_REPLY_DATA, 'fr')
+    await mailer.buildWithContents()
+    const { message } = mailer.message.toJSON()
+
+    assert.deepEqual(message.replyTo, ['agency-abc@relay.test'])
+    assert.notInclude(JSON.stringify(message.from ?? ''), 'Textiles')
+    // La réponse de l'agence est relayée au fournisseur (#226) : le mail y invite.
+    assert.include(message.html as string, 'votre réponse sera transmise au fournisseur')
+    assert.notInclude(message.html as string, 'merci de ne pas y répondre')
+  })
+
+  test('sans texte ni devis, ni bloc message ni liste de fichiers', async ({ assert }) => {
+    const { html } = await render(
+      new SupplierReplyReceivedNotification(
+        'a@x.test',
+        { ...SUPPLIER_REPLY_DATA, body: '', documents: [], replyTo: null },
+        'fr'
+      ) as never
+    )
+
+    assert.notInclude(html, 'Son message')
+    assert.notInclude(html, 'Devis joints')
+  })
+
+  test('une réponse tardive le dit à l’objet et dans le corps, en HTML comme en texte (#232)', async ({
+    assert,
+  }) => {
+    const late = { ...SUPPLIER_REPLY_DATA, late: true }
+    const { subject, html } = await render(
+      new SupplierReplyReceivedNotification('a@x.test', late, 'fr') as never
+    )
+    const { text } = await render(
+      new SupplierReplyReceivedNotification('a@x.test', late, 'en') as never
+    )
+
+    assert.equal(subject, 'Réponse tardive de Textiles SA à « Tote bags »')
+    assert.include(html, 'Réponse tardive : elle est arrivée après l')
+    assert.include(text, "Late reply: it arrived after the request's deadline.")
+  })
+
+  test('une réponse dans les temps ne porte pas la mention tardive', async ({ assert }) => {
+    const { subject, html } = await render(
+      new SupplierReplyReceivedNotification('a@x.test', SUPPLIER_REPLY_DATA, 'fr') as never
+    )
+
+    assert.notInclude(subject, 'tardive')
+    assert.notInclude(html, 'Réponse tardive')
+  })
+})
+
+test.group('Mails — message de l’agence relayé au fournisseur (#226)', () => {
+  test('anonyme pour un non abonné : ni nom d’agence au sujet ni au titre', async ({ assert }) => {
+    const { subject, html } = await render(
+      new AgencyMessageRelayedNotification('s@x.test', AGENCY_MESSAGE_DATA, 'fr') as never
+    )
+
+    assert.equal(subject, "Message de l'agence sur « Tote bags »")
+    assert.include(html, 'livraison &lt;b&gt;avant&lt;/b&gt; le 15 ?')
+    assert.include(html, 'logo.png')
+    assert.include(html, '/x/supplier/rfqs/1')
+    assert.include(html, 'votre réponse sera transmise à l')
+  })
+
+  test('nommée pour un abonné', async ({ assert }) => {
+    const { subject } = await render(
+      new AgencyMessageRelayedNotification(
+        's@x.test',
+        { ...AGENCY_MESSAGE_DATA, agencyName: 'Agence Dupont' },
+        'en'
+      ) as never
+    )
+
+    assert.equal(subject, 'Message from Agence Dupont about “Tote bags”')
+  })
+
+  test('expéditeur plateforme, Reply-To `rfq-`, seuls les en-têtes nettoyés', async ({
+    assert,
+  }) => {
+    const mailer = new AgencyMessageRelayedNotification('s@x.test', AGENCY_MESSAGE_DATA, 'fr')
+    await mailer.buildWithContents()
+    const { message } = mailer.message.toJSON()
+
+    assert.deepEqual(message.replyTo, ['rfq-abc@relay.test'])
+    assert.equal((message.headers as Record<string, string>)['Importance'], 'high')
+    assert.equal(
+      (message.headers as Record<string, string>)['X-Auto-Response-Suppress'],
+      'OOF, AutoReply'
+    )
+  })
+
+  test('la version texte reprend le message sans HTML ; sans Reply-To, pas d’invitation', async ({
+    assert,
+  }) => {
+    const { text } = await render(
+      new AgencyMessageRelayedNotification('s@x.test', AGENCY_MESSAGE_DATA, 'fr') as never
+    )
+    const automatic = await render(
+      new AgencyMessageRelayedNotification(
+        's@x.test',
+        { ...AGENCY_MESSAGE_DATA, replyTo: null, attachments: [] },
+        'fr'
+      ) as never
+    )
+
+    assert.include(text, 'livraison <b>avant</b> le 15 ?')
+    assert.include(text, '- logo.png')
+    assert.notInclude(automatic.html, 'votre réponse sera transmise')
+    assert.notInclude(automatic.html, 'logo.png')
+  })
+})
+
+test.group('Mails — abonnement, version texte (#292)', () => {
+  test('l’activation donne la formule, la période, les droits et le lien, sans HTML', async ({
+    assert,
+  }) => {
+    const { text } = await render(mailers.subscriptionActivated('fr'))
+
+    assert.include(text, 'Abonnement Premium activé')
+    assert.include(text, "L'abonnement Premium de Acme est actif")
+    assert.include(text, 'Il couvre la période du 20/11/2026 au 19/11/2027 inclus.')
+    assert.include(text, 'Votre formule comprend :')
+    assert.match(text, /^- \S/m)
+    assert.match(text, /^Voir mon abonnement\n.*\/x\/supplier\/subscription$/m)
+    assert.include(text, '/x/supplier/subscription')
+    assert.notInclude(text, '<')
+  })
+
+  test('une activation sans fin donne la date de début', async ({ assert }) => {
+    const { text } = await render(
+      new SubscriptionActivatedNotification(
+        'owner@example.com',
+        {
+          organizationName: 'Acme',
+          plan: 'premium',
+          startsOn: '20/11/2026',
+          endsOn: null,
+          path: '/x/supplier/subscription',
+        },
+        'en'
+      ) as never
+    )
+
+    assert.include(text, 'It has been active since 20/11/2026.')
+    assert.notInclude(text, '19/11/2027')
+    assert.include(text, '/x/supplier/subscription')
+  })
+
+  test('le rappel de fin donne la date, le délai et le lien de renouvellement', async ({
+    assert,
+  }) => {
+    const { text } = await render(mailers.subscriptionExpiring('fr'))
+
+    assert.include(text, 'se termine dans 7 jours')
+    assert.include(text, 'se termine le 19/11/2027')
+    assert.match(text, /^Renouveler mon abonnement\n.*\/x\/supplier\/subscription$/m)
+    assert.include(text, '/x/supplier/subscription')
+    assert.notInclude(text, '<')
+  })
+
+  test('les deux mails ont une version texte traduite dans chaque langue', async ({ assert }) => {
+    const rendered = await Promise.all(
+      SUPPORTED_LOCALES.flatMap((locale) => [
+        render(mailers.subscriptionActivated(locale)),
+        render(mailers.subscriptionExpiring(locale)),
+      ])
+    )
+
+    rendered.forEach(({ text }) => {
+      assert.include(text, '19/11/2027')
+      assert.include(text, '/x/supplier/subscription')
+      assert.notInclude(text, 'emails.')
+      assert.notInclude(text, '<')
+      assert.notMatch(text, / : \S*\/x\/supplier/)
+    })
   })
 })

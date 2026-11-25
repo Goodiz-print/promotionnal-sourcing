@@ -15,8 +15,31 @@
       "suppliers": "Odbiorcy",
       "responses": "Odpowiedzi",
       "status": "Status",
-      "deadline": "Termin"
-    }
+      "deadline": "Termin",
+      "author": "Autor",
+      "quotes": "Oferty"
+    },
+    "progress": {
+      "draft": "Wersja robocza",
+      "published": "Opublikowane",
+      "sent": "Wysłane",
+      "responded": "Z odpowiedzią",
+      "expired": "Wygasłe",
+      "closed": "Zamknięte"
+    },
+    "filters": {
+      "label": "Filtruj zapytania",
+      "status": "Status",
+      "author": "Autor",
+      "allStatuses": "Wszystkie statusy",
+      "allAuthors": "Wszyscy autorzy",
+      "reset": "Wyczyść filtry"
+    },
+    "noMatch": "Żadne zapytanie nie pasuje do tych filtrów.",
+    "noMatchDescription": "Zmień lub wyczyść filtry, aby odnaleźć swoje zapytania.",
+    "batch": "Koszyk z {date} · {count, plural, one {# zapytanie} few {# zapytania} many {# zapytań} other {# zapytania}}",
+    "quoteReceived": "Otrzymano ofertę",
+    "unknownAuthor": "Nieznany autor"
   },
   "create": {
     "title": "Nowe zapytanie ofertowe",
@@ -39,7 +62,9 @@
     "addSuppliers": "Dodaj odbiorców",
     "removeSupplier": "Usuń",
     "sentAt": "Wysłano {date}",
-    "viewProduct": "Zobacz kartę produktu"
+    "viewProduct": "Zobacz kartę produktu",
+    "salesContactsTitle": "Kontakty handlowe",
+    "salesContactsHint": "Zapytania trafiają na ogólny adres dostawcy; ci handlowcy obsługują Twój kraj."
   },
   "status": {
     "draft": "Wersja robocza",
@@ -52,8 +77,10 @@
     "sent": "Wysłane",
     "viewed": "Wyświetlone",
     "responded": "Odpowiedział",
-    "declined": "Odrzucił"
+    "declined": "Odrzucił",
+    "expired": "Wygasło bez odpowiedzi"
   },
+  "lateReply": "Spóźniona odpowiedź",
   "actions": {
     "publish": "Opublikuj",
     "send": "Wyślij do odbiorców",
@@ -125,7 +152,15 @@
         "deadline": "Termin",
         "status": "Status"
       },
-      "emptyDescription": "Kupujący, którzy się z Państwem skontaktują, pojawią się tutaj wraz ze szczegółami swoich potrzeb."
+      "emptyDescription": "Kupujący, którzy się z Państwem skontaktują, pojawią się tutaj wraz ze szczegółami swoich potrzeb.",
+      "filters": {
+        "label": "Filtruj otrzymane zapytania",
+        "status": "Status",
+        "allStatuses": "Wszystkie statusy",
+        "reset": "Wyczyść filtr"
+      },
+      "emptyFiltered": "Brak zapytań o tym statusie.",
+      "emptyFilteredDescription": "Zmień filtr, aby zobaczyć pozostałe zapytania."
     },
     "show": {
       "backToList": "Powrót do otrzymanych zapytań",
@@ -137,7 +172,16 @@
       "expiredNotice": "To zapytanie wygasło: kupujący nie oczekuje już odpowiedzi.",
       "responseTitle": "Państwa odpowiedź",
       "responseOpen": "Wycenią Państwo te potrzeby, składając ofertę, lub odrzucą zapytanie, jeśli nie mogą Państwo go zrealizować.",
-      "responseQuote": "Sporządzili Państwo ofertę dla tego zapytania."
+      "responseQuote": "Sporządzili Państwo ofertę dla tego zapytania.",
+      "responseDocument": "Wysłano ofertę PDF do tego zapytania. Poniżej możesz przesłać nową wersję.",
+      "contact": {
+        "title": "Dane kontaktowe agencji",
+        "agency": "Agencja",
+        "requester": "Zapytanie złożył(a)",
+        "email": "E-mail",
+        "phone": "Telefon",
+        "address": "Adres"
+      }
     },
     "actions": {
       "decline": "Odrzuć zapytanie",
@@ -147,13 +191,21 @@
       "sent": "Do rozpatrzenia",
       "viewed": "W toku",
       "responded": "Oferta wysłana",
-      "declined": "Odrzucone"
+      "declined": "Odrzucone",
+      "expired": "Wygasło"
     },
     "flash": {
       "declined": "Zapytanie odrzucone."
     },
     "errors": {
       "notDecidable": "To zapytanie nie oczekuje już na Państwa decyzję."
+    },
+    "anonymousBuyer": "Anonimowa agencja",
+    "state": {
+      "to_process": "Do obsłużenia",
+      "responded": "Odpowiedziano",
+      "expired": "Wygasło",
+      "declined": "Odrzucono"
     }
   },
   "product": {
@@ -172,5 +224,16 @@
   },
   "form": {
     "general": "Informacje ogólne"
+  },
+  "specs": {
+    "variant": "Wariant",
+    "sku": "Kod produktu",
+    "markingPosition": "Miejsce znakowania",
+    "markingTechnique": "Technika znakowania",
+    "markingColors": "Kolory znakowania",
+    "estimatedUnitPrice": "Orientacyjna cena jednostkowa",
+    "estimatedMarkingUnitPrice": "Orientacyjne znakowanie / szt.",
+    "estimatedSetupCharge": "Orientacyjne koszty przygotowania",
+    "estimatedTotal": "Orientacyjna suma"
   }
 }

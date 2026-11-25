@@ -1,0 +1,17 @@
+@let(title = t('emails.quoteEmailVerification.title'))
+@component('emails/layout', {
+  title,
+  locale,
+  i18n,
+  footer: t('emails.quoteEmailVerification.ignore', { organizationName }),
+})
+  <p>{{ t('emails.quoteEmailVerification.body', { organizationName, brandName }) }}</p>
+  <p><a class="button" href="{{ verifyUrl }}">{{ t('emails.quoteEmailVerification.cta') }}</a></p>
+  <p>
+    {{
+      t('emails.quoteEmailVerification.validity', {
+        days: expiresInHours / 24,
+      })
+    }}
+  </p>
+@end

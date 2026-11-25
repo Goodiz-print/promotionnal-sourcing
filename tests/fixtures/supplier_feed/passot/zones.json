@@ -1,0 +1,50 @@
+{
+  "zones": [
+    {
+      "name": "M1 175x70 1 position par defaut",
+      "product": "FIXCUP",
+      "width": 175,
+      "height": 70,
+      "methods": [
+        {
+          "code": "MARQ_FIX",
+          "name": "SERIGRAPHIE",
+          "is_priority": false,
+          "max_color": 4,
+          "delay": 13,
+          "order_fee": 40,
+          "prices": [
+            { "qty": 100, "price": 0.3 },
+            { "qty": 500, "price": 0.2 }
+          ]
+        },
+        {
+          "code": "MARQ_FIX_EXPRESS",
+          "name": "SERIGRAPHIE EXPRESS",
+          "is_priority": true,
+          "max_color": 1,
+          "delay": 5,
+          "order_fee": 60,
+          "prices": [{ "qty": 100, "price": 0.9 }]
+        }
+      ]
+    },
+    {
+      "name": "QN1 209x70",
+      "product": "FIXCUP",
+      "width": 209.3,
+      "height": 70,
+      "methods": [
+        {
+          "code": "QN_FIX",
+          "name": "QUADRINUMERIQUE",
+          "is_priority": false,
+          "max_color": 1,
+          "delay": 10,
+          "order_fee": 40,
+          "prices": [{ "qty": 50, "price": 0.6 }]
+        }
+      ]
+    }
+  ]
+}

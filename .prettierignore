@@ -1,3 +1,5 @@
 .adonisjs
 node_modules
 build
+# Versions texte des mails : chaque saut de ligne est rendu tel quel (#219).
+resources/views/emails/**/*_text.edge

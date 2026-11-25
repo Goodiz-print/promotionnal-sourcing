@@ -3,10 +3,13 @@ import { computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { urlFor } from '~/client'
 import { useI18n, type TranslateData } from '~/i18n'
+import { formatDateTime } from '#shared/helpers/date'
+import { notificationMessageKey } from '#shared/helpers/notification'
 import type { NotificationItemType } from '#shared/types/notification'
 
 /**
- * Une notification : son texte (un libellé par type, `notifications.types.*`),
+ * Une notification : son texte (un libellé par type, `notifications.types.*`,
+ * ou `notifications.anonymous.*` sans nom d'agence — cf. `notificationMessageKey`),
  * sa date, et un point si elle n'est pas lue. Cliquer la marque lue puis ouvre
  * l'écran qu'elle concerne : c'est le serveur qui redirige (`notifications.read`).
  */
@@ -19,15 +22,10 @@ const unread = computed(() => props.notification.readAt === null)
 const text = computed(() => {
   const data: TranslateData = {}
   for (const [key, value] of Object.entries(props.notification.data)) data[key] = value ?? ''
-  return t(`notifications.types.${props.notification.type}`, data)
+  return t(notificationMessageKey(props.notification.type, props.notification.data), data)
 })
 
-const date = computed(() =>
-  new Date(props.notification.createdAt).toLocaleString(locale.value, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  })
-)
+const date = computed(() => formatDateTime(props.notification.createdAt, locale.value))
 
 function open() {
   router.patch(urlFor('notifications.read', { locale: locale.value, id: props.notification.id }))

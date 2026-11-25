@@ -7,12 +7,13 @@ import BaseIconButton from '~/components/base/base_icon_button.vue'
 import BaseLinkButton from '~/components/base/base_link_button.vue'
 import LanguageSwitcher from '~/components/language_switcher.vue'
 import NotificationBell from '~/components/notifications/notification_bell.vue'
+import QuoteCartNavButton from '~/components/quote_cart/quote_cart_nav_button.vue'
 import UserMenu from '~/components/user_menu.vue'
 import { urlFor } from '~/client'
 
 /**
  * Barre supérieure : burger (mobile), zone libre à gauche, puis langue,
- * notifications et menu utilisateur (ou connexion / inscription pour un visiteur).
+ * panier de devis, notifications et menu utilisateur (ou connexion / inscription pour un visiteur).
  */
 defineProps<{ menuOpen: boolean }>()
 defineEmits<{ toggleMenu: [] }>()
@@ -43,6 +44,7 @@ const { t, locale } = useI18n()
     <div class="flex items-center gap-2 md:gap-3">
       <LanguageSwitcher />
       <template v-if="page.props.user">
+        <QuoteCartNavButton />
         <NotificationBell />
         <UserMenu :initials="page.props.user.initials" />
       </template>

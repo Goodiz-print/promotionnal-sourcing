@@ -2,6 +2,7 @@
   "nav": {
     "dashboard": "Panel de control",
     "organizations": "Organizaciones",
+    "supplierLinks": "Vinculación de proveedores",
     "users": "Usuarios",
     "products": "Productos",
     "categories": "Categorías",
@@ -24,8 +25,10 @@
     "queue": "Queue",
     "search": "Search",
     "mail": "Emails",
+    "inboundMail": "Inbound emails",
     "storage": "Storage",
-    "health": "Health"
+    "health": "Health",
+    "ads": "Productos patrocinados"
   },
   "pagination": {
     "previous": "Anterior",
@@ -40,7 +43,8 @@
       "products": "Productos",
       "rfqs": "Solicitudes de presupuesto",
       "pendingModeration": "Por moderar",
-      "pendingAgencyReviews": "Agencias por revisar"
+      "pendingAgencyReviews": "Agencias por revisar",
+      "pendingSupplierLinks": "Fichas por vincular"
     },
     "archived": "{count, plural, =0 {Ninguna archivada} one {# archivada} other {# archivadas}}",
     "kpi": {
@@ -115,7 +119,9 @@
       "search": "Buscar",
       "searchPlaceholder": "Nombre, slug, SIRET o IVA",
       "country": "País",
-      "allCountries": "Todos los países"
+      "allCountries": "Todos los países",
+      "missingQuoteAddress": "Sin dirección de recepción",
+      "missingQuoteAddressHint": "Proveedores cuyas solicitudes se envían a los responsables de la cuenta, a falta de dirección de recepción o de contacto."
     },
     "types": {
       "buyer": "Comprador",
@@ -194,6 +200,9 @@
         "no": "No",
         "supplier": {
           "title": "Perfil de proveedor",
+          "quoteEmail": "Dirección de recepción de solicitudes",
+          "quoteEmailStatus": "Confirmación de la dirección de recepción",
+          "quoteEmailPending": "Pendiente de confirmación",
           "companyType": "Tipo de empresa",
           "commercialStatus": "Estado comercial",
           "minOrderQuantity": "Cantidad mínima de pedido",
@@ -271,6 +280,86 @@
         "revoked": "Invitación revocada.",
         "resent": "Invitación reenviada."
       }
+    },
+    "subscription": {
+      "title": "Suscripción",
+      "empty": "Sin suscripción: plan gratuito.",
+      "create": "Crear la suscripción",
+      "extend": "Cambiar la fecha de fin",
+      "cancel": "Cancelar",
+      "cancelConfirm": "¿Cancelar esta suscripción ahora? La organización vuelve al plan gratuito.",
+      "periodUntil": "al",
+      "fields": {
+        "plan": "Plan",
+        "status": "Estado",
+        "period": "Periodo",
+        "origin": "Origen",
+        "author": "Registrado por",
+        "startsOn": "Primer día",
+        "endsOn": "Último día"
+      },
+      "origins": {
+        "manual": "Manual",
+        "stripe": "En línea"
+      },
+      "done": {
+        "created": "Suscripción registrada.",
+        "extended": "Fecha de fin cambiada.",
+        "cancelled": "Suscripción cancelada."
+      },
+      "errors": {
+        "alreadyOpen": "Ya hay una suscripción en curso o programada: prolóngala o cancélala.",
+        "invalidPeriod": "Fechas no válidas: el último día debe seguir al primero y no estar en el pasado.",
+        "notEditable": "Esta suscripción ya no se puede modificar aquí.",
+        "notSupplier": "Solo una organización proveedora puede suscribirse."
+      }
+    },
+    "quoteAddress": {
+      "missing": "Sin dirección de recepción"
+    }
+  },
+  "supplierLinks": {
+    "title": "Vinculación de fichas de proveedor",
+    "subtitle": "Fichas importadas a la espera del acuerdo del proveedor. Vincularlas a su organización registra ese acuerdo y publica su catálogo.",
+    "unpublishedNotice": "Estas fichas y sus productos no están publicados: ni en el catálogo, ni en la búsqueda, ni en las páginas públicas. Vincularlas a la organización del proveedor las publica; desvincularlas las retira.",
+    "resultsCount": "{count, plural, =0 {Ninguna ficha} one {# ficha} other {# fichas}}",
+    "empty": {
+      "pending": "Ninguna ficha a la espera de acuerdo.",
+      "linked": "Ninguna ficha vinculada."
+    },
+    "emptyDescription": "Cambie el filtro o vuelva tras la próxima importación.",
+    "filters": {
+      "status": "Mostrar",
+      "pending": "A la espera de acuerdo",
+      "linked": "Vinculadas"
+    },
+    "columns": {
+      "supplier": "Ficha de proveedor",
+      "products": "Productos",
+      "suggestion": "Sugerencia",
+      "organization": "Organización",
+      "linkedTo": "Organización",
+      "agreement": "Acuerdo",
+      "actions": "Acciones"
+    },
+    "match": {
+      "email": "{name} (mismo email)",
+      "domain": "{name} (mismo dominio)"
+    },
+    "noSuggestion": "Sin coincidencia",
+    "chooseOrganization": "Elegir una organización",
+    "organizationLabel": "Organización para vincular a {name}",
+    "link": "Vincular",
+    "unlink": "Desvincular",
+    "confirmUnlink": "¿Desvincular {name}? Sus productos se retirarán del sitio.",
+    "by": "por {email}",
+    "noAgreementDate": "Vinculada anteriormente",
+    "linked": "Ficha vinculada: su catálogo está publicado.",
+    "unlinked": "Ficha desvinculada: sus productos se retiran del sitio.",
+    "errors": {
+      "alreadyLinked": "Esta ficha ya está vinculada a una organización. Desvincúlela primero.",
+      "invalidOrganization": "Elija una organización proveedora activa.",
+      "notLinked": "Esta ficha no está vinculada a ninguna organización."
     }
   },
   "users": {
@@ -446,6 +535,8 @@
       "organization.member_removed": "Miembro eliminado",
       "organization.invitation_revoked": "Invitación revocada",
       "organization.invitation_resent": "Invitación reenviada",
+      "supplier.linked": "Ficha de proveedor vinculada",
+      "supplier.unlinked": "Ficha de proveedor desvinculada",
       "product.hidden": "Producto oculto",
       "product.unhidden": "Producto mostrado",
       "product.unpublished": "Producto despublicado",
@@ -483,7 +574,16 @@
       "search.evaluation_requested": "Search evaluation requested",
       "mail.retried": "Email retried",
       "mail.bulk_retried": "Failed emails retried",
-      "storage.recovery_requested": "Storage recovery requested"
+      "inbound_mail.attached": "Inbound email attached to a request",
+      "inbound_mail.replayed": "Inbound email processing replayed",
+      "inbound_mail.dismissed": "Inbound email dismissed",
+      "storage.recovery_requested": "Storage recovery requested",
+      "ad_campaign.suspended": "Campaña patrocinada suspendida",
+      "ad_campaign.restored": "Suspensión de campaña levantada",
+      "ad_wallet.adjusted": "Monedero publicitario ajustado",
+      "subscription.created": "Suscripción creada",
+      "subscription.extended": "Fin de suscripción cambiado",
+      "subscription.cancelled": "Suscripción cancelada"
     },
     "targets": {
       "user": "Usuario",
@@ -491,6 +591,7 @@
       "attribute": "Atributo",
       "attribute_value": "Valor de atributo",
       "organization": "Organización",
+      "supplier": "Ficha de proveedor",
       "product": "Producto",
       "rfq": "Solicitud de presupuesto",
       "certification": "Certificación",
@@ -507,7 +608,9 @@
       "queue_schedule": "Scheduled job",
       "search_run": "Search operation",
       "mail_delivery": "Email delivery",
-      "storage": "Storage"
+      "inbound_mail": "Inbound email",
+      "storage": "Storage",
+      "ad_campaign": "Campaña patrocinada"
     }
   },
   "demand": {
@@ -1359,6 +1462,7 @@
       "retry": "Retry",
       "cancel": "Cancel",
       "retryConfirm": "Retry the {name} job?",
+      "cancelJob": "Cancel job",
       "cancelConfirm": "Permanently cancel the {name} job? It will be removed from the queue."
     },
     "detail": {
@@ -1569,6 +1673,108 @@
       "bulkPartial": "{count} mail(s) put back in the queue; {failed} could not be queued and remain to be retried."
     }
   },
+  "inboundMail": {
+    "title": "Inbound emails",
+    "subtitle": "Supplier replies received at the relay address: attach, replay or dismiss emails that did not go through.",
+    "resultsCount": "{count, plural, =0 {No email} one {# email} other {# emails}}",
+    "empty": "No email matches.",
+    "emptyDescription": "Emails appear here as soon as the inbound provider announces them.",
+    "back": "Back to inbound emails",
+    "noSubject": "(no subject)",
+    "unattached": "Not attached",
+    "statuses": {
+      "received": "Pending",
+      "processing": "Processing",
+      "processed": "Processed",
+      "rejected": "Dismissed",
+      "failed": "Failed"
+    },
+    "rejections": {
+      "too_large": "Too large",
+      "loop": "Mail loop",
+      "auto_reply": "Automatic reply",
+      "unknown_address": "Unknown address",
+      "expired_address": "Expired address",
+      "unknown_sender": "Remitente ajeno a la agencia",
+      "dismissed": "Dismissed by an admin"
+    },
+    "filters": {
+      "status": "Status",
+      "rejection": "Rejection reason",
+      "all": "All"
+    },
+    "columns": {
+      "sender": "Sender",
+      "subject": "Subject",
+      "target": "Request / supplier",
+      "status": "Status",
+      "receivedAt": "Received",
+      "actions": "Actions"
+    },
+    "actions": {
+      "attach": "Attach",
+      "replay": "Replay",
+      "dismiss": "Dismiss",
+      "attachConfirm": "Attach this email to this request and process it?",
+      "replayConfirm": "Replay the processing of this email? An already processed email creates no duplicate.",
+      "dismissConfirm": "Dismiss this email? It will no longer be processed."
+    },
+    "attach": {
+      "title": "Attach to a request",
+      "description": "Suppliers from the sender’s domain, or recipients of a request looked up by its number. The email is then processed as a reply to that request.",
+      "rfqLabel": "Request number",
+      "rfqHint": "Empty: suggestions based on the sender.",
+      "search": "Search",
+      "empty": "No request to suggest.",
+      "emptyDescription": "Enter the number of the intended request.",
+      "columns": {
+        "rfq": "Request",
+        "supplier": "Supplier",
+        "sentAt": "Sent"
+      }
+    },
+    "detail": {
+      "summary": "Summary",
+      "recipient": "Target address",
+      "attachedManually": "Attached manually on",
+      "processedAt": "Processed",
+      "senderKnownLabel": "Sender known to the supplier",
+      "senderKnown": {
+        "yes": "Yes",
+        "no": "No"
+      },
+      "provider": "Provider",
+      "messageId": "Message-ID",
+      "error": "Error",
+      "body": "Content (text)",
+      "noBody": "No content kept: a dismissed email is only logged."
+    },
+    "attachments": {
+      "title": "Attachments",
+      "empty": "No attachment logged.",
+      "columns": {
+        "filename": "File",
+        "type": "Type",
+        "size": "Size",
+        "status": "Outcome"
+      },
+      "statuses": {
+        "stored": "Stored",
+        "rejected_type": "Type refused",
+        "rejected_size": "Too large",
+        "ignored_inline": "Inline image"
+      }
+    },
+    "flash": {
+      "processed": "The email is processed and attached to the request.",
+      "republished": "Recording of the reply replayed, without duplicates.",
+      "pending": "The email is being processed.",
+      "rejected": "The email was dismissed again by a safeguard.",
+      "failed": "Processing failed: the email stays failed and will be retried automatically.",
+      "dismissed": "The email is dismissed.",
+      "notAllowed": "This action is not possible in the email’s current state."
+    }
+  },
   "storage": {
     "title": "Storage",
     "subtitle": "Cellar file registry: recovery backlog and volume per organization.",
@@ -1665,6 +1871,37 @@
       "empty": "The monitoring job has not run yet.",
       "stale": "The states below are out of date: monitoring is no longer running (is the worker stopped?).",
       "details": "See details"
+    }
+  },
+  "ads": {
+    "title": "Productos patrocinados",
+    "subtitle": "Campañas de todos los proveedores, suspensión y abono de los monederos publicitarios.",
+    "resultsCount": "{count, plural, =0 {Ninguna campaña} one {# campaña} other {# campañas}}",
+    "empty": "Ninguna campaña",
+    "emptyDescription": "Ningún proveedor ha patrocinado aún un producto.",
+    "columns": {
+      "organization": "Organización",
+      "wallet": "Monedero"
+    },
+    "actions": {
+      "suspend": "Suspender",
+      "restore": "Restablecer"
+    },
+    "adjust": {
+      "title": "Ajustar un monedero",
+      "description": "Abono (importe positivo) o cargo (importe negativo) en el monedero publicitario de una organización. Queda registrado en el registro de auditoría.",
+      "organizationId": "N.º de organización",
+      "amount": "Importe (€)",
+      "amountHint": "Negativo para cargar.",
+      "note": "Motivo",
+      "submit": "Aplicar"
+    },
+    "flash": {
+      "suspended": "Campaña suspendida",
+      "restored": "Suspensión levantada: la campaña está en pausa",
+      "adjusted": "Monedero ajustado",
+      "insufficientFunds": "El cargo supera el saldo del monedero.",
+      "organizationNotFound": "Organización no encontrada."
     }
   }
 }

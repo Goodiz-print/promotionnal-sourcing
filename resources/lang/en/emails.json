@@ -16,7 +16,12 @@
     "body": "{buyerName} invites you to quote on the request “{rfqTitle}” ({itemCount, plural, one {# line} other {# lines}}).",
     "deadline": "Please reply before {deadline}.",
     "cta": "View the request",
-    "footer": "Sign in to your supplier area to view the request or decline it."
+    "footer": "Sign in to your supplier area to view the request or decline it.",
+    "anonymous": {
+      "subject": "New request for quotation: “{rfqTitle}”",
+      "title": "An agency is consulting you on {brandName}",
+      "body": "An agency invites you to quote on the request “{rfqTitle}” ({itemCount, plural, one {# line} other {# lines}})."
+    }
   },
   "passwordReset": {
     "subject": "Reset your password",
@@ -46,7 +51,30 @@
     "body": "{buyerName} sent you the request “{rfqTitle}” and you have not opened it yet.",
     "deadline": "Please reply before {deadline}.",
     "cta": "View the request",
-    "footer": "This is the only reminder for this request. You can also decline it from your supplier area."
+    "footer": "This is the only reminder for this request. You can also decline it from your supplier area.",
+    "anonymous": {
+      "body": "An agency sent you the request “{rfqTitle}” and you have not opened it yet."
+    }
+  },
+  "rfqDetails": {
+    "description": "Request description",
+    "linesTitle": "{count, plural, one {# line to quote} other {# lines to quote}}",
+    "reference": "Reference",
+    "variant": "Variant",
+    "quantity": "Quantity",
+    "marking": "Marking",
+    "markingColors": "{count, plural, one {# colour} other {# colours}}",
+    "noMarking": "No marking",
+    "note": "Agency note",
+    "unitPrice": "Indicative unit price",
+    "markingUnitPrice": "Indicative marking per piece",
+    "setupCharge": "Indicative setup charge",
+    "total": "Indicative total",
+    "price": "Indicative price",
+    "noPrice": "No catalogue price: to be quoted",
+    "indicativeNotice": "Prices shown are the indicative prices displayed on {brandName}, calculated from your catalogue. They are not agreed prices: you may offer a better rate or stick to them.",
+    "replyHint": "To reply, simply answer this email with your quote attached (PDF).",
+    "platformLink": "You can also view the request on the platform:"
   },
   "quoteReceived": {
     "subject": "New quote from {supplierName} for “{rfqTitle}”",
@@ -78,5 +106,79 @@
   "announcement": {
     "footer": "You are receiving this message because you have an account on {brandName}.",
     "cta": "Open {brandName}"
+  },
+  "notificationReminder": {
+    "subject": "Action needed: an important notification is still unread",
+    "title": "An important notification is waiting for you",
+    "intro": "This notification was sent to you on {brandName} and has not been read yet:",
+    "cta": "Open the related page",
+    "footer": "You receive this reminder only once. It is not sent once the notification has been read."
+  },
+  "subscriptionActivated": {
+    "subject": "Your {planName} subscription is active",
+    "title": "{planName} subscription activated",
+    "intro": "{organizationName}'s {planName} subscription is active on {brandName}.",
+    "period": "It covers the period from {startsOn} to {endsOn} inclusive.",
+    "since": "It has been active since {startsOn}.",
+    "features": "Your plan includes:",
+    "cta": "View my subscription",
+    "footer": "You are receiving this email as a manager of the organization."
+  },
+  "subscriptionExpiring": {
+    "subject": "Your {planName} subscription ends on {endsOn}",
+    "title": "Your {planName} subscription ends in {daysLeft, plural, one {# day} other {# days}}",
+    "intro": "{organizationName}'s {planName} subscription ends on {endsOn}.",
+    "after": "Without renewal, your organization will go back to the free plan: agencies' identity will no longer be visible on your quote requests or in your statistics.",
+    "cta": "Renew my subscription",
+    "footer": "You are receiving this reminder as a manager of the organization."
+  },
+  "quoteEmailVerification": {
+    "subject": "Confirm the quote request address of {organizationName}",
+    "title": "Confirm this address",
+    "body": "{organizationName} chose this address to receive its quote requests on {brandName}. Confirm it so agencies can reach you here.",
+    "cta": "Confirm the address",
+    "validity": "This link is valid for {days, plural, one {# day} other {# days}}.",
+    "ignore": "If you do not work for {organizationName}, ignore this message: no request will be sent to you."
+  },
+  "subscriptionUpsell": {
+    "title": "Subscribe to find out who the agency is",
+    "body": "Subscribe to find out which agency is consulting you and contact it directly. Subscribing is reserved for the owners and administrators of your organization.",
+    "cta": "See subscription plans"
+  },
+  "buyerContact": {
+    "title": "Agency contact details",
+    "agency": "Agency",
+    "requester": "Requested by",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address"
+  },
+  "supplierReplyReceived": {
+    "subject": "Reply from {supplierName} to “{rfqTitle}”",
+    "subjectLate": "Late reply from {supplierName} to “{rfqTitle}”",
+    "title": "{supplierName} replied to your request",
+    "body": "{supplierName} replied by email to your request “{rfqTitle}”.",
+    "lateNotice": "Late reply: it arrived after the request's deadline.",
+    "messageHeading": "Their message:",
+    "documentsHeading": "Attached quotes:",
+    "downloadHint": "These links require you to be signed in to your account.",
+    "cta": "Open the request",
+    "footer": "You are receiving this message because you manage this quote request.",
+    "replyHint": "Simply reply to this email: your reply will be forwarded to the supplier."
+  },
+  "agencyMessageRelayed": {
+    "subject": {
+      "named": "Message from {agencyName} about “{rfqTitle}”",
+      "anonymous": "Message from the agency about “{rfqTitle}”"
+    },
+    "title": {
+      "named": "{agencyName} wrote to you",
+      "anonymous": "The agency wrote to you"
+    },
+    "body": "New message about the request “{rfqTitle}”:",
+    "attachmentsHeading": "Attachments, available in the application:",
+    "replyHint": "Simply reply to this email: your reply will be forwarded to the agency.",
+    "cta": "Open the request",
+    "footer": "You are receiving this message because your company received this quote request."
   }
 }

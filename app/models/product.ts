@@ -42,15 +42,16 @@ export default class Product extends ProductSchema {
   declare stockStatus: ProductStockStatus | null
 
   /**
-   * Pendant de `Supplier.fromLiveOrganization` : masque les produits dont la
-   * fiche fournisseur appartient à une organisation archivée **ou rejetée** (#54).
+   * Pendant de `Supplier.fromLiveOrganization` : seuls les produits d'une fiche
+   * fournisseur rattachée à une organisation ni archivée ni rejetée (#54) sont
+   * publiés. Une fiche sans organisation n'est pas publiée (#240).
    */
   static fromLiveOrganization = scope((query: ModelQueryBuilderContract<typeof Product>) => {
     query.whereHas('supplier', (supplier) =>
-      supplier.whereDoesntHave('organization', (organization) =>
+      supplier.whereHas('organization', (organization) =>
         organization
-          .whereNotNull('archivedAt')
-          .orWhereRaw(latestDecisionIsRejectedSql('organization', 'organizations.id'))
+          .whereNull('archivedAt')
+          .whereRaw(`NOT ${latestDecisionIsRejectedSql('organization', 'organizations.id')}`)
       )
     )
   })

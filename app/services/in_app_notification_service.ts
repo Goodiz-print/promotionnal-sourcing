@@ -1,7 +1,9 @@
 import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
+import Notification from '#models/notification'
 import OrganizationUser from '#models/organization_user'
 import NotificationService from '#services/notification_service'
+import SubscriptionService from '#services/subscription_service'
 import { RFQ_MANAGER_ROLES, RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
 import type Order from '#models/order'
 import type Organization from '#models/organization'
@@ -9,9 +11,12 @@ import type Quote from '#models/quote'
 import type Rfq from '#models/rfq'
 import type RfqSupplier from '#models/rfq_supplier'
 import type User from '#models/user'
+import type { AgencyMailRefusedNotice } from '#shared/types/inbound_mail'
 import type { OrderSide } from '#shared/types/order'
 import type { RoleSlug } from '#shared/types/role'
+import type { SupplierReplyNotice } from '#shared/types/supplier_reply'
 import type {
+  MessageNotificationData,
   NotificationData,
   NotificationType,
   OrderNotificationType,
@@ -26,22 +31,36 @@ const MEMBER_ADMIN_ROLES: readonly RoleSlug[] = ['owner', 'admin']
  * rôles que les mails correspondants : un `member`, qui n'a pas accès à l'écran,
  * n'est pas notifié d'une impasse.
  *
+ * Une notification destinée à un fournisseur **non abonné** ne nomme pas
+ * l'agence (#220) : `buyerName` est omis des données, lues telles quelles par la
+ * cloche et le mail de rappel. L'abonnement est lu à la création.
+ *
  * Un canal secondaire par nature : un échec est loggué sans être propagé, l'état
  * métier étant déjà écrit et visible sur l'écran concerné.
  */
 @inject()
 export default class InAppNotificationService {
-  constructor(private notifications: NotificationService) {}
+  constructor(
+    private notifications: NotificationService,
+    private subscriptions: SubscriptionService
+  ) {}
 
   /** Les responsables de chaque fournisseur destinataire reçoivent la demande. */
   async rfqSent(rfq: Rfq, buyer: Organization, recipients: RfqSupplier[]): Promise<number> {
+    const subscribed = await this.subscriptions.subscribedAmong(
+      recipients.map(({ supplierOrganizationId }) => supplierOrganizationId)
+    )
     let created = 0
-    for (const recipient of recipients) {
+    for (const { supplierOrganizationId } of recipients) {
       created += await this.notifyMembers(
-        recipient.supplierOrganizationId,
+        supplierOrganizationId,
         RFQ_RESPONDER_ROLES,
         'rfq.received',
-        { rfqId: rfq.id, rfqTitle: rfq.title, buyerName: buyer.name }
+        {
+          rfqId: rfq.id,
+          rfqTitle: rfq.title,
+          ...buyerNameFor(buyer, subscribed.has(supplierOrganizationId)),
+        }
       )
     }
     return created
@@ -65,16 +84,23 @@ export default class InAppNotificationService {
     })
   }
 
-  /** Le fournisseur apprend la décision de l'acheteur. Suppose `quote.rfq` préchargé. */
+  /**
+   * Le fournisseur apprend la décision de l'acheteur. Suppose `quote.rfq`
+   * préchargé. Un refus reste anonyme pour un non abonné ; une acceptation
+   * nomme l'agence, qui passe commande et se fait donc connaître.
+   */
   async quoteDecided(
     quote: Quote,
     type: Extract<NotificationType, 'quote.accepted' | 'quote.rejected'>,
     buyer: Organization
   ): Promise<number> {
+    const revealBuyer =
+      type === 'quote.accepted' ||
+      (await this.subscriptions.isSubscribed(quote.supplierOrganizationId))
     return this.notifyMembers(quote.supplierOrganizationId, RFQ_RESPONDER_ROLES, type, {
       quoteId: quote.id,
       rfqTitle: quote.rfq.title,
-      buyerName: buyer.name,
+      ...buyerNameFor(buyer, revealBuyer),
     })
   }
 
@@ -104,6 +130,91 @@ export default class InAppNotificationService {
         side: recipient,
       }
     )
+  }
+
+  /**
+   * Un fournisseur a répondu par mail (#225) : les destinataires de la
+   * transmission (auteur de la demande, responsables de l'agence) sont
+   * prévenus. Le message du fil part dans les données : un événement rejoué ne
+   * crée pas de seconde notification pour qui l'a déjà.
+   */
+  async supplierReplied(userIds: number[], notice: SupplierReplyNotice): Promise<number> {
+    const data: MessageNotificationData = {
+      rfqId: notice.rfqId,
+      rfqTitle: notice.rfqTitle,
+      supplierName: notice.supplierName,
+      messageId: notice.messageId,
+      late: notice.late,
+    }
+    try {
+      const recipients = [...new Set(userIds)]
+      const notified = await this.alreadyNotified(recipients, notice.messageId)
+      const pending = recipients.filter((userId) => !notified.has(userId))
+      const created = await Promise.all(pending.map((userId) => this.notifyOnce(userId, data)))
+      return created.filter(Boolean).length
+    } catch (error) {
+      logger.warn({ err: error, rfqId: notice.rfqId }, 'failed to create in-app notifications')
+      return 0
+    }
+  }
+
+  /**
+   * Un mail de l'agence n'a pas été relayé, faute d'expéditeur reconnu (#226) :
+   * les destinataires (auteur de la demande, responsables de l'agence) en sont
+   * prévenus, une seule fois par mail — une reprise ou un rejeu par un admin ne
+   * crée pas de doublon. Renvoie le nombre de notifications créées.
+   */
+  async agencyMailRefused(userIds: number[], notice: AgencyMailRefusedNotice): Promise<number> {
+    const data: NotificationData = { ...notice }
+    try {
+      const recipients = [...new Set(userIds)]
+      const notified = await this.alreadyRefused(recipients, notice.inboundMailId)
+      const pending = recipients.filter((userId) => !notified.has(userId))
+      await Promise.all(
+        pending.map((userId) =>
+          this.notifications.notify({ id: userId }, 'rfq.relay_refused', data)
+        )
+      )
+      return pending.length
+    } catch (error) {
+      logger.warn({ err: error, rfqId: notice.rfqId }, 'failed to create in-app notifications')
+      return 0
+    }
+  }
+
+  /** Parmi `userIds`, ceux déjà prévenus que ce mail n'a pas été relayé. */
+  private async alreadyRefused(userIds: number[], inboundMailId: number): Promise<Set<number>> {
+    if (userIds.length === 0) return new Set()
+    const rows = await Notification.query()
+      .whereIn('userId', userIds)
+      .where('type', 'rfq.relay_refused')
+      .whereRaw(`data->>'inboundMailId' = ?`, [String(inboundMailId)])
+      .select('userId')
+    return new Set(rows.map((row) => row.userId))
+  }
+
+  /**
+   * Parmi `userIds`, ceux déjà notifiés d'une réponse pour ce message du fil.
+   * Bornée aux destinataires : l'index `(user_id, …)` sert la recherche.
+   */
+  private async alreadyNotified(userIds: number[], messageId: number): Promise<Set<number>> {
+    if (userIds.length === 0) return new Set()
+    const rows = await Notification.query()
+      .whereIn('userId', userIds)
+      .where('type', 'rfq.responded')
+      .whereRaw(`data->>'messageId' = ?`, [String(messageId)])
+      .select('userId')
+    return new Set(rows.map((row) => row.userId))
+  }
+
+  /**
+   * Crée la notification de réponse, sauf si un traitement concurrent vient de
+   * la créer : l'index unique `(user_id, type, data->>'messageId')` tranche
+   * (`NotificationService#notifyOncePerMessage`). Renvoie `true` si elle a été créée.
+   */
+  private async notifyOnce(userId: number, data: MessageNotificationData): Promise<boolean> {
+    const id = await this.notifications.notifyOncePerMessage({ id: userId }, 'rfq.responded', data)
+    return id !== null
   }
 
   /** Les propriétaires et administrateurs voient arriver le nouveau membre. */
@@ -145,4 +256,9 @@ export default class InAppNotificationService {
       return 0
     }
   }
+}
+
+/** Le nom de l'agence dans les données, ou rien pour un fournisseur non abonné. */
+function buyerNameFor(buyer: Organization, revealBuyer: boolean): NotificationData {
+  return revealBuyer ? { buyerName: buyer.name } : {}
 }

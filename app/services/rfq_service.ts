@@ -1,6 +1,7 @@
-import logger from '@adonisjs/core/services/logger'
+import { inject } from '@adonisjs/core'
 import { DateTime } from 'luxon'
 import type { HasManyQueryBuilderContract } from '@adonisjs/lucid/types/relations'
+import type { ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import db from '@adonisjs/lucid/services/db'
 import Organization from '#models/organization'
@@ -8,43 +9,73 @@ import Product from '#models/product'
 import Rfq from '#models/rfq'
 import RfqItem from '#models/rfq_item'
 import RfqSupplier from '#models/rfq_supplier'
-import type User from '#models/user'
+import User from '#models/user'
+import RfqRecipientService from '#services/rfq_recipient_service'
 import {
   NotASupplierOrganizationException,
-  RfqInvalidDeadlineException,
   RfqNotClosableException,
   RfqNotEditableException,
-  RfqNotExpirableException,
-  RfqNotExtendableException,
   RfqNotFoundException,
   RfqNotPublishableException,
   RfqNotSendableException,
   RfqSupplierNotFoundException,
 } from '#exceptions/rfq_errors'
-import {
-  DEFAULT_RFQ_ITEM_QUANTITY,
-  RFQ_DEADLINE_TIMEZONE,
-  RFQ_REMINDER_AFTER_DAYS,
-  TERMINAL_RFQ_SUPPLIER_STATUSES,
-} from '#shared/types/rfq'
+import { DEFAULT_RFQ_ITEM_QUANTITY, SUPPLIER_RFQ_STATE_STATUSES } from '#shared/types/rfq'
+import { BUYER_VISIBLE_QUOTE_STATUSES } from '#shared/types/quote'
+import { parseRfqDeadline } from '#shared/helpers/rfq_deadline'
 import type {
-  CreateRfqData,
-  ExtendRfqDeadlineData,
+  NewRfqData,
+  RfqBuyerFilters,
   RfqItemData,
   RfqProductOptionType,
+  RfqProgress,
+  SupplierRfqFilters,
   UpdateRfqData,
 } from '#shared/types/rfq'
 
+/** Colonnes d'une ligne de « Mes demandes » (`RfqListItemTransformer`). */
+const RFQ_LIST_COLUMNS = [
+  'id',
+  'batchId',
+  'buyerOrganizationId',
+  'createdByUserId',
+  'title',
+  'status',
+  'deadline',
+  'budgetMax',
+  'publishedAt',
+  'closedAt',
+  'expiredAt',
+  'createdAt',
+]
+
+/** Colonnes d'une ligne de « Demandes reçues » (`SupplierRfqTransformer`). */
+const SUPPLIER_RFQ_LIST_COLUMNS = [
+  'id',
+  'buyerOrganizationId',
+  'title',
+  'status',
+  'deadline',
+  'publishedAt',
+]
+
+/** Statuts d'un destinataire qui a reçu la demande : tous sauf `pending`. */
+const RECEIVED_RFQ_SUPPLIER_STATUSES = Object.values(SUPPLIER_RFQ_STATE_STATUSES).flat()
+
 /**
- * Cycle de vie d'une demande de devis (RFQ).
+ * Rédaction, lecture et diffusion d'une demande de devis (RFQ).
  *
  * ```
  * draft ──publish──▶ published ──close──▶ closed
- *                        │  ▲
- *                        │  └──extendDeadline── expired
- *                        ├──expire (échéance dépassée)──▶ expired
+ *                        │
  *                        └──send──▶ destinataires `pending` → `sent`
  * ```
+ *
+ * Deux services voisins portent le reste du cycle :
+ * - `RfqDeadlineService` : expiration à l'échéance (`published` → `expired`)
+ *   et prolongation, qui rouvre une demande échue ;
+ * - `RfqRecipientService` : avancement de chaque destinataire (lu, répondu,
+ *   décliné, expiré) et relance de ceux qui n'ont pas répondu.
  *
  * `publish` et `send` sont deux transitions distinctes : publier fige le
  * besoin, envoyer notifie les destinataires. Un acheteur peut donc ajouter un
@@ -54,19 +85,58 @@ import type {
  * Seul un brouillon est modifiable (titre, items, retrait d'un destinataire
  * non encore notifié) : une fois la demande partie chez un fournisseur, la
  * réécrire silencieusement fausserait les devis reçus. **Une seule exception** :
- * l'échéance se prolonge (`extendDeadline`) tant que la demande est publiée ou
- * échue — elle ne change pas le besoin, seulement le temps laissé pour y répondre.
+ * l'échéance se prolonge (`RfqDeadlineService#extendDeadline`) tant que la
+ * demande est publiée ou échue — elle ne change pas le besoin, seulement le
+ * temps laissé pour y répondre.
  */
+@inject()
 export default class RfqService {
+  constructor(private recipients: RfqRecipientService) {}
+
   /**
-   * Demandes émises par l'organisation acheteuse, brouillons compris.
+   * « Mes demandes » (#228) : les demandes de l'organisation acheteuse,
+   * brouillons compris, la plus récente en tête, filtrées par avancement
+   * (`RfqProgress`) et par auteur. Une demande appartient à l'agence : tous ses
+   * membres voient toutes ses demandes.
+   *
+   * Colonnes explicites ; items et destinataires sont préchargés pour leurs
+   * compteurs (une requête par relation, pas de N+1), les devis remis et les
+   * devis PDF seulement comptés en sous-requête (`$extras.receivedQuotesCount`,
+   * `$extras.quoteDocumentsCount`).
    */
-  listForBuyer(organizationId: number): Promise<Rfq[]> {
-    return Rfq.query()
+  listForBuyer(organizationId: number, filters: RfqBuyerFilters = {}): Promise<Rfq[]> {
+    const query = Rfq.query()
+      .select(RFQ_LIST_COLUMNS)
       .where('buyerOrganizationId', organizationId)
-      .preload('items')
-      .preload('suppliers')
+      .preload('items', (items) => items.select('id', 'rfqId'))
+      .preload('suppliers', (suppliers) => suppliers.select('id', 'rfqId', 'status'))
+      .preload('createdBy', (author) => author.select('id', 'firstName', 'lastName'))
+      .withCount('quotes', (quotes) =>
+        quotes.whereIn('status', [...BUYER_VISIBLE_QUOTE_STATUSES]).as('receivedQuotesCount')
+      )
+      .withCount('quoteDocuments', (documents) => documents.as('quoteDocumentsCount'))
       .orderBy('createdAt', 'desc')
+      .orderBy('id', 'desc')
+
+    if (filters.authorId) query.where('createdByUserId', filters.authorId)
+    if (filters.status) this.whereProgress(query, filters.status)
+    return query
+  }
+
+  /**
+   * Auteurs des demandes de l'organisation, pour le filtre « auteur » de
+   * « Mes demandes » : seuls ceux qui ont écrit au moins une demande.
+   */
+  authorsForBuyer(organizationId: number): Promise<User[]> {
+    return User.query()
+      .select('id', 'firstName', 'lastName', 'email')
+      .whereIn(
+        'id',
+        db.from('rfqs').select('created_by_user_id').where('buyer_organization_id', organizationId)
+      )
+      .orderBy('firstName')
+      .orderBy('lastName')
+      .orderBy('id')
   }
 
   /**
@@ -88,21 +158,34 @@ export default class RfqService {
   }
 
   /**
-   * Demandes reçues par une organisation fournisseur. Les destinataires encore
-   * `pending` sont exclus : tant que l'acheteur n'a pas envoyé la demande,
-   * elle n'existe pas pour le fournisseur.
+   * « Demandes reçues » (#230) : les demandes reçues par une organisation
+   * fournisseur, la plus récemment publiée en tête, filtrées par statut lisible
+   * (`SupplierRfqState`, cf. `SUPPLIER_RFQ_STATE_STATUSES`). Les destinataires
+   * encore `pending` sont exclus : tant que l'acheteur n'a pas envoyé la
+   * demande, elle n'existe pas pour le fournisseur.
+   *
+   * Colonnes explicites ; l'agence et la ligne du fournisseur sont préchargées
+   * (une requête par relation, pas de N+1), les items seulement comptés en
+   * sous-requête (`$extras.itemsCount`).
    */
-  listForSupplier(organizationId: number): Promise<Rfq[]> {
+  listForSupplier(organizationId: number, filters: SupplierRfqFilters = {}): Promise<Rfq[]> {
+    const statuses = filters.status
+      ? SUPPLIER_RFQ_STATE_STATUSES[filters.status]
+      : RECEIVED_RFQ_SUPPLIER_STATUSES
     return Rfq.query()
+      .select(SUPPLIER_RFQ_LIST_COLUMNS)
       .whereHas('suppliers', (suppliers) =>
-        suppliers.where('supplierOrganizationId', organizationId).whereNot('status', 'pending')
+        suppliers.where('supplierOrganizationId', organizationId).whereIn('status', [...statuses])
       )
-      .preload('buyerOrganization')
-      .preload('items')
+      .preload('buyerOrganization', (buyer) => buyer.select('id', 'name', 'logoUrl'))
       .preload('suppliers', (suppliers) =>
-        suppliers.where('supplierOrganizationId', organizationId)
+        suppliers
+          .select('id', 'rfqId', 'supplierOrganizationId', 'status', 'sentAt', 'lateReplyAt')
+          .where('supplierOrganizationId', organizationId)
       )
+      .withCount('items', (items) => items.as('itemsCount'))
       .orderBy('publishedAt', 'desc')
+      .orderBy('id', 'desc')
   }
 
   async findForSupplier(id: number, organizationId: number): Promise<Rfq> {
@@ -112,6 +195,8 @@ export default class RfqService {
         suppliers.where('supplierOrganizationId', organizationId).whereNot('status', 'pending')
       )
       .preload('buyerOrganization')
+      // Auteur de la demande, pour les coordonnées montrées à un abonné (#221).
+      .preload('createdBy', (author) => author.select('id', 'firstName', 'lastName', 'email'))
       .preload('items', (items) => this.preloadItemLabels(items))
       .preload('suppliers', (suppliers) =>
         suppliers.where('supplierOrganizationId', organizationId)
@@ -125,13 +210,13 @@ export default class RfqService {
   /**
    * Ouverture d'une demande par un fournisseur : chargement **et** accusé de
    * lecture en une passe. La ligne destinataire préchargée est remplacée par
-   * celle que renvoie `markViewed` — sans quoi l'écran afficherait encore
+   * celle que renvoie `RfqRecipientService#applyViewed` — sans quoi l'écran afficherait encore
    * `sent` juste après avoir accusé réception.
    */
   async openForSupplier(id: number, organizationId: number): Promise<Rfq> {
     const rfq = await this.findForSupplier(id, organizationId)
     const [recipient] = rfq.suppliers
-    if (recipient) await this.applyViewed(recipient)
+    if (recipient) await this.recipients.applyViewed(recipient)
     return rfq
   }
 
@@ -139,10 +224,17 @@ export default class RfqService {
    * Crée un brouillon, avec ses items s'ils sont fournis. Transaction : une
    * demande sans ses lignes n'a pas de sens métier.
    */
-  async create(organization: Organization, user: User, data: CreateRfqData): Promise<Rfq> {
+  async create(
+    organization: Organization,
+    user: User,
+    data: NewRfqData,
+    client?: TransactionClientContract
+  ): Promise<Rfq> {
     const requestable = await this.withRequestableProducts(data.items ?? [])
 
-    return db.transaction(async (trx) => {
+    // Transaction de l'appelant si fournie (validation du panier : plusieurs
+    // demandes en tout ou rien), sinon la sienne.
+    const write = async (trx: TransactionClientContract) => {
       const rfq = await Rfq.create(
         {
           buyerOrganizationId: organization.id,
@@ -150,8 +242,9 @@ export default class RfqService {
           status: 'draft',
           title: data.title,
           description: data.description ?? null,
-          deadline: this.parseDeadline(data.deadline),
+          deadline: parseRfqDeadline(data.deadline),
           budgetMax: this.parseBudget(data.budgetMax),
+          batchId: data.batchId ?? null,
           // Explicites : sans elles, l'instance renvoyée porte `undefined`
           // plutôt que `null` sur ces colonnes (jamais lues depuis la base
           // après un insert) — les transformers exposeraient un trou.
@@ -170,7 +263,9 @@ export default class RfqService {
 
       await rfq.load('items', (items) => items.useTransaction(trx))
       return rfq
-    })
+    }
+
+    return client ? write(client) : db.transaction(write)
   }
 
   /**
@@ -182,7 +277,7 @@ export default class RfqService {
     rfq.merge({
       ...(data.title !== undefined ? { title: data.title } : {}),
       ...(data.description !== undefined ? { description: data.description } : {}),
-      ...(data.deadline !== undefined ? { deadline: this.parseDeadline(data.deadline) } : {}),
+      ...(data.deadline !== undefined ? { deadline: parseRfqDeadline(data.deadline) } : {}),
       ...(data.budgetMax !== undefined ? { budgetMax: this.parseBudget(data.budgetMax) } : {}),
     })
     await rfq.save()
@@ -262,17 +357,6 @@ export default class RfqService {
   }
 
   /**
-   * Brouillons de l'organisation, du plus récent au plus ancien — le menu
-   * « ajouter à une demande » de la fiche produit.
-   */
-  async listDrafts(organizationId: number): Promise<Rfq[]> {
-    return Rfq.query()
-      .where('buyerOrganizationId', organizationId)
-      .where('status', 'draft')
-      .orderBy('createdAt', 'desc')
-  }
-
-  /**
    * Ajoute des destinataires. Autorisé tant que la demande n'est ni close ni échue :
    * élargir la consultation d'une demande publiée est un cas nominal (les
    * nouveaux arrivent en `pending`, le prochain `send` les notifie).
@@ -332,10 +416,10 @@ export default class RfqService {
    * Fige le besoin : `draft` → `published`. Une demande sans item n'est pas
    * chiffrable, elle est donc refusée.
    */
-  async publish(rfq: Rfq): Promise<Rfq> {
+  async publish(rfq: Rfq, client?: TransactionClientContract): Promise<Rfq> {
     if (rfq.status !== 'draft') throw new RfqNotPublishableException()
 
-    const [{ total }] = await db
+    const [{ total }] = await (client ?? db)
       .from('rfq_items')
       .where('rfq_id', rfq.id)
       .count('* as total')
@@ -344,6 +428,7 @@ export default class RfqService {
     if (Number(total) === 0) throw new RfqNotPublishableException()
 
     rfq.merge({ status: 'published', publishedAt: DateTime.now() })
+    if (client) rfq.useTransaction(client)
     await rfq.save()
     return rfq
   }
@@ -354,10 +439,10 @@ export default class RfqService {
    * pour dispatcher les mails, sans risquer de relancer un fournisseur déjà
    * notifié.
    */
-  async send(rfq: Rfq): Promise<RfqSupplier[]> {
+  async send(rfq: Rfq, client?: TransactionClientContract): Promise<RfqSupplier[]> {
     if (rfq.status !== 'published') throw new RfqNotSendableException()
 
-    const pending = await RfqSupplier.query()
+    const pending = await RfqSupplier.query({ client })
       .where('rfqId', rfq.id)
       .where('status', 'pending')
       .preload('supplierOrganization')
@@ -375,205 +460,16 @@ export default class RfqService {
 
   /**
    * Clôture : l'acheteur a assez de réponses. Les devis déjà reçus restent
-   * consultables, aucun nouvel envoi n'est possible.
+   * consultables, aucun nouvel envoi n'est possible. Transaction de l'appelant
+   * si fournie (devis PDF retenu, `QuoteService#selectDocument`).
    */
-  async close(rfq: Rfq): Promise<Rfq> {
+  async close(rfq: Rfq, client?: TransactionClientContract): Promise<Rfq> {
     if (rfq.status !== 'published') throw new RfqNotClosableException()
 
     rfq.merge({ status: 'closed', closedAt: DateTime.now() })
+    if (client) rfq.useTransaction(client)
     await rfq.save()
     return rfq
-  }
-
-  /**
-   * Bascule une demande publiée en `expired`. Les destinataires gardent leur
-   * statut : c'est la trace de qui avait lu, répondu ou décliné.
-   */
-  async expire(
-    rfq: Rfq,
-    now: DateTime = DateTime.now(),
-    client?: TransactionClientContract
-  ): Promise<Rfq> {
-    return this.switchToExpired(rfq, now, false, client)
-  }
-
-  /**
-   * Fait expirer toutes les demandes publiées dont l'échéance est dépassée.
-   * Appelé par `ExpireRfqsJob` ; renvoie les demandes **effectivement** basculées.
-   *
-   * L'échéance est une **date** : la demande est échue le lendemain à 00:00,
-   * heure de Paris (`RFQ_DEADLINE_TIMEZONE`). Un brouillon, une demande close
-   * ou sans échéance n'expirent jamais.
-   *
-   * Chaque bascule est conditionnelle (statut et échéance revérifiés en base) :
-   * une demande close ou prolongée entre la lecture et l'écriture est laissée
-   * telle quelle. Un échec isolé est loggué sans interrompre le lot.
-   */
-  async expireDue(now: DateTime = DateTime.now()): Promise<Rfq[]> {
-    const due = await Rfq.query()
-      .where('status', 'published')
-      .whereNotNull('deadline')
-      .where('deadline', '<', this.startOfToday(now).toSQL()!)
-
-    const expired: Rfq[] = []
-    for (const rfq of due) {
-      try {
-        expired.push(await this.switchToExpired(rfq, now, true))
-      } catch (error) {
-        if (error instanceof RfqNotExpirableException) continue
-        logger.error({ err: error, rfqId: rfq.id }, 'failed to expire rfq')
-      }
-    }
-    return expired
-  }
-
-  /**
-   * `UPDATE … WHERE status = 'published'` (et échéance dépassée si `onlyIfDue`) :
-   * la garde est en base, pas sur l'instance chargée, donc une transition
-   * concurrente n'est jamais écrasée.
-   */
-  private async switchToExpired(
-    rfq: Rfq,
-    now: DateTime,
-    onlyIfDue: boolean,
-    client?: TransactionClientContract
-  ): Promise<Rfq> {
-    const query = Rfq.query({ client }).where('id', rfq.id).where('status', 'published')
-    if (onlyIfDue) query.where('deadline', '<', this.startOfToday(now).toSQL()!)
-
-    const [updated] = await query.update({ status: 'expired', expiredAt: now.toJSDate() })
-    if (!Number(updated)) throw new RfqNotExpirableException()
-
-    await rfq.refresh()
-    return rfq
-  }
-
-  /**
-   * Prolonge l'échéance d'une demande publiée ou échue — et **seulement**
-   * l'échéance. Sur une demande échue, la nouvelle date la rouvre : elle
-   * repasse `published` et les fournisseurs peuvent répondre de nouveau.
-   *
-   * « Prolonger » ne raccourcit jamais : la nouvelle date ne peut être ni passée
-   * ni antérieure ou égale à l'échéance actuelle.
-   */
-  async extendDeadline(
-    rfq: Rfq,
-    data: ExtendRfqDeadlineData,
-    now: DateTime = DateTime.now()
-  ): Promise<Rfq> {
-    if (rfq.status !== 'published' && rfq.status !== 'expired') {
-      throw new RfqNotExtendableException()
-    }
-
-    const deadline = this.parseDeadline(data.deadline)
-    if (!deadline) throw new RfqInvalidDeadlineException()
-    if (deadline < this.startOfToday(now)) throw new RfqInvalidDeadlineException()
-    if (rfq.deadline && deadline <= rfq.deadline) throw new RfqInvalidDeadlineException()
-
-    rfq.merge({
-      deadline,
-      ...(rfq.status === 'expired' ? { status: 'published' as const, expiredAt: null } : {}),
-    })
-    await rfq.save()
-
-    // Nouvelle échéance, nouvelle chance : les destinataires qui n'avaient rien
-    // ouvert peuvent être relancés une fois de plus avant elle.
-    await RfqSupplier.query()
-      .where('rfqId', rfq.id)
-      .where('status', 'sent')
-      .update({ remindedAt: null })
-    return rfq
-  }
-
-  /**
-   * Destinataires à relancer : ils ont reçu la demande (`sent`) mais ne l'ont
-   * **jamais ouverte** (`viewed` les exclut), il y a au moins
-   * `RFQ_REMINDER_AFTER_DAYS` jours, et ne l'ont pas déjà été (`reminded_at`).
-   * La demande doit encore être ouverte : publiée et non échue — relancer pour
-   * une échéance passée serait absurde. Préchargés : `rfq` (avec l'acheteur) et
-   * `supplierOrganization`, ce dont `RfqNotificationService#remind` a besoin.
-   */
-  dueForReminder(now: DateTime = DateTime.now()): Promise<RfqSupplier[]> {
-    const sentBefore = now.minus({ days: RFQ_REMINDER_AFTER_DAYS })
-    const today = this.startOfToday(now)
-
-    return RfqSupplier.query()
-      .where('status', 'sent')
-      .whereNull('remindedAt')
-      .where('sentAt', '<=', sentBefore.toSQL()!)
-      .whereHas('rfq', (rfq) =>
-        rfq
-          .where('status', 'published')
-          .where((open) => open.whereNull('deadline').orWhere('deadline', '>=', today.toSQL()!))
-      )
-      .preload('rfq', (rfq) => rfq.preload('buyerOrganization'))
-      .preload('supplierOrganization')
-      .orderBy('id')
-  }
-
-  /**
-   * Destinataires qu'on peut relancer **à la main** (plateforme) : sans réponse
-   * (`sent` ou `viewed`) et jamais relancés. Prédicat unique : l'intervention et le
-   * compteur de la fiche admin lisent la même requête.
-   */
-  remindableRecipients(rfqId: number, client?: TransactionClientContract) {
-    return RfqSupplier.query({ client })
-      .where('rfqId', rfqId)
-      .whereIn('status', ['sent', 'viewed'])
-      .whereNull('remindedAt')
-  }
-
-  /**
-   * Consigne la relance des destinataires : c'est ce qui la rend unique. Une seule
-   * requête, pour réduire la fenêtre entre « mails en queue » et « relance
-   * consignée ».
-   */
-  async markReminded(
-    recipients: RfqSupplier[],
-    now: DateTime = DateTime.now(),
-    client?: TransactionClientContract
-  ): Promise<void> {
-    if (recipients.length === 0) return
-    await RfqSupplier.query({ client })
-      .whereIn(
-        'id',
-        recipients.map(({ id }) => id)
-      )
-      .update({ remindedAt: now.toJSDate() })
-  }
-
-  /**
-   * Une demande attend-elle encore des réponses (décliner, chiffrer, accepter un
-   * devis) ? Oui tant qu'elle est publiée **et** que son échéance n'est pas
-   * passée. Le job d'expiration passe à 00:10 : entre minuit et lui (ou s'il
-   * tarde), une demande dont l'échéance est passée est déjà échue de fait.
-   */
-  acceptsResponses(rfq: Rfq, now: DateTime = DateTime.now()): boolean {
-    if (rfq.status !== 'published') return false
-    return !rfq.deadline || rfq.deadline >= this.startOfToday(now)
-  }
-
-  /**
-   * Accusé de lecture côté fournisseur : `sent` → `viewed`. Idempotent, et
-   * jamais régressif — une demande déjà `responded`/`declined` ne redevient
-   * pas « simplement consultée » parce que le fournisseur rouvre l'écran.
-   */
-  async markViewed(rfq: Rfq, supplierOrganizationId: number): Promise<RfqSupplier> {
-    return this.applyViewed(await this.findRecipient(rfq, supplierOrganizationId))
-  }
-
-  /**
-   * Le fournisseur a déposé un devis (Phase 4) : `sent`/`viewed` → `responded`.
-   */
-  async markResponded(rfq: Rfq, supplierOrganizationId: number): Promise<RfqSupplier> {
-    return this.transitionRecipient(rfq, supplierOrganizationId, 'responded')
-  }
-
-  /**
-   * Le fournisseur décline la consultation : `sent`/`viewed` → `declined`.
-   */
-  async decline(rfq: Rfq, supplierOrganizationId: number): Promise<RfqSupplier> {
-    return this.transitionRecipient(rfq, supplierOrganizationId, 'declined')
   }
 
   /**
@@ -590,47 +486,26 @@ export default class RfqService {
   }
 
   /**
-   * Accusé de lecture appliqué à une ligne déjà chargée — `openForSupplier`
-   * bascule ainsi l'instance **préchargée**, que l'écran va transformer.
+   * Filtre SQL d'un avancement, miroir de `rfqProgress` : une demande publiée
+   * est « envoyée » dès qu'un destinataire est notifié, « répondue » dès qu'un
+   * destinataire a répondu.
    */
-  private async applyViewed(target: RfqSupplier): Promise<RfqSupplier> {
-    if (target.status === 'sent') {
-      target.status = 'viewed'
-      await target.save()
+  private whereProgress(query: ModelQueryBuilderContract<typeof Rfq>, progress: RfqProgress) {
+    const responded = (suppliers: ModelQueryBuilderContract<typeof RfqSupplier>) =>
+      suppliers.where('status', 'responded')
+    const notified = (suppliers: ModelQueryBuilderContract<typeof RfqSupplier>) =>
+      suppliers.whereNot('status', 'pending')
+    const published = () => query.where('status', 'published')
+    const filters: Record<RfqProgress, () => void> = {
+      draft: () => query.where('status', 'draft'),
+      published: () => published().whereDoesntHave('suppliers', notified),
+      sent: () =>
+        published().whereHas('suppliers', notified).whereDoesntHave('suppliers', responded),
+      responded: () => published().whereHas('suppliers', responded),
+      expired: () => query.where('status', 'expired'),
+      closed: () => query.where('status', 'closed'),
     }
-    return target
-  }
-
-  /**
-   * Transition vers un statut terminal côté fournisseur. Refusée si la demande
-   * n'a pas été reçue (`pending`) ou si une décision a déjà été prise.
-   */
-  private async transitionRecipient(
-    rfq: Rfq,
-    supplierOrganizationId: number,
-    status: 'responded' | 'declined'
-  ): Promise<RfqSupplier> {
-    if (!this.acceptsResponses(rfq)) throw new RfqNotEditableException()
-
-    const target = await this.findRecipient(rfq, supplierOrganizationId)
-
-    if (target.status === 'pending' || TERMINAL_RFQ_SUPPLIER_STATUSES.includes(target.status)) {
-      throw new RfqNotEditableException()
-    }
-
-    target.status = status
-    await target.save()
-    return target
-  }
-
-  private async findRecipient(rfq: Rfq, supplierOrganizationId: number): Promise<RfqSupplier> {
-    const target = await RfqSupplier.query()
-      .where('rfqId', rfq.id)
-      .where('supplierOrganizationId', supplierOrganizationId)
-      .first()
-
-    if (!target) throw new RfqSupplierNotFoundException()
-    return target
+    filters[progress]()
   }
 
   /**
@@ -684,14 +559,6 @@ export default class RfqService {
     )
   }
 
-  /**
-   * Minuit, heure de Paris, du jour de `now` : une échéance strictement
-   * antérieure est passée (cf. `RFQ_DEADLINE_TIMEZONE`).
-   */
-  startOfToday(now: DateTime = DateTime.now()): DateTime {
-    return now.setZone(RFQ_DEADLINE_TIMEZONE).startOf('day')
-  }
-
   private assertDraft(rfq: Rfq): void {
     if (rfq.status !== 'draft') throw new RfqNotEditableException()
   }
@@ -715,11 +582,5 @@ export default class RfqService {
    */
   private parseBudget(budgetMax: number | null | undefined): string | null {
     return typeof budgetMax === 'number' ? String(budgetMax) : null
-  }
-
-  private parseDeadline(deadline: string | null | undefined): DateTime | null {
-    if (!deadline) return null
-    const parsed = DateTime.fromISO(deadline, { zone: RFQ_DEADLINE_TIMEZONE })
-    return parsed.isValid ? parsed : null
   }
 }

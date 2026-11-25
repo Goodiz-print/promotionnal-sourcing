@@ -16,6 +16,11 @@ import OrderShipped from '#events/order_shipped'
 import RfqSent from '#events/rfq_sent'
 import RfqDeclined from '#events/rfq_declined'
 import MemberJoined from '#events/member_joined'
+import InboundMailReceived from '#events/inbound_mail_received'
+import AgencyMailRefused from '#events/agency_mail_refused'
+import InboundMailProcessingFailed from '#events/inbound_mail_processing_failed'
+import SupplierReplyRecorded from '#events/supplier_reply_recorded'
+import ConversationMessageRecorded from '#events/conversation_message_recorded'
 
 emitter.on(UserRegistered, [() => import('#listeners/on_user_registered'), 'handle'])
 emitter.on(UserLoggedIn, [() => import('#listeners/on_user_logged_in'), 'handle'])
@@ -40,5 +45,16 @@ emitter.on(MemberJoined, [() => import('#listeners/on_member_joined'), 'handle']
 emitter.on(ProductChanged, [() => import('#listeners/on_product_changed'), 'handle'])
 emitter.on(OrganizationCatalogueChanged, [
   () => import('#listeners/on_organization_catalogue_changed'),
+  'handle',
+])
+emitter.on(InboundMailReceived, [() => import('#listeners/on_inbound_mail_received'), 'handle'])
+emitter.on(AgencyMailRefused, [() => import('#listeners/on_agency_mail_refused'), 'handle'])
+emitter.on(InboundMailProcessingFailed, [
+  () => import('#listeners/on_inbound_mail_processing_failed'),
+  'handle',
+])
+emitter.on(SupplierReplyRecorded, [() => import('#listeners/on_supplier_reply_recorded'), 'handle'])
+emitter.on(ConversationMessageRecorded, [
+  () => import('#listeners/on_conversation_message_recorded'),
   'handle',
 ])

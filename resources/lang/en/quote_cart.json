@@ -1,0 +1,78 @@
+{
+  "title": "Quote cart",
+  "subtitle": "Gather the products you want priced, then send each supplier a request in one go.",
+  "nav": {
+    "label": "Quote cart",
+    "count": "{count, plural, =0 {Quote cart is empty} one {# product in the quote cart} other {# products in the quote cart}}"
+  },
+  "empty": {
+    "title": "Your quote cart is empty",
+    "description": "Add products from the catalogue to request quotes from several suppliers at once.",
+    "browse": "Browse the catalogue"
+  },
+  "group": {
+    "items": "{count, plural, one {# product} other {# products}} · one dedicated request"
+  },
+  "line": {
+    "quantity": "Quantity",
+    "note": "Details",
+    "remove": "Remove {name} from the cart",
+    "belowMinimum": "Minimum order: {count} pieces",
+    "variant": "Variant",
+    "variantAny": "To be specified",
+    "marking": "Branding",
+    "markingNone": "No branding",
+    "markingColors": "Colours",
+    "markingColorsMax": "{count, plural, one {# colour max.} other {# colours max.}}"
+  },
+  "checkout": {
+    "title": "Send the requests",
+    "titleDraft": "Create the requests",
+    "description": "A header shared by every request: each supplier only receives its own products.",
+    "fieldTitle": "Request subject",
+    "fieldTitleHint": "The supplier's name is appended to each request.",
+    "fieldDescription": "Context (event, timing, constraints…)",
+    "fieldDeadline": "Reply wanted by",
+    "summary": "{count, plural, one {One request will be sent to: {suppliers}} other {# requests will be sent to: {suppliers}}}",
+    "summaryDraft": "{count, plural, one {One draft will be created for: {suppliers}} other {# drafts will be created for: {suppliers}}}",
+    "draftNotice": "Your role lets you prepare requests: they will be created as drafts for a manager to send.",
+    "submit": "{count, plural, one {Send the request} other {Send the # requests}}",
+    "submitDraft": "{count, plural, one {Create the draft} other {Create the # drafts}}"
+  },
+  "flash": {
+    "added": "Product added to the quote cart.",
+    "alreadyInCart": "This product is already in your quote cart.",
+    "removed": "Product removed from the quote cart.",
+    "sent": "{count, plural, one {# request sent} other {# requests sent}}.",
+    "drafted": "{count, plural, one {# draft created} other {# drafts created}}. A manager can send them."
+  },
+  "errors": {
+    "empty": "None of the products in your cart can be requested.",
+    "supplierUnavailable": "A supplier can no longer be reached. Reload the cart and try again.",
+    "invalidOption": "This option is not available for this product.",
+    "duplicateLine": "This variant is already in your quote cart."
+  },
+  "product": {
+    "add": "Add to quote cart",
+    "inCart": "In your quote cart",
+    "viewCart": "View cart",
+    "detailedRequest": "Detailed request",
+    "quantity": "Quantity"
+  },
+  "card": {
+    "add": "Add {name} to the quote cart"
+  },
+  "estimate": {
+    "onRequest": "Price on request",
+    "unitPrice": "Unit price",
+    "markingUnitPrice": "Branding / piece",
+    "setupCharge": "Setup charge",
+    "total": "Estimated total",
+    "totalPartial": "Estimated total (excl. branding)",
+    "belowFirstTier": "Quantity below the first price break.",
+    "nextTier": "From {count} pieces: {price} / piece",
+    "subtotal": "Estimated subtotal: {amount}",
+    "subtotalPartial": "Estimated subtotal (incomplete): {amount}",
+    "disclaimer": "Indicative estimate based on the supplier's price lists, excluding shipping. The quote prevails."
+  }
+}

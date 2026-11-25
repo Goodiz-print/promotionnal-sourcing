@@ -26,6 +26,9 @@ const translations = {
   'supplier.deliveryScope.europe': 'Europe',
   'documents.title': 'Documents',
   'documents.kinds.catalogue': 'Catalogue',
+  'suppliers.show.salesTeam': 'Équipe commerciale',
+  'suppliers.show.salesTeamHint': 'Les commerciaux qui suivent votre pays.',
+  'supplier.contacts.allCountries': 'Tous les pays',
 }
 
 vi.mock('@inertiajs/vue3', async () => {
@@ -139,6 +142,7 @@ describe('suppliers/show.vue', () => {
   it('affiche le profil quand il existe + le catalogue', () => {
     const wrapper = mount(Show, {
       props: {
+        contacts: [],
         supplier: {
           ...supplier('eurogoods', 'EuroGoods'),
           supplierProfile: {
@@ -155,6 +159,7 @@ describe('suppliers/show.vue', () => {
             spokenLanguages: null,
             minOrderNote: null,
             quoteEmail: null,
+            quoteEmailVerifiedAt: null,
             reportFrequency: 'none' as const,
             catalogueUpdateMode: null,
             catalogueUpdateFrequency: null,
@@ -191,6 +196,7 @@ describe('suppliers/show.vue', () => {
   it('masque le profil pour un fournisseur non lié', () => {
     const wrapper = mount(Show, {
       props: {
+        contacts: [],
         supplier: {
           ...supplier('nordic', 'Nordic'),
           supplierProfile: null,
@@ -203,6 +209,53 @@ describe('suppliers/show.vue', () => {
     expect(wrapper.text()).not.toContain('Profil fournisseur')
     expect(wrapper.text()).toContain('Aucun produit.')
     expect(wrapper.text()).not.toContain('Documents')
+    // Sans contact envoyé par le serveur, la section n'existe pas.
+    expect(wrapper.text()).not.toContain('Équipe commerciale')
+  })
+
+  it("affiche l'équipe commerciale envoyée par le serveur", () => {
+    const wrapper = mount(Show, {
+      props: {
+        contacts: [
+          {
+            id: 7,
+            name: 'Claire Martin',
+            jobTitle: 'Key account',
+            email: 'claire@nordic.test',
+            phone: '+33 1 23 45 67 89',
+            languages: ['fr'],
+            countries: ['FR', 'BE'],
+            position: 0,
+            userId: null,
+          },
+          {
+            id: 8,
+            name: 'Ana Pop',
+            jobTitle: null,
+            email: 'ana@nordic.test',
+            phone: null,
+            languages: [],
+            countries: [],
+            position: 1,
+            userId: 3,
+          },
+        ],
+        supplier: {
+          ...supplier('nordic', 'Nordic'),
+          supplierProfile: null,
+          products: [],
+          documents: [],
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain('Équipe commerciale')
+    expect(wrapper.text()).toContain('Claire Martin')
+    expect(wrapper.text()).toContain('Key account')
+    expect(wrapper.find('a[href="mailto:claire@nordic.test"]').exists()).toBe(true)
+    expect(wrapper.find('a[href="tel:+33 1 23 45 67 89"]').exists()).toBe(true)
+    // Liste de pays vide : le contact couvre tous les pays.
+    expect(wrapper.text()).toContain('Tous les pays')
   })
 })
 

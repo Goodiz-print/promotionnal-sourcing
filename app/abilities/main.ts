@@ -13,10 +13,18 @@
 */
 
 import { Bouncer } from '@adonisjs/bouncer'
+import { DateTime } from 'luxon'
+import inboundMailConfig from '#config/inbound_mail'
+import { isRfqThreadOpen } from '#shared/helpers/conversation'
+import { acceptsQuoteUpload, rfqAcceptsQuoteUpload } from '#shared/helpers/supplier_rfq'
 import type User from '#models/user'
 import type Organization from '#models/organization'
+import type QuoteDocument from '#models/quote_document'
+import type Rfq from '#models/rfq'
+import type RfqSupplier from '#models/rfq_supplier'
 import OrganizationUser from '#models/organization_user'
-import { RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
+import { RFQ_MANAGER_ROLES, RFQ_RESPONDER_ROLES } from '#shared/types/rfq'
+import { SUPPLIER_INSIGHTS_ROLES } from '#shared/types/supplier_insights'
 import type { RoleSlug } from '#shared/types/role'
 import { platformRoleHasPermission } from '#shared/helpers/platform_permissions'
 import type { PlatformPermission } from '#shared/types/user'
@@ -106,6 +114,56 @@ export const canManageProducts = Bouncer.ability(async (user: User, org: Organiz
 })
 
 /**
+ * Ability to check if a user can manage the sponsored-product campaigns and the
+ * ad wallet of an organization (it spends the organization's money).
+ * The organization must be a supplier (or both), and the user an owner/admin.
+ */
+export const canManageAds = Bouncer.ability(async (user: User, org: Organization) => {
+  if (!['supplier', 'both'].includes(org.organizationType)) return false
+  const m = await getMembership(user, org)
+  return m ? ['owner', 'admin'].includes(m.role.slug) : false
+})
+
+/**
+ * Ability to check if a user can subscribe, change or cancel the paid plan of an
+ * organization (it commits the organization to a recurring payment).
+ * The organization must be a supplier (or both), and the user an owner/admin.
+ */
+export const canManageSubscription = Bouncer.ability(async (user: User, org: Organization) => {
+  if (!['supplier', 'both'].includes(org.organizationType)) return false
+  const m = await getMembership(user, org)
+  return m ? ['owner', 'admin'].includes(m.role.slug) : false
+})
+
+/**
+ * Ability to check if a user can read the views of the products and the supplier
+ * page of an organization (#239). The organization must be a supplier (or
+ * both), and the user one of the roles that already handle received RFQs
+ * (`SUPPLIER_INSIGHTS_ROLES`). Which agencies viewed is a matter of
+ * subscription, decided by `SupplierInsightsService`, not of this ability.
+ */
+export const canViewSupplierInsights = Bouncer.ability(async (user: User, org: Organization) => {
+  if (!['supplier', 'both'].includes(org.organizationType)) return false
+  const m = await getMembership(user, org)
+  return m ? SUPPLIER_INSIGHTS_ROLES.includes(m.role.slug as RoleSlug) : false
+})
+
+/**
+ * Ability to check if a user belongs to a supplier organization **without** the
+ * right to manage its subscription (any role but owner/admin). Such a member,
+ * coming from the subscription upsell of an anonymous request mail (#222), is
+ * sent back with an explanation instead of a 403. Mirror of
+ * `canManageSubscription` for supplier members.
+ */
+export const isSupplierMemberWithoutSubscriptionRights = Bouncer.ability(
+  async (user: User, org: Organization) => {
+    if (!['supplier', 'both'].includes(org.organizationType)) return false
+    const m = await getMembership(user, org)
+    return m ? !['owner', 'admin'].includes(m.role.slug) : false
+  }
+)
+
+/**
  * Ability to check if a user is a **full** platform admin (`users.platform_role
  * = 'admin'`). Orthogonal to organization roles: an `owner` of an ordinary
  * organization is not a platform admin, and a platform admin needs no
@@ -176,15 +234,64 @@ export const canCreateRfq = Bouncer.ability(async (user: User, org: Organization
 })
 
 /**
- * Ability to check if a user can drive an existing RFQ (edit, publish, send,
- * close). Aligned on the `sourcing:manage` permission: `member` may draft a
- * request, but not send it to suppliers.
+ * Ability to check if a user can prepare and send an RFQ: edit a draft, add or
+ * remove recipients, publish, send it to suppliers, check out the quote cart
+ * (#216). Every member of a buyer organization may request quotes, `member`
+ * included (client decision): aligned on `sourcing:create`, like `canCreateRfq`.
+ */
+export const canSendRfq = Bouncer.ability(async (user: User, org: Organization) => {
+  if (!['buyer', 'both'].includes(org.organizationType)) return false
+  const m = await getMembership(user, org)
+  return m ? ['owner', 'admin', 'manager', 'member'].includes(m.role.slug) : false
+})
+
+/**
+ * Ability to check if a user can take decisions on an RFQ: close it, extend its
+ * deadline, accept or reject a quote, act on an order. Aligned on the
+ * `sourcing:manage` permission: `member` may send requests (`canSendRfq`), but
+ * decisions stay with the organization's managers.
  */
 export const canManageRfq = Bouncer.ability(async (user: User, org: Organization) => {
   if (!['buyer', 'both'].includes(org.organizationType)) return false
   const m = await getMembership(user, org)
   return m ? ['owner', 'admin', 'manager'].includes(m.role.slug) : false
 })
+
+/**
+ * Ability to check if a user can download a quote PDF received by email (#225):
+ * any member of the agency that owns the request, whatever their role — the
+ * same people who can open the request (`canCreateRfq`). The supplier side and
+ * other organizations are refused. Expects `document.rfq` preloaded
+ * (`QuoteService#findDocument`).
+ */
+export const canDownloadQuoteDocument = Bouncer.ability(
+  async (user: User, document: QuoteDocument) => {
+    const membership = await OrganizationUser.query()
+      .where('user_id', user.id)
+      .where('organization_id', document.rfq.buyerOrganizationId)
+      .select('id')
+      .first()
+    return membership !== null
+  }
+)
+
+/**
+ * Ability to check if a user can mark a quote PDF as « retenu » (#228), which
+ * closes the request: a decision, so reserved to the managers of the agency
+ * that owns the request (`RFQ_MANAGER_ROLES`, like `canManageRfq`). A `member`
+ * downloads the PDF but does not decide. Expects `document.rfq` preloaded
+ * (`QuoteService#findDocument`).
+ */
+export const canSelectQuoteDocument = Bouncer.ability(
+  async (user: User, document: QuoteDocument) => {
+    const membership = await OrganizationUser.query()
+      .where('user_id', user.id)
+      .where('organization_id', document.rfq.buyerOrganizationId)
+      .preload('role')
+      .first()
+    return RFQ_MANAGER_ROLES.some((slug) => slug === membership?.role.slug)
+  }
+)
 
 /**
  * Ability to check if a user can answer a received RFQ (view its detail,
@@ -196,3 +303,111 @@ export const canRespondToRfq = Bouncer.ability(async (user: User, org: Organizat
   const m = await getMembership(user, org)
   return m ? RFQ_RESPONDER_ROLES.includes(m.role.slug as RoleSlug) : false
 })
+
+/**
+ * Membership of `user` in `organizationId`, with its role, read once per user
+ * instance: the RFQ screen checks `canMessageRfqSupplier` for each of its
+ * recipients, all of the same agency. The authenticated user is loaded anew
+ * on every request, so the cache lives for one request.
+ *
+ * **HTTP requests only.** The cache lives as long as the `User` instance: a
+ * job, a command or a realtime channel that keeps a user around would read a
+ * stale membership. Only `canMessageRfqSupplier` / `canMessageRfqBuyer` /
+ * `canUploadRfqQuoteDocument` use it, and they are only checked from HTTP
+ * controllers; do not reuse it elsewhere.
+ *
+ * Stays here rather than in `shared/helpers/`: it is not a pure function but a
+ * memoised database read, private to the abilities below (tested through them,
+ * `tests/functional/rfq_message_abilities.spec.ts`).
+ */
+const membershipsByUser = new WeakMap<User, Map<number, Promise<OrganizationUser | null>>>()
+
+function cachedMembership(user: User, organizationId: number): Promise<OrganizationUser | null> {
+  const memberships =
+    membershipsByUser.get(user) ?? new Map<number, Promise<OrganizationUser | null>>()
+  membershipsByUser.set(user, memberships)
+  const membership =
+    memberships.get(organizationId) ??
+    OrganizationUser.query()
+      .where('user_id', user.id)
+      .where('organization_id', organizationId)
+      .preload('role')
+      .first()
+  memberships.set(organizationId, membership)
+  return membership
+}
+
+/**
+ * Is the thread open for writing? Binds the pure rule (`isRfqThreadOpen`,
+ * unit-tested) to the configured grace period and the current time.
+ */
+function isOpenThread(rfq: Rfq, recipient: RfqSupplier): boolean {
+  return isRfqThreadOpen({ rfq, recipient }, inboundMailConfig.graceDays, DateTime.now())
+}
+
+/**
+ * Ability to check if a user can write, as the agency, in the thread of an RFQ
+ * recipient (#226): any member of the agency that owns the request, whatever
+ * their role — the same people who can open it (`canCreateRfq`) — while the
+ * thread is open (`isRfqThreadOpen`). The message is then relayed to the
+ * supplier by email.
+ */
+export const canMessageRfqSupplier = Bouncer.ability(
+  async (user: User, rfq: Rfq, recipient: RfqSupplier) => {
+    if (!isOpenThread(rfq, recipient)) return false
+    return (await cachedMembership(user, rfq.buyerOrganizationId)) !== null
+  }
+)
+
+/**
+ * Ability to check if a user can write, as the supplier, in the thread of a
+ * received RFQ (#226): the members who can answer it (`RFQ_RESPONDER_ROLES`,
+ * like `canRespondToRfq`) of the recipient organization, while the thread is
+ * open (`isRfqThreadOpen`). The message is then relayed to the agency by email.
+ */
+export const canMessageRfqBuyer = Bouncer.ability(
+  async (user: User, rfq: Rfq, recipient: RfqSupplier) => {
+    if (!isOpenThread(rfq, recipient)) return false
+    const membership = await cachedMembership(user, recipient.supplierOrganizationId)
+    return membership ? RFQ_RESPONDER_ROLES.includes(membership.role.slug as RoleSlug) : false
+  }
+)
+
+/**
+ * Membres d'une organisation fournisseuse qui répondent aux demandes reçues
+ * (`RFQ_RESPONDER_ROLES`, comme `canRespondToRfq`).
+ */
+async function isRfqResponder(user: User, supplierOrganizationId: number): Promise<boolean> {
+  const membership = await cachedMembership(user, supplierOrganizationId)
+  return membership ? RFQ_RESPONDER_ROLES.includes(membership.role.slug as RoleSlug) : false
+}
+
+/**
+ * Ability to check if a user can upload a quote PDF from a received RFQ (#230),
+ * as an alternative to replying by email: the members who can answer it
+ * (`RFQ_RESPONDER_ROLES`) of the recipient organization, while the thread
+ * accepts replies (`isRfqThreadOpen`, the same window as a reply by email),
+ * unless the supplier declined the request or the agency closed it (#290,
+ * `rfqAcceptsQuoteUpload`; an expired request still takes a late reply).
+ * Expects `rfq` loaded.
+ */
+export const canUploadRfqQuoteDocument = Bouncer.ability(
+  async (user: User, rfq: Rfq, recipient: RfqSupplier) => {
+    if (!rfqAcceptsQuoteUpload(rfq.status)) return false
+    if (!acceptsQuoteUpload(recipient.status)) return false
+    if (!isOpenThread(rfq, recipient)) return false
+    return isRfqResponder(user, recipient.supplierOrganizationId)
+  }
+)
+
+/**
+ * Ability to check if a user can download a quote PDF **their organization
+ * sent** (#230): the members who answer the RFQs (`RFQ_RESPONDER_ROLES`) of the
+ * recipient organization. They get the original file only, never the copy
+ * stamped for the agency (#238). Expects `document.rfqSupplier` preloaded
+ * (`QuoteService#findDocumentForSupplier`).
+ */
+export const canDownloadSentQuoteDocument = Bouncer.ability(
+  async (user: User, document: QuoteDocument) =>
+    isRfqResponder(user, document.rfqSupplier.supplierOrganizationId)
+)

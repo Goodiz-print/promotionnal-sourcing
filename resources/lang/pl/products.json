@@ -67,8 +67,6 @@
     "tierQuantity": "Ilość",
     "tierPrice": "Cena jednostkowa",
     "tierFrom": "Od {quantity} szt.",
-    "addToDraft": "Dodaj do szkicu zapytania",
-    "chooseDraft": "Wybierz szkic…",
     "signInToRequest": "Zaloguj się, aby poprosić o wycenę",
     "compliance": "Zgodność",
     "eco": "Ekologiczne",

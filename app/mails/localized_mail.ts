@@ -37,11 +37,36 @@ export default abstract class LocalizedMail extends BaseMail {
   }
 
   /**
+   * Mail auquel le destinataire peut répondre depuis sa messagerie (#223) :
+   * `Reply-To` sur l'adresse relais, et consigne aux messageries de ne pas y
+   * renvoyer de réponse automatique (absence Outlook / Exchange). Sans adresse
+   * relais (réception désactivée, job mis en queue avant #223), ne fait rien.
+   */
+  protected relayRepliesTo(replyTo: string | null | undefined): void {
+    if (!replyTo) return
+    this.message.replyTo(replyTo).header('X-Auto-Response-Suppress', 'OOF, AutoReply')
+  }
+
+  /**
    * Gabarit HTML rendu dans la langue du destinataire. `brandName` est aussi
    * posé dans l'état de vue : les gabarits le passent à `t()`.
    */
   protected htmlViewIn(template: string, state: Record<string, unknown> = {}) {
     return this.message.htmlView(template, {
+      ...state,
+      i18n: this.i18n,
+      locale: this.locale,
+      brandName: this.brandName,
+    })
+  }
+
+  /**
+   * Version texte du mail, rendue dans la même langue que le HTML. Les
+   * gabarits texte écrivent les valeurs sans échappement HTML (`{{{ }}}`) :
+   * rien n'y est interprété.
+   */
+  protected textViewIn(template: string, state: Record<string, unknown> = {}) {
+    return this.message.textView(template, {
       ...state,
       i18n: this.i18n,
       locale: this.locale,
