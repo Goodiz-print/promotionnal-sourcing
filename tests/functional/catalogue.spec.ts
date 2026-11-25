@@ -4,6 +4,8 @@ import ProductTranslation from '#models/product_translation'
 import AttributeValue from '#models/attribute_value'
 import ProductTransformer from '#transformers/product_transformer'
 import AttributeValueTransformer from '#transformers/attribute_value_transformer'
+import ProductPriceTier from '#models/product_price_tier'
+import ProductSeeder from '#database/seeders/product_seeder'
 import db from '@adonisjs/lucid/services/db'
 import { useDatabase } from '#tests/utils/setup'
 
@@ -83,5 +85,46 @@ test.group('Catalogue — colonnes de recherche PostgreSQL retirées (#112)', (g
     )
 
     assert.deepEqual(result.rows, [])
+  })
+})
+
+test.group('Catalogue — prix de démo (#293)', (group) => {
+  useDatabase(group, { seed: 'full' })
+
+  const tiersOf = async (slug: string) => {
+    const product = await Product.findByOrFail('slug', slug)
+    return ProductPriceTier.query()
+      .where('productId', product.id)
+      .orderBy('minQuantity')
+      .select('minQuantity', 'unitPrice', 'currency', 'variantId')
+  }
+
+  test('une partie des produits a une grille de prix dégressive', async ({ assert }) => {
+    const tiers = await tiersOf('crayon-hb-bleu')
+
+    assert.deepEqual(
+      tiers.map((tier) => [tier.minQuantity, Number(tier.unitPrice), tier.currency]),
+      [
+        [100, 0.9, 'EUR'],
+        [500, 0.6, 'EUR'],
+        [1000, 0.45, 'EUR'],
+        [5000, 0.35, 'EUR'],
+      ]
+    )
+    assert.isTrue(tiers.every((tier) => tier.variantId === null))
+  })
+
+  test('des produits restent volontairement sans prix', async ({ assert }) => {
+    assert.lengthOf(await tiersOf('crayon-hb-rouge'), 0)
+    assert.lengthOf(await tiersOf('stylo-bille-noir'), 0)
+  })
+
+  test('rejouer le seed ne duplique pas les paliers', async ({ assert }) => {
+    const before = await ProductPriceTier.query().count('* as total').firstOrFail()
+    await new ProductSeeder(db.connection()).run()
+    const after = await ProductPriceTier.query().count('* as total').firstOrFail()
+
+    assert.equal(Number(after.$extras.total), Number(before.$extras.total))
+    assert.equal(Number(after.$extras.total), 16)
   })
 })

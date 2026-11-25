@@ -13,6 +13,7 @@ import ProductPackaging from '#models/product_packaging'
 import ProductMarkingPosition from '#models/product_marking_position'
 import ProductMarkingPositionTechnique from '#models/product_marking_position_technique'
 import ProductMarkingPriceTier from '#models/product_marking_price_tier'
+import ProductPriceTier from '#models/product_price_tier'
 import ProductOriginService from '#services/product_origin_service'
 import ProductEcoService from '#services/product_eco_service'
 import { MATERIAL_ATTRIBUTE_SLUG } from '#shared/types/certification'
@@ -78,6 +79,9 @@ type ProductSeed = {
     techniques: { technique: string; maxColors?: number; defaultSetupCharge?: number }[]
   }[]
   markingPriceTiers?: { technique: string; minQuantity: number; unitPrice: number }[]
+  // Grille de prix dégressive du produit (paliers `variantId` null), lue par le
+  // panier de devis pour le prix indicatif. Absente = produit « sans prix ».
+  priceTiers?: { minQuantity: number; unitPrice: number }[]
 }
 
 /**
@@ -94,6 +98,12 @@ const PRODUCTS: ProductSeed[] = [
     priceMin: 0.35,
     priceMax: 0.9,
     minQuantity: 100,
+    priceTiers: [
+      { minQuantity: 100, unitPrice: 0.9 },
+      { minQuantity: 500, unitPrice: 0.6 },
+      { minQuantity: 1000, unitPrice: 0.45 },
+      { minQuantity: 5000, unitPrice: 0.35 },
+    ],
     originCountry: 'FR',
     madeInEurope: true,
     facets: { color: 'blue', material: 'wood' },
@@ -115,6 +125,11 @@ const PRODUCTS: ProductSeed[] = [
     priceMin: 0.6,
     priceMax: 1.4,
     minQuantity: 50,
+    priceTiers: [
+      { minQuantity: 50, unitPrice: 1.4 },
+      { minQuantity: 250, unitPrice: 1.0 },
+      { minQuantity: 1000, unitPrice: 0.6 },
+    ],
     originCountry: 'SE',
     madeInEurope: true,
     facets: { color: 'blue', material: 'wood' },
@@ -157,6 +172,11 @@ const PRODUCTS: ProductSeed[] = [
     priceMin: 0.2,
     priceMax: 0.6,
     minQuantity: 250,
+    priceTiers: [
+      { minQuantity: 250, unitPrice: 0.6 },
+      { minQuantity: 1000, unitPrice: 0.35 },
+      { minQuantity: 5000, unitPrice: 0.2 },
+    ],
     originCountry: 'ES',
     madeInEurope: true,
     facets: { color: 'blue', material: 'plastic' },
@@ -199,6 +219,11 @@ const PRODUCTS: ProductSeed[] = [
     priceMin: 1.5,
     priceMax: 3.2,
     minQuantity: 30,
+    priceTiers: [
+      { minQuantity: 30, unitPrice: 3.2 },
+      { minQuantity: 100, unitPrice: 2.4 },
+      { minQuantity: 500, unitPrice: 1.5 },
+    ],
     originCountry: 'SE',
     madeInEurope: true,
     facets: { color: 'blue', material: 'cotton' },
@@ -217,6 +242,11 @@ const PRODUCTS: ProductSeed[] = [
     priceMin: 3.2,
     priceMax: 5.9,
     minQuantity: 50,
+    priceTiers: [
+      { minQuantity: 50, unitPrice: 5.9 },
+      { minQuantity: 250, unitPrice: 4.5 },
+      { minQuantity: 500, unitPrice: 3.2 },
+    ],
     originCountry: 'FR',
     madeInEurope: true,
     // Identité/classification, commercial, médias (ÉTAPE 2) : fiche de démo
@@ -466,6 +496,8 @@ export default class ProductSeeder extends BaseSeeder {
           })
         }
       }
+      await this.seedPriceTiers(product.id, seed.priceTiers)
+
       for (const tier of seed.markingPriceTiers ?? []) {
         const techniqueId = markingTechniqueBySlug.get(tier.technique)
         if (techniqueId === undefined) continue
@@ -478,5 +510,25 @@ export default class ProductSeeder extends BaseSeeder {
         })
       }
     }
+  }
+
+  /**
+   * Grille de prix du produit : remplacement d'ensemble des paliers produit
+   * (`variantId` null), donc idempotent. Sans grille, rien n'est touché : le
+   * produit reste volontairement « sans prix » dans le panier de devis.
+   * (Étape d'orchestration à effets du seeder, d'où la méthode privée.)
+   */
+  private async seedPriceTiers(productId: number, tiers: ProductSeed['priceTiers']) {
+    if (tiers === undefined) return
+    await ProductPriceTier.query().where('productId', productId).whereNull('variantId').delete()
+    await ProductPriceTier.createMany(
+      tiers.map((tier) => ({
+        productId,
+        variantId: null,
+        minQuantity: tier.minQuantity,
+        unitPrice: String(tier.unitPrice),
+        currency: 'EUR',
+      }))
+    )
   }
 }
