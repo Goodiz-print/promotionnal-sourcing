@@ -121,11 +121,22 @@ ensure_link() {
 
 # Pose sur une application les variables nommées, en prenant leur valeur dans
 # l'environnement du script : aucune valeur ne passe en argument de commande.
+# Les variables déjà posées sont relues puis renvoyées avec les nouvelles, car
+# `clever env import` remplace l'ensemble. (`clever env import-vars` est
+# inutilisable en clever-tools 4.11 : il découpe la liste lettre par lettre.)
 set_vars() {
   local app="$1" names
   shift
   names="$(IFS=,; echo "$*")"
-  run clever env import-vars "$names" --app "$app"
+  if [ "$dry_run" = true ]; then
+    echo "  \$ clever env import --json --app $app  # $names"
+    return 0
+  fi
+  app_env_json "$app" \
+    | jq --arg names "$names" '($names | split(",")) as $wanted
+        | [.env[] | select(.name as $name | $wanted | index($name) | not)]
+          + [$wanted[] | {name: ., value: env[.]}]' \
+    | clever env import --json --app "$app"
 }
 
 # Valeur d'une variable d'add-on (hôte, mot de passe…), vide en --dry-run.
@@ -157,7 +168,10 @@ done
 say 'Tailles'
 run clever scale --app "$web" --flavor "$WEB_FLAVOR" --instances "$WEB_INSTANCES"
 run clever scale --app "$worker" --flavor "$WORKER_FLAVOR" --instances 1
-run clever config update --app "$web" --enable-force-https --enable-zero-downtime
+# `clever config update --enable-…` répond « No configuration to update » en
+# clever-tools 4.11 : on règle chaque option une à une.
+run clever config set force-https true --app "$web"
+run clever config set zero-downtime true --app "$web"
 
 say 'Domaine'
 if [ "$dry_run" = true ] || ! clever domain --app "$web" --format json | grep -Fq "$APP_DOMAIN"; then
