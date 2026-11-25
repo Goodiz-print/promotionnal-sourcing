@@ -7,6 +7,7 @@ import BaseDescriptionItem from '~/components/base/base_description_item.vue'
 import BaseDescriptionList from '~/components/base/base_description_list.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import type { AdminProductDetail } from '#shared/types/admin_product'
+import { formatShortDate } from '#shared/helpers/date'
 
 /** Synthèse en lecture seule : slug, fournisseur (lien vers sa fiche), catégorie, états. */
 const props = defineProps<{ product: AdminProductDetail }>()
@@ -35,7 +36,7 @@ const items = computed(() => [
   },
   {
     label: t('admin.products.columns.createdAt'),
-    value: new Date(props.product.createdAt).toLocaleDateString(locale.value),
+    value: formatShortDate(props.product.createdAt, locale.value),
   },
 ])
 </script>

@@ -6,6 +6,7 @@ import BaseDescriptionItem from '~/components/base/base_description_item.vue'
 import BaseDescriptionList from '~/components/base/base_description_list.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import type { AdminOrganizationDetail } from '#shared/types/admin_organization'
+import { formatShortDate } from '#shared/helpers/date'
 
 /**
  * Profils fournisseur, agence et facturation en lecture seule. Une section n'est
@@ -78,7 +79,7 @@ const billingItems = computed(() => {
   return profile ? items('billing', profile, BILLING_KEYS) : []
 })
 
-const formatDate = (value: string) => new Date(value).toLocaleDateString(locale.value)
+const formatDate = (value: string) => formatShortDate(value, locale.value)
 </script>
 
 <template>

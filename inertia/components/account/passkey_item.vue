@@ -7,6 +7,7 @@ import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseInput from '~/components/base/base_input.vue'
 import type { PasskeyType } from '#shared/types/passkey'
+import { formatShortDate } from '#shared/helpers/date'
 
 const props = defineProps<{ passkey: PasskeyType }>()
 
@@ -16,7 +17,7 @@ const editing = ref(false)
 const form = useForm({ name: props.passkey.name })
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString(locale.value)
+  return formatShortDate(iso, locale.value)
 }
 
 function rename() {

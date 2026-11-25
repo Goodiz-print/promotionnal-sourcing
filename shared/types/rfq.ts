@@ -1,3 +1,4 @@
+import { PLATFORM_TIMEZONE } from '#shared/types/date'
 import type { RoleSlug } from '#shared/types/role'
 import type { Locale } from '#shared/types/i18n'
 import type { DateTime } from 'luxon'
@@ -28,7 +29,7 @@ export const DEFAULT_RFQ_STATUS: RfqStatus = 'draft'
  * par l'acheteur : « 30 octobre » laisse toute la journée du 30 aux
  * fournisseurs, la demande est échue le 31 à 00:00 (heure de Paris).
  */
-export const RFQ_DEADLINE_TIMEZONE = 'Europe/Paris'
+export const RFQ_DEADLINE_TIMEZONE = PLATFORM_TIMEZONE
 
 /**
  * Délai, en jours après l'envoi, au bout duquel un fournisseur qui n'a pas

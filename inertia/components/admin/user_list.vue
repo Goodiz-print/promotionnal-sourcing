@@ -10,6 +10,7 @@ import BasePagination from '~/components/base/base_pagination.vue'
 import BaseTable from '~/components/base/base_table.vue'
 import type { AdminUserListItem } from '#shared/types/admin'
 import type { Paginated } from '#shared/types/pagination'
+import { formatShortDate } from '#shared/helpers/date'
 
 /** Tableau paginé des comptes : lien vers la fiche, rôle, statut, dernière connexion. */
 defineProps<{
@@ -25,7 +26,7 @@ const showUrl = (user: AdminUserListItem) =>
   urlFor('admin.users.show', { locale: locale.value, id: user.id })
 
 function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(locale.value)
+  return formatShortDate(value, locale.value)
 }
 </script>
 

@@ -20,6 +20,9 @@ test.group('formatShortDate', () => {
   })
 })
 
+/** Ramène les espaces insécables (que certaines versions d'ICU placent avant « AM ») à des espaces simples. */
+const plainSpaces = (text: string) => text.replace(/\s/g, ' ')
+
 test.group('formatDateTime', () => {
   test('affiche l’heure de Paris en hiver (UTC+1)', ({ assert }) => {
     assert.equal(formatDateTime('2026-11-25T01:51:00Z', 'fr'), '25 nov. 2026, 02:51')
@@ -30,7 +33,7 @@ test.group('formatDateTime', () => {
   })
 
   test('suit la langue demandée', ({ assert }) => {
-    assert.equal(formatDateTime('2026-11-25T01:51:00Z', 'en'), 'Nov 25, 2026, 2:51 AM')
+    assert.equal(plainSpaces(formatDateTime('2026-11-25T01:51:00Z', 'en')), 'Nov 25, 2026, 2:51 AM')
   })
 
   test('change de jour selon Paris autour de minuit UTC', ({ assert }) => {

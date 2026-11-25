@@ -13,6 +13,7 @@ import BasePagination from '~/components/base/base_pagination.vue'
 import BaseTable from '~/components/base/base_table.vue'
 import type { AdminAgencyReviewFilters, AdminAgencyReviewItem } from '#shared/types/agency_review'
 import type { Paginated } from '#shared/types/pagination'
+import { formatShortDate } from '#shared/helpers/date'
 
 const props = defineProps<{
   queue: Paginated<AdminAgencyReviewItem>
@@ -32,7 +33,7 @@ function visit(filters: AdminAgencyReviewFilters, page = 1) {
   )
 }
 
-const formatDate = (value: string) => new Date(value).toLocaleDateString(locale.value)
+const formatDate = (value: string) => formatShortDate(value, locale.value)
 
 const showUrl = (item: AdminAgencyReviewItem) =>
   urlFor('admin.agency_reviews.show', { locale: locale.value, id: item.id })

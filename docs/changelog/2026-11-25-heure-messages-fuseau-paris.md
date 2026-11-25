@@ -10,11 +10,19 @@ de l'écran (rendu serveur seul ou après hydratation).
 
 - `formatDateTime` quitte `inertia/components/orders/types.ts` pour
   `shared/helpers/date.ts` et formate dans un fuseau explicite,
-  `DISPLAY_TIMEZONE` (`Europe/Paris`, `shared/types/date.ts`) — aucun fuseau
-  n'est stocké par utilisateur.
+  `PLATFORM_TIMEZONE` (`Europe/Paris`, `shared/types/date.ts`) — aucun fuseau
+  n'est stocké par utilisateur. `RFQ_DEADLINE_TIMEZONE` et
+  `SUBSCRIPTION_TIMEZONE` en dérivent désormais : un seul fuseau métier.
 - `formatShortDate` (même fichier) suit le même fuseau : le jour affiché ne
   change plus selon le fuseau d'exécution autour de minuit.
 - Appelants mis à jour : fil de messages (`conversation_message.vue`), frise de
-  commande (`order_timeline.vue`), `use_trade_format`, `use_ad_format`.
+  commande (`order_timeline.vue`), `use_trade_format`, `use_ad_format`, et
+  les écrans qui formataient eux-mêmes sans fuseau : notifications
+  (`notification_item.vue`), tableau de bord acheteur, passkeys, et les écrans
+  du back-office (audit, modération, revues d'agences, listes et fiches
+  utilisateurs / organisations / produits). Les jours `AAAA-MM-JJ` lus à
+  minuit ou midi locaux (graphiques admin, `use_ad_format.day`) restent tels
+  quels : ils ne dépendent pas du fuseau.
 - Tests : `tests/unit/date.spec.ts` (heure d'hiver, heure d'été, langue,
-  changement de jour à minuit UTC), verts quel que soit le `TZ` du processus.
+  changement de jour à minuit UTC), verts quel que soit le `TZ` du processus
+  et insensibles à l'espace insécable que l'ICU place avant « AM ».

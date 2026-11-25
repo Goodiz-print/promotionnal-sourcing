@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { urlFor } from '~/client'
 import { useI18n, type TranslateData } from '~/i18n'
+import { formatDateTime } from '#shared/helpers/date'
 import { notificationMessageKey } from '#shared/helpers/notification'
 import type { NotificationItemType } from '#shared/types/notification'
 
@@ -24,12 +25,7 @@ const text = computed(() => {
   return t(notificationMessageKey(props.notification.type, props.notification.data), data)
 })
 
-const date = computed(() =>
-  new Date(props.notification.createdAt).toLocaleString(locale.value, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  })
-)
+const date = computed(() => formatDateTime(props.notification.createdAt, locale.value))
 
 function open() {
   router.patch(urlFor('notifications.read', { locale: locale.value, id: props.notification.id }))

@@ -11,6 +11,7 @@ import BaseStat from '~/components/base/base_stat.vue'
 import { RFQ_SUPPLIER_STATUS_TONES } from '~/components/rfqs/types'
 import { RFQ_STATUSES, type RfqStatus } from '#shared/types/rfq'
 import type { BuyerDashboardType } from '#shared/types/dashboard'
+import { formatShortDate } from '#shared/helpers/date'
 
 defineProps<{ buyer: BuyerDashboardType }>()
 
@@ -25,7 +26,7 @@ const RFQ_STATUS_ICONS: Record<RfqStatus, Component> = {
 }
 
 function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(locale.value)
+  return formatShortDate(value, locale.value)
 }
 </script>
 

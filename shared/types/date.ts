@@ -1,8 +1,10 @@
 /**
- * Fuseau dans lequel l'interface affiche les dates et heures (#289). Explicite
- * pour que le rendu SSR (fuseau du serveur, `TZ=UTC`) et le rendu navigateur
- * (fuseau de l'appareil) produisent le même texte, sans saut à l'hydratation :
- * l'agence et le fournisseur voient la même heure pour un même message. Aucun
- * fuseau n'est stocké par utilisateur ; le marché visé est la France.
+ * Fuseau unique de la plateforme (marché France ; aucun fuseau n'est stocké
+ * par utilisateur). Toute règle ou tout affichage lié au calendrier en dérive :
+ * échéance des demandes (`RFQ_DEADLINE_TIMEZONE`), périodes d'abonnement
+ * (`SUBSCRIPTION_TIMEZONE`) et affichage des dates et heures
+ * (`shared/helpers/date.ts`). Un fuseau explicite rend aussi le rendu SSR
+ * (serveur en `TZ=UTC`) et le rendu navigateur (fuseau de l'appareil)
+ * identiques, sans saut à l'hydratation (#289).
  */
-export const DISPLAY_TIMEZONE = 'Europe/Paris'
+export const PLATFORM_TIMEZONE = 'Europe/Paris'
