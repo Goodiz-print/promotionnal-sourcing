@@ -2,6 +2,7 @@
 import { useForm } from '@inertiajs/vue3'
 import { Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import type { ContentLocale } from '#shared/types/i18n'
 import type { AttributeValueEditType } from '#shared/types/attribute'
@@ -21,6 +22,7 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 const form = useForm({
   slug: '',
@@ -65,8 +67,14 @@ function submit() {
   }
 }
 
-function destroy() {
-  if (!props.value || !window.confirm(t('attributes.values.confirmDelete'))) return
+async function destroy() {
+  if (!props.value) return
+  const confirmed = await confirm({
+    message: t('attributes.values.confirmDelete'),
+    confirmLabel: t('attributes.values.delete'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   form.delete(
     urlFor('admin.attribute_values.destroy', {
       locale: locale.value,

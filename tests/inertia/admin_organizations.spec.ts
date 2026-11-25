@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { reactive } from 'vue'
+import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
 import type {
   AdminOrganizationDetail,
   AdminOrganizationIndexFilters,
@@ -422,8 +423,10 @@ describe('admin/organizations/show', () => {
   })
 
   it('archiver confirmé envoie un POST', async () => {
-    window.confirm = vi.fn(() => true)
+    const host = await mountConfirmHost()
     await button(mountShow(detail()), 'Archiver').trigger('click')
+    expect(post).not.toHaveBeenCalled()
+    await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith(
       '/fr/admin.organizations.archive/5',
@@ -433,11 +436,12 @@ describe('admin/organizations/show', () => {
   })
 
   it('restaurer confirmé envoie un POST', async () => {
-    window.confirm = vi.fn(() => true)
+    const host = await mountConfirmHost()
     await button(
       mountShow(detail({ archivedAt: '2026-10-20T10:00:00.000Z' })),
       'Restaurer'
     ).trigger('click')
+    await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith(
       '/fr/admin.organizations.restore/5',
@@ -447,11 +451,13 @@ describe('admin/organizations/show', () => {
   })
 
   it('confirm refusé : aucune requête', async () => {
-    window.confirm = vi.fn(() => false)
+    const host = await mountConfirmHost()
     const wrapper = mountShow(detail())
 
     for (const b of wrapper.findAll('button')) {
-      if (b.attributes('type') !== 'submit') await b.trigger('click')
+      if (b.attributes('type') === 'submit') continue
+      await b.trigger('click')
+      await answerConfirm(host, 'cancel')
     }
 
     expect(post).not.toHaveBeenCalled()
@@ -513,12 +519,13 @@ describe('admin/organizations/show', () => {
   })
 
   it('retirer un membre confirmé envoie un DELETE', async () => {
-    window.confirm = vi.fn(() => true)
+    const host = await mountConfirmHost()
     const wrapper = mountShow(detail())
 
     await wrapper.findAll('button[aria-label="Retirer"]')[1].trigger('click')
 
-    expect(window.confirm).toHaveBeenCalledWith('Retirer jane@acme.test ?')
+    expect(host.find('#confirm-dialog-message').text()).toBe('Retirer jane@acme.test ?')
+    await answerConfirm(host, 'confirm')
     expect(del).toHaveBeenCalledWith(
       '/fr/admin.organizations.remove_member/5/102',
       expect.objectContaining({ preserveScroll: true })
@@ -526,8 +533,9 @@ describe('admin/organizations/show', () => {
   })
 
   it('révoquer une invitation envoie un DELETE', async () => {
-    window.confirm = vi.fn(() => true)
+    const host = await mountConfirmHost()
     await button(mountShow(detail()), 'Révoquer').trigger('click')
+    await answerConfirm(host, 'confirm')
 
     expect(del).toHaveBeenCalledWith(
       '/fr/admin.organizations.revoke_invitation/5/7',
@@ -536,8 +544,9 @@ describe('admin/organizations/show', () => {
   })
 
   it('renvoyer une invitation envoie un POST', async () => {
-    window.confirm = vi.fn(() => true)
+    const host = await mountConfirmHost()
     await button(mountShow(detail()), 'Renvoyer').trigger('click')
+    await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith(
       '/fr/admin.organizations.resend_invitation/5/7',

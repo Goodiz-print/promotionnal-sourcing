@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
 import type { DocumentType, OrganizationDocumentType } from '#shared/types/document'
 
 const translations = {
@@ -54,7 +55,6 @@ function mountManager(kinds?: readonly string[]) {
 beforeEach(() => {
   post.mockClear()
   destroy.mockClear()
-  vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
 })
 
 describe('documents/document_manager', () => {
@@ -105,12 +105,15 @@ describe('documents/document_manager', () => {
   })
 
   it('retire un document après confirmation', async () => {
+    const host = await mountConfirmHost()
     const wrapper = mountManager(['catalogue'])
 
     await wrapper
       .findAll('button')
       .find((b) => b.text() === 'Retirer')!
       .trigger('click')
+    expect(host.find('#confirm-dialog-message').text()).toContain('Retirer « ')
+    await answerConfirm(host, 'confirm')
 
     expect(destroy).toHaveBeenCalledWith('/fr/supplier/profile/documents/7', {
       preserveScroll: true,
@@ -118,13 +121,14 @@ describe('documents/document_manager', () => {
   })
 
   it('ne retire rien si la confirmation est refusée', async () => {
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(false))
+    const host = await mountConfirmHost()
     const wrapper = mountManager(['catalogue'])
 
     await wrapper
       .findAll('button')
       .find((b) => b.text() === 'Retirer')!
       .trigger('click')
+    await answerConfirm(host, 'cancel')
 
     expect(destroy).not.toHaveBeenCalled()
   })

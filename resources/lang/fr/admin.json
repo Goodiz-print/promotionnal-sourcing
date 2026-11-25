@@ -1462,6 +1462,7 @@
       "retry": "Relancer",
       "cancel": "Annuler",
       "retryConfirm": "Relancer le job {name} ?",
+      "cancelJob": "Annuler le job",
       "cancelConfirm": "Annuler définitivement le job {name} ? Il sera supprimé de la file."
     },
     "detail": {

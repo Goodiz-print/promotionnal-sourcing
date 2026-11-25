@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
 import type { AdminQueueScheduleRow } from '#shared/types/admin_queue'
 import type { QueueHealthReport } from '#shared/types/health'
 
@@ -132,13 +133,16 @@ describe('Queue — jobs planifiés', () => {
   })
 
   it('lance un job planifié après confirmation', async () => {
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
+    const host = await mountConfirmHost()
     const wrapper = mount(QueueSchedules, { props: { schedules: [schedule()] } })
 
     await wrapper
       .findAll('button')
       .find((b) => b.text() === 'Lancer maintenant')!
       .trigger('click')
+    expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Lancer maintenant')
+    expect(post).not.toHaveBeenCalled()
+    await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith(
       '/fr/admin.queue.schedules.run/purge-ai-calls',
@@ -148,10 +152,11 @@ describe('Queue — jobs planifiés', () => {
   })
 
   it('ne lance rien si la confirmation est refusée', async () => {
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(false))
+    const host = await mountConfirmHost()
     const wrapper = mount(QueueSchedules, { props: { schedules: [schedule()] } })
 
     await wrapper.find('button').trigger('click')
+    await answerConfirm(host, 'cancel')
 
     expect(post).not.toHaveBeenCalled()
   })

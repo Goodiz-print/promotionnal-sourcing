@@ -2,7 +2,8 @@
 import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { BellRing, Lock, TimerOff } from 'lucide-vue-next'
-import { useI18n } from '~/i18n'
+import { useI18n, type TranslateData } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
 import { ICON_SIZE } from '~/types/ui'
@@ -18,12 +19,19 @@ import type { AdminRfqDetail } from '#shared/types/admin_trade'
 const props = defineProps<{ detail: AdminRfqDetail }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 /** Un envoi à la fois : pendant la requête, tous les boutons sont désactivés. */
 const processing = ref(false)
 
-function run(action: 'close' | 'expire' | 'remind', confirmKey: string, count?: number) {
-  if (!window.confirm(count === undefined ? t(confirmKey) : t(confirmKey, { count }))) return
+async function run(action: 'close' | 'expire' | 'remind', confirmKey: string, count?: number) {
+  const params: TranslateData = count === undefined ? {} : { count }
+  const confirmed = await confirm({
+    message: t(confirmKey, params),
+    confirmLabel: t(`admin.rfqs.actions.${action}`, params),
+    tone: action === 'remind' ? 'default' : 'danger',
+  })
+  if (!confirmed) return
   router.post(
     urlFor(`admin.rfqs.${action}`, { locale: locale.value, id: props.detail.item.id }),
     {},

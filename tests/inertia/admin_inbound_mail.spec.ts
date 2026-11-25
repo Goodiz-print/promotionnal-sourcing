@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
 import type {
   AdminInboundMailAttachment,
   AdminInboundMailRecipient,
@@ -79,7 +80,7 @@ describe('Mails entrants — rattachement', () => {
   })
 
   it('rattache au couple choisi après confirmation', async () => {
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
+    const host = await mountConfirmHost()
     const wrapper = mount(InboundMailAttach, {
       props: { mailId: 3, candidates: [CANDIDATE], rfqSearch: null },
     })
@@ -88,7 +89,12 @@ describe('Mails entrants — rattachement', () => {
     expect(wrapper.text()).toContain('Fournisseur SA')
     const attach = wrapper.findAll('button').find((button) => button.text() === 'Rattacher')!
     await attach.trigger('click')
+    expect(host.find('#confirm-dialog-message').text()).toBe('Rattacher ?')
+    await answerConfirm(host, 'cancel')
+    expect(post).not.toHaveBeenCalled()
 
+    await attach.trigger('click')
+    await answerConfirm(host, 'confirm')
     expect(post).toHaveBeenCalledWith(
       '/fr/admin.inbound_mail.attach/3',
       { rfqSupplierId: 42 },

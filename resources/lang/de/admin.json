@@ -1462,6 +1462,7 @@
       "retry": "Retry",
       "cancel": "Cancel",
       "retryConfirm": "Retry the {name} job?",
+      "cancelJob": "Cancel job",
       "cancelConfirm": "Permanently cancel the {name} job? It will be removed from the queue."
     },
     "detail": {

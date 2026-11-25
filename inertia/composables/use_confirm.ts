@@ -31,7 +31,7 @@ function ask(options: ConfirmOptions): Promise<boolean> {
 }
 
 /**
- * Confirmation du design system, à la place de `window.confirm` :
+ * Confirmation du design system, à la place de la boîte native du navigateur :
  * `if (!(await confirm({ message: t('…'), tone: 'danger' }))) return`.
  */
 export function useConfirm() {

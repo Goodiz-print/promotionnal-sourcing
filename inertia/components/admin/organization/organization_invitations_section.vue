@@ -25,6 +25,21 @@ const formatDate = (value: string) => new Date(value).toLocaleDateString(locale.
 
 const inviter = (invitation: AdminOrganizationInvitation) =>
   invitation.invitedByName || invitation.invitedByEmail
+
+function resend(invitation: AdminOrganizationInvitation) {
+  resendInvitation(invitation.id, {
+    message: t('admin.organizations.detail.invitation.resendConfirm', { email: invitation.email }),
+    confirmLabel: t('admin.organizations.detail.invitation.resend'),
+  })
+}
+
+function revoke(invitation: AdminOrganizationInvitation) {
+  revokeInvitation(invitation.id, {
+    message: t('admin.organizations.detail.invitation.revokeConfirm', { email: invitation.email }),
+    confirmLabel: t('admin.organizations.detail.invitation.revoke'),
+    tone: 'danger',
+  })
+}
 </script>
 
 <template>
@@ -63,14 +78,7 @@ const inviter = (invitation: AdminOrganizationInvitation) =>
               variant="secondary"
               size="sm"
               :disabled="processing"
-              @click="
-                resendInvitation(
-                  invitation.id,
-                  t('admin.organizations.detail.invitation.resendConfirm', {
-                    email: invitation.email,
-                  })
-                )
-              "
+              @click="resend(invitation)"
             >
               <template #icon><RotateCw :size="ICON_SIZE" aria-hidden="true" /></template>
               {{ t('admin.organizations.detail.invitation.resend') }}
@@ -79,14 +87,7 @@ const inviter = (invitation: AdminOrganizationInvitation) =>
               variant="danger"
               size="sm"
               :disabled="processing"
-              @click="
-                revokeInvitation(
-                  invitation.id,
-                  t('admin.organizations.detail.invitation.revokeConfirm', {
-                    email: invitation.email,
-                  })
-                )
-              "
+              @click="revoke(invitation)"
             >
               <template #icon><X :size="ICON_SIZE" aria-hidden="true" /></template>
               {{ t('admin.organizations.detail.invitation.revoke') }}

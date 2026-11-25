@@ -4,6 +4,7 @@ import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { ArrowDown, ArrowUp, FolderTree, Languages, Plus, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
@@ -16,6 +17,7 @@ import type { CategoryAdminType, CategoryMoveDirection } from '#shared/types/cat
 defineProps<{ categories: CategoryAdminType[] }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 /** Indentation par niveau d'arbre (classes statiques pour Tailwind ; au-delà, le dernier niveau). */
 const DEPTH_INDENT = ['ps-0', 'ps-6', 'ps-12', 'ps-16']
@@ -46,8 +48,13 @@ function move(category: CategoryAdminType, direction: CategoryMoveDirection) {
   )
 }
 
-function destroy(category: CategoryAdminType) {
-  if (!window.confirm(t('categories.confirmDelete'))) return
+async function destroy(category: CategoryAdminType) {
+  const confirmed = await confirm({
+    message: t('categories.confirmDelete'),
+    confirmLabel: t('categories.delete'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.delete(urlFor('admin.categories.destroy', { locale: locale.value, id: category.id }), {
     preserveScroll: true,
   })

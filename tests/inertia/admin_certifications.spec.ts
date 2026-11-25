@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
 import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
 import type { CertificationAdminType, CertificationEditType } from '#shared/types/certification'
 
@@ -132,10 +133,12 @@ describe('admin/certifications/index.vue', () => {
   })
 
   it('supprime après confirmation', async () => {
-    window.confirm = vi.fn(() => true)
+    const host = await mountConfirmHost()
     const wrapper = mount(Index, { props: { certifications: [certification()] } })
 
     await wrapper.find('button[aria-label="Supprimer"]').trigger('click')
+    expect(host.find('#confirm-dialog-message').text()).toBe('Supprimer cette certification ?')
+    await answerConfirm(host, 'confirm')
 
     expect(del).toHaveBeenCalledWith(
       '/fr/admin.certifications.destroy/1',
@@ -144,10 +147,11 @@ describe('admin/certifications/index.vue', () => {
   })
 
   it('ne supprime pas si la confirmation est refusée', async () => {
-    window.confirm = vi.fn(() => false)
+    const host = await mountConfirmHost()
     const wrapper = mount(Index, { props: { certifications: [certification()] } })
 
     await wrapper.find('button[aria-label="Supprimer"]').trigger('click')
+    await answerConfirm(host, 'cancel')
 
     expect(del).not.toHaveBeenCalled()
   })

@@ -2,17 +2,20 @@ import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
+import type { ConfirmOptions } from '~/types/ui'
 import type { OrganizationKind } from '#shared/types/organization'
 
 /**
  * Actions d'administration d'une organisation (#161) : chaque mutation est une
  * visite Inertia (`preserveScroll`), le serveur répond par une redirection + flash.
  * `processing` est vrai pendant la requête : les boutons s'en servent pour se
- * désactiver. Les actions destructives demandent une confirmation (`confirmText`) ;
+ * désactiver. Les actions destructives demandent une confirmation (`confirmation`, fenêtre `useConfirm`) ;
  * refusée, aucune requête ne part.
  */
 export function useAdminOrganizationActions(organizationId: number) {
   const { locale } = useI18n()
+  const { confirm } = useConfirm()
 
   const processing = ref(false)
 
@@ -24,15 +27,13 @@ export function useAdminOrganizationActions(organizationId: number) {
 
   const base = () => ({ locale: locale.value, id: organizationId })
 
-  const confirmed = (text?: string) => !text || window.confirm(text)
-
-  function archive(confirmText: string) {
-    if (!confirmed(confirmText)) return
+  async function archive(confirmation: ConfirmOptions) {
+    if (!(await confirm(confirmation))) return
     router.post(urlFor('admin.organizations.archive', base()), {}, visitOptions)
   }
 
-  function restore(confirmText: string) {
-    if (!confirmed(confirmText)) return
+  async function restore(confirmation: ConfirmOptions) {
+    if (!(await confirm(confirmation))) return
     router.post(urlFor('admin.organizations.restore', base()), {}, visitOptions)
   }
 
@@ -52,24 +53,24 @@ export function useAdminOrganizationActions(organizationId: number) {
     )
   }
 
-  function removeMember(membershipId: number, confirmText: string) {
-    if (!confirmed(confirmText)) return
+  async function removeMember(membershipId: number, confirmation: ConfirmOptions) {
+    if (!(await confirm(confirmation))) return
     router.delete(
       urlFor('admin.organizations.remove_member', { ...base(), membershipId }),
       visitOptions
     )
   }
 
-  function revokeInvitation(invitationId: number, confirmText: string) {
-    if (!confirmed(confirmText)) return
+  async function revokeInvitation(invitationId: number, confirmation: ConfirmOptions) {
+    if (!(await confirm(confirmation))) return
     router.delete(
       urlFor('admin.organizations.revoke_invitation', { ...base(), invitationId }),
       visitOptions
     )
   }
 
-  function resendInvitation(invitationId: number, confirmText: string) {
-    if (!confirmed(confirmText)) return
+  async function resendInvitation(invitationId: number, confirmation: ConfirmOptions) {
+    if (!(await confirm(confirmation))) return
     router.post(
       urlFor('admin.organizations.resend_invitation', { ...base(), invitationId }),
       {},

@@ -2,6 +2,8 @@ import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
+import type { ConfirmOptions } from '~/types/ui'
 
 /**
  * Rattachement / détachement d'une fiche fournisseur (#231) : visites Inertia
@@ -11,6 +13,7 @@ import { useI18n } from '~/i18n'
  */
 export function useSupplierLinkActions(supplierId: number) {
   const { locale } = useI18n()
+  const { confirm } = useConfirm()
 
   const processing = ref(false)
 
@@ -27,8 +30,8 @@ export function useSupplierLinkActions(supplierId: number) {
     router.post(url('link'), { organizationId }, visitOptions)
   }
 
-  function unlink(confirmText: string) {
-    if (!window.confirm(confirmText)) return
+  async function unlink(confirmation: ConfirmOptions) {
+    if (!(await confirm(confirmation))) return
     router.delete(url('unlink'), visitOptions)
   }
 
