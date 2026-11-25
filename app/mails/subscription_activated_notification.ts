@@ -6,7 +6,8 @@ import { SUBSCRIPTION_FEATURES, SUBSCRIPTION_FEATURE_INCLUDED } from '#shared/ty
 /**
  * Activation d'un abonnement manuel (#237), envoyée aux responsables de
  * l'organisation fournisseur : formule, période, et ce que la formule ouvre
- * (lignes de la grille tarifaire incluses dans la formule).
+ * (lignes de la grille tarifaire incluses dans la formule), en HTML et en
+ * texte (#292).
  */
 export default class SubscriptionActivatedNotification extends LocalizedMail {
   constructor(
@@ -29,10 +30,8 @@ export default class SubscriptionActivatedNotification extends LocalizedMail {
     this.message
       .to(this.email)
       .subject(this.t('emails.subscriptionActivated.subject', { planName }))
-    this.htmlViewIn('emails/subscription_activated', {
-      ...this.data,
-      planName,
-      features: this.features,
-    })
+    const state = { ...this.data, planName, features: this.features }
+    this.htmlViewIn('emails/subscription_activated', state)
+    this.textViewIn('emails/subscription_activated_text', state)
   }
 }
