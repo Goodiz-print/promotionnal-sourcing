@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import env from '#start/env'
 import mail from '@adonisjs/mail/services/main'
 import type { ApiClient } from '@japa/api-client'
 import { OrganizationFactory } from '#database/factories/organization_factory'
@@ -60,6 +61,11 @@ test.group('Adresse de réception — confirmation par lien', (group) => {
     assert.lengthOf(sent, 1)
     assert.equal(sent[0].email, 'devis@fournisseur.test')
     assert.equal(sent[0].data.organizationName, organization.name)
+    // Lien absolu (#288) : ouvert depuis une messagerie, il doit porter le domaine.
+    assert.isTrue(
+      sent[0].data.verifyUrl.startsWith(new URL(env.get('APP_URL', 'http://localhost:5555')).origin)
+    )
+    assert.match(sent[0].data.verifyUrl, /^https?:\/\//)
     const before = await SupplierProfile.findByOrFail('organizationId', organization.id)
     assert.isNull(before.quoteEmailVerifiedAt)
 

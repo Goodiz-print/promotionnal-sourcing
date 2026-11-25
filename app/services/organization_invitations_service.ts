@@ -1,7 +1,9 @@
 import { DateTime } from 'luxon'
 import { signedUrlFor } from '@adonisjs/core/services/url_builder'
+import env from '#start/env'
 import SendMailJob from '#jobs/send_mail_job'
 import { mailSendKey } from '#shared/helpers/mail'
+import { absoluteUrl } from '#shared/helpers/http'
 import { MAIL_KINDS } from '#shared/types/mail'
 import type { Locale } from '#shared/types/i18n'
 import type Organization from '#models/organization'
@@ -139,11 +141,13 @@ export default class OrganizationInvitationsService {
     inviterName: string,
     locale: Locale
   ): Promise<void> {
-    const acceptUrl = signedUrlFor(
+    const acceptPath = signedUrlFor(
       'organization.invitations.show',
       { locale, id: invitation.id },
       { expiresIn: `${INVITATION_TTL_DAYS}d`, purpose: 'organization-invitation' }
     )
+    // Le lien part par mail : il doit porter le domaine de l'application (#288).
+    const acceptUrl = absoluteUrl(acceptPath, env.get('APP_URL', 'http://localhost:5555'))
 
     await SendMailJob.dispatch({
       kind: MAIL_KINDS.organizationInvitation,

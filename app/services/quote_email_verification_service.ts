@@ -5,6 +5,7 @@ import env from '#start/env'
 import SupplierProfile from '#models/supplier_profile'
 import SendMailJob from '#jobs/send_mail_job'
 import { mailSendKey } from '#shared/helpers/mail'
+import { absoluteUrl } from '#shared/helpers/http'
 import { MAIL_KINDS } from '#shared/types/mail'
 import {
   QUOTE_EMAIL_VERIFICATION_SIGNATURE_PURPOSE,
@@ -67,7 +68,7 @@ export default class QuoteEmailVerificationService {
   }
 
   private urlFor(profileId: number, email: string, locale: Locale): string {
-    return signedUrlFor(
+    const path = signedUrlFor(
       'supplier.quoteEmail.verify',
       { locale, id: profileId },
       {
@@ -76,6 +77,8 @@ export default class QuoteEmailVerificationService {
         qs: { v: this.fingerprint(profileId, email) },
       }
     )
+    // Le lien part par mail : il doit porter le domaine de l'application (#288).
+    return absoluteUrl(path, env.get('APP_URL', 'http://localhost:5555'))
   }
 
   /** Comparaison à temps constant de deux empreintes. */
