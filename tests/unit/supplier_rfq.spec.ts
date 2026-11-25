@@ -1,11 +1,12 @@
 import { test } from '@japa/runner'
 import {
   acceptsQuoteUpload,
+  rfqAcceptsQuoteUpload,
   supplierRfqFiltersForPage,
   supplierRfqListQuery,
   supplierRfqState,
 } from '#shared/helpers/supplier_rfq'
-import { RFQ_SUPPLIER_STATUSES, SUPPLIER_RFQ_STATE_STATUSES } from '#shared/types/rfq'
+import { RFQ_STATUSES, RFQ_SUPPLIER_STATUSES, SUPPLIER_RFQ_STATE_STATUSES } from '#shared/types/rfq'
 
 test.group('supplierRfqState (#230)', () => {
   test('une demande envoyée ou lue, sans réponse, est « à traiter »', ({ assert }) => {
@@ -49,5 +50,14 @@ test.group('acceptsQuoteUpload (#230)', () => {
   test('refuse une demande non envoyée ou déclinée, accepte les autres statuts', ({ assert }) => {
     const accepted = RFQ_SUPPLIER_STATUSES.filter((status) => acceptsQuoteUpload(status))
     assert.deepEqual(accepted, ['sent', 'viewed', 'responded', 'expired'])
+  })
+})
+
+test.group('rfqAcceptsQuoteUpload (#290)', () => {
+  test('refuse une demande clôturée ou en brouillon, accepte publiée et expirée (réponse tardive)', ({
+    assert,
+  }) => {
+    const accepted = RFQ_STATUSES.filter((status) => rfqAcceptsQuoteUpload(status))
+    assert.deepEqual(accepted, ['published', 'expired'])
   })
 })

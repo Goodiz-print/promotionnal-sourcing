@@ -103,4 +103,19 @@ test.group('Abilities — fil d’une demande (#226)', (group) => {
     assert.isFalse(await bouncerFor(stranger).allows('canMessageRfqSupplier', rfq, recipient))
     assert.isFalse(await bouncerFor(stranger).allows('canMessageRfqBuyer', rfq, recipient))
   })
+
+  test('canUploadRfqQuoteDocument : refusé sur une demande clôturée, accordé expirée (#290)', async ({
+    assert,
+  }) => {
+    const { rfq, recipient, supplierOwner } = await scenario()
+    const bouncer = bouncerFor(supplierOwner)
+    assert.isTrue(await bouncer.allows('canUploadRfqQuoteDocument', rfq, recipient))
+
+    // Encore dans la fenêtre relais : seul le statut de la demande refuse.
+    await rfq.merge(closedSince(1)).save()
+    assert.isFalse(await bouncer.allows('canUploadRfqQuoteDocument', rfq, recipient))
+
+    await rfq.merge({ status: 'expired', closedAt: null, expiredAt: DateTime.now() }).save()
+    assert.isTrue(await bouncer.allows('canUploadRfqQuoteDocument', rfq, recipient))
+  })
 })

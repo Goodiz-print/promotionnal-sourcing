@@ -16,7 +16,7 @@ import { Bouncer } from '@adonisjs/bouncer'
 import { DateTime } from 'luxon'
 import inboundMailConfig from '#config/inbound_mail'
 import { isRfqThreadOpen } from '#shared/helpers/conversation'
-import { acceptsQuoteUpload } from '#shared/helpers/supplier_rfq'
+import { acceptsQuoteUpload, rfqAcceptsQuoteUpload } from '#shared/helpers/supplier_rfq'
 import type User from '#models/user'
 import type Organization from '#models/organization'
 import type QuoteDocument from '#models/quote_document'
@@ -387,10 +387,13 @@ async function isRfqResponder(user: User, supplierOrganizationId: number): Promi
  * as an alternative to replying by email: the members who can answer it
  * (`RFQ_RESPONDER_ROLES`) of the recipient organization, while the thread
  * accepts replies (`isRfqThreadOpen`, the same window as a reply by email),
- * unless the supplier declined the request. Expects `rfq` loaded.
+ * unless the supplier declined the request or the agency closed it (#290,
+ * `rfqAcceptsQuoteUpload`; an expired request still takes a late reply).
+ * Expects `rfq` loaded.
  */
 export const canUploadRfqQuoteDocument = Bouncer.ability(
   async (user: User, rfq: Rfq, recipient: RfqSupplier) => {
+    if (!rfqAcceptsQuoteUpload(rfq.status)) return false
     if (!acceptsQuoteUpload(recipient.status)) return false
     if (!isOpenThread(rfq, recipient)) return false
     return isRfqResponder(user, recipient.supplierOrganizationId)

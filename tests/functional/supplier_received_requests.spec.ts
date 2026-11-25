@@ -432,6 +432,24 @@ test.group('Demandes reçues — dépôt du devis PDF depuis l’écran (#230)',
     assert.isFalse(declined.inertiaProps.canUploadQuote)
   })
 
+  test('une demande clôturée ne propose plus le dépôt et la route le refuse (#290)', async ({
+    client,
+    assert,
+  }) => {
+    const { rfq, recipient, owner } = await uploadScenario()
+    // Clôturée hier : l'adresse relais est encore valide, seul le statut refuse.
+    await rfq.merge({ status: 'closed', closedAt: DateTime.now().minus({ days: 1 }) }).save()
+
+    const page = await client.get(`/fr/supplier/rfqs/${rfq.id}`).withInertia().loginAs(owner)
+    assert.isFalse(page.inertiaProps.canUploadQuote)
+    await expectStatus(uploadPdf(client, { rfqId: rfq.id, user: owner, asJson: true }), 403)
+
+    assert.lengthOf(await QuoteDocument.all(), 0)
+    await recipient.refresh()
+    // L'ouverture de l'écran l'a marquée lue, le dépôt refusé ne l'a pas fait « répondu ».
+    assert.equal(recipient.status, 'viewed')
+  })
+
   test('un fichier qui n’est pas un PDF est refusé sans rien enregistrer', async ({
     client,
     assert,

@@ -1,7 +1,9 @@
 import {
+  QUOTE_UPLOAD_ACCEPTING_RFQ_STATUSES,
   QUOTE_UPLOAD_REFUSED_RFQ_SUPPLIER_STATUSES,
   SUPPLIER_RFQ_STATES,
   SUPPLIER_RFQ_STATE_STATUSES,
+  type RfqStatus,
   type RfqSupplierStatus,
   type SupplierRfqFilters,
   type SupplierRfqFiltersType,
@@ -41,4 +43,14 @@ export function supplierRfqFiltersForPage(filters: SupplierRfqFilters): Supplier
  */
 export function acceptsQuoteUpload(status: RfqSupplierStatus): boolean {
   return !QUOTE_UPLOAD_REFUSED_RFQ_SUPPLIER_STATUSES.includes(status)
+}
+
+/**
+ * La demande accepte-t-elle encore un devis PDF déposé depuis l'écran (#290) ?
+ * Pas une fois clôturée (`QUOTE_UPLOAD_ACCEPTING_RFQ_STATUSES`). Lu par
+ * l'ability `canUploadRfqQuoteDocument`, avec `acceptsQuoteUpload` (statut du
+ * destinataire) et la fenêtre de l'adresse relais.
+ */
+export function rfqAcceptsQuoteUpload(status: RfqStatus): boolean {
+  return QUOTE_UPLOAD_ACCEPTING_RFQ_STATUSES.includes(status)
 }
