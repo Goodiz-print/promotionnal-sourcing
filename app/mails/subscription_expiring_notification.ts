@@ -4,7 +4,8 @@ import type { SubscriptionExpiringMailData } from '#shared/types/mail'
 
 /**
  * Rappel avant la fin d'un abonnement manuel (#237) : 30 jours (annuel) puis
- * 7 jours avant. Invite à renouveler depuis la page tarifs.
+ * 7 jours avant. Invite à renouveler depuis la page tarifs, en HTML et en
+ * texte (#292).
  */
 export default class SubscriptionExpiringNotification extends LocalizedMail {
   constructor(
@@ -23,6 +24,8 @@ export default class SubscriptionExpiringNotification extends LocalizedMail {
         endsOn: this.data.endsOn,
       })
     )
-    this.htmlViewIn('emails/subscription_expiring', { ...this.data, planName })
+    const state = { ...this.data, planName }
+    this.htmlViewIn('emails/subscription_expiring', state)
+    this.textViewIn('emails/subscription_expiring_text', state)
   }
 }

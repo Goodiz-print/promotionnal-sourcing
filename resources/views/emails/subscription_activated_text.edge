@@ -1,0 +1,23 @@
+{{{ t('emails.subscriptionActivated.title', { planName }) }}}
+
+{{{ t('emails.subscriptionActivated.intro', { organizationName, planName, brandName }) }}}
+
+@if(endsOn)
+{{{ t('emails.subscriptionActivated.period', { startsOn, endsOn }) }}}
+@else
+{{{ t('emails.subscriptionActivated.since', { startsOn }) }}}
+@end
+
+@if(features.length)
+{{{ t('emails.subscriptionActivated.features') }}}
+@each(feature in features)
+- {{{ feature }}}
+@end
+
+@end
+{{{ t('emails.subscriptionActivated.cta') }}}
+{{{ appUrl }}}{{{ path }}}
+
+--
+{{{ t('emails.layout.automatic') }}}
+{{{ t('emails.subscriptionActivated.footer') }}}

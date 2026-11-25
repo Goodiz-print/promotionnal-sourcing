@@ -808,3 +808,69 @@ test.group('Mails — message de l’agence relayé au fournisseur (#226)', () =
     assert.notInclude(automatic.html, 'logo.png')
   })
 })
+
+test.group('Mails — abonnement, version texte (#292)', () => {
+  test('l’activation donne la formule, la période, les droits et le lien, sans HTML', async ({
+    assert,
+  }) => {
+    const { text } = await render(mailers.subscriptionActivated('fr'))
+
+    assert.include(text, 'Abonnement Premium activé')
+    assert.include(text, "L'abonnement Premium de Acme est actif")
+    assert.include(text, 'Il couvre la période du 20/11/2026 au 19/11/2027 inclus.')
+    assert.include(text, 'Votre formule comprend :')
+    assert.match(text, /^- \S/m)
+    assert.match(text, /^Voir mon abonnement\n.*\/x\/supplier\/subscription$/m)
+    assert.include(text, '/x/supplier/subscription')
+    assert.notInclude(text, '<')
+  })
+
+  test('une activation sans fin donne la date de début', async ({ assert }) => {
+    const { text } = await render(
+      new SubscriptionActivatedNotification(
+        'owner@example.com',
+        {
+          organizationName: 'Acme',
+          plan: 'premium',
+          startsOn: '20/11/2026',
+          endsOn: null,
+          path: '/x/supplier/subscription',
+        },
+        'en'
+      ) as never
+    )
+
+    assert.include(text, 'It has been active since 20/11/2026.')
+    assert.notInclude(text, '19/11/2027')
+    assert.include(text, '/x/supplier/subscription')
+  })
+
+  test('le rappel de fin donne la date, le délai et le lien de renouvellement', async ({
+    assert,
+  }) => {
+    const { text } = await render(mailers.subscriptionExpiring('fr'))
+
+    assert.include(text, 'se termine dans 7 jours')
+    assert.include(text, 'se termine le 19/11/2027')
+    assert.match(text, /^Renouveler mon abonnement\n.*\/x\/supplier\/subscription$/m)
+    assert.include(text, '/x/supplier/subscription')
+    assert.notInclude(text, '<')
+  })
+
+  test('les deux mails ont une version texte traduite dans chaque langue', async ({ assert }) => {
+    const rendered = await Promise.all(
+      SUPPORTED_LOCALES.flatMap((locale) => [
+        render(mailers.subscriptionActivated(locale)),
+        render(mailers.subscriptionExpiring(locale)),
+      ])
+    )
+
+    rendered.forEach(({ text }) => {
+      assert.include(text, '19/11/2027')
+      assert.include(text, '/x/supplier/subscription')
+      assert.notInclude(text, 'emails.')
+      assert.notInclude(text, '<')
+      assert.notMatch(text, / : \S*\/x\/supplier/)
+    })
+  })
+})
