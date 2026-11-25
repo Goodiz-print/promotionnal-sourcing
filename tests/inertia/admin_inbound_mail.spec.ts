@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type {
   AdminInboundMailAttachment,
   AdminInboundMailRecipient,
@@ -89,7 +89,7 @@ describe('Mails entrants — rattachement', () => {
     expect(wrapper.text()).toContain('Fournisseur SA')
     const attach = wrapper.findAll('button').find((button) => button.text() === 'Rattacher')!
     await attach.trigger('click')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Rattacher ?')
+    expect(confirmText(host)).toBe('Rattacher ?')
     await answerConfirm(host, 'cancel')
     expect(post).not.toHaveBeenCalled()
 

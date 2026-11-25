@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { reactive } from 'vue'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type {
   AdminOrganizationDetail,
   AdminOrganizationIndexFilters,
@@ -524,7 +524,7 @@ describe('admin/organizations/show', () => {
 
     await wrapper.findAll('button[aria-label="Retirer"]')[1].trigger('click')
 
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Retirer jane@acme.test ?')
+    expect(confirmText(host)).toBe('Retirer jane@acme.test ?')
     await answerConfirm(host, 'confirm')
     expect(del).toHaveBeenCalledWith(
       '/fr/admin.organizations.remove_member/5/102',

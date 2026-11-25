@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type {
   AdminSearchDrift,
   AdminSearchRun,
@@ -271,8 +271,8 @@ describe('Recherche — réindexation', () => {
     const wrapper = mount(SearchReindexForm, { props: { enabled: true, busy: false, suppliers } })
 
     await wrapper.find('form').trigger('submit')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Tout reconstruire ?')
-    expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Réindexer tout le catalogue')
+    expect(confirmText(host)).toBe('Tout reconstruire ?')
+    expect(confirmText(host, 'confirm')).toBe('Réindexer tout le catalogue')
     await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith('/fr/admin.search.reindex', {}, expect.any(Object))
@@ -285,7 +285,7 @@ describe('Recherche — réindexation', () => {
     expect(wrapper.text()).toContain('Bureau Plus')
     await wrapper.find('select').setValue('9')
     await wrapper.find('form').trigger('submit')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Réindexer ce fournisseur ?')
+    expect(confirmText(host)).toBe('Réindexer ce fournisseur ?')
     await answerConfirm(host, 'confirm')
 
     expect(wrapper.text()).toContain('Réindexer ce fournisseur')

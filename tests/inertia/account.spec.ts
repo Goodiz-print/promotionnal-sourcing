@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmPart, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { AccountType } from '#shared/types/account'
 
 const translations = {
@@ -101,8 +101,8 @@ describe('account/danger_zone', () => {
     const wrapper = mount(DangerZone, { props: { blockingOrganizations: [] } })
 
     await wrapper.find('form').trigger('submit')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Supprimer ?')
-    expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
+    expect(confirmText(host)).toBe('Supprimer ?')
+    expect(confirmPart(host, 'confirm').classes()).toContain('text-danger')
     await answerConfirm(host, 'confirm')
     expect(destroy).toHaveBeenCalledWith('/fr/account.destroy', { preserveScroll: true })
   })

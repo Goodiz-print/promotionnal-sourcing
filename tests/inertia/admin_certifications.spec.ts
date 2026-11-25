@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import { CONTENT_LOCALES, type ContentLocale } from '#shared/types/i18n'
 import type { CertificationAdminType, CertificationEditType } from '#shared/types/certification'
 
@@ -137,9 +137,7 @@ describe('admin/certifications/index.vue', () => {
     const wrapper = mount(Index, { props: { certifications: [certification()] } })
 
     await wrapper.find('button[aria-label="Supprimer"]').trigger('click')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe(
-      'Supprimer cette certification ?'
-    )
+    expect(confirmText(host)).toBe('Supprimer cette certification ?')
     await answerConfirm(host, 'confirm')
 
     expect(del).toHaveBeenCalledWith(

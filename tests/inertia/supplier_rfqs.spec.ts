@@ -1,6 +1,6 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmPart, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { QuoteType } from '#shared/types/quote'
 import type { BuyerContactType, SupplierRfqDetailType, SupplierRfqType } from '#shared/types/rfq'
 
@@ -374,7 +374,7 @@ describe('supplier/rfqs/show.vue', () => {
     const button = wrapper.findAll('button').find((b) => b.text() === 'Décliner la demande')!
 
     await button.trigger('click')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Décliner cette demande ?')
+    expect(confirmText(host)).toBe('Décliner cette demande ?')
     await answerConfirm(host, 'cancel')
     expect(router.post).not.toHaveBeenCalled()
 
@@ -545,7 +545,7 @@ describe('quotes/quote_form.vue : confirmations (#291)', () => {
     const wrapper = mount(QuoteForm, { props: { rfq: detail(), quote: draft } })
 
     await clickAction(wrapper, 'Remettre le devis')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Remettre ce devis ?')
+    expect(confirmText(host)).toBe('Remettre ce devis ?')
     await answerConfirm(host, 'cancel')
     expect(router.post).not.toHaveBeenCalled()
 
@@ -559,7 +559,7 @@ describe('quotes/quote_form.vue : confirmations (#291)', () => {
     const wrapper = mount(QuoteForm, { props: { rfq: detail(), quote: draft } })
 
     await clickAction(wrapper, 'Supprimer le brouillon')
-    expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
+    expect(confirmPart(host, 'confirm').classes()).toContain('text-danger')
     await answerConfirm(host, 'cancel')
     expect(router.delete).not.toHaveBeenCalled()
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import { answerConfirm, confirmPart, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type { OrderAction, OrderTimelineType, OrderType } from '#shared/types/order'
 
 const translations = {
@@ -80,8 +80,8 @@ describe('order_actions.vue', () => {
     const wrapper = mount(OrderActions, { props: { order: order(['confirm']), side: 'supplier' } })
 
     await wrapper.find('button').trigger('click')
-    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Confirmer ?')
-    expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Confirmer la commande')
+    expect(confirmText(host)).toBe('Confirmer ?')
+    expect(confirmText(host, 'confirm')).toBe('Confirmer la commande')
     await answerConfirm(host, 'confirm')
 
     expect(router.patch).toHaveBeenCalledWith(
@@ -96,7 +96,7 @@ describe('order_actions.vue', () => {
     const wrapper = mount(OrderActions, { props: { order: order(['cancel']), side: 'buyer' } })
 
     await wrapper.find('button').trigger('click')
-    expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
+    expect(confirmPart(host, 'confirm').classes()).toContain('text-danger')
     await answerConfirm(host, 'cancel')
 
     expect(router.patch).not.toHaveBeenCalled()
