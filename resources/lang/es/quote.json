@@ -151,6 +151,7 @@
     "select": "Seleccionar",
     "selected": "Seleccionado",
     "confirmSelect": "Seleccionar este presupuesto cierra la solicitud. Los siguientes pasos (pedido, facturación) se realizan directamente con el proveedor. ¿Continuar?",
+    "confirmSelectTitle": "¿Seleccionar este presupuesto?",
     "flash": {
       "selected": "Presupuesto seleccionado: la solicitud está cerrada."
     },

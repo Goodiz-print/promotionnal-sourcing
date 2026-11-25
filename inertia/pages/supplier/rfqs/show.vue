@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import { useConfirm } from '~/composables/use_confirm'
 import BaseAlert from '~/components/base/base_alert.vue'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseButton from '~/components/base/base_button.vue'
@@ -38,6 +39,7 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 const indexUrl = computed(() => urlFor('supplier.rfqs.index', { locale: locale.value }))
 
@@ -74,8 +76,13 @@ const canDecline = computed(
     (props.rfq.myStatus === 'sent' || props.rfq.myStatus === 'viewed')
 )
 
-function decline() {
-  if (!window.confirm(t('rfq.supplier.actions.confirmDecline'))) return
+async function decline() {
+  const confirmed = await confirm({
+    message: t('rfq.supplier.actions.confirmDecline'),
+    confirmLabel: t('rfq.supplier.actions.decline'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.post(
     urlFor('supplier.rfqs.decline', { locale: locale.value, id: props.rfq.id }),
     {},

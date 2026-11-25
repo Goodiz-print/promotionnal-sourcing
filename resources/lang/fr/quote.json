@@ -151,6 +151,7 @@
     "select": "Retenir",
     "selected": "Retenu",
     "confirmSelect": "Retenir ce devis clôture la demande. La suite (bon de commande, facturation) se fait directement avec le fournisseur. Continuer ?",
+    "confirmSelectTitle": "Retenir ce devis ?",
     "flash": {
       "selected": "Devis retenu : la demande est clôturée."
     },

@@ -3,6 +3,7 @@ import { router } from '@inertiajs/vue3'
 import { Lock, Megaphone, Send, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import { useConfirm } from '~/composables/use_confirm'
 import BaseButton from '~/components/base/base_button.vue'
 import { ICON_SIZE } from '~/types/ui'
 import type { RfqDetailType } from '#shared/types/rfq'
@@ -21,6 +22,7 @@ import type { RfqDetailType } from '#shared/types/rfq'
 const props = defineProps<{ rfq: RfqDetailType; canClose: boolean }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 /** Publier n'a de sens qu'avec un besoin décrit. */
 const canPublish = () => props.rfq.status === 'draft' && props.rfq.itemCount > 0
@@ -39,13 +41,23 @@ function post(route: 'rfqs.publish' | 'rfqs.send' | 'rfqs.close') {
   )
 }
 
-function destroy() {
-  if (!window.confirm(t('rfq.actions.confirmDelete'))) return
+async function destroy() {
+  const confirmed = await confirm({
+    message: t('rfq.actions.confirmDelete'),
+    confirmLabel: t('rfq.actions.delete'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.delete(urlFor('rfqs.destroy', { locale: locale.value, id: props.rfq.id }))
 }
 
-function close() {
-  if (!window.confirm(t('rfq.actions.confirmClose'))) return
+async function close() {
+  const confirmed = await confirm({
+    message: t('rfq.actions.confirmClose'),
+    confirmLabel: t('rfq.actions.close'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   post('rfqs.close')
 }
 </script>

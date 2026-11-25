@@ -151,6 +151,7 @@
     "select": "Välj",
     "selected": "Vald",
     "confirmSelect": "Om du väljer den här offerten stängs förfrågan. Nästa steg (beställning, fakturering) sker direkt med leverantören. Fortsätta?",
+    "confirmSelectTitle": "Välja den här offerten?",
     "flash": {
       "selected": "Offert vald: förfrågan är stängd."
     },

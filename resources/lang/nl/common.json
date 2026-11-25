@@ -44,5 +44,10 @@
     "label": "Taal",
     "fr": "Français",
     "en": "English"
+  },
+  "confirmDialog": {
+    "title": "Actie bevestigen?",
+    "confirm": "Bevestigen",
+    "cancel": "Annuleren"
   }
 }

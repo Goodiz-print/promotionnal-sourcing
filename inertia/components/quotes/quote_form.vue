@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { router, useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import { useConfirm } from '~/composables/use_confirm'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseSection from '~/components/base/base_section.vue'
@@ -27,6 +28,7 @@ import type { SupplierRfqDetailType } from '#shared/types/rfq'
 const props = defineProps<{ rfq: SupplierRfqDetailType; quote: QuoteType | null }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 const currency = props.quote?.currency ?? DEFAULT_QUOTE_CURRENCY
 
@@ -91,8 +93,13 @@ function save() {
     )
 }
 
-function submitQuote() {
-  if (!props.quote || !window.confirm(t('quote.form.confirmSubmit'))) return
+async function submitQuote() {
+  if (!props.quote) return
+  const confirmed = await confirm({
+    message: t('quote.form.confirmSubmit'),
+    confirmLabel: t('quote.form.submit'),
+  })
+  if (!confirmed) return
   router.post(
     urlFor('supplier.quotes.submit', { locale: locale.value, id: props.quote.id }),
     {},
@@ -100,8 +107,14 @@ function submitQuote() {
   )
 }
 
-function destroyQuote() {
-  if (!props.quote || !window.confirm(t('quote.form.confirmDelete'))) return
+async function destroyQuote() {
+  if (!props.quote) return
+  const confirmed = await confirm({
+    message: t('quote.form.confirmDelete'),
+    confirmLabel: t('quote.form.delete'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.delete(urlFor('supplier.quotes.destroy', { locale: locale.value, id: props.quote.id }))
 }
 </script>

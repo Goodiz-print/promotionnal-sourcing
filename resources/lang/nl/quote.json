@@ -151,6 +151,7 @@
     "select": "Kiezen",
     "selected": "Gekozen",
     "confirmSelect": "Door deze offerte te kiezen wordt de aanvraag gesloten. De volgende stappen (bestelbon, facturatie) verlopen rechtstreeks met de leverancier. Doorgaan?",
+    "confirmSelectTitle": "Deze offerte kiezen?",
     "flash": {
       "selected": "Offerte gekozen: de aanvraag is gesloten."
     },

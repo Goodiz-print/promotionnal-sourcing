@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
+import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
 import type { RfqDetailType, RfqListItemType, RfqSupplierType, RfqType } from '#shared/types/rfq'
 
 const translations = {
@@ -31,6 +32,9 @@ const translations = {
   'rfq.actions.publish': 'Publier',
   'rfq.actions.send': 'Envoyer aux destinataires',
   'rfq.actions.close': 'Clôturer',
+  'rfq.actions.confirmClose': 'Clôturer cette demande ?',
+  'rfq.actions.delete': 'Supprimer le brouillon',
+  'rfq.actions.confirmDelete': 'Supprimer ce brouillon ?',
   'rfq.fields.suppliers': 'Fournisseurs consultés',
   'rfq.suppliers.selected': '{count} sélectionnés',
 }
@@ -293,5 +297,49 @@ describe('rfqs/show.vue', () => {
 
     expect(wrapper.text()).toContain('Expirée sans réponse')
     expect(wrapper.findAll('[data-test="late-reply"]')).toHaveLength(1)
+  })
+
+  describe('confirmation des actions irréversibles (#291)', () => {
+    beforeEach(() => {
+      vi.mocked(router.delete).mockClear()
+      vi.mocked(router.post).mockClear()
+    })
+
+    function clickAction(wrapper: ReturnType<typeof mount>, label: string) {
+      return wrapper
+        .findAll('button')
+        .find((button) => button.text() === label)!
+        .trigger('click')
+    }
+
+    it('supprimer un brouillon : fenêtre « danger », annuler ne supprime rien', async () => {
+      const host = await mountConfirmHost()
+      const wrapper = mount(RfqShow, { props: { ...baseProps, rfq: detail() } })
+
+      await clickAction(wrapper, 'Supprimer le brouillon')
+      expect(host.find('#confirm-dialog-message').text()).toBe('Supprimer ce brouillon ?')
+      expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
+      await answerConfirm(host, 'cancel')
+      expect(router.delete).not.toHaveBeenCalled()
+
+      await clickAction(wrapper, 'Supprimer le brouillon')
+      await answerConfirm(host, 'confirm')
+      expect(router.delete).toHaveBeenCalled()
+    })
+
+    it('clôturer une demande publiée n’envoie la visite qu’après confirmation', async () => {
+      const host = await mountConfirmHost()
+      const wrapper = mount(RfqShow, {
+        props: { ...baseProps, rfq: detail({ status: 'published' }) },
+      })
+
+      await clickAction(wrapper, 'Clôturer')
+      await answerConfirm(host, 'cancel')
+      expect(router.post).not.toHaveBeenCalled()
+
+      await clickAction(wrapper, 'Clôturer')
+      await answerConfirm(host, 'confirm')
+      expect(router.post).toHaveBeenCalled()
+    })
   })
 })

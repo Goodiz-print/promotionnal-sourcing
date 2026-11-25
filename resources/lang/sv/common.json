@@ -44,5 +44,10 @@
     "label": "Språk",
     "fr": "Français",
     "en": "English"
+  },
+  "confirmDialog": {
+    "title": "Bekräfta åtgärden?",
+    "confirm": "Bekräfta",
+    "cancel": "Avbryt"
   }
 }

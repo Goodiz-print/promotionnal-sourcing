@@ -151,6 +151,7 @@
     "select": "Auswählen",
     "selected": "Ausgewählt",
     "confirmSelect": "Mit der Auswahl dieses Angebots wird die Anfrage abgeschlossen. Die weiteren Schritte (Bestellung, Rechnung) erfolgen direkt mit dem Lieferanten. Fortfahren?",
+    "confirmSelectTitle": "Dieses Angebot auswählen?",
     "flash": {
       "selected": "Angebot ausgewählt: Die Anfrage ist abgeschlossen."
     },
