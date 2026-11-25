@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { RotateCw } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import BaseAlert from '~/components/base/base_alert.vue'
 import BaseButton from '~/components/base/base_button.vue'
@@ -17,10 +18,15 @@ import type { AdminStorageOverview } from '#shared/types/admin_ops'
 const props = defineProps<{ overview: AdminStorageOverview }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 const sending = ref(false)
 
-function recover() {
-  if (!window.confirm(t('admin.storage.recover.confirm'))) return
+async function recover() {
+  const confirmed = await confirm({
+    message: t('admin.storage.recover.confirm'),
+    confirmLabel: t('admin.storage.recover.submit'),
+  })
+  if (!confirmed) return
   router.post(
     urlFor('admin.storage.recover', { locale: locale.value }),
     {},

@@ -2,6 +2,8 @@ import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
+import type { ConfirmOptions } from '~/types/ui'
 import type { PaidSubscriptionPlan } from '#shared/types/subscription'
 
 /** Saisie d'un abonnement manuel : formule et jours `AAAA-MM-JJ` (fin incluse). */
@@ -18,6 +20,7 @@ export interface SubscriptionDraft {
  */
 export function useAdminSubscriptionActions(organizationId: number) {
   const { locale } = useI18n()
+  const { confirm } = useConfirm()
   const processing = ref(false)
 
   const visitOptions = {
@@ -44,8 +47,8 @@ export function useAdminSubscriptionActions(organizationId: number) {
     )
   }
 
-  function cancel(subscriptionId: number, confirmText: string) {
-    if (!window.confirm(confirmText)) return
+  async function cancel(subscriptionId: number, confirmation: ConfirmOptions) {
+    if (!(await confirm(confirmation))) return
     router.post(
       urlFor('admin.organizations.subscriptions.cancel', { ...base(), subscriptionId }),
       {},

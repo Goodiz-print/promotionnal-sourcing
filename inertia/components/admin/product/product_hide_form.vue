@@ -3,6 +3,7 @@ import { useForm } from '@inertiajs/vue3'
 import { EyeOff } from 'lucide-vue-next'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseTextarea from '~/components/base/base_textarea.vue'
 import { ICON_SIZE } from '~/types/ui'
@@ -14,11 +15,16 @@ import { ICON_SIZE } from '~/types/ui'
 const props = defineProps<{ productId: number }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 const form = useForm({ reason: '' })
 
-function submit() {
-  if (!window.confirm(t('admin.products.actions.hide.confirm'))) return
+async function submit() {
+  const confirmed = await confirm({
+    message: t('admin.products.actions.hide.confirm'),
+    confirmLabel: t('admin.products.actions.hide.label'),
+  })
+  if (!confirmed) return
   form.post(urlFor('admin.products.hide', { locale: locale.value, id: props.productId }), {
     preserveScroll: true,
     onSuccess: () => form.reset('reason'),

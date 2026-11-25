@@ -1,6 +1,17 @@
 import { router } from '@inertiajs/vue3'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
+import type { ConfirmTone } from '~/types/ui'
+
+type InboundMailAction = 'attach' | 'replay' | 'dismiss'
+
+/** Ton de la confirmation : écarter un mail l'exclut du traitement. */
+const ACTION_TONES: Record<InboundMailAction, ConfirmTone> = {
+  attach: 'default',
+  replay: 'default',
+  dismiss: 'danger',
+}
 
 /**
  * Actions de la supervision des mails entrants (#227) : confirmation puis
@@ -8,33 +19,24 @@ import { useI18n } from '~/i18n'
  */
 export function useInboundMailActions() {
   const { t, locale } = useI18n()
+  const { confirm } = useConfirm()
 
-  function attach(id: number, rfqSupplierId: number) {
-    if (!window.confirm(t('admin.inboundMail.actions.attachConfirm'))) return
-    router.post(
-      urlFor('admin.inbound_mail.attach', { locale: locale.value, id }),
-      { rfqSupplierId },
-      { preserveScroll: true }
-    )
+  /** `action` nomme le message, le bouton et la route. */
+  async function run(action: InboundMailAction, id: number, data: Record<string, number> = {}) {
+    const confirmed = await confirm({
+      message: t(`admin.inboundMail.actions.${action}Confirm`),
+      confirmLabel: t(`admin.inboundMail.actions.${action}`),
+      tone: ACTION_TONES[action],
+    })
+    if (!confirmed) return
+    router.post(urlFor(`admin.inbound_mail.${action}`, { locale: locale.value, id }), data, {
+      preserveScroll: true,
+    })
   }
 
-  function replay(id: number) {
-    if (!window.confirm(t('admin.inboundMail.actions.replayConfirm'))) return
-    router.post(
-      urlFor('admin.inbound_mail.replay', { locale: locale.value, id }),
-      {},
-      { preserveScroll: true }
-    )
+  return {
+    attach: (id: number, rfqSupplierId: number) => run('attach', id, { rfqSupplierId }),
+    replay: (id: number) => run('replay', id),
+    dismiss: (id: number) => run('dismiss', id),
   }
-
-  function dismiss(id: number) {
-    if (!window.confirm(t('admin.inboundMail.actions.dismissConfirm'))) return
-    router.post(
-      urlFor('admin.inbound_mail.dismiss', { locale: locale.value, id }),
-      {},
-      { preserveScroll: true }
-    )
-  }
-
-  return { attach, replay, dismiss }
 }

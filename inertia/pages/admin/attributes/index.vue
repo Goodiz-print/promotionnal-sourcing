@@ -4,6 +4,7 @@ import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { ListFilter, Plus, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
@@ -16,11 +17,17 @@ import type { AttributeAdminType } from '#shared/types/attribute'
 defineProps<{ attributes: AttributeAdminType[] }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 const createUrl = computed(() => urlFor('admin.attributes.create', { locale: locale.value }))
 
-function destroy(attribute: AttributeAdminType) {
-  if (!window.confirm(t('attributes.confirmDelete'))) return
+async function destroy(attribute: AttributeAdminType) {
+  const confirmed = await confirm({
+    message: t('attributes.confirmDelete'),
+    confirmLabel: t('attributes.delete'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.delete(urlFor('admin.attributes.destroy', { locale: locale.value, id: attribute.id }), {
     preserveScroll: true,
   })

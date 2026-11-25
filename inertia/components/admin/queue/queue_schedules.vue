@@ -2,6 +2,7 @@
 import { router } from '@inertiajs/vue3'
 import { Play } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import { useTradeFormat } from '~/composables/use_trade_format'
 import BaseButton from '~/components/base/base_button.vue'
@@ -13,10 +14,15 @@ import type { AdminQueueScheduleRow } from '#shared/types/admin_queue'
 defineProps<{ schedules: AdminQueueScheduleRow[] }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 const { dateTime } = useTradeFormat()
 
-function run(schedule: AdminQueueScheduleRow) {
-  if (!window.confirm(t('admin.queue.schedules.confirmRun', { name: schedule.name }))) return
+async function run(schedule: AdminQueueScheduleRow) {
+  const confirmed = await confirm({
+    message: t('admin.queue.schedules.confirmRun', { name: schedule.name }),
+    confirmLabel: t('admin.queue.schedules.run'),
+  })
+  if (!confirmed) return
   router.post(
     urlFor('admin.queue.schedules.run', { locale: locale.value, id: schedule.id }),
     {},

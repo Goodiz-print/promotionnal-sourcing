@@ -3,6 +3,7 @@ import { router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { Pause, Play, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import { useAdFormat } from '~/composables/use_ad_format'
 import AdCampaignProduct from '~/components/ads/ad_campaign_product.vue'
@@ -16,6 +17,7 @@ import type { AdCampaignType } from '#shared/types/ads'
 defineProps<{ campaigns: AdCampaignType[] }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 const { money, day } = useAdFormat()
 
 function editUrl(campaign: AdCampaignType): string {
@@ -30,8 +32,13 @@ function setStatus(campaign: AdCampaignType, status: 'active' | 'paused') {
   )
 }
 
-function destroy(campaign: AdCampaignType) {
-  if (!window.confirm(t('ads.actions.confirmDelete'))) return
+async function destroy(campaign: AdCampaignType) {
+  const confirmed = await confirm({
+    message: t('ads.actions.confirmDelete'),
+    confirmLabel: t('ads.actions.delete'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.delete(urlFor('supplier.ads.destroy', { locale: locale.value, id: campaign.id }), {
     preserveScroll: true,
   })

@@ -33,6 +33,14 @@ const formatDate = (value: string) => new Date(value).toLocaleDateString(locale.
 function submitLink() {
   if (selected.value !== null) link(selected.value)
 }
+
+function confirmUnlink() {
+  unlink({
+    message: t('admin.supplierLinks.confirmUnlink', { name: props.supplier.name }),
+    confirmLabel: t('admin.supplierLinks.unlink'),
+    tone: 'danger',
+  })
+}
 </script>
 
 <template>
@@ -57,12 +65,7 @@ function submitLink() {
         <template v-else>{{ t('admin.supplierLinks.noAgreementDate') }}</template>
       </td>
       <td class="text-right">
-        <BaseButton
-          variant="danger"
-          size="sm"
-          :disabled="processing"
-          @click="unlink(t('admin.supplierLinks.confirmUnlink', { name: supplier.name }))"
-        >
+        <BaseButton variant="danger" size="sm" :disabled="processing" @click="confirmUnlink">
           <Unlink :size="16" aria-hidden="true" />
           {{ t('admin.supplierLinks.unlink') }}
         </BaseButton>

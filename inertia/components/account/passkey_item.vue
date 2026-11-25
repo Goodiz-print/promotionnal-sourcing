@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import { KeyRound, Pencil, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseInput from '~/components/base/base_input.vue'
@@ -11,6 +12,7 @@ import type { PasskeyType } from '#shared/types/passkey'
 const props = defineProps<{ passkey: PasskeyType }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 const editing = ref(false)
 const form = useForm({ name: props.passkey.name })
@@ -31,8 +33,13 @@ function cancelEdit() {
   editing.value = false
 }
 
-function remove() {
-  if (!window.confirm(t('account.passkeys.confirmRemove', { name: props.passkey.name }))) return
+async function remove() {
+  const confirmed = await confirm({
+    message: t('account.passkeys.confirmRemove', { name: props.passkey.name }),
+    confirmLabel: t('account.passkeys.remove'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
 
   form.delete(urlFor('account.passkeys.destroy', { locale: locale.value, id: props.passkey.id }), {
     preserveScroll: true,

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
 import type {
   AdminSearchDrift,
   AdminSearchRun,
@@ -143,7 +144,6 @@ function drift(overrides: Partial<AdminSearchDrift> = {}): AdminSearchDrift {
 
 beforeEach(() => {
   vi.clearAllMocks()
-  vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
 })
 
 describe('Recherche — état du moteur', () => {
@@ -267,19 +267,26 @@ const suppliers = [
 
 describe('Recherche — réindexation', () => {
   it('lance la réindexation complète après confirmation', async () => {
+    const host = await mountConfirmHost()
     const wrapper = mount(SearchReindexForm, { props: { enabled: true, busy: false, suppliers } })
 
     await wrapper.find('form').trigger('submit')
+    expect(host.find('#confirm-dialog-message').text()).toBe('Tout reconstruire ?')
+    expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Réindexer tout le catalogue')
+    await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith('/fr/admin.search.reindex', {}, expect.any(Object))
   })
 
   it('propose les fournisseurs et cible celui qui est choisi', async () => {
+    const host = await mountConfirmHost()
     const wrapper = mount(SearchReindexForm, { props: { enabled: true, busy: false, suppliers } })
 
     expect(wrapper.text()).toContain('Bureau Plus')
     await wrapper.find('select').setValue('9')
     await wrapper.find('form').trigger('submit')
+    expect(host.find('#confirm-dialog-message').text()).toBe('Réindexer ce fournisseur ?')
+    await answerConfirm(host, 'confirm')
 
     expect(wrapper.text()).toContain('Réindexer ce fournisseur')
     expect(post).toHaveBeenCalledWith(
@@ -290,10 +297,11 @@ describe('Recherche — réindexation', () => {
   })
 
   it('n’envoie rien sans confirmation', async () => {
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(false))
+    const host = await mountConfirmHost()
     const wrapper = mount(SearchReindexForm, { props: { enabled: true, busy: false, suppliers } })
 
     await wrapper.find('form').trigger('submit')
+    await answerConfirm(host, 'cancel')
 
     expect(post).not.toHaveBeenCalled()
   })

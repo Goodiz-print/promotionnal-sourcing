@@ -2,6 +2,7 @@
 import { router } from '@inertiajs/vue3'
 import { Mail } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseButton from '~/components/base/base_button.vue'
@@ -12,6 +13,7 @@ import type { OrganizationInvitationType } from '#shared/types/organization'
 const props = defineProps<{ invitations: OrganizationInvitationType[] }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 function resend(invitation: OrganizationInvitationType) {
   router.post(
@@ -21,8 +23,13 @@ function resend(invitation: OrganizationInvitationType) {
   )
 }
 
-function revoke(invitation: OrganizationInvitationType) {
-  if (!window.confirm(t('organization.invitations.confirmRevoke'))) return
+async function revoke(invitation: OrganizationInvitationType) {
+  const confirmed = await confirm({
+    message: t('organization.invitations.confirmRevoke'),
+    confirmLabel: t('organization.invitations.revoke'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.delete(
     urlFor('organization.invitations.destroy', { locale: locale.value, id: invitation.id }),
     { preserveScroll: true }

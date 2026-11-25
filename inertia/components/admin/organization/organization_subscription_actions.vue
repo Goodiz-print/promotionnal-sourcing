@@ -20,6 +20,14 @@ const { t } = useI18n()
 const { processing, extend, cancel } = useAdminSubscriptionActions(props.organizationId)
 
 const endsOn = ref(props.subscription.endsAt ? lastCoveredDay(props.subscription.endsAt) : '')
+
+function cancelSubscription() {
+  cancel(props.subscription.id, {
+    message: t('admin.organizations.subscription.cancelConfirm'),
+    confirmLabel: t('admin.organizations.subscription.cancel'),
+    tone: 'danger',
+  })
+}
 </script>
 
 <template>
@@ -44,7 +52,7 @@ const endsOn = ref(props.subscription.endsAt ? lastCoveredDay(props.subscription
       variant="danger"
       size="sm"
       :disabled="processing"
-      @click="cancel(subscription.id, t('admin.organizations.subscription.cancelConfirm'))"
+      @click="cancelSubscription"
     >
       {{ t('admin.organizations.subscription.cancel') }}
     </BaseButton>

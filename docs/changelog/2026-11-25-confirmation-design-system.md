@@ -21,7 +21,7 @@ Les actions irréversibles du parcours devis ne passent plus par la boîte nativ
 
 Le bouton de confirmation reprend le libellé de l'action. Nouvelles clés dans les 9 langues.
 
-Les autres `window.confirm` (administration, organisation, compte, catalogue fournisseur…) restent à migrer vers `useConfirm`.
+Les autres écrans sont migrés à leur tour : voir `2026-11-25-confirmations-partout.md`.
 
 ## Tests
 

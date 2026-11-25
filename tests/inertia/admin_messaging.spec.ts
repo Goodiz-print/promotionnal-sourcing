@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
 import type {
   AdminConversationDetail,
   AdminConversationRow,
@@ -126,31 +127,29 @@ describe('admin/messaging/index', () => {
 describe('admin/messaging/show', () => {
   beforeEach(() => {
     post.mockClear()
-    vi.stubGlobal(
-      'confirm',
-      vi.fn(() => true)
-    )
   })
 
   it('masque un message après confirmation, par un POST Inertia', async () => {
+    const host = await mountConfirmHost()
     const wrapper = mount(MessagingShow, { props: { detail: detail([message()]) } })
 
     const hide = wrapper.findAll('button').find((button) => button.text() === 'Masquer')
     await hide!.trigger('click')
+    expect(host.find('#confirm-dialog-message').text()).toBe('Masquer ?')
+    expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Masquer')
+    await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledTimes(1)
     expect(post.mock.calls[0][0]).toBe('/fr/admin.messaging.hide/10')
   })
 
   it('ne masque rien si la confirmation est refusée', async () => {
-    vi.stubGlobal(
-      'confirm',
-      vi.fn(() => false)
-    )
+    const host = await mountConfirmHost()
     const wrapper = mount(MessagingShow, { props: { detail: detail([message()]) } })
 
     const hide = wrapper.findAll('button').find((button) => button.text() === 'Masquer')
     await hide!.trigger('click')
+    await answerConfirm(host, 'cancel')
 
     expect(post).not.toHaveBeenCalled()
   })

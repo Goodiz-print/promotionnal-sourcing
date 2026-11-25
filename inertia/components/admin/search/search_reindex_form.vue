@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { DatabaseZap } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseSelect from '~/components/base/base_select.vue'
@@ -17,15 +18,19 @@ import type { AdminSearchSupplierOption } from '#shared/types/admin_search'
 defineProps<{ enabled: boolean; busy: boolean; suppliers: AdminSearchSupplierOption[] }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 const supplierId = ref<number | null>(null)
 const sending = ref(false)
 const scope = computed(() => supplierId.value !== null)
 
-function submit() {
-  const confirmation = scope.value
-    ? 'admin.search.reindex.confirmSupplier'
-    : 'admin.search.reindex.confirm'
-  if (!window.confirm(t(confirmation))) return
+async function submit() {
+  const keys = scope.value
+    ? {
+        message: 'admin.search.reindex.confirmSupplier',
+        label: 'admin.search.reindex.submitSupplier',
+      }
+    : { message: 'admin.search.reindex.confirm', label: 'admin.search.reindex.submit' }
+  if (!(await confirm({ message: t(keys.message), confirmLabel: t(keys.label) }))) return
 
   router.post(
     urlFor('admin.search.reindex', { locale: locale.value }),
