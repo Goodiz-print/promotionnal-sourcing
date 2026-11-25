@@ -4,6 +4,7 @@ import { CircleCheck, Download, FileText } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { formatShortDate } from '#shared/helpers/date'
 import { urlFor } from '~/client'
+import { useConfirm } from '~/composables/use_confirm'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
@@ -22,6 +23,7 @@ defineProps<{
 }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 function downloadUrl(document: QuoteDocumentType): string {
   return urlFor('quote_documents.download', { locale: locale.value, id: document.id })
@@ -32,8 +34,13 @@ function formatDate(value: string): string {
   return formatShortDate(value, locale.value)
 }
 
-function select(document: QuoteDocumentType) {
-  if (!window.confirm(t('quote.documents.confirmSelect'))) return
+async function select(document: QuoteDocumentType) {
+  const confirmed = await confirm({
+    title: t('quote.documents.confirmSelectTitle'),
+    message: t('quote.documents.confirmSelect'),
+    confirmLabel: t('quote.documents.select'),
+  })
+  if (!confirmed) return
   router.post(
     urlFor('quote_documents.select', { locale: locale.value, id: document.id }),
     {},

@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { router, useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import BaseFileInput from '~/components/base/base_file_input.vue'
@@ -33,6 +34,7 @@ const props = withDefaults(
 )
 
 const { t } = useI18n()
+const { confirm } = useConfirm()
 
 // Nature portée par `meta` ; le champ posté prend le nom `field` à la soumission
 // (profil fournisseur = `kind`, fiche produit = `type`).
@@ -62,8 +64,13 @@ function submit() {
     })
 }
 
-function remove(document: D) {
-  if (!window.confirm(t('documents.confirmRemove', { name: document.originalName }))) return
+async function remove(document: D) {
+  const confirmed = await confirm({
+    message: t('documents.confirmRemove', { name: document.originalName }),
+    confirmLabel: t('documents.remove'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.delete(props.destroyUrl(document), { preserveScroll: true })
 }
 </script>

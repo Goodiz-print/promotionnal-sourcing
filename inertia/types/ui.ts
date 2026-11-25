@@ -31,3 +31,18 @@ export const BUTTON_SIZE_CLASSES: Record<ButtonSize, string> = {
 
 /** Icône lucide-vue-next : taille par défaut d'un bouton / d'un item de menu. */
 export const ICON_SIZE = 18
+
+/** Tonalité d'une fenêtre de confirmation : `danger` pour une action irréversible. */
+export type ConfirmTone = 'default' | 'danger'
+
+/**
+ * Demande de confirmation (`useConfirm`). Sans `title`, `confirmLabel` ou
+ * `cancelLabel`, la fenêtre affiche les libellés génériques `common.confirmDialog.*`.
+ */
+export interface ConfirmOptions {
+  message: string
+  title?: string
+  confirmLabel?: string
+  cancelLabel?: string
+  tone?: ConfirmTone
+}

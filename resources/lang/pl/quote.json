@@ -151,6 +151,7 @@
     "select": "Wybierz",
     "selected": "Wybrana",
     "confirmSelect": "Wybranie tej oferty zamyka zapytanie. Dalsze kroki (zamówienie, fakturowanie) odbywają się bezpośrednio z dostawcą. Kontynuować?",
+    "confirmSelectTitle": "Wybrać tę ofertę?",
     "flash": {
       "selected": "Oferta wybrana: zapytanie zostało zamknięte."
     },

@@ -2,6 +2,7 @@
 import { router } from '@inertiajs/vue3'
 import { Archive, LogOut } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseDangerZone from '~/components/base/base_danger_zone.vue'
@@ -9,20 +10,27 @@ import BaseDangerZone from '~/components/base/base_danger_zone.vue'
 const props = defineProps<{ organizationName: string; canLeave: boolean }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
-/**
- * `window.confirm` : c'est le pattern du projet pour les actions destructives
- * (retrait d'un membre, révocation d'invitation), aucun composant de modale
- * générique n'existe.
- */
-function leave() {
-  if (!window.confirm(t('organization.leave.confirm'))) return
+/** Quitter et archiver sont destructifs : confirmation `danger` (`useConfirm`). */
+async function leave() {
+  const confirmed = await confirm({
+    message: t('organization.leave.confirm'),
+    confirmLabel: t('organization.leave.submit'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
 
   router.delete(urlFor('organization.leave', { locale: locale.value }), { preserveScroll: true })
 }
 
-function archive() {
-  if (!window.confirm(t('organization.archive.confirm', { name: props.organizationName }))) return
+async function archive() {
+  const confirmed = await confirm({
+    message: t('organization.archive.confirm', { name: props.organizationName }),
+    confirmLabel: t('organization.archive.submit'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
 
   router.post(
     urlFor('organization.archive', { locale: locale.value }),

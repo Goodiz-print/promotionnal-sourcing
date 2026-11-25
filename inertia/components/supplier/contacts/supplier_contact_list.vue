@@ -4,6 +4,7 @@ import { router } from '@inertiajs/vue3'
 import { ArrowDown, ArrowUp, Pencil, Trash2, UserRound } from 'lucide-vue-next'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import BaseIconButton from '~/components/base/base_icon_button.vue'
 import SupplierContactForm from '~/components/supplier/contacts/supplier_contact_form.vue'
 import SupplierContactSummary from '~/components/supplier/contacts/supplier_contact_summary.vue'
@@ -23,6 +24,7 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 const editingId = ref<number | null>(null)
 
@@ -40,8 +42,13 @@ function move(contact: SupplierContactType, direction: SupplierContactMove) {
   )
 }
 
-function remove(contact: SupplierContactType) {
-  if (!window.confirm(t('supplier.contacts.confirmDelete', { name: contact.name }))) return
+async function remove(contact: SupplierContactType) {
+  const confirmed = await confirm({
+    message: t('supplier.contacts.confirmDelete', { name: contact.name }),
+    confirmLabel: t('supplier.contacts.delete'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.delete(urlFor('supplier.contacts.destroy', { locale: locale.value, id: contact.id }), {
     preserveScroll: true,
   })

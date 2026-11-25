@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import BaseAvatar from '~/components/base/base_avatar.vue'
 import BaseBadge from '~/components/base/base_badge.vue'
@@ -18,6 +19,7 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 /** Initiales de l'avatar : deux premières du nom, sinon le début de l'e-mail. */
 function initials(member: OrganizationMemberType): string {
@@ -37,8 +39,13 @@ function changeRole(member: OrganizationMemberType, roleId: string) {
   )
 }
 
-function removeMember(member: OrganizationMemberType) {
-  if (!window.confirm(t('organization.members.confirmRemove'))) return
+async function removeMember(member: OrganizationMemberType) {
+  const confirmed = await confirm({
+    message: t('organization.members.confirmRemove'),
+    confirmLabel: t('organization.members.remove'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.delete(urlFor('organization.members.destroy', { locale: locale.value, id: member.id }), {
     preserveScroll: true,
   })

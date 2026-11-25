@@ -151,6 +151,7 @@
     "select": "Scegli",
     "selected": "Scelto",
     "confirmSelect": "Scegliere questo preventivo chiude la richiesta. I passi successivi (ordine, fatturazione) avvengono direttamente con il fornitore. Continuare?",
+    "confirmSelectTitle": "Scegliere questo preventivo?",
     "flash": {
       "selected": "Preventivo scelto: la richiesta è chiusa."
     },

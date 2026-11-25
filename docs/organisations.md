@@ -247,8 +247,8 @@ redirection, jamais rendue en page d'erreur générique).
   (retour typé `RoleType`, `slug` casté en `RoleSlug`).
 - **Écran** `inertia/pages/organization/members.vue` : tableau + `<select>`
   de rôle par ligne (mutation ponctuelle `router.patch`, `preserveScroll`,
-  premier usage de ce pattern dans le projet) + retrait (`window.confirm` +
-  `router.delete`, repris de `admin/categories/index.vue`). Nouveau composant
+  premier usage de ce pattern dans le projet) + retrait (`useConfirm` en
+  `danger` + `router.delete`, repris de `admin/categories/index.vue`). Nouveau composant
   partagé `inertia/components/organization/section_nav.vue` (onglets
   Paramètres/Membres) sur `organization/{settings,members}.vue`.
 - **Tests** `tests/functional/organization_members.spec.ts` (seed direct
@@ -348,7 +348,7 @@ invitations, sans en créer une seconde ni ressaisir l'email.
   d'existence), pas un 403.
 - **Écran** : bouton « Renvoyer » par ligne dans
   `inertia/components/organization/members/pending_invitations.vue`
-  (`router.post`, `preserveScroll`, **sans** `window.confirm` — l'action est
+  (`router.post`, `preserveScroll`, **sans** confirmation — l'action est
   sans effet destructif, contrairement à la révocation). i18n
   `organization.invitations.{resend,resent,notPending}`.
 - **Tests** : `tests/functional/organization_invitations.spec.ts` (+4 —
@@ -579,8 +579,8 @@ middleware `onboarded`.
 
 `inertia/components/organization/settings/danger_zone.vue`, en bas de
 `inertia/pages/organization/settings.vue` — composant extrait pour tenir sous les
-250 lignes. `window.confirm` (pattern du projet pour les actions destructives,
-aucun composant de modale générique n'existe) et nouveau variant **`danger`** de
+250 lignes. Confirmation `useConfirm` en `danger` (fenêtre du design system,
+#291) et nouveau variant **`danger`** de
 `base_button`, basé sur les tokens `--state-danger` / `--state-danger-bg`.
 
 > ⚠️ **Limite connue** — l'écran des paramètres est réservé aux owner/admin

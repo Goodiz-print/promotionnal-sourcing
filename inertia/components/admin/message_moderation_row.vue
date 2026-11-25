@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { Eye, EyeOff, Flag, TriangleAlert } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import { useTradeFormat } from '~/composables/use_trade_format'
 import BaseBadge from '~/components/base/base_badge.vue'
@@ -18,6 +19,7 @@ import type { AdminMessageRow } from '#shared/types/admin_messaging'
 const props = defineProps<{ message: AdminMessageRow }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 const { dateTime } = useTradeFormat()
 
 /** Une décision à la fois : pendant la requête, tous les boutons sont désactivés. */
@@ -25,8 +27,15 @@ const processing = ref(false)
 
 const hasOpenReport = () => props.message.reports.some((report) => report.status === 'open')
 
-function post(route: string, id: number, confirmKey?: string) {
-  if (confirmKey && !window.confirm(t(confirmKey))) return
+/** `confirmAction` nomme le message (`admin.messaging.confirm.*`) et le bouton (`actions.*`). */
+async function post(route: string, id: number, confirmAction?: 'hide' | 'warn') {
+  const confirmed =
+    !confirmAction ||
+    (await confirm({
+      message: t(`admin.messaging.confirm.${confirmAction}`),
+      confirmLabel: t(`admin.messaging.actions.${confirmAction}`),
+    }))
+  if (!confirmed) return
   router.post(
     urlFor(route as 'admin.messaging.hide', { locale: locale.value, id }),
     {},
@@ -90,7 +99,7 @@ function post(route: string, id: number, confirmKey?: string) {
         size="sm"
         variant="secondary"
         :disabled="processing"
-        @click="post('admin.messaging.hide', message.id, 'admin.messaging.confirm.hide')"
+        @click="post('admin.messaging.hide', message.id, 'hide')"
       >
         <template #icon><EyeOff :size="ICON_SIZE" aria-hidden="true" /></template>
         {{ t('admin.messaging.actions.hide') }}
@@ -110,7 +119,7 @@ function post(route: string, id: number, confirmKey?: string) {
         size="sm"
         variant="secondary"
         :disabled="processing"
-        @click="post('admin.messaging.warn', message.id, 'admin.messaging.confirm.warn')"
+        @click="post('admin.messaging.warn', message.id, 'warn')"
       >
         <template #icon><TriangleAlert :size="ICON_SIZE" aria-hidden="true" /></template>
         {{ t('admin.messaging.actions.warn') }}

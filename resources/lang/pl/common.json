@@ -44,5 +44,10 @@
     "label": "Język",
     "fr": "Français",
     "en": "English"
+  },
+  "confirmDialog": {
+    "title": "Potwierdzić działanie?",
+    "confirm": "Potwierdź",
+    "cancel": "Anuluj"
   }
 }

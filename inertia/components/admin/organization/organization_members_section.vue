@@ -40,10 +40,11 @@ const displayName = (member: AdminOrganizationMember) => member.fullName || memb
 const formatDate = (value: string) => new Date(value).toLocaleDateString(locale.value)
 
 function remove(member: AdminOrganizationMember) {
-  removeMember(
-    member.membershipId,
-    t('admin.organizations.detail.member.removeConfirm', { name: displayName(member) })
-  )
+  removeMember(member.membershipId, {
+    message: t('admin.organizations.detail.member.removeConfirm', { name: displayName(member) }),
+    confirmLabel: t('admin.organizations.detail.member.remove'),
+    tone: 'danger',
+  })
 }
 </script>
 

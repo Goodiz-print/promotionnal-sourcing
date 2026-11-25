@@ -4,6 +4,7 @@ import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { Image as ImageIcon, Package, Plus, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
@@ -16,6 +17,7 @@ import type { ProductType } from '#shared/types/product'
 defineProps<{ products: ProductType[] }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 const createUrl = computed(() => urlFor('supplier.products.create', { locale: locale.value }))
 
@@ -42,8 +44,13 @@ function formatPrice(product: ProductType): string {
   return single ? format(single) : ''
 }
 
-function destroy(product: ProductType) {
-  if (!window.confirm(t('products.manage.confirmDelete'))) return
+async function destroy(product: ProductType) {
+  const confirmed = await confirm({
+    message: t('products.manage.confirmDelete'),
+    confirmLabel: t('products.manage.delete'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.delete(urlFor('supplier.products.destroy', { locale: locale.value, id: product.id }), {
     preserveScroll: true,
   })

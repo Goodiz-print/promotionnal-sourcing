@@ -8,6 +8,7 @@ import type { Data } from '@generated/data'
 import { useI18n } from '~/i18n'
 import GradientMesh from '~/components/marketing/gradient_mesh.vue'
 import LanguageSwitcher from '~/components/language_switcher.vue'
+import ConfirmDialogHost from '~/components/app/confirm_dialog_host.vue'
 
 /**
  * Layout « focalisé » (connexion, inscription, onboarding, invitations) : une
@@ -67,4 +68,5 @@ watch(
     </main>
   </div>
   <Toaster position="top-center" rich-colors />
+  <ConfirmDialogHost />
 </template>

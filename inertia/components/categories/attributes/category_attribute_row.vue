@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { SlidersHorizontal, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import BaseCheckbox from '~/components/base/base_checkbox.vue'
 import BaseIconButton from '~/components/base/base_icon_button.vue'
@@ -18,6 +19,7 @@ import type { CategoryAttributeEditType } from '#shared/types/category'
 const props = defineProps<{ categoryId: number; attribute: CategoryAttributeEditType }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 const editingRanges = ref(false)
 
@@ -46,8 +48,13 @@ function onPosition(event: Event) {
   }
 }
 
-function remove() {
-  if (!window.confirm(t('categories.attributes.confirmRemove'))) return
+async function remove() {
+  const confirmed = await confirm({
+    message: t('categories.attributes.confirmRemove'),
+    confirmLabel: t('categories.attributes.remove'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.delete(
     urlFor('admin.categories.attributes.destroy', {
       locale: locale.value,

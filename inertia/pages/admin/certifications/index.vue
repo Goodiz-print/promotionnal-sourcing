@@ -4,6 +4,7 @@ import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { BadgeCheck, Plus, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
@@ -16,11 +17,17 @@ import type { CertificationAdminType } from '#shared/types/certification'
 defineProps<{ certifications: CertificationAdminType[] }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 const createUrl = computed(() => urlFor('admin.certifications.create', { locale: locale.value }))
 
-function destroy(certification: CertificationAdminType) {
-  if (!window.confirm(t('certifications.confirmDelete'))) return
+async function destroy(certification: CertificationAdminType) {
+  const confirmed = await confirm({
+    message: t('certifications.confirmDelete'),
+    confirmLabel: t('certifications.delete'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.delete(
     urlFor('admin.certifications.destroy', { locale: locale.value, id: certification.id }),
     { preserveScroll: true }

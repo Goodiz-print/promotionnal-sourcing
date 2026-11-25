@@ -2,6 +2,7 @@
 import { router } from '@inertiajs/vue3'
 import { urlFor } from '~/client'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import BaseButton from '~/components/base/base_button.vue'
 import { actionRoute } from '~/components/orders/types'
 import type { OrderAction, OrderSide, OrderType } from '#shared/types/order'
@@ -14,10 +15,17 @@ import type { OrderAction, OrderSide, OrderType } from '#shared/types/order'
 const props = defineProps<{ order: OrderType; side: OrderSide }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
-function run(action: OrderAction) {
+async function run(action: OrderAction) {
   const route = actionRoute(props.side, action)
-  if (!route || !window.confirm(t(`order.confirm.${action}`))) return
+  if (!route) return
+  const confirmed = await confirm({
+    message: t(`order.confirm.${action}`),
+    confirmLabel: t(`order.actions.${action}`),
+    tone: action === 'cancel' ? 'danger' : 'default',
+  })
+  if (!confirmed) return
   router.patch(
     urlFor(route, { locale: locale.value, id: props.order.id }),
     {},

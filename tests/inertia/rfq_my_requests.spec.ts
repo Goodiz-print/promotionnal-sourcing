@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
 import type { QuoteDocumentType } from '#shared/types/quote'
 import type { RfqBatchGroupType, RfqListItemType } from '#shared/types/rfq'
 
@@ -19,6 +20,7 @@ const translations = {
   'quote.documents.select': 'Retenir',
   'quote.documents.selected': 'Retenu',
   'quote.documents.confirmSelect': 'Retenir ce devis clôture la demande.',
+  'quote.documents.confirmSelectTitle': 'Retenir ce devis ?',
 }
 
 vi.mock('@inertiajs/vue3', async () => {
@@ -185,8 +187,8 @@ describe('rfq_quote_documents.vue (#228)', () => {
     expect(wrapper.text()).not.toContain('Retenir')
   })
 
-  it('un responsable retient un devis après confirmation', async () => {
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
+  it('« Retenir » ouvre la confirmation du design system, puis envoie la visite', async () => {
+    const host = await mountConfirmHost()
     const wrapper = mount(RfqQuoteDocuments, {
       props: { documents: [document()], canSelect: true },
     })
@@ -195,6 +197,14 @@ describe('rfq_quote_documents.vue (#228)', () => {
       .findAll('button')
       .find((b) => b.text() === 'Retenir')!
       .trigger('click')
+
+    expect(host.find('[data-confirm-dialog="title"]').text()).toBe('Retenir ce devis ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe(
+      'Retenir ce devis clôture la demande.'
+    )
+    expect(router.post).not.toHaveBeenCalled()
+
+    await answerConfirm(host, 'confirm')
 
     expect(router.post).toHaveBeenCalledWith(
       '/quote_documents.select/7',
@@ -203,8 +213,8 @@ describe('rfq_quote_documents.vue (#228)', () => {
     )
   })
 
-  it('sans confirmation, rien n’est envoyé', async () => {
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(false))
+  it('annuler la confirmation n’envoie rien', async () => {
+    const host = await mountConfirmHost()
     const wrapper = mount(RfqQuoteDocuments, {
       props: { documents: [document()], canSelect: true },
     })
@@ -213,6 +223,7 @@ describe('rfq_quote_documents.vue (#228)', () => {
       .findAll('button')
       .find((b) => b.text() === 'Retenir')!
       .trigger('click')
+    await answerConfirm(host, 'cancel')
 
     expect(router.post).not.toHaveBeenCalled()
   })

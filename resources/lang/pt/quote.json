@@ -151,6 +151,7 @@
     "select": "Escolher",
     "selected": "Escolhido",
     "confirmSelect": "Escolher este orçamento encerra o pedido. Os passos seguintes (nota de encomenda, faturação) fazem-se diretamente com o fornecedor. Continuar?",
+    "confirmSelectTitle": "Selecionar este orçamento?",
     "flash": {
       "selected": "Orçamento escolhido: o pedido está encerrado."
     },

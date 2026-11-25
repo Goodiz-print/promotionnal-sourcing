@@ -1,5 +1,7 @@
-import { describe, it, expect, vi } from 'vitest'
+import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { answerConfirm, mountConfirmHost } from './support/confirm_dialog'
+import type { QuoteType } from '#shared/types/quote'
 import type { BuyerContactType, SupplierRfqDetailType, SupplierRfqType } from '#shared/types/rfq'
 
 const formPost = vi.hoisted(() => vi.fn())
@@ -66,6 +68,10 @@ const translations = {
   'rfq.supplier.show.contact.address': 'Adresse',
   'rfq.supplier.show.responseOpen': 'Chiffrez ce besoin.',
   'rfq.supplier.show.responseDocument': 'Vous avez envoyé un devis PDF pour cette demande.',
+  'quote.form.submit': 'Remettre le devis',
+  'quote.form.delete': 'Supprimer le brouillon',
+  'quote.form.confirmSubmit': 'Remettre ce devis ?',
+  'quote.form.confirmDelete': 'Supprimer ce brouillon de devis ?',
 }
 
 vi.mock('@inertiajs/vue3', async () => {
@@ -73,7 +79,7 @@ vi.mock('@inertiajs/vue3', async () => {
   return {
     usePage: () => m.inertiaPage(translations),
     useForm: m.makeUseForm({ post: formPost }),
-    router: { post: vi.fn(), get: vi.fn() },
+    router: { post: vi.fn(), get: vi.fn(), delete: vi.fn() },
     Head: m.HeadStub,
   }
 })
@@ -87,6 +93,7 @@ vi.mock('@adonisjs/inertia/vue', async () => {
 
 const { default: SupplierRfqsIndex } = await import('~/pages/supplier/rfqs/index.vue')
 const { default: SupplierRfqShow } = await import('~/pages/supplier/rfqs/show.vue')
+const { default: QuoteForm } = await import('~/components/quotes/quote_form.vue')
 const { router } = await import('@inertiajs/vue3')
 
 function rfq(overrides: Partial<SupplierRfqType> = {}): SupplierRfqType {
@@ -362,22 +369,18 @@ describe('supplier/rfqs/show.vue', () => {
   })
 
   it('demande confirmation avant de décliner', async () => {
-    // `window.confirm` n'existe pas dans l'environnement de test : on le pose
-    // plutôt que de l'espionner.
-    const confirm = vi.fn().mockReturnValue(false)
-    vi.stubGlobal('confirm', confirm)
+    const host = await mountConfirmHost()
     const wrapper = mount(SupplierRfqShow, { props: { ...open, rfq: detail() } })
     const button = wrapper.findAll('button').find((b) => b.text() === 'Décliner la demande')!
 
     await button.trigger('click')
-    expect(confirm).toHaveBeenCalled()
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Décliner cette demande ?')
+    await answerConfirm(host, 'cancel')
     expect(router.post).not.toHaveBeenCalled()
 
-    confirm.mockReturnValue(true)
     await button.trigger('click')
+    await answerConfirm(host, 'confirm')
     expect(router.post).toHaveBeenCalled()
-
-    vi.unstubAllGlobals()
   })
 })
 
@@ -504,5 +507,64 @@ describe('« Demandes reçues » : statuts, filtres et devis envoyé (#230)', ()
       'supplier.quote_documents.store:1',
       expect.objectContaining({ forceFormData: true, preserveScroll: true })
     )
+  })
+})
+
+describe('quotes/quote_form.vue : confirmations (#291)', () => {
+  const draft: QuoteType = {
+    id: 5,
+    rfqId: 1,
+    rfqTitle: 'Tote bags coton bio',
+    status: 'draft',
+    supplierOrganizationId: 3,
+    supplierName: 'Textiles SA',
+    validUntil: null,
+    notes: null,
+    totalAmount: 1000,
+    currency: 'EUR',
+    submittedAt: null,
+    decidedAt: null,
+    leadTimeDays: 20,
+    items: [],
+  }
+
+  beforeEach(() => {
+    vi.mocked(router.post).mockClear()
+    vi.mocked(router.delete).mockClear()
+  })
+
+  function clickAction(wrapper: ReturnType<typeof mount>, label: string) {
+    return wrapper
+      .findAll('button')
+      .find((button) => button.text() === label)!
+      .trigger('click')
+  }
+
+  it('remettre le devis attend la confirmation', async () => {
+    const host = await mountConfirmHost()
+    const wrapper = mount(QuoteForm, { props: { rfq: detail(), quote: draft } })
+
+    await clickAction(wrapper, 'Remettre le devis')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Remettre ce devis ?')
+    await answerConfirm(host, 'cancel')
+    expect(router.post).not.toHaveBeenCalled()
+
+    await clickAction(wrapper, 'Remettre le devis')
+    await answerConfirm(host, 'confirm')
+    expect(router.post).toHaveBeenCalledWith('supplier.quotes.submit:5', {}, expect.anything())
+  })
+
+  it('supprimer le brouillon passe par une fenêtre « danger »', async () => {
+    const host = await mountConfirmHost()
+    const wrapper = mount(QuoteForm, { props: { rfq: detail(), quote: draft } })
+
+    await clickAction(wrapper, 'Supprimer le brouillon')
+    expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
+    await answerConfirm(host, 'cancel')
+    expect(router.delete).not.toHaveBeenCalled()
+
+    await clickAction(wrapper, 'Supprimer le brouillon')
+    await answerConfirm(host, 'confirm')
+    expect(router.delete).toHaveBeenCalledWith('supplier.quotes.destroy:5')
   })
 })

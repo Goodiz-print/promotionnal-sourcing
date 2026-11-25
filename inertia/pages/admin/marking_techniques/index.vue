@@ -4,6 +4,7 @@ import { Head, router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import { Brush, Plus, Trash2 } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import BaseIconButton from '~/components/base/base_icon_button.vue'
@@ -15,13 +16,19 @@ import type { MarkingTechniqueAdminType } from '#shared/types/marking'
 defineProps<{ techniques: MarkingTechniqueAdminType[] }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 const createUrl = computed(() =>
   urlFor('admin.marking_techniques.create', { locale: locale.value })
 )
 
-function destroy(technique: MarkingTechniqueAdminType) {
-  if (!window.confirm(t('markingTechniques.confirmDelete'))) return
+async function destroy(technique: MarkingTechniqueAdminType) {
+  const confirmed = await confirm({
+    message: t('markingTechniques.confirmDelete'),
+    confirmLabel: t('markingTechniques.delete'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
   router.delete(
     urlFor('admin.marking_techniques.destroy', { locale: locale.value, id: technique.id }),
     { preserveScroll: true }

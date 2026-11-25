@@ -4,6 +4,7 @@ import { Head, router } from '@inertiajs/vue3'
 import { CalendarDays, Check, PackageCheck, X } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import { urlFor } from '~/client'
+import { useConfirm } from '~/composables/use_confirm'
 import BaseBadge from '~/components/base/base_badge.vue'
 import BaseButton from '~/components/base/base_button.vue'
 import BaseLinkButton from '~/components/base/base_link_button.vue'
@@ -20,6 +21,7 @@ import type { QuoteType } from '#shared/types/quote'
 const props = defineProps<{ quote: QuoteType; canDecide: boolean; orderId?: number }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 const rfqUrl = computed(() => urlFor('rfqs.show', { locale: locale.value, id: props.quote.rfqId }))
 
@@ -27,8 +29,13 @@ const orderUrl = computed(() =>
   props.orderId ? urlFor('orders.show', { locale: locale.value, id: props.orderId }) : ''
 )
 
-function decide(decision: 'accept' | 'reject') {
-  if (!window.confirm(t(`quote.show.confirm.${decision}`))) return
+async function decide(decision: 'accept' | 'reject') {
+  const confirmed = await confirm({
+    message: t(`quote.show.confirm.${decision}`),
+    confirmLabel: t(`quote.show.${decision}`),
+    tone: decision === 'reject' ? 'danger' : 'default',
+  })
+  if (!confirmed) return
   router.patch(
     urlFor(decision === 'accept' ? 'quotes.accept' : 'quotes.reject', {
       locale: locale.value,

@@ -44,5 +44,10 @@
     "label": "Sprache",
     "fr": "Français",
     "en": "English"
+  },
+  "confirmDialog": {
+    "title": "Aktion bestätigen?",
+    "confirm": "Bestätigen",
+    "cancel": "Abbrechen"
   }
 }

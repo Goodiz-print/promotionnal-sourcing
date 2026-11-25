@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
 import { useI18n } from '~/i18n'
+import { useConfirm } from '~/composables/use_confirm'
 import { urlFor } from '~/client'
 import BaseAlert from '~/components/base/base_alert.vue'
 import BaseButton from '~/components/base/base_button.vue'
@@ -10,15 +11,18 @@ import BaseInput from '~/components/base/base_input.vue'
 defineProps<{ blockingOrganizations: string[] }>()
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 
 const form = useForm({ currentPassword: '' })
 
-/**
- * `window.confirm` : pattern du projet pour les actions destructives (cf. la
- * zone de danger de l'organisation).
- */
-function destroy() {
-  if (!window.confirm(t('account.danger.confirm'))) return
+/** Suppression définitive du compte : confirmation `danger` (`useConfirm`). */
+async function destroy() {
+  const confirmed = await confirm({
+    message: t('account.danger.confirm'),
+    confirmLabel: t('account.danger.submit'),
+    tone: 'danger',
+  })
+  if (!confirmed) return
 
   form.delete(urlFor('account.destroy', { locale: locale.value }), { preserveScroll: true })
 }

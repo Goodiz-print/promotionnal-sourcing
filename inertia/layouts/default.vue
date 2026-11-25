@@ -5,6 +5,7 @@ import { toast, Toaster } from 'vue-sonner'
 import type { Data } from '@generated/data'
 import AppSidebar from '~/components/app/app_sidebar.vue'
 import AppTopbar from '~/components/app/app_topbar.vue'
+import ConfirmDialogHost from '~/components/app/confirm_dialog_host.vue'
 import { useSidebarCollapsed } from '~/composables/use_sidebar_collapsed'
 import { useSidebarPeek } from '~/composables/use_sidebar_peek'
 
@@ -81,4 +82,5 @@ watch(
   </div>
 
   <Toaster position="top-center" rich-colors />
+  <ConfirmDialogHost />
 </template>
