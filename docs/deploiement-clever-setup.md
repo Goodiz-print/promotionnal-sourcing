@@ -6,7 +6,7 @@
 
 ## 1. Organisation et accès (manuel)
 
-1. Tout vit dans l'organisation Clever Cloud « Promotionnal sourcing » (`CLEVER_ORG` dans `scripts/deploy/environments/*.env`). La créer dans la console si elle n'existe pas : le script ne le fait pas.
+1. Tout vit dans l'organisation Clever Cloud « Promotional Sourcing » (`CLEVER_ORG` dans `scripts/deploy/environments/*.env`). La créer dans la console si elle n'existe pas : le script ne le fait pas.
 2. Créer un utilisateur Clever de CI, membre de cette organisation. Se connecter avec lui (`clever login`) et relever `token` et `secret` dans `~/.config/clever-cloud/clever-tools.json`.
 3. Créer un jeton GitHub `read:packages` (compte de service de préférence) : il permet aux applications Clever de tirer l'image sur GHCR.
 

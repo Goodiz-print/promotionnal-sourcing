@@ -11,7 +11,7 @@
 | Production    | Docker XS ×2 (web), Docker XS (worker) | PostgreSQL S Big Space | Bucket prod               | À choisir (ADR 0004)               | Tag `vX.Y.Z` + approbation manuelle |
 | Review        | Un conteneur web + worker par PR       | Base jetable           | Bucket review partagé     | Absent (recherche PostgreSQL)      | Label `review` (livraison à venir)  |
 
-Tous les environnements vivent dans la même organisation Clever, « Promotionnal sourcing » ; les ressources se distinguent par leur préfixe (`ps-staging-…`, `ps-prod-…`). Les paramètres de chaque environnement (tailles, plans, domaine) sont dans `scripts/deploy/environments/`.
+Tous les environnements vivent dans la même organisation Clever, « Promotional Sourcing » ; les ressources se distinguent par leur préfixe (`ps-staging-…`, `ps-prod-…`). Les paramètres de chaque environnement (tailles, plans, domaine) sont dans `scripts/deploy/environments/`.
 
 ## Règles
 
