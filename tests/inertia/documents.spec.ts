@@ -112,7 +112,7 @@ describe('documents/document_manager', () => {
       .findAll('button')
       .find((b) => b.text() === 'Retirer')!
       .trigger('click')
-    expect(host.find('#confirm-dialog-message').text()).toContain('Retirer « ')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toContain('Retirer « ')
     await answerConfirm(host, 'confirm')
 
     expect(destroy).toHaveBeenCalledWith('/fr/supplier/profile/documents/7', {

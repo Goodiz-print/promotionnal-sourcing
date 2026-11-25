@@ -199,7 +199,7 @@ describe('admin/rfqs/show', () => {
 
     await wrapper.findAll('button')[2].trigger('click')
 
-    expect(host.find('#confirm-dialog-message').text()).toBe('Clôturer ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Clôturer ?')
     expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Clôturer')
     expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
     expect(post).not.toHaveBeenCalled()

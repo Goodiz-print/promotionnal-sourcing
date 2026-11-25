@@ -80,7 +80,7 @@ describe('order_actions.vue', () => {
     const wrapper = mount(OrderActions, { props: { order: order(['confirm']), side: 'supplier' } })
 
     await wrapper.find('button').trigger('click')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Confirmer ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Confirmer ?')
     expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Confirmer la commande')
     await answerConfirm(host, 'confirm')
 

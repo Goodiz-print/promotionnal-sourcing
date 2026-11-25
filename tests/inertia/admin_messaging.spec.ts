@@ -135,7 +135,7 @@ describe('admin/messaging/show', () => {
 
     const hide = wrapper.findAll('button').find((button) => button.text() === 'Masquer')
     await hide!.trigger('click')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Masquer ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Masquer ?')
     expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Masquer')
     await answerConfirm(host, 'confirm')
 

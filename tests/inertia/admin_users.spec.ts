@@ -361,7 +361,7 @@ describe('admin/users/show', () => {
       .findAll('button')
       .find((b) => b.text() === 'Suspendre')!
       .trigger('click')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Suspendre ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Suspendre ?')
     expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Suspendre')
     await answerConfirm(host, 'confirm')
 
@@ -380,7 +380,7 @@ describe('admin/users/show', () => {
       .findAll('button')
       .find((b) => b.text() === 'Supprimer le compte')!
       .trigger('click')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Supprimer ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Supprimer ?')
     expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
     await answerConfirm(host, 'confirm')
 

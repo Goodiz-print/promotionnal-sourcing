@@ -85,7 +85,7 @@ describe('account/passkeys_section', () => {
 
     const remove = wrapper.findAll('button').find((b) => b.text() === 'Supprimer')!
     await remove.trigger('click')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Supprimer « MacBook » ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Supprimer « MacBook » ?')
     await answerConfirm(host, 'confirm')
 
     expect(destroy).toHaveBeenCalledWith('/fr/account.passkeys.destroy/7', { preserveScroll: true })

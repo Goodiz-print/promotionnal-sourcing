@@ -524,7 +524,7 @@ describe('admin/organizations/show', () => {
 
     await wrapper.findAll('button[aria-label="Retirer"]')[1].trigger('click')
 
-    expect(host.find('#confirm-dialog-message').text()).toBe('Retirer jane@acme.test ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Retirer jane@acme.test ?')
     await answerConfirm(host, 'confirm')
     expect(del).toHaveBeenCalledWith(
       '/fr/admin.organizations.remove_member/5/102',

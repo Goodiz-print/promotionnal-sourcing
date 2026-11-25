@@ -101,7 +101,7 @@ describe('account/danger_zone', () => {
     const wrapper = mount(DangerZone, { props: { blockingOrganizations: [] } })
 
     await wrapper.find('form').trigger('submit')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Supprimer ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Supprimer ?')
     expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
     await answerConfirm(host, 'confirm')
     expect(destroy).toHaveBeenCalledWith('/fr/account.destroy', { preserveScroll: true })
