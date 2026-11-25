@@ -107,6 +107,12 @@ export interface InboundAttachmentDescriptor {
   inline: boolean
 }
 
+/** Pièce jointe lue sur le disque par `inbound-mail:simulate` (développement). */
+export interface SimulatedInboundAttachment {
+  filename: string
+  content: Buffer
+}
+
 /** Contenu d'un mail reçu, lu par le worker auprès du prestataire. */
 export interface InboundMailContent {
   text: string | null

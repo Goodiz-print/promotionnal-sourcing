@@ -545,7 +545,7 @@ node ace inbound-mail:simulate rfq-<jeton>@reply.localhost \
   --from="Jean <jean@fournisseur.test>" --attachment=devis.pdf
 ```
 
-`--auto-reply` simule un message d'absence. Pour que les mails de demande portent un `Reply-To` en local, renseigner les quatre variables (des valeurs factices suffisent pour le domaine et les clés).
+`--auto-reply` simule un message d'absence. Les écouteurs (devis, transmission à l'agence, relais) tournent dans le processus de la commande : comme `queue:work`, elle fige les routes (`router.commit()`) pour que les liens des mails se construisent. Une adresse `agency-<jeton>@…` simule une réponse de l'agence (#226). Pour que les mails de demande portent un `Reply-To` en local, renseigner les quatre variables (des valeurs factices suffisent pour le domaine et les clés).
 
 ### Tests
 

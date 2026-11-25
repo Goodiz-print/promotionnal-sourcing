@@ -180,7 +180,39 @@ describe('quote_cart/show.vue', () => {
     expect(router.patch).toHaveBeenCalledWith(
       '/fr/quote_cart.items.update/1',
       { quantity: 300 },
-      { preserveScroll: true, preserveState: true, only: ['groups'] }
+      { preserveScroll: true, preserveState: true, only: ['groups'], async: true }
+    )
+  })
+
+  it('enregistre ensemble la quantité et la note saisies dans la même pause', async () => {
+    vi.useFakeTimers()
+    const wrapper = mount(Show, { props: { groups, canSend: true } })
+
+    await wrapper.find('#quote-cart-quantity-1').setValue('500')
+    await wrapper.find('#quote-cart-note-1').setValue('Logo 2 couleurs')
+    vi.runAllTimers()
+
+    expect(router.patch).toHaveBeenCalledTimes(1)
+    expect(router.patch).toHaveBeenCalledWith(
+      '/fr/quote_cart.items.update/1',
+      { quantity: 500, note: 'Logo 2 couleurs' },
+      { preserveScroll: true, preserveState: true, only: ['groups'], async: true }
+    )
+  })
+
+  it("emporte la saisie en attente avec un choix d'option", async () => {
+    vi.useFakeTimers()
+    const wrapper = mount(Show, { props: { groups, canSend: true } })
+
+    await wrapper.find('#quote-cart-quantity-1').setValue('400')
+    await wrapper.find('#quote-cart-variant-1').setValue('12')
+    vi.runAllTimers()
+
+    expect(router.patch).toHaveBeenCalledTimes(1)
+    expect(router.patch).toHaveBeenCalledWith(
+      '/fr/quote_cart.items.update/1',
+      { quantity: 400, variantId: 12 },
+      { preserveScroll: true, preserveState: true, only: ['groups'], async: true }
     )
   })
 
@@ -208,7 +240,7 @@ describe('quote_cart/show.vue', () => {
     expect(router.patch).toHaveBeenCalledWith(
       '/fr/quote_cart.items.update/1',
       { variantId: 12 },
-      { preserveScroll: true, preserveState: true, only: ['groups'] }
+      { preserveScroll: true, preserveState: true, only: ['groups'], async: true }
     )
   })
 
@@ -220,7 +252,7 @@ describe('quote_cart/show.vue', () => {
     expect(router.patch).toHaveBeenCalledWith(
       '/fr/quote_cart.items.update/1',
       { markingPositionTechniqueId: 21, markingColors: null },
-      { preserveScroll: true, preserveState: true, only: ['groups'] }
+      { preserveScroll: true, preserveState: true, only: ['groups'], async: true }
     )
     expect(wrapper.find('#quote-cart-colors-1').exists()).toBe(true)
     expect(wrapper.text()).toContain('4 couleurs max.')
@@ -231,7 +263,7 @@ describe('quote_cart/show.vue', () => {
     expect(router.patch).toHaveBeenLastCalledWith(
       '/fr/quote_cart.items.update/1',
       { markingColors: 2 },
-      { preserveScroll: true, preserveState: true, only: ['groups'] }
+      { preserveScroll: true, preserveState: true, only: ['groups'], async: true }
     )
   })
 

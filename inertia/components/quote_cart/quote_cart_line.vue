@@ -9,6 +9,7 @@ import BaseIconButton from '~/components/base/base_icon_button.vue'
 import BaseInput from '~/components/base/base_input.vue'
 import QuoteCartLineEstimate from '~/components/quote_cart/quote_cart_line_estimate.vue'
 import QuoteCartLineOptions from '~/components/quote_cart/quote_cart_line_options.vue'
+import { useQuoteCartLineSave } from '~/composables/use_quote_cart_line_save'
 import type { QuoteCartItemType, UpdateQuoteCartItemData } from '#shared/types/quote_cart'
 
 /**
@@ -22,12 +23,8 @@ const props = defineProps<{ item: QuoteCartItemType }>()
 
 const { t, locale } = useI18n()
 
-/** Pause de saisie avant l'enregistrement. */
-const SAVE_DELAY_MS = 600
-
 const quantity = ref<number | null>(props.item.quantity)
 const note = ref(props.item.note ?? '')
-let timer: ReturnType<typeof setTimeout> | undefined
 
 const belowMinimum = computed(
   () =>
@@ -36,11 +33,10 @@ const belowMinimum = computed(
     quantity.value < props.item.minQuantity
 )
 
-function schedule(changes: UpdateQuoteCartItemData) {
-  clearTimeout(timer)
-  timer = setTimeout(() => save(changes), SAVE_DELAY_MS)
-}
-
+/**
+ * `async` : un enregistrement ne doit pas annuler celui d'un autre champ ou
+ * d'une autre ligne encore en vol (une visite Inertia annule la précédente).
+ */
 function save(changes: UpdateQuoteCartItemData) {
   router.patch(
     urlFor('quote_cart.items.update', { locale: locale.value, id: props.item.id }),
@@ -49,9 +45,12 @@ function save(changes: UpdateQuoteCartItemData) {
       preserveScroll: true,
       preserveState: true,
       only: ['groups'],
+      async: true,
     }
   )
 }
+
+const { schedule, saveNow, flush, cancel } = useQuoteCartLineSave(save)
 
 function onQuantity(value: number | null) {
   quantity.value = value
@@ -65,13 +64,14 @@ function onNote(value: string) {
 }
 
 function remove() {
-  clearTimeout(timer)
+  cancel()
   router.delete(urlFor('quote_cart.items.destroy', { locale: locale.value, id: props.item.id }), {
     preserveScroll: true,
   })
 }
 
-onBeforeUnmount(() => clearTimeout(timer))
+// Une saisie en attente est enregistrée, pas perdue, si l'on quitte la page.
+onBeforeUnmount(flush)
 </script>
 
 <template>
@@ -128,7 +128,7 @@ onBeforeUnmount(() => clearTimeout(timer))
         />
       </div>
 
-      <QuoteCartLineOptions :item="item" @change="save" />
+      <QuoteCartLineOptions :item="item" @change="saveNow" />
     </div>
 
     <div class="sm:w-56 sm:shrink-0">
