@@ -76,6 +76,17 @@ export const QUOTE_UPLOAD_REFUSED_RFQ_SUPPLIER_STATUSES: readonly RfqSupplierSta
 ]
 
 /**
+ * Statuts de **demande** sur lesquels un devis PDF peut encore être déposé
+ * depuis l'écran (#290). `closed` en est exclu : l'agence a retenu un devis, la
+ * consultation est terminée, un nouveau devis n'a plus d'objet. `expired`
+ * reste accepté, comme une réponse par mail : le dépôt est alors une réponse
+ * tardive (#232) et l'agence peut rouvrir la demande en prolongeant l'échéance.
+ * Dans les deux cas, la fenêtre de l'adresse relais (`isRfqThreadOpen`)
+ * s'applique en plus. `draft` n'a pas encore de destinataire notifié.
+ */
+export const QUOTE_UPLOAD_ACCEPTING_RFQ_STATUSES: readonly RfqStatus[] = ['published', 'expired']
+
+/**
  * Destinataires qui attendent encore une réponse : ils ont reçu la demande et
  * n'ont ni répondu ni décliné. Seuls eux expirent à l'échéance et peuvent être
  * relancés (s'ils n'ont, en plus, écrit aucun message dans le fil).
