@@ -54,7 +54,7 @@ describe('DangerZone', () => {
     const wrapper = mount(DangerZone, { props: { organizationName: 'Acme', canLeave: true } })
 
     await button(wrapper, 'Quitter')!.trigger('click')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Quitter cette organisation ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Quitter cette organisation ?')
     expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
     await answerConfirm(host, 'confirm')
 
@@ -79,7 +79,7 @@ describe('DangerZone', () => {
     const wrapper = mount(DangerZone, { props: { organizationName: 'Acme', canLeave: true } })
 
     await button(wrapper, 'Archiver')!.trigger('click')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Archiver Acme ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Archiver Acme ?')
     await answerConfirm(host, 'confirm')
 
     expect(post).toHaveBeenCalledWith('/fr/organization.archive', {}, { preserveScroll: true })

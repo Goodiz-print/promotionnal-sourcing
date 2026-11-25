@@ -137,7 +137,9 @@ describe('admin/certifications/index.vue', () => {
     const wrapper = mount(Index, { props: { certifications: [certification()] } })
 
     await wrapper.find('button[aria-label="Supprimer"]').trigger('click')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Supprimer cette certification ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe(
+      'Supprimer cette certification ?'
+    )
     await answerConfirm(host, 'confirm')
 
     expect(del).toHaveBeenCalledWith(

@@ -178,7 +178,7 @@ describe('CategoryAttributesSection', () => {
     const wrapper = mountSection([pivot()])
 
     await wrapper.find('button[aria-label="Retirer l\'attribut"]').trigger('click')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Retirer cet attribut ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Retirer cet attribut ?')
     await answerConfirm(host, 'confirm')
 
     expect(routerDelete).toHaveBeenCalledWith(

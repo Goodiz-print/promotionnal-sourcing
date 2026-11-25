@@ -271,7 +271,7 @@ describe('Recherche — réindexation', () => {
     const wrapper = mount(SearchReindexForm, { props: { enabled: true, busy: false, suppliers } })
 
     await wrapper.find('form').trigger('submit')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Tout reconstruire ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Tout reconstruire ?')
     expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Réindexer tout le catalogue')
     await answerConfirm(host, 'confirm')
 
@@ -285,7 +285,7 @@ describe('Recherche — réindexation', () => {
     expect(wrapper.text()).toContain('Bureau Plus')
     await wrapper.find('select').setValue('9')
     await wrapper.find('form').trigger('submit')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Réindexer ce fournisseur ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Réindexer ce fournisseur ?')
     await answerConfirm(host, 'confirm')
 
     expect(wrapper.text()).toContain('Réindexer ce fournisseur')

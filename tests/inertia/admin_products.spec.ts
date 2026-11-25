@@ -266,7 +266,7 @@ describe('admin/products/show', () => {
     const archive = wrapper.findAll('button').find((b) => b.text() === 'Archiver')!
 
     await archive.trigger('click')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Archiver ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Archiver ?')
     expect(host.find('[data-confirm-dialog="confirm"]').text()).toBe('Archiver')
     expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
     await answerConfirm(host, 'cancel')
@@ -287,7 +287,7 @@ describe('admin/products/show', () => {
 
     expect(wrapper.text()).toContain('Motif requis')
     await wrapper.find('form').trigger('submit')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Masquer ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Masquer ?')
     await answerConfirm(host, 'cancel')
     expect(formPost).not.toHaveBeenCalled()
 

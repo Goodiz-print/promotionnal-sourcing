@@ -129,7 +129,7 @@ describe('admin/marking_techniques/index.vue', () => {
     const wrapper = mount(Index, { props: { techniques: [technique()] } })
 
     await wrapper.find('button[aria-label="Supprimer"]').trigger('click')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Supprimer cette technique ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Supprimer cette technique ?')
     await answerConfirm(host, 'confirm')
 
     expect(del).toHaveBeenCalledWith(
