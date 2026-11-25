@@ -4,10 +4,10 @@
 
 `scripts/deploy/clever_provision.sh` crée les applications, les add-ons et les variables. Ce qui suit est ce qu'il ne peut pas faire à ta place, dans l'ordre.
 
-## 1. Organisations et accès (manuel)
+## 1. Organisation et accès (manuel)
 
-1. Créer deux organisations Clever Cloud : `goodiz-nonprod` (staging, reviews) et `goodiz-prod`.
-2. Créer un utilisateur Clever de CI par organisation, membre de cette seule organisation. Se connecter avec lui (`clever login`) et relever `token` et `secret` dans `~/.config/clever-cloud/clever-tools.json`.
+1. Tout vit dans l'organisation Clever Cloud « Promotionnal sourcing » (`CLEVER_ORG` dans `scripts/deploy/environments/*.env`). La créer dans la console si elle n'existe pas : le script ne le fait pas.
+2. Créer un utilisateur Clever de CI, membre de cette organisation. Se connecter avec lui (`clever login`) et relever `token` et `secret` dans `~/.config/clever-cloud/clever-tools.json`.
 3. Créer un jeton GitHub `read:packages` (compte de service de préférence) : il permet aux applications Clever de tirer l'image sur GHCR.
 
 ## 2. Provisioning (script)
@@ -62,7 +62,7 @@ Dans Settings → Environments, créer `staging` et `production` :
 
 | Élément                                        | Valeur                                                                |
 | ---------------------------------------------- | --------------------------------------------------------------------- |
-| Secret `CLEVER_TOKEN`, `CLEVER_SECRET`         | Ceux de l'utilisateur de CI de l'organisation concernée               |
+| Secret `CLEVER_TOKEN`, `CLEVER_SECRET`         | Ceux de l'utilisateur de CI (les mêmes dans les deux environnements)  |
 | Variable `CLEVER_APP_WEB`, `CLEVER_APP_WORKER` | Identifiants `app_…` affichés par le script                           |
 | Variable `APP_URL`                             | `https://<domaine>`, sans barre finale                                |
 | `production` uniquement                        | « Required reviewers » ; déploiement limité à `main` et aux tags `v*` |

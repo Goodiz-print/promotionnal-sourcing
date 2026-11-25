@@ -11,7 +11,7 @@
 | Production    | Docker XS ×2 (web), Docker XS (worker) | PostgreSQL S Big Space | Bucket prod               | À choisir (ADR 0004)               | Tag `vX.Y.Z` + approbation manuelle |
 | Review        | Un conteneur web + worker par PR       | Base jetable           | Bucket review partagé     | Absent (recherche PostgreSQL)      | Label `review` (livraison à venir)  |
 
-Staging et reviews vivent dans l'organisation Clever `goodiz-nonprod`, la production dans `goodiz-prod` : le jeton de CI du hors-production n'a aucun droit sur la production. Les paramètres de chaque environnement (tailles, plans, domaine) sont dans `scripts/deploy/environments/`.
+Tous les environnements vivent dans la même organisation Clever, « Promotionnal sourcing » ; les ressources se distinguent par leur préfixe (`ps-staging-…`, `ps-prod-…`). Les paramètres de chaque environnement (tailles, plans, domaine) sont dans `scripts/deploy/environments/`.
 
 ## Règles
 
@@ -185,7 +185,7 @@ Utiliser un sous-domaine et un webhook distincts pour le staging et la productio
 
 ## Secrets
 
-- **Environnements GitHub** `staging` et `production` : secrets `CLEVER_TOKEN` et `CLEVER_SECRET` (un utilisateur Clever de CI par organisation), variables `CLEVER_APP_WEB`, `CLEVER_APP_WORKER` et `APP_URL`. `production` exige un relecteur.
+- **Environnements GitHub** `staging` et `production` : secrets `CLEVER_TOKEN` et `CLEVER_SECRET` (un utilisateur Clever de CI), variables `CLEVER_APP_WEB`, `CLEVER_APP_WORKER` et `APP_URL`. `production` exige un relecteur.
 - **Variables Clever Cloud** : une liste par application (web, worker), jamais committée. `APP_KEY` est générée par `clever_provision.sh`, identique sur web et worker.
 - **Registre** : `CC_DOCKER_LOGIN_PASSWORD` est un jeton GitHub `read:packages`, à renouveler avant expiration (sinon les déploiements échouent au tirage de l'image).
 - `.env` local : jamais committé.

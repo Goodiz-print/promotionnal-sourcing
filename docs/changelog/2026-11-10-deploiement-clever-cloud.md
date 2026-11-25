@@ -40,6 +40,7 @@ Clever Cloud ne déploie pas une image : une application Docker reconstruit le `
 ## Comportements notables
 
 - Domaine de production : `promotional-sourcing.eu` (`scripts/deploy/environments/production.env`) ; staging sur `ps-staging.cleverapps.io`.
+- Une seule organisation Clever Cloud, « Promotionnal sourcing », pour tous les environnements ; les ressources se distinguent par leur préfixe (`ps-staging-…`, `ps-prod-…`).
 - Rien ne se déploie tant que `DEPLOY_STAGING` n'est pas définie et que les environnements GitHub ne sont pas créés.
 - Les reviews par PR (sur label `review`) sont décidées dans l'ADR 0005 mais pas encore livrées : elles dépendent de l'activation des extensions PostgreSQL sur un add-on créé à la volée.
 - Une application Docker Clever Cloud n'a pas de volume persistant : Meilisearch ne peut pas y être hébergé durablement (ADR 0004, `docs/deploiement.md`).

@@ -31,13 +31,12 @@ Le worker ajoute `CMD ["node", "ace", "queue:serve"]`. Staging et production ex�
 
 |                      | Production                      | Staging                       | Review                                         |
 | -------------------- | ------------------------------- | ----------------------------- | ---------------------------------------------- |
-| Organisation Clever  | `goodiz-prod`                   | `goodiz-nonprod`              | `goodiz-nonprod`                               |
 | Applications         | web ×2, worker                  | web ×1, worker                | un conteneur web + worker                      |
 | Déclencheur          | tag `vX.Y.Z` + approbation      | push `main` après CI verte    | label `review` sur la PR                       |
 | Environnement GitHub | `production` (relecteur requis) | `staging`                     | `review`                                       |
 | Données              | réelles                         | seeders, mails en bac à sable | seeders, base jetable, détruite à la fermeture |
 
-Deux organisations Clever : le jeton utilisé par les workflows de PR et de staging n'a aucun droit sur la production.
+Une seule organisation Clever, « Promotionnal sourcing », porte les trois environnements : les ressources se distinguent par leur préfixe (`ps-staging-…`, `ps-prod-…`). Deux organisations (production / hors production) auraient empêché un jeton de CI du staging d'atteindre la production ; cette séparation est écartée pour l'instant, au profit d'une seule facturation et d'une seule équipe à gérer. En contrepartie, le jeton Clever de la CI a les droits sur la production : la protection repose sur l'environnement GitHub `production` (relecteur requis) et sur les identifiants d'application propres à chaque environnement.
 
 Les reviews sont créées **sur label** et non sur chaque PR : le dépôt reçoit plusieurs PR par jour, la plupart n'ont pas besoin d'une démonstration. Leur mise en œuvre fait l'objet d'une livraison séparée (voir « Points ouverts »).
 

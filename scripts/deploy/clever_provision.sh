@@ -59,7 +59,7 @@ say() { printf '\n== %s\n' "$*"; }
 run() {
   if [ "$dry_run" = true ]; then
     printf '  $'
-    printf ' %s' "$@"
+    printf ' %q' "$@"
     printf '\n'
   else
     "$@"
