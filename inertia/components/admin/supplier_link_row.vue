@@ -10,6 +10,7 @@ import type {
   AdminSupplierLinkItem,
   SupplierLinkOrganizationOption,
 } from '#shared/types/supplier_link'
+import { formatShortDate } from '#shared/helpers/date'
 
 /**
  * Ligne d'une fiche fournisseur (#231). En attente : organisation proposée
@@ -28,7 +29,7 @@ const selected = ref<number | null>(props.supplier.suggestion?.organizationId ??
 const contact = computed(() =>
   [props.supplier.email, props.supplier.website].filter(Boolean).join(' · ')
 )
-const formatDate = (value: string) => new Date(value).toLocaleDateString(locale.value)
+const formatDate = (value: string) => formatShortDate(value, locale.value)
 
 function submitLink() {
   if (selected.value !== null) link(selected.value)

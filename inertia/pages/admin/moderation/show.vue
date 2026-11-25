@@ -8,13 +8,14 @@ import BaseCard from '~/components/base/base_card.vue'
 import BaseLinkButton from '~/components/base/base_link_button.vue'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import type { AdminModerationDetail } from '#shared/types/admin_moderation'
+import { formatDateTime } from '#shared/helpers/date'
 
 defineProps<{ detail: AdminModerationDetail }>()
 
 const { t, locale } = useI18n()
 
 function formatDate(value: string): string {
-  return new Date(value).toLocaleString(locale.value)
+  return formatDateTime(value, locale.value)
 }
 </script>
 

@@ -10,12 +10,13 @@ import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseSection from '~/components/base/base_section.vue'
 import BaseTable from '~/components/base/base_table.vue'
 import type { AdminUserDetail } from '#shared/types/admin_user'
+import { formatShortDate } from '#shared/helpers/date'
 
 const props = defineProps<{ account: AdminUserDetail; canManageRoles: boolean }>()
 
 const { t, locale } = useI18n()
 
-const formatDate = (value: string) => new Date(value).toLocaleDateString(locale.value)
+const formatDate = (value: string) => formatShortDate(value, locale.value)
 
 const identity = computed(() => [
   { label: t('admin.users.columns.email'), value: props.account.email },

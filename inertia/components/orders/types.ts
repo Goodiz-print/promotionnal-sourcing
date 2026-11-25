@@ -36,8 +36,3 @@ export function actionRoute(side: OrderSide, action: OrderAction) {
     | (typeof ORDER_ACTION_ROUTES)['supplier'][keyof (typeof ORDER_ACTION_ROUTES)['supplier']]
     | undefined
 }
-
-/** Date et heure affichées dans la langue de l'utilisateur. */
-export function formatDateTime(value: string, locale: string): string {
-  return new Date(value).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' })
-}

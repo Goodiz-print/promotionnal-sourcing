@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from '~/i18n'
-import { formatDateTime } from '~/components/orders/types'
+import { formatDateTime } from '#shared/helpers/date'
 import type { OrderTimelineType } from '#shared/types/order'
 
 /**

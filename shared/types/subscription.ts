@@ -1,3 +1,4 @@
+import { PLATFORM_TIMEZONE } from './date.js'
 import type { Locale } from './i18n.js'
 import type { SubscriptionPlan } from './organization.js'
 
@@ -204,7 +205,7 @@ export const SUBSCRIPTION_FEATURE_INCLUDED: Record<
  * Fuseau des dates d'abonnement saisies par l'admin : un abonnement court du
  * début du jour de début à la fin du jour de fin, heure de Paris.
  */
-export const SUBSCRIPTION_TIMEZONE = 'Europe/Paris'
+export const SUBSCRIPTION_TIMEZONE = PLATFORM_TIMEZONE
 
 /**
  * Abonnement saisi à la main par l'admin (#214). Dates au format `YYYY-MM-DD`,

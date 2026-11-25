@@ -4,7 +4,7 @@ import { Mail, Paperclip } from 'lucide-vue-next'
 import { useI18n } from '~/i18n'
 import BaseBadge from '~/components/base/base_badge.vue'
 import ConversationMessageReport from '~/components/messaging/conversation_message_report.vue'
-import { formatDateTime } from '~/components/orders/types'
+import { formatDateTime } from '#shared/helpers/date'
 import { mailSenderLabel, messageSenderLabel } from '#shared/helpers/conversation'
 import type { ConversationMessageType } from '#shared/types/conversation'
 

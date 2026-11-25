@@ -12,6 +12,7 @@ import BaseSelect from '~/components/base/base_select.vue'
 import BaseTable from '~/components/base/base_table.vue'
 import type { AdminOrganizationMember } from '#shared/types/admin_organization'
 import type { RoleType } from '#shared/types/role'
+import { formatShortDate } from '#shared/helpers/date'
 
 /**
  * Membres d'une organisation. Avec `canManage` et la liste des rôles (`roles`),
@@ -37,7 +38,7 @@ const roleIdOf = (member: AdminOrganizationMember) =>
 
 const displayName = (member: AdminOrganizationMember) => member.fullName || member.email
 
-const formatDate = (value: string) => new Date(value).toLocaleDateString(locale.value)
+const formatDate = (value: string) => formatShortDate(value, locale.value)
 
 function remove(member: AdminOrganizationMember) {
   removeMember(member.membershipId, {

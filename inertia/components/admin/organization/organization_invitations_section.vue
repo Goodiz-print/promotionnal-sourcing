@@ -8,6 +8,7 @@ import BaseSection from '~/components/base/base_section.vue'
 import BaseTable from '~/components/base/base_table.vue'
 import { ICON_SIZE } from '~/types/ui'
 import type { AdminOrganizationInvitation } from '#shared/types/admin_organization'
+import { formatShortDate } from '#shared/helpers/date'
 
 /** Invitations en attente : révocation (DELETE) et renvoi (POST) si `canManage`. */
 const props = defineProps<{
@@ -21,7 +22,7 @@ const { processing, revokeInvitation, resendInvitation } = useAdminOrganizationA
   props.organizationId
 )
 
-const formatDate = (value: string) => new Date(value).toLocaleDateString(locale.value)
+const formatDate = (value: string) => formatShortDate(value, locale.value)
 
 const inviter = (invitation: AdminOrganizationInvitation) =>
   invitation.invitedByName || invitation.invitedByEmail

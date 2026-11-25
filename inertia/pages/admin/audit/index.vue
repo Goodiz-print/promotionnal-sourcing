@@ -15,6 +15,7 @@ import type {
   AdminAuditLogItem,
 } from '#shared/types/admin_audit'
 import type { Paginated } from '#shared/types/pagination'
+import { formatDateTime } from '#shared/helpers/date'
 
 const props = defineProps<{
   entries: Paginated<AdminAuditLogItem>
@@ -59,7 +60,7 @@ function describeChanges(changes: AdminAuditChanges | null): ChangeLine[] {
 }
 
 function formatDate(value: string): string {
-  return new Date(value).toLocaleString(locale.value)
+  return formatDateTime(value, locale.value)
 }
 </script>
 
