@@ -12,7 +12,37 @@ d'une RFQ pointent donc vers `organizations` — `rfqs.buyer_organization_id` et
 `suppliers`, qui n'a pas d'utilisateur pour répondre.
 
 > Ce document couvre les trois PR de la Phase 3 : **fondation backend**,
-> **écrans acheteur** et **écrans fournisseur + notification par mail**.
+> **écrans acheteur** et **écrans fournisseur + notification par mail**, puis le
+> **parcours devis par mail** (#234), résumé ci-dessous.
+
+## Parcours devis par mail (#234)
+
+Parcours décrit par le client le 13/11/2026, livré issue par issue. Le devis
+structuré saisi dans l'application (Phase 4, [`quotes.md`](quotes.md))
+**coexiste** avec la réponse par mail + PDF, qui devient le parcours principal.
+
+| Étape                                                                                                                                                                                                                                                         | Issues                       | Détail                                                                                                                                                       |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1. Un membre de l'agence (tous rôles) remplit son panier — variante, marquage, quantités — et valide : une demande publiée et envoyée par fournisseur, réunies par un lot.                                                                                    | #212, #216, #229             | [`quote-cart.md`](quote-cart.md)                                                                                                                             |
+| 2. Le fournisseur reçoit un mail complet (lignes, marquage, prix indicatifs) à son adresse de réception confirmée, avec une adresse de réponse relais.                                                                                                        | #217, #219, #223             | [Notification par mail](#notification-par-mail), [`mail.md`](mail.md)                                                                                        |
+| 3. Sans abonnement, la demande est anonyme et un encart invite à s'abonner ; abonné, il voit l'agence et ses coordonnées. La règle est relue à chaque affichage.                                                                                              | #220, #221, #222             | [Anonymat](#anonymat-de-lagence-pour-un-fournisseur-non-abonné-220-222), [Coordonnées](#coordonnées-de-lagence-pour-un-fournisseur-abonné-221)               |
+| 4. Il répond depuis sa messagerie en joignant son PDF, sans se connecter (ou dépose le PDF depuis l'écran). La réponse est enregistrée dans le fil, chaque PDF devient un devis ; pour un non abonné, l'agence reçoit une copie qui porte son nom en bandeau. | #224, #230, #238             | [`quotes.md`](quotes.md#devis-reçu-par-mail-en-pdf-224)                                                                                                      |
+| 5. La réponse est transmise à l'agence par mail (lien de téléchargement authentifié) et par notification ; la suite des échanges passe par les adresses relais des deux côtés.                                                                                | #225, #226                   | [`mail.md`](mail.md#relais-des-échanges-agence--fournisseur-226)                                                                                             |
+| 6. Relance unique des destinataires sans réponse, expiration par destinataire, réponse tardive acceptée et signalée.                                                                                                                                          | #232                         | [Expiration, prolongation et relance](#expiration-prolongation-et-relance-56)                                                                                |
+| 7. Traces : « Mes demandes » côté agence (avancement, filtres, devis PDF, devis retenu qui clôture la demande sans commande), « Demandes reçues » côté fournisseur (à traiter, répondu, expiré, décliné ; devis envoyé).                                      | #228, #230                   | [Mes demandes](#mes-demandes-228), « Statut lisible » plus bas                                                                                               |
+| 8. Back-office : abonnement saisi par l'admin et mails d'activation / rappel, supervision des mails entrants, rattachement des fiches importées ; seules les fiches rattachées sont publiées.                                                                 | #214, #237, #227, #231, #240 | [`abonnements.md`](abonnements.md), [`mail.md`](mail.md#supervision-admininbound-mail), [`comptes-fournisseurs-agences.md`](comptes-fournisseurs-agences.md) |
+| 9. Côté fournisseur, page « Consultations » : compteurs pour tous, identité des agences pour les abonnés.                                                                                                                                                     | #239                         | [`comptes-fournisseurs-agences.md`](comptes-fournisseurs-agences.md#consultations-239)                                                                       |
+
+Ce que l'abonnement change dans ce parcours est résumé dans
+[`abonnements.md`](abonnements.md#ce-que-labonnement-change-dans-le-parcours-devis).
+Les passages des CGU et de la politique de confidentialité qui en découlent
+sont en brouillon dans [`legal/`](legal/README.md), **à valider par le client**
+avant la mise en production de #239.
+
+Hors lot : souscription en ligne (#215, voir `abonnements.md`), droits par
+formule non encore spécifiés (classement, points de référencement,
+superboosts, suggestions de concurrents), reprise des réponses dont la
+transmission a été perdue (voir [`quotes.md`](quotes.md#transmission-à-lagence-225)).
 
 ## Tables
 
@@ -38,10 +68,13 @@ d'une RFQ pointent donc vers `organizations` — `rfqs.buyer_organization_id` et
 - **`rfq_suppliers`** — table pivot **avec statut par destinataire** :
   `rfq_id` (`CASCADE`), `supplier_organization_id` (FK `organizations`,
   `CASCADE`), `status` enum(`pending`, `sent`, `viewed`, `responded`,
-  `declined`) défaut `pending`, `sent_at`. Unicité `(rfq_id,
+  `declined`, `expired`) défaut `pending`, `sent_at`. Unicité `(rfq_id,
 supplier_organization_id)` — un fournisseur n'est destinataire qu'une fois ;
   index `(supplier_organization_id, status)` pour l'écran « demandes reçues ».
-  Migration `…971_create_rfq_suppliers_table`.
+  Migration `…971_create_rfq_suppliers_table`. Colonnes ajoutées par le parcours
+  devis par mail : `reply_token` (adresse relais du fournisseur, #223),
+  `agency_reply_token` (adresse relais de l'agence, #225), `reminded_at` (#56),
+  `expired_from` et `late_reply_at` (#232).
 
 ## Modèles & relations
 
@@ -137,7 +170,7 @@ Exceptions dans `app/exceptions/rfq_errors.ts`.
 
 ## Permissions (Bouncer)
 
-Trois abilities dans `app/abilities/main.ts`, alignées sur les permissions
+Quatre abilities de base dans `app/abilities/main.ts`, alignées sur les permissions
 `sourcing:*` déjà présentes au seeder (aucune entrée `rfq:*` n'a été ajoutée :
 la table `permissions` documente le modèle de rôles, l'autorisation effective
 passe par les abilities) :
@@ -153,8 +186,16 @@ passe par les abilities) :
   rejeter un devis, agir sur une commande : `owner`, `admin`, `manager` (miroir
   de `sourcing:manage`) ;
 - **`canRespondToRfq`** — organisation `supplier`/`both`, `owner`/`admin`/
-  `manager` : consulter une demande reçue, décliner, et (Phase 4) déposer un
-  devis.
+  `manager` (`RFQ_RESPONDER_ROLES`) : consulter une demande reçue, décliner,
+  remettre un devis structuré (Phase 4).
+
+Le parcours devis par mail en ajoute de plus fines, toutes dans le même
+fichier : `canMessageRfqSupplier` / `canMessageRfqBuyer` (écrire dans le fil,
+#226), `canDownloadQuoteDocument` et `canSelectQuoteDocument` (devis PDF côté
+agence, #225, #228), `canUploadRfqQuoteDocument` et
+`canDownloadSentQuoteDocument` (devis PDF côté fournisseur, #230),
+`canViewSupplierInsights` (consultations, #239), `canManageSubscription`
+(abonnement, #215).
 
 ## Tests
 
@@ -166,12 +207,12 @@ organisations non fournisseuses ou archivées, envoi partiel puis élargissement
 d'une demande publiée, clôture, transitions fournisseur (`viewed`,
 `responded`, `declined`) et cloisonnement acheteur/fournisseur.
 
-`tests/functional/rfq_screens.spec.ts` (14 tests) couvre le câblage HTTP :
+`tests/functional/rfq_screens.spec.ts` (15 tests) couvre le câblage HTTP :
 rendu des trois écrans, cloisonnement par organisation (404), création avec
 lignes et destinataires, refus d'une demande sans ligne, publication puis envoi,
 ajout/retrait de destinataires, et les deux niveaux d'autorisation (un `member`
-rédige mais ne publie pas ; une organisation fournisseuse n'a pas accès aux
-écrans acheteur). `tests/inertia/rfqs.spec.ts` (8 tests) vérifie que les actions
+publie et envoie depuis #216, mais ne clôture pas ; une organisation
+fournisseuse n'a pas accès aux écrans acheteur). `tests/inertia/rfqs.spec.ts` (8 tests) vérifie que les actions
 n'apparaissent que quand elles sont possibles.
 
 Côté fournisseur, `tests/functional/supplier_rfqs.spec.ts` (9) couvre le
@@ -260,7 +301,8 @@ propre `name`.
 - **`rfqs/show.vue`** — un brouillon est éditable en place (le formulaire est
   réaffiché) ; une demande publiée passe en lecture seule. Les actions
   (`publier`, `envoyer`, `clôturer`) n'apparaissent que lorsqu'elles sont
-  possibles, et seulement pour `canManageRfq`.
+  possibles : publier et envoyer pour `canSendRfq` (tout membre, #216),
+  clôturer et prolonger l'échéance pour `canManageRfq`.
 
 Composants dans `inertia/components/rfqs/` : `rfq_form`, `rfq_items_fields`,
 `rfq_supplier_picker`, `rfq_supplier_list`, `rfq_actions`, plus `types.ts` (état
@@ -459,13 +501,12 @@ et non en URL absolue : la charge est persistée dans `queue_jobs` et peut être
 rejouée bien après, éventuellement sous un autre domaine. Le template la préfixe
 avec le global `appUrl` de `config/mail.ts`, résolu au rendu.
 
-> **Idempotence des mails** — la dette signalée dans `docs/organisations.md`
-> n'est pas aggravée ici. Le double envoi que l'on redoutait (« relancer 20
+> **Idempotence des mails** — le double envoi que l'on redoutait (« relancer 20
 > fournisseurs ») est empêché par la machine à états : `send` ne bascule que les
-> `pending`, un second clic est refusé. Reste le risque commun à tous les mails
-> transactionnels — un rejeu après un échec survenu _après_ la remise SMTP
-> renvoie **un** mail à **un** destinataire. À traiter avant les devis et les
-> commandes (Phase 4), où un doublon a une conséquence commerciale.
+> `pending`, un second clic est refusé. Le rejeu d'un job après une remise SMTP
+> est couvert depuis par la clé d'idempotence de `SendMailJob`
+> (`mail_deliveries`, voir `docs/mail.md`), utilisée par la relance et par les
+> mails du parcours devis (#225, #226).
 
 ### Écrans
 
@@ -531,11 +572,10 @@ La Phase 3 est complète : l'issue #4 est close.
 
 **Connu, non traité :**
 
-- **Suppression d'un brouillon** — non exposée (l'issue #4 ne prévoit pas de
-  route `DELETE`) ; à trancher avec l'écran de la PR 2.
-- **Idempotence des mails** — dette signalée dans `docs/organisations.md`, non
-  aggravée par la notification RFQ (voir l'encadré ci-dessus) ; à régler avant
-  les devis et les commandes.
+- ~~**Suppression d'un brouillon**~~ : `DELETE /rfqs/:id` (#55, section
+  ci-dessous).
+- ~~**Idempotence des mails**~~ : clé d'idempotence de `SendMailJob` (voir
+  l'encadré ci-dessus).
 - **Devis** — traités par la Phase 4 (#5) : voir [`quotes.md`](quotes.md).
   `markResponded` est appelé à la remise du devis.
 
@@ -565,8 +605,16 @@ le même produit crée deux lignes (deux quantités, deux marquages) mais un seu
 destinataire — l'unicité `(rfq_id, supplier_organization_id)` s'applique.
 
 Un produit dont la fiche fournisseur n'est pas rattachée à une organisation
-(`suppliers.organization_id` nul, import en masse non traité) donne une ligne
-sans destinataire : il n'y a personne à consulter.
+(`suppliers.organization_id` nul, import non encore rattaché, #231) n'est pas
+publié (#240) : `findForRfq` ne le trouve pas, le formulaire s'ouvre vide et
+`items/from-product` répond 404. Un produit demandable a donc toujours un
+destinataire.
+
+La demande ainsi créée part par le **même envoi** que celles du panier
+(`RfqSent` → `RfqNotificationService`) : adresse de réception, mail complet,
+anonymisation ou coordonnées selon l'abonnement, adresse relais. Seule
+différence, une ligne saisie au formulaire n'a pas de prix indicatif dans
+`specs` : le mail l'annonce « à chiffrer ».
 
 ### Garanties
 
@@ -715,8 +763,8 @@ prédicat sert à la relance manuelle de la plateforme et à son compteur — et
 - ont reçu la demande et **n'ont pas répondu** : statut `sent` ou `viewed`, et
   **aucun message côté fournisseur** dans le fil de la demande (une réponse par
   mail sans devis ne change pas le statut, mais elle compte). Ouvrir la demande ne
-  compte plus : un fournisseur qui travaille par mail, ou une fiche sans compte,
-  ne l'« ouvre » jamais. Un message masqué par la modération compte quand même :
+  compte plus : un fournisseur qui travaille par mail, ou une organisation
+  fournisseuse sans membre, ne l'« ouvre » jamais. Un message masqué par la modération compte quand même :
   le fournisseur a bien répondu. Répondus, déclinés et expirés ne sont jamais relancés ;
 - l'ont reçue il y a au moins `RFQ_REMINDER_AFTER_DAYS` jours (3, dans
   `shared/types/rfq.ts`) ;
@@ -733,8 +781,10 @@ d'idempotence `rfq-reminder:rfq=…:org=…:to=…` : un rejeu de la queue ne le
 renvoie pas. Le mail (`kind: 'rfq-reminder'`, `RfqReminderNotification`,
 `emails/rfq_reminder`) part dans la langue de chaque destinataire, avec les mêmes
 règles que `rfq-received` (voir `docs/mail.md`) : même contenu, même anonymisation
-pour un non abonné, même `Reply-To` relais. Une fiche sans compte est relancée une
-fois, à l'adresse de l'organisation.
+pour un non abonné, même `Reply-To` relais. Une organisation fournisseuse sans
+membre est relancée une fois, à son adresse de réception confirmée
+(`supplier_profiles.quote_email`), à défaut à celle de l'organisation
+(`organizations.email`), comme pour l'envoi (#217).
 
 ### Réponse tardive (#232)
 

@@ -8,21 +8,21 @@ formulaires d'inscription, d'activation et de page fournisseur viennent ensuite.
 
 ## Correspondance classeur → base
 
-| Information du classeur                                                           | Colonne / table                                                         |
-| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Raison sociale, pays, site web, téléphone (standard), adresse du siège, logo      | `organizations` (existant)                                              |
-| Numéro de TVA / SIRET                                                             | `organizations.vat_number` / `siret` (existant)                         |
-| Vérification VIES automatique                                                     | `organizations.vat_verified_at`                                         |
-| Email au domaine du site = validation auto                                        | `organizations.domain_verified_at`                                      |
-| Langue de travail / langue                                                        | `organizations.locale` (défaut `fr`)                                    |
-| Niveau d'abonnement (gratuit · Business · Premium)                                | `organizations.subscription_plan`                                       |
-| Visuel de bannière                                                                | `organizations.banner_storage_object_id` (Cellar)                       |
-| Civilité (facultative)                                                            | `users.civility`                                                        |
-| Dernière connexion                                                                | `users.last_login_at` (date d'inscription = `created_at`)               |
-| Adresse / email de facturation, référence de commande                             | `billing_profiles` (1 par organisation)                                 |
-| Moyen de paiement                                                                 | **Jamais stocké** — Stripe ; seul `billing_profiles.stripe_customer_id` |
-| CGU, licence de données, marketing, certification pro, communications partenaires | `legal_consents` (journal : type, version, IP, date, retrait)           |
-| Utilisateurs supplémentaires / collaborateurs invités                             | `organization_users` + invitations (existant)                           |
+| Information du classeur                                                           | Colonne / table                                                                                                                               |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Raison sociale, pays, site web, téléphone (standard), adresse du siège, logo      | `organizations` (existant)                                                                                                                    |
+| Numéro de TVA / SIRET                                                             | `organizations.vat_number` / `siret` (existant)                                                                                               |
+| Vérification VIES automatique                                                     | `organizations.vat_verified_at`                                                                                                               |
+| Email au domaine du site = validation auto                                        | `organizations.domain_verified_at`                                                                                                            |
+| Langue de travail / langue                                                        | `organizations.locale` (défaut `fr`)                                                                                                          |
+| Niveau d'abonnement (gratuit · Business · Premium)                                | `organization_subscriptions` (périodes datées) ; formule courante dénormalisée dans `organizations.subscription_plan` — voir `abonnements.md` |
+| Visuel de bannière                                                                | `organizations.banner_storage_object_id` (Cellar)                                                                                             |
+| Civilité (facultative)                                                            | `users.civility`                                                                                                                              |
+| Dernière connexion                                                                | `users.last_login_at` (date d'inscription = `created_at`)                                                                                     |
+| Adresse / email de facturation, référence de commande                             | `billing_profiles` (1 par organisation)                                                                                                       |
+| Moyen de paiement                                                                 | **Jamais stocké** — Stripe ; seul `billing_profiles.stripe_customer_id`                                                                       |
+| CGU, licence de données, marketing, certification pro, communications partenaires | `legal_consents` (journal : type, version, IP, date, retrait)                                                                                 |
+| Utilisateurs supplémentaires / collaborateurs invités                             | `organization_users` + invitations (existant)                                                                                                 |
 
 ### Fournisseur
 
@@ -86,7 +86,15 @@ l'organisation.
   nom ni identifiant d'agence n'est envoyé ; encart `subscription_upsell.vue`.
 - Index `activity_events (target_type, target_id, created_at)` (migration
   `1794000000041`) : la lecture part des produits du fournisseur.
-- L'information des agences (CGU, politique de confidentialité) relève de #233.
+- **Conservation** (`PurgeActivityEventsJob`, chaque nuit) : utilisateur et
+  organisation détachés de l'événement après 90 jours
+  (`ACTIVITY_EVENT_PSEUDONYMIZE_AFTER_DAYS`), événement supprimé après 24 mois
+  (`ACTIVITY_EVENT_RETENTION_DAYS` = 730 jours). Les consultations des membres
+  de la plateforme (rôle staff) et d'un fournisseur sur ses propres produits ne
+  sont pas enregistrées.
+- **Information des agences** : passages des CGU et de la politique de
+  confidentialité en brouillon dans [`legal/`](legal/README.md) (#233), à valider
+  par le client **avant la mise en production** de cette page.
 
 ### Rattachement d'une fiche importée (#231)
 
@@ -113,7 +121,9 @@ organisation, validé par un admin, vaut cet accord.
   l'accord, tracé (`supplier.unlinked`, organisation précédente dans `before`).
 - Dans les deux cas, les produits de la fiche sont réindexés par la queue
   (`IndexSupplierProductsJob`, après le commit) : les demandes de devis visent
-  l'organisation dès le rattachement (`suppliers.organization_id`).
+  l'organisation dès le rattachement (`suppliers.organization_id`), et partent
+  à son adresse de réception confirmée, à défaut à celle de l'organisation
+  ou à ses responsables (#217).
 - **Publication** (#240) : une fiche sans organisation et ses produits ne sont
   pas publiés (catalogue, recherche, fiches publiques, index) —
   `Supplier.fromLiveOrganization` / `Product.fromLiveOrganization` exigent une
@@ -142,9 +152,10 @@ Toutes les listes vivent dans `shared/types/{organization,agency,legal}.ts`
 - **Prénom / nom** : `users.full_name` est remplacé par `first_name` / `last_name`
   (migration avec reprise des données : premier mot = prénom, reste = nom).
   `User#fullName` reste disponible en getter pour l'affichage.
-- **Événements d'usage** (recherches, fiches vues, devis envoyés, pour les
-  statistiques fournisseurs) : non modélisés ici, à traiter avec la politique de
-  confidentialité.
+- ~~**Événements d'usage**~~ : journal des recherches (`search_events`) et des
+  consultations (`activity_events`, #172), exploités par le back-office et, pour
+  les fournisseurs, par la page « Consultations » (#239, ci-dessus). Mention
+  légale : brouillon dans [`legal/`](legal/README.md).
 - **Limites par formule** (3 utilisateurs en gratuit, illimité en Premium) :
   règle métier, pas de colonne.
 - **Présentation traduite automatiquement** : `bio` reste monolingue pour l'instant.

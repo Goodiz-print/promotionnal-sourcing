@@ -109,7 +109,7 @@ SELECT idempotency_key, kind, "to", attempts, error FROM mail_deliveries WHERE s
 | -------------------------- | ------------------------------------ | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `organization-invitation`  | `OrganizationInvitationNotification` | `emails/organization_invitation`  | Invitation d'un membre (`OrganizationInvitationsController`)                                                                                                                                                        |
 | `rfq-received`             | `RfqReceivedNotification`            | `emails/rfq_received`             | Envoi d'une demande de devis (`RfqNotificationService`)                                                                                                                                                             |
-| `rfq-reminder`             | `RfqReminderNotification`            | `emails/rfq_reminder`             | Relance unique d'un fournisseur qui n'a pas ouvert la demande (`RemindRfqSuppliersJob`)                                                                                                                             |
+| `rfq-reminder`             | `RfqReminderNotification`            | `emails/rfq_reminder`             | Relance unique d'un fournisseur qui n'a pas répondu à la demande (`RemindRfqSuppliersJob`, #232)                                                                                                                    |
 | `quote-received`           | `QuoteReceivedNotification`          | `emails/quote_received`           | Un fournisseur remet un devis : prévient les responsables de l'acheteur (`OnQuoteSubmitted`)                                                                                                                        |
 | `password-reset`           | `PasswordResetNotification`          | `emails/password_reset`           | Demande « mot de passe oublié » (`PasswordResetService`)                                                                                                                                                            |
 | `email-verification`       | `EmailVerificationNotification`      | `emails/email_verification`       | Inscription, renvoi (`EmailVerificationService`)                                                                                                                                                                    |
@@ -135,6 +135,14 @@ gabarit `emails/layout`, qui retire alors la mention « merci de ne pas y
 répondre ». Les deux classes prennent la charge entière
 (`new RfqReceivedNotification(to, data, locale)`) ; un job mis en queue avant
 #219, sans lignes, se rend toujours.
+
+**Anonymat (#220, #222)** : pour un fournisseur non abonné, `rfq-received`,
+`rfq-reminder` et `agency-message-relayed` ne nomment pas l'agence (objet, titre,
+introduction ; `buyerName` à `null`). Les deux premiers portent en plus un
+encart « abonnez-vous » vers la page d'abonnement
+(`emails/partials/subscription_upsell`). La règle
+(`SubscriptionService#isSubscribed`) est lue à la mise en queue : un mail parti
+reste tel qu'il a été écrit. Détail dans `docs/rfq.md`.
 
 **Coordonnées de l'agence (#221)** : pour un fournisseur abonné, `rfq-received`
 et `rfq-reminder` portent `buyerContact` (`BuyerContactType` : agence, auteur de
@@ -169,6 +177,9 @@ la mise en queue** :
 | `welcome`                                         | `users.locale` du compte                                                                                                                                                                                                                                                                                |
 | `notification-reminder`                           | `users.locale` du destinataire de la notification, à défaut la langue par défaut ; le lien est préfixé par la même                                                                                                                                                                                      |
 | `subscription-activated`, `subscription-expiring` | `users.locale` de chaque responsable (owner, admin) de l'organisation ; dates et lien dans la même langue                                                                                                                                                                                               |
+| `rfq-reminder`, `agency-message-relayed`          | mêmes adresses et même règle que `rfq-received`                                                                                                                                                                                                                                                         |
+| `supplier-reply-received`                         | `users.locale` de chaque destinataire de l'agence (auteur de la demande, responsables)                                                                                                                                                                                                                  |
+| `quote-email-verification`                        | langue de la page d'où le membre enregistre l'adresse de réception                                                                                                                                                                                                                                      |
 
 Une charge mise en queue avant #58 n'a pas de `locale` : `SendMailJob` retombe sur
 la langue par défaut (`fr`). La charge d'un mail en dead-letter conserve sa langue,
@@ -501,6 +512,25 @@ Un mail `processing` est entre les mains d'un worker : aucune action tant qu'il 
 Quand `ProcessInboundMailJob` a épuisé ses tentatives, il émet `InboundMailProcessingFailed`. L'écouteur `OnInboundMailProcessingFailed`, calqué sur `OnMailDeliveryFailed`, logue en `error` puis envoie `InboundMailFailedAlert` (template `emails/inbound_mail_failed`) à `MAIL_ALERT_ADDRESS`, en direct, avec l'expéditeur, l'adresse visée, l'erreur, le nombre de mails entrants en échec sur 24 heures et le lien vers la fiche de supervision.
 
 Une seule alerte par mail : `failure_alerted_at` est posé par une bascule conditionnelle avant l'envoi. La reprise planifiée, qui rejoue le mail pendant 24 heures et épuise à chaque fois les tentatives du job, ne renvoie donc pas l'alerte. Si l'envoi échoue, l'erreur est loguée, jamais propagée, et `failure_alerted_at` est remis à `null` pour que l'alerte reparte au prochain échec.
+
+### Conservation des mails relayés
+
+État du code au 24/11/2026, repris dans le brouillon de politique de
+confidentialité ([`legal/`](legal/README.md)) :
+
+| Donnée                                                                                                                 | Conservation                                                                                               |
+| ---------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Mail accepté (`inbound_mails` : expéditeur, objet, corps texte et HTML, en-têtes)                                      | **Sans limite** : aucune purge n'existe                                                                    |
+| Pièces jointes acceptées (`inbound_mail_attachments`, fichiers sur Cellar)                                             | **Sans limite**, comme le mail                                                                             |
+| Message du fil (`messages`, `message_attachments`) et devis PDF (`quote_documents`, copie au nom de l'agence comprise) | **Sans limite**, rattachés à la demande et visibles des deux côtés du fil                                  |
+| Mail écarté (`rejected`)                                                                                               | métadonnées seulement (expéditeur, adresse visée, objet, en-têtes), sans limite ; ni corps ni pièce jointe |
+| Charge des jobs de mail (`queue_jobs.payload` : adresses, coordonnées de l'agence, texte relayé)                       | supprimée à la réussite ; gardée **30 jours** en cas d'échec définitif (`removeOnFail`)                    |
+| Journal d'envoi (`mail_deliveries` : clé, `kind`, destinataire, erreur)                                                | **Sans limite** : aucune purge n'existe                                                                    |
+| Copie chez le prestataire de réception (Resend)                                                                        | non maîtrisée par l'application : lieu et durée à obtenir par écrit (ADR 0005)                             |
+
+Une durée de conservation est à fixer avec le client ; elle demandera une purge
+planifiée (sur le modèle de `PurgeActivityEventsJob`) qui libère aussi les
+fichiers par `StorageService.release`.
 
 ### Changer de prestataire
 
