@@ -153,8 +153,13 @@ Réponses par redirection Inertia ; la validation renvoie sur `rfqs.index`.
   `{ canCreateRfq, inCartVariantIds }`.
 - **Panier** (`pages/quote_cart/show.vue`) : un `BaseSection` par fournisseur
   (`quote_cart_group.vue`), lignes éditables enregistrées après une pause de
-  saisie (`quote_cart_line.vue`, `router.patch` + `only: ['groups']`), options
-  enregistrées aussitôt (`quote_cart_line_options.vue`), estimation par ligne
+  saisie (`quote_cart_line.vue`, `router.patch` + `only: ['groups']` +
+  `async: true`), options enregistrées aussitôt (`quote_cart_line_options.vue`).
+  Les changements en attente d'une ligne sont fusionnés
+  (`useQuoteCartLineSave`) : quantité et note saisies dans la même pause
+  partent ensemble, un choix d'option emporte la saisie en attente, et un
+  enregistrement n'annule pas celui d'un autre champ ou d'une autre ligne.
+  Estimation par ligne
   (`quote_cart_line_estimate.vue`) et sous-total en pied de groupe, alerte
   sous le minimum de commande, formulaire de validation qui annonce le nombre de
   demandes et leurs destinataires (`quote_cart_checkout_form.vue`).
