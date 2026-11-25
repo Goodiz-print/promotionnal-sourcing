@@ -159,7 +159,7 @@ describe('quotes/show.vue', () => {
     const button = wrapper.findAll('button').find((b) => b.text() === 'Accepter ce devis')!
 
     await button.trigger('click')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Accepter ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Accepter ?')
     await answerConfirm(host, 'cancel')
     expect(router.patch).not.toHaveBeenCalled()
 

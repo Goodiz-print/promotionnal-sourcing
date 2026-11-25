@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { nextTick, onMounted, ref, useId, watch } from 'vue'
 import { CircleHelp, TriangleAlert } from 'lucide-vue-next'
 import BaseButton from '~/components/base/base_button.vue'
 import type { ConfirmTone } from '~/types/ui'
@@ -25,6 +25,8 @@ const props = withDefaults(
 const emit = defineEmits<{ confirm: []; cancel: [] }>()
 
 const dialog = ref<HTMLDialogElement | null>(null)
+const titleId = useId()
+const messageId = useId()
 
 async function sync(open: boolean) {
   await nextTick()
@@ -52,8 +54,8 @@ function onBackdropClick(event: MouseEvent) {
   <dialog
     ref="dialog"
     role="alertdialog"
-    aria-labelledby="confirm-dialog-title"
-    aria-describedby="confirm-dialog-message"
+    :aria-labelledby="titleId"
+    :aria-describedby="messageId"
     class="m-auto w-[calc(100%-2rem)] max-w-md rounded-xl border border-hairline bg-card p-0 text-text-primary shadow-elevation-3 backdrop:bg-ink-950/40"
     @cancel="onCancel"
     @click="onBackdropClick"
@@ -71,8 +73,8 @@ function onBackdropClick(event: MouseEvent) {
           <CircleHelp v-else :size="20" />
         </span>
         <div class="flex flex-col gap-1.5">
-          <h2 id="confirm-dialog-title" class="text-heading-md">{{ title }}</h2>
-          <p id="confirm-dialog-message" class="text-body-sm text-text-secondary">
+          <h2 :id="titleId" data-confirm-dialog="title" class="text-heading-md">{{ title }}</h2>
+          <p :id="messageId" data-confirm-dialog="message" class="text-body-sm text-text-secondary">
             {{ message }}
           </p>
         </div>

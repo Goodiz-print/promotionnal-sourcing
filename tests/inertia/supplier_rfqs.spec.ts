@@ -374,7 +374,7 @@ describe('supplier/rfqs/show.vue', () => {
     const button = wrapper.findAll('button').find((b) => b.text() === 'Décliner la demande')!
 
     await button.trigger('click')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Décliner cette demande ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Décliner cette demande ?')
     await answerConfirm(host, 'cancel')
     expect(router.post).not.toHaveBeenCalled()
 
@@ -545,7 +545,7 @@ describe('quotes/quote_form.vue : confirmations (#291)', () => {
     const wrapper = mount(QuoteForm, { props: { rfq: detail(), quote: draft } })
 
     await clickAction(wrapper, 'Remettre le devis')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Remettre ce devis ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Remettre ce devis ?')
     await answerConfirm(host, 'cancel')
     expect(router.post).not.toHaveBeenCalled()
 

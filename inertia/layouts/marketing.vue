@@ -5,6 +5,7 @@ import type { Data } from '@generated/data'
 import { toast, Toaster } from 'vue-sonner'
 import MarketingFooter from '~/components/marketing/marketing_footer.vue'
 import MarketingHeader from '~/components/marketing/marketing_header.vue'
+import ConfirmDialogHost from '~/components/app/confirm_dialog_host.vue'
 import { useScrollFx } from '~/composables/use_scroll_fx'
 
 const page = usePage<Data.SharedProps>()
@@ -40,4 +41,5 @@ watch(
     <MarketingFooter />
   </div>
   <Toaster position="top-center" rich-colors />
+  <ConfirmDialogHost />
 </template>

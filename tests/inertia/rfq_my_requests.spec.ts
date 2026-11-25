@@ -198,8 +198,10 @@ describe('rfq_quote_documents.vue (#228)', () => {
       .find((b) => b.text() === 'Retenir')!
       .trigger('click')
 
-    expect(host.find('#confirm-dialog-title').text()).toBe('Retenir ce devis ?')
-    expect(host.find('#confirm-dialog-message').text()).toBe('Retenir ce devis clôture la demande.')
+    expect(host.find('[data-confirm-dialog="title"]').text()).toBe('Retenir ce devis ?')
+    expect(host.find('[data-confirm-dialog="message"]').text()).toBe(
+      'Retenir ce devis clôture la demande.'
+    )
     expect(router.post).not.toHaveBeenCalled()
 
     await answerConfirm(host, 'confirm')

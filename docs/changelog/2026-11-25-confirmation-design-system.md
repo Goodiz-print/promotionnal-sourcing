@@ -8,7 +8,7 @@ Les actions irréversibles du parcours devis ne passent plus par la boîte nativ
 
 - `inertia/components/base/base_confirm_dialog.vue` (`BaseConfirmDialog`) : fenêtre modale générique sur `<dialog>` natif (`showModal` : focus piégé, fond inerte), `role="alertdialog"`. Props `open`, `title`, `message`, `confirmLabel`, `cancelLabel`, `tone` (`default` · `danger`) ; émet `confirm` / `cancel`. Échap et clic sur le voile valent « Annuler ». En `danger`, bouton de confirmation `danger` et focus initial sur « Annuler » ; sinon bouton primaire, focus sur « Confirmer ».
 - `inertia/composables/use_confirm.ts` : `useConfirm().confirm(options)` renvoie une `Promise<boolean>` ; une seule demande à la fois (une nouvelle annule la précédente). `useConfirmHost()` sert l'hôte.
-- `inertia/components/app/confirm_dialog_host.vue` (`ConfirmDialogHost`), posé dans les layouts `default` et `auth` : rend la demande en cours, libellés génériques `common.confirmDialog.{title,confirm,cancel}` quand l'appelant n'en fournit pas ; une navigation annule la demande.
+- `inertia/components/app/confirm_dialog_host.vue` (`ConfirmDialogHost`), posé dans les trois layouts (`default`, `auth`, `marketing`) : rend la demande en cours, libellés génériques `common.confirmDialog.{title,confirm,cancel}` quand l'appelant n'en fournit pas ; une navigation annule la demande.
 - Types `ConfirmOptions` / `ConfirmTone` dans `inertia/types/ui.ts`.
 
 ## Écrans migrés

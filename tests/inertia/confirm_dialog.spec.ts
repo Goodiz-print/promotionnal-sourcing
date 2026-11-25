@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { reactive } from 'vue'
-import { flushPromises, mount } from '@vue/test-utils'
+import { h, reactive } from 'vue'
+import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 
 const page = reactive({
   url: '/fr/rfqs/1',
@@ -35,6 +35,7 @@ const cancelButton = '[data-confirm-dialog="cancel"]'
 afterEach(() => {
   useConfirmHost().cancel()
 })
+enableAutoUnmount(afterEach)
 
 describe('base_confirm_dialog', () => {
   it('ouvre une fenêtre modale avec titre, message et libellés', async () => {
@@ -44,11 +45,24 @@ describe('base_confirm_dialog', () => {
     const dialog = wrapper.find('dialog').element as HTMLDialogElement
     expect(dialog.open).toBe(true)
     expect(wrapper.attributes('role')).toBe('alertdialog')
-    expect(wrapper.find('#confirm-dialog-title').text()).toBe('Retenir ce devis ?')
-    expect(wrapper.find('#confirm-dialog-message').text()).toBe('La demande sera clôturée.')
+    expect(wrapper.find('[data-confirm-dialog="title"]').text()).toBe('Retenir ce devis ?')
+    expect(wrapper.find('[data-confirm-dialog="message"]').text()).toBe('La demande sera clôturée.')
     expect(wrapper.find(confirmButton).text()).toBe('Retenir')
     expect(wrapper.find(cancelButton).text()).toBe('Annuler')
     wrapper.unmount()
+  })
+
+  it('relie titre et message à la fenêtre par des identifiants uniques', () => {
+    const wrapper = mount(() => [h(BaseConfirmDialog, PROPS), h(BaseConfirmDialog, PROPS)])
+    const [dialog, other] = wrapper.findAll('dialog')
+
+    expect(dialog.attributes('aria-labelledby')).toBe(
+      dialog.find('[data-confirm-dialog="title"]').attributes('id')
+    )
+    expect(dialog.attributes('aria-describedby')).toBe(
+      dialog.find('[data-confirm-dialog="message"]').attributes('id')
+    )
+    expect(other.attributes('aria-labelledby')).not.toBe(dialog.attributes('aria-labelledby'))
   })
 
   it('se referme quand `open` repasse à false', async () => {
@@ -76,7 +90,7 @@ describe('base_confirm_dialog', () => {
 
     await wrapper.find('dialog').trigger('cancel')
     await wrapper.find('dialog').trigger('click')
-    await wrapper.find('#confirm-dialog-message').trigger('click')
+    await wrapper.find('[data-confirm-dialog="message"]').trigger('click')
 
     expect(wrapper.emitted('cancel')).toHaveLength(2)
   })
@@ -139,8 +153,8 @@ describe('confirm_dialog_host', () => {
     const answer = useConfirm().confirm({ message: 'Supprimer ?', tone: 'danger' })
     await flushPromises()
 
-    expect(wrapper.find('#confirm-dialog-title').text()).toBe('Confirmer l’action ?')
-    expect(wrapper.find('#confirm-dialog-message').text()).toBe('Supprimer ?')
+    expect(wrapper.find('[data-confirm-dialog="title"]').text()).toBe('Confirmer l’action ?')
+    expect(wrapper.find('[data-confirm-dialog="message"]').text()).toBe('Supprimer ?')
     expect(wrapper.find(cancelButton).text()).toBe('Annuler')
     expect(wrapper.find(confirmButton).text()).toBe('Confirmer')
     expect(wrapper.find(confirmButton).classes()).toContain('text-danger')
@@ -154,7 +168,7 @@ describe('confirm_dialog_host', () => {
     void useConfirm().confirm({ message: 'm', title: 'Retenir ?', confirmLabel: 'Retenir' })
     await flushPromises()
 
-    expect(wrapper.find('#confirm-dialog-title').text()).toBe('Retenir ?')
+    expect(wrapper.find('[data-confirm-dialog="title"]').text()).toBe('Retenir ?')
     expect(wrapper.find(confirmButton).text()).toBe('Retenir')
   })
 

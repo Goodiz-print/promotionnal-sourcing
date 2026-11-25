@@ -317,7 +317,7 @@ describe('rfqs/show.vue', () => {
       const wrapper = mount(RfqShow, { props: { ...baseProps, rfq: detail() } })
 
       await clickAction(wrapper, 'Supprimer le brouillon')
-      expect(host.find('#confirm-dialog-message').text()).toBe('Supprimer ce brouillon ?')
+      expect(host.find('[data-confirm-dialog="message"]').text()).toBe('Supprimer ce brouillon ?')
       expect(host.find('[data-confirm-dialog="confirm"]').classes()).toContain('text-danger')
       await answerConfirm(host, 'cancel')
       expect(router.delete).not.toHaveBeenCalled()
