@@ -22,12 +22,17 @@ Tous les environnements vivent dans la même organisation Clever, « Promotional
 
 ## Pas de CI rejouée sur main
 
-La CI (`ci.yml`) ne tourne que sur les pull requests : la rejouer après chaque merge coûtait un tiers du quota de minutes GitHub Actions. Le premier job de `docker.yml` (`scripts/ci/commit_tested.sh`) vérifie que le commit poussé sur `main` provient d'une PR mergée, que la CI de cette PR est verte sur sa tête, et que le **contenu** du commit (son arbre git) est identique à celui de cette tête.
+La CI (`ci.yml`) ne tourne que sur les pull requests : la rejouer après chaque merge coûtait un tiers du quota de minutes GitHub Actions. Le premier job de `docker.yml` (`scripts/ci/commit_tested.sh`) vérifie que le commit poussé sur `main` provient d'une PR mergée, que le **dernier** run de CI sur la tête de cette PR est vert avec au moins un job réellement exécuté (un run de brouillon, entièrement sauté, ne compte pas), et que le **contenu** du commit (son arbre git) est identique à celui de cette tête.
 
 - Identique (squash ou rebase d'une PR **à jour avec `main`**) : l'image est construite directement.
 - Différent (PR pas à jour au moment du merge, push direct sur `main`, API indisponible) : `docker.yml` rappelle la CI complète (`workflow_call`) et ne construit l'image que si elle est verte.
 
 Le plan GitHub Free ne permet pas d'imposer « branche à jour avant merge » sur un dépôt privé : **mettre la PR à jour (bouton _Update branch_) avant de merger** évite de repayer une CI complète.
+
+Autres économies :
+
+- **Brouillons** : une PR en brouillon ne lance aucun job de CI. La CI part au passage en « Ready for review », puis à chaque push. Ouvrir les PR en brouillon pendant le développement évite de payer un run complet à chaque push intermédiaire.
+- **Image Docker** : en PR, `docker-pr.yml` ne construit l'image que si la PR touche `Dockerfile`, `.dockerignore`, `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml` ou `patches/`. Sur `main`, `build-push` construit l'image, la contrôle (`scripts/ci/check_image.sh` : pas de root, pas de source `.ts` ni de `.env`, Ghostscript présent) et ne la pousse que si ces contrôles passent.
 
 ## Comment une image arrive sur Clever Cloud
 

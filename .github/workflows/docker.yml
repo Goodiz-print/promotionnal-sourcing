@@ -81,6 +81,24 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # L'image n'est pas toujours construite en PR (docker-pr.yml filtre par
+      # chemins) : elle est contrôlée ici avant d'être poussée. Le build suivant
+      # réutilise les couches en cache.
+      - name: Build de l'image (sans push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          push: false
+          tags: app:ci
+          build-args: |
+            APP_VERSION=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Contrôles de l'image
+        run: scripts/ci/check_image.sh app:ci
+
       - uses: docker/build-push-action@v6
         id: build
         with:
