@@ -1,5 +1,6 @@
 import { test } from '@japa/runner'
 import app from '@adonisjs/core/services/app'
+import logger from '@adonisjs/core/services/logger'
 import Product from '#models/product'
 import ProductVariant from '#models/product_variant'
 import ProductPriceTier from '#models/product_price_tier'
@@ -407,14 +408,24 @@ test.group('Import de catalogue fournisseur', (group) => {
   }) => {
     const variants = new FailingOnceVariantService(PRODUCT_IDENTITY_CONSTRAINTS[0])
     app.container.swap(ProductVariantService, () => variants)
+    // Le rejeu doit laisser une trace : on capte les warnings du logger applicatif.
+    const warnings: unknown[] = []
+    const warn = logger.warn
+    logger.warn = ((payload: unknown) => warnings.push(payload)) as typeof logger.warn
     try {
       const summary = await runImport(new InMemorySupplierConnector([MARKED]))
       assert.deepEqual(summary.errors, [])
       assert.include(summary, { created: 1, failed: 0 })
     } finally {
+      logger.warn = warn
       app.container.restore(ProductVariantService)
     }
     assert.equal(variants.calls, 2)
+    assert.deepInclude(warnings, {
+      supplier: 'fixture-supplier',
+      externalId: 'EXT-1',
+      constraint: PRODUCT_IDENTITY_CONSTRAINTS[0],
+    })
     const product = await Product.findByOrFail('externalId', 'EXT-1')
     assert.equal(product.slug, 'fixture-supplier-ext-1')
     assert.lengthOf(await ProductVariant.query().where('productId', product.id), 2)
