@@ -449,9 +449,5 @@ test.group('Santé — surveillance et alertes', (group) => {
     assert.equal(await statusWith(apiError(529)), 'degraded')
     // Injoignable (réseau, délai) : pas prouvé tombé, donc seulement dégradé.
     assert.equal(await statusWith(new Anthropic.APIConnectionError({})), 'degraded')
-
-    // Clé présente mais Claude n'est pas le fournisseur actif : non sondé, jamais en panne.
-    aiConfig.provider = 'mistral'
-    assert.equal(await statusWith(apiError(401)), 'disabled')
   })
 })

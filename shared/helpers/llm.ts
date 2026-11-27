@@ -1,7 +1,10 @@
 import {
   CLAUDE_IMAGE_MEDIA_TYPES,
+  LLM_PROVIDERS,
   type ClaudeImageMediaType,
+  type LlmApiKeys,
   type LlmCredentials,
+  type LlmProvider,
   type LlmPricing,
   type TranslationUsage,
 } from '#shared/types/ai'
@@ -10,6 +13,15 @@ type JsonSchema = Record<string, unknown>
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
+
+/**
+ * Fournisseur utilisé : le premier de `LLM_PROVIDERS` (Claude, puis Mistral) dont
+ * la clé d'API est présente. Sans aucune clé, le premier de la liste : l'IA est
+ * alors indisponible (`llmApiKey` rend `undefined`).
+ */
+export function resolveLlmProvider(apiKeys: LlmApiKeys): LlmProvider {
+  return LLM_PROVIDERS.find((provider) => Boolean(apiKeys[provider])) ?? LLM_PROVIDERS[0]
+}
 
 /** Clé d'API du fournisseur de modèle de langage actif (`undefined` : IA indisponible). */
 export function llmApiKey(config: LlmCredentials): string | undefined {

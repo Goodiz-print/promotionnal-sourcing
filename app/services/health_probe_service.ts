@@ -201,12 +201,11 @@ export default class HealthProbeService {
 
   /**
    * Liste des modèles (API Anthropic) : authentifié, gratuit, aucun token consommé.
-   * Sondé seulement si Claude est le fournisseur actif : une clé présente mais
-   * inutilisée ne doit ni mettre la plateforme en panne ni déclencher d'alerte.
+   * Sa clé présente, Claude est le fournisseur actif (`resolveLlmProvider`) : la
+   * sonde ne porte donc jamais sur un fournisseur inutilisé.
    */
   private async claude(): Promise<Outcome> {
-    const unused = aiConfig.provider !== 'claude' || !aiConfig.claude.apiKey
-    if (unused) return { status: 'disabled' }
+    if (!aiConfig.claude.apiKey) return { status: 'disabled' }
     try {
       await this.claudeClient.models.list(
         { limit: 1 },

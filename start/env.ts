@@ -11,7 +11,6 @@
 
 import { Env } from '@adonisjs/core/env'
 import { TRANSMIT_TRANSPORTS } from '#shared/types/realtime'
-import { LLM_PROVIDERS } from '#shared/types/ai'
 
 export default await Env.create(new URL('../', import.meta.url), {
   // Node
@@ -122,10 +121,8 @@ export default await Env.create(new URL('../', import.meta.url), {
   // Recherche par image (modèle vision Mistral)
   AI_VISION_ENABLED: Env.schema.boolean.optional(),
   MISTRAL_VISION_MODEL: Env.schema.string.optional(),
-  // Modèle de langage (traduction + recherche par image) : `mistral` (défaut) ou `claude`.
-  // Distinct de `AI_PROVIDER`, réservé aux embeddings (Claude n'en propose pas).
-  AI_LLM_PROVIDER: Env.schema.enum.optional(LLM_PROVIDERS),
-  // Driver Claude (API Anthropic)
+  // Driver Claude (API Anthropic). Sa clé présente, Claude sert à la traduction et à la
+  // recherche par image ; sinon Mistral (`MISTRAL_API_KEY`). Sans effet sur les embeddings.
   ANTHROPIC_API_KEY: Env.schema.string.optional(),
   CLAUDE_TRANSLATION_MODEL: Env.schema.string.optional(),
   CLAUDE_VISION_MODEL: Env.schema.string.optional(),

@@ -21,7 +21,7 @@ interface TranslateEntityPayload {
  * sans surcoût** : `TranslationService` saute l'appel si les clés d'idempotence
  * sont inchangées (retry, crash, redéploiement). No-op tant que
  * `ai.translation.enabled` est faux ou que la clé du fournisseur actif
- * (`AI_LLM_PROVIDER`) manque : la traduction est alors indisponible, sans échec
+ * (Claude, sinon Mistral) manque : la traduction est alors indisponible, sans échec
  * ni réessai. Un refus du modèle n'est pas rejoué non plus (même réponse, refacturée).
  *
  * Pas d'import de modèle Lucid (les jobs sont chargés au boot) : le service

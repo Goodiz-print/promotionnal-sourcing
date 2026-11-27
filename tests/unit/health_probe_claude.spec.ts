@@ -60,12 +60,8 @@ test.group('HealthProbeService — sonde Claude', (group) => {
     assert.equal(await claudeStatus(new Anthropic.APIConnectionError({})), 'degraded')
   })
 
-  test('non sondé sans clé, ou quand Claude n’est pas le fournisseur actif', async ({ assert }) => {
+  test('non sondé sans clé', async ({ assert }) => {
     aiConfig.claude.apiKey = undefined
-    assert.equal(await claudeStatus(apiError(401)), 'disabled')
-
-    aiConfig.claude.apiKey = 'sk-ant-test'
-    aiConfig.provider = 'mistral'
     assert.equal(await claudeStatus(apiError(401)), 'disabled')
   })
 })

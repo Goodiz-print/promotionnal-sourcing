@@ -6,6 +6,7 @@ import {
   imageQuerySchema,
   llmApiKey,
   pickTranslations,
+  resolveLlmProvider,
   translationSchema,
   translationShapeError,
   tryParseJson,
@@ -145,5 +146,23 @@ test.group('estimateLlmCost', () => {
 
   test('un tarif à zéro est un tarif, pas une absence', ({ assert }) => {
     assert.equal(estimateLlmCost(usage, { inputPerMillion: 0, outputPerMillion: 0 }), 0)
+  })
+})
+
+test.group('resolveLlmProvider', () => {
+  test('Claude passe en premier dès que sa clé est présente', ({ assert }) => {
+    assert.equal(resolveLlmProvider({ claude: 'sk-ant', mistral: 'mistral-key' }), 'claude')
+    assert.equal(resolveLlmProvider({ claude: 'sk-ant', mistral: undefined }), 'claude')
+  })
+
+  test('Mistral quand seule sa clé est présente (clé vide = absente)', ({ assert }) => {
+    assert.equal(resolveLlmProvider({ claude: undefined, mistral: 'mistral-key' }), 'mistral')
+    assert.equal(resolveLlmProvider({ claude: '', mistral: 'mistral-key' }), 'mistral')
+  })
+
+  test('sans aucune clé : Claude, et aucune clé active (IA indisponible)', ({ assert }) => {
+    const provider = resolveLlmProvider({ claude: undefined, mistral: undefined })
+    assert.equal(provider, 'claude')
+    assert.isUndefined(llmApiKey({ provider, claude: {}, mistral: {} }))
   })
 })

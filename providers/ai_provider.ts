@@ -9,13 +9,13 @@ import MistralImageDescriptionProvider from '#services/vision/mistral_image_desc
 import ClaudeImageDescriptionProvider from '#services/vision/claude_image_description_provider'
 import type { LlmProvider } from '#shared/types/ai'
 
-/** Driver de traduction de chaque fournisseur (`AI_LLM_PROVIDER`). */
+/** Driver de traduction de chaque fournisseur. */
 export const TRANSLATION_DRIVERS = {
   mistral: MistralTranslationProvider,
   claude: ClaudeTranslationProvider,
 } satisfies Record<LlmProvider, new (...args: never[]) => TranslationProvider>
 
-/** Driver de description d'image de chaque fournisseur (`AI_LLM_PROVIDER`). */
+/** Driver de description d'image de chaque fournisseur. */
 export const IMAGE_DESCRIPTION_DRIVERS = {
   mistral: MistralImageDescriptionProvider,
   claude: ClaudeImageDescriptionProvider,
@@ -23,8 +23,8 @@ export const IMAGE_DESCRIPTION_DRIVERS = {
 
 /**
  * Lie les abstractions `TranslationProvider` (#75) et `ImageDescriptionProvider`
- * au driver du fournisseur choisi par `AI_LLM_PROVIDER` (Mistral par défaut, ou
- * Claude — ADR 0006). Les embeddings ne passent pas par ici : Meilisearch les
+ * au driver du fournisseur dont la clé d'API est présente (Claude d'abord, sinon
+ * Mistral — ADR 0006). Les embeddings ne passent pas par ici : Meilisearch les
  * calcule lui-même (embedder `rest`, cf. `config/search.ts` et ADR 0002).
  */
 export default class AiProvider {

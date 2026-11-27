@@ -1,13 +1,20 @@
 import env from '#start/env'
-import { DEFAULT_LLM_PROVIDER, type LlmModels, type LlmProvider } from '#shared/types/ai'
+import { resolveLlmProvider } from '#shared/helpers/llm'
+import type { LlmApiKeys, LlmModels, LlmProvider } from '#shared/types/ai'
+
+const apiKeys: LlmApiKeys = {
+  claude: env.get('ANTHROPIC_API_KEY'),
+  mistral: env.get('MISTRAL_API_KEY'),
+}
 
 /**
- * Fournisseur du modèle de langage (traduction + description d'image) :
- * `AI_LLM_PROVIDER`, Mistral par défaut. Un seul choix pour les deux fonctions
- * (ADR 0006). Les embeddings n'en dépendent pas : voir `config/search.ts`
- * (`AI_PROVIDER`) et l'ADR 0002 — Claude n'a pas d'API d'embeddings.
+ * Fournisseur du modèle de langage (traduction + description d'image) : ce sont
+ * les clés d'API présentes qui le désignent, Claude en premier, Mistral sinon
+ * (ADR 0006). Un seul choix pour les deux fonctions. Les embeddings n'en dépendent
+ * pas : voir `config/search.ts` (`AI_PROVIDER`) et l'ADR 0002 — Claude n'a pas
+ * d'API d'embeddings.
  */
-const provider: LlmProvider = env.get('AI_LLM_PROVIDER', DEFAULT_LLM_PROVIDER)
+const provider: LlmProvider = resolveLlmProvider(apiKeys)
 
 const MODELS: Record<LlmProvider, LlmModels> = {
   mistral: {
@@ -34,11 +41,11 @@ const aiConfig = {
   provider,
 
   mistral: {
-    apiKey: env.get('MISTRAL_API_KEY'),
+    apiKey: apiKeys.mistral,
   },
 
   claude: {
-    apiKey: env.get('ANTHROPIC_API_KEY'),
+    apiKey: apiKeys.claude,
   },
 
   /**

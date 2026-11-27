@@ -18,7 +18,7 @@ Contraintes :
 
 ## Décision
 
-**Une seule variable, `AI_LLM_PROVIDER` (`mistral` par défaut, ou `claude`), choisit le fournisseur de la traduction et de la description d'image.**
+**Ce sont les clés d'API présentes qui désignent le fournisseur de la traduction et de la description d'image, Claude en premier** : `ANTHROPIC_API_KEY` renseignée, c'est Claude ; sinon `MISTRAL_API_KEY`, c'est Mistral ; aucune des deux, les deux fonctions sont indisponibles (`resolveLlmProvider`, `shared/helpers/llm.ts`). Il n'y a pas de variable de choix.
 
 - `AI_PROVIDER` n'est pas réutilisée : elle reste réservée aux embeddings, qui restent sur Hugging Face, Mistral ou un service OpenAI-compatible. Choisir Claude ne touche pas à la recherche sémantique.
 - Deux drivers Claude (`ClaudeTranslationProvider`, `ClaudeImageDescriptionProvider`) s'appuient sur le SDK officiel `@anthropic-ai/sdk`. Le client `Anthropic` est lié une fois dans le conteneur et injecté dans les drivers et dans la sonde de santé.
@@ -38,29 +38,31 @@ Tarifs relevés le 2026-11-27, à revérifier avant de poser `AI_PRICE_*`. Haiku
 
 ## Alternatives écartées
 
-| Alternative                                         | Raison de l'écart                                                                                                                                        |
-| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Un choix par fonction (traduction / vision)         | Deux variables, et un seul tarif `AI_PRICE_*` côté back-office. À ajouter si le besoin apparaît : les deux liaisons du provider sont déjà indépendantes. |
-| Réutiliser `AI_PROVIDER`                            | Elle choisit les embeddings, que Claude ne fournit pas : `AI_PROVIDER=claude` casserait la recherche sémantique.                                         |
-| Appeler Claude par une couche « compatible OpenAI » | Pas de sortie structurée ni de types du SDK officiel.                                                                                                    |
-| Opus ou Sonnet par défaut                           | 20 à 40 fois le coût pour une tâche que le plus petit modèle traite ; reste réglable par variable.                                                       |
+| Alternative                                         | Raison de l'écart                                                                                                                                                        |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Un choix par fonction (traduction / vision)         | Deux variables, et un seul tarif `AI_PRICE_*` côté back-office. À ajouter si le besoin apparaît : les deux liaisons du provider sont déjà indépendantes.                 |
+| Une variable de choix (`AI_LLM_PROVIDER`)           | Écartée à la demande du client : une variable de plus, et un fournisseur choisi sans sa clé rendait l'IA indisponible. La clé présente suffit à désigner le fournisseur. |
+| Réutiliser `AI_PROVIDER`                            | Elle choisit les embeddings, que Claude ne fournit pas : `AI_PROVIDER=claude` casserait la recherche sémantique.                                                         |
+| Appeler Claude par une couche « compatible OpenAI » | Pas de sortie structurée ni de types du SDK officiel.                                                                                                                    |
+| Opus ou Sonnet par défaut                           | 20 à 40 fois le coût pour une tâche que le plus petit modèle traite ; reste réglable par variable.                                                                       |
 
 ## Conséquences
 
 **Positives**
 
-- Le fournisseur se change par une variable, sans toucher au code.
-- Rien ne change sans `AI_LLM_PROVIDER` : Mistral, mêmes modèles, mêmes clés d'idempotence.
+- Le fournisseur se change en posant ou en retirant une clé, sans toucher au code ; pas de combinaison incohérente possible (fournisseur choisi sans sa clé).
+- Rien ne change pour un environnement qui n'a que `MISTRAL_API_KEY` : Mistral, mêmes modèles, mêmes clés d'idempotence.
 - La sonde de santé suit les deux fournisseurs (composant `claude`, non sondé sans clé).
 
 **Négatives**
 
+- Poser `ANTHROPIC_API_KEY` suffit à basculer sur Claude, même si `MISTRAL_API_KEY` reste présente (elle sert aussi aux embeddings avec `AI_PROVIDER=mistral`) : la bascule est implicite, et elle retraduit le contenu automatique.
 - **Changer de fournisseur ou de modèle retraduit le contenu automatique** : le modèle entre dans la clé d'idempotence, toutes les clés changent. Les traductions corrigées à la main (`is_auto = false`) ne sont pas touchées. Mesurer le coût avec `translation:backfill --limit=N` avant un passage en masse.
 - Le journal `ai_calls` garde le modèle de chaque appel. Le coût affiché n'applique le tarif configuré qu'aux appels du modèle actif : après un changement, les anciens appels restent comptés en tokens mais ne sont plus chiffrés.
 - Les modèles Claude antérieurs à la génération 4.6 ne sont pas pris en charge (paramètre `effort`).
 
 ## Points à valider avant d'activer Claude en production
 
-- **Données personnelles** : avec `AI_LLM_PROVIDER=claude`, les photos de la recherche par image sont envoyées à Anthropic (États-Unis), plus à Mistral AI. La politique de confidentialité affiche alors la variante `bodyClaude` (`resources/lang/*/privacy.json`), qui nomme Anthropic et constate le transfert vers les États-Unis ; l'encadrement juridique de ce transfert n'y est pas décrit : texte à faire valider par le client avant d'activer la vision avec Claude.
+- **Données personnelles** : avec Claude (`ANTHROPIC_API_KEY` présente), les photos de la recherche par image sont envoyées à Anthropic (États-Unis), plus à Mistral AI. La politique de confidentialité affiche alors la variante `bodyClaude` (`resources/lang/*/privacy.json`), qui nomme Anthropic et constate le transfert vers les États-Unis ; l'encadrement juridique de ce transfert n'y est pas décrit : texte à faire valider par le client avant d'activer la vision avec Claude.
 - Mesurer la qualité de traduction sur un échantillon réel (`translation:backfill --limit=N`) avant de retraduire le catalogue.
 - Poser `AI_PRICE_INPUT_PER_MILLION` / `AI_PRICE_OUTPUT_PER_MILLION` au tarif du modèle choisi.

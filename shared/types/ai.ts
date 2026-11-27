@@ -1,13 +1,15 @@
 /**
- * Fournisseurs du modèle de langage (traduction et description d'image), choisis
- * par `AI_LLM_PROVIDER`. Sans rapport avec `AI_PROVIDER`, qui choisit le
- * fournisseur d'**embeddings** (`shared/types/search.ts`) : Claude n'en propose pas.
+ * Fournisseurs du modèle de langage (traduction et description d'image), **par
+ * ordre de préférence** : le premier dont la clé d'API est présente est utilisé
+ * (`resolveLlmProvider`), Claude avant Mistral. Sans rapport avec `AI_PROVIDER`,
+ * qui choisit le fournisseur d'**embeddings** (`shared/types/search.ts`) : Claude
+ * n'en propose pas.
  */
-export const LLM_PROVIDERS = ['mistral', 'claude'] as const
+export const LLM_PROVIDERS = ['claude', 'mistral'] as const
 export type LlmProvider = (typeof LLM_PROVIDERS)[number]
 
-/** Fournisseur par défaut : rien ne change pour un environnement qui ne règle rien. */
-export const DEFAULT_LLM_PROVIDER: LlmProvider = 'mistral'
+/** Clé d'API de chaque fournisseur (absente ou vide : fournisseur non configuré). */
+export type LlmApiKeys = Record<LlmProvider, string | undefined>
 
 /**
  * Clé du texte « Destinataires et sous-traitants » de la politique de

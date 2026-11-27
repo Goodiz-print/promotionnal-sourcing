@@ -26,7 +26,7 @@ import ImageDescriptionProvider from '#services/vision/image_description_provide
 import MistralImageDescriptionProvider from '#services/vision/mistral_image_description_provider'
 import ClaudeImageDescriptionProvider from '#services/vision/claude_image_description_provider'
 import HealthProbeService from '#services/health_probe_service'
-import { DEFAULT_LLM_PROVIDER, LLM_PROVIDERS } from '#shared/types/ai'
+import { LLM_PROVIDERS } from '#shared/types/ai'
 
 /**
  * Garde-fou d'injection de dépendances : le conteneur IoC doit savoir résoudre
@@ -67,15 +67,6 @@ test.group('Conteneur IoC — câblage des dépendances', () => {
     assert.instanceOf(await app.container.make(StorageCleanupService), StorageCleanupService)
   })
 
-  test('le fournisseur par défaut est Mistral', ({ assert }) => {
-    assert.equal(DEFAULT_LLM_PROVIDER, 'mistral')
-    assert.strictEqual(TRANSLATION_DRIVERS[DEFAULT_LLM_PROVIDER], MistralTranslationProvider)
-    assert.strictEqual(
-      IMAGE_DESCRIPTION_DRIVERS[DEFAULT_LLM_PROVIDER],
-      MistralImageDescriptionProvider
-    )
-  })
-
   test('l’application lie traduction et vision au fournisseur configuré', async ({ assert }) => {
     assert.instanceOf(
       await app.container.make(TranslationProvider),
@@ -88,7 +79,7 @@ test.group('Conteneur IoC — câblage des dépendances', () => {
   })
 
   LLM_PROVIDERS.forEach((provider) => {
-    test(`AI_LLM_PROVIDER=${provider} lie les drivers ${provider}`, async ({ assert, cleanup }) => {
+    test(`fournisseur ${provider} : lie les drivers ${provider}`, async ({ assert, cleanup }) => {
       const saved = aiConfig.provider
       cleanup(() => void (aiConfig.provider = saved))
       aiConfig.provider = provider
@@ -110,6 +101,8 @@ test.group('Conteneur IoC — câblage des dépendances', () => {
     assert.sameMembers(Object.keys(IMAGE_DESCRIPTION_DRIVERS), [...LLM_PROVIDERS])
     assert.strictEqual(TRANSLATION_DRIVERS.claude, ClaudeTranslationProvider)
     assert.strictEqual(IMAGE_DESCRIPTION_DRIVERS.claude, ClaudeImageDescriptionProvider)
+    assert.strictEqual(TRANSLATION_DRIVERS.mistral, MistralTranslationProvider)
+    assert.strictEqual(IMAGE_DESCRIPTION_DRIVERS.mistral, MistralImageDescriptionProvider)
   })
 
   test('résout les drivers Claude avec le client Anthropic, même sans clé', async ({ assert }) => {

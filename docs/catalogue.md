@@ -313,8 +313,8 @@ traduction dédiées** — jamais dans les tables de base :
 - Le fournisseur saisit nom/description dans sa **langue source**
   (`sourceLocale`, colonne `source_locale` sur `products`, `categories`,
   `attributes`, `attribute_values`). Les autres langues de contenu sont générées
-  par `TranslateEntityJob` à la sauvegarde (Mistral par défaut, ou Claude avec
-  `AI_LLM_PROVIDER=claude`, ADR 0006).
+  par `TranslateEntityJob` à la sauvegarde (Claude si `ANTHROPIC_API_KEY` est
+  présente, sinon Mistral, ADR 0006).
 - Chaque ligne de traduction porte `is_auto` : `true` = générée (corrigeable),
   `false` = saisie ou corrigée à la main. `TranslationService` n'écrase jamais
   une ligne `is_auto = false`. Renvoyer une traduction inchangée ne change pas son
