@@ -4,6 +4,7 @@ import {
   dropIndexConcurrentlySql,
   isUniqueViolation,
   isUniqueViolationOn,
+  violatedConstraint,
   retryOnceOnUniqueViolation,
 } from '#shared/helpers/database'
 
@@ -34,6 +35,21 @@ test.group('retryOnceOnUniqueViolation', () => {
     const { run, calls } = sequence([uniqueViolation(), 'ok'])
     assert.equal(await retryOnceOnUniqueViolation(run, [SLUG]), 'ok')
     assert.equal(calls.count, 2)
+  })
+
+  test('signale la première violation avant le nouvel essai', async ({ assert }) => {
+    const first = uniqueViolation()
+    const { run } = sequence([first, 'ok'])
+    const seen: unknown[] = []
+    await retryOnceOnUniqueViolation(run, [SLUG], (error) => seen.push(error))
+    assert.deepEqual(seen, [first])
+  })
+
+  test('aucun signalement sans nouvel essai', async ({ assert }) => {
+    const { run } = sequence([uniqueViolation('other'), 'ok'])
+    const seen: unknown[] = []
+    await assert.rejects(() => retryOnceOnUniqueViolation(run, [SLUG], (e) => seen.push(e)))
+    assert.deepEqual(seen, [])
   })
 
   test('propage un second échec sans troisième essai', async ({ assert }) => {
@@ -86,6 +102,15 @@ test.group('isUniqueViolationOn', () => {
         SLUG,
       ])
     )
+  })
+})
+
+test.group('violatedConstraint', () => {
+  test('nom de la contrainte, ou null', ({ assert }) => {
+    assert.equal(violatedConstraint(uniqueViolation()), SLUG)
+    assert.isNull(violatedConstraint(new Error('fk')))
+    assert.isNull(violatedConstraint('23505'))
+    assert.isNull(violatedConstraint(null))
   })
 })
 

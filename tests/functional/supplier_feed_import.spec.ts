@@ -354,6 +354,24 @@ test.group('Import de catalogue fournisseur', (group) => {
     assert.equal(product.slug, 'fixture-supplier-ab-12-3')
   })
 
+  test('code sans caractère sluggable : pas de collision avec la famille du fournisseur', async ({
+    assert,
+  }) => {
+    const summary = await runImport(
+      new InMemorySupplierConnector([
+        normalizedProduct({ externalId: '2', variants: [] }),
+        normalizedProduct({ externalId: '中文', variants: [] }),
+        normalizedProduct({ externalId: '---', variants: [] }),
+      ])
+    )
+    assert.include(summary, { created: 3, failed: 0 })
+    const products = await Product.query().whereIn('externalId', ['2', '中文', '---'])
+    assert.sameMembers(
+      products.map((product) => product.slug),
+      ['fixture-supplier-2', 'fixture-supplier-', 'fixture-supplier--2']
+    )
+  })
+
   test('code au slug très long : base tronquée, suffixe dans la colonne', async ({ assert }) => {
     // `€` devient `euro` : 100 caractères donnent un slug de 400.
     const ids = ['€'.repeat(100), `${'€'.repeat(99)} `]
@@ -368,6 +386,20 @@ test.group('Import de catalogue fournisseur', (group) => {
     const slugs = products.map((product) => product.slug)
     const base = `fixture-supplier-${'euro'.repeat(100)}`.slice(0, 247)
     assert.sameMembers(slugs, [base, `${base}-2`])
+  })
+
+  test('code sans caractère sluggable : base `<fournisseur>-` conservée', async ({ assert }) => {
+    // `---` et `???` donnent un slug vide.
+    const ids = ['---', '???']
+    const summary = await runImport(
+      new InMemorySupplierConnector(
+        ids.map((externalId) => normalizedProduct({ externalId, variants: [] }))
+      )
+    )
+    assert.deepEqual(summary.errors, [])
+    const products = await Product.query().whereIn('externalId', ids)
+    const slugs = products.map((product) => product.slug)
+    assert.sameMembers(slugs, ['fixture-supplier-', 'fixture-supplier--2'])
   })
 
   test('violation d’unicité concurrente sur la fiche : transaction rejouée une fois', async ({

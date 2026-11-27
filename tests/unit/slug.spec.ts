@@ -2,7 +2,9 @@ import { test } from '@japa/runner'
 import {
   SLUG_MAX_LENGTH,
   escapeLikePattern,
+  escapeRegExp,
   firstFreeSlug,
+  numberedSlugRegex,
   suffixedSlugPattern,
   truncateSlugBase,
 } from '#shared/helpers/slug'
@@ -50,5 +52,23 @@ test.group('Slug unique — utilitaires', () => {
 
   test('coupe sur un tiret : tirets de fin retirés', ({ assert }) => {
     assert.equal(truncateSlugBase(`${'a'.repeat(9)}---bbb`, 20), 'a'.repeat(9))
+  })
+
+  test('base intacte : tiret de fin conservé (code sans caractère sluggable)', ({ assert }) => {
+    assert.equal(truncateSlugBase('pf-concept-'), 'pf-concept-')
+  })
+
+  test('échappe les métacaractères d’expression régulière', ({ assert }) => {
+    assert.equal(escapeRegExp('a.b_c(d)[e]\\x'), 'a\\.b_c\\(d\\)\\[e\\]\\\\x')
+  })
+
+  test('regex des suffixes numériques : voisins et points écartés', ({ assert }) => {
+    const regex = new RegExp(numberedSlugRegex('pf-ab.12'))
+    assert.isTrue(regex.test('pf-ab.12-2'))
+    assert.isTrue(regex.test('pf-ab.12-15'))
+    assert.isFalse(regex.test('pf-ab.12'))
+    assert.isFalse(regex.test('pf-ab.12-extra'))
+    assert.isFalse(regex.test('pf-ab.12-2-b'))
+    assert.isFalse(regex.test('pf-abx12-2'))
   })
 })

@@ -17,7 +17,9 @@ SQL par collision dans la transaction produit :
   toute la table `products` à chaque fiche créée.
 - **Slug trop long** : la base est tronquée à 247 caractères (`truncateSlugBase`)
   pour que `-N` tienne dans `products.slug` (255). Un code comme `€€€…` (où `€`
-  devient `euro`) n'échoue plus.
+  devient `euro`) n'échoue plus. Seuls les tirets laissés par la coupe sont
+  retirés : un code sans caractère sluggable (`***`) garde la base
+  `<fournisseur>-`, dont le motif ne couvre pas tout le catalogue du fournisseur.
 - **Imports concurrents** : si deux imports prennent le même slug entre la
   lecture et l'écriture, la violation d'unicité relance une fois la transaction
   de la fiche (`retryOnceOnUniqueViolation`, `shared/helpers/database.ts`),
