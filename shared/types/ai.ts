@@ -1,5 +1,36 @@
 /**
- * Entités traduisibles par Mistral : table de traduction, clé étrangère et
+ * Fournisseurs du modèle de langage (traduction et description d'image), choisis
+ * par `AI_LLM_PROVIDER`. Sans rapport avec `AI_PROVIDER`, qui choisit le
+ * fournisseur d'**embeddings** (`shared/types/search.ts`) : Claude n'en propose pas.
+ */
+export const LLM_PROVIDERS = ['mistral', 'claude'] as const
+export type LlmProvider = (typeof LLM_PROVIDERS)[number]
+
+/** Ce qu'il faut pour savoir quelle clé d'API sert au fournisseur actif. */
+export interface LlmCredentials {
+  provider: LlmProvider
+  mistral: { apiKey?: string }
+  claude: { apiKey?: string }
+}
+
+/** Modèles et plafond de sortie d'un fournisseur de modèle de langage. */
+export interface LlmModels {
+  translation: string
+  vision: string
+  visionMaxTokens: number
+}
+
+/** Formats d'image acceptés par l'API Claude. */
+export const CLAUDE_IMAGE_MEDIA_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+] as const
+export type ClaudeImageMediaType = (typeof CLAUDE_IMAGE_MEDIA_TYPES)[number]
+
+/**
+ * Entités traduisibles par le fournisseur IA : table de traduction, clé étrangère et
  * champs texte traduits (registre dans `TranslationService`).
  */
 export const TRANSLATABLE_ENTITIES = [
@@ -146,7 +177,7 @@ export interface TranslationBackfillReport {
   failed: boolean
 }
 
-/** `called` si Mistral a été appelé, `skipped` si toutes les locales étaient à jour. */
+/** `called` si le fournisseur IA a été appelé, `skipped` si toutes les locales étaient à jour. */
 export type TranslationOutcome = 'called' | 'skipped'
 
 /** Morceau de message multimodal (texte ou image en URL / data URL). */

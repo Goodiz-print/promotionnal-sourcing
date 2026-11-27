@@ -1821,7 +1821,7 @@
   },
   "health": {
     "title": "Santé de la plateforme",
-    "subtitle": "État en direct des composants (base, queue, recherche, stockage, emails, VIES, Mistral). Le job de surveillance repasse toutes les 5 minutes et alerte par email à MAIL_ALERT_ADDRESS.",
+    "subtitle": "État en direct des composants (base, queue, recherche, stockage, emails, VIES, Mistral, Claude). Le job de surveillance repasse toutes les 5 minutes et alerte par email à MAIL_ALERT_ADDRESS.",
     "statuses": {
       "ok": "Sain",
       "degraded": "Dégradé",
@@ -1840,7 +1840,8 @@
       "storage": "Stockage (Cellar)",
       "mail": "Emails",
       "vies": "VIES (TVA)",
-      "mistral": "Mistral (IA)"
+      "mistral": "Mistral (IA)",
+      "claude": "Claude (IA)"
     },
     "hints": {
       "database": "Requête de test sur PostgreSQL.",
@@ -1849,7 +1850,8 @@
       "storage": "Requête HEAD sur Cellar, rien n’est écrit.",
       "mail": "Échecs d’envoi sur la dernière heure.",
       "vies": "Service de la Commission européenne : jamais plus que dégradé, sans alerte.",
-      "mistral": "Liste des modèles, sans consommer de tokens ; non configuré sans MISTRAL_API_KEY."
+      "mistral": "Liste des modèles, sans consommer de tokens ; non configuré sans MISTRAL_API_KEY.",
+      "claude": "Liste des modèles, sans consommer de tokens ; non configuré sans ANTHROPIC_API_KEY."
     },
     "components": {
       "title": "Composants",

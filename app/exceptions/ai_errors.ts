@@ -13,7 +13,8 @@ export class TranslationProviderError extends Exception {
 }
 
 /**
- * Réponse tronquée par le plafond de sortie (`finish_reason = length`) : rejouer
+ * Réponse tronquée par le plafond de sortie (`finish_reason = length` chez Mistral,
+ * `stop_reason = max_tokens` chez Claude) : rejouer
  * le même appel échouerait de la même façon, le service réduit donc le lot.
  */
 export class TranslationTruncatedError extends TranslationProviderError {

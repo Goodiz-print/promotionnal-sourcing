@@ -1,5 +1,6 @@
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
+import Anthropic from '@anthropic-ai/sdk'
 import aiConfig from '#config/ai'
 import healthConfig from '#config/health'
 import HealthService from '#services/health_service'
@@ -41,8 +42,8 @@ async function within<T>(promise: Promise<T>, ms: number): Promise<T> {
 }
 
 /**
- * Sondes de la plateforme (#179) : base, queue, recherche, Cellar, mails, VIES et
- * Mistral. Chaque sonde est isolée : une exception devient le statut `down` de son
+ * Sondes de la plateforme (#179) : base, queue, recherche, Cellar, mails, VIES,
+ * Mistral et Claude. Chaque sonde est isolée : une exception devient le statut `down` de son
  * composant et ne remonte jamais, de sorte qu'un composant en panne ne casse ni le
  * rapport ni la sonde de liveness (`/health`, qui ne dépend que de la base).
  *
@@ -54,7 +55,8 @@ export default class HealthProbeService {
   constructor(
     private health: HealthService,
     private engine: SearchEngine,
-    private storage: StorageService
+    private storage: StorageService,
+    private claudeClient: Anthropic
   ) {}
 
   /** Sonde tous les composants en parallèle. */
@@ -118,6 +120,8 @@ export default class HealthProbeService {
         return this.vies()
       case 'mistral':
         return this.mistral()
+      case 'claude':
+        return this.claude()
     }
   }
 
@@ -193,5 +197,23 @@ export default class HealthProbeService {
     // 401/403 : clé refusée, rien ne marchera tant qu'elle n'est pas corrigée.
     const rejected = response.status === 401 || response.status === 403
     return { status: rejected ? 'down' : 'degraded', detail: `HTTP ${response.status}` }
+  }
+
+  /** Liste des modèles (API Anthropic) : authentifié, gratuit, aucun token consommé. */
+  private async claude(): Promise<Outcome> {
+    if (!aiConfig.claude.apiKey) return { status: 'disabled' }
+    try {
+      await this.claudeClient.models.list(
+        { limit: 1 },
+        { timeout: healthConfig.probeTimeoutMs, maxRetries: 0 }
+      )
+      return { status: 'ok' }
+    } catch (error) {
+      // Sans statut HTTP (réseau, délai) : injoignable, traité par `probe()`.
+      if (!(error instanceof Anthropic.APIError) || error.status === undefined) throw error
+      // 401/403 : clé refusée, rien ne marchera tant qu'elle n'est pas corrigée.
+      const rejected = error.status === 401 || error.status === 403
+      return { status: rejected ? 'down' : 'degraded', detail: `HTTP ${error.status}` }
+    }
   }
 }
