@@ -43,10 +43,14 @@ const emit = defineEmits<{
 
 const slots = useSlots()
 
+// Dépend de `props.type` : reste dans le composant.
+function parseValue(value: string): string | number | null {
+  if (props.type !== 'number') return value
+  return value === '' ? null : Number(value)
+}
+
 function onInput(event: Event) {
-  const value = (event.target as HTMLInputElement).value
-  const next = props.type === 'number' ? (value === '' ? null : Number(value)) : value
-  emit('update:modelValue', next as T)
+  emit('update:modelValue', parseValue((event.target as HTMLInputElement).value) as T)
 }
 </script>
 

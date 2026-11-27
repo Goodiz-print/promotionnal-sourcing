@@ -4,6 +4,13 @@ import type { QueueHealthReport } from '#shared/types/health'
 export const QUEUE_JOB_STATUSES = ['pending', 'delayed', 'active', 'completed', 'failed'] as const
 export type QueueJobStatus = (typeof QUEUE_JOB_STATUSES)[number]
 
+/** Horodatages bruts d'un job parmi lesquels choisir celui à afficher. */
+export interface QueueJobTimes {
+  finishedAt: string | number | null
+  acquiredAt: string | number | null
+  dueAt: string | number | null
+}
+
 /**
  * Valeurs du filtre « état » de la liste : les états de la queue, plus `stuck`
  * (job actif acquis depuis plus que `QUEUE_THRESHOLDS.activeStuckMs`).

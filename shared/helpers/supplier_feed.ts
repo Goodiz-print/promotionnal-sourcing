@@ -2,6 +2,7 @@
  * Utilitaires purs des connecteurs fournisseurs (parsing de valeurs hétérogènes).
  */
 import type { NormalizedPriceTier } from '#shared/types/supplier_feed'
+import type { ProductStockStatus } from '#shared/types/product'
 
 /**
  * Nombre depuis une valeur de flux : `17,5`, `"0.62"`, `150`, `""`, `null`.
@@ -59,12 +60,29 @@ export function sectionPriceTiers(
     const bound = Math.round(Math.abs(section))
     // Borne haute répétée (`500, 500`) : tranche vide, colonne ignorée.
     if (mode === 'upTo' && tiers.length > 0 && bound <= previousBound) continue
-    const minQuantity = tiers.length === 0 ? 1 : mode === 'from' ? bound : previousBound + 1
+    const minQuantity = tiers.length === 0 ? 1 : nextTierStart(mode, bound, previousBound)
     previousBound = bound
     if (tiers.some((tier) => tier.minQuantity >= minQuantity)) continue
     tiers.push({ minQuantity, unitPrice })
   }
   return tiers
+}
+
+/**
+ * Seuil bas d'un palier Makito qui n'est pas le premier : la section elle-même
+ * en mode `from`, la borne haute du palier précédent + 1 en mode `upTo`.
+ */
+export function nextTierStart(mode: 'from' | 'upTo', bound: number, previousBound: number): number {
+  if (mode === 'from') return bound
+  return previousBound + 1
+}
+
+/** Statut de stock d'une variante depuis la quantité du flux (`null` : inconnu). */
+export function stockStatusFromQuantity(
+  quantity: number | null
+): Extract<ProductStockStatus, 'in_stock' | 'out_of_stock'> | null {
+  if (quantity === null) return null
+  return quantity > 0 ? 'in_stock' : 'out_of_stock'
 }
 
 /** Chaîne nettoyée, `null` si vide. */

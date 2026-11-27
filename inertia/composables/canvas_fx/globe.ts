@@ -103,12 +103,9 @@ export function animGlobe(canvas: HTMLCanvasElement): AnimController | null {
       const z = pr[2]
       const f = (z + 1) / 2
       ctx.globalAlpha = z > -0.15 ? 0.2 + 0.7 * f : 0.05
-      ctx.fillStyle =
-        z > 0.25
-          ? i % 6 === 0
-            ? 'rgba(255,204,102,0.95)'
-            : 'rgba(255,255,255,0.92)'
-          : 'rgba(196,205,255,0.82)'
+      ctx.fillStyle = 'rgba(196,205,255,0.82)'
+      if (z > 0.25)
+        ctx.fillStyle = i % 6 === 0 ? 'rgba(255,204,102,0.95)' : 'rgba(255,255,255,0.92)'
       const size = 0.5 + 1.0 * f
       ctx.beginPath()
       ctx.arc(pr[0], pr[1], size, 0, Math.PI * 2)
