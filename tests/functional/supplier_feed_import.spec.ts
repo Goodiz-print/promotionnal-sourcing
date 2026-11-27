@@ -11,7 +11,10 @@ import Category from '#models/category'
 import MarkingTechnique from '#models/marking_technique'
 import Supplier from '#models/supplier'
 import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
-import SupplierCatalogueImporter from '#services/supplier_feed/supplier_catalogue_importer'
+import SupplierCatalogueImporter, {
+  PRODUCT_IDENTITY_CONSTRAINTS,
+} from '#services/supplier_feed/supplier_catalogue_importer'
+import ProductVariantService from '#services/product_variant_service'
 import SupplierConnectorRegistry from '#services/supplier_feed/supplier_connector_registry'
 import { FALLBACK_CATEGORY_SLUG } from '#services/supplier_feed/supplier_reference_service'
 import {
@@ -22,6 +25,7 @@ import { CertificationFactory } from '#database/factories/certification_factory'
 import { useDatabase } from '#tests/utils/setup'
 import { useFakeStorage } from '#tests/utils/storage'
 import {
+  FailingOnceVariantService,
   FakeSupplierHttpClient,
   InMemorySupplierConnector,
   normalizedProduct,
@@ -332,6 +336,69 @@ test.group('Import de catalogue fournisseur', (group) => {
     const products = await Product.query().whereIn('externalId', ['AB 12', 'AB-12'])
     const slugs = products.map((product) => product.slug)
     assert.sameMembers(slugs, ['fixture-supplier-ab-12', 'fixture-supplier-ab-12-2'])
+  })
+
+  test('slug déjà suffixé en base : suffixe suivant, slugs voisins ignorés', async ({ assert }) => {
+    await runImport(
+      new InMemorySupplierConnector([
+        normalizedProduct({ externalId: 'AB 12', variants: [] }),
+        normalizedProduct({ externalId: 'AB-12', variants: [] }),
+        normalizedProduct({ externalId: 'AB-12-EXTRA', variants: [] }),
+      ])
+    )
+    const summary = await runImport(
+      new InMemorySupplierConnector([normalizedProduct({ externalId: 'AB--12', variants: [] })])
+    )
+    assert.include(summary, { created: 1, failed: 0 })
+    const product = await Product.findByOrFail('externalId', 'AB--12')
+    assert.equal(product.slug, 'fixture-supplier-ab-12-3')
+  })
+
+  test('code au slug très long : base tronquée, suffixe dans la colonne', async ({ assert }) => {
+    // `€` devient `euro` : 100 caractères donnent un slug de 400.
+    const ids = ['€'.repeat(100), `${'€'.repeat(99)} `]
+    const summary = await runImport(
+      new InMemorySupplierConnector(
+        ids.map((externalId) => normalizedProduct({ externalId, variants: [] }))
+      )
+    )
+    assert.deepEqual(summary.errors, [])
+    assert.include(summary, { created: 2, failed: 0 })
+    const products = await Product.query().whereIn('externalId', ids)
+    const slugs = products.map((product) => product.slug)
+    const base = `fixture-supplier-${'euro'.repeat(100)}`.slice(0, 247)
+    assert.sameMembers(slugs, [base, `${base}-2`])
+  })
+
+  test('violation d’unicité concurrente sur la fiche : transaction rejouée une fois', async ({
+    assert,
+  }) => {
+    const variants = new FailingOnceVariantService(PRODUCT_IDENTITY_CONSTRAINTS[0])
+    app.container.swap(ProductVariantService, () => variants)
+    try {
+      const summary = await runImport(new InMemorySupplierConnector([MARKED]))
+      assert.deepEqual(summary.errors, [])
+      assert.include(summary, { created: 1, failed: 0 })
+    } finally {
+      app.container.restore(ProductVariantService)
+    }
+    assert.equal(variants.calls, 2)
+    const product = await Product.findByOrFail('externalId', 'EXT-1')
+    assert.equal(product.slug, 'fixture-supplier-ext-1')
+    assert.lengthOf(await ProductVariant.query().where('productId', product.id), 2)
+  })
+
+  test('violation d’unicité d’une autre contrainte : pas de nouvel essai', async ({ assert }) => {
+    const variants = new FailingOnceVariantService('product_variants_product_id_sku_unique')
+    app.container.swap(ProductVariantService, () => variants)
+    try {
+      const summary = await runImport(new InMemorySupplierConnector([MARKED]))
+      assert.include(summary, { created: 0, failed: 1 })
+    } finally {
+      app.container.restore(ProductVariantService)
+    }
+    assert.equal(variants.calls, 1)
+    assert.isNull(await Product.findBy('externalId', 'EXT-1'))
   })
 
   test('un label éco saisi au back-office survit à l’import', async ({ assert }) => {

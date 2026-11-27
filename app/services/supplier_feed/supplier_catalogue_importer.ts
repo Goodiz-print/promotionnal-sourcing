@@ -21,6 +21,8 @@ import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
 import SupplierReferenceService from '#services/supplier_feed/supplier_reference_service'
 import { SupplierFeedIncompleteException } from '#exceptions/supplier_feed_errors'
 import { isEuEeaCountry } from '#shared/types/country'
+import { firstFreeSlug, suffixedSlugPattern, truncateSlugBase } from '#shared/helpers/slug'
+import { retryOnceOnUniqueViolation } from '#shared/helpers/database'
 import type Supplier from '#models/supplier'
 import type SupplierConnector from '#services/supplier_feed/supplier_connector'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
@@ -47,6 +49,16 @@ const IMAGE_EXTENSIONS: Record<string, string> = {
 
 /** Un point d'avancement est journalisé toutes les N fiches (imports complets). */
 const PROGRESS_EVERY = 500
+
+/**
+ * Contraintes d'unicité qu'un import concurrent peut heurter entre la lecture
+ * et l'écriture d'une fiche (slug, couple fournisseur / code) : seules elles
+ * justifient de rejouer la transaction.
+ */
+export const PRODUCT_IDENTITY_CONSTRAINTS = [
+  'products_slug_unique',
+  'products_supplier_id_external_id_unique',
+] as const
 
 function sameTiers(a: NormalizedPriceTier[], b: NormalizedPriceTier[]): boolean {
   return (
@@ -261,10 +273,15 @@ export default class SupplierCatalogueImporter {
       .filter((id): id is number => id !== null)
 
     let result: { productId: number; created: boolean; tombstones: Array<number | null> }
-    try {
-      result = await db.transaction((trx) =>
+    const writeOnce = () =>
+      db.transaction((trx) =>
         this.write(trx, supplier, supplierSlug, normalized, refs, options, images)
       )
+    try {
+      // Un import concurrent a pu prendre le même slug (ou créer la même fiche)
+      // entre la lecture et l'écriture : le nouvel essai relit l'état validé.
+      // Les autres violations (SKU en double…) échoueraient de nouveau : propagées.
+      result = await retryOnceOnUniqueViolation(writeOnce, PRODUCT_IDENTITY_CONSTRAINTS)
     } catch (error) {
       await this.storage.discard(storedIds)
       throw error
@@ -322,7 +339,9 @@ export default class SupplierCatalogueImporter {
     } else {
       const slug = await this.uniqueSlug(
         trx,
-        `${supplierSlug}-${stringHelpers.slug(normalized.externalId, { lower: true })}`
+        truncateSlugBase(
+          `${supplierSlug}-${stringHelpers.slug(normalized.externalId, { lower: true })}`
+        )
       )
       product = await Product.create(
         {
@@ -402,16 +421,20 @@ export default class SupplierCatalogueImporter {
 
   /**
    * Slug libre, suffixé `-2`, `-3`… au besoin : deux codes fournisseur peuvent
-   * donner le même slug (`AB.12` / `AB-12`) ou heurter une fiche existante.
+   * donner le même slug (`AB 12` / `AB-12`) ou heurter une fiche existante.
    */
   private async uniqueSlug(trx: TransactionClientContract, base: string): Promise<string> {
-    let slug = base
-    let suffix = 2
-    while (await Product.query({ client: trx }).where('slug', slug).select('id').first()) {
-      slug = `${base}-${suffix}`
-      suffix += 1
-    }
-    return slug
+    // Une seule lecture, quel que soit le nombre de collisions (issue #248) :
+    // le suffixe libre se calcule en mémoire.
+    const taken = await Product.query({ client: trx })
+      .where((query) => {
+        query.where('slug', base).orWhereLike('slug', suffixedSlugPattern(base))
+      })
+      .select('slug')
+    return firstFreeSlug(
+      base,
+      taken.map((product) => product.slug)
+    )
   }
 
   private variantInputs(
