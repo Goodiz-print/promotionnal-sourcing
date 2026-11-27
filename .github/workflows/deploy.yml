@@ -72,8 +72,10 @@ jobs:
       # l'ancienne version peut encore servir.
       - name: Vérifier la version servie
         run: |
+          # Tolère un `APP_URL` saisi avec un `/` final : `//health` répond 404 (HTML).
+          health_url="${APP_URL%/}/health"
           for attempt in $(seq 1 20); do
-            served="$(curl --silent --show-error --max-time 10 "$APP_URL/health" | jq -r '.version // empty' || true)"
+            served="$(curl --silent --show-error --max-time 10 "$health_url" | jq -r '.version // empty' 2>/dev/null || true)"
             if [ "$served" = "$VERSION" ]; then
               echo "Version servie : $served"
               exit 0
@@ -81,5 +83,5 @@ jobs:
             echo "Tentative $attempt : version servie « ${served:-aucune} », attendue « $VERSION »"
             sleep 6
           done
-          echo "::error::$APP_URL/health n'annonce pas la version $VERSION."
+          echo "::error::$health_url n'annonce pas la version $VERSION."
           exit 1
