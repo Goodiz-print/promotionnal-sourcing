@@ -2,6 +2,8 @@ import {
   CLAUDE_IMAGE_MEDIA_TYPES,
   type ClaudeImageMediaType,
   type LlmCredentials,
+  type LlmPricing,
+  type TranslationUsage,
 } from '#shared/types/ai'
 
 type JsonSchema = Record<string, unknown>
@@ -101,4 +103,16 @@ export function claudeText(blocks: ReadonlyArray<{ type: string; text?: unknown 
 /** Type MIME tel que l'attend l'API Claude, ou `null` s'il n'est pas accepté. */
 export function claudeImageMediaType(mimeType: string): ClaudeImageMediaType | null {
   return CLAUDE_IMAGE_MEDIA_TYPES.find((type) => type === mimeType) ?? null
+}
+
+/**
+ * Coût estimé d'un volume de tokens au tarif donné (par million de tokens), ou
+ * `null` tant que le tarif d'entrée ou de sortie n'est pas renseigné.
+ */
+export function estimateLlmCost(usage: TranslationUsage, pricing: LlmPricing): number | null {
+  const { inputPerMillion, outputPerMillion } = pricing
+  if (inputPerMillion === undefined || outputPerMillion === undefined) return null
+  return (
+    (usage.promptTokens * inputPerMillion + usage.completionTokens * outputPerMillion) / 1_000_000
+  )
 }

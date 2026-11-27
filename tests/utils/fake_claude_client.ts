@@ -25,15 +25,20 @@ function messageFor(reply: FakeClaudeReply) {
  * Faux client Anthropic : aucun appel réseau. `messages.create` et
  * `messages.stream(...).finalMessage()` rendent `reply` (ou lèvent si c'est une
  * erreur), `models.list` se résout ou lève `modelsError`. Chaque requête de
- * message est conservée dans `requests`.
+ * message est conservée dans `requests`, ses options d'appel dans `options`.
  */
 export function fakeClaudeClient(
   reply: FakeClaudeReply | Error = {},
   options: { modelsError?: Error } = {}
 ) {
   const requests: Anthropic.MessageCreateParamsNonStreaming[] = []
-  const answer = async (request: Anthropic.MessageCreateParamsNonStreaming) => {
+  const requestOptions: Array<Anthropic.RequestOptions | undefined> = []
+  const answer = async (
+    request: Anthropic.MessageCreateParamsNonStreaming,
+    callOptions?: Anthropic.RequestOptions
+  ) => {
     requests.push(request)
+    requestOptions.push(callOptions)
     if (reply instanceof Error) throw reply
     return messageFor(reply)
   }
@@ -51,5 +56,5 @@ export function fakeClaudeClient(
       },
     },
   } as unknown as Anthropic
-  return { client, requests }
+  return { client, requests, requestOptions }
 }

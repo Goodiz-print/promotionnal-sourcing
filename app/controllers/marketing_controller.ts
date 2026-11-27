@@ -1,6 +1,7 @@
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import env from '#start/env'
+import aiConfig from '#config/ai'
 import ContactRequestService from '#services/contact_request_service'
 import ProductCatalogueService from '#services/product_catalogue_service'
 import SponsoredProductService from '#services/sponsored_product_service'
@@ -78,7 +79,11 @@ export default class MarketingController {
   }
 
   privacy({ inertia }: HttpContext) {
-    return inertia.render('marketing/privacy', { siteUrl: this.siteUrl() })
+    return inertia.render('marketing/privacy', {
+      siteUrl: this.siteUrl(),
+      // Le texte nomme le sous-traitant IA réellement utilisé (recherche par image).
+      aiProcessor: aiConfig.provider,
+    })
   }
 
   thanks({ inertia }: HttpContext) {

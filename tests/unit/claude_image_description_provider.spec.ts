@@ -12,7 +12,7 @@ const describeWith = (reply: FakeClaudeReply | Error, mimeType = 'image/jpeg') =
 
 test.group('ClaudeImageDescriptionProvider', () => {
   test('envoie l’image en base64 et rend la requête du modèle', async ({ assert }) => {
-    const { client, requests } = fakeClaudeClient({
+    const { client, requests, requestOptions } = fakeClaudeClient({
       text: JSON.stringify({ query: 'gourde inox isotherme' }),
       leadingBlocks: [{ type: 'thinking' }],
     })
@@ -43,6 +43,17 @@ test.group('ClaudeImageDescriptionProvider', () => {
       effort: 'low',
       format: { type: 'json_schema', schema: imageQuerySchema() },
     })
+    // Requête HTTP de l'acheteur en attente : délai court, aucun réessai du SDK.
+    assert.deepEqual(requestOptions, [{ timeout: aiConfig.vision.timeoutMs, maxRetries: 0 }])
+    assert.isAtMost(aiConfig.vision.timeoutMs, 30_000)
+  })
+
+  test('une réponse coupée par le plafond de sortie est dite tronquée', async ({ assert }) => {
+    await assert.rejects(
+      () => describeWith({ text: '{"que', stopReason: 'max_tokens' }),
+      /response truncated/
+    )
+    await assert.rejects(() => describeWith({ stopReason: 'max_tokens' }), /response truncated/)
   })
 
   test('une réponse qui n’est pas du JSON est rejetée', async ({ assert }) => {

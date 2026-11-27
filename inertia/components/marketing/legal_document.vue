@@ -11,6 +11,8 @@ const props = defineProps<{
   doc: 'legal' | 'privacy'
   /** Ids de section, dans l'ordre du document : alimentent le sommaire et la numérotation. */
   sectionIds: readonly string[]
+  /** Variante du corps d'une section (id → clé, `body` par défaut). */
+  bodyKeys?: Record<string, string>
 }>()
 
 const { t, path, email } = useMarketing()
@@ -26,7 +28,7 @@ const sections = computed(() =>
     id,
     number: String(index + 1).padStart(2, '0'),
     title: t(`${props.doc}.sections.${id}.title`),
-    body: t(`${props.doc}.sections.${id}.body`),
+    body: t(`${props.doc}.sections.${id}.${props.bodyKeys?.[id] ?? 'body'}`),
   }))
 )
 

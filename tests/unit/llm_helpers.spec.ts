@@ -2,6 +2,7 @@ import { test } from '@japa/runner'
 import {
   claudeImageMediaType,
   claudeText,
+  estimateLlmCost,
   imageQuerySchema,
   llmApiKey,
   pickTranslations,
@@ -115,5 +116,34 @@ test.group('claudeText / claudeImageMediaType', () => {
     assert.equal(claudeImageMediaType('image/webp'), 'image/webp')
     assert.isNull(claudeImageMediaType('image/tiff'))
     assert.isNull(claudeImageMediaType('application/pdf'))
+  })
+})
+
+test.group('estimateLlmCost', () => {
+  const usage = { promptTokens: 1_000_000, completionTokens: 500_000 }
+
+  test('applique le tarif par million de tokens', ({ assert }) => {
+    assert.closeTo(
+      estimateLlmCost(usage, { inputPerMillion: 0.2, outputPerMillion: 0.6 })!,
+      0.5,
+      1e-9
+    )
+    assert.equal(
+      estimateLlmCost(
+        { promptTokens: 0, completionTokens: 0 },
+        { inputPerMillion: 1, outputPerMillion: 5 }
+      ),
+      0
+    )
+  })
+
+  test('rend null tant qu’un des deux tarifs manque', ({ assert }) => {
+    assert.isNull(estimateLlmCost(usage, {}))
+    assert.isNull(estimateLlmCost(usage, { inputPerMillion: 0.2 }))
+    assert.isNull(estimateLlmCost(usage, { outputPerMillion: 0.6 }))
+  })
+
+  test('un tarif à zéro est un tarif, pas une absence', ({ assert }) => {
+    assert.equal(estimateLlmCost(usage, { inputPerMillion: 0, outputPerMillion: 0 }), 0)
   })
 })

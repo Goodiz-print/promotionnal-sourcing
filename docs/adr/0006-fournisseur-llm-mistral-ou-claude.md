@@ -56,11 +56,11 @@ Tarifs relevés le 2026-11-27, à revérifier avant de poser `AI_PRICE_*`. Haiku
 **Négatives**
 
 - **Changer de fournisseur ou de modèle retraduit le contenu automatique** : le modèle entre dans la clé d'idempotence, toutes les clés changent. Les traductions corrigées à la main (`is_auto = false`) ne sont pas touchées. Mesurer le coût avec `translation:backfill --limit=N` avant un passage en masse.
-- Le journal `ai_calls` garde le modèle de chaque appel, mais le coût affiché applique le tarif courant à tout l'historique : après un changement, le coût des anciens appels est faux.
+- Le journal `ai_calls` garde le modèle de chaque appel. Le coût affiché n'applique le tarif configuré qu'aux appels du modèle actif : après un changement, les anciens appels restent comptés en tokens mais ne sont plus chiffrés.
 - Les modèles Claude antérieurs à la génération 4.6 ne sont pas pris en charge (paramètre `effort`).
 
 ## Points à valider avant d'activer Claude en production
 
-- **Données personnelles** : avec `AI_LLM_PROVIDER=claude`, les photos de la recherche par image sont envoyées à Anthropic (États-Unis), plus à Mistral AI. La politique de confidentialité (`resources/lang/*/privacy.json`) et la mention sous le bouton (`resources/lang/*/products.json`, « analysée par Mistral AI ») citent Mistral : à faire corriger et valider par le client avant d'activer la vision avec Claude.
+- **Données personnelles** : avec `AI_LLM_PROVIDER=claude`, les photos de la recherche par image sont envoyées à Anthropic (États-Unis), plus à Mistral AI. La politique de confidentialité affiche alors la variante `bodyClaude` (`resources/lang/*/privacy.json`), qui nomme Anthropic et constate le transfert vers les États-Unis ; l'encadrement juridique de ce transfert n'y est pas décrit : texte à faire valider par le client avant d'activer la vision avec Claude.
 - Mesurer la qualité de traduction sur un échantillon réel (`translation:backfill --limit=N`) avant de retraduire le catalogue.
 - Poser `AI_PRICE_INPUT_PER_MILLION` / `AI_PRICE_OUTPUT_PER_MILLION` au tarif du modèle choisi.

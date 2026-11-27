@@ -1,5 +1,5 @@
 import env from '#start/env'
-import type { LlmModels, LlmProvider } from '#shared/types/ai'
+import { DEFAULT_LLM_PROVIDER, type LlmModels, type LlmProvider } from '#shared/types/ai'
 
 /**
  * Fournisseur du modèle de langage (traduction + description d'image) :
@@ -7,7 +7,7 @@ import type { LlmModels, LlmProvider } from '#shared/types/ai'
  * (ADR 0006). Les embeddings n'en dépendent pas : voir `config/search.ts`
  * (`AI_PROVIDER`) et l'ADR 0002 — Claude n'a pas d'API d'embeddings.
  */
-const provider: LlmProvider = env.get('AI_LLM_PROVIDER', 'mistral')
+const provider: LlmProvider = env.get('AI_LLM_PROVIDER', DEFAULT_LLM_PROVIDER)
 
 const MODELS: Record<LlmProvider, LlmModels> = {
   mistral: {
@@ -57,7 +57,8 @@ const aiConfig = {
 
   /**
    * Tarif par million de tokens du modèle de traduction actif, pour estimer le coût
-   * affiché dans le back-office (#177). Aucun tarif par défaut : ils changent, et un
+   * affiché dans le back-office (#177). Il ne s'applique qu'aux appels faits avec ce
+   * modèle : après un changement de fournisseur, les anciens appels ne sont pas chiffrés. Aucun tarif par défaut : ils changent, et un
    * coût inventé induirait en erreur. Sans tarif, seuls les tokens sont affichés.
    */
   pricing: {
@@ -75,6 +76,9 @@ const aiConfig = {
     enabled: env.get('AI_VISION_ENABLED', false),
     model: MODELS[provider].vision,
     maxTokens: MODELS[provider].visionMaxTokens,
+    // Appel fait pendant une requête HTTP : un fournisseur muet ne doit pas la figer.
+    // Appliqué par le driver Claude (délai court, aucun réessai).
+    timeoutMs: 20_000,
   },
 }
 

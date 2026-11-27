@@ -235,6 +235,6 @@
     "disabled": "Bildsökning är inte tillgänglig just nu.",
     "invalid": "Filen är inte en användbar bild.",
     "failed": "Vi kunde inte analysera fotot. Försök igen eller skriv din sökning.",
-    "privacy": "Servern sparar inte fotot; det analyseras av Mistral AI."
+    "privacy": "Servern sparar inte fotot; det analyseras av vår AI-leverantör."
   }
 }

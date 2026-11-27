@@ -1,7 +1,11 @@
 import { inject } from '@adonisjs/core'
 import Anthropic from '@anthropic-ai/sdk'
 import aiConfig from '#config/ai'
-import { TranslationProviderError, TranslationTruncatedError } from '#exceptions/ai_errors'
+import {
+  TranslationProviderError,
+  TranslationRefusedError,
+  TranslationTruncatedError,
+} from '#exceptions/ai_errors'
 import TranslationProvider from '#services/translation/translation_provider'
 import {
   claudeText,
@@ -47,7 +51,7 @@ export default class ClaudeTranslationProvider extends TranslationProvider {
       usage.completionTokens = message.usage.output_tokens
     }
     if (message.stop_reason === 'max_tokens') throw new TranslationTruncatedError()
-    if (message.stop_reason === 'refusal') throw new TranslationProviderError('refusal')
+    if (message.stop_reason === 'refusal') throw new TranslationRefusedError()
 
     const text = claudeText(message.content)
     if (!text) throw new TranslationProviderError('empty response')

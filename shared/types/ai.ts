@@ -6,11 +6,30 @@
 export const LLM_PROVIDERS = ['mistral', 'claude'] as const
 export type LlmProvider = (typeof LLM_PROVIDERS)[number]
 
+/** Fournisseur par défaut : rien ne change pour un environnement qui ne règle rien. */
+export const DEFAULT_LLM_PROVIDER: LlmProvider = 'mistral'
+
+/**
+ * Clé du texte « Destinataires et sous-traitants » de la politique de
+ * confidentialité (`privacy.sections.destinataires.*`) : il nomme le sous-traitant
+ * qui reçoit les photos de la recherche par image, donc dépend du fournisseur.
+ */
+export const PRIVACY_PROCESSOR_BODY_KEYS: Record<LlmProvider, string> = {
+  mistral: 'body',
+  claude: 'bodyClaude',
+}
+
 /** Ce qu'il faut pour savoir quelle clé d'API sert au fournisseur actif. */
 export interface LlmCredentials {
   provider: LlmProvider
   mistral: { apiKey?: string }
   claude: { apiKey?: string }
+}
+
+/** Tarif par million de tokens (absent : coût non estimé). */
+export interface LlmPricing {
+  inputPerMillion?: number
+  outputPerMillion?: number
 }
 
 /** Modèles et plafond de sortie d'un fournisseur de modèle de langage. */

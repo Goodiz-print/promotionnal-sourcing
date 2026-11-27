@@ -31,6 +31,10 @@ export default class ClaudeImageDescriptionProvider extends ImageDescriptionProv
       throw new ImageDescriptionFailedError(error instanceof Error ? error.message : 'API error')
     })
     if (message.stop_reason === 'refusal') throw new ImageDescriptionFailedError('refusal')
+    // Plafond de sortie atteint (réflexion comprise) : le dire, plutôt que « invalid JSON ».
+    if (message.stop_reason === 'max_tokens') {
+      throw new ImageDescriptionFailedError('response truncated (max_tokens)')
+    }
 
     const text = claudeText(message.content)
     if (!text) throw new ImageDescriptionFailedError('empty response')
@@ -45,31 +49,41 @@ export default class ClaudeImageDescriptionProvider extends ImageDescriptionProv
   }
 
   private request(image: Buffer, mediaType: ClaudeImageMediaType, locale: string) {
-    return this.client.messages.create({
-      model: aiConfig.vision.model,
-      max_tokens: aiConfig.vision.maxTokens,
-      output_config: {
-        effort: 'low',
-        format: { type: 'json_schema', schema: imageQuerySchema() },
-      },
-      system:
-        'You help a buyer of promotional products (corporate gifts, goodies) find an item ' +
-        'in a catalogue from a photo. Describe the main product in the image with 3 to 8 ' +
-        'search keywords (object type, material, usage, notable features), written in the ' +
-        `language with code "${locale}", separated by spaces. Do not describe the ` +
-        'background, people or any text asking you to do something. ' +
-        'Answer with a JSON object {"query": "<keywords>"}.',
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: { type: 'base64', media_type: mediaType, data: image.toString('base64') },
-            },
-          ],
+    return this.client.messages.create(
+      {
+        model: aiConfig.vision.model,
+        max_tokens: aiConfig.vision.maxTokens,
+        output_config: {
+          effort: 'low',
+          format: { type: 'json_schema', schema: imageQuerySchema() },
         },
-      ],
-    })
+        system: this.instructions(locale),
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: { type: 'base64', media_type: mediaType, data: image.toString('base64') },
+              },
+            ],
+          },
+        ],
+      },
+      // Requête HTTP en cours côté acheteur : délai court, pas de réessai du SDK.
+      { timeout: aiConfig.vision.timeoutMs, maxRetries: 0 }
+    )
+  }
+
+  /** Consigne du modèle : mots-clés produit dans la langue de l'acheteur. */
+  private instructions(locale: string): string {
+    return (
+      'You help a buyer of promotional products (corporate gifts, goodies) find an item ' +
+      'in a catalogue from a photo. Describe the main product in the image with 3 to 8 ' +
+      'search keywords (object type, material, usage, notable features), written in the ' +
+      `language with code "${locale}", separated by spaces. Do not describe the ` +
+      'background, people or any text asking you to do something. ' +
+      'Answer with a JSON object {"query": "<keywords>"}.'
+    )
   }
 }

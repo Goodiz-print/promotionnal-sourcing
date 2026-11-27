@@ -177,9 +177,13 @@ test.group('IA — administration', (group) => {
 
   test('estime le coût seulement quand un tarif est configuré', async ({ client, assert }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
-    await db
-      .table('ai_calls')
-      .insert(call({ prompt_tokens: 1_000_000, completion_tokens: 500_000 }))
+    await db.table('ai_calls').insert(
+      call({
+        model: aiConfig.translation.model,
+        prompt_tokens: 1_000_000,
+        completion_tokens: 500_000,
+      })
+    )
     const original = { ...aiConfig.pricing }
 
     try {
@@ -193,6 +197,31 @@ test.group('IA — administration', (group) => {
         0.5,
         1e-9
       )
+    } finally {
+      Object.assign(aiConfig.pricing, original)
+    }
+  })
+
+  test('ne chiffre que les appels du modèle actif, les tokens restent tous comptés', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await UserFactory.apply('platformAdmin').create()
+    await db.table('ai_calls').insert([
+      call({ model: aiConfig.translation.model, prompt_tokens: 1_000_000, completion_tokens: 0 }),
+      // Appel d'avant un changement de fournisseur : son tarif n'est pas connu.
+      call({ model: 'ancien-modele', prompt_tokens: 3_000_000, completion_tokens: 2_000_000 }),
+    ])
+    const original = { ...aiConfig.pricing }
+
+    try {
+      Object.assign(aiConfig.pricing, { inputPerMillion: 0.2, outputPerMillion: 0.6 })
+      const response = await client.get('/fr/admin/ai').withInertia().loginAs(admin)
+      const { totals } = response.inertiaProps.overview as AdminAiOverview
+
+      assert.equal(totals.promptTokens, 4_000_000)
+      assert.equal(totals.completionTokens, 2_000_000)
+      assert.closeTo(totals.estimatedCost!, 0.2, 1e-9)
     } finally {
       Object.assign(aiConfig.pricing, original)
     }

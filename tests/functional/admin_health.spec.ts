@@ -38,6 +38,7 @@ function useIsolatedHealth(group: Parameters<typeof useDatabase>[0]) {
   const saved = { ...healthConfig }
   const savedKey = aiConfig.mistral.apiKey
   const savedClaudeKey = aiConfig.claude.apiKey
+  const savedProvider = aiConfig.provider
 
   group.each.setup(() => {
     viesStatus = 200
@@ -53,6 +54,7 @@ function useIsolatedHealth(group: Parameters<typeof useDatabase>[0]) {
       Object.assign(healthConfig, saved)
       aiConfig.mistral.apiKey = savedKey
       aiConfig.claude.apiKey = savedClaudeKey
+      aiConfig.provider = savedProvider
       globalThis.fetch = realFetch
     }
   })
@@ -431,6 +433,7 @@ test.group('Santé — surveillance et alertes', (group) => {
   }) => {
     healthConfig.token = 'secret-token'
     aiConfig.claude.apiKey = 'sk-ant-test'
+    aiConfig.provider = 'claude'
     cleanup(() => app.container.restore(Anthropic))
     const statusWith = async (modelsError?: Error) => {
       app.container.swap(Anthropic, () => fakeClaudeClient({}, { modelsError }).client)
@@ -446,5 +449,9 @@ test.group('Santé — surveillance et alertes', (group) => {
     assert.equal(await statusWith(apiError(529)), 'degraded')
     // Injoignable (réseau, délai) : pas prouvé tombé, donc seulement dégradé.
     assert.equal(await statusWith(new Anthropic.APIConnectionError({})), 'degraded')
+
+    // Clé présente mais Claude n'est pas le fournisseur actif : non sondé, jamais en panne.
+    aiConfig.provider = 'mistral'
+    assert.equal(await statusWith(apiError(401)), 'disabled')
   })
 })

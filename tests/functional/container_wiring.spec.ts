@@ -16,7 +16,9 @@ import StorageService from '#services/storage/storage_service'
 import StorageCleanupService from '#services/storage/storage_cleanup_service'
 import Anthropic from '@anthropic-ai/sdk'
 import aiConfig from '#config/ai'
-import { IMAGE_DESCRIPTION_DRIVERS, TRANSLATION_DRIVERS } from '#providers/ai_provider'
+import { Container } from '@adonisjs/core/container'
+import type { ApplicationService } from '@adonisjs/core/types'
+import AiProvider, { IMAGE_DESCRIPTION_DRIVERS, TRANSLATION_DRIVERS } from '#providers/ai_provider'
 import TranslationProvider from '#services/translation/translation_provider'
 import MistralTranslationProvider from '#services/translation/mistral_translation_provider'
 import ClaudeTranslationProvider from '#services/translation/claude_translation_provider'
@@ -24,7 +26,7 @@ import ImageDescriptionProvider from '#services/vision/image_description_provide
 import MistralImageDescriptionProvider from '#services/vision/mistral_image_description_provider'
 import ClaudeImageDescriptionProvider from '#services/vision/claude_image_description_provider'
 import HealthProbeService from '#services/health_probe_service'
-import { LLM_PROVIDERS } from '#shared/types/ai'
+import { DEFAULT_LLM_PROVIDER, LLM_PROVIDERS } from '#shared/types/ai'
 
 /**
  * Garde-fou d'injection de dépendances : le conteneur IoC doit savoir résoudre
@@ -65,14 +67,42 @@ test.group('Conteneur IoC — câblage des dépendances', () => {
     assert.instanceOf(await app.container.make(StorageCleanupService), StorageCleanupService)
   })
 
-  test('sans AI_LLM_PROVIDER, traduction et vision sont liées à Mistral', async ({ assert }) => {
-    assert.equal(aiConfig.provider, 'mistral')
-    assert.equal(aiConfig.translation.model, 'mistral-small-latest')
-    assert.instanceOf(await app.container.make(TranslationProvider), MistralTranslationProvider)
-    assert.instanceOf(
-      await app.container.make(ImageDescriptionProvider),
+  test('le fournisseur par défaut est Mistral', ({ assert }) => {
+    assert.equal(DEFAULT_LLM_PROVIDER, 'mistral')
+    assert.strictEqual(TRANSLATION_DRIVERS[DEFAULT_LLM_PROVIDER], MistralTranslationProvider)
+    assert.strictEqual(
+      IMAGE_DESCRIPTION_DRIVERS[DEFAULT_LLM_PROVIDER],
       MistralImageDescriptionProvider
     )
+  })
+
+  test('l’application lie traduction et vision au fournisseur configuré', async ({ assert }) => {
+    assert.instanceOf(
+      await app.container.make(TranslationProvider),
+      TRANSLATION_DRIVERS[aiConfig.provider]
+    )
+    assert.instanceOf(
+      await app.container.make(ImageDescriptionProvider),
+      IMAGE_DESCRIPTION_DRIVERS[aiConfig.provider]
+    )
+  })
+
+  LLM_PROVIDERS.forEach((provider) => {
+    test(`AI_LLM_PROVIDER=${provider} lie les drivers ${provider}`, async ({ assert, cleanup }) => {
+      const saved = aiConfig.provider
+      cleanup(() => void (aiConfig.provider = saved))
+      aiConfig.provider = provider
+
+      // Conteneur neuf : les singletons de l'application ont déjà choisi leur driver.
+      const container = new Container()
+      new AiProvider({ container } as unknown as ApplicationService).register()
+
+      assert.instanceOf(await container.make(TranslationProvider), TRANSLATION_DRIVERS[provider])
+      assert.instanceOf(
+        await container.make(ImageDescriptionProvider),
+        IMAGE_DESCRIPTION_DRIVERS[provider]
+      )
+    })
   })
 
   test('chaque fournisseur a son driver de traduction et de vision', ({ assert }) => {

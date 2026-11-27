@@ -1,6 +1,10 @@
 import { test } from '@japa/runner'
 import aiConfig from '#config/ai'
-import { TranslationProviderError, TranslationTruncatedError } from '#exceptions/ai_errors'
+import {
+  TranslationProviderError,
+  TranslationRefusedError,
+  TranslationTruncatedError,
+} from '#exceptions/ai_errors'
 import ClaudeTranslationProvider from '#services/translation/claude_translation_provider'
 import { translationSchema } from '#shared/helpers/llm'
 import { TRANSLATION_LOCALES } from '#shared/types/i18n'
@@ -106,13 +110,14 @@ test.group('ClaudeTranslationProvider', () => {
     assert.deepEqual(usage, { promptTokens: 10, completionTokens: 30_000 })
   })
 
-  test('un refus du modèle est une erreur du fournisseur', async ({ assert }) => {
+  test('un refus du modèle est une erreur dédiée, non rejouable', async ({ assert }) => {
     const { client } = fakeClaudeClient({ stopReason: 'refusal' })
     const attempt = () =>
       new ClaudeTranslationProvider(client).translate({ name: 'a' }, 'fr', ['en'])
 
-    await assert.rejects(attempt, TranslationProviderError)
+    await assert.rejects(attempt, TranslationRefusedError)
     await assert.rejects(attempt, /refusal/)
+    assert.instanceOf(new TranslationRefusedError(), TranslationProviderError)
   })
 
   test('une erreur de l’API remonte telle quelle (clé absente ou refusée)', async ({ assert }) => {

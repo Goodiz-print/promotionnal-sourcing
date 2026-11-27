@@ -24,6 +24,17 @@ export class TranslationTruncatedError extends TranslationProviderError {
 }
 
 /**
+ * Le modèle a refusé de traduire le contenu (`stop_reason = refusal` chez Claude) :
+ * rejouer le même appel donnerait le même refus, facturé à chaque fois. Le job
+ * n'est donc pas rejoué.
+ */
+export class TranslationRefusedError extends TranslationProviderError {
+  constructor() {
+    super('refusal')
+  }
+}
+
+/**
  * Aucune traduction source pour l'entité dans la locale source demandée.
  */
 export class MissingTranslationSourceError extends Exception {
