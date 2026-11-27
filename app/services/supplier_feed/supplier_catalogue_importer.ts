@@ -58,7 +58,8 @@ const PROGRESS_EVERY = 500
 /**
  * Contraintes d'unicité qu'un import concurrent peut heurter entre la lecture
  * et l'écriture d'une fiche (slug, couple fournisseur / code) : seules elles
- * justifient de rejouer la transaction.
+ * justifient de rejouer la transaction, qui relit alors l'état validé. Les
+ * autres violations (SKU en double…) échoueraient de nouveau : propagées.
  */
 export const PRODUCT_IDENTITY_CONSTRAINTS = [
   'products_slug_unique',
@@ -277,33 +278,35 @@ export default class SupplierCatalogueImporter {
       .map((image) => image.storageObjectId)
       .filter((id): id is number => id !== null)
 
-    let result: { productId: number; created: boolean; tombstones: Array<number | null> }
     const writeOnce = () =>
       db.transaction((trx) =>
         this.write(trx, supplier, supplierSlug, normalized, refs, options, images)
       )
-    try {
-      // Un import concurrent a pu prendre le même slug (ou créer la même fiche)
-      // entre la lecture et l'écriture : le nouvel essai relit l'état validé.
-      // Les autres violations (SKU en double…) échoueraient de nouveau : propagées.
-      result = await retryOnceOnUniqueViolation(writeOnce, PRODUCT_IDENTITY_CONSTRAINTS, (error) =>
-        logger.warn(
-          {
-            supplier: supplierSlug,
-            externalId: normalized.externalId,
-            constraint: violatedConstraint(error),
-          },
-          'supplier:import — violation d’unicité concurrente, transaction de la fiche rejouée'
-        )
-      )
-    } catch (error) {
+    // Import concurrent (voir PRODUCT_IDENTITY_CONSTRAINTS) : rejoué une fois.
+    const result = await retryOnceOnUniqueViolation(
+      writeOnce,
+      PRODUCT_IDENTITY_CONSTRAINTS,
+      this.logConcurrentRetry(supplierSlug, normalized.externalId)
+    ).catch(async (error: unknown) => {
       await this.storage.discard(storedIds)
       throw error
-    }
+    })
 
     await this.storage.dispatchDeletions(result.tombstones)
     await emitter.emit(ProductChanged, new ProductChanged(result.productId))
     return result.created
+  }
+
+  /**
+   * Journalise le rejeu d'une fiche après une violation d'unicité concurrente.
+   * Méthode à effet (logger), pas un calcul : elle reste dans le service.
+   */
+  private logConcurrentRetry(supplierSlug: string, externalId: string) {
+    return (error: unknown) =>
+      logger.warn(
+        { supplier: supplierSlug, externalId, constraint: violatedConstraint(error) },
+        'supplier:import — violation d’unicité concurrente, transaction de la fiche rejouée'
+      )
   }
 
   private async write(
