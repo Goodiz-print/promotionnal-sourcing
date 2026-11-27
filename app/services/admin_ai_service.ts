@@ -25,6 +25,7 @@ import {
   type AiCallStatus,
   type TranslatableEntity,
 } from '#shared/types/ai'
+import { estimateLlmCost } from '#shared/helpers/llm'
 import type { AdminActionContext } from '#shared/types/admin_audit'
 import { TRANSLATION_LOCALES } from '#shared/types/i18n'
 import type { Paginated } from '#shared/types/pagination'
@@ -245,17 +246,24 @@ export default class AdminAiService {
         db.raw("count(*) filter (where status = 'failed') as failed"),
         db.raw("count(*) filter (where status = 'truncated') as truncated"),
         db.raw('coalesce(sum(prompt_tokens), 0) as prompt_tokens'),
-        db.raw('coalesce(sum(completion_tokens), 0) as completion_tokens')
+        db.raw('coalesce(sum(completion_tokens), 0) as completion_tokens'),
+        // Le tarif configuré est celui du modèle actif : seuls ses appels sont chiffrés.
+        db.raw('coalesce(sum(prompt_tokens) filter (where model = ?), 0) as priced_prompt', [
+          aiConfig.translation.model,
+        ]),
+        db.raw(
+          'coalesce(sum(completion_tokens) filter (where model = ?), 0) as priced_completion',
+          [aiConfig.translation.model]
+        )
       )
       .first()
 
     const promptTokens = num(row?.prompt_tokens)
     const completionTokens = num(row?.completion_tokens)
-    const { inputPerMillion, outputPerMillion } = aiConfig.pricing
-    const estimatedCost =
-      inputPerMillion !== undefined && outputPerMillion !== undefined
-        ? (promptTokens * inputPerMillion + completionTokens * outputPerMillion) / 1_000_000
-        : null
+    const estimatedCost = estimateLlmCost(
+      { promptTokens: num(row?.priced_prompt), completionTokens: num(row?.priced_completion) },
+      aiConfig.pricing
+    )
 
     return {
       calls: num(row?.calls),

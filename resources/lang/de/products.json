@@ -235,6 +235,6 @@
     "disabled": "Die Bildsuche ist derzeit nicht verfügbar.",
     "invalid": "Diese Datei ist kein verwendbares Bild.",
     "failed": "Wir konnten dieses Foto nicht analysieren. Versuchen Sie es erneut oder geben Sie Ihre Suche ein.",
-    "privacy": "Der Server speichert das Foto nicht; es wird von Mistral AI analysiert."
+    "privacy": "Der Server speichert das Foto nicht; es wird von unserem KI-Dienstleister analysiert."
   }
 }

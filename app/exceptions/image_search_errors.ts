@@ -1,7 +1,7 @@
 import { Exception } from '@adonisjs/core/exceptions'
 
 /**
- * La recherche par image est coupée (`AI_VISION_ENABLED`) ou sans clé Mistral.
+ * La recherche par image est coupée (`AI_VISION_ENABLED`) ou sans clé du fournisseur IA actif.
  */
 export class ImageSearchDisabledError extends Exception {
   static status = 503

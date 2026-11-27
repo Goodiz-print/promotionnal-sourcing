@@ -5,7 +5,7 @@ const translations = {
   'products.imageSearch.button': 'Rechercher par image',
   'products.imageSearch.analysing': 'Analyse de la photo…',
   'products.imageSearch.hint': 'JPG, PNG ou WebP, 5 Mo max.',
-  'products.imageSearch.privacy': 'Analysée par Mistral AI.',
+  'products.imageSearch.privacy': 'Analysée par notre prestataire d’IA.',
 }
 
 const post = vi.fn()

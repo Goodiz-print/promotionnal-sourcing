@@ -3,11 +3,13 @@ import type { ApiClient } from '@japa/api-client'
 import app from '@adonisjs/core/services/app'
 import db from '@adonisjs/lucid/services/db'
 import mail from '@adonisjs/mail/services/main'
+import Anthropic from '@anthropic-ai/sdk'
 import aiConfig from '#config/ai'
 import healthConfig from '#config/health'
 import { UserFactory } from '#database/factories/user_factory'
 import PlatformHealthAlert from '#mails/platform_health_alert'
 import HealthMonitorService from '#services/health_monitor_service'
+import { fakeClaudeClient } from '#tests/utils/fake_claude_client'
 import { installFakeEngine } from '#tests/utils/fake_search_engine'
 import { useDatabase } from '#tests/utils/setup'
 import { useFakeStorage } from '#tests/utils/storage'
@@ -25,7 +27,8 @@ import {
 
 /**
  * Santé de la plateforme (#179). VIES et Mistral passent par `fetch` : il est remplacé
- * pour que la suite ne sorte jamais sur le réseau.
+ * pour que la suite ne sorte jamais sur le réseau. Claude passe par le client
+ * Anthropic, remplacé dans le conteneur par les tests qui le sondent.
  */
 const realFetch = globalThis.fetch
 let viesStatus = 200
@@ -34,6 +37,8 @@ function useIsolatedHealth(group: Parameters<typeof useDatabase>[0]) {
   const storage = useFakeStorage(group)
   const saved = { ...healthConfig }
   const savedKey = aiConfig.mistral.apiKey
+  const savedClaudeKey = aiConfig.claude.apiKey
+  const savedProvider = aiConfig.provider
 
   group.each.setup(() => {
     viesStatus = 200
@@ -42,11 +47,14 @@ function useIsolatedHealth(group: Parameters<typeof useDatabase>[0]) {
     healthConfig.token = undefined
     healthConfig.alertAddress = 'ops@example.test'
     aiConfig.mistral.apiKey = undefined
+    aiConfig.claude.apiKey = undefined
     const { restore } = installFakeEngine(false)
     return () => {
       restore()
       Object.assign(healthConfig, saved)
       aiConfig.mistral.apiKey = savedKey
+      aiConfig.claude.apiKey = savedClaudeKey
+      aiConfig.provider = savedProvider
       globalThis.fetch = realFetch
     }
   })
@@ -88,6 +96,7 @@ test.group('Santé — point d’entrée détaillé', (group) => {
     // Recherche et Mistral ne sont pas configurés : non sondés, jamais en panne.
     assert.equal(statusOf(report, 'search'), 'disabled')
     assert.equal(statusOf(report, 'mistral'), 'disabled')
+    assert.equal(statusOf(report, 'claude'), 'disabled')
   })
 
   test('un composant en panne fait répondre 503 au détail mais pas à la liveness', async ({
@@ -415,5 +424,30 @@ test.group('Santé — surveillance et alertes', (group) => {
     const old = await service.summary(new Date(now.getTime() + 20 * 60_000))
     assert.isFalse(fresh.stale)
     assert.isTrue(old.stale)
+  })
+
+  test('une clé Claude refusée est en panne, une erreur 5xx ou réseau est dégradée', async ({
+    client,
+    assert,
+    cleanup,
+  }) => {
+    healthConfig.token = 'secret-token'
+    aiConfig.claude.apiKey = 'sk-ant-test'
+    aiConfig.provider = 'claude'
+    cleanup(() => app.container.restore(Anthropic))
+    const statusWith = async (modelsError?: Error) => {
+      app.container.swap(Anthropic, () => fakeClaudeClient({}, { modelsError }).client)
+      const response = await details(client)
+      return statusOf(response.body() as PlatformHealthReport, 'claude')
+    }
+    const apiError = (status: number) =>
+      Anthropic.APIError.generate(status, undefined, `HTTP ${status}`, new Headers())
+
+    assert.equal(await statusWith(), 'ok')
+    assert.equal(await statusWith(apiError(401)), 'down')
+    assert.equal(await statusWith(apiError(403)), 'down')
+    assert.equal(await statusWith(apiError(529)), 'degraded')
+    // Injoignable (réseau, délai) : pas prouvé tombé, donc seulement dégradé.
+    assert.equal(await statusWith(new Anthropic.APIConnectionError({})), 'degraded')
   })
 })

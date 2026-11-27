@@ -14,6 +14,19 @@ import StorageDriver from '#services/storage/storage_driver'
 import CellarStorageDriver from '#services/storage/cellar_storage_driver'
 import StorageService from '#services/storage/storage_service'
 import StorageCleanupService from '#services/storage/storage_cleanup_service'
+import Anthropic from '@anthropic-ai/sdk'
+import aiConfig from '#config/ai'
+import { Container } from '@adonisjs/core/container'
+import type { ApplicationService } from '@adonisjs/core/types'
+import AiProvider, { IMAGE_DESCRIPTION_DRIVERS, TRANSLATION_DRIVERS } from '#providers/ai_provider'
+import TranslationProvider from '#services/translation/translation_provider'
+import MistralTranslationProvider from '#services/translation/mistral_translation_provider'
+import ClaudeTranslationProvider from '#services/translation/claude_translation_provider'
+import ImageDescriptionProvider from '#services/vision/image_description_provider'
+import MistralImageDescriptionProvider from '#services/vision/mistral_image_description_provider'
+import ClaudeImageDescriptionProvider from '#services/vision/claude_image_description_provider'
+import HealthProbeService from '#services/health_probe_service'
+import { LLM_PROVIDERS } from '#shared/types/ai'
 
 /**
  * Garde-fou d'injection de dépendances : le conteneur IoC doit savoir résoudre
@@ -52,5 +65,56 @@ test.group('Conteneur IoC — câblage des dépendances', () => {
     assert.instanceOf(await app.container.make(StorageDriver), CellarStorageDriver)
     assert.instanceOf(await app.container.make(StorageService), StorageService)
     assert.instanceOf(await app.container.make(StorageCleanupService), StorageCleanupService)
+  })
+
+  test('l’application lie traduction et vision au fournisseur configuré', async ({ assert }) => {
+    assert.instanceOf(
+      await app.container.make(TranslationProvider),
+      TRANSLATION_DRIVERS[aiConfig.provider]
+    )
+    assert.instanceOf(
+      await app.container.make(ImageDescriptionProvider),
+      IMAGE_DESCRIPTION_DRIVERS[aiConfig.provider]
+    )
+  })
+
+  LLM_PROVIDERS.forEach((provider) => {
+    test(`fournisseur ${provider} : lie les drivers ${provider}`, async ({ assert, cleanup }) => {
+      const saved = aiConfig.provider
+      cleanup(() => void (aiConfig.provider = saved))
+      aiConfig.provider = provider
+
+      // Conteneur neuf : les singletons de l'application ont déjà choisi leur driver.
+      const container = new Container()
+      new AiProvider({ container } as unknown as ApplicationService).register()
+
+      assert.instanceOf(await container.make(TranslationProvider), TRANSLATION_DRIVERS[provider])
+      assert.instanceOf(
+        await container.make(ImageDescriptionProvider),
+        IMAGE_DESCRIPTION_DRIVERS[provider]
+      )
+    })
+  })
+
+  test('chaque fournisseur a son driver de traduction et de vision', ({ assert }) => {
+    assert.sameMembers(Object.keys(TRANSLATION_DRIVERS), [...LLM_PROVIDERS])
+    assert.sameMembers(Object.keys(IMAGE_DESCRIPTION_DRIVERS), [...LLM_PROVIDERS])
+    assert.strictEqual(TRANSLATION_DRIVERS.claude, ClaudeTranslationProvider)
+    assert.strictEqual(IMAGE_DESCRIPTION_DRIVERS.claude, ClaudeImageDescriptionProvider)
+    assert.strictEqual(TRANSLATION_DRIVERS.mistral, MistralTranslationProvider)
+    assert.strictEqual(IMAGE_DESCRIPTION_DRIVERS.mistral, MistralImageDescriptionProvider)
+  })
+
+  test('résout les drivers Claude avec le client Anthropic, même sans clé', async ({ assert }) => {
+    assert.instanceOf(await app.container.make(Anthropic), Anthropic)
+    assert.instanceOf(
+      await app.container.make(ClaudeTranslationProvider),
+      ClaudeTranslationProvider
+    )
+    assert.instanceOf(
+      await app.container.make(ClaudeImageDescriptionProvider),
+      ClaudeImageDescriptionProvider
+    )
+    assert.instanceOf(await app.container.make(HealthProbeService), HealthProbeService)
   })
 })

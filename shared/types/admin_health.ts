@@ -13,6 +13,7 @@ export const HEALTH_COMPONENTS = [
   'mail',
   'vies',
   'mistral',
+  'claude',
 ] as const
 
 export type HealthComponent = (typeof HEALTH_COMPONENTS)[number]
@@ -35,9 +36,9 @@ export const HEALTH_EXTERNAL_COMPONENTS: readonly HealthComponent[] = ['vies']
 /**
  * Composants dont l'injoignabilité (réseau, délai dépassé) est seulement `degraded` :
  * le service tiers répond mal mais rien ne prouve qu'il est tombé. Seul un refus
- * explicite (clé Mistral rejetée) est `down`.
+ * explicite (clé Mistral ou Claude rejetée) est `down`.
  */
-export const HEALTH_SOFT_COMPONENTS: readonly HealthComponent[] = ['mistral']
+export const HEALTH_SOFT_COMPONENTS: readonly HealthComponent[] = ['mistral', 'claude']
 
 /**
  * Au-delà de ce délai sans passe du job de surveillance (3 intervalles de 5 minutes),

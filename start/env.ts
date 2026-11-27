@@ -121,6 +121,11 @@ export default await Env.create(new URL('../', import.meta.url), {
   // Recherche par image (modèle vision Mistral)
   AI_VISION_ENABLED: Env.schema.boolean.optional(),
   MISTRAL_VISION_MODEL: Env.schema.string.optional(),
+  // Driver Claude (API Anthropic). Sa clé présente, Claude sert à la traduction et à la
+  // recherche par image ; sinon Mistral (`MISTRAL_API_KEY`). Sans effet sur les embeddings.
+  ANTHROPIC_API_KEY: Env.schema.string.optional(),
+  CLAUDE_TRANSLATION_MODEL: Env.schema.string.optional(),
+  CLAUDE_VISION_MODEL: Env.schema.string.optional(),
   // Driver OpenAI-compatible (générique)
   AI_BASE_URL: Env.schema.string.optional(),
   AI_API_KEY: Env.schema.string.optional(),

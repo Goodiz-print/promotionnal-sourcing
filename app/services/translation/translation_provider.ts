@@ -1,8 +1,8 @@
 import type { TranslationUsage } from '#shared/types/ai'
 
 /**
- * Token d'injection (classe abstraite) du traducteur. Lié à
- * `MistralTranslationProvider` dans `providers/ai_provider.ts`.
+ * Token d'injection (classe abstraite) du traducteur. Lié au driver Mistral ou
+ * Claude dans `providers/ai_provider.ts`, selon la clé d'API présente.
  */
 export default abstract class TranslationProvider {
   /** Modèle utilisé (entre dans la clé d'idempotence). */

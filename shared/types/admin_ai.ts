@@ -22,7 +22,10 @@ export type AdminAiTotals = {
   truncated: number
   promptTokens: number
   completionTokens: number
-  /** Coût estimé sur la fenêtre ; `null` tant qu'aucun tarif n'est configuré. */
+  /**
+   * Coût estimé des appels faits avec le modèle actif sur la fenêtre (le tarif
+   * configuré est le sien) ; `null` tant qu'aucun tarif n'est configuré.
+   */
   estimatedCost: number | null
 }
 

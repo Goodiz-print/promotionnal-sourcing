@@ -1821,7 +1821,7 @@
   },
   "health": {
     "title": "Platform health",
-    "subtitle": "Live status of the components (database, queue, search, storage, email, VIES, Mistral). The monitoring job runs every 5 minutes and emails MAIL_ALERT_ADDRESS when something degrades.",
+    "subtitle": "Live status of the components (database, queue, search, storage, email, VIES, Mistral, Claude). The monitoring job runs every 5 minutes and emails MAIL_ALERT_ADDRESS when something degrades.",
     "statuses": {
       "ok": "Healthy",
       "degraded": "Degraded",
@@ -1840,7 +1840,8 @@
       "storage": "Storage (Cellar)",
       "mail": "Email",
       "vies": "VIES (VAT)",
-      "mistral": "Mistral (AI)"
+      "mistral": "Mistral (AI)",
+      "claude": "Claude (AI)"
     },
     "hints": {
       "database": "Test query on PostgreSQL.",
@@ -1849,7 +1850,8 @@
       "storage": "HEAD request on Cellar, nothing is written.",
       "mail": "Send failures over the last hour.",
       "vies": "European Commission service: never worse than degraded, no alert.",
-      "mistral": "Model list, no tokens consumed; not configured without MISTRAL_API_KEY."
+      "mistral": "Model list, no tokens consumed; not configured without MISTRAL_API_KEY.",
+      "claude": "Model list, no tokens consumed; not configured without ANTHROPIC_API_KEY."
     },
     "components": {
       "title": "Components",

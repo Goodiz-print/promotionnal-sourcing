@@ -4,6 +4,8 @@ import type { ApiClient } from '@japa/api-client'
 import ContactRequestNotification from '#mails/contact_request_notification'
 import { CONTACT_REQUEST_LIMIT } from '#start/limiter'
 import { CONTACT_EMAIL, PARTNERS_EMAIL } from '#shared/types/marketing'
+import aiConfig from '#config/ai'
+import { PRIVACY_PROCESSOR_BODY_KEYS, type LlmProvider } from '#shared/types/ai'
 import { UserFactory } from '#database/factories/user_factory'
 import { useDatabase } from '#tests/utils/setup'
 
@@ -100,6 +102,32 @@ test.group('Landing — rendu HTML (SSR)', () => {
 
     const privacy = await client.get('/en/privacy')
     privacy.assertStatus(200)
+  })
+
+  test('la politique de confidentialité nomme le sous-traitant IA configuré', async ({
+    client,
+    assert,
+    cleanup,
+  }) => {
+    const saved = aiConfig.provider
+    cleanup(() => void (aiConfig.provider = saved))
+    const pageWith = async (provider: LlmProvider) => {
+      aiConfig.provider = provider
+      const response = await client.get('/fr/privacy').withInertia()
+      const props = response.inertiaProps
+      assert.equal(props.aiProcessor, provider)
+      const key = `privacy.sections.destinataires.${PRIVACY_PROCESSOR_BODY_KEYS[provider]}`
+      return props.translations[key] as string
+    }
+
+    const mistral = await pageWith('mistral')
+    assert.include(mistral, 'Mistral AI SAS')
+    assert.notInclude(mistral, 'Anthropic')
+
+    const claude = await pageWith('claude')
+    assert.include(claude, 'Anthropic PBC')
+    assert.include(claude, 'États-Unis')
+    assert.notInclude(claude, 'Mistral')
   })
 })
 

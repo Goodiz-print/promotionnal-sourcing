@@ -10,7 +10,7 @@
 - **Recherche** : Meilisearch hébergé sur Clever Cloud (instance Docker, recherche hybride : mots-clés + vecteurs). Les embeddings sont calculés par l'application (`EmbeddingService`, provider configurable, `mistral-embed` par défaut), conservés dans PostgreSQL et poussés dans l'index (`userProvided`). Index alimenté depuis PostgreSQL par la queue, PostgreSQL reste la source de vérité (issue #112, ADR 0002, `docs/search.md`)
 - **ORM** : Lucid (migrations, seeders)
 - **Auth** : @adonisjs/auth avec bouncer + abilities pour les ACL
-- **IA** : Mistral AI via `@mistralai/mistralai` + système de queue AdonisJS
+- **IA** : Claude via `@anthropic-ai/sdk` ou Mistral AI via `@mistralai/mistralai`, selon la clé d'API présente (`ANTHROPIC_API_KEY` d'abord, sinon `MISTRAL_API_KEY` ; traduction et vision ; les embeddings n'en dépendent pas, ADR 0006) + système de queue AdonisJS
 - **Tests backend** : Japa (functional + unit)
 - **Tests frontend** : Vitest + @vue/test-utils
 - **Package manager** : pnpm

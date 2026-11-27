@@ -313,7 +313,8 @@ traduction dédiées** — jamais dans les tables de base :
 - Le fournisseur saisit nom/description dans sa **langue source**
   (`sourceLocale`, colonne `source_locale` sur `products`, `categories`,
   `attributes`, `attribute_values`). Les autres langues de contenu sont générées
-  par `TranslateEntityJob` (Mistral) à la sauvegarde.
+  par `TranslateEntityJob` à la sauvegarde (Claude si `ANTHROPIC_API_KEY` est
+  présente, sinon Mistral, ADR 0006).
 - Chaque ligne de traduction porte `is_auto` : `true` = générée (corrigeable),
   `false` = saisie ou corrigée à la main. `TranslationService` n'écrase jamais
   une ligne `is_auto = false`. Renvoyer une traduction inchangée ne change pas son
@@ -332,10 +333,11 @@ traduction dédiées** — jamais dans les tables de base :
   les sous-clés `names.*` / `descriptions.*` (ADR 0002), sans locale dans la requête.
 - **Rattrapage** : `node ace translation:backfill [--limit=N] [--entity=product]`
   met en file la traduction des contenus existants (produits actifs, catégories,
-  attributs, valeurs). Idempotent : une langue déjà à jour ne rappelle pas Mistral.
+  attributs, valeurs). Idempotent : une langue déjà à jour ne rappelle pas le fournisseur IA.
   `--limit` sert à mesurer le coût réel sur un échantillon avant un passage en masse.
-  Un appel Mistral par entité couvre les 31 langues cibles (`maxTokens` plafonné,
-  réponse tronquée rejetée puis rejouée par le job).
+  Un appel par entité couvre les 31 langues cibles (`maxTokens` plafonné,
+  réponse tronquée rejetée puis rejouée par le job). Changer de fournisseur ou de
+  modèle change la clé d'idempotence : le contenu automatique est retraduit.
 
 ## Administration de la taxonomie (catégories globales)
 
