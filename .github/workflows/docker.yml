@@ -1,13 +1,15 @@
 name: Docker
 
-# Après une CI verte sur main : construit l'image du commit testé, la pousse sur
-# GHCR (une image par commit, taguée au SHA), puis la déploie en staging.
-# La production réutilise cette image, sans reconstruction (release.yml).
+# À chaque push sur main : construit l'image du commit, la pousse sur GHCR (une
+# image par commit, taguée au SHA), puis la déploie en staging. La production
+# réutilise cette image, sans reconstruction (release.yml).
+#
+# La CI ne tourne plus sur main (quota de minutes) : si le commit est identique à
+# la tête déjà testée de sa PR, l'image est construite directement ; sinon (PR pas
+# à jour avec main, push direct) la CI complète est rejouée d'abord.
 
 on:
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
+  push:
     branches: [main]
 
 # Un run à la fois, dans l'ordre des merges : sans cela, le build d'un commit
@@ -19,15 +21,42 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  verify:
+    name: Commit déjà testé ?
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: read
+    outputs:
+      tested: ${{ steps.check.outputs.tested }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Comparer au contenu testé en PR
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: scripts/ci/commit_tested.sh "$GITHUB_SHA"
+
+  # Filet de sécurité : CI complète quand le commit n'a pas été testé tel quel.
+  ci:
+    needs: verify
+    if: ${{ needs.verify.outputs.tested != 'true' }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/ci.yml
+
   build-push:
+    needs: [verify, ci]
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # `branches: [main]` filtre sur le NOM de la branche : la PR d'un fork dont la
-    # branche s'appelle `main` le passerait. On exige donc un push sur main.
+    # `ci` est sauté quand le commit est déjà testé : `always()` évite que ce saut
+    # ne saute aussi ce job, les conditions exigent quand même un feu vert.
     if: >-
-      ${{ github.event.workflow_run.conclusion == 'success'
-      && github.event.workflow_run.event == 'push'
-      && github.event.workflow_run.head_repository.full_name == github.repository }}
+      ${{ always()
+      && needs.verify.result == 'success'
+      && (needs.ci.result == 'success' || needs.ci.result == 'skipped') }}
 
     permissions:
       contents: read
@@ -37,11 +66,7 @@ jobs:
       image: ${{ steps.name.outputs.repository }}@${{ steps.build.outputs.digest }}
 
     steps:
-      # Le commit que la CI vient de valider, pas la tête de main au moment où
-      # ce workflow démarre (un autre merge a pu passer entre-temps).
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
 
       # GHCR refuse les majuscules, et le nom de l'organisation en contient.
       - name: Nom de l'image
@@ -63,10 +88,10 @@ jobs:
           push: true
           tags: |
             ${{ steps.name.outputs.repository }}:latest
-            ${{ steps.name.outputs.repository }}:${{ github.event.workflow_run.head_sha }}
+            ${{ steps.name.outputs.repository }}:${{ github.sha }}
           # Exposée par GET /health : permet de vérifier quelle version répond.
           build-args: |
-            APP_VERSION=${{ github.event.workflow_run.head_sha }}
+            APP_VERSION=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -74,7 +99,8 @@ jobs:
   # (infrastructure Clever Cloud à créer d'abord : docs/deploiement-clever-setup.md).
   deploy-staging:
     needs: build-push
-    if: ${{ vars.DEPLOY_STAGING == 'true' }}
+    # Condition explicite : sans elle, le saut de `ci` (ancêtre) sauterait ce job.
+    if: ${{ !cancelled() && needs.build-push.result == 'success' && vars.DEPLOY_STAGING == 'true' }}
     permissions:
       contents: read
       packages: read
@@ -82,5 +108,5 @@ jobs:
     with:
       environment: staging
       image: ${{ needs.build-push.outputs.image }}
-      version: ${{ github.event.workflow_run.head_sha }}
+      version: ${{ github.sha }}
     secrets: inherit

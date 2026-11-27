@@ -7,7 +7,7 @@
 | Environnement | Applications                           | PostgreSQL             | Cellar                    | Meilisearch                        | Déclenchement                       |
 | ------------- | -------------------------------------- | ---------------------- | ------------------------- | ---------------------------------- | ----------------------------------- |
 | Dev (local)   | `pnpm dev:all` sur le poste            | Conteneur local        | S3Mock (`localhost:9090`) | Service `meilisearch` du compose   | Manuel                              |
-| Staging       | Docker XS (web), Docker XS (worker)    | PostgreSQL XS Small    | Bucket staging            | À choisir (ADR 0004), sinon absent | Push sur `main`, après CI verte     |
+| Staging       | Docker XS (web), Docker XS (worker)    | PostgreSQL XS Small    | Bucket staging            | À choisir (ADR 0004), sinon absent | Push sur `main`, commit testé       |
 | Production    | Docker XS ×2 (web), Docker XS (worker) | PostgreSQL S Big Space | Bucket prod               | À choisir (ADR 0004)               | Tag `vX.Y.Z` + approbation manuelle |
 | Review        | Un conteneur web + worker par PR       | Base jetable           | Bucket review partagé     | Absent (recherche PostgreSQL)      | Label `review` (livraison à venir)  |
 
@@ -15,10 +15,19 @@ Tous les environnements vivent dans la même organisation Clever, « Promotional
 
 ## Règles
 
-- **Staging** : déploiement automatique à chaque push sur `main`, une fois la CI verte (`.github/workflows/docker.yml`, actif quand la variable de dépôt `DEPLOY_STAGING` vaut `true`). Les runs passent un par un, dans l'ordre des merges. Si trois merges s'enchaînent, le run du milieu est annulé : son commit n'a pas d'image, il faut relancer ce run avant de le taguer.
+- **Staging** : déploiement automatique à chaque push sur `main` (`.github/workflows/docker.yml`, actif quand la variable de dépôt `DEPLOY_STAGING` vaut `true`), une fois le commit testé (voir « Pas de CI rejouée sur main » ci-dessous). Les runs passent un par un, dans l'ordre des merges. Si trois merges s'enchaînent, le run du milieu est annulé : son commit n'a pas d'image, il faut relancer ce run avant de le taguer.
 - **Prod** : déploiement uniquement sur un tag `vX.Y.Z`, après approbation manuelle (environnement GitHub `production`, `.github/workflows/release.yml`).
-- **Une image par commit** : construite une fois par la CI sur `main`, poussée sur GHCR et taguée au SHA. La prod réutilise cette image, sans rebuild.
+- **Une image par commit** : construite une fois par `docker.yml` sur `main`, poussée sur GHCR et taguée au SHA. La prod réutilise cette image, sans rebuild.
 - **Migrations avant redémarrage**, par la CI. Ordre : migrations, web, worker.
+
+## Pas de CI rejouée sur main
+
+La CI (`ci.yml`) ne tourne que sur les pull requests : la rejouer après chaque merge coûtait un tiers du quota de minutes GitHub Actions. Le premier job de `docker.yml` (`scripts/ci/commit_tested.sh`) vérifie que le commit poussé sur `main` provient d'une PR mergée, que la CI de cette PR est verte sur sa tête, et que le **contenu** du commit (son arbre git) est identique à celui de cette tête.
+
+- Identique (squash ou rebase d'une PR **à jour avec `main`**) : l'image est construite directement.
+- Différent (PR pas à jour au moment du merge, push direct sur `main`, API indisponible) : `docker.yml` rappelle la CI complète (`workflow_call`) et ne construit l'image que si elle est verte.
+
+Le plan GitHub Free ne permet pas d'imposer « branche à jour avant merge » sur un dépôt privé : **mettre la PR à jour (bouton _Update branch_) avant de merger** évite de repayer une CI complète.
 
 ## Comment une image arrive sur Clever Cloud
 

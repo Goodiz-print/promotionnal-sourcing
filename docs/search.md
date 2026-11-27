@@ -260,7 +260,7 @@ multi-devises : hors périmètre.
 - **Embedder indisponible** (API en panne ou limitée, modèle pas encore chargé) : à l'indexation, la tâche Meilisearch échoue → `SearchTaskFailedException`, le job est rejoué ; à la recherche, la requête est rejouée en mots-clés seuls.
 - **Latence** : la requête est vectorisée par Meilisearch à chaque recherche hybride (sur son CPU avec `huggingface`) ; à mesurer par `search:evaluate`. Le sélecteur de produit des demandes de devis reste par mots-clés pour ne pas payer ce calcul à chaque frappe.
 
-⚠️ **Le modèle `huggingface` n'est pas validé en local** : il ne se télécharge pas de façon fiable sur un lien bridé (voir « En local, préférer `mistral` » ci-dessus). Le job CI `test-search-semantic` fait tourner Meilisearch avec l'embedder `huggingface` et rejoue les requêtes sémantiques ; tant qu'il n'est pas vert, le support du modèle par Meilisearch et la qualité sur le seed restent à confirmer. À valider ensuite en préproduction sur de vraies fiches multilingues. En local, la recherche hybride se vérifie avec `AI_PROVIDER=mistral` (embeddings via l'API Mistral), pas avec le modèle de prod. Les modèles e5 recommandent des préfixes `query:` / `passage:` que Meilisearch n'ajoute pas côté requête : on n'en met d'aucun côté.
+⚠️ **Le modèle `huggingface` n'est pas validé en local** : il ne se télécharge pas de façon fiable sur un lien bridé (voir « En local, préférer `mistral` » ci-dessus). La seconde passe du job CI `test-search` fait tourner Meilisearch avec l'embedder `huggingface` et rejoue les requêtes sémantiques ; tant qu'il n'est pas vert, le support du modèle par Meilisearch et la qualité sur le seed restent à confirmer. À valider ensuite en préproduction sur de vraies fiches multilingues. En local, la recherche hybride se vérifie avec `AI_PROVIDER=mistral` (embeddings via l'API Mistral), pas avec le modèle de prod. Les modèles e5 recommandent des préfixes `query:` / `passage:` que Meilisearch n'ajoute pas côté requête : on n'en met d'aucun côté.
 
 ## Qui déclenche une synchronisation
 
@@ -347,7 +347,7 @@ node ace search:evaluate --reindex    # reconstruit l'index puis mesure
 
 `search:evaluate` rejoue chaque requête **à travers le vrai chemin** (`ProductSearchService`, rechargement PostgreSQL compris) et affiche verdict, rappel@10 et latence par requête, puis le rappel moyen et les latences p50 / p95 ; code de sortie 1 si une requête échoue. C'est l'outil qui sert à **choisir par la mesure** le modèle d'embeddings, `SEARCH_SEMANTIC_RATIO` et la quantification (ADR 0002, décisions 3, 7 et 10) : changer l'un d'eux, relancer, comparer.
 
-En CI, le job `test-search` démarre un vrai Meilisearch et rejoue les requêtes non sémantiques ; `test-search-semantic` y ajoute l'embedder `huggingface` et rejoue aussi les requêtes sémantiques (`tests/functional/search_reference.spec.ts`). `pnpm test` ignore ce fichier faute de `MEILISEARCH_HOST`.
+En CI, le job `test-search` démarre un vrai Meilisearch et rejoue le jeu deux fois : d'abord sans embedder (requêtes non sémantiques), puis avec l'embedder `huggingface` (requêtes sémantiques en plus) (`tests/functional/search_reference.spec.ts`). `pnpm test` ignore ce fichier faute de `MEILISEARCH_HOST`.
 
 ⚠️ Le seed ne contient que du français et de l'anglais, sur six fiches : il éprouve le pipeline (mots-clés, fautes, ET, rechargement, et le sémantique en CI) mais **pas la qualité multilingue du modèle**. Avant de figer le modèle, étendre le jeu avec de vraies fiches dans plusieurs langues.
 
