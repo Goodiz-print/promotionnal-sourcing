@@ -1,9 +1,18 @@
 name: CI
 
+# Pas de run sur main : la PR a déjà testé le commit. docker.yml rappelle ce
+# workflow (`workflow_call`) seulement si le commit mergé diffère de la tête testée
+# de sa PR (scripts/ci/commit_tested.sh).
+#
+# Jobs regroupés : GitHub arrondit chaque job à la minute supérieure, et chaque
+# job réinstalle les dépendances. Moins de jobs = moins de minutes facturées.
+#
+# Pas de run sur une PR en brouillon : chaque job est sauté (un job sauté n'est pas
+# facturé). La CI part au passage en « Ready for review », puis à chaque push.
 on:
-  push:
-    branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_call:
 
 # Un nouveau push sur une PR annule le run précédent (jamais sur main).
 concurrency:
@@ -41,40 +50,34 @@ env:
   MAIL_FROM_NAME: FleetAi
 
 jobs:
-  lint:
+  # Lint, build, typecheck et tests frontend : un seul job, une seule installation.
+  checks:
+    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      # Workflows et scripts de déploiement : ils ne tournent pour de vrai qu'au
+      # moment de déployer, autant attraper leurs erreurs sur la PR.
+      - name: shellcheck (scripts)
+        run: shellcheck scripts/deploy/*.sh scripts/ci/*.sh scripts/dev.sh
+      # L'image embarque shellcheck : les blocs `run:` sont vérifiés aussi.
+      - name: actionlint (workflows)
+        run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.7@sha256:887a259a5a534f3c4f36cb02dca341673c6089431057242cdc931e9f133147e9 -color
       - uses: ./.github/actions/setup
       - run: pnpm lint
-
-  build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
       # Le build génère `.adonisjs/server/*` (#generated/*) dont dépend le typecheck.
       - run: pnpm run build
       - run: pnpm typecheck
+      - name: Frontend tests (Vitest)
+        run: pnpm test:inertia
 
-  # Tests backend répartis en shards parallèles. Chaque job a son propre service
-  # PostgreSQL (la suite tronque les tables : un shard ne partage jamais de base).
-  # Les fichiers `*.spec.ts` d'une suite sont triés puis distribués en round-robin.
+  # Tests backend : unit puis functional dans un seul job (un seul setup, un seul
+  # arrondi à la minute). La suite tronque les tables : elle a sa propre base.
   test-backend:
-    name: test-backend (${{ matrix.suite }} ${{ matrix.shard }}/${{ matrix.total }})
+    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - { suite: unit, shard: 1, total: 1 }
-          - { suite: functional, shard: 1, total: 4 }
-          - { suite: functional, shard: 2, total: 4 }
-          - { suite: functional, shard: 3, total: 4 }
-          - { suite: functional, shard: 4, total: 4 }
+    timeout-minutes: 20
     services:
       postgres:
         image: pgvector/pgvector:pg18
@@ -92,69 +95,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - name: Backend tests (PostgreSQL)
-        run: |
-          args=()
-          while IFS= read -r file; do
-            args+=("--files=$file")
-          done < <(
-            find "tests/${{ matrix.suite }}" -name '*.spec.ts' | LC_ALL=C sort \
-              | awk -v n="${{ matrix.total }}" -v k="${{ matrix.shard }}" '(NR - 1) % n == k - 1'
-          )
-          echo "${#args[@]} fichiers de test dans ce shard"
-          node ace test ${{ matrix.suite }} "${args[@]}"
+      - name: Tests unitaires
+        run: node ace test unit
+      # Lancés même si les tests unitaires échouent : un seul run montre tout.
+      - name: Tests fonctionnels (PostgreSQL)
+        if: ${{ !cancelled() }}
+        run: node ace test functional
 
   # Jeu de requêtes de référence contre un vrai Meilisearch (#112, ADR 0002) :
-  # `pnpm test` l'ignore faute de MEILISEARCH_HOST, ce job le rejoue seul.
+  # `pnpm test` l'ignore faute de MEILISEARCH_HOST, ce job le rejoue seul, deux fois :
+  # sans embedder, puis avec (Meilisearch télécharge le modèle `huggingface`, ~1 Go,
+  # sans clé, et calcule les vecteurs : les requêtes sémantiques sont rejouées aussi).
+  # Chaque passe réindexe le seed dans son `group.setup`.
   test-search:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      MEILISEARCH_HOST: http://localhost:7700
-      MEILISEARCH_API_KEY: ci-master-key
-    services:
-      postgres:
-        image: pgvector/pgvector:pg18
-        env:
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      meilisearch:
-        image: getmeili/meilisearch:v1.55.0
-        env:
-          MEILI_ENV: development
-          MEILI_MASTER_KEY: ci-master-key
-        ports:
-          - 7700:7700
-        options: >-
-          --health-cmd "curl --fail --silent http://localhost:7700/health"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 20
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
-      - name: Jeu de référence (Meilisearch)
-        run: node ace test functional --files="tests/functional/search_reference.spec.ts"
-
-  # Même jeu, **avec l'embedder** : Meilisearch télécharge le modèle `huggingface`
-  # (sans clé) et calcule les vecteurs, ce qui rejoue aussi les requêtes sémantiques.
-  # Job à part : le téléchargement du modèle (~1 Go) dépend du réseau.
-  test-search-semantic:
+    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
       MEILISEARCH_HOST: http://localhost:7700
       MEILISEARCH_API_KEY: ci-master-key
-      AI_EMBEDDINGS_ENABLED: true
-      AI_PROVIDER: huggingface
     services:
       postgres:
         image: pgvector/pgvector:pg18
@@ -184,35 +143,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - name: Jeu de référence (Meilisearch + embedder huggingface)
+      - name: Jeu de référence (Meilisearch, mots-clés)
         run: node ace test functional --files="tests/functional/search_reference.spec.ts"
-
-  test-frontend:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
-      - name: Frontend tests (Vitest)
-        run: pnpm test:inertia
-
-  docker-build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
-      - name: Build de l'image (sans push)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          load: true
-          push: false
-          tags: app:ci
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-      - name: Contrôles de l'image
-        run: |
-          test "$(docker run --rm --entrypoint id app:ci -u)" != 0
-          test -z "$(docker run --rm --entrypoint sh app:ci -c 'find /app -name "*.ts" ! -name "*.d.ts" -o -name ".env*"' | grep -v '^/app/node_modules/')"
-          docker run --rm --entrypoint gs app:ci --version
+      - name: Jeu de référence (Meilisearch + embedder huggingface)
+        env:
+          AI_EMBEDDINGS_ENABLED: true
+          AI_PROVIDER: huggingface
+        run: node ace test functional --files="tests/functional/search_reference.spec.ts"

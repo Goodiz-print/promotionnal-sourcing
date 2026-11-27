@@ -10,7 +10,7 @@
     {{-- Titre de repli : uniquement si la page n'en définit pas via <Head> (sinon le SSR
          émettrait deux <title> et les moteurs liraient le générique en premier). --}}
     @if(!(page.ssrHead || []).join('').includes('<title'))
-      <title inertia>promotionalsourcing.eu</title>
+      <title inertia>promotional-sourcing.eu</title>
     @end
 
     @vite(['inertia/app.ts'])

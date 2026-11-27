@@ -141,7 +141,13 @@ node ace queue:work
 node ace queue:work --queue=emails,notifications --concurrency=10
 ```
 
-En production, utiliser PM2 ou un service systemd pour maintenir le processus actif.
+Sur Clever Cloud, le worker est une application Docker à part, lancée avec :
+
+```bash
+node ace queue:serve
+```
+
+`queue:serve` (`commands/queue_serve.ts`) accepte les mêmes options que `queue:work` et y ajoute une sonde HTTP `GET /health` sur `HOST:PORT`, exigée par la plateforme (`docs/deploiement.md`). Elle répond 200 tant que le processus tourne, sans regarder la base ni le backlog.
 
 > ⚠️ **Le worker est une dépendance de production, pas un confort.** Depuis que
 > les mails transactionnels passent par `SendMailJob`, un worker arrêté = aucun

@@ -1,22 +1,77 @@
 name: Docker
 
+# À chaque push sur main : construit l'image du commit, la pousse sur GHCR (une
+# image par commit, taguée au SHA), puis la déploie en staging. La production
+# réutilise cette image, sans reconstruction (release.yml).
+#
+# La CI ne tourne plus sur main (quota de minutes) : si le commit est identique à
+# la tête déjà testée de sa PR, l'image est construite directement ; sinon (PR pas
+# à jour avec main, push direct) la CI complète est rejouée d'abord.
+
 on:
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
+  push:
     branches: [main]
 
+# Un run à la fois, dans l'ordre des merges : sans cela, le build d'un commit
+# plus ancien peut finir après celui d'un plus récent et se déployer en dernier.
+# Si trois merges s'enchaînent, le run en attente du milieu est annulé : son
+# image n'existe pas (relancer ce run avant de taguer ce commit précis).
+concurrency:
+  group: docker-main
+  cancel-in-progress: false
+
 jobs:
-  build-push:
+  verify:
+    name: Commit déjà testé ?
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: read
+    outputs:
+      tested: ${{ steps.check.outputs.tested }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Comparer au contenu testé en PR
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: scripts/ci/commit_tested.sh "$GITHUB_SHA"
+
+  # Filet de sécurité : CI complète quand le commit n'a pas été testé tel quel.
+  ci:
+    needs: verify
+    if: ${{ needs.verify.outputs.tested != 'true' }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/ci.yml
+
+  build-push:
+    needs: [verify, ci]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # `ci` est sauté quand le commit est déjà testé : `always()` évite que ce saut
+    # ne saute aussi ce job, les conditions exigent quand même un feu vert.
+    if: >-
+      ${{ always()
+      && needs.verify.result == 'success'
+      && (needs.ci.result == 'success' || needs.ci.result == 'skipped') }}
 
     permissions:
       contents: read
       packages: write
 
+    outputs:
+      image: ${{ steps.name.outputs.repository }}@${{ steps.build.outputs.digest }}
+
     steps:
       - uses: actions/checkout@v4
+
+      # GHCR refuse les majuscules, et le nom de l'organisation en contient.
+      - name: Nom de l'image
+        id: name
+        run: echo "repository=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@v3
 
@@ -26,17 +81,50 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # L'image n'est pas toujours construite en PR (docker-pr.yml filtre par
+      # chemins) : elle est contrôlée ici avant d'être poussée. Le build suivant
+      # réutilise les couches en cache.
+      - name: Build de l'image (sans push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          push: false
+          tags: app:ci
+          build-args: |
+            APP_VERSION=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Contrôles de l'image
+        run: scripts/ci/check_image.sh app:ci
+
       - uses: docker/build-push-action@v6
+        id: build
         with:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ${{ steps.name.outputs.repository }}:latest
+            ${{ steps.name.outputs.repository }}:${{ github.sha }}
+          # Exposée par GET /health : permet de vérifier quelle version répond.
+          build-args: |
+            APP_VERSION=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Ajouter ici l'étape de déploiement selon la plateforme cible :
-      # Fly.io  → flyctl deploy --image ghcr.io/${{ github.repository }}:${{ github.sha }}
-      # Railway → railway deploy
-      # K8s     → kubectl set image deployment/app app=ghcr.io/...
+  # Désactivé tant que la variable de dépôt DEPLOY_STAGING ne vaut pas `true`
+  # (infrastructure Clever Cloud à créer d'abord : docs/deploiement-clever-setup.md).
+  deploy-staging:
+    needs: build-push
+    # Condition explicite : sans elle, le saut de `ci` (ancêtre) sauterait ce job.
+    if: ${{ !cancelled() && needs.build-push.result == 'success' && vars.DEPLOY_STAGING == 'true' }}
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: staging
+      image: ${{ needs.build-push.outputs.image }}
+      version: ${{ github.sha }}
+    secrets: inherit

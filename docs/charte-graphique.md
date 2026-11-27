@@ -1,4 +1,4 @@
-# Charte graphique — promotionalsourcing.eu
+# Charte graphique — promotional-sourcing.eu
 
 Référence visuelle : la landing — fond blanc / gris très clair (« sunken »), cartes blanches arrondies, neutres teintés navy pour le texte/les bordures, indigo en accent réservé aux actions (boutons pill, liens forts, focus, chips), pointes chaudes (orange/ambre) uniquement dans le dégradé de marque.
 
