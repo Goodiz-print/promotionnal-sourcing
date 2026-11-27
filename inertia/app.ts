@@ -8,7 +8,7 @@ import { TuyauProvider } from '@adonisjs/inertia/vue'
 import { createSSRApp, type DefineComponent, h } from 'vue'
 import { resolvePageComponent } from '@adonisjs/inertia/helpers'
 
-const appName = import.meta.env.VITE_APP_NAME || 'AdonisJS'
+const appName = import.meta.env.VITE_APP_NAME || 'Promotional Sourcing'
 
 createInertiaApp({
   // Les titres de la landing portent déjà la marque : pas de suffixe en double.
