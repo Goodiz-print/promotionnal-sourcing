@@ -1,0 +1,85 @@
+name: Admin plateforme
+
+# Donne (ou retire) le rôle d'admin plateforme à un compte existant, sur le
+# staging ou la production : `node ace admin:grant|admin:revoke <email>`, dans
+# l'image déployée, avec les variables de l'application web Clever Cloud.
+# Seul moyen de créer un admin en production : la personne s'inscrit, puis ce
+# workflow la promeut. En production, l'environnement GitHub exige une
+# approbation. L'e-mail reste visible dans les paramètres du run.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environnement visé
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      email:
+        description: E-mail du compte (déjà inscrit)
+        required: true
+        type: string
+      action:
+        description: Donner ou retirer le rôle
+        required: true
+        default: grant
+        type: choice
+        options:
+          - grant
+          - revoke
+
+jobs:
+  admin:
+    name: admin:${{ inputs.action }} (${{ inputs.environment }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ vars.APP_URL }}
+    concurrency:
+      group: deploy-${{ inputs.environment }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      packages: read
+    env:
+      CLEVER_TOKEN: ${{ secrets.CLEVER_TOKEN }}
+      CLEVER_SECRET: ${{ secrets.CLEVER_SECRET }}
+      APP_WEB: ${{ vars.CLEVER_APP_WEB }}
+      APP_URL: ${{ vars.APP_URL }}
+      # Par variable d'environnement, jamais interpolé dans le script : pas
+      # d'injection shell possible par le champ e-mail.
+      EMAIL: ${{ inputs.email }}
+      ACTION: ${{ inputs.action }}
+    steps:
+      - name: Vérifier l'e-mail
+        run: |
+          if ! [[ "$EMAIL" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]; then
+            echo "::error::E-mail invalide."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v7
+
+      - name: Installer clever-tools
+        run: npm install --global clever-tools@4.11.0
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Image déployée
+        id: image
+        run: |
+          image="$(scripts/deploy/deployed_image.sh "$APP_URL" "$GITHUB_REPOSITORY")"
+          echo "Image : $image"
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+
+      - name: admin:${{ inputs.action }}
+        env:
+          IMAGE: ${{ steps.image.outputs.image }}
+        run: scripts/deploy/clever_exec.sh --app "$APP_WEB" --image "$IMAGE" -- "node ace admin:$ACTION $EMAIL"

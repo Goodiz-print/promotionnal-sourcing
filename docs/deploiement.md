@@ -96,9 +96,10 @@ Lancées **avant** le redémarrage des applications, par la CI, jamais au démar
 ```bash
 node ace migration:run --force
 node ace queue:migrate   # tables de @adonisjs/queue, voir docs/queue.md
+node ace db:seed --files=database/seeders/reference_seeder   # référentiel, voir « Données de la production »
 ```
 
-Les deux commandes sont idempotentes. Aucun identifiant de base n'est stocké dans GitHub ; la base doit en revanche accepter les connexions des runners GitHub.
+Les trois commandes sont idempotentes. Aucun identifiant de base n'est stocké dans GitHub ; la base doit en revanche accepter les connexions des runners GitHub.
 
 Une migration déjà exécutée ne se modifie jamais. Le `down()` ne se lance pas automatiquement.
 
@@ -182,7 +183,9 @@ base PostgreSQL existante (détails : [`entites-transverses.md`](entites-transve
 
 Le staging sert aux tests utilisateurs. Sa base se peuple avec le workflow manuel **Seed staging** (Actions → Seed staging → Run workflow, `.github/workflows/seed-staging.yml`). Le workflow vise toujours l'environnement GitHub `staging`, jamais la production. Il tourne dans l'image servie par le staging (version lue sur `GET /health`) et dans le même groupe de concurrence que ses déploiements. Il lance `scripts/deploy/clever_seed.sh`, qui enchaîne :
 
-1. `node ace db:seed --files=database/seeders/main_seeder` : rôles, catalogue fictif, comptes de démo (sauf si l'input `demo` est décoché). Sans `--files`, `db:seed` exécuterait chaque seeder isolément, dans le désordre ;
+Le référentiel (rôles, catégories…) arrive déjà avec chaque déploiement ; ce workflow ajoute la démo, les catalogues et les comptes de test.
+
+1. `node ace db:seed --files=database/seeders/main_seeder` : référentiel, catalogue fictif, comptes de démo (sauf si l'input `demo` est décoché). Sans `--files`, `db:seed` exécuterait chaque seeder isolément, dans le désordre ;
 2. `node ace supplier:import all --full --force` : catalogues réels (input `catalogue` : `full`, `limit:200` ou `none`) ;
 3. `node ace db:seed --files=database/seeders/staging_account_seeder` : comptes de test ;
 4. `node ace search:reindex` : sans effet si `MEILISEARCH_HOST` est absent.
@@ -210,6 +213,19 @@ Un import en échec n'arrête pas les étapes suivantes, mais le run finit en é
 - **Prix nets réels** : les catalogues importés portent les prix nets confidentiels du compte, et les testeurs les voient.
 - **Volume** : surveiller l'espace de la base `xs_sml` après un import complet, ainsi que le coût des embeddings à la réindexation.
 - **Les domaines `.test` ne reçoivent pas de mail** : pas de réinitialisation de mot de passe possible pour les comptes fictifs.
+
+## Données de la production
+
+La production ne reçoit **que le référentiel** (`database/seeders/reference_seeder.ts`) : rôles et permissions (sans eux, aucune organisation ne peut être créée à l'inscription), arbre des catégories, attributs, labels, techniques de marquage. Il est appliqué à **chaque déploiement**, staging comme production, juste après les migrations (`clever_migrate.sh`). Il est idempotent et additif : un rôle, une permission ou une catégorie ajoutés au code arrivent avec la release suivante.
+
+- Jamais de `MainSeeder`, de `db:seed` sans `--files` ni de `clever_seed.sh` en production : comptes fictifs, produits de démo, fiches rattachées sans l'accord des fournisseurs (#240). `DevUserSeeder` refuse d'ailleurs de tourner en production sans `SEED_DEMO_PASSWORD`.
+- `MainSeeder` = `ReferenceSeeder` + démo (`DevUserSeeder`, `SupplierSeeder`, `DemoCategorySeeder`, `ProductSeeder`). Une nouvelle donnée de référence va dans `ReferenceSeeder`, une donnée fictive dans la partie démo.
+
+### Admins plateforme
+
+Le rôle d'admin ne s'attribue depuis aucun écran. Pour créer un admin, la personne **s'inscrit normalement**, puis on lance le workflow **Admin plateforme** (Actions → Admin plateforme → Run workflow, `.github/workflows/admin-grant.yml`) avec l'environnement, son e-mail et `grant` (`revoke` pour retirer le rôle). En production, le job attend l'approbation de l'environnement GitHub `production`. Il lance `node ace admin:grant <email>` dans l'image déployée, et échoue si aucun compte n'a cet e-mail.
+
+L'e-mail est validé avant usage et passé par variable d'environnement (pas d'injection shell). Il reste visible dans les paramètres du run GitHub.
 
 ## Rollback
 

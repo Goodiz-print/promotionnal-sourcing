@@ -60,18 +60,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # L'image du commit servi par le staging : son code correspond au schéma
-      # de la base (migrations passées au déploiement).
+      # L'image du commit servi par le staging : son code correspond au schéma.
       - name: Image déployée
         id: image
         run: |
-          version="$(curl --silent --show-error --fail --max-time 10 "$APP_URL/health" | jq -r '.version // empty')"
-          if [ -z "$version" ]; then
-            echo "::error::$APP_URL/health n'annonce aucune version : staging déployé ?"
-            exit 1
-          fi
-          echo "Version servie : $version"
-          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}:$version" >> "$GITHUB_OUTPUT"
+          image="$(scripts/deploy/deployed_image.sh "$APP_URL" "$GITHUB_REPOSITORY")"
+          echo "Image : $image"
+          echo "image=$image" >> "$GITHUB_OUTPUT"
 
       - name: Seed
         env:

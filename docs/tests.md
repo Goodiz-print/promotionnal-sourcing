@@ -103,8 +103,8 @@ useDatabase(group, { seed: 'none' }) // vidage seul
 | `extraSeeders` | seeders joués après les précédents                                      | `[]`      |
 | `perTest`      | `true` = transaction annulée par test, `false` = aucune (lecture seule) | `true`    |
 
-`'full'` passe par `MainSeeder` et non `db:seed` : ce dernier exécuterait chaque seeder
-isolément, donc `dev_user` avant les rôles.
+`'full'` passe par `MainSeeder` (= `ReferenceSeeder` + démo) et non `db:seed` : ce
+dernier exécuterait chaque seeder isolément, donc `dev_user` avant les rôles.
 
 Un groupe `perTest: false` n'est protégé par rien : il ne doit **jamais** écrire en base.
 

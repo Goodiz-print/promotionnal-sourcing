@@ -1,79 +1,40 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import Category from '#models/category'
 import CategoryTranslation from '#models/category_translation'
-import type { SeedLocale } from '#database/seed_locale'
-import { CATEGORY_TREE } from '#database/data/catalogue/categories'
-
-type Text = { name: string; description: string }
-
-type CategorySeed = {
-  slug: string
-  synonyms: string[]
-  translations: Record<SeedLocale, Text>
-}
+import { CATEGORY_TREE, type CategorySeed } from '#database/data/catalogue/categories'
 
 /**
- * Catégories de démonstration historiques (top-level), conservées pour le jeu
- * de preuve du filtrage ET (crayon bleu…). L'arbre complet N1 > N2 du classeur
- * Virgile est semé en plus, ci-dessous.
+ * Référentiel : arbre N1 > N2 des catégories du classeur Virgile, semé dans tous
+ * les environnements (`ReferenceSeeder`). Les catégories de démo (`crayon`,
+ * `stylo`, `sac`) sont dans `DemoCategorySeeder`.
  */
-const DEMO_CATEGORIES: CategorySeed[] = [
-  {
-    slug: 'crayon',
-    synonyms: ['crayon', 'crayons', 'pencil', 'pencils'],
-    translations: {
-      fr: { name: 'Crayon', description: 'Crayons a papier et de couleur' },
-      en: { name: 'Pencil', description: 'Graphite and colour pencils' },
-    },
-  },
-  {
-    slug: 'stylo',
-    synonyms: ['stylo', 'stylos', 'pen', 'pens'],
-    translations: {
-      fr: { name: 'Stylo', description: 'Stylos bille, roller et plume' },
-      en: { name: 'Pen', description: 'Ballpoint, rollerball and fountain pens' },
-    },
-  },
-  {
-    slug: 'sac',
-    synonyms: ['sac', 'sacs', 'bag', 'bags', 'tote'],
-    translations: {
-      fr: { name: 'Sac', description: 'Sacs shopping, tote bags et pochettes' },
-      en: { name: 'Bag', description: 'Shopping bags, tote bags and pouches' },
-    },
-  },
-]
-
 export default class CategorySeeder extends BaseSeeder {
   async run() {
-    for (const seed of DEMO_CATEGORIES) {
-      const category = await Category.updateOrCreate(
-        { slug: seed.slug },
-        { synonyms: seed.synonyms }
+    // Les N1 d'abord : chaque N2 a besoin de l'id de son parent.
+    const roots = await Promise.all(
+      CATEGORY_TREE.filter((seed) => seed.parentSlug === null).map((seed) =>
+        this.seedCategory(seed, null)
       )
-      for (const locale of Object.keys(seed.translations) as SeedLocale[]) {
-        await CategoryTranslation.updateOrCreate(
-          { categoryId: category.id, locale },
-          seed.translations[locale]
-        )
-      }
-    }
+    )
+    const idBySlug = new Map(roots.map((category) => [category.slug, category.id]))
 
-    // Arbre N1 > N2 du classeur. Les N1 (parentSlug null) viennent avant les N2
-    // dans CATEGORY_TREE : le parent existe donc quand on résout le N2.
-    const idBySlug = new Map<string, number>()
-    for (const seed of CATEGORY_TREE) {
-      const parentId = seed.parentSlug ? (idBySlug.get(seed.parentSlug) ?? null) : null
-      const category = await Category.updateOrCreate(
-        { slug: seed.slug },
-        { synonyms: seed.synonyms, parentId }
+    await Promise.all(
+      CATEGORY_TREE.filter((seed) => seed.parentSlug !== null).map((seed) =>
+        this.seedCategory(seed, idBySlug.get(seed.parentSlug ?? '') ?? null)
       )
-      idBySlug.set(seed.slug, category.id)
-      // Contenu en langue source (FR) ; l'EN retombe sur le FR.
-      await CategoryTranslation.updateOrCreate(
-        { categoryId: category.id, locale: 'fr' },
-        { name: seed.name, description: null }
-      )
-    }
+    )
+  }
+
+  /** Une catégorie et son libellé en langue source (FR ; l'EN retombe sur le FR). */
+  private async seedCategory(seed: CategorySeed, parentId: number | null): Promise<Category> {
+    const category = await Category.updateOrCreate(
+      { slug: seed.slug },
+      { synonyms: seed.synonyms, parentId }
+    )
+    await CategoryTranslation.updateOrCreate(
+      { categoryId: category.id, locale: 'fr' },
+      { name: seed.name, description: null }
+    )
+    return category
   }
 }

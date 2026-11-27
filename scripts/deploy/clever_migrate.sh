@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 #
 # Lance les migrations d'un environnement AVANT le déploiement des applications,
-# depuis l'image qui va être déployée (docs/deploiement.md § Migrations).
+# depuis l'image qui va être déployée (docs/deploiement.md § Migrations), puis le
+# référentiel (ReferenceSeeder : rôles, permissions, catégories… ; idempotent,
+# jamais de données de démo).
 #
 # Les variables (base, clés…) sont lues sur l'application web Clever Cloud au
 # moment de l'exécution : aucun identifiant de base n'est stocké dans GitHub.
@@ -34,4 +36,5 @@ fi
 
 exec "$(dirname "$0")/clever_exec.sh" --app "$app" --image "$image" "${dry_run[@]}" -- \
   'node ace migration:run --force' \
-  'node ace queue:migrate'
+  'node ace queue:migrate' \
+  'node ace db:seed --files=database/seeders/reference_seeder'
