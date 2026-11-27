@@ -1,0 +1,46 @@
+name: Docker (PR)
+
+# Build de l'image sans push, seulement quand la PR touche ce qui la compose en
+# propre (Dockerfile, dépendances). Le filtre `paths` est natif : quand rien ne
+# correspond, aucun run n'est créé, donc aucune minute consommée. Une erreur de
+# build applicatif reste attrapée par `pnpm run build` (ci.yml, job `checks`), et
+# docker.yml refait ces contrôles sur main avant de pousser l'image.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - patches/**
+      - .github/workflows/docker-pr.yml
+
+concurrency:
+  group: docker-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  docker-build:
+    # Pas sur une PR en brouillon (même règle que ci.yml).
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build de l'image (sans push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          push: false
+          tags: app:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Contrôles de l'image
+        run: scripts/ci/check_image.sh app:ci

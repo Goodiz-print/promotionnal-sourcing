@@ -5,7 +5,10 @@
 #
 # Un commit est « testé » si :
 #   1. il provient d'une PR mergée ;
-#   2. le workflow CI a réussi, sur l'événement pull_request, pour la tête de cette PR ;
+#   2. le run CI le plus récent sur la tête de cette PR (événement pull_request) a
+#      réussi, avec au moins un job réellement exécuté : un push sur une PR en
+#      brouillon donne un run « success » dont tous les jobs sont sautés, qui ne
+#      prouve rien ;
 #   3. son arbre (le contenu des fichiers) est identique à celui de la tête de la PR.
 # Le point 3 est vrai pour un squash ou un rebase d'une PR à jour avec main. Si main
 # avait bougé entre-temps, le contenu mergé n'a jamais été testé : réponse « false ».
@@ -45,10 +48,18 @@ if [ -z "$pr" ] || [ "$pr" = 'null null' ]; then
 fi
 read -r number head <<< "$pr"
 
-successes="$(gh api "repos/$repo/actions/workflows/ci.yml/runs?head_sha=$head&event=pull_request&status=success&per_page=1" \
-  --jq '.total_count' 2> /dev/null)" || report false "API indisponible, CI rejouée."
-if [ "$successes" = '0' ]; then
-  report false "pas de CI verte sur la tête \`$head\` de la PR #$number, CI rejouée."
+run="$(gh api "repos/$repo/actions/workflows/ci.yml/runs?head_sha=$head&event=pull_request&per_page=1" \
+  --jq '.workflow_runs | first | "\(.id) \(.conclusion)"' 2> /dev/null)" || report false "API indisponible, CI rejouée."
+read -r run_id conclusion <<< "$run"
+if [ -z "$run" ] || [ "$conclusion" != 'success' ]; then
+  report false "dernier run CI de la tête \`$head\` de la PR #$number pas vert ($conclusion), CI rejouée."
+fi
+
+ran="$(gh api "repos/$repo/actions/runs/$run_id/jobs?per_page=100" \
+  --jq '[.jobs[] | select(.conclusion == "success")] | length' 2> /dev/null)" \
+  || report false "API indisponible, CI rejouée."
+if [ "$ran" = '0' ]; then
+  report false "run CI #$run_id entièrement sauté (PR en brouillon ?), CI rejouée."
 fi
 
 commit_tree="$(tree_of "$sha" 2> /dev/null)" || report false "API indisponible, CI rejouée."
