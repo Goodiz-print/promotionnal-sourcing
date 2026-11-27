@@ -205,4 +205,16 @@ export default await Env.create(new URL('../', import.meta.url), {
   MAKITO_PASSWORD: Env.schema.secret.optional(),
   SUPPLIER_FEED_TIMEOUT_MS: Env.schema.number.optional(),
   SUPPLIER_FEED_USER_AGENT: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Données de démo et de test (seeders, docs/deploiement.md)
+  |----------------------------------------------------------
+  | `SEED_DEMO_PASSWORD` : mot de passe commun des comptes de démo et de test,
+  | obligatoire (12 caractères min.) pour seeder en production, donc sur le
+  | staging. `SEED_ADMIN_EMAILS` : admins nominatifs du staging, séparés par des
+  | virgules ; sans elle, `StagingAccountSeeder` ne fait rien.
+  */
+  SEED_DEMO_PASSWORD: Env.schema.secret.optional(),
+  SEED_ADMIN_EMAILS: Env.schema.string.optional(),
 })

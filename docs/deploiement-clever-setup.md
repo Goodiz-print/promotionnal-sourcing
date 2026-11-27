@@ -72,7 +72,7 @@ Puis, dans Settings → Secrets and variables → Actions → Variables du dép�
 ## 6. Premier déploiement
 
 1. Relancer le workflow **Docker** du dernier commit de `main` (ou merger une PR) : migrations, web, worker, puis `GET /health`.
-2. Données de démonstration du staging : lancer les seeders une fois, depuis un poste, avec les variables de l'application.
+2. Données de test du staging : définir `SEED_DEMO_PASSWORD`, `SEED_ADMIN_EMAILS` et les identifiants des flux fournisseurs sur l'application web, puis lancer le workflow **Seed staging** (Actions → Seed staging → Run workflow). Voir [`deploiement.md` § Données du staging](deploiement.md#données-du-staging).
 3. Production : `git tag v0.1.0 && git push origin v0.1.0`, approuver le job `production`.
 4. Essayer un rollback une fois (Actions → Release → Run workflow avec le tag précédent) : critère d'acceptation de #78.
 

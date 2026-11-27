@@ -1,0 +1,84 @@
+name: Seed staging
+
+# Peuple la base du staging pour les tests utilisateurs : seeders de démo,
+# catalogues réels des fournisseurs, comptes de test, réindexation
+# (scripts/deploy/clever_seed.sh, docs/deploiement.md § Données du staging).
+# Lancement manuel uniquement. L'environnement `staging` est codé en dur : ce
+# workflow ne peut pas viser la production.
+
+on:
+  workflow_dispatch:
+    inputs:
+      catalogue:
+        description: Catalogues réels à importer
+        required: true
+        default: full
+        type: choice
+        options:
+          - full
+          - limit:200
+          - none
+      demo:
+        description: Rejouer les seeders de démo (rôles, catalogue fictif, comptes de démo)
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  seed:
+    name: seed (staging)
+    runs-on: ubuntu-latest
+    # Flux PF Concept ~200 Mo, API Makito jusqu'à 2 min par appel, puis réindexation.
+    timeout-minutes: 180
+    environment:
+      name: staging
+      url: ${{ vars.APP_URL }}
+    # Même groupe que les déploiements du staging : jamais de seed pendant une
+    # migration, et jamais d'annulation en cours de route.
+    concurrency:
+      group: deploy-staging
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      packages: read
+    env:
+      CLEVER_TOKEN: ${{ secrets.CLEVER_TOKEN }}
+      CLEVER_SECRET: ${{ secrets.CLEVER_SECRET }}
+      APP_WEB: ${{ vars.CLEVER_APP_WEB }}
+      APP_URL: ${{ vars.APP_URL }}
+      CATALOGUE: ${{ inputs.catalogue }}
+      DEMO: ${{ inputs.demo }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Installer clever-tools
+        run: npm install --global clever-tools@4.11.0
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # L'image du commit servi par le staging : son code correspond au schéma
+      # de la base (migrations passées au déploiement).
+      - name: Image déployée
+        id: image
+        run: |
+          version="$(curl --silent --show-error --fail --max-time 10 "$APP_URL/health" | jq -r '.version // empty')"
+          if [ -z "$version" ]; then
+            echo "::error::$APP_URL/health n'annonce aucune version : staging déployé ?"
+            exit 1
+          fi
+          echo "Version servie : $version"
+          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}:$version" >> "$GITHUB_OUTPUT"
+
+      - name: Seed
+        env:
+          IMAGE: ${{ steps.image.outputs.image }}
+        run: |
+          options=(--catalogue "$CATALOGUE")
+          if [ "$DEMO" != 'true' ]; then
+            options+=(--skip-demo)
+          fi
+          scripts/deploy/clever_seed.sh --app "$APP_WEB" --image "$IMAGE" "${options[@]}"

@@ -15,6 +15,8 @@ node ace supplier:import makito --full --dry-run          # catalogue entier, sa
 pnpm db:populate                                          # = supplier:import all --full
 ```
 
+Sur le staging, l'import passe par le workflow **Seed staging**, qui rattache aussi les fiches importées à des comptes fournisseurs fictifs pour les publier ([`deploiement.md` § Données du staging](deploiement.md#données-du-staging)).
+
 `pnpm db:populate` peuple une base de dev / staging avec **tous les catalogues complets** des connecteurs configurés (lancer `node ace migration:run` avant). Un fournisseur en échec n'arrête pas les suivants ; la commande sort en code 1 s'il y a eu un échec. L'indexation Meilisearch suit par la queue (`ProductChanged`) ; si le worker ne tourne pas, rattraper avec `node ace search:reindex`.
 
 | Option                      | Effet                                                                                        |

@@ -6,6 +6,7 @@ import SupplierProfile from '#models/supplier_profile'
 import User from '#models/user'
 import { DateTime } from 'luxon'
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
+import { demoPassword } from '#database/seed_password'
 
 /**
  * Compte de démo **admin plateforme** (back-office `/admin`), sans organisation :
@@ -27,6 +28,8 @@ export const DEV_AGENCY_EMAIL = 'agence@promotionnal-sourcing.test'
 
 export default class DevUserSeeder extends BaseSeeder {
   async run() {
+    // Avant toute écriture : en production sans SEED_DEMO_PASSWORD, on échoue ici.
+    const password = demoPassword()
     const ownerRole = await Role.findByOrFail('slug', 'owner')
 
     // Organisation acheteur (agence de démo)
@@ -67,12 +70,13 @@ export default class DevUserSeeder extends BaseSeeder {
     // Mot de passe en clair : le modèle User (withAuthFinder) le hache déjà
     // via son hook @beforeSave — le hacher ici double-hacherait la valeur
     // stockée et rendrait la connexion impossible avec le mot de passe attendu.
+    // `password` en local, SEED_DEMO_PASSWORD en production (staging).
     const supplierUser = await User.updateOrCreate(
       { email: DEV_SUPPLIER_EMAIL },
       {
         firstName: 'Sophie',
         lastName: 'Fournisseur',
-        password: 'password',
+        password,
         emailVerifiedAt: DateTime.now(),
       }
     )
@@ -89,7 +93,7 @@ export default class DevUserSeeder extends BaseSeeder {
       {
         firstName: 'Alex',
         lastName: 'Agence',
-        password: 'password',
+        password,
         emailVerifiedAt: DateTime.now(),
       }
     )
@@ -118,7 +122,7 @@ export default class DevUserSeeder extends BaseSeeder {
       {
         firstName: 'Admin',
         lastName: 'Plateforme',
-        password: 'password',
+        password,
         emailVerifiedAt: DateTime.now(),
         platformRole: 'admin',
       }
