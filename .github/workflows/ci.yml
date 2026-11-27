@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Workflows et scripts de déploiement : ils ne tournent pour de vrai qu'au
       # moment de déployer, autant attraper leurs erreurs sur la PR.
       - name: shellcheck (scripts)
@@ -93,7 +93,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - name: Tests unitaires
         run: node ace test unit
@@ -141,7 +141,7 @@ jobs:
           --health-timeout 3s
           --health-retries 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - name: Jeu de référence (Meilisearch, mots-clés)
         run: node ace test functional --files="tests/functional/search_reference.spec.ts"

@@ -47,12 +47,12 @@ jobs:
       APP_WORKER: ${{ vars.CLEVER_APP_WORKER }}
       APP_URL: ${{ vars.APP_URL }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Installer clever-tools
         run: npm install --global clever-tools@4.11.0
 
-      - uses: docker/login-action@v3
+      - uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
