@@ -122,7 +122,7 @@ export default class PfConceptConnector extends SupplierConnector {
   }
 
   /** Prix nets par article (`scales[].priceBar` / `nettPrice`) + devise. */
-  async loadPrices(
+  private async loadPrices(
     url: string,
     itemCodes: Set<string>,
     context: FeedRequestContext
@@ -151,7 +151,7 @@ export default class PfConceptConnector extends SupplierConnector {
   }
 
   /** Stock disponible par article (`stockDirect`). */
-  async loadStock(
+  private async loadStock(
     url: string,
     itemCodes: Set<string>,
     context: FeedRequestContext
@@ -167,7 +167,7 @@ export default class PfConceptConnector extends SupplierConnector {
   }
 
   /** Options de marquage par article : `printfeedrefs` → `printFeedRows` (par `ref`). */
-  async loadPrintRows(
+  private async loadPrintRows(
     url: string,
     itemCodes: Set<string>,
     context: FeedRequestContext
@@ -205,7 +205,7 @@ export default class PfConceptConnector extends SupplierConnector {
    * Prix de marquage par code d'impression. On retient la première taille de
    * logo, une couleur, un passage : c'est le prix « d'appel » affichable.
    */
-  async loadPrintPrices(
+  private async loadPrintPrices(
     url: string,
     context: FeedRequestContext
   ): Promise<Map<string, PfConceptPrintPrice>> {
@@ -242,7 +242,7 @@ export default class PfConceptConnector extends SupplierConnector {
     return this.optional(feed, context, () => this.http.getJson(url, {}, context.cache))
   }
 
-  normalize(
+  private normalize(
     model: FeedNode,
     prices: Map<string, PfConceptItemPrices>,
     stock: Map<string, number>,
