@@ -132,7 +132,7 @@ export default class PassotConnector extends SupplierConnector {
    * déduit du préfixe avant `#` (`PICUP22#15122` → `PICUP22`). L'ordre du flux
    * est conservé.
    */
-  group(items: FeedNode[]): PassotProductGroup[] {
+  private group(items: FeedNode[]): PassotProductGroup[] {
     const groups = new Map<string, PassotProductGroup>()
     for (const item of items) {
       const sku = cleanString(field(item, 'sku'))
@@ -179,7 +179,7 @@ export default class PassotConnector extends SupplierConnector {
     return 'active'
   }
 
-  normalize(
+  private normalize(
     group: PassotProductGroup,
     tiersBySku: Map<string, NormalizedPriceTier[]>,
     stockBySku: Map<string, number>,
