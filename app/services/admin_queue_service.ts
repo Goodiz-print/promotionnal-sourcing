@@ -28,6 +28,7 @@ import {
   type QueueJobStatus,
 } from '#shared/types/admin_queue'
 import type { AdminActionContext } from '#shared/types/admin_audit'
+import { queueJobDisplayedTime } from '#shared/helpers/admin_queue'
 import {
   QUEUE_DEFAULT_PRIORITY,
   QUEUE_PRIORITY_SCORE_MULTIPLIER,
@@ -316,12 +317,11 @@ export default class AdminQueueService {
     // Un job `pending` n'a pas d'échéance : son ancienneté est sa date de mise en file.
     const dueAt = status === 'pending' ? enqueuedAt : executeAt
 
-    const at =
-      status === 'completed' || status === 'failed'
-        ? row.finished_at
-        : status === 'active'
-          ? row.acquired_at
-          : (dueAt ?? row.execute_at)
+    const at = queueJobDisplayedTime(status, {
+      finishedAt: row.finished_at,
+      acquiredAt: row.acquired_at,
+      dueAt: dueAt ?? row.execute_at,
+    })
 
     return {
       id: row.id,

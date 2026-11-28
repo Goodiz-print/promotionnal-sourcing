@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { compareCodeUnits } from './collections.js'
 import type { MailKind } from '#shared/types/mail'
 
 /**
@@ -14,7 +15,7 @@ import type { MailKind } from '#shared/types/mail'
  */
 export function mailIdempotencyKey(kind: MailKind, parts: Record<string, string | number>): string {
   const suffix = Object.entries(parts)
-    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .sort(([a], [b]) => compareCodeUnits(a, b))
     .map(([name, value]) => `${name}=${String(value).toLowerCase()}`)
   return [kind, ...suffix].join(':')
 }

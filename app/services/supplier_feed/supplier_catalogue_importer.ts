@@ -21,6 +21,7 @@ import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
 import SupplierReferenceService from '#services/supplier_feed/supplier_reference_service'
 import { SupplierFeedIncompleteException } from '#exceptions/supplier_feed_errors'
 import { isEuEeaCountry } from '#shared/types/country'
+import { stockStatusFromQuantity } from '#shared/helpers/supplier_feed'
 import {
   firstFreeSlug,
   numberedSlugRegex,
@@ -476,7 +477,7 @@ export default class SupplierCatalogueImporter {
           isActive: true,
           gtin: variant.gtin?.slice(0, 14) ?? null,
           stockQuantity: quantity === null ? null : Math.round(quantity),
-          stockStatus: quantity === null ? null : quantity > 0 ? 'in_stock' : 'out_of_stock',
+          stockStatus: stockStatusFromQuantity(quantity),
           attributeValueIds: colorIds,
         }
       })

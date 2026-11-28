@@ -11,6 +11,13 @@ import { eurosToCents } from '#shared/helpers/ad_money'
 import type { AdminAdCampaignsType } from '#shared/types/ads'
 import type { Locale } from '#shared/types/i18n'
 
+/** Erreurs métier d'un ajustement de portefeuille → clé du message flash. */
+const WALLET_ADJUSTMENT_ERRORS: ReadonlyArray<[abstract new (...args: never[]) => Error, string]> =
+  [
+    [InsufficientAdFundsException, 'admin.ads.flash.insufficientFunds'],
+    [AdminOrganizationNotFoundException, 'admin.ads.flash.organizationNotFound'],
+  ]
+
 const PER_PAGE = 25
 
 /**
@@ -77,14 +84,9 @@ export default class AdController {
         adminActionContext(ctx)
       )
     } catch (error) {
-      const key =
-        error instanceof InsufficientAdFundsException
-          ? 'admin.ads.flash.insufficientFunds'
-          : error instanceof AdminOrganizationNotFoundException
-            ? 'admin.ads.flash.organizationNotFound'
-            : null
-      if (!key) throw error
-      session.flash('error', i18n.t(key))
+      const flash = WALLET_ADJUSTMENT_ERRORS.find(([type]) => error instanceof type)
+      if (!flash) throw error
+      session.flash('error', i18n.t(flash[1]))
       return response.redirect().back()
     }
 

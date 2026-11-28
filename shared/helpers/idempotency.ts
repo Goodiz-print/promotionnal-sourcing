@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { compareCodeUnits } from './collections.js'
 
 /**
  * Clé d'idempotence d'un appel IA : sha256 d'une sérialisation JSON stable
@@ -19,7 +20,7 @@ function stableStringify(value: unknown): string {
   if (value && typeof value === 'object') {
     const entries = Object.entries(value as Record<string, unknown>)
       .filter(([, item]) => item !== undefined)
-      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+      .sort(([a], [b]) => compareCodeUnits(a, b))
       .map(([key, item]) => `${JSON.stringify(key)}:${stableStringify(item)}`)
     return `{${entries.join(',')}}`
   }

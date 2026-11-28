@@ -6,7 +6,9 @@ import {
   isPresent,
   lengthToMm,
   lowestByKey,
+  nextTierStart,
   sortedPriceTiers,
+  stockStatusFromQuantity,
   stripHtml,
   sumByKey,
   weightToGrams,
@@ -113,5 +115,19 @@ test.group('Flux fournisseurs — utilitaires communs', () => {
     assert.deepEqual(asNode([1]), {})
     assert.deepEqual(asNode('texte'), {})
     assert.deepEqual(asNode(null), {})
+  })
+})
+
+test.group('Flux fournisseurs — paliers et stock', () => {
+  test('nextTierStart : section en mode from, borne précédente + 1 en mode upTo', ({ assert }) => {
+    assert.equal(nextTierStart('from', 500, 250), 500)
+    assert.equal(nextTierStart('upTo', 500, 250), 251)
+  })
+
+  test('stockStatusFromQuantity : inconnu, en stock ou épuisé', ({ assert }) => {
+    assert.isNull(stockStatusFromQuantity(null))
+    assert.equal(stockStatusFromQuantity(12), 'in_stock')
+    assert.equal(stockStatusFromQuantity(0), 'out_of_stock')
+    assert.equal(stockStatusFromQuantity(-3), 'out_of_stock')
   })
 })

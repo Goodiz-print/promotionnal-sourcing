@@ -34,6 +34,7 @@ import {
   type ProductDirectoryFilters,
 } from '#shared/types/product'
 import type { ProductRfqContextType } from '#shared/types/rfq'
+import { toArray } from '#shared/helpers/collections'
 
 const PER_PAGE = 12
 
@@ -237,7 +238,7 @@ export default class ProductsController {
    * Normalise le paramètre `attributeValueIds` (répété ou unique) en `number[]`.
    */
   private parseIds(raw: unknown): number[] {
-    const list = Array.isArray(raw) ? raw : raw !== undefined ? [raw] : []
+    const list = toArray(raw)
     return list
       .map((value) => Number.parseInt(String(value), 10))
       .filter((value) => Number.isInteger(value) && value > 0)
@@ -248,7 +249,7 @@ export default class ProductsController {
    * (écart 9) ; ignore toute valeur hors de l'enum.
    */
   private parseOriginZones(raw: unknown): OriginZone[] {
-    const list = Array.isArray(raw) ? raw : raw !== undefined ? [raw] : []
+    const list = toArray(raw)
     const valid = new Set<string>(ORIGIN_ZONES)
     return list
       .map((value) => String(value))
@@ -260,7 +261,7 @@ export default class ProductsController {
    * (plan L98) ; ignore toute valeur hors de l'enum.
    */
   private parseStockStatuses(raw: unknown): ProductStockStatus[] {
-    const list = Array.isArray(raw) ? raw : raw !== undefined ? [raw] : []
+    const list = toArray(raw)
     const valid = new Set<string>(PRODUCT_STOCK_STATUSES)
     return list
       .map((value) => String(value))
@@ -274,7 +275,7 @@ export default class ProductsController {
    * query string pour les bornes elles-mêmes (codées dans la constante partagée).
    */
   private parseBuckets(raw: unknown, buckets: readonly NumericBucket[]): number[] {
-    const list = Array.isArray(raw) ? raw : raw !== undefined ? [raw] : []
+    const list = toArray(raw)
     const seen = new Set<number>()
     for (const value of list) {
       const index = Number.parseInt(String(value), 10)
@@ -289,7 +290,7 @@ export default class ProductsController {
    * slug invalide, borne non numérique, ou tranche entièrement ouverte.
    */
   private parseAttributeRanges(raw: unknown): AttributeRangeSelectionType[] {
-    const list = Array.isArray(raw) ? raw : raw !== undefined ? [raw] : []
+    const list = toArray(raw)
     const result: AttributeRangeSelectionType[] = []
     for (const entry of list) {
       const parts = String(entry).split(':')

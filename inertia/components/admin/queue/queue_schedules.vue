@@ -30,12 +30,12 @@ async function run(schedule: AdminQueueScheduleRow) {
   )
 }
 
-const timing = (schedule: AdminQueueScheduleRow) =>
-  schedule.cron
-    ? `${schedule.cron} (${schedule.timezone})`
-    : schedule.everyMs
-      ? t('admin.queue.schedules.every', { seconds: Math.round(schedule.everyMs / 1000) })
-      : '—'
+// Dépend de `t` (i18n du composant) : reste dans le composant.
+function timing(schedule: AdminQueueScheduleRow): string {
+  if (schedule.cron) return `${schedule.cron} (${schedule.timezone})`
+  if (!schedule.everyMs) return '—'
+  return t('admin.queue.schedules.every', { seconds: Math.round(schedule.everyMs / 1000) })
+}
 </script>
 
 <template>

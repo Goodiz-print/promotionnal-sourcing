@@ -7,13 +7,12 @@ import { createInertiaApp } from '@inertiajs/vue3'
 import { TuyauProvider } from '@adonisjs/inertia/vue'
 import { createSSRApp, type DefineComponent, h } from 'vue'
 import { resolvePageComponent } from '@adonisjs/inertia/helpers'
+import { pageTitle } from '#shared/helpers/page_title'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Promotional Sourcing'
 
 createInertiaApp({
-  // Les titres de la landing portent déjà la marque : pas de suffixe en double.
-  title: (title) =>
-    title ? (title.includes('Promotional Sourcing') ? title : `${title} - ${appName}`) : appName,
+  title: (title) => pageTitle(title, appName),
   resolve: (name) => {
     return resolvePageComponent(
       `./pages/${name}.vue`,

@@ -382,7 +382,7 @@ function orgAction(
   const path = `/fr/admin/organizations/${orgId}${action ? '/' + action : ''}`
 
   const c = client as any
-  let req = method === 'post' ? c.post(path) : method === 'patch' ? c.patch(path) : c.delete(path)
+  let req = c[method](path)
   req = req.redirects(0).withCsrfToken().header('Accept', 'application/json').loginAs(actor)
   if (body) req = req.json(body)
   return req

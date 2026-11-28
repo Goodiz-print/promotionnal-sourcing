@@ -27,6 +27,7 @@ import {
   type SearchRunStatus,
 } from '#shared/types/admin_search'
 import type { AdminActionContext } from '#shared/types/admin_audit'
+import { progressPercent } from '#shared/helpers/progress'
 import type { SearchEvaluationReport } from '#shared/types/search'
 
 /** Verrou applicatif : deux clics simultanés ne mettent en file qu'une seule opération. */
@@ -359,12 +360,7 @@ export default class AdminSearchService {
       supplierName: row.supplier_name,
       processed: row.processed,
       total: row.total,
-      progress:
-        row.total === null
-          ? null
-          : row.total === 0
-            ? 100
-            : Math.min(100, Math.round((row.processed / row.total) * 100)),
+      progress: progressPercent(row.processed, row.total),
       evaluation: kind === 'evaluation' ? (result as SearchEvaluationSummary | null) : null,
       indexed: kind === 'reindex' && result ? Number(result.indexed ?? 0) : null,
       stale:

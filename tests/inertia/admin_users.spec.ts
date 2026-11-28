@@ -73,11 +73,10 @@ vi.mock('@inertiajs/vue3', async () => {
 })
 vi.mock('~/client', () => ({
   urlFor: (name: string, params?: { id?: number }) =>
-    name === 'admin.users.platform_role.update'
-      ? '/fr/admin/users/2/platform-role'
-      : name === 'admin.users.index'
-        ? '/fr/admin/users'
-        : `/fr/${name}/${params?.id}`,
+    ({
+      'admin.users.platform_role.update': '/fr/admin/users/2/platform-role',
+      'admin.users.index': '/fr/admin/users',
+    })[name] ?? `/fr/${name}/${params?.id}`,
 }))
 vi.mock('@adonisjs/inertia/vue', async () => {
   const { LinkStub } = await import('./support/inertia_mocks')

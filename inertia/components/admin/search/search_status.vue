@@ -39,8 +39,8 @@ const figures = computed(() => {
   ]
 })
 
-const taskTone = (status: string) =>
-  status === 'succeeded' ? 'success' : status === 'failed' ? 'danger' : 'neutral'
+const TASK_TONES: Record<string, 'success' | 'danger'> = { succeeded: 'success', failed: 'danger' }
+const taskTone = (status: string) => TASK_TONES[status] ?? 'neutral'
 </script>
 
 <template>
