@@ -49,5 +49,14 @@
     "title": "Bekräfta åtgärden?",
     "confirm": "Bekräfta",
     "cancel": "Avbryt"
+  },
+  "country": {
+    "placeholder": "Välj ett land…",
+    "search": "Sök efter ett land…",
+    "noResults": "Inget land hittades"
+  },
+  "choices": {
+    "search": "Sök…",
+    "noResults": "Inga resultat"
   }
 }

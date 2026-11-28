@@ -49,5 +49,14 @@
     "title": "Potwierdzić działanie?",
     "confirm": "Potwierdź",
     "cancel": "Anuluj"
+  },
+  "country": {
+    "placeholder": "Wybierz kraj…",
+    "search": "Szukaj kraju…",
+    "noResults": "Nie znaleziono kraju"
+  },
+  "choices": {
+    "search": "Szukaj…",
+    "noResults": "Brak wyników"
   }
 }

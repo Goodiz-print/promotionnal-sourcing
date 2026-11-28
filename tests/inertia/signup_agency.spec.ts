@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { chooseOption, comboboxOptions } from './support/combobox'
 
 const translations: Record<string, string> = {
   'agency_signup.title': 'Inscription agence',
@@ -90,7 +91,7 @@ describe('auth/signup_agency.vue', () => {
 
   it('liste les pays dans la langue de la page', () => {
     const wrapper = mount(SignupAgency, { props: {} })
-    const options = wrapper.findAll('#country option').map((o) => o.text())
+    const options = comboboxOptions(wrapper, 'country')
 
     expect(options).toContain('France')
     expect(options.length).toBeGreaterThan(200)
@@ -99,11 +100,11 @@ describe('auth/signup_agency.vue', () => {
   it("déduit la langue du pays tant qu'elle n'a pas été choisie", async () => {
     const wrapper = mount(SignupAgency, { props: {} })
 
-    await wrapper.find('#country').setValue('DE')
+    await chooseOption(wrapper, 'country', 'DE')
     expect((wrapper.find('#locale').element as HTMLSelectElement).value).toBe('de')
 
     await wrapper.find('#locale').setValue('en')
-    await wrapper.find('#country').setValue('ES')
+    await chooseOption(wrapper, 'country', 'ES')
     expect((wrapper.find('#locale').element as HTMLSelectElement).value).toBe('en')
   })
 

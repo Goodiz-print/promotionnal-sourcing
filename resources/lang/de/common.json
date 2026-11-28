@@ -49,5 +49,14 @@
     "title": "Aktion bestätigen?",
     "confirm": "Bestätigen",
     "cancel": "Abbrechen"
+  },
+  "country": {
+    "placeholder": "Land auswählen…",
+    "search": "Land suchen…",
+    "noResults": "Kein Land gefunden"
+  },
+  "choices": {
+    "search": "Suchen…",
+    "noResults": "Keine Ergebnisse"
   }
 }

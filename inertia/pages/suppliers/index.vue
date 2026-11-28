@@ -7,10 +7,10 @@ import { urlFor } from '~/client'
 import BasePageHeader from '~/components/base/base_page_header.vue'
 import BaseCard from '~/components/base/base_card.vue'
 import BaseInput from '~/components/base/base_input.vue'
-import BaseSelect from '~/components/base/base_select.vue'
 import BaseEmptyState from '~/components/base/base_empty_state.vue'
 import BasePagination from '~/components/base/base_pagination.vue'
 import SupplierCard from '~/components/supplier_card.vue'
+import CountrySelect from '~/components/country_select.vue'
 import type { Paginated } from '#shared/types/pagination'
 import type { SupplierType, SupplierDirectoryFilters } from '#shared/types/supplier'
 
@@ -59,15 +59,14 @@ function onSearch() {
           :placeholder="t('suppliers.index.searchPlaceholder')"
           @update:model-value="onSearch"
         />
-        <BaseSelect
+        <CountrySelect
           id="country"
           v-model="country"
+          :codes="countries"
           :label="t('suppliers.index.country')"
+          :clear-label="t('suppliers.index.allCountries')"
           @update:model-value="visit(1)"
-        >
-          <option :value="null">{{ t('suppliers.index.allCountries') }}</option>
-          <option v-for="code in countries" :key="code" :value="code">{{ code }}</option>
-        </BaseSelect>
+        />
       </div>
     </BaseCard>
 
