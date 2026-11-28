@@ -49,5 +49,14 @@
     "title": "Confirm this action?",
     "confirm": "Confirm",
     "cancel": "Cancel"
+  },
+  "country": {
+    "placeholder": "Choose a country…",
+    "search": "Search for a country…",
+    "noResults": "No country found"
+  },
+  "choices": {
+    "search": "Search…",
+    "noResults": "No results"
   }
 }

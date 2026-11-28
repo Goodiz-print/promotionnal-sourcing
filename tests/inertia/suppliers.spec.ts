@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { comboboxOptions } from './support/combobox'
 
 const translations = {
   'suppliers.index.title': 'Annuaire des fournisseurs',
@@ -121,7 +122,7 @@ describe('suppliers/index.vue', () => {
     expect(wrapper.text()).toContain('Nordic')
     expect(wrapper.text()).toContain('2 fournisseurs')
     expect(wrapper.find('#search').exists()).toBe(true)
-    expect(wrapper.find('#country').findAll('option')).toHaveLength(3)
+    expect(comboboxOptions(wrapper, 'country')).toEqual(['Tous les pays', 'France', 'Suède'])
   })
 
   it('affiche un état vide', () => {

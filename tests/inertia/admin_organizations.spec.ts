@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { chooseOption } from './support/combobox'
 import { reactive } from 'vue'
 import { answerConfirm, confirmText, mountConfirmHost } from './support/confirm_dialog'
 import type {
@@ -231,7 +232,7 @@ describe('admin/organizations/index', () => {
 
     await wrapper.find('#organization-search').setValue('  acme ')
     await wrapper.find('#organization-type').setValue('buyer')
-    await wrapper.find('#organization-country').setValue('DE')
+    await chooseOption(wrapper, 'organization-country', 'DE')
     expect(get).not.toHaveBeenCalled()
     await wrapper.find('form').trigger('submit')
 
@@ -249,7 +250,7 @@ describe('admin/organizations/index', () => {
     expect((wrapper.find('#organization-status').element as HTMLSelectElement).value).toBe(
       'archived'
     )
-    expect((wrapper.find('#organization-country').element as HTMLSelectElement).value).toBe('DE')
+    expect(wrapper.find('#organization-country').text()).toBe('Allemagne')
   })
 
   it('pagine en conservant les filtres', async () => {

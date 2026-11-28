@@ -4,6 +4,7 @@ import { useI18n } from '~/i18n'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseSelect from '~/components/base/base_select.vue'
 import BaseCheckbox from '~/components/base/base_checkbox.vue'
+import CountrySelect from '~/components/country_select.vue'
 import type { CategoryType } from '#shared/types/category'
 import { ProductFormKey } from './types'
 
@@ -72,13 +73,13 @@ function onCategory(value: string | null) {
         :error="form.errors.minQuantity"
         class="flex-1"
       />
-      <BaseInput
+      <CountrySelect
         id="originCountry"
-        v-model="form.originCountry"
-        type="text"
+        :model-value="form.originCountry"
         :label="t('products.manage.fields.originCountry')"
         :error="form.errors.originCountry"
         class="flex-1"
+        @update:model-value="form.originCountry = $event ?? ''"
       />
     </div>
 

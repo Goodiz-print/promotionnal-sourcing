@@ -109,6 +109,8 @@ const fieldId = (name: string) => `contact-${props.contact?.id ?? 'new'}-${name}
         :label="t('supplier.contacts.fields.countries')"
         :hint="t('supplier.contacts.fields.countriesHint')"
         :placeholder="t('supplier.contacts.fields.addCountry')"
+        :search-label="t('common.country.search')"
+        :no-results-label="t('common.country.noResults')"
         :empty-label="t('supplier.contacts.allCountries')"
         :remove-label="(label) => t('supplier.contacts.remove', { label })"
         :error="arrayError('countries')"
@@ -119,6 +121,8 @@ const fieldId = (name: string) => `contact-${props.contact?.id ?? 'new'}-${name}
         :options="languageOptions"
         :label="t('supplier.contacts.fields.languages')"
         :placeholder="t('supplier.contacts.fields.addLanguage')"
+        :search-label="t('common.choices.search')"
+        :no-results-label="t('common.choices.noResults')"
         :remove-label="(label) => t('supplier.contacts.remove', { label })"
         :error="arrayError('languages')"
       />

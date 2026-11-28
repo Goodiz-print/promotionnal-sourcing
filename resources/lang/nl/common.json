@@ -49,5 +49,14 @@
     "title": "Actie bevestigen?",
     "confirm": "Bevestigen",
     "cancel": "Annuleren"
+  },
+  "country": {
+    "placeholder": "Kies een land…",
+    "search": "Zoek een land…",
+    "noResults": "Geen land gevonden"
+  },
+  "choices": {
+    "search": "Zoeken…",
+    "noResults": "Geen resultaten"
   }
 }

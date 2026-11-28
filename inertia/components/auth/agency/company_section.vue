@@ -3,8 +3,9 @@ import { computed, inject, watch } from 'vue'
 import { useI18n } from '~/i18n'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseSelect from '~/components/base/base_select.vue'
+import CountrySelect from '~/components/country_select.vue'
 import { AGENCY_ACTIVITIES } from '#shared/types/agency'
-import { COUNTRY_CODES, defaultLocaleForCountry } from '#shared/types/country'
+import { defaultLocaleForCountry } from '#shared/types/country'
 import { SUPPORTED_LOCALES } from '#shared/types/i18n'
 import { AgencySignupFormKey } from './types'
 
@@ -12,15 +13,8 @@ const form = inject(AgencySignupFormKey)!
 
 const { t, locale } = useI18n()
 
-// Noms de pays et de langues dans la langue de la page, sans table de traduction.
-const regionNames = computed(() => new Intl.DisplayNames([locale.value], { type: 'region' }))
+// Noms de langues dans la langue de la page, sans table de traduction.
 const languageNames = computed(() => new Intl.DisplayNames([locale.value], { type: 'language' }))
-
-const countries = computed(() =>
-  COUNTRY_CODES.map((code) => ({ code, name: regionNames.value.of(code) ?? code })).sort((a, b) =>
-    a.name.localeCompare(b.name, locale.value)
-  )
-)
 
 // La langue est déduite du pays tant que l'utilisateur ne l'a pas choisie lui-même.
 let localeTouched = false
@@ -47,17 +41,13 @@ function pickLocale(value: string) {
       :label="t('agency_signup.fields.companyName')"
       :error="form.errors.companyName"
     />
-    <BaseSelect
+    <CountrySelect
       id="country"
-      v-model="form.country"
+      :model-value="form.country"
       :label="t('agency_signup.fields.country')"
       :error="form.errors.country"
-    >
-      <option value="" disabled>{{ t('agency_signup.country.placeholder') }}</option>
-      <option v-for="country in countries" :key="country.code" :value="country.code">
-        {{ country.name }}
-      </option>
-    </BaseSelect>
+      @update:model-value="form.country = $event ?? ''"
+    />
     <div>
       <BaseInput
         id="taxId"

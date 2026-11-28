@@ -7,6 +7,7 @@ import BaseCard from '~/components/base/base_card.vue'
 import BaseCheckbox from '~/components/base/base_checkbox.vue'
 import BaseInput from '~/components/base/base_input.vue'
 import BaseSelect from '~/components/base/base_select.vue'
+import CountrySelect from '~/components/country_select.vue'
 import type {
   AdminOrganizationFilterOptions,
   AdminOrganizationIndexFilters,
@@ -97,16 +98,14 @@ function reset() {
           <option value="archived">{{ t('admin.organizations.status.archived') }}</option>
           <option value="all">{{ t('admin.organizations.status.all') }}</option>
         </BaseSelect>
-        <BaseSelect
+        <CountrySelect
           id="organization-country"
-          v-model="model.country"
+          :model-value="model.country"
+          :codes="options.countries"
           :label="t('admin.organizations.filters.country')"
-        >
-          <option value="">{{ t('admin.organizations.filters.allCountries') }}</option>
-          <option v-for="country in options.countries" :key="country" :value="country">
-            {{ country }}
-          </option>
-        </BaseSelect>
+          :clear-label="t('admin.organizations.filters.allCountries')"
+          @update:model-value="model.country = $event ?? ''"
+        />
       </div>
       <BaseCheckbox
         id="organization-missing-quote-address"

@@ -2,6 +2,7 @@
 import { inject } from 'vue'
 import { useI18n } from '~/i18n'
 import BaseInput from '~/components/base/base_input.vue'
+import CountrySelect from '~/components/country_select.vue'
 import { OrganizationSettingsFormKey } from './types'
 
 const form = inject(OrganizationSettingsFormKey)!
@@ -37,11 +38,12 @@ const { t } = useI18n()
       :label="t('organization.fields.city')"
       :error="form.errors.city"
     />
-    <BaseInput
+    <CountrySelect
       id="country"
-      v-model="form.country"
+      :model-value="form.country"
       :label="t('organization.fields.country')"
       :error="form.errors.country"
+      @update:model-value="form.country = $event ?? ''"
     />
   </div>
 </template>
