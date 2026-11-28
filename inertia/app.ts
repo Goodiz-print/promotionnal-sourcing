@@ -9,7 +9,7 @@ import { createSSRApp, type DefineComponent, h } from 'vue'
 import { resolvePageComponent } from '@adonisjs/inertia/helpers'
 import { pageTitle } from '#shared/helpers/page_title'
 
-const appName = import.meta.env.VITE_APP_NAME || 'AdonisJS'
+const appName = import.meta.env.VITE_APP_NAME || 'Promotional Sourcing'
 
 createInertiaApp({
   title: (title) => pageTitle(title, appName),
