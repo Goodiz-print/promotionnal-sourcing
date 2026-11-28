@@ -3,6 +3,7 @@ import app from '@adonisjs/core/services/app'
 import supplierFeedsConfig from '#config/supplier_feeds'
 import SupplierConnector from '#services/supplier_feed/supplier_connector'
 import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
+import ProductVariantService from '#services/product_variant_service'
 import { SupplierFeedHttpException } from '#exceptions/supplier_feed_errors'
 import type {
   FetchCatalogueOptions,
@@ -161,5 +162,29 @@ export function normalizedProduct(overrides: Partial<NormalizedProduct> = {}): N
     markingPositions: [],
     packaging: null,
     ...overrides,
+  }
+}
+
+/**
+ * Service de variantes dont le premier `sync` échoue sur une violation
+ * d'unicité de `constraint` (comme si un import concurrent avait écrit entre
+ * la lecture et l'écriture), puis délègue au vrai service.
+ */
+export class FailingOnceVariantService extends ProductVariantService {
+  calls = 0
+
+  constructor(private constraint: string) {
+    super()
+  }
+
+  async sync(...args: Parameters<ProductVariantService['sync']>): Promise<void> {
+    this.calls++
+    if (this.calls === 1) {
+      throw Object.assign(new Error('duplicate key value'), {
+        code: '23505',
+        constraint: this.constraint,
+      })
+    }
+    return super.sync(...args)
   }
 }

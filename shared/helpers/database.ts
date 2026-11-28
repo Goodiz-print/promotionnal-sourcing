@@ -16,6 +16,44 @@ export function isUniqueViolation(error: unknown): boolean {
 }
 
 /**
+ * Violation d'unicité sur l'une des contraintes nommées (`constraint` de
+ * l'erreur PostgreSQL) ?
+ */
+export function isUniqueViolationOn(error: unknown, constraints: readonly string[]): boolean {
+  if (!isUniqueViolation(error)) return false
+  const constraint = violatedConstraint(error)
+  return constraint !== null && constraints.includes(constraint)
+}
+
+/**
+ * Exécute `run`, puis le rejoue une fois s'il échoue sur une violation
+ * d'unicité de l'une des `constraints` (écriture concurrente entre une lecture
+ * et l'insertion). Toute autre erreur, une violation d'une autre contrainte
+ * (qui échouerait de nouveau) ou un second échec est propagé. `onRetry` reçoit
+ * la première erreur avant le nouvel essai (journalisation).
+ */
+export async function retryOnceOnUniqueViolation<T>(
+  run: () => Promise<T>,
+  constraints: readonly string[],
+  onRetry: (error: unknown) => void = () => {}
+): Promise<T> {
+  try {
+    return await run()
+  } catch (error) {
+    if (!isUniqueViolationOn(error, constraints)) throw error
+    onRetry(error)
+    return run()
+  }
+}
+
+/** Nom de la contrainte d'une erreur PostgreSQL, `null` s'il est absent. */
+export function violatedConstraint(error: unknown): string | null {
+  if (typeof error !== 'object' || error === null) return null
+  const constraint = (error as { constraint?: unknown }).constraint
+  return typeof constraint === 'string' ? constraint : null
+}
+
+/**
  * `CREATE INDEX CONCURRENTLY` de l'index. `IF NOT EXISTS` rend la migration
  * rejouable ; un index **invalide** laissé par un échec doit avoir été retiré
  * avant (`dropIndexConcurrentlySql`), sinon il serait conservé tel quel.

@@ -21,6 +21,13 @@ import SupplierHttpClient from '#services/supplier_feed/supplier_http_client'
 import SupplierReferenceService from '#services/supplier_feed/supplier_reference_service'
 import { SupplierFeedIncompleteException } from '#exceptions/supplier_feed_errors'
 import { isEuEeaCountry } from '#shared/types/country'
+import {
+  firstFreeSlug,
+  numberedSlugRegex,
+  suffixedSlugPattern,
+  truncateSlugBase,
+} from '#shared/helpers/slug'
+import { retryOnceOnUniqueViolation, violatedConstraint } from '#shared/helpers/database'
 import type Supplier from '#models/supplier'
 import type SupplierConnector from '#services/supplier_feed/supplier_connector'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
@@ -47,6 +54,17 @@ const IMAGE_EXTENSIONS: Record<string, string> = {
 
 /** Un point d'avancement est journalisé toutes les N fiches (imports complets). */
 const PROGRESS_EVERY = 500
+
+/**
+ * Contraintes d'unicité qu'un import concurrent peut heurter entre la lecture
+ * et l'écriture d'une fiche (slug, couple fournisseur / code) : seules elles
+ * justifient de rejouer la transaction, qui relit alors l'état validé. Les
+ * autres violations (SKU en double…) échoueraient de nouveau : propagées.
+ */
+export const PRODUCT_IDENTITY_CONSTRAINTS = [
+  'products_slug_unique',
+  'products_supplier_id_external_id_unique',
+] as const
 
 function sameTiers(a: NormalizedPriceTier[], b: NormalizedPriceTier[]): boolean {
   return (
@@ -260,19 +278,35 @@ export default class SupplierCatalogueImporter {
       .map((image) => image.storageObjectId)
       .filter((id): id is number => id !== null)
 
-    let result: { productId: number; created: boolean; tombstones: Array<number | null> }
-    try {
-      result = await db.transaction((trx) =>
+    const writeOnce = () =>
+      db.transaction((trx) =>
         this.write(trx, supplier, supplierSlug, normalized, refs, options, images)
       )
-    } catch (error) {
+    // Import concurrent (voir PRODUCT_IDENTITY_CONSTRAINTS) : rejoué une fois.
+    const result = await retryOnceOnUniqueViolation(
+      writeOnce,
+      PRODUCT_IDENTITY_CONSTRAINTS,
+      this.logConcurrentRetry(supplierSlug, normalized.externalId)
+    ).catch(async (error: unknown) => {
       await this.storage.discard(storedIds)
       throw error
-    }
+    })
 
     await this.storage.dispatchDeletions(result.tombstones)
     await emitter.emit(ProductChanged, new ProductChanged(result.productId))
     return result.created
+  }
+
+  /**
+   * Journalise le rejeu d'une fiche après une violation d'unicité concurrente.
+   * Méthode à effet (logger), pas un calcul : elle reste dans le service.
+   */
+  private logConcurrentRetry(supplierSlug: string, externalId: string) {
+    return (error: unknown) =>
+      logger.warn(
+        { supplier: supplierSlug, externalId, constraint: violatedConstraint(error) },
+        'supplier:import — violation d’unicité concurrente, transaction de la fiche rejouée'
+      )
   }
 
   private async write(
@@ -322,7 +356,9 @@ export default class SupplierCatalogueImporter {
     } else {
       const slug = await this.uniqueSlug(
         trx,
-        `${supplierSlug}-${stringHelpers.slug(normalized.externalId, { lower: true })}`
+        truncateSlugBase(
+          `${supplierSlug}-${stringHelpers.slug(normalized.externalId, { lower: true })}`
+        )
       )
       product = await Product.create(
         {
@@ -402,16 +438,27 @@ export default class SupplierCatalogueImporter {
 
   /**
    * Slug libre, suffixé `-2`, `-3`… au besoin : deux codes fournisseur peuvent
-   * donner le même slug (`AB.12` / `AB-12`) ou heurter une fiche existante.
+   * donner le même slug (`AB 12` / `AB-12`) ou heurter une fiche existante.
    */
   private async uniqueSlug(trx: TransactionClientContract, base: string): Promise<string> {
-    let slug = base
-    let suffix = 2
-    while (await Product.query({ client: trx }).where('slug', slug).select('id').first()) {
-      slug = `${base}-${suffix}`
-      suffix += 1
-    }
-    return slug
+    // Une seule lecture, quel que soit le nombre de collisions (issue #248) :
+    // le suffixe libre se calcule en mémoire.
+    // Le `LIKE` par préfixe est servi par `products_slug_pattern_index` ; la
+    // regex ne garde que les suffixes numériques (pas les codes voisins).
+    const taken = await Product.query({ client: trx })
+      .where((query) => {
+        query.where('slug', base).orWhere((suffixed) => {
+          suffixed
+            .whereLike('slug', suffixedSlugPattern(base))
+            .whereRaw('slug ~ ?', [numberedSlugRegex(base)])
+        })
+      })
+      .select('slug')
+      .pojo<{ slug: string }>()
+    return firstFreeSlug(
+      base,
+      taken.map((row) => row.slug)
+    )
   }
 
   private variantInputs(
