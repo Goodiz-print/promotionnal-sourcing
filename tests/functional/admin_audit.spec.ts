@@ -1,6 +1,7 @@
 import { test } from '@japa/runner'
 import { DateTime } from 'luxon'
 import CategorySeeder from '#database/seeders/category_seeder'
+import DemoCategorySeeder from '#database/seeders/demo_category_seeder'
 import { AdminAuditLogFactory } from '#database/factories/admin_audit_log_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import AdminAuditLog from '#models/admin_audit_log'
@@ -138,7 +139,7 @@ test.group('Journal d’audit — consultation', (group) => {
 })
 
 test.group('Journal d’audit — actions sur les catégories', (group) => {
-  useDatabase(group, { extraSeeders: [CategorySeeder] })
+  useDatabase(group, { extraSeeders: [CategorySeeder, DemoCategorySeeder] })
 
   test('création, modification et suppression sont tracées avec l’acteur', async ({
     client,
@@ -183,7 +184,7 @@ test.group('Journal d’audit — actions sur les catégories', (group) => {
   test('un refus de validation n’écrit aucune entrée', async ({ client, assert }) => {
     const admin = await UserFactory.apply('platformAdmin').create()
 
-    // 'crayon' existe déjà (CategorySeeder) → échec de validation.
+    // 'crayon' existe déjà (DemoCategorySeeder) → échec de validation.
     await client
       .post('/fr/admin/categories')
       .redirects(0)

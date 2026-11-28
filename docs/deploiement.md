@@ -96,9 +96,10 @@ Lancées **avant** le redémarrage des applications, par la CI, jamais au démar
 ```bash
 node ace migration:run --force
 node ace queue:migrate   # tables de @adonisjs/queue, voir docs/queue.md
+node ace db:seed --files=database/seeders/reference_seeder   # référentiel, voir « Données de la production »
 ```
 
-Les deux commandes sont idempotentes. Aucun identifiant de base n'est stocké dans GitHub ; la base doit en revanche accepter les connexions des runners GitHub.
+Les trois commandes sont idempotentes. Aucun identifiant de base n'est stocké dans GitHub ; la base doit en revanche accepter les connexions des runners GitHub.
 
 Une migration déjà exécutée ne se modifie jamais. Le `down()` ne se lance pas automatiquement.
 
@@ -177,6 +178,54 @@ base PostgreSQL existante (détails : [`entites-transverses.md`](entites-transve
 - Extensions `vector` (pgvector), `pg_trgm` et `unaccent` : à activer via le support Clever Cloud. Ne pas exécuter `CREATE EXTENSION` sans accord du support.
 - Sauvegardes quotidiennes incluses, rétention 7 jours. Restauration à un instant donné (pgBackRest) disponible sur demande, à activer si le catalogue devient critique.
 - Réplication Leader-Follower : sur demande, non prévue au lancement.
+
+## Données du staging
+
+Le staging sert aux tests utilisateurs. Sa base se peuple avec le workflow manuel **Seed staging** (Actions → Seed staging → Run workflow, `.github/workflows/seed-staging.yml`). Le workflow vise toujours l'environnement GitHub `staging`, jamais la production. Il tourne dans l'image servie par le staging (version lue sur `GET /health`) et dans le même groupe de concurrence que ses déploiements. Il lance `scripts/deploy/clever_seed.sh`, qui enchaîne :
+
+Le référentiel (rôles, catégories…) arrive déjà avec chaque déploiement ; ce workflow ajoute la démo, les catalogues et les comptes de test.
+
+1. `node ace db:seed --files=database/seeders/main_seeder` : référentiel, catalogue fictif, comptes de démo (sauf si l'input `demo` est décoché). Sans `--files`, `db:seed` exécuterait chaque seeder isolément, dans le désordre ;
+2. `node ace supplier:import all --full --force` : catalogues réels (input `catalogue` : `full`, `limit:200` ou `none`) ;
+3. `node ace db:seed --files=database/seeders/staging_account_seeder` : comptes de test ;
+4. `node ace search:reindex` : sans effet si `MEILISEARCH_HOST` est absent.
+
+Un import en échec n'arrête pas les étapes suivantes, mais le run finit en échec. Tout est relançable, sans doublon. Le script refuse une application dont l'`APP_URL` ne contient pas `staging`.
+
+**Variables à définir sur l'application web du staging** (lues au lancement, jamais dans GitHub) :
+
+- `SEED_DEMO_PASSWORD` : mot de passe commun de tous les comptes, 12 caractères minimum. Sans elle, le seed échoue en production ;
+- `SEED_ADMIN_EMAILS` : e-mails des admins nominatifs, séparés par des virgules. Sans elle, aucun compte de test n'est créé ;
+- les identifiants des flux fournisseurs (`PFCONCEPT_FEED_CODE`, `PASSOT_API_KEY`, `INSPIRION_API_KEY`, `MAKITO_EMAIL`, `MAKITO_PASSWORD`, voir [`supplier-feeds.md`](supplier-feeds.md)). Un connecteur sans identifiant est ignoré.
+
+**Comptes créés**, tous avec `SEED_DEMO_PASSWORD` :
+
+| Compte                                                        | Rôle                                                                                                                                  |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `admin@`, `fournisseur@`, `agence@promotionnal-sourcing.test` | Comptes de démo (`DevUserSeeder`)                                                                                                     |
+| E-mails de `SEED_ADMIN_EMAILS`                                | Admins plateforme nominatifs, sans organisation                                                                                       |
+| `fournisseur-<slug>@promotionnal-sourcing.test`               | Owner de l'organisation `<slug>-org`, qui porte la fiche importée `<slug>` (`pf-concept`, `passot-innovation`, `inspirion`, `makito`) |
+| `agence-1@` à `agence-5@promotionnal-sourcing.test`           | Owner de l'organisation acheteuse `agence-test-<n>`                                                                                   |
+
+À savoir :
+
+- **Rattachement direct** : une fiche importée sans organisation n'est pas publiée (#240). Le seeder la rattache à son fournisseur fictif sans passer par `AdminSupplierLinkService`, donc sans traduction IA (le catalogue reste en français) et sans journal d'audit. Une fiche déjà rattachée n'est pas touchée. Ne jamais lancer ce seeder en production.
+- **Prix nets réels** : les catalogues importés portent les prix nets confidentiels du compte, et les testeurs les voient.
+- **Volume** : surveiller l'espace de la base `xs_sml` après un import complet, ainsi que le coût des embeddings à la réindexation.
+- **Les domaines `.test` ne reçoivent pas de mail** : pas de réinitialisation de mot de passe possible pour les comptes fictifs.
+
+## Données de la production
+
+La production ne reçoit **que le référentiel** (`database/seeders/reference_seeder.ts`) : rôles et permissions (sans eux, aucune organisation ne peut être créée à l'inscription), arbre des catégories, attributs, labels, techniques de marquage. Il est appliqué à **chaque déploiement**, staging comme production, juste après les migrations (`clever_migrate.sh`). Il est idempotent et additif : un rôle, une permission ou une catégorie ajoutés au code arrivent avec la release suivante.
+
+- Jamais de `MainSeeder`, de `db:seed` sans `--files` ni de `clever_seed.sh` en production : comptes fictifs, produits de démo, fiches rattachées sans l'accord des fournisseurs (#240). `DevUserSeeder` refuse d'ailleurs de tourner en production sans `SEED_DEMO_PASSWORD`.
+- `MainSeeder` = `ReferenceSeeder` + démo (`DevUserSeeder`, `SupplierSeeder`, `DemoCategorySeeder`, `ProductSeeder`). Une nouvelle donnée de référence va dans `ReferenceSeeder`, une donnée fictive dans la partie démo.
+
+### Admins plateforme
+
+Le rôle d'admin ne s'attribue depuis aucun écran. Pour créer un admin, la personne **s'inscrit normalement**, puis on lance le workflow **Admin plateforme** (Actions → Admin plateforme → Run workflow, `.github/workflows/admin-grant.yml`) avec l'environnement, son e-mail et `grant` (`revoke` pour retirer le rôle). En production, le job attend l'approbation de l'environnement GitHub `production`. Il lance `node ace admin:grant <email>` dans l'image déployée, et échoue si aucun compte n'a cet e-mail.
+
+L'e-mail est validé avant usage et passé par variable d'environnement (pas d'injection shell). Il reste visible dans les paramètres du run GitHub.
 
 ## Rollback
 

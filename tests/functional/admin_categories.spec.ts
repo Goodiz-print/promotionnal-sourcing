@@ -1,5 +1,6 @@
 import { test } from '@japa/runner'
 import CategorySeeder from '#database/seeders/category_seeder'
+import DemoCategorySeeder from '#database/seeders/demo_category_seeder'
 import { OrganizationFactory } from '#database/factories/organization_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import type User from '#models/user'
@@ -33,7 +34,7 @@ const CONTENT = {
 }
 
 test.group('Administration des catégories — CRUD + ACL', (group) => {
-  useDatabase(group, { extraSeeders: [CategorySeeder] })
+  useDatabase(group, { extraSeeders: [CategorySeeder, DemoCategorySeeder] })
 
   test('un admin plateforme voit la liste des catégories', async ({ client }) => {
     const admin = await platformAdmin()
@@ -144,7 +145,7 @@ test.group('Administration des catégories — CRUD + ACL', (group) => {
       .loginAs(admin)
       .json({ slug: 'crayon', parentId: null, sourceLocale: 'fr', translations: CONTENT })
 
-    // 'crayon' existe déjà (CategorySeeder) → échec de validation VineJS :
+    // 'crayon' existe déjà (DemoCategorySeeder) → échec de validation VineJS :
     // redirection arrière (302) avec les erreurs flashées, aucune création.
     response.assertStatus(302)
     const crayons = await Category.query().where('slug', 'crayon')
